@@ -1,0 +1,28 @@
+#ifndef VIEWERWIDGET_H
+#define VIEWERWIDGET_H
+
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#include <QMatrix4x4>
+#include <QOpenGLTexture>
+#include <QTimer>
+
+class Viewer;
+
+class ViewerWidget : public QOpenGLWidget, public QOpenGLFunctions
+{
+	Q_OBJECT
+public:
+	ViewerWidget(QWidget *parent = 0);
+	void initializeGL();
+//	void resizeGL(int w, int h);
+	void paintGL();
+
+	bool multithreaded;
+private:
+	QTimer retry_timer;
+private slots:
+	void retry();
+};
+
+#endif // VIEWERWIDGET_H

@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>play.png</file>
+        <file>ff.png</file>
+        <file>next.png</file>
+        <file>pause.png</file>
+        <file>prev.png</file>
+        <file>rew.png</file>
+        <file>arrow.png</file>
+        <file>beam.png</file>
+        <file>razor.png</file>
+        <file>full-icon.png</file>
+        <file>audiosource.png</file>
+        <file>videosource.png</file>
+        <file>ripple.png</file>
+        <file>rolling.png</file>
+        <file>slip.png</file>
+    </qresource>
+</RCC>
