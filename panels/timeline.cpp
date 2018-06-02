@@ -18,8 +18,9 @@ Timeline::Timeline(QWidget *parent) :
 	QDockWidget(parent),
 	ui(new Ui::Timeline)
 {
-	selecting = moving_init = moving_proc = splitting = importing = playing = trim_in = false;
-	last_frame = playhead = 0;
+    selecting = moving_init = moving_proc = splitting = importing = playing = trim_in = snapped = false;
+    snapping = true;
+    last_frame = playhead = snap_point = 0;
 	trim_target = -1;
 
 	ui->setupUi(this);

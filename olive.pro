@@ -8,7 +8,7 @@ QT       += core gui multimedia opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = olive-qt
+TARGET = olive
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -101,5 +101,4 @@ linux {
 }
 
 RESOURCES += \
-    icons/icons.qrc \
-    styles/styles.qrc
+    icons/icons.qrc

@@ -87,6 +87,11 @@ public:
 	int drag_track_start;
 	void redraw_all_clips();
 
+    // snapping
+    bool snapping;
+    bool snapped;
+    long snap_point;
+
 	// selecting functions
 	bool selecting;
 	QVector<Selection> selections;

@@ -207,6 +207,12 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolSlipButton">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Slip Tool (Y)</string>
          </property>
@@ -219,6 +225,25 @@
           </iconset>
          </property>
          <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="snappingButton">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>S</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
           <bool>true</bool>
          </property>
         </widget>
@@ -287,8 +312,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>789</width>
-         <height>494</height>
+         <width>796</width>
+         <height>506</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">

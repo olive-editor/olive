@@ -254,6 +254,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 	panel_timeline->moving_proc = false;
 	panel_timeline->moving_init = false;
 	panel_timeline->splitting = false;
+    panel_timeline->snapped = false;
 	pre_clips.clear();
 	post_clips.clear();
 
@@ -307,6 +308,8 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	long frame_diff = getFrameFromScreenPoint(mouse_pos.x(), false) - panel_timeline->drag_frame_start;
 	int track_diff = mouse_track - panel_timeline->drag_track_start;
 
+    int snap_range = 15;
+
 	long validator;
 	if (panel_timeline->trim_target > -1) {
 		// trim ops
@@ -347,7 +350,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 							}
 						}
 					}
-				}
+                }
 			} else {
 				// prevent clip length from being less than 1 frame long
 				validator = g.ghost_length + frame_diff;
@@ -418,6 +421,47 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 					}
 				}
 			}
+
+            // shitty hacky code but works wonders
+            panel_timeline->snapped = false;
+            if (panel_timeline->snapping) {
+                for (int j=0;j<panel_timeline->sequence->clip_count();j++) {
+                    Clip& c = panel_timeline->sequence->get_clip(j);
+
+                    panel_timeline->snapped = false;
+                    for (int k=0;k<4;k++) {
+                        switch (k) {
+                        case 0:
+                            // snap in to timeline_in
+                            validator = g.old_in + frame_diff - c.timeline_in;
+                            panel_timeline->snap_point = c.timeline_in;
+                            break;
+                        case 1:
+                            // snap in to timeline out
+                            validator = g.old_in + frame_diff - c.timeline_out;
+                            panel_timeline->snap_point = c.timeline_out;
+                            break;
+                        case 2:
+                            // snap out to timeline_in
+                            validator = g.old_out + frame_diff - c.timeline_in;
+                            panel_timeline->snap_point = c.timeline_in;
+                            break;
+                        case 3:
+                            // snap out to timeline_out
+                            validator = g.old_out + frame_diff - c.timeline_out;
+                            panel_timeline->snap_point = c.timeline_out;
+                            break;
+                        }
+
+                        if (validator > -snap_range && validator < snap_range) {
+                            frame_diff -= validator;
+                            panel_timeline->snapped = true;
+                            break;
+                        }
+                    }
+                    if (panel_timeline->snapped) break;
+                }
+            }
 		}
 
 		// move ghosts
@@ -555,7 +599,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 				}
 
 				// debug code - print the information we got
-				qDebug() << "found" << pre_clips.size() << "preceding clips and" << post_clips.size() << "following";
+//				qDebug() << "found" << pre_clips.size() << "preceding clips and" << post_clips.size() << "following";
 			}
 
 			init_ghosts();
@@ -711,6 +755,13 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 				}
 			}
 		}
+
+        // draw snap point
+        if (panel_timeline->snapping && panel_timeline->snapped) {
+            p.setPen(Qt::white);
+            int snap_x = getScreenPointFromFrame(panel_timeline->snap_point);
+            p.drawLine(snap_x, 0, snap_x, height());
+        }
 
 		// Draw edit cursor
 		if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
