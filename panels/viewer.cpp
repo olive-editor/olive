@@ -10,6 +10,8 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 }
 
+#include <QAudioOutput>
+
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
 	ui(new Ui::Viewer)
@@ -25,6 +27,10 @@ Viewer::~Viewer()
 	init_audio(NULL);
 
 	delete ui;
+}
+
+void Viewer::receiver() {
+    qDebug() << "callback?";
 }
 
 void Viewer::set_sequence(Sequence* s) {
@@ -45,6 +51,8 @@ void Viewer::set_sequence(Sequence* s) {
 	}
 
 	init_audio(s);
+    connect(audio_output, SIGNAL(notify()), this, SLOT(receiver()));
+
 	update();
 }
 

@@ -76,7 +76,7 @@ void ViewerWidget::paintGL()
         clear_cache(!reading_audio_cache_A, reading_audio_cache_A);
 	}
 
-    qDebug() << audio_bytes_written << "/" << audio_cache_size;
+//    qDebug() << audio_bytes_written << "/" << audio_cache_size;
 
 	cc_lock.lock();
 	for (int i=0;i<current_clips.size();i++) {
@@ -102,7 +102,7 @@ void ViewerWidget::paintGL()
 					int anchor_y = 0;
 
 					// perform all transform effects
-					for (unsigned int j=0;j<c->effects.size();j++) {
+                    for (int j=0;j<c->effects.size();j++) {
                         c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
 					}
 
@@ -134,7 +134,8 @@ void ViewerWidget::paintGL()
 				// cache audio
 				if (c->lock.tryLock()) {
 					// clip is not caching, start cache
-					c->lock.unlock();
+                    c->lock.unlock();
+
 					cache_clip(c, playhead, !reading_audio_cache_A, reading_audio_cache_A, c->reset_audio);
 				}
 			}
@@ -147,7 +148,12 @@ void ViewerWidget::paintGL()
 		if (audio_cache_A != NULL && audio_bytes_written < audio_cache_size) {
 			// send cached/buffered audio to QIODevice/QAudioOutput
 			uint8_t* cache = reading_audio_cache_A ? audio_cache_A : audio_cache_B;
-            if (panel_timeline->playing) audio_bytes_written += audio_io_device->write((const char*) cache+audio_bytes_written, audio_cache_size-audio_bytes_written);
+            if (panel_timeline->playing) {
+                int max_w = audio_cache_size-audio_bytes_written;
+                int w = audio_io_device->write((const char*) cache+audio_bytes_written, max_w);
+                qDebug() << w << max_w;
+                audio_bytes_written += w;
+            }
         }
 	}
 

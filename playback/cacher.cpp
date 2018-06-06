@@ -33,7 +33,7 @@ void cache_audio_worker(Clip* c, bool write_A) {
 			int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
 			int limit = std::min(c->frame_sample_index + audio_cache_size - bytes_written, nb_bytes);
 			// perform all audio effects
-			for (unsigned int j=0;j<c->effects.size();j++) {
+            for (int j=0;j<c->effects.size();j++) {
                 c->effects.at(j)->process_audio(frame->data[0], limit);
 			}
 			// mix audio into cache
@@ -84,8 +84,7 @@ void reset_cache(Clip* c, long target_frame) {
 			do {
 				retrieve_next_frame(c, temp);
 				if (retrieved_frame == 0) {
-					if (target_frame != 0) {
-//						retrieved_frame = floor(av_frame_get_best_effort_timestamp(temp) * timebase * av_q2d(c->stream->avg_frame_rate));
+                    if (target_frame != 0) {
 						retrieved_frame = floor(temp->pts * timebase * av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, temp)));
 					}
 				} else {
@@ -273,7 +272,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 		}
 		if (write_B) {
 			cache_audio_worker(clip, false);
-		}
+        }
 	}
 }
 

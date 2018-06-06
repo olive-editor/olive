@@ -1,11 +1,14 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <QIODevice>
-#include <QMutex>
+#include <stdint.h>
+
+class QAudioOutput;
+class QIODevice;
 
 struct Sequence;
 
+extern QAudioOutput* audio_output;
 extern QIODevice* audio_io_device;
 
 extern uint8_t* audio_cache_A;

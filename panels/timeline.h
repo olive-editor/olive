@@ -77,6 +77,7 @@ public:
 	void go_to_end();
 	bool playing;
 	long playhead_start;
+    qint64 start_msecs;
 	QTime playback_timer;
 	QTimer playback_updater;
 

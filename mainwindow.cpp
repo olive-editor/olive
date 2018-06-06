@@ -105,7 +105,7 @@ void MainWindow::on_actionSelect_All_triggered()
 
 void MainWindow::on_actionSequence_triggered()
 {
-	NewSequenceDialog nsd;
+    NewSequenceDialog nsd(this);
 	nsd.set_sequence_name(panel_project->get_next_sequence_name());
 	nsd.exec();
 }
@@ -132,7 +132,7 @@ void MainWindow::on_actionTimeline_Track_Lines_toggled(bool e)
 
 void MainWindow::on_actionExport_triggered()
 {
-	ExportDialog e;
+    ExportDialog e(this);
 	if (panel_timeline->sequence != NULL) e.set_defaults(panel_timeline->sequence);
 	e.exec();
 }

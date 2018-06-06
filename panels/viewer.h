@@ -35,6 +35,8 @@ private slots:
 
 	void on_pushButton_3_clicked();
 
+    void receiver();
+
 private:
 	Ui::Viewer *ui;
 };

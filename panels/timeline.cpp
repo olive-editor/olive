@@ -90,6 +90,7 @@ bool Timeline::toggle_play() {
 void Timeline::play() {
 	playhead_start = playhead;
 	playback_timer.start();
+    start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
 	playing = true;
 
@@ -143,7 +144,8 @@ bool Timeline::focused() {
 
 void Timeline::repaint_timeline() {
 	if (playing) {
-		playhead = playhead_start + (playback_timer.elapsed() * 0.001 * sequence->frame_rate);
+//		playhead = playhead_start + (playback_timer.elapsed() * 0.001 * sequence->frame_rate);
+        playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
 	ui->video_area->update();
 	ui->audio_area->update();
