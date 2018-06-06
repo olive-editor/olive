@@ -302,6 +302,16 @@ void ExportDialog::on_pushButton_2_clicked()
 	close();
 }
 
+void ExportDialog::render_thread_finished() {
+    prep_ui_for_render(false);
+}
+
+void ExportDialog::prep_ui_for_render(bool rendering) {
+    ui->pushButton->setEnabled(!rendering);
+    ui->pushButton_2->setEnabled(!rendering);
+    ui->renderCancel->setEnabled(rendering);
+}
+
 void ExportDialog::on_pushButton_clicked()
 {
 	QString ext;
@@ -399,15 +409,20 @@ void ExportDialog::on_pushButton_clicked()
 	}
 	QString filename = QFileDialog::getSaveFileName(this, "Export Media", "", format_strings[ui->formatCombobox->currentIndex()] + " (*." + ext + ")");
 	if (!filename.isEmpty()) {
-		ExportThread* et = new ExportThread();
+        et = new ExportThread();
 
 		et->surface.create();
 
 		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
+        connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int)), this, SLOT(update_progress_bar(int)));
 
+        panel_viewer->viewer_widget->enable_paint = false;
 		panel_viewer->viewer_widget->context()->doneCurrent();
 		panel_viewer->viewer_widget->context()->moveToThread(et);
+        panel_viewer->viewer_widget->force_audio = true;
+
+        prep_ui_for_render(true);
 
 		et->filename = filename;
 		et->video_enabled = ui->videoGroupbox->isChecked();
@@ -420,6 +435,8 @@ void ExportDialog::on_pushButton_clicked()
 		et->audio_codec = format_acodecs.at(ui->acodecCombobox->currentIndex());
 		et->audio_sampling_rate = 48000;
 		et->audio_bitrate = ui->audiobitrateSpinbox->value();
+
+        et->ed = this;
 
 		et->start();
 	}
@@ -434,4 +451,9 @@ void ExportDialog::set_defaults(Sequence* s) {
 
 void ExportDialog::update_progress_bar(int value) {
 	ui->progressBar->setValue(value);
+}
+
+void ExportDialog::on_renderCancel_clicked()
+{
+    et->fail = true;
 }

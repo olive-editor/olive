@@ -34,7 +34,7 @@ void cache_audio_worker(Clip* c, bool write_A) {
 			int limit = std::min(c->frame_sample_index + audio_cache_size - bytes_written, nb_bytes);
 			// perform all audio effects
 			for (unsigned int j=0;j<c->effects.size();j++) {
-				c->effects[j]->process_audio(frame->data[0], limit);
+                c->effects.at(j)->process_audio(frame->data[0], limit);
 			}
 			// mix audio into cache
 			for (int i=c->frame_sample_index;i<limit;i++) {

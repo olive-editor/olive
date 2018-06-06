@@ -38,6 +38,10 @@ void Clip::copy(const Clip& c) {
 	sequence = c.sequence;
 	media = c.media;
 	media_stream = c.media_stream;
+
+    for (int i=0;i<c.effects.size();i++) {
+        effects.append(c.effects.at(i)->copy());
+    }
 }
 
 void Clip::init() {
@@ -68,9 +72,9 @@ Clip::~Clip() {
 	open_lock.lock();
 	open_lock.unlock();
 
-	for (int i=0;i<effects.size();i++) {
-		delete effects.at(i);
-	}
+    for (int i=0;i<effects.size();i++) {
+        delete effects.at(i);
+    }
 	av_packet_unref(pkt);
 	delete pkt;
 }

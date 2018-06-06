@@ -1,6 +1,9 @@
 #include "effects/effects.h"
 
+#include "project/clip.h"
+
 #include <QVector>
+#include <QDebug>
 
 QVector<QString> video_effect_names;
 QVector<QString> audio_effect_names;
@@ -13,4 +16,19 @@ void init_effects() {
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
+}
+
+Effect* create_effect(int effect_id, Clip* c) {
+    if (c->track < 0) {
+        switch (effect_id) {
+        case VIDEO_TRANSFORM_EFFECT: return new TransformEffect(c);
+        }
+    } else {
+        switch (effect_id) {
+        case AUDIO_VOLUME_EFFECT: return new VolumeEffect(c);
+        case AUDIO_PAN_EFFECT: return new PanEffect(c);
+        }
+    }
+    qDebug() << "[ERROR] Invalid effect ID";
+    return NULL;
 }

@@ -14,5 +14,12 @@ void Effect::field_changed() {
 	panel_viewer->viewer_widget->update();
 }
 
+Effect* Effect::copy() {
+    Effect* e = new Effect(parent_clip);
+    name = e->name;
+    type = e->type;
+    return e;
+}
+
 void Effect::process_gl(int* anchor_x, int* anchor_y) {}
 void Effect::process_audio(uint8_t* samples, int nb_bytes) {}

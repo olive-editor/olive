@@ -72,8 +72,8 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	container->setContents(ui);
 
 	// set defaults
-	position_x->setValue(c->sequence->width/2);
-	position_y->setValue(c->sequence->height/2);
+    position_x->setValue(c->sequence->width/2);
+    position_y->setValue(c->sequence->height/2);
 	scale_x->setValue(100);
 	scale_y->setValue(100);
 	scale_y->setEnabled(false);
@@ -92,6 +92,20 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	connect(opacity, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(field_changed()));
+}
+
+Effect* TransformEffect::copy() {
+    TransformEffect* t = new TransformEffect(parent_clip);
+    t->position_x->setValue(position_x->value());
+    t->position_y->setValue(position_y->value());
+    t->scale_x->setValue(scale_x->value());
+    t->scale_y->setValue(scale_y->value());
+    t->uniform_scale_box->setChecked(uniform_scale_box->isChecked());
+    t->rotation->setValue(rotation->value());
+    t->anchor_x_box->setValue(anchor_x_box->value());
+    t->anchor_y_box->setValue(anchor_y_box->value());
+    t->opacity->setValue(opacity->value());
+    return t;
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {

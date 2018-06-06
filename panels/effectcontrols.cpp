@@ -21,6 +21,27 @@ EffectControls::EffectControls(QWidget *parent) :
 
 	clip = NULL;
 	set_clip(NULL);
+
+    effects_menu = new QMenu(this);
+    for (int i=0;i<VIDEO_EFFECT_COUNT;i++) {
+        QAction* action = new QAction();
+        action->setText(video_effect_names.at(i));
+        action->setData(i);
+        effects_menu->addAction(action);
+    }
+    effects_menu->addSeparator();
+    for (int i=0;i<AUDIO_EFFECT_COUNT;i++) {
+        QAction* action = new QAction();
+        action->setText(audio_effect_names.at(i));
+        action->setData(i);
+        effects_menu->addAction(action);
+    }
+    connect(effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
+}
+
+void EffectControls::menu_select(QAction* q) {
+    clip->effects.append(create_effect(q->data().toInt(), clip));
+    set_clip(clip);
 }
 
 EffectControls::~EffectControls()
@@ -30,29 +51,21 @@ EffectControls::~EffectControls()
 
 void EffectControls::on_pushButton_clicked()
 {
-	QMenu effects_menu(this);
-	for (int i=0;i<video_effect_names.size();i++) {
-		effects_menu.addAction(video_effect_names.at(i));
-	}
-	effects_menu.addSeparator();
-	for (int i=0;i<audio_effect_names.size();i++) {
-		effects_menu.addAction(audio_effect_names.at(i));
-	}
-	effects_menu.exec(QCursor::pos());
+    effects_menu->exec(QCursor::pos());
 }
 
 void EffectControls::set_clip(Clip* c) {
 	// clear ui->scrollAreaWidgetContents
 	if (clip != NULL) {
 		for (int i=0;i<clip->effects.size();i++) {
-			clip->effects.at(i)->container->setParent(NULL);
+            clip->effects.at(i)->container->setParent(NULL);
 		}
 	}
 
 	ui->pushButton->setEnabled(c != NULL);
 	if (c != NULL) {
 		for (int i=0;i<c->effects.size();i++) {
-			static_cast<QVBoxLayout*>(ui->scrollAreaWidgetContents->layout())->insertWidget(i, c->effects.at(i)->container);
+            static_cast<QVBoxLayout*>(ui->scrollAreaWidgetContents->layout())->insertWidget(i, c->effects.at(i)->container);
 		}
 	}
 	clip = c;

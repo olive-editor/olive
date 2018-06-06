@@ -28,6 +28,12 @@ PanEffect::PanEffect(Clip* c) : Effect(c) {
 	pan_val->setValue(0);
 }
 
+Effect* PanEffect::copy() {
+    PanEffect* p = new PanEffect(parent_clip);
+    p->pan_val->setValue(pan_val->value());
+    return p;
+}
+
 void PanEffect::process_audio(uint8_t *samples, int nb_bytes) {
 	for (int i=0;i<nb_bytes;i+=4) {
 		int16_t left_sample = (int16_t) ((samples[i+1] << 8) | samples[i]);

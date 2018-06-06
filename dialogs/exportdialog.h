@@ -8,6 +8,7 @@ class ExportDialog;
 }
 
 struct Sequence;
+class ExportThread;
 
 class ExportDialog : public QDialog
 {
@@ -27,12 +28,19 @@ private slots:
 
 	void update_progress_bar(int value);
 
+    void on_renderCancel_clicked();
+
+    void render_thread_finished();
+
 private:
 	Ui::ExportDialog *ui;
 
 	QVector<QString> format_strings;
 	QVector<int> format_vcodecs;
 	QVector<int> format_acodecs;
+
+    ExportThread* et;
+    void prep_ui_for_render(bool rendering);
 };
 
 #endif // EXPORTDIALOG_H

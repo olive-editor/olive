@@ -137,6 +137,8 @@ private slots:
 
 	void on_toolSlipButton_toggled(bool checked);
 
+    void on_snappingButton_toggled(bool checked);
+
 private:
 	Ui::Timeline *ui;
 	QVector<QPushButton*> tool_buttons;

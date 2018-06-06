@@ -28,6 +28,12 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
 	volume_val->setValue(100);
 }
 
+Effect* VolumeEffect::copy() {
+    VolumeEffect* v = new VolumeEffect(parent_clip);
+    v->volume_val->setValue(volume_val->value());
+    return v;
+}
+
 void VolumeEffect::process_audio(uint8_t *samples, int nb_bytes) {
 	for (int i=0;i<nb_bytes;i+=2) {
 		int16_t full_sample = (int16_t) ((samples[i+1] << 8) | samples[i]);

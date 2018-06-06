@@ -4,6 +4,7 @@
 #include <QDockWidget>
 
 struct Clip;
+class QMenu;
 
 namespace Ui {
 class EffectControls;
@@ -20,10 +21,12 @@ public:
 
 private slots:
 	void on_pushButton_clicked();
+    void menu_select(QAction* q);
 
 private:
 	Ui::EffectControls *ui;
 	Clip* clip;
+    QMenu* effects_menu;
 };
 
 #endif // EFFECTCONTROLS_H

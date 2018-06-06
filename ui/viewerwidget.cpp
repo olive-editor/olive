@@ -18,6 +18,10 @@ extern "C" {
 ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent)
 {	
 	multithreaded = true;
+    enable_paint = true;
+    force_audio = false;
+
+    audio_bytes_written = 0;
 
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -46,7 +50,9 @@ void ViewerWidget::initializeGL() {
 //{
 //}
 
-int audio_bytes_written = 0;
+void ViewerWidget::paintEvent(QPaintEvent *e) {
+    if (enable_paint) QOpenGLWidget::paintEvent(e);
+}
 
 void ViewerWidget::paintGL()
 {
@@ -59,13 +65,18 @@ void ViewerWidget::paintGL()
 	handle_media(panel_viewer->sequence, playhead, multithreaded);
 	texture_failed = false;
 
-	bool render_audio = (panel_timeline->playing);
+    bool render_audio = (panel_timeline->playing || force_audio);
 
-	if (render_audio && switch_audio_cache) {
-		reading_audio_cache_A = !reading_audio_cache_A;
-		audio_bytes_written = 0;
-		clear_cache(!reading_audio_cache_A, reading_audio_cache_A);
+    // switch_cache
+    if (render_audio && audio_bytes_written == audio_cache_size) {
+        switch_audio_cache = true;
+
+        reading_audio_cache_A = !reading_audio_cache_A;
+        audio_bytes_written = 0;
+        clear_cache(!reading_audio_cache_A, reading_audio_cache_A);
 	}
+
+    qDebug() << audio_bytes_written << "/" << audio_cache_size;
 
 	cc_lock.lock();
 	for (int i=0;i<current_clips.size();i++) {
@@ -92,7 +103,7 @@ void ViewerWidget::paintGL()
 
 					// perform all transform effects
 					for (unsigned int j=0;j<c->effects.size();j++) {
-						c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
+                        c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
 					}
 
 					int anchor_right = c->media_stream->video_width - anchor_x;
@@ -118,7 +129,7 @@ void ViewerWidget::paintGL()
 					   render_audio &&
 					   !c->reached_end &&
 					   (switch_audio_cache || c->reset_audio)) {
-				// TODO doesn't new clips appearing in the timeline (they'll ALWAYS end up in the other cache with a 1/8 sec delay)
+                // TODO doesn't affect new clips appearing in the timeline (they'll ALWAYS end up in the other cache with a 1/8 sec delay)
 
 				// cache audio
 				if (c->lock.tryLock()) {
@@ -136,13 +147,8 @@ void ViewerWidget::paintGL()
 		if (audio_cache_A != NULL && audio_bytes_written < audio_cache_size) {
 			// send cached/buffered audio to QIODevice/QAudioOutput
 			uint8_t* cache = reading_audio_cache_A ? audio_cache_A : audio_cache_B;
-			audio_bytes_written += audio_io_device->write((const char*) cache+audio_bytes_written, audio_cache_size-audio_bytes_written);
-		}
-
-		if (audio_bytes_written == audio_cache_size) {
-			// switch_cache
-			switch_audio_cache = true;
-		}
+            if (panel_timeline->playing) audio_bytes_written += audio_io_device->write((const char*) cache+audio_bytes_written, audio_cache_size-audio_bytes_written);
+        }
 	}
 
 	cc_lock.unlock();

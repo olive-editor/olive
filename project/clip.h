@@ -57,7 +57,7 @@ struct Clip
 	Sequence* sequence;
 
 	// other variables (should be "duplicated" in copy())
-	QList<Effect*> effects;
+    QList<Effect*> effects;
 //	QVector<Clip&> linkedClips;
 
 	// media handling

@@ -109,16 +109,17 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
 			if (c.track < 0) {
 				// add default video effects
-				c.effects.append(new TransformEffect(&c));
+                c.effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, &c));
 			} else {
 				// add default audio effects
-				c.effects.append(new VolumeEffect(&c));
-				c.effects.append(new PanEffect(&c));
+                c.effects.append(create_effect(AUDIO_VOLUME_EFFECT, &c));
+                c.effects.append(create_effect(AUDIO_PAN_EFFECT, &c));
 			}
 		}
 
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
+        panel_timeline->snapped = false;
 
 		panel_timeline->redraw_all_clips();
 	}
@@ -303,12 +304,45 @@ void TimelineWidget::init_ghosts() {
 	}
 }
 
+bool subvalidate_snapping(Ghost& g, long* frame_diff, long snap_point) {
+    int snap_range = 15;
+    long in_validator = g.old_in + *frame_diff - snap_point;
+    long out_validator = g.old_out + *frame_diff - snap_point;
+
+    if (in_validator > -snap_range && in_validator < snap_range) {
+        *frame_diff -= in_validator;
+        panel_timeline->snap_point = snap_point;
+        panel_timeline->snapped = true;
+        return true;
+    } else if (out_validator > -snap_range && out_validator < snap_range) {
+        *frame_diff -= out_validator;
+        panel_timeline->snap_point = snap_point;
+        panel_timeline->snapped = true;
+        return true;
+    }
+    return false;
+}
+
+void validate_snapping(Ghost& g, long* frame_diff) {
+    long validator;
+    panel_timeline->snapped = false;
+    if (panel_timeline->snapping) {
+        if (!subvalidate_snapping(g, frame_diff, panel_timeline->playhead)) {
+            for (int j=0;j<panel_timeline->sequence->clip_count();j++) {
+                Clip& c = panel_timeline->sequence->get_clip(j);
+                if (!subvalidate_snapping(g, frame_diff, c.timeline_in)) {
+                    subvalidate_snapping(g, frame_diff, c.timeline_out);
+                }
+                if (panel_timeline->snapped) break;
+            }
+        }
+    }
+}
+
 void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
 	long frame_diff = getFrameFromScreenPoint(mouse_pos.x(), false) - panel_timeline->drag_frame_start;
 	int track_diff = mouse_track - panel_timeline->drag_track_start;
-
-    int snap_range = 15;
 
 	long validator;
 	if (panel_timeline->trim_target > -1) {
@@ -378,6 +412,8 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 					}
 				}
 			}
+
+            validate_snapping(g, &frame_diff);
 		}
 
 		// resize ghosts
@@ -422,46 +458,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 				}
 			}
 
-            // shitty hacky code but works wonders
-            panel_timeline->snapped = false;
-            if (panel_timeline->snapping) {
-                for (int j=0;j<panel_timeline->sequence->clip_count();j++) {
-                    Clip& c = panel_timeline->sequence->get_clip(j);
-
-                    panel_timeline->snapped = false;
-                    for (int k=0;k<4;k++) {
-                        switch (k) {
-                        case 0:
-                            // snap in to timeline_in
-                            validator = g.old_in + frame_diff - c.timeline_in;
-                            panel_timeline->snap_point = c.timeline_in;
-                            break;
-                        case 1:
-                            // snap in to timeline out
-                            validator = g.old_in + frame_diff - c.timeline_out;
-                            panel_timeline->snap_point = c.timeline_out;
-                            break;
-                        case 2:
-                            // snap out to timeline_in
-                            validator = g.old_out + frame_diff - c.timeline_in;
-                            panel_timeline->snap_point = c.timeline_in;
-                            break;
-                        case 3:
-                            // snap out to timeline_out
-                            validator = g.old_out + frame_diff - c.timeline_out;
-                            panel_timeline->snap_point = c.timeline_out;
-                            break;
-                        }
-
-                        if (validator > -snap_range && validator < snap_range) {
-                            frame_diff -= validator;
-                            panel_timeline->snapped = true;
-                            break;
-                        }
-                    }
-                    if (panel_timeline->snapped) break;
-                }
-            }
+            validate_snapping(g, &frame_diff);
 		}
 
 		// move ghosts
@@ -756,6 +753,15 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 			}
 		}
 
+        // Draw playhead
+        p.setPen(Qt::red);
+        int playhead_x = getScreenPointFromFrame(panel_timeline->playhead);
+        p.drawLine(playhead_x, rect().top(), playhead_x, rect().bottom());
+
+        p.setPen(QColor(0, 0, 0, 64));
+        int edge_y = (bottom_align) ? rect().height()-1 : 0;
+        p.drawLine(0, edge_y, rect().width(), edge_y);
+
         // draw snap point
         if (panel_timeline->snapping && panel_timeline->snapped) {
             p.setPen(Qt::white);
@@ -774,16 +780,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 				p.setPen(Qt::gray);
 				p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + track_height);
 			}
-		}
-
-		// Draw playhead
-		p.setPen(Qt::red);
-		int playhead_x = getScreenPointFromFrame(panel_timeline->playhead);
-		p.drawLine(playhead_x, rect().top(), playhead_x, rect().bottom());
-
-		p.setPen(QColor(0, 0, 0, 64));
-		int edge_y = (bottom_align) ? rect().height()-1 : 0;
-		p.drawLine(0, edge_y, rect().width(), edge_y);
+        }
 	}
 }
 

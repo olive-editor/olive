@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	// set up style?
 
-	qApp->setStyle(QStyleFactory::create("Fusion"));
+    qApp->setStyle(QStyleFactory::create("Fusion"));
 
 	QPalette darkPalette;
 	darkPalette.setColor(QPalette::Window, QColor(53,53,53));
@@ -54,9 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
 	darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
-
-
-	qApp->setPalette(darkPalette);
+    qApp->setPalette(darkPalette);
 
 	// end style
 

@@ -18,6 +18,7 @@ uint8_t* audio_cache_B = NULL;
 int audio_cache_size = 0;
 bool switch_audio_cache = true;
 bool reading_audio_cache_A = false;
+int audio_bytes_written = 0;
 
 void init_audio(Sequence* s) {
 	if (audio_cache_A != NULL) {

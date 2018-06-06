@@ -71,6 +71,7 @@ void Timeline::seek(long p) {
 		c.frame_sample_index = 0;
 	}
 	clear_cache(true, true);
+    audio_bytes_written = 0;
 	switch_audio_cache = true;
 	reading_audio_cache_A = false;
 
@@ -146,7 +147,7 @@ void Timeline::repaint_timeline() {
 	}
 	ui->video_area->update();
 	ui->audio_area->update();
-	if (last_frame != playhead) {
+    if (last_frame != playhead) {
 		panel_viewer->viewer_widget->update();
 		last_frame = playhead;
 	}
@@ -318,4 +319,11 @@ void Timeline::on_toolSlipButton_toggled(bool checked)
 		ui->timeline_area->setCursor(Qt::ArrowCursor);
 		tool = TIMELINE_TOOL_SLIP;
 	}
+}
+
+void Timeline::on_snappingButton_toggled(bool checked)
+{
+    snapping = checked;
+
+    qDebug() << "clips vector size:" << sizeof(Clip) * sequence->clip_count();
 }

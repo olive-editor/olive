@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QOffscreenSurface>
 
+class ExportDialog;
+
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
@@ -23,8 +25,12 @@ public:
 	int audio_bitrate;
 
 	QOffscreenSurface surface;
+
+    ExportDialog* ed;
+
+    bool fail;
 signals:
-	void progress_changed(int value);
+    void progress_changed(int value);
 };
 
 #endif // EXPORTTHREAD_H

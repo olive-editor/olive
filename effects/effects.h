@@ -20,14 +20,16 @@ enum AudioEffects {
 extern QVector<QString> video_effect_names;
 extern QVector<QString> audio_effect_names;
 void init_effects();
+Effect* create_effect(int effect_id, Clip* c);
 
 // video effects
 class TransformEffect : public Effect {
 	Q_OBJECT
 public:
-	TransformEffect(Clip* c);
+    TransformEffect(Clip* c);
 	void process_gl(int* anchor_x, int* anchor_y);
-private:
+    Effect* copy();
+
 	QSpinBox* position_x;
 	QSpinBox* position_y;
 	QSpinBox* scale_x;
@@ -44,17 +46,19 @@ public slots:
 // audio effects
 class VolumeEffect : public Effect {
 public:
-	VolumeEffect(Clip* c);
-	void process_audio(uint8_t* samples, int nb_bytes);
-private:
+    VolumeEffect(Clip* c);
+    void process_audio(uint8_t* samples, int nb_bytes);
+    Effect* copy();
+
 	QSpinBox* volume_val;
 };
 
 class PanEffect : public Effect {
 public:
-	PanEffect(Clip* c);
-	void process_audio(uint8_t* samples, int nb_bytes);
-private:
+    PanEffect(Clip* c);
+    void process_audio(uint8_t* samples, int nb_bytes);
+    Effect* copy();
+
 	QSpinBox* pan_val;
 };
 

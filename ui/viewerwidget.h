@@ -18,7 +18,11 @@ public:
 //	void resizeGL(int w, int h);
 	void paintGL();
 
-	bool multithreaded;
+    bool multithreaded;
+    bool force_audio;
+    bool enable_paint;
+protected:
+    void paintEvent(QPaintEvent *e) override;
 private:
 	QTimer retry_timer;
 private slots:
