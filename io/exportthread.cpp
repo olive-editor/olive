@@ -47,6 +47,8 @@ bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame,
 }
 
 void ExportThread::run() {
+    av_log_set_level(AV_LOG_DEBUG);
+
 	Sequence* sequence = panel_timeline->sequence;
 
 	// TODO make customizable
@@ -66,10 +68,11 @@ void ExportThread::run() {
 	char* c_filename = new char[ba.size()+1];
 	strcpy(c_filename, ba.data());
 
-	avformat_alloc_output_context2(&fmt_ctx, NULL, NULL, c_filename);
+    AVOutputFormat* ofmt = av_guess_format(NULL, c_filename, NULL);
+    avformat_alloc_output_context2(&fmt_ctx, ofmt, NULL, c_filename);
 	if (!fmt_ctx) {
 		qDebug() << "[ERROR] Could not create output context";
-	} else {
+    } else {
 		AVStream* video_stream;
 		AVCodec* vcodec;
 		AVCodecContext* vcodec_ctx;
@@ -90,26 +93,26 @@ void ExportThread::run() {
 
         fail = false;
 
-		if (video_enabled) {
-			// initialize array contain opengl data
-			video_stream = avformat_new_stream(fmt_ctx, NULL);
+        if (video_enabled) {
+            vcodec = avcodec_find_encoder((enum AVCodecID) video_codec);
+            if (!vcodec) {
+                qDebug() << "[ERROR] Could not find video encoder";
+                fail = true;
+            } else {
+                video_stream = avformat_new_stream(fmt_ctx, vcodec);
+                video_stream->id = 0;
 
-			if (!video_stream) {
-				qDebug() << "[ERROR] Could not allocate output streams";
-				fail = true;
-			} else {
-				vcodec = avcodec_find_encoder((enum AVCodecID) video_codec);
-
-				if (!vcodec) {
-					qDebug() << "[ERROR] Could not find video encoder";
-					fail = true;
-				} else {
+                if (!video_stream) {
+                    qDebug() << "[ERROR] Could not allocate output streams";
+                    fail = true;
+                } else {
 					vcodec_ctx = avcodec_alloc_context3(vcodec);
 
 					if (!vcodec_ctx) {
 						qDebug() << "[ERROR] Could not find allocate video encoding context";
 						fail = true;
 					} else {
+                        vcodec_ctx->codec_id = (enum AVCodecID) video_codec;
                         vcodec_ctx->width = video_width;
                         vcodec_ctx->height = video_height;
                         vcodec_ctx->sample_aspect_ratio = av_d2q(video_width/video_height, INT_MAX);
@@ -117,6 +120,12 @@ void ExportThread::run() {
                         vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
 						vcodec_ctx->bit_rate = video_bitrate * 1000000;
 						vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
+
+                        if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+                            vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+                        }
+
+                        vcodec_ctx->gop_size = 12; // ? does this help?
 
 						ret = avcodec_open2(vcodec_ctx, vcodec, NULL);
 						if (ret < 0) {
@@ -128,12 +137,6 @@ void ExportThread::run() {
 								qDebug() << "[ERROR] Could not copy video encoder parameters to output stream." << ret;
 								fail = true;
 							} else {
-								if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
-									vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-								}
-
-								video_stream->time_base = vcodec_ctx->time_base;
-
 								// initialize raw video frame
 								video_frame = av_frame_alloc();
 								av_frame_make_writable(video_frame);
@@ -171,14 +174,15 @@ void ExportThread::run() {
 		}
 
         if (audio_enabled && !fail) {
-            audio_stream = avformat_new_stream(fmt_ctx, NULL);
-            if (!audio_stream) {
-                qDebug() << "[ERROR] Could not allocate output streams";
+            acodec = avcodec_find_encoder((enum AVCodecID) audio_codec);
+            if (!acodec) {
+                qDebug() << "[ERROR] Could not find audio encoder";
                 fail = true;
             } else {
-                acodec = avcodec_find_encoder((enum AVCodecID) audio_codec);
-                if (!acodec) {
-                    qDebug() << "[ERROR] Could not find audio encoder";
+                audio_stream = avformat_new_stream(fmt_ctx, acodec);
+                audio_stream->id = 1;
+                if (!audio_stream) {
+                    qDebug() << "[ERROR] Could not allocate output streams";
                     fail = true;
                 } else {
                     acodec_ctx = avcodec_alloc_context3(acodec);
@@ -190,8 +194,12 @@ void ExportThread::run() {
                         acodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;  // change this to support surround/mono sound in the future (this is what the user sets the output audio to)
                         acodec_ctx->channels = av_get_channel_layout_nb_channels(acodec_ctx->channel_layout);
                         acodec_ctx->sample_fmt = acodec->sample_fmts[0];
-                        acodec_ctx->time_base = {1, audio_sampling_rate};
                         acodec_ctx->bit_rate = audio_bitrate * 1000;
+                        acodec_ctx->time_base = {1, audio_sampling_rate};
+
+                        if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+                            acodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+                        }
 
                         ret = avcodec_open2(acodec_ctx, acodec, NULL);
                         if (ret < 0) {
@@ -203,12 +211,6 @@ void ExportThread::run() {
                                 qDebug() << "[ERROR] Could not copy audio encoder parameters to output stream." << ret;
                                 fail = true;
                             } else {
-                                if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
-                                    acodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-                                }
-
-                                audio_stream->time_base = acodec_ctx->time_base;
-
                                 // init audio resampler context
                                 swr_ctx = swr_alloc_set_opts(
                                         NULL,
@@ -255,10 +257,10 @@ void ExportThread::run() {
             }
         }
 
-		if (!fail) {
+        if (!fail) {
 			av_dump_format(fmt_ctx, 0, c_filename, 1);
 
-			ret = avio_open(&fmt_ctx->pb, c_filename, AVIO_FLAG_WRITE);
+            ret = avio_open(&fmt_ctx->pb, c_filename, AVIO_FLAG_WRITE);
 			if (ret < 0) {
 				qDebug() << "[ERROR] Could not open output file." << ret;
 			} else {
@@ -335,17 +337,26 @@ void ExportThread::run() {
 					painter.endNativePainting();
 					fbo.release();
 
-					if (!fail) {
-						// flush remaining packets
-						if (video_enabled) {
-							if (!encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream)) fail = true;
-						}
-                        if (audio_enabled) {
-                            if (!encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream)) fail = true;
+                    if (!fail) {
+                        // flush remaining packets
+                        if (video_enabled) {
+                            while (encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream)) {}
                         }
-					}
+                        if (audio_enabled) {
+                            // flush swresample
+                            do {
+                                swr_convert_frame(swr_ctx, swr_frame, NULL);
+                                swr_frame->pts = file_audio_samples;
+                                if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) fail = true;
+                                file_audio_samples += swr_frame->nb_samples;
+                            } while (swr_frame->nb_samples > 0);
 
-					if (!fail) {
+                            // flush encoder
+                            while (encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream)) {}
+                        }
+                    }
+
+                    if (!fail) {
 						ret = av_write_trailer(fmt_ctx);
 						if (ret < 0) {
 							qDebug() << "[ERROR] Could not write output file trailer." << ret;
@@ -356,6 +367,8 @@ void ExportThread::run() {
 				}
 			}
 
+            avcodec_close(vcodec_ctx);
+            avcodec_close(acodec_ctx);
 			av_packet_unref(&video_pkt);
             av_packet_unref(&audio_pkt);
 			av_frame_free(&video_frame);
