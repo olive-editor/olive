@@ -69,11 +69,10 @@ void Timeline::seek(long p) {
 		Clip& c = sequence->get_clip(i);
 		c.reset_audio = true;
 		c.frame_sample_index = 0;
+        c.audio_buffer_write = 0;
 	}
-	clear_cache(true, true);
-    audio_bytes_written = 0;
-	switch_audio_cache = true;
-	reading_audio_cache_A = false;
+    clear_audio_ibuffer();
+    audio_ibuffer_read = 0;
 
 	playhead = p;
 }
@@ -92,11 +91,7 @@ void Timeline::play() {
 	playback_timer.start();
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
-	playing = true;
-
-	if (switch_audio_cache) {
-		// add something to pre-cache audio
-	}
+    playing = true;
 }
 
 void Timeline::pause() {

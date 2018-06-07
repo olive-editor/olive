@@ -13,24 +13,11 @@ QAudioOutput* audio_output;
 QIODevice* audio_io_device;
 bool audio_device_set = false;
 
-uint8_t* audio_cache_A = NULL;
-uint8_t* audio_cache_B = NULL;
-int audio_cache_size = 0;
-bool switch_audio_cache = true;
-bool reading_audio_cache_A = false;
-int audio_bytes_written = 0;
+qint8 audio_ibuffer[audio_ibuffer_size];
+int audio_ibuffer_read = 0;
+QVector<int> audio_ibuffer_write;
 
 void init_audio(Sequence* s) {
-	if (audio_cache_A != NULL) {
-		delete [] audio_cache_A;
-		audio_cache_A = NULL;
-	}
-
-	if (audio_cache_B != NULL) {
-		delete [] audio_cache_B;
-		audio_cache_B = NULL;
-	}
-
 	if (audio_device_set) {
 		audio_output->stop();
 		delete audio_output;
@@ -55,19 +42,11 @@ void init_audio(Sequence* s) {
 			audio_io_device = audio_output->start();
 			audio_device_set = true;
 
-			audio_cache_size = av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(s->audio_layout), s->audio_frequency/8, AV_SAMPLE_FMT_S16, 1);
-			audio_cache_A = new uint8_t[audio_cache_size];
-			audio_cache_B = new uint8_t[audio_cache_size];
-			clear_cache(true, true);
+            clear_audio_ibuffer();
 		}
 	}
 }
 
-void clear_cache(bool clear_A, bool clear_B) {
-	if (clear_A) {
-		memset(audio_cache_A, 0, audio_cache_size);
-	}
-	if (clear_B) {
-		memset(audio_cache_B, 0, audio_cache_size);
-	}
+void clear_audio_ibuffer() {
+    memset(audio_ibuffer, 0, audio_ibuffer_size);
 }

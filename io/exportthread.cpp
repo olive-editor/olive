@@ -110,11 +110,11 @@ void ExportThread::run() {
 						qDebug() << "[ERROR] Could not find allocate video encoding context";
 						fail = true;
 					} else {
-						vcodec_ctx->width = sequence->width;
-						vcodec_ctx->height = sequence->height;
-						vcodec_ctx->sample_aspect_ratio = av_d2q(sequence->width/sequence->height, INT_MAX);
+                        vcodec_ctx->width = video_width;
+                        vcodec_ctx->height = video_height;
+                        vcodec_ctx->sample_aspect_ratio = av_d2q(video_width/video_height, INT_MAX);
 						vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
-						vcodec_ctx->framerate = av_d2q(sequence->frame_rate, INT_MAX);
+                        vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
 						vcodec_ctx->bit_rate = video_bitrate * 1000000;
 						vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
 
@@ -266,15 +266,7 @@ void ExportThread::run() {
 				if (ret < 0) {
 					qDebug() << "[ERROR] Could not write output file header." << ret;
 				} else {
-					panel_timeline->seek(0);
-
-					// clean up - close all open clips
-					for (int i=0;i<sequence->clip_count();i++) {
-						Clip& c = sequence->get_clip(i);
-						if (c.open) {
-							close_clip(&c);
-						}
-					}
+                    panel_timeline->seek(start);
 
 					QOpenGLFramebufferObject fbo(video_width, video_height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 					fbo.bind();
@@ -282,7 +274,6 @@ void ExportThread::run() {
 					QPainter painter(&fbo_dev);
                     painter.beginNativePainting();
 
-                    int written_frame_audio_bytes = 0;
                     long file_audio_samples = 0;
 
 					while (panel_timeline->playhead < end && !fail) {
@@ -301,8 +292,9 @@ void ExportThread::run() {
 								memcpy(video_frame->data[0]+dst_index, flip_buffer+src_index, linesize);
 							}
 
-							// change pixel format
-							sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
+                            // change pixel format
+                            sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
+//                            qDebug() << video_frame->linesize[0] << sws_frame->linesize[0];
 							sws_frame->pts = round(timecode_secs/av_q2d(video_stream->time_base));
 
 							// send to encoder
@@ -310,23 +302,29 @@ void ExportThread::run() {
 						}
                         if (audio_enabled && !fail) {
                             // do we need to encode more audio samples?
-                            if (file_audio_samples <= (timecode_secs*audio_sampling_rate)) {
-                                uint8_t* cache = (reading_audio_cache_A) ? audio_cache_A : audio_cache_B;
-                                int copylen = qMin(aframe_bytes-written_frame_audio_bytes, audio_cache_size-audio_bytes_written);
-                                memcpy(audio_frame->data[0]+written_frame_audio_bytes, cache+audio_bytes_written, copylen);
-                                written_frame_audio_bytes += copylen;
-                                audio_bytes_written += copylen;
-                                if (written_frame_audio_bytes == aframe_bytes) {
-                                    // convert to export sample format
-                                    swr_convert_frame(swr_ctx, swr_frame, audio_frame);
-                                    swr_frame->pts = file_audio_samples;
+                            while (file_audio_samples <= (timecode_secs*audio_sampling_rate)) {
+                                int adjusted_read = audio_ibuffer_read%audio_ibuffer_size;
+                                int copylen = qMin(aframe_bytes, audio_ibuffer_size-adjusted_read);
+                                memcpy(audio_frame->data[0], audio_ibuffer+adjusted_read, copylen);
+                                memset(audio_ibuffer+adjusted_read, 0, copylen);
+                                audio_ibuffer_read += copylen;
 
-                                    // send to encoder
-                                    if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) fail = true;
-
-                                    file_audio_samples += swr_frame->nb_samples;
-                                    written_frame_audio_bytes = 0;
+                                if (copylen < aframe_bytes) {
+                                    // copy remainder
+                                    int remainder_len = aframe_bytes-copylen;
+                                    memcpy(audio_frame->data[0]+copylen, audio_ibuffer, remainder_len);
+                                    memset(audio_ibuffer, 0, remainder_len);
+                                    audio_ibuffer_read += remainder_len;
                                 }
+
+                                // convert to export sample format
+                                swr_convert_frame(swr_ctx, swr_frame, audio_frame);
+                                swr_frame->pts = file_audio_samples;
+
+                                // send to encoder
+                                if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) fail = true;
+
+                                file_audio_samples += swr_frame->nb_samples;
                             }
                         }
 						emit progress_changed(((float) panel_timeline->playhead / (float) end) * 100);

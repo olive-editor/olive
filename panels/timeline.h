@@ -1,7 +1,7 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
-#include "ui/timeline-tools.h"
+#include "ui/timelinetools.h"
 #include <QDockWidget>
 #include <QVector>
 #include <QTime>

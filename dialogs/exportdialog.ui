@@ -247,6 +247,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>formatCombobox</tabstop>
+  <tabstop>videoGroupbox</tabstop>
+  <tabstop>vcodecCombobox</tabstop>
+  <tabstop>widthSpinbox</tabstop>
+  <tabstop>heightSpinbox</tabstop>
+  <tabstop>framerateSpinbox</tabstop>
+  <tabstop>videobitrateSpinbox</tabstop>
+  <tabstop>audioGroupbox</tabstop>
+  <tabstop>acodecCombobox</tabstop>
+  <tabstop>samplingRateSpinbox</tabstop>
+  <tabstop>audiobitrateSpinbox</tabstop>
+  <tabstop>renderCancel</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>pushButton_2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

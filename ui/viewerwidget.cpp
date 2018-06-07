@@ -17,11 +17,9 @@ extern "C" {
 
 ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent)
 {	
-	multithreaded = true;
+    multithreaded = true;
     enable_paint = true;
     force_audio = false;
-
-    audio_bytes_written = 0;
 
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -66,17 +64,6 @@ void ViewerWidget::paintGL()
 	texture_failed = false;
 
     bool render_audio = (panel_timeline->playing || force_audio);
-
-    // switch_cache
-    if (render_audio && audio_bytes_written == audio_cache_size) {
-        switch_audio_cache = true;
-
-        reading_audio_cache_A = !reading_audio_cache_A;
-        audio_bytes_written = 0;
-        clear_cache(!reading_audio_cache_A, reading_audio_cache_A);
-	}
-
-//    qDebug() << audio_bytes_written << "/" << audio_cache_size;
 
 	cc_lock.lock();
 	for (int i=0;i<current_clips.size();i++) {
@@ -124,38 +111,30 @@ void ViewerWidget::paintGL()
 
 					c->texture->release();
 				}
-			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
-					   playhead >= c->timeline_in &&
-					   render_audio &&
-					   !c->reached_end &&
-					   (switch_audio_cache || c->reset_audio)) {
-                // TODO doesn't affect new clips appearing in the timeline (they'll ALWAYS end up in the other cache with a 1/8 sec delay)
-
-				// cache audio
-				if (c->lock.tryLock()) {
-					// clip is not caching, start cache
-                    c->lock.unlock();
-
-					cache_clip(c, playhead, !reading_audio_cache_A, reading_audio_cache_A, c->reset_audio);
-				}
+            } else if (render_audio &&
+                       c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
+                       playhead >= c->timeline_in &&
+                       c->lock.tryLock()) {
+                // clip is not caching, start caching audio
+                c->lock.unlock();
+                cache_clip(c, playhead, false, false, c->reset_audio);
 			}
 		}
-	}
+    }
 
-	if (render_audio) {
-		switch_audio_cache = false;
-
-		if (audio_cache_A != NULL && audio_bytes_written < audio_cache_size) {
-			// send cached/buffered audio to QIODevice/QAudioOutput
-			uint8_t* cache = reading_audio_cache_A ? audio_cache_A : audio_cache_B;
-            if (panel_timeline->playing) {
-                int max_w = audio_cache_size-audio_bytes_written;
-                int w = audio_io_device->write((const char*) cache+audio_bytes_written, max_w);
-                qDebug() << w << max_w;
-                audio_bytes_written += w;
-            }
+    if (panel_timeline->playing) {
+        int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
+        int max_write = audio_ibuffer_size - adjusted_read_index;
+        int actual_write = audio_io_device->write((const char*) audio_ibuffer+adjusted_read_index, max_write);
+        memset(audio_ibuffer+adjusted_read_index, 0, actual_write);
+        audio_ibuffer_read += actual_write;
+        if (actual_write == max_write) {
+            // got all the bytes, write again
+            actual_write = audio_io_device->write((const char*) audio_ibuffer, audio_ibuffer_size);
+            memset(audio_ibuffer, 0, actual_write);
+            audio_ibuffer_read += actual_write;
         }
-	}
+    }
 
 	cc_lock.unlock();
 

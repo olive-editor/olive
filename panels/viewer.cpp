@@ -29,10 +29,6 @@ Viewer::~Viewer()
 	delete ui;
 }
 
-void Viewer::receiver() {
-    qDebug() << "callback?";
-}
-
 void Viewer::set_sequence(Sequence* s) {
 	bool null_sequence = (s == NULL);
 	sequence = s;
@@ -45,13 +41,12 @@ void Viewer::set_sequence(Sequence* s) {
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
 
+    init_audio(s);
+
 	if (!null_sequence) {
 		ui->glViewerPane->aspect_ratio = (float) sequence->width / (float) sequence->height;
-		ui->glViewerPane->adjust();
+        ui->glViewerPane->adjust();
 	}
-
-	init_audio(s);
-    connect(audio_output, SIGNAL(notify()), this, SLOT(receiver()));
 
 	update();
 }

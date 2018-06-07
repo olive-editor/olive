@@ -17,7 +17,7 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
 	ui_layout->addWidget(new QLabel("Volume:"), 0, 0);
 	volume_val = new QSpinBox();
 	volume_val->setMinimum(0);
-	volume_val->setMaximum(100);
+    volume_val->setMaximum(400);
 	ui_layout->addWidget(volume_val, 0, 1);
 
 	ui->setLayout(ui_layout);

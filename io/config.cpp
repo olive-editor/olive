@@ -29,7 +29,7 @@ void load_config() {
 		#endif
 	}*/
 
-	padding *= scale;
+//	padding *= scale;
 
 	/*DIR* dir = opendir("conf");
 	if (dir) {

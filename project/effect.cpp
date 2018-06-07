@@ -21,5 +21,5 @@ Effect* Effect::copy() {
     return e;
 }
 
-void Effect::process_gl(int* anchor_x, int* anchor_y) {}
-void Effect::process_audio(uint8_t* samples, int nb_bytes) {}
+void Effect::process_gl(int*, int*) {}
+void Effect::process_audio(uint8_t*, int) {}

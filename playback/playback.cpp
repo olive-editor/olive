@@ -34,7 +34,7 @@ void handle_media(Sequence* sequence, long playhead, bool multithreaded) {
 			// if thread is already working, we don't want to touch this,
 			// but we also don't want to hang the UI thread
 			if (!c.open) {
-				if (c.lock.tryLock()) {
+                if (c.lock.tryLock()) {
 					open_clip(&c, multithreaded);
 
 					// add to current_clips, (insertion) sorted by track so composite them in order
@@ -229,13 +229,10 @@ float clip_frame_to_seconds(Clip* c, long clip_frame) {
 
 int retrieve_next_frame(Clip* c, AVFrame* f) {
 	int result = 0;
-	int receive_ret;
-
-	// could be optimized if "linked stream" shares timeline_in and clip_in, only use one read_frame?
-	// depends how much time av_read_frame needs, the decoding is probably far more consuming anyway
+    int receive_ret;
 
 	// do we need to retrieve a new packet for a new frame?
-	while ((receive_ret = avcodec_receive_frame(c->codecCtx, f)) == AVERROR(EAGAIN)) {
+    while ((receive_ret = avcodec_receive_frame(c->codecCtx, f)) == AVERROR(EAGAIN)) {
 		int read_ret = 0;
 		do {
 			if (c->pkt_written) {
@@ -249,10 +246,9 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 			int send_ret = avcodec_send_packet(c->codecCtx, c->pkt);
 			if (send_ret < 0) {
 				qDebug() << "[ERROR] Failed to send packet to decoder." << send_ret;
-				result = send_ret;
-				break;
+                return send_ret;
 			}
-		} else {
+        } else {
 			if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Could not read frame." << read_ret;
 			return read_ret; // skips trying to find a frame at all
 		}
@@ -266,21 +262,26 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 }
 
 void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
-	int ret = retrieve_next_frame(c, c->frame);
-	if (ret >= 0) {
-		if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-			sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
-		} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-			ret = swr_convert_frame(c->swr_ctx, output, c->frame);
-			if (ret < 0) {
-				qDebug() << "[ERROR] Failed to resample audio." << ret;
-			}
-		}
-	} else if (ret == AVERROR_EOF) {
-		c->reached_end = true;
-	} else {
-		qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
-	}
+    if (c->reached_end) {
+        qDebug() << "[WARNING] Attempted to retrieve frame of stream with no frames left";
+    } else {
+        int ret = retrieve_next_frame(c, c->frame);
+        if (ret >= 0) {
+            if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
+            } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                ret = swr_convert_frame(c->swr_ctx, output, c->frame);
+                if (ret < 0) {
+                    qDebug() << "[ERROR] Failed to resample audio." << ret;
+                }
+            }
+        } else if (ret == AVERROR_EOF) {
+//            qDebug() << "reached end triggered" << c->track;
+            c->reached_end = true;
+        } else {
+            qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
+        }
+    }
 }
 
 bool is_clip_active(Clip* c, long playhead) {

@@ -5,7 +5,7 @@ extern const char* version;
 extern float scale;
 extern bool vsync;
 extern bool hwaccel;
-extern int padding;
+//extern int padding;
 extern bool custom_scale;
 extern bool saved_layout;
 extern bool show_track_lines;

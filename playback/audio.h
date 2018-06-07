@@ -1,7 +1,7 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <stdint.h>
+#include <QVector>
 
 class QAudioOutput;
 class QIODevice;
@@ -11,13 +11,12 @@ struct Sequence;
 extern QAudioOutput* audio_output;
 extern QIODevice* audio_io_device;
 
-extern uint8_t* audio_cache_A;
-extern uint8_t* audio_cache_B;
-extern int audio_cache_size;
-extern int audio_bytes_written;
-extern bool switch_audio_cache;
-extern bool reading_audio_cache_A;
+#define audio_ibuffer_size 192000
+extern qint8 audio_ibuffer[audio_ibuffer_size];
+extern int audio_ibuffer_read;
+//extern QVector<int> audio_ibuffer_write;
+void clear_audio_ibuffer();
+
 void init_audio(Sequence* s);
-void clear_cache(bool clear_A, bool clear_B);
 
 #endif // AUDIO_H

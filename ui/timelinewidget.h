@@ -2,7 +2,7 @@
 #define TIMELINEWIDGET_H
 
 #include <QWidget>
-#include "timeline-tools.h"
+#include "timelinetools.h"
 
 #define GHOST_THICKNESS 2 // thiccccc
 #define CLIP_TEXT_PADDING 3
@@ -19,9 +19,10 @@ public:
 
 	bool bottom_align;
 
-	void redraw_clips();
+    void redraw_clips();
 protected:
 	void paintEvent(QPaintEvent*) override;
+    void resizeEvent(QResizeEvent*) override;
 
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
@@ -45,12 +46,15 @@ private:
 	QList<Clip*> pre_clips;
 	QList<Clip*> post_clips;
 
-	QPixmap* clip_pixmap;
+    QPixmap clip_pixmap;
 //	QPixmap selection_pixmap;
 
 signals:
 
 public slots:
+
+private slots:
+
 };
 
 #endif // TIMELINEWIDGET_H

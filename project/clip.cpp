@@ -52,7 +52,7 @@ void Clip::init() {
 }
 
 void Clip::reset() {
-	cache_size = cache_A.offset = cache_B.offset = open = pkt_written = cache_A.written = cache_B.written = cache_A.unread = cache_B.unread = reached_end = reset_audio = frame_sample_index = 0;
+    cache_size = cache_A.offset = cache_B.offset = open = pkt_written = cache_A.written = cache_B.written = cache_A.unread = cache_B.unread = reached_end = reset_audio = frame_sample_index = audio_buffer_write = 0;
 	texture_frame = -1;
 	formatCtx = NULL;
 	stream = NULL;

@@ -24,15 +24,17 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent)
 {
 	bottom_align = false;
 	setMouseTracking(true);
-	track_height = 40;
-
-	clip_pixmap = NULL;
+    track_height = 40;
 
 	setAcceptDrops(true);
 }
 
 bool same_sign(int a, int b) {
 	return (a < 0) == (b < 0);
+}
+
+void TimelineWidget::resizeEvent(QResizeEvent*) {
+    if (panel_timeline->sequence != NULL) redraw_clips();
 }
 
 void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
@@ -77,7 +79,7 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 	}
 }
 
-void TimelineWidget::dragLeaveEvent(QDragLeaveEvent *event) {
+void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
 	if (panel_timeline->importing) {
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
@@ -324,7 +326,6 @@ bool subvalidate_snapping(Ghost& g, long* frame_diff, long snap_point) {
 }
 
 void validate_snapping(Ghost& g, long* frame_diff) {
-    long validator;
     panel_timeline->snapped = false;
     if (panel_timeline->snapping) {
         if (!subvalidate_snapping(g, frame_diff, panel_timeline->playhead)) {
@@ -659,15 +660,13 @@ int color_brightness(int r, int g, int b) {
 }
 
 void TimelineWidget::redraw_clips() {
-	// Draw clips
-	if (clip_pixmap != NULL) delete clip_pixmap;
-
+    // Draw clips
 	int panel_width = getScreenPointFromFrame(panel_timeline->sequence->getEndFrame()) + 100;
 	setMinimumWidth(panel_width);
 
-	clip_pixmap = new QPixmap(panel_width, height());
-	clip_pixmap->fill(Qt::transparent);
-	QPainter clip_painter(clip_pixmap);
+    clip_pixmap = QPixmap(panel_width, height());
+    clip_pixmap.fill(Qt::transparent);
+    QPainter clip_painter(&clip_pixmap);
 	int video_track_limit = 0;
 	int audio_track_limit = 0;
 	for (int i=0;i<panel_timeline->sequence->clip_count();i++) {
@@ -726,7 +725,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 	if (panel_timeline->sequence != NULL) {
 		QPainter p(this);
 
-		if (clip_pixmap != NULL) p.drawPixmap(0, 0, minimumWidth(), height(), *clip_pixmap);
+        p.drawPixmap(0, 0, minimumWidth(), height(), clip_pixmap);
 
 		// Draw selections
 		for (int i=0;i<panel_timeline->selections.size();i++) {

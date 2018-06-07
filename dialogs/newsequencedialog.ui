@@ -322,6 +322,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox</tabstop>
+  <tabstop>width_numeric</tabstop>
+  <tabstop>height_numeric</tabstop>
+  <tabstop>frame_rate_combobox</tabstop>
+  <tabstop>par_combobox</tabstop>
+  <tabstop>interlacing_combobox</tabstop>
+  <tabstop>audio_frequency_combobox</tabstop>
+  <tabstop>lineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

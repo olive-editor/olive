@@ -16,46 +16,67 @@ extern "C" {
 
 #include <QDebug>
 
-void cache_audio_worker(Clip* c, bool write_A) {
-	// gets one frame worth of audio and sends it to the audio buffer
-	AVFrame* frame = c->cache_A.frames[0];
-	uint8_t* cache = (write_A) ? audio_cache_A : audio_cache_B;
+void cache_audio_worker(Clip* c) {
+    int written = 0;
+    int max_write = 16384;
+    while (written < max_write) {
+        // gets one frame worth of audio and sends it to the audio buffer
+        AVFrame* frame = c->cache_A.frames[0];
 
-	int bytes_written = 0;
-	int j = 0;
-	while (bytes_written < audio_cache_size && !c->reached_end) {
-		// is there audio left in the frame
-		if (c->frame_sample_index == 0) {
-			// no more audio left in frame, get a new one
-			retrieve_next_frame_raw_data(c, frame);
-		}
-		if (!c->reached_end) {
-			int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-			int limit = std::min(c->frame_sample_index + audio_cache_size - bytes_written, nb_bytes);
-			// perform all audio effects
+        if (c->frame_sample_index == 0) {
+            // no more audio left in frame, get a new one
+            if (!c->reached_end) {
+                retrieve_next_frame_raw_data(c, frame);
+            } else {
+                // set by retrieve_next_frame_raw_data indicating no more frames in file,
+                // but there still may be samples in swresample
+                swr_convert_frame(c->swr_ctx, frame, NULL);
+            }
+        }
+
+        if (frame->nb_samples == 0) {
+            written = max_write;
+        } else {
+            int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
+
+            // perform all audio effects
             for (int j=0;j<c->effects.size();j++) {
-                c->effects.at(j)->process_audio(frame->data[0], limit);
-			}
-			// mix audio into cache
-			for (int i=c->frame_sample_index;i<limit;i++) {
-				cache[j] += frame->data[0][i];
-				j++;
-			}
-			bytes_written += limit - c->frame_sample_index;
-			c->frame_sample_index = (limit == nb_bytes) ? 0 : limit;
-		}
-	}
+                c->effects.at(j)->process_audio(frame->data[0], nb_bytes);
+            }
+
+            if (c->audio_buffer_write == 0) c->audio_buffer_write = audio_ibuffer_read + 1024;
+            while (c->frame_sample_index < nb_bytes) {
+                if (c->audio_buffer_write >= audio_ibuffer_read+(audio_ibuffer_size/2)) {
+                    written = max_write;
+                    break;
+                } else {
+                    audio_ibuffer[c->audio_buffer_write%audio_ibuffer_size] += frame->data[0][c->frame_sample_index];
+                    c->audio_buffer_write++;
+                    c->frame_sample_index++;
+                }
+            }
+            written += c->frame_sample_index;
+            if (c->frame_sample_index == nb_bytes) {
+                c->frame_sample_index = 0;
+            }
+        }
+    }
 }
 
 void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
-	cache->mutex.lock();
+    cache->mutex.lock();
 
-	cache->offset = playhead;
-	for (size_t i=0;i<c->cache_size;i++) {
-		retrieve_next_frame_raw_data(c, cache->frames[i]);
-	}
-	cache->written = true;
-	cache->unread = true;
+    cache->offset = playhead;
+    if (!c->reached_end) {
+        for (size_t i=0;i<c->cache_size;i++) {
+            retrieve_next_frame_raw_data(c, cache->frames[i]);
+            if (c->reached_end) break;
+        }
+    }
+    cache->written = true;
+    cache->unread = true;
+    // setting the cache to written even if it hasn't reached_end prevents playback from
+    // signaling a seek/reset because it wasn't able to find the frame
 
 	cache->mutex.unlock();
 }
@@ -81,7 +102,7 @@ void reset_cache(Clip* c, long target_frame) {
 			// play up to the frame we actually want
 			long retrieved_frame = 0;
 			AVFrame* temp = av_frame_alloc();
-			do {
+            do {
 				retrieve_next_frame(c, temp);
 				if (retrieved_frame == 0) {
                     if (target_frame != 0) {
@@ -223,7 +244,7 @@ void open_clip_worker(Clip* clip) {
 				clip->sequence->audio_layout,
 				static_cast<AVSampleFormat>(sample_format),
 				clip->sequence->audio_frequency,
-				clip->stream->codecpar->channel_layout,
+                clip->codecCtx->channel_layout,
 				static_cast<AVSampleFormat>(clip->stream->codecpar->format),
 				clip->stream->codecpar->sample_rate,
 				0,
@@ -266,13 +287,8 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 		if (write_B) {
 			cache_video_worker(clip, playhead, &clip->cache_B);
 		}
-	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-		if (write_A) {
-			cache_audio_worker(clip, true);
-		}
-		if (write_B) {
-			cache_audio_worker(clip, false);
-        }
+    } else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+        cache_audio_worker(clip);
 	}
 }
 
@@ -323,8 +339,8 @@ void Cacher::run() {
 
 	caching = true;
 	while (true) {
-		clip->can_cache.wait(&clip->lock);
-		if (!caching) {
+        clip->can_cache.wait(&clip->lock);
+        if (!caching) {
 			break;
 		} else {
 			cache_clip_worker(clip, playhead, write_A, write_B, reset);

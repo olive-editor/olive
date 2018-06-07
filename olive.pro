@@ -69,7 +69,6 @@ HEADERS += \
     playback/audio.h \
     effects/effects.h \
     io/config.h \
-    ui/timeline-tools.h \
     dialogs/newsequencedialog.h \
     ui/viewerwidget.h \
     ui/viewercontainer.h \
@@ -78,7 +77,8 @@ HEADERS += \
     project/effect.h \
     panels/panels.h \
     playback/cacher.h \
-    io/exportthread.h
+    io/exportthread.h \
+    ui/timelinetools.h
 
 FORMS += \
         mainwindow.ui \
