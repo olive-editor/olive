@@ -143,6 +143,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 	switch (panel_timeline->tool) {
 	case TIMELINE_TOOL_POINTER:
 	case TIMELINE_TOOL_RIPPLE:
+    case TIMELINE_TOOL_SLIP:
 	{
 		if (clip_index >= 0) {
 			if (panel_timeline->is_clip_selected(clip_index)) {
@@ -297,7 +298,7 @@ void TimelineWidget::init_ghosts() {
 		g.old_track = g.track;
 		g.old_clip_in = g.clip_in;
 
-		if (panel_timeline->trim_target > -1) {
+        if (panel_timeline->trim_target > -1 || panel_timeline->tool == TIMELINE_TOOL_SLIP) {
 			// used for trim ops
 			g.ghost_length = g.old_out - g.old_in;
 			g.media_length = g.clip->media->get_length_in_frames(panel_timeline->sequence->frame_rate);
@@ -351,7 +352,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	int track_diff = mouse_track - panel_timeline->drag_track_start;
 
 	long validator;
-	if (panel_timeline->trim_target > -1) {
+    if (panel_timeline->trim_target > -1) { // if trimming
 		// trim ops
 
 		// validate ghosts
@@ -465,7 +466,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 			}
 
             validate_snapping(g, &frame_diff);
-		}
+        }
 
 		// move ghosts
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -506,14 +507,37 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 				}
 			}
 		}
-	}
+    } else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+        // validate ghosts
+        for (int i=0;i<panel_timeline->ghosts.size();i++) {
+            Ghost& g = panel_timeline->ghosts[i];
+            if (!g.clip->media_stream->infinite_length) {
+                // prevent slip moving a clip below 0 clip_in
+                validator = g.old_clip_in - frame_diff;
+                if (validator < 0) frame_diff += validator;
+
+                // prevent slip moving clip beyond media length
+                validator += g.ghost_length;
+                qDebug() << "validator:" << validator;
+                if (validator > g.media_length) frame_diff += validator - g.media_length;
+            }
+        }
+
+        // slip ghosts
+        for (int i=0;i<panel_timeline->ghosts.size();i++) {
+            Ghost& g = panel_timeline->ghosts[i];
+
+            g.clip_in = g.old_clip_in - frame_diff;
+            qDebug() << "slipping ghost" << i << "to" << g.clip_in;
+        }
+    }
 }
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
-    if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
-        panel_timeline->cursor_frame = panel_timeline->getFrameFromScreenPoint(event->pos().x());
-        panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
+    panel_timeline->cursor_frame = panel_timeline->getFrameFromScreenPoint(event->pos().x());
+    panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
+    if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
         int limit = panel_timeline->getFrameFromScreenPoint(10);
         if (panel_timeline->snapping && panel_timeline->cursor_frame > panel_timeline->playhead-limit-1 && panel_timeline->cursor_frame < panel_timeline->playhead+limit+1) {
             panel_timeline->cursor_frame = panel_timeline->playhead;
@@ -535,11 +559,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 		}
         panel_timeline->playhead = qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
 		panel_timeline->repaint_timeline();
-	} else if (panel_timeline->moving_init) {
-		QPoint pos = event->pos();
-
+    } else if (panel_timeline->moving_init) {
 		if (panel_timeline->moving_proc) {
-			update_ghosts(pos);
+            update_ghosts((QPoint&) event->pos());
 		} else {
 			// set up movement
 			// create ghosts
@@ -615,9 +637,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			panel_timeline->moving_proc = true;
 		}
 		panel_timeline->repaint_timeline();
-	} else if (panel_timeline->splitting) {
-		QPoint pos = event->pos();
-
+    } else if (panel_timeline->splitting) {
         int track = panel_timeline->cursor_track;
 		bool repaint = false;
 		for (int i=0;i<panel_timeline->sequence->clip_count();i++) {
@@ -662,7 +682,13 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 	} else if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
 		// redraw because we have a cursor
 		panel_timeline->repaint_timeline();
-	}
+    } else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+        if (getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track) > -1) {
+            setCursor(Qt::SizeHorCursor);
+        } else {
+            unsetCursor();
+        }
+    }
 }
 
 int color_brightness(int r, int g, int b) {
