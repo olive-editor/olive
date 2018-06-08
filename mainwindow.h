@@ -51,6 +51,10 @@ private slots:
 
 	void on_actionRipple_Delete_triggered();
 
+    void on_action_Undo_triggered();
+
+    void on_action_Redo_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

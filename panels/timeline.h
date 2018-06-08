@@ -61,6 +61,8 @@ public:
 	bool focused();
 	void zoom_in();
 	void zoom_out();
+    void undo();
+    void redo();
 	void set_sequence(Sequence* s);
 
 	Sequence* sequence;

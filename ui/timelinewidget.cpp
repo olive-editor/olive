@@ -772,8 +772,8 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 		if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
 			QPoint mouse_pos = mapFromGlobal(QCursor::pos());
 			int track = getTrackFromScreenPoint(mouse_pos.y());
-			if (is_track_visible(track)) {
-				int cursor_x = getScreenPointFromFrame(getFrameFromScreenPoint(mouse_pos.x(), false));
+            if (is_track_visible(track)) {
+                int cursor_x = getScreenPointFromFrame(getFrameFromScreenPoint(mouse_pos.x(), false));
 				int cursor_y = getScreenPointFromTrack(track);
 
 				p.setPen(Qt::gray);

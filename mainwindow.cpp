@@ -161,3 +161,17 @@ void MainWindow::on_actionRipple_Delete_triggered()
 {
 	panel_timeline->delete_selection(true);
 }
+
+void MainWindow::on_action_Undo_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->undo();
+    }
+}
+
+void MainWindow::on_action_Redo_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->redo();
+    }
+}

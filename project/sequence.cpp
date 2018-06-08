@@ -5,6 +5,7 @@
 #include <QDebug>
 
 Sequence::Sequence() {
+    undo_pointer = -1;
 }
 
 Sequence::~Sequence() {
@@ -119,4 +120,30 @@ void Sequence::split_at_playhead(long frame) {
 			split_clip(j, frame);
 		}
 	}
+}
+
+void Sequence::undo_add_current() {
+    undo_pointer++;
+    undo_stack.resize(undo_pointer);
+    undo_stack.append(clips);
+    qDebug() << "a pointer:" << undo_pointer << undo_stack.size();
+}
+
+void Sequence::undo() {
+    if (undo_pointer > 0) {
+        undo_pointer--;
+        clips = undo_stack[undo_pointer];
+    } else {
+        qDebug() << "[INFO] No more undos";
+    }
+    qDebug() << "u pointer:" << undo_pointer << undo_stack.size();
+}
+void Sequence::redo() {
+    if (undo_pointer == undo_stack.size() - 1) {
+        qDebug() << "[INFO] No more redos";
+    } else {
+        undo_pointer++;
+        clips = undo_stack[undo_pointer];
+    }
+    qDebug() << "r pointer:" << undo_pointer << undo_stack.size();
 }

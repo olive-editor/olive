@@ -1,6 +1,8 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
+#define UNDO_LIMIT 100
+
 #include <QVector>
 
 #include "project/clip.h"
@@ -25,8 +27,16 @@ public:
 	float frame_rate;
 	int audio_frequency;
 	int audio_layout;
+
+    void undo_add_current();
+    void undo();
+    void redo();
 private:
 	QList<Clip> clips;
+
+    QVector<QList<Clip>> undo_stack;
+    int undo_pointer;
+    int undo_stack_start;
 };
 
 #endif // SEQUENCE_H

@@ -137,6 +137,22 @@ bool Timeline::focused() {
 	return (ui->video_area->hasFocus() || ui->audio_area->hasFocus());
 }
 
+void Timeline::undo() {
+    if (sequence != NULL) {
+        sequence->undo();
+        ui->video_area->redraw_clips();
+        ui->audio_area->redraw_clips();
+    }
+}
+
+void Timeline::redo() {
+    if (sequence != NULL) {
+        sequence->redo();
+        ui->video_area->redraw_clips();
+        ui->audio_area->redraw_clips();
+    }
+}
+
 void Timeline::repaint_timeline() {
 	if (playing) {
 //		playhead = playhead_start + (playback_timer.elapsed() * 0.001 * sequence->frame_rate);
@@ -151,6 +167,9 @@ void Timeline::repaint_timeline() {
 }
 
 void Timeline::redraw_all_clips() {
+    // add current sequence to the undo stack
+    sequence->undo_add_current();
+
 	ui->video_area->redraw_clips();
 	ui->audio_area->redraw_clips();
 }
