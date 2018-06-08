@@ -55,6 +55,8 @@ private slots:
 
     void on_action_Redo_triggered();
 
+    void on_actionSplit_at_Playhead_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

@@ -128,10 +128,15 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 }
 
 void TimelineWidget::mousePressEvent(QMouseEvent *event) {
-	QPoint pos = event->pos();
+    if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
+        panel_timeline->drag_frame_start = panel_timeline->cursor_frame;
+        panel_timeline->drag_track_start = panel_timeline->cursor_track;
+    } else {
+        QPoint pos = event->pos();
+        panel_timeline->drag_frame_start = getFrameFromScreenPoint(pos.x(), false);
+        panel_timeline->drag_track_start = getTrackFromScreenPoint(pos.y());
+    }
 
-	panel_timeline->drag_frame_start = getFrameFromScreenPoint(pos.x(), false);
-	panel_timeline->drag_track_start = getTrackFromScreenPoint(pos.y());
 	int clip_index = panel_timeline->trim_target;
 	if (clip_index == -1) clip_index = getClipIndexFromCoords(panel_timeline->drag_frame_start, panel_timeline->drag_track_start);
 
@@ -311,12 +316,12 @@ bool subvalidate_snapping(Ghost& g, long* frame_diff, long snap_point) {
     long in_validator = g.old_in + *frame_diff - snap_point;
     long out_validator = g.old_out + *frame_diff - snap_point;
 
-    if (in_validator > -snap_range && in_validator < snap_range) {
+    if ((panel_timeline->trim_target == -1 || panel_timeline->trim_in) && in_validator > -snap_range && in_validator < snap_range) {
         *frame_diff -= in_validator;
         panel_timeline->snap_point = snap_point;
         panel_timeline->snapped = true;
         return true;
-    } else if (out_validator > -snap_range && out_validator < snap_range) {
+    } else if (!panel_timeline->trim_in && out_validator > -snap_range && out_validator < snap_range) {
         *frame_diff -= out_validator;
         panel_timeline->snap_point = snap_point;
         panel_timeline->snapped = true;
@@ -505,25 +510,30 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 }
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
-	if (panel_timeline->selecting) {
-		QPoint pos = event->pos();
+    if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
+        panel_timeline->cursor_frame = getFrameFromScreenPoint(event->pos().x(), false);
+        panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
-		int current_selection_track = getTrackFromScreenPoint(pos.y());
-		long current_selection_frame = getFrameFromScreenPoint(pos.x(), false);;
-		int selection_count = 1 + qMax(current_selection_track, panel_timeline->drag_track_start) - qMin(current_selection_track, panel_timeline->drag_track_start);
+        int limit = getFrameFromScreenPoint(10, false);
+        if (panel_timeline->snapping && panel_timeline->cursor_frame > panel_timeline->playhead-limit-1 && panel_timeline->cursor_frame < panel_timeline->playhead+limit+1) {
+            panel_timeline->cursor_frame = panel_timeline->playhead;
+        }
+    }
+    if (panel_timeline->selecting) {
+        int selection_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
 		if (panel_timeline->selections.size() != selection_count) {
 			panel_timeline->selections.resize(selection_count);
 		}
-		int minimum_selection_track = qMin(current_selection_track, panel_timeline->drag_track_start);
+        int minimum_selection_track = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
 		for (int i=0;i<selection_count;i++) {
 			Selection* s = &panel_timeline->selections[i];
 			s->track = minimum_selection_track + i;
 			long in = panel_timeline->drag_frame_start;
-			long out = current_selection_frame;
+            long out = panel_timeline->cursor_frame;
 			s->in = qMin(in, out);
 			s->out = qMax(in, out);
 		}
-		panel_timeline->playhead = qMin(panel_timeline->drag_frame_start, current_selection_frame);
+        panel_timeline->playhead = qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
 		panel_timeline->repaint_timeline();
 	} else if (panel_timeline->moving_init) {
 		QPoint pos = event->pos();
@@ -608,7 +618,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 	} else if (panel_timeline->splitting) {
 		QPoint pos = event->pos();
 
-		int track = getTrackFromScreenPoint(pos.y());
+        int track = panel_timeline->cursor_track;
 		bool repaint = false;
 		for (int i=0;i<panel_timeline->sequence->clip_count();i++) {
 			if (panel_timeline->sequence->get_clip(i).track == track) {
@@ -770,11 +780,9 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
 		// Draw edit cursor
 		if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
-			QPoint mouse_pos = mapFromGlobal(QCursor::pos());
-			int track = getTrackFromScreenPoint(mouse_pos.y());
-            if (is_track_visible(track)) {
-                int cursor_x = getScreenPointFromFrame(getFrameFromScreenPoint(mouse_pos.x(), false));
-				int cursor_y = getScreenPointFromTrack(track);
+            if (is_track_visible(panel_timeline->cursor_track)) {
+                int cursor_x = getScreenPointFromFrame(panel_timeline->cursor_frame);
+                int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
 
 				p.setPen(Qt::gray);
 				p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + track_height);

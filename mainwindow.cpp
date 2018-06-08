@@ -175,3 +175,10 @@ void MainWindow::on_action_Redo_triggered()
         panel_timeline->redo();
     }
 }
+
+void MainWindow::on_actionSplit_at_Playhead_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->split_at_playhead();
+    }
+}

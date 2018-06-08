@@ -113,20 +113,10 @@ void Sequence::split_clip(int i, long frame) {
 	}
 }
 
-void Sequence::split_at_playhead(long frame) {
-	for (int j=0;j<clip_count();j++) {
-		Clip& c = get_clip(j);
-		if (c.timeline_in < frame && c.timeline_out > frame) {
-			split_clip(j, frame);
-		}
-	}
-}
-
 void Sequence::undo_add_current() {
     undo_pointer++;
     undo_stack.resize(undo_pointer);
     undo_stack.append(clips);
-    qDebug() << "a pointer:" << undo_pointer << undo_stack.size();
 }
 
 void Sequence::undo() {
@@ -136,7 +126,6 @@ void Sequence::undo() {
     } else {
         qDebug() << "[INFO] No more undos";
     }
-    qDebug() << "u pointer:" << undo_pointer << undo_stack.size();
 }
 void Sequence::redo() {
     if (undo_pointer == undo_stack.size() - 1) {
@@ -145,5 +134,4 @@ void Sequence::redo() {
         undo_pointer++;
         clips = undo_stack[undo_pointer];
     }
-    qDebug() << "r pointer:" << undo_pointer << undo_stack.size();
 }

@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -64,6 +64,8 @@
     <addaction name="actionRipple_Delete"/>
     <addaction name="separator"/>
     <addaction name="actionSelect_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionSplit_at_Playhead"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -285,6 +287,14 @@
    </property>
    <property name="shortcut">
     <string>Shift+Del</string>
+   </property>
+  </action>
+  <action name="actionSplit_at_Playhead">
+   <property name="text">
+    <string>Split at Playhead</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
    </property>
   </action>
  </widget>

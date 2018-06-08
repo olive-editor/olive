@@ -63,6 +63,7 @@ public:
 	void zoom_out();
     void undo();
     void redo();
+    void split_at_playhead();
 	void set_sequence(Sequence* s);
 
 	Sequence* sequence;
@@ -85,6 +86,8 @@ public:
 
 	// shared information
 	int tool;
+    long cursor_frame;
+    int cursor_track;
 	float zoom;
 	long drag_frame_start;
 	int drag_track_start;

@@ -20,7 +20,7 @@ Timeline::Timeline(QWidget *parent) :
 {
     selecting = moving_init = moving_proc = splitting = importing = playing = trim_in = snapped = false;
     snapping = true;
-    last_frame = playhead = snap_point = 0;
+    last_frame = playhead = snap_point = cursor_frame = cursor_track = 0;
 	trim_target = -1;
 
 	ui->setupUi(this);
@@ -340,6 +340,42 @@ void Timeline::on_toolSlipButton_toggled(bool checked)
 void Timeline::on_snappingButton_toggled(bool checked)
 {
     snapping = checked;
+}
 
-    qDebug() << "clips vector size:" << sizeof(Clip) * sequence->clip_count();
+void Timeline::split_at_playhead() {
+    bool split_selected = false;
+
+    if (selections.size() > 0) {
+        // see if whole clips are selected
+        for (int j=0;j<sequence->clip_count();j++) {
+            if (is_clip_selected(j)) {
+                sequence->split_clip(j, playhead);
+                split_selected = true;
+            }
+        }
+
+        // split a selection if not
+        if (!split_selected) {
+            for (int j=0;j<sequence->clip_count();j++) {
+                for (int i=0;i<selections.size();i++) {
+                    const Selection& s = selections.at(i);
+                    if (s.track == sequence->get_clip(j).track) {
+                        sequence->split_clip(j, s.in);
+                        sequence->split_clip(j, s.out);
+                        split_selected = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // if nothing was selected or no selections fell within playhead, simply split at playhead
+    if (!split_selected) {
+        for (int j=0;j<sequence->clip_count();j++) {
+            sequence->split_clip(j, playhead);
+            split_selected = true;
+        }
+    }
+
+    if (split_selected) redraw_all_clips();
 }
