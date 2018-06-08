@@ -66,6 +66,9 @@ public:
     void split_at_playhead();
 	void set_sequence(Sequence* s);
 
+    int getScreenPointFromFrame(long frame);
+    long getFrameFromScreenPoint(int x);
+
 	Sequence* sequence;
 	long playhead;
 
@@ -81,7 +84,6 @@ public:
 	bool playing;
 	long playhead_start;
     qint64 start_msecs;
-	QTime playback_timer;
 	QTimer playback_updater;
 
 	// shared information

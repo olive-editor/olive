@@ -35,10 +35,8 @@ protected:
 private:
 	void init_ghosts();
 	void update_ghosts(QPoint& mouse_pos);
-	bool is_track_visible(int track);
-	long getFrameFromScreenPoint(int x, bool floor);
-	int getTrackFromScreenPoint(int y);
-	int getScreenPointFromFrame(long frame);
+    bool is_track_visible(int track);
+    int getTrackFromScreenPoint(int y);
 	int getScreenPointFromTrack(int track);
 	int getClipIndexFromCoords(long frame, int track);
 	int track_height;

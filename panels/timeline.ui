@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
-    <height>535</height>
+    <width>523</width>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -312,11 +312,14 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>796</width>
-         <height>506</height>
+         <width>479</width>
+         <height>198</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -329,6 +332,16 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
+        <item>
+         <widget class="TimelineHeader" name="headers" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>15</height>
+           </size>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QSplitter" name="splitter">
           <property name="orientation">
@@ -370,6 +383,12 @@
    <class>TimelineWidget</class>
    <extends>QWidget</extends>
    <header>ui/timelinewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TimelineHeader</class>
+   <extends>QWidget</extends>
+   <header>ui/timelineheader.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -114,8 +114,12 @@ void Sequence::split_clip(int i, long frame) {
 }
 
 void Sequence::undo_add_current() {
-    undo_pointer++;
-    undo_stack.resize(undo_pointer);
+    if (undo_stack.size() == UNDO_LIMIT) {
+        undo_stack.removeFirst();
+    } else {
+        undo_pointer++;
+        undo_stack.resize(undo_pointer);
+    }
     undo_stack.append(clips);
 }
 

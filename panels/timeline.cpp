@@ -41,7 +41,7 @@ Timeline::Timeline(QWidget *parent) :
 	sequence = NULL;
 	set_sequence(NULL);
 
-	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
+    connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
 }
 
 Timeline::~Timeline()
@@ -87,8 +87,7 @@ bool Timeline::toggle_play() {
 }
 
 void Timeline::play() {
-	playhead_start = playhead;
-	playback_timer.start();
+    playhead_start = playhead;
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
     playing = true;
@@ -121,6 +120,7 @@ void Timeline::set_sequence(Sequence *s) {
 	}
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
+    ui->headers->setEnabled(!null_sequence);
 	ui->video_area->setEnabled(!null_sequence);
 	ui->audio_area->setEnabled(!null_sequence);
 
@@ -134,7 +134,7 @@ void Timeline::set_sequence(Sequence *s) {
 }
 
 bool Timeline::focused() {
-	return (ui->video_area->hasFocus() || ui->audio_area->hasFocus());
+    return (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus());
 }
 
 void Timeline::undo() {
@@ -154,10 +154,10 @@ void Timeline::redo() {
 }
 
 void Timeline::repaint_timeline() {
-	if (playing) {
-//		playhead = playhead_start + (playback_timer.elapsed() * 0.001 * sequence->frame_rate);
+    if (playing) {
         playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
+    ui->headers->update();
 	ui->video_area->update();
 	ui->audio_area->update();
     if (last_frame != playhead) {
@@ -378,4 +378,16 @@ void Timeline::split_at_playhead() {
     }
 
     if (split_selected) redraw_all_clips();
+}
+
+long Timeline::getFrameFromScreenPoint(int x) {
+    long f = round((float) x / zoom);
+    if (f < 0) {
+        return 0;
+    }
+    return f;
+}
+
+int Timeline::getScreenPointFromFrame(long frame) {
+    return (int) round(frame*zoom);
 }
