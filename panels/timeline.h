@@ -72,6 +72,8 @@ public:
     int getScreenPointFromFrame(long frame);
     long getFrameFromScreenPoint(int x);
 
+    void snap_to_clip(long* l);
+
 	Sequence* sequence;
 	long playhead;
 

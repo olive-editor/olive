@@ -539,11 +539,14 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
     if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
         int limit = panel_timeline->getFrameFromScreenPoint(10);
-        if (panel_timeline->snapping &&
-                !panel_timeline->selecting &&
-                panel_timeline->cursor_frame > panel_timeline->playhead-limit-1 &&
-                panel_timeline->cursor_frame < panel_timeline->playhead+limit+1) {
-            panel_timeline->cursor_frame = panel_timeline->playhead;
+        if (panel_timeline->snapping) {
+            if (!panel_timeline->selecting &&
+                    panel_timeline->cursor_frame > panel_timeline->playhead-limit-1 &&
+                    panel_timeline->cursor_frame < panel_timeline->playhead+limit+1) {
+                panel_timeline->cursor_frame = panel_timeline->playhead;
+            } else {
+                panel_timeline->snap_to_clip(&panel_timeline->cursor_frame);
+            }
         }
     }
     if (panel_timeline->selecting) {

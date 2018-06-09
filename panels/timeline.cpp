@@ -454,6 +454,27 @@ void Timeline::split_at_playhead() {
     if (split_selected) redraw_all_clips();
 }
 
+void Timeline::snap_to_clip(long* l) {
+    int limit = 10;
+    snapped = false;
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+        if (*l > c->timeline_in-limit-1 &&
+                *l < c->timeline_in+limit+1) {
+            *l = c->timeline_in;
+            snapped = true;
+            snap_point = c->timeline_in;
+            break;
+        } else if (*l > c->timeline_out-limit-1 &&
+                   *l < c->timeline_out+limit+1) {
+            *l = c->timeline_out;
+            snapped = true;
+            snap_point = c->timeline_out;
+            break;
+        }
+    }
+}
+
 long Timeline::getFrameFromScreenPoint(int x) {
     long f = round((float) x / zoom);
     if (f < 0) {
