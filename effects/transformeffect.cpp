@@ -78,8 +78,10 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	scale_y->setValue(100);
 	scale_y->setEnabled(false);
 	uniform_scale_box->setChecked(true);
-	anchor_x_box->setValue(c->media_stream->video_width/2);
-	anchor_y_box->setValue(c->media_stream->video_height/2);
+    default_anchor_x = c->media_stream->video_width/2;
+    default_anchor_y = c->media_stream->video_height/2;
+    anchor_x_box->setValue(default_anchor_x);
+    anchor_y_box->setValue(default_anchor_y);
 	opacity->setValue(100);
 
 	connect(position_x, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
@@ -117,8 +119,8 @@ void TransformEffect::process_gl(int* anchor_x, int* anchor_y) {
 	glTranslatef(position_x->value()-(parent_clip->sequence->width/2), position_y->value()-(parent_clip->sequence->height/2), 0);
 
 	// anchor point
-	*anchor_x += anchor_x_box->value();
-	*anchor_y += anchor_y_box->value();
+    *anchor_x += (anchor_x_box->value()-default_anchor_x);
+    *anchor_y += (anchor_y_box->value()-default_anchor_y);
 
 	// rotation
 	glRotatef(rotation->value(), 0, 0, 1);

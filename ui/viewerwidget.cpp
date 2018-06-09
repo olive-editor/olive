@@ -86,8 +86,8 @@ void ViewerWidget::paintGL()
 					int half_width = c->sequence->width/2;
 					int half_height = c->sequence->height/2;
 					glOrtho(-half_width, half_width, half_height,- half_height, -1, 1);
-					int anchor_x = 0;
-					int anchor_y = 0;
+                    int anchor_x = c->media_stream->video_width/2;
+                    int anchor_y = c->media_stream->video_height/2;
 
 					// perform all transform effects
                     for (int j=0;j<c->effects.size();j++) {

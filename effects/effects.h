@@ -41,6 +41,9 @@ public:
 	QSpinBox* opacity;
 public slots:
 	void toggle_uniform_scale(bool enabled);
+private:
+    int default_anchor_x;
+    int default_anchor_y;
 };
 
 // audio effects
