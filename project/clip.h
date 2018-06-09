@@ -32,10 +32,8 @@ struct ClipCache {
 struct Clip
 {
 	Clip();
-	Clip(const Clip &c);
-	Clip& operator= (const Clip&); // explicitly defaulted copy assignment
 	~Clip();
-	void copy(const Clip& c);
+    Clip* copy();
 	void init();
 	void reset();
 	bool undeletable;

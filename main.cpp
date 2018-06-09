@@ -8,7 +8,7 @@ extern "C" {
 int main(int argc, char *argv[])
 {
 	// init ffmpeg subsystem
-	av_register_all();
+    av_register_all();
 
 	QApplication a(argc, argv);
 	MainWindow w;

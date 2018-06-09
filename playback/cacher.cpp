@@ -313,20 +313,20 @@ void close_clip_worker(Clip* clip) {
 
 	av_frame_free(&clip->frame);
 
-	clip->reset();
-
 	// remove clip from current_clips
 	cc_lock.lock();
 	bool found = false;
 	for (int i=0;i<current_clips.count();i++) {
 		if (current_clips[i] == clip) {
-			current_clips.erase(current_clips.begin()+i);
+            current_clips.removeAt(i);
 			found = true;
 			i = current_clips.count();
 		}
 	}
 	cc_lock.unlock();
 	if (!found) qDebug() << "[WARNING] Could not remove clip from current clips";
+
+    clip->reset();
 
 	qDebug() << "[INFO] Clip closed on track" << clip->track;
 }

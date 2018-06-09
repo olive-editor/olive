@@ -15,36 +15,30 @@ Clip::Clip() {
 	init();
 }
 
-Clip::Clip(const Clip &c) {
-	init();
-	copy(c);
-}
+Clip* Clip::copy() {
+    Clip* copy = new Clip();
 
-Clip& Clip::operator= (const Clip& c) {
-	init();
-	copy(c);
-	return *this;
-}
+    copy->name = name;
+    copy->clip_in = clip_in;
+    copy->timeline_in = timeline_in;
+    copy->timeline_out = timeline_out;
+    copy->track = track;
+    copy->color_r = color_r;
+    copy->color_g = color_g;
+    copy->color_b = color_b;
+    copy->sequence = sequence;
+    copy->media = media;
+    copy->media_stream = media_stream;
 
-void Clip::copy(const Clip& c) {
-	name = c.name;
-	clip_in = c.clip_in;
-	timeline_in = c.timeline_in;
-	timeline_out = c.timeline_out;
-	track = c.track;
-	color_r = c.color_r;
-	color_g = c.color_g;
-	color_b = c.color_b;
-	sequence = c.sequence;
-	media = c.media;
-	media_stream = c.media_stream;
-
-    for (int i=0;i<c.effects.size();i++) {
-        effects.append(c.effects.at(i)->copy());
+    for (int i=0;i<effects.size();i++) {
+        copy->effects.append(effects.at(i)->copy());
     }
+
+    return copy;
 }
 
 void Clip::init() {
+    qDebug() << "init was called";
 	reset();
 	clip_in = timeline_in = timeline_out = track = undeletable = 0;
 	texture = NULL;

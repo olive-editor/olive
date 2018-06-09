@@ -12,10 +12,9 @@ public:
 	Sequence();
 	~Sequence();
 	QString name;
-	Clip& new_clip();
-	Clip& insert_clip(const Clip& c);
+    void add_clip(Clip* c);
 	int clip_count();
-	Clip& get_clip(int i);
+    Clip* get_clip(int i);
 	void delete_clip(int i);
 	void delete_area(long in, long out, int track);
     void split_clip(int i, long frame);
@@ -31,9 +30,10 @@ public:
     void undo();
     void redo();
 private:
-	QList<Clip> clips;
+    QVector<Clip*> clips;
 
-    QVector<QList<Clip>> undo_stack;
+    void set_undo(int i);
+    QVector<QVector<Clip*>*> undo_stack;
     int undo_pointer;
     int undo_stack_start;
 };

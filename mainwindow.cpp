@@ -182,3 +182,24 @@ void MainWindow::on_actionSplit_at_Playhead_triggered()
         panel_timeline->split_at_playhead();
     }
 }
+
+void MainWindow::on_actionCu_t_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->copy(true);
+    }
+}
+
+void MainWindow::on_actionCop_y_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->copy(false);
+    }
+}
+
+void MainWindow::on_action_Paste_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->paste();
+    }
+}

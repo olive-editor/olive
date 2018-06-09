@@ -57,6 +57,12 @@ private slots:
 
     void on_actionSplit_at_Playhead_triggered();
 
+    void on_actionCu_t_triggered();
+
+    void on_actionCop_y_triggered();
+
+    void on_action_Paste_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

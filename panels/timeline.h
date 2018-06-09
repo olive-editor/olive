@@ -63,6 +63,9 @@ public:
 	void zoom_out();
     void undo();
     void redo();
+    void copy(bool del);
+    void paste();
+    bool split_selection();
     void split_at_playhead();
 	void set_sequence(Sequence* s);
 
@@ -153,6 +156,7 @@ private:
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
 	long last_frame;
+    QVector<Clip*> clip_clipboard;
 };
 
 #endif // TIMELINE_H

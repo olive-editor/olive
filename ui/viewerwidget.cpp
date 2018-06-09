@@ -66,6 +66,7 @@ void ViewerWidget::paintGL()
     bool render_audio = (panel_timeline->playing || force_audio);
 
 	cc_lock.lock();
+
 	for (int i=0;i<current_clips.size();i++) {
 		Clip* c = current_clips.at(i);
 
@@ -110,7 +111,7 @@ void ViewerWidget::paintGL()
 					glEnd();
 
 					c->texture->release();
-				}
+                }
             } else if (render_audio &&
                        c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
                        playhead >= c->timeline_in &&
