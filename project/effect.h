@@ -7,6 +7,7 @@ class QWidget;
 class CollapsibleWidget;
 
 struct Clip;
+class QXmlStreamWriter;
 
 enum EffectTypes { EFFECT_TYPE_INVALID, EFFECT_TYPE_VIDEO, EFFECT_TYPE_AUDIO };
 
@@ -16,18 +17,23 @@ class Effect : public QObject
 public:
     Effect(Clip* c); // default constructor
 	int type;
+    int id;
 	QString name;
 	CollapsibleWidget* container;
 	QWidget* ui;
     Clip* parent_clip;
 
     virtual Effect* copy();
+    virtual void save(QXmlStreamWriter* stream);
 
 	virtual void process_gl(int* anchor_x, int* anchor_y);
 	virtual void process_audio(uint8_t* samples, int nb_bytes);
 
 public slots:
 	void field_changed();
+
+protected:
+    void setup_effect(int t, int i);
 };
 
 #endif // EFFECT_H

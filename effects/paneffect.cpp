@@ -7,12 +7,9 @@
 #include "ui/collapsiblewidget.h"
 
 PanEffect::PanEffect(Clip* c) : Effect(c) {
-	container = new CollapsibleWidget();
-	container->setText(audio_effect_names[AUDIO_PAN_EFFECT]);
+    setup_effect(EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT);
 
-	ui = new QWidget();
-
-	QGridLayout* ui_layout = new QGridLayout();
+    QGridLayout* ui_layout = new QGridLayout();
 
 	ui_layout->addWidget(new QLabel("Pan:"), 0, 0);
 	pan_val = new QSpinBox();
@@ -32,6 +29,10 @@ Effect* PanEffect::copy() {
     PanEffect* p = new PanEffect(parent_clip);
     p->pan_val->setValue(pan_val->value());
     return p;
+}
+
+void PanEffect::save(QXmlStreamWriter *stream) {
+    stream->writeTextElement("pan", QString::number(pan_val->value()));
 }
 
 void PanEffect::process_audio(uint8_t *samples, int nb_bytes) {

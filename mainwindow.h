@@ -63,6 +63,8 @@ private slots:
 
     void on_action_Paste_triggered();
 
+    void on_action_Save_Project_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

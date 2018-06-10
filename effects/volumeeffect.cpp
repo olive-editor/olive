@@ -7,10 +7,7 @@
 #include "ui/collapsiblewidget.h"
 
 VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
-	container = new CollapsibleWidget();
-	container->setText(audio_effect_names[AUDIO_VOLUME_EFFECT]);
-
-	ui = new QWidget();
+    setup_effect(EFFECT_TYPE_AUDIO, AUDIO_VOLUME_EFFECT);
 
 	QGridLayout* ui_layout = new QGridLayout();
 
@@ -32,6 +29,10 @@ Effect* VolumeEffect::copy() {
     VolumeEffect* v = new VolumeEffect(parent_clip);
     v->volume_val->setValue(volume_val->value());
     return v;
+}
+
+void VolumeEffect::save(QXmlStreamWriter *stream) {
+    stream->writeTextElement("volume", QString::number(volume_val->value()));
 }
 
 void VolumeEffect::process_audio(uint8_t *samples, int nb_bytes) {

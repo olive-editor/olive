@@ -47,7 +47,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 		panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
 		for (int i=0;i<items.size();i++) {
 			bool ignore_infinite_length = false;
-			Media* m = reinterpret_cast<Media*>(items.at(i)->data(0, Qt::UserRole + 1).value<quintptr>());
+            Media* m = panel_project->get_media_from_tree(items.at(i));
 			long duration = m->get_length_in_frames(panel_timeline->sequence->frame_rate);
 			Ghost g = {NULL, entry_point, entry_point + duration};
 			g.media = m;
@@ -544,6 +544,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     panel_timeline->cursor_frame > panel_timeline->playhead-limit-1 &&
                     panel_timeline->cursor_frame < panel_timeline->playhead+limit+1) {
                 panel_timeline->cursor_frame = panel_timeline->playhead;
+                panel_timeline->snapped = true;
+                panel_timeline->snap_point = panel_timeline->playhead;
             } else {
                 panel_timeline->snap_to_clip(&panel_timeline->cursor_frame);
             }

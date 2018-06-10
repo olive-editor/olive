@@ -14,10 +14,7 @@
 #include "io/media.h"
 
 TransformEffect::TransformEffect(Clip* c) : Effect(c) {
-	container = new CollapsibleWidget();
-	container->setText(video_effect_names[VIDEO_TRANSFORM_EFFECT]);
-
-	ui = new QWidget();
+    setup_effect(EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT);
 
 	QGridLayout* ui_layout = new QGridLayout();
 

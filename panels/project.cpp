@@ -2,15 +2,22 @@
 #include "ui_project.h"
 #include "io/media.h"
 
+#include "panels/panels.h"
+#include "panels/timeline.h"
+#include "panels/viewer.h"
+
 #include <QFileDialog>
 #include <QString>
 #include <QVariant>
 #include <QDebug>
 #include <QCharRef>
 #include <QMessageBox>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include "panels/timeline.h"
 #include "project/sequence.h"
+#include "project/effect.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -58,7 +65,7 @@ void Project::new_sequence(Sequence *s) {
 
 	QTreeWidgetItem* item = new QTreeWidgetItem();
 	item->setText(0, s->name);
-	item->setData(0, Qt::UserRole + 1, QVariant::fromValue(reinterpret_cast<quintptr>(m)));
+    set_media_of_tree(item, m);
 
 	ui->treeWidget->addTopLevelItem(item);
 	source_table = ui->treeWidget;
@@ -153,7 +160,7 @@ void Project::import_dialog() {
 				}
 				item->setText(0, m->name);
 				item->setText(1, QString::number(m->length));
-				item->setData(0, Qt::UserRole + 1, QVariant::fromValue(reinterpret_cast<quintptr>(m)));
+                set_media_of_tree(item, m);
 
 				ui->treeWidget->addTopLevelItem(item);
 			}
@@ -161,4 +168,131 @@ void Project::import_dialog() {
 		avformat_close_input(&pFormatCtx);
 		delete [] filename;
 	}
+}
+
+Media* Project::get_media_from_tree(QTreeWidgetItem* item) {
+    return reinterpret_cast<Media*>(item->data(0, Qt::UserRole + 1).value<quintptr>());
+}
+
+void Project::set_media_of_tree(QTreeWidgetItem* item, Media* media) {
+    item->setData(0, Qt::UserRole + 1, QVariant::fromValue(reinterpret_cast<quintptr>(media)));
+}
+
+void Project::remove_item(int i) {
+    Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
+    if (m->is_sequence) {
+        delete m->sequence;
+    }
+    delete m;
+    ui->treeWidget->takeTopLevelItem(i);
+}
+
+void Project::clear() {
+    int len = ui->treeWidget->topLevelItemCount();
+    for (int i=0;i<len;i++) {
+        remove_item(i);
+    }
+}
+
+void Project::set_sequence(Sequence* s) {
+    panel_timeline->set_sequence(s);
+    panel_viewer->set_sequence(s);
+}
+
+void Project::load_project() {
+    // clear existing project
+    set_sequence(NULL);
+    clear();
+
+    QFile file("C:/Users/Matt/Desktop/test.xml");
+    if (!file.open(QIODevice::ReadOnly/* | QIODevice::Text*/)) {
+        qDebug() << "[ERROR] Could not open file";
+        return;
+    }
+
+    QXmlStreamReader stream(&file);
+
+    while (!stream.atEnd()) {
+        stream.readNext();
+
+    }
+    if (stream.hasError()) {
+        qDebug() << "[ERROR] Error parsing XML." << stream.error();
+    }
+}
+
+void Project::save_project() {
+    QFile file("C:/Users/Matt/Desktop/test.xml");
+    if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
+        qDebug() << "[ERROR] Could not open file";
+        return;
+    }
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+
+    int len = ui->treeWidget->topLevelItemCount();
+    stream.writeStartElement("media");
+    for (int i=0;i<len;i++) {
+        Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
+        if (!m->is_sequence) {
+            m->save_id = i;
+            stream.writeStartElement("footage");
+            stream.writeAttribute("id", QString::number(m->save_id));
+            stream.writeTextElement("name", m->name);
+            stream.writeTextElement("url", m->url);
+            stream.writeEndElement();
+        }
+    }
+    stream.writeEndElement();
+
+    stream.writeStartElement("timeline");
+    for (int i=0;i<len;i++) {
+        Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
+        if (m->is_sequence) {
+            Sequence* s = m->sequence;
+            stream.writeStartElement("sequence");
+            stream.writeTextElement("name", s->name);
+            stream.writeTextElement("width", QString::number(s->width));
+            stream.writeTextElement("height", QString::number(s->height));
+            stream.writeTextElement("framerate", QString::number(s->frame_rate));
+            stream.writeTextElement("afreq", QString::number(s->audio_frequency));
+            stream.writeTextElement("alayout", QString::number(s->audio_layout));
+            stream.writeStartElement("clips");
+            for (int i=0;i<s->clip_count();i++) {
+                Clip* c = s->get_clip(i);
+
+                stream.writeStartElement("clip");
+                stream.writeTextElement("name", c->name);
+                stream.writeTextElement("clipin", QString::number(c->clip_in));
+                stream.writeTextElement("in", QString::number(c->timeline_in));
+                stream.writeTextElement("out", QString::number(c->timeline_out));
+                stream.writeTextElement("track", QString::number(c->track));
+                stream.writeStartElement("color");
+                stream.writeAttribute("r", QString::number(c->color_r));
+                stream.writeAttribute("g", QString::number(c->color_g));
+                stream.writeAttribute("b", QString::number(c->color_b));
+                stream.writeEndElement();
+                stream.writeTextElement("media", QString::number(c->media->save_id));
+                stream.writeTextElement("stream", QString::number(c->media_stream->file_index));
+                stream.writeStartElement("effects");
+                for (int j=0;j<c->effects.size();j++) {
+                    stream.writeStartElement("effect");
+                    Effect* e = c->effects.at(j);
+                    stream.writeAttribute("id", QString::number(e->id));
+                    e->save(&stream);
+                    stream.writeEndElement();
+                }
+                stream.writeEndElement();
+                stream.writeEndElement();
+            }
+            stream.writeEndElement();
+        }
+    }
+    stream.writeEndElement();
+
+    stream.writeEndDocument();
+
+    file.close();
 }

@@ -24,6 +24,7 @@ struct Media
 	QVector<MediaStream> video_tracks;
 	QVector<MediaStream> audio_tracks;
 	Sequence* sequence;
+    int save_id;
 	long get_length_in_frames(float frame_rate);
 };
 

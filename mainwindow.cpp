@@ -203,3 +203,8 @@ void MainWindow::on_action_Paste_triggered()
         panel_timeline->paste();
     }
 }
+
+void MainWindow::on_action_Save_Project_triggered()
+{
+    panel_project->save_project();
+}

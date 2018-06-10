@@ -19,8 +19,7 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* )
 	} else if (selectedItems().count() == 1) {
 		Media* m = reinterpret_cast<Media*>(selectedItems().at(0)->data(0, Qt::UserRole + 1).value<quintptr>());
 		if (m->is_sequence) {
-			panel_timeline->set_sequence(m->sequence);
-			panel_viewer->set_sequence(m->sequence);
+            panel_project->set_sequence(m->sequence);
 		}
 	}
 }
