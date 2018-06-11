@@ -15,6 +15,9 @@ namespace Ui {
 class Project;
 }
 
+extern bool project_changed;
+extern QString project_url;
+
 class Project : public QDockWidget
 {
 	Q_OBJECT
@@ -23,12 +26,13 @@ public:
 	explicit Project(QWidget *parent = 0);
 	~Project();
     void clear();
-	void import_dialog();
-    void set_sequence(Sequence* s);
+    Media* import_file(QString url);
+    void import_dialog();
 	void new_sequence(Sequence* s);
 	QString get_next_sequence_name();
     void remove_item(int i);
 
+    void new_project();
     void load_project();
     void save_project();
 

@@ -75,6 +75,11 @@ ExportDialog::ExportDialog(QWidget *parent) :
 		ui->formatCombobox->addItem(format_strings[i]);
 	}
 	ui->formatCombobox->setCurrentIndex(FORMAT_MPEG4);
+
+    ui->widthSpinbox->setValue(sequence->width);
+    ui->heightSpinbox->setValue(sequence->height);
+    ui->samplingRateSpinbox->setValue(sequence->audio_frequency);
+    ui->framerateSpinbox->setValue(sequence->frame_rate);
 }
 
 ExportDialog::~ExportDialog()
@@ -440,13 +445,6 @@ void ExportDialog::on_pushButton_clicked()
 
 		et->start();
 	}
-}
-
-void ExportDialog::set_defaults(Sequence* s) {
-	ui->widthSpinbox->setValue(s->width);
-	ui->heightSpinbox->setValue(s->height);
-	ui->samplingRateSpinbox->setValue(s->audio_frequency);
-	ui->framerateSpinbox->setValue(s->frame_rate);
 }
 
 void ExportDialog::update_progress_bar(int value) {

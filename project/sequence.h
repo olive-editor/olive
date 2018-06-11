@@ -38,4 +38,7 @@ private:
     int undo_stack_start;
 };
 
+// static variable for the currently active sequence
+extern Sequence* sequence;
+
 #endif // SEQUENCE_H

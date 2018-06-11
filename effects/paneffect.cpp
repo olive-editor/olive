@@ -31,6 +31,16 @@ Effect* PanEffect::copy() {
     return p;
 }
 
+void PanEffect::load(QXmlStreamReader *stream) {
+    while (!(stream->isEndElement() && stream->name() == "effect") && !stream->atEnd()) {
+        stream->readNext();
+        if (stream->isStartElement() && stream->name() == "pan") {
+            stream->readNext();
+            pan_val->setValue(stream->text().toInt());
+        }
+    }
+}
+
 void PanEffect::save(QXmlStreamWriter *stream) {
     stream->writeTextElement("pan", QString::number(pan_val->value()));
 }

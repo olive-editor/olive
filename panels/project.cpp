@@ -5,6 +5,8 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
+#include "playback/playback.h"
+#include "effects/effects.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -23,6 +25,9 @@ extern "C" {
 	#include <libavformat/avformat.h>
 	#include <libavcodec/avcodec.h>
 }
+
+bool project_changed = false;
+QString project_url = "";
 
 Project::Project(QWidget *parent) :
 	QDockWidget(parent),
@@ -69,13 +74,80 @@ void Project::new_sequence(Sequence *s) {
 
 	ui->treeWidget->addTopLevelItem(item);
 	source_table = ui->treeWidget;
+
+    project_changed = true;
+}
+
+Media* Project::import_file(QString file) {
+    QByteArray ba = file.toLatin1();
+    char* filename = new char[ba.size()+1];
+    strcpy(filename, ba.data());
+
+    Media* m = NULL;
+    AVFormatContext* pFormatCtx = NULL;
+    int errCode = avformat_open_input(&pFormatCtx, filename, NULL, NULL);
+    if(errCode != 0) {
+        char err[1024];
+        av_strerror(errCode, err, 1024);
+        qDebug() << "[ERROR] Could not open" << filename << "-" << err;
+    } else {
+        errCode = avformat_find_stream_info(pFormatCtx, NULL);
+        if (errCode < 0) {
+            char err[1024];
+            av_strerror(errCode, err, 1024);
+            fprintf(stderr, "[ERROR] Could not find stream information. %s\n", err);
+        } else {
+            av_dump_format(pFormatCtx, 0, filename, 0);
+
+            m = new Media();
+            m->is_sequence = false;
+            m->url = file;
+
+            // detect video/audio streams in file
+            for (int i=0;i<(int)pFormatCtx->nb_streams;i++) {
+                // Find the decoder for the video stream
+                if (avcodec_find_decoder(pFormatCtx->streams[i]->codecpar->codec_id) == NULL) {
+                    qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
+                } else {
+                    if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                        qDebug() << "[WARNING] INFINITE_LENGTH calculation is inaccurate in this build\n";
+                        // TODO BETTER infinite length calculator
+                        bool infinite_length = (pFormatCtx->streams[i]->nb_frames == 0);
+//							bool infinite_length = false;
+
+                        m->video_tracks.append({i, pFormatCtx->streams[i]->codecpar->width, pFormatCtx->streams[i]->codecpar->height, infinite_length});
+                    } else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                        m->audio_tracks.append({i, 0, 0, false});
+                    }
+                }
+            }
+            m->name = file.mid(file.lastIndexOf('/')+1);
+            m->length = pFormatCtx->duration;
+
+            QTreeWidgetItem* item = new QTreeWidgetItem();
+            if (m->video_tracks.size() == 0) {
+                item->setIcon(0, QIcon(":/icons/audiosource.png"));
+            } else {
+                item->setIcon(0, QIcon(":/icons/videosource.png"));
+            }
+            item->setText(0, m->name);
+            item->setText(1, QString::number(m->length));
+            set_media_of_tree(item, m);
+
+            ui->treeWidget->addTopLevelItem(item);
+
+            project_changed = true;
+        }
+    }
+    avformat_close_input(&pFormatCtx);
+    delete [] filename;
+    return m;
 }
 
 void Project::import_dialog() {
 	QStringList files = QFileDialog::getOpenFileNames(this, "Import media...", "", "All Files (*.*)");
 	for (int i=0;i<files.count();i++) {
 		QString file(files.at(i));
-		char* filename = NULL;
 
 		// heuristic to determine whether file is part of an image sequence
 		int lastcharindex = file.lastIndexOf(".")-1;
@@ -108,65 +180,7 @@ void Project::import_dialog() {
 			}
 		}
 
-		QByteArray ba = file.toLatin1();
-		filename = new char[ba.size()+1];
-		strcpy(filename, ba.data());
-
-		AVFormatContext* pFormatCtx = NULL;
-		int errCode = avformat_open_input(&pFormatCtx, filename, NULL, NULL);
-		if(errCode != 0) {
-			char err[1024];
-			av_strerror(errCode, err, 1024);
-			qDebug() << "[ERROR] Could not open" << filename << "-" << err;
-		} else {
-			errCode = avformat_find_stream_info(pFormatCtx, NULL);
-			if (errCode < 0) {
-				char err[1024];
-				av_strerror(errCode, err, 1024);
-				fprintf(stderr, "[ERROR] Could not find stream information. %s\n", err);
-			} else {
-				av_dump_format(pFormatCtx, 0, filename, 0);
-
-				Media* m = new Media();
-				m->is_sequence = false;
-				m->url = file;
-
-				// detect video/audio streams in file
-				for (int i=0;i<(int)pFormatCtx->nb_streams;i++) {
-					// Find the decoder for the video stream
-					if (avcodec_find_decoder(pFormatCtx->streams[i]->codecpar->codec_id) == NULL) {
-						qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
-					} else {
-						if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-							qDebug() << "[WARNING] INFINITE_LENGTH calculation is inaccurate in this build\n";
-							// TODO BETTER infinite length calculator
-							bool infinite_length = (pFormatCtx->streams[i]->nb_frames == 0);
-//							bool infinite_length = false;
-
-							m->video_tracks.append({i, pFormatCtx->streams[i]->codecpar->width, pFormatCtx->streams[i]->codecpar->height, infinite_length});
-						} else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-							m->audio_tracks.append({i, 0, 0, false});
-						}
-					}
-				}
-				m->name = files.at(i).mid(files.at(i).lastIndexOf('/')+1);
-				m->length = pFormatCtx->duration;
-
-				QTreeWidgetItem* item = new QTreeWidgetItem();
-				if (m->video_tracks.size() == 0) {
-					item->setIcon(0, QIcon(":/icons/audiosource.png"));
-				} else {
-					item->setIcon(0, QIcon(":/icons/videosource.png"));
-				}
-				item->setText(0, m->name);
-				item->setText(1, QString::number(m->length));
-                set_media_of_tree(item, m);
-
-				ui->treeWidget->addTopLevelItem(item);
-			}
-		}
-		avformat_close_input(&pFormatCtx);
-		delete [] filename;
+        import_file(file);
 	}
 }
 
@@ -185,26 +199,35 @@ void Project::remove_item(int i) {
     }
     delete m;
     ui->treeWidget->takeTopLevelItem(i);
+    project_changed = true;
 }
 
 void Project::clear() {
-    int len = ui->treeWidget->topLevelItemCount();
-    for (int i=0;i<len;i++) {
-        remove_item(i);
+    while (ui->treeWidget->topLevelItemCount() > 0) {
+        remove_item(0);
     }
 }
 
-void Project::set_sequence(Sequence* s) {
-    panel_timeline->set_sequence(s);
-    panel_viewer->set_sequence(s);
-}
-
-void Project::load_project() {
+void Project::new_project() {
     // clear existing project
     set_sequence(NULL);
     clear();
+    project_changed = false;
+}
 
-    QFile file("C:/Users/Matt/Desktop/test.xml");
+#define LOAD_STATE_IDLE 0
+#define LOAD_STATE_MEDIA 1
+#define LOAD_STATE_FOOTAGE 2
+#define LOAD_STATE_TIMELINE 3
+#define LOAD_STATE_SEQUENCE 4
+#define LOAD_STATE_CLIP 5
+#define LOAD_STATE_CLIP_EFFECTS 6
+#define LOAD_STATE_EFFECT 7
+
+void Project::load_project() {
+    new_project();
+
+    QFile file(project_url);
     if (!file.open(QIODevice::ReadOnly/* | QIODevice::Text*/)) {
         qDebug() << "[ERROR] Could not open file";
         return;
@@ -212,17 +235,174 @@ void Project::load_project() {
 
     QXmlStreamReader stream(&file);
 
+    // temp variables for loading
+    QVector<Media*> temp_media_list;
+    QString temp_name;
+    QString temp_url;
+    int temp_media_id;
+    Sequence* temp_seq;
+    Clip* temp_clip;
+
+    int state = LOAD_STATE_IDLE;
     while (!stream.atEnd()) {
         stream.readNext();
+        switch (state) {
+        case LOAD_STATE_IDLE:
+            if (stream.isStartElement()) {
+                if (stream.name() == "footage") {
+                    for (int j=0;j<stream.attributes().size();j++) {
+                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                        if (attr.name() == "id") {
+                            temp_media_id = attr.value().toInt();
+                        }
+                    }
+                    state = LOAD_STATE_FOOTAGE;
+                } else if (stream.name() == "sequence") {
+                    temp_seq = new Sequence();
+                    state = LOAD_STATE_SEQUENCE;
+                }
+            }
+            break;
+        case LOAD_STATE_FOOTAGE:
+            if (stream.isEndElement() && stream.name() == "footage") {
+                Media* m = import_file(temp_url);
+                m->save_id = temp_media_id;
+                m->name = temp_name;
+                temp_media_list.append(m);
+                state = LOAD_STATE_IDLE;
+            } else if (stream.isStartElement()) {
+                if (stream.name() == "name") {
+                    stream.readNext();
+                    temp_name = stream.text().toString();
+                } else if (stream.name() == "url") {
+                    stream.readNext();
+                    temp_url = stream.text().toString();
+                }
+            }
+            break;
+        case LOAD_STATE_SEQUENCE:
+            if (stream.isEndElement() && stream.name() == "sequence") {
+                new_sequence(temp_seq);
+                state = LOAD_STATE_IDLE;
+            } else if (stream.isStartElement()) {
+                if (stream.name() == "name") {
+                    stream.readNext();
+                    temp_seq->name = stream.text().toString();
+                } else if (stream.name() == "width") {
+                    stream.readNext();
+                    temp_seq->width = stream.text().toInt();
+                } else if (stream.name() == "height") {
+                    stream.readNext();
+                    temp_seq->height = stream.text().toInt();
+                } else if (stream.name() == "framerate") {
+                    stream.readNext();
+                    temp_seq->frame_rate = stream.text().toFloat();
+                } else if (stream.name() == "afreq") {
+                    stream.readNext();
+                    temp_seq->audio_frequency = stream.text().toInt();
+                } else if (stream.name() == "alayout") {
+                    stream.readNext();
+                    temp_seq->audio_layout = stream.text().toInt();
+                } else if (stream.name() == "clip") {
+                    temp_clip = new Clip();
+                    temp_clip->sequence = temp_seq;
+                    state = LOAD_STATE_CLIP;
+                }
+            }
+            break;
+        case LOAD_STATE_CLIP:
+            if (stream.isEndElement() && stream.name() == "clip") {
+                temp_seq->add_clip(temp_clip);
+                state = LOAD_STATE_SEQUENCE;
+            } else if (stream.isStartElement()) {
+                if (stream.name() == "name") {
+                    stream.readNext();
+                    temp_clip->name = stream.text().toString();
+                } else if (stream.name() == "clipin") {
+                    stream.readNext();
+                    temp_clip->clip_in = stream.text().toInt();
+                } else if (stream.name() == "in") {
+                    stream.readNext();
+                    temp_clip->timeline_in = stream.text().toInt();
+                } else if (stream.name() == "out") {
+                    stream.readNext();
+                    temp_clip->timeline_out = stream.text().toInt();
+                } else if (stream.name() == "track") {
+                    stream.readNext();
+                    temp_clip->track = stream.text().toInt();
+                } else if (stream.name() == "color") {
+                    for (int j=0;j<stream.attributes().size();j++) {
+                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                        if (attr.name().toString() == QLatin1String("r")) {
+                            temp_clip->color_r = attr.value().toInt();
+                        } else if (attr.name().toString() == QLatin1String("g")) {
+                            temp_clip->color_g = attr.value().toInt();
+                        } else if (attr.name().toString() == QLatin1String("b")) {
+                            temp_clip->color_b = attr.value().toInt();
+                        }
+                    }
+                } else if (stream.name() == "media") {
+                    stream.readNext();
+                    for (int i=0;i<temp_media_list.size();i++) {
+                        Media* m = temp_media_list.at(i);
+                        if (m->save_id == stream.text().toInt()) {
+                            temp_clip->media = m;
+                            break;
+                        }
+                    }
+                } else if (stream.name() == "stream") {
+                    // TODO very unintelligent code - i hate this
+                    int stream_index = stream.text().toInt();
+                    bool found = false;
+                    for (int i=0;i<temp_clip->media->video_tracks.size();i++) {
+                        if (temp_clip->media->video_tracks.at(i).file_index == stream_index) {
+                            temp_clip->media_stream = &temp_clip->media->video_tracks[i];
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        for (int i=0;i<temp_clip->media->audio_tracks.size();i++) {
+                            if (temp_clip->media->audio_tracks.at(i).file_index == stream_index) {
+                                temp_clip->media_stream = &temp_clip->media->audio_tracks[i];
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        qDebug() << "[WARNING] Could not load media stream - project file seems corrupt";
+                    }
+                } else if (stream.name() == "effect") {
+                    int effect_id = -1;
+                    for (int j=0;j<stream.attributes().size();j++) {
+                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                        if (attr.name().toString() == QLatin1String("id")) {
+                            effect_id = attr.value().toInt();
+                        }
+                    }
+                    if (effect_id != -1) {
+                        Effect* e = create_effect(effect_id, temp_clip);
+                        e->load(&stream);
+                        temp_clip->effects.append(e);
+                        state = LOAD_STATE_CLIP;
+                    }
+                }
+            }
+            break;
+        }
+        qDebug() << "read element:" << stream.name() << "- text:" << stream.text() << "- start:" << stream.isStartElement() << "- end:" << stream.isEndElement();
 
     }
     if (stream.hasError()) {
         qDebug() << "[ERROR] Error parsing XML." << stream.error();
     }
+
+    project_changed = false;
 }
 
 void Project::save_project() {
-    QFile file("C:/Users/Matt/Desktop/test.xml");
+    QFile file(project_url);
     if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
         qDebug() << "[ERROR] Could not open file";
         return;
@@ -231,6 +411,10 @@ void Project::save_project() {
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
     stream.writeStartDocument();
+
+    stream.writeStartElement("project");
+
+    stream.writeTextElement("version", "180601");
 
     int len = ui->treeWidget->topLevelItemCount();
     stream.writeStartElement("media");
@@ -292,7 +476,11 @@ void Project::save_project() {
     }
     stream.writeEndElement();
 
+    stream.writeEndElement();
+
     stream.writeEndDocument();
 
     file.close();
+
+    project_changed = false;
 }

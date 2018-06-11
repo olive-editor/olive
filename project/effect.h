@@ -7,6 +7,7 @@ class QWidget;
 class CollapsibleWidget;
 
 struct Clip;
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 enum EffectTypes { EFFECT_TYPE_INVALID, EFFECT_TYPE_VIDEO, EFFECT_TYPE_AUDIO };
@@ -24,6 +25,7 @@ public:
     Clip* parent_clip;
 
     virtual Effect* copy();
+    virtual void load(QXmlStreamReader* stream);
     virtual void save(QXmlStreamWriter* stream);
 
 	virtual void process_gl(int* anchor_x, int* anchor_y);

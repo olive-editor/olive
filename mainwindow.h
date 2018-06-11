@@ -65,9 +65,18 @@ private slots:
 
     void on_action_Save_Project_triggered();
 
+    void on_action_Open_Project_triggered();
+
+    void on_actionProject_triggered();
+
+    void on_actionSave_Project_As_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
+    bool save_project_as();
+    bool save_project();
+    bool can_close_project();
 };
 
 #endif // MAINWINDOW_H

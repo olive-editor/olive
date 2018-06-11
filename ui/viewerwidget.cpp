@@ -60,7 +60,7 @@ void ViewerWidget::paintGL()
 
 	long playhead = panel_timeline->playhead;
 
-	handle_media(panel_viewer->sequence, playhead, multithreaded);
+    handle_media(sequence, playhead, multithreaded);
 	texture_failed = false;
 
     bool render_audio = (panel_timeline->playing || force_audio);

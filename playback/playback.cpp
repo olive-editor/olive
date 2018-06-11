@@ -5,7 +5,9 @@
 #include "io/media.h"
 #include "playback/audio.h"
 #include "playback/cacher.h"
+#include "panels/panels.h"
 #include "panels/timeline.h"
+#include "panels/viewer.h"
 #include <algorithm>
 
 extern "C" {
@@ -286,4 +288,19 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
 
 bool is_clip_active(Clip* c, long playhead) {
 	return c->timeline_in < playhead + ceil(c->sequence->frame_rate) && c->timeline_out > playhead;
+}
+
+void set_sequence(Sequence* s) {
+    if (sequence != NULL) {
+        // clean up - close all open clips
+        for (int i=0;i<sequence->clip_count();i++) {
+            Clip* c = sequence->get_clip(i);
+            if (c->open) {
+                close_clip(c);
+            }
+        }
+    }
+    sequence = s;
+    panel_timeline->update_sequence();
+    panel_viewer->update_sequence();
 }

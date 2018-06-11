@@ -15,6 +15,10 @@
 
 #include <QDebug>
 #include <QStyleFactory>
+#include <QMessageBox>
+#include <QFileDialog>
+
+#define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
 void MainWindow::setup_layout() {
 	panel_project = new Project(this);
@@ -133,7 +137,6 @@ void MainWindow::on_actionTimeline_Track_Lines_toggled(bool e)
 void MainWindow::on_actionExport_triggered()
 {
     ExportDialog e(this);
-	if (panel_timeline->sequence != NULL) e.set_defaults(panel_timeline->sequence);
 	e.exec();
 }
 
@@ -204,7 +207,61 @@ void MainWindow::on_action_Paste_triggered()
     }
 }
 
+bool MainWindow::save_project_as() {
+    QString fn = QFileDialog::getSaveFileName(this, "Save Project As...", "", OLIVE_FILE_FILTER);
+    if (!fn.isEmpty()) {
+        project_url = fn;
+        panel_project->save_project();
+        return true;
+    }
+    return false;
+}
+
+bool MainWindow::save_project() {
+    if (project_url.isEmpty()) {
+        return save_project_as();
+    } else {
+        panel_project->save_project();
+        return true;
+    }
+}
+
+bool MainWindow::can_close_project() {
+    if (project_changed) {
+        int r = QMessageBox::question(this, "Unsaved Project", "This project has changed since it was last saved. Would you like to save it before closing?", QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
+        if (r == QMessageBox::Yes) {
+            return save_project();
+        } else if (r == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void MainWindow::on_action_Save_Project_triggered()
 {
-    panel_project->save_project();
+    save_project();
+}
+
+void MainWindow::on_action_Open_Project_triggered()
+{
+    if (can_close_project()) {
+        QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
+        if (!fn.isEmpty()) {
+            project_url = fn;
+            panel_project->load_project();
+        }
+    }
+}
+
+void MainWindow::on_actionProject_triggered()
+{
+    if (can_close_project()) {
+        panel_project->new_project();
+    }
+}
+
+void MainWindow::on_actionSave_Project_As_triggered()
+{
+    save_project_as();
 }

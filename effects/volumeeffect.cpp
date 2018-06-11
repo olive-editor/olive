@@ -31,6 +31,16 @@ Effect* VolumeEffect::copy() {
     return v;
 }
 
+void VolumeEffect::load(QXmlStreamReader *stream) {
+    while (!(stream->isEndElement() && stream->name() == "effect") && !stream->atEnd()) {
+        stream->readNext();
+        if (stream->isStartElement() && stream->name() == "volume") {
+            stream->readNext();
+            volume_val->setValue(stream->text().toInt());
+        }
+    }
+}
+
 void VolumeEffect::save(QXmlStreamWriter *stream) {
     stream->writeTextElement("volume", QString::number(volume_val->value()));
 }

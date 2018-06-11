@@ -18,10 +18,9 @@ class Viewer : public QDockWidget
 public:
 	explicit Viewer(QWidget *parent = 0);
 	~Viewer();
-	void set_sequence(Sequence* s);
+    void update_sequence();
 	void compose();
 
-	Sequence* sequence;
 	ViewerWidget* viewer_widget;
 
 private slots:

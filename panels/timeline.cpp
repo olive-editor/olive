@@ -2,6 +2,7 @@
 #include "ui_timeline.h"
 
 #include "panels/panels.h"
+#include "panels/project.h"
 #include "panels/effectcontrols.h"
 #include "ui/timelinewidget.h"
 #include "project/sequence.h"
@@ -38,8 +39,7 @@ Timeline::Timeline(QWidget *parent) :
 
 	zoom = 1.0f;
 
-	sequence = NULL;
-	set_sequence(NULL);
+    update_sequence();
 
     connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
 }
@@ -103,19 +103,8 @@ void Timeline::go_to_end() {
 	seek(sequence->getEndFrame());
 }
 
-void Timeline::set_sequence(Sequence *s) {
-	if (sequence != NULL) {
-		// clean up - close all open clips
-		for (int i=0;i<sequence->clip_count();i++) {
-            Clip* c = sequence->get_clip(i);
-            if (c->open) {
-                close_clip(c);
-			}
-		}
-	}
-
-	sequence = s;
-	bool null_sequence = (s == NULL);
+void Timeline::update_sequence() {
+    bool null_sequence = (sequence == NULL);
 
 	for (int i=0;i<tool_buttons.count();i++) {
 		tool_buttons[i]->setEnabled(!null_sequence);
@@ -173,6 +162,7 @@ void Timeline::repaint_timeline() {
 void Timeline::redraw_all_clips() {
     // add current sequence to the undo stack
     sequence->undo_add_current();
+    project_changed = true;
 
 	ui->video_area->redraw_clips();
 	ui->audio_area->redraw_clips();

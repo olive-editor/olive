@@ -29,6 +29,7 @@ void Effect::field_changed() {
 }
 
 Effect* Effect::copy() {return NULL;}
+void Effect::load(QXmlStreamReader* stream) {}
 void Effect::save(QXmlStreamWriter *stream) {}
 
 void Effect::process_gl(int*, int*) {}

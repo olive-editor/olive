@@ -17,6 +17,6 @@ extern int audio_ibuffer_read;
 //extern QVector<int> audio_ibuffer_write;
 void clear_audio_ibuffer();
 
-void init_audio(Sequence* s);
+void init_audio();
 
 #endif // AUDIO_H

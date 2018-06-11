@@ -17,17 +17,17 @@ qint8 audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
 QVector<int> audio_ibuffer_write;
 
-void init_audio(Sequence* s) {
+void init_audio() {
 	if (audio_device_set) {
 		audio_output->stop();
 		delete audio_output;
 		audio_device_set = false;
 	}
 
-	if (s != NULL) {
+    if (sequence != NULL) {
 		QAudioFormat audio_format;
-		audio_format.setSampleRate(s->audio_frequency);
-		audio_format.setChannelCount(av_get_channel_layout_nb_channels(s->audio_layout));
+        audio_format.setSampleRate(sequence->audio_frequency);
+        audio_format.setChannelCount(av_get_channel_layout_nb_channels(sequence->audio_layout));
 		audio_format.setSampleSize(16);
 		audio_format.setCodec("audio/pcm");
 		audio_format.setByteOrder(QAudioFormat::LittleEndian);

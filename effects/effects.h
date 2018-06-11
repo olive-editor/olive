@@ -53,6 +53,7 @@ public:
     VolumeEffect(Clip* c);
     void process_audio(uint8_t* samples, int nb_bytes);
     Effect* copy();
+    void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
 
 	QSpinBox* volume_val;
@@ -63,6 +64,7 @@ public:
     PanEffect(Clip* c);
     void process_audio(uint8_t* samples, int nb_bytes);
     Effect* copy();
+    void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
 
 	QSpinBox* pan_val;

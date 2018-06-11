@@ -29,6 +29,7 @@ int retrieve_next_frame(Clip* c, AVFrame* f);
 void retrieve_next_frame_raw_data(Clip* c, AVFrame* output);
 bool is_clip_active(Clip* c, long playhead);
 void get_next_audio(Clip* c, bool mix);
+void set_sequence(Sequence* s);
 
 struct ClipCacheData {
 	Clip& clip;

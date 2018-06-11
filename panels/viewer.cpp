@@ -19,19 +19,17 @@ Viewer::Viewer(QWidget *parent) :
 	ui->setupUi(this);
 	ui->glViewerPane->child = ui->openGLWidget;
 	viewer_widget = ui->openGLWidget;
-	set_sequence(NULL);
+    update_sequence();
 }
 
 Viewer::~Viewer()
 {
-	init_audio(NULL);
-
+    init_audio();
 	delete ui;
 }
 
-void Viewer::set_sequence(Sequence* s) {
-	bool null_sequence = (s == NULL);
-	sequence = s;
+void Viewer::update_sequence() {
+    bool null_sequence = (sequence == NULL);
 
 	ui->openGLWidget->setEnabled(!null_sequence);
 	ui->openGLWidget->setVisible(!null_sequence);
@@ -41,7 +39,7 @@ void Viewer::set_sequence(Sequence* s) {
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
 
-    init_audio(s);
+    init_audio();
 
 	if (!null_sequence) {
 		ui->glViewerPane->aspect_ratio = (float) sequence->width / (float) sequence->height;

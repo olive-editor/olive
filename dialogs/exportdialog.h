@@ -15,9 +15,7 @@ class ExportDialog : public QDialog
 	Q_OBJECT
 public:
 	explicit ExportDialog(QWidget *parent = 0);
-	~ExportDialog();
-
-	void set_defaults(Sequence* s);
+    ~ExportDialog();
 
 private slots:
 	void on_formatCombobox_currentIndexChanged(int index);

@@ -49,8 +49,6 @@ bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame,
 void ExportThread::run() {
     av_log_set_level(AV_LOG_DEBUG);
 
-	Sequence* sequence = panel_timeline->sequence;
-
 	// TODO make customizable
 	long start = 0;
 	long end = sequence->getEndFrame();

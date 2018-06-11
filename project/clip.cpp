@@ -38,7 +38,6 @@ Clip* Clip::copy() {
 }
 
 void Clip::init() {
-    qDebug() << "init was called";
 	reset();
 	clip_in = timeline_in = timeline_out = track = undeletable = 0;
 	texture = NULL;

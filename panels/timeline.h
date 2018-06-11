@@ -67,14 +67,13 @@ public:
     void paste();
     bool split_selection();
     void split_at_playhead();
-	void set_sequence(Sequence* s);
+    void update_sequence();
 
     int getScreenPointFromFrame(long frame);
     long getFrameFromScreenPoint(int x);
 
     void snap_to_clip(long* l);
 
-	Sequence* sequence;
 	long playhead;
 
 	// playback functions

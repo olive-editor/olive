@@ -162,3 +162,6 @@ void Sequence::redo() {
         set_undo(undo_pointer);
     }
 }
+
+// static variable for the currently active sequence
+Sequence* sequence = NULL;
