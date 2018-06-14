@@ -29,7 +29,7 @@ class TransformEffect : public Effect {
 public:
     TransformEffect(Clip* c);
 	void process_gl(int* anchor_x, int* anchor_y);
-    Effect* copy();
+    Effect* copy(Clip* c);
 
 	QSpinBox* position_x;
 	QSpinBox* position_y;
@@ -52,7 +52,7 @@ class VolumeEffect : public Effect {
 public:
     VolumeEffect(Clip* c);
     void process_audio(uint8_t* samples, int nb_bytes);
-    Effect* copy();
+    Effect* copy(Clip* c);
     void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
 
@@ -63,7 +63,7 @@ class PanEffect : public Effect {
 public:
     PanEffect(Clip* c);
     void process_audio(uint8_t* samples, int nb_bytes);
-    Effect* copy();
+    Effect* copy(Clip* c);
     void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
 

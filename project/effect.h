@@ -24,7 +24,7 @@ public:
 	QWidget* ui;
     Clip* parent_clip;
 
-    virtual Effect* copy();
+    virtual Effect* copy(Clip* c);
     virtual void load(QXmlStreamReader* stream);
     virtual void save(QXmlStreamWriter* stream);
 

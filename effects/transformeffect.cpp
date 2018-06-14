@@ -93,8 +93,8 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(field_changed()));
 }
 
-Effect* TransformEffect::copy() {
-    TransformEffect* t = new TransformEffect(parent_clip);
+Effect* TransformEffect::copy(Clip* c) {
+    TransformEffect* t = new TransformEffect(c);
     t->position_x->setValue(position_x->value());
     t->position_y->setValue(position_y->value());
     t->scale_x->setValue(scale_x->value());

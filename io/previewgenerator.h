@@ -6,7 +6,7 @@
 class PreviewGenerator : public QThread
 {
 public:
-    PreviewGenerator(QWidget* parent = 0);
+    PreviewGenerator(QObject* parent = 0);
     void run() override;
 };
 

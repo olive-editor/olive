@@ -164,8 +164,8 @@ void Timeline::redraw_all_clips() {
     sequence->undo_add_current();
     project_changed = true;
 
-	ui->video_area->redraw_clips();
-	ui->audio_area->redraw_clips();
+    ui->video_area->redraw_clips();
+    ui->audio_area->redraw_clips();
 }
 
 void Timeline::select_all() {

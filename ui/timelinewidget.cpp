@@ -761,26 +761,26 @@ void TimelineWidget::redraw_clips() {
                 video_track_limit = clip->track;
             } else if (clip->track > audio_track_limit) {
                 audio_track_limit = clip->track;
-			}
+            }
 
             QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, track_height);
             clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
-			clip_painter.setPen(Qt::white);
-			clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
-			clip_painter.drawLine(clip_rect.topLeft(), clip_rect.topRight());
+            clip_painter.setPen(Qt::white);
+            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
+            clip_painter.drawLine(clip_rect.topLeft(), clip_rect.topRight());
             clip_painter.setPen(Qt::gray);
-			clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
-			clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
+            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
+            clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
 
             if (color_brightness(clip->color_r, clip->color_g, clip->color_b) > 160) {
-				clip_painter.setPen(Qt::black);
-			} else {
-				clip_painter.setPen(Qt::white);
-			}
-			QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING, clip_rect.height() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING);
+                clip_painter.setPen(Qt::black);
+            } else {
+                clip_painter.setPen(Qt::white);
+            }
+            QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING, clip_rect.height() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING);
             clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
-		}
-	}
+        }
+    }
 
 	// Draw track lines
 	if (show_track_lines) {

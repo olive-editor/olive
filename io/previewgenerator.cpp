@@ -1,6 +1,6 @@
 #include "previewgenerator.h"
 
-PreviewGenerator::PreviewGenerator(QWidget* parent) : QThread(parent)
+PreviewGenerator::PreviewGenerator(QObject* parent) : QThread(parent)
 {
 
 }

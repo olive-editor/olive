@@ -18,7 +18,7 @@ Clip::Clip() {
 Clip* Clip::copy() {
     Clip* copy = new Clip();
 
-    copy->name = name;
+    copy->name = QString(name);
     copy->clip_in = clip_in;
     copy->timeline_in = timeline_in;
     copy->timeline_out = timeline_out;
@@ -31,7 +31,7 @@ Clip* Clip::copy() {
     copy->media_stream = media_stream;
 
     for (int i=0;i<effects.size();i++) {
-        copy->effects.append(effects.at(i)->copy());
+        copy->effects.append(effects.at(i)->copy(copy));
     }
 
     return copy;

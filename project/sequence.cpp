@@ -95,8 +95,8 @@ void Sequence::undo_add_current() {
         undo_stack.removeFirst();
     } else {
         undo_pointer++;
-        for (int i=undo_stack.size()-1;i>undo_pointer;i--) {
-            delete undo_stack[i];
+        while (undo_stack.size() > undo_pointer+1) {
+            delete undo_stack.last();
             undo_stack.removeLast();
         }
     }
@@ -115,9 +115,9 @@ void Sequence::set_undo(int i) {
     }
     clips.clear();
 
-    QVector<Clip*>* copy_from_list = undo_stack[undo_pointer];
+    QVector<Clip*>* copy_from_list = undo_stack.at(undo_pointer);
     for (int i=0;i<copy_from_list->size();i++) {
-        add_clip(copy_from_list->at(i));
+        add_clip(copy_from_list->at(i)->copy());
     }
 }
 

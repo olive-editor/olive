@@ -20,7 +20,6 @@ struct AVPacket;
 struct SwsContext;
 struct SwrContext;
 class QOpenGLTexture;
-class QPixmap;
 
 struct ClipCache {
 	AVFrame** frames;
@@ -50,7 +49,7 @@ struct Clip
 	uint8_t color_b;
 	long getLength();
 
-	// inherited information (should be copied in copy())
+    // inherited information (should be set to the same references in copy())
 	Media* media; // attached media
 	MediaStream* media_stream;
 	Sequence* sequence;

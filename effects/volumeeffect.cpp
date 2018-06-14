@@ -25,8 +25,8 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
 	volume_val->setValue(100);
 }
 
-Effect* VolumeEffect::copy() {
-    VolumeEffect* v = new VolumeEffect(parent_clip);
+Effect* VolumeEffect::copy(Clip* c) {
+    VolumeEffect* v = new VolumeEffect(c);
     v->volume_val->setValue(volume_val->value());
     return v;
 }

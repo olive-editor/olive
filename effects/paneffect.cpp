@@ -25,8 +25,8 @@ PanEffect::PanEffect(Clip* c) : Effect(c) {
 	pan_val->setValue(0);
 }
 
-Effect* PanEffect::copy() {
-    PanEffect* p = new PanEffect(parent_clip);
+Effect* PanEffect::copy(Clip* c) {
+    PanEffect* p = new PanEffect(c);
     p->pan_val->setValue(pan_val->value());
     return p;
 }
