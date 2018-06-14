@@ -265,3 +265,10 @@ void MainWindow::on_actionSave_Project_As_triggered()
 {
     save_project_as();
 }
+
+void MainWindow::on_actionDeselect_All_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->deselect();
+    }
+}

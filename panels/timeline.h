@@ -65,8 +65,11 @@ public:
     void redo();
     void copy(bool del);
     void paste();
+    void deselect();
     bool split_selection();
     void split_at_playhead();
+    void split_clip_and_relink(Clip* clip, long frame, bool relink);
+    void delete_areas_and_relink(QVector<Selection> areas);
     void update_sequence();
 
     int getScreenPointFromFrame(long frame);
@@ -107,7 +110,7 @@ public:
 	// selecting functions
 	bool selecting;
 	QVector<Selection> selections;
-	bool is_clip_selected(int clip_index);
+    bool is_clip_selected(Clip* clip);
 	void delete_selection(bool ripple);
 	void select_all();
 

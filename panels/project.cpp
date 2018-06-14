@@ -109,15 +109,19 @@ Media* Project::import_file(QString file) {
                 if (avcodec_find_decoder(pFormatCtx->streams[i]->codecpar->codec_id) == NULL) {
                     qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
                 } else {
+                    MediaStream* ms = new MediaStream();
+                    ms->file_index = i;
                     if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                         qDebug() << "[WARNING] INFINITE_LENGTH calculation is inaccurate in this build\n";
                         // TODO BETTER infinite length calculator
                         bool infinite_length = (pFormatCtx->streams[i]->nb_frames == 0);
 //							bool infinite_length = false;
-
-                        m->video_tracks.append({i, pFormatCtx->streams[i]->codecpar->width, pFormatCtx->streams[i]->codecpar->height, infinite_length});
+                        ms->video_width = pFormatCtx->streams[i]->codecpar->width;
+                        ms->video_height = pFormatCtx->streams[i]->codecpar->height;
+                        ms->infinite_length = infinite_length;
+                        m->video_tracks.append(ms);
                     } else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                        m->audio_tracks.append({i, 0, 0, false});
+                        m->audio_tracks.append(ms);
                     }
                 }
             }
@@ -355,16 +359,16 @@ void Project::load_project() {
                     int stream_index = stream.text().toInt();
                     bool found = false;
                     for (int i=0;i<temp_clip->media->video_tracks.size();i++) {
-                        if (temp_clip->media->video_tracks.at(i).file_index == stream_index) {
-                            temp_clip->media_stream = &temp_clip->media->video_tracks[i];
+                        if (temp_clip->media->video_tracks.at(i)->file_index == stream_index) {
+                            temp_clip->media_stream = temp_clip->media->video_tracks[i];
                             found = true;
                             break;
                         }
                     }
                     if (!found) {
                         for (int i=0;i<temp_clip->media->audio_tracks.size();i++) {
-                            if (temp_clip->media->audio_tracks.at(i).file_index == stream_index) {
-                                temp_clip->media_stream = &temp_clip->media->audio_tracks[i];
+                            if (temp_clip->media->audio_tracks.at(i)->file_index == stream_index) {
+                                temp_clip->media_stream = temp_clip->media->audio_tracks[i];
                                 found = true;
                                 break;
                             }

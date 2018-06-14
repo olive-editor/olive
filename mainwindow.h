@@ -71,6 +71,8 @@ private slots:
 
     void on_actionSave_Project_As_triggered();
 
+    void on_actionDeselect_All_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

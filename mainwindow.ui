@@ -64,6 +64,7 @@
     <addaction name="actionRipple_Delete"/>
     <addaction name="separator"/>
     <addaction name="actionSelect_All"/>
+    <addaction name="actionDeselect_All"/>
     <addaction name="separator"/>
     <addaction name="actionSplit_at_Playhead"/>
    </widget>
@@ -295,6 +296,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionDeselect_All">
+   <property name="text">
+    <string>Deselect All</string>
    </property>
   </action>
  </widget>

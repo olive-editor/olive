@@ -20,6 +20,7 @@ struct AVPacket;
 struct SwsContext;
 struct SwrContext;
 class QOpenGLTexture;
+class QPixmap;
 
 struct ClipCache {
 	AVFrame** frames;
@@ -56,7 +57,7 @@ struct Clip
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;
-//	QVector<Clip&> linkedClips;
+    QVector<Clip*> linked;
 
 	// media handling
 	AVFormatContext* formatCtx;

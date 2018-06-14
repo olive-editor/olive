@@ -52,7 +52,8 @@ SOURCES += \
     effects/effects.cpp \
     playback/cacher.cpp \
     io/exportthread.cpp \
-    ui/timelineheader.cpp
+    ui/timelineheader.cpp \
+    io/previewgenerator.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -80,7 +81,8 @@ HEADERS += \
     playback/cacher.h \
     io/exportthread.h \
     ui/timelinetools.h \
-    ui/timelineheader.h
+    ui/timelineheader.h \
+    io/previewgenerator.h
 
 FORMS += \
         mainwindow.ui \
