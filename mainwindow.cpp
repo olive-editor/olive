@@ -21,11 +21,6 @@
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
 void MainWindow::setup_layout() {
-	panel_project = new Project(this);
-	panel_effect_controls = new EffectControls(this);
-	panel_viewer = new Viewer(this);
-	panel_timeline = new Timeline(this);
-
 	addDockWidget(Qt::TopDockWidgetArea, panel_project);
 	addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
 	addDockWidget(Qt::TopDockWidgetArea, panel_viewer);
@@ -69,12 +64,23 @@ MainWindow::MainWindow(QWidget *parent) :
 	setWindowTitle("Olive (May 2018 | Pre-Alpha)");
 	statusBar()->showMessage("Welcome to Olive::Qt");
 
+    // TODO maybe replace these with non-pointers later on?
+    panel_project = new Project(this);
+    panel_effect_controls = new EffectControls(this);
+    panel_viewer = new Viewer(this);
+    panel_timeline = new Timeline(this);
+
 	setup_layout();
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
+
+    delete panel_project;
+    delete panel_effect_controls;
+    delete panel_viewer;
+    delete panel_timeline;
 }
 
 void MainWindow::on_action_Import_triggered()
@@ -270,5 +276,45 @@ void MainWindow::on_actionDeselect_All_triggered()
 {
     if (panel_timeline->focused()) {
         panel_timeline->deselect();
+    }
+}
+
+void MainWindow::on_actionGo_to_start_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->go_to_start();
+    }
+}
+
+void MainWindow::on_actionReset_to_default_layout_triggered()
+{
+    setup_layout();
+}
+
+void MainWindow::on_actionPrevious_Frame_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->previous_frame();
+    }
+}
+
+void MainWindow::on_actionNext_Frame_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->next_frame();
+    }
+}
+
+void MainWindow::on_actionGo_to_End_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->go_to_end();
+    }
+}
+
+void MainWindow::on_actionPlay_Pause_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->toggle_play();
     }
 }

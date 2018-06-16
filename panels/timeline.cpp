@@ -14,6 +14,7 @@
 #include "playback/playback.h"
 
 #include <QTime>
+#include <QtMath>
 
 Timeline::Timeline(QWidget *parent) :
 	QDockWidget(parent),
@@ -120,7 +121,7 @@ void Timeline::update_sequence() {
 	} else {
 		setWindowTitle("Timeline: " + sequence->name);
 		redraw_all_clips();
-		playback_updater.setInterval(floor(1000 / sequence->frame_rate));
+        playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
 	}
 }
 

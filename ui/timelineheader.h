@@ -7,7 +7,7 @@ class TimelineHeader : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TimelineHeader(QWidget *parent = nullptr);
+    explicit TimelineHeader(QWidget *parent = 0);
 
 protected:
     void paintEvent(QPaintEvent*) override;

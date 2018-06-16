@@ -44,9 +44,9 @@ struct Clip
 	long timeline_in;
 	long timeline_out;
 	int track;
-	uint8_t color_r;
-	uint8_t color_g;
-	uint8_t color_b;
+    quint8 color_r;
+    quint8 color_g;
+    quint8 color_b;
 	long getLength();
 
     // inherited information (should be set to the same references in copy())
@@ -73,7 +73,7 @@ struct Clip
 	bool multithreaded;
 	Cacher* cacher;
 	QWaitCondition can_cache;
-	uint16_t cache_size;
+    quint16 cache_size;
 	ClipCache cache_A;
 	ClipCache cache_B;
 	QMutex lock;

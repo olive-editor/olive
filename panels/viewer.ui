@@ -49,17 +49,11 @@
         <widget class="ViewerWidget" name="openGLWidget">
          <property name="geometry">
           <rect>
-           <x>130</x>
-           <y>60</y>
-           <width>301</width>
-           <height>221</height>
+           <x>110</x>
+           <y>50</y>
+           <width>300</width>
+           <height>200</height>
           </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
          </property>
         </widget>
        </widget>

@@ -25,8 +25,7 @@ private slots:
 
 private:
 	Ui::EffectControls *ui;
-	Clip* clip;
-    QMenu* effects_menu;
+    Clip* clip;
 };
 
 #endif // EFFECTCONTROLS_H

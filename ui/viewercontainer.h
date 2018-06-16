@@ -7,7 +7,7 @@ class ViewerContainer : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit ViewerContainer(QWidget *parent = nullptr);
+    explicit ViewerContainer(QWidget *parent = 0);
 	float aspect_ratio;
 	QWidget* child;
 	void adjust();

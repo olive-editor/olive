@@ -15,7 +15,7 @@ class TimelineWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit TimelineWidget(QWidget *parent = nullptr);
+    explicit TimelineWidget(QWidget *parent = 0);
 
 	bool bottom_align;
 
@@ -24,6 +24,7 @@ protected:
 	void paintEvent(QPaintEvent*) override;
     void resizeEvent(QResizeEvent*) override;
 
+    void mouseDoubleClickEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;

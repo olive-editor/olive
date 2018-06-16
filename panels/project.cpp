@@ -7,6 +7,10 @@
 #include "panels/viewer.h"
 #include "playback/playback.h"
 #include "effects/effects.h"
+#include "panels/timeline.h"
+#include "project/sequence.h"
+#include "project/effect.h"
+#include "io/previewgenerator.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -16,10 +20,6 @@
 #include <QMessageBox>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-
-#include "panels/timeline.h"
-#include "project/sequence.h"
-#include "project/effect.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -76,6 +76,8 @@ void Project::new_sequence(Sequence *s) {
 	source_table = ui->treeWidget;
 
     project_changed = true;
+
+    set_sequence(s);
 }
 
 Media* Project::import_file(QString file) {
@@ -110,6 +112,8 @@ Media* Project::import_file(QString file) {
                     qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
                 } else {
                     MediaStream* ms = new MediaStream();
+                    ms->preview_done = false;
+                    ms->preview_lock.lock();
                     ms->file_index = i;
                     if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                         qDebug() << "[WARNING] INFINITE_LENGTH calculation is inaccurate in this build\n";
@@ -143,7 +147,13 @@ Media* Project::import_file(QString file) {
             project_changed = true;
         }
     }
-    avformat_close_input(&pFormatCtx);
+
+    PreviewGenerator* pg = new PreviewGenerator();
+    pg->fmt_ctx = pFormatCtx; // cleaned up in PG
+    pg->media = m;
+    connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
+    pg->run();
+
     delete [] filename;
     return m;
 }

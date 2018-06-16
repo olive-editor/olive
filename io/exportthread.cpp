@@ -21,7 +21,7 @@ extern "C" {
 #include <QApplication>
 #include <QOffscreenSurface>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGlPaintDevice>
+#include <QOpenGLPaintDevice>
 #include <QPainter>
 
 bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream) {
@@ -277,7 +277,7 @@ void ExportThread::run() {
                     long file_audio_samples = 0;
 
 					while (panel_timeline->playhead < end && !fail) {
-						panel_viewer->viewer_widget->paintGL();
+                        panel_viewer->viewer_widget->update();
 
 						double timecode_secs = (double) panel_timeline->playhead / sequence->frame_rate;
 						if (video_enabled) {

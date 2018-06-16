@@ -6,6 +6,7 @@
 #include <QMetaType>
 #include <QVariant>
 #include <QMutex>
+#include <QPixmap>
 
 struct Sequence;
 
@@ -16,8 +17,10 @@ struct MediaStream {
 	bool infinite_length;
 
     // preview thumbnail/waveform
-    QPixmap* preview;
+    bool preview_done;
+    QImage preview;
     QMutex preview_lock;
+    int preview_audio_index;
 };
 
 struct Media

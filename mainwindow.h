@@ -73,6 +73,18 @@ private slots:
 
     void on_actionDeselect_All_triggered();
 
+    void on_actionGo_to_start_triggered();
+
+    void on_actionReset_to_default_layout_triggered();
+
+    void on_actionPrevious_Frame_triggered();
+
+    void on_actionNext_Frame_triggered();
+
+    void on_actionGo_to_End_triggered();
+
+    void on_actionPlay_Pause_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

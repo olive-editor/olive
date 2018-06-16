@@ -10,7 +10,7 @@ class SourceTable : public QTreeWidget
 public:
 	SourceTable(QWidget* parent = 0);
 protected:
-	void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event);
 //	void dragEnterEvent(QDragEnterEvent *event) override;
 private:
 };

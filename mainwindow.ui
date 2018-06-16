@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>17</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -76,6 +76,8 @@
     <addaction name="actionEffect_Controls"/>
     <addaction name="actionViewer"/>
     <addaction name="actionTimeline"/>
+    <addaction name="separator"/>
+    <addaction name="actionReset_to_default_layout"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -91,9 +93,20 @@
     <addaction name="actionZoom_In"/>
     <addaction name="actionZoom_out"/>
    </widget>
+   <widget class="QMenu" name="menuPlayback">
+    <property name="title">
+     <string>Playback</string>
+    </property>
+    <addaction name="actionGo_to_start"/>
+    <addaction name="actionPrevious_Frame"/>
+    <addaction name="actionPlay_Pause"/>
+    <addaction name="actionNext_Frame"/>
+    <addaction name="actionGo_to_End"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
    <addaction name="menu_View"/>
+   <addaction name="menuPlayback"/>
    <addaction name="menuWindow"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -301,6 +314,51 @@
   <action name="actionDeselect_All">
    <property name="text">
     <string>Deselect All</string>
+   </property>
+  </action>
+  <action name="actionGo_to_start">
+   <property name="text">
+    <string>Go to Start</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="actionReset_to_default_layout">
+   <property name="text">
+    <string>Reset to default layout</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Frame">
+   <property name="text">
+    <string>Previous Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionPlay_Pause">
+   <property name="text">
+    <string>Play/Pause</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="actionNext_Frame">
+   <property name="text">
+    <string>Next Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionGo_to_End">
+   <property name="text">
+    <string>Go to End</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
    </property>
   </action>
  </widget>

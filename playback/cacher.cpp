@@ -44,13 +44,15 @@ void cache_audio_worker(Clip* c) {
                 c->effects.at(j)->process_audio(frame->data[0], nb_bytes);
             }
 
-            if (c->audio_buffer_write == 0) c->audio_buffer_write = audio_ibuffer_read + 1024;
+            if (c->audio_buffer_write == 0) c->audio_buffer_write = (((int)(audio_ibuffer_read/2))*2) + 1024;
+            int half_buffer = (audio_ibuffer_size/2);
             while (c->frame_sample_index < nb_bytes) {
-                if (c->audio_buffer_write >= audio_ibuffer_read+(audio_ibuffer_size/2)) {
+                if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer) {
                     written = max_write;
                     break;
                 } else {
                     audio_ibuffer[c->audio_buffer_write%audio_ibuffer_size] += frame->data[0][c->frame_sample_index];
+
                     c->audio_buffer_write++;
                     c->frame_sample_index++;
                 }
@@ -293,6 +295,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 }
 
 void close_clip_worker(Clip* clip) {
+    cc_lock.lock();
 	// closes ffmpeg file handle and frees any memory used for caching
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		sws_freeContext(clip->sws_ctx);
@@ -314,7 +317,6 @@ void close_clip_worker(Clip* clip) {
 	av_frame_free(&clip->frame);
 
 	// remove clip from current_clips
-	cc_lock.lock();
 	bool found = false;
 	for (int i=0;i<current_clips.count();i++) {
 		if (current_clips[i] == clip) {

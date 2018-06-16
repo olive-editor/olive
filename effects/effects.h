@@ -51,7 +51,7 @@ private:
 class VolumeEffect : public Effect {
 public:
     VolumeEffect(Clip* c);
-    void process_audio(uint8_t* samples, int nb_bytes);
+    void process_audio(quint8* samples, int nb_bytes);
     Effect* copy(Clip* c);
     void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
@@ -62,7 +62,7 @@ public:
 class PanEffect : public Effect {
 public:
     PanEffect(Clip* c);
-    void process_audio(uint8_t* samples, int nb_bytes);
+    void process_audio(quint8* samples, int nb_bytes);
     Effect* copy(Clip* c);
     void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);

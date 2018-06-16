@@ -18,7 +18,7 @@ Viewer::Viewer(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->glViewerPane->child = ui->openGLWidget;
-	viewer_widget = ui->openGLWidget;
+    viewer_widget = ui->openGLWidget;
     update_sequence();
 }
 
@@ -31,22 +31,22 @@ Viewer::~Viewer()
 void Viewer::update_sequence() {
     bool null_sequence = (sequence == NULL);
 
-	ui->openGLWidget->setEnabled(!null_sequence);
-	ui->openGLWidget->setVisible(!null_sequence);
-	ui->pushButton->setEnabled(!null_sequence);
-	ui->pushButton_2->setEnabled(!null_sequence);
-	ui->pushButton_3->setEnabled(!null_sequence);
-	ui->pushButton_4->setEnabled(!null_sequence);
-	ui->pushButton_5->setEnabled(!null_sequence);
+    ui->openGLWidget->setEnabled(!null_sequence);
+    ui->openGLWidget->setVisible(!null_sequence);
+    ui->pushButton->setEnabled(!null_sequence);
+    ui->pushButton_2->setEnabled(!null_sequence);
+    ui->pushButton_3->setEnabled(!null_sequence);
+    ui->pushButton_4->setEnabled(!null_sequence);
+    ui->pushButton_5->setEnabled(!null_sequence);
 
     init_audio();
 
-	if (!null_sequence) {
-		ui->glViewerPane->aspect_ratio = (float) sequence->width / (float) sequence->height;
+    if (!null_sequence) {
+        ui->glViewerPane->aspect_ratio = (float) sequence->width / (float) sequence->height;
         ui->glViewerPane->adjust();
-	}
+    }
 
-	update();
+    update();
 }
 
 void Viewer::on_pushButton_clicked()

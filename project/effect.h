@@ -29,7 +29,7 @@ public:
     virtual void save(QXmlStreamWriter* stream);
 
 	virtual void process_gl(int* anchor_x, int* anchor_y);
-	virtual void process_audio(uint8_t* samples, int nb_bytes);
+    virtual void process_audio(quint8* samples, int nb_bytes);
 
 public slots:
 	void field_changed();
