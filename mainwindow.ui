@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>17</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -84,7 +84,6 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
-    <addaction name="actionCrash"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -104,11 +103,30 @@
     <addaction name="actionNext_Frame"/>
     <addaction name="actionGo_to_End"/>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionPointer_Tool"/>
+    <addaction name="actionEdit_Tool"/>
+    <addaction name="actionRipple_Tool"/>
+    <addaction name="actionRolling_Tool"/>
+    <addaction name="actionRazor_Tool"/>
+    <addaction name="actionSlip_Tool"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggle_Snapping"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+    <addaction name="separator"/>
+    <addaction name="actionCrash"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
    <addaction name="menu_View"/>
    <addaction name="menuPlayback"/>
    <addaction name="menuWindow"/>
+   <addaction name="menu_Tools"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -365,6 +383,67 @@
   <action name="actionCrash">
    <property name="text">
     <string>Crash</string>
+   </property>
+  </action>
+  <action name="actionPointer_Tool">
+   <property name="text">
+    <string>Pointer Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>V</string>
+   </property>
+  </action>
+  <action name="actionEdit_Tool">
+   <property name="text">
+    <string>Edit Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="actionRazor_Tool">
+   <property name="text">
+    <string>Razor Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="actionRipple_Tool">
+   <property name="text">
+    <string>Ripple Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>B</string>
+   </property>
+  </action>
+  <action name="actionRolling_Tool">
+   <property name="text">
+    <string>Rolling Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>N</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+.</string>
+   </property>
+  </action>
+  <action name="actionToggle_Snapping">
+   <property name="text">
+    <string>Toggle Snapping</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionSlip_Tool">
+   <property name="text">
+    <string>Slip Tool</string>
    </property>
   </action>
  </widget>

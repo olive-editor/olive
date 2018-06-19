@@ -87,6 +87,20 @@ private slots:
 
     void on_actionCrash_triggered();
 
+    void on_actionEdit_Tool_triggered();
+
+    void on_actionToggle_Snapping_triggered();
+
+    void on_actionPointer_Tool_triggered();
+
+    void on_actionRazor_Tool_triggered();
+
+    void on_actionRipple_Tool_triggered();
+
+    void on_actionRolling_Tool_triggered();
+
+    void on_actionSlip_Tool_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

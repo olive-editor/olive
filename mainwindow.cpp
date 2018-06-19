@@ -13,6 +13,8 @@
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/exportdialog.h"
 
+#include "ui_timeline.h"
+
 #include <QDebug>
 #include <QStyleFactory>
 #include <QMessageBox>
@@ -321,7 +323,44 @@ void MainWindow::on_actionPlay_Pause_triggered()
 
 void MainWindow::on_actionCrash_triggered()
 {
-    // intentionally tries to crash the program - mostly used for debugging
-    Timeline* temp;
-    temp->snapped = true;
+    if (QMessageBox::warning(this, "Are you sure you want to crash?", "WARNING: This is a debugging function designed to crash the program. Olive WILL crash and any unsaved progress WILL be lost. Are you sure you wish to do this?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+        // intentionally tries to crash the program - mostly used for debugging
+        Timeline* temp = NULL;
+        temp->snapped = true;
+    }
+}
+
+void MainWindow::on_actionEdit_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolEditButton->click();
+}
+
+void MainWindow::on_actionToggle_Snapping_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->snappingButton->click();
+}
+
+void MainWindow::on_actionPointer_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolArrowButton->click();
+}
+
+void MainWindow::on_actionRazor_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolRazorButton->click();
+}
+
+void MainWindow::on_actionRipple_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolRippleButton->click();
+}
+
+void MainWindow::on_actionRolling_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolRollingButton->click();
+}
+
+void MainWindow::on_actionSlip_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolSlipButton->click();
 }

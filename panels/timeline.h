@@ -132,6 +132,7 @@ public:
 	// ripple
 	void ripple(long ripple_point, long ripple_length);
 
+    Ui::Timeline *ui;
 public slots:
 	void repaint_timeline();
 
@@ -155,7 +156,6 @@ private slots:
     void on_snappingButton_toggled(bool checked);
 
 private:
-	Ui::Timeline *ui;
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
