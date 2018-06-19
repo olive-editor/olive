@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QSpinBox>
 #include <QLabel>
+#include <cmath>
 
 #include "ui/collapsiblewidget.h"
 
@@ -53,7 +54,7 @@ void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
 		float val = pan_val->value()*0.01;
 		if (val < 0) {
 			// affect right channel
-			right_sample *= (1-abs(val));
+            right_sample *= (1-std::abs(val));
 		} else {
 			// affect left channel
 			left_sample *= (1-val);

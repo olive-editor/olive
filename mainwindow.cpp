@@ -318,3 +318,10 @@ void MainWindow::on_actionPlay_Pause_triggered()
         panel_timeline->toggle_play();
     }
 }
+
+void MainWindow::on_actionCrash_triggered()
+{
+    // intentionally tries to crash the program - mostly used for debugging
+    Timeline* temp;
+    temp->snapped = true;
+}

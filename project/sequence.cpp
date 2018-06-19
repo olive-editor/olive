@@ -45,14 +45,14 @@ void Sequence::delete_clip(int i) {
 }
 
 long Sequence::getEndFrame() {
-	long end = 0;
-	for (int j=0;j<clip_count();j++) {
+    long end = 0;
+    for (int j=0;j<clip_count();j++) {
         Clip* c = get_clip(j);
         if (c->timeline_out > end) {
             end = c->timeline_out;
-		}
-	}
-	return end;
+        }
+    }
+    return end;
 }
 
 void Sequence::get_track_limits(int* video_tracks, int* audio_tracks) {

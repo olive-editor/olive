@@ -9,6 +9,7 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 }
@@ -44,7 +45,7 @@ void PreviewGenerator::run() {
             SwsContext* sws_ctx;
             SwrContext* swr_ctx;
             AVFrame* temp_frame = av_frame_alloc();
-            AVCodecContext* codec_ctx[fmt_ctx->nb_streams];
+            AVCodecContext** codec_ctx = new AVCodecContext* [fmt_ctx->nb_streams];
             for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
                 AVCodec* codec = avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id);
                 codec_ctx[i] = avcodec_alloc_context3(codec);
@@ -172,6 +173,7 @@ void PreviewGenerator::run() {
             for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
                 avcodec_close(codec_ctx[i]);
             }
+            delete [] codec_ctx;
         }
     }
 

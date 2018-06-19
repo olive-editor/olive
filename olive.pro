@@ -95,7 +95,7 @@ FORMS += \
     dialogs/exportdialog.ui
 
 win32 {
-    LIBS += -L../ffmpeg/lib -lavutil -lavformat -lavcodec -lswscale -lswresample opengl32.lib
+    LIBS += -L../ffmpeg/lib -lavutil -lavformat -lavcodec -lswscale -lswresample -lopengl32
     INCLUDEPATH = ../ffmpeg/include
     RC_FILE = icons/win.rc
 }

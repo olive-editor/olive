@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>34</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -84,6 +84,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionCrash"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -359,6 +360,11 @@
    </property>
    <property name="shortcut">
     <string>End</string>
+   </property>
+  </action>
+  <action name="actionCrash">
+   <property name="text">
+    <string>Crash</string>
    </property>
   </action>
  </widget>

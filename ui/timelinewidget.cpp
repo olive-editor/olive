@@ -760,11 +760,16 @@ int color_brightness(int r, int g, int b) {
 }
 
 void TimelineWidget::redraw_clips() {
+    qDebug() << "redraw called";
+
     // Draw clips
     int panel_width = panel_timeline->getScreenPointFromFrame(sequence->getEndFrame()) + 100;
-	setMinimumWidth(panel_width);
 
-    clip_pixmap = QPixmap(panel_width, height());
+    if (minimumWidth() != panel_width) {
+        setMinimumWidth(panel_width);
+        clip_pixmap = QPixmap(panel_width, height());
+    }
+
     clip_pixmap.fill(Qt::transparent);
     QPainter clip_painter(&clip_pixmap);
 	int video_track_limit = 0;
@@ -782,41 +787,41 @@ void TimelineWidget::redraw_clips() {
             clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
 
             // draw thumbnail/waveform
-            if (clip->media_stream->preview_lock.tryLock()) {
-                if (clip->media_stream->preview_done) {
-                    if (clip->track < 0) {
-                        int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
-                        int thumb_height = clip_rect.height()-thumb_y;
-                        if (thumb_height > thumb_y) { // at small clip heights, don't even draw it
-                            QRect thumb_rect(clip_rect.x(), clip_rect.y()+thumb_y, (thumb_height*((float)clip->media_stream->preview.width()/(float)clip->media_stream->preview.height())), thumb_height);
-                            clip_painter.drawImage(thumb_rect, clip->media_stream->preview);
-                        }
-                    } else {
-                        long length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
-                        int waveform_x = ((float)clip->clip_in/(float)length) * clip->media_stream->preview.width();
-                        int waveform_width = (((float)clip->getLength()/(float)length) * clip->media_stream->preview.width());
-                        qDebug() << waveform_x << waveform_width;
-                        QRect source(waveform_x, 0, waveform_width, clip->media_stream->preview.height());
-                        clip_painter.drawImage(clip_rect, clip->media_stream->preview, source);
+            if (clip->media_stream->preview_done) {
+                if (clip->track < 0) {
+                    int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
+                    int thumb_height = clip_rect.height()-thumb_y;
+                    int thumb_width = (thumb_height*((float)clip->media_stream->preview.width()/(float)clip->media_stream->preview.height()));
+                    if (thumb_height > thumb_y && clip_rect.width() > thumb_width) { // at small clip heights, don't even draw it
+                        QRect thumb_rect(clip_rect.x(), clip_rect.y()+thumb_y, thumb_width, thumb_height);
+                        clip_painter.drawImage(thumb_rect, clip->media_stream->preview);
                     }
+                } else {
+                    long length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
+                    int waveform_x = ((float)clip->clip_in/(float)length) * clip->media_stream->preview.width();
+                    int waveform_width = (((float)clip->getLength()/(float)length) * clip->media_stream->preview.width());
+                    QRect source(waveform_x, 0, waveform_width, clip->media_stream->preview.height());
+                    clip_painter.drawImage(clip_rect, clip->media_stream->preview, source);
                 }
-                clip->media_stream->preview_lock.unlock();
             }
 
+            // top left bevel
             clip_painter.setPen(Qt::white);
             clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
             clip_painter.drawLine(clip_rect.topLeft(), clip_rect.topRight());
-            clip_painter.setPen(Qt::gray);
-            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
-            clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
 
+            // draw text
             if (color_brightness(clip->color_r, clip->color_g, clip->color_b) > 160) {
+                // set to black if color is bright
                 clip_painter.setPen(Qt::black);
-            } else {
-                clip_painter.setPen(Qt::white);
             }
             QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING, clip_rect.height() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING);
             clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
+
+            // bottom right gray
+            clip_painter.setPen(Qt::gray);
+            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
+            clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
         }
     }
 

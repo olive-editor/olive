@@ -85,6 +85,8 @@ private slots:
 
     void on_actionPlay_Pause_triggered();
 
+    void on_actionCrash_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
