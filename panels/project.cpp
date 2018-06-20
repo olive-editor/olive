@@ -125,6 +125,7 @@ Media* Project::import_file(QString file) {
                         ms->infinite_length = infinite_length;
                         m->video_tracks.append(ms);
                     } else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                        ms->audio_channels = pFormatCtx->streams[i]->codecpar->channels;
                         m->audio_tracks.append(ms);
                     }
                 }

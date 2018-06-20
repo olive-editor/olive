@@ -789,17 +789,42 @@ void TimelineWidget::redraw_clips() {
                 if (clip->track < 0) {
                     int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
                     int thumb_height = clip_rect.height()-thumb_y;
-                    int thumb_width = (thumb_height*((float)clip->media_stream->preview.width()/(float)clip->media_stream->preview.height()));
+                    int thumb_width = (thumb_height*((float)clip->media_stream->video_preview.width()/(float)clip->media_stream->video_preview.height()));
                     if (thumb_height > thumb_y && clip_rect.width() > thumb_width) { // at small clip heights, don't even draw it
                         QRect thumb_rect(clip_rect.x(), clip_rect.y()+thumb_y, thumb_width, thumb_height);
-                        clip_painter.drawImage(thumb_rect, clip->media_stream->preview);
+                        clip_painter.drawImage(thumb_rect, clip->media_stream->video_preview);
                     }
                 } else {
                     long length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
-                    int waveform_x = ((float)clip->clip_in/(float)length) * clip->media_stream->preview.width();
-                    int waveform_width = (((float)clip->getLength()/(float)length) * clip->media_stream->preview.width());
-                    QRect source(waveform_x, 0, waveform_width, clip->media_stream->preview.height());
-                    clip_painter.drawImage(clip_rect, clip->media_stream->preview, source);
+                    int waveform_x = ((float)clip->clip_in/(float)length) * clip->media_stream->audio_preview.size();
+                    int waveform_width = (((float)clip->getLength()/(float)length) * clip->media_stream->audio_preview.size());
+                    int divider = clip->media_stream->audio_channels*2;
+                    int waveform_scaled_length = qFloor((clip->media_stream->audio_preview.size() / (length*panel_timeline->zoom))/divider)*divider;
+
+                    clip_painter.setPen(QColor(80, 80, 80));
+                    int draw_x = clip_rect.x();
+                    int channel_height = clip_rect.height()/clip->media_stream->audio_channels;
+                    for (int i=0;i<clip_rect.width();i++) {
+                        int waveform_index = qFloor((((float)i / (float)clip_rect.width()) * clip->media_stream->audio_preview.size())/divider)*divider;
+                        for (int j=0;j<clip->media_stream->audio_channels;j++) {
+                            int mid = channel_height*j+(channel_height/2);
+                            int offset = waveform_index+(j*2);
+                            qint8 min = (float)clip->media_stream->audio_preview[offset] / 128.0f * (channel_height/2);
+                            qint8 max = (float)clip->media_stream->audio_preview[offset+1] / 128.0f * (channel_height/2);
+                            clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+                        }
+                    }
+
+//                    for (int i=waveform_x;i<waveform_width;i+=waveform_scaled_length) {
+//                        for (int j=0;j<clip->media_stream->audio_channels;j++) {
+//                            int mid = channel_height*j+(channel_height/2);
+//                            int offset = i+(j*2);
+//                            qint8 min = (float)clip->media_stream->audio_preview[offset] / 128.0f * (channel_height/2);
+//                            qint8 max = (float)clip->media_stream->audio_preview[offset+1] / 128.0f * (channel_height/2);
+//                            clip_painter.drawLine(draw_x, mid+min, draw_x, mid+max);
+//                        }
+//                        draw_x++;
+//                    }
                 }
             }
 

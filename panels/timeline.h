@@ -58,9 +58,8 @@ public:
 	explicit Timeline(QWidget *parent = 0);
 	~Timeline();
 
-	bool focused();
-	void zoom_in();
-	void zoom_out();
+    bool focused();
+    void set_zoom(bool in);
     void undo();
     void redo();
     void copy(bool del);

@@ -51,16 +51,6 @@ void PreviewGenerator::run() {
                 codec_ctx[i] = avcodec_alloc_context3(codec);
                 avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
                 avcodec_open2(codec_ctx[i], codec, NULL);
-
-                if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                    // initiate qimage
-                    MediaStream* ms = get_stream_from_file_index(i);
-                    int width = fmt_ctx->streams[i]->duration * av_q2d(fmt_ctx->streams[i]->time_base) * WAVEFORM_RESOLUTION;
-                    if (width > 32767) qDebug() << "[WARNING] Due to limitations in Qt's painter, this waveform may not appear correctly (see issue #76)";
-                    ms->preview = QImage(width, 80, QImage::Format_RGBA8888);
-                    ms->preview_audio_index = 0;
-                    ms->preview.fill(Qt::transparent);
-                }
             }
             AVPacket packet;
             bool done = true;
@@ -91,7 +81,7 @@ void PreviewGenerator::run() {
                                 linesize[0] = dstW*3;
                                 sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
-                                s->preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
+                                s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
 
 //                                delete [] data;
 
@@ -101,10 +91,16 @@ void PreviewGenerator::run() {
                                 sws_freeContext(sws_ctx);
                             } else if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                                 int interval = qFloor((temp_frame->sample_rate/WAVEFORM_RESOLUTION)/4)*4;
+
+                                AVFrame* swr_frame = av_frame_alloc();
+                                swr_frame->channel_layout = temp_frame->channel_layout;
+                                swr_frame->sample_rate = temp_frame->sample_rate;
+                                swr_frame->format = AV_SAMPLE_FMT_S16;
+
                                 swr_ctx = swr_alloc_set_opts(
                                             NULL,
                                             temp_frame->channel_layout,
-                                            AV_SAMPLE_FMT_S16,
+                                            static_cast<AVSampleFormat>(swr_frame->format),
                                             temp_frame->sample_rate,
                                             temp_frame->channel_layout,
                                             static_cast<AVSampleFormat>(temp_frame->format),
@@ -115,25 +111,14 @@ void PreviewGenerator::run() {
 
                                 swr_init(swr_ctx);
 
-                                AVFrame* swr_frame = av_frame_alloc();
-                                swr_frame->channel_layout = temp_frame->channel_layout;
-                                swr_frame->sample_rate = temp_frame->sample_rate;
-                                swr_frame->format = AV_SAMPLE_FMT_S16;
-
                                 swr_convert_frame(swr_ctx, swr_frame, temp_frame);
 
-                                int channel_height = s->preview.height()/swr_frame->channels;
-
-                                QPainter p;
-                                p.begin(&s->preview);
-                                p.setPen(QColor(80, 80, 80));
-                                int channel_jump = swr_frame->channels * 2;
-                                int divider = (32768.0/(s->preview.height()/2))*swr_frame->channels;
+                                int channel_skip = swr_frame->channels * 2;
                                 for (int i=0;i<swr_frame->nb_samples;i+=interval) {
                                     for (int j=0;j<swr_frame->channels;j++) {
                                         qint16 min = 0;
                                         qint16 max = 0;
-                                        for (int k=j*2;k<interval;k+=channel_jump) {
+                                        for (int k=j*2;k<interval;k+=channel_skip) {
                                             qint16 sample = ((swr_frame->data[0][i+k+1] << 8) | swr_frame->data[0][i+k]);
                                             if (sample > max) {
                                                 max = sample;
@@ -141,16 +126,12 @@ void PreviewGenerator::run() {
                                                 min = sample;
                                             }
                                         }
-                                        min /= divider;
-                                        max /= divider;
-
-                                        int mid = channel_height*j+(channel_height/2);
-                                        p.drawLine(s->preview_audio_index, mid+min, s->preview_audio_index, mid+max);
-                                        i += 2;
+                                        min /= 256;
+                                        max /= 256;
+                                        s->audio_preview.append(min);
+                                        s->audio_preview.append(max);
                                     }
-                                    s->preview_audio_index++;
                                 }
-                                p.end();
 
                                 swr_free(&swr_ctx);
                                 av_frame_free(&swr_frame);

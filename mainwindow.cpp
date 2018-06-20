@@ -130,14 +130,14 @@ void MainWindow::on_actionSequence_triggered()
 void MainWindow::on_actionZoom_In_triggered()
 {
 	if (panel_timeline->focused()) {
-		panel_timeline->zoom_in();
+        panel_timeline->set_zoom(true);
 	}
 }
 
 void MainWindow::on_actionZoom_out_triggered()
 {
 	if (panel_timeline->focused()) {
-		panel_timeline->zoom_out();
+        panel_timeline->set_zoom(false);
 	}
 }
 

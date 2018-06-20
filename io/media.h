@@ -15,12 +15,13 @@ struct MediaStream {
 	int video_width;
 	int video_height;
 	bool infinite_length;
+    int audio_channels;
 
     // preview thumbnail/waveform
-    bool preview_done;
-    QImage preview; // TODO change to QPixmap
     QMutex preview_lock;
-    int preview_audio_index;
+    bool preview_done;
+    QImage video_preview; // TODO change to QPixmap
+    QVector<qint8> audio_preview;
 };
 
 struct Media

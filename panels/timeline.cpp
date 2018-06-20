@@ -14,6 +14,7 @@
 #include "playback/playback.h"
 
 #include <QTime>
+#include <QScrollBar>
 #include <QtMath>
 
 Timeline::Timeline(QWidget *parent) :
@@ -224,14 +225,14 @@ void Timeline::delete_selection(bool ripple_delete) {
 	}
 }
 
-void Timeline::zoom_in() {
-	zoom *= 2;
-	redraw_all_clips();
-}
-
-void Timeline::zoom_out() {
-	zoom /= 2;
-	redraw_all_clips();
+void Timeline::set_zoom(bool in) {
+    if (in) {
+        zoom *= 2;
+    } else {
+        zoom /= 2;
+    }
+    ui->timeline_area->horizontalScrollBar()->setValue(getScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2));
+    redraw_all_clips();
 }
 
 void Timeline::ripple(long ripple_point, long ripple_length) {
@@ -288,12 +289,12 @@ void Timeline::on_toolRazorButton_toggled(bool checked)
 
 void Timeline::on_pushButton_4_clicked()
 {
-	zoom_in();
+    set_zoom(true);
 }
 
 void Timeline::on_pushButton_5_clicked()
 {
-	zoom_out();
+    set_zoom(false);
 }
 
 bool Timeline::is_clip_selected(Clip* clip) {
