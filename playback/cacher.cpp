@@ -32,17 +32,19 @@ void cache_audio_worker(Clip* c) {
                 // but there still may be samples in swresample
                 swr_convert_frame(c->swr_ctx, frame, NULL);
             }
+
+            // perform all audio effects
+            int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
+            for (int j=0;j<c->effects.size();j++) {
+                Effect* e = c->effects.at(j);
+                if (e->is_enabled()) e->process_audio(frame->data[0], nb_bytes);
+            }
         }
 
         if (frame->nb_samples == 0) {
             written = max_write;
         } else {
             int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-
-            // perform all audio effects
-            for (int j=0;j<c->effects.size();j++) {
-                c->effects.at(j)->process_audio(frame->data[0], nb_bytes);
-            }
 
             if (c->audio_buffer_write == 0) c->audio_buffer_write = (((int)(audio_ibuffer_read/2))*2) + 1024;
             int half_buffer = (audio_ibuffer_size/2);

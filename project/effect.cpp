@@ -6,6 +6,8 @@
 #include "ui/collapsiblewidget.h"
 #include "effects/effects.h"
 
+#include <QCheckBox>
+
 Effect::Effect(Clip* c) : parent_clip(c)
 {
 	name = "<unnamed effect>";
@@ -26,6 +28,10 @@ void Effect::setup_effect(int t, int i) {
 
 void Effect::field_changed() {
 	panel_viewer->viewer_widget->update();
+}
+
+bool Effect::is_enabled() {
+    return container->enabled_check->isChecked();
 }
 
 Effect* Effect::copy(Clip*) {return NULL;}

@@ -47,22 +47,24 @@ void PanEffect::save(QXmlStreamWriter *stream) {
 }
 
 void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
-	for (int i=0;i<nb_bytes;i+=4) {
-        qint16 left_sample = (qint16) ((samples[i+1] << 8) | samples[i]);
-        qint16 right_sample = (qint16) ((samples[i+3] << 8) | samples[i+2]);
+    if (pan_val->value() != 0) {
+        for (int i=0;i<nb_bytes;i+=4) {
+            qint16 left_sample = (qint16) ((samples[i+1] << 8) | samples[i]);
+            qint16 right_sample = (qint16) ((samples[i+3] << 8) | samples[i+2]);
 
-		float val = pan_val->value()*0.01;
-		if (val < 0) {
-			// affect right channel
-            right_sample *= (1-std::abs(val));
-		} else {
-			// affect left channel
-			left_sample *= (1-val);
-		}
+            float val = pan_val->value()*0.01f;
+            if (val < 0) {
+                // affect right channel
+                right_sample *= (1-std::abs(val));
+            } else {
+                // affect left channel
+                left_sample *= (1-val);
+            }
 
-        samples[i+3] = (quint8) (right_sample >> 8);
-        samples[i+2] = (quint8) right_sample;
-        samples[i+1] = (quint8) (left_sample >> 8);
-        samples[i] = (quint8) left_sample;
-	}
+            samples[i+3] = (quint8) (right_sample >> 8);
+            samples[i+2] = (quint8) right_sample;
+            samples[i+1] = (quint8) (left_sample >> 8);
+            samples[i] = (quint8) left_sample;
+        }
+    }
 }

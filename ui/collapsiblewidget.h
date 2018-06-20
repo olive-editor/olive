@@ -16,9 +16,10 @@ public:
 	CollapsibleWidget(QWidget* parent = 0);
 	void setContents(QWidget* c);
 	void setText(const QString &);
+
+    QCheckBox* enabled_check;
 private:
 	QLabel* header;
-	QCheckBox* enabled_check;
 	QHBoxLayout* title_bar;
 	QVBoxLayout* layout;
 	QPushButton* collapse_button;

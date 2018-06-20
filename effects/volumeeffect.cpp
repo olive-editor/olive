@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QSpinBox>
 #include <QLabel>
+#include <QDebug>
 
 #include "ui/collapsiblewidget.h"
 
@@ -31,7 +32,7 @@ Effect* VolumeEffect::copy(Clip* c) {
     return v;
 }
 
-void VolumeEffect::load(QXmlStreamReader *stream) {
+void VolumeEffect::load(QXmlStreamReader* stream) {
     while (!(stream->isEndElement() && stream->name() == "effect") && !stream->atEnd()) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "volume") {
@@ -41,17 +42,17 @@ void VolumeEffect::load(QXmlStreamReader *stream) {
     }
 }
 
-void VolumeEffect::save(QXmlStreamWriter *stream) {
+void VolumeEffect::save(QXmlStreamWriter* stream) {
     stream->writeTextElement("volume", QString::number(volume_val->value()));
 }
 
-void VolumeEffect::process_audio(quint8 *samples, int nb_bytes) {
-	for (int i=0;i<nb_bytes;i+=2) {
-        qint16 full_sample = (qint16) ((samples[i+1] << 8) | samples[i]);
-
-		full_sample *= volume_val->value()*0.01;
-
-        samples[i+1] = (quint8) (full_sample >> 8);
-        samples[i] = (quint8) full_sample;
-	}
+void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
+    if (volume_val->value() != 0) {
+        for (int i=0;i<nb_bytes;i+=2) {
+            qint16 samp = (qint16) ((samples[i+1] << 8) | samples[i]);
+            samp *= (volume_val->value()*0.01f);
+            samples[i+1] = (quint8) (samp >> 8);
+            samples[i] = (quint8) samp;
+        }
+    }
 }
