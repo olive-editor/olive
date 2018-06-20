@@ -71,10 +71,13 @@ void Viewer::on_pushButton_4_clicked()
 
 void Viewer::on_pushButton_3_clicked()
 {
-	if (panel_timeline->toggle_play()) {
-		// playing
-		ui->pushButton_3->setIcon(QIcon(":/icons/pause.png"));
-	} else {
-		ui->pushButton_3->setIcon(QIcon(":/icons/play.png"));
-	}
+    panel_timeline->toggle_play();
+}
+
+void Viewer::set_playpause_icon(bool play) {
+    if (play) {
+        ui->pushButton_3->setIcon(QIcon(":/icons/play.png"));
+    } else {
+        ui->pushButton_3->setIcon(QIcon(":/icons/pause.png"));
+    }
 }

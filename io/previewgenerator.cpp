@@ -33,7 +33,7 @@ MediaStream* PreviewGenerator::get_stream_from_file_index(int index) {
     return NULL;
 }
 
-#define WAVEFORM_RESOLUTION 256
+#define WAVEFORM_RESOLUTION 64
 
 void PreviewGenerator::run() {
     if (media == NULL) {
@@ -55,7 +55,9 @@ void PreviewGenerator::run() {
                 if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                     // initiate qimage
                     MediaStream* ms = get_stream_from_file_index(i);
-                    ms->preview = QImage(fmt_ctx->streams[i]->duration * av_q2d(fmt_ctx->streams[i]->time_base) * WAVEFORM_RESOLUTION, 255, QImage::Format_RGBA8888);
+                    int width = fmt_ctx->streams[i]->duration * av_q2d(fmt_ctx->streams[i]->time_base) * WAVEFORM_RESOLUTION;
+                    if (width > 32767) qDebug() << "[WARNING] Due to limitations in Qt's painter, this waveform may not appear correctly (see issue #76)";
+                    ms->preview = QImage(width, 80, QImage::Format_RGBA8888);
                     ms->preview_audio_index = 0;
                     ms->preview.fill(Qt::transparent);
                 }
@@ -125,13 +127,25 @@ void PreviewGenerator::run() {
                                 QPainter p;
                                 p.begin(&s->preview);
                                 p.setPen(QColor(80, 80, 80));
+                                int channel_jump = swr_frame->channels * 2;
+                                int divider = (32768.0/(s->preview.height()/2))*swr_frame->channels;
                                 for (int i=0;i<swr_frame->nb_samples;i+=interval) {
                                     for (int j=0;j<swr_frame->channels;j++) {
-                                        qint16 sample = ((swr_frame->data[0][i+1] << 8) | swr_frame->data[0][i]);
-                                        sample /= 256;
-                                        sample /= swr_frame->channels;
+                                        qint16 min = 0;
+                                        qint16 max = 0;
+                                        for (int k=j*2;k<interval;k+=channel_jump) {
+                                            qint16 sample = ((swr_frame->data[0][i+k+1] << 8) | swr_frame->data[0][i+k]);
+                                            if (sample > max) {
+                                                max = sample;
+                                            } else if (sample < min) {
+                                                min = sample;
+                                            }
+                                        }
+                                        min /= divider;
+                                        max /= divider;
+
                                         int mid = channel_height*j+(channel_height/2);
-                                        p.drawLine(s->preview_audio_index, mid, s->preview_audio_index, mid+sample);
+                                        p.drawLine(s->preview_audio_index, mid+min, s->preview_audio_index, mid+max);
                                         i += 2;
                                     }
                                     s->preview_audio_index++;

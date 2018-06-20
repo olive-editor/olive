@@ -80,13 +80,12 @@ void Timeline::seek(long p) {
     repaint_timeline();
 }
 
-bool Timeline::toggle_play() {
+void Timeline::toggle_play() {
 	if (playing) {
 		pause();
 	} else {
 		play();
-	}
-	return playing;
+    }
 }
 
 void Timeline::play() {
@@ -94,10 +93,12 @@ void Timeline::play() {
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
     playing = true;
+    panel_viewer->set_playpause_icon(false);
 }
 
 void Timeline::pause() {
 	playing = false;
+    panel_viewer->set_playpause_icon(true);
 }
 
 void Timeline::go_to_end() {
@@ -167,6 +168,7 @@ void Timeline::redraw_all_clips() {
 
     ui->video_area->redraw_clips();
     ui->audio_area->redraw_clips();
+    ui->headers->update();
 }
 
 void Timeline::select_all() {

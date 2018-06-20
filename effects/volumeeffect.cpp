@@ -48,7 +48,9 @@ void VolumeEffect::save(QXmlStreamWriter *stream) {
 void VolumeEffect::process_audio(quint8 *samples, int nb_bytes) {
 	for (int i=0;i<nb_bytes;i+=2) {
         qint16 full_sample = (qint16) ((samples[i+1] << 8) | samples[i]);
+
 		full_sample *= volume_val->value()*0.01;
+
         samples[i+1] = (quint8) (full_sample >> 8);
         samples[i] = (quint8) full_sample;
 	}

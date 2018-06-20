@@ -20,6 +20,7 @@ public:
 	~Viewer();
     void update_sequence();
 	void compose();
+    void set_playpause_icon(bool play);
 
 	ViewerWidget* viewer_widget;
 

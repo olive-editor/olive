@@ -18,7 +18,7 @@ struct MediaStream {
 
     // preview thumbnail/waveform
     bool preview_done;
-    QImage preview;
+    QImage preview; // TODO change to QPixmap
     QMutex preview_lock;
     int preview_audio_index;
 };

@@ -23,12 +23,15 @@
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
 void MainWindow::setup_layout() {
+    panel_project->show();
+    panel_effect_controls->show();
+    panel_viewer->show();
+    panel_timeline->show();
+
 	addDockWidget(Qt::TopDockWidgetArea, panel_project);
 	addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
 	addDockWidget(Qt::TopDockWidgetArea, panel_viewer);
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
-
-	setCentralWidget(NULL);
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -65,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	setWindowTitle("Olive (May 2018 | Pre-Alpha)");
 	statusBar()->showMessage("Welcome to Olive::Qt");
+
+    setCentralWidget(NULL);
 
     // TODO maybe replace these with non-pointers later on?
     panel_project = new Project(this);

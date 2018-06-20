@@ -27,7 +27,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent)
 	setMouseTracking(true);
     track_height = 80;
 
-	setAcceptDrops(true);
+    setAcceptDrops(true);
 }
 
 bool same_sign(int a, int b) {
@@ -760,8 +760,6 @@ int color_brightness(int r, int g, int b) {
 }
 
 void TimelineWidget::redraw_clips() {
-    qDebug() << "redraw called";
-
     // Draw clips
     int panel_width = panel_timeline->getScreenPointFromFrame(sequence->getEndFrame()) + 100;
 
@@ -817,6 +815,11 @@ void TimelineWidget::redraw_clips() {
             }
             QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING, clip_rect.height() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING);
             clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
+            if (clip->linked.size() > 0) {
+                int underline_y = CLIP_TEXT_PADDING + clip_painter.fontMetrics().height() + clip_rect.top();
+                int underline_width = qMin(clip_rect.width() - CLIP_TEXT_PADDING, clip_rect.left() + CLIP_TEXT_PADDING+clip_painter.fontMetrics().width(clip->name));
+                clip_painter.drawLine(clip_rect.left() + CLIP_TEXT_PADDING, underline_y, underline_width, underline_y);
+            }
 
             // bottom right gray
             clip_painter.setPen(Qt::gray);

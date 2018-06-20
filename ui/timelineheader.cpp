@@ -40,7 +40,12 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
     if (sequence != NULL) {
         QPainter p(this);
         p.setPen(Qt::gray);
-        int interval = panel_timeline->getScreenPointFromFrame(sequence->frame_rate);
+        int interval = 0;
+        int multiplier = 0;
+        do {
+            multiplier++;
+            interval = panel_timeline->getScreenPointFromFrame(sequence->frame_rate*multiplier);
+        } while (interval < 10);
         for (int i=0;i<width();i+=interval) {
             p.drawLine(i, 0, i, height());
         }

@@ -95,7 +95,7 @@
    </widget>
    <widget class="QMenu" name="menuPlayback">
     <property name="title">
-     <string>Playback</string>
+     <string>&amp;Playback</string>
     </property>
     <addaction name="actionGo_to_start"/>
     <addaction name="actionPrevious_Frame"/>

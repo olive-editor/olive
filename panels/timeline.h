@@ -84,7 +84,7 @@ public:
 	void previous_frame();
 	void next_frame();
 	void seek(long p);
-	bool toggle_play();
+    void toggle_play();
 	void play();
 	void pause();
 	void go_to_end();
