@@ -1,10 +1,10 @@
 #include "effects/effects.h"
 
 #include <QGridLayout>
-#include <QSpinBox>
 #include <QLabel>
 #include <QDebug>
 
+#include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
 VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
@@ -13,9 +13,9 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
 	QGridLayout* ui_layout = new QGridLayout();
 
 	ui_layout->addWidget(new QLabel("Volume:"), 0, 0);
-	volume_val = new QSpinBox();
-	volume_val->setMinimum(0);
-    volume_val->setMaximum(400);
+    volume_val = new LabelSlider();
+    volume_val->set_minimum_value(0);
+    volume_val->set_maximum_value(400);
 	ui_layout->addWidget(volume_val, 0, 1);
 
 	ui->setLayout(ui_layout);
@@ -23,12 +23,12 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
 	container->setContents(ui);
 
 	// set defaults
-	volume_val->setValue(100);
+    volume_val->set_value(100);
 }
 
 Effect* VolumeEffect::copy(Clip* c) {
     VolumeEffect* v = new VolumeEffect(c);
-    v->volume_val->setValue(volume_val->value());
+    v->volume_val->set_value(volume_val->value());
     return v;
 }
 
@@ -37,7 +37,7 @@ void VolumeEffect::load(QXmlStreamReader* stream) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "volume") {
             stream->readNext();
-            volume_val->setValue(stream->text().toInt());
+            volume_val->set_value(stream->text().toInt());
         }
     }
 }

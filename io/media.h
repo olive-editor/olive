@@ -40,4 +40,6 @@ struct Media
 	long get_length_in_frames(float frame_rate);
 };
 
+int guess_layout_from_channels(int channel_count);
+
 #endif // MEDIA_H

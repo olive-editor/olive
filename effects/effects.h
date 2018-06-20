@@ -6,6 +6,7 @@
 #include <QXmlStreamWriter>
 class QSpinBox;
 class QCheckBox;
+class LabelSlider;
 
 enum VideoEffects {
 	VIDEO_TRANSFORM_EFFECT,
@@ -31,15 +32,15 @@ public:
 	void process_gl(int* anchor_x, int* anchor_y);
     Effect* copy(Clip* c);
 
-	QSpinBox* position_x;
-	QSpinBox* position_y;
-	QSpinBox* scale_x;
-	QSpinBox* scale_y;
+    LabelSlider* position_x;
+    LabelSlider* position_y;
+    LabelSlider* scale_x;
+    LabelSlider* scale_y;
 	QCheckBox* uniform_scale_box;
-	QSpinBox* rotation;
-	QSpinBox* anchor_x_box;
-	QSpinBox* anchor_y_box;
-	QSpinBox* opacity;
+    LabelSlider* rotation;
+    LabelSlider* anchor_x_box;
+    LabelSlider* anchor_y_box;
+    LabelSlider* opacity;
 public slots:
 	void toggle_uniform_scale(bool enabled);
 private:
@@ -56,7 +57,7 @@ public:
     void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
 
-	QSpinBox* volume_val;
+    LabelSlider* volume_val;
 };
 
 class PanEffect : public Effect {
@@ -67,7 +68,7 @@ public:
     void load(QXmlStreamReader* stream);
     void save(QXmlStreamWriter* stream);
 
-	QSpinBox* pan_val;
+    LabelSlider* pan_val;
 };
 
 #endif // EFFECTS_H

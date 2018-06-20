@@ -1,10 +1,10 @@
 #include "effects/effects.h"
 
 #include <QGridLayout>
-#include <QSpinBox>
 #include <QLabel>
 #include <cmath>
 
+#include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
 PanEffect::PanEffect(Clip* c) : Effect(c) {
@@ -13,9 +13,9 @@ PanEffect::PanEffect(Clip* c) : Effect(c) {
     QGridLayout* ui_layout = new QGridLayout();
 
 	ui_layout->addWidget(new QLabel("Pan:"), 0, 0);
-	pan_val = new QSpinBox();
-	pan_val->setMinimum(-100);
-	pan_val->setMaximum(100);
+    pan_val = new LabelSlider();
+    pan_val->set_minimum_value(-100);
+    pan_val->set_maximum_value(100);
 	ui_layout->addWidget(pan_val, 0, 1);
 
 	ui->setLayout(ui_layout);
@@ -23,12 +23,12 @@ PanEffect::PanEffect(Clip* c) : Effect(c) {
 	container->setContents(ui);
 
 	// set defaults
-	pan_val->setValue(0);
+    pan_val->set_value(0);
 }
 
 Effect* PanEffect::copy(Clip* c) {
     PanEffect* p = new PanEffect(c);
-    p->pan_val->setValue(pan_val->value());
+    p->pan_val->set_value(pan_val->value());
     return p;
 }
 
@@ -37,7 +37,7 @@ void PanEffect::load(QXmlStreamReader *stream) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "pan") {
             stream->readNext();
-            pan_val->setValue(stream->text().toInt());
+            pan_val->set_value(stream->text().toInt());
         }
     }
 }

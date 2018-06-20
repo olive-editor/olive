@@ -406,8 +406,6 @@ void Project::load_project() {
             }
             break;
         }
-        qDebug() << "read element:" << stream.name() << "- text:" << stream.text() << "- start:" << stream.isStartElement() << "- end:" << stream.isEndElement();
-
     }
     if (stream.hasError()) {
         qDebug() << "[ERROR] Error parsing XML." << stream.error();

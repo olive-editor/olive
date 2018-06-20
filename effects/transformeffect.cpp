@@ -12,6 +12,7 @@
 #include "project/clip.h"
 #include "project/sequence.h"
 #include "io/media.h"
+#include "ui/labelslider.h"
 
 TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     setup_effect(EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT);
@@ -19,23 +20,20 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	QGridLayout* ui_layout = new QGridLayout();
 
 	ui_layout->addWidget(new QLabel("Position:"), 0, 0);
-	position_x = new QSpinBox();
-	position_x->setMinimum(-QWIDGETSIZE_MAX);
-	position_x->setMaximum(QWIDGETSIZE_MAX);
-	ui_layout->addWidget(position_x, 0, 1);
-	position_y = new QSpinBox();
-	position_y->setMinimum(-QWIDGETSIZE_MAX);
-	position_y->setMaximum(QWIDGETSIZE_MAX);
+    position_x = new LabelSlider();
+    ui_layout->addWidget(position_x, 0, 1);
+
+    position_y = new LabelSlider();
 	ui_layout->addWidget(position_y, 0, 2);
 
 	ui_layout->addWidget(new QLabel("Scale:"), 1, 0);
-	scale_x = new QSpinBox();
-	scale_x->setMinimum(0);
-	scale_x->setMaximum(1200);
+    scale_x = new LabelSlider();
+    scale_x->set_minimum_value(0);
+    scale_x->set_maximum_value(1200);
 	ui_layout->addWidget(scale_x, 1, 1);
-	scale_y = new QSpinBox();
-	scale_y->setMinimum(0);
-	scale_y->setMaximum(1200);
+    scale_y = new LabelSlider();
+    scale_y->set_minimum_value(0);
+    scale_y->set_maximum_value(1200);
 	ui_layout->addWidget(scale_y, 1, 2);
 
 	uniform_scale_box = new QCheckBox();
@@ -43,25 +41,19 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	ui_layout->addWidget(uniform_scale_box, 2, 1);
 
 	ui_layout->addWidget(new QLabel("Rotation:"), 3, 0);
-	rotation = new QSpinBox();
-	rotation->setMinimum(-QWIDGETSIZE_MAX);
-	rotation->setMaximum(QWIDGETSIZE_MAX);
+    rotation = new LabelSlider();
 	ui_layout->addWidget(rotation, 3, 1);
 
 	ui_layout->addWidget(new QLabel("Anchor Point:"), 4, 0);
-	anchor_x_box = new QSpinBox();
-	anchor_x_box->setMinimum(-QWIDGETSIZE_MAX);
-	anchor_x_box->setMaximum(QWIDGETSIZE_MAX);
+    anchor_x_box = new LabelSlider();
 	ui_layout->addWidget(anchor_x_box, 4, 1);
-	anchor_y_box = new QSpinBox();
-	anchor_y_box->setMinimum(-QWIDGETSIZE_MAX);
-	anchor_y_box->setMaximum(QWIDGETSIZE_MAX);
+    anchor_y_box = new LabelSlider();
 	ui_layout->addWidget(anchor_y_box, 4, 2);
 
 	ui_layout->addWidget(new QLabel("Opacity:"), 5, 0);
-	opacity = new QSpinBox();
-	opacity->setMinimum(0);
-	opacity->setMaximum(100);
+    opacity = new LabelSlider();
+    opacity->set_minimum_value(0);
+    opacity->set_maximum_value(100);
 	ui_layout->addWidget(opacity, 5, 1);
 
 	ui->setLayout(ui_layout);
@@ -69,41 +61,41 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	container->setContents(ui);
 
 	// set defaults
-    position_x->setValue(c->sequence->width/2);
-    position_y->setValue(c->sequence->height/2);
-	scale_x->setValue(100);
-	scale_y->setValue(100);
+    position_x->set_default_value(c->sequence->width/2);
+    position_y->set_default_value(c->sequence->height/2);
+    scale_x->set_default_value(100);
+    scale_y->set_default_value(100);
 	scale_y->setEnabled(false);
 	uniform_scale_box->setChecked(true);
     default_anchor_x = c->media_stream->video_width/2;
     default_anchor_y = c->media_stream->video_height/2;
-    anchor_x_box->setValue(default_anchor_x);
-    anchor_y_box->setValue(default_anchor_y);
-	opacity->setValue(100);
+    anchor_x_box->set_default_value(default_anchor_x);
+    anchor_y_box->set_default_value(default_anchor_y);
+    opacity->set_default_value(100);
 
-	connect(position_x, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(position_y, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(rotation, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(scale_x, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(scale_y, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(anchor_x_box, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(anchor_y_box, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
-	connect(opacity, SIGNAL(valueChanged(int)), this, SLOT(field_changed()));
+    connect(position_x, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(position_y, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(rotation, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(scale_x, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(scale_y, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(anchor_x_box, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(anchor_y_box, SIGNAL(valueChanged()), this, SLOT(field_changed()));
+    connect(opacity, SIGNAL(valueChanged()), this, SLOT(field_changed()));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(field_changed()));
 }
 
 Effect* TransformEffect::copy(Clip* c) {
     TransformEffect* t = new TransformEffect(c);
-    t->position_x->setValue(position_x->value());
-    t->position_y->setValue(position_y->value());
-    t->scale_x->setValue(scale_x->value());
-    t->scale_y->setValue(scale_y->value());
+    t->position_x->set_value(position_x->value());
+    t->position_y->set_value(position_y->value());
+    t->scale_x->set_value(scale_x->value());
+    t->scale_y->set_value(scale_y->value());
     t->uniform_scale_box->setChecked(uniform_scale_box->isChecked());
-    t->rotation->setValue(rotation->value());
-    t->anchor_x_box->setValue(anchor_x_box->value());
-    t->anchor_y_box->setValue(anchor_y_box->value());
-    t->opacity->setValue(opacity->value());
+    t->rotation->set_value(rotation->value());
+    t->anchor_x_box->set_value(anchor_x_box->value());
+    t->anchor_y_box->set_value(anchor_y_box->value());
+    t->opacity->set_value(opacity->value());
     return t;
 }
 

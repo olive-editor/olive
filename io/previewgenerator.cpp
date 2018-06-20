@@ -51,6 +51,12 @@ void PreviewGenerator::run() {
                 codec_ctx[i] = avcodec_alloc_context3(codec);
                 avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
                 avcodec_open2(codec_ctx[i], codec, NULL);
+
+                if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                    if (codec_ctx[i]->channel_layout == 0) {
+                        codec_ctx[i]->channel_layout = guess_layout_from_channels(fmt_ctx->streams[i]->codecpar->channels);
+                    }
+                }
             }
             AVPacket packet;
             bool done = true;

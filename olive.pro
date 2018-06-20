@@ -53,7 +53,8 @@ SOURCES += \
     playback/cacher.cpp \
     io/exportthread.cpp \
     ui/timelineheader.cpp \
-    io/previewgenerator.cpp
+    io/previewgenerator.cpp \
+    ui/labelslider.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -82,7 +83,8 @@ HEADERS += \
     io/exportthread.h \
     ui/timelinetools.h \
     ui/timelineheader.h \
-    io/previewgenerator.h
+    io/previewgenerator.h \
+    ui/labelslider.h
 
 FORMS += \
         mainwindow.ui \

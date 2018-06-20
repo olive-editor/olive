@@ -231,13 +231,7 @@ void open_clip_worker(Clip* clip) {
 		// if FFmpeg can't pick up the channel layout (usually WAV), assume
 		// based on channel count (doesn't support surround sound sources yet)
 		if (clip->codecCtx->channel_layout == 0) {
-			switch (clip->stream->codecpar->channels) {
-				case 1: clip->codecCtx->channel_layout = AV_CH_LAYOUT_MONO;
-				default:
-					clip->codecCtx->channel_layout = AV_CH_LAYOUT_STEREO;
-					qDebug() << "[WARNING] Could not detect audio channel layout - assuming stereo";
-					break;
-			}
+            clip->codecCtx->channel_layout = guess_layout_from_channels(clip->stream->codecpar->channels);
 		}
 
 		int sample_format = AV_SAMPLE_FMT_S16;
