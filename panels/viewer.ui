@@ -82,7 +82,7 @@
          <item>
           <widget class="QLabel" name="currentTimecode">
            <property name="text">
-            <string>00:00:00;00</string>
+            <string>00:00:00:00</string>
            </property>
           </widget>
          </item>
@@ -295,7 +295,7 @@
          <item>
           <widget class="QLabel" name="endTimecode">
            <property name="text">
-            <string>00:00:00;00</string>
+            <string>00:00:00:00</string>
            </property>
           </widget>
          </item>
