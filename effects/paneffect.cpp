@@ -37,7 +37,7 @@ void PanEffect::load(QXmlStreamReader *stream) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "pan") {
             stream->readNext();
-            pan_val->set_value(stream->text().toInt());
+            pan_val->set_value(stream->text().toFloat());
         }
     }
 }

@@ -31,6 +31,8 @@ public:
     TransformEffect(Clip* c);
 	void process_gl(int* anchor_x, int* anchor_y);
     Effect* copy(Clip* c);
+    void load(QXmlStreamReader* stream);
+    void save(QXmlStreamWriter* stream);
 
     LabelSlider* position_x;
     LabelSlider* position_y;

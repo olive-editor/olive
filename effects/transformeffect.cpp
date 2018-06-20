@@ -99,6 +99,52 @@ Effect* TransformEffect::copy(Clip* c) {
     return t;
 }
 
+void TransformEffect::load(QXmlStreamReader *stream) {
+    while (!(stream->isEndElement() && stream->name() == "effect") && !stream->atEnd()) {
+        stream->readNext();
+        if (stream->isStartElement() && stream->name() == "posx") {
+            stream->readNext();
+            position_x->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "posy") {
+            stream->readNext();
+            position_y->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "scalex") {
+            stream->readNext();
+            scale_x->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "scaley") {
+            stream->readNext();
+            scale_y->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "uniformscale") {
+            stream->readNext();
+            uniform_scale_box->setChecked(stream->text() == "1");
+        } else if (stream->isStartElement() && stream->name() == "rotation") {
+            stream->readNext();
+            rotation->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "anchorx") {
+            stream->readNext();
+            anchor_x_box->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "anchory") {
+            stream->readNext();
+            anchor_y_box->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "opacity") {
+            stream->readNext();
+            opacity->set_value(stream->text().toFloat());
+        }
+    }
+}
+
+void TransformEffect::save(QXmlStreamWriter *stream) {
+    stream->writeTextElement("posx", QString::number(position_x->value()));
+    stream->writeTextElement("posy", QString::number(position_y->value()));
+    stream->writeTextElement("scalex", QString::number(scale_x->value()));
+    stream->writeTextElement("scaley", QString::number(scale_y->value()));
+    stream->writeTextElement("uniformscale", QString::number(uniform_scale_box->isChecked()));
+    stream->writeTextElement("rotation", QString::number(rotation->value()));
+    stream->writeTextElement("anchorx", QString::number(anchor_x_box->value()));
+    stream->writeTextElement("anchory", QString::number(anchor_y_box->value()));
+    stream->writeTextElement("opacity", QString::number(opacity->value()));
+}
+
 void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->setEnabled(!enabled);
 }
