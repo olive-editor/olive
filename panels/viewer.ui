@@ -80,6 +80,13 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QLabel" name="currentTimecode">
+           <property name="text">
+            <string>00:00:00;00</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -284,6 +291,13 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="endTimecode">
+           <property name="text">
+            <string>00:00:00;00</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

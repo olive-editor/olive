@@ -12,6 +12,7 @@
 #include "panels/viewer.h"
 #include "playback/cacher.h"
 #include "playback/playback.h"
+#include "ui_viewer.h"
 
 #include <QTime>
 #include <QScrollBar>
@@ -149,6 +150,19 @@ void Timeline::redo() {
     }
 }
 
+QString frame_to_timecode(long f) {
+    int int_fps = qRound(sequence->frame_rate);
+    int hours = f/ (3600 * int_fps);
+    int mins = f / (60*int_fps) % 60;
+    int secs = f/int_fps % 60;
+    int frames = f%int_fps;
+    return QString(QString::number(hours).rightJustified(2, '0') +
+                   ":" + QString::number(mins).rightJustified(2, '0') +
+                   ":" + QString::number(secs).rightJustified(2, '0') +
+                   ":" + QString::number(frames).rightJustified(2, '0')
+                );
+}
+
 void Timeline::repaint_timeline() {
     if (playing) {
         playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
@@ -160,6 +174,7 @@ void Timeline::repaint_timeline() {
 		panel_viewer->viewer_widget->update();
 		last_frame = playhead;
 	}
+    panel_viewer->ui->currentTimecode->setText(frame_to_timecode(playhead));
 }
 
 void Timeline::redraw_all_clips() {
@@ -170,6 +185,8 @@ void Timeline::redraw_all_clips() {
     ui->video_area->redraw_clips();
     ui->audio_area->redraw_clips();
     ui->headers->update();
+
+    panel_viewer->ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame()));
 }
 
 void Timeline::select_all() {
@@ -225,13 +242,23 @@ void Timeline::delete_selection(bool ripple_delete) {
 	}
 }
 
+int lerp(int a, int b, float t) {
+    return ((1.0f - t) * a) + (t * b);
+}
+
 void Timeline::set_zoom(bool in) {
     if (in) {
         zoom *= 2;
     } else {
         zoom /= 2;
     }
-    ui->timeline_area->horizontalScrollBar()->setValue(getScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2));
+    ui->timeline_area->horizontalScrollBar()->setValue(
+                lerp(
+                    ui->timeline_area->horizontalScrollBar()->value(),
+                    getScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2),
+                    0.99f
+                )
+            );
     redraw_all_clips();
 }
 

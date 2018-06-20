@@ -153,7 +153,7 @@ Media* Project::import_file(QString file) {
     pg->fmt_ctx = pFormatCtx; // cleaned up in PG
     pg->media = m;
     connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
-    pg->run();
+    pg->start(QThread::LowPriority);
 
     delete [] filename;
     return m;
