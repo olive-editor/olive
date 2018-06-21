@@ -21,13 +21,13 @@ public:
 
     void redraw_clips();
 protected:
-	void paintEvent(QPaintEvent*) override;
-    void resizeEvent(QResizeEvent*) override;
+    void paintEvent(QPaintEvent*);
+    void resizeEvent(QResizeEvent*);
 
     void mouseDoubleClickEvent(QMouseEvent *event);
-	void mousePressEvent(QMouseEvent *event) override;
-	void mouseReleaseEvent(QMouseEvent *event) override;
-	void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dragLeaveEvent(QDragLeaveEvent *event);

@@ -10,7 +10,7 @@ class Cacher : public QThread
 //	Q_OBJECT
 public:
 	Cacher(Clip* c);
-	void run() override;
+    void run();
 
 	bool caching;
 

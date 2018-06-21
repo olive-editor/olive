@@ -368,3 +368,17 @@ void MainWindow::on_actionSlip_Tool_triggered()
 {
     if (panel_timeline->focused()) panel_timeline->ui->toolSlipButton->click();
 }
+
+void MainWindow::on_actionGo_to_Previous_Cut_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->previous_cut();
+    }
+}
+
+void MainWindow::on_actionGo_to_Next_Cut_triggered()
+{
+    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+        panel_timeline->next_cut();
+    }
+}

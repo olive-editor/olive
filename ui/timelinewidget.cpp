@@ -205,7 +205,6 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 	case TIMELINE_TOOL_EDIT:
 		panel_timeline->seek(panel_timeline->drag_frame_start);
         panel_timeline->selecting = true;
-
 		break;
 	case TIMELINE_TOOL_RAZOR:
 	{
@@ -807,24 +806,13 @@ void TimelineWidget::redraw_clips() {
                     for (int i=0;i<clip_rect.width();i++) {
                         int waveform_index = qFloor((((float)i / (float)clip_rect.width()) * clip->media_stream->audio_preview.size())/divider)*divider;
                         for (int j=0;j<clip->media_stream->audio_channels;j++) {
-                            int mid = channel_height*j+(channel_height/2);
+                            int mid = clip_rect.top()+channel_height*j+(channel_height/2);
                             int offset = waveform_index+(j*2);
                             qint8 min = (float)clip->media_stream->audio_preview[offset] / 128.0f * (channel_height/2);
                             qint8 max = (float)clip->media_stream->audio_preview[offset+1] / 128.0f * (channel_height/2);
                             clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
                         }
                     }
-
-//                    for (int i=waveform_x;i<waveform_width;i+=waveform_scaled_length) {
-//                        for (int j=0;j<clip->media_stream->audio_channels;j++) {
-//                            int mid = channel_height*j+(channel_height/2);
-//                            int offset = i+(j*2);
-//                            qint8 min = (float)clip->media_stream->audio_preview[offset] / 128.0f * (channel_height/2);
-//                            qint8 max = (float)clip->media_stream->audio_preview[offset+1] / 128.0f * (channel_height/2);
-//                            clip_painter.drawLine(draw_x, mid+min, draw_x, mid+max);
-//                        }
-//                        draw_x++;
-//                    }
                 }
             }
 

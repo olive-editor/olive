@@ -101,6 +101,10 @@ private slots:
 
     void on_actionSlip_Tool_triggered();
 
+    void on_actionGo_to_Previous_Cut_triggered();
+
+    void on_actionGo_to_Next_Cut_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

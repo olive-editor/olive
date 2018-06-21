@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>34</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -102,6 +102,9 @@
     <addaction name="actionPlay_Pause"/>
     <addaction name="actionNext_Frame"/>
     <addaction name="actionGo_to_End"/>
+    <addaction name="separator"/>
+    <addaction name="actionGo_to_Previous_Cut"/>
+    <addaction name="actionGo_to_Next_Cut"/>
    </widget>
    <widget class="QMenu" name="menu_Tools">
     <property name="title">
@@ -444,6 +447,22 @@
   <action name="actionSlip_Tool">
    <property name="text">
     <string>Slip Tool</string>
+   </property>
+  </action>
+  <action name="actionGo_to_Previous_Cut">
+   <property name="text">
+    <string>Go to Previous Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionGo_to_Next_Cut">
+   <property name="text">
+    <string>Go to Next Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Down</string>
    </property>
   </action>
  </widget>

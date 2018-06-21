@@ -13,7 +13,7 @@ public:
 	void adjust();
 
 protected:
-	void resizeEvent(QResizeEvent *event) override;
+    void resizeEvent(QResizeEvent *event);
 
 signals:
 

@@ -82,6 +82,8 @@ public:
 	void go_to_start();
 	void previous_frame();
 	void next_frame();
+    void previous_cut();
+    void next_cut();
 	void seek(long p);
     void toggle_play();
 	void play();

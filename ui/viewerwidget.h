@@ -19,10 +19,10 @@ public:
     bool force_audio;
     bool enable_paint;
 protected:
-    void paintEvent(QPaintEvent *e) override;
-    void initializeGL() override;
+    void paintEvent(QPaintEvent *e);
+    void initializeGL();
 //    void resizeGL(int w, int h);
-    void paintGL() override;
+    void paintGL();
 private:
 	QTimer retry_timer;
 private slots:

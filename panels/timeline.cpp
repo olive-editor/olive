@@ -64,6 +64,38 @@ void Timeline::next_frame() {
 	seek(playhead+1);
 }
 
+void Timeline::previous_cut() {
+    bool seek_enabled = false;
+    long p_cut = 0;
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+        if (c->timeline_out > p_cut && c->timeline_out < playhead) {
+            p_cut = c->timeline_out;
+            seek_enabled = true;
+        } else if (c->timeline_in > p_cut && c->timeline_in < playhead) {
+            p_cut = c->timeline_in;
+            seek_enabled = true;
+        }
+    }
+    if (seek_enabled) seek(p_cut);
+}
+
+void Timeline::next_cut() {
+    bool seek_enabled = false;
+    long n_cut = LONG_MAX;
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+        if (c->timeline_out < n_cut && c->timeline_out > playhead) {
+            n_cut = c->timeline_out;
+            seek_enabled = true;
+        } else if (c->timeline_in < n_cut && c->timeline_in > playhead) {
+            n_cut = c->timeline_in;
+            seek_enabled = true;
+        }
+    }
+    if (seek_enabled) seek(n_cut);
+}
+
 void Timeline::seek(long p) {
 	pause();
 
