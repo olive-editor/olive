@@ -2,6 +2,7 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QtMath>
 #include <QDebug>
 
 #include "ui/labelslider.h"
@@ -47,10 +48,11 @@ void VolumeEffect::save(QXmlStreamWriter* stream) {
 }
 
 void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
-    if (volume_val->value() != 0) {
+    if (volume_val->value() != 100) {
         for (int i=0;i<nb_bytes;i+=2) {
             qint16 samp = (qint16) ((samples[i+1] << 8) | samples[i]);
-            samp *= (volume_val->value()*0.01f);
+            float val = qPow(volume_val->value()*0.01f, 3);
+            samp *= val;
             samples[i+1] = (quint8) (samp >> 8);
             samples[i] = (quint8) samp;
         }

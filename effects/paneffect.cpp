@@ -2,6 +2,7 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QtMath>
 #include <cmath>
 
 #include "ui/labelslider.h"
@@ -52,7 +53,7 @@ void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
             qint16 left_sample = (qint16) ((samples[i+1] << 8) | samples[i]);
             qint16 right_sample = (qint16) ((samples[i+3] << 8) | samples[i+2]);
 
-            float val = pan_val->value()*0.01f;
+            float val = qPow(pan_val->value()*0.01f, 3);
             if (val < 0) {
                 // affect right channel
                 right_sample *= (1-std::abs(val));
