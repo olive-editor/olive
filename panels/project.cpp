@@ -116,10 +116,17 @@ Media* Project::import_file(QString file) {
                     ms->preview_lock.lock();
                     ms->file_index = i;
                     if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                        qDebug() << "[WARNING] INFINITE_LENGTH calculation is inaccurate in this build\n";
-                        // TODO BETTER infinite length calculator
-                        bool infinite_length = (pFormatCtx->streams[i]->nb_frames == 0);
-//							bool infinite_length = false;
+//                        qDebug() << "[WARNING] INFINITE_LENGTH calculation is inaccurate in this build\n";
+//                        qDebug() << "INFINITE_LENGTH heuristics:";
+//                        qDebug() << "    start_time:" << pFormatCtx->streams[i]->start_time;
+//                        qDebug() << "    duration:" << pFormatCtx->streams[i]->duration;
+//                        qDebug() << "    nb_frames:" << pFormatCtx->streams[i]->nb_frames;
+//                        qDebug() << "    avg_frame_rate:" << av_q2d(pFormatCtx->streams[i]->avg_frame_rate);
+//                        qDebug() << "    codec_info_nb_frames:" << pFormatCtx->streams[i]->codec_info_nb_frames;
+//                        qDebug() << "    nb_decoded_frames:" << pFormatCtx->streams[i]->nb_decoded_frames;
+//                        qDebug() << "    codec_id:" << pFormatCtx->streams[i]->codecpar->codec_id;
+
+                        bool infinite_length = (pFormatCtx->streams[i]->avg_frame_rate.den == 0);
                         ms->video_width = pFormatCtx->streams[i]->codecpar->width;
                         ms->video_height = pFormatCtx->streams[i]->codecpar->height;
                         ms->infinite_length = infinite_length;

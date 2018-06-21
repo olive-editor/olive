@@ -136,6 +136,7 @@ bool Timeline::focused() {
 void Timeline::undo() {
     if (sequence != NULL) {
         current_clips.clear();
+        panel_effect_controls->set_clip(NULL);
         sequence->undo();
         ui->video_area->redraw_clips();
         ui->audio_area->redraw_clips();
@@ -145,6 +146,7 @@ void Timeline::undo() {
 void Timeline::redo() {
     if (sequence != NULL) {
         current_clips.clear();
+        panel_effect_controls->set_clip(NULL);
         sequence->redo();
         ui->video_area->redraw_clips();
         ui->audio_area->redraw_clips();

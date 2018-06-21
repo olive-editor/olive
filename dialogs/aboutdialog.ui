@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>180</height>
+    <width>400</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,13 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Olive is a professional video editor.</string>
+      <string>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

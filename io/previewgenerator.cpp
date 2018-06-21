@@ -1,3 +1,7 @@
+//
+// TODO: Fold this file into a multithreaded "file processor"
+//
+
 #include "previewgenerator.h"
 
 #include "media.h"

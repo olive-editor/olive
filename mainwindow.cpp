@@ -54,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	darkPalette.setColor(QPalette::ButtonText, Qt::white);	darkPalette.setColor(QPalette::BrightText, Qt::red);
 	darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
 	darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-
 	darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
 	darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
@@ -66,8 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->setupUi(this);
 
-	setWindowTitle("Olive (May 2018 | Pre-Alpha)");
-	statusBar()->showMessage("Welcome to Olive::Qt");
+    setWindowTitle("Olive (June 2018 | Pre-Alpha)");
+    statusBar()->showMessage("Welcome to Olive");
 
     setCentralWidget(NULL);
 
