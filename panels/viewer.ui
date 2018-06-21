@@ -127,7 +127,8 @@
            </property>
            <property name="icon">
             <iconset resource="../icons/icons.qrc">
-             <normaloff>:/icons/prev.png</normaloff>:/icons/prev.png</iconset>
+             <normaloff>:/icons/prev.png</normaloff>
+             <disabledoff>:/icons/prev-disabled.png</disabledoff>:/icons/prev.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -162,7 +163,8 @@
            </property>
            <property name="icon">
             <iconset resource="../icons/icons.qrc">
-             <normaloff>:/icons/rew.png</normaloff>:/icons/rew.png</iconset>
+             <normaloff>:/icons/rew.png</normaloff>
+             <disabledoff>:/icons/rew-disabled.png</disabledoff>:/icons/rew.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -196,9 +198,9 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
-             <normalon>:/icons/play.png</normalon>
-            </iconset>
+            <iconset resource="../icons/icons.qrc">
+             <normaloff>:/icons/play.png</normaloff>
+             <disabledoff>:/icons/play-disabled.png</disabledoff>:/icons/play.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -234,6 +236,7 @@
            <property name="icon">
             <iconset>
              <normalon>:/icons/ff.png</normalon>
+             <disabledoff>:/icons/ff-disabled.png</disabledoff>
             </iconset>
            </property>
            <property name="iconSize">
@@ -269,7 +272,8 @@
            </property>
            <property name="icon">
             <iconset resource="../icons/icons.qrc">
-             <normaloff>:/icons/next.png</normaloff>:/icons/next.png</iconset>
+             <normaloff>:/icons/next.png</normaloff>
+             <disabledoff>:/icons/next-disabled.png</disabledoff>:/icons/next.png</iconset>
            </property>
            <property name="iconSize">
             <size>

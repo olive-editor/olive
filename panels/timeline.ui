@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>523</width>
-    <height>227</height>
+    <height>363</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -82,7 +82,8 @@
          </property>
          <property name="icon">
           <iconset resource="../icons/icons.qrc">
-           <normaloff>:/icons/arrow.png</normaloff>:/icons/arrow.png</iconset>
+           <normaloff>:/icons/arrow.png</normaloff>
+           <disabledoff>:/icons/arrow-disabled.png</disabledoff>:/icons/arrow.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -111,7 +112,8 @@
          </property>
          <property name="icon">
           <iconset resource="../icons/icons.qrc">
-           <normaloff>:/icons/beam.png</normaloff>:/icons/beam.png</iconset>
+           <normaloff>:/icons/beam.png</normaloff>
+           <disabledoff>:/icons/beam-disabled.png</disabledoff>:/icons/beam.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -140,7 +142,8 @@
          </property>
          <property name="icon">
           <iconset resource="../icons/icons.qrc">
-           <normaloff>:/icons/ripple.png</normaloff>:/icons/ripple.png</iconset>
+           <normaloff>:/icons/ripple.png</normaloff>
+           <disabledoff>:/icons/ripple-disabled.png</disabledoff>:/icons/ripple.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -169,7 +172,8 @@
          </property>
          <property name="icon">
           <iconset resource="../icons/icons.qrc">
-           <normaloff>:/icons/rolling.png</normaloff>:/icons/rolling.png</iconset>
+           <normaloff>:/icons/rolling.png</normaloff>
+           <disabledoff>:/icons/rolling-disabled.png</disabledoff>:/icons/rolling.png</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -192,7 +196,8 @@
          </property>
          <property name="icon">
           <iconset resource="../icons/icons.qrc">
-           <normaloff>:/icons/razor.png</normaloff>:/icons/razor.png</iconset>
+           <normaloff>:/icons/razor.png</normaloff>
+           <disabledoff>:/icons/razor-disabled.png</disabledoff>:/icons/razor.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -222,6 +227,7 @@
          <property name="icon">
           <iconset>
            <normalon>:/icons/slip.png</normalon>
+           <disabledoff>:/icons/slip-disabled.png</disabledoff>
           </iconset>
          </property>
          <property name="checkable">
@@ -312,8 +318,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>479</width>
-         <height>198</height>
+         <width>468</width>
+         <height>309</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">

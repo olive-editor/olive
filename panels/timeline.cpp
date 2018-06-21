@@ -113,6 +113,7 @@ void Timeline::update_sequence() {
 	for (int i=0;i<tool_buttons.count();i++) {
 		tool_buttons[i]->setEnabled(!null_sequence);
 	}
+    ui->snappingButton->setEnabled(!null_sequence);
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
     ui->headers->setEnabled(!null_sequence);
