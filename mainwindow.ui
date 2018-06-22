@@ -119,6 +119,7 @@
     <addaction name="actionSlip_Tool"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Snapping"/>
+    <addaction name="actionEdit_Tool_Also_Seeks"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
@@ -463,6 +464,14 @@
    </property>
    <property name="shortcut">
     <string>Down</string>
+   </property>
+  </action>
+  <action name="actionEdit_Tool_Also_Seeks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edit Tool Also Seeks</string>
    </property>
   </action>
  </widget>

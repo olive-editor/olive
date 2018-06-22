@@ -23,6 +23,7 @@ Timeline::Timeline(QWidget *parent) :
 	ui(new Ui::Timeline)
 {    
     selecting = moving_init = moving_proc = splitting = importing = playing = trim_in = snapped = false;
+    edit_tool_also_seeks = false;
     snapping = true;
     last_frame = playhead = snap_point = cursor_frame = cursor_track = 0;
 	trim_target = -1;
@@ -163,6 +164,10 @@ void Timeline::update_sequence() {
 		redraw_all_clips();
         playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
 	}
+}
+
+int Timeline::get_snap_range() {
+    return getFrameFromScreenPoint(10);
 }
 
 bool Timeline::focused() {
@@ -635,23 +640,29 @@ void Timeline::split_at_playhead() {
     if (split_selected) redraw_all_clips();
 }
 
-void Timeline::snap_to_clip(long* l) {
-    int limit = 10;
+bool Timeline::snap_to_point(long point, long* l) {
+    int limit = get_snap_range();
+    if (*l > point-limit-1 && *l < point+limit+1) {
+        snap_point = point;
+        *l = point;
+        snapped = true;
+        return true;
+    }
+    return false;
+}
+
+void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
     snapped = false;
-    for (int i=0;i<sequence->clip_count();i++) {
-        Clip* c = sequence->get_clip(i);
-        if (*l > c->timeline_in-limit-1 &&
-                *l < c->timeline_in+limit+1) {
-            *l = c->timeline_in;
-            snapped = true;
-            snap_point = c->timeline_in;
-            break;
-        } else if (*l > c->timeline_out-limit-1 &&
-                   *l < c->timeline_out+limit+1) {
-            *l = c->timeline_out;
-            snapped = true;
-            snap_point = c->timeline_out;
-            break;
+    if (snapping) {
+        if (!playhead_inclusive || !snap_to_point(playhead, l)) {
+            for (int i=0;i<sequence->clip_count();i++) {
+                Clip* c = sequence->get_clip(i);
+                if (snap_to_point(c->timeline_in, l)) {
+                    break;
+                } else if (snap_to_point(c->timeline_out, l)) {
+                    break;
+                }
+            }
         }
     }
 }

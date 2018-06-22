@@ -17,9 +17,7 @@ TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent)
 
 void set_playhead(QMouseEvent* event) {
     long frame = panel_timeline->getFrameFromScreenPoint(event->pos().x());
-    if (panel_timeline->snapping) {
-        panel_timeline->snap_to_clip(&frame);
-    }
+    panel_timeline->snap_to_clip(&frame, false);
     panel_timeline->seek(frame);
     panel_timeline->repaint_timeline();
 }

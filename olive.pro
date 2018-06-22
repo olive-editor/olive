@@ -54,7 +54,8 @@ SOURCES += \
     io/exportthread.cpp \
     ui/timelineheader.cpp \
     io/previewgenerator.cpp \
-    ui/labelslider.cpp
+    ui/labelslider.cpp \
+    dialogs/preferencesdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -84,7 +85,8 @@ HEADERS += \
     ui/timelinetools.h \
     ui/timelineheader.h \
     io/previewgenerator.h \
-    ui/labelslider.h
+    ui/labelslider.h \
+    dialogs/preferencesdialog.h
 
 FORMS += \
         mainwindow.ui \
@@ -94,7 +96,8 @@ FORMS += \
     panels/timeline.ui \
     dialogs/aboutdialog.ui \
     dialogs/newsequencedialog.ui \
-    dialogs/exportdialog.ui
+    dialogs/exportdialog.ui \
+    dialogs/preferencesdialog.ui
 
 win32 {
     LIBS += -L../ffmpeg/lib -lavutil -lavformat -lavcodec -lswscale -lswresample -lopengl32

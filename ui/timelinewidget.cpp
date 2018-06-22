@@ -214,7 +214,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
         }
             break;
         case TIMELINE_TOOL_EDIT:
-            panel_timeline->seek(panel_timeline->drag_frame_start);
+            if (panel_timeline->edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
             panel_timeline->selecting = true;
             break;
         case TIMELINE_TOOL_RAZOR:
@@ -374,7 +374,7 @@ void TimelineWidget::init_ghosts() {
 }
 
 bool subvalidate_snapping(Ghost& g, long* frame_diff, long snap_point) {
-    int snap_range = panel_timeline->getFrameFromScreenPoint(10);
+    int snap_range = panel_timeline->get_snap_range();
     long in_validator = g.old_in + *frame_diff - snap_point;
     long out_validator = g.old_out + *frame_diff - snap_point;
 
@@ -598,18 +598,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
     panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
     if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
-        int limit = panel_timeline->getFrameFromScreenPoint(10);
-        if (panel_timeline->snapping) {
-            if (!panel_timeline->selecting &&
-                    panel_timeline->cursor_frame > panel_timeline->playhead-limit-1 &&
-                    panel_timeline->cursor_frame < panel_timeline->playhead+limit+1) {
-                panel_timeline->cursor_frame = panel_timeline->playhead;
-                panel_timeline->snapped = true;
-                panel_timeline->snap_point = panel_timeline->playhead;
-            } else {
-                panel_timeline->snap_to_clip(&panel_timeline->cursor_frame);
-            }
-        }
+        panel_timeline->snap_to_clip(&panel_timeline->cursor_frame, !panel_timeline->edit_tool_also_seeks || !panel_timeline->selecting);
     }
     if (panel_timeline->selecting) {
         int selection_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
@@ -625,7 +614,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			s->in = qMin(in, out);
 			s->out = qMax(in, out);
 		}
-        panel_timeline->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
+        if (panel_timeline->edit_tool_also_seeks) {
+            panel_timeline->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
+        } else {
+            panel_timeline->repaint_timeline();
+        }
     } else if (panel_timeline->moving_init) {
 		if (panel_timeline->moving_proc) {
             QPoint pos = event->pos();

@@ -71,10 +71,12 @@ public:
     void delete_areas_and_relink(QVector<Selection> areas);
     void update_sequence();
 
+    int get_snap_range();
     int getScreenPointFromFrame(long frame);
     long getFrameFromScreenPoint(int x);
 
-    void snap_to_clip(long* l);
+    bool snap_to_point(long point, long* l);
+    void snap_to_clip(long* l, bool playhead_inclusive);
 
 	long playhead;
 
@@ -95,6 +97,7 @@ public:
 	QTimer playback_updater;
 
 	// shared information
+    bool edit_tool_also_seeks;
 	int tool;
     long cursor_frame;
     int cursor_track;

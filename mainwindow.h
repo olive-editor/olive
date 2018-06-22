@@ -107,6 +107,10 @@ private slots:
 
     void autorecover_interval();
 
+    void on_actionEdit_Tool_Also_Seeks_triggered(bool checked);
+
+    void on_actionPreferences_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

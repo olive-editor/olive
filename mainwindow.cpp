@@ -12,6 +12,7 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/exportdialog.h"
+#include "dialogs/preferencesdialog.h"
 
 #include "ui_timeline.h"
 
@@ -420,4 +421,15 @@ void MainWindow::on_actionGo_to_Next_Cut_triggered()
     if (panel_timeline->focused() || panel_viewer->hasFocus()) {
         panel_timeline->next_cut();
     }
+}
+
+void MainWindow::on_actionEdit_Tool_Also_Seeks_triggered(bool checked)
+{
+    panel_timeline->edit_tool_also_seeks = checked;
+}
+
+void MainWindow::on_actionPreferences_triggered()
+{
+    PreferencesDialog pd(this);
+    pd.exec();
 }
