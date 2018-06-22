@@ -70,6 +70,8 @@ public:
     void split_clip_and_relink(Clip* clip, long frame, bool relink);
     void delete_areas_and_relink(QVector<Selection> areas);
     void update_sequence();
+    void increase_track_height();
+    void decrease_track_height();
 
     int get_snap_range();
     int getScreenPointFromFrame(long frame);

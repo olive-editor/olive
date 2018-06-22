@@ -20,6 +20,8 @@ public:
 	bool bottom_align;
 
     void redraw_clips();
+    void increase_track_height();
+    void decrease_track_height();
 protected:
     void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent*);
@@ -40,7 +42,13 @@ private:
     int getTrackFromScreenPoint(int y);
 	int getScreenPointFromTrack(int track);
 	int getClipIndexFromCoords(long frame, int track);
-	int track_height;
+
+    QVector<int> track_heights;
+    int track_resize_mouse_cache;
+    int track_resize_old_value;
+    bool track_resizing;
+    int track_target;
+    int calculate_track_height(int track);
 
 	QList<Clip*> pre_clips;
 	QList<Clip*> post_clips;

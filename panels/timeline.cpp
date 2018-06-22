@@ -224,15 +224,17 @@ void Timeline::repaint_timeline() {
 }
 
 void Timeline::redraw_all_clips() {
-    project_changed = true;
+    if (sequence != NULL) {
+        project_changed = true;
 
-    ui->video_area->redraw_clips();
-    ui->audio_area->redraw_clips();
-    ui->headers->update();
+        ui->video_area->redraw_clips();
+        ui->audio_area->redraw_clips();
+        ui->headers->update();
 
-    panel_viewer->ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame()));
+        panel_viewer->ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame()));
 
-    reset_all_audio();
+        reset_all_audio();
+    }
 }
 
 void Timeline::select_all() {
@@ -241,6 +243,7 @@ void Timeline::select_all() {
         Clip* c = sequence->get_clip(i);
         selections.append({c->timeline_in, c->timeline_out, c->track});
 	}
+    repaint_timeline();
 }
 
 void Timeline::delete_selection(bool ripple_delete) {
@@ -665,6 +668,16 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
             }
         }
     }
+}
+
+void Timeline::increase_track_height() {
+    ui->video_area->increase_track_height();
+    ui->audio_area->increase_track_height();
+}
+
+void Timeline::decrease_track_height() {
+    ui->video_area->decrease_track_height();
+    ui->audio_area->decrease_track_height();
 }
 
 void Timeline::deselect() {

@@ -92,6 +92,8 @@
     <addaction name="actionTimeline_Track_Lines"/>
     <addaction name="actionZoom_In"/>
     <addaction name="actionZoom_out"/>
+    <addaction name="actionIncrease_Track_Height"/>
+    <addaction name="actionDecrease_Track_Height"/>
    </widget>
    <widget class="QMenu" name="menuPlayback">
     <property name="title">
@@ -472,6 +474,22 @@
    </property>
    <property name="text">
     <string>Edit Tool Also Seeks</string>
+   </property>
+  </action>
+  <action name="actionIncrease_Track_Height">
+   <property name="text">
+    <string>Increase Track Height</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+  </action>
+  <action name="actionDecrease_Track_Height">
+   <property name="text">
+    <string>Decrease Track Height</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
    </property>
   </action>
  </widget>

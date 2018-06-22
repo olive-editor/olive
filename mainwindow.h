@@ -111,6 +111,10 @@ private slots:
 
     void on_actionPreferences_triggered();
 
+    void on_actionIncrease_Track_Height_triggered();
+
+    void on_actionDecrease_Track_Height_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

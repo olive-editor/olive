@@ -433,3 +433,13 @@ void MainWindow::on_actionPreferences_triggered()
     PreferencesDialog pd(this);
     pd.exec();
 }
+
+void MainWindow::on_actionIncrease_Track_Height_triggered()
+{
+    panel_timeline->increase_track_height();
+}
+
+void MainWindow::on_actionDecrease_Track_Height_triggered()
+{
+    panel_timeline->decrease_track_height();
+}
