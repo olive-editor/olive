@@ -19,8 +19,13 @@
 #include <QStyleFactory>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QStandardPaths>
+#include <QTimer>
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
+
+QString autorecovery_filename;
+QTimer autorecovery_timer;
 
 void MainWindow::setup_layout() {
     panel_project->show();
@@ -77,10 +82,34 @@ MainWindow::MainWindow(QWidget *parent) :
     panel_timeline = new Timeline(this);
 
 	setup_layout();
+
+    QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    if (!data_dir.isEmpty()) {
+        QDir dir(data_dir);
+        dir.mkpath(".");
+        if (dir.exists()) {
+            autorecovery_filename = data_dir + "/autorecovery.ove";
+            if (QFile::exists(autorecovery_filename)) {
+                if (QMessageBox::question(this, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                    project_url = autorecovery_filename;
+                    panel_project->load_project();
+                }
+            }
+            autorecovery_timer.setInterval(60000);
+            QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
+            autorecovery_timer.start();
+        }
+    }
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
+    QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
+        if (QFile::exists(autorecovery_filename)) {
+            QFile::remove(autorecovery_filename);
+        }
+    }
+
 	delete ui;
 
     delete panel_project;
@@ -217,6 +246,16 @@ void MainWindow::on_action_Paste_triggered()
     if (panel_timeline->focused()) {
         panel_timeline->paste();
     }
+}
+
+void MainWindow::autorecover_interval() {
+    bool old_changed = project_changed;
+    QString old_filename = project_url;
+    project_url = autorecovery_filename;
+    qDebug() << "[INFO] Auto-recovery project saved";
+    panel_project->save_project();
+    project_url = old_filename;
+    project_changed = old_changed;
 }
 
 bool MainWindow::save_project_as() {

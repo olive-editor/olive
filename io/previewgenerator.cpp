@@ -87,7 +87,6 @@ void PreviewGenerator::run() {
                         if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                             int dstH = 120;
                             int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
-                            qDebug() << dstW;
                             uint8_t* data = new uint8_t[dstW*dstH*3];
 
                             sws_ctx = sws_getContext(

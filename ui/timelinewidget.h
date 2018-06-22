@@ -53,7 +53,7 @@ signals:
 public slots:
 
 private slots:
-
+    void show_context_menu(const QPoint& pos);
 };
 
 #endif // TIMELINEWIDGET_H

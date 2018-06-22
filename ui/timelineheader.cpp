@@ -12,6 +12,7 @@
 TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent)
 {
     dragging = false;
+    setCursor(Qt::ArrowCursor);
 }
 
 void set_playhead(QMouseEvent* event) {

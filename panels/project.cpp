@@ -418,6 +418,8 @@ void Project::load_project() {
         qDebug() << "[ERROR] Error parsing XML." << stream.error();
     }
 
+    panel_timeline->redraw_all_clips();
+
     project_changed = false;
 }
 

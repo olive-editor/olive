@@ -105,6 +105,8 @@ private slots:
 
     void on_actionGo_to_Next_Cut_triggered();
 
+    void autorecover_interval();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
