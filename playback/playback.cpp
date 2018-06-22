@@ -287,7 +287,7 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
 }
 
 bool is_clip_active(Clip* c, long playhead) {
-	return c->timeline_in < playhead + ceil(c->sequence->frame_rate) && c->timeline_out > playhead;
+    return c->timeline_in < playhead + ceil(c->sequence->frame_rate) && c->timeline_out > playhead && c->enabled;
 }
 
 void set_sequence(Sequence* s) {

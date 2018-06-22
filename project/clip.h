@@ -39,6 +39,7 @@ struct Clip
 	bool undeletable;
 
 	// timeline variables
+    bool enabled;
 	QString name;
 	long clip_in;
 	long timeline_in;

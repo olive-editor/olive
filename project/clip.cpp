@@ -18,6 +18,7 @@ Clip::Clip() {
 Clip* Clip::copy() {
     Clip* copy = new Clip();
 
+    copy->enabled = enabled;
     copy->name = QString(name);
     copy->clip_in = clip_in;
     copy->timeline_in = timeline_in;
@@ -39,6 +40,7 @@ Clip* Clip::copy() {
 
 void Clip::init() {
 	reset();
+    enabled = true;
     clip_in = 0;
     timeline_in = 0;
     timeline_out = 0;
