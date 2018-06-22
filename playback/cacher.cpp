@@ -50,7 +50,6 @@ void cache_audio_worker(Clip* c) {
                 } else {
                     c->frame_sample_index = av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
                 }
-                qDebug() << target_sts << frame_sts << nb_samples << c->frame_sample_index;
                 c->audio_just_reset = false;
             } else {
                 c->frame_sample_index = 0;

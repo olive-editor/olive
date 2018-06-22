@@ -374,7 +374,7 @@ void TimelineWidget::init_ghosts() {
 }
 
 bool subvalidate_snapping(Ghost& g, long* frame_diff, long snap_point) {
-    int snap_range = 15;
+    int snap_range = panel_timeline->getFrameFromScreenPoint(10);
     long in_validator = g.old_in + *frame_diff - snap_point;
     long out_validator = g.old_out + *frame_diff - snap_point;
 

@@ -245,6 +245,7 @@ void Project::new_project() {
 #define LOAD_STATE_CLIP 5
 #define LOAD_STATE_CLIP_EFFECTS 6
 #define LOAD_STATE_EFFECT 7
+#define LOAD_STATE_CLIP_LINKS 8
 
 void Project::load_project() {
     new_project();
@@ -304,6 +305,14 @@ void Project::load_project() {
             break;
         case LOAD_STATE_SEQUENCE:
             if (stream.isEndElement() && stream.name() == "sequence") {
+                // convert link ids to pointers
+                for (int i=0;i<temp_seq->clip_count();i++) {
+                    Clip* c = temp_seq->get_clip(i);
+                    for (int j=0;j<c->link_ids.size();j++) {
+                        c->linked.append(temp_seq->get_clip(c->link_ids.at(j)));
+                    }
+                }
+
                 new_sequence(temp_seq);
                 state = LOAD_STATE_IDLE;
             } else if (stream.isStartElement()) {
@@ -373,28 +382,14 @@ void Project::load_project() {
                         }
                     }
                 } else if (stream.name() == "stream") {
-                    // TODO very unintelligent code - i hate this
+                    stream.readNext();
                     int stream_index = stream.text().toInt();
-                    bool found = false;
-                    for (int i=0;i<temp_clip->media->video_tracks.size();i++) {
-                        if (temp_clip->media->video_tracks.at(i)->file_index == stream_index) {
-                            temp_clip->media_stream = temp_clip->media->video_tracks[i];
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        for (int i=0;i<temp_clip->media->audio_tracks.size();i++) {
-                            if (temp_clip->media->audio_tracks.at(i)->file_index == stream_index) {
-                                temp_clip->media_stream = temp_clip->media->audio_tracks[i];
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!found) {
+                    temp_clip->media_stream = temp_clip->media->get_stream_from_file_index(stream_index);
+                    if (temp_clip->media_stream == NULL) {
                         qDebug() << "[WARNING] Could not load media stream - project file seems corrupt";
                     }
+                } else if (stream.name() == "linked") {
+                    state = LOAD_STATE_CLIP_LINKS;
                 } else if (stream.name() == "effect") {
                     int effect_id = -1;
                     for (int j=0;j<stream.attributes().size();j++) {
@@ -407,9 +402,16 @@ void Project::load_project() {
                         Effect* e = create_effect(effect_id, temp_clip);
                         e->load(&stream);
                         temp_clip->effects.append(e);
-                        state = LOAD_STATE_CLIP;
                     }
                 }
+            }
+            break;
+        case LOAD_STATE_CLIP_LINKS:
+            if (stream.name() == "linked" && stream.isEndElement()) {
+                state = LOAD_STATE_CLIP;
+            } else if (stream.isStartElement() && stream.name() == "link") {
+                stream.readNext();
+                temp_clip->link_ids.append(stream.text().toInt());
             }
             break;
         }
@@ -466,6 +468,12 @@ void Project::save_project() {
             stream.writeTextElement("afreq", QString::number(s->audio_frequency));
             stream.writeTextElement("alayout", QString::number(s->audio_layout));
             stream.writeStartElement("clips");
+
+            // give clips IDs for links
+            for (int i=0;i<s->clip_count();i++) {
+                s->get_clip(i)->save_id = i;
+            }
+
             for (int i=0;i<s->clip_count();i++) {
                 Clip* c = s->get_clip(i);
 
@@ -482,6 +490,11 @@ void Project::save_project() {
                 stream.writeEndElement();
                 stream.writeTextElement("media", QString::number(c->media->save_id));
                 stream.writeTextElement("stream", QString::number(c->media_stream->file_index));
+                stream.writeStartElement("linked");
+                for (int j=0;j<c->linked.size();j++) {
+                    stream.writeTextElement("link", QString::number(c->linked.at(j)->save_id));
+                }
+                stream.writeEndElement();
                 stream.writeStartElement("effects");
                 for (int j=0;j<c->effects.size();j++) {
                     stream.writeStartElement("effect");

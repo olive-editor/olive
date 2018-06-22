@@ -23,20 +23,6 @@ PreviewGenerator::PreviewGenerator(QObject* parent) : QThread(parent) {
     fmt_ctx = NULL;
 }
 
-MediaStream* PreviewGenerator::get_stream_from_file_index(int index) {
-    for (int i=0;i<media->video_tracks.size();i++) {
-        if (media->video_tracks.at(i)->file_index == index) {
-            return media->video_tracks.at(i);
-        }
-    }
-    for (int i=0;i<media->audio_tracks.size();i++) {
-        if (media->audio_tracks.at(i)->file_index == index) {
-            return media->audio_tracks.at(i);
-        }
-    }
-    return NULL;
-}
-
 #define WAVEFORM_RESOLUTION 64
 
 void PreviewGenerator::run() {
@@ -82,7 +68,7 @@ void PreviewGenerator::run() {
                     }
                 }
                 if (!end_of_file) {
-                    MediaStream* s = get_stream_from_file_index(packet.stream_index);
+                    MediaStream* s = media->get_stream_from_file_index(packet.stream_index);
                     if (s != NULL && !s->preview_done) {
                         if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                             int dstH = 120;

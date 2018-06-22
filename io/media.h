@@ -38,6 +38,7 @@ struct Media
 	Sequence* sequence;
     int save_id;
 	long get_length_in_frames(float frame_rate);
+    MediaStream* get_stream_from_file_index(int index);
 };
 
 int guess_layout_from_channels(int channel_count);
