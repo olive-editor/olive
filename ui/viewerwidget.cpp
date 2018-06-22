@@ -114,7 +114,6 @@ void ViewerWidget::paintGL()
                 }
             } else if (render_audio &&
                        c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
-                       playhead >= c->timeline_in &&
                        c->lock.tryLock()) {
                 // clip is not caching, start caching audio
                 c->lock.unlock();

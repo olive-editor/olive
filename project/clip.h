@@ -86,9 +86,12 @@ struct Clip
 
 	// audio playback variables
 	SwrContext* swr_ctx;
+    bool need_new_audio_frame;
 	int frame_sample_index;
     int audio_buffer_write;
 	bool reset_audio;
+    bool audio_just_reset;
+    long audio_target_frame;
 };
 
 #endif // CLIP_H

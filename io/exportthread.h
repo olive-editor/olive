@@ -9,7 +9,7 @@ class ExportDialog;
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
-	void run() override;
+    void run();
 
 	// export parameters
 	QString filename;

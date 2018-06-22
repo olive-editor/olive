@@ -70,7 +70,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -87,8 +87,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>16</width>
-           <height>16</height>
+           <width>20</width>
+           <height>20</height>
           </size>
          </property>
          <property name="checkable">
@@ -100,7 +100,7 @@
         <widget class="QPushButton" name="toolEditButton">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -117,8 +117,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>16</width>
-           <height>16</height>
+           <width>20</width>
+           <height>20</height>
           </size>
          </property>
          <property name="checkable">
@@ -130,7 +130,7 @@
         <widget class="QPushButton" name="toolRippleButton">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -147,8 +147,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>16</width>
-           <height>16</height>
+           <width>20</width>
+           <height>20</height>
           </size>
          </property>
          <property name="checkable">
@@ -160,7 +160,7 @@
         <widget class="QPushButton" name="toolRollingButton">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -175,6 +175,12 @@
            <normaloff>:/icons/rolling.png</normaloff>
            <disabledoff>:/icons/rolling-disabled.png</disabledoff>:/icons/rolling.png</iconset>
          </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -184,7 +190,7 @@
         <widget class="QPushButton" name="toolRazorButton">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -201,8 +207,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>16</width>
-           <height>16</height>
+           <width>20</width>
+           <height>20</height>
           </size>
          </property>
          <property name="checkable">
@@ -214,7 +220,7 @@
         <widget class="QPushButton" name="toolSlipButton">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -230,6 +236,12 @@
            <disabledoff>:/icons/slip-disabled.png</disabledoff>
           </iconset>
          </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -239,7 +251,7 @@
         <widget class="QPushButton" name="snappingButton">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -258,7 +270,7 @@
         <widget class="QPushButton" name="pushButton_4">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -274,7 +286,7 @@
         <widget class="QPushButton" name="pushButton_5">
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
@@ -318,8 +330,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>468</width>
-         <height>309</height>
+         <width>458</width>
+         <height>314</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">

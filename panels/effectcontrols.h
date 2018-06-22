@@ -24,7 +24,7 @@ private slots:
     void menu_select(QAction* q);
 
 private:
-	Ui::EffectControls *ui;
+    Ui::EffectControls *ui;
     Clip* clip;
 };
 

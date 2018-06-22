@@ -15,7 +15,7 @@ bool audio_device_set = false;
 
 qint8 audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
-QVector<int> audio_ibuffer_write;
+long audio_ibuffer_frame = 0;
 
 void init_audio() {
 	if (audio_device_set) {
@@ -51,4 +51,14 @@ void init_audio() {
 
 void clear_audio_ibuffer() {
     memset(audio_ibuffer, 0, audio_ibuffer_size);
+    audio_ibuffer_read = 0;
+}
+
+int get_buffer_offset_from_frame(long frame) {
+    if (frame >= audio_ibuffer_frame) {
+        return av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(sequence->audio_layout), ((frame-audio_ibuffer_frame)/sequence->frame_rate)*sequence->audio_frequency, AV_SAMPLE_FMT_S16, 1);
+    } else {
+        qDebug() << "[WARNING] get_buffer_offset_from_frame called incorrectly";
+        return 0;
+    }
 }

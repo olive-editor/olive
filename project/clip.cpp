@@ -39,13 +39,31 @@ Clip* Clip::copy() {
 
 void Clip::init() {
 	reset();
-	clip_in = timeline_in = timeline_out = track = undeletable = 0;
+    clip_in = 0;
+    timeline_in = 0;
+    timeline_out = 0;
+    track = 0;
+    undeletable = 0;
 	texture = NULL;
 	pkt = new AVPacket();
 }
 
 void Clip::reset() {
-    cache_size = cache_A.offset = cache_B.offset = open = pkt_written = cache_A.written = cache_B.written = cache_A.unread = cache_B.unread = reached_end = reset_audio = frame_sample_index = audio_buffer_write = 0;
+    cache_size = false;
+    audio_just_reset = false;
+    cache_A.offset = false;
+    cache_B.offset = false;
+    open = false;
+    pkt_written = false;
+    cache_A.written = false;
+    cache_B.written = false;
+    cache_A.unread = false;
+    cache_B.unread = false;
+    reached_end = false;
+    reset_audio = false;
+    frame_sample_index = false;
+    audio_buffer_write = false;
+    need_new_audio_frame = false;
 	texture_frame = -1;
 	formatCtx = NULL;
 	stream = NULL;

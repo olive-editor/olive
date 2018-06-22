@@ -794,17 +794,14 @@ void TimelineWidget::redraw_clips() {
                         clip_painter.drawImage(thumb_rect, clip->media_stream->video_preview);
                     }
                 } else {
-                    long length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
-                    int waveform_x = ((float)clip->clip_in/(float)length) * clip->media_stream->audio_preview.size();
-                    int waveform_width = (((float)clip->getLength()/(float)length) * clip->media_stream->audio_preview.size());
                     int divider = clip->media_stream->audio_channels*2;
-                    int waveform_scaled_length = qFloor((clip->media_stream->audio_preview.size() / (length*panel_timeline->zoom))/divider)*divider;
 
                     clip_painter.setPen(QColor(80, 80, 80));
-                    int draw_x = clip_rect.x();
                     int channel_height = clip_rect.height()/clip->media_stream->audio_channels;
+                    long media_length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
                     for (int i=0;i<clip_rect.width();i++) {
-                        int waveform_index = qFloor((((float)i / (float)clip_rect.width()) * clip->media_stream->audio_preview.size())/divider)*divider;
+                        int waveform_index = qFloor((((clip->clip_in + ((float) i/panel_timeline->zoom))/media_length) * clip->media_stream->audio_preview.size())/divider)*divider;
+
                         for (int j=0;j<clip->media_stream->audio_channels;j++) {
                             int mid = clip_rect.top()+channel_height*j+(channel_height/2);
                             int offset = waveform_index+(j*2);
@@ -830,7 +827,7 @@ void TimelineWidget::redraw_clips() {
             clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
             if (clip->linked.size() > 0) {
                 int underline_y = CLIP_TEXT_PADDING + clip_painter.fontMetrics().height() + clip_rect.top();
-                int underline_width = qMin(clip_rect.width() - CLIP_TEXT_PADDING, clip_rect.left() + CLIP_TEXT_PADDING+clip_painter.fontMetrics().width(clip->name));
+                int underline_width = qMin(clip_rect.left() + clip_rect.width() - CLIP_TEXT_PADDING, clip_rect.left() + CLIP_TEXT_PADDING + clip_painter.fontMetrics().width(clip->name));
                 clip_painter.drawLine(clip_rect.left() + CLIP_TEXT_PADDING, underline_y, underline_width, underline_y);
             }
 

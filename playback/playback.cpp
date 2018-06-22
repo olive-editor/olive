@@ -272,13 +272,13 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
             if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                 sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
             } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                output->pts = c->frame->pts;
                 ret = swr_convert_frame(c->swr_ctx, output, c->frame);
                 if (ret < 0) {
                     qDebug() << "[ERROR] Failed to resample audio." << ret;
                 }
             }
         } else if (ret == AVERROR_EOF) {
-//            qDebug() << "reached end triggered" << c->track;
             c->reached_end = true;
         } else {
             qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;

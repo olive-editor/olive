@@ -162,6 +162,7 @@ private:
 	void set_tool(int tool);
 	long last_frame;
     QVector<Clip*> clip_clipboard;
+    void reset_all_audio();
 };
 
 #endif // TIMELINE_H
