@@ -7,6 +7,10 @@
 #define GHOST_THICKNESS 2 // thiccccc
 #define CLIP_TEXT_PADDING 3
 
+#define TRACK_MIN_HEIGHT 30
+#define TRACK_DEFAULT_HEIGHT 60
+#define TRACK_HEIGHT_INCREMENT 10
+
 struct Sequence;
 struct Clip;
 class Timeline;
@@ -20,8 +24,6 @@ public:
 	bool bottom_align;
 
     void redraw_clips();
-    void increase_track_height();
-    void decrease_track_height();
 protected:
     void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent*);
@@ -43,12 +45,10 @@ private:
 	int getScreenPointFromTrack(int track);
 	int getClipIndexFromCoords(long frame, int track);
 
-    QVector<int> track_heights;
     int track_resize_mouse_cache;
     int track_resize_old_value;
     bool track_resizing;
     int track_target;
-    int calculate_track_height(int track);
 
 	QList<Clip*> pre_clips;
 	QList<Clip*> post_clips;

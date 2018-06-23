@@ -22,10 +22,6 @@
 #include <QMenu>
 #include <QtMath>
 
-#define TRACK_MIN_HEIGHT 30
-#define TRACK_DEFAULT_HEIGHT 60
-#define TRACK_HEIGHT_INCREMENT 10
-
 TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent)
 {
 	bottom_align = false;
@@ -46,14 +42,6 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 bool same_sign(int a, int b) {
 	return (a < 0) == (b < 0);
-}
-
-int TimelineWidget::calculate_track_height(int track) {
-    int index = (track < 0) ? qAbs(track + 1) : track;
-    while (track_heights.size() < index+1) {
-        track_heights.append(TRACK_DEFAULT_HEIGHT);
-    }
-    return track_heights.at(index);
 }
 
 void TimelineWidget::resizeEvent(QResizeEvent*) {
@@ -168,6 +156,8 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
         panel_timeline->snapped = false;
+
+        setFocus();
 
         panel_timeline->redraw_all_clips(true);
 	}
@@ -654,10 +644,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 new_height -= diff;
             }
             if (new_height < TRACK_MIN_HEIGHT) new_height = TRACK_MIN_HEIGHT;
-            if (new_height != track_heights.at(track_target)) {
-                track_heights[track_target] = new_height;
-                redraw_clips();
-            }
+            panel_timeline->calculate_track_height(track_target, new_height);
+            redraw_clips();
         } else if (panel_timeline->moving_proc) {
             QPoint pos = event->pos();
             update_ghosts(pos);
@@ -788,15 +776,16 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             // look for track heights
             found = false;
             int track_y = 0;
-            for (int i=0;i<track_heights.size();i++) {
-                int track_height = calculate_track_height(i);
+            for (int i=0;i<panel_timeline->get_track_height_size(bottom_align);i++) {
+                int track = (bottom_align) ? -1-i : i;
+                int track_height = panel_timeline->calculate_track_height(track, -1);
                 track_y += track_height;
                 int y_test_value = (bottom_align) ? rect().bottom() - track_y : track_y;
                 int test_range = 5;
                 if (pos.y() > y_test_value-test_range && pos.y() < y_test_value+test_range) {
                     found = true;
                     track_resizing = true;
-                    track_target = i;
+                    track_target = track;
                     track_resize_old_value = track_height;
                 }
             }
@@ -845,7 +834,7 @@ void TimelineWidget::redraw_clips() {
                 audio_track_limit = clip->track;
             }
 
-            QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, calculate_track_height(clip->track));
+            QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
             clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
 
             // draw thumbnail/waveform
@@ -918,7 +907,8 @@ void TimelineWidget::redraw_clips() {
 		} else {
 			// only draw lines for audio tracks
 			for (int i=0;i<audio_track_limit;i++) {
-                int line_y = getScreenPointFromTrack(i) + calculate_track_height(i);
+                // TODO just make i+1?
+                int line_y = getScreenPointFromTrack(i) + panel_timeline->calculate_track_height(i, -1);
 				clip_painter.drawLine(0, line_y, rect().width(), line_y);
 			}
 		}
@@ -939,7 +929,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 			if (is_track_visible(s.track)) {
 				int selection_y = getScreenPointFromTrack(s.track);
                 int selection_x = panel_timeline->getScreenPointFromFrame(s.in);
-                p.fillRect(selection_x, selection_y, panel_timeline->getScreenPointFromFrame(s.out) - selection_x, calculate_track_height(s.track), QColor(0, 0, 0, 64));
+                p.fillRect(selection_x, selection_y, panel_timeline->getScreenPointFromFrame(s.out) - selection_x, panel_timeline->calculate_track_height(s.track, -1), QColor(0, 0, 0, 64));
 			}
 		}
 
@@ -950,7 +940,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
                 int ghost_x = panel_timeline->getScreenPointFromFrame(g.in);
 				int ghost_y = getScreenPointFromTrack(g.track);
                 int ghost_width = panel_timeline->getScreenPointFromFrame(g.out - g.in) - 1;
-                int ghost_height = calculate_track_height(g.track) - 1;
+                int ghost_height = panel_timeline->calculate_track_height(g.track, -1) - 1;
 				p.setPen(QColor(255, 255, 0));
 				for (int j=0;j<GHOST_THICKNESS;j++) {
 					p.drawRect(ghost_x+j, ghost_y+j, ghost_width-j-j, ghost_height-j-j);
@@ -981,25 +971,10 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
                 int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
 
 				p.setPen(Qt::gray);
-                p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + calculate_track_height(panel_timeline->cursor_track));
+                p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->cursor_track, -1));
 			}
         }
 	}
-}
-
-void TimelineWidget::increase_track_height() {
-    for (int i=0;i<track_heights.size();i++) {
-        track_heights[i] += TRACK_HEIGHT_INCREMENT;
-    }
-    redraw_clips();
-}
-
-void TimelineWidget::decrease_track_height() {
-    for (int i=0;i<track_heights.size();i++) {
-        track_heights[i] -= TRACK_HEIGHT_INCREMENT;
-        if (track_heights[i] < TRACK_MIN_HEIGHT) track_heights[i] = TRACK_MIN_HEIGHT;
-    }
-    redraw_clips();
 }
 
 bool TimelineWidget::is_track_visible(int track) {
@@ -1011,22 +986,40 @@ bool TimelineWidget::is_track_visible(int track) {
 // **************************************
 
 int TimelineWidget::getTrackFromScreenPoint(int y) {
+//    if (bottom_align) {
+//        y = -(y - rect().height());
+//    }
+//    y--;
+//    int height_measure = 0;
+//    int counter = (bottom_align && y > 0) ? -1 : 0;
+//    int track_height = panel_timeline->calculate_track_height(counter, -1);
+//    while (y > height_measure+track_height) {
+//        if (show_track_lines && counter != -1) y--;
+//        height_measure += track_height;
+//        if (bottom_align && y > 0) {
+//            counter--;
+//        } else {
+//            counter++;
+//        }
+//        track_height = panel_timeline->calculate_track_height(counter, -1);
+//    }
+//    return counter;
     if (bottom_align) {
-        y = qAbs(y - rect().height());
+        y = -(y - rect().height());
     }
     y--;
     int height_measure = 0;
-    int counter = (bottom_align) ? -1 : 0;
-    int track_height = calculate_track_height(counter);
-    while (y > height_measure+track_height) {
+    int counter = ((!bottom_align && y > 0) || (bottom_align && y < 0)) ? 0 : -1;
+    int track_height = panel_timeline->calculate_track_height(counter, -1);
+    while (qAbs(y) > height_measure+track_height) {
         if (show_track_lines && counter != -1) y--;
         height_measure += track_height;
-        if (bottom_align) {
-            counter--;
-        } else {
+        if ((!bottom_align && y > 0) || (bottom_align && y < 0)) {
             counter++;
+        } else {
+            counter--;
         }
-        track_height = calculate_track_height(counter);
+        track_height = panel_timeline->calculate_track_height(counter, -1);
     }
     return counter;
 }
@@ -1036,7 +1029,7 @@ int TimelineWidget::getScreenPointFromTrack(int track) {
     int counter = 0;
     while (counter != track) {
         if (bottom_align) counter--;
-        y += calculate_track_height(counter);
+        y += panel_timeline->calculate_track_height(counter, -1);
         if (!bottom_align) counter++;
         if (show_track_lines && counter != -1) y++;
     }

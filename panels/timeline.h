@@ -108,6 +108,11 @@ public:
 	int drag_track_start;
     void redraw_all_clips(bool changed);
 
+    QVector<int> video_track_heights;
+    QVector<int> audio_track_heights;
+    int get_track_height_size(bool video);
+    int calculate_track_height(int track, int height);
+
     // snapping
     bool snapping;
     bool snapped;

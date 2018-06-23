@@ -144,6 +144,26 @@ void Timeline::go_to_end() {
 	seek(sequence->getEndFrame());
 }
 
+int Timeline::get_track_height_size(bool video) {
+    if (video) {
+        return video_track_heights.size();
+    } else {
+        return audio_track_heights.size();
+    }
+}
+
+int Timeline::calculate_track_height(int track, int value) {
+    int index = (track < 0) ? qAbs(track + 1) : track;
+    QVector<int>& vector = (track < 0) ? video_track_heights : audio_track_heights;
+    while (vector.size() < index+1) {
+        vector.append(TRACK_DEFAULT_HEIGHT);
+    }
+    if (value > -1) {
+        vector[index] = value;
+    }
+    return vector.at(index);
+}
+
 void Timeline::update_sequence() {
     bool null_sequence = (sequence == NULL);
 
@@ -677,13 +697,23 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
 }
 
 void Timeline::increase_track_height() {
-    ui->video_area->increase_track_height();
-    ui->audio_area->increase_track_height();
+    for (int i=0;i<video_track_heights.size();i++) {
+        video_track_heights[i] += TRACK_HEIGHT_INCREMENT;
+    }
+    for (int i=0;i<audio_track_heights.size();i++) {
+        audio_track_heights[i] += TRACK_HEIGHT_INCREMENT;
+    }
 }
 
 void Timeline::decrease_track_height() {
-    ui->video_area->decrease_track_height();
-    ui->audio_area->decrease_track_height();
+    for (int i=0;i<video_track_heights.size();i++) {
+        video_track_heights[i] -= TRACK_HEIGHT_INCREMENT;
+        if (video_track_heights[i] < TRACK_MIN_HEIGHT) video_track_heights[i] = TRACK_MIN_HEIGHT;
+    }
+    for (int i=0;i<audio_track_heights.size();i++) {
+        audio_track_heights[i] -= TRACK_HEIGHT_INCREMENT;
+        if (audio_track_heights[i] < TRACK_MIN_HEIGHT) audio_track_heights[i] = TRACK_MIN_HEIGHT;
+    }
 }
 
 void Timeline::deselect() {
