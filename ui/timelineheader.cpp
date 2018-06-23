@@ -33,6 +33,8 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 
 void TimelineHeader::mouseReleaseEvent(QMouseEvent *) {
     dragging = false;
+    panel_timeline->snapped = false;
+    panel_timeline->repaint_timeline();
 }
 
 void TimelineHeader::paintEvent(QPaintEvent*) {

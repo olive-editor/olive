@@ -37,13 +37,16 @@ void PreviewGenerator::run() {
             AVFrame* temp_frame = av_frame_alloc();
             AVCodecContext** codec_ctx = new AVCodecContext* [fmt_ctx->nb_streams];
             for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
-                AVCodec* codec = avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id);
-                codec_ctx[i] = avcodec_alloc_context3(codec);
-                avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
-                avcodec_open2(codec_ctx[i], codec, NULL);
+                codec_ctx[i] = NULL;
+                if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO || fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                    AVCodec* codec = avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id);
+                    codec_ctx[i] = avcodec_alloc_context3(codec);
+                    avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
+                    avcodec_open2(codec_ctx[i], codec, NULL);
 
-                if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && codec_ctx[i]->channel_layout == 0) {
-                    codec_ctx[i]->channel_layout = guess_layout_from_channels(fmt_ctx->streams[i]->codecpar->channels);
+                    if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && codec_ctx[i]->channel_layout == 0) {
+                        codec_ctx[i]->channel_layout = guess_layout_from_channels(fmt_ctx->streams[i]->codecpar->channels);
+                    }
                 }
             }
             AVPacket packet;
@@ -56,14 +59,14 @@ void PreviewGenerator::run() {
             avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
 
             while (!end_of_file) {
-                while (avcodec_receive_frame(codec_ctx[packet.stream_index], temp_frame) == AVERROR(EAGAIN)) {
+                while (codec_ctx[packet.stream_index] == NULL || avcodec_receive_frame(codec_ctx[packet.stream_index], temp_frame) == AVERROR(EAGAIN)) {
                     av_packet_unref(&packet);
                     int read_ret = av_read_frame(fmt_ctx, &packet);
                     if (read_ret < 0) {
                         end_of_file = true;
                         if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read packet for preview generation";
                         break;
-                    } else {
+                    } else if (codec_ctx[packet.stream_index] != NULL) {
                         avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
                     }
                 }

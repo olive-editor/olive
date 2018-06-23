@@ -53,7 +53,6 @@ int TimelineWidget::calculate_track_height(int track) {
     while (track_heights.size() < index+1) {
         track_heights.append(TRACK_DEFAULT_HEIGHT);
     }
-    qDebug() << track_heights.at(index);
     return track_heights.at(index);
 }
 
@@ -175,7 +174,15 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 }
 
 void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
-
+    if (panel_timeline->tool == TIMELINE_TOOL_EDIT) {
+        int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+        if (clip_index >= 0) {
+            Clip* clip = sequence->get_clip(clip_index);
+            if (!(event->modifiers() & Qt::ShiftModifier)) panel_timeline->selections.clear();
+            panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
+            panel_timeline->repaint_timeline();
+        }
+    }
 }
 
 void TimelineWidget::mousePressEvent(QMouseEvent *event) {
@@ -342,6 +349,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         panel_timeline->snapped = false;
         pre_clips.clear();
         post_clips.clear();
+
+//        panel_timeline->repaint_timeline();
 
         // find out how many clips are selected
         bool single_select = false;
