@@ -232,6 +232,7 @@ void Timeline::redraw_all_clips(bool changed) {
         if (changed) {
             project_changed = true;
             if (!playing) reset_all_audio();
+            panel_viewer->viewer_widget->update();
         }
 
         ui->video_area->redraw_clips();
