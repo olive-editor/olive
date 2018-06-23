@@ -302,9 +302,7 @@ void open_clip_worker(Clip* clip) {
 
 	clip->frame = av_frame_alloc();
 
-	qDebug() << "[INFO] Clip opened on track" << clip->track;
-
-	clip->open = true;
+    qDebug() << "[INFO] Clip opened on track" << clip->track;
 }
 
 void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bool reset) {
@@ -369,12 +367,13 @@ void close_clip_worker(Clip* clip) {
 
 void Cacher::run() {
 	// open_lock is used to prevent the clip from being destroyed before the cacher has closed it properly
+    clip->open = true;
+    caching = true;
 	clip->open_lock.lock();
 
 	open_clip_worker(clip);
 
-	caching = true;
-	while (true) {
+    while (caching) {
         clip->can_cache.wait(&clip->lock);
         if (!caching) {
 			break;
@@ -383,7 +382,7 @@ void Cacher::run() {
 		}
 	}
 
-	close_clip_worker(clip);
+    close_clip_worker(clip);
 	clip->lock.unlock();
 
 	clip->open_lock.unlock();

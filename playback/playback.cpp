@@ -40,7 +40,7 @@ void handle_media(Sequence* sequence, long playhead, bool multithreaded) {
                     open_clip(c, multithreaded);
 
 					// add to current_clips, (insertion) sorted by track so composite them in order
-					cc_lock.lock();
+                    cc_lock.lock();
 					bool found = false;
 					for (int j=0;j<current_clips.size();j++) {
                         if (current_clips[j]->track < c->track) {

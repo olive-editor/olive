@@ -77,12 +77,12 @@ void Clip::reset() {
 }
 
 Clip::~Clip() {
-	if (open) {
+    if (open) {
 		close_clip(this);
 	}
 
-	// make sure clip has closed before clip is destroyed
-	open_lock.lock();
+    // make sure clip has closed before clip is destroyed
+    open_lock.lock();
 	open_lock.unlock();
 
     for (int i=0;i<effects.size();i++) {
