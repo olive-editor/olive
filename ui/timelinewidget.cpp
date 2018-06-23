@@ -169,7 +169,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 		panel_timeline->importing = false;
         panel_timeline->snapped = false;
 
-		panel_timeline->redraw_all_clips();
+        panel_timeline->redraw_all_clips(true);
 	}
 }
 
@@ -246,7 +246,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 panel_timeline->split_clip_and_relink(sequence->get_clip(clip_index), panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
             }
             panel_timeline->splitting = true;
-            panel_timeline->redraw_all_clips();
+            panel_timeline->redraw_all_clips(true);
         }
             break;
         }
@@ -336,7 +336,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                 }
             }
 
-            panel_timeline->redraw_all_clips();
+            panel_timeline->redraw_all_clips(true);
         }
 
         // destroy all ghosts
@@ -745,7 +745,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 		}
 
 		// redraw clips since we changed them
-		if (repaint) panel_timeline->redraw_all_clips();
+        if (repaint) panel_timeline->redraw_all_clips(true);
 	} else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
         track_resizing = false;
 

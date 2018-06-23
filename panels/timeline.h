@@ -106,7 +106,7 @@ public:
 	float zoom;
 	long drag_frame_start;
 	int drag_track_start;
-	void redraw_all_clips();
+    void redraw_all_clips(bool changed);
 
     // snapping
     bool snapping;

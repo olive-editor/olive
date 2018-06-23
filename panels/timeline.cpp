@@ -161,7 +161,7 @@ void Timeline::update_sequence() {
 		setWindowTitle("Timeline: <none>");
 	} else {
 		setWindowTitle("Timeline: " + sequence->name);
-		redraw_all_clips();
+        redraw_all_clips(false);
         playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
 	}
 }
@@ -180,8 +180,7 @@ void Timeline::undo() {
 //        current_clips.clear();
 //        panel_effect_controls->set_clip(NULL);
 //        sequence->undo();
-//        ui->video_area->redraw_clips();
-//        ui->audio_area->redraw_clips();
+//        redraw_all_clips(false);
 //    }
 }
 
@@ -191,17 +190,22 @@ void Timeline::redo() {
 //        current_clips.clear();
 //        panel_effect_controls->set_clip(NULL);
 //        sequence->redo();
-//        ui->video_area->redraw_clips();
-//        ui->audio_area->redraw_clips();
+//        redraw_all_clips(false);
 //    }
 }
 
 QString frame_to_timecode(long f) {
-    int int_fps = qRound(sequence->frame_rate);
-    int hours = f/ (3600 * int_fps);
-    int mins = f / (60*int_fps) % 60;
-    int secs = f/int_fps % 60;
-    int frames = f%int_fps;
+    int hours = 0;
+    int mins = 0;
+    int secs = 0;
+    int frames = 0;
+    if (sequence != NULL) {
+        int int_fps = qRound(sequence->frame_rate);
+        hours = f/ (3600 * int_fps);
+        mins = f / (60*int_fps) % 60;
+        secs = f/int_fps % 60;
+        frames = f%int_fps;
+    }
     return QString(QString::number(hours).rightJustified(2, '0') +
                    ":" + QString::number(mins).rightJustified(2, '0') +
                    ":" + QString::number(secs).rightJustified(2, '0') +
@@ -223,17 +227,18 @@ void Timeline::repaint_timeline() {
     panel_viewer->ui->currentTimecode->setText(frame_to_timecode(playhead));
 }
 
-void Timeline::redraw_all_clips() {
+void Timeline::redraw_all_clips(bool changed) {
     if (sequence != NULL) {
-        project_changed = true;
+        if (changed) {
+            project_changed = true;
+            if (!playing) reset_all_audio();
+        }
 
         ui->video_area->redraw_clips();
         ui->audio_area->redraw_clips();
         ui->headers->update();
 
         panel_viewer->ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame()));
-
-        reset_all_audio();
     }
 }
 
@@ -287,7 +292,7 @@ void Timeline::delete_selection(bool ripple_delete) {
 			if (ripple_length > 0) ripple(ripple_point, -ripple_length);
 		}
 
-		redraw_all_clips();
+        redraw_all_clips(true);
 	}
 }
 
@@ -308,7 +313,7 @@ void Timeline::set_zoom(bool in) {
                     0.99f
                 )
             );
-    redraw_all_clips();
+    redraw_all_clips(false);
 }
 
 void Timeline::ripple(long ripple_point, long ripple_length) {
@@ -561,7 +566,7 @@ void Timeline::paste() {
             cc->sequence = sequence;
             sequence->add_clip(cc);
         }
-        redraw_all_clips();
+        redraw_all_clips(true);
     }
 }
 
@@ -640,7 +645,7 @@ void Timeline::split_at_playhead() {
         }
     }
 
-    if (split_selected) redraw_all_clips();
+    if (split_selected) redraw_all_clips(true);
 }
 
 bool Timeline::snap_to_point(long point, long* l) {

@@ -56,6 +56,7 @@ void Clip::reset() {
     cache_A.offset = false;
     cache_B.offset = false;
     open = false;
+    finished_opening = false;
     pkt_written = false;
     cache_A.written = false;
     cache_B.written = false;

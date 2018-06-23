@@ -69,6 +69,7 @@ struct Clip
 	bool pkt_written;
 	bool reached_end;
 	bool open;
+    bool finished_opening;
 
 	// caching functions
 	bool multithreaded;

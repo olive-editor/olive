@@ -91,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if (dir.exists()) {
             autorecovery_filename = data_dir + "/autorecovery.ove";
             if (QFile::exists(autorecovery_filename)) {
-                if (QMessageBox::question(this, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
                     project_url = autorecovery_filename;
                     panel_project->load_project();
                 }
@@ -173,7 +173,7 @@ void MainWindow::on_actionZoom_out_triggered()
 void MainWindow::on_actionTimeline_Track_Lines_toggled(bool e)
 {
 	show_track_lines = e;
-	panel_timeline->redraw_all_clips();
+    panel_timeline->redraw_all_clips(false);
 }
 
 void MainWindow::on_actionExport_triggered()

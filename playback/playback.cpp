@@ -36,7 +36,7 @@ void handle_media(Sequence* sequence, long playhead, bool multithreaded) {
 			// if thread is already working, we don't want to touch this,
 			// but we also don't want to hang the UI thread
             if (!c->open) {
-                if (c->lock.tryLock()) {
+                if (c->open_lock.tryLock()) {
                     open_clip(c, multithreaded);
 
 					// add to current_clips, (insertion) sorted by track so composite them in order

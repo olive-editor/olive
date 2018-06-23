@@ -75,15 +75,14 @@ void cache_audio_worker(Clip* c) {
                 if (offset > 0) {
                     c->audio_buffer_write += offset;
                     c->frame_sample_index += offset;
-                    while (c->frame_sample_index > nb_bytes) {
-                        // get new frame
-                        retrieve_next_frame_raw_data(c, frame);
-
-                        nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-                        c->frame_sample_index -= nb_bytes;
-                    }
                 }
-            }            
+            }
+            while (c->frame_sample_index > nb_bytes) {
+                // get new frame
+                retrieve_next_frame_raw_data(c, frame);
+                nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
+                c->frame_sample_index -= nb_bytes;
+            }
             while (c->frame_sample_index < nb_bytes) {
                 if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= get_buffer_offset_from_frame(c->timeline_out)) {
                     written = max_write;
@@ -367,11 +366,14 @@ void close_clip_worker(Clip* clip) {
 
 void Cacher::run() {
 	// open_lock is used to prevent the clip from being destroyed before the cacher has closed it properly
+    clip->lock.lock();
+    clip->finished_opening = false;
     clip->open = true;
     caching = true;
-	clip->open_lock.lock();
 
 	open_clip_worker(clip);
+
+    clip->finished_opening = true;
 
     while (caching) {
         clip->can_cache.wait(&clip->lock);
@@ -383,7 +385,7 @@ void Cacher::run() {
 	}
 
     close_clip_worker(clip);
-	clip->lock.unlock();
 
+    clip->lock.unlock();
 	clip->open_lock.unlock();
 }

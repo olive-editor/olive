@@ -70,58 +70,54 @@ void ViewerWidget::paintGL()
     for (int i=0;i<current_clips.size();i++) {
         Clip* c = current_clips.at(i);
 
-        if (!c->open) {
+        if (!c->finished_opening) {
             qDebug() << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
         } else if (is_clip_active(c, playhead)) {
-            if (c->lock.tryLock()) {
-                if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                    // start preparing cache
-                    get_clip_frame(c, playhead);
+            if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                // start preparing cache
+                get_clip_frame(c, playhead);
 
-                    if (c->texture == NULL) {
-                        qDebug() << "[WARNING] Texture hasn't been created yet";
-                        texture_failed = true;
-                    } else if (playhead >= c->timeline_in) {
-                        glLoadIdentity();
-                        int half_width = c->sequence->width/2;
-                        int half_height = c->sequence->height/2;
-                        glOrtho(-half_width, half_width, half_height,- half_height, -1, 1);
-                        int anchor_x = c->media_stream->video_width/2;
-                        int anchor_y = c->media_stream->video_height/2;
+                if (c->texture == NULL) {
+                    qDebug() << "[WARNING] Texture hasn't been created yet";
+                    texture_failed = true;
+                } else if (playhead >= c->timeline_in) {
+                    glLoadIdentity();
+                    int half_width = c->sequence->width/2;
+                    int half_height = c->sequence->height/2;
+                    glOrtho(-half_width, half_width, half_height,- half_height, -1, 1);
+                    int anchor_x = c->media_stream->video_width/2;
+                    int anchor_y = c->media_stream->video_height/2;
 
-                        // perform all transform effects
-                        for (int j=0;j<c->effects.size();j++) {
-                            c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
-                        }
-
-                        int anchor_right = c->media_stream->video_width - anchor_x;
-                        int anchor_bottom = c->media_stream->video_height - anchor_y;
-
-                        c->texture->bind();
-
-                        glBegin(GL_QUADS);
-                            glTexCoord2f(0.0, 0.0);
-                            glVertex2f(-anchor_x, -anchor_y);
-                            glTexCoord2f(1.0, 0.0);
-                            glVertex2f(anchor_right, -anchor_y);
-                            glTexCoord2f(1.0, 1.0);
-                            glVertex2f(anchor_right, anchor_bottom);
-                            glTexCoord2f(0.0, 1.0);
-                            glVertex2f(-anchor_x, anchor_bottom);
-                        glEnd();
-
-                        c->texture->release();
+                    // perform all transform effects
+                    for (int j=0;j<c->effects.size();j++) {
+                        c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
                     }
-                } else if (render_audio &&
-                           c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                    // clip is not caching, start caching audio
-                    cache_clip(c, playhead, false, false, c->reset_audio);
+
+                    int anchor_right = c->media_stream->video_width - anchor_x;
+                    int anchor_bottom = c->media_stream->video_height - anchor_y;
+
+                    c->texture->bind();
+
+                    glBegin(GL_QUADS);
+                    glTexCoord2f(0.0, 0.0);
+                    glVertex2f(-anchor_x, -anchor_y);
+                    glTexCoord2f(1.0, 0.0);
+                    glVertex2f(anchor_right, -anchor_y);
+                    glTexCoord2f(1.0, 1.0);
+                    glVertex2f(anchor_right, anchor_bottom);
+                    glTexCoord2f(0.0, 1.0);
+                    glVertex2f(-anchor_x, anchor_bottom);
+                    glEnd();
+
+                    c->texture->release();
                 }
+            } else if (render_audio &&
+                       c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
+                       c->lock.tryLock()) {
+                // clip is not caching, start caching audio
+                cache_clip(c, playhead, false, false, c->reset_audio);
                 c->lock.unlock();
-            } else {
-                qDebug() << "[WARNING] Clip was locked, must still be active";
-                texture_failed = true;
             }
         }
     }
