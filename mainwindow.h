@@ -115,6 +115,8 @@ private slots:
 
     void on_actionDecrease_Track_Height_triggered();
 
+    void on_windowMenu_About_To_Be_Shown();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

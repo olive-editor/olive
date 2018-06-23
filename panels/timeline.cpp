@@ -703,6 +703,7 @@ void Timeline::increase_track_height() {
     for (int i=0;i<audio_track_heights.size();i++) {
         audio_track_heights[i] += TRACK_HEIGHT_INCREMENT;
     }
+    redraw_all_clips(false);
 }
 
 void Timeline::decrease_track_height() {
@@ -714,6 +715,7 @@ void Timeline::decrease_track_height() {
         audio_track_heights[i] -= TRACK_HEIGHT_INCREMENT;
         if (audio_track_heights[i] < TRACK_MIN_HEIGHT) audio_track_heights[i] = TRACK_MIN_HEIGHT;
     }
+    redraw_all_clips(false);
 }
 
 void Timeline::deselect() {
