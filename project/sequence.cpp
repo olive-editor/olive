@@ -41,7 +41,8 @@ void Sequence::delete_clip(int i) {
 
 	// finally remove from vector
     delete clips.at(i);
-	clips.removeAt(i);
+//    clips[i] = NULL;
+    clips.removeAt(i);
 }
 
 long Sequence::getEndFrame() {

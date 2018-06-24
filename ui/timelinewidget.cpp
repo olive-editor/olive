@@ -252,21 +252,24 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                 QVector<Selection> delete_areas;
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
                     const Ghost& g = panel_timeline->ghosts.at(i);
+                    if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
+                        Clip* c = g.clip->copy();
 
-                    Clip* c = g.clip->copy();
+                        c->timeline_in = g.in;
+                        c->timeline_out = g.out;
+                        c->track = g.track;
 
-                    c->timeline_in = g.in;
-                    c->timeline_out = g.out;
-                    c->track = g.track;
+                        delete_areas.append({g.in, g.out, g.track});
 
-                    delete_areas.append({g.in, g.out, g.track});
-
-                    copy_clips.append(c);
+                        copy_clips.append(c);
+                    }
                 }
-                panel_timeline->delete_areas_and_relink(delete_areas);
-                for (int i=0;i<copy_clips.size();i++) {
-                    // step 2 - delete anything that exists in area that clip is moving to
-                    sequence->add_clip(copy_clips.at(i));
+                if (copy_clips.size() > 0) {
+                    panel_timeline->delete_areas_and_relink(delete_areas);
+                    for (int i=0;i<copy_clips.size();i++) {
+                        // step 2 - delete anything that exists in area that clip is moving to
+                        sequence->add_clip(copy_clips.at(i));
+                    }
                 }
             } else {
                 // move clips
