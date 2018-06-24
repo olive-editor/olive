@@ -259,6 +259,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     c->timeline_out = g.out;
                     c->track = g.track;
 
+                    delete_areas.append({g.in, g.out, g.track});
+
                     copy_clips.append(c);
                 }
                 panel_timeline->delete_areas_and_relink(delete_areas);
@@ -342,27 +344,50 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 //        panel_timeline->repaint_timeline();
 
+        // SEND CLIPS TO EFFECT CONTROLS
         // find out how many clips are selected
-        bool single_select = false;
-        int selected_clip = 0;
+        bool got_vclip = false;
+        bool got_aclip = false;
+        Clip* vclip = NULL;
+        Clip* aclip = NULL;
         for (int i=0;i<sequence->clip_count();i++) {
-            if (panel_timeline->is_clip_selected(sequence->get_clip(i))) {
-                if (!single_select) {
-                    // found ONE selected clip
-                    selected_clip = i;
-                    single_select = true;
+            Clip* clip = sequence->get_clip(i);
+            if (panel_timeline->is_clip_selected(clip)) {
+                if (clip->track < 0) {
+                    if (got_vclip) {
+                        vclip = NULL;
+                    } else {
+                        vclip = clip;
+                        got_vclip = true;
+                    }
                 } else {
-                    // more than one clip is selected
-                    single_select = false;
-                    break;
+                    if (got_aclip) {
+                        aclip = NULL;
+                    } else {
+                        aclip = clip;
+                        got_aclip = true;
+                    }
                 }
             }
         }
-        if (single_select) {
-            panel_effect_controls->set_clip(sequence->get_clip(selected_clip));
-        } else {
-            panel_effect_controls->set_clip(NULL);
+        // check if aclip is linked to vclip
+        QVector<Clip*> selected_clips;
+        if (vclip != NULL) selected_clips.append(vclip);
+        if (aclip != NULL) selected_clips.append(aclip);
+        if (vclip != NULL && aclip != NULL) {
+            bool found = false;
+            for (int i=0;i<vclip->linked.size();i++) {
+                if (vclip->linked.at(i) == aclip) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // only display multiple clips if they're linked
+                selected_clips.clear();
+            }
         }
+        panel_effect_controls->set_clips(selected_clips);
     }
 }
 

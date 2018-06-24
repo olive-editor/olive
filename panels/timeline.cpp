@@ -274,7 +274,7 @@ void Timeline::select_all() {
 
 void Timeline::delete_selection(bool ripple_delete) {
 	if (selections.size() > 0) {
-		panel_effect_controls->set_clip(NULL);
+        panel_effect_controls->clear_effects();
 
 		long ripple_point = selections.at(0).in;
 		long ripple_length = selections.at(0).out - selections.at(0).in;
@@ -471,7 +471,7 @@ void Timeline::split_clip_and_relink(Clip* pre_clip, long frame, bool relink) {
     }
 }
 
-void Timeline::delete_areas_and_relink(QVector<Selection> areas) {
+void Timeline::delete_areas_and_relink(QVector<Selection>& areas) {
     QVector<Clip*> pre_clips;
     QVector<Clip*> post_clips;
 

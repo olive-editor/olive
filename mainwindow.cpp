@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	setup_layout();
 
-    connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(on_windowMenu_About_To_Be_Shown()));
+    connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
 
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty()) {
@@ -446,7 +446,7 @@ void MainWindow::on_actionDecrease_Track_Height_triggered()
     panel_timeline->decrease_track_height();
 }
 
-void MainWindow::on_windowMenu_About_To_Be_Shown() {
+void MainWindow::windowMenu_About_To_Be_Shown() {
     ui->actionProject_2->setChecked(panel_project->isVisible());
     ui->actionEffect_Controls->setChecked(panel_effect_controls->isVisible());
     ui->actionTimeline->setChecked(panel_timeline->isVisible());

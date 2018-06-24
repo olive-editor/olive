@@ -16,16 +16,8 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui(new Ui::EffectControls)
 {
 	ui->setupUi(this);
-
-	init_effects();
-
-	clip = NULL;
-    set_clip(NULL);
-}
-
-void EffectControls::menu_select(QAction* q) {
-    clip->effects.append(create_effect(q->data().toInt(), clip));
-    set_clip(clip);
+    init_effects();
+    clear_effects();
 }
 
 EffectControls::~EffectControls()
@@ -33,11 +25,22 @@ EffectControls::~EffectControls()
 	delete ui;
 }
 
-void EffectControls::on_pushButton_clicked()
-{
+void EffectControls::menu_select(QAction* q) {
+    for (int i=0;i<selected_clips.size();i++) {
+        Clip* clip = selected_clips.at(i);
+        if ((clip->track < 0 && video_menu) || (clip->track >= 0 && !video_menu)) {
+            clip->effects.append(create_effect(q->data().toInt(), clip));
+        }
+    }
+    reload_clips();
+}
+
+void EffectControls::show_menu(bool video) {
+    video_menu = video;
+
     int lim;
     QVector<QString>* effect_names;
-    if (clip->track < 0) {
+    if (video) {
         lim = VIDEO_EFFECT_COUNT;
         effect_names = &video_effect_names;
     } else {
@@ -59,19 +62,54 @@ void EffectControls::on_pushButton_clicked()
     effects_menu.exec(QCursor::pos());
 }
 
-void EffectControls::set_clip(Clip* c) {
-	// clear ui->scrollAreaWidgetContents
-	if (clip != NULL) {
-		for (int i=0;i<clip->effects.size();i++) {
-            clip->effects.at(i)->container->setParent(NULL);
-		}
-	}
+void EffectControls::clear_effects() {
+    // clear existing clips
+    QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
+    QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
+    QLayoutItem* item;
+    while ((item = video_layout->takeAt(0))) {item->widget()->setParent(NULL);}
+    while ((item = audio_layout->takeAt(0))) {item->widget()->setParent(NULL);}
+    ui->vcontainer->setVisible(false);
+    ui->acontainer->setVisible(false);
+}
 
-	ui->pushButton->setEnabled(c != NULL);
-	if (c != NULL) {
-		for (int i=0;i<c->effects.size();i++) {
-            static_cast<QVBoxLayout*>(ui->scrollAreaWidgetContents->layout())->insertWidget(i, c->effects.at(i)->container);
-		}
-	}
-	clip = c;
+void EffectControls::load_effects() {
+    // load in new clips
+    for (int i=0;i<selected_clips.size();i++) {
+        Clip* c = selected_clips.at(i);
+        for (int j=0;j<c->effects.size();j++) {
+            CollapsibleWidget* container = c->effects.at(j)->container;
+            if (c->track < 0) {
+                static_cast<QVBoxLayout*>(ui->video_effect_area->layout())->addWidget(container);
+                ui->vcontainer->setVisible(true);
+            } else {
+                static_cast<QVBoxLayout*>(ui->audio_effect_area->layout())->addWidget(container);
+                ui->acontainer->setVisible(true);
+            }
+        }
+    }
+}
+
+void EffectControls::reload_clips() {
+    // clear_effects();
+    load_effects();
+}
+
+void EffectControls::set_clips(QVector<Clip*>& clips) {
+    clear_effects();
+
+    // replace clip vector
+    selected_clips = clips;
+
+    load_effects();
+}
+
+void EffectControls::on_add_video_effect_button_clicked()
+{
+    show_menu(true);
+}
+
+void EffectControls::on_add_audio_effect_button_clicked()
+{
+    show_menu(false);
 }

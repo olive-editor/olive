@@ -17,15 +17,24 @@ class EffectControls : public QDockWidget
 public:
 	explicit EffectControls(QWidget *parent = 0);
 	~EffectControls();
-	void set_clip(Clip* c);
+	// void set_clip(Clip* c);
+	void set_clips(QVector<Clip*>& clips);
+	void clear_effects();
 
 private slots:
-	void on_pushButton_clicked();
     void menu_select(QAction* q);
+
+    void on_add_video_effect_button_clicked();
+
+    void on_add_audio_effect_button_clicked();
 
 private:
     Ui::EffectControls *ui;
-    Clip* clip;
+    QVector<Clip*> selected_clips;
+    void show_menu(bool video);
+	void load_effects();
+	void reload_clips();
+	bool video_menu;
 };
 
 #endif // EFFECTCONTROLS_H
