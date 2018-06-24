@@ -7,12 +7,17 @@
 #include <QSpinBox>
 #include <QCheckBox>
 #include <QOpenGLFunctions>
+#include <QComboBox>
 
 #include "ui/collapsiblewidget.h"
 #include "project/clip.h"
 #include "project/sequence.h"
 #include "io/media.h"
 #include "ui/labelslider.h"
+
+#define BLEND_MODE_NORMAL 0
+#define BLEND_MODE_SCREEN 1
+#define BLEND_MODE_MULTIPLY 2
 
 TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     setup_effect(EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT);
@@ -56,6 +61,13 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     opacity->set_maximum_value(100);
 	ui_layout->addWidget(opacity, 5, 1);
 
+    ui_layout->addWidget(new QLabel("Blend Mode:"), 6, 0);
+    blend_mode_box = new QComboBox();
+    blend_mode_box->addItem("Normal", BLEND_MODE_NORMAL);
+    blend_mode_box->addItem("Screen", BLEND_MODE_SCREEN);
+    blend_mode_box->addItem("Multiply", BLEND_MODE_MULTIPLY);
+    ui_layout->addWidget(blend_mode_box, 6, 1);
+
 	ui->setLayout(ui_layout);
 
 	container->setContents(ui);
@@ -72,6 +84,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     anchor_x_box->set_default_value(default_anchor_x);
     anchor_y_box->set_default_value(default_anchor_y);
     opacity->set_default_value(100);
+    blend_mode_box->setCurrentIndex(0);
 
     connect(position_x, SIGNAL(valueChanged()), this, SLOT(field_changed()));
     connect(position_y, SIGNAL(valueChanged()), this, SLOT(field_changed()));
@@ -83,6 +96,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     connect(opacity, SIGNAL(valueChanged()), this, SLOT(field_changed()));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(field_changed()));
+    connect(blend_mode_box, SIGNAL(currentIndexChanged(int)), this, SLOT(field_changed()));
 }
 
 Effect* TransformEffect::copy(Clip* c) {
@@ -96,6 +110,7 @@ Effect* TransformEffect::copy(Clip* c) {
     t->anchor_x_box->set_value(anchor_x_box->value());
     t->anchor_y_box->set_value(anchor_y_box->value());
     t->opacity->set_value(opacity->value());
+    t->blend_mode_box->setCurrentIndex(blend_mode_box->currentIndex());
     return t;
 }
 
@@ -129,6 +144,9 @@ void TransformEffect::load(QXmlStreamReader *stream) {
         } else if (stream->isStartElement() && stream->name() == "opacity") {
             stream->readNext();
             opacity->set_value(stream->text().toFloat());
+        } else if (stream->isStartElement() && stream->name() == "blendmode") {
+            stream->readNext();
+            blend_mode_box->setCurrentIndex(stream->text().toInt());
         }
     }
 }
@@ -143,6 +161,7 @@ void TransformEffect::save(QXmlStreamWriter *stream) {
     stream->writeTextElement("anchorx", QString::number(anchor_x_box->value()));
     stream->writeTextElement("anchory", QString::number(anchor_y_box->value()));
     stream->writeTextElement("opacity", QString::number(opacity->value()));
+    stream->writeTextElement("blendmode", QString::number(blend_mode_box->currentIndex()));
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {
@@ -164,6 +183,21 @@ void TransformEffect::process_gl(int* anchor_x, int* anchor_y) {
 	float sx = scale_x->value()*0.01;
 	float sy = (uniform_scale_box->isChecked()) ? sx : scale_y->value()*0.01;
 	glScalef(sx, sy, 1);
+
+    // blend mode
+    switch (blend_mode_box->currentData().toInt()) {
+    case BLEND_MODE_NORMAL:
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        break;
+    case BLEND_MODE_SCREEN:
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+        break;
+    case BLEND_MODE_MULTIPLY:
+        glBlendFunc(GL_DST_COLOR, GL_ZERO);
+        break;
+    default:
+        qDebug() << "[ERROR] Invalid blend mode. This is a bug - please contact developers";
+    }
 
 	// opacity
 	glColor4f(1.0, 1.0, 1.0, opacity->value()*0.01);

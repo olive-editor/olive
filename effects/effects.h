@@ -6,6 +6,7 @@
 #include <QXmlStreamWriter>
 class QSpinBox;
 class QCheckBox;
+class QComboBox;
 class LabelSlider;
 
 enum VideoEffects {
@@ -43,6 +44,7 @@ public:
     LabelSlider* anchor_x_box;
     LabelSlider* anchor_y_box;
     LabelSlider* opacity;
+    QComboBox* blend_mode_box;
 public slots:
 	void toggle_uniform_scale(bool enabled);
 private:

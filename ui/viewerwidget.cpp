@@ -41,7 +41,7 @@ void ViewerWidget::initializeGL() {
     glMatrixMode(GL_PROJECTION);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
@@ -57,6 +57,8 @@ void ViewerWidget::paintGL()
     if (multithreaded) retry_timer.stop();
 
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     long playhead = panel_timeline->playhead;
 
