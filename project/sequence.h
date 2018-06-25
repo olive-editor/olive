@@ -15,8 +15,7 @@ public:
     void add_clip(Clip* c);
 	int clip_count();
     Clip* get_clip(int i);
-	void delete_clip(int i);
-//    void delete_area(long in, long out, int track);
+    void delete_clip(int i);
     Clip* split_clip(Clip* pre, long frame);
 	void get_track_limits(int* video_tracks, int* audio_tracks);
 	long getEndFrame();

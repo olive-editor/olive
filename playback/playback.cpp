@@ -32,32 +32,34 @@ void handle_media(Sequence* sequence, long playhead, bool multithreaded) {
         Clip* c = sequence->get_clip(i);
 
 		// if clip starts within one second and/or hasn't finished yet
-        if (is_clip_active(c, playhead)) {
-			// if thread is already working, we don't want to touch this,
-			// but we also don't want to hang the UI thread
-            if (!c->open) {
-                if (c->open_lock.tryLock()) {
-                    open_clip(c, multithreaded);
+        if (c != NULL) {
+            if (is_clip_active(c, playhead)) {
+                // if thread is already working, we don't want to touch this,
+                // but we also don't want to hang the UI thread
+                if (!c->open) {
+                    if (c->open_lock.tryLock()) {
+                        open_clip(c, multithreaded);
 
-					// add to current_clips, (insertion) sorted by track so composite them in order
-                    cc_lock.lock();
-					bool found = false;
-					for (int j=0;j<current_clips.size();j++) {
-                        if (current_clips[j]->track < c->track) {
-                            current_clips.insert(current_clips.begin()+j, c);
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-                        current_clips.push_back(c);
-					}
-					cc_lock.unlock();
-				}
-			}
-        } else if (c->open) {
-            close_clip(c);
-		}
+                        // add to current_clips, (insertion) sorted by track so composite them in order
+                        cc_lock.lock();
+                        bool found = false;
+                        for (int j=0;j<current_clips.size();j++) {
+                            if (current_clips[j]->track < c->track) {
+                                current_clips.insert(current_clips.begin()+j, c);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            current_clips.push_back(c);
+                        }
+                        cc_lock.unlock();
+                    }
+                }
+            } else if (c->open) {
+                close_clip(c);
+            }
+        }
 	}
 }
 
@@ -295,7 +297,7 @@ void set_sequence(Sequence* s) {
         // clean up - close all open clips
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* c = sequence->get_clip(i);
-            if (c->open) {
+            if (c != NULL && c->open) {
                 close_clip(c);
             }
         }

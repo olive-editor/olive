@@ -16,6 +16,7 @@ Sequence::~Sequence() {
 }
 
 void Sequence::add_clip(Clip* c) {
+    c->id = clip_count();
     clips.append(c);
 }
 
@@ -32,7 +33,8 @@ void Sequence::delete_clip(int i) {
     for (int j=0;j<clip_count();j++) {
         Clip* c = get_clip(j);
         for (int k=0;k<c->linked.size();k++) {
-            if (c->linked[k] == clips[i]) {
+            if (c->linked[k] == clips[i]->id) {
+//                c->linked[k] = NULL;
                 c->linked.removeAt(k);
                 break;
             }
@@ -41,15 +43,14 @@ void Sequence::delete_clip(int i) {
 
 	// finally remove from vector
     delete clips.at(i);
-//    clips[i] = NULL;
-    clips.removeAt(i);
+    clips[i] = NULL;
 }
 
 long Sequence::getEndFrame() {
     long end = 0;
     for (int j=0;j<clip_count();j++) {
         Clip* c = get_clip(j);
-        if (c->timeline_out > end) {
+        if (c != NULL && c->timeline_out > end) {
             end = c->timeline_out;
         }
     }
@@ -61,11 +62,13 @@ void Sequence::get_track_limits(int* video_tracks, int* audio_tracks) {
 	int at = 0;
 	for (int j=0;j<clip_count();j++) {
         Clip* c = get_clip(j);
-        if (c->track < 0 && c->track < vt) { // video clip
-            vt = c->track;
-        } else if (c->track > at) {
-            at = c->track;
-		}
+        if (c != NULL) {
+            if (c->track < 0 && c->track < vt) { // video clip
+                vt = c->track;
+            } else if (c->track > at) {
+                at = c->track;
+            }
+        }
 	}
 	if (video_tracks != NULL) *video_tracks = vt;
 	if (audio_tracks != NULL) *audio_tracks = at;
@@ -91,52 +94,52 @@ Clip* Sequence::split_clip(Clip* pre, long frame) {
 }
 
 void Sequence::undo_add_current() {
-    if (undo_stack.size() == UNDO_LIMIT) {
-        delete undo_stack.at(0);
-        undo_stack.removeFirst();
-    } else {
-        undo_pointer++;
-        while (undo_stack.size() > undo_pointer+1) {
-            delete undo_stack.last();
-            undo_stack.removeLast();
-        }
-    }
+//    if (undo_stack.size() == UNDO_LIMIT) {
+//        delete undo_stack.at(0);
+//        undo_stack.removeFirst();
+//    } else {
+//        undo_pointer++;
+//        while (undo_stack.size() > undo_pointer+1) {
+//            delete undo_stack.last();
+//            undo_stack.removeLast();
+//        }
+//    }
 
-    // copy clips
-    QVector<Clip*>* copied_clips = new QVector<Clip*>();
-    for (int i=0;i<clip_count();i++) {
-        copied_clips->append(get_clip(i)->copy());
-    }
-    undo_stack.append(copied_clips);
+//    // copy clips
+//    QVector<Clip*>* copied_clips = new QVector<Clip*>();
+//    for (int i=0;i<clip_count();i++) {
+//        copied_clips->append(get_clip(i)->copy());
+//    }
+//    undo_stack.append(copied_clips);
 }
 
 void Sequence::set_undo(int i) {
-    for (int i=0;i<clip_count();i++) {
-        delete clips.at(i);
-    }
-    clips.clear();
+//    for (int i=0;i<clip_count();i++) {
+//        delete clips.at(i);
+//    }
+//    clips.clear();
 
-    QVector<Clip*>* copy_from_list = undo_stack.at(undo_pointer);
-    for (int i=0;i<copy_from_list->size();i++) {
-        add_clip(copy_from_list->at(i)->copy());
-    }
+//    QVector<Clip*>* copy_from_list = undo_stack.at(undo_pointer);
+//    for (int i=0;i<copy_from_list->size();i++) {
+//        add_clip(copy_from_list->at(i)->copy());
+//    }
 }
 
 void Sequence::undo() {
-    if (undo_pointer > 0) {
-        undo_pointer--;
-        set_undo(undo_pointer);
-    } else {
-        qDebug() << "[INFO] No more undos";
-    }
+//    if (undo_pointer > 0) {
+//        undo_pointer--;
+//        set_undo(undo_pointer);
+//    } else {
+//        qDebug() << "[INFO] No more undos";
+//    }
 }
 void Sequence::redo() {
-    if (undo_pointer == undo_stack.size() - 1) {
-        qDebug() << "[INFO] No more redos";
-    } else {
-        undo_pointer++;
-        set_undo(undo_pointer);
-    }
+//    if (undo_pointer == undo_stack.size() - 1) {
+//        qDebug() << "[INFO] No more redos";
+//    } else {
+//        undo_pointer++;
+//        set_undo(undo_pointer);
+//    }
 }
 
 // static variable for the currently active sequence

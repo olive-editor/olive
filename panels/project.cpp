@@ -265,6 +265,7 @@ void Project::load_project() {
     int temp_media_id;
     Sequence* temp_seq;
     Clip* temp_clip;
+    int temp_clip_id;
 
     int state = LOAD_STATE_IDLE;
     while (!stream.atEnd()) {
@@ -305,12 +306,23 @@ void Project::load_project() {
             break;
         case LOAD_STATE_SEQUENCE:
             if (stream.isEndElement() && stream.name() == "sequence") {
-                // convert link ids to pointers
+                // correct IDs
                 for (int i=0;i<temp_seq->clip_count();i++) {
-                    Clip* c = temp_seq->get_clip(i);
-                    for (int j=0;j<c->link_ids.size();j++) {
-                        c->linked.append(temp_seq->get_clip(c->link_ids.at(j)));
+                    Clip* clip = temp_seq->get_clip(i);
+
+                    // correct IDs in linked clips
+                    for (int j=0;j<clip->linked.size();j++) {
+                        for (int k=0;k<temp_seq->clip_count();k++) {
+                            if (temp_seq->get_clip(k)->id == clip->linked.at(j)) {
+                                clip->linked[j] = k;
+                                break;
+                            }
+                        }
                     }
+                }
+                for (int i=0;i<temp_seq->clip_count();i++) {
+                    // correct actual IDs
+                    temp_seq->get_clip(i)->id = i;
                 }
 
                 new_sequence(temp_seq);
@@ -344,11 +356,15 @@ void Project::load_project() {
         case LOAD_STATE_CLIP:
             if (stream.isEndElement() && stream.name() == "clip") {
                 temp_seq->add_clip(temp_clip);
+                temp_clip->id = temp_clip_id; // uses loaded ID (corrects later)
                 state = LOAD_STATE_SEQUENCE;
             } else if (stream.isStartElement()) {
                 if (stream.name() == "name") {
                     stream.readNext();
                     temp_clip->name = stream.text().toString();
+                } else if (stream.name() == "id") {
+                    stream.readNext();
+                    temp_clip_id = stream.text().toInt();
                 } else if (stream.name() == "clipin") {
                     stream.readNext();
                     temp_clip->clip_in = stream.text().toInt();
@@ -411,7 +427,7 @@ void Project::load_project() {
                 state = LOAD_STATE_CLIP;
             } else if (stream.isStartElement() && stream.name() == "link") {
                 stream.readNext();
-                temp_clip->link_ids.append(stream.text().toInt());
+                temp_clip->linked.append(stream.text().toInt());
             }
             break;
         }
@@ -469,42 +485,39 @@ void Project::save_project() {
             stream.writeTextElement("alayout", QString::number(s->audio_layout));
             stream.writeStartElement("clips");
 
-            // give clips IDs for links
-            for (int i=0;i<s->clip_count();i++) {
-                s->get_clip(i)->save_id = i;
-            }
-
             for (int i=0;i<s->clip_count();i++) {
                 Clip* c = s->get_clip(i);
-
-                stream.writeStartElement("clip");
-                stream.writeTextElement("name", c->name);
-                stream.writeTextElement("clipin", QString::number(c->clip_in));
-                stream.writeTextElement("in", QString::number(c->timeline_in));
-                stream.writeTextElement("out", QString::number(c->timeline_out));
-                stream.writeTextElement("track", QString::number(c->track));
-                stream.writeStartElement("color");
-                stream.writeAttribute("r", QString::number(c->color_r));
-                stream.writeAttribute("g", QString::number(c->color_g));
-                stream.writeAttribute("b", QString::number(c->color_b));
-                stream.writeEndElement();
-                stream.writeTextElement("media", QString::number(c->media->save_id));
-                stream.writeTextElement("stream", QString::number(c->media_stream->file_index));
-                stream.writeStartElement("linked");
-                for (int j=0;j<c->linked.size();j++) {
-                    stream.writeTextElement("link", QString::number(c->linked.at(j)->save_id));
-                }
-                stream.writeEndElement();
-                stream.writeStartElement("effects");
-                for (int j=0;j<c->effects.size();j++) {
-                    stream.writeStartElement("effect");
-                    Effect* e = c->effects.at(j);
-                    stream.writeAttribute("id", QString::number(e->id));
-                    e->save(&stream);
+                if (c != NULL) {
+                    stream.writeStartElement("clip");
+                    stream.writeTextElement("id", QString::number(c->id));
+                    stream.writeTextElement("name", c->name);
+                    stream.writeTextElement("clipin", QString::number(c->clip_in));
+                    stream.writeTextElement("in", QString::number(c->timeline_in));
+                    stream.writeTextElement("out", QString::number(c->timeline_out));
+                    stream.writeTextElement("track", QString::number(c->track));
+                    stream.writeStartElement("color");
+                    stream.writeAttribute("r", QString::number(c->color_r));
+                    stream.writeAttribute("g", QString::number(c->color_g));
+                    stream.writeAttribute("b", QString::number(c->color_b));
+                    stream.writeEndElement();
+                    stream.writeTextElement("media", QString::number(c->media->save_id));
+                    stream.writeTextElement("stream", QString::number(c->media_stream->file_index));
+                    stream.writeStartElement("linked");
+                    for (int j=0;j<c->linked.size();j++) {
+                        stream.writeTextElement("link", QString::number(c->linked.at(j)));
+                    }
+                    stream.writeEndElement();
+                    stream.writeStartElement("effects");
+                    for (int j=0;j<c->effects.size();j++) {
+                        stream.writeStartElement("effect");
+                        Effect* e = c->effects.at(j);
+                        stream.writeAttribute("id", QString::number(e->id));
+                        e->save(&stream);
+                        stream.writeEndElement();
+                    }
+                    stream.writeEndElement();
                     stream.writeEndElement();
                 }
-                stream.writeEndElement();
-                stream.writeEndElement();
             }
             stream.writeEndElement();
         }

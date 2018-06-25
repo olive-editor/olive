@@ -40,6 +40,7 @@ struct Clip
 
 	// timeline variables
     bool enabled;
+    int id;
 	QString name;
 	long clip_in;
 	long timeline_in;
@@ -57,7 +58,7 @@ struct Clip
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;
-    QVector<Clip*> linked;
+    QVector<int> linked;
 
 	// media handling
 	AVFormatContext* formatCtx;
@@ -94,10 +95,6 @@ struct Clip
 	bool reset_audio;
     bool audio_just_reset;
     long audio_target_frame;
-
-    // only used for saving/loading
-    int save_id;
-    QVector<int> link_ids;
 };
 
 #endif // CLIP_H

@@ -148,7 +148,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             for (int j=0;j<added_clips.size();j++) {
                 Clip* cc = added_clips.at(j);
                 if (c != cc && c->media == cc->media) {
-                    c->linked.append(cc);
+                    c->linked.append(cc->id);
                 }
             }
         }
@@ -198,7 +198,8 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 track_resize_mouse_cache = event->pos().y();
                 panel_timeline->moving_init = true;
             } else if (clip_index >= 0) {
-                if (panel_timeline->is_clip_selected(sequence->get_clip(clip_index))) {
+                Clip* c = sequence->get_clip(clip_index);
+                if (c != NULL && panel_timeline->is_clip_selected(c)) {
                     // TODO if shift is down, deselect it
                 } else {
                     // if "shift" is not down
@@ -207,14 +208,16 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                     }
 
                     Clip* clip = sequence->get_clip(clip_index);
-                    panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
+                    if (clip != NULL) {
+                        panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
 
-                    // if alt is not down, select links
-                    if (!(event->modifiers() & Qt::AltModifier)) {
-                        for (int i=0;i<clip->linked.size();i++) {
-                            Clip* link = clip->linked.at(i);
-                            if (!panel_timeline->is_clip_selected(link)) {
-                                panel_timeline->selections.append({link->timeline_in, link->timeline_out, link->track});
+                        // if alt is not down, select links
+                        if (!(event->modifiers() & Qt::AltModifier)) {
+                            for (int i=0;i<clip->linked.size();i++) {
+                                Clip* link = sequence->get_clip(c->linked.at(i));
+                                if (!panel_timeline->is_clip_selected(link)) {
+                                    panel_timeline->selections.append({link->timeline_in, link->timeline_out, link->track});
+                                }
                             }
                         }
                     }
@@ -233,7 +236,8 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
         case TIMELINE_TOOL_RAZOR:
         {
             if (clip_index >= 0) {
-                panel_timeline->split_clip_and_relink(sequence->get_clip(clip_index), panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
+                Clip* clip = sequence->get_clip(clip_index);
+                if (clip != NULL) panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
             }
             panel_timeline->splitting = true;
             panel_timeline->redraw_all_clips(true);
@@ -248,6 +252,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (panel_timeline->moving_proc) {
             if (event->modifiers() & Qt::AltModifier) { // if holding alt, duplicate rather than move
                 // duplicate clips
+                QVector<Clip*> old_clips;
                 QVector<Clip*> copy_clips;
                 QVector<Selection> delete_areas;
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -261,6 +266,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
                         delete_areas.append({g.in, g.out, g.track});
 
+                        old_clips.append(g.clip);
                         copy_clips.append(c);
                     }
                 }
@@ -270,6 +276,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                         // step 2 - delete anything that exists in area that clip is moving to
                         sequence->add_clip(copy_clips.at(i));
                     }
+                    // relink duplicated clips
+                    panel_timeline->relink_clips_using_ids(old_clips, copy_clips);
                 }
             } else {
                 // move clips
@@ -355,7 +363,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         Clip* aclip = NULL;
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
-            if (panel_timeline->is_clip_selected(clip)) {
+            if (clip != NULL && panel_timeline->is_clip_selected(clip)) {
                 if (clip->track < 0) {
                     if (got_vclip) {
                         vclip = NULL;
@@ -380,7 +388,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (vclip != NULL && aclip != NULL) {
             bool found = false;
             for (int i=0;i<vclip->linked.size();i++) {
-                if (vclip->linked.at(i) == aclip) {
+                if (vclip->linked.at(i) == aclip->id) {
                     found = true;
                     break;
                 }
@@ -441,10 +449,12 @@ void validate_snapping(Ghost& g, long* frame_diff) {
         if (!subvalidate_snapping(g, frame_diff, panel_timeline->playhead)) {
             for (int j=0;j<sequence->clip_count();j++) {
                 Clip* c = sequence->get_clip(j);
-                if (!subvalidate_snapping(g, frame_diff, c->timeline_in)) {
-                    subvalidate_snapping(g, frame_diff, c->timeline_out);
+                if (c != NULL) {
+                    if (!subvalidate_snapping(g, frame_diff, c->timeline_in)) {
+                        subvalidate_snapping(g, frame_diff, c->timeline_out);
+                    }
+                    if (panel_timeline->snapped) break;
                 }
-                if (panel_timeline->snapped) break;
             }
         }
     }
@@ -682,7 +692,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			// create ghosts
             for (int i=0;i<sequence->clip_count();i++) {
                 Clip* c = sequence->get_clip(i);
-                if (panel_timeline->is_clip_selected(c)) {
+                if (c != NULL && panel_timeline->is_clip_selected(c)) {
                     panel_timeline->ghosts.append({c, c->timeline_in, c->timeline_out, c->track, c->clip_in});
 				}
 			}
@@ -692,54 +702,57 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 				for (int i=0;i<panel_timeline->ghosts.size();i++) {
 					// get clips before and after ripple point
                     for (int j=0;j<sequence->clip_count();j++) {
-						// don't cache any currently selected clips
-						Clip* c = panel_timeline->ghosts.at(i).clip;
                         Clip* cc = sequence->get_clip(j);
-						bool is_selected = false;
-						for (int k=0;k<panel_timeline->ghosts.size();k++) {
-                            if (panel_timeline->ghosts.at(k).clip == cc) {
-								is_selected = true;
-								break;
-							}
-						}
 
-						if (!is_selected) {
-                            if (cc->timeline_in < c->timeline_in) {
-								// add clip to pre-cache UNLESS there is already a clip on that track closer to the ripple point
-								bool found = false;
-								for (int k=0;k<pre_clips.size();k++) {
-									Clip* ccc = pre_clips.at(k);
-                                    if (ccc->track == cc->track) {
-                                        if (ccc->timeline_in < cc->timeline_in) {
-											// clip is closer to ripple point than the one in cache, replace it
-                                            ccc = cc;
-										}
-										found = true;
-									}
-								}
-								if (!found) {
-									// no clip from that track in the cache, add it
-                                    pre_clips.append(cc);
-								}
-							} else {
-								// add clip to post-cache UNLESS there is already a clip on that track closer to the ripple point
-								bool found = false;
-								for (int k=0;k<post_clips.size();k++) {
-									Clip* ccc = post_clips.at(k);
-                                    if (ccc->track == cc->track) {
-                                        if (ccc->timeline_in > cc->timeline_in) {
-											// clip is closer to ripple point than the one in cache, replace it
-                                            ccc = cc;
-										}
-										found = true;
-									}
-								}
-								if (!found) {
-									// no clip from that track in the cache, add it
-                                    post_clips.append(cc);
-								}
-							}
-						}
+                        if (cc != NULL) {
+                            // don't cache any currently selected clips
+                            Clip* c = panel_timeline->ghosts.at(i).clip;
+                            bool is_selected = false;
+                            for (int k=0;k<panel_timeline->ghosts.size();k++) {
+                                if (panel_timeline->ghosts.at(k).clip == cc) {
+                                    is_selected = true;
+                                    break;
+                                }
+                            }
+
+                            if (!is_selected) {
+                                if (cc->timeline_in < c->timeline_in) {
+                                    // add clip to pre-cache UNLESS there is already a clip on that track closer to the ripple point
+                                    bool found = false;
+                                    for (int k=0;k<pre_clips.size();k++) {
+                                        Clip* ccc = pre_clips.at(k);
+                                        if (ccc->track == cc->track) {
+                                            if (ccc->timeline_in < cc->timeline_in) {
+                                                // clip is closer to ripple point than the one in cache, replace it
+                                                ccc = cc;
+                                            }
+                                            found = true;
+                                        }
+                                    }
+                                    if (!found) {
+                                        // no clip from that track in the cache, add it
+                                        pre_clips.append(cc);
+                                    }
+                                } else {
+                                    // add clip to post-cache UNLESS there is already a clip on that track closer to the ripple point
+                                    bool found = false;
+                                    for (int k=0;k<post_clips.size();k++) {
+                                        Clip* ccc = post_clips.at(k);
+                                        if (ccc->track == cc->track) {
+                                            if (ccc->timeline_in > cc->timeline_in) {
+                                                // clip is closer to ripple point than the one in cache, replace it
+                                                ccc = cc;
+                                            }
+                                            found = true;
+                                        }
+                                    }
+                                    if (!found) {
+                                        // no clip from that track in the cache, add it
+                                        post_clips.append(cc);
+                                    }
+                                }
+                            }
+                        }
 					}
                 }
 			}
@@ -754,7 +767,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 		bool repaint = false;
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
-            if (clip->track == track) {
+            if (clip != NULL && clip->track == track) {
                 panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
 				repaint = true;
 			}
@@ -775,7 +788,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         int closeness = INT_MAX;
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* c = sequence->get_clip(i);
-            if (c->track == mouse_track) {
+            if (c != NULL && c->track == mouse_track) {
                 if (c->timeline_in > mouse_frame_lower && c->timeline_in < mouse_frame_upper) {
                     int nc = abs(c->timeline_in + 1 - panel_timeline->cursor_frame);
                     if (nc < closeness) {
@@ -855,7 +868,7 @@ void TimelineWidget::redraw_clips() {
 	int audio_track_limit = 0;
     for (int i=0;i<sequence->clip_count();i++) {
         Clip* clip = sequence->get_clip(i);
-        if (is_track_visible(clip->track)) {
+        if (clip != NULL && is_track_visible(clip->track)) {
             if (clip->track < 0 && clip->track < video_track_limit) { // video clip
                 video_track_limit = clip->track;
             } else if (clip->track > audio_track_limit) {
@@ -1068,7 +1081,7 @@ int TimelineWidget::getScreenPointFromTrack(int track) {
 int TimelineWidget::getClipIndexFromCoords(long frame, int track) {
     for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
-        if (c->track == track) {
+        if (c != NULL && c->track == track) {
             if (frame >= c->timeline_in && frame < c->timeline_out) {
 				return i;
 			}
