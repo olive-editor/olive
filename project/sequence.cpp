@@ -32,11 +32,12 @@ void Sequence::delete_clip(int i) {
 	// remove any potential link references to clip
     for (int j=0;j<clip_count();j++) {
         Clip* c = get_clip(j);
-        for (int k=0;k<c->linked.size();k++) {
-            if (c->linked[k] == clips[i]->id) {
-//                c->linked[k] = NULL;
-                c->linked.removeAt(k);
-                break;
+        if (c != NULL) {
+            for (int k=0;k<c->linked.size();k++) {
+                if (c->linked[k] == clips[i]->id) {
+                    c->linked.removeAt(k);
+                    break;
+                }
             }
         }
     }

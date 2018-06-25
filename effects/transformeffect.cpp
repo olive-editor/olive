@@ -18,6 +18,7 @@
 #define BLEND_MODE_NORMAL 0
 #define BLEND_MODE_SCREEN 1
 #define BLEND_MODE_MULTIPLY 2
+#define BLEND_MODE_OVERLAY 3
 
 TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     setup_effect(EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT);
@@ -64,6 +65,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     ui_layout->addWidget(new QLabel("Blend Mode:"), 6, 0);
     blend_mode_box = new QComboBox();
     blend_mode_box->addItem("Normal", BLEND_MODE_NORMAL);
+    blend_mode_box->addItem("Overlay", BLEND_MODE_OVERLAY);
     blend_mode_box->addItem("Screen", BLEND_MODE_SCREEN);
     blend_mode_box->addItem("Multiply", BLEND_MODE_MULTIPLY);
     ui_layout->addWidget(blend_mode_box, 6, 1);
@@ -188,6 +190,9 @@ void TransformEffect::process_gl(int* anchor_x, int* anchor_y) {
     switch (blend_mode_box->currentData().toInt()) {
     case BLEND_MODE_NORMAL:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        break;
+    case BLEND_MODE_OVERLAY:
+        glBlendFunc(GL_DST_COLOR, GL_SRC_ALPHA);
         break;
     case BLEND_MODE_SCREEN:
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
