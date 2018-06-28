@@ -10,6 +10,7 @@
 #include "io/media.h"
 
 #include <QDebug>
+#include <QPainter>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -137,6 +138,10 @@ void ViewerWidget::paintGL()
             audio_ibuffer_read += actual_write;
         }
     }
+
+    /*QPainter p(this);
+    p.drawText({0, 0, 200, 200}, "text!");
+    p.end();*/
 
     cc_lock.unlock();
 

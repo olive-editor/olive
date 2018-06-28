@@ -141,7 +141,9 @@ void MainWindow::on_actionDelete_triggered()
 {
 	if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(false);
-	}
+    } else if (panel_effect_controls->is_focused()) {
+        panel_effect_controls->delete_clips();
+    }
 }
 
 void MainWindow::on_actionSelect_All_triggered()

@@ -1,6 +1,7 @@
 #include "labelslider.h"
 
 #include <QMouseEvent>
+#include <QInputDialog>
 #include <QApplication>
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent)
@@ -15,15 +16,17 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent)
 }
 
 void LabelSlider::set_value(float v) {
-    if (min_enabled && v < min_value) {
-        internal_value = min_value;
-    } else if (max_enabled && v > max_value) {
-        internal_value = max_value;
-    } else {
-        internal_value = v;
+    if (v != internal_value) {
+        if (min_enabled && v < min_value) {
+            internal_value = min_value;
+        } else if (max_enabled && v > max_value) {
+            internal_value = max_value;
+        } else {
+            internal_value = v;
+        }
+        setText(QString::number(v));
+        emit valueChanged();
     }
-    setText(QString::number(v));
-    emit valueChanged();
 }
 
 float LabelSlider::value() {
@@ -70,6 +73,8 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent *ev) {
         drag_start = false;
         if (drag_proc) {
             drag_proc = false;
+        } else {
+            set_value(QInputDialog::getDouble(this, "Set Value", "New value:", internal_value));
         }
     }
 }

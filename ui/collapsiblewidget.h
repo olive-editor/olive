@@ -9,6 +9,17 @@ class QVBoxLayout;
 class QPushButton;
 class QFrame;
 
+class CollapsibleWidgetHeader : public QWidget {
+    Q_OBJECT
+public:
+    CollapsibleWidgetHeader(QWidget* parent = 0);
+    bool selected = false;
+protected:
+    void mousePressEvent(QMouseEvent* event);
+signals:
+    void select(bool, bool);
+};
+
 class CollapsibleWidget : public QWidget
 {
 	Q_OBJECT
@@ -16,19 +27,27 @@ public:
 	CollapsibleWidget(QWidget* parent = 0);
 	void setContents(QWidget* c);
 	void setText(const QString &);
+    bool is_focused();
 
     QCheckBox* enabled_check;
+    bool selected;
 private:
 	QLabel* header;
-	QHBoxLayout* title_bar;
+    CollapsibleWidgetHeader* title_bar;
 	QVBoxLayout* layout;
 	QPushButton* collapse_button;
 	QWidget* contents;
 	QFrame* line;
 
+signals:
+    void deselect_others(QWidget*);
+
 private slots:
 	void on_enabled_change(bool b);
 	void on_visible_change();
+
+public slots:
+    void header_click(bool s, bool deselect);
 };
 
 #endif // COLLAPSIBLEWIDGET_H

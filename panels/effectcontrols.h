@@ -20,6 +20,8 @@ public:
 	// void set_clip(Clip* c);
 	void set_clips(QVector<Clip*>& clips);
 	void clear_effects();
+    void delete_clips();
+    bool is_focused();
 
 private slots:
     void menu_select(QAction* q);
@@ -27,6 +29,8 @@ private slots:
     void on_add_video_effect_button_clicked();
 
     void on_add_audio_effect_button_clicked();
+
+    void deselect_all_effects(QWidget*);
 
 private:
     Ui::EffectControls *ui;
