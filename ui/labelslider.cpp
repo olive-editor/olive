@@ -24,7 +24,7 @@ void LabelSlider::set_value(float v) {
         } else {
             internal_value = v;
         }
-        setText(QString::number(v));
+        setText(QString::number(internal_value));
         emit valueChanged();
     }
 }

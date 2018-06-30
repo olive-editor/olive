@@ -79,7 +79,7 @@ void ViewerWidget::paintGL()
 
                 bool added = false;
                 for (int j=0;j<current_clips.size();j++) {
-                    if (current_clips.at(j)->track > c->track) {
+                    if (current_clips.at(j)->track < c->track) {
                         current_clips.insert(j, c);
                         added = true;
                         break;
