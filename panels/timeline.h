@@ -121,6 +121,7 @@ public:
 
 	// selecting functions
 	bool selecting;
+    int selection_offset;
 	QVector<Selection> selections;
     bool is_clip_selected(Clip* clip);
 	void delete_selection(bool ripple);

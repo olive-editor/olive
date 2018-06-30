@@ -61,14 +61,42 @@ void ViewerWidget::paintGL()
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    long playhead = panel_timeline->playhead;
+    current_clips.clear();
 
-    handle_media(sequence, playhead, multithreaded);
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+
+        // if clip starts within one second and/or hasn't finished yet
+        if (c != NULL) {
+            if (is_clip_active(c, panel_timeline->playhead)) {
+                // if thread is already working, we don't want to touch this,
+                // but we also don't want to hang the UI thread
+                if (!c->open) {
+                    if (c->open_lock.tryLock()) {
+                        open_clip(c, multithreaded);
+                    }
+                }
+
+                bool added = false;
+                for (int j=0;j<current_clips.size();j++) {
+                    if (current_clips.at(j)->track > c->track) {
+                        current_clips.insert(j, c);
+                        added = true;
+                        break;
+                    }
+                }
+                if (!added) {
+                    current_clips.append(c);
+                }
+            } else if (c->open) {
+                close_clip(c);
+            }
+        }
+    }
+
     texture_failed = false;
 
     bool render_audio = (panel_timeline->playing || force_audio);
-
-    cc_lock.lock();
 
     for (int i=0;i<current_clips.size();i++) {
         Clip* c = current_clips.at(i);
@@ -76,15 +104,15 @@ void ViewerWidget::paintGL()
         if (!c->finished_opening) {
             qDebug() << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
-        } else if (is_clip_active(c, playhead)) {
+        } else if (is_clip_active(c, panel_timeline->playhead)) {
             if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                 // start preparing cache
-                get_clip_frame(c, playhead);
+                get_clip_frame(c, panel_timeline->playhead);
 
                 if (c->texture == NULL) {
                     qDebug() << "[WARNING] Texture hasn't been created yet";
                     texture_failed = true;
-                } else if (playhead >= c->timeline_in) {
+                } else if (panel_timeline->playhead >= c->timeline_in) {
                     glLoadIdentity();
                     int half_width = c->sequence->width/2;
                     int half_height = c->sequence->height/2;
@@ -119,7 +147,7 @@ void ViewerWidget::paintGL()
                        c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
                        c->lock.tryLock()) {
                 // clip is not caching, start caching audio
-                cache_clip(c, playhead, false, false, c->reset_audio);
+                cache_clip(c, panel_timeline->playhead, false, false, c->reset_audio);
                 c->lock.unlock();
             }
         }
@@ -142,8 +170,6 @@ void ViewerWidget::paintGL()
     /*QPainter p(this);
     p.drawText({0, 0, 200, 200}, "text!");
     p.end();*/
-
-    cc_lock.unlock();
 
     if (texture_failed) {
         if (multithreaded) {

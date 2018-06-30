@@ -198,23 +198,21 @@ bool Timeline::focused() {
 }
 
 void Timeline::undo() {
-    qDebug() << "[INFO] Undo/redo was so buggy, it's not been disabled. Sorry for any inconvenience";
-//    if (sequence != NULL) {
-//        current_clips.clear();
-//        panel_effect_controls->set_clip(NULL);
-//        sequence->undo();
-//        redraw_all_clips(false);
-//    }
+//    qDebug() << "[INFO] Undo/redo was so buggy, it's been disabled. Sorry for any inconvenience";
+    if (sequence != NULL) {
+        panel_effect_controls->clear_effects();
+        sequence->undo();
+        redraw_all_clips(false);
+    }
 }
 
 void Timeline::redo() {
-    qDebug() << "[INFO] Undo/redo was so buggy, it's not been disabled. Sorry for any inconvenience";
-//    if (sequence != NULL) {
-//        current_clips.clear();
-//        panel_effect_controls->set_clip(NULL);
-//        sequence->redo();
-//        redraw_all_clips(false);
-//    }
+//    qDebug() << "[INFO] Undo/redo was so buggy, it's been disabled. Sorry for any inconvenience";
+    if (sequence != NULL) {
+        panel_effect_controls->clear_effects();
+        sequence->redo();
+        redraw_all_clips(false);
+    }
 }
 
 QString frame_to_timecode(long f) {
@@ -256,6 +254,7 @@ void Timeline::redraw_all_clips(bool changed) {
             project_changed = true;
             if (!playing) reset_all_audio();
             panel_viewer->viewer_widget->update();
+            sequence->undo_add_current();
         }
 
         ui->video_area->redraw_clips();

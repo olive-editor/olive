@@ -6,6 +6,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
 #include <QTimer>
+struct Clip;
 
 class Viewer;
 
@@ -25,6 +26,7 @@ protected:
     void paintGL();
 private:
 	QTimer retry_timer;
+    QVector<Clip*> current_clips;
 private slots:
 	void retry();
 };

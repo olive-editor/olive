@@ -6,6 +6,7 @@
 
 Sequence::Sequence() {
     undo_pointer = -1;
+    undo_add_current();
 }
 
 Sequence::~Sequence() {
@@ -95,52 +96,60 @@ Clip* Sequence::split_clip(Clip* pre, long frame) {
 }
 
 void Sequence::undo_add_current() {
-//    if (undo_stack.size() == UNDO_LIMIT) {
-//        delete undo_stack.at(0);
-//        undo_stack.removeFirst();
-//    } else {
-//        undo_pointer++;
-//        while (undo_stack.size() > undo_pointer+1) {
-//            delete undo_stack.last();
-//            undo_stack.removeLast();
-//        }
-//    }
+    if (undo_stack.size() == UNDO_LIMIT) {
+        delete undo_stack.at(0);
+        undo_stack.removeFirst();
+    } else {
+        undo_pointer++;
+        while (undo_stack.size() > undo_pointer+1) {
+            delete undo_stack.last();
+            undo_stack.removeLast();
+        }
+    }
 
-//    // copy clips
-//    QVector<Clip*>* copied_clips = new QVector<Clip*>();
-//    for (int i=0;i<clip_count();i++) {
-//        copied_clips->append(get_clip(i)->copy());
-//    }
-//    undo_stack.append(copied_clips);
+    // copy clips
+    QVector<Clip*>* copied_clips = new QVector<Clip*>();
+    for (int i=0;i<clip_count();i++) {
+        Clip* original = get_clip(i);
+        Clip* copy = original->copy();
+        copy->linked = original->linked;
+        copied_clips->append(copy);
+    }
+    undo_stack.append(copied_clips);
 }
 
-void Sequence::set_undo(int i) {
-//    for (int i=0;i<clip_count();i++) {
-//        delete clips.at(i);
-//    }
-//    clips.clear();
+void Sequence::set_undo() {
+    qDebug() << "[INFO] Setting undo pointer to" << undo_pointer;
 
-//    QVector<Clip*>* copy_from_list = undo_stack.at(undo_pointer);
-//    for (int i=0;i<copy_from_list->size();i++) {
-//        add_clip(copy_from_list->at(i)->copy());
-//    }
+    for (int i=0;i<clip_count();i++) {
+        delete clips.at(i);
+    }
+    clips.clear();
+
+    QVector<Clip*>* copy_from_list = undo_stack.at(undo_pointer);
+    for (int i=0;i<copy_from_list->size();i++) {
+        Clip* original = copy_from_list->at(i);
+        Clip* copy = original->copy();
+        copy->linked = original->linked;
+        add_clip(copy);
+    }
 }
 
 void Sequence::undo() {
-//    if (undo_pointer > 0) {
-//        undo_pointer--;
-//        set_undo(undo_pointer);
-//    } else {
-//        qDebug() << "[INFO] No more undos";
-//    }
+    if (undo_pointer > 0) {
+        undo_pointer--;
+        set_undo();
+    } else {
+        qDebug() << "[INFO] No more undos";
+    }
 }
 void Sequence::redo() {
-//    if (undo_pointer == undo_stack.size() - 1) {
-//        qDebug() << "[INFO] No more redos";
-//    } else {
-//        undo_pointer++;
-//        set_undo(undo_pointer);
-//    }
+    if (undo_pointer == undo_stack.size() - 1) {
+        qDebug() << "[INFO] No more redos";
+    } else {
+        undo_pointer++;
+        set_undo();
+    }
 }
 
 // static variable for the currently active sequence

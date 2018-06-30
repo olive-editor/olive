@@ -231,6 +231,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
             break;
         case TIMELINE_TOOL_EDIT:
             if (panel_timeline->edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
+            if ((event->modifiers() & Qt::ShiftModifier)) {
+                panel_timeline->selection_offset = panel_timeline->selections.size();
+            } else {
+                panel_timeline->selection_offset = 0;
+            }
             panel_timeline->selecting = true;
             break;
         case TIMELINE_TOOL_RAZOR:
@@ -249,6 +254,8 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 
 void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
+        bool repaint = false;
+
         if (panel_timeline->moving_proc) {
             if (event->modifiers() & Qt::AltModifier) { // if holding alt, duplicate rather than move
                 // duplicate clips
@@ -340,6 +347,37 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             }
 
             panel_timeline->redraw_all_clips(true);
+        } else if (panel_timeline->selecting) {
+            // remove duplicate selections
+            for (int i=0;i<panel_timeline->selections.size();i++) {
+                Selection& s = panel_timeline->selections[i];
+                for (int j=0;j<panel_timeline->selections.size();j++) {
+                    if (i != j) {
+                        Selection& ss = panel_timeline->selections[j];
+                        if (s.track == ss.track) {
+                            bool remove = false;
+                            if (s.in < ss.in && s.out > ss.out) {
+                                // do nothing
+                            } else if (s.in >= ss.in && s.out <= ss.out) {
+                                remove = true;
+                            } else if (s.in <= ss.out && s.out > ss.out) {
+                                ss.out = s.out;
+                                remove = true;
+                            } else if (s.out >= ss.in && s.in < ss.in) {
+                                ss.in = s.in;
+                                remove = true;
+                            }
+                            if (remove) {
+                                panel_timeline->selections.removeAt(i);
+                                i--;
+                                repaint = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         // destroy all ghosts
@@ -353,10 +391,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         pre_clips.clear();
         post_clips.clear();
 
-//        panel_timeline->repaint_timeline();
+        if (repaint) panel_timeline->repaint_timeline();
 
         // SEND CLIPS TO EFFECT CONTROLS
         // find out how many clips are selected
+        // limits to one video clip and one audio clip and only if they're linked
+        // one of these days it might be nice to have multiple clips in the effects panel
         bool got_vclip = false;
         bool got_aclip = false;
         Clip* vclip = NULL;
@@ -632,7 +672,6 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 
                 // prevent slip moving clip beyond media length
                 validator += g.ghost_length;
-                qDebug() << "validator:" << validator;
                 if (validator > g.media_length) frame_diff += validator - g.media_length;
             }
         }
@@ -654,18 +693,18 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         panel_timeline->snap_to_clip(&panel_timeline->cursor_frame, !panel_timeline->edit_tool_also_seeks || !panel_timeline->selecting);
     }
     if (panel_timeline->selecting) {
-        int selection_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
+        int selection_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start) + panel_timeline->selection_offset;
 		if (panel_timeline->selections.size() != selection_count) {
 			panel_timeline->selections.resize(selection_count);
 		}
         int minimum_selection_track = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
-		for (int i=0;i<selection_count;i++) {
-			Selection* s = &panel_timeline->selections[i];
-			s->track = minimum_selection_track + i;
+        for (int i=panel_timeline->selection_offset;i<selection_count;i++) {
+            Selection& s = panel_timeline->selections[i];
+            s.track = minimum_selection_track + i - panel_timeline->selection_offset;
 			long in = panel_timeline->drag_frame_start;
             long out = panel_timeline->cursor_frame;
-			s->in = qMin(in, out);
-			s->out = qMax(in, out);
+            s.in = qMin(in, out);
+            s.out = qMax(in, out);
 		}
         if (panel_timeline->edit_tool_also_seeks) {
             panel_timeline->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));

@@ -9,9 +9,6 @@ struct ClipCache;
 struct Sequence;
 struct AVFrame;
 
-extern QList<Clip*> current_clips;
-extern QMutex cc_lock;
-
 extern bool texture_failed;
 
 void open_clip(Clip* clip, bool multithreaded);

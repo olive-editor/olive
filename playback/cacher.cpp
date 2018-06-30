@@ -326,7 +326,6 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 }
 
 void close_clip_worker(Clip* clip) {
-    cc_lock.lock();
 	// closes ffmpeg file handle and frees any memory used for caching
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		sws_freeContext(clip->sws_ctx);
@@ -345,19 +344,7 @@ void close_clip_worker(Clip* clip) {
 	delete [] clip->cache_A.frames;
 	if (!clip->media_stream->infinite_length) delete [] clip->cache_B.frames;
 
-	av_frame_free(&clip->frame);
-
-	// remove clip from current_clips
-	bool found = false;
-	for (int i=0;i<current_clips.count();i++) {
-		if (current_clips[i] == clip) {
-            current_clips.removeAt(i);
-			found = true;
-			i = current_clips.count();
-		}
-	}
-	cc_lock.unlock();
-	if (!found) qDebug() << "[WARNING] Could not remove clip from current clips";
+    av_frame_free(&clip->frame);
 
     clip->reset();
 

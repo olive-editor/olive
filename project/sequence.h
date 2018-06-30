@@ -31,7 +31,7 @@ public:
 private:
     QVector<Clip*> clips;
 
-    void set_undo(int i);
+    void set_undo();
     QVector<QVector<Clip*>*> undo_stack;
     int undo_pointer;
     int undo_stack_start;
