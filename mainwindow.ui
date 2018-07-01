@@ -94,6 +94,10 @@
     <addaction name="actionZoom_out"/>
     <addaction name="actionIncrease_Track_Height"/>
     <addaction name="actionDecrease_Track_Height"/>
+    <addaction name="separator"/>
+    <addaction name="actionFrames"/>
+    <addaction name="actionDrop_Frame"/>
+    <addaction name="actionNon_Drop_Frame"/>
    </widget>
    <widget class="QMenu" name="menuPlayback">
     <property name="title">
@@ -490,6 +494,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionFrames">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Frames</string>
+   </property>
+  </action>
+  <action name="actionDrop_Frame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Drop-Frame</string>
+   </property>
+  </action>
+  <action name="actionNon_Drop_Frame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Non-Drop Frame</string>
    </property>
   </action>
  </widget>

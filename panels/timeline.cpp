@@ -215,25 +215,6 @@ void Timeline::redo() {
     }
 }
 
-QString frame_to_timecode(long f) {
-    int hours = 0;
-    int mins = 0;
-    int secs = 0;
-    int frames = 0;
-    if (sequence != NULL) {
-        int int_fps = qRound(sequence->frame_rate);
-        hours = f/ (3600 * int_fps);
-        mins = f / (60*int_fps) % 60;
-        secs = f/int_fps % 60;
-        frames = f%int_fps;
-    }
-    return QString(QString::number(hours).rightJustified(2, '0') +
-                   ":" + QString::number(mins).rightJustified(2, '0') +
-                   ":" + QString::number(secs).rightJustified(2, '0') +
-                   ":" + QString::number(frames).rightJustified(2, '0')
-                );
-}
-
 void Timeline::repaint_timeline() {
     if (playing) {
         playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
@@ -245,7 +226,7 @@ void Timeline::repaint_timeline() {
 		panel_viewer->viewer_widget->update();
 		last_frame = playhead;
 	}
-    panel_viewer->ui->currentTimecode->setText(frame_to_timecode(playhead));
+    panel_viewer->update_playhead_timecode();
 }
 
 void Timeline::redraw_all_clips(bool changed) {
@@ -261,7 +242,7 @@ void Timeline::redraw_all_clips(bool changed) {
         ui->audio_area->redraw_clips();
         ui->headers->update();
 
-        panel_viewer->ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame()));
+        panel_viewer->update_end_timecode();
     }
 }
 

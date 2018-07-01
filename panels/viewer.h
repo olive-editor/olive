@@ -1,6 +1,10 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#define TIMECODE_DROP 0
+#define TIMECODE_NONDROP 1
+#define TIMECODE_FRAMES 2
+
 #include <QDockWidget>
 
 class Timeline;
@@ -10,6 +14,8 @@ struct Sequence;
 namespace Ui {
 class Viewer;
 }
+
+bool frame_rate_is_droppable(float rate);
 
 class Viewer : public QDockWidget
 {
@@ -21,6 +27,9 @@ public:
     void update_sequence();
 	void compose();
     void set_playpause_icon(bool play);
+    int timecode_view;
+    void update_playhead_timecode();
+    void update_end_timecode();
 
 	ViewerWidget* viewer_widget;
 
@@ -36,8 +45,8 @@ private slots:
 
     void on_pushButton_3_clicked();
 
-private:
-
+private:    
+    QString frame_to_timecode(long f);
 };
 
 #endif // VIEWER_H

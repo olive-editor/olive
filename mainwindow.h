@@ -117,6 +117,14 @@ private slots:
 
     void windowMenu_About_To_Be_Shown();
 
+    void on_actionFrames_triggered();
+
+    void on_actionDrop_Frame_triggered();
+
+    void on_actionNon_Drop_Frame_triggered();
+
+    void viewMenu_About_To_Be_Shown();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

@@ -3,6 +3,8 @@
 
 #include "io/config.h"
 
+#include "project/sequence.h"
+
 #include "panels/panels.h"
 #include "panels/project.h"
 #include "panels/effectcontrols.h"
@@ -85,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	setup_layout();
 
     connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
+    connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
 
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty()) {
@@ -453,4 +456,38 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
     ui->actionEffect_Controls->setChecked(panel_effect_controls->isVisible());
     ui->actionTimeline->setChecked(panel_timeline->isVisible());
     ui->actionViewer->setChecked(panel_viewer->isVisible());
+}
+
+void MainWindow::viewMenu_About_To_Be_Shown() {
+    ui->actionFrames->setChecked(panel_viewer->timecode_view == TIMECODE_FRAMES);
+    ui->actionDrop_Frame->setChecked(panel_viewer->timecode_view == TIMECODE_DROP);
+    if (sequence != NULL) ui->actionDrop_Frame->setEnabled(frame_rate_is_droppable(sequence->frame_rate));
+    ui->actionNon_Drop_Frame->setChecked(panel_viewer->timecode_view == TIMECODE_NONDROP);
+}
+
+void MainWindow::on_actionFrames_triggered()
+{
+    panel_viewer->timecode_view = TIMECODE_FRAMES;
+    if (sequence != NULL) {
+        panel_viewer->update_playhead_timecode();
+        panel_viewer->update_end_timecode();
+    }
+}
+
+void MainWindow::on_actionDrop_Frame_triggered()
+{
+    panel_viewer->timecode_view = TIMECODE_DROP;
+    if (sequence != NULL) {
+        panel_viewer->update_playhead_timecode();
+        panel_viewer->update_end_timecode();
+    }
+}
+
+void MainWindow::on_actionNon_Drop_Frame_triggered()
+{
+    panel_viewer->timecode_view = TIMECODE_NONDROP;
+    if (sequence != NULL) {
+        panel_viewer->update_playhead_timecode();
+        panel_viewer->update_end_timecode();
+    }
 }
