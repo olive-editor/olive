@@ -9,6 +9,7 @@
 
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include <QDebug>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     sortByColumn(0, Qt::AscendingOrder);
@@ -51,6 +52,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
         if (!urls.isEmpty()) {
             QStringList paths;
             for (int i=0;i<urls.size();i++) {
+                qDebug() << urls.at(i).toLocalFile();
                 paths.append(urls.at(i).toLocalFile());
             }
             panel_project->process_file_list(paths);

@@ -174,6 +174,9 @@ void Project::process_file_list(QStringList& files) {
 
         // heuristic to determine whether file is part of an image sequence
         int lastcharindex = file.lastIndexOf(".")-1;
+        if (lastcharindex == -2) {
+            lastcharindex = file.length() - 1;
+        }
         if (file[lastcharindex].isDigit()) {
             bool is_img_sequence = false;
             QString sequence_test(file);

@@ -77,6 +77,7 @@ void EffectControls::clear_effects() {
     }
     ui->vcontainer->setVisible(false);
     ui->acontainer->setVisible(false);
+    selected_clips.clear();
 }
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
@@ -163,10 +164,14 @@ bool EffectControls::is_focused() {
     if (this->hasFocus()) return true;
     for (int i=0;i<selected_clips.size();i++) {
         Clip* c = selected_clips.at(i);
-        for (int j=0;j<c->effects.size();j++) {
-            if (c->effects.at(j)->container->is_focused()) {
-                return true;
+        if (c != NULL) {
+            for (int j=0;j<c->effects.size();j++) {
+                if (c->effects.at(j)->container->is_focused()) {
+                    return true;
+                }
             }
+        } else {
+            qDebug() << "[WARNING] Tried to check focus of a NULL clip";
         }
     }
     return false;
