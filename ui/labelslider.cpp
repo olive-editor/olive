@@ -11,6 +11,7 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent)
     max_enabled = false;
     setStyleSheet("QLabel{color:#ffc000;text-decoration:underline;}QLabel:disabled{color:#808080;}");
     setCursor(Qt::SizeHorCursor);
+    internal_value = -1;
     set_value(0);
     set_default_value(0);
 }
