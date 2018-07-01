@@ -349,35 +349,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             panel_timeline->redraw_all_clips(true);
         } else if (panel_timeline->selecting) {
             // remove duplicate selections
-            for (int i=0;i<panel_timeline->selections.size();i++) {
-                Selection& s = panel_timeline->selections[i];
-                for (int j=0;j<panel_timeline->selections.size();j++) {
-                    if (i != j) {
-                        Selection& ss = panel_timeline->selections[j];
-                        if (s.track == ss.track) {
-                            bool remove = false;
-                            if (s.in < ss.in && s.out > ss.out) {
-                                // do nothing
-                            } else if (s.in >= ss.in && s.out <= ss.out) {
-                                remove = true;
-                            } else if (s.in <= ss.out && s.out > ss.out) {
-                                ss.out = s.out;
-                                remove = true;
-                            } else if (s.out >= ss.in && s.in < ss.in) {
-                                ss.in = s.in;
-                                remove = true;
-                            }
-                            if (remove) {
-                                panel_timeline->selections.removeAt(i);
-                                i--;
-                                repaint = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
+            panel_timeline->clean_up_selections(panel_timeline->selections);
+            repaint = true;
         }
 
         // destroy all ghosts

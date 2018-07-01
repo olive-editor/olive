@@ -468,7 +468,39 @@ void Timeline::split_clip_and_relink(Clip* clip, long frame, bool relink) {
     }
 }
 
+void Timeline::clean_up_selections(QVector<Selection>& areas) {
+    for (int i=0;i<areas.size();i++) {
+        Selection& s = areas[i];
+        for (int j=0;j<areas.size();j++) {
+            if (i != j) {
+                Selection& ss = areas[j];
+                if (s.track == ss.track) {
+                    bool remove = false;
+                    if (s.in < ss.in && s.out > ss.out) {
+                        // do nothing
+                    } else if (s.in >= ss.in && s.out <= ss.out) {
+                        remove = true;
+                    } else if (s.in <= ss.out && s.out > ss.out) {
+                        ss.out = s.out;
+                        remove = true;
+                    } else if (s.out >= ss.in && s.in < ss.in) {
+                        ss.in = s.in;
+                        remove = true;
+                    }
+                    if (remove) {
+                        areas.removeAt(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Timeline::delete_areas_and_relink(QVector<Selection>& areas) {
+    clean_up_selections(areas);
+
     QVector<Clip*> pre_clips;
     QVector<Clip*> post_clips;
 

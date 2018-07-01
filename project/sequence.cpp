@@ -111,9 +111,11 @@ void Sequence::undo_add_current() {
     QVector<Clip*>* copied_clips = new QVector<Clip*>();
     for (int i=0;i<clip_count();i++) {
         Clip* original = get_clip(i);
-        Clip* copy = original->copy();
-        copy->linked = original->linked;
-        copied_clips->append(copy);
+        if (original != NULL) {
+            Clip* copy = original->copy();
+            copy->linked = original->linked;
+            copied_clips->append(copy);
+        }
     }
     undo_stack.append(copied_clips);
 }
