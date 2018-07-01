@@ -18,6 +18,8 @@
 #include <QDebug>
 #include <QCharRef>
 #include <QMessageBox>
+#include <QDropEvent>
+#include <QMimeData>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -33,7 +35,7 @@ Project::Project(QWidget *parent) :
 	QDockWidget(parent),
 	ui(new Ui::Project)
 {
-	ui->setupUi(this);
+    ui->setupUi(this);
 }
 
 Project::~Project()
@@ -166,44 +168,48 @@ Media* Project::import_file(QString file) {
     return m;
 }
 
-void Project::import_dialog() {
-	QStringList files = QFileDialog::getOpenFileNames(this, "Import media...", "", "All Files (*.*)");
-	for (int i=0;i<files.count();i++) {
-		QString file(files.at(i));
+void Project::process_file_list(QStringList& files) {
+    for (int i=0;i<files.count();i++) {
+        QString file(files.at(i));
 
-		// heuristic to determine whether file is part of an image sequence
-		int lastcharindex = file.lastIndexOf(".")-1;
-		if (file[lastcharindex].isDigit()) {
-			bool is_img_sequence = false;
-			QString sequence_test(file);
-			char lastchar = sequence_test.at(lastcharindex).toLatin1();
+        // heuristic to determine whether file is part of an image sequence
+        int lastcharindex = file.lastIndexOf(".")-1;
+        if (file[lastcharindex].isDigit()) {
+            bool is_img_sequence = false;
+            QString sequence_test(file);
+            char lastchar = sequence_test.at(lastcharindex).toLatin1();
 
-			sequence_test[lastcharindex] = lastchar + 1;
-			if (QFileInfo::exists(sequence_test)) is_img_sequence = true;
+            sequence_test[lastcharindex] = lastchar + 1;
+            if (QFileInfo::exists(sequence_test)) is_img_sequence = true;
 
-			sequence_test[lastcharindex] = lastchar - 1;
-			if (QFileInfo::exists(sequence_test)) is_img_sequence = true;
+            sequence_test[lastcharindex] = lastchar - 1;
+            if (QFileInfo::exists(sequence_test)) is_img_sequence = true;
 
-			if (is_img_sequence &&
-					QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-				// change url to an image sequence instead
-				int digit_count = 0;
-				QString ext = file.mid(lastcharindex+1);
-				while (file[lastcharindex].isDigit()) {
-					digit_count++;
-					lastcharindex--;
-				}
-				QString new_filename = file.left(lastcharindex+1) + "%";
-				if (digit_count < 10) {
-					new_filename += "0";
-				}
-				new_filename += QString::number(digit_count) + "d" + ext;
-				file = new_filename;
-			}
-		}
+            if (is_img_sequence &&
+                    QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+                // change url to an image sequence instead
+                int digit_count = 0;
+                QString ext = file.mid(lastcharindex+1);
+                while (file[lastcharindex].isDigit()) {
+                    digit_count++;
+                    lastcharindex--;
+                }
+                QString new_filename = file.left(lastcharindex+1) + "%";
+                if (digit_count < 10) {
+                    new_filename += "0";
+                }
+                new_filename += QString::number(digit_count) + "d" + ext;
+                file = new_filename;
+            }
+        }
 
         import_file(file);
-	}
+    }
+}
+
+void Project::import_dialog() {
+	QStringList files = QFileDialog::getOpenFileNames(this, "Import media...", "", "All Files (*.*)");
+    process_file_list(files);
 }
 
 Media* Project::get_media_from_tree(QTreeWidgetItem* item) {

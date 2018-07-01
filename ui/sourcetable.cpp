@@ -8,9 +8,11 @@
 #include "playback/playback.h"
 
 #include <QDragEnterEvent>
+#include <QMimeData>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
-	this->sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(0, Qt::AscendingOrder);
+    setAcceptDrops(true);
 }
 
 void SourceTable::mouseDoubleClickEvent(QMouseEvent* )
@@ -25,6 +27,35 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* )
 	}
 }
 
-//void SourceTable::dragEnterEvent(QDragEnterEvent *event) {
-//	event->accept();
-//}
+void SourceTable::dragEnterEvent(QDragEnterEvent *event) {
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    } else {
+        QTreeWidget::dragEnterEvent(event);
+    }
+}
+
+void SourceTable::dragMoveEvent(QDragMoveEvent *event) {
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    } else {
+        QTreeWidget::dragMoveEvent(event);
+    }
+}
+
+void SourceTable::dropEvent(QDropEvent* event) {
+    const QMimeData* mimeData = event->mimeData();
+
+    if (mimeData->hasUrls()) {
+        QList<QUrl> urls = mimeData->urls();
+        if (!urls.isEmpty()) {
+            QStringList paths;
+            for (int i=0;i<urls.size();i++) {
+                paths.append(urls.at(i).toLocalFile());
+            }
+            panel_project->process_file_list(paths);
+        }
+        event->acceptProposedAction();
+    }
+    QTreeWidget::dropEvent(event);
+}

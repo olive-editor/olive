@@ -1033,7 +1033,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 }
 
 bool TimelineWidget::is_track_visible(int track) {
-	return ((bottom_align && track < 0) || (!bottom_align && track >= 0));
+    return (bottom_align == (track < 0));
 }
 
 // **************************************

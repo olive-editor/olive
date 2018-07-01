@@ -11,7 +11,9 @@ public:
 	SourceTable(QWidget* parent = 0);
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
-//	void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dropEvent(QDropEvent *event);
 private:
 };
 

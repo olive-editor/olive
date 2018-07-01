@@ -31,6 +31,7 @@ public:
 	void new_sequence(Sequence* s);
 	QString get_next_sequence_name();
     void remove_item(int i);
+    void process_file_list(QStringList& files);
 
     void new_project();
     void load_project();
@@ -40,7 +41,6 @@ public:
     void set_media_of_tree(QTreeWidgetItem* item, Media* media);
 
 	SourceTable* source_table;
-
 private:
 	Ui::Project *ui;
 };
