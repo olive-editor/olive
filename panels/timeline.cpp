@@ -433,10 +433,12 @@ void Timeline::split_clip_and_relink(Clip* clip, long frame, bool relink) {
 
     // if alt is not down, split clips links too
     if (relink) {
+        bool original_clip_is_selected = is_clip_selected(clip);
+
         // find linked clips of old clip
         for (int i=0;i<clip->linked.size();i++) {
             Clip* link = sequence->get_clip(clip->linked.at(i));
-            if (!panel_timeline->is_clip_selected(link)) {
+            if (original_clip_is_selected != !is_clip_selected(link)) {
                 Clip* s = sequence->split_clip(link, frame);
                 if (s != NULL) {
                     pre_clips.append(link);

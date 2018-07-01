@@ -242,7 +242,9 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
         {
             if (clip_index >= 0) {
                 Clip* clip = sequence->get_clip(clip_index);
-                if (clip != NULL) panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
+                if (clip != NULL) {
+                    panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
+                }
             }
             panel_timeline->splitting = true;
             panel_timeline->redraw_all_clips(true);
