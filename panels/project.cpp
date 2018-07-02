@@ -183,7 +183,8 @@ void Project::delete_selected_media() {
         Media* m = get_media_from_tree(items.at(i));
         if (!m->is_sequence && sequence != NULL) {
             for (int j=0;j<sequence->clip_count();j++) {
-                if (sequence->get_clip(j)->media == m) {
+                Clip* c = sequence->get_clip(j);
+                if (c != NULL && c->media == m) {
                     remove = false;
                     break;
                 }

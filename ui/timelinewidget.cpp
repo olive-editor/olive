@@ -672,6 +672,8 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 }
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
+    bool alt = (event->modifiers() & Qt::AltModifier);
+
     panel_timeline->cursor_frame = panel_timeline->getFrameFromScreenPoint(event->pos().x());
     panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
@@ -793,7 +795,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
             if (clip != NULL && clip->track == track) {
-                panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
+                panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !alt);
 				repaint = true;
 			}
 		}
@@ -828,8 +830,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                         !(clip->timeline_in > frame_max && clip->timeline_out > frame_max)) {
                     QVector<Clip*> session_clips;
                     session_clips.append(clip);
-                    for (int j=0;j<clip->linked.size();j++) {
-                        session_clips.append(sequence->get_clip(clip->linked.at(j)));
+
+                    if (!alt) {
+                        for (int j=0;j<clip->linked.size();j++) {
+                            session_clips.append(sequence->get_clip(clip->linked.at(j)));
+                        }
                     }
 
                     for (int j=0;j<session_clips.size();j++) {

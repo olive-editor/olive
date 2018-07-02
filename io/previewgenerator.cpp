@@ -67,7 +67,12 @@ void PreviewGenerator::run() {
                         if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read packet for preview generation";
                         break;
                     } else if (codec_ctx[packet.stream_index] != NULL) {
-                        avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
+                        int send_ret = avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
+                        if (send_ret < 0) {
+                            qDebug() << "[ERROR] Failed to send packet for preview generation - aborting";
+                            end_of_file = true;
+                            break;
+                        }
                     }
                 }
                 if (!end_of_file) {
@@ -103,6 +108,9 @@ void PreviewGenerator::run() {
                             s->preview_lock.unlock();
 
                             sws_freeContext(sws_ctx);
+
+                            avcodec_close(codec_ctx[packet.stream_index]);
+                            codec_ctx[packet.stream_index] = NULL;
                         } else if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                             int interval = qFloor((temp_frame->sample_rate/WAVEFORM_RESOLUTION)/4)*4;
 
@@ -175,7 +183,9 @@ void PreviewGenerator::run() {
             }
             av_frame_free(&temp_frame);
             for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
-                avcodec_close(codec_ctx[i]);
+                if (codec_ctx[i] != NULL) {
+                    avcodec_close(codec_ctx[i]);
+                }
             }
             delete [] codec_ctx;
         }
