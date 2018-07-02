@@ -25,12 +25,14 @@ class Project : public QDockWidget
 public:
 	explicit Project(QWidget *parent = 0);
 	~Project();
+    bool is_focused();
     void clear();
     Media* import_file(QString url);
     void import_dialog();
 	void new_sequence(Sequence* s);
 	QString get_next_sequence_name();
-    void remove_item(int i);
+    void delete_media(QTreeWidgetItem* item);
+    void delete_selected_media();
     void process_file_list(QStringList& files);
 
     void new_project();

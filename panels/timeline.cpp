@@ -22,10 +22,23 @@ Timeline::Timeline(QWidget *parent) :
 	QDockWidget(parent),
 	ui(new Ui::Timeline)
 {    
-    selecting = moving_init = moving_proc = splitting = importing = playing = trim_in = snapped = false;
+    selecting = false;
+    moving_init = false;
+    moving_proc = false;
+    splitting = false;
+    importing = false;
+    playing = false;
+    trim_in = false;
+    snapped = false;
+    rect_select_init = false;
+    rect_select_proc = false;
     edit_tool_also_seeks = false;
     snapping = true;
-    last_frame = playhead = snap_point = cursor_frame = cursor_track = 0;
+    last_frame = 0;
+    playhead = 0;
+    snap_point = 0;
+    cursor_frame = 0;
+    cursor_track = 0;
 	trim_target = -1;
 
 	ui->setupUi(this);
@@ -428,11 +441,13 @@ void Timeline::split_clip_and_relink(Clip* clip, long frame, bool relink) {
     QVector<Clip*> pre_clips;
     QVector<Clip*> post_clips;
 
-    pre_clips.append(clip);
-    post_clips.append(sequence->split_clip(clip, frame));
+    Clip* post = sequence->split_clip(clip, frame);
 
     // if alt is not down, split clips links too
-    if (relink) {
+    if (post != NULL && relink) {
+        pre_clips.append(clip);
+        post_clips.append(post);
+
         bool original_clip_is_selected = is_clip_selected(clip);
 
         // find linked clips of old clip

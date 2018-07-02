@@ -36,10 +36,10 @@ void MainWindow::setup_layout() {
     panel_viewer->show();
     panel_timeline->show();
 
-	addDockWidget(Qt::TopDockWidgetArea, panel_project);
-	addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
-	addDockWidget(Qt::TopDockWidgetArea, panel_viewer);
-	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+    addDockWidget(Qt::TopDockWidgetArea, panel_project);
+    addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
+    addDockWidget(Qt::TopDockWidgetArea, panel_viewer);
+    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -146,6 +146,8 @@ void MainWindow::on_actionDelete_triggered()
 		panel_timeline->delete_selection(false);
     } else if (panel_effect_controls->is_focused()) {
         panel_effect_controls->delete_clips();
+    } else if (panel_project->is_focused()) {
+        panel_project->delete_selected_media();
     }
 }
 

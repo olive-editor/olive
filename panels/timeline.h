@@ -127,6 +127,12 @@ public:
     bool is_clip_selected(Clip* clip);
 	void delete_selection(bool ripple);
 	void select_all();
+    bool rect_select_init;
+    bool rect_select_proc;
+    int rect_select_x;
+    int rect_select_y;
+    int rect_select_w;
+    int rect_select_h;
 
 	// moving
 	bool moving_init;

@@ -20,6 +20,7 @@
 #include <QMessageBox>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QPushButton>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -168,6 +169,66 @@ Media* Project::import_file(QString file) {
     return m;
 }
 
+bool Project::is_focused() {
+    return ui->treeWidget->hasFocus();
+}
+
+void Project::delete_selected_media() {
+    QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
+    bool remove = true;
+    bool redraw = false;
+
+    // check if media is in use
+    for (int i=0;i<items.size();i++) {
+        Media* m = get_media_from_tree(items.at(i));
+        if (!m->is_sequence && sequence != NULL) {
+            for (int j=0;j<sequence->clip_count();j++) {
+                if (sequence->get_clip(j)->media == m) {
+                    remove = false;
+                    break;
+                }
+            }
+            if (!remove) {
+                QMessageBox confirm(this);
+                confirm.setWindowTitle("Delete media in use?");
+                confirm.setText("The media '" + m->name + "' is currently used in the sequence. Deleting it will remove all instances in the sequence. Are you sure you want to do this?");
+                QAbstractButton* yes_button = confirm.addButton(QMessageBox::Yes);
+                QAbstractButton* skip_button = confirm.addButton("Skip", QMessageBox::NoRole);
+                QAbstractButton* abort_button = confirm.addButton(QMessageBox::Abort);
+                confirm.exec();
+                if (confirm.clickedButton() == yes_button) {
+                    // remove all clips referencing this media
+                    for (int j=0;j<sequence->clip_count();j++) {
+                        if (sequence->get_clip(j)->media == m) {
+                            sequence->delete_clip(j);
+                        }
+                    }
+                    remove = true;
+                    redraw = true;
+                } else if (confirm.clickedButton() == skip_button) {
+                    items.removeAt(i);
+                    i--;
+                    remove = true;
+                }
+            }
+        }
+    }
+
+    // remove
+    if (remove) {
+        for (int i=0;i<items.size();i++) {
+            QTreeWidgetItem* item = items.at(i);
+            delete_media(item);
+            delete item;
+        }
+    }
+
+    // redraw clips
+    if (redraw) {
+        panel_timeline->redraw_all_clips(true);
+    }
+}
+
 void Project::process_file_list(QStringList& files) {
     for (int i=0;i<files.count();i++) {
         QString file(files.at(i));
@@ -223,19 +284,23 @@ void Project::set_media_of_tree(QTreeWidgetItem* item, Media* media) {
     item->setData(0, Qt::UserRole + 1, QVariant::fromValue(reinterpret_cast<quintptr>(media)));
 }
 
-void Project::remove_item(int i) {
-    Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
+void Project::delete_media(QTreeWidgetItem* item) {
+    Media* m = get_media_from_tree(item);
     if (m->is_sequence) {
+        if (sequence == m->sequence) {
+            set_sequence(NULL);
+        }
         delete m->sequence;
     }
     delete m;
-    ui->treeWidget->takeTopLevelItem(i);
     project_changed = true;
 }
 
 void Project::clear() {
     while (ui->treeWidget->topLevelItemCount() > 0) {
-        remove_item(0);
+        QTreeWidgetItem* item = ui->treeWidget->topLevelItem(0);
+        delete_media(item);
+        delete item;
     }
 }
 
