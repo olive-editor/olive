@@ -101,6 +101,7 @@ public:
 	QTimer playback_updater;
 
 	// shared information
+    bool edit_tool_selects_links;
     bool edit_tool_also_seeks;
 	int tool;
     long cursor_frame;

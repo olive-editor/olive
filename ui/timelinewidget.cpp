@@ -707,6 +707,38 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             s.in = qMin(in, out);
             s.out = qMax(in, out);
 		}
+
+        // select linked clips too
+        if (panel_timeline->edit_tool_selects_links) {
+            for (int j=0;j<sequence->clip_count();j++) {
+                Clip* c = sequence->get_clip(j);
+                for (int i=0;i<panel_timeline->selections.size();i++) {
+                    const Selection& s = panel_timeline->selections.at(i);
+                    if (c->track == s.track &&
+                            !(c->timeline_in < s.in && c->timeline_out < s.in) &&
+                            !(c->timeline_in > s.out && c->timeline_out > s.out)) {
+                        for (int k=0;k<c->linked.size();k++) {
+                            Clip* link = sequence->get_clip(c->linked.at(k));
+                            bool found = false;
+                            for (int l=0;l<panel_timeline->selections.size();l++) {
+                                const Selection& test_sel = panel_timeline->selections.at(l);
+                                if (test_sel.track == link->track &&
+                                        test_sel.in == s.in &&
+                                        test_sel.out == s.out) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                Selection link_sel = {s.in, s.out, link->track};
+                                panel_timeline->selections.append(link_sel);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         if (panel_timeline->edit_tool_also_seeks) {
             panel_timeline->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
         } else {

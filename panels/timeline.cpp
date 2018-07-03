@@ -32,6 +32,7 @@ Timeline::Timeline(QWidget *parent) :
     snapped = false;
     rect_select_init = false;
     rect_select_proc = false;
+    edit_tool_selects_links = false;
     edit_tool_also_seeks = false;
     snapping = true;
     last_frame = 0;

@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
     connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
+    connect(ui->menu_Tools, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
 
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty()) {
@@ -434,11 +435,6 @@ void MainWindow::on_actionGo_to_Next_Cut_triggered()
     }
 }
 
-void MainWindow::on_actionEdit_Tool_Also_Seeks_triggered(bool checked)
-{
-    panel_timeline->edit_tool_also_seeks = checked;
-}
-
 void MainWindow::on_actionPreferences_triggered()
 {
     PreferencesDialog pd(this);
@@ -494,4 +490,17 @@ void MainWindow::on_actionNon_Drop_Frame_triggered()
         panel_viewer->update_playhead_timecode();
         panel_viewer->update_end_timecode();
     }
+}
+
+void MainWindow::toolMenu_About_To_Be_Shown() {
+    ui->actionEdit_Tool_Also_Seeks->setChecked(panel_timeline->edit_tool_also_seeks);
+    ui->actionEdit_Tool_Selects_Links->setChecked(panel_timeline->edit_tool_selects_links);
+}
+
+void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
+    panel_timeline->edit_tool_selects_links = !panel_timeline->edit_tool_selects_links;
+}
+
+void MainWindow::on_actionEdit_Tool_Also_Seeks_triggered() {
+    panel_timeline->edit_tool_also_seeks = !panel_timeline->edit_tool_also_seeks;
 }

@@ -107,8 +107,6 @@ private slots:
 
     void autorecover_interval();
 
-    void on_actionEdit_Tool_Also_Seeks_triggered(bool checked);
-
     void on_actionPreferences_triggered();
 
     void on_actionIncrease_Track_Height_triggered();
@@ -124,6 +122,12 @@ private slots:
     void on_actionNon_Drop_Frame_triggered();
 
     void viewMenu_About_To_Be_Shown();
+
+    void on_actionEdit_Tool_Selects_Links_triggered();
+
+    void on_actionEdit_Tool_Also_Seeks_triggered();
+
+    void toolMenu_About_To_Be_Shown();
 
 private:
 	Ui::MainWindow *ui;
