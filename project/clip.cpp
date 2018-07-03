@@ -12,7 +12,17 @@ extern "C" {
 }
 
 Clip::Clip() {
-	init();
+    reset();
+    enabled = true;
+    clip_in = 0;
+    timeline_in = 0;
+    timeline_out = 0;
+    track = 0;
+    undeletable = 0;
+    texture = NULL;
+    opening_transition = NULL;
+    closing_transition = NULL;
+    pkt = new AVPacket();
 }
 
 Clip* Clip::copy() {
@@ -37,18 +47,6 @@ Clip* Clip::copy() {
     }
 
     return copy;
-}
-
-void Clip::init() {
-	reset();
-    enabled = true;
-    clip_in = 0;
-    timeline_in = 0;
-    timeline_out = 0;
-    track = 0;
-    undeletable = 0;
-	texture = NULL;
-	pkt = new AVPacket();
 }
 
 void Clip::reset() {
@@ -86,6 +84,9 @@ Clip::~Clip() {
     // make sure clip has closed before clip is destroyed
     open_lock.lock();
 	open_lock.unlock();
+
+    if (opening_transition != NULL) delete opening_transition;
+    if (closing_transition != NULL) delete closing_transition;
 
     for (int i=0;i<effects.size();i++) {
         delete effects.at(i);

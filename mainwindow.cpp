@@ -76,7 +76,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Olive (June 2018 | Pre-Alpha)");
     statusBar()->showMessage("Welcome to Olive");
 
-    setCentralWidget(NULL);
+    ui->centralWidget->setMaximumSize(0, 0);
+    setDockNestingEnabled(true);
+
 
     // TODO maybe replace these with non-pointers later on?
     panel_project = new Project(this);

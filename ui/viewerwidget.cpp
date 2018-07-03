@@ -5,6 +5,7 @@
 #include "panels/timeline.h"
 #include "project/sequence.h"
 #include "project/effect.h"
+#include "effects/transition.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "io/media.h"
@@ -58,8 +59,8 @@ void ViewerWidget::paintGL()
     if (multithreaded) retry_timer.stop();
 
     glClear(GL_COLOR_BUFFER_BIT);
-
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
 
     current_clips.clear();
 
@@ -123,6 +124,19 @@ void ViewerWidget::paintGL()
                     // perform all transform effects
                     for (int j=0;j<c->effects.size();j++) {
                         c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
+                    }
+
+                    if (c->opening_transition != NULL) {
+                        int transition_progress = panel_timeline->playhead-c->timeline_in;
+                        if (transition_progress < c->opening_transition->length) {
+                            c->opening_transition->process_transition((float)transition_progress/(float)c->opening_transition->length);
+                        }
+                    }
+                    if (c->closing_transition != NULL) {
+                        int transition_progress = c->closing_transition->length-(panel_timeline->playhead-c->timeline_in-c->getLength()+c->closing_transition->length);
+                        if (transition_progress < c->closing_transition->length) {
+                            c->closing_transition->process_transition((float)transition_progress/(float)c->closing_transition->length);
+                        }
                     }
 
                     int anchor_right = c->media_stream->video_width - anchor_x;

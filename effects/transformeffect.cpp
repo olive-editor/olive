@@ -205,5 +205,7 @@ void TransformEffect::process_gl(int* anchor_x, int* anchor_y) {
     }
 
 	// opacity
-	glColor4f(1.0, 1.0, 1.0, opacity->value()*0.01);
+    float color[4];
+    glGetFloatv(GL_CURRENT_COLOR, color);
+    glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->value()*0.01));
 }

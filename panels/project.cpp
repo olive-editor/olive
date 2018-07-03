@@ -210,6 +210,8 @@ void Project::delete_selected_media() {
                     items.removeAt(i);
                     i--;
                     remove = true;
+                } else if (confirm.clickedButton() == abort_button) {
+                    break;
                 }
             }
         }

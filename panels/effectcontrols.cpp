@@ -17,7 +17,7 @@ EffectControls::EffectControls(QWidget *parent) :
 {
 	ui->setupUi(this);
     init_effects();
-    clear_effects();
+    clear_effects(false);
 }
 
 EffectControls::~EffectControls()
@@ -62,7 +62,7 @@ void EffectControls::show_menu(bool video) {
     effects_menu.exec(QCursor::pos());
 }
 
-void EffectControls::clear_effects() {
+void EffectControls::clear_effects(bool clear_cache) {
     // clear existing clips
     QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
     QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
@@ -77,7 +77,7 @@ void EffectControls::clear_effects() {
     }
     ui->vcontainer->setVisible(false);
     ui->acontainer->setVisible(false);
-    selected_clips.clear();
+    if (clear_cache) selected_clips.clear();
 }
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
@@ -137,12 +137,12 @@ void EffectControls::delete_clips() {
 }
 
 void EffectControls::reload_clips() {
-    clear_effects();
+    clear_effects(false);
     load_effects();
 }
 
 void EffectControls::set_clips(QVector<Clip*>& clips) {
-    clear_effects();
+    clear_effects(true);
 
     // replace clip vector
     selected_clips = clips;

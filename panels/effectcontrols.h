@@ -19,7 +19,7 @@ public:
 	~EffectControls();
 	// void set_clip(Clip* c);
 	void set_clips(QVector<Clip*>& clips);
-	void clear_effects();
+    void clear_effects(bool clear_cache);
     void delete_clips();
     bool is_focused();
 

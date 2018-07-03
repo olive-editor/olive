@@ -59,5 +59,4 @@ void SourceTable::dropEvent(QDropEvent* event) {
         }
         event->acceptProposedAction();
     }
-    QTreeWidget::dropEvent(event);
 }

@@ -7,6 +7,7 @@
 
 class Cacher;
 class Effect;
+class Transition;
 struct Sequence;
 struct Media;
 struct MediaStream;
@@ -34,7 +35,6 @@ struct Clip
 	Clip();
 	~Clip();
     Clip* copy();
-	void init();
 	void reset();
 	bool undeletable;
 
@@ -59,6 +59,8 @@ struct Clip
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;
     QVector<int> linked;
+    Transition* opening_transition;
+    Transition* closing_transition;
 
 	// media handling
 	AVFormatContext* formatCtx;

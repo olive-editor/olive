@@ -55,7 +55,9 @@ SOURCES += \
     ui/timelineheader.cpp \
     io/previewgenerator.cpp \
     ui/labelslider.cpp \
-    dialogs/preferencesdialog.cpp
+    dialogs/preferencesdialog.cpp \
+    effects/transition.cpp \
+    effects/crossdissolvetransition.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -86,7 +88,8 @@ HEADERS += \
     ui/timelineheader.h \
     io/previewgenerator.h \
     ui/labelslider.h \
-    dialogs/preferencesdialog.h
+    dialogs/preferencesdialog.h \
+    effects/transition.h
 
 FORMS += \
         mainwindow.ui \

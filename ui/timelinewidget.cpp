@@ -11,6 +11,7 @@
 #include "panels/effectcontrols.h"
 
 #include "effects/effects.h"
+#include "effects/transition.h"
 
 #include <QPainter>
 #include <QColor>
@@ -137,6 +138,17 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->effects.append(create_effect(AUDIO_VOLUME_EFFECT, c));
                 c->effects.append(create_effect(AUDIO_PAN_EFFECT, c));
             }
+
+            /*
+             * TEMP DEBUG CODE TO REMOVE LATER
+             */
+
+            c->opening_transition = new CrossDissolveTransition();
+            c->closing_transition = new CrossDissolveTransition();
+
+            /*
+             * END OF TEMP DEBUG CODE
+             */
 
             sequence->add_clip(c);
             added_clips.append(c);
@@ -963,6 +975,7 @@ void TimelineWidget::redraw_clips() {
     QPainter clip_painter(&clip_pixmap);
 	int video_track_limit = 0;
 	int audio_track_limit = 0;
+    QColor transition_color(160, 128, 192);
     for (int i=0;i<sequence->clip_count();i++) {
         Clip* clip = sequence->get_clip(i);
         if (clip != NULL && is_track_visible(clip->track)) {
@@ -1005,6 +1018,25 @@ void TimelineWidget::redraw_clips() {
                 }
             }
 
+            QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING, clip_rect.height() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING);
+
+            if (clip->opening_transition != NULL) {
+                int transition_width = panel_timeline->getScreenPointFromFrame(clip->opening_transition->length);
+                QRect transition_rect(clip_rect.x(), clip_rect.y(), transition_width, clip_rect.height());
+                text_rect.setX(text_rect.x()+transition_width);
+                clip_painter.fillRect(transition_rect, transition_color);
+                clip_painter.setPen(Qt::black);
+                clip_painter.drawRect(transition_rect);
+            }
+            if (clip->closing_transition != NULL) {
+                int transition_width = panel_timeline->getScreenPointFromFrame(clip->opening_transition->length);
+                QRect transition_rect(clip_rect.right()-transition_width, clip_rect.y(), transition_width, clip_rect.height());
+                text_rect.setWidth(text_rect.width()-transition_width);
+                clip_painter.fillRect(transition_rect, transition_color);
+                clip_painter.setPen(Qt::black);
+                clip_painter.drawRect(transition_rect);
+            }
+
             // top left bevel
             clip_painter.setPen(Qt::white);
             clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
@@ -1015,13 +1047,12 @@ void TimelineWidget::redraw_clips() {
                 // set to black if color is bright
                 clip_painter.setPen(Qt::black);
             }
-            QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING, clip_rect.height() - CLIP_TEXT_PADDING - CLIP_TEXT_PADDING);
-            clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
             if (clip->linked.size() > 0) {
                 int underline_y = CLIP_TEXT_PADDING + clip_painter.fontMetrics().height() + clip_rect.top();
-                int underline_width = qMin(clip_rect.left() + clip_rect.width() - CLIP_TEXT_PADDING, clip_rect.left() + CLIP_TEXT_PADDING + clip_painter.fontMetrics().width(clip->name));
-                clip_painter.drawLine(clip_rect.left() + CLIP_TEXT_PADDING, underline_y, underline_width, underline_y);
+                int underline_width = qMin(text_rect.width(), clip_painter.fontMetrics().width(clip->name));
+                clip_painter.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
             }
+            clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
 
             // bottom right gray
             clip_painter.setPen(Qt::gray);

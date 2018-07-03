@@ -213,7 +213,7 @@ bool Timeline::focused() {
 void Timeline::undo() {
 //    qDebug() << "[INFO] Undo/redo was so buggy, it's been disabled. Sorry for any inconvenience";
     if (sequence != NULL) {
-        panel_effect_controls->clear_effects();
+        panel_effect_controls->clear_effects(true);
         sequence->undo();
         redraw_all_clips(false);
     }
@@ -222,7 +222,7 @@ void Timeline::undo() {
 void Timeline::redo() {
 //    qDebug() << "[INFO] Undo/redo was so buggy, it's been disabled. Sorry for any inconvenience";
     if (sequence != NULL) {
-        panel_effect_controls->clear_effects();
+        panel_effect_controls->clear_effects(true);
         sequence->redo();
         redraw_all_clips(false);
     }
@@ -270,7 +270,7 @@ void Timeline::select_all() {
 
 void Timeline::delete_selection(bool ripple_delete) {
 	if (selections.size() > 0) {
-        panel_effect_controls->clear_effects();
+        panel_effect_controls->clear_effects(true);
 
 		long ripple_point = selections.at(0).in;
 		long ripple_length = selections.at(0).out - selections.at(0).in;
