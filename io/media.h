@@ -8,6 +8,10 @@
 #include <QMutex>
 #include <QPixmap>
 
+#define MEDIA_TYPE_FOOTAGE 0
+#define MEDIA_TYPE_SEQUENCE 1
+#define MEDIA_TYPE_FOLDER 2
+
 struct Sequence;
 
 struct MediaStream {
@@ -31,7 +35,7 @@ struct Media
 
 	QString url;
 	QString name;
-	bool is_sequence;
+    char type;
 	int64_t length;
     QVector<MediaStream*> video_tracks;
     QVector<MediaStream*> audio_tracks;

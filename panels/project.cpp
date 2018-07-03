@@ -37,6 +37,8 @@ Project::Project(QWidget *parent) :
 	ui(new Ui::Project)
 {
     ui->setupUi(this);
+
+    connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(rename_media(QTreeWidgetItem*,int)));
 }
 
 Project::~Project()
@@ -66,13 +68,19 @@ QString Project::get_next_sequence_name() {
 	return name;
 }
 
+void Project::rename_media(QTreeWidgetItem* item, int column) {
+    Media* m = get_media_from_tree(item);
+    m->name = item->text(column);
+}
+
 void Project::new_sequence(Sequence *s) {
 	Media* m = new Media();
-	m->is_sequence = true;
+    m->type = MEDIA_TYPE_SEQUENCE;
 	m->sequence = s;
 
 	QTreeWidgetItem* item = new QTreeWidgetItem();
-	item->setText(0, s->name);
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    item->setText(0, s->name);
     set_media_of_tree(item, m);
 
 	ui->treeWidget->addTopLevelItem(item);
@@ -105,7 +113,7 @@ Media* Project::import_file(QString file) {
             av_dump_format(pFormatCtx, 0, filename, 0);
 
             m = new Media();
-            m->is_sequence = false;
+            m->type = MEDIA_TYPE_FOOTAGE;
             m->url = file;
 
             // detect video/audio streams in file
@@ -144,6 +152,7 @@ Media* Project::import_file(QString file) {
             m->length = pFormatCtx->duration;
 
             QTreeWidgetItem* item = new QTreeWidgetItem();
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
             if (m->video_tracks.size() == 0) {
                 item->setIcon(0, QIcon(":/icons/audiosource.png"));
             } else {
@@ -181,7 +190,7 @@ void Project::delete_selected_media() {
     // check if media is in use
     for (int i=0;i<items.size();i++) {
         Media* m = get_media_from_tree(items.at(i));
-        if (!m->is_sequence && sequence != NULL) {
+        if (m->type == MEDIA_TYPE_FOOTAGE && sequence != NULL) {
             for (int j=0;j<sequence->clip_count();j++) {
                 Clip* c = sequence->get_clip(j);
                 if (c != NULL && c->media == m) {
@@ -289,7 +298,7 @@ void Project::set_media_of_tree(QTreeWidgetItem* item, Media* media) {
 
 void Project::delete_media(QTreeWidgetItem* item) {
     Media* m = get_media_from_tree(item);
-    if (m->is_sequence) {
+    if (m->type == MEDIA_TYPE_SEQUENCE) {
         if (sequence == m->sequence) {
             set_sequence(NULL);
         }
@@ -537,7 +546,7 @@ void Project::save_project() {
     stream.writeStartElement("media");
     for (int i=0;i<len;i++) {
         Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
-        if (!m->is_sequence) {
+        if (m->type == MEDIA_TYPE_FOOTAGE) {
             m->save_id = i;
             stream.writeStartElement("footage");
             stream.writeAttribute("id", QString::number(m->save_id));
@@ -551,7 +560,7 @@ void Project::save_project() {
     stream.writeStartElement("timeline");
     for (int i=0;i<len;i++) {
         Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
-        if (m->is_sequence) {
+        if (m->type == MEDIA_TYPE_SEQUENCE) {
             Sequence* s = m->sequence;
             stream.writeStartElement("sequence");
             stream.writeTextElement("name", s->name);

@@ -36,7 +36,7 @@
     <item>
      <widget class="SourceTable" name="treeWidget">
       <property name="editTriggers">
-       <set>QAbstractItemView::CurrentChanged|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+       <set>QAbstractItemView::NoEditTriggers</set>
       </property>
       <property name="dragEnabled">
        <bool>false</bool>

@@ -45,6 +45,8 @@ public:
 	SourceTable* source_table;
 private:
 	Ui::Project *ui;
+private slots:
+    void rename_media(QTreeWidgetItem* item, int column);
 };
 
 #endif // PROJECT_H

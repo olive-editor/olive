@@ -1,6 +1,7 @@
 #include "sequence.h"
 
 #include "project/clip.h"
+#include "effects/transition.h"
 
 #include <QDebug>
 
@@ -87,6 +88,20 @@ Clip* Sequence::split_clip(Clip* pre, long frame) {
         pre->timeline_out = frame;
         post->timeline_in = frame;
         post->clip_in = pre->clip_in + pre->getLength();
+
+        long pre_length = pre->getLength();
+
+        if (pre->closing_transition != NULL) {
+            post->closing_transition = pre->closing_transition;
+            pre->closing_transition = NULL;
+            long post_length = post->getLength();
+            if (post->closing_transition->length > post_length) {
+                post->closing_transition->length = post_length;
+            }
+        }
+        if (pre->opening_transition != NULL && pre->opening_transition->length > pre_length) {
+            pre->opening_transition->length = pre_length;
+        }
 
         add_clip(post);
 

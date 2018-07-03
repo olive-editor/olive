@@ -8,9 +8,7 @@
 
 #include <QCheckBox>
 
-Effect::Effect(Clip* c) : parent_clip(c)
-{
-	name = "<unnamed effect>";
+Effect::Effect(Clip* c) : parent_clip(c) {
 	type = EFFECT_TYPE_INVALID;
 }
 

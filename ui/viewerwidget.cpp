@@ -59,8 +59,6 @@ void ViewerWidget::paintGL()
     if (multithreaded) retry_timer.stop();
 
     glClear(GL_COLOR_BUFFER_BIT);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
 
     current_clips.clear();
 
@@ -114,6 +112,9 @@ void ViewerWidget::paintGL()
                     qDebug() << "[WARNING] Texture hasn't been created yet";
                     texture_failed = true;
                 } else if (panel_timeline->playhead >= c->timeline_in) {
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    glColor4f(1.0, 1.0, 1.0, 1.0);
+
                     glLoadIdentity();
                     int half_width = c->sequence->width/2;
                     int half_height = c->sequence->height/2;

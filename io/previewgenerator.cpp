@@ -29,7 +29,7 @@ void PreviewGenerator::run() {
     if (media == NULL) {
         qDebug() << "[ERROR] No media was set for preview generation";
     } else {
-        if (media->is_sequence) {
+        if (media->type == MEDIA_TYPE_SEQUENCE) {
             qDebug() << "[ERROR] Cannot run preview generation on a sequence";
         } else {
             SwsContext* sws_ctx;

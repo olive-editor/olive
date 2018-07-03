@@ -14,17 +14,41 @@
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     sortByColumn(0, Qt::AscendingOrder);
     setAcceptDrops(true);
+    editing_item = NULL;
+    rename_timer.setInterval(500);
+    connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
+    connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(item_click(QTreeWidgetItem*,int)));
+
+//    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, )
 }
 
-void SourceTable::mouseDoubleClickEvent(QMouseEvent* )
-{
+void SourceTable::rename_interval() {
+    rename_timer.stop();
+    if (hasFocus() && editing_item != NULL) {
+        editItem(editing_item, 0);
+    }
+}
+void SourceTable::item_click(QTreeWidgetItem* item, int column) {
+    if (column == 0) {
+        editing_item = item;
+        rename_timer.start();
+    }
+}
+
+void SourceTable::mousePressEvent(QMouseEvent* event) {
+    rename_timer.stop();
+    QTreeWidget::mousePressEvent(event);
+}
+
+void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 	if (selectedItems().count() == 0) {
 		panel_project->import_dialog();
 	} else if (selectedItems().count() == 1) {
-		Media* m = reinterpret_cast<Media*>(selectedItems().at(0)->data(0, Qt::UserRole + 1).value<quintptr>());
-		if (m->is_sequence) {
+        QTreeWidgetItem* item = selectedItems().at(0);
+        Media* m = reinterpret_cast<Media*>(item->data(0, Qt::UserRole + 1).value<quintptr>());
+        if (m->type == MEDIA_TYPE_SEQUENCE) {
             set_sequence(m->sequence);
-		}
+        }
 	}
 }
 
