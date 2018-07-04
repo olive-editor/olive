@@ -25,17 +25,23 @@ extern "C" {
 bool texture_failed = false;
 
 void open_clip(Clip* clip, bool multithreaded) {
-	clip->multithreaded = multithreaded;
-	if (multithreaded) {
-		// maybe keep cacher instance in memory while clip exists for performance?
-		clip->cacher = new Cacher(clip);
-		QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
+    if (multithreaded) {
+        if (clip->open_lock.tryLock()) {
+            clip->multithreaded = true;
 
-		clip->cacher->start(QThread::LowPriority);
-	} else {
-		open_clip_worker(clip);
-		clip->lock.unlock();
-	}
+            // maybe keep cacher instance in memory while clip exists for performance?
+            clip->cacher = new Cacher(clip);
+            QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
+
+            clip->cacher->start(QThread::LowPriority);
+        }
+    } else {
+        clip->multithreaded = false;
+        clip->finished_opening = false;
+        clip->open = true;
+
+        open_clip_worker(clip);
+    }
 }
 
 void close_clip(Clip* clip) {

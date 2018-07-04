@@ -301,6 +301,8 @@ void open_clip_worker(Clip* clip) {
 
 	clip->frame = av_frame_alloc();
 
+    clip->finished_opening = true;
+
     qDebug() << "[INFO] Clip opened on track" << clip->track;
 }
 
@@ -359,8 +361,6 @@ void Cacher::run() {
     caching = true;
 
 	open_clip_worker(clip);
-
-    clip->finished_opening = true;
 
     while (caching) {
         clip->can_cache.wait(&clip->lock);

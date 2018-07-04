@@ -26,7 +26,7 @@ extern "C" {
 
 bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream) {
 	int ret = avcodec_send_frame(codec_ctx, frame);
-	if (ret < 0) {
+    if (ret < 0/* && ret != AVERROR(EAGAIN) && frame != NULL*/) {
 		qDebug() << "[ERROR] Failed to send frame to encoder." << ret;
 		return false;
 	} else {
@@ -47,19 +47,17 @@ bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame,
 }
 
 void ExportThread::run() {
-    av_log_set_level(AV_LOG_DEBUG);
+    panel_timeline->pause();
+//    av_log_set_level(AV_LOG_DEBUG);
 
 	// TODO make customizable
 	long start = 0;
 	long end = sequence->getEndFrame();
 
-	if (panel_viewer->viewer_widget->context()->makeCurrent(&surface)) {
-		qDebug() << "make current succeeded";
-	} else {
-		qDebug() << "make current failed";
+    if (!panel_viewer->viewer_widget->context()->makeCurrent(&surface)) {
+        qDebug() << "[ERROR] Make current failed";
+        return;
 	}
-	panel_viewer->viewer_widget->multithreaded = false;
-	panel_viewer->viewer_widget->initializeOpenGLFunctions();
 
 	AVFormatContext* fmt_ctx = NULL;
 	QByteArray ba = filename.toLatin1();
@@ -76,8 +74,7 @@ void ExportThread::run() {
 		AVCodecContext* vcodec_ctx;
 		AVFrame* video_frame;
         AVFrame* sws_frame;
-		SwsContext* sws_ctx = NULL;
-        uint8_t* flip_buffer;
+        SwsContext* sws_ctx = NULL;
         AVStream* audio_stream;
         AVCodec* acodec;
         AVFrame* audio_frame;
@@ -148,7 +145,7 @@ void ExportThread::run() {
 								sws_ctx = sws_getContext(
 											video_width,
 											video_height,
-											AV_PIX_FMT_RGBA,
+                                            AV_PIX_FMT_RGBA,
 											video_width,
 											video_height,
 											AV_PIX_FMT_YUV420P,
@@ -163,7 +160,6 @@ void ExportThread::run() {
                                 sws_frame->width = video_frame->width;
                                 sws_frame->height = video_frame->height;
                                 av_frame_get_buffer(sws_frame, 0);
-                                flip_buffer = new uint8_t[video_frame->width * video_frame->height * 4];
 							}
 						}
 					}
@@ -274,27 +270,21 @@ void ExportThread::run() {
 					QPainter painter(&fbo_dev);
                     painter.beginNativePainting();
 
+                    panel_viewer->viewer_widget->initializeGL();
+                    panel_viewer->viewer_widget->flip = true;
+
                     long file_audio_samples = 0;
 
 					while (panel_timeline->playhead < end && !fail) {
-                        panel_viewer->viewer_widget->update();
+                        panel_viewer->viewer_widget->paintGL();
 
 						double timecode_secs = (double) panel_timeline->playhead / sequence->frame_rate;
 						if (video_enabled) {
-							// get image from opengl
-							glReadPixels(0, 0, video_width, video_height, GL_RGBA, GL_UNSIGNED_BYTE, flip_buffer);
-
-							// flip image vertically because opengl sucks ass
-							int linesize = video_width*4;
-							for (int i=video_height-1;i>=0;i--) {
-								int src_index = i*linesize;
-								int dst_index = (video_height-i)*linesize;
-								memcpy(video_frame->data[0]+dst_index, flip_buffer+src_index, linesize);
-							}
+                            // get image from opengl
+                            glReadPixels(0, 0, video_width, video_height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
 
                             // change pixel format
                             sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
-//                            qDebug() << video_frame->linesize[0] << sws_frame->linesize[0];
 							sws_frame->pts = round(timecode_secs/av_q2d(video_stream->time_base));
 
 							// send to encoder
@@ -331,7 +321,8 @@ void ExportThread::run() {
 						panel_timeline->playhead++;
 					}
 
-					delete [] flip_buffer;
+                    panel_viewer->viewer_widget->flip = false;
+
 					painter.endNativePainting();
 					fbo.release();
 
@@ -365,14 +356,20 @@ void ExportThread::run() {
 				}
 			}
 
-            avcodec_close(vcodec_ctx);
-            avcodec_close(acodec_ctx);
-			av_packet_unref(&video_pkt);
-            av_packet_unref(&audio_pkt);
-			av_frame_free(&video_frame);
-            av_frame_free(&audio_frame);
-			avcodec_free_context(&vcodec_ctx);
-            avcodec_free_context(&acodec_ctx);
+            if (video_enabled) {
+                avcodec_close(vcodec_ctx);
+                av_packet_unref(&video_pkt);
+                av_frame_free(&video_frame);
+                avcodec_free_context(&vcodec_ctx);
+            }
+
+            if (audio_enabled) {
+                avcodec_close(acodec_ctx);
+                av_packet_unref(&audio_pkt);
+                av_frame_free(&audio_frame);
+                avcodec_free_context(&acodec_ctx);
+            }
+
 			avio_closep(&fmt_ctx->pb);
 			avformat_free_context(fmt_ctx);
 

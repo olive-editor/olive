@@ -309,6 +309,8 @@ void ExportDialog::on_pushButton_2_clicked()
 
 void ExportDialog::render_thread_finished() {
     prep_ui_for_render(false);
+    panel_viewer->viewer_widget->makeCurrent();
+    panel_viewer->viewer_widget->initializeGL();
 }
 
 void ExportDialog::prep_ui_for_render(bool rendering) {
@@ -422,6 +424,7 @@ void ExportDialog::on_pushButton_clicked()
         connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int)), this, SLOT(update_progress_bar(int)));
 
+        panel_viewer->viewer_widget->multithreaded = false;
         panel_viewer->viewer_widget->enable_paint = false;
 		panel_viewer->viewer_widget->context()->doneCurrent();
 		panel_viewer->viewer_widget->context()->moveToThread(et);
@@ -451,7 +454,6 @@ void ExportDialog::update_progress_bar(int value) {
 	ui->progressBar->setValue(value);
 }
 
-void ExportDialog::on_renderCancel_clicked()
-{
+void ExportDialog::on_renderCancel_clicked() {
     et->fail = true;
 }

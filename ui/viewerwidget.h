@@ -19,11 +19,12 @@ public:
     bool multithreaded;
     bool force_audio;
     bool enable_paint;
+    bool flip;
+    void paintGL();
+    void initializeGL();
 protected:
     void paintEvent(QPaintEvent *e);
-    void initializeGL();
 //    void resizeGL(int w, int h);
-    void paintGL();
 private:
 	QTimer retry_timer;
     QVector<Clip*> current_clips;
