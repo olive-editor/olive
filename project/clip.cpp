@@ -1,6 +1,7 @@
 #include "clip.h"
 
 #include "project/effect.h"
+#include "effects/transition.h"
 #include "io/media.h"
 #include "playback/playback.h"
 #include "playback/cacher.h"
@@ -45,6 +46,9 @@ Clip* Clip::copy() {
     for (int i=0;i<effects.size();i++) {
         copy->effects.append(effects.at(i)->copy(copy));
     }
+
+    if (opening_transition != NULL) copy->opening_transition = opening_transition->copy();
+    if (closing_transition != NULL) copy->closing_transition = closing_transition->copy();
 
     return copy;
 }

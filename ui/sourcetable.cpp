@@ -18,12 +18,17 @@ SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     rename_timer.setInterval(500);
     connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(item_click(QTreeWidgetItem*,int)));
+//    connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(stop_rename_timer()));
 
 //    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, )
 }
 
-void SourceTable::rename_interval() {
+void SourceTable::stop_rename_timer() {
     rename_timer.stop();
+}
+
+void SourceTable::rename_interval() {
+    stop_rename_timer();
     if (hasFocus() && editing_item != NULL) {
         editItem(editing_item, 0);
     }
@@ -36,7 +41,7 @@ void SourceTable::item_click(QTreeWidgetItem* item, int column) {
 }
 
 void SourceTable::mousePressEvent(QMouseEvent* event) {
-    rename_timer.stop();
+    stop_rename_timer();
     QTreeWidget::mousePressEvent(event);
 }
 
@@ -49,7 +54,7 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
         if (m->type == MEDIA_TYPE_SEQUENCE) {
             set_sequence(m->sequence);
         }
-	}
+    }
 }
 
 void SourceTable::dragEnterEvent(QDragEnterEvent *event) {

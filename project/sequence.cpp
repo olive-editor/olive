@@ -17,6 +17,25 @@ Sequence::~Sequence() {
     }
 }
 
+Sequence* Sequence::copy() {
+    Sequence* s = new Sequence();
+    s->name = name + " (copy)";
+    s->width = width;
+    s->height = height;
+    s->frame_rate = frame_rate;
+    s->audio_frequency = audio_frequency;
+    s->audio_layout = audio_layout;
+    for (int i=0;i<clip_count();i++) {
+        Clip* c = get_clip(i);
+        if (c != NULL) {
+            Clip* copy = c->copy();
+            copy->linked = c->linked;
+            s->add_clip(copy);
+        }
+    }
+    return s;
+}
+
 void Sequence::add_clip(Clip* c) {
     c->id = clip_count();
     clips.append(c);

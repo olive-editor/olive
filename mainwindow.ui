@@ -60,6 +60,7 @@
     <addaction name="actionCu_t"/>
     <addaction name="actionCop_y"/>
     <addaction name="action_Paste"/>
+    <addaction name="actionDuplicate"/>
     <addaction name="actionDelete"/>
     <addaction name="actionRipple_Delete"/>
     <addaction name="separator"/>
@@ -527,6 +528,14 @@
    </property>
    <property name="text">
     <string>Edit Tool Selects Links</string>
+   </property>
+  </action>
+  <action name="actionDuplicate">
+   <property name="text">
+    <string>Duplicate</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

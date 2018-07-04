@@ -504,3 +504,9 @@ void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
 void MainWindow::on_actionEdit_Tool_Also_Seeks_triggered() {
     panel_timeline->edit_tool_also_seeks = !panel_timeline->edit_tool_also_seeks;
 }
+
+void MainWindow::on_actionDuplicate_triggered() {
+    if (panel_project->is_focused()) {
+        panel_project->duplicate_selected();
+    }
+}

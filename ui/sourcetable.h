@@ -23,6 +23,7 @@ private:
 private slots:
     void rename_interval();
     void item_click(QTreeWidgetItem* item, int column);
+    void stop_rename_timer();
 };
 
 #endif // SOURCETABLE_H

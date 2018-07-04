@@ -129,6 +129,8 @@ private slots:
 
     void toolMenu_About_To_Be_Shown();
 
+    void on_actionDuplicate_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

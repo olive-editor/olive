@@ -11,3 +11,7 @@ void CrossDissolveTransition::process_transition(float progress) {
     glGetFloatv(GL_CURRENT_COLOR, color);
     glColor4f(1.0, 1.0, 1.0, color[3]*progress);
 }
+
+Transition* CrossDissolveTransition::copy() {
+    return new CrossDissolveTransition();
+}

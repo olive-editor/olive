@@ -11,6 +11,7 @@ struct Sequence {
 public:
 	Sequence();
 	~Sequence();
+    Sequence* copy();
 	QString name;
     void add_clip(Clip* c);
 	int clip_count();

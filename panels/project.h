@@ -34,6 +34,7 @@ public:
     void delete_media(QTreeWidgetItem* item);
     void delete_selected_media();
     void process_file_list(QStringList& files);
+    void duplicate_selected();
 
     void new_project();
     void load_project();

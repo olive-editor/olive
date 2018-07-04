@@ -71,6 +71,19 @@ QString Project::get_next_sequence_name() {
 void Project::rename_media(QTreeWidgetItem* item, int column) {
     Media* m = get_media_from_tree(item);
     m->name = item->text(column);
+    if (m->type == MEDIA_TYPE_SEQUENCE) {
+        m->sequence->name = m->name;
+    }
+}
+
+void Project::duplicate_selected() {
+    QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
+    for (int i=0;i<items.size();i++) {
+        Media* m = get_media_from_tree(items.at(i));
+        if (m->type == MEDIA_TYPE_SEQUENCE) {
+            new_sequence(m->sequence->copy());
+        }
+    }
 }
 
 void Project::new_sequence(Sequence *s) {
