@@ -99,6 +99,22 @@ Clip::~Clip() {
 	delete pkt;
 }
 
+long Clip::get_timeline_in_with_transition() {
+    if (opening_transition != NULL && opening_transition->link != NULL) {
+        return timeline_in - opening_transition->link->length;
+    } else {
+        return timeline_in;
+    }
+}
+
+long Clip::get_timeline_out_with_transition() {
+    if (closing_transition != NULL && closing_transition->link != NULL) {
+        return timeline_out + closing_transition->link->length;
+    } else {
+        return timeline_out;
+    }
+}
+
 // timeline functions
 long Clip::getLength() {
 	return timeline_out - timeline_in;

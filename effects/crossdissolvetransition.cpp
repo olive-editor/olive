@@ -4,6 +4,7 @@
 
 CrossDissolveTransition::CrossDissolveTransition() {
     name = "Cross Dissolve";
+    id = VIDEO_DISSOLVE_TRANSITION;
 }
 
 void CrossDissolveTransition::process_transition(float progress) {

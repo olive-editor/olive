@@ -6,6 +6,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
 #include <QTimer>
+
 struct Clip;
 
 class Viewer;
@@ -14,7 +15,7 @@ class ViewerWidget : public QOpenGLWidget, public QOpenGLFunctions
 {
 	Q_OBJECT
 public:
-	ViewerWidget(QWidget *parent = 0);
+    ViewerWidget(QWidget *parent = 0);
 
     bool multithreaded;
     bool force_audio;

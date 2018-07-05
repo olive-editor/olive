@@ -2,6 +2,7 @@
 
 Transition::Transition() {
     length = 30;
+    link = NULL;
 }
 
 Transition* Transition::copy() {

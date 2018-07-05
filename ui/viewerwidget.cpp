@@ -29,7 +29,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent)
 	setFormat(format);
 
 	// error handler - retries after 200ms if we couldn't get the entire image
-	retry_timer.setInterval(200);
+    retry_timer.setInterval(250);
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
 }
 
@@ -44,7 +44,6 @@ void ViewerWidget::initializeGL() {
     glMatrixMode(GL_PROJECTION);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
@@ -55,8 +54,7 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
     if (enable_paint) QOpenGLWidget::paintEvent(e);
 }
 
-void ViewerWidget::paintGL()
-{
+void ViewerWidget::paintGL() {
     bool loop = true;
     while (loop) {
         loop = false;
@@ -187,10 +185,6 @@ void ViewerWidget::paintGL()
                 audio_ibuffer_read += actual_write;
             }
         }
-
-        /*QPainter p(this);
-        p.drawText({0, 0, 200, 200}, "text!");
-        p.end();*/
 
         if (texture_failed) {
             if (multithreaded) {

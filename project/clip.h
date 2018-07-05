@@ -42,9 +42,11 @@ struct Clip
     bool enabled;
     int id;
 	QString name;
+    long get_timeline_in_with_transition();
+    long get_timeline_out_with_transition();
+    long timeline_in;
+    long timeline_out;
 	long clip_in;
-	long timeline_in;
-	long timeline_out;
 	int track;
     quint8 color_r;
     quint8 color_g;

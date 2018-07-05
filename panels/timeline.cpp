@@ -84,10 +84,12 @@ void Timeline::previous_cut() {
         long p_cut = 0;
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* c = sequence->get_clip(i);
-            if (c->timeline_out > p_cut && c->timeline_out < playhead) {
-                p_cut = c->timeline_out;
-            } else if (c->timeline_in > p_cut && c->timeline_in < playhead) {
-                p_cut = c->timeline_in;
+            if (c != NULL) {
+                if (c->timeline_out > p_cut && c->timeline_out < playhead) {
+                    p_cut = c->timeline_out;
+                } else if (c->timeline_in > p_cut && c->timeline_in < playhead) {
+                    p_cut = c->timeline_in;
+                }
             }
         }
         seek(p_cut);

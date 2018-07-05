@@ -140,17 +140,6 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->effects.append(create_effect(AUDIO_PAN_EFFECT, c));
             }
 
-            /*
-             * TEMP DEBUG CODE TO REMOVE LATER
-             */
-
-            c->opening_transition = new CrossDissolveTransition();
-            c->closing_transition = new CrossDissolveTransition();
-
-            /*
-             * END OF TEMP DEBUG CODE
-             */
-
             sequence->add_clip(c);
             added_clips.append(c);
 		}
@@ -219,11 +208,6 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 track_resize_mouse_cache = event->pos().y();
                 panel_timeline->moving_init = true;
             } else {
-                // if "shift" is not down
-                if (!shift) {
-                    panel_timeline->selections.clear();
-                }
-
                 if (clip_index >= 0) {
                     Clip* c = sequence->get_clip(clip_index);
                     if (panel_timeline->is_clip_selected(c)) {
@@ -231,6 +215,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                             // TODO if shift is down, deselect it
                         }
                     } else {
+                        // if "shift" is not down
+                        if (!shift) {
+                            panel_timeline->selections.clear();
+                        }
+
                         Clip* clip = sequence->get_clip(clip_index);
                         if (clip != NULL) {
                             panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
@@ -248,6 +237,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                     }
                     panel_timeline->moving_init = true;
                 } else {
+                    // if "shift" is not down
+                    if (!shift) {
+                        panel_timeline->selections.clear();
+                    }
+
                     panel_timeline->rect_select_init = true;
                 }
                 panel_timeline->repaint_timeline();
@@ -367,7 +361,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     panel_timeline->ripple(ripple_point, -ripple_length);
                 }
             }
-
             panel_timeline->redraw_all_clips(true);
         } else if (panel_timeline->selecting) {
             // remove duplicate selections
