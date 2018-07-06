@@ -35,7 +35,6 @@ private:
     void set_undo();
     QVector<QVector<Clip*>*> undo_stack;
     int undo_pointer;
-    int undo_stack_start;
 };
 
 // static variable for the currently active sequence

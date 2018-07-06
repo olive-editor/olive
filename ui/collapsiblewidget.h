@@ -13,7 +13,7 @@ class CollapsibleWidgetHeader : public QWidget {
     Q_OBJECT
 public:
     CollapsibleWidgetHeader(QWidget* parent = 0);
-    bool selected = false;
+    bool selected;
 protected:
     void mousePressEvent(QMouseEvent* event);
 signals:

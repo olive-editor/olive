@@ -110,7 +110,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
         QVector<Selection> delete_areas;
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
             const Ghost& g = panel_timeline->ghosts.at(i);
-            delete_areas.append({g.in, g.out, g.track});
+            delete_areas.append((Selection){g.in, g.out, g.track});
         }
         panel_timeline->delete_areas_and_relink(delete_areas);
 
@@ -171,7 +171,7 @@ void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
         if (clip_index >= 0) {
             Clip* clip = sequence->get_clip(clip_index);
             if (!(event->modifiers() & Qt::ShiftModifier)) panel_timeline->selections.clear();
-            panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
+            panel_timeline->selections.append((Selection){clip->timeline_in, clip->timeline_out, clip->track});
             panel_timeline->repaint_timeline();
         }
     }
@@ -222,7 +222,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 
                         Clip* clip = sequence->get_clip(clip_index);
                         if (clip != NULL) {
-                            panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
+                            panel_timeline->selections.append((Selection){clip->timeline_in, clip->timeline_out, clip->track});
 
                             if (panel_timeline->select_also_seeks) {
                                 panel_timeline->seek(clip->timeline_in);
@@ -233,7 +233,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                                 for (int i=0;i<clip->linked.size();i++) {
                                     Clip* link = sequence->get_clip(c->linked.at(i));
                                     if (!panel_timeline->is_clip_selected(link)) {
-                                        panel_timeline->selections.append({link->timeline_in, link->timeline_out, link->track});
+                                        panel_timeline->selections.append((Selection){link->timeline_in, link->timeline_out, link->track});
                                     }
                                 }
                             }
@@ -291,7 +291,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                         c->timeline_out = g.out;
                         c->track = g.track;
 
-                        delete_areas.append({g.in, g.out, g.track});
+                        delete_areas.append((Selection){g.in, g.out, g.track});
 
                         old_clips.append(g.clip);
                         copy_clips.append(c);
@@ -321,7 +321,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
                         // step 2 - delete anything that exists in area that clip is moving to
                         // note: ripples are non-destructive so this is pointer-tool exclusive
-                        delete_areas.append({g.in, g.out, g.track});
+                        delete_areas.append((Selection){g.in, g.out, g.track});
                     }
                 }
                 panel_timeline->delete_areas_and_relink(delete_areas);
@@ -762,7 +762,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             for (int i=0;i<sequence->clip_count();i++) {
                 Clip* c = sequence->get_clip(i);
                 if (c != NULL && panel_timeline->is_clip_selected(c)) {
-                    panel_timeline->ghosts.append({c, c->timeline_in, c->timeline_out, c->track, c->clip_in});
+                    panel_timeline->ghosts.append((Ghost){c, c->timeline_in, c->timeline_out, c->track, c->clip_in});
 				}
 			}
 
@@ -929,7 +929,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             Clip* c = sequence->get_clip(i);
             if (c != NULL && c->track == mouse_track) {
                 if (c->timeline_in > mouse_frame_lower && c->timeline_in < mouse_frame_upper) {
-                    int nc = abs(c->timeline_in + 1 - panel_timeline->cursor_frame);
+                    int nc = qAbs(c->timeline_in + 1 - panel_timeline->cursor_frame);
                     if (nc < closeness) {
                         panel_timeline->trim_target = i;
                         panel_timeline->trim_in = true;
@@ -938,7 +938,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     }
                 }
                 if (c->timeline_out > mouse_frame_lower && c->timeline_out < mouse_frame_upper) {
-                    int nc = abs(c->timeline_out - 1 - panel_timeline->cursor_frame);
+                    int nc = qAbs(c->timeline_out - 1 - panel_timeline->cursor_frame);
                     if (nc < closeness) {
                         panel_timeline->trim_target = i;
                         panel_timeline->trim_in = false;

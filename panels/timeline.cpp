@@ -268,7 +268,7 @@ void Timeline::select_all() {
 	selections.clear();
 	for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
-        if (c != NULL) selections.append({c->timeline_in, c->timeline_out, c->track});
+        if (c != NULL) selections.append((Selection){c->timeline_in, c->timeline_out, c->track});
 	}
     repaint_timeline();
 }
@@ -621,7 +621,7 @@ void Timeline::paste() {
         QVector<Selection> delete_areas;
         for (int i=0;i<clip_clipboard.size();i++) {
             Clip* c = clip_clipboard.at(i);
-            delete_areas.append({c->timeline_in + playhead, c->timeline_out + playhead, c->track});
+            delete_areas.append((Selection){c->timeline_in + playhead, c->timeline_out + playhead, c->track});
         }
         delete_areas_and_relink(delete_areas);
 

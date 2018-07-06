@@ -189,7 +189,7 @@ void ExportThread::run() {
                         acodec_ctx->channels = av_get_channel_layout_nb_channels(acodec_ctx->channel_layout);
                         acodec_ctx->sample_fmt = acodec->sample_fmts[0];
                         acodec_ctx->bit_rate = audio_bitrate * 1000;
-                        acodec_ctx->time_base = {1, audio_sampling_rate};
+                        acodec_ctx->time_base = (AVRational){1, audio_sampling_rate};
 
                         if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
                             acodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
