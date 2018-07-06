@@ -36,9 +36,9 @@ Sequence* Sequence::copy() {
     return s;
 }
 
-void Sequence::add_clip(Clip* c) {
-    c->id = clip_count();
+int Sequence::add_clip(Clip* c) {
     clips.append(c);
+    return clip_count() - 1;
 }
 
 int Sequence::clip_count() {
@@ -55,7 +55,7 @@ void Sequence::delete_clip(int i) {
         Clip* c = get_clip(j);
         if (c != NULL) {
             for (int k=0;k<c->linked.size();k++) {
-                if (c->linked[k] == clips[i]->id) {
+                if (c->linked[k] == i) {
                     c->linked.removeAt(k);
                     break;
                 }
@@ -100,8 +100,9 @@ void Sequence::get_track_limits(int* video_tracks, int* audio_tracks) {
 
 //}
 
-Clip* Sequence::split_clip(Clip* pre, long frame) {
-    if (pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
+int Sequence::split_clip(int p, long frame) {
+    Clip* pre = get_clip(p);
+    if (pre != NULL && pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
         Clip* post = pre->copy();
 
         pre->timeline_out = frame;
@@ -122,11 +123,9 @@ Clip* Sequence::split_clip(Clip* pre, long frame) {
             pre->opening_transition->length = pre_length;
         }
 
-        add_clip(post);
-
-        return post;
+        return add_clip(post);
 	}
-    return NULL;
+    return -1;
 }
 
 void Sequence::undo_add_current() {

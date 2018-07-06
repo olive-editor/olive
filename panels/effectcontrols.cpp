@@ -9,7 +9,7 @@
 #include "project/clip.h"
 #include "project/effect.h"
 #include "ui/collapsiblewidget.h"
-
+#include "project/sequence.h"
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
@@ -27,7 +27,7 @@ EffectControls::~EffectControls()
 
 void EffectControls::menu_select(QAction* q) {
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* clip = selected_clips.at(i);
+        Clip* clip = sequence->get_clip(selected_clips.at(i));
         if ((clip->track < 0 && video_menu) || (clip->track >= 0 && !video_menu)) {
             clip->effects.append(create_effect(q->data().toInt(), clip));
         }
@@ -83,7 +83,7 @@ void EffectControls::clear_effects(bool clear_cache) {
 void EffectControls::deselect_all_effects(QWidget* sender) {
     QVector<Effect*> delete_effects;
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = selected_clips.at(i);
+        Clip* c = sequence->get_clip(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
             if (c->effects.at(j)->container != sender) {
                 c->effects.at(j)->container->header_click(false, false);
@@ -95,7 +95,7 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
 void EffectControls::load_effects() {
     // load in new clips
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = selected_clips.at(i);
+        Clip* c = sequence->get_clip(selected_clips.at(i));
         if (c->track < 0) {
             ui->vcontainer->setVisible(true);
         } else {
@@ -119,7 +119,7 @@ void EffectControls::delete_clips() {
     // load in new clips
     QVector<Effect*> delete_effects;
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = selected_clips.at(i);
+        Clip* c = sequence->get_clip(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
             Effect* effect = c->effects.at(j);
             if (effect->container->selected) {
@@ -141,7 +141,7 @@ void EffectControls::reload_clips() {
     load_effects();
 }
 
-void EffectControls::set_clips(QVector<Clip*>& clips) {
+void EffectControls::set_clips(QVector<int>& clips) {
     clear_effects(true);
 
     // replace clip vector
@@ -163,7 +163,7 @@ void EffectControls::on_add_audio_effect_button_clicked()
 bool EffectControls::is_focused() {
     if (this->hasFocus()) return true;
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = selected_clips.at(i);
+        Clip* c = sequence->get_clip(selected_clips.at(i));
         if (c != NULL) {
             for (int j=0;j<c->effects.size();j++) {
                 if (c->effects.at(j)->container->is_focused()) {

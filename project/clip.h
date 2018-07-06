@@ -40,7 +40,7 @@ struct Clip
 
 	// timeline variables
     bool enabled;
-    int id;
+    int load_id;
 	QString name;
     long get_timeline_in_with_transition();
     long get_timeline_out_with_transition();

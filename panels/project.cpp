@@ -110,6 +110,7 @@ Media* Project::import_file(QString file) {
     strcpy(filename, ba.data());
 
     Media* m = NULL;
+
     AVFormatContext* pFormatCtx = NULL;
     int errCode = avformat_open_input(&pFormatCtx, filename, NULL, NULL);
     if(errCode != 0) {
@@ -128,6 +129,7 @@ Media* Project::import_file(QString file) {
             m = new Media();
             m->type = MEDIA_TYPE_FOOTAGE;
             m->url = file;
+            m->name = file.mid(file.lastIndexOf('/')+1);
 
             // detect video/audio streams in file
             for (int i=0;i<(int)pFormatCtx->nb_streams;i++) {
@@ -151,7 +153,6 @@ Media* Project::import_file(QString file) {
                     }
                 }
             }
-            m->name = file.mid(file.lastIndexOf('/')+1);
             m->length = pFormatCtx->duration;
 
             QTreeWidgetItem* item = new QTreeWidgetItem();
@@ -354,7 +355,6 @@ void Project::load_project() {
     int temp_media_id;
     Sequence* temp_seq;
     Clip* temp_clip;
-    int temp_clip_id;
 
     int state = LOAD_STATE_IDLE;
     while (!stream.atEnd()) {
@@ -401,17 +401,19 @@ void Project::load_project() {
 
                     // correct IDs in linked clips
                     for (int j=0;j<clip->linked.size();j++) {
+                        bool found = false;
                         for (int k=0;k<temp_seq->clip_count();k++) {
-                            if (temp_seq->get_clip(k)->id == clip->linked.at(j)) {
+                            if (temp_seq->get_clip(k)->load_id == clip->linked.at(j)) {
                                 clip->linked[j] = k;
+                                found = true;
                                 break;
                             }
                         }
+                        if (!found) {
+                            clip->linked.removeAt(j);
+                            qDebug() << "[WARNING] Discarded link from loaded file - this should NEVER happen";
+                        }
                     }
-                }
-                for (int i=0;i<temp_seq->clip_count();i++) {
-                    // correct actual IDs
-                    temp_seq->get_clip(i)->id = i;
                 }
 
                 new_sequence(temp_seq);
@@ -445,7 +447,6 @@ void Project::load_project() {
         case LOAD_STATE_CLIP:
             if (stream.isEndElement() && stream.name() == "clip") {
                 temp_seq->add_clip(temp_clip);
-                temp_clip->id = temp_clip_id; // uses loaded ID (corrects later)
                 state = LOAD_STATE_SEQUENCE;
             } else if (stream.isStartElement()) {
                 if (stream.name() == "name") {
@@ -453,7 +454,7 @@ void Project::load_project() {
                     temp_clip->name = stream.text().toString();
                 } else if (stream.name() == "id") {
                     stream.readNext();
-                    temp_clip_id = stream.text().toInt();
+                    temp_clip->load_id = stream.text().toInt();
                 } else if (stream.name() == "clipin") {
                     stream.readNext();
                     temp_clip->clip_in = stream.text().toInt();
@@ -552,7 +553,7 @@ void Project::save_project() {
         if (m->type == MEDIA_TYPE_FOOTAGE) {
             m->save_id = i;
             stream.writeStartElement("footage");
-            stream.writeAttribute("id", QString::number(m->save_id));
+            stream.writeAttribute("id", QString::number(i));
             stream.writeTextElement("name", m->name);
             stream.writeTextElement("url", m->url);
             stream.writeEndElement();
@@ -578,7 +579,7 @@ void Project::save_project() {
                 Clip* c = s->get_clip(i);
                 if (c != NULL) {
                     stream.writeStartElement("clip");
-                    stream.writeTextElement("id", QString::number(c->id));
+                    stream.writeTextElement("id", QString::number(i));
                     stream.writeTextElement("name", c->name);
                     stream.writeTextElement("clipin", QString::number(c->clip_in));
                     stream.writeTextElement("in", QString::number(c->timeline_in));

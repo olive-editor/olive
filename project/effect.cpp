@@ -33,8 +33,13 @@ bool Effect::is_enabled() {
 }
 
 Effect* Effect::copy(Clip*) {return NULL;}
-void Effect::load(QXmlStreamReader*) {}
-void Effect::save(QXmlStreamWriter*) {}
-
+void Effect::load(QXmlStreamReader* stream) {}
+void Effect::save(QXmlStreamWriter* stream) {}
+/*void Effect::import_values(float* val, int count) {
+    qDebug() << "[ERROR] import_values MUST be overridden";
+}
+void Effect::export_values(float* val, int* count) {
+    qDebug() << "[ERROR] export_values MUST be overridden";
+}*/
 void Effect::process_gl(int*, int*) {}
 void Effect::process_audio(uint8_t*, int) {}

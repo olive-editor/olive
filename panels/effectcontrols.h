@@ -18,7 +18,7 @@ public:
 	explicit EffectControls(QWidget *parent = 0);
 	~EffectControls();
 	// void set_clip(Clip* c);
-	void set_clips(QVector<Clip*>& clips);
+    void set_clips(QVector<int>& clips);
     void clear_effects(bool clear_cache);
     void delete_clips();
     bool is_focused();
@@ -34,7 +34,7 @@ private slots:
 
 private:
     Ui::EffectControls *ui;
-    QVector<Clip*> selected_clips;
+    QVector<int> selected_clips;
     void show_menu(bool video);
 	void load_effects();
 	void reload_clips();

@@ -191,10 +191,9 @@ long seconds_to_clip_frame(Clip* c, float seconds) {
 float clip_frame_to_seconds(Clip* c, long clip_frame) {
 	// returns frame number as seconds (decimal)
 	if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-		return (double) clip_frame / av_q2d(c->stream->avg_frame_rate);
+        return (double) clip_frame / av_q2d(c->stream->avg_frame_rate);
 	} else {
-		qDebug() << "[ERROR] clip_frame_to_seconds only works on video streams";
-		return 0;
+        return (double) clip_frame / c->sequence->frame_rate;
 	}
 }
 

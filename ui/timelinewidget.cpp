@@ -104,13 +104,17 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 	if (panel_timeline->importing) {
 		event->accept();
 
-        QVector<Clip*> added_clips;
+        QVector<int> added_clips;
 
         // delete areas before adding
         QVector<Selection> delete_areas;
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
             const Ghost& g = panel_timeline->ghosts.at(i);
-            delete_areas.append((Selection){g.in, g.out, g.track});
+            Selection s;
+            s.in = g.in;
+            s.out = g.out;
+            s.track = g.track;
+            delete_areas.append(s);
         }
         panel_timeline->delete_areas_and_relink(delete_areas);
 
@@ -140,17 +144,16 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->effects.append(create_effect(AUDIO_PAN_EFFECT, c));
             }
 
-            sequence->add_clip(c);
-            added_clips.append(c);
+            added_clips.append(sequence->add_clip(c));
 		}
 
         // link clips from the same media
         for (int i=0;i<added_clips.size();i++) {
-            Clip* c = added_clips.at(i);
+            Clip* c = sequence->get_clip(added_clips.at(i));
             for (int j=0;j<added_clips.size();j++) {
-                Clip* cc = added_clips.at(j);
+                Clip* cc = sequence->get_clip(added_clips.at(j));
                 if (c != cc && c->media == cc->media) {
-                    c->linked.append(cc->id);
+                    c->linked.append(j);
                 }
             }
         }
@@ -171,7 +174,11 @@ void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
         if (clip_index >= 0) {
             Clip* clip = sequence->get_clip(clip_index);
             if (!(event->modifiers() & Qt::ShiftModifier)) panel_timeline->selections.clear();
-            panel_timeline->selections.append((Selection){clip->timeline_in, clip->timeline_out, clip->track});
+            Selection s;
+            s.in = clip->timeline_in;
+            s.out = clip->timeline_out;
+            s.track = clip->track;
+            panel_timeline->selections.append(s);
             panel_timeline->repaint_timeline();
         }
     }
@@ -222,7 +229,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 
                         Clip* clip = sequence->get_clip(clip_index);
                         if (clip != NULL) {
-                            panel_timeline->selections.append((Selection){clip->timeline_in, clip->timeline_out, clip->track});
+                            Selection s;
+                            s.in = clip->timeline_in;
+                            s.out = clip->timeline_out;
+                            s.track = clip->track;
+                            panel_timeline->selections.append(s);
 
                             if (panel_timeline->select_also_seeks) {
                                 panel_timeline->seek(clip->timeline_in);
@@ -233,7 +244,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                                 for (int i=0;i<clip->linked.size();i++) {
                                     Clip* link = sequence->get_clip(c->linked.at(i));
                                     if (!panel_timeline->is_clip_selected(link)) {
-                                        panel_timeline->selections.append((Selection){link->timeline_in, link->timeline_out, link->track});
+                                        Selection ss;
+                                        ss.in = link->timeline_in;
+                                        ss.out = link->timeline_out;
+                                        ss.track = link->track;
+                                        panel_timeline->selections.append(ss);
                                     }
                                 }
                             }
@@ -259,10 +274,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
         case TIMELINE_TOOL_RAZOR:
         {
             if (clip_index >= 0) {
-                Clip* clip = sequence->get_clip(clip_index);
-                if (clip != NULL) {
-                    panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
-                }
+                panel_timeline->split_clip_and_relink(clip_index, panel_timeline->drag_frame_start, !(event->modifiers() & Qt::AltModifier));
             }
             panel_timeline->splitting = true;
             panel_timeline->redraw_all_clips(true);
@@ -279,19 +291,24 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (panel_timeline->moving_proc) {
             if (event->modifiers() & Qt::AltModifier) { // if holding alt, duplicate rather than move
                 // duplicate clips
-                QVector<Clip*> old_clips;
                 QVector<Clip*> copy_clips;
+                QVector<int> old_clips;
+                QVector<int> new_clips;
                 QVector<Selection> delete_areas;
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
                     const Ghost& g = panel_timeline->ghosts.at(i);
                     if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
-                        Clip* c = g.clip->copy();
+                        Clip* c = sequence->get_clip(g.clip)->copy();
 
                         c->timeline_in = g.in;
                         c->timeline_out = g.out;
                         c->track = g.track;
 
-                        delete_areas.append((Selection){g.in, g.out, g.track});
+                        Selection s;
+                        s.in = g.in;
+                        s.out = g.out;
+                        s.track = g.track;
+                        delete_areas.append(s);
 
                         old_clips.append(g.clip);
                         copy_clips.append(c);
@@ -301,17 +318,17 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     panel_timeline->delete_areas_and_relink(delete_areas);
                     for (int i=0;i<copy_clips.size();i++) {
                         // step 2 - delete anything that exists in area that clip is moving to
-                        sequence->add_clip(copy_clips.at(i));
+                        new_clips.append(sequence->add_clip(copy_clips.at(i)));
                     }
                     // relink duplicated clips
-                    panel_timeline->relink_clips_using_ids(old_clips, copy_clips);
+                    panel_timeline->relink_clips_using_ids(old_clips, new_clips);
                 }
             } else {
                 // move clips
                 // TODO can we do this better than 3 consecutive for loops?
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
                     // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
-                    panel_timeline->ghosts[i].clip->undeletable = true;
+                    sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = true;
                 }
                 // step 2 - delete areas
                 QVector<Selection> delete_areas;
@@ -321,7 +338,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
                         // step 2 - delete anything that exists in area that clip is moving to
                         // note: ripples are non-destructive so this is pointer-tool exclusive
-                        delete_areas.append((Selection){g.in, g.out, g.track});
+                        Selection s;
+                        s.in = g.in;
+                        s.out = g.out;
+                        s.track = g.track;
+                        delete_areas.append(s);
                     }
                 }
                 panel_timeline->delete_areas_and_relink(delete_areas);
@@ -329,14 +350,15 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     Ghost& g = panel_timeline->ghosts[i];
 
                     // step 3 - move clips
-                    g.clip->timeline_in = g.in;
-                    g.clip->timeline_out = g.out;
-                    g.clip->track = g.track;
-                    g.clip->clip_in = g.clip_in;
+                    Clip* c = sequence->get_clip(g.clip);
+                    c->timeline_in = g.in;
+                    c->timeline_out = g.out;
+                    c->track = g.track;
+                    c->clip_in = g.clip_in;
                 }
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
                     // step 4 - set clips back to deletable
-                    panel_timeline->ghosts[i].clip->undeletable = false;
+                    sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = false;
                 }
             }
 
@@ -395,36 +417,37 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         // one of these days it might be nice to have multiple clips in the effects panel
         bool got_vclip = false;
         bool got_aclip = false;
-        Clip* vclip = NULL;
-        Clip* aclip = NULL;
+        int vclip = -1;
+        int aclip = -1;
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
             if (clip != NULL && panel_timeline->is_clip_selected(clip)) {
                 if (clip->track < 0) {
                     if (got_vclip) {
-                        vclip = NULL;
+                        vclip = -1;
                     } else {
-                        vclip = clip;
+                        vclip = i;
                         got_vclip = true;
                     }
                 } else {
                     if (got_aclip) {
-                        aclip = NULL;
+                        aclip = -1;
                     } else {
-                        aclip = clip;
+                        aclip = i;
                         got_aclip = true;
                     }
                 }
             }
         }
         // check if aclip is linked to vclip
-        QVector<Clip*> selected_clips;
-        if (vclip != NULL) selected_clips.append(vclip);
-        if (aclip != NULL) selected_clips.append(aclip);
-        if (vclip != NULL && aclip != NULL) {
+        QVector<int> selected_clips;
+        if (vclip != -1) selected_clips.append(vclip);
+        if (aclip != -1) selected_clips.append(aclip);
+        if (vclip != -1 && aclip != -1) {
             bool found = false;
-            for (int i=0;i<vclip->linked.size();i++) {
-                if (vclip->linked.at(i) == aclip->id) {
+            Clip* vclip_ref = sequence->get_clip(vclip);
+            for (int i=0;i<vclip_ref->linked.size();i++) {
+                if (vclip_ref->linked.at(i) == aclip) {
                     found = true;
                     break;
                 }
@@ -449,7 +472,7 @@ void TimelineWidget::init_ghosts() {
         if (panel_timeline->trim_target > -1 || panel_timeline->tool == TIMELINE_TOOL_SLIP) {
 			// used for trim ops
 			g.ghost_length = g.old_out - g.old_in;
-            g.media_length = g.clip->media->get_length_in_frames(sequence->frame_rate);
+            g.media_length = sequence->get_clip(g.clip)->media->get_length_in_frames(sequence->frame_rate);
 		}
 	}
 	for (int i=0;i<panel_timeline->selections.size();i++) {
@@ -508,6 +531,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 		// validate ghosts
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
 			Ghost& g = panel_timeline->ghosts[i];
+            Clip* c = sequence->get_clip(g.clip);
 
 			if (panel_timeline->trim_in) {
 				// prevent clip length from being less than 1 frame long
@@ -518,7 +542,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 				validator = g.old_in + frame_diff;
 				if (validator < 0) frame_diff -= validator;
 
-				if (!g.clip->media_stream->infinite_length) {
+                if (!c->media_stream->infinite_length) {
 					// prevent clip_in from going below 0
 					validator = g.old_clip_in + frame_diff;
 					if (validator < 0) frame_diff -= validator;
@@ -547,7 +571,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 				validator = g.ghost_length + frame_diff;
 				if (validator < 1) frame_diff += (1 - validator);
 
-				if (!g.clip->media_stream->infinite_length) {
+                if (!c->media_stream->infinite_length) {
 					// prevent clip length exceeding media length
 					validator = g.ghost_length + frame_diff;
 					if (validator > g.media_length) frame_diff -= validator - g.media_length;
@@ -661,7 +685,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
         // validate ghosts
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
             Ghost& g = panel_timeline->ghosts[i];
-            if (!g.clip->media_stream->infinite_length) {
+            if (!sequence->get_clip(g.clip)->media_stream->infinite_length) {
                 // prevent slip moving a clip below 0 clip_in
                 validator = g.old_clip_in - frame_diff;
                 if (validator < 0) frame_diff += validator;
@@ -762,7 +786,13 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             for (int i=0;i<sequence->clip_count();i++) {
                 Clip* c = sequence->get_clip(i);
                 if (c != NULL && panel_timeline->is_clip_selected(c)) {
-                    panel_timeline->ghosts.append((Ghost){c, c->timeline_in, c->timeline_out, c->track, c->clip_in});
+                    Ghost g;
+                    g.clip = i;
+                    g.in = c->timeline_in;
+                    g.out = c->timeline_out;
+                    g.track = c->track;
+                    g.clip_in = c->clip_in;
+                    panel_timeline->ghosts.append(g);
 				}
 			}
 
@@ -775,10 +805,10 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
                         if (cc != NULL) {
                             // don't cache any currently selected clips
-                            Clip* c = panel_timeline->ghosts.at(i).clip;
+                            Clip* c = sequence->get_clip(panel_timeline->ghosts.at(i).clip);
                             bool is_selected = false;
                             for (int k=0;k<panel_timeline->ghosts.size();k++) {
-                                if (panel_timeline->ghosts.at(k).clip == cc) {
+                                if (panel_timeline->ghosts.at(k).clip == j) {
                                     is_selected = true;
                                     break;
                                 }
@@ -837,7 +867,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
             if (clip != NULL && clip->track == track) {
-                panel_timeline->split_clip_and_relink(clip, panel_timeline->drag_frame_start, !alt);
+                panel_timeline->split_clip_and_relink(i, panel_timeline->drag_frame_start, !alt);
 				repaint = true;
 			}
 		}

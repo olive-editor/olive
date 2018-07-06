@@ -13,11 +13,11 @@ public:
 	~Sequence();
     Sequence* copy();
 	QString name;
-    void add_clip(Clip* c);
+    int add_clip(Clip* c);
 	int clip_count();
     Clip* get_clip(int i);
     void delete_clip(int i);
-    Clip* split_clip(Clip* pre, long frame);
+    int split_clip(int pre, long frame);
 	void get_track_limits(int* video_tracks, int* audio_tracks);
 	long getEndFrame();
 	int width;

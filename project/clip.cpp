@@ -30,7 +30,6 @@ Clip* Clip::copy() {
     Clip* copy = new Clip();
 
     copy->enabled = enabled;
-    copy->id = id;
     copy->name = QString(name);
     copy->clip_in = clip_in;
     copy->timeline_in = timeline_in;

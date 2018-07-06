@@ -16,7 +16,7 @@ struct Media;
 struct MediaStream;
 
 struct Ghost {
-	Clip* clip;
+    int clip;
 	long in;
 	long out;
 	int track;
@@ -67,10 +67,10 @@ public:
     void deselect();
     bool split_selection();
     void split_at_playhead();
-    void split_clip_and_relink(Clip* clip, long frame, bool relink);
+    void split_clip_and_relink(int clip, long frame, bool relink);
     void clean_up_selections(QVector<Selection>& areas);
     void delete_areas_and_relink(QVector<Selection>& areas);
-    void relink_clips_using_ids(QVector<Clip*>& old_clips, QVector<Clip*>& new_clips);
+    void relink_clips_using_ids(QVector<int>& old_clips, QVector<int>& new_clips);
     void update_sequence();
     void increase_track_height();
     void decrease_track_height();
