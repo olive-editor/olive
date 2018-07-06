@@ -175,7 +175,7 @@ void get_clip_frame(Clip* c, long playhead) {
 
 float playhead_to_seconds(Clip* c, long playhead) {
 	// returns time in seconds
-	return (std::max((long) 0, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate;
+    return (qMax((long) 0, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate;
 }
 
 long seconds_to_clip_frame(Clip* c, float seconds) {

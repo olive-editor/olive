@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
 	QPalette darkPalette;
-	darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+    darkPalette.setColor(QPalette::Window, QColor(53,53,53));
 	darkPalette.setColor(QPalette::WindowText, Qt::white);
 	darkPalette.setColor(QPalette::Base, QColor(25,25,25));
 	darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
@@ -78,7 +78,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->centralWidget->setMaximumSize(0, 0);
     setDockNestingEnabled(true);
-
 
     // TODO maybe replace these with non-pointers later on?
     panel_project = new Project(this);
@@ -495,6 +494,8 @@ void MainWindow::on_actionNon_Drop_Frame_triggered()
 void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionEdit_Tool_Also_Seeks->setChecked(panel_timeline->edit_tool_also_seeks);
     ui->actionEdit_Tool_Selects_Links->setChecked(panel_timeline->edit_tool_selects_links);
+    ui->actionSelecting_Also_Seeks->setChecked(panel_timeline->select_also_seeks);
+    ui->actionSeek_to_the_End_of_Pastes->setChecked(panel_timeline->paste_seeks);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -509,4 +510,13 @@ void MainWindow::on_actionDuplicate_triggered() {
     if (panel_project->is_focused()) {
         panel_project->duplicate_selected();
     }
+}
+
+void MainWindow::on_actionSelecting_Also_Seeks_triggered() {
+    panel_timeline->select_also_seeks = !panel_timeline->select_also_seeks;
+}
+
+void MainWindow::on_actionSeek_to_the_End_of_Pastes_triggered()
+{
+    panel_timeline->paste_seeks = !panel_timeline->paste_seeks;
 }

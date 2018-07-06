@@ -224,6 +224,10 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                         if (clip != NULL) {
                             panel_timeline->selections.append({clip->timeline_in, clip->timeline_out, clip->track});
 
+                            if (panel_timeline->select_also_seeks) {
+                                panel_timeline->seek(clip->timeline_in);
+                            }
+
                             // if alt is not down, select links
                             if (!(event->modifiers() & Qt::AltModifier)) {
                                 for (int i=0;i<clip->linked.size();i++) {
@@ -440,7 +444,7 @@ void TimelineWidget::init_ghosts() {
 		g.old_in = g.in;
 		g.old_out = g.out;
 		g.old_track = g.track;
-		g.old_clip_in = g.clip_in;
+        g.old_clip_in = g.clip_in;
 
         if (panel_timeline->trim_target > -1 || panel_timeline->tool == TIMELINE_TOOL_SLIP) {
 			// used for trim ops
@@ -567,30 +571,30 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 			}
 
             validate_snapping(g, &frame_diff);
-		}
+        }
 
-		// resize ghosts
-		for (int i=0;i<panel_timeline->ghosts.size();i++) {
-			Ghost& g = panel_timeline->ghosts[i];
+        // resize ghosts
+        for (int i=0;i<panel_timeline->ghosts.size();i++) {
+            Ghost& g = panel_timeline->ghosts[i];
 
-			if (panel_timeline->trim_in) {
-				g.in = g.old_in + frame_diff;
-				g.clip_in = g.old_clip_in + frame_diff;
-			} else {
-				g.out = g.old_out + frame_diff;
-			}
-		}
+            if (panel_timeline->trim_in) {
+                g.in = g.old_in + frame_diff;
+                g.clip_in = g.old_clip_in + frame_diff;
+            } else {
+                g.out = g.old_out + frame_diff;
+            }
+        }
 
-		// resize selections
-		for (int i=0;i<panel_timeline->selections.size();i++) {
-			Selection& s = panel_timeline->selections[i];
+        // resize selections
+        for (int i=0;i<panel_timeline->selections.size();i++) {
+            Selection& s = panel_timeline->selections[i];
 
-			if (panel_timeline->trim_in) {
-				s.in = s.old_in + frame_diff;
-			} else {
-				s.out = s.old_out + frame_diff;
-			}
-		}
+            if (panel_timeline->trim_in) {
+                s.in = s.old_in + frame_diff;
+            } else {
+                s.out = s.old_out + frame_diff;
+            }
+        }
 	} else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing) { // only move clips on pointer (not ripple or rolling)
 		// validate ghosts
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {

@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>29</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -126,8 +126,10 @@
     <addaction name="actionSlip_Tool"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Snapping"/>
+    <addaction name="actionSelecting_Also_Seeks"/>
     <addaction name="actionEdit_Tool_Also_Seeks"/>
     <addaction name="actionEdit_Tool_Selects_Links"/>
+    <addaction name="actionSeek_to_the_End_of_Pastes"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
@@ -536,6 +538,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionSelecting_Also_Seeks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Selecting Also Seeks</string>
+   </property>
+  </action>
+  <action name="actionSeek_to_the_End_of_Pastes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seek to the End of Pastes</string>
    </property>
   </action>
  </widget>

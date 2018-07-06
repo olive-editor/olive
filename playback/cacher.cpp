@@ -36,10 +36,9 @@ void cache_audio_worker(Clip* c) {
             c->need_new_audio_frame = false;
             if (c->audio_just_reset) {
                 // get precise sample offset for the elected clip_in from this audio frame
-
                 float target_sts = 0;
                 if (c->audio_target_frame < c->timeline_in) {
-                    target_sts = playhead_to_seconds(c, c->clip_in);
+                    target_sts = clip_frame_to_seconds(c, c->clip_in);
                 } else {
                     target_sts = playhead_to_seconds(c, c->audio_target_frame);
                 }
@@ -82,6 +81,13 @@ void cache_audio_worker(Clip* c) {
                 retrieve_next_frame_raw_data(c, frame);
                 nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
                 c->frame_sample_index -= nb_bytes;
+
+                // code DISGUSTINGLY copy/pasted from above
+                int offset = audio_ibuffer_read - c->audio_buffer_write;
+                if (offset > 0) {
+                    c->audio_buffer_write += offset;
+                    c->frame_sample_index += offset;
+                }
             }
             while (c->frame_sample_index < nb_bytes) {
                 if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= get_buffer_offset_from_frame(c->timeline_out)) {

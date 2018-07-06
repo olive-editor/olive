@@ -34,6 +34,8 @@ Timeline::Timeline(QWidget *parent) :
     rect_select_proc = false;
     edit_tool_selects_links = false;
     edit_tool_also_seeks = false;
+    select_also_seeks = false;
+    paste_seeks = true;
     snapping = true;
     last_frame = 0;
     playhead = 0;
@@ -623,12 +625,14 @@ void Timeline::paste() {
         }
         delete_areas_and_relink(delete_areas);
 
+        long paste_end = 0;
         QVector<Clip*> added_clips;
         for (int i=0;i<clip_clipboard.size();i++) {
             Clip* c = clip_clipboard.at(i);
             Clip* cc = c->copy();
             cc->timeline_in += playhead;
             cc->timeline_out += playhead;
+            if (cc->timeline_out > paste_end) paste_end = cc->timeline_out;
             cc->sequence = sequence;
             added_clips.append(cc);
             sequence->add_clip(cc);
@@ -637,6 +641,10 @@ void Timeline::paste() {
         relink_clips_using_ids(clip_clipboard, added_clips);
 
         redraw_all_clips(true);
+
+        if (paste_seeks) {
+            seek(paste_end);
+        }
     }
 }
 

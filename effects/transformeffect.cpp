@@ -35,11 +35,11 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	ui_layout->addWidget(new QLabel("Scale:"), 1, 0);
     scale_x = new LabelSlider();
     scale_x->set_minimum_value(0);
-    scale_x->set_maximum_value(1200);
+    scale_x->set_maximum_value(3000);
 	ui_layout->addWidget(scale_x, 1, 1);
     scale_y = new LabelSlider();
     scale_y->set_minimum_value(0);
-    scale_y->set_maximum_value(1200);
+    scale_y->set_maximum_value(3000);
 	ui_layout->addWidget(scale_y, 1, 2);
 
 	uniform_scale_box = new QCheckBox();

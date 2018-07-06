@@ -131,6 +131,10 @@ private slots:
 
     void on_actionDuplicate_triggered();
 
+    void on_actionSelecting_Also_Seeks_triggered();
+
+    void on_actionSeek_to_the_End_of_Pastes_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
