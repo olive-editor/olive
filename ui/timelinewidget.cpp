@@ -153,7 +153,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             for (int j=0;j<added_clips.size();j++) {
                 Clip* cc = sequence->get_clip(added_clips.at(j));
                 if (c != cc && c->media == cc->media) {
-                    c->linked.append(j);
+                    c->linked.append(added_clips.at(j));
                 }
             }
         }
@@ -216,19 +216,18 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 panel_timeline->moving_init = true;
             } else {
                 if (clip_index >= 0) {
-                    Clip* c = sequence->get_clip(clip_index);
-                    if (panel_timeline->is_clip_selected(c)) {
-                        if (shift) {
-                            // TODO if shift is down, deselect it
-                        }
-                    } else {
-                        // if "shift" is not down
-                        if (!shift) {
-                            panel_timeline->selections.clear();
-                        }
+                    Clip* clip = sequence->get_clip(clip_index);
+                    if (clip != NULL) {
+                        if (panel_timeline->is_clip_selected(clip)) {
+                            if (shift) {
+                                // TODO if shift is down, deselect it
+                            }
+                        } else {
+                            // if "shift" is not down
+                            if (!shift) {
+                                panel_timeline->selections.clear();
+                            }
 
-                        Clip* clip = sequence->get_clip(clip_index);
-                        if (clip != NULL) {
                             Selection s;
                             s.in = clip->timeline_in;
                             s.out = clip->timeline_out;
@@ -242,7 +241,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                             // if alt is not down, select links
                             if (!(event->modifiers() & Qt::AltModifier)) {
                                 for (int i=0;i<clip->linked.size();i++) {
-                                    Clip* link = sequence->get_clip(c->linked.at(i));
+                                    Clip* link = sequence->get_clip(clip->linked.at(i));
                                     if (!panel_timeline->is_clip_selected(link)) {
                                         Selection ss;
                                         ss.in = link->timeline_in;
@@ -254,6 +253,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                             }
                         }
                     }
+
                     panel_timeline->moving_init = true;
                 } else {
                     // if "shift" is not down
