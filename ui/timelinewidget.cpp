@@ -210,6 +210,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
         case TIMELINE_TOOL_POINTER:
         case TIMELINE_TOOL_RIPPLE:
         case TIMELINE_TOOL_SLIP:
+        case TIMELINE_TOOL_ROLLING:
         {
             if (track_resizing) {
                 track_resize_mouse_cache = event->pos().y();
@@ -295,24 +296,26 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
                 // ripple_length becomes the length/number of frames we trimmed
                 // ripple point becomes the point to ripple (i.e. the point after or before which we move every clip)
-                if (panel_timeline->trim_in) {
-                    ripple_length = panel_timeline->ghosts.at(0).old_in - panel_timeline->ghosts.at(0).in;
-                    ripple_point = panel_timeline->ghosts.at(0).old_in;
+                const Ghost& first_ghost = panel_timeline->ghosts.at(0);
+                if (panel_timeline->trim_in_point) {
+                    ripple_length = first_ghost.old_in - panel_timeline->ghosts.at(0).in;
+                    ripple_point = first_ghost.old_in;
                 } else {
                     // if we're trimming an out-point
-                    ripple_length = panel_timeline->ghosts.at(0).old_out - panel_timeline->ghosts.at(0).out;
-                    ripple_point = panel_timeline->ghosts.at(0).old_out;
+                    ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
+                    ripple_point = first_ghost.old_out;
                 }
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
+                    const Ghost& g = panel_timeline->ghosts.at(i);
                     long comp_point;
-                    if (panel_timeline->trim_in) {
-                        comp_point = panel_timeline->ghosts.at(i).old_in;
+                    if (panel_timeline->trim_in_point) {
+                        comp_point = g.old_in;
                     } else {
-                        comp_point = panel_timeline->ghosts.at(i).old_out;
+                        comp_point = g.old_out;
                     }
                     if (ripple_point > comp_point) ripple_point = comp_point;
                 }
-                if (!panel_timeline->trim_in) ripple_length = -ripple_length;
+                if (!panel_timeline->trim_in_point) ripple_length = -ripple_length;
                 panel_timeline->ripple(ripple_point, ripple_length);
             }
 
@@ -467,10 +470,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 void TimelineWidget::init_ghosts() {
 	for (int i=0;i<panel_timeline->ghosts.size();i++) {
 		Ghost& g = panel_timeline->ghosts[i];
-		g.old_in = g.in;
-		g.old_out = g.out;
-		g.old_track = g.track;
-        g.old_clip_in = g.clip_in;
+        Clip* c = sequence->get_clip(g.clip);
+        g.in = g.old_in = c->timeline_in;
+        g.out = g.old_out = c->timeline_out;
+        g.track = g.old_track = c->track;
+        g.clip_in = g.old_clip_in = c->clip_in;
 
         if (panel_timeline->trim_target > -1 || panel_timeline->tool == TIMELINE_TOOL_SLIP) {
 			// used for trim ops
@@ -491,12 +495,12 @@ bool subvalidate_snapping(Ghost& g, long* frame_diff, long snap_point) {
     long in_validator = g.old_in + *frame_diff - snap_point;
     long out_validator = g.old_out + *frame_diff - snap_point;
 
-    if ((panel_timeline->trim_target == -1 || panel_timeline->trim_in) && in_validator > -snap_range && in_validator < snap_range) {
+    if ((panel_timeline->trim_target == -1 || g.trim_in) && in_validator > -snap_range && in_validator < snap_range) {
         *frame_diff -= in_validator;
         panel_timeline->snap_point = snap_point;
         panel_timeline->snapped = true;
         return true;
-    } else if (!panel_timeline->trim_in && out_validator > -snap_range && out_validator < snap_range) {
+    } else if (!g.trim_in && out_validator > -snap_range && out_validator < snap_range) {
         *frame_diff -= out_validator;
         panel_timeline->snap_point = snap_point;
         panel_timeline->snapped = true;
@@ -538,7 +542,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 
             validate_snapping(g, &frame_diff);
 
-			if (panel_timeline->trim_in) {
+            if (g.trim_in) {
 				// prevent clip length from being less than 1 frame long
 				validator = g.ghost_length - frame_diff;
 				if (validator < 1) frame_diff -= (1 - validator);
@@ -576,7 +580,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                     for (int k=0;k<pre_clips.size();k++) {
                         Clip* pre = pre_clips.at(k);
                         if (pre != post && pre->track == post->track) {
-                            if (panel_timeline->trim_in) {
+                            if (panel_timeline->trim_in_point) {
                                 validator = post->timeline_in - frame_diff - pre->timeline_out;
                                 if (validator < 0) frame_diff += validator;
                             } else {
@@ -593,7 +597,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
             Ghost& g = panel_timeline->ghosts[i];
 
-            if (panel_timeline->trim_in) {
+            if (g.trim_in) {
                 g.in = g.old_in + frame_diff;
                 g.clip_in = g.old_clip_in + frame_diff;
             } else {
@@ -605,7 +609,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
         for (int i=0;i<panel_timeline->selections.size();i++) {
             Selection& s = panel_timeline->selections[i];
 
-            if (panel_timeline->trim_in) {
+            if (panel_timeline->trim_in_point) {
                 s.in = s.old_in + frame_diff;
             } else {
                 s.out = s.old_out + frame_diff;
@@ -780,13 +784,44 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 if (c != NULL && panel_timeline->is_clip_selected(c)) {
                     Ghost g;
                     g.clip = i;
-                    g.in = c->timeline_in;
-                    g.out = c->timeline_out;
-                    g.track = c->track;
-                    g.clip_in = c->clip_in;
+                    g.trim_in = panel_timeline->trim_in_point;
                     panel_timeline->ghosts.append(g);
 				}
 			}
+
+            if (panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
+                int size = panel_timeline->ghosts.size();
+                for (int i=0;i<size;i++) {
+                    Clip* ghost_clip = sequence->get_clip(panel_timeline->ghosts.at(i).clip);
+                    for (int j=0;j<sequence->clip_count();j++) {
+                        Clip* comp_clip = sequence->get_clip(j);
+                        if (comp_clip->track == ghost_clip->track) {
+                            if ((panel_timeline->trim_in_point && comp_clip->timeline_out == ghost_clip->timeline_in) ||
+                                    (!panel_timeline->trim_in_point && comp_clip->timeline_in == ghost_clip->timeline_out)) {
+                                // see if this clip is already selected, and if so just switch the trim_in
+                                bool found = false;
+                                for (int k=0;k<size;k++) {
+                                    if (panel_timeline->ghosts.at(k).clip == j) {
+                                        panel_timeline->ghosts[k].trim_in = !panel_timeline->trim_in_point;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    // add ghost for this clip with opposite trim_in
+                                    Ghost g;
+                                    g.clip = j;
+                                    g.trim_in = !panel_timeline->trim_in_point;
+                                    panel_timeline->ghosts.append(g);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            init_ghosts();
 
 			// ripple edit prep
 			if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
@@ -797,8 +832,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     for (int j=0;j<axis_ghosts.size();j++) {
                         Clip* cc = axis_ghosts.at(j);
                         if (c->track == cc->track &&
-                                ((panel_timeline->trim_in && c->timeline_in < cc->timeline_in) ||
-                                (!panel_timeline->trim_in && c->timeline_out > cc->timeline_out))) {
+                                ((panel_timeline->trim_in_point && c->timeline_in < cc->timeline_in) ||
+                                (!panel_timeline->trim_in_point && c->timeline_out > cc->timeline_out))) {
                             axis_ghosts[j] = c;
                             found = true;
                             break;
@@ -814,7 +849,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     if (c != NULL && !panel_timeline->is_clip_selected(c)) {
                         for (int j=0;j<axis_ghosts.size();j++) {
                             Clip* axis = axis_ghosts.at(j);
-                            long comp_point = (panel_timeline->trim_in) ? axis->timeline_in : axis->timeline_out;
+                            long comp_point = (panel_timeline->trim_in_point) ? axis->timeline_in : axis->timeline_out;
                             bool clip_is_pre = (c->timeline_in < comp_point);
                             QVector<Clip*>& clip_list = clip_is_pre ? pre_clips : post_clips;
                             bool found = false;
@@ -834,10 +869,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                         }
                     }
                 }
-//                qDebug() << "found" << pre_clips.size() << "pres and" << post_clips.size() << "posts";
-			}
-
-			init_ghosts();
+            }
 
 			panel_timeline->moving_proc = true;
 		}
@@ -925,7 +957,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             panel_timeline->rect_select_h = 0;
             panel_timeline->rect_select_proc = true;
         }
-	} else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
+    } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
+               panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
+               panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
         track_resizing = false;
 
 		QPoint pos = event->pos();
@@ -943,7 +977,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     int nc = qAbs(c->timeline_in + 1 - panel_timeline->cursor_frame);
                     if (nc < closeness) {
                         panel_timeline->trim_target = i;
-                        panel_timeline->trim_in = true;
+                        panel_timeline->trim_in_point = true;
                         closeness = nc;
                         found = true;
                     }
@@ -952,7 +986,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     int nc = qAbs(c->timeline_out - 1 - panel_timeline->cursor_frame);
                     if (nc < closeness) {
                         panel_timeline->trim_target = i;
-                        panel_timeline->trim_in = false;
+                        panel_timeline->trim_in_point = false;
                         closeness = nc;
                         found = true;
                     }

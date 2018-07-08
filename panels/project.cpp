@@ -358,7 +358,8 @@ void Project::load_project() {
     Clip* temp_clip;
 
     int state = LOAD_STATE_IDLE;
-    while (!stream.atEnd()) {
+    bool error = false;
+    while (!error && !stream.atEnd()) {
         stream.readNext();
         switch (state) {
         case LOAD_STATE_IDLE:
@@ -380,9 +381,13 @@ void Project::load_project() {
         case LOAD_STATE_FOOTAGE:
             if (stream.isEndElement() && stream.name() == "footage") {
                 Media* m = import_file(temp_url);
-                m->save_id = temp_media_id;
-                m->name = temp_name;
-                temp_media_list.append(m);
+                if (m == NULL) {
+                    error = (QMessageBox::warning(this, "Source load error", "Couldn't load source file '" + temp_url + "'. This is unsupported and may lead to crashes. Do you wish to continue?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No);
+                } else {
+                    m->save_id = temp_media_id;
+                    m->name = temp_name;
+                    temp_media_list.append(m);
+                }
                 state = LOAD_STATE_IDLE;
             } else if (stream.isStartElement()) {
                 if (stream.name() == "name") {
@@ -410,9 +415,12 @@ void Project::load_project() {
                                 break;
                             }
                         }
-                        if (!found) {
-                            clip->linked.removeAt(j);
-                            qDebug() << "[WARNING] Discarded link from loaded file - this should NEVER happen";
+                        if (!found) {                            
+                            if (QMessageBox::warning(this, "Corrupt clip link", "Project contains a non-existent clip link. It may be corrupt. Would you like to load it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                                clip->linked.removeAt(j);
+                            } else {
+                                error = true;
+                            }
                         }
                     }
                 }
@@ -497,9 +505,13 @@ void Project::load_project() {
                 } else if (stream.name() == "stream") {
                     stream.readNext();
                     int stream_index = stream.text().toInt();
-                    temp_clip->media_stream = temp_clip->media->get_stream_from_file_index(stream_index);
-                    if (temp_clip->media_stream == NULL) {
-                        qDebug() << "[WARNING] Could not load media stream - project file seems corrupt";
+                    if (temp_clip->media != NULL) {
+                        temp_clip->media_stream = temp_clip->media->get_stream_from_file_index(stream_index);
+                        if (temp_clip->media_stream == NULL) {
+                            if (QMessageBox::warning(this, "Source changed", "Source file '" + temp_clip->media->url + "' appears to have changed since last saving the project. This is unsupported and may lead to crashes. Do you wish to continue?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                                error = true;
+                            }
+                        }
                     }
                 } else if (stream.name() == "linked") {
                     state = LOAD_STATE_CLIP_LINKS;
@@ -531,11 +543,16 @@ void Project::load_project() {
     }
     if (stream.hasError()) {
         qDebug() << "[ERROR] Error parsing XML." << stream.error();
+        QMessageBox::critical(this, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.error(), QMessageBox::Ok);
+        error = true;
     }
 
-    panel_timeline->redraw_all_clips(false);
-
-    project_changed = false;
+    if (error) {
+        new_project();
+    } else {
+        panel_timeline->redraw_all_clips(false);
+        project_changed = false;
+    }
 }
 
 void Project::save_project() {

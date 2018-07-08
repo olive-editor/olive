@@ -29,7 +29,7 @@ Timeline::Timeline(QWidget *parent) :
     splitting = false;
     importing = false;
     playing = false;
-    trim_in = false;
+    trim_in_point = false;
     snapped = false;
     rect_select_init = false;
     rect_select_proc = false;

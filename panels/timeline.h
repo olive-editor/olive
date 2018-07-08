@@ -34,6 +34,7 @@ struct Ghost {
 	// other variables
 	long ghost_length;
 	long media_length;
+    bool trim_in;
 };
 
 struct Selection {
@@ -44,6 +45,8 @@ struct Selection {
 	long old_in;
 	long old_out;
 	int old_track;
+
+    bool trim_in;
 };
 
 namespace Ui {
@@ -141,11 +144,11 @@ public:
 	// moving
 	bool moving_init;
 	bool moving_proc;
-	QVector<Ghost> ghosts;
+    QVector<Ghost> ghosts;
 
 	// trimming
 	int trim_target;
-	bool trim_in;
+    bool trim_in_point;
 
 	// splitting
 	bool splitting;

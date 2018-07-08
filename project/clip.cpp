@@ -23,6 +23,7 @@ Clip::Clip() {
     texture = NULL;
     opening_transition = NULL;
     closing_transition = NULL;
+    media = NULL;
     pkt = new AVPacket();
 }
 
