@@ -82,12 +82,12 @@ void Project::duplicate_selected() {
     for (int i=0;i<items.size();i++) {
         Media* m = get_media_from_tree(items.at(i));
         if (m->type == MEDIA_TYPE_SEQUENCE) {
-            new_sequence(m->sequence->copy());
+            new_sequence(m->sequence->copy(), false);
         }
     }
 }
 
-void Project::new_sequence(Sequence *s) {
+void Project::new_sequence(Sequence *s, bool open) {
 	Media* m = new Media();
     m->type = MEDIA_TYPE_SEQUENCE;
 	m->sequence = s;
@@ -102,7 +102,7 @@ void Project::new_sequence(Sequence *s) {
 
     project_changed = true;
 
-    set_sequence(s);
+    if (open) set_sequence(s);
 }
 
 Media* Project::import_file(QString file) {
@@ -425,7 +425,8 @@ void Project::load_project() {
                     }
                 }
 
-                new_sequence(temp_seq);
+                temp_seq->reset_undo();
+                new_sequence(temp_seq, false);
                 state = LOAD_STATE_IDLE;
             } else if (stream.isStartElement()) {
                 if (stream.name() == "name") {

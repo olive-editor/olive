@@ -26,6 +26,7 @@ public:
 	int audio_frequency;
 	int audio_layout;
 
+    void reset_undo();
     void undo_add_current();
     void undo();
     void redo();

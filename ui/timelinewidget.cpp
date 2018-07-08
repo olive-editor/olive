@@ -394,13 +394,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             }
 
             panel_timeline->redraw_all_clips(true);
-        } else if (panel_timeline->selecting) {
-            // remove duplicate selections
-            panel_timeline->clean_up_selections(panel_timeline->selections);
-            repaint = true;
-        } else if (panel_timeline->rect_select_proc) {
+        } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
             repaint = true;
         }
+
+        // remove duplicate selections
+        panel_timeline->clean_up_selections(panel_timeline->selections);
 
         // destroy all ghosts
         panel_timeline->ghosts.clear();
@@ -535,12 +534,16 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
     if (panel_timeline->trim_target > -1) { // if trimming
 		// trim ops
 
+        // first try to snap
+        for (int i=0;i<panel_timeline->ghosts.size();i++) {
+            Ghost& g = panel_timeline->ghosts[i];
+            validate_snapping(g, &frame_diff);
+        }
+
 		// validate ghosts
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
 			Ghost& g = panel_timeline->ghosts[i];
             Clip* c = sequence->get_clip(g.clip);
-
-            validate_snapping(g, &frame_diff);
 
             if (g.trim_in) {
 				// prevent clip length from being less than 1 frame long
@@ -608,7 +611,6 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
         // resize selections
         for (int i=0;i<panel_timeline->selections.size();i++) {
             Selection& s = panel_timeline->selections[i];
-
             if (panel_timeline->trim_in_point) {
                 s.in = s.old_in + frame_diff;
             } else {

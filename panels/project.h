@@ -29,7 +29,7 @@ public:
     void clear();
     Media* import_file(QString url);
     void import_dialog();
-	void new_sequence(Sequence* s);
+    void new_sequence(Sequence* s, bool open);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
     void delete_selected_media();

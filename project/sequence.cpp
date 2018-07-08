@@ -6,8 +6,7 @@
 #include <QDebug>
 
 Sequence::Sequence() {
-    undo_pointer = -1;
-    undo_add_current();
+    reset_undo();
 }
 
 Sequence::~Sequence() {
@@ -126,6 +125,15 @@ int Sequence::split_clip(int p, long frame) {
         return add_clip(post);
 	}
     return -1;
+}
+
+void Sequence::reset_undo() {
+    while (undo_stack.size() > 0) {
+        delete undo_stack.last();
+        undo_stack.removeLast();
+    }
+    undo_pointer = -1;
+    undo_add_current();
 }
 
 void Sequence::undo_add_current() {
