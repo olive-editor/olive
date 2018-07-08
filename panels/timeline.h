@@ -74,6 +74,7 @@ public:
     void update_sequence();
     void increase_track_height();
     void decrease_track_height();
+    void add_transition();
 
     int get_snap_range();
     int getScreenPointFromFrame(long frame);

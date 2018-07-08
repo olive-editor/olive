@@ -50,8 +50,8 @@ private:
     bool track_resizing;
     int track_target;
 
-	QList<Clip*> pre_clips;
-	QList<Clip*> post_clips;
+    QVector<Clip*> pre_clips;
+    QVector<Clip*> post_clips;
 
     QPixmap clip_pixmap;
 //	QPixmap selection_pixmap;

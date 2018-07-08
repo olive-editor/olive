@@ -57,7 +57,8 @@ SOURCES += \
     ui/labelslider.cpp \
     dialogs/preferencesdialog.cpp \
     effects/transition.cpp \
-    effects/crossdissolvetransition.cpp
+    effects/crossdissolvetransition.cpp \
+    ui/audiomonitor.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -89,7 +90,8 @@ HEADERS += \
     io/previewgenerator.h \
     ui/labelslider.h \
     dialogs/preferencesdialog.h \
-    effects/transition.h
+    effects/transition.h \
+    ui/audiomonitor.h
 
 FORMS += \
         mainwindow.ui \

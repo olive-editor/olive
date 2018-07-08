@@ -330,7 +330,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>458</width>
+         <width>408</width>
          <height>314</height>
         </rect>
        </property>
@@ -396,6 +396,16 @@
       </widget>
      </widget>
     </item>
+    <item>
+     <widget class="AudioMonitor" name="audio_monitor" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>50</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
@@ -410,6 +420,12 @@
    <class>TimelineHeader</class>
    <extends>QWidget</extends>
    <header>ui/timelineheader.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AudioMonitor</class>
+   <extends>QWidget</extends>
+   <header>ui/audiomonitor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

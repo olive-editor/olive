@@ -12,6 +12,7 @@
 #include "panels/viewer.h"
 #include "playback/cacher.h"
 #include "playback/playback.h"
+#include "effects/transition.h"
 #include "ui_viewer.h"
 
 #include <QTime>
@@ -126,6 +127,7 @@ void Timeline::reset_all_audio() {
             c->audio_buffer_write = 0;
         }
     }
+    ui->audio_monitor->reset();
     clear_audio_ibuffer();
 }
 
@@ -171,6 +173,21 @@ int Timeline::get_track_height_size(bool video) {
     } else {
         return audio_track_heights.size();
     }
+}
+
+void Timeline::add_transition() {
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+        if (c != NULL && is_clip_selected(c)) {
+            if (c->opening_transition == NULL) {
+                c->opening_transition = create_transition(0, c);
+            }
+            if (c->closing_transition == NULL) {
+                c->closing_transition = create_transition(0, c);
+            }
+        }
+    }
+    redraw_all_clips(true);
 }
 
 int Timeline::calculate_track_height(int track, int value) {
@@ -242,6 +259,7 @@ void Timeline::repaint_timeline() {
 	ui->audio_area->update();
     if (last_frame != playhead) {
 		panel_viewer->viewer_widget->update();
+        ui->audio_monitor->update();
 		last_frame = playhead;
 	}
     panel_viewer->update_playhead_timecode();
@@ -343,20 +361,24 @@ void Timeline::set_zoom(bool in) {
 }
 
 void Timeline::ripple(long ripple_point, long ripple_length) {
+    // ripple all clips around the ripple_point
 	for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
         if (c != NULL && c->timeline_in >= ripple_point) {
             c->timeline_in += ripple_length;
             c->timeline_out += ripple_length;
 		}
-	}
-	for (int i=0;i<selections.size();i++) {
-		Selection& s = selections[i];
-		if (s.in >= ripple_point) {
-			s.in += ripple_length;
-			s.out += ripple_length;
-		}
-	}
+    }
+
+    // ripple the selections
+    for (int i=0;i<selections.size();i++) {
+        Selection& s = selections[i];
+        // only ripple the selection if it's within range of the ripple point
+        if (s.old_in >= ripple_point) {
+            s.in += ripple_length;
+            s.out += ripple_length;
+        }
+    }
 }
 
 void Timeline::decheck_tool_buttons(QObject* sender) {

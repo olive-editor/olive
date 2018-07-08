@@ -10,6 +10,7 @@
 #include "panels/timeline.h"
 #include "project/sequence.h"
 #include "project/effect.h"
+#include "effects/transition.h"
 #include "io/previewgenerator.h"
 
 #include <QFileDialog>
@@ -467,6 +468,12 @@ void Project::load_project() {
                 } else if (stream.name() == "track") {
                     stream.readNext();
                     temp_clip->track = stream.text().toInt();
+                } else if (stream.name() == "opening") {
+                    stream.readNext();
+                    temp_clip->opening_transition = create_transition(stream.text().toInt(), temp_clip);
+                } else if (stream.name() == "closing") {
+                    stream.readNext();
+                    temp_clip->closing_transition = create_transition(stream.text().toInt(), temp_clip);
                 } else if (stream.name() == "color") {
                     for (int j=0;j<stream.attributes().size();j++) {
                         const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -585,6 +592,12 @@ void Project::save_project() {
                     stream.writeTextElement("in", QString::number(c->timeline_in));
                     stream.writeTextElement("out", QString::number(c->timeline_out));
                     stream.writeTextElement("track", QString::number(c->track));
+                    if (c->opening_transition != NULL) {
+                        stream.writeTextElement("opening", QString::number(c->opening_transition->id));
+                    }
+                    if (c->closing_transition != NULL) {
+                        stream.writeTextElement("closing", QString::number(c->closing_transition->id));
+                    }
                     stream.writeStartElement("color");
                     stream.writeAttribute("r", QString::number(c->color_r));
                     stream.writeAttribute("g", QString::number(c->color_g));

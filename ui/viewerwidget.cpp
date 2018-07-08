@@ -9,6 +9,7 @@
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "io/media.h"
+#include "ui_timeline.h"
 
 #include <QDebug>
 #include <QPainter>
@@ -176,8 +177,21 @@ void ViewerWidget::paintGL() {
             int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
             int max_write = audio_ibuffer_size - adjusted_read_index;
             int actual_write = audio_io_device->write((const char*) audio_ibuffer+adjusted_read_index, max_write);
-            memset(audio_ibuffer+adjusted_read_index, 0, actual_write);
             audio_ibuffer_read += actual_write;
+
+            // send samples to audio monitor cache
+            if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
+                panel_timeline->ui->audio_monitor->sample_cache_offset = panel_timeline->playhead;
+            }
+            long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + panel_timeline->ui->audio_monitor->sample_cache.size();
+            int buffer_offset, buffer_offset_adjusted;
+            while ((buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead)) < audio_ibuffer_read) {
+                buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
+                panel_timeline->ui->audio_monitor->sample_cache.append((qint16) ((audio_ibuffer[buffer_offset_adjusted+1] << 8) | audio_ibuffer[buffer_offset_adjusted]));
+                sample_cache_playhead++;
+            }
+
+            memset(audio_ibuffer+adjusted_read_index, 0, actual_write);
             if (actual_write == max_write) {
                 // got all the bytes, write again
                 actual_write = audio_io_device->write((const char*) audio_ibuffer, audio_ibuffer_size);

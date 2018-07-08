@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include "io/config.h"
@@ -273,6 +273,9 @@ void MainWindow::autorecover_interval() {
 bool MainWindow::save_project_as() {
     QString fn = QFileDialog::getSaveFileName(this, "Save Project As...", "", OLIVE_FILE_FILTER);
     if (!fn.isEmpty()) {
+        if (!fn.endsWith(".ove", Qt::CaseInsensitive)) {
+            fn += ".ove";
+        }
         project_url = fn;
         panel_project->save_project();
         return true;
@@ -308,12 +311,10 @@ void MainWindow::on_action_Save_Project_triggered()
 
 void MainWindow::on_action_Open_Project_triggered()
 {
-    if (can_close_project()) {
-        QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
-        if (!fn.isEmpty()) {
-            project_url = fn;
-            panel_project->load_project();
-        }
+    QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
+    if (!fn.isEmpty() && can_close_project()) {
+        project_url = fn;
+        panel_project->load_project();
     }
 }
 
@@ -496,6 +497,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionEdit_Tool_Selects_Links->setChecked(panel_timeline->edit_tool_selects_links);
     ui->actionSelecting_Also_Seeks->setChecked(panel_timeline->select_also_seeks);
     ui->actionSeek_to_the_End_of_Pastes->setChecked(panel_timeline->paste_seeks);
+    ui->actionToggle_Snapping->setChecked(panel_timeline->snapping);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -519,4 +521,8 @@ void MainWindow::on_actionSelecting_Also_Seeks_triggered() {
 void MainWindow::on_actionSeek_to_the_End_of_Pastes_triggered()
 {
     panel_timeline->paste_seeks = !panel_timeline->paste_seeks;
+}
+
+void MainWindow::on_actionAdd_Default_Transition_triggered() {
+    if (panel_timeline->focused()) panel_timeline->add_transition();
 }

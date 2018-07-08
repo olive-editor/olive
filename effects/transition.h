@@ -3,6 +3,8 @@
 
 #include <QString>
 
+struct Clip;
+
 enum VideoTransitions {
     VIDEO_DISSOLVE_TRANSITION,
     VIDEO_TRANSITION_COUNT
@@ -31,5 +33,7 @@ public:
     void process_transition(float);
     Transition* copy();
 };
+
+Transition* create_transition(int transition_id, Clip* c);
 
 #endif // TRANSITION_H

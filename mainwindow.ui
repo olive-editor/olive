@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>17</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -68,6 +68,7 @@
     <addaction name="actionDeselect_All"/>
     <addaction name="separator"/>
     <addaction name="actionSplit_at_Playhead"/>
+    <addaction name="actionAdd_Default_Transition"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -448,8 +449,14 @@
    </property>
   </action>
   <action name="actionToggle_Snapping">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Toggle Snapping</string>
+    <string>Snapping</string>
+   </property>
+   <property name="toolTip">
+    <string>Snapping</string>
    </property>
    <property name="shortcut">
     <string>S</string>
@@ -554,6 +561,14 @@
    </property>
    <property name="text">
     <string>Seek to the End of Pastes</string>
+   </property>
+  </action>
+  <action name="actionAdd_Default_Transition">
+   <property name="text">
+    <string>Add Default Transition</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
    </property>
   </action>
  </widget>

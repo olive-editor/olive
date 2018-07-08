@@ -62,7 +62,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 			bool ignore_infinite_length = false;
             Media* m = panel_project->get_media_from_tree(items.at(i));
             long duration = m->get_length_in_frames(sequence->frame_rate);
-			Ghost g = {NULL, entry_point, entry_point + duration};
+            Ghost g = {0, entry_point, entry_point + duration};
 			g.media = m;
 			g.clip_in = 0;
 			for (int j=0;j<m->audio_tracks.size();j++) {
@@ -289,7 +289,34 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         bool repaint = false;
 
         if (panel_timeline->moving_proc) {
-            if (event->modifiers() & Qt::AltModifier) { // if holding alt, duplicate rather than move
+            // if we were RIPPLING, move all the clips
+            if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
+                long ripple_length, ripple_point;
+
+                // ripple_length becomes the length/number of frames we trimmed
+                // ripple point becomes the point to ripple (i.e. the point after or before which we move every clip)
+                if (panel_timeline->trim_in) {
+                    ripple_length = panel_timeline->ghosts.at(0).old_in - panel_timeline->ghosts.at(0).in;
+                    ripple_point = panel_timeline->ghosts.at(0).old_in;
+                } else {
+                    // if we're trimming an out-point
+                    ripple_length = panel_timeline->ghosts.at(0).old_out - panel_timeline->ghosts.at(0).out;
+                    ripple_point = panel_timeline->ghosts.at(0).old_out;
+                }
+                for (int i=0;i<panel_timeline->ghosts.size();i++) {
+                    long comp_point;
+                    if (panel_timeline->trim_in) {
+                        comp_point = panel_timeline->ghosts.at(i).old_in;
+                    } else {
+                        comp_point = panel_timeline->ghosts.at(i).old_out;
+                    }
+                    if (ripple_point > comp_point) ripple_point = comp_point;
+                }
+                if (!panel_timeline->trim_in) ripple_length = -ripple_length;
+                panel_timeline->ripple(ripple_point, ripple_length);
+            }
+
+            if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (event->modifiers() & Qt::AltModifier)) { // if holding alt, duplicate rather than move
                 // duplicate clips
                 QVector<Clip*> copy_clips;
                 QVector<int> old_clips;
@@ -326,67 +353,43 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             } else {
                 // move clips
                 // TODO can we do this better than 3 consecutive for loops?
-                for (int i=0;i<panel_timeline->ghosts.size();i++) {
-                    // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
-                    sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = true;
-                }
-                // step 2 - delete areas
-                QVector<Selection> delete_areas;
-                for (int i=0;i<panel_timeline->ghosts.size();i++) {
-                    const Ghost& g = panel_timeline->ghosts.at(i);
-
-                    if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+                if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+                    for (int i=0;i<panel_timeline->ghosts.size();i++) {
+                        // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
+                        sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = true;
+                    }
+                    // step 2 - delete areas
+                    QVector<Selection> delete_areas;
+                    for (int i=0;i<panel_timeline->ghosts.size();i++) {
                         // step 2 - delete anything that exists in area that clip is moving to
                         // note: ripples are non-destructive so this is pointer-tool exclusive
+                        const Ghost& g = panel_timeline->ghosts.at(i);
                         Selection s;
                         s.in = g.in;
                         s.out = g.out;
                         s.track = g.track;
                         delete_areas.append(s);
                     }
+                    panel_timeline->delete_areas_and_relink(delete_areas);
                 }
-                panel_timeline->delete_areas_and_relink(delete_areas);
                 for (int i=0;i<panel_timeline->ghosts.size();i++) {
                     Ghost& g = panel_timeline->ghosts[i];
 
                     // step 3 - move clips
                     Clip* c = sequence->get_clip(g.clip);
-                    c->timeline_in = g.in;
-                    c->timeline_out = g.out;
-                    c->track = g.track;
-                    c->clip_in = g.clip_in;
+                    c->timeline_in += (g.in - g.old_in);
+                    c->timeline_out += (g.out - g.old_out);
+                    c->track += (g.track - g.old_track);
+                    c->clip_in += (g.clip_in - g.old_clip_in);
                 }
-                for (int i=0;i<panel_timeline->ghosts.size();i++) {
-                    // step 4 - set clips back to deletable
-                    sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = false;
+                if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+                    for (int i=0;i<panel_timeline->ghosts.size();i++) {
+                        // step 4 - set clips back to deletable
+                        sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = false;
+                    }
                 }
             }
 
-            // ripple ops
-            if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-                long ripple_length, ripple_point;
-                if (panel_timeline->trim_in) {
-                    ripple_length = panel_timeline->ghosts.at(0).old_in - panel_timeline->ghosts.at(0).in;
-                    ripple_point = (ripple_length < 0) ? panel_timeline->ghosts.at(0).old_in : panel_timeline->ghosts.at(0).in;
-                } else {
-                    ripple_length = panel_timeline->ghosts.at(0).old_out - panel_timeline->ghosts.at(0).out;
-                    ripple_point = (ripple_length < 0) ? panel_timeline->ghosts.at(0).old_out : panel_timeline->ghosts.at(0).out;
-                }
-                for (int i=0;i<panel_timeline->ghosts.size();i++) {
-                    long comp_point;
-                    if (panel_timeline->trim_in) {
-                        comp_point = (ripple_length < 0) ? panel_timeline->ghosts.at(i).old_in : panel_timeline->ghosts.at(i).in;
-                    } else {
-                        comp_point = (ripple_length < 0) ? panel_timeline->ghosts.at(i).old_out : panel_timeline->ghosts.at(i).out;
-                    }
-                    if (ripple_point > comp_point) ripple_point = comp_point;
-                }
-                if (panel_timeline->trim_in) {
-                    panel_timeline->ripple(ripple_point, ripple_length);
-                } else {
-                    panel_timeline->ripple(ripple_point, -ripple_length);
-                }
-            }
             panel_timeline->redraw_all_clips(true);
         } else if (panel_timeline->selecting) {
             // remove duplicate selections
@@ -533,6 +536,8 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 			Ghost& g = panel_timeline->ghosts[i];
             Clip* c = sequence->get_clip(g.clip);
 
+            validate_snapping(g, &frame_diff);
+
 			if (panel_timeline->trim_in) {
 				// prevent clip length from being less than 1 frame long
 				validator = g.ghost_length - frame_diff;
@@ -546,25 +551,6 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 					// prevent clip_in from going below 0
 					validator = g.old_clip_in + frame_diff;
 					if (validator < 0) frame_diff -= validator;
-				}
-
-				// ripple ops
-				if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-					for (int j=0;j<post_clips.size();j++) {
-						// prevent any rippled clip from going below 0
-						Clip* post = post_clips.at(j);
-						validator = post->timeline_in - frame_diff;
-						if (validator < 0) frame_diff += validator;
-
-						// prevent any post-clips colliding with pre-clips
-						for (int k=0;k<pre_clips.size();k++) {
-							Clip* pre = pre_clips.at(k);
-							if (pre->track == post->track) {
-								validator = post->timeline_in - frame_diff - pre->timeline_out;
-								if (validator < 0) frame_diff += validator;
-							}
-						}
-					}
                 }
 			} else {
 				// prevent clip length from being less than 1 frame long
@@ -575,26 +561,32 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 					// prevent clip length exceeding media length
 					validator = g.ghost_length + frame_diff;
 					if (validator > g.media_length) frame_diff -= validator - g.media_length;
-				}
-
-				// ripple ops
-				if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-					for (int j=0;j<post_clips.size();j++) {
-						Clip* post = post_clips.at(j);
-
-						// prevent any post-clips colliding with pre-clips
-						for (int k=0;k<pre_clips.size();k++) {
-							Clip* pre = pre_clips.at(k);
-							if (pre->track == post->track) {
-								validator = post->timeline_in + frame_diff - pre->timeline_out;
-								if (validator < 0) frame_diff -= validator;
-							}
-						}
-					}
-				}
+                }
 			}
 
-            validate_snapping(g, &frame_diff);
+            // ripple ops
+            if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
+                for (int j=0;j<post_clips.size();j++) {
+                    // prevent any rippled clip from going below 0
+                    Clip* post = post_clips.at(j);
+                    validator = post->timeline_in - frame_diff;
+                    if (validator < 0) frame_diff += validator;
+
+                    // prevent any post-clips colliding with pre-clips
+                    for (int k=0;k<pre_clips.size();k++) {
+                        Clip* pre = pre_clips.at(k);
+                        if (pre != post && pre->track == post->track) {
+                            if (panel_timeline->trim_in) {
+                                validator = post->timeline_in - frame_diff - pre->timeline_out;
+                                if (validator < 0) frame_diff += validator;
+                            } else {
+                                validator = post->timeline_in + frame_diff - pre->timeline_out;
+                                if (validator < 0) frame_diff -= validator;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // resize ghosts
@@ -798,62 +790,51 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
 			// ripple edit prep
 			if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-				for (int i=0;i<panel_timeline->ghosts.size();i++) {
-					// get clips before and after ripple point
-                    for (int j=0;j<sequence->clip_count();j++) {
-                        Clip* cc = sequence->get_clip(j);
+                QVector<Clip*> axis_ghosts;
+                for (int i=0;i<panel_timeline->ghosts.size();i++) {
+                    Clip* c = sequence->get_clip(panel_timeline->ghosts.at(i).clip);
+                    bool found = false;
+                    for (int j=0;j<axis_ghosts.size();j++) {
+                        Clip* cc = axis_ghosts.at(j);
+                        if (c->track == cc->track &&
+                                ((panel_timeline->trim_in && c->timeline_in < cc->timeline_in) ||
+                                (!panel_timeline->trim_in && c->timeline_out > cc->timeline_out))) {
+                            axis_ghosts[j] = c;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        axis_ghosts.append(c);
+                    }
+                }
 
-                        if (cc != NULL) {
-                            // don't cache any currently selected clips
-                            Clip* c = sequence->get_clip(panel_timeline->ghosts.at(i).clip);
-                            bool is_selected = false;
-                            for (int k=0;k<panel_timeline->ghosts.size();k++) {
-                                if (panel_timeline->ghosts.at(k).clip == j) {
-                                    is_selected = true;
+                for (int i=0;i<sequence->clip_count();i++) {
+                    Clip* c = sequence->get_clip(i);
+                    if (c != NULL && !panel_timeline->is_clip_selected(c)) {
+                        for (int j=0;j<axis_ghosts.size();j++) {
+                            Clip* axis = axis_ghosts.at(j);
+                            long comp_point = (panel_timeline->trim_in) ? axis->timeline_in : axis->timeline_out;
+                            bool clip_is_pre = (c->timeline_in < comp_point);
+                            QVector<Clip*>& clip_list = clip_is_pre ? pre_clips : post_clips;
+                            bool found = false;
+                            for (int k=0;k<clip_list.size();k++) {
+                                Clip* cached = clip_list.at(k);
+                                if (cached->track == c->track) {
+                                    if (clip_is_pre == (c->timeline_in > cached->timeline_in)) {
+                                        clip_list[k] = c;
+                                    }
+                                    found = true;
                                     break;
                                 }
                             }
-
-                            if (!is_selected) {
-                                if (cc->timeline_in < c->timeline_in) {
-                                    // add clip to pre-cache UNLESS there is already a clip on that track closer to the ripple point
-                                    bool found = false;
-                                    for (int k=0;k<pre_clips.size();k++) {
-                                        Clip* ccc = pre_clips.at(k);
-                                        if (ccc->track == cc->track) {
-                                            if (ccc->timeline_in < cc->timeline_in) {
-                                                // clip is closer to ripple point than the one in cache, replace it
-                                                ccc = cc;
-                                            }
-                                            found = true;
-                                        }
-                                    }
-                                    if (!found) {
-                                        // no clip from that track in the cache, add it
-                                        pre_clips.append(cc);
-                                    }
-                                } else {
-                                    // add clip to post-cache UNLESS there is already a clip on that track closer to the ripple point
-                                    bool found = false;
-                                    for (int k=0;k<post_clips.size();k++) {
-                                        Clip* ccc = post_clips.at(k);
-                                        if (ccc->track == cc->track) {
-                                            if (ccc->timeline_in > cc->timeline_in) {
-                                                // clip is closer to ripple point than the one in cache, replace it
-                                                ccc = cc;
-                                            }
-                                            found = true;
-                                        }
-                                    }
-                                    if (!found) {
-                                        // no clip from that track in the cache, add it
-                                        post_clips.append(cc);
-                                    }
-                                }
+                            if (!found) {
+                                clip_list.append(c);
                             }
                         }
-					}
+                    }
                 }
+//                qDebug() << "found" << pre_clips.size() << "pres and" << post_clips.size() << "posts";
 			}
 
 			init_ghosts();
@@ -1062,15 +1043,21 @@ void TimelineWidget::redraw_clips() {
                 }
                 if (t != NULL) {
                     int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
-                    QRect transition_rect;
+                    int transition_height = clip_rect.height() * 0.6;
+                    if (transition_height <= TRACK_MIN_HEIGHT) {
+                        transition_height = clip_rect.height();
+                    }
+                    int tr_y = clip_rect.y() + ((clip_rect.height()-transition_height)/2);
+                    int tr_x = 0;
                     if (i == 0) {
-                        transition_rect = QRect(clip_rect.x(), clip_rect.y(), transition_width, clip_rect.height());
+                        tr_x = clip_rect.x();
                         text_rect.setX(text_rect.x()+transition_width);
                         thumb_x += transition_width;
                     } else {
-                        transition_rect = QRect(clip_rect.right()-transition_width, clip_rect.y(), transition_width, clip_rect.height());
+                        tr_x = clip_rect.right()-transition_width;
                         text_rect.setWidth(text_rect.width()-transition_width);
                     }
+                    QRect transition_rect = QRect(tr_x, tr_y, transition_width, transition_height);
                     clip_painter.fillRect(transition_rect, transition_color);
                     QRect transition_text_rect(transition_rect.x() + CLIP_TEXT_PADDING, transition_rect.y() + CLIP_TEXT_PADDING, transition_rect.width() - CLIP_TEXT_PADDING, transition_rect.height() - CLIP_TEXT_PADDING);
                     if (transition_text_rect.width() > MAX_TEXT_WIDTH) {

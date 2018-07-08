@@ -135,6 +135,8 @@ private slots:
 
     void on_actionSeek_to_the_End_of_Pastes_triggered();
 
+    void on_actionAdd_Default_Transition_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

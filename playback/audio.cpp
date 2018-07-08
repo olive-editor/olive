@@ -57,7 +57,7 @@ void clear_audio_ibuffer() {
 
 int get_buffer_offset_from_frame(long frame) {
     if (frame >= audio_ibuffer_frame) {
-        return av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(sequence->audio_layout), qFloor(((frame-audio_ibuffer_frame)/sequence->frame_rate)*sequence->audio_frequency), AV_SAMPLE_FMT_S16, 1);
+        return av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(sequence->audio_layout), qRound(((frame-audio_ibuffer_frame)/sequence->frame_rate)*sequence->audio_frequency), AV_SAMPLE_FMT_S16, 1);
     } else {
         qDebug() << "[WARNING] get_buffer_offset_from_frame called incorrectly";
         return 0;
