@@ -23,7 +23,6 @@ struct MediaStream {
     int audio_channels;
 
     // preview thumbnail/waveform
-    QMutex preview_lock;
     bool preview_done;
     QImage video_preview; // TODO change to QPixmap
     QVector<qint8> audio_preview;

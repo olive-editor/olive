@@ -3,6 +3,9 @@
 
 #include <QVector>
 
+#define INT16_MAX 0x7fff
+#define INT16_MIN (-INT16_MAX-1)
+
 class QAudioOutput;
 class QIODevice;
 

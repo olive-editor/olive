@@ -125,6 +125,7 @@
     <addaction name="actionRolling_Tool"/>
     <addaction name="actionRazor_Tool"/>
     <addaction name="actionSlip_Tool"/>
+    <addaction name="actionSlide_Tool"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Snapping"/>
     <addaction name="actionSelecting_Also_Seeks"/>
@@ -267,6 +268,9 @@
   <action name="actionSequence">
    <property name="text">
     <string>Sequence...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="actionZoom_In">
@@ -569,6 +573,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionSlide_Tool">
+   <property name="text">
+    <string>Slide Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>U</string>
    </property>
   </action>
  </widget>

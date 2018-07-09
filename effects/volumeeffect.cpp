@@ -5,6 +5,7 @@
 #include <QtMath>
 #include <QDebug>
 
+#include "playback/audio.h"
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
@@ -50,9 +51,15 @@ void VolumeEffect::save(QXmlStreamWriter* stream) {
 void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
     if (volume_val->value() != 100) {
         for (int i=0;i<nb_bytes;i+=2) {
-            qint16 samp = (qint16) ((samples[i+1] << 8) | samples[i]);
-            float val = qPow(volume_val->value()*0.01f, 3);
+            qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+            double val = qPow(volume_val->value()*0.01, 3);
             samp *= val;
+            if (samp > INT16_MAX) {
+                samp = INT16_MAX;
+            } else if (samp < INT16_MIN) {
+                samp = INT16_MIN;
+            }
+
             samples[i+1] = (quint8) (samp >> 8);
             samples[i] = (quint8) samp;
         }

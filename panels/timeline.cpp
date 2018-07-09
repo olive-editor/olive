@@ -55,6 +55,7 @@ Timeline::Timeline(QWidget *parent) :
 	tool_buttons.append(ui->toolRazorButton);
 	tool_buttons.append(ui->toolSlipButton);
 	tool_buttons.append(ui->toolRollingButton);
+    tool_buttons.append(ui->toolSlideButton);
 
 	ui->toolArrowButton->click();
 
@@ -383,36 +384,7 @@ void Timeline::ripple(long ripple_point, long ripple_length) {
 
 void Timeline::decheck_tool_buttons(QObject* sender) {
 	for (int i=0;i<tool_buttons.count();i++) {
-		if (tool_buttons[i] != sender) {
-			tool_buttons[i]->setChecked(false);
-		}
-	}
-}
-
-void Timeline::on_toolEditButton_toggled(bool checked)
-{
-	if (checked) {
-		decheck_tool_buttons(sender());
-		ui->timeline_area->setCursor(Qt::IBeamCursor);
-		tool = TIMELINE_TOOL_EDIT;
-	}
-}
-
-void Timeline::on_toolArrowButton_toggled(bool checked)
-{
-	if (checked) {
-		decheck_tool_buttons(sender());
-		ui->timeline_area->setCursor(Qt::ArrowCursor);
-		tool = TIMELINE_TOOL_POINTER;
-	}
-}
-
-void Timeline::on_toolRazorButton_toggled(bool checked)
-{
-	if (checked) {
-		decheck_tool_buttons(sender());
-		ui->timeline_area->setCursor(Qt::IBeamCursor);
-		tool = TIMELINE_TOOL_RAZOR;
+        tool_buttons[i]->setChecked(tool_buttons.at(i) == sender);
 	}
 }
 
@@ -434,33 +406,6 @@ bool Timeline::is_clip_selected(Clip* clip) {
 		}
 	}
 	return false;
-}
-
-void Timeline::on_toolRippleButton_toggled(bool checked)
-{
-	if (checked) {
-		decheck_tool_buttons(sender());
-		ui->timeline_area->setCursor(Qt::ArrowCursor);
-		tool = TIMELINE_TOOL_RIPPLE;
-	}
-}
-
-void Timeline::on_toolRollingButton_toggled(bool checked)
-{
-	if (checked) {
-		decheck_tool_buttons(sender());
-		ui->timeline_area->setCursor(Qt::ArrowCursor);
-		tool = TIMELINE_TOOL_ROLLING;
-	}
-}
-
-void Timeline::on_toolSlipButton_toggled(bool checked)
-{
-	if (checked) {
-		decheck_tool_buttons(sender());
-		ui->timeline_area->setCursor(Qt::ArrowCursor);
-		tool = TIMELINE_TOOL_SLIP;
-	}
 }
 
 void Timeline::on_snappingButton_toggled(bool checked)
@@ -848,4 +793,49 @@ long Timeline::getFrameFromScreenPoint(int x) {
 
 int Timeline::getScreenPointFromFrame(long frame) {
     return (int) round(frame*zoom);
+}
+
+void Timeline::on_toolArrowButton_clicked() {
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::ArrowCursor);
+    tool = TIMELINE_TOOL_POINTER;
+}
+
+void Timeline::on_toolEditButton_clicked() {
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::IBeamCursor);
+    tool = TIMELINE_TOOL_EDIT;
+}
+
+void Timeline::on_toolRippleButton_clicked() {
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::ArrowCursor);
+    tool = TIMELINE_TOOL_RIPPLE;
+}
+
+void Timeline::on_toolRollingButton_clicked() {
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::ArrowCursor);
+    tool = TIMELINE_TOOL_ROLLING;
+}
+
+void Timeline::on_toolRazorButton_clicked()
+{
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::IBeamCursor);
+    tool = TIMELINE_TOOL_RAZOR;
+}
+
+void Timeline::on_toolSlipButton_clicked()
+{
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::ArrowCursor);
+    tool = TIMELINE_TOOL_SLIP;
+}
+
+void Timeline::on_toolSlideButton_clicked()
+{
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::ArrowCursor);
+    tool = TIMELINE_TOOL_SLIDE;
 }

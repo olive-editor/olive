@@ -105,7 +105,6 @@ void PreviewGenerator::run() {
 //                                delete [] data;
 
                             s->preview_done = true;
-                            s->preview_lock.unlock();
 
                             sws_freeContext(sws_ctx);
 
@@ -179,7 +178,6 @@ void PreviewGenerator::run() {
             }
             for (int i=0;i<media->audio_tracks.size();i++) {
                 media->audio_tracks.at(i)->preview_done = true;
-                media->audio_tracks.at(i)->preview_lock.unlock();
             }
             av_frame_free(&temp_frame);
             for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {

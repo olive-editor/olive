@@ -50,8 +50,8 @@ void PanEffect::save(QXmlStreamWriter *stream) {
 void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
     if (pan_val->value() != 0) {
         for (int i=0;i<nb_bytes;i+=4) {
-            qint16 left_sample = (qint16) ((samples[i+1] << 8) | samples[i]);
-            qint16 right_sample = (qint16) ((samples[i+3] << 8) | samples[i+2]);
+            qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+            qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
 
             float val = qPow(pan_val->value()*0.01f, 3);
             if (val < 0) {

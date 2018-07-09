@@ -15,6 +15,8 @@ extern "C" {
 }
 
 #include <QDebug>
+#include <QtMath>
+#include <math.h>
 
 void cache_audio_worker(Clip* c) {
     int written = 0;
@@ -94,10 +96,24 @@ void cache_audio_worker(Clip* c) {
                     written = max_write;
                     break;
                 } else {
-                    audio_ibuffer[c->audio_buffer_write%audio_ibuffer_size] += frame->data[0][c->frame_sample_index];
-                    c->audio_buffer_write++;
-                    c->frame_sample_index++;
-                    written++;
+                    int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
+                    int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
+                    qint16 old_sample = (qint16) ((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
+                    qint16 new_sample = (qint16) ((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
+                    qint32 mixed_sample;
+
+                    mixed_sample = old_sample + new_sample;
+                    if (mixed_sample > INT16_MAX) {
+                        mixed_sample = INT16_MAX;
+                    } else if (mixed_sample < INT16_MIN) {
+                        mixed_sample = INT16_MIN;
+                    }
+
+                    audio_ibuffer[upper_byte_index] = (quint8) (mixed_sample >> 8);
+                    audio_ibuffer[lower_byte_index] = (quint8) mixed_sample;
+                    c->audio_buffer_write+=2;
+                    c->frame_sample_index+=2;
+                    written+=2;
                 }
             }
             if (c->frame_sample_index == nb_bytes) {

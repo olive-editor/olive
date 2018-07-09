@@ -140,7 +140,6 @@ Media* Project::import_file(QString file) {
                 } else {
                     MediaStream* ms = new MediaStream();
                     ms->preview_done = false;
-                    ms->preview_lock.lock();
                     ms->file_index = i;
                     if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                         bool infinite_length = (pFormatCtx->streams[i]->avg_frame_rate.den == 0);

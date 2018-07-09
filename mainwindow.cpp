@@ -526,3 +526,8 @@ void MainWindow::on_actionSeek_to_the_End_of_Pastes_triggered()
 void MainWindow::on_actionAdd_Default_Transition_triggered() {
     if (panel_timeline->focused()) panel_timeline->add_transition();
 }
+
+void MainWindow::on_actionSlide_Tool_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->ui->toolSlideButton->click();
+}

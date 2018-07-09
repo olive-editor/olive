@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#define AUDIO_MONITOR_RESOLUTION 16
+
 class AudioMonitor : public QWidget
 {
     Q_OBJECT

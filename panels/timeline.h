@@ -35,6 +35,7 @@ struct Ghost {
 	long ghost_length;
 	long media_length;
     bool trim_in;
+    bool trimming;
 };
 
 struct Selection {
@@ -164,23 +165,26 @@ public slots:
 	void repaint_timeline();
 
 private slots:
-	void on_toolEditButton_toggled(bool checked);
-
-	void on_toolArrowButton_toggled(bool checked);
-
-	void on_toolRazorButton_toggled(bool checked);
 
 	void on_pushButton_4_clicked();
 
-	void on_pushButton_5_clicked();
-
-	void on_toolRippleButton_toggled(bool checked);
-
-	void on_toolRollingButton_toggled(bool checked);
-
-	void on_toolSlipButton_toggled(bool checked);
+    void on_pushButton_5_clicked();
 
     void on_snappingButton_toggled(bool checked);
+
+    void on_toolSlideButton_clicked();
+
+    void on_toolArrowButton_clicked();
+
+    void on_toolEditButton_clicked();
+
+    void on_toolRippleButton_clicked();
+
+    void on_toolRollingButton_clicked();
+
+    void on_toolRazorButton_clicked();
+
+    void on_toolSlipButton_clicked();
 
 private:
 	QVector<QPushButton*> tool_buttons;

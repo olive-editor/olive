@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>523</width>
-    <height>363</height>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -233,7 +233,38 @@
          <property name="icon">
           <iconset>
            <normalon>:/icons/slip.png</normalon>
-           <disabledoff>:/icons/slip-disabled.png</disabledoff>
+           <disabledon>:/icons/slip-disabled.png</disabledon>
+          </iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="toolSlideButton">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Slide Tool (U)</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/slide.png</normalon>
+           <disabledon>:/icons/slide-disabled.png</disabledon>
           </iconset>
          </property>
          <property name="iconSize">
@@ -331,7 +362,7 @@
          <x>0</x>
          <y>0</y>
          <width>408</width>
-         <height>314</height>
+         <height>327</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">

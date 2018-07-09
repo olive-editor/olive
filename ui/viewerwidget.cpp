@@ -186,7 +186,7 @@ void ViewerWidget::paintGL() {
             long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + panel_timeline->ui->audio_monitor->sample_cache.size();
             int buffer_offset, buffer_offset_adjusted;
             while ((buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead)) < audio_ibuffer_read) {
-                buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
+                buffer_offset_adjusted = (buffer_offset)%audio_ibuffer_size;
                 panel_timeline->ui->audio_monitor->sample_cache.append((qint16) ((audio_ibuffer[buffer_offset_adjusted+1] << 8) | audio_ibuffer[buffer_offset_adjusted]));
                 sample_cache_playhead++;
             }

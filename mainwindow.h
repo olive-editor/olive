@@ -137,6 +137,8 @@ private slots:
 
     void on_actionAdd_Default_Transition_triggered();
 
+    void on_actionSlide_Tool_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
