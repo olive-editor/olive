@@ -222,6 +222,7 @@ void Timeline::update_sequence() {
 		setWindowTitle("Timeline: " + sequence->name);
         redraw_all_clips(false);
         playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
+        reset_all_audio();
 	}
 }
 

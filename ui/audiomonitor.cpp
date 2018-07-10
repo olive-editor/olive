@@ -17,11 +17,13 @@ extern "C" {
 }
 
 AudioMonitor::AudioMonitor(QWidget *parent) : QWidget(parent) {
+    reset();
 }
 
 void AudioMonitor::reset() {
     sample_cache_offset = -1;
     sample_cache.clear();
+    update();
 }
 
 void AudioMonitor::resizeEvent(QResizeEvent *e) {
@@ -38,19 +40,17 @@ void AudioMonitor::paintEvent(QPaintEvent *) {
         int channel_x = AUDIO_MONITOR_GAP;
         int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
         int channel_width = (width()/channel_count) - AUDIO_MONITOR_GAP;
-//        for (int i=0;i<channel_count;i++) {
-        for (int i=0;i<1;i++) {
+        long playhead_offset = -1;
+        int i;
+        for (i=0;i<channel_count;i++) {
             QRect r(channel_x, 0, channel_width, height());
             p.fillRect(r, gradient);
 
             if (sample_cache_offset != -1) {
-                long playhead_offset = panel_timeline->playhead - sample_cache_offset;
+                playhead_offset = (panel_timeline->playhead - sample_cache_offset) * channel_count;
                 if (playhead_offset >= 0 && playhead_offset < sample_cache.size()) {
-                    //int channel_offset = i*2;
-                    double multiplier = 1 - qAbs((double) sample_cache.at(playhead_offset) / 32768.0); // 16-bit int divided to float
+                    double multiplier = 1 - qAbs((double) sample_cache.at(playhead_offset+i) / 32768.0); // 16-bit int divided to float
                     r.setHeight(r.height()*multiplier);
-                    sample_cache_offset++;
-                    sample_cache.removeFirst();
                 } else {
                     reset();
                 }
@@ -58,6 +58,22 @@ void AudioMonitor::paintEvent(QPaintEvent *) {
 
             p.fillRect(r, QColor(0, 0, 0, 160));
             channel_x += channel_width + AUDIO_MONITOR_GAP;
+        }
+        if (playhead_offset > -1) {
+            // clean up used samples
+            bool error = false;
+            while (sample_cache_offset < panel_timeline->playhead && !error) {
+                sample_cache_offset++;
+                for (i=0;i<channel_count;i++) {
+                    if (sample_cache.isEmpty()) {
+                        reset();
+                        error = true;
+                        break;
+                    } else {
+                        sample_cache.removeFirst();
+                    }
+                }
+            }
         }
     }
 }

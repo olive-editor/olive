@@ -29,6 +29,7 @@ protected:
 private:
 	QTimer retry_timer;
     QVector<Clip*> current_clips;
+    QVector<qint16> samples;
 private slots:
 	void retry();
 };

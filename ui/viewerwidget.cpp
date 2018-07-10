@@ -13,6 +13,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QtMath>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -184,11 +185,24 @@ void ViewerWidget::paintGL() {
                 panel_timeline->ui->audio_monitor->sample_cache_offset = panel_timeline->playhead;
             }
             long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + panel_timeline->ui->audio_monitor->sample_cache.size();
-            int buffer_offset, buffer_offset_adjusted;
-            while ((buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead)) < audio_ibuffer_read) {
-                buffer_offset_adjusted = (buffer_offset)%audio_ibuffer_size;
-                panel_timeline->ui->audio_monitor->sample_cache.append((qint16) ((audio_ibuffer[buffer_offset_adjusted+1] << 8) | audio_ibuffer[buffer_offset_adjusted]));
+            int next_buffer_offset, buffer_offset_adjusted, i;
+            int buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead);
+            samples.resize(av_get_channel_layout_nb_channels(sequence->audio_layout));
+            samples.fill(0);
+            while (buffer_offset < audio_ibuffer_read) {
                 sample_cache_playhead++;
+                next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_read);
+                while (buffer_offset < next_buffer_offset) {
+                    for (i=0;i<samples.size();i++) {
+                        buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
+                        samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
+                        buffer_offset += 2;
+                    }
+                }
+                for (i=0;i<samples.size();i++) {
+                    panel_timeline->ui->audio_monitor->sample_cache.append(samples.at(i));
+                }
+                buffer_offset = next_buffer_offset;
             }
 
             memset(audio_ibuffer+adjusted_read_index, 0, actual_write);

@@ -51,7 +51,7 @@ void TimelineWidget::resizeEvent(QResizeEvent*) {
 }
 
 void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
-	if (static_cast<SourceTable*>(event->source()) == panel_project->source_table) {
+    if (event->source() == panel_project->source_table) {
         event->accept();
 		QPoint pos = event->pos();
 		QList<QTreeWidgetItem*> items = panel_project->source_table->selectedItems();
@@ -138,9 +138,22 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             c->timeline_in = g.in;
             c->timeline_out = g.out;
             c->clip_in = g.clip_in;
-            c->color_r = 128;
-            c->color_g = 128;
-            c->color_b = 192;
+            if (c->media->video_tracks.size() == 0) {
+                // audio only (greenish)
+                c->color_r = 128;
+                c->color_g = 192;
+                c->color_b = 128;
+            } else if (c->media->audio_tracks.size() == 0) {
+                // video only (purpleish)
+                c->color_r = 192;
+                c->color_g = 128;
+                c->color_b = 128;
+            } else {
+                // video and audio (blueish)
+                c->color_r = 128;
+                c->color_g = 128;
+                c->color_b = 192;
+            }
             c->sequence = sequence;
             c->track = g.track;
             c->name = c->media->name;
@@ -1212,12 +1225,12 @@ void TimelineWidget::redraw_clips() {
                     clip_painter.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
                 }
                 clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
-
-                // bottom right gray
-                clip_painter.setPen(Qt::gray);
-                clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
-                clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
             }
+
+            // bottom right gray
+            clip_painter.setPen(QColor(0, 0, 0, 128));
+            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
+            clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
         }
     }
 
