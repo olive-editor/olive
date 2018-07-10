@@ -35,6 +35,9 @@
     </property>
     <item>
      <widget class="SourceTable" name="treeWidget">
+      <property name="acceptDrops">
+       <bool>true</bool>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
@@ -51,7 +54,10 @@
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
       <property name="rootIsDecorated">
-       <bool>false</bool>
+       <bool>true</bool>
+      </property>
+      <property name="itemsExpandable">
+       <bool>true</bool>
       </property>
       <property name="sortingEnabled">
        <bool>true</bool>

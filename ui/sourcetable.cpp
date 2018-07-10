@@ -13,14 +13,9 @@
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     sortByColumn(0, Qt::AscendingOrder);
-    setAcceptDrops(true);
-    editing_item = NULL;
     rename_timer.setInterval(500);
     connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(item_click(QTreeWidgetItem*,int)));
-//    connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(stop_rename_timer()));
-
-//    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, )
 }
 
 void SourceTable::stop_rename_timer() {
@@ -50,9 +45,8 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 		panel_project->import_dialog();
 	} else if (selectedItems().count() == 1) {
         QTreeWidgetItem* item = selectedItems().at(0);
-        Media* m = reinterpret_cast<Media*>(item->data(0, Qt::UserRole + 1).value<quintptr>());
-        if (m->type == MEDIA_TYPE_SEQUENCE) {
-            set_sequence(m->sequence);
+        if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
+            set_sequence(panel_project->get_sequence_from_tree(item));
         }
     }
 }
@@ -75,7 +69,6 @@ void SourceTable::dragMoveEvent(QDragMoveEvent *event) {
 
 void SourceTable::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
-
     if (mimeData->hasUrls()) {
         QList<QUrl> urls = mimeData->urls();
         if (!urls.isEmpty()) {
@@ -87,5 +80,34 @@ void SourceTable::dropEvent(QDropEvent* event) {
             panel_project->process_file_list(paths);
         }
         event->acceptProposedAction();
+    } else {
+        QTreeWidgetItem* item = itemAt(event->pos());
+        if (item == NULL || (item != NULL && panel_project->get_type_from_tree(item) == MEDIA_TYPE_FOLDER)) {
+            QList<QTreeWidgetItem*> items = selectedItems();
+            for (int i=0;i<items.size();i++) {
+                QTreeWidgetItem* s = items.at(i);
+                bool ignore = false;
+                if (s->parent() == NULL) {
+                    takeTopLevelItem(indexOfTopLevelItem(s));
+                } else {
+                    // if child belongs to a selected parent, assume the user is just moving the parent and ignore the child
+                    for (int j=0;j<items.size();j++) {
+                        if (s->parent() == items.at(j)) {
+                            ignore = true;
+                            break;
+                        }
+                    }
+                    if (!ignore) s->parent()->takeChild(s->parent()->indexOfChild(s));
+                }
+                if (!ignore) {
+                    if (item == NULL) {
+                        addTopLevelItem(s);
+                    } else {
+                        item->addChild(s);
+                    }
+                }
+            }
+            project_changed = true;
+        }
     }
 }

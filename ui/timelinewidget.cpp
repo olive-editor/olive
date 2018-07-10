@@ -59,27 +59,29 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
         panel_timeline->drag_frame_start = entry_point + panel_timeline->getFrameFromScreenPoint(50);
 		panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
 		for (int i=0;i<items.size();i++) {
-			bool ignore_infinite_length = false;
-            Media* m = panel_project->get_media_from_tree(items.at(i));
-            Ghost g;
-            g.clip = -1;
-			g.media = m;
-            g.old_clip_in = g.clip_in = 0;
-            g.in = entry_point;
-            entry_point += m->get_length_in_frames(sequence->frame_rate);
-            g.out = entry_point;
-            g.trimming = false;
-			for (int j=0;j<m->audio_tracks.size();j++) {
-                g.track = j;
-                g.media_stream = m->audio_tracks.at(j);
-				ignore_infinite_length = true;
-				panel_timeline->ghosts.append(g);
-			}
-			for (int j=0;j<m->video_tracks.size();j++) {
-                g.track = -1-j;
-                g.media_stream = m->video_tracks.at(j);
-                if (m->video_tracks[j]->infinite_length && !ignore_infinite_length) g.out = g.in + 100;
-				panel_timeline->ghosts.append(g);
+            QTreeWidgetItem* item = items.at(i);
+            if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
+                Media* m = panel_project->get_media_from_tree(item);
+                bool ignore_infinite_length = (m->audio_tracks.size() > 0);
+                Ghost g;
+                g.clip = -1;
+                g.media = m;
+                g.old_clip_in = g.clip_in = 0;
+                g.in = entry_point;
+                entry_point += m->get_length_in_frames(sequence->frame_rate);
+                g.out = entry_point;
+                g.trimming = false;
+                for (int j=0;j<m->audio_tracks.size();j++) {
+                    g.track = j;
+                    g.media_stream = m->audio_tracks.at(j);
+                    panel_timeline->ghosts.append(g);
+                }
+                for (int j=0;j<m->video_tracks.size();j++) {
+                    g.track = -1-j;
+                    g.media_stream = m->video_tracks.at(j);
+                    if (m->video_tracks[j]->infinite_length && !ignore_infinite_length) g.out = g.in + 100;
+                    panel_timeline->ghosts.append(g);
+                }
             }
         }
         for (int i=0;i<panel_timeline->ghosts.size();i++) {

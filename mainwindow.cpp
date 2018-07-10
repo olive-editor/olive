@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QTimer>
+#include <QCloseEvent>
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
@@ -304,6 +305,14 @@ bool MainWindow::can_close_project() {
     return true;
 }
 
+void MainWindow::closeEvent(QCloseEvent *e) {
+    if (can_close_project()) {
+        e->accept();
+    } else {
+        e->ignore();
+    }
+}
+
 void MainWindow::on_action_Save_Project_triggered()
 {
     save_project();
@@ -530,4 +539,9 @@ void MainWindow::on_actionAdd_Default_Transition_triggered() {
 void MainWindow::on_actionSlide_Tool_triggered()
 {
     if (panel_timeline->focused()) panel_timeline->ui->toolSlideButton->click();
+}
+
+void MainWindow::on_actionFolder_triggered()
+{
+    panel_project->new_folder();
 }

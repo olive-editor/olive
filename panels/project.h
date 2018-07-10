@@ -11,6 +11,11 @@ class Viewer;
 class SourceTable;
 class QTreeWidgetItem;
 
+#define MEDIA_TYPE_FOOTAGE 0
+#define MEDIA_TYPE_SEQUENCE 1
+#define MEDIA_TYPE_FOLDER 2
+#define MEDIA_TYPE_SOLID 3
+
 namespace Ui {
 class Project;
 }
@@ -40,12 +45,19 @@ public:
     void load_project();
     void save_project();
 
+    void new_folder();
+
+    int get_type_from_tree(QTreeWidgetItem* item);
     Media* get_media_from_tree(QTreeWidgetItem* item);
     void set_media_of_tree(QTreeWidgetItem* item, Media* media);
+    Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
+    void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
+    void set_item_to_folder(QTreeWidgetItem* item);
 
 	SourceTable* source_table;
 private:
 	Ui::Project *ui;
+    QTreeWidgetItem* new_item();
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
 };

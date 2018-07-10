@@ -6,9 +6,7 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-Media::Media() {
-
-}
+Media::Media() {}
 
 Media::~Media() {
     for (int i=0;i<video_tracks.size();i++) {

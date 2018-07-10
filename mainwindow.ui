@@ -38,6 +38,7 @@
      <addaction name="actionProject"/>
      <addaction name="separator"/>
      <addaction name="actionSequence"/>
+     <addaction name="actionFolder"/>
     </widget>
     <addaction name="menu_New"/>
     <addaction name="action_Open_Project"/>
@@ -581,6 +582,11 @@
    </property>
    <property name="shortcut">
     <string>U</string>
+   </property>
+  </action>
+  <action name="actionFolder">
+   <property name="text">
+    <string>Folder</string>
    </property>
   </action>
  </widget>

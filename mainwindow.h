@@ -20,6 +20,9 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent *);
+
 private slots:
 	void on_action_Import_triggered();
 
@@ -138,6 +141,8 @@ private slots:
     void on_actionAdd_Default_Transition_triggered();
 
     void on_actionSlide_Tool_triggered();
+
+    void on_actionFolder_triggered();
 
 private:
 	Ui::MainWindow *ui;

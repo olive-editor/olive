@@ -4,8 +4,8 @@
 #include <QLabel>
 #include <QtMath>
 #include <QDebug>
+#include <stdint.h>
 
-#include "playback/audio.h"
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 

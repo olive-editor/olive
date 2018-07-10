@@ -38,7 +38,7 @@ Project::Project(QWidget *parent) :
 	ui(new Ui::Project)
 {
     ui->setupUi(this);
-
+    source_table = ui->treeWidget;
     connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(rename_media(QTreeWidgetItem*,int)));
 }
 
@@ -70,35 +70,30 @@ QString Project::get_next_sequence_name() {
 }
 
 void Project::rename_media(QTreeWidgetItem* item, int column) {
-    Media* m = get_media_from_tree(item);
-    m->name = item->text(column);
-    if (m->type == MEDIA_TYPE_SEQUENCE) {
-        m->sequence->name = m->name;
+    int type = get_type_from_tree(item);
+    QString n = item->text(column);
+    switch (type) {
+    case MEDIA_TYPE_FOOTAGE: get_media_from_tree(item)->name = n; break;
+    case MEDIA_TYPE_SEQUENCE: get_sequence_from_tree(item)->name = n; break;
     }
 }
 
 void Project::duplicate_selected() {
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
     for (int i=0;i<items.size();i++) {
-        Media* m = get_media_from_tree(items.at(i));
-        if (m->type == MEDIA_TYPE_SEQUENCE) {
-            new_sequence(m->sequence->copy(), false);
+        int type = get_type_from_tree(items.at(i));
+        if (type == MEDIA_TYPE_SEQUENCE) {
+            new_sequence(get_sequence_from_tree(items.at(i))->copy(), false);
         }
     }
 }
 
 void Project::new_sequence(Sequence *s, bool open) {
-	Media* m = new Media();
-    m->type = MEDIA_TYPE_SEQUENCE;
-	m->sequence = s;
-
-	QTreeWidgetItem* item = new QTreeWidgetItem();
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    QTreeWidgetItem* item = new_item();
     item->setText(0, s->name);
-    set_media_of_tree(item, m);
+    set_sequence_of_tree(item, s);
 
 	ui->treeWidget->addTopLevelItem(item);
-	source_table = ui->treeWidget;
 
     project_changed = true;
 
@@ -128,7 +123,6 @@ Media* Project::import_file(QString file) {
             av_dump_format(pFormatCtx, 0, filename, 0);
 
             m = new Media();
-            m->type = MEDIA_TYPE_FOOTAGE;
             m->url = file;
             m->name = file.mid(file.lastIndexOf('/')+1);
 
@@ -155,8 +149,7 @@ Media* Project::import_file(QString file) {
             }
             m->length = pFormatCtx->duration;
 
-            QTreeWidgetItem* item = new QTreeWidgetItem();
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            QTreeWidgetItem* item = new_item();
             if (m->video_tracks.size() == 0) {
                 item->setIcon(0, QIcon(":/icons/audiosource.png"));
             } else {
@@ -169,21 +162,37 @@ Media* Project::import_file(QString file) {
             ui->treeWidget->addTopLevelItem(item);
 
             project_changed = true;
+
+            // generate waveform/thumbnail in another thread
+            PreviewGenerator* pg = new PreviewGenerator();
+            pg->fmt_ctx = pFormatCtx; // cleaned up in PG
+            pg->media = m;
+            connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
+            pg->start(QThread::LowPriority);
         }
     }
-
-    PreviewGenerator* pg = new PreviewGenerator();
-    pg->fmt_ctx = pFormatCtx; // cleaned up in PG
-    pg->media = m;
-    connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
-    pg->start(QThread::LowPriority);
 
     delete [] filename;
     return m;
 }
 
+QTreeWidgetItem* Project::new_item() {
+    QTreeWidgetItem* item = new QTreeWidgetItem();
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    return item;
+}
+
 bool Project::is_focused() {
     return ui->treeWidget->hasFocus();
+}
+
+void Project::new_folder() {
+    QTreeWidgetItem* item = new_item();
+    item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
+    item->setText(0, "New Folder");
+    set_item_to_folder(item);
+    ui->treeWidget->addTopLevelItem(item);
+    project_changed = true;
 }
 
 void Project::delete_selected_media() {
@@ -193,8 +202,9 @@ void Project::delete_selected_media() {
 
     // check if media is in use
     for (int i=0;i<items.size();i++) {
-        Media* m = get_media_from_tree(items.at(i));
-        if (m->type == MEDIA_TYPE_FOOTAGE && sequence != NULL) {
+        QTreeWidgetItem* item = items.at(i);
+        Media* m = get_media_from_tree(item);
+        if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE && sequence != NULL) {
             for (int j=0;j<sequence->clip_count();j++) {
                 Clip* c = sequence->get_clip(j);
                 if (c != NULL && c->media == m) {
@@ -292,23 +302,47 @@ void Project::import_dialog() {
     process_file_list(files);
 }
 
+void Project::set_item_to_folder(QTreeWidgetItem* item) {
+    item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_FOLDER);
+}
+
 Media* Project::get_media_from_tree(QTreeWidgetItem* item) {
-    return reinterpret_cast<Media*>(item->data(0, Qt::UserRole + 1).value<quintptr>());
+    return reinterpret_cast<Media*>(item->data(0, Qt::UserRole + 2).value<quintptr>());
 }
 
 void Project::set_media_of_tree(QTreeWidgetItem* item, Media* media) {
-    item->setData(0, Qt::UserRole + 1, QVariant::fromValue(reinterpret_cast<quintptr>(media)));
+    item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_FOOTAGE);
+    item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(media)));
+}
+
+Sequence* Project::get_sequence_from_tree(QTreeWidgetItem* item) {
+    return reinterpret_cast<Sequence*>(item->data(0, Qt::UserRole + 2).value<quintptr>());
+}
+
+void Project::set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence) {
+    item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_SEQUENCE);
+    item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(sequence)));
+}
+
+int Project::get_type_from_tree(QTreeWidgetItem* item) {
+    return item->data(0, Qt::UserRole + 1).toInt();
 }
 
 void Project::delete_media(QTreeWidgetItem* item) {
-    Media* m = get_media_from_tree(item);
-    if (m->type == MEDIA_TYPE_SEQUENCE) {
-        if (sequence == m->sequence) {
+    int type = get_type_from_tree(item);
+    switch (type) {
+    case MEDIA_TYPE_FOOTAGE:
+        delete get_media_from_tree(item);
+        break;
+    case MEDIA_TYPE_SEQUENCE:
+        Sequence* s = get_sequence_from_tree(item);
+        if (sequence == s) {
             set_sequence(NULL);
         }
-        delete m->sequence;
+        delete s;
+        break;
     }
-    delete m;
+
     project_changed = true;
 }
 
@@ -573,8 +607,9 @@ void Project::save_project() {
     int len = ui->treeWidget->topLevelItemCount();
     stream.writeStartElement("media");
     for (int i=0;i<len;i++) {
-        Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
-        if (m->type == MEDIA_TYPE_FOOTAGE) {
+        QTreeWidgetItem* item = ui->treeWidget->topLevelItem(i);
+        if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
+            Media* m = get_media_from_tree(item);
             m->save_id = i;
             stream.writeStartElement("footage");
             stream.writeAttribute("id", QString::number(i));
@@ -587,9 +622,9 @@ void Project::save_project() {
 
     stream.writeStartElement("timeline");
     for (int i=0;i<len;i++) {
-        Media* m = get_media_from_tree(ui->treeWidget->topLevelItem(i));
-        if (m->type == MEDIA_TYPE_SEQUENCE) {
-            Sequence* s = m->sequence;
+        QTreeWidgetItem* item = ui->treeWidget->topLevelItem(i);
+        if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
+            Sequence* s = get_sequence_from_tree(item);
             stream.writeStartElement("sequence");
             stream.writeTextElement("name", s->name);
             stream.writeTextElement("width", QString::number(s->width));

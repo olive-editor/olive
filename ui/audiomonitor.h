@@ -22,6 +22,7 @@ public slots:
 
 private:
     QLinearGradient gradient;
+    QVector<bool> peaks;
 };
 
 #endif // AUDIOMONITOR_H
