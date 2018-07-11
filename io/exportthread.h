@@ -5,6 +5,11 @@
 #include <QOffscreenSurface>
 
 class ExportDialog;
+struct AVFormatContext;
+struct AVCodecContext;
+struct AVFrame;
+struct AVPacket;
+struct AVStream;
 
 class ExportThread : public QThread {
 	Q_OBJECT
@@ -31,6 +36,8 @@ public:
     bool fail;
 signals:
     void progress_changed(int value);
+private:
+    bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream);
 };
 
 #endif // EXPORTTHREAD_H

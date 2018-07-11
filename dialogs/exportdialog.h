@@ -16,6 +16,7 @@ class ExportDialog : public QDialog
 public:
 	explicit ExportDialog(QWidget *parent = 0);
     ~ExportDialog();
+    QString export_error;
 
 private slots:
 	void on_formatCombobox_currentIndexChanged(int index);
@@ -39,6 +40,7 @@ private:
 
     ExportThread* et;
     void prep_ui_for_render(bool rendering);
+    bool cancelled;
 };
 
 #endif // EXPORTDIALOG_H

@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QThread>
 #include <QDebug>
+#include <QMessageBox>
 
 #include "panels/panels.h"
 #include "panels/viewer.h"
@@ -308,6 +309,9 @@ void ExportDialog::on_pushButton_2_clicked()
 }
 
 void ExportDialog::render_thread_finished() {
+    if (ui->progressBar->value() < 100 && !cancelled) {
+        QMessageBox::critical(this, "Export Failed", "Export failed - " + export_error, QMessageBox::Ok);
+    }
     prep_ui_for_render(false);
     panel_viewer->viewer_widget->makeCurrent();
     panel_viewer->viewer_widget->initializeGL();
@@ -416,6 +420,9 @@ void ExportDialog::on_pushButton_clicked()
 	}
 	QString filename = QFileDialog::getSaveFileName(this, "Export Media", "", format_strings[ui->formatCombobox->currentIndex()] + " (*." + ext + ")");
 	if (!filename.isEmpty()) {
+        if (!filename.endsWith("." + ext, Qt::CaseInsensitive)) {
+            filename += "." + ext;
+        }
         et = new ExportThread();
 
 		et->surface.create();
@@ -445,6 +452,7 @@ void ExportDialog::on_pushButton_clicked()
 		et->audio_bitrate = ui->audiobitrateSpinbox->value();
 
         et->ed = this;
+        cancelled = false;
 
 		et->start();
 	}
@@ -456,4 +464,5 @@ void ExportDialog::update_progress_bar(int value) {
 
 void ExportDialog::on_renderCancel_clicked() {
     et->fail = true;
+    cancelled = true;
 }
