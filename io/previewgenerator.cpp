@@ -60,12 +60,13 @@ void PreviewGenerator::run() {
             int read_ret = av_read_frame(fmt_ctx, &packet);
             if (read_ret < 0) {
                 end_of_file = true;
-                if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read packet for preview generation";
+                if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read packet for preview generation" << read_ret;
                 break;
-            } else if (codec_ctx[packet.stream_index] != NULL) {
+            }
+            if (codec_ctx[packet.stream_index] != NULL) {
                 int send_ret = avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
-                if (send_ret < 0) {
-                    qDebug() << "[ERROR] Failed to send packet for preview generation - aborting";
+                if (send_ret < 0 && send_ret != AVERROR(EAGAIN)) {
+                    qDebug() << "[ERROR] Failed to send packet for preview generation - aborting" << send_ret;
                     end_of_file = true;
                     break;
                 }
