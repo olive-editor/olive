@@ -80,32 +80,36 @@ void Project::rename_media(QTreeWidgetItem* item, int column) {
 
 void Project::duplicate_selected() {
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
-    for (int i=0;i<items.size();i++) {
-        int type = get_type_from_tree(items.at(i));
-        if (type == MEDIA_TYPE_SEQUENCE) {
-            new_sequence(get_sequence_from_tree(items.at(i))->copy(), false);
+    for (int j=0;j<items.size();j++) {
+        QTreeWidgetItem* i = items.at(j);
+        if (get_type_from_tree(i) == MEDIA_TYPE_SEQUENCE) {
+            new_sequence(get_sequence_from_tree(i)->copy(), false, i->parent());
         }
     }
 }
 
-void Project::new_sequence(Sequence *s, bool open) {
+void Project::new_sequence(Sequence *s, bool open, QTreeWidgetItem* parent) {
     QTreeWidgetItem* item = new_item();
     item->setText(0, s->name);
     set_sequence_of_tree(item, s);
 
-	ui->treeWidget->addTopLevelItem(item);
+    if (parent == NULL) {
+        ui->treeWidget->addTopLevelItem(item);
+    } else {
+        parent->addChild(item);
+    }
 
     project_changed = true;
 
     if (open) set_sequence(s);
 }
 
-Media* Project::import_file(QString file) {
+QTreeWidgetItem* Project::import_file(QString file) {
     QByteArray ba = file.toLatin1();
     char* filename = new char[ba.size()+1];
     strcpy(filename, ba.data());
 
-    Media* m = NULL;
+    QTreeWidgetItem* item = NULL;
 
     AVFormatContext* pFormatCtx = NULL;
     int errCode = avformat_open_input(&pFormatCtx, filename, NULL, NULL);
@@ -122,7 +126,7 @@ Media* Project::import_file(QString file) {
         } else {
             av_dump_format(pFormatCtx, 0, filename, 0);
 
-            m = new Media();
+            Media* m = new Media();
             m->url = file;
             m->name = file.mid(file.lastIndexOf('/')+1);
 
@@ -149,7 +153,7 @@ Media* Project::import_file(QString file) {
             }
             m->length = pFormatCtx->duration;
 
-            QTreeWidgetItem* item = new_item();
+            item = new_item();
             if (m->video_tracks.size() == 0) {
                 item->setIcon(0, QIcon(":/icons/audiosource.png"));
             } else {
@@ -158,8 +162,6 @@ Media* Project::import_file(QString file) {
             item->setText(0, m->name);
             item->setText(1, QString::number(m->length));
             set_media_of_tree(item, m);
-
-            ui->treeWidget->addTopLevelItem(item);
 
             project_changed = true;
 
@@ -173,7 +175,7 @@ Media* Project::import_file(QString file) {
     }
 
     delete [] filename;
-    return m;
+    return item;
 }
 
 QTreeWidgetItem* Project::new_item() {
@@ -186,13 +188,14 @@ bool Project::is_focused() {
     return ui->treeWidget->hasFocus();
 }
 
-void Project::new_folder() {
+QTreeWidgetItem* Project::new_folder() {
     QTreeWidgetItem* item = new_item();
     item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
     item->setText(0, "New Folder");
     set_item_to_folder(item);
     ui->treeWidget->addTopLevelItem(item);
     project_changed = true;
+    return item;
 }
 
 void Project::delete_selected_media() {
@@ -293,7 +296,7 @@ void Project::process_file_list(QStringList& files) {
             }
         }
 
-        import_file(file);
+        ui->treeWidget->addTopLevelItem(import_file(file));
     }
 }
 
@@ -361,28 +364,269 @@ void Project::new_project() {
     project_changed = false;
 }
 
-#define LOAD_STATE_IDLE 0
-#define LOAD_STATE_MEDIA 1
-#define LOAD_STATE_FOOTAGE 2
-#define LOAD_STATE_TIMELINE 3
-#define LOAD_STATE_SEQUENCE 4
-#define LOAD_STATE_CLIP 5
-#define LOAD_STATE_CLIP_EFFECTS 6
-#define LOAD_STATE_EFFECT 7
-#define LOAD_STATE_CLIP_LINKS 8
+QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
+    for (int j=0;j<loaded_folders.size();j++) {
+        QTreeWidgetItem* parent_item = loaded_folders.at(j);
+        if (parent_item->data(0, Qt::UserRole + 3).toInt() == id) {
+            return parent_item;
+        }
+    }
+}
+
+bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
+    f.seek(0);
+    stream.setDevice(stream.device());
+
+    QString root_search;
+    QString child_search;
+
+    switch (type) {
+    case LOAD_TYPE_VERSION:
+        root_search = "version";
+        break;
+    case MEDIA_TYPE_FOLDER:
+        root_search = "folders";
+        child_search = "folder";
+        break;
+    case MEDIA_TYPE_FOOTAGE:
+        root_search = "media";
+        child_search = "footage";
+        break;
+    case MEDIA_TYPE_SEQUENCE:
+        root_search = "sequences";
+        child_search = "sequence";
+        break;
+    }
+
+    while (!stream.atEnd()) {
+        stream.readNextStartElement();
+        if (stream.name() == root_search) {
+            if (type == LOAD_TYPE_VERSION) {
+                if (stream.readElementText() != SAVE_VERSION) {
+                    if (QMessageBox::warning(this, "Version Mismatch", "This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                        error_str = "Incompatible project version.";
+                        return false;
+                    }
+                }
+            } else {
+                while (!(stream.name() == root_search && stream.isEndElement())) {
+                    stream.readNext();
+                    if (stream.name() == child_search && stream.isStartElement()) {
+                        switch (type) {
+                        case MEDIA_TYPE_FOLDER:
+                        {
+                            QTreeWidgetItem* folder = new_folder();
+                            for (int j=0;j<stream.attributes().size();j++) {
+                                const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                if (attr.name() == "id") {
+                                    folder->setData(0, Qt::UserRole + 3, attr.value().toInt());
+                                } else if (attr.name() == "name") {
+                                    folder->setText(0, attr.value().toString());
+                                }
+                            }
+                            loaded_folders.append(folder);
+                        }
+                            break;
+                        case MEDIA_TYPE_FOOTAGE:
+                        {
+                            QString name;
+                            QString url;
+                            int id;
+                            int folder;
+                            for (int j=0;j<stream.attributes().size();j++) {
+                                const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                if (attr.name() == "id") {
+                                    id = attr.value().toInt();
+                                } else if (attr.name() == "folder") {
+                                    folder = attr.value().toInt();
+                                } else if (attr.name() == "name") {
+                                    name = attr.value().toString();
+                                } else if (attr.name() == "url") {
+                                    url = attr.value().toString();
+                                }
+                            }
+                            QTreeWidgetItem* item = import_file(url);
+                            Media* m = get_media_from_tree(item);
+                            m->name = name;
+                            item->setText(0, name);
+                            m->save_id = id;
+                            if (folder == 0) {
+                                ui->treeWidget->addTopLevelItem(item);
+                            } else {
+                                find_loaded_folder_by_id(folder)->addChild(item);
+                            }
+                            loaded_media.append(m);
+                        }
+                            break;
+                        case MEDIA_TYPE_SEQUENCE:
+                        {
+                            QTreeWidgetItem* parent = NULL;
+                            Sequence* s = new Sequence();
+
+                            // load attributes about stream
+                            for (int j=0;j<stream.attributes().size();j++) {
+                                const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                if (attr.name() == "name") {
+                                    s->name = attr.value().toString();
+                                } else if (attr.name() == "folder") {
+                                    int folder = attr.value().toInt();
+                                    if (folder > 0) parent = find_loaded_folder_by_id(folder);
+                                } else if (attr.name() == "width") {
+                                    s->width = attr.value().toInt();
+                                } else if (attr.name() == "height") {
+                                    s->height = attr.value().toInt();
+                                } else if (attr.name() == "framerate") {
+                                    s->frame_rate = attr.value().toFloat();
+                                } else if (attr.name() == "afreq") {
+                                    s->audio_frequency = attr.value().toInt();
+                                } else if (attr.name() == "alayout") {
+                                    s->audio_layout = attr.value().toInt();
+                                }
+                            }
+
+                            // load all clips and clip information
+                            while (!(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
+                                stream.readNextStartElement();
+                                if (stream.name() == "clip" && stream.isStartElement()) {
+                                    //<clip id="0" name="Brock_Drying_Pan.gif" clipin="0" in="44" out="144" track="-1" r="192" g="128" b="128" media="2" stream="0">
+                                    int media_id, stream_id;
+                                    Clip* c = new Clip();
+                                    for (int j=0;j<stream.attributes().size();j++) {
+                                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                        if (attr.name() == "name") {
+                                            c->name = attr.value().toString();
+                                        } else if (attr.name() == "id") {
+                                            c->load_id = attr.value().toInt();
+                                        } else if (attr.name() == "clipin") {
+                                            c->clip_in = attr.value().toInt();
+                                        } else if (attr.name() == "in") {
+                                            c->timeline_in = attr.value().toInt();
+                                        } else if (attr.name() == "out") {
+                                            c->timeline_out = attr.value().toInt();
+                                        } else if (attr.name() == "track") {
+                                            c->track = attr.value().toInt();
+                                        } else if (attr.name() == "r") {
+                                            c->color_r = attr.value().toInt();
+                                        } else if (attr.name() == "g") {
+                                            c->color_g = attr.value().toInt();
+                                        } else if (attr.name() == "b") {
+                                            c->color_b = attr.value().toInt();
+                                        } else if (attr.name() == "media") {
+                                            media_id = attr.value().toInt();
+                                        } else if (attr.name() == "stream") {
+                                            stream_id = attr.value().toInt();
+                                        }
+                                    }
+
+                                    // set media and media stream
+                                    for (int j=0;j<loaded_media.size();j++) {
+                                        Media* m = loaded_media.at(j);
+                                        if (m->save_id == media_id) {
+                                            c->media = m;
+                                            c->media_stream = c->media->get_stream_from_file_index(stream_id);
+                                            break;
+                                        }
+                                    }
+
+                                    c->sequence = s;
+
+                                    // load links and effects
+                                    while (!(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {
+                                        stream.readNext();
+                                        if (stream.name() == "linked" && stream.isStartElement()) {
+                                            while (!(stream.name() == "linked" && stream.isEndElement()) && !stream.atEnd()) {
+                                                stream.readNext();
+                                                if (stream.name() == "link" && stream.isStartElement()) {
+                                                    for (int k=0;k<stream.attributes().size();k++) {
+                                                        const QXmlStreamAttribute& link_attr = stream.attributes().at(k);
+                                                        if (link_attr.name() == "id") {
+                                                            c->linked.append(link_attr.value().toInt());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (stream.name() == "effects" && stream.isStartElement()) {
+                                            while (!(stream.name() == "effects" && stream.isEndElement()) && !stream.atEnd()) {
+                                                stream.readNext();
+                                                if (stream.name() == "effect" && stream.isStartElement()) {
+                                                    int effect_id = -1;
+                                                    for (int j=0;j<stream.attributes().size();j++) {
+                                                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                                        if (attr.name().toString() == QLatin1String("id")) {
+                                                            effect_id = attr.value().toInt();
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (effect_id != -1) {
+                                                        Effect* e = create_effect(effect_id, c);
+                                                        e->load(&stream);
+                                                        c->effects.append(e);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    s->add_clip(c);
+                                }
+                            }
+
+                            // correct links and clip IDs
+                            for (int i=0;i<s->clip_count();i++) {
+                                // correct links
+                                Clip* correct_clip = s->get_clip(i);
+                                for (int j=0;j<correct_clip->linked.size();j++) {
+                                    bool found = false;
+                                    for (int k=0;k<s->clip_count();k++) {
+                                        if (s->get_clip(k)->load_id == correct_clip->linked.at(j)) {
+                                            correct_clip->linked[j] = k;
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        correct_clip->linked.removeAt(j);
+                                        j--;
+                                        if (QMessageBox::warning(this, "Invalid Clip Link", "This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                                            delete s;
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+
+                            new_sequence(s, false, parent);
+                        }
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+    }
+    return true;
+}
 
 void Project::load_project() {
     new_project();
 
     QFile file(project_url);
-    if (!file.open(QIODevice::ReadOnly/* | QIODevice::Text*/)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         qDebug() << "[ERROR] Could not open file";
         return;
     }
 
     QXmlStreamReader stream(&file);
 
+    bool cont = false;
+    error_str.clear();
+
     // temp variables for loading
+    loaded_folders.clear();
+    loaded_media.clear();
     QVector<Media*> temp_media_list;
     QString temp_name;
     QString temp_url;
@@ -390,8 +634,25 @@ void Project::load_project() {
     Sequence* temp_seq;
     Clip* temp_clip;
 
-    int state = LOAD_STATE_IDLE;
-    bool error = false;
+    // find project file version
+    cont = load_worker(file, stream, LOAD_TYPE_VERSION);
+
+    // load folders first
+    if (cont) {
+        cont = load_worker(file, stream, MEDIA_TYPE_FOLDER);
+    }
+
+    // load media
+    if (cont) {
+        cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);
+    }
+
+    // load sequences
+    if (cont) {
+        cont = load_worker(file, stream, MEDIA_TYPE_SEQUENCE);
+    }
+
+    /*int state = LOAD_STATE_IDLE;
     while (!error && !stream.atEnd()) {
         stream.readNext();
         switch (state) {
@@ -574,22 +835,114 @@ void Project::load_project() {
             }
             break;
         }
-    }
-    if (stream.hasError()) {
-        qDebug() << "[ERROR] Error parsing XML." << stream.error();
-        QMessageBox::critical(this, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.error(), QMessageBox::Ok);
-        error = true;
+    }*/
+    if (!cont) {
+        QMessageBox::critical(this, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+    } else if (stream.hasError()) {
+        qDebug() << "[ERROR] Error parsing XML." << stream.errorString();
+        QMessageBox::critical(this, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.errorString(), QMessageBox::Ok);
+        cont = false;
     }
 
-    if (error) {
-        new_project();
-    } else {
+    if (cont) {
         panel_timeline->redraw_all_clips(false);
         project_changed = false;
+    } else {
+        new_project();
+    }
+}
+
+void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type) {
+    bool root = (parent == NULL);
+    int len = root ? ui->treeWidget->topLevelItemCount() : parent->childCount();
+    for (int i=0;i<len;i++) {
+        QTreeWidgetItem* item = root ? ui->treeWidget->topLevelItem(i) : parent->child(i);
+        int item_type = get_type_from_tree(item);
+        if (item_type == MEDIA_TYPE_FOLDER) {
+            if (type == MEDIA_TYPE_FOLDER) {
+                // if we're saving folders, save the folder
+                stream.writeStartElement("folder");
+                stream.writeAttribute("name", item->text(0));
+                stream.writeAttribute("id", QString::number(folder_id));
+                item->setData(0, Qt::UserRole + 3, folder_id); // saves a temporary ID for matching in the project file
+                stream.writeEndElement();
+                folder_id++;
+            }
+            save_folder(stream, item, type);
+        } else if (type == item_type) {
+            int folder = root ? 0 : parent->data(0, Qt::UserRole + 3).toInt();
+            if (type == MEDIA_TYPE_FOOTAGE) {
+                Media* m = get_media_from_tree(item);
+                m->save_id = media_id;
+                stream.writeStartElement("footage");
+                stream.writeAttribute("id", QString::number(media_id));
+                stream.writeAttribute("folder", QString::number(folder));
+                stream.writeAttribute("name", m->name);
+                stream.writeAttribute("url", m->url);
+                stream.writeEndElement();
+                media_id++;
+            } else if (type == MEDIA_TYPE_SEQUENCE) {
+                Sequence* s = get_sequence_from_tree(item);
+                stream.writeStartElement("sequence");
+                stream.writeAttribute("folder", QString::number(folder));
+                stream.writeAttribute("name", s->name);
+                stream.writeAttribute("width", QString::number(s->width));
+                stream.writeAttribute("height", QString::number(s->height));
+                stream.writeAttribute("framerate", QString::number(s->frame_rate));
+                stream.writeAttribute("afreq", QString::number(s->audio_frequency));
+                stream.writeAttribute("alayout", QString::number(s->audio_layout));
+                for (int j=0;j<s->clip_count();j++) {
+                    Clip* c = s->get_clip(j);
+                    if (c != NULL) {
+                        stream.writeStartElement("clip"); // clip
+                        stream.writeAttribute("id", QString::number(j));
+                        stream.writeAttribute("name", c->name);
+                        stream.writeAttribute("clipin", QString::number(c->clip_in));
+                        stream.writeAttribute("in", QString::number(c->timeline_in));
+                        stream.writeAttribute("out", QString::number(c->timeline_out));
+                        stream.writeAttribute("track", QString::number(c->track));
+                        if (c->opening_transition != NULL) {
+                            stream.writeAttribute("opening", QString::number(c->opening_transition->id));
+                        }
+                        if (c->closing_transition != NULL) {
+                            stream.writeAttribute("closing", QString::number(c->closing_transition->id));
+                        }
+                        stream.writeAttribute("r", QString::number(c->color_r));
+                        stream.writeAttribute("g", QString::number(c->color_g));
+                        stream.writeAttribute("b", QString::number(c->color_b));
+                        stream.writeAttribute("media", QString::number(c->media->save_id));
+                        stream.writeAttribute("stream", QString::number(c->media_stream->file_index));
+
+                        stream.writeStartElement("linked"); // linked
+                        for (int k=0;k<c->linked.size();k++) {
+                            stream.writeStartElement("link"); // link
+                            stream.writeAttribute("id", QString::number(c->linked.at(k)));
+                            stream.writeEndElement(); // link
+                        }
+                        stream.writeEndElement(); // linked
+
+                        stream.writeStartElement("effects"); // effects
+                        for (int k=0;k<c->effects.size();k++) {
+                            stream.writeStartElement("effect"); // effect
+                            Effect* e = c->effects.at(k);
+                            stream.writeAttribute("id", QString::number(e->id));
+                            e->save(&stream);
+                            stream.writeEndElement(); // effect
+                        }
+                        stream.writeEndElement(); // effects
+                        stream.writeEndElement(); // clip
+                    }
+                }
+                stream.writeEndElement();
+            }
+        }
     }
 }
 
 void Project::save_project() {
+    folder_id = 1;
+    media_id = 0;
+
     QFile file(project_url);
     if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
         qDebug() << "[ERROR] Could not open file";
@@ -598,90 +951,27 @@ void Project::save_project() {
 
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
-    stream.writeStartDocument();
+    stream.writeStartDocument(); // doc
 
-    stream.writeStartElement("project");
+    stream.writeStartElement("project"); // project
 
-    stream.writeTextElement("version", "180601");
+    stream.writeTextElement("version", SAVE_VERSION);
 
-    int len = ui->treeWidget->topLevelItemCount();
-    stream.writeStartElement("media");
-    for (int i=0;i<len;i++) {
-        QTreeWidgetItem* item = ui->treeWidget->topLevelItem(i);
-        if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
-            Media* m = get_media_from_tree(item);
-            m->save_id = i;
-            stream.writeStartElement("footage");
-            stream.writeAttribute("id", QString::number(i));
-            stream.writeTextElement("name", m->name);
-            stream.writeTextElement("url", m->url);
-            stream.writeEndElement();
-        }
-    }
-    stream.writeEndElement();
+    stream.writeStartElement("folders"); // folders
+    save_folder(stream, NULL, MEDIA_TYPE_FOLDER);
+    stream.writeEndElement(); // folders
 
-    stream.writeStartElement("timeline");
-    for (int i=0;i<len;i++) {
-        QTreeWidgetItem* item = ui->treeWidget->topLevelItem(i);
-        if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
-            Sequence* s = get_sequence_from_tree(item);
-            stream.writeStartElement("sequence");
-            stream.writeTextElement("name", s->name);
-            stream.writeTextElement("width", QString::number(s->width));
-            stream.writeTextElement("height", QString::number(s->height));
-            stream.writeTextElement("framerate", QString::number(s->frame_rate));
-            stream.writeTextElement("afreq", QString::number(s->audio_frequency));
-            stream.writeTextElement("alayout", QString::number(s->audio_layout));
-            stream.writeStartElement("clips");
+    stream.writeStartElement("media"); // media
+    save_folder(stream, NULL, MEDIA_TYPE_FOOTAGE);
+    stream.writeEndElement(); // media
 
-            for (int i=0;i<s->clip_count();i++) {
-                Clip* c = s->get_clip(i);
-                if (c != NULL) {
-                    stream.writeStartElement("clip");
-                    stream.writeTextElement("id", QString::number(i));
-                    stream.writeTextElement("name", c->name);
-                    stream.writeTextElement("clipin", QString::number(c->clip_in));
-                    stream.writeTextElement("in", QString::number(c->timeline_in));
-                    stream.writeTextElement("out", QString::number(c->timeline_out));
-                    stream.writeTextElement("track", QString::number(c->track));
-                    if (c->opening_transition != NULL) {
-                        stream.writeTextElement("opening", QString::number(c->opening_transition->id));
-                    }
-                    if (c->closing_transition != NULL) {
-                        stream.writeTextElement("closing", QString::number(c->closing_transition->id));
-                    }
-                    stream.writeStartElement("color");
-                    stream.writeAttribute("r", QString::number(c->color_r));
-                    stream.writeAttribute("g", QString::number(c->color_g));
-                    stream.writeAttribute("b", QString::number(c->color_b));
-                    stream.writeEndElement();
-                    stream.writeTextElement("media", QString::number(c->media->save_id));
-                    stream.writeTextElement("stream", QString::number(c->media_stream->file_index));
-                    stream.writeStartElement("linked");
-                    for (int j=0;j<c->linked.size();j++) {
-                        stream.writeTextElement("link", QString::number(c->linked.at(j)));
-                    }
-                    stream.writeEndElement();
-                    stream.writeStartElement("effects");
-                    for (int j=0;j<c->effects.size();j++) {
-                        stream.writeStartElement("effect");
-                        Effect* e = c->effects.at(j);
-                        stream.writeAttribute("id", QString::number(e->id));
-                        e->save(&stream);
-                        stream.writeEndElement();
-                    }
-                    stream.writeEndElement();
-                    stream.writeEndElement();
-                }
-            }
-            stream.writeEndElement();
-        }
-    }
-    stream.writeEndElement();
+    stream.writeStartElement("sequences"); // sequences
+    save_folder(stream, NULL, MEDIA_TYPE_SEQUENCE);
+    stream.writeEndElement();// sequences
 
-    stream.writeEndElement();
+    stream.writeEndElement(); // project
 
-    stream.writeEndDocument();
+    stream.writeEndDocument(); // doc
 
     file.close();
 

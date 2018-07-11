@@ -262,13 +262,14 @@ void MainWindow::on_action_Paste_triggered()
 }
 
 void MainWindow::autorecover_interval() {
-    bool old_changed = project_changed;
-    QString old_filename = project_url;
-    project_url = autorecovery_filename;
-    qDebug() << "[INFO] Auto-recovery project saved";
-    panel_project->save_project();
-    project_url = old_filename;
-    project_changed = old_changed;
+    if (!project_changed) {
+        QString old_filename = project_url;
+        project_url = autorecovery_filename;
+        panel_project->save_project();
+        qDebug() << "[INFO] Auto-recovery project saved";
+        project_url = old_filename;
+        project_changed = false;
+    }
 }
 
 bool MainWindow::save_project_as() {

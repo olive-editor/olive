@@ -62,14 +62,17 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             QTreeWidgetItem* item = items.at(i);
             if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
                 Media* m = panel_project->get_media_from_tree(item);
-                bool ignore_infinite_length = (m->audio_tracks.size() > 0);
                 Ghost g;
                 g.clip = -1;
                 g.media = m;
                 g.old_clip_in = g.clip_in = 0;
                 g.in = entry_point;
-                entry_point += m->get_length_in_frames(sequence->frame_rate);
-                g.out = entry_point;
+                if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
+                    g.out = g.in + 100;
+                } else {
+                    g.out = entry_point + m->get_length_in_frames(sequence->frame_rate);
+                }
+                entry_point = g.out;
                 g.trimming = false;
                 for (int j=0;j<m->audio_tracks.size();j++) {
                     g.track = j;
@@ -79,7 +82,6 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 for (int j=0;j<m->video_tracks.size();j++) {
                     g.track = -1-j;
                     g.media_stream = m->video_tracks.at(j);
-                    if (m->video_tracks[j]->infinite_length && !ignore_infinite_length) g.out = g.in + 100;
                     panel_timeline->ghosts.append(g);
                 }
             }

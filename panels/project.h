@@ -10,11 +10,18 @@ class Timeline;
 class Viewer;
 class SourceTable;
 class QTreeWidgetItem;
+class QXmlStreamWriter;
+class QXmlStreamReader;
+class QFile;
+
+#define SAVE_VERSION "180711"
 
 #define MEDIA_TYPE_FOOTAGE 0
 #define MEDIA_TYPE_SEQUENCE 1
 #define MEDIA_TYPE_FOLDER 2
 #define MEDIA_TYPE_SOLID 3
+
+#define LOAD_TYPE_VERSION 69
 
 namespace Ui {
 class Project;
@@ -32,9 +39,9 @@ public:
 	~Project();
     bool is_focused();
     void clear();
-    Media* import_file(QString url);
+    QTreeWidgetItem* import_file(QString url);
     void import_dialog();
-    void new_sequence(Sequence* s, bool open);
+    void new_sequence(Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
     void delete_selected_media();
@@ -45,7 +52,7 @@ public:
     void load_project();
     void save_project();
 
-    void new_folder();
+    QTreeWidgetItem* new_folder();
 
     int get_type_from_tree(QTreeWidgetItem* item);
     Media* get_media_from_tree(QTreeWidgetItem* item);
@@ -58,6 +65,14 @@ public:
 private:
 	Ui::Project *ui;
     QTreeWidgetItem* new_item();
+    bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
+    void save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type);
+    QString error_str;
+    int folder_id;
+    int media_id;
+    QVector<QTreeWidgetItem*> loaded_folders;
+    QVector<Media*> loaded_media;
+    QTreeWidgetItem* find_loaded_folder_by_id(int id);
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
 };
