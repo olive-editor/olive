@@ -18,6 +18,14 @@ extern "C" {
 #include <QtMath>
 #include <math.h>
 
+void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
+    // perform all audio effects
+    for (int j=0;j<c->effects.size();j++) {
+        Effect* e = c->effects.at(j);
+        if (e->is_enabled()) e->process_audio(frame->data[0], nb_bytes);
+    }
+}
+
 void cache_audio_worker(Clip* c) {
     int written = 0;
     int max_write = 16384;
@@ -29,6 +37,7 @@ void cache_audio_worker(Clip* c) {
             // no more audio left in frame, get a new one
             if (!c->reached_end) {
                 retrieve_next_frame_raw_data(c, frame);
+                apply_audio_effects(c, frame, av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1));
             } else {
                 // set by retrieve_next_frame_raw_data indicating no more frames in file,
                 // but there still may be samples in swresample
@@ -55,13 +64,6 @@ void cache_audio_worker(Clip* c) {
             } else {
                 c->frame_sample_index = 0;
             }
-
-            // perform all audio effects
-            int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-            for (int j=0;j<c->effects.size();j++) {
-                Effect* e = c->effects.at(j);
-                if (e->is_enabled()) e->process_audio(frame->data[0], nb_bytes);
-            }
         }
 
         if (frame->nb_samples == 0) {
@@ -78,9 +80,11 @@ void cache_audio_worker(Clip* c) {
                     c->frame_sample_index += offset;
                 }
             }
+            bool apply_effects = false;
             while (c->frame_sample_index > nb_bytes) {
                 // get new frame
                 retrieve_next_frame_raw_data(c, frame);
+                apply_effects = true;
                 nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
                 c->frame_sample_index -= nb_bytes;
 
@@ -91,6 +95,10 @@ void cache_audio_worker(Clip* c) {
                     c->frame_sample_index += offset;
                 }
             }
+            if (apply_effects) {
+                apply_audio_effects(c, frame, nb_bytes);
+            }
+
             while (c->frame_sample_index < nb_bytes) {
                 if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= get_buffer_offset_from_frame(c->timeline_out)) {
                     written = max_write;

@@ -190,8 +190,12 @@ void MainWindow::on_actionTimeline_Track_Lines_toggled(bool e)
 
 void MainWindow::on_actionExport_triggered()
 {
-    ExportDialog e(this);
-	e.exec();
+    if (sequence == NULL) {
+        QMessageBox::information(this, "No active sequence", "Please open the sequence you wish to export.", QMessageBox::Ok);
+    } else {
+        ExportDialog e(this);
+        e.exec();
+    }
 }
 
 void MainWindow::on_actionProject_2_toggled(bool arg1)

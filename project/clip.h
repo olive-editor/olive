@@ -30,6 +30,10 @@ struct ClipCache {
 	QMutex mutex;
 };
 
+/*struct ClipPlayback {
+
+};*/
+
 struct Clip
 {
 	Clip();
@@ -51,9 +55,7 @@ struct Clip
     quint8 color_r;
     quint8 color_g;
     quint8 color_b;
-	long getLength();
-
-    // inherited information (should be set to the same references in copy())
+    long getLength();
 	Media* media; // attached media
 	MediaStream* media_stream;
 	Sequence* sequence;
@@ -64,39 +66,39 @@ struct Clip
     Transition* opening_transition;
     Transition* closing_transition;
 
-	// media handling
-	AVFormatContext* formatCtx;
-	AVStream* stream;
-	AVCodec* codec;
-	AVCodecContext* codecCtx;
-	AVPacket* pkt;
-	AVFrame* frame;
-	bool pkt_written;
-	bool reached_end;
-	bool open;
+    // media handling
+    AVFormatContext* formatCtx;
+    AVStream* stream;
+    AVCodec* codec;
+    AVCodecContext* codecCtx;
+    AVPacket* pkt;
+    AVFrame* frame;
+    bool pkt_written;
+    bool reached_end;
+    bool open;
     bool finished_opening;
 
-	// caching functions
-	bool multithreaded;
-	Cacher* cacher;
-	QWaitCondition can_cache;
+    // caching functions
+    bool multithreaded;
+    Cacher* cacher;
+    QWaitCondition can_cache;
     quint16 cache_size;
-	ClipCache cache_A;
-	ClipCache cache_B;
-	QMutex lock;
-	QMutex open_lock;
+    ClipCache cache_A;
+    ClipCache cache_B;
+    QMutex lock;
+    QMutex open_lock;
 
-	// video playback variables
-	SwsContext* sws_ctx;
-	QOpenGLTexture* texture;
-	long texture_frame;
+    // video playback variables
+    SwsContext* sws_ctx;
+    QOpenGLTexture* texture;
+    long texture_frame;
 
-	// audio playback variables
-	SwrContext* swr_ctx;
+    // audio playback variables
+    SwrContext* swr_ctx;
     bool need_new_audio_frame;
-	int frame_sample_index;
+    int frame_sample_index;
     int audio_buffer_write;
-	bool reset_audio;
+    bool reset_audio;
     bool audio_just_reset;
     long audio_target_frame;
 };

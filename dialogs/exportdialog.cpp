@@ -231,7 +231,7 @@ void ExportDialog::on_formatCombobox_currentIndexChanged(int index)
 		format_acodecs.append(AV_CODEC_ID_OPUS);
 		format_acodecs.append(AV_CODEC_ID_VORBIS);
 
-		default_acodec = AV_CODEC_ID_VORBIS;
+        default_acodec = 1;
 		break;
 	case FORMAT_MOV:
 		format_vcodecs.append(AV_CODEC_ID_QTRLE);
@@ -356,6 +356,7 @@ void ExportDialog::on_pushButton_clicked()
 		// ext = "";
 		// ext is determined from codec, but we prevent the switch from going to 'default' here
 		qDebug() << "[INFO] Image export not implemented yet";
+        QMessageBox::information(this, "Image sequence support coming soon", "Sorry, image sequence exporting is currently unsupported. Check back soon (or hound GitHub issue #83).", QMessageBox::Ok);
 		return;
 		break;
 	case FORMAT_MP3:
