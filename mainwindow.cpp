@@ -359,6 +359,8 @@ void MainWindow::on_action_Open_Project_triggered()
 void MainWindow::on_actionProject_triggered()
 {
     if (can_close_project()) {
+        project_url.clear();
+        project_changed = false;
         panel_project->new_project();
     }
 }

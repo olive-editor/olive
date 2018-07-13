@@ -158,7 +158,7 @@ void ExportThread::run() {
                                             AV_PIX_FMT_RGBA,
 											video_width,
 											video_height,
-											AV_PIX_FMT_YUV420P,
+                                            vcodec_ctx->pix_fmt,
 											SWS_FAST_BILINEAR,
 											NULL,
 											NULL,
@@ -166,7 +166,7 @@ void ExportThread::run() {
 										);
 
                                 sws_frame = av_frame_alloc();
-                                sws_frame->format = AV_PIX_FMT_YUV420P;
+                                sws_frame->format = vcodec_ctx->pix_fmt;
                                 sws_frame->width = video_frame->width;
                                 sws_frame->height = video_frame->height;
                                 av_frame_get_buffer(sws_frame, 0);

@@ -435,6 +435,7 @@ void ExportDialog::on_pushButton_clicked()
 		break;
 	default:
 		qDebug() << "[ERROR] Invalid format - this is a bug, please inform the developers";
+        QMessageBox::critical(this, "Invalid format", "Couldn't determine output format. This is a bug, please contact the developers.", QMessageBox::Ok);
 		return;
 	}
 	QString filename = QFileDialog::getSaveFileName(this, "Export Media", "", format_strings[ui->formatCombobox->currentIndex()] + " (*." + ext + ")");
@@ -442,6 +443,18 @@ void ExportDialog::on_pushButton_clicked()
         if (!filename.endsWith("." + ext, Qt::CaseInsensitive)) {
             filename += "." + ext;
         }
+
+        if (ui->formatCombobox->currentIndex() == FORMAT_IMG) {
+            int ext_location = filename.lastIndexOf('.');
+            if (ext_location > filename.lastIndexOf('/')) {
+                filename.insert(ext_location, 'd');
+                filename.insert(ext_location, '5');
+                filename.insert(ext_location, '0');
+                filename.insert(ext_location, '%');
+            }
+        }
+
+
         et = new ExportThread();
 
 		et->surface.create();
@@ -460,15 +473,19 @@ void ExportDialog::on_pushButton_clicked()
 
 		et->filename = filename;
 		et->video_enabled = ui->videoGroupbox->isChecked();
-		et->video_codec = format_vcodecs.at(ui->vcodecCombobox->currentIndex());
-		et->video_width = ui->widthSpinbox->value();
-		et->video_height = ui->heightSpinbox->value();
-		et->video_frame_rate = ui->framerateSpinbox->value();
-		et->video_bitrate = ui->videobitrateSpinbox->value();
+        if (et->video_enabled) {
+            et->video_codec = format_vcodecs.at(ui->vcodecCombobox->currentIndex());
+            et->video_width = ui->widthSpinbox->value();
+            et->video_height = ui->heightSpinbox->value();
+            et->video_frame_rate = ui->framerateSpinbox->value();
+            et->video_bitrate = ui->videobitrateSpinbox->value();
+        }
 		et->audio_enabled = ui->audioGroupbox->isChecked();
-		et->audio_codec = format_acodecs.at(ui->acodecCombobox->currentIndex());
-		et->audio_sampling_rate = 48000;
-		et->audio_bitrate = ui->audiobitrateSpinbox->value();
+        if (et->audio_enabled) {
+            et->audio_codec = format_acodecs.at(ui->acodecCombobox->currentIndex());
+            et->audio_sampling_rate = 48000;
+            et->audio_bitrate = ui->audiobitrateSpinbox->value();
+        }
 
         et->ed = this;
         cancelled = false;
