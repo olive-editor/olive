@@ -14,6 +14,7 @@
 #include "playback/playback.h"
 #include "effects/transition.h"
 #include "ui_viewer.h"
+#include "project/undo.h"
 
 #include <QTime>
 #include <QScrollBar>
@@ -179,7 +180,7 @@ int Timeline::get_track_height_size(bool video) {
 void Timeline::add_transition() {
     for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
-        if (c != NULL && is_clip_selected(c)) {
+        if (c != NULL && is_clip_selected(c, true)) {
             if (c->opening_transition == NULL) {
                 c->opening_transition = create_transition(0, c);
             }
@@ -234,24 +235,6 @@ bool Timeline::focused() {
     return (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus());
 }
 
-void Timeline::undo() {
-//    qDebug() << "[INFO] Undo/redo was so buggy, it's been disabled. Sorry for any inconvenience";
-    if (sequence != NULL) {
-        panel_effect_controls->clear_effects(true);
-        sequence->undo();
-        redraw_all_clips(false);
-    }
-}
-
-void Timeline::redo() {
-//    qDebug() << "[INFO] Undo/redo was so buggy, it's been disabled. Sorry for any inconvenience";
-    if (sequence != NULL) {
-        panel_effect_controls->clear_effects(true);
-        sequence->redo();
-        redraw_all_clips(false);
-    }
-}
-
 void Timeline::repaint_timeline() {
     if (playing) {
         playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
@@ -273,7 +256,6 @@ void Timeline::redraw_all_clips(bool changed) {
             project_changed = true;
             if (!playing) reset_all_audio();
             panel_viewer->viewer_widget->update();
-            sequence->undo_add_current();
         }
 
         ui->video_area->redraw_clips();
@@ -301,9 +283,12 @@ void Timeline::delete_selection(bool ripple_delete) {
 	if (selections.size() > 0) {
         panel_effect_controls->clear_effects(true);
 
+        TimelineAction* ta = new TimelineAction();
+
 		long ripple_point = selections.at(0).in;
 		long ripple_length = selections.at(0).out - selections.at(0).in;
 
+        // retrieve ripple_point and ripple_length from current selection
         for (int i=0;i<selections.size();i++) {
             const Selection& s = selections.at(i);
             if (ripple_delete) {
@@ -311,7 +296,7 @@ void Timeline::delete_selection(bool ripple_delete) {
                 if (ripple_length > s.out - s.in) ripple_length = s.out - s.in;
             }
         }
-        delete_areas_and_relink(selections);
+        delete_areas_and_relink(ta, selections);
 		selections.clear();
 
 		if (ripple_delete) {
@@ -335,8 +320,10 @@ void Timeline::delete_selection(bool ripple_delete) {
 					}
 				}
 			}
-			if (ripple_length > 0) ripple(ripple_point, -ripple_length);
+            if (ripple_length > 0) ripple(ta, ripple_point, -ripple_length);
 		}
+
+        undo_stack.push(ta);
 
         redraw_all_clips(true);
 	}
@@ -362,13 +349,13 @@ void Timeline::set_zoom(bool in) {
     redraw_all_clips(false);
 }
 
-void Timeline::ripple(long ripple_point, long ripple_length) {
+void Timeline::ripple(TimelineAction* ta, long ripple_point, long ripple_length) {
     // ripple all clips around the ripple_point
 	for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
         if (c != NULL && c->timeline_in >= ripple_point) {
-            c->timeline_in += ripple_length;
-            c->timeline_out += ripple_length;
+            ta->increase_timeline_in(i, ripple_length);
+            ta->increase_timeline_out(i, ripple_length);
 		}
     }
 
@@ -389,6 +376,15 @@ void Timeline::decheck_tool_buttons(QObject* sender) {
 	}
 }
 
+QVector<int> Timeline::get_tracks_of_linked_clips(int i) {
+    QVector<int> tracks;
+    Clip* clip = sequence->get_clip(i);
+    for (int j=0;j<clip->linked.size();j++) {
+        tracks.append(sequence->get_clip(clip->linked.at(j))->track);
+    }
+    return tracks;
+}
+
 void Timeline::on_pushButton_4_clicked()
 {
     set_zoom(true);
@@ -399,52 +395,106 @@ void Timeline::on_pushButton_5_clicked()
     set_zoom(false);
 }
 
-bool Timeline::is_clip_selected(Clip* clip) {
+bool Timeline::is_clip_selected(Clip* clip, bool containing) {
 	for (int i=0;i<selections.size();i++) {
 		const Selection& s = selections.at(i);
-        if (clip->track == s.track && clip->timeline_in >= s.in && clip->timeline_out <= s.out) {
+        if (clip->track == s.track && ((clip->timeline_in >= s.in && clip->timeline_out <= s.out && containing) ||
+                (!containing && !(clip->timeline_in < s.in && clip->timeline_out < s.in) && !(clip->timeline_in > s.in && clip->timeline_out > s.in)))) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void Timeline::on_snappingButton_toggled(bool checked)
-{
+void Timeline::on_snappingButton_toggled(bool checked) {
     snapping = checked;
 }
 
-void Timeline::split_clip_and_relink(int clip, long frame, bool relink) {
+Clip* Timeline::split_clip(TimelineAction* ta, int p, long frame) {
+    Clip* pre = sequence->get_clip(p);
+    if (pre != NULL && pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
+        Clip* post = pre->copy();
+
+        ta->set_timeline_out(p, frame);
+        post->timeline_in = frame;
+        post->clip_in = pre->clip_in + (frame - pre->timeline_in);
+
+        long pre_length = pre->getLength();
+
+        if (pre->closing_transition != NULL) {
+            post->closing_transition = pre->closing_transition;
+            pre->closing_transition = NULL;
+            long post_length = post->getLength();
+            if (post->closing_transition->length > post_length) {
+                post->closing_transition->length = post_length;
+            }
+        }
+        if (pre->opening_transition != NULL && pre->opening_transition->length > pre_length) {
+            pre->opening_transition->length = pre_length;
+        }
+
+        return post;
+    }
+    return NULL;
+}
+
+bool Timeline::has_clip_been_split(int c) {
+    for (int i=0;i<split_cache.size();i++) {
+        if (split_cache.at(i) == c) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Timeline::split_clip_and_relink(TimelineAction* ta, int clip, long frame, bool relink) {
+    // see if we split this clip before
+    if (has_clip_been_split(clip)) {
+        return false;
+    }
+
+    split_cache.append(clip);
+
     Clip* c = sequence->get_clip(clip);
     if (c != NULL) {
         QVector<int> pre_clips;
-        QVector<int> post_clips;
+        QVector<Clip*> post_clips;
 
-        int post = sequence->split_clip(clip, frame);
+        Clip* post = split_clip(ta, clip, frame);
 
         // if alt is not down, split clips links too
-        if (post > -1 && relink) {
-            pre_clips.append(clip);
+        if (post == NULL) {
+            return false;
+        } else {
             post_clips.append(post);
+            if (relink) {
+                pre_clips.append(clip);
 
-            bool original_clip_is_selected = is_clip_selected(c);
+                bool original_clip_is_selected = is_clip_selected(c, true);
 
-            // find linked clips of old clip
-            for (int i=0;i<c->linked.size();i++) {
-                int l = c->linked.at(i);
-                Clip* link = sequence->get_clip(l);
-                if (original_clip_is_selected != !is_clip_selected(link)) {
-                    int s = sequence->split_clip(l, frame);
-                    if (s > -1) {
-                        pre_clips.append(l);
-                        post_clips.append(s);
+                // find linked clips of old clip
+                for (int i=0;i<c->linked.size();i++) {
+                    int l = c->linked.at(i);
+                    if (!has_clip_been_split(l)) {
+                        Clip* link = sequence->get_clip(l);
+                        if ((original_clip_is_selected && is_clip_selected(link, true)) || !original_clip_is_selected) {
+                            split_cache.append(l);
+                            Clip* s = split_clip(ta, l, frame);
+                            if (s != NULL) {
+                                pre_clips.append(l);
+                                post_clips.append(s);
+                            }
+                        }
                     }
                 }
-            }
 
-            relink_clips_using_ids(pre_clips, post_clips);
+                relink_clips_using_ids(pre_clips, post_clips);
+            }
+            ta->add_clips(post_clips);
+            return true;
         }
     }
+    return false;
 }
 
 void Timeline::clean_up_selections(QVector<Selection>& areas) {
@@ -477,11 +527,11 @@ void Timeline::clean_up_selections(QVector<Selection>& areas) {
     }
 }
 
-void Timeline::delete_areas_and_relink(QVector<Selection>& areas) {
+void Timeline::delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& areas) {
     clean_up_selections(areas);
 
     QVector<int> pre_clips;
-    QVector<int> post_clips;
+    QVector<Clip*> post_clips;
 
     for (int i=0;i<areas.size();i++) {
         const Selection& s = areas.at(i);
@@ -490,32 +540,32 @@ void Timeline::delete_areas_and_relink(QVector<Selection>& areas) {
             if (c != NULL && c->track == s.track && !c->undeletable) {
                 if (c->timeline_in >= s.in && c->timeline_out <= s.out) {
                     // clips falls entirely within deletion area
-                    sequence->delete_clip(j);
-                    j--;
+                    ta->delete_clip(j);
                 } else if (c->timeline_in < s.in && c->timeline_out > s.out) {
                     // middle of clip is within deletion area
 
                     // duplicate clip
                     Clip* post = c->copy();
 
-                    c->timeline_out = s.in;
+                    ta->set_timeline_out(j, s.in);
                     post->timeline_in = s.out;
-                    post->clip_in = c->clip_in + c->getLength() + (s.out - s.in);
+                    post->clip_in = c->clip_in + (s.in - c->timeline_in) + (s.out - s.in);
 
                     pre_clips.append(j);
-                    post_clips.append(sequence->add_clip(post));
+                    post_clips.append(post);
                 } else if (c->timeline_in < s.in && c->timeline_out > s.in) {
                     // only out point is in deletion area
-                    c->timeline_out = s.in;
+                    ta->set_timeline_out(j, s.in);
                 } else if (c->timeline_in < s.out && c->timeline_out > s.out) {
                     // only in point is in deletion area
-                    c->clip_in += s.out - c->timeline_in;
-                    c->timeline_in = s.out;
+                    ta->increase_clip_in(j, s.out - c->timeline_in);
+                    ta->set_timeline_in(j, s.out);
                 }
             }
         }
     }
     relink_clips_using_ids(pre_clips, post_clips);
+    ta->add_clips(post_clips);
 }
 
 void Timeline::copy(bool del) {
@@ -529,7 +579,7 @@ void Timeline::copy(bool del) {
         if (c != NULL) {
             for (int j=0;j<selections.size();j++) {
                 const Selection& s = selections.at(j);
-                if (s.track == c->track && !((c->timeline_in < s.in && c->timeline_out < s.in) || (c->timeline_in > s.out && c->timeline_out > s.out))) {
+                if (s.track == c->track && !((c->timeline_in <= s.in && c->timeline_out <= s.in) || (c->timeline_in >= s.out && c->timeline_out >= s.out))) {
                     if (!cleared) {
                         clip_clipboard.clear();
                         cleared = true;
@@ -575,17 +625,15 @@ void Timeline::copy(bool del) {
     }
 }
 
-void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<int>& new_clips) {
+void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips) {
     // relink pasted clips
     for (int i=0;i<old_clips.size();i++) {
         // these indices should correspond
         Clip* oc = sequence->get_clip(old_clips.at(i));
-        Clip* nc = sequence->get_clip(new_clips.at(i));
-
         for (int j=0;j<oc->linked.size();j++) {
             for (int k=0;k<old_clips.size();k++) { // find clip with that ID
-                if (old_clips.at(k) == oc->linked.at(j)) {
-                    nc->linked.append(new_clips.at(k));
+                if (oc->linked.at(j) == old_clips.at(k)) {
+                    new_clips.at(i)->linked.append(k);
                 }
             }
         }
@@ -594,10 +642,11 @@ void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<int>& new
 
 void Timeline::paste() {
     if (clip_clipboard.size() > 0) {
+        TimelineAction* ta = new TimelineAction();
+
         // create copies and delete areas that we'll be pasting to
         QVector<Selection> delete_areas;
         QVector<Clip*> pasted_clips;
-        QVector<int> pasted_clip_ids;
         long paste_end = 0;
         for (int i=0;i<clip_clipboard.size();i++) {
             Clip* c = clip_clipboard.at(i);
@@ -617,12 +666,7 @@ void Timeline::paste() {
             s.track = c->track;
             delete_areas.append(s);
         }
-        delete_areas_and_relink(delete_areas);
-
-        // add copies to the sequence (added afterwards to avoid
-        for (int i=0;i<pasted_clips.size();i++) {
-            pasted_clip_ids.append(sequence->add_clip(pasted_clips.at(i)));
-        }
+        delete_areas_and_relink(ta, delete_areas);
 
         // ADAPT
         for (int i=0;i<clip_clipboard.size();i++) {
@@ -632,12 +676,16 @@ void Timeline::paste() {
             for (int j=0;j<oc->linked.size();j++) {
                 for (int k=0;k<clip_clipboard.size();k++) { // find clip with that ID
                     if (clip_clipboard.at(k)->load_id == oc->linked.at(j)) {
-                        pasted_clips.at(i)->linked.append(pasted_clip_ids.at(k));
+                        pasted_clips.at(i)->linked.append(k);
                     }
                 }
             }
         }
         // ADAPT
+
+        ta->add_clips(pasted_clips);
+
+        undo_stack.push(ta);
 
         redraw_all_clips(true);
 
@@ -647,12 +695,13 @@ void Timeline::paste() {
     }
 }
 
-bool Timeline::split_selection() {
+bool Timeline::split_selection(TimelineAction* ta) {
     bool split = false;
 
     // temporary relinking vectors
     QVector<int> pre_splits;
-    QVector<int> post_splits;
+    QVector<Clip*> post_splits;
+    QVector<Clip*> secondary_post_splits;
 
     // find clips within selection and split
     for (int j=0;j<sequence->clip_count();j++) {
@@ -661,42 +710,70 @@ bool Timeline::split_selection() {
             for (int i=0;i<selections.size();i++) {
                 const Selection& s = selections.at(i);
                 if (s.track == clip->track) {
-                    int post_a = sequence->split_clip(j, s.in);
-                    int post_b = sequence->split_clip(j, s.out);
-
-                    if (post_a != -1) {
+                    if (clip->timeline_in < s.in && clip->timeline_out > s.out) {
+                        Clip* split_A = clip->copy();
+                        split_A->clip_in += (s.in - clip->timeline_in);
+                        split_A->timeline_in = s.in;
+                        split_A->timeline_out = s.out;
                         pre_splits.append(j);
-                        post_splits.append(post_a);
-                    }
-                    if (post_b != -1) {
-                        pre_splits.append(j);
-                        post_splits.append(post_b);
-                    }
+                        post_splits.append(split_A);
 
-                    split = true;
+                        Clip* split_B = clip->copy();
+                        split_B->clip_in += (s.out - clip->timeline_in);
+                        split_B->timeline_in = s.out;
+                        secondary_post_splits.append(split_B);
+
+                        ta->set_timeline_out(j, s.in);
+                        split = true;
+                    } else {
+                        Clip* post_a = split_clip(ta, j, s.in);
+                        Clip* post_b = split_clip(ta, j, s.out);
+                        if (post_a != NULL) {
+                            pre_splits.append(j);
+                            post_splits.append(post_a);
+                            split = true;
+                        }
+                        if (post_b != NULL) {
+                            if (post_a != NULL) {
+                                pre_splits.append(j);
+                                post_splits.append(post_b);
+                            } else {
+                                secondary_post_splits.append(post_b);
+                            }
+                            split = true;
+                        }
+                    }
                 }
             }
         }
     }
 
-    // relink after splitting
-    relink_clips_using_ids(pre_splits, post_splits);
+    if (split) {
+        // relink after splitting
+        relink_clips_using_ids(pre_splits, post_splits);
+        relink_clips_using_ids(pre_splits, secondary_post_splits);
+        ta->add_clips(post_splits);
+        ta->add_clips(secondary_post_splits);
 
-    return split;
+        return true;
+    }
+    return false;
 }
 
 void Timeline::split_at_playhead() {
+    TimelineAction* ta = new TimelineAction();
     bool split_selected = false;
+    split_cache.clear();
 
     if (selections.size() > 0) {
         // see if whole clips are selected
         QVector<int> pre_clips;
-        QVector<int> post_clips;
+        QVector<Clip*> post_clips;
         for (int j=0;j<sequence->clip_count();j++) {
             Clip* clip = sequence->get_clip(j);
-            if (clip != NULL && is_clip_selected(clip)) {
-                int s = sequence->split_clip(j, playhead);
-                if (s != -1) {
+            if (clip != NULL && is_clip_selected(clip, true)) {
+                Clip* s = split_clip(ta, j, playhead);
+                if (s != NULL) {
                     pre_clips.append(j);
                     post_clips.append(s);
                     split_selected = true;
@@ -707,9 +784,10 @@ void Timeline::split_at_playhead() {
         if (split_selected) {
             // relink clips if we split
             relink_clips_using_ids(pre_clips, post_clips);
+            ta->add_clips(post_clips);
         } else {
             // split a selection if not
-            split_selected = split_selection();
+            split_selected = split_selection(ta);
         }
     }
 
@@ -719,13 +797,19 @@ void Timeline::split_at_playhead() {
             Clip* c = sequence->get_clip(j);
             if (c != NULL) {
                 // always relinks
-                split_clip_and_relink(j, playhead, true);
-                split_selected = true;
+                if (split_clip_and_relink(ta, j, playhead, true)) {
+                    split_selected = true;
+                }
             }
         }
     }
 
-    if (split_selected) redraw_all_clips(true);
+    if (split_selected) {
+        undo_stack.push(ta);
+        redraw_all_clips(true);
+    } else {
+        delete ta;
+    }
 }
 
 bool Timeline::snap_to_point(long point, long* l) {

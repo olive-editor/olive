@@ -16,26 +16,17 @@ public:
     int add_clip(Clip* c);
 	int clip_count();
     Clip* get_clip(int i);
-    void delete_clip(int i);
-    int split_clip(int pre, long frame);
+    void replace_clip(int i, Clip* c);
 	void get_track_limits(int* video_tracks, int* audio_tracks);
+    void destroy_clip(int i, bool del);
 	long getEndFrame();
 	int width;
 	int height;
 	float frame_rate;
 	int audio_frequency;
-	int audio_layout;
-
-    void reset_undo();
-    void undo_add_current();
-    void undo();
-    void redo();
+    int audio_layout;
 private:
     QVector<Clip*> clips;
-
-    void set_undo();
-    QVector<QVector<Clip*>*> undo_stack;
-    int undo_pointer;
 };
 
 // static variable for the currently active sequence

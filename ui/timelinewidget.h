@@ -14,6 +14,7 @@
 struct Sequence;
 struct Clip;
 class Timeline;
+class TimelineAction;
 
 class TimelineWidget : public QWidget
 {

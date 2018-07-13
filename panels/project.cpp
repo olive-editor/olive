@@ -227,7 +227,7 @@ void Project::delete_selected_media() {
                     // remove all clips referencing this media
                     for (int j=0;j<sequence->clip_count();j++) {
                         if (sequence->get_clip(j)->media == m) {
-                            sequence->delete_clip(j);
+                            sequence->replace_clip(j, NULL);
                         }
                     }
                     remove = true;
@@ -371,6 +371,7 @@ QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
             return parent_item;
         }
     }
+    return NULL;
 }
 
 bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
@@ -627,12 +628,6 @@ void Project::load_project() {
     // temp variables for loading
     loaded_folders.clear();
     loaded_media.clear();
-    QVector<Media*> temp_media_list;
-    QString temp_name;
-    QString temp_url;
-    int temp_media_id;
-    Sequence* temp_seq;
-    Clip* temp_clip;
 
     // find project file version
     cont = load_worker(file, stream, LOAD_TYPE_VERSION);

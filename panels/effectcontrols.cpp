@@ -115,23 +115,23 @@ void EffectControls::load_effects() {
     }
 }
 
-void EffectControls::delete_clips() {
+void EffectControls::delete_effects() {
     // load in new clips
-    QVector<Effect*> delete_effects;
+    QVector<Effect*> fx_to_del;
     for (int i=0;i<selected_clips.size();i++) {
         Clip* c = sequence->get_clip(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
             Effect* effect = c->effects.at(j);
             if (effect->container->selected) {
                 c->effects.removeAt(j);
-                delete_effects.append(effect);
+                fx_to_del.append(effect);
             }
         }
     }
-    if (delete_effects.size() > 0) {
+    if (fx_to_del.size() > 0) {
         reload_clips();
-        for (int i=0;i<delete_effects.size();i++) {
-            delete delete_effects.at(i);
+        for (int i=0;i<fx_to_del.size();i++) {
+            delete fx_to_del.at(i);
         }
     }
 }

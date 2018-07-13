@@ -20,7 +20,7 @@ public:
 	// void set_clip(Clip* c);
     void set_clips(QVector<int>& clips);
     void clear_effects(bool clear_cache);
-    void delete_clips();
+    void delete_effects();
     bool is_focused();
 
 private slots:

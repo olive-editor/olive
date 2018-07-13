@@ -11,6 +11,8 @@
 #include "panels/viewer.h"
 #include "panels/timeline.h"
 
+#include "project/undo.h"
+
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/exportdialog.h"
@@ -91,6 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
     connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
     connect(ui->menu_Tools, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
+    connect(ui->menuEdit, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
 
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty()) {
@@ -148,7 +151,7 @@ void MainWindow::on_actionDelete_triggered()
 	if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(false);
     } else if (panel_effect_controls->is_focused()) {
-        panel_effect_controls->delete_clips();
+        panel_effect_controls->delete_effects();
     } else if (panel_project->is_focused()) {
         panel_project->delete_selected_media();
     }
@@ -223,18 +226,21 @@ void MainWindow::on_actionRipple_Delete_triggered()
 	panel_timeline->delete_selection(true);
 }
 
+void MainWindow::editMenu_About_To_Be_Shown() {
+    ui->action_Undo->setEnabled(undo_stack.canUndo());
+    ui->action_Redo->setEnabled(undo_stack.canRedo());
+}
+
 void MainWindow::on_action_Undo_triggered()
 {
-    if (panel_timeline->focused()) {
-        panel_timeline->undo();
-    }
+    undo_stack.undo();
+    panel_timeline->redraw_all_clips(true);
 }
 
 void MainWindow::on_action_Redo_triggered()
 {
-    if (panel_timeline->focused()) {
-        panel_timeline->redo();
-    }
+    undo_stack.redo();
+    panel_timeline->redraw_all_clips(true);
 }
 
 void MainWindow::on_actionSplit_at_Playhead_triggered()

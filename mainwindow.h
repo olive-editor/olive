@@ -144,6 +144,8 @@ private slots:
 
     void on_actionFolder_triggered();
 
+    void editMenu_About_To_Be_Shown();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

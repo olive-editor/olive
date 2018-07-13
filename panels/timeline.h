@@ -1,4 +1,4 @@
-#ifndef TIMELINE_H
+﻿#ifndef TIMELINE_H
 #define TIMELINE_H
 
 #include "ui/timelinetools.h"
@@ -10,6 +10,7 @@
 class QPushButton;
 class SourceTable;
 class ViewerWidget;
+class TimelineAction;
 struct Sequence;
 struct Clip;
 struct Media;
@@ -64,21 +65,22 @@ public:
 
     bool focused();
     void set_zoom(bool in);
-    void undo();
-    void redo();
     void copy(bool del);
     void paste();
     void deselect();
-    bool split_selection();
+    Clip* split_clip(TimelineAction* ta, int p, long frame);
+    bool split_selection(TimelineAction* ta);
     void split_at_playhead();
-    void split_clip_and_relink(int clip, long frame, bool relink);
+    bool split_clip_and_relink(TimelineAction* ta, int clip, long frame, bool relink);
     void clean_up_selections(QVector<Selection>& areas);
-    void delete_areas_and_relink(QVector<Selection>& areas);
-    void relink_clips_using_ids(QVector<int>& old_clips, QVector<int>& new_clips);
+    void delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& areas);
+    void relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips);
     void update_sequence();
     void increase_track_height();
     void decrease_track_height();
     void add_transition();
+    QVector<int> get_tracks_of_linked_clips(int i);
+    bool has_clip_been_split(int c);
 
     int get_snap_range();
     int getScreenPointFromFrame(long frame);
@@ -132,7 +134,7 @@ public:
 	bool selecting;
     int selection_offset;
 	QVector<Selection> selections;
-    bool is_clip_selected(Clip* clip);
+    bool is_clip_selected(Clip* clip, bool containing);
 	void delete_selection(bool ripple);
 	void select_all();
     bool rect_select_init;
@@ -153,12 +155,14 @@ public:
 
 	// splitting
 	bool splitting;
+    QVector<int> split_tracks;
+    QVector<int> split_cache;
 
 	// importing
 	bool importing;
 
 	// ripple
-	void ripple(long ripple_point, long ripple_length);
+    void ripple(TimelineAction* ta, long ripple_point, long ripple_length);
 
     Ui::Timeline *ui;
 public slots:
