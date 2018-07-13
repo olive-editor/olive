@@ -94,12 +94,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
     connect(ui->menu_Tools, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
     connect(ui->menuEdit, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
+    connect(ui->menu_File, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
 
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty()) {
         QDir dir(data_dir);
         dir.mkpath(".");
         if (dir.exists()) {
+            // detect auto-recovery file
             autorecovery_filename = data_dir + "/autorecovery.ove";
             if (QFile::exists(autorecovery_filename)) {
                 if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
@@ -110,6 +112,22 @@ MainWindow::MainWindow(QWidget *parent) :
             autorecovery_timer.setInterval(60000);
             QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
             autorecovery_timer.start();
+
+            // search for open recents list
+            recent_proj_file = data_dir + "/recents";
+            QFile f(recent_proj_file);
+            if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
+                QTextStream text_stream(&f);
+                while (true) {
+                    QString line = text_stream.readLine();
+                    if (line.isNull()) {
+                        break;
+                    } else {
+                        recent_projects.append(line);
+                    }
+                }
+                f.close();
+            }
         }
     }
 }
@@ -555,4 +573,28 @@ void MainWindow::on_actionSlide_Tool_triggered()
 void MainWindow::on_actionFolder_triggered()
 {
     panel_project->new_folder();
+}
+
+void MainWindow::fileMenu_About_To_Be_Shown() {
+    if (recent_projects.size() > 0) {
+        ui->menuOpen_Recent->clear();
+        ui->menuOpen_Recent->setEnabled(true);
+        for (int i=0;i<recent_projects.size();i++) {
+            QAction* action = ui->menuOpen_Recent->addAction(recent_projects.at(i));
+            action->setData(i);
+            connect(action, SIGNAL(triggered()), this, SLOT(load_recent_project()));
+        }
+        ui->menuOpen_Recent->addSeparator();
+        QAction* clear_action = ui->menuOpen_Recent->addAction("Clear Recent List");
+        connect(clear_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
+    } else {
+        ui->menuOpen_Recent->setEnabled(false);
+    }
+}
+
+void MainWindow::load_recent_project() {
+    if (can_close_project()) {
+        project_url = recent_projects.at(static_cast<QAction*>(sender())->data().toInt());
+        panel_project->load_project();
+    }
 }

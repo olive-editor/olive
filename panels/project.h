@@ -29,6 +29,8 @@ class Project;
 
 extern bool project_changed;
 extern QString project_url;
+extern QStringList recent_projects;
+extern QString recent_proj_file;
 
 class Project : public QDockWidget
 {
@@ -73,8 +75,11 @@ private:
     QVector<QTreeWidgetItem*> loaded_folders;
     QVector<Media*> loaded_media;
     QTreeWidgetItem* find_loaded_folder_by_id(int id);
+    void add_recent_project(QString url);
+    void save_recent_projects();
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
+    void clear_recent_projects();
 };
 
 #endif // PROJECT_H

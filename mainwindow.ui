@@ -40,8 +40,14 @@
      <addaction name="actionSequence"/>
      <addaction name="actionFolder"/>
     </widget>
+    <widget class="QMenu" name="menuOpen_Recent">
+     <property name="title">
+      <string>Open Recent</string>
+     </property>
+    </widget>
     <addaction name="menu_New"/>
     <addaction name="action_Open_Project"/>
+    <addaction name="menuOpen_Recent"/>
     <addaction name="action_Save_Project"/>
     <addaction name="actionSave_Project_As"/>
     <addaction name="separator"/>
@@ -587,6 +593,11 @@
   <action name="actionFolder">
    <property name="text">
     <string>Folder</string>
+   </property>
+  </action>
+  <action name="actionClear_Recent_List">
+   <property name="text">
+    <string>Clear Recent List</string>
    </property>
   </action>
  </widget>

@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow
 
 public:
 	explicit MainWindow(QWidget *parent = 0);
-	~MainWindow();
+    ~MainWindow();
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -145,6 +145,10 @@ private slots:
     void on_actionFolder_triggered();
 
     void editMenu_About_To_Be_Shown();
+
+    void fileMenu_About_To_Be_Shown();
+
+    void load_recent_project();
 
 private:
 	Ui::MainWindow *ui;

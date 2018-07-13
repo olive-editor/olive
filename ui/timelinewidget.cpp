@@ -985,7 +985,6 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             for (int i=0;i<track_size;i++) {
                 int clip_index = getClipIndexFromCoords(panel_timeline->drag_frame_start, panel_timeline->split_tracks[i]);
                 if (clip_index > -1) {
-                    Clip* c = sequence->get_clip(clip_index);
                     QVector<int> tracks = panel_timeline->get_tracks_of_linked_clips(clip_index);
                     for (int j=0;j<tracks.size();j++) {
                         // check if this track is already included

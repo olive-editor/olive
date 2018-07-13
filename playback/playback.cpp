@@ -267,4 +267,5 @@ void set_sequence(Sequence* s) {
     sequence = s;
     panel_timeline->update_sequence();
     panel_viewer->update_sequence();
+    panel_timeline->setFocus();
 }

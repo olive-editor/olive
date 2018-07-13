@@ -41,6 +41,7 @@ void SourceTable::mousePressEvent(QMouseEvent* event) {
 }
 
 void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
+    stop_rename_timer();
 	if (selectedItems().count() == 0) {
 		panel_project->import_dialog();
 	} else if (selectedItems().count() == 1) {

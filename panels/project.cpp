@@ -12,6 +12,7 @@
 #include "project/effect.h"
 #include "effects/transition.h"
 #include "io/previewgenerator.h"
+#include "mainwindow.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -30,8 +31,12 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 }
 
+#define MAXIMUM_RECENT_PROJECTS 10
+
 bool project_changed = false;
 QString project_url = "";
+QStringList recent_projects;
+QString recent_proj_file;
 
 Project::Project(QWidget *parent) :
 	QDockWidget(parent),
@@ -647,190 +652,6 @@ void Project::load_project() {
         cont = load_worker(file, stream, MEDIA_TYPE_SEQUENCE);
     }
 
-    /*int state = LOAD_STATE_IDLE;
-    while (!error && !stream.atEnd()) {
-        stream.readNext();
-        switch (state) {
-        case LOAD_STATE_IDLE:
-            if (stream.isStartElement()) {
-                if (stream.name() == "footage") {
-                    for (int j=0;j<stream.attributes().size();j++) {
-                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
-                        if (attr.name() == "id") {
-                            temp_media_id = attr.value().toInt();
-                        }
-                    }
-                    state = LOAD_STATE_FOOTAGE;
-                } else if (stream.name() == "sequence") {
-                    temp_seq = new Sequence();
-                    state = LOAD_STATE_SEQUENCE;
-                }
-            }
-            break;
-        case LOAD_STATE_FOOTAGE:
-            if (stream.isEndElement() && stream.name() == "footage") {
-                Media* m = import_file(temp_url);
-                if (m == NULL) {
-                    error = (QMessageBox::warning(this, "Source load error", "Couldn't load source file '" + temp_url + "'. This is unsupported and may lead to crashes. Do you wish to continue?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No);
-                } else {
-                    m->save_id = temp_media_id;
-                    m->name = temp_name;
-                    temp_media_list.append(m);
-                }
-                state = LOAD_STATE_IDLE;
-            } else if (stream.isStartElement()) {
-                if (stream.name() == "name") {
-                    stream.readNext();
-                    temp_name = stream.text().toString();
-                } else if (stream.name() == "url") {
-                    stream.readNext();
-                    temp_url = stream.text().toString();
-                }
-            }
-            break;
-        case LOAD_STATE_SEQUENCE:
-            if (stream.isEndElement() && stream.name() == "sequence") {
-                // correct IDs
-                for (int i=0;i<temp_seq->clip_count();i++) {
-                    Clip* clip = temp_seq->get_clip(i);
-
-                    // correct IDs in linked clips
-                    for (int j=0;j<clip->linked.size();j++) {
-                        bool found = false;
-                        for (int k=0;k<temp_seq->clip_count();k++) {
-                            if (temp_seq->get_clip(k)->load_id == clip->linked.at(j)) {
-                                clip->linked[j] = k;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {                            
-                            if (QMessageBox::warning(this, "Corrupt clip link", "Project contains a non-existent clip link. It may be corrupt. Would you like to load it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-                                clip->linked.removeAt(j);
-                            } else {
-                                error = true;
-                            }
-                        }
-                    }
-                }
-
-                temp_seq->reset_undo();
-                new_sequence(temp_seq, false);
-                state = LOAD_STATE_IDLE;
-            } else if (stream.isStartElement()) {
-                if (stream.name() == "name") {
-                    stream.readNext();
-                    temp_seq->name = stream.text().toString();
-                } else if (stream.name() == "width") {
-                    stream.readNext();
-                    temp_seq->width = stream.text().toInt();
-                } else if (stream.name() == "height") {
-                    stream.readNext();
-                    temp_seq->height = stream.text().toInt();
-                } else if (stream.name() == "framerate") {
-                    stream.readNext();
-                    temp_seq->frame_rate = stream.text().toFloat();
-                } else if (stream.name() == "afreq") {
-                    stream.readNext();
-                    temp_seq->audio_frequency = stream.text().toInt();
-                } else if (stream.name() == "alayout") {
-                    stream.readNext();
-                    temp_seq->audio_layout = stream.text().toInt();
-                } else if (stream.name() == "clip") {
-                    temp_clip = new Clip();
-                    temp_clip->sequence = temp_seq;
-                    state = LOAD_STATE_CLIP;
-                }
-            }
-            break;
-        case LOAD_STATE_CLIP:
-            if (stream.isEndElement() && stream.name() == "clip") {
-                temp_seq->add_clip(temp_clip);
-                state = LOAD_STATE_SEQUENCE;
-            } else if (stream.isStartElement()) {
-                if (stream.name() == "name") {
-                    stream.readNext();
-                    temp_clip->name = stream.text().toString();
-                } else if (stream.name() == "id") {
-                    stream.readNext();
-                    temp_clip->load_id = stream.text().toInt();
-                } else if (stream.name() == "clipin") {
-                    stream.readNext();
-                    temp_clip->clip_in = stream.text().toInt();
-                } else if (stream.name() == "in") {
-                    stream.readNext();
-                    temp_clip->timeline_in = stream.text().toInt();
-                } else if (stream.name() == "out") {
-                    stream.readNext();
-                    temp_clip->timeline_out = stream.text().toInt();
-                } else if (stream.name() == "track") {
-                    stream.readNext();
-                    temp_clip->track = stream.text().toInt();
-                } else if (stream.name() == "opening") {
-                    stream.readNext();
-                    temp_clip->opening_transition = create_transition(stream.text().toInt(), temp_clip);
-                } else if (stream.name() == "closing") {
-                    stream.readNext();
-                    temp_clip->closing_transition = create_transition(stream.text().toInt(), temp_clip);
-                } else if (stream.name() == "color") {
-                    for (int j=0;j<stream.attributes().size();j++) {
-                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
-                        if (attr.name().toString() == QLatin1String("r")) {
-                            temp_clip->color_r = attr.value().toInt();
-                        } else if (attr.name().toString() == QLatin1String("g")) {
-                            temp_clip->color_g = attr.value().toInt();
-                        } else if (attr.name().toString() == QLatin1String("b")) {
-                            temp_clip->color_b = attr.value().toInt();
-                        }
-                    }
-                } else if (stream.name() == "media") {
-                    stream.readNext();
-                    for (int i=0;i<temp_media_list.size();i++) {
-                        Media* m = temp_media_list.at(i);
-                        if (m->save_id == stream.text().toInt()) {
-                            temp_clip->media = m;
-                            break;
-                        }
-                    }
-                } else if (stream.name() == "stream") {
-                    stream.readNext();
-                    int stream_index = stream.text().toInt();
-                    if (temp_clip->media != NULL) {
-                        temp_clip->media_stream = temp_clip->media->get_stream_from_file_index(stream_index);
-                        if (temp_clip->media_stream == NULL) {
-                            if (QMessageBox::warning(this, "Source changed", "Source file '" + temp_clip->media->url + "' appears to have changed since last saving the project. This is unsupported and may lead to crashes. Do you wish to continue?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
-                                error = true;
-                            }
-                        }
-                    }
-                } else if (stream.name() == "linked") {
-                    state = LOAD_STATE_CLIP_LINKS;
-                } else if (stream.name() == "effect") {
-                    int effect_id = -1;
-                    for (int j=0;j<stream.attributes().size();j++) {
-                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
-                        if (attr.name().toString() == QLatin1String("id")) {
-                            effect_id = attr.value().toInt();
-                        }
-                    }
-                    if (effect_id != -1) {
-                        Effect* e = create_effect(effect_id, temp_clip);
-                        e->load(&stream);
-                        temp_clip->effects.append(e);
-                    }
-                }
-            }
-            break;
-        case LOAD_STATE_CLIP_LINKS:
-            if (stream.name() == "linked" && stream.isEndElement()) {
-                state = LOAD_STATE_CLIP;
-            } else if (stream.isStartElement() && stream.name() == "link") {
-                stream.readNext();
-                temp_clip->linked.append(stream.text().toInt());
-            }
-            break;
-        }
-    }*/
     if (!cont) {
         QMessageBox::critical(this, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
     } else if (stream.hasError()) {
@@ -845,6 +666,10 @@ void Project::load_project() {
     } else {
         new_project();
     }
+
+    file.close();
+
+    add_recent_project(project_url);
 }
 
 void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type) {
@@ -970,5 +795,47 @@ void Project::save_project() {
 
     file.close();
 
+    add_recent_project(project_url);
+
     project_changed = false;
+}
+
+void Project::save_recent_projects() {
+    // save to file
+    QFile f(recent_proj_file);
+    if (f.open(QFile::WriteOnly | QFile::Truncate | QFile::Text)) {
+        QTextStream out(&f);
+        for (int i=0;i<recent_projects.size();i++) {
+            if (i > 0) {
+                out << "\n";
+            }
+            out << recent_projects.at(i);
+        }
+        f.close();
+    } else {
+        qDebug() << "[WARNING] Could not save recent projects";
+    }
+}
+
+void Project::clear_recent_projects() {
+    recent_projects.clear();
+    save_recent_projects();
+}
+
+void Project::add_recent_project(QString url) {
+    bool found = false;
+    for (int i=0;i<recent_projects.size();i++) {
+        if (url == recent_projects.at(i)) {
+            found = true;
+            recent_projects.move(i, 0);
+            break;
+        }
+    }
+    if (!found) {
+        recent_projects.insert(0, url);
+        if (recent_projects.size() > MAXIMUM_RECENT_PROJECTS) {
+            recent_projects.removeLast();
+        }
+    }
+    save_recent_projects();
 }

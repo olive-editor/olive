@@ -351,13 +351,31 @@ void ExportDialog::on_pushButton_clicked()
 	case FORMAT_GIF:
 		ext = "gif";
 		break;
-	case FORMAT_IMG:
-		// ext_name = "";
-		// ext = "";
-		// ext is determined from codec, but we prevent the switch from going to 'default' here
-		qDebug() << "[INFO] Image export not implemented yet";
-        QMessageBox::information(this, "Image sequence support coming soon", "Sorry, image sequence exporting is currently unsupported. Check back soon (or hound GitHub issue #83).", QMessageBox::Ok);
-		return;
+    case FORMAT_IMG:
+        switch (format_vcodecs.at(ui->vcodecCombobox->currentIndex())) {
+        case AV_CODEC_ID_BMP:
+            ext = "bmp";
+            break;
+        case AV_CODEC_ID_MJPEG:
+            ext = "jpg";
+            break;
+        case AV_CODEC_ID_JPEG2000:
+            ext = "jp2";
+            break;
+        case AV_CODEC_ID_PSD:
+            ext = "psd";
+            break;
+        case AV_CODEC_ID_PNG:
+            ext = "png";
+            break;
+        case AV_CODEC_ID_TIFF:
+            ext = "tif";
+            break;
+        default:
+            qDebug() << "[ERROR] Invalid codec selection for an image sequence";
+            QMessageBox::critical(this, "Invalid codec", "Couldn't determine output parameters for the selected codec. This is a bug, please contact the developers.", QMessageBox::Ok);
+            return;
+        }
 		break;
 	case FORMAT_MP3:
 		ext = "mp3";
