@@ -2,6 +2,7 @@
 #define LABELSLIDER_H
 
 #include <QLabel>
+#include <QUndoCommand>
 
 class LabelSlider : public QLabel
 {
@@ -18,8 +19,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
 private:
-    float internal_value;
     float default_value;
+    float internal_value;
+    float drag_start_value;
 
     bool min_enabled;
     float min_value;
@@ -32,6 +34,18 @@ private:
     int drag_start_y;
 signals:
     void valueChanged();
+};
+
+class ValueChangeCommand : public QUndoCommand {
+public:
+    ValueChangeCommand();
+    LabelSlider* source;
+    float old_val;
+    float new_val;
+    void undo();
+    void redo();
+private:
+    bool done;
 };
 
 #endif // LABELSLIDER_H

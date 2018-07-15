@@ -1,8 +1,6 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
-#define UNDO_LIMIT 100
-
 #include <QVector>
 
 #include "project/clip.h"

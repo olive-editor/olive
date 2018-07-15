@@ -2,9 +2,11 @@
 #define EFFECTCONTROLS_H
 
 #include <QDockWidget>
+#include <QUndoCommand>
 
 struct Clip;
 class QMenu;
+class Effect;
 
 namespace Ui {
 class EffectControls;
@@ -22,6 +24,7 @@ public:
     void clear_effects(bool clear_cache);
     void delete_effects();
     bool is_focused();
+    void reload_clips();
 
 private slots:
     void menu_select(QAction* q);
@@ -37,8 +40,33 @@ private:
     QVector<int> selected_clips;
     void show_menu(bool video);
 	void load_effects();
-	void reload_clips();
+
 	bool video_menu;
+};
+
+class EffectAddCommand : public QUndoCommand {
+public:
+    EffectAddCommand();
+    ~EffectAddCommand();
+    void undo();
+    void redo();
+    QVector<Clip*> clips;
+    QVector<Effect*> effects;
+private:
+    bool done;
+};
+
+class EffectDeleteCommand : public QUndoCommand {
+public:
+    EffectDeleteCommand();
+    ~EffectDeleteCommand();
+    void undo();
+    void redo();
+    QVector<Clip*> clips;
+    QVector<int> fx;
+private:
+    bool done;
+    QVector<Effect*> deleted_objects;
 };
 
 #endif // EFFECTCONTROLS_H

@@ -5,11 +5,13 @@
 #include <QDebug>
 #include <QVBoxLayout>
 
+#include "panels/panels.h"
 #include "effects/effects.h"
 #include "project/clip.h"
 #include "project/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "project/sequence.h"
+#include "project/undo.h"
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
@@ -26,13 +28,15 @@ EffectControls::~EffectControls()
 }
 
 void EffectControls::menu_select(QAction* q) {
+    EffectAddCommand* command = new EffectAddCommand();
     for (int i=0;i<selected_clips.size();i++) {
         Clip* clip = sequence->get_clip(selected_clips.at(i));
         if ((clip->track < 0 && video_menu) || (clip->track >= 0 && !video_menu)) {
-            clip->effects.append(create_effect(q->data().toInt(), clip));
+            command->clips.append(clip);
+            command->effects.append(create_effect(q->data().toInt(), clip));
         }
     }
-    reload_clips();
+    undo_stack.push(command);
 }
 
 void EffectControls::show_menu(bool video) {
@@ -117,22 +121,21 @@ void EffectControls::load_effects() {
 
 void EffectControls::delete_effects() {
     // load in new clips
-    QVector<Effect*> fx_to_del;
+    EffectDeleteCommand* command = new EffectDeleteCommand();
     for (int i=0;i<selected_clips.size();i++) {
         Clip* c = sequence->get_clip(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
             Effect* effect = c->effects.at(j);
             if (effect->container->selected) {
-                c->effects.removeAt(j);
-                fx_to_del.append(effect);
+                command->clips.append(c);
+                command->fx.append(j);
             }
         }
     }
-    if (fx_to_del.size() > 0) {
-        reload_clips();
-        for (int i=0;i<fx_to_del.size();i++) {
-            delete fx_to_del.at(i);
-        }
+    if (command->clips.size() > 0) {
+        undo_stack.push(command);
+    } else {
+        delete command;
     }
 }
 
@@ -175,4 +178,67 @@ bool EffectControls::is_focused() {
         }
     }
     return false;
+}
+
+EffectAddCommand::EffectAddCommand() : done(false) {}
+
+EffectAddCommand::~EffectAddCommand() {
+    if (!done) {
+        for (int i=0;i<effects.size();i++) {
+            delete effects.at(i);
+        }
+    }
+}
+
+void EffectAddCommand::undo() {
+    for (int i=0;i<clips.size();i++) {
+        Clip* c = clips.at(i);
+        for (int j=0;j<c->effects.size();j++) {
+            if (c->effects.at(j) == effects.at(i)) {
+                c->effects.removeAt(j);
+                break;
+            }
+        }
+    }
+    panel_effect_controls->reload_clips();
+    done = false;
+}
+
+void EffectAddCommand::redo() {
+    for (int i=0;i<clips.size();i++) {
+        clips.at(i)->effects.append(effects.at(i));
+    }
+    panel_effect_controls->reload_clips();
+    done = true;
+}
+
+EffectDeleteCommand::EffectDeleteCommand() : done(false) {}
+
+EffectDeleteCommand::~EffectDeleteCommand() {
+    if (done) {
+        for (int i=0;i<deleted_objects.size();i++) {
+            delete deleted_objects.at(i);
+        }
+    }
+}
+
+void EffectDeleteCommand::undo() {
+    for (int i=0;i<clips.size();i++) {
+        Clip* c = clips.at(i);
+        c->effects.insert(fx.at(i), deleted_objects.at(i));
+    }
+    panel_effect_controls->reload_clips();
+    done = false;
+}
+
+void EffectDeleteCommand::redo() {
+    deleted_objects.clear();
+    for (int i=0;i<clips.size();i++) {
+        Clip* c = clips.at(i);
+        int fx_id = fx.at(i);
+        deleted_objects.append(c->effects.at(fx_id));
+        c->effects.removeAt(fx_id);
+    }
+    panel_effect_controls->reload_clips();
+    done = true;
 }

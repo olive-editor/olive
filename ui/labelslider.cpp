@@ -1,5 +1,7 @@
 #include "labelslider.h"
 
+#include "project/undo.h"
+
 #include <QMouseEvent>
 #include <QInputDialog>
 #include <QApplication>
@@ -25,6 +27,7 @@ void LabelSlider::set_value(float v) {
         } else {
             internal_value = v;
         }
+
         setText(QString::number(internal_value));
         emit valueChanged();
     }
@@ -51,9 +54,16 @@ void LabelSlider::set_maximum_value(float v) {
 
 void LabelSlider::mousePressEvent(QMouseEvent *ev) {
     if (ev->modifiers() & Qt::AltModifier) {
+        ValueChangeCommand* vcc = new ValueChangeCommand();
+        vcc->source = this;
+        vcc->old_val = internal_value;
+        vcc->new_val = default_value;
+        undo_stack.push(vcc);
+
         set_value(default_value);
     } else {
         qApp->setOverrideCursor(Qt::BlankCursor);
+        drag_start_value = internal_value;
         drag_start = true;
         drag_start_x = cursor().pos().x();
         drag_start_y = cursor().pos().y();
@@ -73,9 +83,39 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
         qApp->restoreOverrideCursor();
         drag_start = false;
         if (drag_proc) {
+            // send undo event
+            ValueChangeCommand* vcc = new ValueChangeCommand();
+            vcc->source = this;
+            vcc->old_val = drag_start_value;
+            vcc->new_val = internal_value;
+            undo_stack.push(vcc);
+
             drag_proc = false;
         } else {
-            set_value(QInputDialog::getDouble(this, "Set Value", "New value:", internal_value));
+            double d = QInputDialog::getDouble(this, "Set Value", "New value:", internal_value);
+            if (d != internal_value) {
+                ValueChangeCommand* vcc = new ValueChangeCommand();
+                vcc->source = this;
+                vcc->old_val = internal_value;
+
+                set_value(d);
+
+                vcc->new_val = internal_value;
+                undo_stack.push(vcc);
+            }
         }
+    }
+}
+
+ValueChangeCommand::ValueChangeCommand() : done(true) {}
+
+void ValueChangeCommand::undo() {
+    source->set_value(old_val);
+    done = false;
+}
+
+void ValueChangeCommand::redo() {
+    if (!done) {
+        source->set_value(new_val);
     }
 }

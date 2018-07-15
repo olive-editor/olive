@@ -13,10 +13,23 @@
 #include <QDebug>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
+    editing_item = NULL;
     sortByColumn(0, Qt::AscendingOrder);
     rename_timer.setInterval(500);
     connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(item_click(QTreeWidgetItem*,int)));
+    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(item_renamed(QTreeWidgetItem*)));
+}
+
+void SourceTable::item_renamed(QTreeWidgetItem* item) {
+    if (editing_item == item) {
+        MediaRename* mr = new MediaRename();
+        mr->from = editing_item_name;
+        mr->item = editing_item;
+        mr->to = editing_item->text(0);
+        undo_stack.push(mr);
+        editing_item = NULL;
+    }
 }
 
 void SourceTable::stop_rename_timer() {
@@ -26,6 +39,7 @@ void SourceTable::stop_rename_timer() {
 void SourceTable::rename_interval() {
     stop_rename_timer();
     if (hasFocus() && editing_item != NULL) {
+        editing_item_name = editing_item->text(0);
         editItem(editing_item, 0);
     }
 }
@@ -152,5 +166,18 @@ void MediaMove::redo() {
         } else {
             to->addChild(items.at(i));
         }
+    }
+}
+
+MediaRename::MediaRename() : done(true) {}
+
+void MediaRename::undo() {
+    item->setText(0, from);
+    done = false;
+}
+
+void MediaRename::redo() {
+    if (!done) {
+        item->setText(0, to);
     }
 }

@@ -21,10 +21,12 @@ protected:
 private:
     QTimer rename_timer;
     QTreeWidgetItem* editing_item;
+    QString editing_item_name;
 private slots:
     void rename_interval();
     void item_click(QTreeWidgetItem* item, int column);
     void stop_rename_timer();
+    void item_renamed(QTreeWidgetItem *item);
 };
 
 class MediaMove : public QUndoCommand {
@@ -37,6 +39,18 @@ public:
 private:
     QVector<QTreeWidgetItem*> froms;
     SourceTable* table;
+};
+
+class MediaRename : public QUndoCommand {
+public:
+    MediaRename();
+    QTreeWidgetItem* item;
+    QString from;
+    QString to;
+    void undo();
+    void redo();
+private:
+    bool done;
 };
 
 #endif // SOURCETABLE_H
