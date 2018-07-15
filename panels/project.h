@@ -14,7 +14,7 @@ class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
 
-#define SAVE_VERSION "180711"
+#define SAVE_VERSION "180715"
 
 #define MEDIA_TYPE_FOOTAGE 0
 #define MEDIA_TYPE_SEQUENCE 1
@@ -22,6 +22,7 @@ class QFile;
 #define MEDIA_TYPE_SOLID 3
 
 #define LOAD_TYPE_VERSION 69
+#define SAVE_SET_FOLDER_IDS 70
 
 namespace Ui {
 class Project;
@@ -62,6 +63,7 @@ public:
     Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
     void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
     void set_item_to_folder(QTreeWidgetItem* item);
+    void save_recent_projects();
 
 	SourceTable* source_table;
 private:
@@ -76,7 +78,7 @@ private:
     QVector<Media*> loaded_media;
     QTreeWidgetItem* find_loaded_folder_by_id(int id);
     void add_recent_project(QString url);
-    void save_recent_projects();
+    void get_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
     void clear_recent_projects();

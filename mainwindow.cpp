@@ -353,6 +353,7 @@ void MainWindow::on_action_Open_Project_triggered()
     if (!fn.isEmpty() && can_close_project()) {
         project_url = fn;
         panel_project->load_project();
+        undo_stack.clear();
     }
 }
 
@@ -362,6 +363,7 @@ void MainWindow::on_actionProject_triggered()
         project_url.clear();
         project_changed = false;
         panel_project->new_project();
+        undo_stack.clear();
     }
 }
 
@@ -595,8 +597,15 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::load_recent_project() {
-    if (can_close_project()) {
-        project_url = recent_projects.at(static_cast<QAction*>(sender())->data().toInt());
+    int index = static_cast<QAction*>(sender())->data().toInt();
+    QString recent_url = recent_projects.at(index);
+    if (!QFile::exists(recent_url)) {
+        if (QMessageBox::question(this, "Missing recent project", "The project '" + recent_url + "' no longer exists. Would you like to remove it from the recent projects list?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            recent_projects.removeAt(index);
+            panel_project->save_recent_projects();
+        }
+    } else if (can_close_project()) {
+        project_url = recent_url;
         panel_project->load_project();
     }
 }

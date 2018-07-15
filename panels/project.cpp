@@ -12,6 +12,7 @@
 #include "project/effect.h"
 #include "effects/transition.h"
 #include "io/previewgenerator.h"
+#include "project/undo.h"
 #include "mainwindow.h"
 
 #include <QFileDialog>
@@ -203,46 +204,100 @@ QTreeWidgetItem* Project::new_folder() {
     return item;
 }
 
+void Project::get_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int search_type) {
+    for (int i=0;i<items.size();i++) {
+        QTreeWidgetItem* item = items.at(i);
+        int type = get_type_from_tree(item);
+        if (type == MEDIA_TYPE_FOLDER) {
+            QList<QTreeWidgetItem*> children;
+            for (int j=0;j<item->childCount();j++) {
+                children.append(item->child(j));
+            }
+            get_media_from_table(children, list, search_type);
+        } else if (search_type == type) {
+            list.append(item);
+        }
+    }
+}
+
 void Project::delete_selected_media() {
+    TimelineAction* ta = new TimelineAction();
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
     bool remove = true;
     bool redraw = false;
 
     // check if media is in use
-    for (int i=0;i<items.size();i++) {
-        QTreeWidgetItem* item = items.at(i);
-        Media* m = get_media_from_tree(item);
-        if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE && sequence != NULL) {
-            for (int j=0;j<sequence->clip_count();j++) {
-                Clip* c = sequence->get_clip(j);
-                if (c != NULL && c->media == m) {
-                    remove = false;
-                    break;
-                }
-            }
-            if (!remove) {
-                QMessageBox confirm(this);
-                confirm.setWindowTitle("Delete media in use?");
-                confirm.setText("The media '" + m->name + "' is currently used in the sequence. Deleting it will remove all instances in the sequence. Are you sure you want to do this?");
-                QAbstractButton* yes_button = confirm.addButton(QMessageBox::Yes);
-                QAbstractButton* skip_button = confirm.addButton("Skip", QMessageBox::NoRole);
-                QAbstractButton* abort_button = confirm.addButton(QMessageBox::Abort);
-                confirm.exec();
-                if (confirm.clickedButton() == yes_button) {
-                    // remove all clips referencing this media
-                    for (int j=0;j<sequence->clip_count();j++) {
-                        if (sequence->get_clip(j)->media == m) {
-                            sequence->replace_clip(j, NULL);
+    QVector<QTreeWidgetItem*> parents;
+    QList<QTreeWidgetItem*> sequence_items;
+    QList<QTreeWidgetItem*> all_top_level_items;
+    for (int i=0;i<ui->treeWidget->topLevelItemCount();i++) {
+        all_top_level_items.append(ui->treeWidget->topLevelItem(i));
+    }
+    get_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
+    if (sequence_items.size() > 0) {
+        QList<QTreeWidgetItem*> media_items;
+        get_media_from_table(items, media_items, MEDIA_TYPE_FOOTAGE);
+        for (int i=0;i<media_items.size();i++) {
+            QTreeWidgetItem* item = media_items.at(i);
+            Media* media = get_media_from_tree(item);
+            bool confirm_delete = false;
+            for (int j=0;j<sequence_items.size();j++) {
+                Sequence* s = get_sequence_from_tree(sequence_items.at(j));
+                for (int k=0;k<s->clip_count();k++) {
+                    Clip* c = s->get_clip(k);
+                    if (c != NULL && c->media == media) {
+                        if (!confirm_delete) {
+                            // we found a reference, so we know we'll need to ask if the user wants to delete it
+                            QMessageBox confirm(this);
+                            confirm.setWindowTitle("Delete media in use?");
+                            confirm.setText("The media '" + media->name + "' is currently used in '" + s->name + "'. Deleting it will remove all instances in the sequence. Are you sure you want to do this?");
+                            QAbstractButton* yes_button = confirm.addButton(QMessageBox::Yes);
+                            QAbstractButton* skip_button = confirm.addButton("Skip", QMessageBox::NoRole);
+                            QAbstractButton* abort_button = confirm.addButton(QMessageBox::Abort);
+                            confirm.exec();
+                            if (confirm.clickedButton() == yes_button) {
+                                // remove all clips referencing this media
+                                confirm_delete = true;
+                                redraw = true;
+                            } else if (confirm.clickedButton() == skip_button) {
+                                // remove media item and any folders containing it from the remove list
+                                QTreeWidgetItem* parent = item;
+                                while (parent != NULL) {
+                                    parents.append(parent);
+
+                                    // re-add item's siblings
+                                    for (int m=0;m<parent->childCount();m++) {
+                                        QTreeWidgetItem* child = parent->child(m);
+                                        bool found = false;
+                                        for (int n=0;n<items.size();n++) {
+                                            if (items.at(n) == child) {
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!found) {
+                                            items.append(child);
+                                        }
+                                    }
+
+                                    parent = parent->parent();
+                                }
+
+                                j = sequence_items.size();
+                                k = s->clip_count();
+                            } else if (confirm.clickedButton() == abort_button) {
+                                // break out of loop
+                                i = media_items.size();
+                                j = sequence_items.size();
+                                k = s->clip_count();
+
+                                remove = false;
+                            }
+                        }
+                        if (confirm_delete) {
+                            ta->delete_clip(s, k);
                         }
                     }
-                    remove = true;
-                    redraw = true;
-                } else if (confirm.clickedButton() == skip_button) {
-                    items.removeAt(i);
-                    i--;
-                    remove = true;
-                } else if (confirm.clickedButton() == abort_button) {
-                    break;
                 }
             }
         }
@@ -250,20 +305,38 @@ void Project::delete_selected_media() {
 
     // remove
     if (remove) {
-        for (int i=0;i<items.size();i++) {
-            QTreeWidgetItem* item = items.at(i);
-            delete_media(item);
-            delete item;
+        // remove media and parents
+        for (int m=0;m<parents.size();m++) {
+            for (int l=0;l<items.size();l++) {
+                if (items.at(l) == parents.at(m)) {
+                    items.removeAt(l);
+                    l--;
+                }
+            }
         }
-    }
 
-    // redraw clips
-    if (redraw) {
-        panel_timeline->redraw_all_clips(true);
+        for (int i=0;i<items.size();i++) {
+            /*
+            delete_media(item);
+            delete item;*/
+
+            // send delete command to the TimelineAction
+            ta->delete_media(items.at(i));
+        }
+        undo_stack.push(ta);
+
+        // redraw clips
+        if (redraw) {
+            panel_timeline->redraw_all_clips(true);
+        }
+    } else {
+        delete ta;
     }
 }
 
 void Project::process_file_list(QStringList& files) {
+    bool imported = false;
+    TimelineAction* ta = new TimelineAction();
     for (int i=0;i<files.count();i++) {
         QString file(files.at(i));
 
@@ -301,7 +374,13 @@ void Project::process_file_list(QStringList& files) {
             }
         }
 
-        ui->treeWidget->addTopLevelItem(import_file(file));
+        ta->add_media(import_file(file));
+        imported = true;
+    }
+    if (imported) {
+        undo_stack.push(ta);
+    } else {
+        delete ta;
     }
 }
 
@@ -428,6 +507,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     folder->setData(0, Qt::UserRole + 3, attr.value().toInt());
                                 } else if (attr.name() == "name") {
                                     folder->setText(0, attr.value().toString());
+                                } else if (attr.name() == "parent") {
+                                    folder->setData(0, Qt::UserRole + 4, attr.value().toInt());
                                 }
                             }
                             loaded_folders.append(folder);
@@ -644,6 +725,16 @@ void Project::load_project() {
 
     // load media
     if (cont) {
+        // since folders loaded correctly, organize them appropriately
+        for (int i=0;i<loaded_folders.size();i++) {
+            QTreeWidgetItem* folder = loaded_folders.at(i);
+            int parent = folder->data(0, Qt::UserRole + 4).toInt();
+            if (parent > 0) {
+                ui->treeWidget->takeTopLevelItem(ui->treeWidget->indexOfTopLevelItem(folder));
+                find_loaded_folder_by_id(parent)->addChild(folder);
+            }
+        }
+
         cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);
     }
 
@@ -668,8 +759,6 @@ void Project::load_project() {
     }
 
     file.close();
-
-    add_recent_project(project_url);
 }
 
 void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type) {
@@ -679,14 +768,20 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
         QTreeWidgetItem* item = root ? ui->treeWidget->topLevelItem(i) : parent->child(i);
         int item_type = get_type_from_tree(item);
         if (item_type == MEDIA_TYPE_FOLDER) {
-            if (type == MEDIA_TYPE_FOLDER) {
+            if (type == SAVE_SET_FOLDER_IDS) {
+                item->setData(0, Qt::UserRole + 3, folder_id); // saves a temporary ID for matching in the project file
+                folder_id++;
+            } else if (type == MEDIA_TYPE_FOLDER) {
                 // if we're saving folders, save the folder
                 stream.writeStartElement("folder");
                 stream.writeAttribute("name", item->text(0));
-                stream.writeAttribute("id", QString::number(folder_id));
-                item->setData(0, Qt::UserRole + 3, folder_id); // saves a temporary ID for matching in the project file
-                stream.writeEndElement();
-                folder_id++;
+                stream.writeAttribute("id", QString::number(item->data(0, Qt::UserRole + 3).toInt()));
+                if (item->parent() == NULL) {
+                    stream.writeAttribute("parent", "0");
+                } else {
+                    stream.writeAttribute("parent", QString::number(item->parent()->data(0, Qt::UserRole + 3).toInt()));
+                }
+                stream.writeEndElement();                
             }
             save_folder(stream, item, type);
         } else if (type == item_type) {
@@ -777,6 +872,8 @@ void Project::save_project() {
 
     stream.writeTextElement("version", SAVE_VERSION);
 
+    save_folder(stream, NULL, SAVE_SET_FOLDER_IDS);
+
     stream.writeStartElement("folders"); // folders
     save_folder(stream, NULL, MEDIA_TYPE_FOLDER);
     stream.writeEndElement(); // folders
@@ -794,8 +891,6 @@ void Project::save_project() {
     stream.writeEndDocument(); // doc
 
     file.close();
-
-    add_recent_project(project_url);
 
     project_changed = false;
 }

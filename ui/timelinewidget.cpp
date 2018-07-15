@@ -188,7 +188,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             }
         }
 
-        ta->add_clips(added_clips);
+        ta->add_clips(sequence, added_clips);
 
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
@@ -388,7 +388,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     panel_timeline->relink_clips_using_ids(old_clips, new_clips);
 
                     for (int i=0;i<new_clips.size();i++) {
-                        ta->add_clips(new_clips);
+                        ta->add_clips(sequence, new_clips);
                     }
                 }
             } else {
@@ -417,10 +417,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     Ghost& g = panel_timeline->ghosts[i];
 
                     // step 3 - move clips
-                    ta->increase_timeline_in(g.clip, g.in - g.old_in);
-                    ta->increase_timeline_out(g.clip, g.out - g.old_out);
-                    ta->increase_track(g.clip, g.track - g.old_track);
-                    ta->increase_clip_in(g.clip, g.clip_in - g.old_clip_in);
+                    ta->increase_timeline_in(sequence, g.clip, g.in - g.old_in);
+                    ta->increase_timeline_out(sequence, g.clip, g.out - g.old_out);
+                    ta->increase_track(sequence, g.clip, g.track - g.old_track);
+                    ta->increase_clip_in(sequence, g.clip, g.clip_in - g.old_clip_in);
                 }
             }
 

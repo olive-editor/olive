@@ -60,7 +60,7 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
     }
 }
 
-void LabelSlider::mouseMoveEvent(QMouseEvent *ev) {
+void LabelSlider::mouseMoveEvent(QMouseEvent*) {
     if (drag_start) {
         set_value(internal_value + (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y()));
         cursor().setPos(drag_start_x, drag_start_y);
@@ -68,7 +68,7 @@ void LabelSlider::mouseMoveEvent(QMouseEvent *ev) {
     }
 }
 
-void LabelSlider::mouseReleaseEvent(QMouseEvent *ev) {
+void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
     if (drag_start) {
         qApp->restoreOverrideCursor();
         drag_start = false;

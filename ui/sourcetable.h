@@ -3,6 +3,7 @@
 
 #include <QTreeWidget>
 #include <QTimer>
+#include <QUndoCommand>
 
 class Project;
 
@@ -24,6 +25,18 @@ private slots:
     void rename_interval();
     void item_click(QTreeWidgetItem* item, int column);
     void stop_rename_timer();
+};
+
+class MediaMove : public QUndoCommand {
+public:
+    MediaMove(SourceTable* s);
+    QVector<QTreeWidgetItem*> items;
+    QTreeWidgetItem* to;
+    void undo();
+    void redo();
+private:
+    QVector<QTreeWidgetItem*> froms;
+    SourceTable* table;
 };
 
 #endif // SOURCETABLE_H

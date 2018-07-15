@@ -354,8 +354,8 @@ void Timeline::ripple(TimelineAction* ta, long ripple_point, long ripple_length)
 	for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
         if (c != NULL && c->timeline_in >= ripple_point) {
-            ta->increase_timeline_in(i, ripple_length);
-            ta->increase_timeline_out(i, ripple_length);
+            ta->increase_timeline_in(sequence, i, ripple_length);
+            ta->increase_timeline_out(sequence, i, ripple_length);
 		}
     }
 
@@ -415,7 +415,7 @@ Clip* Timeline::split_clip(TimelineAction* ta, int p, long frame) {
     if (pre != NULL && pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
         Clip* post = pre->copy();
 
-        ta->set_timeline_out(p, frame);
+        ta->set_timeline_out(sequence, p, frame);
         post->timeline_in = frame;
         post->clip_in = pre->clip_in + (frame - pre->timeline_in);
 
@@ -490,7 +490,7 @@ bool Timeline::split_clip_and_relink(TimelineAction* ta, int clip, long frame, b
 
                 relink_clips_using_ids(pre_clips, post_clips);
             }
-            ta->add_clips(post_clips);
+            ta->add_clips(sequence, post_clips);
             return true;
         }
     }
@@ -540,14 +540,14 @@ void Timeline::delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& a
             if (c != NULL && c->track == s.track && !c->undeletable) {
                 if (c->timeline_in >= s.in && c->timeline_out <= s.out) {
                     // clips falls entirely within deletion area
-                    ta->delete_clip(j);
+                    ta->delete_clip(sequence, j);
                 } else if (c->timeline_in < s.in && c->timeline_out > s.out) {
                     // middle of clip is within deletion area
 
                     // duplicate clip
                     Clip* post = c->copy();
 
-                    ta->set_timeline_out(j, s.in);
+                    ta->set_timeline_out(sequence, j, s.in);
                     post->timeline_in = s.out;
                     post->clip_in = c->clip_in + (s.in - c->timeline_in) + (s.out - s.in);
 
@@ -555,17 +555,17 @@ void Timeline::delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& a
                     post_clips.append(post);
                 } else if (c->timeline_in < s.in && c->timeline_out > s.in) {
                     // only out point is in deletion area
-                    ta->set_timeline_out(j, s.in);
+                    ta->set_timeline_out(sequence, j, s.in);
                 } else if (c->timeline_in < s.out && c->timeline_out > s.out) {
                     // only in point is in deletion area
-                    ta->increase_clip_in(j, s.out - c->timeline_in);
-                    ta->set_timeline_in(j, s.out);
+                    ta->increase_clip_in(sequence, j, s.out - c->timeline_in);
+                    ta->set_timeline_in(sequence, j, s.out);
                 }
             }
         }
     }
     relink_clips_using_ids(pre_clips, post_clips);
-    ta->add_clips(post_clips);
+    ta->add_clips(sequence, post_clips);
 }
 
 void Timeline::copy(bool del) {
@@ -683,7 +683,7 @@ void Timeline::paste() {
         }
         // ADAPT
 
-        ta->add_clips(pasted_clips);
+        ta->add_clips(sequence, pasted_clips);
 
         undo_stack.push(ta);
 
@@ -723,7 +723,7 @@ bool Timeline::split_selection(TimelineAction* ta) {
                         split_B->timeline_in = s.out;
                         secondary_post_splits.append(split_B);
 
-                        ta->set_timeline_out(j, s.in);
+                        ta->set_timeline_out(sequence, j, s.in);
                         split = true;
                     } else {
                         Clip* post_a = split_clip(ta, j, s.in);
@@ -752,8 +752,8 @@ bool Timeline::split_selection(TimelineAction* ta) {
         // relink after splitting
         relink_clips_using_ids(pre_splits, post_splits);
         relink_clips_using_ids(pre_splits, secondary_post_splits);
-        ta->add_clips(post_splits);
-        ta->add_clips(secondary_post_splits);
+        ta->add_clips(sequence, post_splits);
+        ta->add_clips(sequence, secondary_post_splits);
 
         return true;
     }
@@ -784,7 +784,7 @@ void Timeline::split_at_playhead() {
         if (split_selected) {
             // relink clips if we split
             relink_clips_using_ids(pre_clips, post_clips);
-            ta->add_clips(post_clips);
+            ta->add_clips(sequence, post_clips);
         } else {
             // split a selection if not
             split_selected = split_selection(ta);
