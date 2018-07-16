@@ -10,6 +10,8 @@ extern bool custom_scale;
 extern bool saved_layout;
 extern bool show_track_lines;
 
+extern bool scroll_zooms;
+
 void load_config();
 void save_config();
 

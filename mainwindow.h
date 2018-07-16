@@ -150,6 +150,8 @@ private slots:
 
     void load_recent_project();
 
+    void on_actionScroll_Wheel_Zooms_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

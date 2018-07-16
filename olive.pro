@@ -59,7 +59,9 @@ SOURCES += \
     effects/transition.cpp \
     effects/crossdissolvetransition.cpp \
     ui/audiomonitor.cpp \
-    project/undo.cpp
+    project/undo.cpp \
+    ui/scrollarea.cpp \
+    effects/shakeeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -93,7 +95,8 @@ HEADERS += \
     dialogs/preferencesdialog.h \
     effects/transition.h \
     ui/audiomonitor.h \
-    project/undo.h
+    project/undo.h \
+    ui/scrollarea.h
 
 FORMS += \
         mainwindow.ui \

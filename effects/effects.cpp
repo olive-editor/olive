@@ -13,6 +13,7 @@ void init_effects() {
 	audio_effect_names.resize(AUDIO_EFFECT_COUNT);
 
 	video_effect_names[VIDEO_TRANSFORM_EFFECT] = "Transform";
+    video_effect_names[VIDEO_SHAKE_EFFECT] = "Shake";
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
@@ -22,6 +23,7 @@ Effect* create_effect(int effect_id, Clip* c) {
     if (c->track < 0) {
         switch (effect_id) {
         case VIDEO_TRANSFORM_EFFECT: return new TransformEffect(c);
+        case VIDEO_SHAKE_EFFECT: return new ShakeEffect(c);
         }
     } else {
         switch (effect_id) {

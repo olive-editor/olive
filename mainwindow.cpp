@@ -540,6 +540,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionSelecting_Also_Seeks->setChecked(panel_timeline->select_also_seeks);
     ui->actionSeek_to_the_End_of_Pastes->setChecked(panel_timeline->paste_seeks);
     ui->actionToggle_Snapping->setChecked(panel_timeline->snapping);
+    ui->actionScroll_Wheel_Zooms->setChecked(scroll_zooms);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -608,4 +609,9 @@ void MainWindow::load_recent_project() {
         project_url = recent_url;
         panel_project->load_project();
     }
+}
+
+void MainWindow::on_actionScroll_Wheel_Zooms_triggered()
+{
+    scroll_zooms = !scroll_zooms;
 }

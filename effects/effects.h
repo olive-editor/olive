@@ -11,6 +11,7 @@ class LabelSlider;
 
 enum VideoEffects {
 	VIDEO_TRANSFORM_EFFECT,
+    VIDEO_SHAKE_EFFECT,
 	VIDEO_EFFECT_COUNT
 };
 
@@ -50,6 +51,35 @@ public slots:
 private:
     int default_anchor_x;
     int default_anchor_y;
+};
+
+class ShakeEffect : public Effect {
+    Q_OBJECT
+public:
+    ShakeEffect(Clip* c);
+    void process_gl(int* anchor_x, int* anchor_y);
+    Effect* copy(Clip *c);
+    void load(QXmlStreamReader* stream);
+    void save(QXmlStreamWriter* stream);
+
+    LabelSlider* intensity_val;
+    LabelSlider* rotation_val;
+    LabelSlider* frequency_val;
+private slots:
+    void set_values();
+private:
+    int shake_progress;
+    int shake_limit;
+    int next_x;
+    int next_y;
+    int next_rot;
+    int offset_x;
+    int offset_y;
+    int offset_rot;
+    int prev_x;
+    int prev_y;
+    int prev_rot;
+    double t;
 };
 
 // audio effects

@@ -329,8 +329,8 @@ void Timeline::delete_selection(bool ripple_delete) {
 	}
 }
 
-int lerp(int a, int b, float t) {
-    return ((1.0f - t) * a) + (t * b);
+int lerp(int a, int b, double t) {
+    return ((1.0 - t) * a) + (t * b);
 }
 
 void Timeline::set_zoom(bool in) {
@@ -343,7 +343,7 @@ void Timeline::set_zoom(bool in) {
                 lerp(
                     ui->timeline_area->horizontalScrollBar()->value(),
                     getScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2),
-                    0.99f
+                    0.99
                 )
             );
     redraw_all_clips(false);
@@ -653,6 +653,7 @@ void Timeline::paste() {
 
             // create copy of clip and offset by playhead
             Clip* cc = c->copy();
+            cc->sequence = sequence;
             cc->timeline_in += playhead;
             cc->timeline_out += playhead;
             cc->track = c->track;

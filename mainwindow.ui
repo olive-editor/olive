@@ -139,6 +139,7 @@
     <addaction name="actionEdit_Tool_Also_Seeks"/>
     <addaction name="actionEdit_Tool_Selects_Links"/>
     <addaction name="actionSeek_to_the_End_of_Pastes"/>
+    <addaction name="actionScroll_Wheel_Zooms"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
@@ -598,6 +599,14 @@
   <action name="actionClear_Recent_List">
    <property name="text">
     <string>Clear Recent List</string>
+   </property>
+  </action>
+  <action name="actionScroll_Wheel_Zooms">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Scroll Wheel Zooms</string>
    </property>
   </action>
  </widget>

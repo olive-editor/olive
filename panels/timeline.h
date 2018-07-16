@@ -16,6 +16,8 @@ struct Clip;
 struct Media;
 struct MediaStream;
 
+int lerp(int a, int b, double t);
+
 struct Ghost {
     int clip;
 	long in;

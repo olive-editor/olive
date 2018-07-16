@@ -14,6 +14,7 @@ bool custom_scale = false;
 bool saved_layout = false;
 bool left_mouse_dominant = true;
 bool show_track_lines = false;
+bool scroll_zooms = false;
 
 void load_config() {
 	/*if (!custom_scale) {

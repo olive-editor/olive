@@ -346,7 +346,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QScrollArea" name="timeline_area">
+     <widget class="ScrollArea" name="timeline_area">
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOn</enum>
       </property>
@@ -457,6 +457,12 @@
    <class>AudioMonitor</class>
    <extends>QWidget</extends>
    <header>ui/audiomonitor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScrollArea</class>
+   <extends>QScrollArea</extends>
+   <header>ui/scrollarea.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
