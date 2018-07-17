@@ -2,8 +2,8 @@
 #define UNDO_H
 
 class QTreeWidgetItem;
-class Clip;
-class Sequence;
+struct Clip;
+struct Sequence;
 
 #include <QUndoStack>
 #include <QUndoCommand>
