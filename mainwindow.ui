@@ -76,6 +76,7 @@
     <addaction name="separator"/>
     <addaction name="actionSplit_at_Playhead"/>
     <addaction name="actionAdd_Default_Transition"/>
+    <addaction name="actionLink_Unlink"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -610,6 +611,14 @@
    </property>
    <property name="text">
     <string>Scroll Wheel Zooms</string>
+   </property>
+  </action>
+  <action name="actionLink_Unlink">
+   <property name="text">
+    <string>Link/Unlink</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

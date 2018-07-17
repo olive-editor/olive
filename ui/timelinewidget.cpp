@@ -266,6 +266,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                             }
 
                             Selection s;
+
                             s.in = clip->timeline_in;
                             s.out = clip->timeline_out;
                             s.track = clip->track;

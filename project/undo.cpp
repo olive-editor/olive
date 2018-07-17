@@ -310,3 +310,33 @@ void TimelineAction::redo() {
 
     done = true;
 }
+
+LinkCommand::LinkCommand() : link(true) {}
+
+void LinkCommand::undo() {
+    for (int i=0;i<clips.size();i++) {
+        Clip* c = clips.at(i);
+        if (link) {
+            c->linked.clear();
+        } else {
+            c->linked = old_links.at(i);
+        }
+    }
+}
+
+void LinkCommand::redo() {
+    old_links.clear();
+    for (int i=0;i<clips.size();i++) {
+        Clip* c = clips.at(i);
+        if (link) {
+            for (int j=0;j<clips.size();j++) {
+                if (i != j) {
+                    c->linked.append(j);
+                }
+            }
+        } else {
+            old_links.append(c->linked);
+            c->linked.clear();
+        }
+    }
+}

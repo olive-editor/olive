@@ -152,6 +152,8 @@ private slots:
 
     void on_actionScroll_Wheel_Zooms_triggered();
 
+    void on_actionLink_Unlink_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

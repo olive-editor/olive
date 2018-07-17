@@ -615,3 +615,8 @@ void MainWindow::on_actionScroll_Wheel_Zooms_triggered()
 {
     scroll_zooms = !scroll_zooms;
 }
+
+void MainWindow::on_actionLink_Unlink_triggered()
+{
+    panel_timeline->toggle_links();
+}

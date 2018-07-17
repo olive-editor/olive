@@ -83,6 +83,7 @@ public:
     void add_transition();
     QVector<int> get_tracks_of_linked_clips(int i);
     bool has_clip_been_split(int c);
+    void toggle_links();
 
     int get_snap_range();
     int getScreenPointFromFrame(long frame);

@@ -842,6 +842,23 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
     }
 }
 
+void Timeline::toggle_links() {
+    LinkCommand* command = new LinkCommand();
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+        command->clips.append(c);
+        if (c->linked.size() > 0) {
+            command->link = false; // prioritize unlinking
+        }
+    }
+    if (command->clips.size() > 0) {
+        undo_stack.push(command);
+        redraw_all_clips(true);
+    } else {
+        delete command;
+    }
+}
+
 void Timeline::increase_track_height() {
     for (int i=0;i<video_track_heights.size();i++) {
         video_track_heights[i] += TRACK_HEIGHT_INCREMENT;

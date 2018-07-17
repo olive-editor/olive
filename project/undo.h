@@ -59,4 +59,15 @@ private:
     void offset_links(QVector<Clip*>& clips, int offset);
 };
 
+class LinkCommand : public QUndoCommand {
+public:
+    LinkCommand();
+    void undo();
+    void redo();
+    QVector<Clip*> clips;
+    bool link;
+private:
+    QVector< QVector<int> > old_links;
+};
+
 #endif // UNDO_H
