@@ -22,6 +22,7 @@
 #include <QVariant>
 #include <QPoint>
 #include <QMenu>
+#include <QMessageBox>
 #include <QtMath>
 
 #define MAX_TEXT_WIDTH 20
@@ -622,8 +623,8 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 validator = g.old_in + frame_diff;
                 if (validator < 0) frame_diff -= validator;
 
+                // prevent clip_in from going below 0
                 if (!c->media_stream->infinite_length) {
-                    // prevent clip_in from going below 0
                     validator = g.old_clip_in + frame_diff;
                     if (validator < 0) frame_diff -= validator;
                 }
@@ -632,9 +633,9 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 validator = g.ghost_length + frame_diff;
                 if (validator < 1) frame_diff += (1 - validator);
 
+                // prevent clip length exceeding media length
                 if (!c->media_stream->infinite_length) {
-                    // prevent clip length exceeding media length
-                    validator = g.ghost_length + frame_diff;
+                    validator = g.old_clip_in + g.ghost_length + frame_diff;
                     if (validator > g.media_length) frame_diff -= validator - g.media_length;
                 }
             }
@@ -687,7 +688,9 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
     for (int i=0;i<panel_timeline->ghosts.size();i++) {
         Ghost& g = panel_timeline->ghosts[i];
 
-        if (g.trimming) {
+        if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+            g.clip_in = g.old_clip_in - frame_diff;
+        } else if (g.trimming) {
             if (g.trim_in) {
                 g.in = g.old_in + frame_diff;
                 g.clip_in = g.old_clip_in + frame_diff;
@@ -1242,9 +1245,14 @@ void TimelineWidget::redraw_clips() {
                             int mid = clip_rect.top()+channel_height*j+(channel_height/2);
                             int offset = waveform_index+(j*2);
 
-                            qint8 min = (double)clip->media_stream->audio_preview.at(offset) / 128.0 * (channel_height/2);
-                            qint8 max = (double)clip->media_stream->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
-                            clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+                            if (offset >= 0 && offset < clip->media_stream->audio_preview.size()) {
+                                qint8 min = (double)clip->media_stream->audio_preview.at(offset) / 128.0 * (channel_height/2);
+                                qint8 max = (double)clip->media_stream->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+                                clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+                            } else {
+                                QMessageBox::critical(this, "AAAAAAAAAAAAA", "Here's that terrible, no-good bug again!!! I've stepped around it but plz report the following to Matt:\n\n" + QString::number(offset) + " vs " + QString::number(clip->media_stream->audio_preview.size()), QMessageBox::Ok);
+                                break;
+                            }
                         }
                     }
                 }

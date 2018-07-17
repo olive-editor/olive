@@ -478,6 +478,9 @@
    <property name="text">
     <string>Slip Tool</string>
    </property>
+   <property name="shortcut">
+    <string>Y</string>
+   </property>
   </action>
   <action name="actionGo_to_Previous_Cut">
    <property name="text">
