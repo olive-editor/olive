@@ -73,7 +73,7 @@ void ViewerWidget::paintGL() {
 
             // if clip starts within one second and/or hasn't finished yet
             if (c != NULL) {
-                if (is_clip_active(c, panel_timeline->playhead)) {
+                if (c->media->ready && is_clip_active(c, panel_timeline->playhead)) {
                     // if thread is already working, we don't want to touch this,
                     // but we also don't want to hang the UI thread
                     if (!c->open) {

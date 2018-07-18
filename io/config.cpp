@@ -5,7 +5,6 @@
 #include <windows.h>
 #endif
 
-const char* version = "Olive (May 2018 | Pre-Alpha)";
 float scale = 1.0f;
 bool vsync = true;
 bool hwaccel = false;

@@ -115,7 +115,11 @@ QTreeWidgetItem* Project::import_file(QString file) {
     char* filename = new char[ba.size()+1];
     strcpy(filename, ba.data());
 
-    QTreeWidgetItem* item = NULL;
+    QTreeWidgetItem* item = new_item();
+    Media* m = new Media();
+    m->url = file;
+    m->name = file.mid(file.lastIndexOf('/')+1);
+    item->setText(0, m->name);
 
     AVFormatContext* pFormatCtx = NULL;
     int errCode = avformat_open_input(&pFormatCtx, filename, NULL, NULL);
@@ -131,10 +135,6 @@ QTreeWidgetItem* Project::import_file(QString file) {
             fprintf(stderr, "[ERROR] Could not find stream information. %s\n", err);
         } else {
             av_dump_format(pFormatCtx, 0, filename, 0);
-
-            Media* m = new Media();
-            m->url = file;
-            m->name = file.mid(file.lastIndexOf('/')+1);
 
             // detect video/audio streams in file
             for (int i=0;i<(int)pFormatCtx->nb_streams;i++) {
@@ -159,17 +159,14 @@ QTreeWidgetItem* Project::import_file(QString file) {
             }
             m->length = pFormatCtx->duration;
 
-            item = new_item();
             if (m->video_tracks.size() == 0) {
                 item->setIcon(0, QIcon(":/icons/audiosource.png"));
             } else {
                 item->setIcon(0, QIcon(":/icons/videosource.png"));
             }
-            item->setText(0, m->name);
             item->setText(1, QString::number(m->length));
-            set_media_of_tree(item, m);
 
-            project_changed = true;
+            m->ready = true;
 
             // generate waveform/thumbnail in another thread
             PreviewGenerator* pg = new PreviewGenerator();
@@ -179,6 +176,10 @@ QTreeWidgetItem* Project::import_file(QString file) {
             pg->start(QThread::LowPriority);
         }
     }
+
+    set_media_of_tree(item, m);
+
+    project_changed = true;
 
     delete [] filename;
     return item;

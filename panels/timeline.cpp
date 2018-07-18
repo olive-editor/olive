@@ -846,9 +846,25 @@ void Timeline::toggle_links() {
     LinkCommand* command = new LinkCommand();
     for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
-        command->clips.append(c);
-        if (c->linked.size() > 0) {
-            command->link = false; // prioritize unlinking
+        if (c != NULL && is_clip_selected(c, true)) {
+            command->clips.append(c);
+            if (c->linked.size() > 0) {
+                command->link = false; // prioritize unlinking
+
+                for (int j=0;j<c->linked.size();j++) { // add links to the command
+                    bool found = false;
+                    Clip* link = sequence->get_clip(c->linked.at(j));
+                    for (int k=0;k<command->clips.size();k++) {
+                        if (command->clips.at(k) == link) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        command->clips.append(link);
+                    }
+                }
+            }
         }
     }
     if (command->clips.size() > 0) {
