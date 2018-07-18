@@ -29,5 +29,6 @@
         <file>slip-disabled.png</file>
         <file>slide.png</file>
         <file>slide-disabled.png</file>
+        <file>throbber.png</file>
     </qresource>
 </RCC>

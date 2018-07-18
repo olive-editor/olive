@@ -1,7 +1,3 @@
-//
-// TODO: Fold this file into a multithreaded "file processor"
-//
-
 #include "previewgenerator.h"
 
 #include "media.h"
@@ -10,6 +6,9 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QtMath>
+#include <QTreeWidgetItem>
+
+#define WAVEFORM_RESOLUTION 64
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -18,16 +17,46 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-PreviewGenerator::PreviewGenerator(QObject* parent) : QThread(parent) {
-    media = NULL;
-    fmt_ctx = NULL;
+PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m) : QThread(0), fmt_ctx(NULL), item(i), media(m) {
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
-#define WAVEFORM_RESOLUTION 64
+void PreviewGenerator::parse_media() {
+    // detect video/audio streams in file
+    for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
+        // Find the decoder for the video stream
+        if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
+            qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
+        } else {
+            MediaStream* ms = new MediaStream();
+            ms->preview_done = false;
+            ms->file_index = i;
+            if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                bool infinite_length = (fmt_ctx->streams[i]->avg_frame_rate.den == 0);
+                ms->video_width = fmt_ctx->streams[i]->codecpar->width;
+                ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+                ms->infinite_length = infinite_length;
+                media->video_tracks.append(ms);
+            } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
+                media->audio_tracks.append(ms);
+            }
+        }
+    }
+    media->length = fmt_ctx->duration;
 
-void PreviewGenerator::run() {
-    Q_ASSERT(media != NULL);
+    media->ready = true;
 
+    if (media->video_tracks.size() == 0) {
+        emit set_icon(ICON_TYPE_AUDIO);
+    } else {
+        emit set_icon(ICON_TYPE_VIDEO);
+    }
+
+    item->setText(1, QString::number(media->length));
+}
+
+void PreviewGenerator::generate_waveform() {
     SwsContext* sws_ctx;
     SwrContext* swr_ctx;
     AVFrame* temp_frame = av_frame_alloc();
@@ -99,7 +128,7 @@ void PreviewGenerator::run() {
 
                     s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
 
-                    //                                delete [] data;
+//                  delete [] data;
 
                     s->preview_done = true;
 
@@ -183,6 +212,41 @@ void PreviewGenerator::run() {
         }
     }
     delete [] codec_ctx;
+}
 
-    avformat_close_input(&fmt_ctx);
+void PreviewGenerator::run() {
+    Q_ASSERT(media != NULL);
+    Q_ASSERT(item != NULL);
+
+    QByteArray ba = media->url.toLatin1();
+    char* filename = new char[ba.size()+1];
+    strcpy(filename, ba.data());
+
+    bool error = false;
+    int errCode = avformat_open_input(&fmt_ctx, filename, NULL, NULL);
+    if(errCode != 0) {
+        char err[1024];
+        av_strerror(errCode, err, 1024);
+        item->setToolTip(0, "Could not open file - " + QString(err));
+        error = true;
+    } else {
+        errCode = avformat_find_stream_info(fmt_ctx, NULL);
+        if (errCode < 0) {
+            char err[1024];
+            av_strerror(errCode, err, 1024);
+            item->setToolTip(0, "Could not find stream information - " + QString(err));
+            error = true;
+        } else {
+            av_dump_format(fmt_ctx, 0, filename, 0);
+            parse_media();
+            generate_waveform();
+        }
+        avformat_close_input(&fmt_ctx);
+    }
+    if (error) {
+        emit set_icon(ICON_TYPE_ERROR);
+    } else {
+        item->setToolTip(0, QString());
+    }
+    delete [] filename;
 }

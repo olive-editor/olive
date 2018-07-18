@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QVector>
+#include <QTimer>
 
 struct Media;
 struct Sequence;
@@ -82,6 +83,21 @@ private:
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
     void clear_recent_projects();
+};
+
+class MediaThrobber : public QObject {
+    Q_OBJECT
+public:
+    MediaThrobber(QTreeWidgetItem*);
+public slots:
+    void stop(int);
+private slots:
+    void animation_update();
+private:
+    QPixmap pixmap;
+    int animation;
+    QTreeWidgetItem* item;
+    QTimer animator;
 };
 
 #endif // PROJECT_H

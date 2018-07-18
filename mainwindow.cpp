@@ -27,6 +27,7 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <QCloseEvent>
+#include <QMovie>
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
@@ -58,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	darkPalette.setColor(QPalette::WindowText, Qt::white);
 	darkPalette.setColor(QPalette::Base, QColor(25,25,25));
 	darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-	darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
 	darkPalette.setColor(QPalette::ToolTipText, Qt::white);
 	darkPalette.setColor(QPalette::Text, Qt::white);
 	darkPalette.setColor(QPalette::Button, QColor(53,53,53));

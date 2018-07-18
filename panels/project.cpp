@@ -111,77 +111,22 @@ void Project::new_sequence(Sequence *s, bool open, QTreeWidgetItem* parent) {
 }
 
 QTreeWidgetItem* Project::import_file(QString file) {
-    QByteArray ba = file.toLatin1();
-    char* filename = new char[ba.size()+1];
-    strcpy(filename, ba.data());
-
     QTreeWidgetItem* item = new_item();
     Media* m = new Media();
     m->url = file;
     m->name = file.mid(file.lastIndexOf('/')+1);
     item->setText(0, m->name);
 
-    AVFormatContext* pFormatCtx = NULL;
-    int errCode = avformat_open_input(&pFormatCtx, filename, NULL, NULL);
-    if(errCode != 0) {
-        char err[1024];
-        av_strerror(errCode, err, 1024);
-        qDebug() << "[ERROR] Could not open" << filename << "-" << err;
-    } else {
-        errCode = avformat_find_stream_info(pFormatCtx, NULL);
-        if (errCode < 0) {
-            char err[1024];
-            av_strerror(errCode, err, 1024);
-            fprintf(stderr, "[ERROR] Could not find stream information. %s\n", err);
-        } else {
-            av_dump_format(pFormatCtx, 0, filename, 0);
-
-            // detect video/audio streams in file
-            for (int i=0;i<(int)pFormatCtx->nb_streams;i++) {
-                // Find the decoder for the video stream
-                if (avcodec_find_decoder(pFormatCtx->streams[i]->codecpar->codec_id) == NULL) {
-                    qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
-                } else {
-                    MediaStream* ms = new MediaStream();
-                    ms->preview_done = false;
-                    ms->file_index = i;
-                    if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                        bool infinite_length = (pFormatCtx->streams[i]->avg_frame_rate.den == 0);
-                        ms->video_width = pFormatCtx->streams[i]->codecpar->width;
-                        ms->video_height = pFormatCtx->streams[i]->codecpar->height;
-                        ms->infinite_length = infinite_length;
-                        m->video_tracks.append(ms);
-                    } else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                        ms->audio_channels = pFormatCtx->streams[i]->codecpar->channels;
-                        m->audio_tracks.append(ms);
-                    }
-                }
-            }
-            m->length = pFormatCtx->duration;
-
-            if (m->video_tracks.size() == 0) {
-                item->setIcon(0, QIcon(":/icons/audiosource.png"));
-            } else {
-                item->setIcon(0, QIcon(":/icons/videosource.png"));
-            }
-            item->setText(1, QString::number(m->length));
-
-            m->ready = true;
-
-            // generate waveform/thumbnail in another thread
-            PreviewGenerator* pg = new PreviewGenerator();
-            pg->fmt_ctx = pFormatCtx; // cleaned up in PG
-            pg->media = m;
-            connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
-            pg->start(QThread::LowPriority);
-        }
-    }
-
     set_media_of_tree(item, m);
 
-    project_changed = true;
+    // set up throbber animation
+    MediaThrobber* throbber = new MediaThrobber(item);
 
-    delete [] filename;
+    // generate waveform/thumbnail in another thread
+    PreviewGenerator* pg = new PreviewGenerator(item, m);
+    connect(pg, SIGNAL(set_icon(int)), throbber, SLOT(stop(int)));
+    pg->start(QThread::LowPriority);
+
     return item;
 }
 
@@ -377,6 +322,7 @@ void Project::process_file_list(QStringList& files) {
 
         ta->add_media(import_file(file));
         imported = true;
+        project_changed = true;
     }
     if (imported) {
         undo_stack.push(ta);
@@ -934,4 +880,34 @@ void Project::add_recent_project(QString url) {
         }
     }
     save_recent_projects();
+}
+
+#define THROBBER_LIMIT 20
+#define THROBBER_SIZE 50
+
+MediaThrobber::MediaThrobber(QTreeWidgetItem* i) : pixmap(":/icons/throbber.png"), item(i), animation(0) {
+    // set up throbber
+    animation_update();
+    animator.setInterval(20);
+    connect(&animator, SIGNAL(timeout()), this, SLOT(animation_update()));
+    animator.start();
+}
+
+void MediaThrobber::animation_update() {
+    if (animation == THROBBER_LIMIT) {
+        animation = 0;
+    }
+    item->setIcon(0, QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
+    animation++;
+}
+
+void MediaThrobber::stop(int icon_type) {
+    animator.stop();
+    switch (icon_type) {
+    case ICON_TYPE_VIDEO: item->setIcon(0, QIcon(":/icons/videosource.png")); break;
+    case ICON_TYPE_AUDIO: item->setIcon(0, QIcon(":/icons/audiosource.png")); break;
+    case ICON_TYPE_ERROR: item->setIcon(0, QIcon::fromTheme("dialog-error")); break;
+    }
+    panel_project->source_table->viewport()->update();
+    deleteLater();
 }
