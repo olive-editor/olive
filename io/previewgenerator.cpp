@@ -28,21 +28,28 @@ void PreviewGenerator::parse_media() {
         if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
             qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
         } else {
-            MediaStream* ms = new MediaStream();
-            ms->preview_done = false;
-            ms->file_index = i;
+            MediaStream* ms = media->get_stream_from_file_index(i);
+            bool append = false;
+            if (ms == NULL) {
+                ms = new MediaStream();
+                ms->preview_done = false;
+                ms->file_index = i;
+                append = true;
+            }
             if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                 bool infinite_length = (fmt_ctx->streams[i]->avg_frame_rate.den == 0);
                 ms->video_width = fmt_ctx->streams[i]->codecpar->width;
                 ms->video_height = fmt_ctx->streams[i]->codecpar->height;
                 ms->video_frame_rate = (infinite_length) ? 0 : av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
                 ms->infinite_length = infinite_length;
-                media->video_tracks.append(ms);
+                if (append) media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
                 ms->audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
                 ms->audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
-                media->audio_tracks.append(ms);
+                if (append) media->audio_tracks.append(ms);
+            } else {
+                delete ms;
             }
         }
     }

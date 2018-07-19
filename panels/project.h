@@ -82,6 +82,7 @@ private:
     QTreeWidgetItem* find_loaded_folder_by_id(int id);
     void add_recent_project(QString url);
     void get_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
+    void start_preview_generator(QTreeWidgetItem* item, Media* media);
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
     void clear_recent_projects();

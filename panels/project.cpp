@@ -122,6 +122,16 @@ void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidg
     project_changed = true;
 }
 
+void Project::start_preview_generator(QTreeWidgetItem* item, Media* media) {
+    // set up throbber animation
+    MediaThrobber* throbber = new MediaThrobber(item);
+
+    PreviewGenerator* pg = new PreviewGenerator(item, media);
+    connect(pg, SIGNAL(set_icon(int)), throbber, SLOT(stop(int)));
+    connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
+    pg->start(QThread::LowPriority);
+}
+
 QTreeWidgetItem* Project::import_file(QString file) {
     QTreeWidgetItem* item = new_item();
     Media* m = new Media();
@@ -129,13 +139,8 @@ QTreeWidgetItem* Project::import_file(QString file) {
     m->name = file.mid(file.lastIndexOf('/')+1);
     set_media_of_tree(item, m);
 
-    // set up throbber animation
-    MediaThrobber* throbber = new MediaThrobber(item);
-
     // generate waveform/thumbnail in another thread
-    PreviewGenerator* pg = new PreviewGenerator(item, m);
-    connect(pg, SIGNAL(set_icon(int)), throbber, SLOT(stop(int)));
-    pg->start(QThread::LowPriority);
+    start_preview_generator(item, m);
 
     return item;
 }
@@ -541,7 +546,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 find_loaded_folder_by_id(folder)->addChild(item);
                             }
 
-                            m->ready = true;
+                            // analyze media to see if it's the same
+                            start_preview_generator(item, m);
 
                             loaded_media.append(m);
                         }
