@@ -15,6 +15,8 @@ class TimelineAction : public QUndoCommand {
 public:
     TimelineAction();
     ~TimelineAction();
+    void change_sequence(Sequence* s);
+    void new_sequence(QTreeWidgetItem* s, QTreeWidgetItem* parent);
     void add_clips(Sequence* s, QVector<Clip*>& add);
     void set_timeline_in(Sequence* s, int clip, long value);
     void increase_timeline_in(Sequence* s, int clip, long value);
@@ -31,6 +33,13 @@ public:
     void redo();
 private:
     bool done;
+
+    bool change_seq;
+    Sequence* old_seq;
+    Sequence* new_seq;
+
+    QVector<QTreeWidgetItem*> new_sequence_items;
+    QVector<QTreeWidgetItem*> new_sequence_parents;
 
     QVector<Sequence*> sequences;
     QVector<int> actions;

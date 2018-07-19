@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QTreeWidgetItem>
+#include <QMessageBox>
 
 #include "project/clip.h"
 #include "project/sequence.h"
@@ -22,7 +23,7 @@ QUndoStack undo_stack;
 #define TA_ADD_CLIP_IN 7
 #define TA_ADD_TRACK 8
 
-TimelineAction::TimelineAction() : done(false) {}
+TimelineAction::TimelineAction() : done(false), change_seq(false) {}
 
 TimelineAction::~TimelineAction() {
     for (int i=0;i<clips_to_add.size();i++) {
@@ -37,10 +38,14 @@ TimelineAction::~TimelineAction() {
             delete deleted_media.at(i);
         }
     } else {
-        /*for (int i=0;i<media_to_add.size();i++) {
+        for (int i=0;i<new_sequence_items.size();i++) {
+            delete panel_project->get_sequence_from_tree(new_sequence_items.at(i));
+            delete new_sequence_items.at(i);
+        }
+        for (int i=0;i<media_to_add.size();i++) {
             panel_project->delete_media(media_to_add.at(i));
             delete media_to_add.at(i);
-        }*/
+        }
     }
 }
 
@@ -51,6 +56,16 @@ void TimelineAction::offset_links(QVector<Clip*>& clips, int offset) {
             c->linked[j] += offset;
         }
     }
+}
+
+void TimelineAction::change_sequence(Sequence* s) {
+    new_seq = s;
+    change_seq = true;
+}
+
+void TimelineAction::new_sequence(QTreeWidgetItem *s, QTreeWidgetItem* parent) {
+    new_sequence_items.append(s);
+    new_sequence_parents.append(parent);
 }
 
 void TimelineAction::add_clips(Sequence* s, QVector<Clip*>& add) {
@@ -156,6 +171,15 @@ void TimelineAction::undo() {
         }
     }
 
+    // add new sequences
+    for (int i=0;i<new_sequence_items.size();i++) {
+        if (new_sequence_parents.at(i) == NULL) {
+            panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(new_sequence_items.at(i)));
+        } else {
+            new_sequence_parents.at(i)->removeChild(new_sequence_items.at(i));
+        }
+    }
+
     // restore link references to deleted clips
     for (int i=0;i<removed_link_to.size();i++) {
         removed_link_from_sequence.at(i)->get_clip(removed_link_from.at(i))->linked.append(removed_link_to.at(i));
@@ -177,6 +201,10 @@ void TimelineAction::undo() {
         }
     }
 
+    if (change_seq) {
+        set_sequence(old_seq);
+    }
+
     done = false;
 }
 
@@ -189,6 +217,14 @@ void TimelineAction::redo() {
     added_indexes.clear();
     deleted_media_parents.clear();
     removed_link_from_sequence.clear();
+
+    for (int i=0;i<new_sequence_items.size();i++) {
+        if (new_sequence_parents.at(i) == NULL) {
+            panel_project->source_table->addTopLevelItem(new_sequence_items.at(i));
+        } else {
+            new_sequence_parents.at(i)->addChild(new_sequence_items.at(i));
+        }
+    }
 
     for (int i=0;i<actions.size();i++) {
         switch (actions.at(i)) {
@@ -288,8 +324,10 @@ void TimelineAction::redo() {
 
             // if we're deleting the open sequence, close it
             if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
-                if (panel_project->get_sequence_from_tree(item) == sequence) {
-                    set_sequence(NULL);
+                if (panel_project->get_sequence_from_tree(item) == sequence && !change_seq) {
+                    old_seq = sequence;
+                    new_seq = NULL;
+                    change_seq = true;
                 }
             }
 
@@ -306,6 +344,11 @@ void TimelineAction::redo() {
         for (int i=0;i<media_to_add.size();i++) {
             panel_project->source_table->addTopLevelItem(media_to_add.at(i));
         }
+    }
+
+    if (change_seq) {
+        old_seq = sequence;
+        set_sequence(new_seq);
     }
 
     done = true;

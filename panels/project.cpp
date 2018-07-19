@@ -86,28 +86,40 @@ void Project::rename_media(QTreeWidgetItem* item, int column) {
 
 void Project::duplicate_selected() {
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
+    bool duped = false;
+    TimelineAction* ta = new TimelineAction();
     for (int j=0;j<items.size();j++) {
         QTreeWidgetItem* i = items.at(j);
         if (get_type_from_tree(i) == MEDIA_TYPE_SEQUENCE) {
-            new_sequence(get_sequence_from_tree(i)->copy(), false, i->parent());
+            new_sequence(ta, get_sequence_from_tree(i)->copy(), false, i->parent());
+            duped = true;
         }
+    }
+    if (duped) {
+        undo_stack.push(ta);
+    } else {
+        delete ta;
     }
 }
 
-void Project::new_sequence(Sequence *s, bool open, QTreeWidgetItem* parent) {
+void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidgetItem* parent) {
     QTreeWidgetItem* item = new_item();
     item->setText(0, s->name);
     set_sequence_of_tree(item, s);
 
-    if (parent == NULL) {
-        ui->treeWidget->addTopLevelItem(item);
+    if (ta != NULL) {
+        ta->new_sequence(item, parent);
+        if (open) ta->change_sequence(s);
     } else {
-        parent->addChild(item);
+        if (parent == NULL) {
+            ui->treeWidget->addTopLevelItem(item);
+        } else {
+            parent->addChild(item);
+        }
+        if (open) set_sequence(s);
     }
 
     project_changed = true;
-
-    if (open) set_sequence(s);
 }
 
 QTreeWidgetItem* Project::import_file(QString file) {
@@ -371,9 +383,6 @@ void Project::delete_media(QTreeWidgetItem* item) {
         break;
     case MEDIA_TYPE_SEQUENCE:
         Sequence* s = get_sequence_from_tree(item);
-        if (sequence == s) {
-            set_sequence(NULL);
-        }
         delete s;
         break;
     }
@@ -632,7 +641,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 }
                             }
 
-                            new_sequence(s, false, parent);
+                            new_sequence(NULL, s, false, parent);
                         }
                             break;
                         }

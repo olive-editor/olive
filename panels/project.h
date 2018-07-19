@@ -25,6 +25,8 @@ class QFile;
 #define LOAD_TYPE_VERSION 69
 #define SAVE_SET_FOLDER_IDS 70
 
+class TimelineAction;
+
 namespace Ui {
 class Project;
 }
@@ -45,7 +47,7 @@ public:
     void clear();
     QTreeWidgetItem* import_file(QString url);
     void import_dialog();
-    void new_sequence(Sequence* s, bool open, QTreeWidgetItem* parent);
+    void new_sequence(TimelineAction* ta, Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
     void delete_selected_media();

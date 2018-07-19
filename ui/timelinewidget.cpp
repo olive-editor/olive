@@ -173,8 +173,9 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
         QVector<Clip*> added_clips;
 
-        if (sequence == NULL) {
-            Sequence* s = new Sequence();
+        Sequence* s = sequence;
+        if (s == NULL) {
+            s = new Sequence();
 
             // dumb hardcoded default values, should be settable somewhere
             s->name = panel_project->get_next_sequence_name();
@@ -184,7 +185,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             s->audio_frequency = predicted_audio_freq;
             s->audio_layout = predicted_audio_layout;
 
-            panel_project->new_sequence(s, true, NULL);
+            panel_project->new_sequence(ta, s, true, NULL);
         } else {
             // delete areas before adding
             QVector<Selection> delete_areas;
@@ -252,7 +253,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             }
         }
 
-        ta->add_clips(sequence, added_clips);
+        ta->add_clips(s, added_clips);
 
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
