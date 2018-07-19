@@ -61,7 +61,8 @@ SOURCES += \
     ui/audiomonitor.cpp \
     project/undo.cpp \
     ui/scrollarea.cpp \
-    effects/shakeeffect.cpp
+    effects/shakeeffect.cpp \
+    effects/texteffect.cpp
 
 HEADERS += \
         mainwindow.h \

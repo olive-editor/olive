@@ -116,8 +116,8 @@ void ViewerWidget::paintGL() {
                     } else if (panel_timeline->playhead >= c->timeline_in) {
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         glColor4f(1.0, 1.0, 1.0, 1.0);
-
                         glLoadIdentity();
+
                         int half_width = c->sequence->width/2;
                         int half_height = c->sequence->height/2;
                         if (flip) {
@@ -151,6 +151,9 @@ void ViewerWidget::paintGL() {
 
                         c->texture->bind();
 
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
                         glBegin(GL_QUADS);
                         glTexCoord2f(0.0, 0.0);
                         glVertex2f(-anchor_x, -anchor_y);
@@ -163,6 +166,11 @@ void ViewerWidget::paintGL() {
                         glEnd();
 
                         c->texture->release();
+
+                        // perform all transform effects
+                        for (int j=0;j<c->effects.size();j++) {
+                            c->effects.at(j)->post_gl();
+                        }
                     }
                 } else if (render_audio &&
                            c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&

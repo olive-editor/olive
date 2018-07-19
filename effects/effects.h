@@ -3,16 +3,22 @@
 
 #include "project/effect.h"
 
+#include <QPixmap>
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 class QSpinBox;
 class QCheckBox;
 class QComboBox;
 class LabelSlider;
+class QOpenGLTexture;
+class QTextEdit;
+class QPushButton;
 
 enum VideoEffects {
 	VIDEO_TRANSFORM_EFFECT,
     VIDEO_SHAKE_EFFECT,
-	VIDEO_EFFECT_COUNT
+    VIDEO_TEXT_EFFECT,
+    VIDEO_EFFECT_COUNT
 };
 
 enum AudioEffects {
@@ -80,6 +86,28 @@ private:
     int prev_y;
     int prev_rot;
     double t;
+};
+
+class TextEffect : public Effect {
+    Q_OBJECT
+public:
+    TextEffect(Clip* c);
+    ~TextEffect();
+    void post_gl();
+    Effect* copy(Clip* c);
+    void load(QXmlStreamReader* stream);
+    void save(QXmlStreamWriter* stream);
+    QTextEdit* text_val;
+    LabelSlider* size_val;
+    QPushButton* set_color_button;
+    QColor color;
+private slots:
+    void set_color();
+    void update_texture();
+private:
+    void set_button_color();
+    QPixmap pixmap;
+    QOpenGLTexture* texture;
 };
 
 // audio effects

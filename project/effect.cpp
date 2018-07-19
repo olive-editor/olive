@@ -36,4 +36,5 @@ Effect* Effect::copy(Clip*) {return NULL;}
 void Effect::load(QXmlStreamReader*) {}
 void Effect::save(QXmlStreamWriter*) {}
 void Effect::process_gl(int*, int*) {}
+void Effect::post_gl() {}
 void Effect::process_audio(uint8_t*, int) {}
