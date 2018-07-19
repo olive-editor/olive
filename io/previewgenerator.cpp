@@ -35,10 +35,13 @@ void PreviewGenerator::parse_media() {
                 bool infinite_length = (fmt_ctx->streams[i]->avg_frame_rate.den == 0);
                 ms->video_width = fmt_ctx->streams[i]->codecpar->width;
                 ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+                ms->video_frame_rate = (infinite_length) ? 0 : av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
                 ms->infinite_length = infinite_length;
                 media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
+                ms->audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
+                ms->audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
                 media->audio_tracks.append(ms);
             }
         }

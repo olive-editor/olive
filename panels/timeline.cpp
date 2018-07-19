@@ -214,8 +214,8 @@ void Timeline::update_sequence() {
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
     ui->headers->setEnabled(!null_sequence);
-	ui->video_area->setEnabled(!null_sequence);
-	ui->audio_area->setEnabled(!null_sequence);
+//	ui->video_area->setEnabled(!null_sequence);
+//	ui->audio_area->setEnabled(!null_sequence);
 
 	if (null_sequence) {
 		setWindowTitle("Timeline: <none>");

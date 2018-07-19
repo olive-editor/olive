@@ -57,6 +57,12 @@ private:
     QPixmap clip_pixmap;
 //	QPixmap selection_pixmap;
 
+    int predicted_video_width;
+    int predicted_video_height;
+    double predicted_new_frame_rate;
+    int predicted_audio_freq;
+    int predicted_audio_layout;
+
 signals:
 
 public slots:

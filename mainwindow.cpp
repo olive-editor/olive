@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     panel_project->load_project();
                 }
             }
-            autorecovery_timer.setInterval(10000);
+            autorecovery_timer.setInterval(60000);
             QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
             autorecovery_timer.start();
 

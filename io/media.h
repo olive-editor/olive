@@ -15,7 +15,10 @@ struct MediaStream {
 	int video_width;
 	int video_height;
 	bool infinite_length;
+    double video_frame_rate;
     int audio_channels;
+    int audio_layout;
+    int audio_frequency;
 
     // preview thumbnail/waveform
     bool preview_done;

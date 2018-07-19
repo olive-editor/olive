@@ -20,7 +20,7 @@ public:
 	long getEndFrame();
 	int width;
 	int height;
-	float frame_rate;
+    double frame_rate;
 	int audio_frequency;
     int audio_layout;
 private:
