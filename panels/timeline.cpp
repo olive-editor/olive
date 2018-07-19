@@ -77,7 +77,7 @@ void Timeline::go_to_start() {
 }
 
 void Timeline::previous_frame() {
-	seek(playhead-1);
+    if (playhead > 0) seek(playhead-1);
 }
 
 void Timeline::next_frame() {

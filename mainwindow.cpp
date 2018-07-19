@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     panel_project->load_project();
                 }
             }
-            autorecovery_timer.setInterval(60000);
+            autorecovery_timer.setInterval(10000);
             QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
             autorecovery_timer.start();
 
@@ -291,13 +291,13 @@ void MainWindow::on_action_Paste_triggered()
 }
 
 void MainWindow::autorecover_interval() {
-    if (!project_changed) {
+    if (project_changed) {
         QString old_filename = project_url;
         project_url = autorecovery_filename;
         panel_project->save_project();
         qDebug() << "[INFO] Auto-recovery project saved";
         project_url = old_filename;
-        project_changed = false;
+        project_changed = true;
     }
 }
 

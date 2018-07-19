@@ -198,8 +198,9 @@ void Project::delete_selected_media() {
                             confirm.setWindowTitle("Delete media in use?");
                             confirm.setText("The media '" + media->name + "' is currently used in '" + s->name + "'. Deleting it will remove all instances in the sequence. Are you sure you want to do this?");
                             QAbstractButton* yes_button = confirm.addButton(QMessageBox::Yes);
-                            QAbstractButton* skip_button = confirm.addButton("Skip", QMessageBox::NoRole);
-                            QAbstractButton* abort_button = confirm.addButton(QMessageBox::Abort);
+                            QAbstractButton* skip_button = NULL;
+                            if (items.size() > 1) skip_button = confirm.addButton("Skip", QMessageBox::NoRole);
+                            QAbstractButton* abort_button = confirm.addButton(QMessageBox::Cancel);
                             confirm.exec();
                             if (confirm.clickedButton() == yes_button) {
                                 // remove all clips referencing this media
@@ -885,7 +886,7 @@ void Project::add_recent_project(QString url) {
 #define THROBBER_LIMIT 20
 #define THROBBER_SIZE 50
 
-MediaThrobber::MediaThrobber(QTreeWidgetItem* i) : pixmap(":/icons/throbber.png"), item(i), animation(0) {
+MediaThrobber::MediaThrobber(QTreeWidgetItem* i) : pixmap(":/icons/throbber.png"), animation(0), item(i) {
     // set up throbber
     animation_update();
     animator.setInterval(20);

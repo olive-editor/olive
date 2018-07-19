@@ -10,6 +10,8 @@ int main(int argc, char *argv[])
 	// init ffmpeg subsystem
     av_register_all();
 
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts, true);
+
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();
