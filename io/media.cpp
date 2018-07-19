@@ -19,8 +19,8 @@ Media::~Media() {
     audio_tracks.clear();
 }
 
-long Media::get_length_in_frames(float frame_rate) {
-	return ceil((float) length / (float) AV_TIME_BASE * frame_rate);
+long Media::get_length_in_frames(double frame_rate) {
+    return ceil(((double) length / (double) AV_TIME_BASE) * frame_rate);
 }
 
 MediaStream* Media::get_stream_from_file_index(int index) {

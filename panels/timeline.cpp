@@ -121,12 +121,14 @@ void Timeline::next_cut() {
 
 void Timeline::reset_all_audio() {
     // reset all clip audio
-    for (int i=0;i<sequence->clip_count();i++) {
-        Clip* c = sequence->get_clip(i);
-        if (c != NULL) {
-            c->reset_audio = true;
-            c->frame_sample_index = 0;
-            c->audio_buffer_write = 0;
+    if (sequence != NULL) {
+        for (int i=0;i<sequence->clip_count();i++) {
+            Clip* c = sequence->get_clip(i);
+            if (c != NULL) {
+                c->reset_audio = true;
+                c->frame_sample_index = 0;
+                c->audio_buffer_write = 0;
+            }
         }
     }
     ui->audio_monitor->reset();
@@ -247,23 +249,21 @@ void Timeline::repaint_timeline() {
         ui->audio_monitor->update();
 		last_frame = playhead;
 	}
-    panel_viewer->update_playhead_timecode();
+    panel_viewer->update_playhead_timecode(playhead);
 }
 
 void Timeline::redraw_all_clips(bool changed) {
-    if (sequence != NULL) {
-        if (changed) {
-            project_changed = true;
-            if (!playing) reset_all_audio();
-            panel_viewer->viewer_widget->update();
-        }
-
-        ui->video_area->redraw_clips();
-        ui->audio_area->redraw_clips();
-        ui->headers->update();
-
-        panel_viewer->update_end_timecode();
+    if (changed) {
+        project_changed = true;
+        if (!playing) reset_all_audio();
+        panel_viewer->viewer_widget->update();
     }
+
+    ui->video_area->redraw_clips();
+    ui->audio_area->redraw_clips();
+    ui->headers->update();
+
+    panel_viewer->update_end_timecode();
 }
 
 void Timeline::select_all() {

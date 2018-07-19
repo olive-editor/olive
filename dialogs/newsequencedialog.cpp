@@ -19,17 +19,17 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	ui->frame_rate_combobox->addItem("10 FPS", 10.0f);
-	ui->frame_rate_combobox->addItem("12.5 FPS", 12.5f);
-	ui->frame_rate_combobox->addItem("15 FPS", 15.0f);
-    ui->frame_rate_combobox->addItem("23.976 FPS", 23.976f);
-    ui->frame_rate_combobox->addItem("24 FPS", 24.0f);
-    ui->frame_rate_combobox->addItem("25 FPS", 25.0f);
-	ui->frame_rate_combobox->addItem("29.97 FPS", 29.97f);
-	ui->frame_rate_combobox->addItem("30 FPS", (float) 30.0f);
-	ui->frame_rate_combobox->addItem("50 FPS", (float) 50.0f);
-	ui->frame_rate_combobox->addItem("59.94 FPS", (float) 59.94f);
-	ui->frame_rate_combobox->addItem("60 FPS", (float) 60.0f);
+    ui->frame_rate_combobox->addItem("10 FPS", 10.0);
+    ui->frame_rate_combobox->addItem("12.5 FPS", 12.5);
+    ui->frame_rate_combobox->addItem("15 FPS", 15.0);
+    ui->frame_rate_combobox->addItem("23.976 FPS", 23.976);
+    ui->frame_rate_combobox->addItem("24 FPS", 24.0);
+    ui->frame_rate_combobox->addItem("25 FPS", 25.0);
+    ui->frame_rate_combobox->addItem("29.97 FPS", 29.97);
+    ui->frame_rate_combobox->addItem("30 FPS", 30.0);
+    ui->frame_rate_combobox->addItem("50 FPS", 50.0);
+    ui->frame_rate_combobox->addItem("59.94 FPS", 59.94);
+    ui->frame_rate_combobox->addItem("60 FPS", 60.0);
     ui->frame_rate_combobox->setCurrentIndex(6);
 
 	ui->audio_frequency_combobox->addItem("22050 Hz", 22050);
@@ -58,7 +58,7 @@ void NewSequenceDialog::on_buttonBox_accepted()
 	s->name = ui->lineEdit->text();
 	s->width = ui->width_numeric->value();
 	s->height = ui->height_numeric->value();
-	s->frame_rate = ui->frame_rate_combobox->currentData().toFloat();
+    s->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
 	s->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
 	s->audio_layout = AV_CH_LAYOUT_STEREO;
 

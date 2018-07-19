@@ -1230,160 +1230,162 @@ int color_brightness(int r, int g, int b) {
 
 void TimelineWidget::redraw_clips() {
     // Draw clips
-    int panel_width = panel_timeline->getScreenPointFromFrame(sequence->getEndFrame()) + 100;
+    if (sequence != NULL) {
+        int panel_width = panel_timeline->getScreenPointFromFrame(sequence->getEndFrame()) + 100;
 
-    if (minimumWidth() != panel_width || clip_pixmap.height() != height()) {
-        setMinimumWidth(panel_width);
-        clip_pixmap = QPixmap(panel_width, height());
-    }
+        if (minimumWidth() != panel_width || clip_pixmap.height() != height()) {
+            setMinimumWidth(panel_width);
+            clip_pixmap = QPixmap(qMax(width(), panel_width), height());
+        }
 
-    clip_pixmap.fill(Qt::transparent);
-    QPainter clip_painter(&clip_pixmap);
-	int video_track_limit = 0;
-    int audio_track_limit = 0;
-    QColor transition_color(255, 0, 0, 16);
-    for (int i=0;i<sequence->clip_count();i++) {
-        Clip* clip = sequence->get_clip(i);
-        if (clip != NULL && is_track_visible(clip->track)) {
-            if (clip->track < 0 && clip->track < video_track_limit) { // video clip
-                video_track_limit = clip->track;
-            } else if (clip->track > audio_track_limit) {
-                audio_track_limit = clip->track;
-            }
-
-            QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
-            clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
-
-            int thumb_x = clip_rect.x() + 1;
-
-            QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
-
-            // draw clip transitions
-            for (char i=0;i<2;i++) {
-                Transition* t;
-                if (i == 0) {
-                    t = clip->opening_transition;
-                } else {
-                    t = clip->closing_transition;
+        clip_pixmap.fill(Qt::transparent);
+        QPainter clip_painter(&clip_pixmap);
+        int video_track_limit = 0;
+        int audio_track_limit = 0;
+        QColor transition_color(255, 0, 0, 16);
+        for (int i=0;i<sequence->clip_count();i++) {
+            Clip* clip = sequence->get_clip(i);
+            if (clip != NULL && is_track_visible(clip->track)) {
+                if (clip->track < 0 && clip->track < video_track_limit) { // video clip
+                    video_track_limit = clip->track;
+                } else if (clip->track > audio_track_limit) {
+                    audio_track_limit = clip->track;
                 }
-                if (t != NULL) {
-                    int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
-                    int transition_height = clip_rect.height() * 0.6;
-                    if (transition_height <= TRACK_MIN_HEIGHT) {
-                        transition_height = clip_rect.height();
-                    }
-                    int tr_y = clip_rect.y() + ((clip_rect.height()-transition_height)/2);
-                    int tr_x = 0;
+
+                QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
+                clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
+
+                int thumb_x = clip_rect.x() + 1;
+
+                QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
+
+                // draw clip transitions
+                for (char i=0;i<2;i++) {
+                    Transition* t;
                     if (i == 0) {
-                        tr_x = clip_rect.x();
-                        text_rect.setX(text_rect.x()+transition_width);
-                        thumb_x += transition_width;
+                        t = clip->opening_transition;
                     } else {
-                        tr_x = clip_rect.right()-transition_width;
-                        text_rect.setWidth(text_rect.width()-transition_width);
+                        t = clip->closing_transition;
                     }
-                    QRect transition_rect = QRect(tr_x, tr_y, transition_width, transition_height);
-                    clip_painter.fillRect(transition_rect, transition_color);
-                    QRect transition_text_rect(transition_rect.x() + CLIP_TEXT_PADDING, transition_rect.y() + CLIP_TEXT_PADDING, transition_rect.width() - CLIP_TEXT_PADDING, transition_rect.height() - CLIP_TEXT_PADDING);
-                    if (transition_text_rect.width() > MAX_TEXT_WIDTH) {
-                        clip_painter.setPen(QColor(0, 0, 0, 96));
-                        if (i == 0) {
-                            clip_painter.drawLine(transition_rect.bottomLeft(), transition_rect.topRight());
-                        } else {
-                            clip_painter.drawLine(transition_rect.topLeft(), transition_rect.bottomRight());
+                    if (t != NULL) {
+                        int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
+                        int transition_height = clip_rect.height() * 0.6;
+                        if (transition_height <= TRACK_MIN_HEIGHT) {
+                            transition_height = clip_rect.height();
                         }
-
-                        clip_painter.setPen(Qt::white);
-                        clip_painter.drawText(transition_text_rect, 0, t->name, &transition_text_rect);
-                    }
-                    clip_painter.setPen(Qt::black);
-                    clip_painter.drawRect(transition_rect);
-                }
-            }
-
-            // draw thumbnail/waveform
-            if (clip->media_stream->preview_done) {
-                if (clip->track < 0) {
-                    int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
-                    int thumb_height = clip_rect.height()-thumb_y;
-                    int thumb_width = (thumb_height*((float)clip->media_stream->video_preview.width()/(float)clip->media_stream->video_preview.height()));
-                    if (thumb_height > thumb_y && text_rect.width() + CLIP_TEXT_PADDING > thumb_width) { // at small clip heights, don't even draw it
-                        QRect thumb_rect(thumb_x, clip_rect.y()+thumb_y, thumb_width, thumb_height);
-                        clip_painter.drawImage(thumb_rect, clip->media_stream->video_preview);
-                    }
-                } else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
-                    int divider = clip->media_stream->audio_channels*2;
-
-                    clip_painter.setPen(QColor(80, 80, 80));
-                    int channel_height = clip_rect.height()/clip->media_stream->audio_channels;
-                    long media_length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
-                    for (int i=0;i<clip_rect.width();i++) {
-                        int waveform_index = qFloor((((clip->clip_in + ((float) i/panel_timeline->zoom))/media_length) * clip->media_stream->audio_preview.size())/divider)*divider;
-
-                        for (int j=0;j<clip->media_stream->audio_channels;j++) {
-                            int mid = clip_rect.top()+channel_height*j+(channel_height/2);
-                            int offset = waveform_index+(j*2);
-
-                            if (offset >= 0 && offset < clip->media_stream->audio_preview.size()) {
-                                qint8 min = (double)clip->media_stream->audio_preview.at(offset) / 128.0 * (channel_height/2);
-                                qint8 max = (double)clip->media_stream->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
-                                clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+                        int tr_y = clip_rect.y() + ((clip_rect.height()-transition_height)/2);
+                        int tr_x = 0;
+                        if (i == 0) {
+                            tr_x = clip_rect.x();
+                            text_rect.setX(text_rect.x()+transition_width);
+                            thumb_x += transition_width;
+                        } else {
+                            tr_x = clip_rect.right()-transition_width;
+                            text_rect.setWidth(text_rect.width()-transition_width);
+                        }
+                        QRect transition_rect = QRect(tr_x, tr_y, transition_width, transition_height);
+                        clip_painter.fillRect(transition_rect, transition_color);
+                        QRect transition_text_rect(transition_rect.x() + CLIP_TEXT_PADDING, transition_rect.y() + CLIP_TEXT_PADDING, transition_rect.width() - CLIP_TEXT_PADDING, transition_rect.height() - CLIP_TEXT_PADDING);
+                        if (transition_text_rect.width() > MAX_TEXT_WIDTH) {
+                            clip_painter.setPen(QColor(0, 0, 0, 96));
+                            if (i == 0) {
+                                clip_painter.drawLine(transition_rect.bottomLeft(), transition_rect.topRight());
                             } else {
-                                QMessageBox::critical(this, "AAAAAAAAAAAAA", "Here's that terrible, no-good bug again!!! I've stepped around it but plz report the following to Matt:\n\n" + QString::number(offset) + " vs " + QString::number(clip->media_stream->audio_preview.size()), QMessageBox::Ok);
-                                break;
+                                clip_painter.drawLine(transition_rect.topLeft(), transition_rect.bottomRight());
+                            }
+
+                            clip_painter.setPen(Qt::white);
+                            clip_painter.drawText(transition_text_rect, 0, t->name, &transition_text_rect);
+                        }
+                        clip_painter.setPen(Qt::black);
+                        clip_painter.drawRect(transition_rect);
+                    }
+                }
+
+                // draw thumbnail/waveform
+                if (clip->media_stream->preview_done) {
+                    if (clip->track < 0) {
+                        int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
+                        int thumb_height = clip_rect.height()-thumb_y;
+                        int thumb_width = (thumb_height*((float)clip->media_stream->video_preview.width()/(float)clip->media_stream->video_preview.height()));
+                        if (thumb_height > thumb_y && text_rect.width() + CLIP_TEXT_PADDING > thumb_width) { // at small clip heights, don't even draw it
+                            QRect thumb_rect(thumb_x, clip_rect.y()+thumb_y, thumb_width, thumb_height);
+                            clip_painter.drawImage(thumb_rect, clip->media_stream->video_preview);
+                        }
+                    } else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
+                        int divider = clip->media_stream->audio_channels*2;
+
+                        clip_painter.setPen(QColor(80, 80, 80));
+                        int channel_height = clip_rect.height()/clip->media_stream->audio_channels;
+                        long media_length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
+                        for (int i=0;i<clip_rect.width();i++) {
+                            int waveform_index = qFloor((((clip->clip_in + ((float) i/panel_timeline->zoom))/media_length) * clip->media_stream->audio_preview.size())/divider)*divider;
+
+                            for (int j=0;j<clip->media_stream->audio_channels;j++) {
+                                int mid = clip_rect.top()+channel_height*j+(channel_height/2);
+                                int offset = waveform_index+(j*2);
+
+                                if (offset >= 0 && offset < clip->media_stream->audio_preview.size()) {
+                                    qint8 min = (double)clip->media_stream->audio_preview.at(offset) / 128.0 * (channel_height/2);
+                                    qint8 max = (double)clip->media_stream->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+                                    clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+                                } else {
+                                    QMessageBox::critical(this, "AAAAAAAAAAAAA", "Here's that terrible, no-good bug again!!! I've stepped around it but plz report the following to Matt:\n\n" + QString::number(offset) + " vs " + QString::number(clip->media_stream->audio_preview.size()), QMessageBox::Ok);
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // top left bevel
-            clip_painter.setPen(Qt::white);
-            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
-            clip_painter.drawLine(clip_rect.topLeft(), clip_rect.topRight());
+                // top left bevel
+                clip_painter.setPen(Qt::white);
+                clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
+                clip_painter.drawLine(clip_rect.topLeft(), clip_rect.topRight());
 
-            // draw text
-            if (text_rect.width() > MAX_TEXT_WIDTH) {
-                if (color_brightness(clip->color_r, clip->color_g, clip->color_b) > 160) {
-                    // set to black if color is bright
-                    clip_painter.setPen(Qt::black);
+                // draw text
+                if (text_rect.width() > MAX_TEXT_WIDTH) {
+                    if (color_brightness(clip->color_r, clip->color_g, clip->color_b) > 160) {
+                        // set to black if color is bright
+                        clip_painter.setPen(Qt::black);
+                    }
+                    if (clip->linked.size() > 0) {
+                        int underline_y = CLIP_TEXT_PADDING + clip_painter.fontMetrics().height() + clip_rect.top();
+                        int underline_width = qMin(text_rect.width() - 1, clip_painter.fontMetrics().width(clip->name));
+                        clip_painter.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
+                    }
+                    clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
                 }
-                if (clip->linked.size() > 0) {
-                    int underline_y = CLIP_TEXT_PADDING + clip_painter.fontMetrics().height() + clip_rect.top();
-                    int underline_width = qMin(text_rect.width() - 1, clip_painter.fontMetrics().width(clip->name));
-                    clip_painter.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
-                }
-                clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
-            }
 
-            // bottom right gray
-            clip_painter.setPen(QColor(0, 0, 0, 128));
-            clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
-            clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
+                // bottom right gray
+                clip_painter.setPen(QColor(0, 0, 0, 128));
+                clip_painter.drawLine(clip_rect.bottomLeft(), clip_rect.bottomRight());
+                clip_painter.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
+            }
+        }
+
+        // Draw track lines
+        if (show_track_lines) {
+            clip_painter.setPen(QColor(0, 0, 0, 96));
+            audio_track_limit++;
+            if (video_track_limit == 0) video_track_limit--;
+
+            if (bottom_align) {
+                // only draw lines for video tracks
+                for (int i=video_track_limit;i<0;i++) {
+                    int line_y = getScreenPointFromTrack(i) - 1;
+                    clip_painter.drawLine(0, line_y, rect().width(), line_y);
+                }
+            } else {
+                // only draw lines for audio tracks
+                for (int i=0;i<audio_track_limit;i++) {
+                    // TODO just make i+1?
+                    int line_y = getScreenPointFromTrack(i) + panel_timeline->calculate_track_height(i, -1);
+                    clip_painter.drawLine(0, line_y, rect().width(), line_y);
+                }
+            }
         }
     }
-
-	// Draw track lines
-	if (show_track_lines) {
-		clip_painter.setPen(QColor(0, 0, 0, 96));
-		audio_track_limit++;
-		if (video_track_limit == 0) video_track_limit--;
-
-		if (bottom_align) {
-			// only draw lines for video tracks
-			for (int i=video_track_limit;i<0;i++) {
-				int line_y = getScreenPointFromTrack(i) - 1;
-				clip_painter.drawLine(0, line_y, rect().width(), line_y);
-			}
-		} else {
-			// only draw lines for audio tracks
-			for (int i=0;i<audio_track_limit;i++) {
-                // TODO just make i+1?
-                int line_y = getScreenPointFromTrack(i) + panel_timeline->calculate_track_height(i, -1);
-				clip_painter.drawLine(0, line_y, rect().width(), line_y);
-			}
-		}
-	}
 
 	update();
 }
@@ -1392,7 +1394,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
     if (sequence != NULL) {
 		QPainter p(this);
 
-        p.drawPixmap(0, 0, minimumWidth(), height(), clip_pixmap);
+        p.drawPixmap(0, 0, clip_pixmap.width(), height(), clip_pixmap);
 
 		// Draw selections
 		for (int i=0;i<panel_timeline->selections.size();i++) {

@@ -323,12 +323,12 @@ void TimelineAction::redo() {
             deleted_media_parents.append(item->parent());
 
             // if we're deleting the open sequence, close it
-            if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
-                if (panel_project->get_sequence_from_tree(item) == sequence && !change_seq) {
-                    old_seq = sequence;
-                    new_seq = NULL;
-                    change_seq = true;
-                }
+            if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE &&
+                    panel_project->get_sequence_from_tree(item) == sequence &&
+                    !change_seq) {
+                old_seq = sequence;
+                new_seq = NULL;
+                change_seq = true;
             }
 
             if (item->parent() == NULL) {

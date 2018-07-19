@@ -28,7 +28,7 @@ public:
 	void compose();
     void set_playpause_icon(bool play);
     int timecode_view;
-    void update_playhead_timecode();
+    void update_playhead_timecode(long p);
     void update_end_timecode();
 
 	ViewerWidget* viewer_widget;
@@ -46,7 +46,7 @@ private slots:
     void on_pushButton_3_clicked();
 
 private:    
-    QString frame_to_timecode(long f);
+    QString frame_to_timecode(long f, int view, double frame_rate);
 };
 
 #endif // VIEWER_H

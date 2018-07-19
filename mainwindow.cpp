@@ -512,7 +512,7 @@ void MainWindow::on_actionFrames_triggered()
 {
     panel_viewer->timecode_view = TIMECODE_FRAMES;
     if (sequence != NULL) {
-        panel_viewer->update_playhead_timecode();
+        panel_viewer->update_playhead_timecode(panel_timeline->playhead);
         panel_viewer->update_end_timecode();
     }
 }
@@ -521,7 +521,7 @@ void MainWindow::on_actionDrop_Frame_triggered()
 {
     panel_viewer->timecode_view = TIMECODE_DROP;
     if (sequence != NULL) {
-        panel_viewer->update_playhead_timecode();
+        panel_viewer->update_playhead_timecode(panel_timeline->playhead);
         panel_viewer->update_end_timecode();
     }
 }
@@ -530,7 +530,7 @@ void MainWindow::on_actionNon_Drop_Frame_triggered()
 {
     panel_viewer->timecode_view = TIMECODE_NONDROP;
     if (sequence != NULL) {
-        panel_viewer->update_playhead_timecode();
+        panel_viewer->update_playhead_timecode(panel_timeline->playhead);
         panel_viewer->update_end_timecode();
     }
 }

@@ -275,11 +275,10 @@ void Project::delete_selected_media() {
         }
 
         for (int i=0;i<items.size();i++) {
-            /*
-            delete_media(item);
-            delete item;*/
-
             // send delete command to the TimelineAction
+            if (get_type_from_tree(items.at(i)) == MEDIA_TYPE_SEQUENCE) {
+                redraw = true;
+            }
             ta->delete_media(items.at(i));
         }
         undo_stack.push(ta);
@@ -288,6 +287,8 @@ void Project::delete_selected_media() {
         if (redraw) {
             panel_timeline->redraw_all_clips(true);
         }
+
+        project_changed = true;
     } else {
         delete ta;
     }

@@ -38,7 +38,7 @@ struct Media
     QVector<MediaStream*> audio_tracks;
     int save_id;
     bool ready;
-	long get_length_in_frames(float frame_rate);
+    long get_length_in_frames(double frame_rate);
     MediaStream* get_stream_from_file_index(int index);
 };
 
