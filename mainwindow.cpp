@@ -365,6 +365,7 @@ void MainWindow::on_actionProject_triggered()
         project_changed = false;
         panel_project->new_project();
         undo_stack.clear();
+        panel_timeline->redraw_all_clips(false);
     }
 }
 

@@ -15,7 +15,7 @@ class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
 
-#define SAVE_VERSION "180715"
+#define SAVE_VERSION "180719"
 
 #define MEDIA_TYPE_FOOTAGE 0
 #define MEDIA_TYPE_SEQUENCE 1

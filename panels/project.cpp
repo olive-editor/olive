@@ -127,8 +127,6 @@ QTreeWidgetItem* Project::import_file(QString file) {
     Media* m = new Media();
     m->url = file;
     m->name = file.mid(file.lastIndexOf('/')+1);
-    item->setText(0, m->name);
-
     set_media_of_tree(item, m);
 
     // set up throbber animation
@@ -359,6 +357,7 @@ Media* Project::get_media_from_tree(QTreeWidgetItem* item) {
 }
 
 void Project::set_media_of_tree(QTreeWidgetItem* item, Media* media) {
+    item->setText(0, media->name);
     item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_FOOTAGE);
     item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(media)));
 }
@@ -490,16 +489,60 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     url = attr.value().toString();
                                 }
                             }
-                            QTreeWidgetItem* item = import_file(url);
-                            Media* m = get_media_from_tree(item);
+                            QTreeWidgetItem* item = new_item();//import_file(url);
+                            Media* m = new Media();
+                            m->url = url;
                             m->name = name;
-                            item->setText(0, name);
                             m->save_id = id;
+
+                            while (!(stream.name() == child_search && stream.isEndElement())) {
+                                stream.readNext();
+                                if (stream.isStartElement()) {
+                                    if (stream.name() == "video") {
+                                        MediaStream* ms = new MediaStream();
+                                        for (int j=0;j<stream.attributes().size();j++) {
+                                            const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                            if (attr.name() == "id") {
+                                                ms->file_index = attr.value().toInt();
+                                            } else if (attr.name() == "width") {
+                                                ms->video_width = attr.value().toInt();
+                                            } else if (attr.name() == "height") {
+                                                ms->video_height = attr.value().toInt();
+                                            } else if (attr.name() == "framerate") {
+                                                ms->video_frame_rate = attr.value().toDouble();
+                                            } else if (attr.name() == "infinite") {
+                                                ms->infinite_length = (attr.value().toInt() == 1);
+                                            }
+                                        }
+                                        m->video_tracks.append(ms);
+                                    } else if (stream.name() == "audio") {
+                                        MediaStream* ms = new MediaStream();
+                                        for (int j=0;j<stream.attributes().size();j++) {
+                                            const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                            if (attr.name() == "id") {
+                                                ms->file_index = attr.value().toInt();
+                                            } else if (attr.name() == "channels") {
+                                                ms->audio_channels = attr.value().toInt();
+                                            } else if (attr.name() == "layout") {
+                                                ms->audio_layout = attr.value().toInt();
+                                            } else if (attr.name() == "frequency") {
+                                                ms->audio_frequency = attr.value().toInt();
+                                            }
+                                        }
+                                        m->audio_tracks.append(ms);
+                                    }
+                                }
+                            }
+
+                            set_media_of_tree(item, m);
                             if (folder == 0) {
                                 ui->treeWidget->addTopLevelItem(item);
                             } else {
                                 find_loaded_folder_by_id(folder)->addChild(item);
                             }
+
+                            m->ready = true;
+
                             loaded_media.append(m);
                         }
                             break;
@@ -716,6 +759,8 @@ void Project::load_project() {
         new_project();
     }
 
+    add_recent_project(project_url);
+
     file.close();
 }
 
@@ -752,6 +797,26 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                 stream.writeAttribute("folder", QString::number(folder));
                 stream.writeAttribute("name", m->name);
                 stream.writeAttribute("url", m->url);
+                stream.writeAttribute("duration", QString::number(m->length));
+                for (int j=0;j<m->video_tracks.size();j++) {
+                    MediaStream* ms = m->video_tracks.at(j);
+                    stream.writeStartElement("video");
+                    stream.writeAttribute("id", QString::number(ms->file_index));
+                    stream.writeAttribute("width", QString::number(ms->video_width));
+                    stream.writeAttribute("height", QString::number(ms->video_height));
+                    stream.writeAttribute("framerate", QString::number(ms->video_frame_rate));
+                    stream.writeAttribute("infinite", QString::number(ms->infinite_length));
+                    stream.writeEndElement();
+                }
+                for (int j=0;j<m->audio_tracks.size();j++) {
+                    MediaStream* ms = m->audio_tracks.at(j);
+                    stream.writeStartElement("audio");
+                    stream.writeAttribute("id", QString::number(ms->file_index));
+                    stream.writeAttribute("channels", QString::number(ms->audio_channels));
+                    stream.writeAttribute("layout", QString::number(ms->audio_layout));
+                    stream.writeAttribute("frequency", QString::number(ms->audio_frequency));
+                    stream.writeEndElement();
+                }
                 stream.writeEndElement();
                 media_id++;
             } else if (type == MEDIA_TYPE_SEQUENCE) {
@@ -849,6 +914,8 @@ void Project::save_project() {
     stream.writeEndDocument(); // doc
 
     file.close();
+
+    add_recent_project(project_url);
 
     project_changed = false;
 }
