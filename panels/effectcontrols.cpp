@@ -60,7 +60,18 @@ void EffectControls::show_menu(bool video) {
         QAction* action = new QAction(&effects_menu);
         action->setText(effect_names->at(i));
         action->setData(i);
-        effects_menu.addAction(action);
+
+        // sort alphabetically
+        bool added = false;
+        for (int j=0;j<effects_menu.actions().size();j++) {
+            QAction* comp_action = effects_menu.actions().at(j);
+            if (comp_action->text() > effect_names->at(i)) {
+                effects_menu.insertAction(comp_action, action);
+                added = true;
+                break;
+            }
+        }
+        if (!added) effects_menu.addAction(action);
     }
 
     connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));

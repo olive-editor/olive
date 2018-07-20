@@ -15,6 +15,7 @@ void init_effects() {
 	video_effect_names[VIDEO_TRANSFORM_EFFECT] = "Transform";
     video_effect_names[VIDEO_SHAKE_EFFECT] = "Shake";
     video_effect_names[VIDEO_TEXT_EFFECT] = "Text";
+    video_effect_names[VIDEO_SOLID_EFFECT] = "Solid";
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
@@ -26,6 +27,7 @@ Effect* create_effect(int effect_id, Clip* c) {
         case VIDEO_TRANSFORM_EFFECT: return new TransformEffect(c);
         case VIDEO_SHAKE_EFFECT: return new ShakeEffect(c);
         case VIDEO_TEXT_EFFECT: return new TextEffect(c);
+        case VIDEO_SOLID_EFFECT: return new SolidEffect(c);
         }
     } else {
         switch (effect_id) {

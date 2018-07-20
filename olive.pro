@@ -64,7 +64,8 @@ SOURCES += \
     effects/shakeeffect.cpp \
     effects/texteffect.cpp \
     ui/comboboxex.cpp \
-    ui/colorbutton.cpp
+    ui/colorbutton.cpp \
+    effects/solideffect.cpp
 
 HEADERS += \
         mainwindow.h \

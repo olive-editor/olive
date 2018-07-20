@@ -20,6 +20,7 @@ enum VideoEffects {
 	VIDEO_TRANSFORM_EFFECT,
     VIDEO_SHAKE_EFFECT,
     VIDEO_TEXT_EFFECT,
+    VIDEO_SOLID_EFFECT,
     VIDEO_EFFECT_COUNT
 };
 
@@ -108,6 +109,17 @@ private slots:
 private:
     QOpenGLTexture* texture;
     QFont font;
+};
+
+class SolidEffect : public Effect {
+    Q_OBJECT
+public:
+    SolidEffect(Clip* c);
+    void post_gl();
+private slots:
+    void update_texture();
+private:
+    QOpenGLTexture* texture;
 };
 
 // audio effects
