@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QTreeWidgetItem>
 #include <QMessageBox>
+#include <QCheckBox>
 
 #include "project/clip.h"
 #include "project/sequence.h"
@@ -381,5 +382,20 @@ void LinkCommand::redo() {
             old_links.append(c->linked);
             c->linked.clear();
         }
+    }
+}
+
+CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), done(true), checked(box->isChecked()) {}
+
+CheckboxCommand::~CheckboxCommand() {}
+
+void CheckboxCommand::undo() {
+    box->setChecked(!checked);
+    done = false;
+}
+
+void CheckboxCommand::redo() {
+    if (!done) {
+        box->setChecked(checked);
     }
 }

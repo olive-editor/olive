@@ -9,20 +9,12 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-VolumeEffect::VolumeEffect(Clip* c) : Effect(c) {
-    setup_effect(EFFECT_TYPE_AUDIO, AUDIO_VOLUME_EFFECT);
-
-	QGridLayout* ui_layout = new QGridLayout();
-
-	ui_layout->addWidget(new QLabel("Volume:"), 0, 0);
+VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_EFFECT) {
+    ui_layout->addWidget(new QLabel("Volume:"), 0, 0);
     volume_val = new LabelSlider();
     volume_val->set_minimum_value(0);
     volume_val->set_maximum_value(400);
-	ui_layout->addWidget(volume_val, 0, 1);
-
-	ui->setLayout(ui_layout);
-
-	container->setContents(ui);
+    ui_layout->addWidget(volume_val, 0, 1);
 
 	// set defaults
     volume_val->set_value(100);

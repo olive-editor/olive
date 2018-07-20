@@ -31,7 +31,6 @@
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
-QString autorecovery_filename;
 QTimer autorecovery_timer;
 
 void MainWindow::setup_layout() {
@@ -292,12 +291,8 @@ void MainWindow::on_action_Paste_triggered()
 
 void MainWindow::autorecover_interval() {
     if (project_changed) {
-        QString old_filename = project_url;
-        project_url = autorecovery_filename;
-        panel_project->save_project();
+        panel_project->save_project(true);
         qDebug() << "[INFO] Auto-recovery project saved";
-        project_url = old_filename;
-        project_changed = true;
     }
 }
 
@@ -308,7 +303,7 @@ bool MainWindow::save_project_as() {
             fn += ".ove";
         }
         project_url = fn;
-        panel_project->save_project();
+        panel_project->save_project(false);
         return true;
     }
     return false;
@@ -318,7 +313,7 @@ bool MainWindow::save_project() {
     if (project_url.isEmpty()) {
         return save_project_as();
     } else {
-        panel_project->save_project();
+        panel_project->save_project(false);
         return true;
     }
 }
@@ -361,11 +356,12 @@ void MainWindow::on_action_Open_Project_triggered()
 void MainWindow::on_actionProject_triggered()
 {
     if (can_close_project()) {
-        project_url.clear();
-        project_changed = false;
+        panel_effect_controls->clear_effects(true);
         panel_project->new_project();
         undo_stack.clear();
         panel_timeline->redraw_all_clips(false);
+        project_url.clear();
+        project_changed = false;
     }
 }
 

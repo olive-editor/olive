@@ -31,6 +31,7 @@ namespace Ui {
 class Project;
 }
 
+extern QString autorecovery_filename;
 extern bool project_changed;
 extern QString project_url;
 extern QStringList recent_projects;
@@ -56,7 +57,7 @@ public:
 
     void new_project();
     void load_project();
-    void save_project();
+    void save_project(bool autorecovery);
 
     QTreeWidgetItem* new_folder();
 

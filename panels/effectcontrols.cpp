@@ -12,6 +12,7 @@
 #include "ui/collapsiblewidget.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "panels/project.h"
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
@@ -37,6 +38,7 @@ void EffectControls::menu_select(QAction* q) {
         }
     }
     undo_stack.push(command);
+    project_changed = true;
 }
 
 void EffectControls::show_menu(bool video) {
@@ -134,6 +136,7 @@ void EffectControls::delete_effects() {
     }
     if (command->clips.size() > 0) {
         undo_stack.push(command);
+        project_changed = true;
     } else {
         delete command;
     }

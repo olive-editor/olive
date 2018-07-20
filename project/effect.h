@@ -5,6 +5,7 @@
 #include <QString>
 class QWidget;
 class CollapsibleWidget;
+class QGridLayout;
 
 struct Clip;
 class QXmlStreamReader;
@@ -16,13 +17,14 @@ class Effect : public QObject
 {
 	Q_OBJECT
 public:
-    Effect(Clip* c); // default constructor
+    Effect(Clip* c, int t, int i); // default constructor
+    Clip* parent_clip;
 	int type;
     int id;
 	QString name;
 	CollapsibleWidget* container;
+    QGridLayout* ui_layout;
 	QWidget* ui;
-    Clip* parent_clip;
 
     bool is_enabled();
 
@@ -34,12 +36,9 @@ public:
 	virtual void process_gl(int* anchor_x, int* anchor_y);
     virtual void post_gl();
     virtual void process_audio(quint8* samples, int nb_bytes);
-
 public slots:
 	void field_changed();
-
-protected:
-    void setup_effect(int t, int i);
+    void checkbox_command();
 };
 
 #endif // EFFECT_H

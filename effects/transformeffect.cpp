@@ -14,17 +14,14 @@
 #include "project/sequence.h"
 #include "io/media.h"
 #include "ui/labelslider.h"
+#include "ui/comboboxex.h"
 
 #define BLEND_MODE_NORMAL 0
 #define BLEND_MODE_SCREEN 1
 #define BLEND_MODE_MULTIPLY 2
 #define BLEND_MODE_OVERLAY 3
 
-TransformEffect::TransformEffect(Clip* c) : Effect(c) {
-    setup_effect(EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT);
-
-	QGridLayout* ui_layout = new QGridLayout();
-
+TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT) {
 	ui_layout->addWidget(new QLabel("Position:"), 0, 0);
     position_x = new LabelSlider();
     ui_layout->addWidget(position_x, 0, 1);
@@ -63,16 +60,12 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
 	ui_layout->addWidget(opacity, 5, 1);
 
     ui_layout->addWidget(new QLabel("Blend Mode:"), 6, 0);
-    blend_mode_box = new QComboBox();
+    blend_mode_box = new ComboBoxEx();
     blend_mode_box->addItem("Normal", BLEND_MODE_NORMAL);
     blend_mode_box->addItem("Overlay", BLEND_MODE_OVERLAY);
     blend_mode_box->addItem("Screen", BLEND_MODE_SCREEN);
     blend_mode_box->addItem("Multiply", BLEND_MODE_MULTIPLY);
     ui_layout->addWidget(blend_mode_box, 6, 1);
-
-	ui->setLayout(ui_layout);
-
-	container->setContents(ui);
 
 	// set defaults
     position_x->set_default_value(c->sequence->width/2);
@@ -98,6 +91,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c) {
     connect(opacity, SIGNAL(valueChanged()), this, SLOT(field_changed()));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(field_changed()));
+    connect(uniform_scale_box, SIGNAL(clicked(bool)), this, SLOT(checkbox_command()));
     connect(blend_mode_box, SIGNAL(currentIndexChanged(int)), this, SLOT(field_changed()));
 }
 

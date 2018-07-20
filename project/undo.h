@@ -2,6 +2,7 @@
 #define UNDO_H
 
 class QTreeWidgetItem;
+class QCheckBox;
 struct Clip;
 struct Sequence;
 
@@ -77,6 +78,18 @@ public:
     bool link;
 private:
     QVector< QVector<int> > old_links;
+};
+
+class CheckboxCommand : public QUndoCommand {
+public:
+    CheckboxCommand(QCheckBox* b);
+    ~CheckboxCommand();
+    void undo();
+    void redo();
+private:
+    QCheckBox* box;
+    bool checked;
+    bool done;
 };
 
 #endif // UNDO_H

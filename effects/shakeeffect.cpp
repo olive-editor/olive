@@ -12,11 +12,7 @@
 #include "project/sequence.h"
 #include "panels/timeline.h"
 
-ShakeEffect::ShakeEffect(Clip *c) : Effect(c) {
-    setup_effect(EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT);
-
-    QGridLayout* ui_layout = new QGridLayout();
-
+ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT) {
     ui_layout->addWidget(new QLabel("Intensity:"), 0, 0);
     intensity_val = new LabelSlider();
     intensity_val->set_minimum_value(0);
@@ -31,10 +27,6 @@ ShakeEffect::ShakeEffect(Clip *c) : Effect(c) {
     frequency_val = new LabelSlider();
     frequency_val->set_minimum_value(0);
     ui_layout->addWidget(frequency_val, 2, 1);
-
-    ui->setLayout(ui_layout);
-
-    container->setContents(ui);
 
     // set defaults
     intensity_val->set_value(50);

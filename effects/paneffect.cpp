@@ -8,20 +8,12 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-PanEffect::PanEffect(Clip* c) : Effect(c) {
-    setup_effect(EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT);
-
-    QGridLayout* ui_layout = new QGridLayout();
-
+PanEffect::PanEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT) {
 	ui_layout->addWidget(new QLabel("Pan:"), 0, 0);
     pan_val = new LabelSlider();
     pan_val->set_minimum_value(-100);
     pan_val->set_maximum_value(100);
-	ui_layout->addWidget(pan_val, 0, 1);
-
-	ui->setLayout(ui_layout);
-
-	container->setContents(ui);
+    ui_layout->addWidget(pan_val, 0, 1);
 
 	// set defaults
     pan_val->set_value(0);

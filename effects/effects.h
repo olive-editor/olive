@@ -4,15 +4,17 @@
 #include "project/effect.h"
 
 #include <QPixmap>
+#include <QFont>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 class QSpinBox;
 class QCheckBox;
-class QComboBox;
 class LabelSlider;
 class QOpenGLTexture;
 class QTextEdit;
 class QPushButton;
+class ColorButton;
+class ComboBoxEx;
 
 enum VideoEffects {
 	VIDEO_TRANSFORM_EFFECT,
@@ -51,7 +53,7 @@ public:
     LabelSlider* anchor_x_box;
     LabelSlider* anchor_y_box;
     LabelSlider* opacity;
-    QComboBox* blend_mode_box;
+    ComboBoxEx* blend_mode_box;
 public slots:
 	void toggle_uniform_scale(bool enabled);
 private:
@@ -99,15 +101,13 @@ public:
     void save(QXmlStreamWriter* stream);
     QTextEdit* text_val;
     LabelSlider* size_val;
-    QPushButton* set_color_button;
-    QColor color;
+    ColorButton* set_color_button;
+    ComboBoxEx* set_font_combobox;
 private slots:
-    void set_color();
     void update_texture();
 private:
-    void set_button_color();
-    QPixmap pixmap;
     QOpenGLTexture* texture;
+    QFont font;
 };
 
 // audio effects

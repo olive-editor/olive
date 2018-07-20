@@ -34,6 +34,7 @@ extern "C" {
 
 #define MAXIMUM_RECENT_PROJECTS 10
 
+QString autorecovery_filename;
 bool project_changed = false;
 QString project_url = "";
 QStringList recent_projects;
@@ -556,8 +557,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                         {
                             QTreeWidgetItem* parent = NULL;
                             Sequence* s = new Sequence();
+                            bool open_sequence = false;
 
-                            // load attributes about stream
+                            // load attributes about sequence
                             for (int j=0;j<stream.attributes().size();j++) {
                                 const QXmlStreamAttribute& attr = stream.attributes().at(j);
                                 if (attr.name() == "name") {
@@ -575,6 +577,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     s->audio_frequency = attr.value().toInt();
                                 } else if (attr.name() == "alayout") {
                                     s->audio_layout = attr.value().toInt();
+                                } else if (attr.name() == "open") {
+                                    open_sequence = true;
                                 }
                             }
 
@@ -692,6 +696,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             }
 
                             new_sequence(NULL, s, false, parent);
+
+                            if (open_sequence) set_sequence(s);
                         }
                             break;
                         }
@@ -835,6 +841,9 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                 stream.writeAttribute("framerate", QString::number(s->frame_rate));
                 stream.writeAttribute("afreq", QString::number(s->audio_frequency));
                 stream.writeAttribute("alayout", QString::number(s->audio_layout));
+                if (s == sequence) {
+                    stream.writeAttribute("open", "1");
+                }
                 for (int j=0;j<s->clip_count();j++) {
                     Clip* c = s->get_clip(j);
                     if (c != NULL) {
@@ -883,11 +892,11 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
     }
 }
 
-void Project::save_project() {
+void Project::save_project(bool autorecovery) {
     folder_id = 1;
     media_id = 0;
 
-    QFile file(project_url);
+    QFile file(autorecovery ? autorecovery_filename : project_url);
     if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
         qDebug() << "[ERROR] Could not open file";
         return;
@@ -921,9 +930,10 @@ void Project::save_project() {
 
     file.close();
 
-    add_recent_project(project_url);
-
-    project_changed = false;
+    if (!autorecovery) {
+        add_recent_project(project_url);
+        project_changed = false;
+    }
 }
 
 void Project::save_recent_projects() {

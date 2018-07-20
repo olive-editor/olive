@@ -19,8 +19,7 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent)
-{	
+ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent) {
     multithreaded = true;
     enable_paint = true;
     force_audio = false;
@@ -130,7 +129,7 @@ void ViewerWidget::paintGL() {
 
                         // perform all transform effects
                         for (int j=0;j<c->effects.size();j++) {
-                            c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
+                            if (c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
                         }
 
                         if (c->opening_transition != NULL) {
@@ -169,7 +168,7 @@ void ViewerWidget::paintGL() {
 
                         // perform all transform effects
                         for (int j=0;j<c->effects.size();j++) {
-                            c->effects.at(j)->post_gl();
+                            if (c->effects.at(j)->is_enabled()) c->effects.at(j)->post_gl();
                         }
                     }
                 } else if (render_audio &&

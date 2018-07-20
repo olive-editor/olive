@@ -62,7 +62,9 @@ SOURCES += \
     project/undo.cpp \
     ui/scrollarea.cpp \
     effects/shakeeffect.cpp \
-    effects/texteffect.cpp
+    effects/texteffect.cpp \
+    ui/comboboxex.cpp \
+    ui/colorbutton.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -97,7 +99,9 @@ HEADERS += \
     effects/transition.h \
     ui/audiomonitor.h \
     project/undo.h \
-    ui/scrollarea.h
+    ui/scrollarea.h \
+    ui/comboboxex.h \
+    ui/colorbutton.h
 
 FORMS += \
         mainwindow.ui \
