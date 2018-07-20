@@ -21,6 +21,7 @@ TextEffect::TextEffect(Clip *c) : Effect(c), texture(NULL) {
 
     ui_layout->addWidget(new QLabel("Text:"), 0, 0);
     text_val = new QTextEdit();
+    text_val->setUndoRedoEnabled(true);
     ui_layout->addWidget(text_val, 0, 1);
 
     ui_layout->addWidget(new QLabel("Size:"), 1, 0);

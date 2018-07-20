@@ -16,6 +16,7 @@ class Viewer;
 }
 
 bool frame_rate_is_droppable(float rate);
+QString frame_to_timecode(long f, int view, double frame_rate);
 
 class Viewer : public QDockWidget
 {
@@ -44,9 +45,6 @@ private slots:
 	void on_pushButton_4_clicked();
 
     void on_pushButton_3_clicked();
-
-private:    
-    QString frame_to_timecode(long f, int view, double frame_rate);
 };
 
 #endif // VIEWER_H

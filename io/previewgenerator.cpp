@@ -1,6 +1,7 @@
 #include "previewgenerator.h"
 
 #include "media.h"
+#include "panels/viewer.h"
 
 #include <QPainter>
 #include <QPixmap>
@@ -22,6 +23,8 @@ PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m) : QThread(0), f
 }
 
 void PreviewGenerator::parse_media() {
+    bool contains_still_image = false;
+
     // detect video/audio streams in file
     for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
         // Find the decoder for the video stream
@@ -37,11 +40,16 @@ void PreviewGenerator::parse_media() {
                 append = true;
             }
             if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                bool infinite_length = (fmt_ctx->streams[i]->avg_frame_rate.den == 0);
+                if (fmt_ctx->streams[i]->avg_frame_rate.den == 0) { // source is LIKELY a still image
+                    ms->infinite_length = true;
+                    contains_still_image = true;
+                    ms->video_frame_rate = 0;
+                } else {
+                    ms->infinite_length = false;
+                    ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
+                }
                 ms->video_width = fmt_ctx->streams[i]->codecpar->width;
                 ms->video_height = fmt_ctx->streams[i]->codecpar->height;
-                ms->video_frame_rate = (infinite_length) ? 0 : av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
-                ms->infinite_length = infinite_length;
                 if (append) media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
@@ -63,7 +71,11 @@ void PreviewGenerator::parse_media() {
         emit set_icon(ICON_TYPE_VIDEO);
     }
 
-    item->setText(1, QString::number(media->length));
+    if (!contains_still_image || media->audio_tracks.size() > 0) {
+        double frame_rate = 30;
+        if (!contains_still_image && media->video_tracks.size() > 0) frame_rate = media->video_tracks.at(0)->video_frame_rate;
+        item->setText(1, frame_to_timecode(media->get_length_in_frames(frame_rate), TIMECODE_DROP, frame_rate));
+    }
 }
 
 void PreviewGenerator::generate_waveform() {
