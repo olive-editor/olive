@@ -478,6 +478,7 @@ void MainWindow::on_actionGo_to_Next_Cut_triggered()
 void MainWindow::on_actionPreferences_triggered()
 {
     PreferencesDialog pd(this);
+    pd.setup_kbd_shortcuts(this->menuBar());
     pd.exec();
 }
 
