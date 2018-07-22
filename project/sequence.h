@@ -23,6 +23,10 @@ public:
     double frame_rate;
 	int audio_frequency;
     int audio_layout;
+
+    bool using_workarea;
+    long workarea_in;
+    long workarea_out;
 private:
     QVector<Clip*> clips;
 };

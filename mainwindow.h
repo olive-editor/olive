@@ -158,6 +158,16 @@ private slots:
 
     void on_actionRipple_to_Out_Point_triggered();
 
+    void on_actionSet_In_Point_triggered();
+
+    void on_actionSet_Out_Point_triggered();
+
+    void on_actionClear_In_Out_triggered();
+
+    void on_actionDelete_In_Out_triggered();
+
+    void on_actionRipple_Delete_In_Out_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

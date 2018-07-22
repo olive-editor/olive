@@ -49,6 +49,9 @@ ExportDialog::ExportDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 
+    ui->rangeCombobox->setCurrentIndex(0);
+    ui->rangeCombobox->setEnabled(sequence->using_workarea);
+
 	format_strings.resize(FORMAT_SIZE);
 	format_strings[FORMAT_3GPP] = "3GPP";
 	format_strings[FORMAT_AIFF] = "AIFF";
@@ -454,7 +457,6 @@ void ExportDialog::on_pushButton_clicked()
             }
         }
 
-
         et = new ExportThread();
 
 		et->surface.create();
@@ -485,6 +487,13 @@ void ExportDialog::on_pushButton_clicked()
             et->audio_codec = format_acodecs.at(ui->acodecCombobox->currentIndex());
             et->audio_sampling_rate = 48000;
             et->audio_bitrate = ui->audiobitrateSpinbox->value();
+        }
+
+        et->start_frame = 0;
+        et->end_frame = sequence->getEndFrame(); // entire sequence
+        if (ui->rangeCombobox->currentIndex() == 1) {
+            et->start_frame = qMax(sequence->workarea_in, et->start_frame);
+            et->end_frame = qMin(sequence->workarea_out, et->end_frame);
         }
 
         et->ed = this;

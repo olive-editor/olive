@@ -755,7 +755,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
             }
         }
     }
-    panel_timeline->snapped = (temp_frame_diff == frame_diff);
+    if (temp_frame_diff != frame_diff) panel_timeline->snapped = false;
 
     // apply changes to ghosts
     for (int i=0;i<panel_timeline->ghosts.size();i++) {

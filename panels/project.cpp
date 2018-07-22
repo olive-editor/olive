@@ -406,9 +406,9 @@ void Project::clear() {
 
 void Project::new_project() {
     // clear existing project
-    set_sequence(NULL);
     clear();
     project_changed = false;
+    set_sequence(NULL);
 }
 
 QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
@@ -579,6 +579,11 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     s->audio_layout = attr.value().toInt();
                                 } else if (attr.name() == "open") {
                                     open_sequence = true;
+                                } else if (attr.name() == "workareaIn") {
+                                    s->using_workarea = true;
+                                    s->workarea_in = attr.value().toLong();
+                                } else if (attr.name() == "workareaOut") {
+                                    s->workarea_out = attr.value().toLong();
                                 }
                             }
 
@@ -596,11 +601,11 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         } else if (attr.name() == "id") {
                                             c->load_id = attr.value().toInt();
                                         } else if (attr.name() == "clipin") {
-                                            c->clip_in = attr.value().toInt();
+                                            c->clip_in = attr.value().toLong();
                                         } else if (attr.name() == "in") {
-                                            c->timeline_in = attr.value().toInt();
+                                            c->timeline_in = attr.value().toLong();
                                         } else if (attr.name() == "out") {
-                                            c->timeline_out = attr.value().toInt();
+                                            c->timeline_out = attr.value().toLong();
                                         } else if (attr.name() == "track") {
                                             c->track = attr.value().toInt();
                                         } else if (attr.name() == "r") {
@@ -841,6 +846,10 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                 stream.writeAttribute("alayout", QString::number(s->audio_layout));
                 if (s == sequence) {
                     stream.writeAttribute("open", "1");
+                }
+                if (s->using_workarea) {
+                    stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
+                    stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
                 }
                 for (int j=0;j<s->clip_count();j++) {
                     Clip* c = s->get_clip(j);

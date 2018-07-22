@@ -35,7 +35,6 @@ Timeline::Timeline(QWidget *parent) :
     edit_tool_selects_links(false),
     edit_tool_also_seeks(false),
     select_also_seeks(false),
-    using_workarea(false),
     paste_seeks(true),
     snapping(true),
     last_frame(0),
@@ -206,6 +205,14 @@ int Timeline::calculate_track_height(int track, int value) {
     return vector.at(index);
 }
 
+void Timeline::set_in_point() {
+    ui->headers->set_in_point(playhead);
+}
+
+void Timeline::set_out_point() {
+    ui->headers->set_out_point(playhead);
+}
+
 void Timeline::update_sequence() {
     bool null_sequence = (sequence == NULL);
 
@@ -216,16 +223,14 @@ void Timeline::update_sequence() {
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
     ui->headers->setEnabled(!null_sequence);
-//	ui->video_area->setEnabled(!null_sequence);
-//	ui->audio_area->setEnabled(!null_sequence);
 
 	if (null_sequence) {
 		setWindowTitle("Timeline: <none>");
 	} else {
 		setWindowTitle("Timeline: " + sequence->name);
+        reset_all_audio();
         redraw_all_clips(false);
         playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
-        reset_all_audio();
 	}
 }
 
@@ -279,6 +284,27 @@ void Timeline::select_all() {
     repaint_timeline();
 }
 
+void Timeline::delete_in_out(bool ripple) {
+    if (sequence != NULL && sequence->using_workarea) {
+        QVector<Selection> areas;
+        int video_tracks = 0, audio_tracks = 0;
+        sequence->get_track_limits(&video_tracks, &audio_tracks);
+        for (int i=video_tracks;i<=audio_tracks;i++) {
+            Selection s;
+            s.in = sequence->workarea_in;
+            s.out = sequence->workarea_out;
+            s.track = i;
+            areas.append(s);
+        }
+        TimelineAction* ta = new TimelineAction();
+        panel_timeline->delete_areas_and_relink(ta, areas);
+        if (ripple) ta->ripple(sequence, sequence->workarea_in, sequence->workarea_in - sequence->workarea_out);
+        ta->set_in_out(sequence, false, 0, 0);
+        undo_stack.push(ta);
+        redraw_all_clips(true);
+    }
+}
+
 void Timeline::delete_selection(bool ripple_delete) {
 	if (selections.size() > 0) {
         panel_effect_controls->clear_effects(true);
@@ -301,7 +327,6 @@ void Timeline::delete_selection(bool ripple_delete) {
             // it feels a little more intuitive with this here
             ripple_point++;
 
-            QVector<int> ignore;
             bool can_ripple = true;
 			for (int i=0;i<sequence->clip_count();i++) {
                 Clip* c = sequence->get_clip(i);
@@ -329,7 +354,7 @@ void Timeline::delete_selection(bool ripple_delete) {
                     }
                 }
 			}
-            if (can_ripple) ta->ripple(sequence, ripple_point, -ripple_length, ignore);
+            if (can_ripple) ta->ripple(sequence, ripple_point, -ripple_length);
 		}
 
         selections.clear();
@@ -743,10 +768,9 @@ void Timeline::ripple_to_in_point(bool in) {
             }
 
             // trim and move clips around the in point
-            QVector<int> ignore;
             TimelineAction* ta = new TimelineAction();
             delete_areas_and_relink(ta, areas);
-            ta->ripple(sequence, in_point, (in) ? (in_point - playhead) : (playhead - in_point), ignore);
+            ta->ripple(sequence, in_point, (in) ? (in_point - playhead) : (playhead - in_point));
             undo_stack.push(ta);
 
             redraw_all_clips(true);

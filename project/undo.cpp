@@ -24,7 +24,12 @@ QUndoStack undo_stack;
 #define TA_ADD_CLIP_IN 7
 #define TA_ADD_TRACK 8
 
-TimelineAction::TimelineAction() : done(false), change_seq(false), ripple_enabled(false) {}
+TimelineAction::TimelineAction() :
+    done(false),
+    change_seq(false),
+    ripple_enabled(false),
+    change_in_out(false)
+{}
 
 TimelineAction::~TimelineAction() {
     for (int i=0;i<clips_to_add.size();i++) {
@@ -129,6 +134,25 @@ void TimelineAction::delete_media(QTreeWidgetItem* item) {
     deleted_media.append(item);
 }
 
+void TimelineAction::ripple(Sequence* s, long point, long length) {
+    QVector<int> i;
+    ripple(s, point, length, i);
+}
+
+void TimelineAction::set_in_out(Sequence* s, bool enabled, long in, long out) {
+    change_in_out = true;
+    change_in_out_sequence = s;
+
+    old_in_out_enabled = s->using_workarea;
+    old_sequence_in = s->workarea_in;
+    old_sequence_out = s->workarea_out;
+
+    new_in_out_enabled = enabled;
+    new_sequence_in = in;
+    new_sequence_out = out;
+
+}
+
 void TimelineAction::ripple(Sequence* s, long point, long length, QVector<int>& ignore) {
     ripple_enabled = true;
     ripple_point = point;
@@ -220,6 +244,14 @@ void TimelineAction::undo() {
         }
     }
 
+    // un-change workarea
+    if (change_in_out) {
+        change_in_out_sequence->using_workarea = old_in_out_enabled;
+        change_in_out_sequence->workarea_in = old_sequence_in;
+        change_in_out_sequence->workarea_out = old_sequence_out;
+    }
+
+    // un-change current active sequence
     if (change_seq) {
         set_sequence(old_seq);
     }
@@ -386,6 +418,13 @@ void TimelineAction::redo() {
         for (int i=0;i<media_to_add.size();i++) {
             panel_project->source_table->addTopLevelItem(media_to_add.at(i));
         }
+    }
+
+    // change sequence workarea
+    if (change_in_out) {
+        change_in_out_sequence->using_workarea = new_in_out_enabled;
+        change_in_out_sequence->workarea_in = new_sequence_in;
+        change_in_out_sequence->workarea_out = new_sequence_out;
     }
 
     // change current sequence

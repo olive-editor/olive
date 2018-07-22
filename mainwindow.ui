@@ -79,6 +79,12 @@
     <addaction name="actionRipple_To_In_Point"/>
     <addaction name="actionRipple_to_Out_Point"/>
     <addaction name="actionSplit_at_Playhead"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_In_Point"/>
+    <addaction name="actionSet_Out_Point"/>
+    <addaction name="actionClear_In_Out"/>
+    <addaction name="actionDelete_In_Out"/>
+    <addaction name="actionRipple_Delete_In_Out"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -637,6 +643,40 @@
    </property>
    <property name="shortcut">
     <string>W</string>
+   </property>
+  </action>
+  <action name="actionSet_In_Point">
+   <property name="text">
+    <string>Set In Point</string>
+   </property>
+   <property name="shortcut">
+    <string>I</string>
+   </property>
+  </action>
+  <action name="actionSet_Out_Point">
+   <property name="text">
+    <string>Set Out Point</string>
+   </property>
+   <property name="shortcut">
+    <string>O</string>
+   </property>
+  </action>
+  <action name="actionClear_In_Out">
+   <property name="text">
+    <string>Clear In/Out</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
+  </action>
+  <action name="actionDelete_In_Out">
+   <property name="text">
+    <string>Delete In/Out</string>
+   </property>
+  </action>
+  <action name="actionRipple_Delete_In_Out">
+   <property name="text">
+    <string>Ripple Delete In/Out</string>
    </property>
   </action>
  </widget>

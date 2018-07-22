@@ -30,7 +30,9 @@ public:
     void delete_clip(Sequence* s, int clip);
     void add_media(QTreeWidgetItem* item);
     void delete_media(QTreeWidgetItem* item);
+    void ripple(Sequence* s, long point, long length);
     void ripple(Sequence* s, long point, long length, QVector<int> &ignore);
+    void set_in_out(Sequence* s, bool enabled, long in, long out);
     void undo();
     void redo();
 private:
@@ -72,6 +74,15 @@ private:
     long ripple_length;
     QVector<int> rippled_clips;
     QVector<int> ripple_ignores;
+
+    bool change_in_out;
+    Sequence* change_in_out_sequence;
+    bool old_in_out_enabled;
+    bool new_in_out_enabled;
+    long old_sequence_in;
+    long new_sequence_in;
+    long old_sequence_out;
+    long new_sequence_out;
 
     void new_action(Sequence* s, int action, int clip, long old_val, long new_val);
     void offset_links(QVector<Clip*>& clips, int offset);

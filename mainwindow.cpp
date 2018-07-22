@@ -357,11 +357,9 @@ void MainWindow::on_actionProject_triggered()
 {
     if (can_close_project()) {
         panel_effect_controls->clear_effects(true);
-        panel_project->new_project();
         undo_stack.clear();
-        panel_timeline->redraw_all_clips(false);
         project_url.clear();
-        project_changed = false;
+        panel_project->new_project();
     }
 }
 
@@ -617,15 +615,49 @@ void MainWindow::on_actionScroll_Wheel_Zooms_triggered()
 
 void MainWindow::on_actionLink_Unlink_triggered()
 {
-    panel_timeline->toggle_links();
+    if (panel_timeline->focused()) panel_timeline->toggle_links();
 }
 
 void MainWindow::on_actionRipple_To_In_Point_triggered()
 {
-    panel_timeline->ripple_to_in_point(true);
+    if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true);
 }
 
 void MainWindow::on_actionRipple_to_Out_Point_triggered()
 {
-    panel_timeline->ripple_to_in_point(false);
+    if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false);
+}
+
+void MainWindow::on_actionSet_In_Point_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->set_in_point();
+}
+
+void MainWindow::on_actionSet_Out_Point_triggered()
+{
+    if (panel_timeline->focused()) panel_timeline->set_out_point();
+}
+
+void MainWindow::on_actionClear_In_Out_triggered()
+{
+    if (panel_timeline->focused() && sequence->using_workarea) {
+        TimelineAction* ta = new TimelineAction();
+        ta->set_in_out(sequence, false, 0, 0);
+        undo_stack.push(ta);
+        panel_timeline->repaint_timeline();
+    }
+}
+
+void MainWindow::on_actionDelete_In_Out_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->delete_in_out(false);
+    }
+}
+
+void MainWindow::on_actionRipple_Delete_In_Out_triggered()
+{
+    if (panel_timeline->focused()) {
+        panel_timeline->delete_in_out(true);
+    }
 }

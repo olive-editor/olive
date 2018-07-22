@@ -53,10 +53,6 @@ void ExportThread::run() {
     panel_timeline->pause();
 //    av_log_set_level(AV_LOG_DEBUG);
 
-	// TODO make customizable
-	long start = 0;
-	long end = sequence->getEndFrame();
-
     if (!panel_viewer->viewer_widget->context()->makeCurrent(&surface)) {
         qDebug() << "[ERROR] Make current failed";
         ed->export_error = "could not make OpenGL context current";
@@ -283,7 +279,7 @@ void ExportThread::run() {
 					qDebug() << "[ERROR] Could not write output file header." << ret;
                     ed->export_error = "could not write output file header (" + QString::number(ret) + ")";
 				} else {
-                    panel_timeline->seek(start);
+                    panel_timeline->seek(start_frame);
 
 					QOpenGLFramebufferObject fbo(video_width, video_height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 					fbo.bind();
@@ -296,10 +292,10 @@ void ExportThread::run() {
 
                     long file_audio_samples = 0;
 
-					while (panel_timeline->playhead < end && !fail) {
+                    while (panel_timeline->playhead < end_frame && !fail) {
                         panel_viewer->viewer_widget->paintGL();
 
-						double timecode_secs = (double) panel_timeline->playhead / sequence->frame_rate;
+                        double timecode_secs = (double) (panel_timeline->playhead-start_frame) / sequence->frame_rate;
 						if (video_enabled) {
                             // get image from opengl
                             glReadPixels(0, 0, video_width, video_height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
@@ -338,7 +334,7 @@ void ExportThread::run() {
                                 file_audio_samples += swr_frame->nb_samples;
                             }
                         }
-						emit progress_changed(((float) panel_timeline->playhead / (float) end) * 100);
+                        emit progress_changed(((double) (panel_timeline->playhead-start_frame) / (double) (end_frame-start_frame)) * 100);
 						panel_timeline->playhead++;
 					}
 

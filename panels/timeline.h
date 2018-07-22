@@ -85,6 +85,9 @@ public:
     bool has_clip_been_split(int c);
     void toggle_links();
     void ripple_to_in_point(bool in);
+    void set_in_point();
+    void set_out_point();
+    void delete_in_out(bool ripple);
 
     int get_snap_range();
     int getScreenPointFromFrame(long frame);
@@ -93,11 +96,7 @@ public:
     bool snap_to_point(long point, long* l);
     void snap_to_clip(long* l, bool playhead_inclusive);
 
-	long playhead;
-
-    bool using_workarea;
-    long workarea_in;
-    long workarea_out;
+    long playhead;
 
 	// playback functions
 	void go_to_start();

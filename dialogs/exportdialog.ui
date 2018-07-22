@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>299</width>
-    <height>372</height>
+    <width>557</width>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,31 @@
      </item>
      <item>
       <widget class="QComboBox" name="formatCombobox"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Range:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="rangeCombobox">
+       <item>
+        <property name="text">
+         <string>Entire Sequence</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>In to Out</string>
+        </property>
+       </item>
+      </widget>
      </item>
     </layout>
    </item>
