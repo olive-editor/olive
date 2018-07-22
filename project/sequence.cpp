@@ -25,7 +25,7 @@ Sequence* Sequence::copy() {
     for (int i=0;i<clip_count();i++) {
         Clip* c = get_clip(i);
         if (c != NULL) {
-            Clip* copy = c->copy();
+            Clip* copy = c->copy(s);
             copy->linked = c->linked;
             s->add_clip(copy);
         }

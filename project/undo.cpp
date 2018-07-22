@@ -24,7 +24,7 @@ QUndoStack undo_stack;
 #define TA_ADD_CLIP_IN 7
 #define TA_ADD_TRACK 8
 
-TimelineAction::TimelineAction() : done(false), change_seq(false) {}
+TimelineAction::TimelineAction() : done(false), change_seq(false), ripple_enabled(false) {}
 
 TimelineAction::~TimelineAction() {
     for (int i=0;i<clips_to_add.size();i++) {
@@ -40,7 +40,7 @@ TimelineAction::~TimelineAction() {
         }
     } else {
         for (int i=0;i<new_sequence_items.size();i++) {
-            delete panel_project->get_sequence_from_tree(new_sequence_items.at(i));
+            delete get_sequence_from_tree(new_sequence_items.at(i));
             delete new_sequence_items.at(i);
         }
         for (int i=0;i<media_to_add.size();i++) {
@@ -129,7 +129,16 @@ void TimelineAction::delete_media(QTreeWidgetItem* item) {
     deleted_media.append(item);
 }
 
+void TimelineAction::ripple(Sequence* s, long point, long length, QVector<int>& ignore) {
+    ripple_enabled = true;
+    ripple_point = point;
+    ripple_length = length;
+    ripple_sequence = s;
+    ripple_ignores = ignore;
+}
+
 void TimelineAction::undo() {
+    // re-add deleted media
     for (int i=0;i<deleted_media.size();i++) {
         QTreeWidgetItem* item = deleted_media.at(i);
         QTreeWidgetItem* parent = deleted_media_parents.at(i);
@@ -140,7 +149,16 @@ void TimelineAction::undo() {
         }
     }
 
-    for (int i=0;i<actions.size();i++) {
+    // de-ripple clips
+    if (ripple_enabled) {
+        for (int i=0;i<rippled_clips.size();i++) {
+            Clip* c = ripple_sequence->get_clip(rippled_clips.at(i));
+            c->timeline_in -= ripple_length;
+            c->timeline_out -= ripple_length;
+        }
+    }
+
+    for (int i=actions.size()-1;i>=0;i--) {
         switch (actions.at(i)) {
         case TA_IN:
             sequences.at(i)->get_clip(clips.at(i))->timeline_in = old_values.at(i);
@@ -172,7 +190,7 @@ void TimelineAction::undo() {
         }
     }
 
-    // add new sequences
+    // remove added sequences
     for (int i=0;i<new_sequence_items.size();i++) {
         if (new_sequence_parents.at(i) == NULL) {
             panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(new_sequence_items.at(i)));
@@ -218,12 +236,30 @@ void TimelineAction::redo() {
     added_indexes.clear();
     deleted_media_parents.clear();
     removed_link_from_sequence.clear();
+    rippled_clips.clear();
 
     for (int i=0;i<new_sequence_items.size();i++) {
         if (new_sequence_parents.at(i) == NULL) {
             panel_project->source_table->addTopLevelItem(new_sequence_items.at(i));
         } else {
             new_sequence_parents.at(i)->addChild(new_sequence_items.at(i));
+        }
+    }
+
+    // add any new clips
+    if (clips_to_add.size() > 0) {
+        QVector<Clip*> copies;
+        for (int i=0;i<clips_to_add.size();i++) {
+            Clip* original = clips_to_add.at(i);
+            Clip* copy = original->copy(sequence_to_add_clips_to.at(i));
+            copy->linked.resize(original->linked.size());
+            for (int j=0;j<original->linked.size();j++) {
+                copy->linked[j] = original->linked.at(j) + sequence_to_add_clips_to.at(i)->clip_count();
+            }
+            copies.append(copy);
+        }
+        for (int i=0;i<clips_to_add.size();i++) {
+            added_indexes.append(sequence_to_add_clips_to.at(i)->add_clip(copies.at(i)));
         }
     }
 
@@ -300,20 +336,25 @@ void TimelineAction::redo() {
         }
     }
 
-    // add any new clips
-    if (clips_to_add.size() > 0) {
-        QVector<Clip*> copies;
-        for (int i=0;i<clips_to_add.size();i++) {
-            Clip* original = clips_to_add.at(i);
-            Clip* copy = original->copy();
-            copy->linked.resize(original->linked.size());
-            for (int j=0;j<original->linked.size();j++) {
-                copy->linked[j] = original->linked.at(j) + sequence_to_add_clips_to.at(i)->clip_count();
+    // ripple clips - moves all clips after a certain ripple_point by ripple_length
+    if (ripple_enabled) {
+        for (int j=0;j<ripple_sequence->clip_count();j++) {
+            bool found = false;
+            for (int i=0;i<ripple_ignores.size();i++) {
+                if (ripple_ignores.at(i) == j) {
+                    found = true;
+                    break;
+                }
             }
-            copies.append(copy);
-        }
-        for (int i=0;i<clips_to_add.size();i++) {
-            added_indexes.append(sequence_to_add_clips_to.at(i)->add_clip(copies.at(i)));
+
+            if (!found) {
+                Clip* c = ripple_sequence->get_clip(j);
+                if (c != NULL && c->timeline_in >= ripple_point) {
+                    c->timeline_in += ripple_length;
+                    c->timeline_out += ripple_length;
+                    rippled_clips.append(j);
+                }
+            }
         }
     }
 
@@ -324,8 +365,8 @@ void TimelineAction::redo() {
             deleted_media_parents.append(item->parent());
 
             // if we're deleting the open sequence, close it
-            if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE &&
-                    panel_project->get_sequence_from_tree(item) == sequence &&
+            if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE &&
+                    get_sequence_from_tree(item) == sequence &&
                     !change_seq) {
                 old_seq = sequence;
                 new_seq = NULL;
@@ -347,6 +388,7 @@ void TimelineAction::redo() {
         }
     }
 
+    // change current sequence
     if (change_seq) {
         old_seq = sequence;
         set_sequence(new_seq);

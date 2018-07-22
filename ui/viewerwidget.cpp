@@ -72,7 +72,9 @@ void ViewerWidget::paintGL() {
 
             // if clip starts within one second and/or hasn't finished yet
             if (c != NULL) {
-                if (c->media->ready && is_clip_active(c, panel_timeline->playhead)) {
+                if (c->media->ready
+                        && c->media->get_stream_from_file_index(c->media_stream) != NULL
+                        && is_clip_active(c, panel_timeline->playhead)) {
                     // if thread is already working, we don't want to touch this,
                     // but we also don't want to hang the UI thread
                     if (!c->open) {
@@ -113,6 +115,8 @@ void ViewerWidget::paintGL() {
                         qDebug() << "[WARNING] Texture hasn't been created yet";
                         texture_failed = true;
                     } else if (panel_timeline->playhead >= c->timeline_in) {
+                        MediaStream* ms = c->media->get_stream_from_file_index(c->media_stream);
+
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         glColor4f(1.0, 1.0, 1.0, 1.0);
                         glLoadIdentity();
@@ -124,8 +128,8 @@ void ViewerWidget::paintGL() {
                         } else {
                             glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
                         }
-                        int anchor_x = c->media_stream->video_width/2;
-                        int anchor_y = c->media_stream->video_height/2;
+                        int anchor_x = ms->video_width/2;
+                        int anchor_y = ms->video_height/2;
 
                         // perform all transform effects
                         for (int j=0;j<c->effects.size();j++) {
@@ -145,8 +149,8 @@ void ViewerWidget::paintGL() {
                             }
                         }
 
-                        int anchor_right = c->media_stream->video_width - anchor_x;
-                        int anchor_bottom = c->media_stream->video_height - anchor_y;
+                        int anchor_right = ms->video_width - anchor_x;
+                        int anchor_bottom = ms->video_height - anchor_y;
 
                         c->texture->bind();
 

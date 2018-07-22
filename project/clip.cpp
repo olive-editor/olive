@@ -12,7 +12,7 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-Clip::Clip() {
+Clip::Clip(Sequence* s) : sequence(s) {
     reset();
     enabled = true;
     clip_in = 0;
@@ -27,8 +27,8 @@ Clip::Clip() {
     pkt = new AVPacket();
 }
 
-Clip* Clip::copy() {
-    Clip* copy = new Clip();
+Clip* Clip::copy(Sequence* s) {
+    Clip* copy = new Clip(s);
 
     copy->enabled = enabled;
     copy->name = QString(name);
@@ -39,7 +39,7 @@ Clip* Clip::copy() {
     copy->color_r = color_r;
     copy->color_g = color_g;
     copy->color_b = color_b;
-    copy->sequence = sequence;
+    copy->sequence = s;
     copy->media = media;
     copy->media_stream = media_stream;
 

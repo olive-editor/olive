@@ -36,9 +36,9 @@ struct ClipCache {
 
 struct Clip
 {
-	Clip();
+    Clip(Sequence* s);
 	~Clip();
-    Clip* copy();
+    Clip* copy(Sequence* s);
 	void reset();
 	bool undeletable;
 
@@ -57,7 +57,7 @@ struct Clip
     quint8 color_b;
     long getLength();
 	Media* media; // attached media
-	MediaStream* media_stream;
+    int media_stream;
 	Sequence* sequence;
 
 	// other variables (should be "duplicated" in copy())

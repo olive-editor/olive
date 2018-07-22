@@ -354,30 +354,30 @@ void Project::import_dialog() {
     process_file_list(files);
 }
 
-void Project::set_item_to_folder(QTreeWidgetItem* item) {
+void set_item_to_folder(QTreeWidgetItem* item) {
     item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_FOLDER);
 }
 
-Media* Project::get_media_from_tree(QTreeWidgetItem* item) {
+Media* get_media_from_tree(QTreeWidgetItem* item) {
     return reinterpret_cast<Media*>(item->data(0, Qt::UserRole + 2).value<quintptr>());
 }
 
-void Project::set_media_of_tree(QTreeWidgetItem* item, Media* media) {
+void set_media_of_tree(QTreeWidgetItem* item, Media* media) {
     item->setText(0, media->name);
     item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_FOOTAGE);
     item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(media)));
 }
 
-Sequence* Project::get_sequence_from_tree(QTreeWidgetItem* item) {
+Sequence* get_sequence_from_tree(QTreeWidgetItem* item) {
     return reinterpret_cast<Sequence*>(item->data(0, Qt::UserRole + 2).value<quintptr>());
 }
 
-void Project::set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence) {
+void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence) {
     item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_SEQUENCE);
     item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(sequence)));
 }
 
-int Project::get_type_from_tree(QTreeWidgetItem* item) {
+int get_type_from_tree(QTreeWidgetItem* item) {
     return item->data(0, Qt::UserRole + 1).toInt();
 }
 
@@ -588,7 +588,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 if (stream.name() == "clip" && stream.isStartElement()) {
                                     //<clip id="0" name="Brock_Drying_Pan.gif" clipin="0" in="44" out="144" track="-1" r="192" g="128" b="128" media="2" stream="0">
                                     int media_id, stream_id;
-                                    Clip* c = new Clip();
+                                    Clip* c = new Clip(s);
                                     for (int j=0;j<stream.attributes().size();j++) {
                                         const QXmlStreamAttribute& attr = stream.attributes().at(j);
                                         if (attr.name() == "name") {
@@ -621,12 +621,10 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         Media* m = loaded_media.at(j);
                                         if (m->save_id == media_id) {
                                             c->media = m;
-                                            c->media_stream = c->media->get_stream_from_file_index(stream_id);
+                                            c->media_stream = stream_id;
                                             break;
                                         }
                                     }
-
-                                    c->sequence = s;
 
                                     // load links and effects
                                     while (!(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {
@@ -864,7 +862,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                         stream.writeAttribute("g", QString::number(c->color_g));
                         stream.writeAttribute("b", QString::number(c->color_b));
                         stream.writeAttribute("media", QString::number(c->media->save_id));
-                        stream.writeAttribute("stream", QString::number(c->media_stream->file_index));
+                        stream.writeAttribute("stream", QString::number(c->media_stream));
 
                         stream.writeStartElement("linked"); // linked
                         for (int k=0;k<c->linked.size();k++) {

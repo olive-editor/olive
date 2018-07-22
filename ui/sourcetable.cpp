@@ -11,15 +11,54 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QHeaderView>
+#include <QMenu>
 #include <QDebug>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     editing_item = NULL;
     sortByColumn(0, Qt::AscendingOrder);
     rename_timer.setInterval(500);
+    setContextMenuPolicy(Qt::CustomContextMenu);
     connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(item_click(QTreeWidgetItem*,int)));
     connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(item_renamed(QTreeWidgetItem*)));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
+}
+
+void SourceTable::show_context_menu(const QPoint& pos) {
+    QMenu menu(this);
+
+    if (selectedItems().size() == 0) {
+        QAction* import_action = menu.addAction("Import...");
+        connect(import_action, SIGNAL(triggered(bool)), panel_project, SLOT(import_dialog()));
+    } else {
+        if (selectedItems().size() == 1) {
+            // replace footage
+            if (get_type_from_tree(selectedItems().at(0)) == MEDIA_TYPE_FOOTAGE) {
+                menu.addAction("Replace/Relink Media");
+            }
+            menu.addAction("Replace Clips Using This Media");
+        }
+
+        // duplicate item
+        bool all_sequences = true;
+        for (int i=0;i<selectedItems().size();i++) {
+            if (get_type_from_tree(selectedItems().at(i)) != MEDIA_TYPE_SEQUENCE) {
+                all_sequences = false;
+                break;
+            }
+        }
+        if (all_sequences) {
+            QAction* duplicate_action = menu.addAction("Duplicate");
+            connect(duplicate_action, SIGNAL(triggered(bool)), panel_project, SLOT(duplicate_selected()));
+        }
+
+        // delete media
+        QAction* delete_action = menu.addAction("Delete");
+        connect(delete_action, SIGNAL(triggered(bool)), panel_project, SLOT(delete_selected_media()));
+    }
+
+    menu.exec(mapToGlobal(pos));
 }
 
 void SourceTable::item_renamed(QTreeWidgetItem* item) {
@@ -62,9 +101,9 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 		panel_project->import_dialog();
 	} else if (selectedItems().count() == 1) {
         QTreeWidgetItem* item = selectedItems().at(0);
-        if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
+        if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
             TimelineAction* ta = new TimelineAction();
-            ta->change_sequence(panel_project->get_sequence_from_tree(item));
+            ta->change_sequence(get_sequence_from_tree(item));
             undo_stack.push(ta);
         }
     }
@@ -105,7 +144,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
         QVector<QTreeWidgetItem*> move_items;
         QTreeWidgetItem* drop_item = itemAt(event->pos());
         // if we dragged to the root OR dragged to a folder
-        if (drop_item == NULL || (drop_item != NULL && panel_project->get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER)) {
+        if (drop_item == NULL || (drop_item != NULL && get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER)) {
             QList<QTreeWidgetItem*> selected_items = selectedItems();
             for (int i=0;i<selected_items.size();i++) {
                 QTreeWidgetItem* s = selected_items.at(i);

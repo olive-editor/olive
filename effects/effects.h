@@ -75,8 +75,8 @@ public:
     LabelSlider* intensity_val;
     LabelSlider* rotation_val;
     LabelSlider* frequency_val;
-private slots:
-    void set_values();
+public slots:
+    void init();
 private:
     int shake_progress;
     int shake_limit;

@@ -77,12 +77,13 @@ void get_clip_frame(Clip* c, long playhead) {
 		long clip_time = seconds_to_clip_frame(c, playhead_to_seconds(c, playhead));
 
 		// do we need to update the texture?
-		if ((!c->media_stream->infinite_length && c->texture_frame != clip_time) ||
-				(c->media_stream->infinite_length && c->texture_frame == -1)) {
+        MediaStream* ms = c->media->get_stream_from_file_index(c->media_stream);
+        if ((!ms->infinite_length && c->texture_frame != clip_time) ||
+                (ms->infinite_length && c->texture_frame == -1)) {
 			AVFrame* current_frame = NULL;
 
 			// get frame data
-			if (c->media_stream->infinite_length) { // if clip is a still frame, we only need one
+            if (ms->infinite_length) { // if clip is a still frame, we only need one
 				if (c->cache_A.written) {
 					// retrieve cached frame
 					current_frame = c->cache_A.frames[0];
@@ -156,7 +157,7 @@ void get_clip_frame(Clip* c, long playhead) {
 				// set up opengl texture
 				if (c->texture == NULL) {
 					c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-					c->texture->setSize(c->media_stream->video_width, c->media_stream->video_height);
+                    c->texture->setSize(ms->video_width, ms->video_height);
 					c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 					c->texture->setMipLevels(c->texture->maximumMipLevels());
 					c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
@@ -206,7 +207,7 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 			}
 			read_ret = av_read_frame(c->formatCtx, c->pkt);
 			c->pkt_written = true;
-		} while (read_ret >= 0 && c->pkt->stream_index != c->media_stream->file_index);
+        } while (read_ret >= 0 && c->pkt->stream_index != c->media_stream);
 
 		if (read_ret >= 0) {
 			int send_ret = avcodec_send_packet(c->codecCtx, c->pkt);

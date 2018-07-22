@@ -33,7 +33,7 @@ ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFF
     rotation_val->set_value(0);
     frequency_val->set_value(10);
 
-    set_values();
+    init();
 
     connect(intensity_val, SIGNAL(valueChanged()), this, SLOT(field_changed()));
     connect(rotation_val, SIGNAL(valueChanged()), this, SLOT(field_changed()));
@@ -43,12 +43,14 @@ ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFF
     connect(frequency_val, SIGNAL(valueChanged()), this, SLOT(set_values()));
 }
 
-void ShakeEffect::set_values() {
-    shake_limit = qRound(parent_clip->sequence->frame_rate / frequency_val->value());
-    shake_progress = shake_limit;
-    next_x = 0;
-    next_y = 0;
-    next_rot = 0;
+void ShakeEffect::init() {
+    if (parent_clip->sequence != NULL) {
+        shake_limit = qRound(parent_clip->sequence->frame_rate / frequency_val->value());
+        shake_progress = shake_limit;
+        next_x = 0;
+        next_y = 0;
+        next_rot = 0;
+    }
 }
 
 Effect* ShakeEffect::copy(Clip* c) {

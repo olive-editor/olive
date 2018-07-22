@@ -74,9 +74,11 @@
     <addaction name="actionSelect_All"/>
     <addaction name="actionDeselect_All"/>
     <addaction name="separator"/>
-    <addaction name="actionSplit_at_Playhead"/>
     <addaction name="actionAdd_Default_Transition"/>
     <addaction name="actionLink_Unlink"/>
+    <addaction name="actionRipple_To_In_Point"/>
+    <addaction name="actionRipple_to_Out_Point"/>
+    <addaction name="actionSplit_at_Playhead"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -619,6 +621,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionRipple_To_In_Point">
+   <property name="text">
+    <string>Ripple to In Point</string>
+   </property>
+   <property name="shortcut">
+    <string>Q</string>
+   </property>
+  </action>
+  <action name="actionRipple_to_Out_Point">
+   <property name="text">
+    <string>Ripple to Out Point</string>
+   </property>
+   <property name="shortcut">
+    <string>W</string>
    </property>
   </action>
  </widget>

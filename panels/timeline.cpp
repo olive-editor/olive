@@ -285,43 +285,54 @@ void Timeline::delete_selection(bool ripple_delete) {
 
         TimelineAction* ta = new TimelineAction();
 
-		long ripple_point = selections.at(0).in;
-		long ripple_length = selections.at(0).out - selections.at(0).in;
-
-        // retrieve ripple_point and ripple_length from current selection
-        for (int i=0;i<selections.size();i++) {
-            const Selection& s = selections.at(i);
-            if (ripple_delete) {
-                if (ripple_point > s.in) ripple_point = s.in;
-                if (ripple_length > s.out - s.in) ripple_length = s.out - s.in;
-            }
-        }
         delete_areas_and_relink(ta, selections);
-		selections.clear();
 
-		if (ripple_delete) {
-			long validator;
+        if (ripple_delete) {
+            long ripple_point = selections.at(0).in;
+            long ripple_length = selections.at(0).out - selections.at(0).in;
+
+            // retrieve ripple_point and ripple_length from current selection
+            for (int i=1;i<selections.size();i++) {
+                const Selection& s = selections.at(i);
+                ripple_point = qMin(ripple_point, s.in);
+                ripple_length = qMin(ripple_length, s.out - s.in);
+            }
+
+            // it feels a little more intuitive with this here
+            ripple_point++;
+
+            QVector<int> ignore;
+            bool can_ripple = true;
 			for (int i=0;i<sequence->clip_count();i++) {
-				// check every clip after and see if it'll collide
-				// NOTE, we could probably re-use the validation code for the ripple tool here for optimization (since it's technically better code I think)
                 Clip* c = sequence->get_clip(i);
-                if (c != NULL && c->timeline_in >= ripple_point) {
-					for (int j=0;j<sequence->clip_count();j++) {
-                        Clip* cc = sequence->get_clip(j);
-                        if (cc != NULL && cc->timeline_in < ripple_point) {
-                            validator = c->timeline_in - ripple_length - cc->timeline_out;
-							if (validator < 0) ripple_length += validator;
-
-							if (ripple_length <= 0) {
-								// we've seen all we need to see here (can't ripple so stop looping)
-								i = j = sequence->clip_count();
-							}
-						}
-					}
-				}
+                if (c->timeline_in < ripple_point && c->timeline_out > ripple_point) {
+                    // conflict detected, but this clip may be getting deleted so let's check
+                    bool deleted = false;
+                    for (int j=0;j<selections.size();j++) {
+                        const Selection& s = selections.at(j);
+                        if (s.track == c->track
+                                && !(c->timeline_in < s.in && c->timeline_out < s.in)
+                                && !(c->timeline_in > s.out && c->timeline_out > s.out)) {
+                            deleted = true;
+                            break;
+                        }
+                    }
+                    if (!deleted) {
+                        for (int j=0;j<sequence->clip_count();j++) {
+                            Clip* cc = sequence->get_clip(j);
+                            if (cc->track == c->track
+                                    && cc->timeline_in > c->timeline_out
+                                    && cc->timeline_in < c->timeline_out + ripple_length) {
+                                ripple_length = cc->timeline_in - c->timeline_out;
+                            }
+                        }
+                    }
+                }
 			}
-            if (ripple_length > 0) ripple(ta, ripple_point, -ripple_length);
+            if (can_ripple) ta->ripple(sequence, ripple_point, -ripple_length, ignore);
 		}
+
+        selections.clear();
 
         undo_stack.push(ta);
 
@@ -349,16 +360,7 @@ void Timeline::set_zoom(bool in) {
     redraw_all_clips(false);
 }
 
-void Timeline::ripple(TimelineAction* ta, long ripple_point, long ripple_length) {
-    // ripple all clips around the ripple_point
-	for (int i=0;i<sequence->clip_count();i++) {
-        Clip* c = sequence->get_clip(i);
-        if (c != NULL && c->timeline_in >= ripple_point) {
-            ta->increase_timeline_in(sequence, i, ripple_length);
-            ta->increase_timeline_out(sequence, i, ripple_length);
-		}
-    }
-
+/*void Timeline::ripple(TimelineAction* ta, long ripple_point, long ripple_length) {
     // ripple the selections
     for (int i=0;i<selections.size();i++) {
         Selection& s = selections[i];
@@ -368,7 +370,7 @@ void Timeline::ripple(TimelineAction* ta, long ripple_point, long ripple_length)
             s.out += ripple_length;
         }
     }
-}
+}*/
 
 void Timeline::decheck_tool_buttons(QObject* sender) {
 	for (int i=0;i<tool_buttons.count();i++) {
@@ -413,7 +415,7 @@ void Timeline::on_snappingButton_toggled(bool checked) {
 Clip* Timeline::split_clip(TimelineAction* ta, int p, long frame) {
     Clip* pre = sequence->get_clip(p);
     if (pre != NULL && pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
-        Clip* post = pre->copy();
+        Clip* post = pre->copy(sequence);
 
         ta->set_timeline_out(sequence, p, frame);
         post->timeline_in = frame;
@@ -545,7 +547,7 @@ void Timeline::delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& a
                     // middle of clip is within deletion area
 
                     // duplicate clip
-                    Clip* post = c->copy();
+                    Clip* post = c->copy(sequence);
 
                     ta->set_timeline_out(sequence, j, s.in);
                     post->timeline_in = s.out;
@@ -585,7 +587,7 @@ void Timeline::copy(bool del) {
                         cleared = true;
                     }
 
-                    Clip* copied_clip = c->copy();
+                    Clip* copied_clip = c->copy(NULL);
 
                     // copy linked IDs (we correct these later in paste())
                     copied_clip->linked = c->linked;
@@ -652,8 +654,7 @@ void Timeline::paste() {
             Clip* c = clip_clipboard.at(i);
 
             // create copy of clip and offset by playhead
-            Clip* cc = c->copy();
-            cc->sequence = sequence;
+            Clip* cc = c->copy(sequence);
             cc->timeline_in += playhead;
             cc->timeline_out += playhead;
             cc->track = c->track;
@@ -696,6 +697,65 @@ void Timeline::paste() {
     }
 }
 
+void Timeline::ripple_to_in_point(bool in) {
+    if (sequence != NULL) {
+        // get track count
+        int track_min = 0;
+        int track_max = 0;
+
+        bool one_frame_mode = false;
+
+        // find closest in point to playhead
+        long in_point = in ? 0 : LONG_MAX;
+        for (int i=0;i<sequence->clip_count();i++) {
+            Clip* c = sequence->get_clip(i);
+            track_min = qMin(track_min, c->track);
+            track_max = qMax(track_max, c->track);
+            if ((in && c->timeline_in > in_point && c->timeline_in <= playhead)
+                    || (!in && c->timeline_in < in_point && c->timeline_in >= playhead)) {
+                in_point = c->timeline_in;
+                if (playhead == in_point) {
+                    one_frame_mode = true;
+                    break;
+                }
+            }
+            if ((in && c->timeline_out > in_point && c->timeline_out <= playhead)
+                    || (!in && c->timeline_out < in_point && c->timeline_out > playhead)) {
+                in_point = c->timeline_out;
+                if (playhead == in_point) {
+                    one_frame_mode = true;
+                    break;
+                }
+            }
+        }
+
+        if (one_frame_mode) {
+
+        } else {
+            // set up deletion areas based on track count
+            QVector<Selection> areas;
+            for (int i=track_min;i<=track_max;i++) {
+                Selection s;
+                s.in = qMin(in_point, playhead);
+                s.out = qMax(in_point, playhead);
+                s.track = i;
+                areas.append(s);
+            }
+
+            // trim and move clips around the in point
+            QVector<int> ignore;
+            TimelineAction* ta = new TimelineAction();
+            delete_areas_and_relink(ta, areas);
+            ta->ripple(sequence, in_point, (in) ? (in_point - playhead) : (playhead - in_point), ignore);
+            undo_stack.push(ta);
+
+            redraw_all_clips(true);
+
+            if (in) seek(in_point);
+        }
+    }
+}
+
 bool Timeline::split_selection(TimelineAction* ta) {
     bool split = false;
 
@@ -712,14 +772,14 @@ bool Timeline::split_selection(TimelineAction* ta) {
                 const Selection& s = selections.at(i);
                 if (s.track == clip->track) {
                     if (clip->timeline_in < s.in && clip->timeline_out > s.out) {
-                        Clip* split_A = clip->copy();
+                        Clip* split_A = clip->copy(sequence);
                         split_A->clip_in += (s.in - clip->timeline_in);
                         split_A->timeline_in = s.in;
                         split_A->timeline_out = s.out;
                         pre_splits.append(j);
                         post_splits.append(split_A);
 
-                        Clip* split_B = clip->copy();
+                        Clip* split_B = clip->copy(sequence);
                         split_B->clip_in += (s.out - clip->timeline_in);
                         split_B->timeline_in = s.out;
                         secondary_post_splits.append(split_B);

@@ -154,6 +154,10 @@ private slots:
 
     void on_actionLink_Unlink_triggered();
 
+    void on_actionRipple_To_In_Point_triggered();
+
+    void on_actionRipple_to_Out_Point_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

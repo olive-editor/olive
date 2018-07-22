@@ -151,7 +151,8 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
-	if (c->media_stream->infinite_length) {
+    MediaStream* ms = c->media->get_stream_from_file_index(c->media_stream);
+    if (ms->infinite_length) {
 		// if this clip is a still image, we only need one frame
 		if (!c->cache_A.written) {
 			retrieve_next_frame_raw_data(c, c->cache_A.frames[0]);
@@ -165,7 +166,7 @@ void reset_cache(Clip* c, long target_frame) {
 
 		if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 			// seeks to nearest keyframe (target_frame represents internal clip frame)
-			av_seek_frame(c->formatCtx, c->media_stream->file_index, clip_frame_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
+            av_seek_frame(c->formatCtx, ms->file_index, clip_frame_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
 
 			// play up to the frame we actually want
 			long retrieved_frame = 0;
@@ -184,7 +185,7 @@ void reset_cache(Clip* c, long target_frame) {
 		} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			// seek (target_frame represents timeline timecode in frames, not clip timecode)
 			swr_drop_output(c->swr_ctx, swr_get_out_samples(c->swr_ctx, 0));
-            av_seek_frame(c->formatCtx, c->media_stream->file_index, playhead_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
+            av_seek_frame(c->formatCtx, ms->file_index, playhead_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
             c->audio_target_frame = target_frame;
             c->need_new_audio_frame = true;
             c->audio_just_reset = true;
@@ -198,6 +199,7 @@ void open_clip_worker(Clip* clip) {
 	// opens file resource for FFmpeg and prepares Clip struct for playback
 	QByteArray ba = clip->media->url.toUtf8();
 	const char* filename = ba.constData();
+    MediaStream* ms = clip->media->get_stream_from_file_index(clip->media_stream);
 
 	int errCode = avformat_open_input(
 			&clip->formatCtx,
@@ -220,7 +222,7 @@ void open_clip_worker(Clip* clip) {
 
 	av_dump_format(clip->formatCtx, 0, filename, 0);
 
-	clip->stream = clip->formatCtx->streams[clip->media_stream->file_index];
+    clip->stream = clip->formatCtx->streams[ms->file_index];
 	clip->codec = avcodec_find_decoder(clip->stream->codecpar->codec_id);
 	clip->codecCtx = avcodec_alloc_context3(clip->codec);
 	avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
@@ -263,7 +265,7 @@ void open_clip_worker(Clip* clip) {
 			);
 
 		// create memory cache for video
-		if (clip->media_stream->infinite_length) {
+        if (ms->infinite_length) {
 			clip->cache_size = 1;
 		} else {
 			clip->cache_size = ceil(av_q2d(av_guess_frame_rate(clip->formatCtx, clip->stream, NULL))/4); // cache is half a second in total
@@ -284,7 +286,7 @@ void open_clip_worker(Clip* clip) {
 			av_frame_get_buffer(clip->cache_A.frames[i], 0);
 			clip->cache_A.frames[i]->linesize[0] = clip->stream->codecpar->width*4;
 
-			if (!clip->media_stream->infinite_length) {
+            if (!ms->infinite_length) {
 				clip->cache_B.frames[i] = av_frame_alloc();
 				av_frame_make_writable(clip->cache_B.frames[i]);
 				clip->cache_B.frames[i]->width = clip->stream->codecpar->width;
@@ -359,6 +361,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 
 void close_clip_worker(Clip* clip) {
 	// closes ffmpeg file handle and frees any memory used for caching
+    MediaStream* ms = clip->media->get_stream_from_file_index(clip->media_stream);
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		sws_freeContext(clip->sws_ctx);
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -371,10 +374,10 @@ void close_clip_worker(Clip* clip) {
 
 	for (size_t i=0;i<clip->cache_size;i++) {
 		av_frame_free(&clip->cache_A.frames[i]);
-		if (!clip->media_stream->infinite_length) av_frame_free(&clip->cache_B.frames[i]);
+        if (!ms->infinite_length) av_frame_free(&clip->cache_B.frames[i]);
 	}
 	delete [] clip->cache_A.frames;
-	if (!clip->media_stream->infinite_length) delete [] clip->cache_B.frames;
+    if (!ms->infinite_length) delete [] clip->cache_B.frames;
 
     av_frame_free(&clip->frame);
 

@@ -16,8 +16,7 @@ struct Clip;
 class Timeline;
 class TimelineAction;
 
-class TimelineWidget : public QWidget
-{
+class TimelineWidget : public QWidget {
 	Q_OBJECT
 public:
     explicit TimelineWidget(QWidget *parent = 0);

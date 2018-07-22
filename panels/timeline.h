@@ -1,4 +1,4 @@
-﻿#ifndef TIMELINE_H
+#ifndef TIMELINE_H
 #define TIMELINE_H
 
 #include "ui/timelinetools.h"
@@ -32,7 +32,7 @@ struct Ghost {
 
 	// importing variables
 	Media* media;
-	MediaStream* media_stream;
+    int media_stream;
 
 	// other variables
 	long ghost_length;
@@ -84,6 +84,7 @@ public:
     QVector<int> get_tracks_of_linked_clips(int i);
     bool has_clip_been_split(int c);
     void toggle_links();
+    void ripple_to_in_point(bool in);
 
     int get_snap_range();
     int getScreenPointFromFrame(long frame);
@@ -169,7 +170,7 @@ public:
 	bool importing;
 
 	// ripple
-    void ripple(TimelineAction* ta, long ripple_point, long ripple_length);
+//    void ripple(TimelineAction* ta, long ripple_point, long ripple_length);
 
     Ui::Timeline *ui;
 public slots:

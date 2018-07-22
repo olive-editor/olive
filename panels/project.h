@@ -37,6 +37,13 @@ extern QString project_url;
 extern QStringList recent_projects;
 extern QString recent_proj_file;
 
+int get_type_from_tree(QTreeWidgetItem* item);
+Media* get_media_from_tree(QTreeWidgetItem* item);
+void set_media_of_tree(QTreeWidgetItem* item, Media* media);
+Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
+void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
+void set_item_to_folder(QTreeWidgetItem* item);
+
 class Project : public QDockWidget
 {
 	Q_OBJECT
@@ -47,13 +54,10 @@ public:
     bool is_focused();
     void clear();
     QTreeWidgetItem* import_file(QString url);
-    void import_dialog();
     void new_sequence(TimelineAction* ta, Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
-    void delete_selected_media();
     void process_file_list(QStringList& files);
-    void duplicate_selected();
 
     void new_project();
     void load_project();
@@ -61,15 +65,13 @@ public:
 
     QTreeWidgetItem* new_folder();
 
-    int get_type_from_tree(QTreeWidgetItem* item);
-    Media* get_media_from_tree(QTreeWidgetItem* item);
-    void set_media_of_tree(QTreeWidgetItem* item, Media* media);
-    Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
-    void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
-    void set_item_to_folder(QTreeWidgetItem* item);
     void save_recent_projects();
 
 	SourceTable* source_table;
+public slots:
+    void import_dialog();
+    void delete_selected_media();
+    void duplicate_selected();
 private:
 	Ui::Project *ui;
     QTreeWidgetItem* new_item();

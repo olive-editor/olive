@@ -85,15 +85,16 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 }
 
 void TransformEffect::init() {
-    if (parent_clip->media_stream != NULL) {
+    MediaStream* ms = parent_clip->media->get_stream_from_file_index(parent_clip->media_stream);
+    if (ms != NULL && parent_clip->sequence != NULL) {
         position_x->set_default_value(parent_clip->sequence->width/2);
         position_y->set_default_value(parent_clip->sequence->height/2);
         scale_x->set_default_value(100);
         scale_y->set_default_value(100);
         scale_y->setEnabled(false);
         uniform_scale_box->setChecked(true);
-        default_anchor_x = parent_clip->media_stream->video_width/2;
-        default_anchor_y = parent_clip->media_stream->video_height/2;
+        default_anchor_x = ms->video_width/2;
+        default_anchor_y = ms->video_height/2;
         anchor_x_box->set_default_value(default_anchor_x);
         anchor_y_box->set_default_value(default_anchor_y);
         opacity->set_default_value(100);

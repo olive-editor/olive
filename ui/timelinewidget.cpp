@@ -74,8 +74,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             bool got_audio_values = false;
             for (int i=0;i<items.size();i++) {
                 QTreeWidgetItem* item = items.at(i);
-                if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
-                    Media* m = panel_project->get_media_from_tree(item);
+                if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
+                    Media* m = get_media_from_tree(item);
                     if (m->ready) {
                         if (!got_video_values) {
                             for (int j=0;j<m->video_tracks.size();j++) {
@@ -111,8 +111,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
         }
         for (int i=0;i<items.size();i++) {
             QTreeWidgetItem* item = items.at(i);
-            if (panel_project->get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
-                Media* m = panel_project->get_media_from_tree(item);
+            if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
+                Media* m = get_media_from_tree(item);
                 if (m->ready) {
                     Ghost g;
                     g.clip = -1;
@@ -128,12 +128,12 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                     g.trimming = false;
                     for (int j=0;j<m->audio_tracks.size();j++) {
                         g.track = j;
-                        g.media_stream = m->audio_tracks.at(j);
+                        g.media_stream = m->audio_tracks.at(j)->file_index;
                         panel_timeline->ghosts.append(g);
                     }
                     for (int j=0;j<m->video_tracks.size();j++) {
                         g.track = -1-j;
-                        g.media_stream = m->video_tracks.at(j);
+                        g.media_stream = m->video_tracks.at(j)->file_index;
                         panel_timeline->ghosts.append(g);
                     }
                 }
@@ -191,11 +191,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             QVector<Selection> delete_areas;
             for (int i=0;i<panel_timeline->ghosts.size();i++) {
                 const Ghost& g = panel_timeline->ghosts.at(i);
-                Selection s;
-                s.in = g.in;
-                s.out = g.out;
-                s.track = g.track;
-                delete_areas.append(s);
+                Selection sel;
+                sel.in = g.in;
+                sel.out = g.out;
+                sel.track = g.track;
+                delete_areas.append(sel);
             }
             panel_timeline->delete_areas_and_relink(ta, delete_areas);
         }
@@ -204,7 +204,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
             const Ghost& g = panel_timeline->ghosts.at(i);
 
-            Clip* c = new Clip();
+            Clip* c = new Clip(s);
             c->media = g.media;
             c->media_stream = g.media_stream;
             c->timeline_in = g.in;
@@ -216,9 +216,9 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->color_g = 192;
                 c->color_b = 128;
             } else if (c->media->audio_tracks.size() == 0) {
-                // video only (purpleish)
+                // video only (orangeish)
                 c->color_r = 192;
-                c->color_g = 128;
+                c->color_g = 160;
                 c->color_b = 128;
             } else {
                 // video and audio (blueish)
@@ -226,13 +226,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->color_g = 128;
                 c->color_b = 192;
             }
-            c->sequence = sequence;
             c->track = g.track;
             c->name = c->media->name;
 
             if (c->track < 0) {
-				// add default video effects
-                qDebug() << "hello";
+                // add default video effects
                 c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));
 			} else {
 				// add default audio effects
@@ -412,18 +410,22 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                         ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
                         ripple_point = first_ghost.old_out;
                     }
+                    QVector<int> ignore_clips;
                     for (int i=0;i<panel_timeline->ghosts.size();i++) {
                         const Ghost& g = panel_timeline->ghosts.at(i);
-                        long comp_point;
+
+                        // push rippled clips forward if necessary
                         if (panel_timeline->trim_in_point) {
-                            comp_point = g.old_in;
-                        } else {
-                            comp_point = g.old_out;
+                            ignore_clips.append(g.clip);
+                            panel_timeline->ghosts[i].in += ripple_length;
+                            panel_timeline->ghosts[i].out += ripple_length;
                         }
-                        if (ripple_point > comp_point) ripple_point = comp_point;
+
+                        long comp_point = panel_timeline->trim_in_point ? g.old_in : g.old_out;
+                        ripple_point = qMin(ripple_point, comp_point);
                     }
                     if (!panel_timeline->trim_in_point) ripple_length = -ripple_length;
-                    panel_timeline->ripple(ta, ripple_point, ripple_length);
+                    ta->ripple(sequence, ripple_point, ripple_length, ignore_clips);
                 }
 
                 if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (event->modifiers() & Qt::AltModifier)) { // if holding alt, duplicate rather than move
@@ -435,7 +437,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                         const Ghost& g = panel_timeline->ghosts.at(i);
                         if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
                             // create copy of clip
-                            Clip* c = sequence->get_clip(g.clip)->copy();
+                            Clip* c = sequence->get_clip(g.clip)->copy(sequence);
 
                             c->timeline_in = g.in;
                             c->timeline_out = g.out;
@@ -674,7 +676,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 
         // validate ghosts for trimming
         if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
-            if (!sequence->get_clip(g.clip)->media_stream->infinite_length) {
+            if (!c->media->get_stream_from_file_index(c->media_stream)->infinite_length) {
                 // prevent slip moving a clip below 0 clip_in
                 validator = g.old_clip_in - frame_diff;
                 if (validator < 0) frame_diff += validator;
@@ -694,7 +696,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 if (validator < 0) frame_diff -= validator;
 
                 // prevent clip_in from going below 0
-                if (!c->media_stream->infinite_length) {
+                if (!c->media->get_stream_from_file_index(c->media_stream)->infinite_length) {
                     validator = g.old_clip_in + frame_diff;
                     if (validator < 0) frame_diff -= validator;
                 }
@@ -704,7 +706,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 if (validator < 1) frame_diff += (1 - validator);
 
                 // prevent clip length exceeding media length
-                if (!c->media_stream->infinite_length) {
+                if (!c->media->get_stream_from_file_index(c->media_stream)->infinite_length) {
                     validator = g.old_clip_in + g.ghost_length + frame_diff;
                     if (validator > g.media_length) frame_diff -= validator - g.media_length;
                 }
@@ -713,10 +715,13 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
             // ripple ops
             if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
                 for (int j=0;j<post_clips.size();j++) {
-                    // prevent any rippled clip from going below 0
                     Clip* post = post_clips.at(j);
-                    validator = post->timeline_in - frame_diff;
-                    if (validator < 0) frame_diff += validator;
+
+                    // prevent any rippled clip from going below 0
+                    if (panel_timeline->trim_in_point) {
+                        validator = post->timeline_in - frame_diff;
+                        if (validator < 0) frame_diff += validator;
+                    }
 
                     // prevent any post-clips colliding with pre-clips
                     for (int k=0;k<pre_clips.size();k++) {
@@ -750,9 +755,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
             }
         }
     }
-    if (temp_frame_diff != frame_diff) {
-        panel_timeline->snapped = false;
-    }
+    panel_timeline->snapped = (temp_frame_diff == frame_diff);
 
     // apply changes to ghosts
     for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -1303,37 +1306,60 @@ void TimelineWidget::redraw_clips() {
                     }
                 }
 
-                // draw thumbnail/waveform
-                if (clip->media_stream->preview_done) {
+                MediaStream* ms = clip->media->get_stream_from_file_index(clip->media_stream);
+                if (ms == NULL) {
+                    // draw "error lines" if media stream is missing
+                    clip_painter.setPen(QPen(QColor(64, 64, 64), 2));
+                    int limit = clip_rect.width();
+                    int clip_height = clip_rect.bottom()-clip_rect.top();
+                    for (int j=-clip_height;j<limit;j+=15) {
+                        int lines_start_x = clip_rect.left()+j;
+                        int lines_start_y = clip_rect.bottom();
+                        int lines_end_x = lines_start_x + clip_height;
+                        int lines_end_y = clip_rect.top();
+                        if (lines_start_x < clip_rect.left()) {
+                            lines_start_y -= (clip_rect.left() - lines_start_x);
+                            lines_start_x = clip_rect.left();
+                        }
+                        if (lines_end_x > clip_rect.right()) {
+                            lines_end_y -= (clip_rect.right() - lines_end_x);
+                            lines_end_x = clip_rect.right();
+                        }
+                        clip_painter.drawLine(lines_start_x, lines_start_y, lines_end_x, lines_end_y);
+                    }
+                } else if (ms->preview_done) {
+                    // draw thumbnail/waveform
                     if (clip->track < 0) {
                         int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
                         int thumb_height = clip_rect.height()-thumb_y;
-                        int thumb_width = (thumb_height*((float)clip->media_stream->video_preview.width()/(float)clip->media_stream->video_preview.height()));
+                        int thumb_width = (thumb_height*((double)ms->video_preview.width()/(double)ms->video_preview.height()));
                         if (thumb_height > thumb_y && text_rect.width() + CLIP_TEXT_PADDING > thumb_width) { // at small clip heights, don't even draw it
                             QRect thumb_rect(thumb_x, clip_rect.y()+thumb_y, thumb_width, thumb_height);
-                            clip_painter.drawImage(thumb_rect, clip->media_stream->video_preview);
+                            clip_painter.drawImage(thumb_rect, ms->video_preview);
                         }
                     } else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
-                        int divider = clip->media_stream->audio_channels*2;
+                        int divider = ms->audio_channels*2;
 
                         clip_painter.setPen(QColor(80, 80, 80));
-                        int channel_height = clip_rect.height()/clip->media_stream->audio_channels;
+                        int channel_height = clip_rect.height()/ms->audio_channels;
                         long media_length = clip->media->get_length_in_frames(clip->sequence->frame_rate);
                         for (int i=0;i<clip_rect.width();i++) {
-                            int waveform_index = qFloor((((clip->clip_in + ((float) i/panel_timeline->zoom))/media_length) * clip->media_stream->audio_preview.size())/divider)*divider;
+                            int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 
-                            for (int j=0;j<clip->media_stream->audio_channels;j++) {
+                            for (int j=0;j<ms->audio_channels;j++) {
                                 int mid = clip_rect.top()+channel_height*j+(channel_height/2);
                                 int offset = waveform_index+(j*2);
 
-                                if (offset >= 0 && offset < clip->media_stream->audio_preview.size()) {
-                                    qint8 min = (double)clip->media_stream->audio_preview.at(offset) / 128.0 * (channel_height/2);
-                                    qint8 max = (double)clip->media_stream->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
-                                    clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+                                qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
+                                qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+                                clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+
+                                /*if (offset >= 0 && offset < ms->audio_preview.size()) {
+
                                 } else {
                                     QMessageBox::critical(this, "AAAAAAAAAAAAA", "Here's that terrible, no-good bug again!!! I've stepped around it but plz report the following to Matt:\n\n" + QString::number(offset) + " vs " + QString::number(clip->media_stream->audio_preview.size()), QMessageBox::Ok);
                                     break;
-                                }
+                                }*/
                             }
                         }
                     }

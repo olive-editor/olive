@@ -619,3 +619,13 @@ void MainWindow::on_actionLink_Unlink_triggered()
 {
     panel_timeline->toggle_links();
 }
+
+void MainWindow::on_actionRipple_To_In_Point_triggered()
+{
+    panel_timeline->ripple_to_in_point(true);
+}
+
+void MainWindow::on_actionRipple_to_Out_Point_triggered()
+{
+    panel_timeline->ripple_to_in_point(false);
+}
