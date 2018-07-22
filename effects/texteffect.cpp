@@ -38,7 +38,12 @@ protected:
     }
 };
 
-TextEffect::TextEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TEXT_EFFECT), texture(NULL) {
+TextEffect::TextEffect(Clip *c) :
+    Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TEXT_EFFECT),
+    texture(NULL),
+    width(0),
+    height(0)
+{
     ui_layout->addWidget(new QLabel("Text:"), 0, 0);
     text_val = new QTextEdit();
     text_val->setUndoRedoEnabled(true);
@@ -69,12 +74,19 @@ TextEffect::TextEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TEXT_EFFECT
 }
 
 TextEffect::~TextEffect() {
+    destroy_texture();
+}
+
+void TextEffect::destroy_texture() {
     texture->destroy();
-    delete texture;
 }
 
 void TextEffect::update_texture() {
-    QImage pixmap(parent_clip->sequence->width, parent_clip->sequence->height, QImage::Format_ARGB32_Premultiplied);
+    if (parent_clip->sequence->width != width || parent_clip->sequence->height != height) {
+        width = parent_clip->sequence->width;
+        height = parent_clip->sequence->height;
+        pixmap = QImage(width, height, QImage::Format_ARGB32_Premultiplied);
+    }
     pixmap.fill(Qt::transparent);
 
     QPainter p(&pixmap);
@@ -87,14 +99,16 @@ void TextEffect::update_texture() {
     p.setFont(font);
 
     p.setPen(set_color_button->get_color());
-    p.drawText(QRect(0, 0, pixmap.width(), pixmap.height()), Qt::AlignCenter | Qt::TextWordWrap, text_val->toPlainText());
+    p.drawText(QRect(0, 0, width, height), Qt::AlignCenter | Qt::TextWordWrap, text_val->toPlainText());
 
     if (texture == NULL) {
         texture = new QOpenGLTexture(pixmap);
     } else {
-        texture->destroy();
+        destroy_texture();
         texture->setData(pixmap);
     }
+
+    texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 
     // queue a repaint of the canvas
     field_changed();
@@ -104,8 +118,8 @@ void TextEffect::post_gl() {
     if (texture != NULL) {
         texture->bind();
 
-        int half_width = parent_clip->sequence->width/2;
-        int half_height = parent_clip->sequence->height/2;
+        int half_width = width/2;
+        int half_height = height/2;
 
         glBegin(GL_QUADS);
         glTexCoord2f(0.0, 0.0);

@@ -94,6 +94,10 @@ public:
 
 	long playhead;
 
+    bool using_workarea;
+    long workarea_in;
+    long workarea_out;
+
 	// playback functions
 	void go_to_start();
 	void previous_frame();
@@ -118,7 +122,7 @@ public:
 	int tool;
     long cursor_frame;
     int cursor_track;
-	float zoom;
+    double zoom;
 	long drag_frame_start;
 	int drag_track_start;
     void redraw_all_clips(bool changed);

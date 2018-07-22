@@ -68,9 +68,6 @@
       <property name="expandsOnDoubleClick">
        <bool>false</bool>
       </property>
-      <attribute name="headerDefaultSectionSize">
-       <number>200</number>
-      </attribute>
       <attribute name="headerStretchLastSection">
        <bool>true</bool>
       </attribute>

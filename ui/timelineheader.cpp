@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 
+#define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
 
 TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent)
@@ -23,6 +24,12 @@ void set_playhead(QMouseEvent* event) {
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
+    /*if (panel_timeline->using_workarea) {
+        event->pos().x()
+        if (panel_timeline->workarea_in)
+    } else {
+
+    }*/
     set_playhead(event);
     dragging = true;
 }
@@ -51,13 +58,24 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
             p.drawLine(i, 0, i, height());
         }
 
+        // draw in/out selection
+        int in_x;
+        if (panel_timeline->using_workarea) {
+            in_x = panel_timeline->getScreenPointFromFrame(panel_timeline->workarea_in);
+            int out_x = panel_timeline->getScreenPointFromFrame(panel_timeline->workarea_out);
+            p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
+            p.setPen(Qt::white);
+            p.drawLine(in_x, 0, in_x, height());
+            p.drawLine(out_x, 0, out_x, height());
+        }
+
         // draw playhead triangle
-        int px = panel_timeline->getScreenPointFromFrame(panel_timeline->playhead);
-        QPoint start(px, height());
+        in_x = panel_timeline->getScreenPointFromFrame(panel_timeline->playhead);
+        QPoint start(in_x, height());
         QPainterPath path;
         path.moveTo(start);
-        path.lineTo(px-PLAYHEAD_SIZE, 0);
-        path.lineTo(px+PLAYHEAD_SIZE, 0);
+        path.lineTo(in_x-PLAYHEAD_SIZE, 0);
+        path.lineTo(in_x+PLAYHEAD_SIZE, 0);
         path.lineTo(start);
         p.fillPath(path, Qt::red);
     }

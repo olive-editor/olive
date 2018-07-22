@@ -40,6 +40,7 @@ class TransformEffect : public Effect {
 	Q_OBJECT
 public:
     TransformEffect(Clip* c);
+    void init();
 	void process_gl(int* anchor_x, int* anchor_y);
     Effect* copy(Clip* c);
     void load(QXmlStreamReader* stream);
@@ -107,8 +108,12 @@ public:
 private slots:
     void update_texture();
 private:
+    void destroy_texture();
     QOpenGLTexture* texture;
+    QImage pixmap;
     QFont font;
+    int width;
+    int height;
 };
 
 class SolidEffect : public Effect {

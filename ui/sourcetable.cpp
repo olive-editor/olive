@@ -10,6 +10,7 @@
 
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include <QHeaderView>
 #include <QDebug>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {

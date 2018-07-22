@@ -27,6 +27,10 @@ Effect::Effect(Clip* c, int t, int i) : parent_clip(c), type(t), id(i) {
     container->setContents(ui);
 }
 
+void Effect::init() {
+    qDebug() << "WRONG" << type << id;
+}
+
 void Effect::field_changed() {
 	panel_viewer->viewer_widget->update();
     project_changed = true;

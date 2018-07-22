@@ -68,18 +68,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
     ui_layout->addWidget(blend_mode_box, 6, 1);
 
 	// set defaults
-    position_x->set_default_value(c->sequence->width/2);
-    position_y->set_default_value(c->sequence->height/2);
-    scale_x->set_default_value(100);
-    scale_y->set_default_value(100);
-	scale_y->setEnabled(false);
-	uniform_scale_box->setChecked(true);
-    default_anchor_x = c->media_stream->video_width/2;
-    default_anchor_y = c->media_stream->video_height/2;
-    anchor_x_box->set_default_value(default_anchor_x);
-    anchor_y_box->set_default_value(default_anchor_y);
-    opacity->set_default_value(100);
-    blend_mode_box->setCurrentIndex(0);
+    init();
 
     connect(position_x, SIGNAL(valueChanged()), this, SLOT(field_changed()));
     connect(position_y, SIGNAL(valueChanged()), this, SLOT(field_changed()));
@@ -93,6 +82,23 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(field_changed()));
     connect(uniform_scale_box, SIGNAL(clicked(bool)), this, SLOT(checkbox_command()));
     connect(blend_mode_box, SIGNAL(currentIndexChanged(int)), this, SLOT(field_changed()));
+}
+
+void TransformEffect::init() {
+    if (parent_clip->media_stream != NULL) {
+        position_x->set_default_value(parent_clip->sequence->width/2);
+        position_y->set_default_value(parent_clip->sequence->height/2);
+        scale_x->set_default_value(100);
+        scale_y->set_default_value(100);
+        scale_y->setEnabled(false);
+        uniform_scale_box->setChecked(true);
+        default_anchor_x = parent_clip->media_stream->video_width/2;
+        default_anchor_y = parent_clip->media_stream->video_height/2;
+        anchor_x_box->set_default_value(default_anchor_x);
+        anchor_y_box->set_default_value(default_anchor_y);
+        opacity->set_default_value(100);
+        blend_mode_box->setCurrentIndex(0);
+    }
 }
 
 Effect* TransformEffect::copy(Clip* c) {

@@ -24,15 +24,15 @@ void init_effects() {
 Effect* create_effect(int effect_id, Clip* c) {
     if (c->track < 0) {
         switch (effect_id) {
-        case VIDEO_TRANSFORM_EFFECT: return new TransformEffect(c);
-        case VIDEO_SHAKE_EFFECT: return new ShakeEffect(c);
-        case VIDEO_TEXT_EFFECT: return new TextEffect(c);
-        case VIDEO_SOLID_EFFECT: return new SolidEffect(c);
+        case VIDEO_TRANSFORM_EFFECT: return new TransformEffect(c); break;
+        case VIDEO_SHAKE_EFFECT: return new ShakeEffect(c); break;
+        case VIDEO_TEXT_EFFECT: return new TextEffect(c); break;
+        case VIDEO_SOLID_EFFECT: return new SolidEffect(c); break;
         }
     } else {
         switch (effect_id) {
-        case AUDIO_VOLUME_EFFECT: return new VolumeEffect(c);
-        case AUDIO_PAN_EFFECT: return new PanEffect(c);
+        case AUDIO_VOLUME_EFFECT: return new VolumeEffect(c); break;
+        case AUDIO_PAN_EFFECT: return new PanEffect(c); break;
         }
     }
     qDebug() << "[ERROR] Invalid effect ID";

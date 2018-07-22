@@ -63,7 +63,9 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
         }
     }
     for (int i=0;i<added_action_items.size();i++) {
-        KeySequenceEditor* editor = new KeySequenceEditor(added_actions.at(i));
-        ui->treeWidget->setItemWidget(added_action_items.at(i), 1, editor);
+        if (added_actions.at(i)->menu() == NULL) {
+            KeySequenceEditor* editor = new KeySequenceEditor(added_actions.at(i));
+            ui->treeWidget->setItemWidget(added_action_items.at(i), 1, editor);
+        }
     }
 }

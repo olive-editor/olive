@@ -232,6 +232,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
             if (c->track < 0) {
 				// add default video effects
+                qDebug() << "hello";
                 c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));
 			} else {
 				// add default audio effects

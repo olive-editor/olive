@@ -28,6 +28,8 @@ public:
 
     bool is_enabled();
 
+    virtual void init();
+
     virtual Effect* copy(Clip* c);
 
     virtual void load(QXmlStreamReader* stream);

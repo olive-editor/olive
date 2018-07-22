@@ -21,30 +21,32 @@
 #include <QtMath>
 
 Timeline::Timeline(QWidget *parent) :
-	QDockWidget(parent),
-	ui(new Ui::Timeline)
+    QDockWidget(parent),
+    selecting(false),
+    moving_init(false),
+    moving_proc(false),
+    splitting(false),
+    importing(false),
+    playing(false),
+    trim_in_point(false),
+    snapped(false),
+    rect_select_init(false),
+    rect_select_proc(false),
+    edit_tool_selects_links(false),
+    edit_tool_also_seeks(false),
+    select_also_seeks(false),
+    using_workarea(false),
+    paste_seeks(true),
+    snapping(true),
+    last_frame(0),
+    playhead(0),
+    snap_point(0),
+    cursor_frame(0),
+    cursor_track(0),
+	trim_target(-1),
+    zoom(1.0),
+    ui(new Ui::Timeline)
 {    
-    selecting = false;
-    moving_init = false;
-    moving_proc = false;
-    splitting = false;
-    importing = false;
-    playing = false;
-    trim_in_point = false;
-    snapped = false;
-    rect_select_init = false;
-    rect_select_proc = false;
-    edit_tool_selects_links = false;
-    edit_tool_also_seeks = false;
-    select_also_seeks = false;
-    paste_seeks = true;
-    snapping = true;
-    last_frame = 0;
-    playhead = 0;
-    snap_point = 0;
-    cursor_frame = 0;
-    cursor_track = 0;
-	trim_target = -1;
 
 	ui->setupUi(this);
 
@@ -59,8 +61,6 @@ Timeline::Timeline(QWidget *parent) :
     tool_buttons.append(ui->toolSlideButton);
 
 	ui->toolArrowButton->click();
-
-	zoom = 1.0f;
 
     update_sequence();
 
