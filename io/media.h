@@ -37,8 +37,10 @@ struct Media {
     QVector<MediaStream*> audio_tracks;
     int save_id;
     bool ready;
+
     long get_length_in_frames(double frame_rate);
     MediaStream* get_stream_from_file_index(int index);
+    void reset();
 };
 
 int guess_layout_from_channels(int channel_count);

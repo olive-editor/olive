@@ -58,7 +58,7 @@ struct Clip
     long getLength();
 	Media* media; // attached media
     int media_stream;
-	Sequence* sequence;
+    Sequence* sequence;
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;

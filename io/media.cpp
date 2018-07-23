@@ -9,6 +9,10 @@ extern "C" {
 Media::Media() : ready(false) {}
 
 Media::~Media() {
+    reset();
+}
+
+void Media::reset() {
     for (int i=0;i<video_tracks.size();i++) {
         delete video_tracks.at(i);
     }
@@ -17,6 +21,7 @@ Media::~Media() {
     }
     video_tracks.clear();
     audio_tracks.clear();
+    ready = false;
 }
 
 long Media::get_length_in_frames(double frame_rate) {

@@ -360,7 +360,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 }
 
 void close_clip_worker(Clip* clip) {
-	// closes ffmpeg file handle and frees any memory used for caching
+    // closes ffmpeg file handle and frees any memory used for caching
     MediaStream* ms = clip->media->get_stream_from_file_index(clip->media_stream);
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		sws_freeContext(clip->sws_ctx);

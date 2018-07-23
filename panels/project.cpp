@@ -133,11 +133,11 @@ void Project::start_preview_generator(QTreeWidgetItem* item, Media* media) {
     pg->start(QThread::LowPriority);
 }
 
-QTreeWidgetItem* Project::import_file(QString file) {
+QTreeWidgetItem* Project::import_file(QString file, QString imported_filename) {
     QTreeWidgetItem* item = new_item();
     Media* m = new Media();
     m->url = file;
-    m->name = file.mid(file.lastIndexOf('/')+1);
+    m->name = imported_filename.mid(file.lastIndexOf('/')+1);
     set_media_of_tree(item, m);
 
     // generate waveform/thumbnail in another thread
@@ -300,9 +300,14 @@ void Project::delete_selected_media() {
 
 void Project::process_file_list(QStringList& files) {
     bool imported = false;
+
+    QVector<QString> image_sequence_urls;
+    QVector<bool> image_sequence_importassequence;
+
     TimelineAction* ta = new TimelineAction();
     for (int i=0;i<files.count();i++) {
         QString file(files.at(i));
+        bool skip = false;
 
         // heuristic to determine whether file is part of an image sequence
         int lastcharindex = file.lastIndexOf(".")-1;
@@ -311,36 +316,61 @@ void Project::process_file_list(QStringList& files) {
         }
         if (file[lastcharindex].isDigit()) {
             bool is_img_sequence = false;
-            QString sequence_test(file);
-            char lastchar = sequence_test.at(lastcharindex).toLatin1();
 
-            sequence_test[lastcharindex] = lastchar + 1;
-            if (QFileInfo::exists(sequence_test)) is_img_sequence = true;
+            // how many digits are in the filename?
+            int digit_count = 0;
+            QString ext = file.mid(lastcharindex+1);
+            int digit_test = lastcharindex;
+            while (file[digit_test].isDigit()) {
+                digit_count++;
+                digit_test--;
+            }
 
-            sequence_test[lastcharindex] = lastchar - 1;
-            if (QFileInfo::exists(sequence_test)) is_img_sequence = true;
+            // retrieve number from filename
+            digit_test++;
+            lastcharindex++;
+            int file_number = file.mid(digit_test, digit_count).toInt();
 
-            if (is_img_sequence &&
-                    QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-                // change url to an image sequence instead
-                int digit_count = 0;
-                QString ext = file.mid(lastcharindex+1);
-                while (file[lastcharindex].isDigit()) {
-                    digit_count++;
-                    lastcharindex--;
+            // Check if there are files with the same filename but just different numbers
+            if (QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number-1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))
+                    || QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number+1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))) {
+                is_img_sequence = true;
+            }
+
+            if (is_img_sequence) {
+                // get the URL that we would pass to FFmpeg to force it to read the image as a sequence
+                QString new_filename = file.left(digit_test) + "%" + QString("%1").arg(digit_count, 2, 10, QChar('0')) + "d" + file.mid(lastcharindex);
+
+                // add image sequence url to a vector in case the user imported several files that
+                // we're interpreting as a possible sequence
+                bool found = false;
+                for (int i=0;i<image_sequence_urls.size();i++) {
+                    if (image_sequence_urls.at(i) == new_filename) {
+                        // either SKIP if we're importing as a sequence, or leave it if we aren't
+                        if (image_sequence_importassequence.at(i)) {
+                            skip = true;
+                        }
+                        found = true;
+                        break;
+                    }
                 }
-                QString new_filename = file.left(lastcharindex+1) + "%";
-                if (digit_count < 10) {
-                    new_filename += "0";
+                if (!found) {
+                    image_sequence_urls.append(new_filename);
+                    if (QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+                        file = new_filename;
+                        image_sequence_importassequence.append(true);
+                    } else {
+                        image_sequence_importassequence.append(false);
+                    }
                 }
-                new_filename += QString::number(digit_count) + "d" + ext;
-                file = new_filename;
             }
         }
 
-        ta->add_media(import_file(file));
-        imported = true;
-        project_changed = true;
+        if (!skip) {
+            ta->add_media(import_file(file, files.at(i)));
+            imported = true;
+            project_changed = true;
+        }
     }
     if (imported) {
         undo_stack.push(ta);

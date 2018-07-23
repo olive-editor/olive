@@ -53,7 +53,7 @@ public:
 	~Project();
     bool is_focused();
     void clear();
-    QTreeWidgetItem* import_file(QString url);
+    QTreeWidgetItem* import_file(QString url, QString imported_filename);
     void new_sequence(TimelineAction* ta, Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
