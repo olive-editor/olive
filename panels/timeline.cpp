@@ -15,6 +15,7 @@
 #include "effects/transition.h"
 #include "ui_viewer.h"
 #include "project/undo.h"
+#include "io/config.h"
 
 #include <QTime>
 #include <QScrollBar>
@@ -32,10 +33,6 @@ Timeline::Timeline(QWidget *parent) :
     snapped(false),
     rect_select_init(false),
     rect_select_proc(false),
-    edit_tool_selects_links(false),
-    edit_tool_also_seeks(false),
-    select_also_seeks(false),
-    paste_seeks(true),
     snapping(true),
     last_frame(0),
     playhead(0),
@@ -716,7 +713,7 @@ void Timeline::paste() {
 
         redraw_all_clips(true);
 
-        if (paste_seeks) {
+        if (config.paste_seeks) {
             seek(paste_end);
         }
     }

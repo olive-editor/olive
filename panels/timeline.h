@@ -114,11 +114,7 @@ public:
     qint64 start_msecs;
 	QTimer playback_updater;
 
-	// shared information
-    bool select_also_seeks;
-    bool edit_tool_selects_links;
-    bool edit_tool_also_seeks;
-    bool paste_seeks;
+    // shared information
 	int tool;
     long cursor_frame;
     int cursor_track;

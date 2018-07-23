@@ -336,7 +336,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                                 s.track = clip->track;
                                 panel_timeline->selections.append(s);
 
-                                if (panel_timeline->select_also_seeks) {
+                                if (config.select_also_seeks) {
                                     panel_timeline->seek(clip->timeline_in);
                                 }
 
@@ -370,7 +370,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
             }
                 break;
             case TIMELINE_TOOL_EDIT:
-                if (panel_timeline->edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
+                if (config.edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
                 panel_timeline->selecting = true;
                 break;
             case TIMELINE_TOOL_RAZOR:
@@ -828,7 +828,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
         if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
-            panel_timeline->snap_to_clip(&panel_timeline->cursor_frame, !panel_timeline->edit_tool_also_seeks || !panel_timeline->selecting);
+            panel_timeline->snap_to_clip(&panel_timeline->cursor_frame, !config.edit_tool_also_seeks || !panel_timeline->selecting);
         }
         if (panel_timeline->selecting) {
             int selection_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start) + panel_timeline->selection_offset;
@@ -846,7 +846,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             }
 
             // select linked clips too
-            if (panel_timeline->edit_tool_selects_links) {
+            if (config.edit_tool_selects_links) {
                 for (int j=0;j<sequence->clip_count();j++) {
                     Clip* c = sequence->get_clip(j);
                     for (int k=0;k<panel_timeline->selections.size();k++) {
@@ -879,7 +879,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 }
             }
 
-            if (panel_timeline->edit_tool_also_seeks) {
+            if (config.edit_tool_also_seeks) {
                 panel_timeline->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
             } else {
                 panel_timeline->repaint_timeline();
@@ -1199,7 +1199,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     int test_range = 5;
                     if (pos.y() > y_test_value-test_range && pos.y() < y_test_value+test_range) {
                         // if track lines are hidden, only resize track if a clip is already there
-                        if (show_track_lines || cursor_contains_clip) {
+                        if (config.show_track_lines || cursor_contains_clip) {
                             found = true;
                             track_resizing = true;
                             track_target = track;
@@ -1392,7 +1392,7 @@ void TimelineWidget::redraw_clips() {
         }
 
         // Draw track lines
-        if (show_track_lines) {
+        if (config.show_track_lines) {
             clip_painter.setPen(QColor(0, 0, 0, 96));
             audio_track_limit++;
             if (video_track_limit == 0) video_track_limit--;
@@ -1521,7 +1521,7 @@ int TimelineWidget::getTrackFromScreenPoint(int y) {
     int counter = ((!bottom_align && y > 0) || (bottom_align && y < 0)) ? 0 : -1;
     int track_height = panel_timeline->calculate_track_height(counter, -1);
     while (qAbs(y) > height_measure+track_height) {
-        if (show_track_lines && counter != -1) y--;
+        if (config.show_track_lines && counter != -1) y--;
         height_measure += track_height;
         if ((!bottom_align && y > 0) || (bottom_align && y < 0)) {
             counter++;
@@ -1540,7 +1540,7 @@ int TimelineWidget::getScreenPointFromTrack(int track) {
         if (bottom_align) counter--;
         y += panel_timeline->calculate_track_height(counter, -1);
         if (!bottom_align) counter++;
-        if (show_track_lines && counter != -1) y++;
+        if (config.show_track_lines && counter != -1) y++;
     }
     y++;
     return (bottom_align) ? rect().height() - y : y;

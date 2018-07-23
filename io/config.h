@@ -1,18 +1,25 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-extern const char* version;
-extern float scale;
-extern bool vsync;
-extern bool hwaccel;
-//extern int padding;
-extern bool custom_scale;
-extern bool saved_layout;
-extern bool show_track_lines;
+#include <QString>
 
-extern bool scroll_zooms;
+#define SAVE_VERSION "180722"
 
-void load_config();
-void save_config();
+struct Config {
+    Config();
+    bool saved_layout;
+    bool show_track_lines;
+    bool scroll_zooms;
+    bool edit_tool_selects_links;
+    bool edit_tool_also_seeks;
+    bool select_also_seeks;
+    bool paste_seeks;
+    QString img_seq_formats;
+
+    void load(QString path);
+    void save(QString path);
+};
+
+extern Config config;
 
 #endif // CONFIG_H

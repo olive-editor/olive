@@ -19,6 +19,9 @@ public:
 
     void setup_kbd_shortcuts(QMenuBar* menu);
 
+private slots:
+    void on_buttonBox_accepted();
+
 private:
     Ui::PreferencesDialog *ui;
 };

@@ -1,6 +1,8 @@
 #include "preferencesdialog.h"
 #include "ui_preferencesdialog.h"
 
+#include "io/config.h"
+
 #include <QMenuBar>
 #include <QAction>
 #include <QDebug>
@@ -20,6 +22,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     ui(new Ui::PreferencesDialog)
 {
     ui->setupUi(this);
+
+    ui->imgSeqFormatEdit->setText(config.img_seq_formats);
 }
 
 PreferencesDialog::~PreferencesDialog() {
@@ -68,4 +72,8 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
             ui->treeWidget->setItemWidget(added_action_items.at(i), 1, editor);
         }
     }
+}
+
+void PreferencesDialog::on_buttonBox_accepted() {
+    config.img_seq_formats = ui->imgSeqFormatEdit->text();
 }

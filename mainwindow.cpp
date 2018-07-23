@@ -32,6 +32,7 @@
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
 QTimer autorecovery_timer;
+QString config_dir;
 
 void MainWindow::setup_layout() {
     panel_project->show();
@@ -128,6 +129,9 @@ MainWindow::MainWindow(QWidget *parent) :
                 }
                 f.close();
             }
+
+            config_dir = data_dir + "/config.xml";
+            config.load(config_dir);
         }
     }
 }
@@ -138,6 +142,9 @@ MainWindow::~MainWindow() {
         if (QFile::exists(autorecovery_filename)) {
             QFile::remove(autorecovery_filename);
         }
+    }
+    if (!config_dir.isEmpty()) {
+        config.save(config_dir);
     }
 
 	delete ui;
@@ -201,12 +208,6 @@ void MainWindow::on_actionZoom_out_triggered()
 	if (panel_timeline->focused()) {
         panel_timeline->set_zoom(false);
 	}
-}
-
-void MainWindow::on_actionTimeline_Track_Lines_toggled(bool e)
-{
-	show_track_lines = e;
-    panel_timeline->redraw_all_clips(false);
 }
 
 void MainWindow::on_actionExport_triggered()
@@ -498,6 +499,7 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
+    ui->actionTimeline_Track_Lines->setChecked(config.show_track_lines);
     ui->actionFrames->setChecked(panel_viewer->timecode_view == TIMECODE_FRAMES);
     ui->actionDrop_Frame->setChecked(panel_viewer->timecode_view == TIMECODE_DROP);
     if (sequence != NULL) ui->actionDrop_Frame->setEnabled(frame_rate_is_droppable(sequence->frame_rate));
@@ -532,20 +534,20 @@ void MainWindow::on_actionNon_Drop_Frame_triggered()
 }
 
 void MainWindow::toolMenu_About_To_Be_Shown() {
-    ui->actionEdit_Tool_Also_Seeks->setChecked(panel_timeline->edit_tool_also_seeks);
-    ui->actionEdit_Tool_Selects_Links->setChecked(panel_timeline->edit_tool_selects_links);
-    ui->actionSelecting_Also_Seeks->setChecked(panel_timeline->select_also_seeks);
-    ui->actionSeek_to_the_End_of_Pastes->setChecked(panel_timeline->paste_seeks);
+    ui->actionEdit_Tool_Also_Seeks->setChecked(config.edit_tool_also_seeks);
+    ui->actionEdit_Tool_Selects_Links->setChecked(config.edit_tool_selects_links);
+    ui->actionSelecting_Also_Seeks->setChecked(config.select_also_seeks);
+    ui->actionSeek_to_the_End_of_Pastes->setChecked(config.paste_seeks);
     ui->actionToggle_Snapping->setChecked(panel_timeline->snapping);
-    ui->actionScroll_Wheel_Zooms->setChecked(scroll_zooms);
+    ui->actionScroll_Wheel_Zooms->setChecked(config.scroll_zooms);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
-    panel_timeline->edit_tool_selects_links = !panel_timeline->edit_tool_selects_links;
+    config.edit_tool_selects_links = !config.edit_tool_selects_links;
 }
 
 void MainWindow::on_actionEdit_Tool_Also_Seeks_triggered() {
-    panel_timeline->edit_tool_also_seeks = !panel_timeline->edit_tool_also_seeks;
+    config.edit_tool_also_seeks = !config.edit_tool_also_seeks;
 }
 
 void MainWindow::on_actionDuplicate_triggered() {
@@ -555,12 +557,12 @@ void MainWindow::on_actionDuplicate_triggered() {
 }
 
 void MainWindow::on_actionSelecting_Also_Seeks_triggered() {
-    panel_timeline->select_also_seeks = !panel_timeline->select_also_seeks;
+    config.select_also_seeks = !config.select_also_seeks;
 }
 
 void MainWindow::on_actionSeek_to_the_End_of_Pastes_triggered()
 {
-    panel_timeline->paste_seeks = !panel_timeline->paste_seeks;
+    config.paste_seeks = !config.paste_seeks;
 }
 
 void MainWindow::on_actionAdd_Default_Transition_triggered() {
@@ -610,7 +612,7 @@ void MainWindow::load_recent_project() {
 
 void MainWindow::on_actionScroll_Wheel_Zooms_triggered()
 {
-    scroll_zooms = !scroll_zooms;
+    config.scroll_zooms = !config.scroll_zooms;
 }
 
 void MainWindow::on_actionLink_Unlink_triggered()
@@ -660,4 +662,10 @@ void MainWindow::on_actionRipple_Delete_In_Out_triggered()
     if (panel_timeline->focused()) {
         panel_timeline->delete_in_out(true);
     }
+}
+
+void MainWindow::on_actionTimeline_Track_Lines_triggered()
+{
+    config.show_track_lines = !config.show_track_lines;
+    panel_timeline->redraw_all_clips(false);
 }

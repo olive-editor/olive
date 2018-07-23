@@ -38,9 +38,7 @@ private slots:
 
 	void on_actionZoom_In_triggered();
 
-	void on_actionZoom_out_triggered();
-
-	void on_actionTimeline_Track_Lines_toggled(bool arg1);
+    void on_actionZoom_out_triggered();
 
 	void on_actionExport_triggered();
 
@@ -167,6 +165,8 @@ private slots:
     void on_actionDelete_In_Out_triggered();
 
     void on_actionRipple_Delete_In_Out_triggered();
+
+    void on_actionTimeline_Track_Lines_triggered();
 
 private:
 	Ui::MainWindow *ui;

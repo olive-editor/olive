@@ -14,6 +14,7 @@
 #include "io/previewgenerator.h"
 #include "project/undo.h"
 #include "mainwindow.h"
+#include "io/config.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -303,24 +304,38 @@ void Project::process_file_list(QStringList& files) {
 
     QVector<QString> image_sequence_urls;
     QVector<bool> image_sequence_importassequence;
+    QStringList image_sequence_formats = config.img_seq_formats.split("|");
 
     TimelineAction* ta = new TimelineAction();
     for (int i=0;i<files.count();i++) {
         QString file(files.at(i));
         bool skip = false;
 
-        // heuristic to determine whether file is part of an image sequence
-        int lastcharindex = file.lastIndexOf(".")-1;
-        if (lastcharindex == -2 || lastcharindex <= file.lastIndexOf('/')) {
-            lastcharindex = file.length() - 1;
+        /* Heuristic to determine whether file is part of an image sequence */
+
+        // check file extension (assume it's not a
+        int lastcharindex = file.lastIndexOf(".");
+        bool found = true;
+        if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
+            // image_sequence_formats
+            found = false;
+            QString ext = file.mid(lastcharindex+1);
+            for (int j=0;j<image_sequence_formats.size();j++) {
+                if (ext == image_sequence_formats.at(j)) {
+                    found = true;
+                    break;
+                }
+            }
+        } else {
+            lastcharindex = file.length();
         }
-        if (file[lastcharindex].isDigit()) {
+
+        if (found && file[lastcharindex-1].isDigit()) {
             bool is_img_sequence = false;
 
             // how many digits are in the filename?
             int digit_count = 0;
-            QString ext = file.mid(lastcharindex+1);
-            int digit_test = lastcharindex;
+            int digit_test = lastcharindex-1;
             while (file[digit_test].isDigit()) {
                 digit_count++;
                 digit_test--;
@@ -328,7 +343,6 @@ void Project::process_file_list(QStringList& files) {
 
             // retrieve number from filename
             digit_test++;
-            lastcharindex++;
             int file_number = file.mid(digit_test, digit_count).toInt();
 
             // Check if there are files with the same filename but just different numbers
@@ -343,7 +357,7 @@ void Project::process_file_list(QStringList& files) {
 
                 // add image sequence url to a vector in case the user imported several files that
                 // we're interpreting as a possible sequence
-                bool found = false;
+                found = false;
                 for (int i=0;i<image_sequence_urls.size();i++) {
                     if (image_sequence_urls.at(i) == new_filename) {
                         // either SKIP if we're importing as a sequence, or leave it if we aren't
@@ -364,7 +378,7 @@ void Project::process_file_list(QStringList& files) {
                     }
                 }
             }
-        }
+        }        
 
         if (!skip) {
             ta->add_media(import_file(file, files.at(i)));
@@ -380,7 +394,7 @@ void Project::process_file_list(QStringList& files) {
 }
 
 void Project::import_dialog() {
-	QStringList files = QFileDialog::getOpenFileNames(this, "Import media...", "", "All Files (*.*)");
+    QStringList files = QFileDialog::getOpenFileNames(this, "Import media...", "", "All Files (*)");
     process_file_list(files);
 }
 

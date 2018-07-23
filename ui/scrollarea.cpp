@@ -10,7 +10,7 @@
 ScrollArea::ScrollArea(QWidget* parent) : QScrollArea(parent) {}
 
 void ScrollArea::wheelEvent(QWheelEvent *e) {
-    if (scroll_zooms) {
+    if (config.scroll_zooms) {
         e->ignore();
         if (e->angleDelta().y() != 0) panel_timeline->set_zoom(e->angleDelta().y() > 0);
     } else {
