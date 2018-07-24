@@ -450,9 +450,9 @@ void Project::clear() {
 
 void Project::new_project() {
     // clear existing project
+    set_sequence(NULL);
     clear();
     project_changed = false;
-    set_sequence(NULL);
 }
 
 QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
