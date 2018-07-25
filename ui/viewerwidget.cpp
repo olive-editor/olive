@@ -34,17 +34,38 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent) {
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
 }
 
+void ViewerWidget::deleteFunction() {
+    // destroy all textures as well
+    for (int i=0;i<sequence->clip_count();i++) {
+        Clip* c = sequence->get_clip(i);
+        if (c->texture != NULL) {
+            /* TODO NOTE: apparently "destroy()" is non-functional here because
+             * it requires a valid current context, and I guess it's no longer
+             * valid or current by the time this function is called. Not sure
+             * how to handle that just yet...
+             */
+
+            c->texture->destroy();
+            c->texture = NULL;
+        }
+    }
+}
+
 void ViewerWidget::retry() {
 	update();
 }
 
 void ViewerWidget::initializeGL() {
+    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(deleteFunction()));
+
     initializeOpenGLFunctions();
 
     glClearColor(0, 0, 0, 1);
     glMatrixMode(GL_PROJECTION);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
+
+    update();
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
