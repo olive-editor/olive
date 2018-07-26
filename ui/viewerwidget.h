@@ -6,17 +6,32 @@
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
 #include <QTimer>
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 
 struct Clip;
 struct Sequence;
 
-class Viewer;
+class AudioSenderThread : public QThread {
+public:
+    AudioSenderThread();
+    ~AudioSenderThread();
+    void run();
+    QWaitCondition cond;
+    bool close;
+    QMutex lock;
+private:
+    QVector<qint16> samples;
+    int send_audio_to_output(int offset, int max);
+};
 
 class ViewerWidget : public QOpenGLWidget, public QOpenGLFunctions
 {
 	Q_OBJECT
 public:
     ViewerWidget(QWidget *parent = 0);
+    ~ViewerWidget();
 
     bool multithreaded;
     bool force_audio;
@@ -29,12 +44,11 @@ protected:
 //    void resizeGL(int w, int h);
 private:
 	QTimer retry_timer;
-    QVector<qint16> samples;
+    AudioSenderThread audio_sender_thread;
 private slots:
 	void retry();
     void deleteFunction();
     void compose_sequence(Sequence* s, bool render_audio);
-    int send_audio_to_output(int offset, int max);
 };
 
 #endif // VIEWERWIDGET_H

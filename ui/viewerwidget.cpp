@@ -29,9 +29,20 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent) {
 	format.setDepthBufferSize(24);
 	setFormat(format);
 
+    // start audio sending thread
+    connect(&audio_sender_thread, SIGNAL(finished()), &audio_sender_thread, SLOT(deleteLater()));
+    audio_sender_thread.start();
+
     // error handler - retries after 250ms if we couldn't get the entire image
     retry_timer.setInterval(250);
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
+}
+
+ViewerWidget::~ViewerWidget() {
+    audio_sender_thread.close = true;
+    audio_sender_thread.cond.wakeAll();
+    audio_sender_thread.lock.lock();
+    audio_sender_thread.lock.unlock();
 }
 
 void ViewerWidget::deleteFunction() {
@@ -193,7 +204,60 @@ void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
     }
 }
 
-int ViewerWidget::send_audio_to_output(int offset, int max) {
+void ViewerWidget::paintGL() {
+    bool loop = true;
+    while (loop) {
+        loop = false;
+        texture_failed = false;
+
+        if (multithreaded) retry_timer.stop();
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // compose video preview
+        compose_sequence(sequence, (panel_timeline->playing || force_audio));
+
+        // send audio to IO device
+        if (panel_timeline->playing) {
+            audio_sender_thread.cond.wakeAll();
+        }
+
+        if (texture_failed) {
+            if (multithreaded) {
+                retry_timer.start();
+            } else {
+                qDebug() << "[INFO] Texture failed - looping";
+                loop = true;
+            }
+        }
+    }
+}
+
+AudioSenderThread::AudioSenderThread() : close(false) {
+    lock.lock();
+}
+
+AudioSenderThread::~AudioSenderThread() {
+    lock.unlock();
+}
+
+void AudioSenderThread::run() {
+    while (true) {
+        cond.wait(&lock);
+        if (close) {
+            break;
+        } else {
+            int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
+            int max_write = audio_ibuffer_size - adjusted_read_index;
+            if (send_audio_to_output(adjusted_read_index, max_write) == max_write) {
+                // got all the bytes, write again
+                send_audio_to_output(0, audio_ibuffer_size);
+            }
+        }
+    }
+}
+
+int AudioSenderThread::send_audio_to_output(int offset, int max) {
     // send audio to device
     int actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
     audio_ibuffer_read += actual_write;
@@ -224,38 +288,4 @@ int ViewerWidget::send_audio_to_output(int offset, int max) {
     memset(audio_ibuffer+offset, 0, actual_write);
 
     return actual_write;
-}
-
-void ViewerWidget::paintGL() {
-    bool loop = true;
-    while (loop) {
-        loop = false;
-        texture_failed = false;
-
-        if (multithreaded) retry_timer.stop();
-
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // compose video preview
-        compose_sequence(sequence, (panel_timeline->playing || force_audio));
-
-        // send audio to IO device
-        if (panel_timeline->playing) {
-            int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
-            int max_write = audio_ibuffer_size - adjusted_read_index;
-            if (send_audio_to_output(adjusted_read_index, max_write) == max_write) {
-                // got all the bytes, write again
-                send_audio_to_output(0, audio_ibuffer_size);
-            }
-        }
-
-        if (texture_failed) {
-            if (multithreaded) {
-                retry_timer.start();
-            } else {
-                qDebug() << "[INFO] Texture failed - looping";
-                loop = true;
-            }
-        }
-    }
 }
