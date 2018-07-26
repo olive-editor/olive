@@ -8,6 +8,7 @@
 #include <QTimer>
 
 struct Clip;
+struct Sequence;
 
 class Viewer;
 
@@ -28,11 +29,12 @@ protected:
 //    void resizeGL(int w, int h);
 private:
 	QTimer retry_timer;
-    QVector<Clip*> current_clips;
     QVector<qint16> samples;
 private slots:
 	void retry();
     void deleteFunction();
+    void compose_sequence(Sequence* s, bool render_audio);
+    int send_audio_to_output(int offset, int max);
 };
 
 #endif // VIEWERWIDGET_H
