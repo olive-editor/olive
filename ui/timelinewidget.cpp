@@ -655,9 +655,12 @@ bool subvalidate_snapping(const Ghost& g, long* frame_diff, long snap_point) {
 }
 
 void validate_snapping(const Ghost& g, long* frame_diff) {
-    panel_timeline->snapped = false;
     if (panel_timeline->snapping) {
-        if (!subvalidate_snapping(g, frame_diff, panel_timeline->playhead)) {
+        bool snap_to_clip = true;
+        if (!panel_timeline->playing) {
+            snap_to_clip = !subvalidate_snapping(g, frame_diff, panel_timeline->playhead);
+        }
+        if (snap_to_clip) {
             for (int j=0;j<sequence->clip_count();j++) {
                 Clip* c = sequence->get_clip(j);
                 if (c != NULL) {
@@ -678,11 +681,13 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
     long validator;
 
     // first try to snap
+    panel_timeline->snapped = false;
     if (panel_timeline->tool != TIMELINE_TOOL_SLIP) {
         // slipping doesn't move the clips so we don't bother snapping for it
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
             Ghost& g = panel_timeline->ghosts[i];
             validate_snapping(g, &frame_diff);
+            if (panel_timeline->snapped) break;
         }
     }
 
@@ -813,7 +818,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
     }
 
     // apply changes to selections
-    if (panel_timeline->tool != TIMELINE_TOOL_SLIP) {
+    if (panel_timeline->tool != TIMELINE_TOOL_SLIP && !panel_timeline->importing) {
         for (int i=0;i<panel_timeline->selections.size();i++) {
             Selection& s = panel_timeline->selections[i];
             if (panel_timeline->trim_target > -1) {

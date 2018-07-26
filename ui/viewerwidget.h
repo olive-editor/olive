@@ -32,6 +32,7 @@ private:
     QVector<qint16> samples;
 private slots:
 	void retry();
+    void deleteFunction();
 };
 
 #endif // VIEWERWIDGET_H

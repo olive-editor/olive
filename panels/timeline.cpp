@@ -909,7 +909,12 @@ bool Timeline::snap_to_point(long point, long* l) {
 void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
     snapped = false;
     if (snapping) {
-        if (!playhead_inclusive || !snap_to_point(playhead, l)) {
+        if (playhead_inclusive && !playing) {
+            playhead_inclusive = snap_to_point(playhead, l);
+        } else {
+            playhead_inclusive = false;
+        }
+        if (!playhead_inclusive) {
             for (int i=0;i<sequence->clip_count();i++) {
                 Clip* c = sequence->get_clip(i);
                 if (c != NULL) {
