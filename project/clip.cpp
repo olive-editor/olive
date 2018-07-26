@@ -77,17 +77,18 @@ void Clip::reset() {
 	codecCtx = NULL;
 	texture = NULL;
 	cache_A.frames = NULL;
-	cache_B.frames = NULL;
+    cache_B.frames = NULL;
 }
 
 Clip::~Clip() {
     if (open) {
 		close_clip(this);
-	}
 
-    // make sure clip has closed before clip is destroyed
-    open_lock.lock();
-	open_lock.unlock();
+        // make sure clip has closed before clip is destroyed
+        if (multithreaded) {
+            cacher->wait();
+        }
+    }
 
     if (opening_transition != NULL) delete opening_transition;
     if (closing_transition != NULL) delete closing_transition;

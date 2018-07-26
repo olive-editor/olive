@@ -16,7 +16,6 @@ struct Sequence;
 class AudioSenderThread : public QThread {
 public:
     AudioSenderThread();
-    ~AudioSenderThread();
     void run();
     QWaitCondition cond;
     bool close;

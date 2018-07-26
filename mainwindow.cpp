@@ -253,12 +253,14 @@ void MainWindow::editMenu_About_To_Be_Shown() {
 void MainWindow::on_action_Undo_triggered()
 {
     undo_stack.undo();
+    editMenu_About_To_Be_Shown();
     panel_timeline->redraw_all_clips(true);
 }
 
 void MainWindow::on_action_Redo_triggered()
 {
     undo_stack.redo();
+    editMenu_About_To_Be_Shown();
     panel_timeline->redraw_all_clips(true);
 }
 
@@ -478,7 +480,7 @@ void MainWindow::on_actionGo_to_Next_Cut_triggered()
 void MainWindow::on_actionPreferences_triggered()
 {
     PreferencesDialog pd(this);
-    pd.setup_kbd_shortcuts(this->menuBar());
+    pd.setup_kbd_shortcuts(menuBar());
     pd.exec();
 }
 

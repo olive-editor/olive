@@ -30,7 +30,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent) {
 	setFormat(format);
 
     // start audio sending thread
-    connect(&audio_sender_thread, SIGNAL(finished()), &audio_sender_thread, SLOT(deleteLater()));
     audio_sender_thread.start();
 
     // error handler - retries after 250ms if we couldn't get the entire image
@@ -41,8 +40,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent) {
 ViewerWidget::~ViewerWidget() {
     audio_sender_thread.close = true;
     audio_sender_thread.cond.wakeAll();
-    audio_sender_thread.lock.lock();
-    audio_sender_thread.lock.unlock();
+    audio_sender_thread.wait();
 }
 
 void ViewerWidget::deleteFunction() {
@@ -234,27 +232,29 @@ void ViewerWidget::paintGL() {
 }
 
 AudioSenderThread::AudioSenderThread() : close(false) {
-    lock.lock();
-}
-
-AudioSenderThread::~AudioSenderThread() {
-    lock.unlock();
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
 void AudioSenderThread::run() {
+    lock.lock();
     while (true) {
         cond.wait(&lock);
         if (close) {
             break;
         } else {
+            int written_bytes = 0;
+
             int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
             int max_write = audio_ibuffer_size - adjusted_read_index;
-            if (send_audio_to_output(adjusted_read_index, max_write) == max_write) {
+            int actual_write = send_audio_to_output(adjusted_read_index, max_write);
+            written_bytes += actual_write;
+            if (actual_write == max_write) {
                 // got all the bytes, write again
-                send_audio_to_output(0, audio_ibuffer_size);
+                written_bytes += send_audio_to_output(0, audio_ibuffer_size);
             }
         }
     }
+    lock.unlock();
 }
 
 int AudioSenderThread::send_audio_to_output(int offset, int max) {
