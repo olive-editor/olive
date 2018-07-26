@@ -56,6 +56,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     if (event->source() == panel_project->source_table) {
         event->accept();
 
+        panel_timeline->video_ghosts = false;
+        panel_timeline->audio_ghosts = false;
         QPoint pos = event->pos();
         QList<QTreeWidgetItem*> items = panel_project->source_table->selectedItems();
         long entry_point;
@@ -130,11 +132,13 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                         g.track = j;
                         g.media_stream = m->audio_tracks.at(j)->file_index;
                         panel_timeline->ghosts.append(g);
+                        panel_timeline->audio_ghosts = true;
                     }
                     for (int j=0;j<m->video_tracks.size();j++) {
                         g.track = -1-j;
                         g.media_stream = m->video_tracks.at(j)->file_index;
                         panel_timeline->ghosts.append(g);
+                        panel_timeline->video_ghosts = true;
                     }
                 }
             }
@@ -329,10 +333,27 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                                     panel_timeline->selections.clear();
                                 }
 
+                                bool selected_transition = false;
                                 Selection s;
 
-                                s.in = clip->timeline_in;
                                 s.out = clip->timeline_out;
+                                if (clip->opening_transition != NULL) {
+                                    long open_transition_limit = clip->timeline_in + clip->opening_transition->length;
+                                    if (panel_timeline->drag_frame_start < open_transition_limit) {
+                                        s.out = open_transition_limit;
+                                        selected_transition = true;
+                                    }
+                                }
+
+                                s.in = clip->timeline_in;
+                                if (clip->closing_transition != NULL) {
+                                    long close_transition_limit = clip->timeline_out - clip->closing_transition->length;
+                                    if (panel_timeline->drag_frame_start > close_transition_limit) {
+                                        s.in = close_transition_limit;
+                                        selected_transition = true;
+                                    }
+                                }
+
                                 s.track = clip->track;
                                 panel_timeline->selections.append(s);
 
@@ -341,7 +362,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                                 }
 
                                 // if alt is not down, select links
-                                if (!(event->modifiers() & Qt::AltModifier)) {
+                                if (!(event->modifiers() & Qt::AltModifier) && !selected_transition) {
                                     for (int i=0;i<clip->linked.size();i++) {
                                         Clip* link = sequence->get_clip(clip->linked.at(i));
                                         if (!panel_timeline->is_clip_selected(link, true)) {
@@ -776,11 +797,14 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
             g.out = g.old_out + frame_diff;
 
             if (panel_timeline->importing) {
-                int abs_track_diff = abs(track_diff);
-                if (g.old_track < 0) { // clip is video
-                    g.track -= abs_track_diff;
-                } else { // clip is audio
-                    g.track += abs_track_diff;
+                if ((panel_timeline->video_ghosts && mouse_track < 0)
+                        || (panel_timeline->audio_ghosts && mouse_track >= 0)) {
+                    int abs_track_diff = abs(track_diff);
+                    if (g.old_track < 0) { // clip is video
+                        g.track -= abs_track_diff;
+                    } else { // clip is audio
+                        g.track += abs_track_diff;
+                    }
                 }
             } else if (same_sign(g.old_track, panel_timeline->drag_track_start)) {
                 g.track += track_diff;

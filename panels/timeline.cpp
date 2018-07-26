@@ -124,6 +124,7 @@ void Timeline::reset_all_audio() {
                 c->reset_audio = true;
                 c->frame_sample_index = 0;
                 c->audio_buffer_write = 0;
+                c->reached_end = false;
             }
         }
     }

@@ -151,6 +151,8 @@ public:
 	bool moving_init;
 	bool moving_proc;
     QVector<Ghost> ghosts;
+    bool video_ghosts;
+    bool audio_ghosts;
 
 	// trimming
 	int trim_target;
