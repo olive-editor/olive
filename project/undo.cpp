@@ -9,8 +9,10 @@
 #include "project/sequence.h"
 #include "panels/panels.h"
 #include "panels/project.h"
+#include "panels/effectcontrols.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
+#include "effects/effects.h"
 
 QUndoStack undo_stack;
 
@@ -23,6 +25,7 @@ QUndoStack undo_stack;
 #define TA_ADD_OUT 6
 #define TA_ADD_CLIP_IN 7
 #define TA_ADD_TRACK 8
+#define TA_ADD_EFFECT 9
 
 TimelineAction::TimelineAction() :
     done(false),
@@ -139,6 +142,10 @@ void TimelineAction::ripple(Sequence* s, long point, long length) {
     ripple(s, point, length, i);
 }
 
+void TimelineAction::add_effect(Sequence* s, int clip, int effect) {
+    new_action(s, TA_ADD_EFFECT, clip, 0, effect);
+}
+
 void TimelineAction::set_in_out(Sequence* s, bool enabled, long in, long out) {
     change_in_out = true;
     change_in_out_sequence = s;
@@ -210,6 +217,12 @@ void TimelineAction::undo() {
             break;
         case TA_ADD_TRACK:
             sequences.at(i)->get_clip(clips.at(i))->track -= new_values.at(i);
+            break;
+        case TA_ADD_EFFECT:
+            Clip* c = sequences.at(i)->get_clip(clips.at(i));
+            Effect* effect = c->effects.at(old_values.at(i));
+            c->effects.removeAt(old_values.at(i));
+            delete effect;
             break;
         }
     }
@@ -344,6 +357,13 @@ void TimelineAction::redo() {
         case TA_ADD_TRACK:
         {
             sequences.at(i)->get_clip(clips.at(i))->track += new_values.at(i);
+        }
+            break;
+        case TA_ADD_EFFECT:
+        {
+            Clip* c = sequences.at(i)->get_clip(clips.at(i));
+            old_values[i] = c->effects.size();
+            c->effects.append(create_effect(new_values.at(i), c));
         }
             break;
         }

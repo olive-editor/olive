@@ -33,6 +33,7 @@ public:
     void ripple(Sequence* s, long point, long length);
     void ripple(Sequence* s, long point, long length, QVector<int> &ignore);
     void set_in_out(Sequence* s, bool enabled, long in, long out);
+    void add_effect(Sequence* s, int clip, int effect);
     void undo();
     void redo();
 private:

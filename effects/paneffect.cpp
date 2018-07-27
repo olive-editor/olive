@@ -30,7 +30,7 @@ void PanEffect::load(QXmlStreamReader *stream) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "pan") {
             stream->readNext();
-            pan_val->set_value(stream->text().toFloat());
+            pan_val->set_value(stream->text().toDouble());
         }
     }
 }
@@ -45,7 +45,7 @@ void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
             qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
             qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
 
-            float val = qPow(pan_val->value()*0.01f, 3);
+            double val = qPow(pan_val->value()*0.01, 3);
             if (val < 0) {
                 // affect right channel
                 right_sample *= (1-std::abs(val));

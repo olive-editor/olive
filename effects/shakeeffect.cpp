@@ -38,9 +38,9 @@ ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFF
     connect(intensity_val, SIGNAL(valueChanged()), this, SLOT(field_changed()));
     connect(rotation_val, SIGNAL(valueChanged()), this, SLOT(field_changed()));
     connect(frequency_val, SIGNAL(valueChanged()), this, SLOT(field_changed()));
-    connect(intensity_val, SIGNAL(valueChanged()), this, SLOT(set_values()));
-    connect(rotation_val, SIGNAL(valueChanged()), this, SLOT(set_values()));
-    connect(frequency_val, SIGNAL(valueChanged()), this, SLOT(set_values()));
+    connect(intensity_val, SIGNAL(valueChanged()), this, SLOT(init()));
+    connect(rotation_val, SIGNAL(valueChanged()), this, SLOT(init()));
+    connect(frequency_val, SIGNAL(valueChanged()), this, SLOT(init()));
 }
 
 void ShakeEffect::init() {
@@ -66,11 +66,11 @@ void ShakeEffect::load(QXmlStreamReader* reader) {
     for (int i=0;i<attr.size();i++) {
         const QXmlStreamAttribute& a = attr.at(i);
         if (a.name() == "intensity") {
-            intensity_val->set_value(a.value().toFloat());
+            intensity_val->set_value(a.value().toDouble());
         } else if (a.name() == "rotation") {
-            rotation_val->set_value(a.value().toFloat());
+            rotation_val->set_value(a.value().toDouble());
         } else if (a.name() == "frequency") {
-            frequency_val->set_value(a.value().toFloat());
+            frequency_val->set_value(a.value().toDouble());
         }
     }
 }
@@ -83,7 +83,7 @@ void ShakeEffect::save(QXmlStreamWriter* stream) {
 
 void ShakeEffect::process_gl(int*, int*) {
     if (shake_progress > shake_limit) {
-        if (intensity_val->value() > 0) {
+        if ((int)intensity_val->value() > 0) {
             prev_x = next_x;
             prev_y = next_y;
             next_x = (qrand() % (int) (intensity_val->value() * 2)) - intensity_val->value();
@@ -96,7 +96,7 @@ void ShakeEffect::process_gl(int*, int*) {
             offset_x = 0;
             offset_y = 0;
         }
-        if (rotation_val->value() > 0) {
+        if ((int)rotation_val->value() > 0) {
             prev_rot = next_rot;
             next_rot = (qrand() % (int) (rotation_val->value() * 2)) - rotation_val->value();
         } else {

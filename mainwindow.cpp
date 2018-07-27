@@ -162,7 +162,7 @@ void MainWindow::on_action_Import_triggered()
 
 void MainWindow::on_actionExit_triggered()
 {
-	QApplication::quit();
+    close();
 }
 
 void MainWindow::on_actionAbout_triggered()

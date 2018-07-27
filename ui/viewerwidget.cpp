@@ -3,6 +3,7 @@
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
+#include "panels/project.h"
 #include "project/sequence.h"
 #include "project/effect.h"
 #include "effects/transition.h"
@@ -92,9 +93,10 @@ void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
         Clip* c = s->get_clip(i);
 
         // if clip starts within one second and/or hasn't finished yet
-        if (c != NULL) {
-            if (c->media->ready
-                    && c->media->get_stream_from_file_index(c->media_stream) != NULL
+        if (c != NULL && c->media_type == MEDIA_TYPE_FOOTAGE) {
+            Media* m = static_cast<Media*>(c->media);
+            if (m->ready
+                    && m->get_stream_from_file_index(c->media_stream) != NULL
                     && is_clip_active(c, panel_timeline->playhead)) {
                 // if thread is already working, we don't want to touch this,
                 // but we also don't want to hang the UI thread
@@ -126,77 +128,83 @@ void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
             qDebug() << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
         } else if (is_clip_active(c, panel_timeline->playhead)) {
-            if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                // start preparing cache
-                get_clip_frame(c, panel_timeline->playhead);
+            switch (c->media_type) {
+            case MEDIA_TYPE_FOOTAGE:
+                if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                    // start preparing cache
+                    get_clip_frame(c, panel_timeline->playhead);
 
-                if (c->texture == NULL) {
-                    qDebug() << "[WARNING] Texture hasn't been created yet";
-                    texture_failed = true;
-                } else if (panel_timeline->playhead >= c->timeline_in) {
-                    MediaStream* ms = c->media->get_stream_from_file_index(c->media_stream);
+                    if (c->texture == NULL) {
+                        qDebug() << "[WARNING] Texture hasn't been created yet";
+                        texture_failed = true;
+                    } else if (panel_timeline->playhead >= c->timeline_in) {
+                        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
 
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    glColor4f(1.0, 1.0, 1.0, 1.0);
-                    glLoadIdentity();
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glColor4f(1.0, 1.0, 1.0, 1.0);
+                        glLoadIdentity();
 
-                    int half_width = s->width/2;
-                    int half_height = s->height/2;
-                    if (flip) {
-                        glOrtho(-half_width, half_width, -half_height, half_height, -1, 1);
-                    } else {
-                        glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
-                    }
-                    int anchor_x = ms->video_width/2;
-                    int anchor_y = ms->video_height/2;
+                        int half_width = s->width/2;
+                        int half_height = s->height/2;
+                        if (flip) {
+                            glOrtho(-half_width, half_width, -half_height, half_height, -1, 1);
+                        } else {
+                            glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
+                        }
+                        int anchor_x = ms->video_width/2;
+                        int anchor_y = ms->video_height/2;
 
-                    // perform all transform effects
-                    for (int j=0;j<c->effects.size();j++) {
-                        if (c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
-                    }
+                        // perform all transform effects
+                        for (int j=0;j<c->effects.size();j++) {
+                            if (c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
+                        }
 
-                    if (c->opening_transition != NULL) {
-                        int transition_progress = panel_timeline->playhead-c->timeline_in;
-                        if (transition_progress < c->opening_transition->length) {
-                            c->opening_transition->process_transition((float)transition_progress/(float)c->opening_transition->length);
+                        if (c->opening_transition != NULL) {
+                            int transition_progress = panel_timeline->playhead-c->timeline_in;
+                            if (transition_progress < c->opening_transition->length) {
+                                c->opening_transition->process_transition((float)transition_progress/(float)c->opening_transition->length);
+                            }
+                        }
+                        if (c->closing_transition != NULL) {
+                            int transition_progress = c->closing_transition->length-(panel_timeline->playhead-c->timeline_in-c->getLength()+c->closing_transition->length);
+                            if (transition_progress < c->closing_transition->length) {
+                                c->closing_transition->process_transition((float)transition_progress/(float)c->closing_transition->length);
+                            }
+                        }
+
+                        int anchor_right = ms->video_width - anchor_x;
+                        int anchor_bottom = ms->video_height - anchor_y;
+
+                        c->texture->bind();
+
+                        glBegin(GL_QUADS);
+                        glTexCoord2f(0.0, 0.0);
+                        glVertex2f(-anchor_x, -anchor_y);
+                        glTexCoord2f(1.0, 0.0);
+                        glVertex2f(anchor_right, -anchor_y);
+                        glTexCoord2f(1.0, 1.0);
+                        glVertex2f(anchor_right, anchor_bottom);
+                        glTexCoord2f(0.0, 1.0);
+                        glVertex2f(-anchor_x, anchor_bottom);
+                        glEnd();
+
+                        c->texture->release();
+
+                        // perform all transform effects
+                        for (int j=0;j<c->effects.size();j++) {
+                            if (c->effects.at(j)->is_enabled()) c->effects.at(j)->post_gl();
                         }
                     }
-                    if (c->closing_transition != NULL) {
-                        int transition_progress = c->closing_transition->length-(panel_timeline->playhead-c->timeline_in-c->getLength()+c->closing_transition->length);
-                        if (transition_progress < c->closing_transition->length) {
-                            c->closing_transition->process_transition((float)transition_progress/(float)c->closing_transition->length);
-                        }
-                    }
-
-                    int anchor_right = ms->video_width - anchor_x;
-                    int anchor_bottom = ms->video_height - anchor_y;
-
-                    c->texture->bind();
-
-                    glBegin(GL_QUADS);
-                    glTexCoord2f(0.0, 0.0);
-                    glVertex2f(-anchor_x, -anchor_y);
-                    glTexCoord2f(1.0, 0.0);
-                    glVertex2f(anchor_right, -anchor_y);
-                    glTexCoord2f(1.0, 1.0);
-                    glVertex2f(anchor_right, anchor_bottom);
-                    glTexCoord2f(0.0, 1.0);
-                    glVertex2f(-anchor_x, anchor_bottom);
-                    glEnd();
-
-                    c->texture->release();
-
-                    // perform all transform effects
-                    for (int j=0;j<c->effects.size();j++) {
-                        if (c->effects.at(j)->is_enabled()) c->effects.at(j)->post_gl();
-                    }
+                } else if (render_audio &&
+                           c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
+                           c->lock.tryLock()) {
+                    // clip is not caching, start caching audio
+                    cache_clip(c, panel_timeline->playhead, false, false, c->reset_audio);
+                    c->lock.unlock();
                 }
-            } else if (render_audio &&
-                       c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
-                       c->lock.tryLock()) {
-                // clip is not caching, start caching audio
-                cache_clip(c, panel_timeline->playhead, false, false, c->reset_audio);
-                c->lock.unlock();
+                break;
+            case MEDIA_TYPE_SEQUENCE:
+                break;
             }
         }
     }

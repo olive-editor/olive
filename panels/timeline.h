@@ -17,6 +17,7 @@ struct Media;
 struct MediaStream;
 
 int lerp(int a, int b, double t);
+long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
 
 struct Ghost {
     int clip;
@@ -31,7 +32,8 @@ struct Ghost {
 	long old_clip_in;
 
 	// importing variables
-	Media* media;
+    void* media;
+    int media_type;
     int media_stream;
 
 	// other variables

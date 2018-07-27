@@ -15,6 +15,7 @@
 #include "io/media.h"
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"
+#include "panels/project.h"
 
 #define BLEND_MODE_NORMAL 0
 #define BLEND_MODE_SCREEN 1
@@ -68,6 +69,9 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
     ui_layout->addWidget(blend_mode_box, 6, 1);
 
 	// set defaults
+    scale_y->setEnabled(false);
+    uniform_scale_box->setChecked(true);
+    blend_mode_box->setCurrentIndex(0);
     init();
 
     connect(position_x, SIGNAL(valueChanged()), this, SLOT(field_changed()));
@@ -85,20 +89,41 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 }
 
 void TransformEffect::init() {
-    MediaStream* ms = parent_clip->media->get_stream_from_file_index(parent_clip->media_stream);
-    if (ms != NULL && parent_clip->sequence != NULL) {
-        position_x->set_default_value(parent_clip->sequence->width/2);
-        position_y->set_default_value(parent_clip->sequence->height/2);
+    if (parent_clip->sequence != NULL) {
+        double default_pos_x = parent_clip->sequence->width/2;
+        double default_pos_y = parent_clip->sequence->height/2;
+
+        position_x->set_default_value(default_pos_x);
+        position_y->set_default_value(default_pos_y);
         scale_x->set_default_value(100);
         scale_y->set_default_value(100);
-        scale_y->setEnabled(false);
-        uniform_scale_box->setChecked(true);
-        default_anchor_x = ms->video_width/2;
-        default_anchor_y = ms->video_height/2;
+
+        default_anchor_x = default_pos_x;
+        default_anchor_y = default_pos_y;
+        if (parent_clip->media != NULL) {
+            switch (parent_clip->media_type) {
+            case MEDIA_TYPE_FOOTAGE:
+            {
+                MediaStream* ms = static_cast<Media*>(parent_clip->media)->get_stream_from_file_index(parent_clip->media_stream);
+                if (ms != NULL) {
+                    default_anchor_x = ms->video_width/2;
+                    default_anchor_y = ms->video_height/2;
+                }
+                break;
+            }
+            case MEDIA_TYPE_SEQUENCE:
+            {
+                Sequence* s = static_cast<Sequence*>(parent_clip->media);
+                default_anchor_x = s->width/2;
+                default_anchor_y = s->height/2;
+                break;
+            }
+            }
+        }
+
         anchor_x_box->set_default_value(default_anchor_x);
         anchor_y_box->set_default_value(default_anchor_y);
         opacity->set_default_value(100);
-        blend_mode_box->setCurrentIndex(0);
     }
 }
 
@@ -122,31 +147,31 @@ void TransformEffect::load(QXmlStreamReader *stream) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "posx") {
             stream->readNext();
-            position_x->set_value(stream->text().toFloat());
+            position_x->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "posy") {
             stream->readNext();
-            position_y->set_value(stream->text().toFloat());
+            position_y->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "scalex") {
             stream->readNext();
-            scale_x->set_value(stream->text().toFloat());
+            scale_x->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "scaley") {
             stream->readNext();
-            scale_y->set_value(stream->text().toFloat());
+            scale_y->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "uniformscale") {
             stream->readNext();
             uniform_scale_box->setChecked(stream->text() == "1");
         } else if (stream->isStartElement() && stream->name() == "rotation") {
             stream->readNext();
-            rotation->set_value(stream->text().toFloat());
+            rotation->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "anchorx") {
             stream->readNext();
-            anchor_x_box->set_value(stream->text().toFloat());
+            anchor_x_box->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "anchory") {
             stream->readNext();
-            anchor_y_box->set_value(stream->text().toFloat());
+            anchor_y_box->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "opacity") {
             stream->readNext();
-            opacity->set_value(stream->text().toFloat());
+            opacity->set_value(stream->text().toDouble());
         } else if (stream->isStartElement() && stream->name() == "blendmode") {
             stream->readNext();
             blend_mode_box->setCurrentIndex(stream->text().toInt());
@@ -183,9 +208,9 @@ void TransformEffect::process_gl(int* anchor_x, int* anchor_y) {
 	glRotatef(rotation->value(), 0, 0, 1);
 
 	// scale
-	float sx = scale_x->value()*0.01;
-	float sy = (uniform_scale_box->isChecked()) ? sx : scale_y->value()*0.01;
-	glScalef(sx, sy, 1);
+    float sx = scale_x->value()*0.01;
+    float sy = (uniform_scale_box->isChecked()) ? sx : scale_y->value()*0.01;
+    glScalef(sx, sy, 1);
 
     // blend mode
     switch (blend_mode_box->currentData().toInt()) {

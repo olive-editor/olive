@@ -40,6 +40,7 @@ struct Clip
 	~Clip();
     Clip* copy(Sequence* s);
 	void reset();
+    void refresh();
 	bool undeletable;
 
 	// timeline variables
@@ -56,7 +57,8 @@ struct Clip
     quint8 color_g;
     quint8 color_b;
     long getLength();
-	Media* media; // attached media
+    void* media; // attached media
+    int media_type;
     int media_stream;
     Sequence* sequence;
 

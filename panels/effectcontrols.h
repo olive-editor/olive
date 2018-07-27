@@ -44,7 +44,7 @@ private:
 	bool video_menu;
 };
 
-class EffectAddCommand : public QUndoCommand {
+/*class EffectAddCommand : public QUndoCommand {
 public:
     EffectAddCommand();
     ~EffectAddCommand();
@@ -54,7 +54,7 @@ public:
     QVector<Effect*> effects;
 private:
     bool done;
-};
+};*/
 
 class EffectDeleteCommand : public QUndoCommand {
 public:

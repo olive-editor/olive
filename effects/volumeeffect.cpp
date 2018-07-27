@@ -31,7 +31,7 @@ void VolumeEffect::load(QXmlStreamReader* stream) {
         stream->readNext();
         if (stream->isStartElement() && stream->name() == "volume") {
             stream->readNext();
-            volume_val->set_value(stream->text().toFloat());
+            volume_val->set_value(stream->text().toDouble());
         }
     }
 }

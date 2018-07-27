@@ -77,7 +77,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		long clip_time = seconds_to_clip_frame(c, playhead_to_seconds(c, playhead));
 
 		// do we need to update the texture?
-        MediaStream* ms = c->media->get_stream_from_file_index(c->media_stream);
+        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
         if ((!ms->infinite_length && c->texture_frame != clip_time) ||
                 (ms->infinite_length && c->texture_frame == -1)) {
 			AVFrame* current_frame = NULL;

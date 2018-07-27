@@ -9,29 +9,32 @@ class LabelSlider : public QLabel
     Q_OBJECT
 public:
     LabelSlider(QWidget* parent = 0);
-    void set_value(float v);
-    void set_default_value(float v);
-    void set_minimum_value(float v);
-    void set_maximum_value(float v);
-    float value();
+    void set_value(double v);
+    void set_default_value(double v);
+    void set_minimum_value(double v);
+    void set_maximum_value(double v);
+    double value();
+    bool is_set();
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
 private:
-    float default_value;
-    float internal_value;
-    float drag_start_value;
+    double default_value;
+    double internal_value;
+    double drag_start_value;
 
     bool min_enabled;
-    float min_value;
+    double min_value;
     bool max_enabled;
-    float max_value;
+    double max_value;
 
     bool drag_start;
     bool drag_proc;
     int drag_start_x;
     int drag_start_y;
+
+    bool set;
 signals:
     void valueChanged();
 };

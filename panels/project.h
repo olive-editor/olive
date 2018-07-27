@@ -7,6 +7,7 @@
 
 struct Media;
 struct Sequence;
+struct Clip;
 class Timeline;
 class Viewer;
 class SourceTable;
@@ -21,7 +22,6 @@ class QFile;
 #define MEDIA_TYPE_SOLID 3
 
 #define LOAD_TYPE_VERSION 69
-#define SAVE_SET_FOLDER_IDS 70
 
 class TimelineAction;
 
@@ -65,6 +65,8 @@ public:
 
     void save_recent_projects();
 
+    QVector<Sequence*> list_all_project_sequences();
+
 	SourceTable* source_table;
 public slots:
     void import_dialog();
@@ -74,16 +76,20 @@ private:
 	Ui::Project *ui;
     QTreeWidgetItem* new_item();
     bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
-    void save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type);
+    void save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type, bool set_ids_only);
     QString error_str;
     int folder_id;
     int media_id;
+    int sequence_id;
     QVector<QTreeWidgetItem*> loaded_folders;
     QVector<Media*> loaded_media;
+    QVector<Clip*> loaded_clips;
+    QVector<Sequence*> loaded_sequences;
     QTreeWidgetItem* find_loaded_folder_by_id(int id);
     void add_recent_project(QString url);
     void get_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
     void start_preview_generator(QTreeWidgetItem* item, Media* media);
+    void list_all_sequences_worker(QVector<Sequence*>* list, QTreeWidgetItem* parent);
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
     void clear_recent_projects();

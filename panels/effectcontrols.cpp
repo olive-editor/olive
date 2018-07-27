@@ -29,15 +29,14 @@ EffectControls::~EffectControls()
 }
 
 void EffectControls::menu_select(QAction* q) {
-    EffectAddCommand* command = new EffectAddCommand();
+    TimelineAction* ta = new TimelineAction();
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* clip = sequence->get_clip(selected_clips.at(i));
-        if ((clip->track < 0 && video_menu) || (clip->track >= 0 && !video_menu)) {
-            command->clips.append(clip);
-            command->effects.append(create_effect(q->data().toInt(), clip));
+        if ((sequence->get_clip(selected_clips.at(i))->track < 0) == video_menu) {
+            ta->add_effect(sequence, selected_clips.at(i), q->data().toInt());
         }
     }
-    undo_stack.push(command);
+    undo_stack.push(ta);
+    reload_clips();
     project_changed = true;
 }
 
@@ -192,38 +191,6 @@ bool EffectControls::is_focused() {
         }
     }
     return false;
-}
-
-EffectAddCommand::EffectAddCommand() : done(false) {}
-
-EffectAddCommand::~EffectAddCommand() {
-    if (!done) {
-        for (int i=0;i<effects.size();i++) {
-            delete effects.at(i);
-        }
-    }
-}
-
-void EffectAddCommand::undo() {
-    for (int i=0;i<clips.size();i++) {
-        Clip* c = clips.at(i);
-        for (int j=0;j<c->effects.size();j++) {
-            if (c->effects.at(j) == effects.at(i)) {
-                c->effects.removeAt(j);
-                break;
-            }
-        }
-    }
-    panel_effect_controls->reload_clips();
-    done = false;
-}
-
-void EffectAddCommand::redo() {
-    for (int i=0;i<clips.size();i++) {
-        clips.at(i)->effects.append(effects.at(i));
-    }
-    panel_effect_controls->reload_clips();
-    done = true;
 }
 
 EffectDeleteCommand::EffectDeleteCommand() : done(false) {}

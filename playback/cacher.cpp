@@ -151,7 +151,7 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
-    MediaStream* ms = c->media->get_stream_from_file_index(c->media_stream);
+    MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
     if (ms->infinite_length) {
 		// if this clip is a still image, we only need one frame
 		if (!c->cache_A.written) {
@@ -197,9 +197,10 @@ Cacher::Cacher(Clip* c) : clip(c) {}
 
 void open_clip_worker(Clip* clip) {
 	// opens file resource for FFmpeg and prepares Clip struct for playback
-	QByteArray ba = clip->media->url.toUtf8();
+    Media* m = static_cast<Media*>(clip->media);
+    QByteArray ba = m->url.toUtf8();
 	const char* filename = ba.constData();
-    MediaStream* ms = clip->media->get_stream_from_file_index(clip->media_stream);
+    MediaStream* ms = m->get_stream_from_file_index(clip->media_stream);
 
 	int errCode = avformat_open_input(
 			&clip->formatCtx,
@@ -361,7 +362,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 
 void close_clip_worker(Clip* clip) {
     // closes ffmpeg file handle and frees any memory used for caching
-    MediaStream* ms = clip->media->get_stream_from_file_index(clip->media_stream);
+    MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->media_stream);
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		sws_freeContext(clip->sws_ctx);
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {

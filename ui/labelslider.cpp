@@ -6,19 +6,20 @@
 #include <QInputDialog>
 #include <QApplication>
 
-LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent)
-{
+LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
     drag_start = false;
     min_enabled = false;
     max_enabled = false;
     setStyleSheet("QLabel{color:#ffc000;text-decoration:underline;}QLabel:disabled{color:#808080;}");
     setCursor(Qt::SizeHorCursor);
     internal_value = -1;
-    set_value(0);
     set_default_value(0);
+    set_value(0);
+    set = false;
 }
 
-void LabelSlider::set_value(float v) {
+void LabelSlider::set_value(double v) {
+    set = true;
     if (v != internal_value) {
         if (min_enabled && v < min_value) {
             internal_value = min_value;
@@ -33,21 +34,25 @@ void LabelSlider::set_value(float v) {
     }
 }
 
-float LabelSlider::value() {
+bool LabelSlider::is_set() {
+    return set;
+}
+
+double LabelSlider::value() {
     return internal_value;
 }
 
-void LabelSlider::set_default_value(float v) {
+void LabelSlider::set_default_value(double v) {
     default_value = v;
-    set_value(v);
+    if (!set) set_value(v);
 }
 
-void LabelSlider::set_minimum_value(float v) {
+void LabelSlider::set_minimum_value(double v) {
     min_value = v;
     min_enabled = true;
 }
 
-void LabelSlider::set_maximum_value(float v) {
+void LabelSlider::set_maximum_value(double v) {
     max_value = v;
     max_enabled = true;
 }

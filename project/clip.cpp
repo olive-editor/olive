@@ -12,19 +12,21 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-Clip::Clip(Sequence* s) : sequence(s) {
+Clip::Clip(Sequence* s) :
+    sequence(s),
+    enabled(true),
+    clip_in(0),
+    timeline_in(0),
+    timeline_out(0),
+    track(0),
+    undeletable(0),
+    texture(NULL),
+    opening_transition(NULL),
+    closing_transition(NULL),
+    media(NULL),
+    pkt(new AVPacket())
+{
     reset();
-    enabled = true;
-    clip_in = 0;
-    timeline_in = 0;
-    timeline_out = 0;
-    track = 0;
-    undeletable = 0;
-    texture = NULL;
-    opening_transition = NULL;
-    closing_transition = NULL;
-    media = NULL;
-    pkt = new AVPacket();
 }
 
 Clip* Clip::copy(Sequence* s) {
@@ -41,6 +43,7 @@ Clip* Clip::copy(Sequence* s) {
     copy->color_b = color_b;
     copy->sequence = s;
     copy->media = media;
+    copy->media_type = media_type;
     copy->media_stream = media_stream;
 
     for (int i=0;i<effects.size();i++) {
@@ -78,6 +81,13 @@ void Clip::reset() {
 	texture = NULL;
 	cache_A.frames = NULL;
     cache_B.frames = NULL;
+}
+
+void Clip::refresh() {
+    // reinitializes all effects... just in case
+    for (int i=0;i<effects.size();i++) {
+        effects.at(i)->init();
+    }
 }
 
 Clip::~Clip() {

@@ -27,6 +27,8 @@ public:
     bool using_workarea;
     long workarea_in;
     long workarea_out;
+
+    int save_id;
 private:
     QVector<Clip*> clips;
 };
