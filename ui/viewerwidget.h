@@ -47,7 +47,7 @@ private:
 private slots:
 	void retry();
     void deleteFunction();
-    void compose_sequence(Sequence* s, bool render_audio);
+    void compose_sequence(Clip *nest, bool render_audio);
 };
 
 #endif // VIEWERWIDGET_H

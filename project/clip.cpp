@@ -5,6 +5,8 @@
 #include "io/media.h"
 #include "playback/playback.h"
 #include "playback/cacher.h"
+#include "panels/project.h"
+#include "project/sequence.h"
 
 #include <QDebug>
 
@@ -20,11 +22,11 @@ Clip::Clip(Sequence* s) :
     timeline_out(0),
     track(0),
     undeletable(0),
-    texture(NULL),
+    media(NULL),
     opening_transition(NULL),
     closing_transition(NULL),
-    media(NULL),
-    pkt(new AVPacket())
+    pkt(new AVPacket()),
+    texture(NULL)
 {
     reset();
 }
@@ -69,7 +71,7 @@ void Clip::reset() {
     cache_A.unread = false;
     cache_B.unread = false;
     reached_end = false;
-    reset_audio = false;
+    audio_reset = false;
     frame_sample_index = false;
     audio_buffer_write = false;
     need_new_audio_frame = false;
@@ -83,10 +85,49 @@ void Clip::reset() {
     cache_B.frames = NULL;
 }
 
+void Clip::reset_audio() {
+    switch (media_type) {
+    case MEDIA_TYPE_FOOTAGE:
+        audio_reset = true;
+        frame_sample_index = 0;
+        audio_buffer_write = 0;
+        reached_end = false;
+        break;
+    case MEDIA_TYPE_SEQUENCE:
+    {
+        Sequence* nested_sequence = static_cast<Sequence*>(media);
+        for (int i=0;i<nested_sequence->clip_count();i++) {
+            Clip* c = nested_sequence->get_clip(i);
+            if (c != NULL) c->reset_audio();
+        }
+    }
+        break;
+    }
+}
+
 void Clip::refresh() {
     // reinitializes all effects... just in case
     for (int i=0;i<effects.size();i++) {
         effects.at(i)->init();
+    }
+}
+
+void Clip::run_video_pre_effect_stack(long playhead, int* anchor_x, int* anchor_y) {
+    for (int j=0;j<effects.size();j++) {
+        if (effects.at(j)->is_enabled()) effects.at(j)->process_gl(anchor_x, anchor_y);
+    }
+
+    if (opening_transition != NULL) {
+        int transition_progress = playhead - timeline_in;
+        if (transition_progress < opening_transition->length) {
+            opening_transition->process_transition((double)transition_progress/(double)opening_transition->length);
+        }
+    }
+    if (closing_transition != NULL) {
+        int transition_progress = closing_transition->length - (playhead - timeline_in - getLength() + closing_transition->length);
+        if (transition_progress < closing_transition->length) {
+            closing_transition->process_transition((double)transition_progress/(double)closing_transition->length);
+        }
     }
 }
 

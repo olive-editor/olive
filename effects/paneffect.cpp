@@ -19,6 +19,8 @@ PanEffect::PanEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT) {
     pan_val->set_value(0);
 }
 
+void PanEffect::init() {}
+
 Effect* PanEffect::copy(Clip* c) {
     PanEffect* p = new PanEffect(c);
     p->pan_val->set_value(pan_val->value());

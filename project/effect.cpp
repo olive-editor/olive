@@ -28,7 +28,7 @@ Effect::Effect(Clip* c, int t, int i) : parent_clip(c), type(t), id(i) {
 }
 
 void Effect::init() {
-    qDebug() << "WRONG" << type << id;
+    qDebug() << "[WARNING] Tried to init base Effect class - type:" << type << "- id:" << id;
 }
 
 void Effect::field_changed() {

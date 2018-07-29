@@ -12,7 +12,7 @@ struct AVFrame;
 extern bool texture_failed;
 
 void open_clip(Clip* clip, bool multithreaded);
-void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset);
+void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip *nest);
 void close_clip(Clip* clip);
 void cache_audio_worker(Clip* c, bool write_A);
 void cache_video_worker(Clip* c, long playhead, ClipCache* cache);

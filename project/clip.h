@@ -39,20 +39,23 @@ struct Clip
     Clip(Sequence* s);
 	~Clip();
     Clip* copy(Sequence* s);
+    void reset_audio();
 	void reset();
     void refresh();
-	bool undeletable;
+    void run_video_pre_effect_stack(long playhead, int *anchor_x, int *anchor_y);
 
 	// timeline variables
+    Sequence* sequence;
     bool enabled;
+    long clip_in;
+    long timeline_in;
+    long timeline_out;
+    int track;
+    bool undeletable;
     int load_id;
 	QString name;
     long get_timeline_in_with_transition();
     long get_timeline_out_with_transition();
-    long timeline_in;
-    long timeline_out;
-	long clip_in;
-	int track;
     quint8 color_r;
     quint8 color_g;
     quint8 color_b;
@@ -60,7 +63,6 @@ struct Clip
     void* media; // attached media
     int media_type;
     int media_stream;
-    Sequence* sequence;
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;
@@ -100,7 +102,7 @@ struct Clip
     bool need_new_audio_frame;
     int frame_sample_index;
     int audio_buffer_write;
-    bool reset_audio;
+    bool audio_reset;
     bool audio_just_reset;
     long audio_target_frame;
 };

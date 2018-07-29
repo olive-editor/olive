@@ -486,7 +486,7 @@ void LinkCommand::redo() {
     }
 }
 
-CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), done(true), checked(box->isChecked()) {}
+CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), checked(box->isChecked()), done(true) {}
 
 CheckboxCommand::~CheckboxCommand() {}
 

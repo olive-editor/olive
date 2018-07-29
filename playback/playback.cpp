@@ -59,16 +59,17 @@ void close_clip(Clip* clip) {
 	}
 }
 
-void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset) {
+void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip* nest) {
 	if (clip->multithreaded) {
 		clip->cacher->playhead = playhead;
 		clip->cacher->write_A = write_A;
 		clip->cacher->write_B = write_B;
 		clip->cacher->reset = reset;
+        clip->cacher->nest = nest;
 
 		clip->can_cache.wakeAll();
 	} else {
-		cache_clip_worker(clip, playhead, write_A, write_B, reset);
+        cache_clip_worker(clip, playhead, write_A, write_B, reset, nest);
 	}
 }
 
@@ -90,7 +91,7 @@ void get_clip_frame(Clip* c, long playhead) {
 				} else if (c->multithreaded) {
 					if (c->lock.tryLock()) {
 						// grab image (multi-threaded)
-						cache_clip(c, 0, false, false, true);
+                        cache_clip(c, 0, false, false, true, NULL);
 						c->lock.unlock();
 					}
 				} else {
@@ -146,7 +147,7 @@ void get_clip_frame(Clip* c, long playhead) {
 								// ...otherwise start at the end of the current cache
 								playhead = cache_offset + c->cache_size;
 							}
-							cache_clip(c, playhead, write_A, write_B, cache_needs_reset);
+                            cache_clip(c, playhead, write_A, write_B, cache_needs_reset, NULL);
 						}
 						c->lock.unlock();
 					}

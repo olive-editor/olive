@@ -6,6 +6,7 @@
 #include "playback/audio.h"
 #include "playback/playback.h"
 #include "effects/effects.h"
+#include "panels/timeline.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -26,9 +27,17 @@ void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
     }
 }
 
-void cache_audio_worker(Clip* c) {
+void cache_audio_worker(Clip* c, Clip* nest) {
     int written = 0;
     int max_write = 16384;
+
+    long timeline_in = c->timeline_in;
+    long timeline_out = c->timeline_out;
+    if (nest != NULL) {
+        timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
+        timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
+    }
+
     while (written < max_write) {
         // gets one frame worth of audio and sends it to the audio buffer
         AVFrame* frame = c->cache_A.frames[0];
@@ -48,7 +57,7 @@ void cache_audio_worker(Clip* c) {
             if (c->audio_just_reset) {
                 // get precise sample offset for the elected clip_in from this audio frame
                 float target_sts = 0;
-                if (c->audio_target_frame < c->timeline_in) {
+                if (c->audio_target_frame < timeline_in) {
                     target_sts = clip_frame_to_seconds(c, c->clip_in);
                 } else {
                     target_sts = playhead_to_seconds(c, c->audio_target_frame);
@@ -73,7 +82,7 @@ void cache_audio_worker(Clip* c) {
 
             int half_buffer = (audio_ibuffer_size/2);
             if (c->audio_buffer_write == 0) {
-                c->audio_buffer_write = get_buffer_offset_from_frame(qMax(c->timeline_in, c->audio_target_frame));
+                c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
                 int offset = audio_ibuffer_read - c->audio_buffer_write;
                 if (offset > 0) {
                     c->audio_buffer_write += offset;
@@ -100,7 +109,7 @@ void cache_audio_worker(Clip* c) {
             }
 
             while (c->frame_sample_index < nb_bytes) {
-                if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= get_buffer_offset_from_frame(c->timeline_out)) {
+                if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= get_buffer_offset_from_frame(timeline_out)) {
                     written = max_write;
                     break;
                 } else {
@@ -110,6 +119,7 @@ void cache_audio_worker(Clip* c) {
                     qint16 new_sample = (qint16) ((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
                     qint32 mixed_sample;
 
+                    // peak handling
                     mixed_sample = old_sample + new_sample;
                     if (mixed_sample > INT16_MAX) {
                         mixed_sample = INT16_MAX;
@@ -329,7 +339,7 @@ void open_clip_worker(Clip* clip) {
 		clip->cache_A.frames[0]->sample_rate = clip->sequence->audio_frequency;
 		av_frame_make_writable(clip->cache_A.frames[0]);
 
-		clip->reset_audio = true;
+        clip->audio_reset = true;
 	}
 
 	clip->frame = av_frame_alloc();
@@ -339,11 +349,11 @@ void open_clip_worker(Clip* clip) {
     qDebug() << "[INFO] Clip opened on track" << clip->track;
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bool reset) {
+void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip* nest) {
 	if (reset) {
 		// note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
 		reset_cache(clip, playhead);
-		clip->reset_audio = false;
+        clip->audio_reset = false;
 	}
 
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -356,7 +366,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 			cache_video_worker(clip, playhead, &clip->cache_B);
 		}
     } else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-        cache_audio_worker(clip);
+        cache_audio_worker(clip, nest);
 	}
 }
 
@@ -401,7 +411,7 @@ void Cacher::run() {
         if (!caching) {
 			break;
 		} else {
-			cache_clip_worker(clip, playhead, write_A, write_B, reset);
+            cache_clip_worker(clip, playhead, write_A, write_B, reset, nest);
 		}
 	}
 

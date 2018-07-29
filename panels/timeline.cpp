@@ -22,35 +22,38 @@
 #include <QtMath>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
+    if (source_frame_rate == target_frame_rate) return framenumber;
     return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
 }
 
 Timeline::Timeline(QWidget *parent) :
     QDockWidget(parent),
-    selecting(false),
-    moving_init(false),
-    moving_proc(false),
-    splitting(false),
-    importing(false),
-    playing(false),
-    trim_in_point(false),
-    snapped(false),
-    rect_select_init(false),
-    rect_select_proc(false),
-    snapping(true),
-    last_frame(0),
     playhead(0),
-    snap_point(0),
+    playing(false),
     cursor_frame(0),
     cursor_track(0),
-	trim_target(-1),
     zoom(1.0),
-    ui(new Ui::Timeline)
+    snapping(true),
+    snapped(false),
+    snap_point(0),
+    selecting(false),
+    rect_select_init(false),
+    rect_select_proc(false),
+    moving_init(false),
+    moving_proc(false),
+    trim_target(-1),
+    trim_in_point(false),
+    splitting(false),
+    importing(false),
+    ui(new Ui::Timeline),
+    last_frame(0)
 {    
 
 	ui->setupUi(this);
 
 	ui->video_area->bottom_align = true;
+
+    ui->splitter->setOpaqueResize(false);
 
 	tool_buttons.append(ui->toolArrowButton);
 	tool_buttons.append(ui->toolEditButton);
@@ -125,10 +128,7 @@ void Timeline::reset_all_audio() {
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* c = sequence->get_clip(i);
             if (c != NULL) {
-                c->reset_audio = true;
-                c->frame_sample_index = 0;
-                c->audio_buffer_write = 0;
-                c->reached_end = false;
+                c->reset_audio();
             }
         }
     }

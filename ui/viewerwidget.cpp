@@ -20,12 +20,13 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-ViewerWidget::ViewerWidget(QWidget *parent) : QOpenGLWidget(parent) {
-    multithreaded = true;
-    enable_paint = true;
-    force_audio = false;
-    flip = false;
-
+ViewerWidget::ViewerWidget(QWidget *parent) :
+    QOpenGLWidget(parent),
+    multithreaded(true),
+    force_audio(false),
+    enable_paint(true),
+    flip(false)
+{
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
 	setFormat(format);
@@ -86,24 +87,52 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
     if (enable_paint) QOpenGLWidget::paintEvent(e);
 }
 
-void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
+void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
+    Sequence* s = sequence;
+    long playhead = panel_timeline->playhead;
+    if (nest != NULL) {
+        s = static_cast<Sequence*>(nest->media);
+
+//        qDebug() << "nested sequence was null:" << (s == NULL);
+
+        playhead += nest->clip_in - nest->timeline_in;
+        playhead = refactor_frame_number(playhead, sequence->frame_rate, s->frame_rate);
+    }
+
     QVector<Clip*> current_clips;
 
     for (int i=0;i<s->clip_count();i++) {
         Clip* c = s->get_clip(i);
 
         // if clip starts within one second and/or hasn't finished yet
-        if (c != NULL && c->media_type == MEDIA_TYPE_FOOTAGE) {
-            Media* m = static_cast<Media*>(c->media);
-            if (m->ready
-                    && m->get_stream_from_file_index(c->media_stream) != NULL
-                    && is_clip_active(c, panel_timeline->playhead)) {
-                // if thread is already working, we don't want to touch this,
-                // but we also don't want to hang the UI thread
-                if (!c->open) {
-                    open_clip(c, multithreaded);
-                }
+        if (c != NULL && !(nest != NULL && c->track != nest->track)) {
+            bool clip_is_active = false;
 
+            switch (c->media_type) {
+            case MEDIA_TYPE_FOOTAGE:
+            {
+                Media* m = static_cast<Media*>(c->media);
+                if (m->ready
+                        && m->get_stream_from_file_index(c->media_stream) != NULL
+                        && is_clip_active(c, playhead)) {
+                    // if thread is already working, we don't want to touch this,
+                    // but we also don't want to hang the UI thread
+                    if (!c->open) {
+                        open_clip(c, multithreaded);
+                    }
+
+                    clip_is_active = true;
+                } else if (c->open) {
+                    close_clip(c);
+                }
+            }
+                break;
+            case MEDIA_TYPE_SEQUENCE:
+                clip_is_active = true;
+                break;
+            }
+
+            if (clip_is_active) {
                 bool added = false;
                 for (int j=0;j<current_clips.size();j++) {
                     if (current_clips.at(j)->track < c->track) {
@@ -115,8 +144,6 @@ void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
                 if (!added) {
                     current_clips.append(c);
                 }
-            } else if (c->open) {
-                close_clip(c);
             }
         }
     }
@@ -124,52 +151,38 @@ void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
     for (int i=0;i<current_clips.size();i++) {
         Clip* c = current_clips.at(i);
 
-        if (!c->finished_opening) {
+        if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
             qDebug() << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
-        } else if (is_clip_active(c, panel_timeline->playhead)) {
+        } else {
             switch (c->media_type) {
             case MEDIA_TYPE_FOOTAGE:
                 if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                     // start preparing cache
-                    get_clip_frame(c, panel_timeline->playhead);
+                    get_clip_frame(c, playhead);
 
                     if (c->texture == NULL) {
                         qDebug() << "[WARNING] Texture hasn't been created yet";
                         texture_failed = true;
-                    } else if (panel_timeline->playhead >= c->timeline_in) {
+                    } else if (playhead >= c->timeline_in) {
                         MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
 
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         glColor4f(1.0, 1.0, 1.0, 1.0);
                         glLoadIdentity();
 
-                        int half_width = s->width/2;
-                        int half_height = s->height/2;
-                        if (flip) {
-                            glOrtho(-half_width, half_width, -half_height, half_height, -1, 1);
-                        } else {
-                            glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
-                        }
+                        int half_width = sequence->width/2;
+                        int half_height = sequence->height/2;
+                        if (flip) half_height = -half_height;
+                        glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
                         int anchor_x = ms->video_width/2;
                         int anchor_y = ms->video_height/2;
 
                         // perform all transform effects
-                        for (int j=0;j<c->effects.size();j++) {
-                            if (c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(&anchor_x, &anchor_y);
-                        }
+                        c->run_video_pre_effect_stack(playhead, &anchor_x, &anchor_y);
 
-                        if (c->opening_transition != NULL) {
-                            int transition_progress = panel_timeline->playhead-c->timeline_in;
-                            if (transition_progress < c->opening_transition->length) {
-                                c->opening_transition->process_transition((float)transition_progress/(float)c->opening_transition->length);
-                            }
-                        }
-                        if (c->closing_transition != NULL) {
-                            int transition_progress = c->closing_transition->length-(panel_timeline->playhead-c->timeline_in-c->getLength()+c->closing_transition->length);
-                            if (transition_progress < c->closing_transition->length) {
-                                c->closing_transition->process_transition((float)transition_progress/(float)c->closing_transition->length);
-                            }
+                        if (nest != NULL) {
+                            nest->run_video_pre_effect_stack(playhead, &anchor_x, &anchor_y);
                         }
 
                         int anchor_right = ms->video_width - anchor_x;
@@ -199,11 +212,12 @@ void ViewerWidget::compose_sequence(Sequence *s, bool render_audio) {
                            c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
                            c->lock.tryLock()) {
                     // clip is not caching, start caching audio
-                    cache_clip(c, panel_timeline->playhead, false, false, c->reset_audio);
+                    cache_clip(c, playhead, false, false, c->audio_reset, nest);
                     c->lock.unlock();
                 }
                 break;
             case MEDIA_TYPE_SEQUENCE:
+                compose_sequence(c, render_audio);
                 break;
             }
         }
@@ -221,7 +235,7 @@ void ViewerWidget::paintGL() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // compose video preview
-        compose_sequence(sequence, (panel_timeline->playing || force_audio));
+        compose_sequence(NULL, (panel_timeline->playing || force_audio));
 
         // send audio to IO device
         if (panel_timeline->playing) {

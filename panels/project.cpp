@@ -441,9 +441,16 @@ void Project::delete_media(QTreeWidgetItem* item) {
 }
 
 void Project::clear() {
+    // delete sequences first because it's important to close all the clips before deleting the media
+    QVector<Sequence*> sequences = list_all_project_sequences();
+    for (int i=0;i<sequences.size();i++) {
+        delete sequences.at(i);
+    }
+
+    // delete everything else
     while (ui->treeWidget->topLevelItemCount() > 0) {
         QTreeWidgetItem* item = ui->treeWidget->topLevelItem(0);
-        delete_media(item);
+        if (get_type_from_tree(item) != MEDIA_TYPE_SEQUENCE) delete_media(item); // already deleted
         delete item;
     }
 }
@@ -490,13 +497,15 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
         break;
     }
 
+    show_err = true;
+
     while (!stream.atEnd()) {
         stream.readNextStartElement();
         if (stream.name() == root_search) {
             if (type == LOAD_TYPE_VERSION) {
                 if (stream.readElementText() != SAVE_VERSION) {
                     if (QMessageBox::warning(this, "Version Mismatch", "This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
-                        error_str = "Incompatible project version.";
+                        show_err = false;
                         return false;
                     }
                 }
@@ -600,7 +609,6 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                         {
                             QTreeWidgetItem* parent = NULL;
                             Sequence* s = new Sequence();
-                            bool open_sequence = false;
 
                             // load attributes about sequence
                             for (int j=0;j<stream.attributes().size();j++) {
@@ -610,6 +618,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 } else if (attr.name() == "folder") {
                                     int folder = attr.value().toInt();
                                     if (folder > 0) parent = find_loaded_folder_by_id(folder);
+                                } else if (attr.name() == "id") {
+                                    s->save_id = attr.value().toInt();
                                 } else if (attr.name() == "width") {
                                     s->width = attr.value().toInt();
                                 } else if (attr.name() == "height") {
@@ -621,7 +631,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 } else if (attr.name() == "alayout") {
                                     s->audio_layout = attr.value().toInt();
                                 } else if (attr.name() == "open") {
-                                    open_sequence = true;
+                                    open_seq = s;
                                 } else if (attr.name() == "workareaIn") {
                                     s->using_workarea = true;
                                     s->workarea_in = attr.value().toLong();
@@ -764,8 +774,6 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
                             new_sequence(NULL, s, false, parent);
 
-                            if (open_sequence) set_sequence(s);
-
                             loaded_sequences.append(s);
                         }
                             break;
@@ -792,12 +800,14 @@ void Project::load_project() {
 
     bool cont = false;
     error_str.clear();
+    show_err = true;
 
     // temp variables for loading
     loaded_folders.clear();
     loaded_media.clear();
     loaded_clips.clear();
     loaded_sequences.clear();
+    open_seq = NULL;
 
     // find project file version
     cont = load_worker(file, stream, LOAD_TYPE_VERSION);
@@ -832,14 +842,14 @@ void Project::load_project() {
         for (int j=0;j<loaded_sequences.size();j++) {
             if (loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->save_id) {
                 loaded_clips.at(i)->media = loaded_sequences.at(j);
-
+                loaded_clips.at(i)->refresh();
                 break;
             }
         }
     }
 
     if (!cont) {
-        QMessageBox::critical(this, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+        if (show_err) QMessageBox::critical(this, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
     } else if (stream.hasError()) {
         qDebug() << "[ERROR] Error parsing XML." << stream.errorString();
         QMessageBox::critical(this, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.errorString(), QMessageBox::Ok);
@@ -847,6 +857,8 @@ void Project::load_project() {
     }
 
     if (cont) {
+        if (open_seq != NULL) set_sequence(open_seq);
+
         panel_timeline->redraw_all_clips(false);
         project_changed = false;
     } else {

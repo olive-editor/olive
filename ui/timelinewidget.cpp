@@ -76,7 +76,9 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             bool got_audio_values = false;
             for (int i=0;i<items.size();i++) {
                 QTreeWidgetItem* item = items.at(i);
-                if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
+                switch (get_type_from_tree(item)) {
+                case MEDIA_TYPE_FOOTAGE:
+                {
                     Media* m = get_media_from_tree(item);
                     if (m->ready) {
                         if (!got_video_values) {
@@ -101,9 +103,24 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                                 break;
                             }
                         }
-                        if (got_video_values && got_audio_values) break;
                     }
                 }
+                    break;
+                case MEDIA_TYPE_SEQUENCE:
+                {
+                    Sequence* s = get_sequence_from_tree(item);
+                    predicted_video_width = s->width;
+                    predicted_video_height = s->height;
+                    predicted_new_frame_rate = s->frame_rate;
+                    predicted_audio_freq = s->audio_frequency;
+                    predicted_audio_layout = s->audio_layout;
+
+                    got_video_values = true;
+                    got_audio_values = true;
+                }
+                    break;
+                }
+                if (got_video_values && got_audio_values) break;
             }
         } else {
             entry_point = panel_timeline->getFrameFromScreenPoint(pos.x());
@@ -130,6 +147,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             case MEDIA_TYPE_SEQUENCE:
                 s = get_sequence_from_tree(item);
                 sequence_length = s->getEndFrame();
+                if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, sequence->frame_rate);
                 media = s;
                 can_import = (s != sequence && sequence_length != 0);
                 break;
@@ -305,11 +323,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             // DUMB HACKY CODE THAT MIGHT NOT WORK TO ADD EFFECTS
             if (c->track < 0) {
                 // add default video effects
-                ta->add_effect(s, i + sequence->clip_count(), VIDEO_TRANSFORM_EFFECT);
+                ta->add_effect(s, i + s->clip_count(), VIDEO_TRANSFORM_EFFECT);
             } else {
                 // add default audio effects
-                ta->add_effect(s, i + sequence->clip_count(), AUDIO_VOLUME_EFFECT);
-                ta->add_effect(s, i + sequence->clip_count(), AUDIO_PAN_EFFECT);
+                ta->add_effect(s, i + s->clip_count(), AUDIO_VOLUME_EFFECT);
+                ta->add_effect(s, i + s->clip_count(), AUDIO_PAN_EFFECT);
             }
         }
 

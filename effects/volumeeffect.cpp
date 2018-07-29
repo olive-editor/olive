@@ -20,6 +20,8 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_
     volume_val->set_value(100);
 }
 
+void VolumeEffect::init() {}
+
 Effect* VolumeEffect::copy(Clip* c) {
     VolumeEffect* v = new VolumeEffect(c);
     v->volume_val->set_value(volume_val->value());

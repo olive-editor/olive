@@ -77,10 +77,12 @@ private:
     QTreeWidgetItem* new_item();
     bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
     void save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type, bool set_ids_only);
+    bool show_err;
     QString error_str;
     int folder_id;
     int media_id;
     int sequence_id;
+    Sequence* open_seq;
     QVector<QTreeWidgetItem*> loaded_folders;
     QVector<Media*> loaded_media;
     QVector<Clip*> loaded_clips;
