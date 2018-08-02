@@ -12,7 +12,7 @@
 #include "project/sequence.h"
 #include "panels/timeline.h"
 
-ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT) {
+ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT), inside(false) {
     ui_layout->addWidget(new QLabel("Intensity:"), 0, 0);
     intensity_val = new LabelSlider();
     intensity_val->set_minimum_value(0);
@@ -88,6 +88,22 @@ void ShakeEffect::process_gl(int*, int*) {
             prev_y = next_y;
             next_x = (qrand() % (int) (intensity_val->value() * 2)) - intensity_val->value();
             next_y = (qrand() % (int) (intensity_val->value() * 2)) - intensity_val->value();
+
+            // find perpendicular slope that passes through (mid_x, mid_y)
+            int mid_x = (prev_x + next_x) / 2;
+            int mid_y = (prev_y + next_y) / 2;
+            int slope_num = (next_y-prev_y);
+            if (slope_num > 0) {
+                int slope_den = (next_x-prev_x);
+                int add = (next_x-prev_x)/4;
+                if (inside) add = -add;
+                inside = !inside;
+                perp_x = mid_x + add;
+                perp_y = (-(slope_den / slope_num)) * perp_x + mid_y;
+            } else {
+                perp_x = mid_x;
+                perp_y = mid_y;
+            }
         } else {
             prev_x = 0;
             prev_y = 0;
@@ -106,10 +122,16 @@ void ShakeEffect::process_gl(int*, int*) {
         }
         shake_progress = 0;
     }
-    t = 1 - qPow(((double) shake_progress / (double) shake_limit)-1, 2);
-    offset_x = lerp(prev_x, next_x, t);
-    offset_y = lerp(prev_y, next_y, t);
+
+    t = (double) shake_progress / (double) shake_limit;
+
+    double oneminust = 1 - t;
+
+    offset_x = (qPow(oneminust, 2)*prev_x) + (2*oneminust*t*perp_x) + (qPow(t, 2) * next_x);
+    offset_y = (qPow(oneminust, 2)*prev_y) + (2*oneminust*t*perp_y) + (qPow(t, 2) * next_y);
+
     offset_rot = lerp(prev_rot, next_rot, t);
+
     glTranslatef(offset_x, offset_y, 0);
     glRotatef(offset_rot, 0, 0, 1);
     shake_progress++;

@@ -140,7 +140,7 @@ MainWindow::~MainWindow() {
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
         if (QFile::exists(autorecovery_filename)) {
-            QFile::remove(autorecovery_filename);
+            QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
         }
     }
     if (!config_dir.isEmpty()) {

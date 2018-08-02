@@ -131,6 +131,12 @@ void Clip::run_video_pre_effect_stack(long playhead, int* anchor_x, int* anchor_
     }
 }
 
+void Clip::run_video_post_effect_stack() {
+    for (int j=0;j<effects.size();j++) {
+        if (effects.at(j)->is_enabled()) effects.at(j)->post_gl();
+    }
+}
+
 Clip::~Clip() {
     if (open) {
 		close_clip(this);

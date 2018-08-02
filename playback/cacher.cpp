@@ -46,7 +46,11 @@ void cache_audio_worker(Clip* c, Clip* nest) {
             // no more audio left in frame, get a new one
             if (!c->reached_end) {
                 retrieve_next_frame_raw_data(c, frame);
-                apply_audio_effects(c, frame, av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1));
+                int byte_count = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
+                apply_audio_effects(c, frame, byte_count);
+                if (nest != NULL) {
+                    apply_audio_effects(nest, frame, byte_count);
+                }
             } else {
                 // set by retrieve_next_frame_raw_data indicating no more frames in file,
                 // but there still may be samples in swresample

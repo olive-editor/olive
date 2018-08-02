@@ -204,9 +204,7 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
                         c->texture->release();
 
                         // perform all transform effects
-                        for (int j=0;j<c->effects.size();j++) {
-                            if (c->effects.at(j)->is_enabled()) c->effects.at(j)->post_gl();
-                        }
+                        c->run_video_post_effect_stack();
                     }
                 } else if (render_audio &&
                            c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
@@ -218,6 +216,7 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
                 break;
             case MEDIA_TYPE_SEQUENCE:
                 compose_sequence(c, render_audio);
+                c->run_video_post_effect_stack();
                 break;
             }
         }

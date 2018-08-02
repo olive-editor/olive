@@ -43,6 +43,7 @@ struct Clip
 	void reset();
     void refresh();
     void run_video_pre_effect_stack(long playhead, int *anchor_x, int *anchor_y);
+    void run_video_post_effect_stack();
 
 	// timeline variables
     Sequence* sequence;

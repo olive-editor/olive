@@ -89,7 +89,10 @@ private:
     int prev_x;
     int prev_y;
     int prev_rot;
+    int perp_x;
+    int perp_y;
     double t;
+    bool inside;
 };
 
 class TextEffect : public Effect {
