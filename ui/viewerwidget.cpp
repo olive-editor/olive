@@ -89,12 +89,10 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
 
 void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
     Sequence* s = sequence;
-    long playhead = panel_timeline->playhead;
+	long playhead = panel_timeline->playhead;
+
     if (nest != NULL) {
         s = static_cast<Sequence*>(nest->media);
-
-//        qDebug() << "nested sequence was null:" << (s == NULL);
-
         playhead += nest->clip_in - nest->timeline_in;
         playhead = refactor_frame_number(playhead, sequence->frame_rate, s->frame_rate);
     }

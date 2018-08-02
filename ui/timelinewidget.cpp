@@ -1349,27 +1349,44 @@ int color_brightness(int r, int g, int b) {
 void TimelineWidget::redraw_clips() {
     // Draw clips
     if (sequence != NULL) {
-        int panel_width = panel_timeline->getScreenPointFromFrame(sequence->getEndFrame()) + 100;
+		// get widget width and height
+		int video_track_limit = 0;
+		int audio_track_limit = 0;
+		long end_frame = 0;
+		for (int i=0;i<sequence->clip_count();i++) {
+			Clip* clip = sequence->get_clip(i);
+			if (clip != NULL) {
+				end_frame = qMax(end_frame, clip->timeline_out);
+				video_track_limit = qMin(video_track_limit, clip->track);
+				audio_track_limit = qMax(audio_track_limit, clip->track);
+			}
+		}
+		int panel_width = panel_timeline->getScreenPointFromFrame(end_frame) + 100;
+		int panel_height = 0;
+		if (bottom_align) {
+			for (int i=-1;i>=video_track_limit;i--) {
+				panel_height += panel_timeline->calculate_track_height(i, -1);
+			}
+		} else {
+			for (int i=0;i<=audio_track_limit;i++) {
+				panel_height += panel_timeline->calculate_track_height(i, -1);
+			}
+		}
 
-        if (minimumWidth() != panel_width || clip_pixmap.height() != height()) {
+		if (minimumWidth() != panel_width || /*clip_pixmap.height() != height() || */panel_height != minimumHeight()) {
             setMinimumWidth(panel_width);
-            clip_pixmap = QPixmap(qMax(width(), panel_width), height());
+			container->setMinimumWidth(panel_width);
+			setMinimumHeight(panel_height);
+			clip_pixmap = QPixmap(qMax(width(), panel_width), qMax(height(), panel_height));
         }
 
         clip_pixmap.fill(Qt::transparent);
         QPainter clip_painter(&clip_pixmap);
-        int video_track_limit = 0;
-        int audio_track_limit = 0;
+
         QColor transition_color(255, 0, 0, 16);
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
-            if (clip != NULL && is_track_visible(clip->track)) {
-                if (clip->track < 0 && clip->track < video_track_limit) { // video clip
-                    video_track_limit = clip->track;
-                } else if (clip->track > audio_track_limit) {
-                    audio_track_limit = clip->track;
-                }
-
+			if (clip != NULL && is_track_visible(clip->track)) {
                 QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
                 clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
 
@@ -1378,13 +1395,8 @@ void TimelineWidget::redraw_clips() {
                 QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
 
                 // draw clip transitions
-                for (char i=0;i<2;i++) {
-                    Transition* t;
-                    if (i == 0) {
-                        t = clip->opening_transition;
-                    } else {
-                        t = clip->closing_transition;
-                    }
+				for (int i=0;i<2;i++) {
+					Transition* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
                     if (t != NULL) {
                         int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
                         int transition_height = clip_rect.height() * 0.6;
@@ -1522,9 +1534,8 @@ void TimelineWidget::redraw_clips() {
                 }
             } else {
                 // only draw lines for audio tracks
-                for (int i=0;i<audio_track_limit;i++) {
-                    // TODO just make i+1?
-                    int line_y = getScreenPointFromTrack(i) + panel_timeline->calculate_track_height(i, -1);
+				for (int i=0;i<audio_track_limit;i++) {
+					int line_y = getScreenPointFromTrack(i) + panel_timeline->calculate_track_height(i, -1);
                     clip_painter.drawLine(0, line_y, rect().width(), line_y);
                 }
             }

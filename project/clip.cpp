@@ -91,7 +91,7 @@ void Clip::reset_audio() {
         audio_reset = true;
         frame_sample_index = 0;
         audio_buffer_write = 0;
-        reached_end = false;
+		reached_end = false;
         break;
     case MEDIA_TYPE_SEQUENCE:
     {

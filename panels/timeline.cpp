@@ -53,7 +53,8 @@ Timeline::Timeline(QWidget *parent) :
 
 	ui->video_area->bottom_align = true;
 
-    ui->splitter->setOpaqueResize(false);
+	ui->video_area->container = ui->videoScrollArea;
+	ui->audio_area->container = ui->audioScrollArea;
 
 	tool_buttons.append(ui->toolArrowButton);
 	tool_buttons.append(ui->toolEditButton);

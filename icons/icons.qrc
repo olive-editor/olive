@@ -30,5 +30,11 @@
         <file>slide.png</file>
         <file>slide-disabled.png</file>
         <file>throbber.png</file>
+        <file>magnet.png</file>
+        <file>magnet-disabled.png</file>
+        <file>zoomin.png</file>
+        <file>zoomin-disabled.png</file>
+        <file>zoomout.png</file>
+        <file>zoomout-disabled.png</file>
     </qresource>
 </RCC>
