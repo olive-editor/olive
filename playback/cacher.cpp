@@ -180,21 +180,22 @@ void reset_cache(Clip* c, long target_frame) {
 
 		if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 			// seeks to nearest keyframe (target_frame represents internal clip frame)
-            av_seek_frame(c->formatCtx, ms->file_index, clip_frame_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
+
+			av_seek_frame(c->formatCtx, ms->file_index, (int64_t) qFloor(clip_frame_to_seconds(c, target_frame) / timebase), AVSEEK_FLAG_BACKWARD);
+			qDebug() << target_frame;
 
 			// play up to the frame we actually want
 			long retrieved_frame = 0;
 			AVFrame* temp = av_frame_alloc();
-            do {
+			do {
 				retrieve_next_frame(c, temp);
 				if (retrieved_frame == 0) {
-                    if (target_frame != 0) {
-						retrieved_frame = floor(temp->pts * timebase * av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, temp)));
-					}
+					if (target_frame != 0) retrieved_frame = floor(temp->pts * timebase * av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, temp)));
 				} else {
 					retrieved_frame++;
 				}
 			} while (retrieved_frame < target_frame);
+
 			av_frame_free(&temp);
 		} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			// seek (target_frame represents timeline timecode in frames, not clip timecode)

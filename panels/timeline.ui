@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>523</width>
-    <height>376</height>
+    <width>901</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,18 +62,6 @@
        </property>
        <item>
         <widget class="QPushButton" name="toolArrowButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Pointer Tool (V)</string>
          </property>
@@ -85,12 +73,6 @@
            <normaloff>:/icons/arrow.png</normaloff>
            <disabledoff>:/icons/arrow-disabled.png</disabledoff>:/icons/arrow.png</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -98,12 +80,6 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolEditButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Edit Tool (X)</string>
          </property>
@@ -115,12 +91,6 @@
            <normaloff>:/icons/beam.png</normaloff>
            <disabledoff>:/icons/beam-disabled.png</disabledoff>:/icons/beam.png</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -128,12 +98,6 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolRippleButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Ripple Tool (B)</string>
          </property>
@@ -145,12 +109,6 @@
            <normaloff>:/icons/ripple.png</normaloff>
            <disabledoff>:/icons/ripple-disabled.png</disabledoff>:/icons/ripple.png</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -158,12 +116,6 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolRollingButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Rolling Tool (N)</string>
          </property>
@@ -175,12 +127,6 @@
            <normaloff>:/icons/rolling.png</normaloff>
            <disabledoff>:/icons/rolling-disabled.png</disabledoff>:/icons/rolling.png</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -188,12 +134,6 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolRazorButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Razor Tool (C)</string>
          </property>
@@ -205,12 +145,6 @@
            <normaloff>:/icons/razor.png</normaloff>
            <disabledoff>:/icons/razor-disabled.png</disabledoff>:/icons/razor.png</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -218,12 +152,6 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolSlipButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Slip Tool (Y)</string>
          </property>
@@ -236,12 +164,6 @@
            <disabledon>:/icons/slip-disabled.png</disabledon>
           </iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -249,12 +171,6 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolSlideButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Slide Tool (U)</string>
          </property>
@@ -267,12 +183,6 @@
            <disabledon>:/icons/slide-disabled.png</disabledon>
           </iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -280,14 +190,14 @@
        </item>
        <item>
         <widget class="QPushButton" name="snappingButton">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="text">
-          <string>S</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/magnet.png</normalon>
+           <disabledon>:/icons/magnet-disabled.png</disabledon>
+          </iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -299,33 +209,33 @@
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_4">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Zoom In (=)</string>
          </property>
          <property name="text">
-          <string>+</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/zoomin.png</normalon>
+           <disabledon>:/icons/zoomin-disabled.png</disabledon>
+          </iconset>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_5">
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Zoom Out (-)</string>
          </property>
          <property name="text">
-          <string>-</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/zoomout.png</normalon>
+           <disabledon>:/icons/zoomout-disabled.png</disabledon>
+          </iconset>
          </property>
         </widget>
        </item>
@@ -348,7 +258,7 @@
     <item>
      <widget class="ScrollArea" name="timeline_area">
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -361,11 +271,11 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>408</width>
-         <height>327</height>
+         <width>819</width>
+         <height>551</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -399,27 +309,101 @@
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="TimelineWidget" name="video_area" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <widget class="QScrollArea" name="videoScrollArea">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOn</enum>
            </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>802</width>
+              <height>266</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="TimelineWidget" name="video_area" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
-          <widget class="TimelineWidget" name="audio_area" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <widget class="QScrollArea" name="audioScrollArea">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOn</enum>
            </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>802</width>
+              <height>265</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="TimelineWidget" name="audio_area" native="true">
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </widget>
         </item>

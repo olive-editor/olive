@@ -323,7 +323,15 @@ bool MainWindow::save_project() {
 
 bool MainWindow::can_close_project() {
     if (project_changed) {
-        int r = QMessageBox::question(this, "Unsaved Project", "This project has changed since it was last saved. Would you like to save it before closing?", QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
+        QMessageBox* m = new QMessageBox(
+                    QMessageBox::Question,
+                    "Unsaved Project",
+                    "This project has changed since it was last saved. Would you like to save it before closing?",
+                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+                    this
+                );
+        m->setWindowModality(Qt::WindowModal);
+        int r = m->exec();
         if (r == QMessageBox::Yes) {
             return save_project();
         } else if (r == QMessageBox::Cancel) {
@@ -426,6 +434,10 @@ void MainWindow::on_actionCrash_triggered()
         // intentionally tries to crash the program - mostly used for debugging
         Timeline* temp = NULL;
         temp->snapped = true;
+        int* kek;
+        kek[5] = 69;
+        kek[99999] = 420;
+        delete temp;
     }
 }
 

@@ -8,7 +8,7 @@ QT       += core gui multimedia opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = olive
+TARGET = Olive
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -123,6 +123,7 @@ win32 {
 }
 
 mac {
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lswscale -lswresample
     INCLUDEPATH = /usr/local/include
 }
 

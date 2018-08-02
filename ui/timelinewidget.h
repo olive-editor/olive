@@ -19,11 +19,13 @@ class TimelineAction;
 class TimelineWidget : public QWidget {
 	Q_OBJECT
 public:
-    explicit TimelineWidget(QWidget *parent = 0);
+	explicit TimelineWidget(QWidget *parent = 0);
 
 	bool bottom_align;
 
     void redraw_clips();
+
+	QWidget* container;
 protected:
     void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent*);
@@ -60,8 +62,7 @@ private:
     int predicted_video_height;
     double predicted_new_frame_rate;
     int predicted_audio_freq;
-    int predicted_audio_layout;
-
+	int predicted_audio_layout;
 signals:
 
 public slots:

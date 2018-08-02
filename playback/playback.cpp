@@ -75,7 +75,7 @@ void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool rese
 
 void get_clip_frame(Clip* c, long playhead) {
 	if (c->open) {
-		long clip_time = seconds_to_clip_frame(c, playhead_to_seconds(c, playhead));
+		long clip_time = refactor_frame_number(playhead - c->timeline_in + c->clip_in, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
 
 		// do we need to update the texture?
         MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
@@ -139,15 +139,8 @@ void get_clip_frame(Clip* c, long playhead) {
 						bool write_A = (!using_cache_A && !c->cache_A.unread);
 						bool write_B = (!using_cache_B && !c->cache_B.unread);
 						if (write_A || write_B) {
-							long playhead;
-							if (cache_needs_reset) {
-								// if we have no cache and need to seek, start us at the current playhead...
-								playhead = clip_time;
-							} else {
-								// ...otherwise start at the end of the current cache
-								playhead = cache_offset + c->cache_size;
-							}
-                            cache_clip(c, playhead, write_A, write_B, cache_needs_reset, NULL);
+							// if we have no cache and need to seek, start us at the current playhead, otherwise start at the end of the current cache
+							cache_clip(c, (cache_needs_reset) ? clip_time : cache_offset + c->cache_size, write_A, write_B, cache_needs_reset, NULL);
 						}
 						c->lock.unlock();
 					}
@@ -175,12 +168,12 @@ void get_clip_frame(Clip* c, long playhead) {
 	}
 }
 
-float playhead_to_seconds(Clip* c, long playhead) {
+double playhead_to_seconds(Clip* c, long playhead) {
 	// returns time in seconds
     return (qMax((long) 0, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate;
 }
 
-long seconds_to_clip_frame(Clip* c, float seconds) {
+long seconds_to_clip_frame(Clip* c, double seconds) {
 	// returns time as frame number (according to clip's frame rate)
 	if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		return floor(seconds*av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
@@ -190,9 +183,9 @@ long seconds_to_clip_frame(Clip* c, float seconds) {
 	}
 }
 
-float clip_frame_to_seconds(Clip* c, long clip_frame) {
+double clip_frame_to_seconds(Clip* c, long clip_frame) {
     // returns frame number in decimal seconds
-    return (float) clip_frame / c->sequence->frame_rate;
+	return (double) clip_frame / av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame));
 }
 
 int retrieve_next_frame(Clip* c, AVFrame* f) {
