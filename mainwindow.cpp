@@ -436,7 +436,7 @@ void MainWindow::on_actionCrash_triggered()
         temp->snapped = true;
         int* kek;
         kek[5] = 69;
-        kek[99999] = 420;
+		kek[99999] = kek[5];
         delete temp;
     }
 }

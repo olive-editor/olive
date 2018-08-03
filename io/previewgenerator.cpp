@@ -18,13 +18,11 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m) : QThread(0), fmt_ctx(NULL), item(i), media(m) {
+PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m) : QThread(0), fmt_ctx(NULL), item(i), media(m), retrieve_duration(false), contains_still_image(false) {
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
 void PreviewGenerator::parse_media() {
-    bool contains_still_image = false;
-
     // detect video/audio streams in file
     for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
         // Find the decoder for the video stream
@@ -39,14 +37,14 @@ void PreviewGenerator::parse_media() {
                 ms->file_index = i;
                 append = true;
             }
-            if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+			if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                 if (fmt_ctx->streams[i]->avg_frame_rate.den == 0) { // source is LIKELY a still image
                     ms->infinite_length = true;
                     contains_still_image = true;
                     ms->video_frame_rate = 0;
                 } else {
                     ms->infinite_length = false;
-                    ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
+					ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
                 }
                 ms->video_width = fmt_ctx->streams[i]->codecpar->width;
                 ms->video_height = fmt_ctx->streams[i]->codecpar->height;
@@ -63,19 +61,27 @@ void PreviewGenerator::parse_media() {
     }
     media->length = fmt_ctx->duration;
 
-    media->ready = true;
+	if (fmt_ctx->duration == INT64_MIN) {
+		retrieve_duration = true;
+	} else {
+		finalize_media();
+	}
+}
 
-    if (media->video_tracks.size() == 0) {
-        emit set_icon(ICON_TYPE_AUDIO);
-    } else {
-        emit set_icon(ICON_TYPE_VIDEO);
-    }
+void PreviewGenerator::finalize_media() {
+	media->ready = true;
 
-    if (!contains_still_image || media->audio_tracks.size() > 0) {
-        double frame_rate = 30;
-        if (!contains_still_image && media->video_tracks.size() > 0) frame_rate = media->video_tracks.at(0)->video_frame_rate;
-        item->setText(1, frame_to_timecode(media->get_length_in_frames(frame_rate), TIMECODE_DROP, frame_rate));
-    }
+	if (media->video_tracks.size() == 0) {
+		emit set_icon(ICON_TYPE_AUDIO);
+	} else {
+		emit set_icon(ICON_TYPE_VIDEO);
+	}
+
+	if (!contains_still_image || media->audio_tracks.size() > 0) {
+		double frame_rate = 30;
+		if (!contains_still_image && media->video_tracks.size() > 0) frame_rate = media->video_tracks.at(0)->video_frame_rate;
+		item->setText(1, frame_to_timecode(media->get_length_in_frames(frame_rate), TIMECODE_DROP, frame_rate));
+	}
 }
 
 void PreviewGenerator::generate_waveform() {
@@ -83,6 +89,7 @@ void PreviewGenerator::generate_waveform() {
     SwrContext* swr_ctx;
     AVFrame* temp_frame = av_frame_alloc();
     AVCodecContext** codec_ctx = new AVCodecContext* [fmt_ctx->nb_streams];
+	int64_t* media_lengths = new int64_t[fmt_ctx->nb_streams]{0};
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
         codec_ctx[i] = NULL;
         if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO || fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -105,8 +112,8 @@ void PreviewGenerator::generate_waveform() {
     av_read_frame(fmt_ctx, &packet);
     avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
 
-    while (!end_of_file) {
-        while (codec_ctx[packet.stream_index] == NULL || avcodec_receive_frame(codec_ctx[packet.stream_index], temp_frame) == AVERROR(EAGAIN)) {
+	while (!end_of_file) {
+		while (codec_ctx[packet.stream_index] == NULL || avcodec_receive_frame(codec_ctx[packet.stream_index], temp_frame) == AVERROR(EAGAIN)) {
             av_packet_unref(&packet);
             int read_ret = av_read_frame(fmt_ctx, &packet);
             if (read_ret < 0) {
@@ -122,105 +129,110 @@ void PreviewGenerator::generate_waveform() {
                     break;
                 }
             }
-        }
+		}
         if (!end_of_file) {
             MediaStream* s = media->get_stream_from_file_index(packet.stream_index);
-            if (s != NULL && !s->preview_done) {
-                if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                    int dstH = 120;
-                    int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
-                    uint8_t* data = new uint8_t[dstW*dstH*3];
+			if (s != NULL) {
+				if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+					if (!s->preview_done) {
+						int dstH = 120;
+						int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
+						uint8_t* data = new uint8_t[dstW*dstH*3];
 
-                    sws_ctx = sws_getContext(
-                                temp_frame->width,
-                                temp_frame->height,
-                                static_cast<AVPixelFormat>(temp_frame->format),
-                                dstW,
-                                dstH,
-                                static_cast<AVPixelFormat>(AV_PIX_FMT_RGB24),
-                                SWS_FAST_BILINEAR,
-                                NULL,
-                                NULL,
-                                NULL
-                                );
+						sws_ctx = sws_getContext(
+								temp_frame->width,
+								temp_frame->height,
+								static_cast<AVPixelFormat>(temp_frame->format),
+								dstW,
+								dstH,
+								static_cast<AVPixelFormat>(AV_PIX_FMT_RGB24),
+								SWS_FAST_BILINEAR,
+								NULL,
+								NULL,
+								NULL
+							);
 
-                    int linesize[AV_NUM_DATA_POINTERS];
-                    linesize[0] = dstW*3;
-                    sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
+						int linesize[AV_NUM_DATA_POINTERS];
+						linesize[0] = dstW*3;
+						sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
-                    s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
+						s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
 
-//                  delete [] data;
+		//                  delete [] data;
 
-                    s->preview_done = true;
+						s->preview_done = true;
 
-                    sws_freeContext(sws_ctx);
+						sws_freeContext(sws_ctx);
 
-                    avcodec_close(codec_ctx[packet.stream_index]);
-                    codec_ctx[packet.stream_index] = NULL;
-                } else if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                    int interval = qFloor((temp_frame->sample_rate/WAVEFORM_RESOLUTION)/4)*4;
+						if (!retrieve_duration) {
+							avcodec_close(codec_ctx[packet.stream_index]);
+							codec_ctx[packet.stream_index] = NULL;
+						}
+					}
+					media_lengths[packet.stream_index]++;
+				} else if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+					int interval = qFloor((temp_frame->sample_rate/WAVEFORM_RESOLUTION)/4)*4;
 
-                    AVFrame* swr_frame = av_frame_alloc();
-                    swr_frame->channel_layout = temp_frame->channel_layout;
-                    swr_frame->sample_rate = temp_frame->sample_rate;
-                    swr_frame->format = AV_SAMPLE_FMT_S16;
+					AVFrame* swr_frame = av_frame_alloc();
+					swr_frame->channel_layout = temp_frame->channel_layout;
+					swr_frame->sample_rate = temp_frame->sample_rate;
+					swr_frame->format = AV_SAMPLE_FMT_S16;
 
-                    swr_ctx = swr_alloc_set_opts(
-                                NULL,
-                                temp_frame->channel_layout,
-                                static_cast<AVSampleFormat>(swr_frame->format),
-                                temp_frame->sample_rate,
-                                temp_frame->channel_layout,
-                                static_cast<AVSampleFormat>(temp_frame->format),
-                                temp_frame->sample_rate,
-                                0,
-                                NULL
-                                );
+					swr_ctx = swr_alloc_set_opts(
+								NULL,
+								temp_frame->channel_layout,
+								static_cast<AVSampleFormat>(swr_frame->format),
+								temp_frame->sample_rate,
+								temp_frame->channel_layout,
+								static_cast<AVSampleFormat>(temp_frame->format),
+								temp_frame->sample_rate,
+								0,
+								NULL
+							);
 
-                    swr_init(swr_ctx);
+					swr_init(swr_ctx);
 
-                    swr_convert_frame(swr_ctx, swr_frame, temp_frame);
+					swr_convert_frame(swr_ctx, swr_frame, temp_frame);
 
-                    int channel_skip = swr_frame->channels * 2;
-                    for (int i=0;i<swr_frame->nb_samples;i+=interval) {
-                        for (int j=0;j<swr_frame->channels;j++) {
-                            qint16 min = 0;
-                            qint16 max = 0;
-                            for (int k=j*2;k<interval;k+=channel_skip) {
-                                qint16 sample = ((swr_frame->data[0][i+k+1] << 8) | swr_frame->data[0][i+k]);
-                                if (sample > max) {
-                                    max = sample;
-                                } else if (sample < min) {
-                                    min = sample;
-                                }
-                            }
-                            min /= 256;
-                            max /= 256;
-                            s->audio_preview.append(min);
-                            s->audio_preview.append(max);
-                        }
-                    }
+					int channel_skip = swr_frame->channels * 2;
+					for (int i=0;i<swr_frame->nb_samples;i+=interval) {
+						for (int j=0;j<swr_frame->channels;j++) {
+							qint16 min = 0;
+							qint16 max = 0;
+							for (int k=j*2;k<interval;k+=channel_skip) {
+								qint16 sample = ((swr_frame->data[0][i+k+1] << 8) | swr_frame->data[0][i+k]);
+								if (sample > max) {
+									max = sample;
+								} else if (sample < min) {
+									min = sample;
+								}
+							}
+							s->audio_preview.append(min >> 8);
+							s->audio_preview.append(max >> 8);
+						}
+					}
 
-                    swr_free(&swr_ctx);
-                    av_frame_free(&swr_frame);
-                }
+					swr_free(&swr_ctx);
+					av_frame_free(&swr_frame);
+				}
+			}
 
-                // check if we've got all our previews
-                if (media->audio_tracks.size() == 0) {
-                    done = true;
-                    for (int i=0;i<media->video_tracks.size();i++) {
-                        if (!media->video_tracks.at(i)->preview_done) {
-                            done = false;
-                            break;
-                        }
-                    }
-                    if (done) {
-                        end_of_file = true;
-                        break;
-                    }
-                }
-            }
+			// check if we've got all our previews
+			if (retrieve_duration) {
+				done = false;
+			} else if (media->audio_tracks.size() == 0) {
+				done = true;
+				for (int i=0;i<media->video_tracks.size();i++) {
+					if (!media->video_tracks.at(i)->preview_done) {
+						done = false;
+						break;
+					}
+				}
+				if (done) {
+					end_of_file = true;
+					break;
+				}
+			}
             av_packet_unref(&packet);
         }
     }
@@ -232,7 +244,19 @@ void PreviewGenerator::generate_waveform() {
         if (codec_ctx[i] != NULL) {
             avcodec_close(codec_ctx[i]);
         }
-    }
+	}
+	if (retrieve_duration) {
+		media->length = 0;
+		int maximum_stream = 0;
+		for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
+			if (media_lengths[i] > media_lengths[maximum_stream]) {
+				maximum_stream = i;
+			}
+		}
+		media->length = (double) media_lengths[maximum_stream] / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE;
+		finalize_media();
+	}
+	delete [] media_lengths;
     delete [] codec_ctx;
 }
 

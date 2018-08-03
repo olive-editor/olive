@@ -23,9 +23,12 @@ signals:
 private:
     void parse_media();
     void generate_waveform();
+	void finalize_media();
     QTreeWidgetItem* item;
     Media* media;
     AVFormatContext* fmt_ctx;
+	bool retrieve_duration;
+	bool contains_still_image;
 };
 
 #endif // PREVIEWGENERATOR_H
