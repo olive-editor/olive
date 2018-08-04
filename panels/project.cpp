@@ -380,8 +380,8 @@ void Project::process_file_list(QStringList& files) {
             }
         }        
 
-        if (!skip) {
-            ta->add_media(import_file(file, files.at(i)));
+		if (!skip) {
+			ta->add_media(import_file(file, files.at(i)));
             imported = true;
             project_changed = true;
         }

@@ -8,7 +8,6 @@
 #define CLIP_TEXT_PADDING 3
 
 #define TRACK_MIN_HEIGHT 30
-#define TRACK_DEFAULT_HEIGHT 60
 #define TRACK_HEIGHT_INCREMENT 10
 
 struct Sequence;

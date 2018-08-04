@@ -45,7 +45,7 @@ void PreviewGenerator::parse_media() {
                 } else {
                     ms->infinite_length = false;
 					ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
-                }
+				}
                 ms->video_width = fmt_ctx->streams[i]->codecpar->width;
                 ms->video_height = fmt_ctx->streams[i]->codecpar->height;
                 if (append) media->video_tracks.append(ms);

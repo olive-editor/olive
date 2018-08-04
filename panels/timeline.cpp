@@ -20,6 +20,8 @@
 #include <QTime>
 #include <QScrollBar>
 #include <QtMath>
+#include <QGuiApplication>
+#include <QScreen>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
     if (source_frame_rate == target_frame_rate) return framenumber;
@@ -47,7 +49,8 @@ Timeline::Timeline(QWidget *parent) :
     importing(false),
     ui(new Ui::Timeline),
     last_frame(0)
-{    
+{
+	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * default_track_height;
 
 	ui->setupUi(this);
 

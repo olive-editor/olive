@@ -7,6 +7,8 @@
 #include <QTime>
 #include <QTimer>
 
+#define TRACK_DEFAULT_HEIGHT 40
+
 class QPushButton;
 class SourceTable;
 class ViewerWidget;
@@ -204,6 +206,8 @@ private:
 	long last_frame;
     QVector<Clip*> clip_clipboard;
     void reset_all_audio();
+
+	int default_track_height;
 };
 
 #endif // TIMELINE_H
