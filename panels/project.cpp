@@ -16,10 +16,7 @@
 #include "mainwindow.h"
 #include "io/config.h"
 #include "playback/cacher.h"
-<<<<<<< HEAD
 #include "dialogs/replaceclipmediadialog.h"
-=======
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 
 #include <QFileDialog>
 #include <QString>
@@ -114,17 +111,12 @@ void Project::replace_selected_file() {
 	if (selected_items.size() == 1) {
 		QTreeWidgetItem* item = selected_items.at(0);
 		if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
-<<<<<<< HEAD
 			replace_media(item, 0);
-=======
-			replace_media(item, "");
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 		}
 	}
 }
 
 void Project::replace_media(QTreeWidgetItem* item, QString filename) {
-<<<<<<< HEAD
 	Media* m = get_footage_from_tree(item);
 
 	QStringList files;
@@ -177,42 +169,6 @@ void Project::replace_clip_media() {
 			dialog.exec();
 		}
 	}
-=======
-	Media* m = get_media_from_tree(item);
-
-	// close any clips currently using this media
-	QVector<Sequence*> all_sequences = list_all_project_sequences();
-	for (int i=0;i<all_sequences.size();i++) {
-		Sequence* s = all_sequences.at(i);
-		for (int j=0;j<s->clip_count();j++) {
-			Clip* c = s->get_clip(j);
-			if (c != NULL && c->media == m && c->open) {
-				close_clip(c);
-				c->cacher->wait();
-			}
-		}
-	}
-
-	QStringList files;
-	if (filename.isEmpty()) {
-		files.append(QFileDialog::getOpenFileName(this, "Replace '" + item->text(0) + "'", "", "All Files (*)"));
-	} else {
-		files.append(filename);
-	}
-	process_file_list(NULL, files, NULL, item);
-
-	for (int i=0;i<all_sequences.size();i++) {
-		Sequence* s = all_sequences.at(i);
-		for (int j=0;j<s->clip_count();j++) {
-			Clip* c = s->get_clip(j);
-			if (c != NULL && c->media == m) {
-				c->refresh();
-			}
-		}
-	}
-
-	panel_timeline->redraw_all_clips(true);
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 }
 
 void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidgetItem* parent) {
@@ -520,11 +476,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 
 				if (replace != NULL) {
 					item = replace;
-<<<<<<< HEAD
 					m = get_footage_from_tree(replace);
-=======
-					m = get_media_from_tree(replace);
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 					m->reset();
 				} else {
 					item = new_item();
@@ -532,11 +484,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 				}
 
 				import_file(item, m, file, files.at(i));
-<<<<<<< HEAD
 				set_footage_of_tree(item, m);
-=======
-				set_media_of_tree(item, m);
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 
 				if (recursive) {
 					parent->addChild(item);
@@ -614,20 +562,7 @@ int get_type_from_tree(QTreeWidgetItem* item) {
 }
 
 void Project::delete_media(QTreeWidgetItem* item) {
-<<<<<<< HEAD
 	delete get_media_from_tree(item);
-=======
-    int type = get_type_from_tree(item);
-    switch (type) {
-    case MEDIA_TYPE_FOOTAGE:
-        delete get_media_from_tree(item);
-        break;
-    case MEDIA_TYPE_SEQUENCE:
-        Sequence* s = get_sequence_from_tree(item);
-        delete s;
-        break;
-	}
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 }
 
 void Project::delete_clips_using_selected_media() {
@@ -641,11 +576,7 @@ void Project::delete_clips_using_selected_media() {
 			if (c != NULL) {
 				QList<QTreeWidgetItem*> items = source_table->selectedItems();
 				for (int j=0;j<items.size();j++) {
-<<<<<<< HEAD
 					Media* m = get_footage_from_tree(items.at(j));
-=======
-					Media* m = get_media_from_tree(items.at(j));
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 					if (c->media == m) {
 						ta->delete_clip(sequence, i);
 						deleted = true;

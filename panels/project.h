@@ -77,10 +77,7 @@ public slots:
     void duplicate_selected();
 	void delete_clips_using_selected_media();
 	void replace_selected_file();
-<<<<<<< HEAD
 	void replace_clip_media();
-=======
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
 private:
 	Ui::Project *ui;
     QTreeWidgetItem* new_item();

@@ -44,7 +44,10 @@ double LabelSlider::value() {
 
 void LabelSlider::set_default_value(double v) {
     default_value = v;
-    if (!set) set_value(v);
+	if (!set) {
+		set_value(v);
+		set = false;
+	}
 }
 
 void LabelSlider::set_minimum_value(double v) {

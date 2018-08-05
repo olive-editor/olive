@@ -7,6 +7,7 @@
 #include "project/sequence.h"
 #include "playback/playback.h"
 #include "playback/cacher.h"
+#include "io/media.h"
 
 #include <QVBoxLayout>
 #include <QTreeWidget>
@@ -89,6 +90,13 @@ void ReplaceClipMediaDialog::replace() {
 						}
 
 						c->media = new_media;
+
+						if (get_type_from_tree(new_item) == MEDIA_TYPE_FOOTAGE) {
+							// TODO: the media streams may be invalid, here we have a BASIC heuristic for getting the right ones that COULD BE BETTER
+							Media* casted_new_media = static_cast<Media*>(new_media);
+							c->media_stream = (c->track < 0) ? casted_new_media->video_tracks.at(0)->file_index : casted_new_media->audio_tracks.at(0)->file_index;
+						}
+
 						c->refresh();
 						changed = true;
 					}

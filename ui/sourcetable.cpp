@@ -36,16 +36,10 @@ void SourceTable::show_context_menu(const QPoint& pos) {
     } else {
         if (selectedItems().size() == 1) {
             // replace footage
-<<<<<<< HEAD
 			int type = get_type_from_tree(selectedItems().at(0));
 			if (type == MEDIA_TYPE_FOOTAGE) {
 				QAction* replace_action = menu.addAction("Replace/Relink Media");
 				connect(replace_action, SIGNAL(triggered(bool)), panel_project, SLOT(replace_selected_file()));
-=======
-            if (get_type_from_tree(selectedItems().at(0)) == MEDIA_TYPE_FOOTAGE) {
-				QAction* replace_action = menu.addAction("Replace/Relink Media");
-				connect(replace_action, SIGNAL(triggered(bool)), panel_project, SLOT(replace_media()));
->>>>>>> b8b99901d8f71ebc1583cb9b7c49e26d38e01ec9
             }
 			if (type != MEDIA_TYPE_FOLDER) {
 				QAction* replace_clip_media = menu.addAction("Replace Clips Using This Media");
