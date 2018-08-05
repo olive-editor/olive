@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>17</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -151,7 +151,6 @@
     <addaction name="actionScroll_Wheel_Zooms"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
-    <addaction name="separator"/>
     <addaction name="actionCrash"/>
    </widget>
    <addaction name="menu_File"/>
@@ -419,6 +418,9 @@
   <action name="actionCrash">
    <property name="text">
     <string>Crash</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionPointer_Tool">

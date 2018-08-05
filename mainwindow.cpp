@@ -5,6 +5,8 @@
 
 #include "project/sequence.h"
 
+#include "ui/sourcetable.h"
+
 #include "panels/panels.h"
 #include "panels/project.h"
 #include "panels/effectcontrols.h"
@@ -590,9 +592,10 @@ void MainWindow::on_actionSlide_Tool_triggered()
     if (panel_timeline->focused()) panel_timeline->ui->toolSlideButton->click();
 }
 
-void MainWindow::on_actionFolder_triggered()
-{
-    panel_project->new_folder();
+void MainWindow::on_actionFolder_triggered() {
+	TimelineAction* ta = new TimelineAction();
+	ta->add_media(panel_project->new_folder(0), panel_project->get_selected_folder());
+	undo_stack.push(ta);
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {

@@ -28,7 +28,7 @@ struct MediaStream {
 
 struct Media {
     Media();
-    ~Media();
+	~Media();
 
 	QString url;
     QString name;

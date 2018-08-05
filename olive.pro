@@ -65,7 +65,8 @@ SOURCES += \
     effects/texteffect.cpp \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
-    effects/solideffect.cpp
+    effects/solideffect.cpp \
+    dialogs/replaceclipmediadialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -102,7 +103,8 @@ HEADERS += \
     project/undo.h \
     ui/scrollarea.h \
     ui/comboboxex.h \
-    ui/colorbutton.h
+    ui/colorbutton.h \
+    dialogs/replaceclipmediadialog.h
 
 FORMS += \
         mainwindow.ui \

@@ -79,7 +79,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 switch (get_type_from_tree(item)) {
                 case MEDIA_TYPE_FOOTAGE:
                 {
-                    Media* m = get_media_from_tree(item);
+					Media* m = get_footage_from_tree(item);
                     if (m->ready) {
                         if (!got_video_values) {
                             for (int j=0;j<m->video_tracks.size();j++) {
@@ -140,7 +140,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 
             switch (item_type) {
             case MEDIA_TYPE_FOOTAGE:
-                m = get_media_from_tree(item);
+				m = get_footage_from_tree(item);
                 media = m;
                 can_import = m->ready;
                 break;
@@ -815,12 +815,12 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 validator = g.ghost_length + frame_diff;
                 if (validator < 1) frame_diff += (1 - validator);
 
-                // prevent clip length exceeding media length
-                if (c->media_type == MEDIA_TYPE_SEQUENCE
+				// prevent clip length exceeding media length
+				if (c->media_type == MEDIA_TYPE_SEQUENCE
                         || (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream)->infinite_length)) {
                     validator = g.old_clip_in + g.ghost_length + frame_diff;
                     if (validator > g.media_length) frame_diff -= validator - g.media_length;
-                }
+				}
             }
 
             // ripple ops
@@ -1433,30 +1433,22 @@ void TimelineWidget::redraw_clips() {
                 }
 
                 if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+					bool draw_checkerboard = false;
+					QRect checkerboard_rect = clip_rect;
                     Media* m = static_cast<Media*>(clip->media);
                     MediaStream* ms = m->get_stream_from_file_index(clip->media_stream);
                     if (ms == NULL) {
-                        // draw "error lines" if media stream is missing
-                        clip_painter.setPen(QPen(QColor(64, 64, 64), 2));
-                        int limit = clip_rect.width();
-                        int clip_height = clip_rect.bottom()-clip_rect.top();
-                        for (int j=-clip_height;j<limit;j+=15) {
-                            int lines_start_x = clip_rect.left()+j;
-                            int lines_start_y = clip_rect.bottom();
-                            int lines_end_x = lines_start_x + clip_height;
-                            int lines_end_y = clip_rect.top();
-                            if (lines_start_x < clip_rect.left()) {
-                                lines_start_y -= (clip_rect.left() - lines_start_x);
-                                lines_start_x = clip_rect.left();
-                            }
-                            if (lines_end_x > clip_rect.right()) {
-                                lines_end_y -= (clip_rect.right() - lines_end_x);
-                                lines_end_x = clip_rect.right();
-                            }
-                            clip_painter.drawLine(lines_start_x, lines_start_y, lines_end_x, lines_end_y);
-                        }
+						draw_checkerboard = true;
                     } else if (ms->preview_done) {
                         // draw thumbnail/waveform
+						long media_length = m->get_length_in_frames(clip->sequence->frame_rate);
+						int waveform_limit = qMin(clip_rect.width(), panel_timeline->getScreenPointFromFrame(media_length - clip->clip_in));
+
+						if (waveform_limit < clip_rect.width()) {
+							draw_checkerboard = true;
+							checkerboard_rect.setLeft(clip_rect.left() + waveform_limit);
+						}
+
                         if (clip->track < 0) {
                             int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
                             int thumb_height = clip_rect.height()-thumb_y;
@@ -1465,33 +1457,47 @@ void TimelineWidget::redraw_clips() {
                                 QRect thumb_rect(thumb_x, clip_rect.y()+thumb_y, thumb_width, thumb_height);
                                 clip_painter.drawImage(thumb_rect, ms->video_preview);
                             }
-                        } else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
+						} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
                             int divider = ms->audio_channels*2;
 
                             clip_painter.setPen(QColor(80, 80, 80));
                             int channel_height = clip_rect.height()/ms->audio_channels;
-                            long media_length = m->get_length_in_frames(clip->sequence->frame_rate);
-                            for (int i=0;i<clip_rect.width();i++) {
+
+							for (int i=0;i<waveform_limit;i++) {
                                 int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 
-                                for (int j=0;j<ms->audio_channels;j++) {
-                                    int mid = clip_rect.top()+channel_height*j+(channel_height/2);
-                                    int offset = waveform_index+(j*2);
+								for (int j=0;j<ms->audio_channels;j++) {
+									int mid = clip_rect.top()+channel_height*j+(channel_height/2);
+									int offset = waveform_index+(j*2);
 
-                                    qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
-                                    qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
-                                    clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
-
-                                    /*if (offset >= 0 && offset < ms->audio_preview.size()) {
-
-                                    } else {
-                                        QMessageBox::critical(this, "AAAAAAAAAAAAA", "Here's that terrible, no-good bug again!!! I've stepped around it but plz report the following to Matt:\n\n" + QString::number(offset) + " vs " + QString::number(clip->media_stream->audio_preview.size()), QMessageBox::Ok);
-                                        break;
-                                    }*/
-                                }
-                            }
+									qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
+									qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+									clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+								}
+							}
                         }
                     }
+					if (draw_checkerboard) {
+						// draw "error lines" if media stream is missing
+						clip_painter.setPen(QPen(QColor(64, 64, 64), 2));
+						int limit = checkerboard_rect.width();
+						int clip_height = checkerboard_rect.bottom()-checkerboard_rect.top();
+						for (int j=-clip_height;j<limit;j+=15) {
+							int lines_start_x = checkerboard_rect.left()+j;
+							int lines_start_y = checkerboard_rect.bottom();
+							int lines_end_x = lines_start_x + clip_height;
+							int lines_end_y = checkerboard_rect.top();
+							if (lines_start_x < checkerboard_rect.left()) {
+								lines_start_y -= (checkerboard_rect.left() - lines_start_x);
+								lines_start_x = checkerboard_rect.left();
+							}
+							if (lines_end_x > checkerboard_rect.right()) {
+								lines_end_y -= (checkerboard_rect.right() - lines_end_x);
+								lines_end_x = checkerboard_rect.right();
+							}
+							clip_painter.drawLine(lines_start_x, lines_start_y, lines_end_x, lines_end_y);
+						}
+					}
                 }
 
                 // top left bevel

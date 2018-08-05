@@ -12,6 +12,8 @@
 #include <QMimeData>
 #include <QHeaderView>
 #include <QMenu>
+#include <QMessageBox>
+#include <QFileInfo>
 #include <QDebug>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
@@ -34,24 +36,41 @@ void SourceTable::show_context_menu(const QPoint& pos) {
     } else {
         if (selectedItems().size() == 1) {
             // replace footage
-            if (get_type_from_tree(selectedItems().at(0)) == MEDIA_TYPE_FOOTAGE) {
-                menu.addAction("Replace/Relink Media");
+			int type = get_type_from_tree(selectedItems().at(0));
+			if (type == MEDIA_TYPE_FOOTAGE) {
+				QAction* replace_action = menu.addAction("Replace/Relink Media");
+				connect(replace_action, SIGNAL(triggered(bool)), panel_project, SLOT(replace_selected_file()));
             }
-            menu.addAction("Replace Clips Using This Media");
+			if (type != MEDIA_TYPE_FOLDER) {
+				QAction* replace_clip_media = menu.addAction("Replace Clips Using This Media");
+				connect(replace_clip_media, SIGNAL(triggered(bool)), panel_project, SLOT(replace_clip_media()));
+			}
         }
 
         // duplicate item
         bool all_sequences = true;
+		bool all_footage = true;
         for (int i=0;i<selectedItems().size();i++) {
             if (get_type_from_tree(selectedItems().at(i)) != MEDIA_TYPE_SEQUENCE) {
-                all_sequences = false;
-                break;
+				all_sequences = false;
             }
+			if (get_type_from_tree(selectedItems().at(i)) != MEDIA_TYPE_FOOTAGE) {
+				all_footage = false;
+			}
         }
+
+		// ONLY sequences are selected
         if (all_sequences) {
+			// ONLY sequences are selected
             QAction* duplicate_action = menu.addAction("Duplicate");
             connect(duplicate_action, SIGNAL(triggered(bool)), panel_project, SLOT(duplicate_selected()));
-        }
+		}
+
+		// ONLY footage is selected
+		if (all_footage) {
+			QAction* delete_footage_from_sequences = menu.addAction("Delete All Clips Using This Media");
+			connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), panel_project, SLOT(delete_clips_using_selected_media()));
+		}
 
         // delete media
         QAction* delete_action = menu.addAction("Delete");
@@ -127,22 +146,36 @@ void SourceTable::dragMoveEvent(QDragMoveEvent *event) {
 
 void SourceTable::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
+	QTreeWidgetItem* drop_item = itemAt(event->pos());
     if (mimeData->hasUrls()) {
         // drag files in from outside
         QList<QUrl> urls = mimeData->urls();
-        if (!urls.isEmpty()) {
+        if (!urls.isEmpty()) {			
             QStringList paths;
-            for (int i=0;i<urls.size();i++) {
-                qDebug() << urls.at(i).toLocalFile();
+			for (int i=0;i<urls.size();i++) {
                 paths.append(urls.at(i).toLocalFile());
             }
-            panel_project->process_file_list(paths);
+			bool replace = false;
+			if (urls.size() == 1
+					&& drop_item != NULL
+					&& get_type_from_tree(drop_item) == MEDIA_TYPE_FOOTAGE
+					&& !QFileInfo(paths.at(0)).isDir()
+					&& QMessageBox::question(this, "Replace Media", "You dropped a file onto '" + drop_item->text(0) + "'. Would you like to replace it with the dropped file?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
+				replace = true;
+				panel_project->replace_media(drop_item, paths.at(0));
+			}
+			if (!replace) {
+				QTreeWidgetItem* parent = NULL;
+				if (drop_item != NULL && get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER) {
+					parent = drop_item;
+				}
+				panel_project->process_file_list(NULL, paths, parent, NULL);
+			}
         }
         event->acceptProposedAction();
     } else {
         // dragging files within project
         QVector<QTreeWidgetItem*> move_items;
-        QTreeWidgetItem* drop_item = itemAt(event->pos());
         // if we dragged to the root OR dragged to a folder
         if (drop_item == NULL || (drop_item != NULL && get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER)) {
             QList<QTreeWidgetItem*> selected_items = selectedItems();

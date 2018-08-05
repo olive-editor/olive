@@ -36,8 +36,9 @@ extern QStringList recent_projects;
 extern QString recent_proj_file;
 
 int get_type_from_tree(QTreeWidgetItem* item);
-Media* get_media_from_tree(QTreeWidgetItem* item);
-void set_media_of_tree(QTreeWidgetItem* item, Media* media);
+void* get_media_from_tree(QTreeWidgetItem* item);
+Media* get_footage_from_tree(QTreeWidgetItem* item);
+void set_footage_of_tree(QTreeWidgetItem* item, Media* media);
 Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
 void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
 void set_item_to_folder(QTreeWidgetItem* item);
@@ -51,17 +52,19 @@ public:
 	~Project();
     bool is_focused();
     void clear();
-    QTreeWidgetItem* import_file(QString url, QString imported_filename);
+	void import_file(QTreeWidgetItem* item, Media* m, QString url, QString imported_filename);
     void new_sequence(TimelineAction* ta, Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
-    void process_file_list(QStringList& files);
+	void process_file_list(bool recursive, QStringList& files, QTreeWidgetItem *parent, QTreeWidgetItem* replace);
+	void replace_media(QTreeWidgetItem* item, QString filename);
+	QTreeWidgetItem* get_selected_folder();
 
     void new_project();
     void load_project();
     void save_project(bool autorecovery);
 
-    QTreeWidgetItem* new_folder();
+	QTreeWidgetItem* new_folder(QString name);
 
     void save_recent_projects();
 
@@ -69,9 +72,12 @@ public:
 
 	SourceTable* source_table;
 public slots:
-    void import_dialog();
+	void import_dialog();
     void delete_selected_media();
     void duplicate_selected();
+	void delete_clips_using_selected_media();
+	void replace_selected_file();
+	void replace_clip_media();
 private:
 	Ui::Project *ui;
     QTreeWidgetItem* new_item();
@@ -89,9 +95,10 @@ private:
     QVector<Sequence*> loaded_sequences;
     QTreeWidgetItem* find_loaded_folder_by_id(int id);
     void add_recent_project(QString url);
-    void get_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
+	void get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
     void start_preview_generator(QTreeWidgetItem* item, Media* media);
     void list_all_sequences_worker(QVector<Sequence*>* list, QTreeWidgetItem* parent);
+	QString get_file_name_from_path(const QString &path);
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
     void clear_recent_projects();
