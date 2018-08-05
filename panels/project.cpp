@@ -15,6 +15,7 @@
 #include "project/undo.h"
 #include "mainwindow.h"
 #include "io/config.h"
+#include "playback/cacher.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -104,6 +105,53 @@ void Project::duplicate_selected() {
     }
 }
 
+void Project::replace_selected_file() {
+	QList<QTreeWidgetItem*> selected_items = ui->treeWidget->selectedItems();
+	if (selected_items.size() == 1) {
+		QTreeWidgetItem* item = selected_items.at(0);
+		if (get_type_from_tree(item) == MEDIA_TYPE_FOOTAGE) {
+			replace_media(item, "");
+		}
+	}
+}
+
+void Project::replace_media(QTreeWidgetItem* item, QString filename) {
+	Media* m = get_media_from_tree(item);
+
+	// close any clips currently using this media
+	QVector<Sequence*> all_sequences = list_all_project_sequences();
+	for (int i=0;i<all_sequences.size();i++) {
+		Sequence* s = all_sequences.at(i);
+		for (int j=0;j<s->clip_count();j++) {
+			Clip* c = s->get_clip(j);
+			if (c != NULL && c->media == m && c->open) {
+				close_clip(c);
+				c->cacher->wait();
+			}
+		}
+	}
+
+	QStringList files;
+	if (filename.isEmpty()) {
+		files.append(QFileDialog::getOpenFileName(this, "Replace '" + item->text(0) + "'", "", "All Files (*)"));
+	} else {
+		files.append(filename);
+	}
+	process_file_list(NULL, files, NULL, item);
+
+	for (int i=0;i<all_sequences.size();i++) {
+		Sequence* s = all_sequences.at(i);
+		for (int j=0;j<s->clip_count();j++) {
+			Clip* c = s->get_clip(j);
+			if (c != NULL && c->media == m) {
+				c->refresh();
+			}
+		}
+	}
+
+	panel_timeline->redraw_all_clips(true);
+}
+
 void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidgetItem* parent) {
     QTreeWidgetItem* item = new_item();
     item->setText(0, s->name);
@@ -134,17 +182,16 @@ void Project::start_preview_generator(QTreeWidgetItem* item, Media* media) {
     pg->start(QThread::LowPriority);
 }
 
-QTreeWidgetItem* Project::import_file(QString file, QString imported_filename) {
-    QTreeWidgetItem* item = new_item();
-    Media* m = new Media();
+QString Project::get_file_name_from_path(const QString& path) {
+	return path.mid(path.lastIndexOf('/')+1);
+}
+
+void Project::import_file(QTreeWidgetItem* item, Media* m, QString file, QString imported_filename) {
     m->url = file;
-    m->name = imported_filename.mid(file.lastIndexOf('/')+1);
-    set_media_of_tree(item, m);
+	m->name = get_file_name_from_path(imported_filename);
 
     // generate waveform/thumbnail in another thread
-    start_preview_generator(item, m);
-
-    return item;
+	start_preview_generator(item, m);
 }
 
 QTreeWidgetItem* Project::new_item() {
@@ -157,13 +204,11 @@ bool Project::is_focused() {
     return ui->treeWidget->hasFocus();
 }
 
-QTreeWidgetItem* Project::new_folder() {
+QTreeWidgetItem* Project::new_folder(QString name) {
     QTreeWidgetItem* item = new_item();
     item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
-    item->setText(0, "New Folder");
+	item->setText(0, (name.isEmpty()) ? "New Folder" : name);
     set_item_to_folder(item);
-    ui->treeWidget->addTopLevelItem(item);
-    project_changed = true;
     return item;
 }
 
@@ -299,103 +344,165 @@ void Project::delete_selected_media() {
     }
 }
 
-void Project::process_file_list(QStringList& files) {
+void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetItem* parent, QTreeWidgetItem* replace) {
     bool imported = false;
 
     QVector<QString> image_sequence_urls;
     QVector<bool> image_sequence_importassequence;
     QStringList image_sequence_formats = config.img_seq_formats.split("|");
 
-    TimelineAction* ta = new TimelineAction();
+	TimelineAction* ta;
+	if (!recursive) ta = new TimelineAction();
+
     for (int i=0;i<files.count();i++) {
-        QString file(files.at(i));
-        bool skip = false;
+		if (QFileInfo(files.at(i)).isDir()) {
+			QString folder_name = get_file_name_from_path(files.at(i));
+			QTreeWidgetItem* folder = new_folder(folder_name);
 
-        /* Heuristic to determine whether file is part of an image sequence */
+			QDir directory(files.at(i));
+			directory.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
-        // check file extension (assume it's not a
-        int lastcharindex = file.lastIndexOf(".");
-        bool found = true;
-        if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
-            // image_sequence_formats
-            found = false;
-            QString ext = file.mid(lastcharindex+1);
-            for (int j=0;j<image_sequence_formats.size();j++) {
-                if (ext == image_sequence_formats.at(j)) {
-                    found = true;
-                    break;
-                }
-            }
-        } else {
-            lastcharindex = file.length();
-        }
+			QFileInfoList subdir_files = directory.entryInfoList();
+			QStringList subdir_filenames;
 
-        if (found && file[lastcharindex-1].isDigit()) {
-            bool is_img_sequence = false;
+			for (int j=0;j<subdir_files.size();j++) {
+				subdir_filenames.append(subdir_files.at(j).filePath());
+			}
 
-            // how many digits are in the filename?
-            int digit_count = 0;
-            int digit_test = lastcharindex-1;
-            while (file[digit_test].isDigit()) {
-                digit_count++;
-                digit_test--;
-            }
+			process_file_list(true, subdir_filenames, folder, NULL);
 
-            // retrieve number from filename
-            digit_test++;
-            int file_number = file.mid(digit_test, digit_count).toInt();
+			if (!recursive) {
+				ta->add_media(folder, parent);
+			} else {
+				parent->addChild(folder);
+			}
 
-            // Check if there are files with the same filename but just different numbers
-            if (QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number-1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))
-                    || QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number+1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))) {
-                is_img_sequence = true;
-            }
+			imported = true;
+		} else {
+			QString file(files.at(i));
+			bool skip = false;
 
-            if (is_img_sequence) {
-                // get the URL that we would pass to FFmpeg to force it to read the image as a sequence
-                QString new_filename = file.left(digit_test) + "%" + QString("%1").arg(digit_count, 2, 10, QChar('0')) + "d" + file.mid(lastcharindex);
+			/* Heuristic to determine whether file is part of an image sequence */
 
-                // add image sequence url to a vector in case the user imported several files that
-                // we're interpreting as a possible sequence
-                found = false;
-                for (int i=0;i<image_sequence_urls.size();i++) {
-                    if (image_sequence_urls.at(i) == new_filename) {
-                        // either SKIP if we're importing as a sequence, or leave it if we aren't
-                        if (image_sequence_importassequence.at(i)) {
-                            skip = true;
-                        }
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    image_sequence_urls.append(new_filename);
-                    if (QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-                        file = new_filename;
-                        image_sequence_importassequence.append(true);
-                    } else {
-                        image_sequence_importassequence.append(false);
-                    }
-                }
-            }
-        }        
+			// check file extension (assume it's not a
+			int lastcharindex = file.lastIndexOf(".");
+			bool found = true;
+			if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
+				// image_sequence_formats
+				found = false;
+				QString ext = file.mid(lastcharindex+1);
+				for (int j=0;j<image_sequence_formats.size();j++) {
+					if (ext == image_sequence_formats.at(j)) {
+						found = true;
+						break;
+					}
+				}
+			} else {
+				lastcharindex = file.length();
+			}
 
-		if (!skip) {
-			ta->add_media(import_file(file, files.at(i)));
-            imported = true;
-            project_changed = true;
-        }
+			if (found && file[lastcharindex-1].isDigit()) {
+				bool is_img_sequence = false;
+
+				// how many digits are in the filename?
+				int digit_count = 0;
+				int digit_test = lastcharindex-1;
+				while (file[digit_test].isDigit()) {
+					digit_count++;
+					digit_test--;
+				}
+
+				// retrieve number from filename
+				digit_test++;
+				int file_number = file.mid(digit_test, digit_count).toInt();
+
+				// Check if there are files with the same filename but just different numbers
+				if (QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number-1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))
+						|| QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number+1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))) {
+					is_img_sequence = true;
+				}
+
+				if (is_img_sequence) {
+					// get the URL that we would pass to FFmpeg to force it to read the image as a sequence
+					QString new_filename = file.left(digit_test) + "%" + QString("%1").arg(digit_count, 2, 10, QChar('0')) + "d" + file.mid(lastcharindex);
+
+					// add image sequence url to a vector in case the user imported several files that
+					// we're interpreting as a possible sequence
+					found = false;
+					for (int i=0;i<image_sequence_urls.size();i++) {
+						if (image_sequence_urls.at(i) == new_filename) {
+							// either SKIP if we're importing as a sequence, or leave it if we aren't
+							if (image_sequence_importassequence.at(i)) {
+								skip = true;
+							}
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						image_sequence_urls.append(new_filename);
+						if (QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+							file = new_filename;
+							image_sequence_importassequence.append(true);
+						} else {
+							image_sequence_importassequence.append(false);
+						}
+					}
+				}
+			}
+
+			if (!skip) {
+				QTreeWidgetItem* item;
+				Media* m;
+
+				if (replace != NULL) {
+					item = replace;
+					m = get_media_from_tree(replace);
+					m->reset();
+				} else {
+					item = new_item();
+					m = new Media();
+				}
+
+				import_file(item, m, file, files.at(i));
+				set_media_of_tree(item, m);
+
+				if (recursive) {
+					parent->addChild(item);
+				} else {
+					ta->add_media(item, parent);
+				}
+
+				imported = true;
+			}
+		}
     }
-    if (imported) {
-        undo_stack.push(ta);
-    } else {
-        delete ta;
-    }
+	if (!recursive) {
+		if (imported) {
+			undo_stack.push(ta);
+		} else {
+			delete ta;
+		}
+	}
+}
+
+QTreeWidgetItem* Project::get_selected_folder() {
+	// if one item is selected and it's a folder, return it
+	QList<QTreeWidgetItem*> selected_items = panel_project->source_table->selectedItems();
+	if (selected_items.size() == 1 && get_type_from_tree(selected_items.at(0)) == MEDIA_TYPE_FOLDER) {
+		return selected_items.at(0);
+	}
+	return NULL;
 }
 
 void Project::import_dialog() {
-    QStringList files = QFileDialog::getOpenFileNames(this, "Import media...", "", "All Files (*)");
-    process_file_list(files);
+	QFileDialog fd(this, "Import media...", "", "All Files (*)");
+	fd.setFileMode(QFileDialog::ExistingFiles);
+
+	if (fd.exec()) {
+		QStringList files = fd.selectedFiles();
+		process_file_list(NULL, files, get_selected_folder(), NULL);
+	}
 }
 
 void set_item_to_folder(QTreeWidgetItem* item) {
@@ -435,9 +542,35 @@ void Project::delete_media(QTreeWidgetItem* item) {
         Sequence* s = get_sequence_from_tree(item);
         delete s;
         break;
-    }
+	}
+}
 
-    project_changed = true;
+void Project::delete_clips_using_selected_media() {
+	if (sequence == NULL) {
+		QMessageBox::critical(this, "No active sequence", "No sequence is active, please open the sequence you want to delete clips from.", QMessageBox::Ok);
+	} else {
+		TimelineAction* ta = new TimelineAction();
+		bool deleted = false;
+		for (int i=0;i<sequence->clip_count();i++) {
+			Clip* c = sequence->get_clip(i);
+			if (c != NULL) {
+				QList<QTreeWidgetItem*> items = source_table->selectedItems();
+				for (int j=0;j<items.size();j++) {
+					Media* m = get_media_from_tree(items.at(j));
+					if (c->media == m) {
+						ta->delete_clip(sequence, i);
+						deleted = true;
+					}
+				}
+			}
+		}
+		if (deleted) {
+			undo_stack.push(ta);
+			panel_timeline->redraw_all_clips(true);
+		} else {
+			delete ta;
+		}
+	}
 }
 
 void Project::clear() {
@@ -516,7 +649,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                         switch (type) {
                         case MEDIA_TYPE_FOLDER:
                         {
-                            QTreeWidgetItem* folder = new_folder();
+							QTreeWidgetItem* folder = new_folder(0);
                             for (int j=0;j<stream.attributes().size();j++) {
                                 const QXmlStreamAttribute& attr = stream.attributes().at(j);
                                 if (attr.name() == "id") {
@@ -534,7 +667,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                         {
                             int folder = 0;
 
-                            QTreeWidgetItem* item = new_item();//import_file(url);
+							QTreeWidgetItem* item = new_item();
                             Media* m = new Media();
 
                             for (int j=0;j<stream.attributes().size();j++) {
@@ -823,10 +956,11 @@ void Project::load_project() {
         for (int i=0;i<loaded_folders.size();i++) {
             QTreeWidgetItem* folder = loaded_folders.at(i);
             int parent = folder->data(0, Qt::UserRole + 4).toInt();
-            if (parent > 0) {
-                ui->treeWidget->takeTopLevelItem(ui->treeWidget->indexOfTopLevelItem(folder));
+			if (parent > 0) {
                 find_loaded_folder_by_id(parent)->addChild(folder);
-            }
+			} else {
+				ui->treeWidget->addTopLevelItem(folder);
+			}
         }
 
         cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);

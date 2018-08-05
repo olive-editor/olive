@@ -31,7 +31,8 @@ TimelineAction::TimelineAction() :
     done(false),
     change_seq(false),
     ripple_enabled(false),
-    change_in_out(false)
+	change_in_out(false),
+	old_project_changed(project_changed)
 {}
 
 TimelineAction::~TimelineAction() {
@@ -129,8 +130,9 @@ void TimelineAction::delete_clip(Sequence* s, int clip) {
     new_action(s, TA_DELETE, clip, 0, 0);
 }
 
-void TimelineAction::add_media(QTreeWidgetItem* item) {
+void TimelineAction::add_media(QTreeWidgetItem* item, QTreeWidgetItem *parent) {
     media_to_add.append(item);
+	media_to_add_parents.append(parent);
 }
 
 void TimelineAction::delete_media(QTreeWidgetItem* item) {
@@ -242,20 +244,20 @@ void TimelineAction::undo() {
     }
 
     // delete added clips
-    if (clips_to_add.size() > 0) {
-        int delete_count = 0;
-        for (int i=0;i<clips_to_add.size();i++) {
-            sequence_to_add_clips_to.at(i)->destroy_clip(added_indexes.at(i)-delete_count, true);
-            delete_count++;
-        }
-    }
+	int delete_count = 0;
+	for (int i=0;i<clips_to_add.size();i++) {
+		sequence_to_add_clips_to.at(i)->destroy_clip(added_indexes.at(i)-delete_count, true);
+		delete_count++;
+	}
 
     // remove any added media
-    if (media_to_add.size() > 0) {
-        for (int i=0;i<media_to_add.size();i++) {
-            panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(media_to_add.at(i)));
-        }
-    }
+	for (int i=0;i<media_to_add.size();i++) {
+		if (media_to_add_parents.at(i) == NULL) {
+			panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(media_to_add.at(i)));
+		} else {
+			media_to_add_parents.at(i)->removeChild(media_to_add.at(i));
+		}
+	}
 
     // un-change workarea
     if (change_in_out) {
@@ -268,6 +270,8 @@ void TimelineAction::undo() {
     if (change_seq) {
         set_sequence(old_seq);
     }
+
+	project_changed = old_project_changed;
 
     done = false;
 }
@@ -411,34 +415,34 @@ void TimelineAction::redo() {
     }
 
     // delete media
-    if (deleted_media.size() > 0) {
-        for (int i=0;i<deleted_media.size();i++) {
-            QTreeWidgetItem* item = deleted_media.at(i);
-            deleted_media_parents.append(item->parent());
+	for (int i=0;i<deleted_media.size();i++) {
+		QTreeWidgetItem* item = deleted_media.at(i);
+		deleted_media_parents.append(item->parent());
 
-            // if we're deleting the open sequence, close it
-            if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE &&
-                    get_sequence_from_tree(item) == sequence &&
-                    !change_seq) {
-                old_seq = sequence;
-                new_seq = NULL;
-                change_seq = true;
-            }
+		// if we're deleting the open sequence, close it
+		if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE &&
+				get_sequence_from_tree(item) == sequence &&
+				!change_seq) {
+			old_seq = sequence;
+			new_seq = NULL;
+			change_seq = true;
+		}
 
-            if (item->parent() == NULL) {
-                panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
-            } else {
-                item->parent()->removeChild(item);
-            }
-        }
-    }
+		if (item->parent() == NULL) {
+			panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
+		} else {
+			item->parent()->removeChild(item);
+		}
+	}
 
     // add any new media
-    if (media_to_add.size() > 0) {
-        for (int i=0;i<media_to_add.size();i++) {
-            panel_project->source_table->addTopLevelItem(media_to_add.at(i));
-        }
-    }
+	for (int i=0;i<media_to_add.size();i++) {
+		if (media_to_add_parents.at(i) == NULL) {
+			panel_project->source_table->addTopLevelItem(media_to_add.at(i));
+		} else {
+			media_to_add_parents.at(i)->addChild(media_to_add.at(i));
+		}
+	}
 
     // change sequence workarea
     if (change_in_out) {
@@ -452,6 +456,8 @@ void TimelineAction::redo() {
         old_seq = sequence;
         set_sequence(new_seq);
     }
+
+	project_changed = true;
 
     done = true;
 }

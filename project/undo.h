@@ -28,7 +28,7 @@ public:
     void set_track(Sequence* s, int clip, int value);
     void increase_track(Sequence* s, int clip, int value);
     void delete_clip(Sequence* s, int clip);
-    void add_media(QTreeWidgetItem* item);
+	void add_media(QTreeWidgetItem* item, QTreeWidgetItem* parent);
     void delete_media(QTreeWidgetItem* item);
     void ripple(Sequence* s, long point, long length);
     void ripple(Sequence* s, long point, long length, QVector<int> &ignore);
@@ -68,6 +68,7 @@ private:
     QVector<QTreeWidgetItem*> deleted_media_parents;
 
     QVector<QTreeWidgetItem*> media_to_add;
+	QVector<QTreeWidgetItem*> media_to_add_parents;
 
     Sequence* ripple_sequence;
     bool ripple_enabled;
@@ -87,6 +88,8 @@ private:
 
     void new_action(Sequence* s, int action, int clip, long old_val, long new_val);
     void offset_links(QVector<Clip*>& clips, int offset);
+
+	bool old_project_changed;
 };
 
 class LinkCommand : public QUndoCommand {

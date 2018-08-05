@@ -182,7 +182,6 @@ void reset_cache(Clip* c, long target_frame) {
 			// seeks to nearest keyframe (target_frame represents internal clip frame)
 
 			av_seek_frame(c->formatCtx, ms->file_index, (int64_t) qFloor(clip_frame_to_seconds(c, target_frame) / timebase), AVSEEK_FLAG_BACKWARD);
-			qDebug() << target_frame;
 
 			// play up to the frame we actually want
 			long retrieved_frame = 0;

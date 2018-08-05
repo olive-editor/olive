@@ -264,8 +264,7 @@ void Timeline::repaint_timeline() {
 }
 
 void Timeline::redraw_all_clips(bool changed) {
-    if (changed) {
-        project_changed = true;
+	if (changed) {
         if (!playing) reset_all_audio();
         panel_viewer->viewer_widget->update();
     }

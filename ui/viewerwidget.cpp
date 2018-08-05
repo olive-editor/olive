@@ -110,19 +110,22 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
             case MEDIA_TYPE_FOOTAGE:
             {
                 Media* m = static_cast<Media*>(c->media);
-                if (m->ready
-                        && m->get_stream_from_file_index(c->media_stream) != NULL
-                        && is_clip_active(c, playhead)) {
-                    // if thread is already working, we don't want to touch this,
-                    // but we also don't want to hang the UI thread
-                    if (!c->open) {
-                        open_clip(c, multithreaded);
-                    }
+				if (m->ready) {
+					if (m->get_stream_from_file_index(c->media_stream) != NULL
+							&& is_clip_active(c, playhead)) {
+						// if thread is already working, we don't want to touch this,
+						// but we also don't want to hang the UI thread
+						if (!c->open) {
+							open_clip(c, multithreaded);
+						}
 
-                    clip_is_active = true;
-                } else if (c->open) {
-                    close_clip(c);
-                }
+						clip_is_active = true;
+					} else if (c->open) {
+						close_clip(c);
+					}
+				} else {
+					texture_failed = true;
+				}
             }
                 break;
             case MEDIA_TYPE_SEQUENCE:
