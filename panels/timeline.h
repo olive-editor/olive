@@ -13,6 +13,7 @@ class QPushButton;
 class SourceTable;
 class ViewerWidget;
 class TimelineAction;
+class Transition;
 struct Sequence;
 struct Clip;
 struct Media;
@@ -43,6 +44,9 @@ struct Ghost {
 	long media_length;
     bool trim_in;
     bool trimming;
+
+	// transition trimming
+	Transition* transition;
 };
 
 struct Selection {
