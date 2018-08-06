@@ -82,6 +82,7 @@ struct Clip
     bool reached_end;
     bool open;
     bool finished_opening;
+	bool replaced;
 
     // caching functions
     bool multithreaded;

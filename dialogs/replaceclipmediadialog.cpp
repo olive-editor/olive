@@ -89,15 +89,9 @@ void ReplaceClipMediaDialog::replace() {
 							c->clip_in = 0;
 						}
 
-						int new_type = get_type_from_tree(new_item);
 						c->media = new_media;
-						c->media_type = new_type;
-
-						if (new_type == MEDIA_TYPE_FOOTAGE) {
-							// TODO: the media streams may be invalid, here we have a BASIC heuristic for getting the right ones that COULD BE BETTER
-							Media* casted_new_media = static_cast<Media*>(new_media);
-							c->media_stream = (c->track < 0) ? casted_new_media->video_tracks.at(0)->file_index : casted_new_media->audio_tracks.at(0)->file_index;
-						}
+						c->media_type = get_type_from_tree(new_item);
+						c->replaced = true;
 
 						c->refresh();
 						changed = true;

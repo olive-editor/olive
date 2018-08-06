@@ -51,8 +51,7 @@ public:
 	explicit Project(QWidget *parent = 0);
 	~Project();
     bool is_focused();
-    void clear();
-	void import_file(QTreeWidgetItem* item, Media* m, QString url, QString imported_filename);
+	void clear();
     void new_sequence(TimelineAction* ta, Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
@@ -96,7 +95,7 @@ private:
     QTreeWidgetItem* find_loaded_folder_by_id(int id);
     void add_recent_project(QString url);
 	void get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
-    void start_preview_generator(QTreeWidgetItem* item, Media* media);
+	void start_preview_generator(QTreeWidgetItem* item, Media* media, bool replacing);
     void list_all_sequences_worker(QVector<Sequence*>* list, QTreeWidgetItem* parent);
 	QString get_file_name_from_path(const QString &path);
 private slots:
@@ -109,7 +108,7 @@ class MediaThrobber : public QObject {
 public:
     MediaThrobber(QTreeWidgetItem*);
 public slots:
-    void stop(int);
+	void stop(int, bool replace);
 private slots:
     void animation_update();
 private:

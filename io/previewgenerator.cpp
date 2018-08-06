@@ -18,7 +18,15 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m) : QThread(0), fmt_ctx(NULL), item(i), media(m), retrieve_duration(false), contains_still_image(false) {
+PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
+	QThread(0),
+	fmt_ctx(NULL),
+	item(i),
+	media(m),
+	retrieve_duration(false),
+	contains_still_image(false),
+	replace(r)
+{
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
@@ -72,9 +80,9 @@ void PreviewGenerator::finalize_media() {
 	media->ready = true;
 
 	if (media->video_tracks.size() == 0) {
-		emit set_icon(ICON_TYPE_AUDIO);
+		emit set_icon(ICON_TYPE_AUDIO, replace);
 	} else {
-		emit set_icon(ICON_TYPE_VIDEO);
+		emit set_icon(ICON_TYPE_VIDEO, replace);
 	}
 
 	if (!contains_still_image || media->audio_tracks.size() > 0) {
@@ -290,7 +298,7 @@ void PreviewGenerator::run() {
         avformat_close_input(&fmt_ctx);
     }
     if (error) {
-        emit set_icon(ICON_TYPE_ERROR);
+		emit set_icon(ICON_TYPE_ERROR, replace);
     } else {
         item->setToolTip(0, QString());
     }

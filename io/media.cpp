@@ -6,6 +6,8 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
+#include "project/clip.h"
+
 Media::Media() : ready(false) {}
 
 Media::~Media() {

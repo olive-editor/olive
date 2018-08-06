@@ -117,43 +117,12 @@ void Project::replace_selected_file() {
 }
 
 void Project::replace_media(QTreeWidgetItem* item, QString filename) {
-	Media* m = get_footage_from_tree(item);
-
-	QStringList files;
 	if (filename.isEmpty()) {
-		QString browse_file = QFileDialog::getOpenFileName(this, "Replace '" + item->text(0) + "'", "", "All Files (*)");
-		if (!browse_file.isEmpty()) files.append(browse_file);
-	} else {
-		files.append(filename);
+		filename = QFileDialog::getOpenFileName(this, "Replace '" + item->text(0) + "'", "", "All Files (*)");
 	}
-
-	if (files.size() > 0) {
-		// close any clips currently using this media
-		QVector<Sequence*> all_sequences = list_all_project_sequences();
-		for (int i=0;i<all_sequences.size();i++) {
-			Sequence* s = all_sequences.at(i);
-			for (int j=0;j<s->clip_count();j++) {
-				Clip* c = s->get_clip(j);
-				if (c != NULL && c->media == m && c->open) {
-					close_clip(c);
-					c->cacher->wait();
-				}
-			}
-		}
-
-		process_file_list(NULL, files, NULL, item);
-
-		for (int i=0;i<all_sequences.size();i++) {
-			Sequence* s = all_sequences.at(i);
-			for (int j=0;j<s->clip_count();j++) {
-				Clip* c = s->get_clip(j);
-				if (c != NULL && c->media == m) {
-					c->refresh();
-				}
-			}
-		}
-
-		panel_timeline->redraw_all_clips(true);
+	if (!filename.isEmpty()) {
+		ReplaceMediaCommand* rmc = new ReplaceMediaCommand(item, filename);
+		undo_stack.push(rmc);
 	}
 }
 
@@ -191,26 +160,18 @@ void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidg
     project_changed = true;
 }
 
-void Project::start_preview_generator(QTreeWidgetItem* item, Media* media) {
+void Project::start_preview_generator(QTreeWidgetItem* item, Media* media, bool replacing) {
     // set up throbber animation
     MediaThrobber* throbber = new MediaThrobber(item);
 
-    PreviewGenerator* pg = new PreviewGenerator(item, media);
-    connect(pg, SIGNAL(set_icon(int)), throbber, SLOT(stop(int)));
+	PreviewGenerator* pg = new PreviewGenerator(item, media, replacing);
+	connect(pg, SIGNAL(set_icon(int, bool)), throbber, SLOT(stop(int, bool)));
     connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
     pg->start(QThread::LowPriority);
 }
 
 QString Project::get_file_name_from_path(const QString& path) {
 	return path.mid(path.lastIndexOf('/')+1);
-}
-
-void Project::import_file(QTreeWidgetItem* item, Media* m, QString file, QString imported_filename) {
-    m->url = file;
-	m->name = get_file_name_from_path(imported_filename);
-
-    // generate waveform/thumbnail in another thread
-	start_preview_generator(item, m);
 }
 
 QTreeWidgetItem* Project::new_item() {
@@ -370,10 +331,11 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
     QVector<bool> image_sequence_importassequence;
     QStringList image_sequence_formats = config.img_seq_formats.split("|");
 
+	bool create_undo_action = (!recursive && replace == NULL);
 	TimelineAction* ta;
-	if (!recursive) ta = new TimelineAction();
+	if (create_undo_action) ta = new TimelineAction();
 
-    for (int i=0;i<files.count();i++) {
+	for (int i=0;i<files.size();i++) {
 		if (QFileInfo(files.at(i)).isDir()) {
 			QString folder_name = get_file_name_from_path(files.at(i));
 			QTreeWidgetItem* folder = new_folder(folder_name);
@@ -390,7 +352,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 
 			process_file_list(true, subdir_filenames, folder, NULL);
 
-			if (!recursive) {
+			if (create_undo_action) {
 				ta->add_media(folder, parent);
 			} else {
 				parent->addChild(folder);
@@ -483,20 +445,27 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 					m = new Media();
 				}
 
-				import_file(item, m, file, files.at(i));
+				m->url = file;
+				m->name = get_file_name_from_path(files.at(i));
+
+				// generate waveform/thumbnail in another thread
+				start_preview_generator(item, m, replace != NULL);
+
 				set_footage_of_tree(item, m);
 
-				if (recursive) {
-					parent->addChild(item);
-				} else {
-					ta->add_media(item, parent);
+				if (replace == NULL) {
+					if (create_undo_action) {
+						ta->add_media(item, parent);
+					} else {
+						parent->addChild(item);
+					}
 				}
 
 				imported = true;
 			}
 		}
     }
-	if (!recursive) {
+	if (create_undo_action) {
 		if (imported) {
 			undo_stack.push(ta);
 		} else {
@@ -520,7 +489,7 @@ void Project::import_dialog() {
 
 	if (fd.exec()) {
 		QStringList files = fd.selectedFiles();
-		process_file_list(NULL, files, get_selected_folder(), NULL);
+		process_file_list(false, files, get_selected_folder(), NULL);
 	}
 }
 
@@ -753,7 +722,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             }
 
                             // analyze media to see if it's the same
-                            start_preview_generator(item, m);
+							start_preview_generator(item, m, true);
 
                             loaded_media.append(m);
                         }
@@ -1285,7 +1254,7 @@ void MediaThrobber::animation_update() {
     animation++;
 }
 
-void MediaThrobber::stop(int icon_type) {
+void MediaThrobber::stop(int icon_type, bool replace) {
     animator.stop();
 
     switch (icon_type) {
@@ -1294,22 +1263,20 @@ void MediaThrobber::stop(int icon_type) {
     case ICON_TYPE_ERROR: item->setIcon(0, QIcon::fromTheme("dialog-error")); break;
     }
 
-    // re-init all effects on all clips
+	// refresh all clips
     QVector<Sequence*> sequences = panel_project->list_all_project_sequences();
     for (int i=0;i<sequences.size();i++) {
         Sequence* s = sequences.at(i);
         for (int j=0;j<s->clip_count();j++) {
             Clip* c = s->get_clip(j);
-            if (c != NULL) {
-                for (int k=0;k<c->effects.size();k++) {
-                    c->effects.at(k)->init();
-                }
+			if (c != NULL) {
+				c->refresh();
             }
         }
-    }
+	}
 
     // redraw clips
-    panel_timeline->redraw_all_clips(false);
+	panel_timeline->redraw_all_clips(replace);
 
     panel_project->source_table->viewport()->update();
     deleteLater();

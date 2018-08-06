@@ -169,7 +169,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
 				if (drop_item != NULL && get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER) {
 					parent = drop_item;
 				}
-				panel_project->process_file_list(NULL, paths, parent, NULL);
+				panel_project->process_file_list(false, paths, parent, NULL);
 			}
         }
         event->acceptProposedAction();

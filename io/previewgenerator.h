@@ -16,10 +16,10 @@ class PreviewGenerator : public QThread
 {
     Q_OBJECT
 public:
-    PreviewGenerator(QTreeWidgetItem*, Media*);
+	PreviewGenerator(QTreeWidgetItem*, Media*, bool);
     void run();
 signals:
-    void set_icon(int);
+	void set_icon(int, bool);
 private:
     void parse_media();
     void generate_waveform();
@@ -29,6 +29,7 @@ private:
     AVFormatContext* fmt_ctx;
 	bool retrieve_duration;
 	bool contains_still_image;
+	bool replace;
 };
 
 #endif // PREVIEWGENERATOR_H

@@ -5,6 +5,7 @@ class QTreeWidgetItem;
 class QCheckBox;
 struct Clip;
 struct Sequence;
+struct Media;
 
 #include <QUndoStack>
 #include <QUndoCommand>
@@ -113,6 +114,20 @@ private:
     QCheckBox* box;
     bool checked;
     bool done;
+};
+
+class ReplaceMediaCommand : public QUndoCommand {
+public:
+	ReplaceMediaCommand(QTreeWidgetItem*, QString);
+	void undo();
+	void redo();
+private:
+	QTreeWidgetItem *item;
+	QString old_filename;
+	QString new_filename;
+	bool old_project_changed;
+	Media* media;
+	void replace(QString& filename);
 };
 
 #endif // UNDO_H

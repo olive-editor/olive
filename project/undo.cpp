@@ -13,6 +13,8 @@
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
 #include "effects/effects.h"
+#include "io/media.h"
+#include "playback/cacher.h"
 
 QUndoStack undo_stack;
 
@@ -505,4 +507,46 @@ void CheckboxCommand::redo() {
     if (!done) {
         box->setChecked(checked);
     }
+}
+
+ReplaceMediaCommand::ReplaceMediaCommand(QTreeWidgetItem* i, QString s) :
+	item(i),
+	new_filename(s),
+	old_project_changed(project_changed)
+{
+	media = get_footage_from_tree(item);
+	old_filename = media->url;
+}
+
+void ReplaceMediaCommand::replace(QString& filename) {
+	// close any clips currently using this media
+	QVector<Sequence*> all_sequences = panel_project->list_all_project_sequences();
+	for (int i=0;i<all_sequences.size();i++) {
+		Sequence* s = all_sequences.at(i);
+		for (int j=0;j<s->clip_count();j++) {
+			Clip* c = s->get_clip(j);
+			if (c != NULL && c->media == media && c->open) {
+				close_clip(c);
+				c->cacher->wait();
+				c->replaced = true;
+			}
+		}
+	}
+
+	// replace media
+	QStringList files;
+	files.append(filename);
+	panel_project->process_file_list(false, files, NULL, item);
+}
+
+void ReplaceMediaCommand::undo() {
+	replace(old_filename);
+
+	project_changed = old_project_changed;
+}
+
+void ReplaceMediaCommand::redo() {
+	replace(new_filename);
+
+	project_changed = true;
 }

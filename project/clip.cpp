@@ -26,6 +26,7 @@ Clip::Clip(Sequence* s) :
     opening_transition(NULL),
     closing_transition(NULL),
     pkt(new AVPacket()),
+	replaced(false),
     texture(NULL)
 {
     reset();
@@ -106,6 +107,13 @@ void Clip::reset_audio() {
 }
 
 void Clip::refresh() {
+	// validates media if it was replaced
+	if (replaced && media_type == MEDIA_TYPE_FOOTAGE) {
+		Media* m = static_cast<Media*>(media);
+		media_stream = (track < 0) ? m->video_tracks.at(0)->file_index : m->audio_tracks.at(0)->file_index;
+	}
+	replaced = false;
+
     // reinitializes all effects... just in case
     for (int i=0;i<effects.size();i++) {
         effects.at(i)->init();
