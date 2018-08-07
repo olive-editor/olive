@@ -550,3 +550,58 @@ void ReplaceMediaCommand::redo() {
 
 	project_changed = true;
 }
+
+ReplaceClipMediaCommand::ReplaceClipMediaCommand(void *a, void *b, int c, int d, bool e) :
+	old_media(a),
+	new_media(b),
+	old_type(c),
+	new_type(d),
+	preserve_clip_ins(e),
+	old_project_changed(project_changed)
+{}
+
+void ReplaceClipMediaCommand::replace(bool undo) {
+	if (!undo) {
+		old_clip_ins.clear();
+	}
+
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+		if (c->open) {
+			close_clip(c);
+			c->cacher->wait();
+		}
+
+		if (undo) {
+			if (!preserve_clip_ins) {
+				c->clip_in = old_clip_ins.at(i);
+			}
+
+			c->media = old_media;
+			c->media_type = old_type;
+		} else {
+			if (!preserve_clip_ins) {
+				old_clip_ins.append(c->clip_in);
+				c->clip_in = 0;
+			}
+
+			c->media = new_media;
+			c->media_type = new_type;
+		}
+
+		c->replaced = true;
+		c->refresh();
+	}
+}
+
+void ReplaceClipMediaCommand::undo() {
+	replace(true);
+
+	project_changed = old_project_changed;
+}
+
+void ReplaceClipMediaCommand::redo() {
+	replace(false);
+
+	project_changed = true;
+}

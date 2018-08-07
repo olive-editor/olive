@@ -130,4 +130,21 @@ private:
 	void replace(QString& filename);
 };
 
+class ReplaceClipMediaCommand : public QUndoCommand {
+public:
+	ReplaceClipMediaCommand(void*, void*, int, int, bool);
+	void undo();
+	void redo();
+	QVector<Clip*> clips;
+private:
+	void* old_media;
+	void* new_media;
+	int old_type;
+	int new_type;
+	bool preserve_clip_ins;
+	bool old_project_changed;
+	QVector<int> old_clip_ins;
+	void replace(bool undo);
+};
+
 #endif // UNDO_H

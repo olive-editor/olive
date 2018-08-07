@@ -8,6 +8,7 @@
 #include "playback/playback.h"
 #include "playback/cacher.h"
 #include "io/media.h"
+#include "project/undo.h"
 
 #include <QVBoxLayout>
 #include <QTreeWidget>
@@ -73,33 +74,24 @@ void ReplaceClipMediaDialog::replace() {
 				QMessageBox::critical(this, "Active sequence selected", "You cannot insert a sequence into itself.", QMessageBox::Ok);
 			} else {
 				void* old_media = get_media_from_tree(media);
-				void* new_media = get_media_from_tree(new_item);
 
-				// TODO not undoable yet
-				bool changed = false;
+				ReplaceClipMediaCommand* rcmc = new ReplaceClipMediaCommand(
+							old_media,
+							get_media_from_tree(new_item),
+							get_type_from_tree(media),
+							get_type_from_tree(new_item),
+							use_same_media_in_points->isChecked()
+						);
+
 				for (int i=0;i<sequence->clip_count();i++) {
 					Clip* c = sequence->get_clip(i);
 					if (c != NULL && c->media == old_media) {
-						if (c->open) {
-							close_clip(c);
-							c->cacher->wait();
-						}
-
-						if (!use_same_media_in_points->isChecked()) {
-							c->clip_in = 0;
-						}
-
-						c->media = new_media;
-						c->media_type = get_type_from_tree(new_item);
-						c->replaced = true;
-
-						c->refresh();
-						changed = true;
+						rcmc->clips.append(c);
 					}
 				}
-				if (changed) {
-					panel_timeline->redraw_all_clips(true);
-				}
+
+				undo_stack.push(rcmc);
+
 				close();
 			}
 
