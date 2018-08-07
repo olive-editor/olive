@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->setupUi(this);
 
-    setWindowTitle("Olive (July 2018 | Pre-Alpha)");
+	setWindowTitle("Olive (August 2018 | Pre-Alpha)");
     statusBar()->showMessage("Welcome to Olive");
 
     ui->centralWidget->setMaximumSize(0, 0);

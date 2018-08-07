@@ -185,18 +185,30 @@ int Timeline::get_track_height_size(bool video) {
 }
 
 void Timeline::add_transition() {
+	TimelineAction* ta = new TimelineAction();
+	bool adding = false;
+
     for (int i=0;i<sequence->clip_count();i++) {
         Clip* c = sequence->get_clip(i);
         if (c != NULL && is_clip_selected(c, true)) {
             if (c->opening_transition == NULL) {
-                c->opening_transition = create_transition(0, c);
+				ta->add_transition(sequence, i, 0, TA_OPENING_TRANSITION);
+				adding = true;
             }
             if (c->closing_transition == NULL) {
-                c->closing_transition = create_transition(0, c);
+				ta->add_transition(sequence, i, 0, TA_CLOSING_TRANSITION);
+				adding = true;
             }
         }
     }
-    redraw_all_clips(true);
+
+	if (adding) {
+		undo_stack.push(ta);
+	} else {
+		delete ta;
+	}
+
+	redraw_all_clips(true);
 }
 
 int Timeline::calculate_track_height(int track, int value) {
@@ -570,7 +582,13 @@ void Timeline::delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& a
         for (int j=0;j<sequence->clip_count();j++) {
             Clip* c = sequence->get_clip(j);
             if (c != NULL && c->track == s.track && !c->undeletable) {
-                if (c->timeline_in >= s.in && c->timeline_out <= s.out) {
+				if (c->opening_transition != NULL && s.in == c->timeline_in && s.out == c->timeline_in + c->opening_transition->length) {
+					// delete opening transition
+					ta->delete_transition(sequence, j, TA_OPENING_TRANSITION);
+				} else if (c->closing_transition != NULL && s.out == c->timeline_out && s.in == c->timeline_out - c->closing_transition->length) {
+					// delete closing transition
+					ta->delete_transition(sequence, j, TA_CLOSING_TRANSITION);
+				} else if (c->timeline_in >= s.in && c->timeline_out <= s.out) {
                     // clips falls entirely within deletion area
                     ta->delete_clip(sequence, j);
                 } else if (c->timeline_in < s.in && c->timeline_out > s.out) {
@@ -929,7 +947,11 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
                         break;
                     } else if (snap_to_point(c->timeline_out, l)) {
                         break;
-                    }
+					} else if (c->opening_transition != NULL && snap_to_point(c->timeline_in + c->opening_transition->length, l)) {
+						break;
+					} else if (c->closing_transition != NULL && snap_to_point(c->timeline_in + c->closing_transition->length, l)) {
+						break;
+					}
                 }
             }
         }

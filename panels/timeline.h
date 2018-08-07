@@ -165,6 +165,7 @@ public:
 	// trimming
 	int trim_target;
     bool trim_in_point;
+	int transition_select;
 
 	// splitting
 	bool splitting;

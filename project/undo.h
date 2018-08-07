@@ -3,6 +3,9 @@
 
 class QTreeWidgetItem;
 class QCheckBox;
+class LabelSlider;
+class Effect;
+class SourceTable;
 struct Clip;
 struct Sequence;
 struct Media;
@@ -10,6 +13,10 @@ struct Media;
 #include <QUndoStack>
 #include <QUndoCommand>
 #include <QVector>
+
+#define TA_NO_TRANSITION 0
+#define TA_OPENING_TRANSITION 1
+#define TA_CLOSING_TRANSITION 2
 
 extern QUndoStack undo_stack;
 
@@ -34,7 +41,10 @@ public:
     void ripple(Sequence* s, long point, long length);
     void ripple(Sequence* s, long point, long length, QVector<int> &ignore);
     void set_in_out(Sequence* s, bool enabled, long in, long out);
-    void add_effect(Sequence* s, int clip, int effect);
+	void add_effect(Sequence* s, int clip, int effect);
+	void add_transition(Sequence* s, int clip, int transition, int type);
+	void modify_transition(Sequence* s, int clip, int type, long length);
+	void delete_transition(Sequence* s, int clip, int type);
     void undo();
     void redo();
 private:
@@ -50,6 +60,7 @@ private:
     QVector<Sequence*> sequences;
     QVector<int> actions;
     QVector<int> clips;
+	QVector<int> transition_types;
     QVector<long> old_values;
     QVector<long> new_values;
 
@@ -87,7 +98,7 @@ private:
     long old_sequence_out;
     long new_sequence_out;
 
-    void new_action(Sequence* s, int action, int clip, long old_val, long new_val);
+	void new_action(Sequence* s, int action, int clip, int transition_type, long old_val, long new_val);
     void offset_links(QVector<Clip*>& clips, int offset);
 
 	bool old_project_changed;

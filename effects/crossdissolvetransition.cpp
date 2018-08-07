@@ -2,10 +2,7 @@
 
 #include <QOpenGLFunctions>
 
-CrossDissolveTransition::CrossDissolveTransition() {
-    name = "Cross Dissolve";
-    id = VIDEO_DISSOLVE_TRANSITION;
-}
+CrossDissolveTransition::CrossDissolveTransition() : Transition(VIDEO_DISSOLVE_TRANSITION, "Cross Dissolve") {}
 
 void CrossDissolveTransition::process_transition(float progress) {
     float color[4];

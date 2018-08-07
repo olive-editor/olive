@@ -18,10 +18,11 @@ enum AudioTransitions {
 class Transition
 {
 public:
-    Transition();
-    int id;
-    int length;
-    QString name;
+	Transition(int, QString);
+	~Transition();
+	int id;
+	QString name;
+	int length;
     Transition* link;
     virtual void process_transition(float);
     virtual Transition* copy();

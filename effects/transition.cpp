@@ -4,13 +4,15 @@
 
 #include <QDebug>
 
-Transition::Transition() {
+Transition::Transition(int i, QString n) : id(i), name(n) {
     length = 30;
     link = NULL;
 }
 
+Transition::~Transition() {}
+
 Transition* Transition::copy() {
-    return new Transition();
+	return NULL;
 }
 
 void Transition::process_transition(float) {}

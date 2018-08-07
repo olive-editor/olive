@@ -15,6 +15,8 @@
 #include "effects/effects.h"
 #include "io/media.h"
 #include "playback/cacher.h"
+#include "effects/transition.h"
+#include "ui/labelslider.h"
 
 QUndoStack undo_stack;
 
@@ -28,6 +30,9 @@ QUndoStack undo_stack;
 #define TA_ADD_CLIP_IN 7
 #define TA_ADD_TRACK 8
 #define TA_ADD_EFFECT 9
+#define TA_ADD_TRANSITION 10
+#define TA_MODIFY_TRANSITION 11
+#define TA_DELETE_TRANSITION 12
 
 TimelineAction::TimelineAction() :
     done(false),
@@ -88,48 +93,49 @@ void TimelineAction::add_clips(Sequence* s, QVector<Clip*>& add) {
     }
 }
 
-void TimelineAction::new_action(Sequence* s, int action, int clip, long old_val, long new_val) {
+void TimelineAction::new_action(Sequence* s, int action, int clip, int transition_type, long old_val, long new_val) {
     sequences.append(s);
     actions.append(action);
     clips.append(clip);
+	transition_types.append(transition_type);
     old_values.append(old_val);
     new_values.append(new_val);
 }
 
 void TimelineAction::set_timeline_in(Sequence* s, int clip, long value) {
-    new_action(s, TA_IN, clip, s->get_clip(clip)->timeline_in, value);
+	new_action(s, TA_IN, clip, TA_NO_TRANSITION, s->get_clip(clip)->timeline_in, value);
 }
 
 void TimelineAction::set_timeline_out(Sequence* s, int clip, long value) {
-    new_action(s, TA_OUT, clip, s->get_clip(clip)->timeline_out, value);
+	new_action(s, TA_OUT, clip, TA_NO_TRANSITION, s->get_clip(clip)->timeline_out, value);
 }
 
 void TimelineAction::set_clip_in(Sequence* s, int clip, long value) {
-    new_action(s, TA_CLIP_IN, clip, s->get_clip(clip)->clip_in, value);
+	new_action(s, TA_CLIP_IN, clip, TA_NO_TRANSITION, s->get_clip(clip)->clip_in, value);
 }
 
 void TimelineAction::set_track(Sequence* s, int clip, int value) {
-    new_action(s, TA_TRACK, clip, s->get_clip(clip)->track, value);
+	new_action(s, TA_TRACK, clip, TA_NO_TRANSITION, s->get_clip(clip)->track, value);
 }
 
 void TimelineAction::increase_timeline_in(Sequence* s, int clip, long value) {
-    new_action(s, TA_ADD_IN, clip, 0, value);
+	new_action(s, TA_ADD_IN, clip, TA_NO_TRANSITION, 0, value);
 }
 
 void TimelineAction::increase_timeline_out(Sequence* s, int clip, long value) {
-    new_action(s, TA_ADD_OUT, clip, 0, value);
+	new_action(s, TA_ADD_OUT, clip, TA_NO_TRANSITION, 0, value);
 }
 
 void TimelineAction::increase_clip_in(Sequence* s, int clip, long value) {
-    new_action(s, TA_ADD_CLIP_IN, clip, 0, value);
+	new_action(s, TA_ADD_CLIP_IN, clip, TA_NO_TRANSITION, 0, value);
 }
 
 void TimelineAction::increase_track(Sequence* s, int clip, int value) {
-    new_action(s, TA_ADD_TRACK, clip, 0, value);
+	new_action(s, TA_ADD_TRACK, clip, TA_NO_TRANSITION, 0, value);
 }
 
 void TimelineAction::delete_clip(Sequence* s, int clip) {
-    new_action(s, TA_DELETE, clip, 0, 0);
+	new_action(s, TA_DELETE, clip, TA_NO_TRANSITION, 0, 0);
 }
 
 void TimelineAction::add_media(QTreeWidgetItem* item, QTreeWidgetItem *parent) {
@@ -147,7 +153,19 @@ void TimelineAction::ripple(Sequence* s, long point, long length) {
 }
 
 void TimelineAction::add_effect(Sequence* s, int clip, int effect) {
-    new_action(s, TA_ADD_EFFECT, clip, 0, effect);
+	new_action(s, TA_ADD_EFFECT, clip, TA_NO_TRANSITION, 0, effect);
+}
+
+void TimelineAction::add_transition(Sequence* s, int clip, int transition, int type) {
+	new_action(s, TA_ADD_TRANSITION, clip, type, 0, transition);
+}
+
+void TimelineAction::modify_transition(Sequence* s, int clip, int type, long length) {
+	new_action(s, TA_MODIFY_TRANSITION, clip, type, 0, length);
+}
+
+void TimelineAction::delete_transition(Sequence* s, int clip, int type) {
+	new_action(s, TA_DELETE_TRANSITION, clip, type, 0, 0);
 }
 
 void TimelineAction::set_in_out(Sequence* s, bool enabled, long in, long out) {
@@ -223,11 +241,47 @@ void TimelineAction::undo() {
             sequences.at(i)->get_clip(clips.at(i))->track -= new_values.at(i);
             break;
         case TA_ADD_EFFECT:
+		{
             Clip* c = sequences.at(i)->get_clip(clips.at(i));
             Effect* effect = c->effects.at(old_values.at(i));
             c->effects.removeAt(old_values.at(i));
             delete effect;
+		}
             break;
+		case TA_ADD_TRANSITION:
+		{
+			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
+				delete c->opening_transition;
+				c->opening_transition = NULL;
+			} else {
+				delete c->closing_transition;
+				c->closing_transition = NULL;
+			}
+		}
+			break;
+		case TA_MODIFY_TRANSITION:
+		{
+			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
+				c->opening_transition->length = old_values.at(i);
+			} else {
+				c->closing_transition->length = old_values.at(i);
+			}
+		}
+			break;
+		case TA_DELETE_TRANSITION:
+		{
+			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
+				c->opening_transition = create_transition(new_values.at(i), c);
+				c->opening_transition->length = old_values.at(i);
+			} else {
+				c->closing_transition = create_transition(new_values.at(i), c);
+				c->closing_transition->length = old_values.at(i);
+			}
+		}
+			break;
         }
     }
 
@@ -372,6 +426,44 @@ void TimelineAction::redo() {
             c->effects.append(create_effect(new_values.at(i), c));
         }
             break;
+		case TA_ADD_TRANSITION:
+		{
+			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
+				c->opening_transition = create_transition(new_values.at(i), c);
+			} else {
+				c->closing_transition = create_transition(new_values.at(i), c);
+			}
+		}
+			break;
+		case TA_MODIFY_TRANSITION:
+		{
+			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
+				old_values[i] = c->opening_transition->length;
+				c->opening_transition->length = new_values.at(i);
+			} else {
+				old_values[i] = c->closing_transition->length;
+				c->closing_transition->length = new_values.at(i);
+			}
+		}
+			break;
+		case TA_DELETE_TRANSITION:
+		{
+			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
+				new_values[i] = c->opening_transition->id;
+				old_values[i] = c->opening_transition->length;
+				delete c->opening_transition;
+				c->opening_transition = NULL;
+			} else {
+				new_values[i] = c->closing_transition->id;
+				old_values[i] = c->closing_transition->length;
+				delete c->closing_transition;
+				c->closing_transition = NULL;
+			}
+		}
+			break;
         }
     }
 
