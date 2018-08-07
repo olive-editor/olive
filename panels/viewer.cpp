@@ -142,6 +142,8 @@ void Viewer::update_sequence() {
         update_end_timecode();
     }
 
+	viewer_widget->repaint();
+
     update();
 }
 

@@ -149,6 +149,7 @@
     <addaction name="actionEdit_Tool_Selects_Links"/>
     <addaction name="actionSeek_to_the_End_of_Pastes"/>
     <addaction name="actionScroll_Wheel_Zooms"/>
+    <addaction name="actionRectified_Waveforms"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionCrash"/>
@@ -679,6 +680,14 @@
   <action name="actionRipple_Delete_In_Out">
    <property name="text">
     <string>Ripple Delete In/Out</string>
+   </property>
+  </action>
+  <action name="actionRectified_Waveforms">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Rectified Waveforms</string>
    </property>
   </action>
  </widget>

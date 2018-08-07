@@ -558,6 +558,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionSeek_to_the_End_of_Pastes->setChecked(config.paste_seeks);
     ui->actionToggle_Snapping->setChecked(panel_timeline->snapping);
     ui->actionScroll_Wheel_Zooms->setChecked(config.scroll_zooms);
+	ui->actionRectified_Waveforms->setChecked(config.rectified_waveforms);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -687,4 +688,10 @@ void MainWindow::on_actionTimeline_Track_Lines_triggered()
 {
     config.show_track_lines = !config.show_track_lines;
     panel_timeline->redraw_all_clips(false);
+}
+
+void MainWindow::on_actionRectified_Waveforms_triggered()
+{
+	config.rectified_waveforms = !config.rectified_waveforms;
+	panel_timeline->redraw_all_clips(false);
 }

@@ -807,7 +807,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
         if (g.clip != -1) c = sequence->get_clip(g.clip);
 
 		MediaStream* ms = NULL;
-		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+		if (g.clip != -1 && c->media_type == MEDIA_TYPE_FOOTAGE) {
 			ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
 		}
 
@@ -1575,13 +1575,15 @@ void TimelineWidget::redraw_clips() {
                                 clip_painter.drawImage(thumb_rect, ms->video_preview);
                             }
 						} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
-                            int divider = ms->audio_channels*2;
+							clip_painter.setPen(QColor(80, 80, 80));
 
-                            clip_painter.setPen(QColor(80, 80, 80));
-                            int channel_height = clip_rect.height()/ms->audio_channels;
+							int divider = ms->audio_channels*2;
+							int channel_height = clip_rect.height()/ms->audio_channels;
 
 							for (int i=0;i<waveform_limit;i++) {
-                                int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+								int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+
+								int rectified_height = 0;
 
 								for (int j=0;j<ms->audio_channels;j++) {
 									int mid = clip_rect.top()+channel_height*j+(channel_height/2);
@@ -1589,7 +1591,16 @@ void TimelineWidget::redraw_clips() {
 
 									qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
 									qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
-									clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+
+									if (config.rectified_waveforms)  {
+										rectified_height += (max - min);
+									} else {
+										clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+									}
+								}
+
+								if (config.rectified_waveforms) {
+									clip_painter.drawLine(clip_rect.left()+i, clip_rect.height(), clip_rect.left()+i, clip_rect.height() - rectified_height);
 								}
 							}
                         }

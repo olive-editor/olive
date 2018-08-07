@@ -15,7 +15,8 @@ Config::Config()
       edit_tool_selects_links(false),
       edit_tool_also_seeks(false),
       select_also_seeks(false),
-      paste_seeks(true)
+	  paste_seeks(true),
+	  rectified_waveforms(false)
 {
 
 }
@@ -52,7 +53,9 @@ void Config::load(QString path) {
                 } else if (stream.name() == "ImageSequenceFormats") {
                     stream.readNext();
                     img_seq_formats = stream.text().toString();
-                }
+				} else if (stream.name() == "RectifiedWaveforms") {
+					rectified_waveforms = (stream.text() == "1");
+				}
             }
         }
         if (stream.hasError()) {
@@ -106,6 +109,7 @@ void Config::save(QString path) {
     stream.writeTextElement("SelectAlsoSeeks", QString::number(select_also_seeks));
     stream.writeTextElement("PasteSeeks", QString::number(paste_seeks));
     stream.writeTextElement("ImageSequenceFormats", img_seq_formats);
+	stream.writeTextElement("RectifiedWaveforms", QString::number(rectified_waveforms));
 
     stream.writeEndElement();
     stream.writeEndDocument(); // doc

@@ -168,6 +168,8 @@ private slots:
 
     void on_actionTimeline_Track_Lines_triggered();
 
+	void on_actionRectified_Waveforms_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
