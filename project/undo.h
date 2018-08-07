@@ -102,6 +102,7 @@ public:
     bool link;
 private:
     QVector< QVector<int> > old_links;
+	bool old_project_changed;
 };
 
 class CheckboxCommand : public QUndoCommand {
@@ -114,6 +115,7 @@ private:
     QCheckBox* box;
     bool checked;
     bool done;
+	bool old_project_changed;
 };
 
 class ReplaceMediaCommand : public QUndoCommand {
@@ -145,6 +147,59 @@ private:
 	bool old_project_changed;
 	QVector<int> old_clip_ins;
 	void replace(bool undo);
+};
+
+class EffectDeleteCommand : public QUndoCommand {
+public:
+	EffectDeleteCommand();
+	~EffectDeleteCommand();
+	void undo();
+	void redo();
+	QVector<Clip*> clips;
+	QVector<int> fx;
+private:
+	bool done;
+	bool old_project_changed;
+	QVector<Effect*> deleted_objects;
+};
+
+class MediaMove : public QUndoCommand {
+public:
+	MediaMove(SourceTable* s);
+	QVector<QTreeWidgetItem*> items;
+	QTreeWidgetItem* to;
+	void undo();
+	void redo();
+private:
+	QVector<QTreeWidgetItem*> froms;
+	SourceTable* table;
+	bool old_project_changed;
+};
+
+class MediaRename : public QUndoCommand {
+public:
+	MediaRename();
+	QTreeWidgetItem* item;
+	QString from;
+	QString to;
+	void undo();
+	void redo();
+private:
+	bool done;
+	bool old_project_changed;
+};
+
+class ValueChangeCommand : public QUndoCommand {
+public:
+	ValueChangeCommand();
+	LabelSlider* source;
+	float old_val;
+	float new_val;
+	void undo();
+	void redo();
+private:
+	bool done;
+	bool old_project_changed;
 };
 
 #endif // UNDO_H

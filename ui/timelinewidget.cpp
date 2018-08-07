@@ -524,7 +524,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     ta->ripple(sequence, ripple_point, ripple_length, ignore_clips);
                 }
 
-                if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (event->modifiers() & Qt::AltModifier)) { // if holding alt, duplicate rather than move
+				if (panel_timeline->tool == TIMELINE_TOOL_POINTER
+						&& (event->modifiers() & Qt::AltModifier)
+						&& panel_timeline->trim_target == -1) { // if holding alt (and not trimming), duplicate rather than move
                     // duplicate clips
                     QVector<int> old_clips;
                     QVector<Clip*> new_clips;
@@ -808,6 +810,11 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 if (validator > g.media_length) frame_diff += validator - g.media_length;
             }
         } else if (g.trimming) {
+			MediaStream* ms = NULL;
+			if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+				ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
+			}
+
 			if (g.trim_in) {
 				// prevent clip/transition length from being less than 1 frame long
 				validator = g.ghost_length - frame_diff;
@@ -819,26 +826,23 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 					if (validator < 0) frame_diff -= validator;
 				}
 
-				if (g.transition == NULL || g.transition == c->opening_transition) {
-					// prevent clip_in from going below 0
-					if (c->media_type == MEDIA_TYPE_SEQUENCE
-							|| (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream)->infinite_length)) {
-						validator = g.old_clip_in + frame_diff;
-						if (validator < 0) frame_diff -= validator;
-					}
+				// prevent clip_in from going below 0
+				if (c->media_type == MEDIA_TYPE_SEQUENCE
+						|| (ms != NULL && !ms->infinite_length)) {
+					validator = g.old_clip_in + frame_diff;
+					if (validator < 0) frame_diff -= validator;
 				}
             } else {
 				// prevent clip length from being less than 1 frame long
 				validator = g.ghost_length + frame_diff;
 				if (validator < 1) frame_diff += (1 - validator);
 
-				if (g.transition == NULL) {
-					// prevent clip length exceeding media length
-					if (c->media_type == MEDIA_TYPE_SEQUENCE
-							|| (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream)->infinite_length)) {
-						validator = g.old_clip_in + g.ghost_length + frame_diff;
-						if (validator > g.media_length) frame_diff -= validator - g.media_length;
-					}
+				// prevent clip length exceeding media length
+				if (c->media_type == MEDIA_TYPE_SEQUENCE
+						|| (ms != NULL && !ms->infinite_length)) {
+					validator = g.old_clip_in + g.ghost_length + frame_diff;
+					qDebug() << i << validator;
+					if (validator > g.media_length) frame_diff -= validator - g.media_length;
 				}
             }
 

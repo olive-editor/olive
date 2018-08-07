@@ -39,16 +39,4 @@ signals:
     void valueChanged();
 };
 
-class ValueChangeCommand : public QUndoCommand {
-public:
-    ValueChangeCommand();
-    LabelSlider* source;
-    float old_val;
-    float new_val;
-    void undo();
-    void redo();
-private:
-    bool done;
-};
-
 #endif // LABELSLIDER_H

@@ -56,17 +56,4 @@ private:
     bool done;
 };*/
 
-class EffectDeleteCommand : public QUndoCommand {
-public:
-    EffectDeleteCommand();
-    ~EffectDeleteCommand();
-    void undo();
-    void redo();
-    QVector<Clip*> clips;
-    QVector<int> fx;
-private:
-    bool done;
-    QVector<Effect*> deleted_objects;
-};
-
 #endif // EFFECTCONTROLS_H

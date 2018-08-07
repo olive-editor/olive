@@ -204,55 +204,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
                 mm->to = drop_item;
                 mm->items = move_items;
                 undo_stack.push(mm);
-                project_changed = true;
             }
         }
-    }
-}
-
-MediaMove::MediaMove(SourceTable *s) : table(s) {}
-
-void MediaMove::undo() {
-    for (int i=0;i<items.size();i++) {
-        if (to == NULL) {
-            table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
-        } else {
-            to->removeChild(items.at(i));
-        }
-        if (froms.at(i) == NULL) {
-            table->addTopLevelItem(items.at(i));
-        } else {
-            froms.at(i)->addChild(items.at(i));
-        }
-    }
-}
-
-void MediaMove::redo() {
-    for (int i=0;i<items.size();i++) {
-        QTreeWidgetItem* parent = items.at(i)->parent();
-        froms.append(parent);
-        if (parent == NULL) {
-            table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
-        } else {
-            parent->removeChild(items.at(i));
-        }
-        if (to == NULL) {
-            table->addTopLevelItem(items.at(i));
-        } else {
-            to->addChild(items.at(i));
-        }
-    }
-}
-
-MediaRename::MediaRename() : done(true) {}
-
-void MediaRename::undo() {
-    item->setText(0, from);
-    done = false;
-}
-
-void MediaRename::redo() {
-    if (!done) {
-        item->setText(0, to);
     }
 }

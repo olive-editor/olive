@@ -30,28 +30,4 @@ private slots:
     void show_context_menu(const QPoint& pos);
 };
 
-class MediaMove : public QUndoCommand {
-public:
-    MediaMove(SourceTable* s);
-    QVector<QTreeWidgetItem*> items;
-    QTreeWidgetItem* to;
-    void undo();
-    void redo();
-private:
-    QVector<QTreeWidgetItem*> froms;
-    SourceTable* table;
-};
-
-class MediaRename : public QUndoCommand {
-public:
-    MediaRename();
-    QTreeWidgetItem* item;
-    QString from;
-    QString to;
-    void undo();
-    void redo();
-private:
-    bool done;
-};
-
 #endif // SOURCETABLE_H

@@ -114,16 +114,3 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
         }
     }
 }
-
-ValueChangeCommand::ValueChangeCommand() : done(true) {}
-
-void ValueChangeCommand::undo() {
-    source->set_value(old_val);
-    done = false;
-}
-
-void ValueChangeCommand::redo() {
-    if (!done) {
-        source->set_value(new_val);
-    }
-}

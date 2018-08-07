@@ -464,7 +464,7 @@ void TimelineAction::redo() {
     done = true;
 }
 
-LinkCommand::LinkCommand() : link(true) {}
+LinkCommand::LinkCommand() : link(true), old_project_changed(project_changed) {}
 
 void LinkCommand::undo() {
     for (int i=0;i<clips.size();i++) {
@@ -475,6 +475,7 @@ void LinkCommand::undo() {
             c->linked = old_links.at(i);
         }
     }
+	project_changed = old_project_changed;
 }
 
 void LinkCommand::redo() {
@@ -492,21 +493,24 @@ void LinkCommand::redo() {
             c->linked.clear();
         }
     }
+	project_changed = true;
 }
 
-CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), checked(box->isChecked()), done(true) {}
+CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), checked(box->isChecked()), done(true), old_project_changed(project_changed) {}
 
 CheckboxCommand::~CheckboxCommand() {}
 
 void CheckboxCommand::undo() {
     box->setChecked(!checked);
     done = false;
+	project_changed = old_project_changed;
 }
 
 void CheckboxCommand::redo() {
     if (!done) {
         box->setChecked(checked);
     }
+	project_changed = true;
 }
 
 ReplaceMediaCommand::ReplaceMediaCommand(QTreeWidgetItem* i, QString s) :
@@ -603,5 +607,104 @@ void ReplaceClipMediaCommand::undo() {
 void ReplaceClipMediaCommand::redo() {
 	replace(false);
 
+	project_changed = true;
+}
+
+EffectDeleteCommand::EffectDeleteCommand() : done(false), old_project_changed(project_changed) {}
+
+EffectDeleteCommand::~EffectDeleteCommand() {
+	if (done) {
+		for (int i=0;i<deleted_objects.size();i++) {
+			delete deleted_objects.at(i);
+		}
+	}
+}
+
+void EffectDeleteCommand::undo() {
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+		c->effects.insert(fx.at(i), deleted_objects.at(i));
+	}
+	panel_effect_controls->reload_clips();
+	done = false;
+	project_changed = old_project_changed;
+}
+
+void EffectDeleteCommand::redo() {
+	deleted_objects.clear();
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+		int fx_id = fx.at(i);
+		deleted_objects.append(c->effects.at(fx_id));
+		c->effects.removeAt(fx_id);
+	}
+	panel_effect_controls->reload_clips();
+	done = true;
+	project_changed = true;
+}
+
+MediaMove::MediaMove(SourceTable *s) : table(s), old_project_changed(project_changed) {}
+
+void MediaMove::undo() {
+	for (int i=0;i<items.size();i++) {
+		if (to == NULL) {
+			table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
+		} else {
+			to->removeChild(items.at(i));
+		}
+		if (froms.at(i) == NULL) {
+			table->addTopLevelItem(items.at(i));
+		} else {
+			froms.at(i)->addChild(items.at(i));
+		}
+	}
+	project_changed = old_project_changed;
+}
+
+void MediaMove::redo() {
+	for (int i=0;i<items.size();i++) {
+		QTreeWidgetItem* parent = items.at(i)->parent();
+		froms.append(parent);
+		if (parent == NULL) {
+			table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
+		} else {
+			parent->removeChild(items.at(i));
+		}
+		if (to == NULL) {
+			table->addTopLevelItem(items.at(i));
+		} else {
+			to->addChild(items.at(i));
+		}
+	}
+	project_changed = true;
+}
+
+MediaRename::MediaRename() : done(true), old_project_changed(project_changed) {}
+
+void MediaRename::undo() {
+	item->setText(0, from);
+	done = false;
+	project_changed = old_project_changed;
+}
+
+void MediaRename::redo() {
+	if (!done) {
+		item->setText(0, to);
+	}
+	project_changed = true;
+}
+
+ValueChangeCommand::ValueChangeCommand() : done(true), old_project_changed(project_changed) {}
+
+void ValueChangeCommand::undo() {
+	source->set_value(old_val);
+	done = false;
+	project_changed = old_project_changed;
+}
+
+void ValueChangeCommand::redo() {
+	if (!done) {
+		source->set_value(new_val);
+	}
 	project_changed = true;
 }

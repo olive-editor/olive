@@ -36,8 +36,7 @@ void EffectControls::menu_select(QAction* q) {
         }
     }
     undo_stack.push(ta);
-    reload_clips();
-    project_changed = true;
+	reload_clips();
 }
 
 void EffectControls::show_menu(bool video) {
@@ -146,7 +145,6 @@ void EffectControls::delete_effects() {
     }
     if (command->clips.size() > 0) {
         undo_stack.push(command);
-        project_changed = true;
     } else {
         delete command;
     }
@@ -191,35 +189,4 @@ bool EffectControls::is_focused() {
         }
     }
     return false;
-}
-
-EffectDeleteCommand::EffectDeleteCommand() : done(false) {}
-
-EffectDeleteCommand::~EffectDeleteCommand() {
-    if (done) {
-        for (int i=0;i<deleted_objects.size();i++) {
-            delete deleted_objects.at(i);
-        }
-    }
-}
-
-void EffectDeleteCommand::undo() {
-    for (int i=0;i<clips.size();i++) {
-        Clip* c = clips.at(i);
-        c->effects.insert(fx.at(i), deleted_objects.at(i));
-    }
-    panel_effect_controls->reload_clips();
-    done = false;
-}
-
-void EffectDeleteCommand::redo() {
-    deleted_objects.clear();
-    for (int i=0;i<clips.size();i++) {
-        Clip* c = clips.at(i);
-        int fx_id = fx.at(i);
-        deleted_objects.append(c->effects.at(fx_id));
-        c->effects.removeAt(fx_id);
-    }
-    panel_effect_controls->reload_clips();
-    done = true;
 }

@@ -33,7 +33,6 @@ void Effect::init() {
 
 void Effect::field_changed() {
 	panel_viewer->viewer_widget->update();
-    project_changed = true;
 }
 
 void Effect::checkbox_command() {

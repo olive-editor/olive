@@ -155,9 +155,7 @@ void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidg
             parent->addChild(item);
         }
         if (open) set_sequence(s);
-    }
-
-    project_changed = true;
+	}
 }
 
 void Project::start_preview_generator(QTreeWidgetItem* item, Media* media, bool replacing) {
@@ -316,9 +314,7 @@ void Project::delete_selected_media() {
         // redraw clips
         if (redraw) {
             panel_timeline->redraw_all_clips(true);
-        }
-
-        project_changed = true;
+		}
     } else {
         delete ta;
     }
