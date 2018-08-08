@@ -78,7 +78,8 @@ public:
     void copy(bool del);
     void paste();
     void deselect();
-    Clip* split_clip(TimelineAction* ta, int p, long frame);
+	Clip* split_clip(TimelineAction* ta, int p, long frame);
+	Clip* split_clip(TimelineAction* ta, int p, long frame, long post_in);
     bool split_selection(TimelineAction* ta);
     void split_at_playhead();
     bool split_clip_and_relink(TimelineAction* ta, int clip, long frame, bool relink);

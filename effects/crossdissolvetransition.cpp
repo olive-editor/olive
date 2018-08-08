@@ -11,5 +11,7 @@ void CrossDissolveTransition::process_transition(float progress) {
 }
 
 Transition* CrossDissolveTransition::copy() {
-    return new CrossDissolveTransition();
+	Transition* t = new CrossDissolveTransition();
+	t->length = length;
+	return t;
 }
