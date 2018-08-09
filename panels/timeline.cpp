@@ -939,6 +939,36 @@ void Timeline::split_at_playhead() {
     }
 }
 
+void Timeline::deselect_area(long in, long out, int track) {
+	int len = selections.size();
+	for (int i=0;i<len;i++) {
+		Selection& s = selections[i];
+		if (s.track == track) {
+			if (s.in >= in && s.out <= out) {
+				// whole selection is in deselect area
+				selections.removeAt(i);
+				i--;
+				len--;
+			} else if (s.in < in && s.out > out) {
+				// middle of selection is in deselect area
+				Selection new_sel;
+				new_sel.in = out;
+				new_sel.out = s.out;
+				new_sel.track = s.track;
+				selections.append(new_sel);
+
+				s.out = in;
+			} else if (s.in < in && s.out > in) {
+				// only out point is in deselect area
+				s.out = in;
+			} else if (s.in < out && s.out > out) {
+				// only in point is in deselect area
+				s.in = out;
+			}
+		}
+	}
+}
+
 bool Timeline::snap_to_point(long point, long* l) {
     int limit = get_snap_range();
     if (*l > point-limit-1 && *l < point+limit+1) {
