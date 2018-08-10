@@ -24,6 +24,7 @@ Transition* create_transition(int transition_id, Clip* c) {
         }
     } else {
         switch (transition_id) {
+		case AUDIO_LINEAR_FADE_TRANSITION: return new CrossDissolveTransition();
         }
     }
     qDebug() << "[ERROR] Invalid transition ID";

@@ -25,6 +25,9 @@ void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
         Effect* e = c->effects.at(j);
         if (e->is_enabled()) e->process_audio(frame->data[0], nb_bytes);
     }
+	if (c->opening_transition != NULL) {
+
+	}
 }
 
 void cache_audio_worker(Clip* c, Clip* nest) {
@@ -38,6 +41,12 @@ void cache_audio_worker(Clip* c, Clip* nest) {
         timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
     }
 
+	//
+	// (c->clip_in / c->sequence->frame_rate) is the starting point in seconds
+	// we need to convert it to bytes
+	//
+	//
+
     while (written < max_write) {
         // gets one frame worth of audio and sends it to the audio buffer
         AVFrame* frame = c->cache_A.frames[0];
@@ -48,9 +57,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                 retrieve_next_frame_raw_data(c, frame);
                 int byte_count = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
                 apply_audio_effects(c, frame, byte_count);
-                if (nest != NULL) {
-                    apply_audio_effects(nest, frame, byte_count);
-                }
+				if (nest != NULL) apply_audio_effects(nest, frame, byte_count);
             } else {
                 // set by retrieve_next_frame_raw_data indicating no more frames in file,
                 // but there still may be samples in swresample
@@ -60,13 +67,13 @@ void cache_audio_worker(Clip* c, Clip* nest) {
             c->need_new_audio_frame = false;
             if (c->audio_just_reset) {
                 // get precise sample offset for the elected clip_in from this audio frame
-                float target_sts = 0;
+				double target_sts = 0;
                 if (c->audio_target_frame < timeline_in) {
                     target_sts = clip_frame_to_seconds(c, c->clip_in);
                 } else {
                     target_sts = playhead_to_seconds(c, c->audio_target_frame);
                 }
-                float frame_sts = (frame->pts * av_q2d(c->stream->time_base));
+				double frame_sts = (frame->pts * av_q2d(c->stream->time_base));
                 int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);
                 if (nb_samples == 0) {
                     c->frame_sample_index = 0;
@@ -87,6 +94,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
             int half_buffer = (audio_ibuffer_size/2);
             if (c->audio_buffer_write == 0) {
                 c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
+
                 int offset = audio_ibuffer_read - c->audio_buffer_write;
                 if (offset > 0) {
                     c->audio_buffer_write += offset;

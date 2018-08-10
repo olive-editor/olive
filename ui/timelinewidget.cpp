@@ -1588,44 +1588,6 @@ void TimelineWidget::redraw_clips() {
 
                 QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
 
-                // draw clip transitions
-				for (int i=0;i<2;i++) {
-					Transition* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
-                    if (t != NULL) {
-                        int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
-                        int transition_height = clip_rect.height() * 0.6;
-                        if (transition_height <= TRACK_MIN_HEIGHT) {
-                            transition_height = clip_rect.height();
-                        }
-                        int tr_y = clip_rect.y() + ((clip_rect.height()-transition_height)/2);
-                        int tr_x = 0;
-                        if (i == 0) {
-                            tr_x = clip_rect.x();
-                            text_rect.setX(text_rect.x()+transition_width);
-                            thumb_x += transition_width;
-                        } else {
-                            tr_x = clip_rect.right()-transition_width;
-                            text_rect.setWidth(text_rect.width()-transition_width);
-                        }
-                        QRect transition_rect = QRect(tr_x, tr_y, transition_width, transition_height);
-                        clip_painter.fillRect(transition_rect, transition_color);
-                        QRect transition_text_rect(transition_rect.x() + CLIP_TEXT_PADDING, transition_rect.y() + CLIP_TEXT_PADDING, transition_rect.width() - CLIP_TEXT_PADDING, transition_rect.height() - CLIP_TEXT_PADDING);
-                        if (transition_text_rect.width() > MAX_TEXT_WIDTH) {
-                            clip_painter.setPen(QColor(0, 0, 0, 96));
-                            if (i == 0) {
-                                clip_painter.drawLine(transition_rect.bottomLeft(), transition_rect.topRight());
-                            } else {
-                                clip_painter.drawLine(transition_rect.topLeft(), transition_rect.bottomRight());
-                            }
-
-                            clip_painter.setPen(Qt::white);
-                            clip_painter.drawText(transition_text_rect, 0, t->name, &transition_text_rect);
-                        }
-                        clip_painter.setPen(Qt::black);
-                        clip_painter.drawRect(transition_rect);
-                    }
-                }
-
                 if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
 					bool draw_checkerboard = false;
 					QRect checkerboard_rect = clip_rect;
@@ -1644,10 +1606,19 @@ void TimelineWidget::redraw_clips() {
 						}
 
                         if (clip->track < 0) {
+							int space_for_thumb = clip_rect.width();
+							if (clip->opening_transition != NULL) {
+								int ot_width = panel_timeline->getScreenPointFromFrame(clip->opening_transition->length);
+								thumb_x += ot_width;
+								space_for_thumb -= ot_width;
+							}
+							if (clip->closing_transition != NULL) {
+								space_for_thumb -= panel_timeline->getScreenPointFromFrame(clip->closing_transition->length);
+							}
                             int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
                             int thumb_height = clip_rect.height()-thumb_y;
                             int thumb_width = (thumb_height*((double)ms->video_preview.width()/(double)ms->video_preview.height()));
-                            if (thumb_height > thumb_y && text_rect.width() + CLIP_TEXT_PADDING > thumb_width) { // at small clip heights, don't even draw it
+							if (thumb_height > thumb_y && text_rect.width() + CLIP_TEXT_PADDING > thumb_width && space_for_thumb >= thumb_width) { // at small clip heights, don't even draw it
                                 QRect thumb_rect(thumb_x, clip_rect.y()+thumb_y, thumb_width, thumb_height);
                                 clip_painter.drawImage(thumb_rect, ms->video_preview);
                             }
@@ -1704,6 +1675,40 @@ void TimelineWidget::redraw_clips() {
 						}
 					}
                 }
+
+				// draw clip transitions
+				for (int i=0;i<2;i++) {
+					Transition* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
+					if (t != NULL) {
+						int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
+						int transition_height = clip_rect.height();
+						int tr_y = clip_rect.y();
+						int tr_x = 0;
+						if (i == 0) {
+							tr_x = clip_rect.x();
+							text_rect.setX(text_rect.x()+transition_width);
+						} else {
+							tr_x = clip_rect.right()-transition_width;
+							text_rect.setWidth(text_rect.width()-transition_width);
+						}
+						QRect transition_rect = QRect(tr_x, tr_y, transition_width, transition_height);
+						clip_painter.fillRect(transition_rect, transition_color);
+						QRect transition_text_rect(transition_rect.x() + CLIP_TEXT_PADDING, transition_rect.y() + CLIP_TEXT_PADDING, transition_rect.width() - CLIP_TEXT_PADDING, transition_rect.height() - CLIP_TEXT_PADDING);
+						if (transition_text_rect.width() > MAX_TEXT_WIDTH) {
+							clip_painter.setPen(QColor(0, 0, 0, 96));
+							if (i == 0) {
+								clip_painter.drawLine(transition_rect.bottomLeft(), transition_rect.topRight());
+							} else {
+								clip_painter.drawLine(transition_rect.topLeft(), transition_rect.bottomRight());
+							}
+
+							clip_painter.setPen(Qt::white);
+							clip_painter.drawText(transition_text_rect, 0, t->name, &transition_text_rect);
+						}
+						clip_painter.setPen(Qt::black);
+						clip_painter.drawRect(transition_rect);
+					}
+				}
 
                 // top left bevel
                 clip_painter.setPen(Qt::white);
