@@ -7,6 +7,8 @@
 #include "playback/playback.h"
 #include "effects/effects.h"
 #include "panels/timeline.h"
+#include "panels/project.h"
+#include "effects/transition.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -26,7 +28,32 @@ void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
         if (e->is_enabled()) e->process_audio(frame->data[0], nb_bytes);
     }
 	if (c->opening_transition != NULL) {
-
+		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+			double transition_start = (c->clip_in / c->sequence->frame_rate);
+			double transition_end = transition_start + (c->opening_transition->length / c->sequence->frame_rate);
+			double range_start = (frame->pts * av_q2d(c->stream->time_base));
+			double range_end = range_start + ((double) nb_bytes * 0.5 / frame->channels / frame->sample_rate);
+			if (range_end < transition_end) {
+				double adjustment = transition_end - transition_start;
+				double adjusted_range_start = (range_start - transition_start) / adjustment;
+				double adjusted_range_end = (range_end - transition_start) / adjustment;
+				c->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, false);
+			}
+		}
+	}
+	if (c->closing_transition != NULL) {
+		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+			double transition_end = (c->clip_in + c->getLength()) / c->sequence->frame_rate;
+			double transition_start = transition_end - (c->closing_transition->length / c->sequence->frame_rate);
+			double range_start = (frame->pts * av_q2d(c->stream->time_base));
+			double range_end = range_start + ((double) nb_bytes * 0.5 / frame->channels / frame->sample_rate);
+			if (range_start > transition_start) {
+				double adjustment = transition_end - transition_start;
+				double adjusted_range_start = (range_start - transition_start) / adjustment;
+				double adjusted_range_end = (range_end - transition_start) / adjustment;
+				c->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, true);
+			}
+		}
 	}
 }
 

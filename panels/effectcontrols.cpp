@@ -7,6 +7,7 @@
 
 #include "panels/panels.h"
 #include "effects/effects.h"
+#include "effects/transition.h"
 #include "project/clip.h"
 #include "project/effect.h"
 #include "ui/collapsiblewidget.h"
@@ -20,6 +21,7 @@ EffectControls::EffectControls(QWidget *parent) :
 {
 	ui->setupUi(this);
     init_effects();
+	init_transitions();
     clear_effects(false);
 }
 

@@ -36,5 +36,7 @@
         <file>zoomin-disabled.png</file>
         <file>zoomout.png</file>
         <file>zoomout-disabled.png</file>
+        <file>add-transition.png</file>
+        <file>add-effect.png</file>
     </qresource>
 </RCC>

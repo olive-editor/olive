@@ -9,23 +9,26 @@
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QWidget>
+#include <QPainter>
 
 CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
     selected = false;
 
 	layout = new QVBoxLayout(this);
 	layout->setMargin(0);
+	layout->setSpacing(0);
 
-    title_bar = new CollapsibleWidgetHeader();
-    title_bar->setFocusPolicy(Qt::ClickFocus);
-    title_bar->setAutoFillBackground(true);
+	title_bar = new CollapsibleWidgetHeader();
+	title_bar->setFocusPolicy(Qt::ClickFocus);
+	title_bar->setAutoFillBackground(true);
     QHBoxLayout* title_bar_layout = new QHBoxLayout();
-    title_bar->setLayout(title_bar_layout);
-    title_bar_layout->setMargin(0);
+	title_bar_layout->setMargin(5);
+	title_bar->setLayout(title_bar_layout);
 	enabled_check = new QCheckBox();
 	enabled_check->setChecked(true);
 	header = new QLabel();
-	collapse_button = new QPushButton("-");
+	collapse_button = new QPushButton("[-]");
+	collapse_button->setStyleSheet("QPushButton { border: none; }");
 	collapse_button->setMaximumWidth(25);
 	setText("<untitled>");
     title_bar_layout->addWidget(collapse_button);
@@ -34,12 +37,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
     title_bar_layout->addStretch();
     layout->addWidget(title_bar);
 
-    connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
-
-	line = new QFrame();
-	line->setFrameShape(QFrame::HLine);
-	line->setFrameShadow(QFrame::Sunken);
-	layout->addWidget(line);
+	connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
 
 	contents = NULL;
 }
@@ -48,12 +46,12 @@ void CollapsibleWidget::header_click(bool s, bool deselect) {
     selected = s;
     title_bar->selected = s;
     if (s) {
-        QPalette p = palette();
+		QPalette p = palette();
         p.setColor(QPalette::Background, QColor(255, 255, 255, 64));
-        title_bar->setPalette(p);
-    } else {
-        title_bar->setPalette(palette());
-    }
+		title_bar->setPalette(p);
+	} else {
+		title_bar->setPalette(palette());
+	}
     if (deselect) emit deselect_others(this);
 }
 
@@ -82,12 +80,10 @@ void CollapsibleWidget::on_enabled_change(bool b) {
 
 void CollapsibleWidget::on_visible_change() {
 	contents->setVisible(!contents->isVisible());
-	collapse_button->setText(contents->isVisible() ? "-" : "+");
+	collapse_button->setText(contents->isVisible() ? "[-]" : "[+]");
 }
 
-CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent) {
-    selected = false;
-}
+CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {}
 
 void CollapsibleWidgetHeader::mousePressEvent(QMouseEvent* event) {
     if (selected) {
@@ -98,5 +94,14 @@ void CollapsibleWidgetHeader::mousePressEvent(QMouseEvent* event) {
     } else {
         selected = true;
         emit select(selected, !(event->modifiers() & Qt::ShiftModifier));
-    }
+	}
+}
+
+void CollapsibleWidgetHeader::paintEvent(QPaintEvent *event) {
+	QWidget::paintEvent(event);
+	QPainter p(this);
+	p.setPen(Qt::white);
+	int line_x = width() * 0.01;
+	int line_y = height() - 1;
+	p.drawLine(line_x, line_y, width() - line_x - line_x, line_y);
 }

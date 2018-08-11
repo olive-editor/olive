@@ -16,6 +16,7 @@ public:
     bool selected;
 protected:
     void mousePressEvent(QMouseEvent* event);
+	void paintEvent(QPaintEvent *event);
 signals:
     void select(bool, bool);
 };

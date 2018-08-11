@@ -16,6 +16,7 @@ struct Config {
     bool paste_seeks;
     QString img_seq_formats;
 	bool rectified_waveforms;
+	int default_transition_length;
 
     void load(QString path);
     void save(QString path);

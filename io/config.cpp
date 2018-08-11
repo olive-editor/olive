@@ -16,7 +16,8 @@ Config::Config()
       edit_tool_also_seeks(false),
       select_also_seeks(false),
 	  paste_seeks(true),
-	  rectified_waveforms(false)
+	  rectified_waveforms(false),
+	  default_transition_length(30)
 {
 
 }
@@ -55,6 +56,8 @@ void Config::load(QString path) {
                     img_seq_formats = stream.text().toString();
 				} else if (stream.name() == "RectifiedWaveforms") {
 					rectified_waveforms = (stream.text() == "1");
+				} else if (stream.name() == "DefaultTransitionLength") {
+					rectified_waveforms = stream.text().toInt();
 				}
             }
         }
@@ -110,6 +113,7 @@ void Config::save(QString path) {
     stream.writeTextElement("PasteSeeks", QString::number(paste_seeks));
     stream.writeTextElement("ImageSequenceFormats", img_seq_formats);
 	stream.writeTextElement("RectifiedWaveforms", QString::number(rectified_waveforms));
+	stream.writeTextElement("DefaultTransitionLength", QString::number(default_transition_length));
 
     stream.writeEndElement();
     stream.writeEndDocument(); // doc

@@ -15,6 +15,8 @@ struct Clip;
 class Timeline;
 class TimelineAction;
 
+bool same_sign(int a, int b);
+
 class TimelineWidget : public QWidget {
 	Q_OBJECT
 public:

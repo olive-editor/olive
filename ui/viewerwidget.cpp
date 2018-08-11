@@ -103,7 +103,7 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
         Clip* c = s->get_clip(i);
 
         // if clip starts within one second and/or hasn't finished yet
-        if (c != NULL && !(nest != NULL && c->track != nest->track)) {
+		if (c != NULL && !(nest != NULL && !same_sign(c->track, nest->track))) {
             bool clip_is_active = false;
 
             switch (c->media_type) {
@@ -158,6 +158,7 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
         } else {
             switch (c->media_type) {
             case MEDIA_TYPE_FOOTAGE:
+				qDebug() << "clip";
                 if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                     // start preparing cache
                     get_clip_frame(c, playhead);
@@ -215,7 +216,8 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
                     c->lock.unlock();
                 }
                 break;
-            case MEDIA_TYPE_SEQUENCE:
+			case MEDIA_TYPE_SEQUENCE:
+				qDebug() << "nest";
                 compose_sequence(c, render_audio);
                 c->run_video_post_effect_stack();
                 break;
