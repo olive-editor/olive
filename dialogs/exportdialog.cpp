@@ -81,7 +81,8 @@ ExportDialog::ExportDialog(QWidget *parent) :
 	ui->formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
     ui->widthSpinbox->setValue(sequence->width);
-    ui->heightSpinbox->setValue(sequence->height);
+	ui->heightSpinbox->setValue(sequence->height);
+	ui->videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence->height) - 4.5)));
     ui->samplingRateSpinbox->setValue(sequence->audio_frequency);
     ui->framerateSpinbox->setValue(sequence->frame_rate);
 }
