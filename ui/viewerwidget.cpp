@@ -32,7 +32,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	setFormat(format);
 
     // start audio sending thread
-    audio_sender_thread.start();
+	audio_sender_thread.start();
 
     // error handler - retries after 250ms if we couldn't get the entire image
     retry_timer.setInterval(250);
@@ -40,9 +40,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 }
 
 ViewerWidget::~ViewerWidget() {
-    audio_sender_thread.close = true;
+	audio_sender_thread.close = true;
     audio_sender_thread.cond.wakeAll();
-    audio_sender_thread.wait();
+	audio_sender_thread.wait();
 }
 
 void ViewerWidget::deleteFunction() {
@@ -87,12 +87,14 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
     if (enable_paint) QOpenGLWidget::paintEvent(e);
 }
 
-void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
+void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
     Sequence* s = sequence;
 	long playhead = panel_timeline->playhead;
 
-    if (nest != NULL) {
-        s = static_cast<Sequence*>(nest->media);
+	Clip* nest = NULL;
+	if (nests.size() > 0) {
+		nest = nests.last();
+		s = static_cast<Sequence*>(nest->media);
         playhead += nest->clip_in - nest->timeline_in;
         playhead = refactor_frame_number(playhead, sequence->frame_rate, s->frame_rate);
     }
@@ -157,8 +159,7 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
             texture_failed = true;
         } else {
             switch (c->media_type) {
-            case MEDIA_TYPE_FOOTAGE:
-				qDebug() << "clip";
+			case MEDIA_TYPE_FOOTAGE:
                 if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                     // start preparing cache
                     get_clip_frame(c, playhead);
@@ -183,9 +184,9 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
                         // perform all transform effects
                         c->run_video_pre_effect_stack(playhead, &anchor_x, &anchor_y);
 
-                        if (nest != NULL) {
-                            nest->run_video_pre_effect_stack(playhead, &anchor_x, &anchor_y);
-                        }
+						for (int i=nests.size()-1;i>=0;i--) {
+							nests.at(i)->run_video_pre_effect_stack(playhead, &anchor_x, &anchor_y);
+						}
 
                         int anchor_right = ms->video_width - anchor_x;
                         int anchor_bottom = ms->video_height - anchor_y;
@@ -217,8 +218,8 @@ void ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
                 }
                 break;
 			case MEDIA_TYPE_SEQUENCE:
-				qDebug() << "nest";
-                compose_sequence(c, render_audio);
+				nests.append(c);
+				compose_sequence(nests, render_audio);
                 c->run_video_post_effect_stack();
                 break;
             }
@@ -237,12 +238,13 @@ void ViewerWidget::paintGL() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // compose video preview
-        compose_sequence(NULL, (panel_timeline->playing || force_audio));
+		QVector<Clip*> nests;
+		compose_sequence(nests, (panel_timeline->playing || force_audio));
 
-        // send audio to IO device
-        if (panel_timeline->playing) {
-            audio_sender_thread.cond.wakeAll();
-        }
+		// send audio to IO device
+		if (panel_timeline->playing) {
+			audio_sender_thread.cond.wakeAll();
+		}
 
         if (texture_failed) {
             if (multithreaded) {
@@ -256,60 +258,62 @@ void ViewerWidget::paintGL() {
 }
 
 AudioSenderThread::AudioSenderThread() : close(false) {
-    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
 void AudioSenderThread::run() {
-    lock.lock();
-    while (true) {
-        cond.wait(&lock);
-        if (close) {
-            break;
-        } else {
-            int written_bytes = 0;
+	lock.lock();
+	while (true) {
+		cond.wait(&lock);
+		if (close) {
+			break;
+		} else {
+			int written_bytes = 0;
 
-            int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
-            int max_write = audio_ibuffer_size - adjusted_read_index;
-            int actual_write = send_audio_to_output(adjusted_read_index, max_write);
-            written_bytes += actual_write;
-            if (actual_write == max_write) {
-                // got all the bytes, write again
-                written_bytes += send_audio_to_output(0, audio_ibuffer_size);
-            }
-        }
-    }
-    lock.unlock();
+			int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
+			int max_write = audio_ibuffer_size - adjusted_read_index;
+			int actual_write = send_audio_to_output(adjusted_read_index, max_write);
+			written_bytes += actual_write;
+			if (actual_write == max_write) {
+				// got all the bytes, write again
+				written_bytes += send_audio_to_output(0, audio_ibuffer_size);
+			}
+
+			qDebug() << "WB:" << written_bytes;
+		}
+	}
+	lock.unlock();
 }
 
 int AudioSenderThread::send_audio_to_output(int offset, int max) {
-    // send audio to device
-    int actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
-    audio_ibuffer_read += actual_write;
+	// send audio to device
+	int actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
+	audio_ibuffer_read += actual_write;
 
-    // send samples to audio monitor cache
-    if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
-        panel_timeline->ui->audio_monitor->sample_cache_offset = panel_timeline->playhead;
-    }
-    long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + panel_timeline->ui->audio_monitor->sample_cache.size();
-    int next_buffer_offset, buffer_offset_adjusted, i;
-    int buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead);
-    samples.resize(av_get_channel_layout_nb_channels(sequence->audio_layout));
-    samples.fill(0);
-    while (buffer_offset < audio_ibuffer_read) {
-        sample_cache_playhead++;
-        next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_read);
-        while (buffer_offset < next_buffer_offset) {
-            for (i=0;i<samples.size();i++) {
-                buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
-                samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
-                buffer_offset += 2;
-            }
-        }
-        panel_timeline->ui->audio_monitor->sample_cache.append(samples);
-        buffer_offset = next_buffer_offset;
-    }
+	// send samples to audio monitor cache
+	if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
+		panel_timeline->ui->audio_monitor->sample_cache_offset = panel_timeline->playhead;
+	}
+	long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + panel_timeline->ui->audio_monitor->sample_cache.size();
+	int next_buffer_offset, buffer_offset_adjusted, i;
+	int buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead);
+	samples.resize(av_get_channel_layout_nb_channels(sequence->audio_layout));
+	samples.fill(0);
+	while (buffer_offset < audio_ibuffer_read) {
+		sample_cache_playhead++;
+		next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_read);
+		while (buffer_offset < next_buffer_offset) {
+			for (i=0;i<samples.size();i++) {
+				buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
+				samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
+				buffer_offset += 2;
+			}
+		}
+		panel_timeline->ui->audio_monitor->sample_cache.append(samples);
+		buffer_offset = next_buffer_offset;
+	}
 
-    memset(audio_ibuffer+offset, 0, actual_write);
+	memset(audio_ibuffer+offset, 0, actual_write);
 
-    return actual_write;
+	return actual_write;
 }

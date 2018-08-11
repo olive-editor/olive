@@ -33,7 +33,7 @@
     <item>
      <widget class="QFrame" name="frame">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+       <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -272,7 +272,7 @@
          <x>0</x>
          <y>0</y>
          <width>819</width>
-         <height>551</height>
+         <height>557</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -309,6 +309,12 @@
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
+          <property name="opaqueResize">
+           <bool>false</bool>
+          </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
+          </property>
           <widget class="QScrollArea" name="videoScrollArea">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -327,8 +333,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>802</width>
-              <height>266</height>
+              <width>805</width>
+              <height>269</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
@@ -378,8 +384,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>802</width>
-              <height>265</height>
+              <width>805</width>
+              <height>269</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">

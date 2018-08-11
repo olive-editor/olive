@@ -14,6 +14,7 @@
 #include "project/sequence.h"
 #include "project/undo.h"
 #include "panels/project.h"
+#include "panels/timeline.h"
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
@@ -33,26 +34,51 @@ EffectControls::~EffectControls()
 void EffectControls::menu_select(QAction* q) {
     TimelineAction* ta = new TimelineAction();
     for (int i=0;i<selected_clips.size();i++) {
-        if ((sequence->get_clip(selected_clips.at(i))->track < 0) == video_menu) {
-            ta->add_effect(sequence, selected_clips.at(i), q->data().toInt());
+		Clip* c = sequence->get_clip(selected_clips.at(i));
+		if (c->track < 0 == video_menu) {
+			if (transition_menu) {
+				if (c->opening_transition == NULL) {
+					ta->add_transition(sequence, selected_clips.at(i), q->data().toInt(), TA_OPENING_TRANSITION);
+				}
+				if (c->closing_transition == NULL) {
+					ta->add_transition(sequence, selected_clips.at(i), q->data().toInt(), TA_CLOSING_TRANSITION);
+				}
+			} else {
+				ta->add_effect(sequence, selected_clips.at(i), q->data().toInt());
+			}
         }
     }
     undo_stack.push(ta);
-	reload_clips();
+	if (transition_menu) {
+		panel_timeline->redraw_all_clips(true);
+	} else {
+		reload_clips();
+	}
 }
 
-void EffectControls::show_menu(bool video) {
+void EffectControls::show_effect_menu(bool video, bool transitions) {
     video_menu = video;
+	transition_menu = transitions;
 
     int lim;
     QVector<QString>* effect_names;
-    if (video) {
-        lim = VIDEO_EFFECT_COUNT;
-        effect_names = &video_effect_names;
-    } else {
-        lim = AUDIO_EFFECT_COUNT;
-        effect_names = &audio_effect_names;
-    }
+	if (transitions) {
+		if (video) {
+			lim = VIDEO_TRANSITION_COUNT;
+			effect_names = &video_transition_names;
+		} else {
+			lim = AUDIO_TRANSITION_COUNT;
+			effect_names = &audio_transition_names;
+		}
+	} else {
+		if (video) {
+			lim = VIDEO_EFFECT_COUNT;
+			effect_names = &video_effect_names;
+		} else {
+			lim = AUDIO_EFFECT_COUNT;
+			effect_names = &audio_effect_names;
+		}
+	}
 
     QMenu effects_menu(this);
 
@@ -168,12 +194,22 @@ void EffectControls::set_clips(QVector<int>& clips) {
 
 void EffectControls::on_add_video_effect_button_clicked()
 {
-    show_menu(true);
+	show_effect_menu(true, false);
 }
 
 void EffectControls::on_add_audio_effect_button_clicked()
 {
-    show_menu(false);
+	show_effect_menu(false, false);
+}
+
+void EffectControls::on_add_video_transition_button_clicked()
+{
+	show_effect_menu(true, true);
+}
+
+void EffectControls::on_add_audio_transition_button_clicked()
+{
+	show_effect_menu(false, true);
 }
 
 bool EffectControls::is_focused() {

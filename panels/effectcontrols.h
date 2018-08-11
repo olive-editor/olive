@@ -19,7 +19,6 @@ class EffectControls : public QDockWidget
 public:
 	explicit EffectControls(QWidget *parent = 0);
 	~EffectControls();
-	// void set_clip(Clip* c);
     void set_clips(QVector<int>& clips);
     void clear_effects(bool clear_cache);
     void delete_effects();
@@ -28,20 +27,22 @@ public:
 
 private slots:
     void menu_select(QAction* q);
-
     void on_add_video_effect_button_clicked();
-
     void on_add_audio_effect_button_clicked();
+	void deselect_all_effects(QWidget*);
 
-    void deselect_all_effects(QWidget*);
+	void on_add_video_transition_button_clicked();
+
+	void on_add_audio_transition_button_clicked();
 
 private:
     Ui::EffectControls *ui;
     QVector<int> selected_clips;
-    void show_menu(bool video);
+	void show_effect_menu(bool video, bool transitions);
 	void load_effects();
 
 	bool video_menu;
+	bool transition_menu;
 };
 
 /*class EffectAddCommand : public QUndoCommand {

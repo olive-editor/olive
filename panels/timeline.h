@@ -2,6 +2,7 @@
 #define TIMELINE_H
 
 #include "ui/timelinetools.h"
+
 #include <QDockWidget>
 #include <QVector>
 #include <QTime>
@@ -68,7 +69,6 @@ class Timeline;
 class Timeline : public QDockWidget
 {
 	Q_OBJECT
-
 public:
 	explicit Timeline(QWidget *parent = 0);
 	~Timeline();

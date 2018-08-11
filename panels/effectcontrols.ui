@@ -173,7 +173,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_2">
+               <widget class="QPushButton" name="add_video_transition_button">
                 <property name="toolTip">
                  <string>Add Video Transition</string>
                 </property>
@@ -318,7 +318,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_3">
+               <widget class="QPushButton" name="add_audio_transition_button">
                 <property name="toolTip">
                  <string>Add Audio Transition</string>
                 </property>

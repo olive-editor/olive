@@ -50,7 +50,7 @@ Timeline::Timeline(QWidget *parent) :
     ui(new Ui::Timeline),
     last_frame(0)
 {
-	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * default_track_height;
+	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
 	ui->setupUi(this);
 
@@ -215,7 +215,7 @@ int Timeline::calculate_track_height(int track, int value) {
     int index = (track < 0) ? qAbs(track + 1) : track;
     QVector<int>& vector = (track < 0) ? video_track_heights : audio_track_heights;
     while (vector.size() < index+1) {
-        vector.append(TRACK_DEFAULT_HEIGHT);
+		vector.append(default_track_height);
     }
     if (value > -1) {
         vector[index] = value;
@@ -837,18 +837,33 @@ bool Timeline::split_selection(TimelineAction* ta) {
             for (int i=0;i<selections.size();i++) {
                 const Selection& s = selections.at(i);
                 if (s.track == clip->track) {
-                    if (clip->timeline_in < s.in && clip->timeline_out > s.out) {
+					if (clip->timeline_in < s.in && clip->timeline_out > s.out) {
                         Clip* split_A = clip->copy(sequence);
                         split_A->clip_in += (s.in - clip->timeline_in);
                         split_A->timeline_in = s.in;
                         split_A->timeline_out = s.out;
                         pre_splits.append(j);
-                        post_splits.append(split_A);
+						post_splits.append(split_A);
 
                         Clip* split_B = clip->copy(sequence);
                         split_B->clip_in += (s.out - clip->timeline_in);
                         split_B->timeline_in = s.out;
                         secondary_post_splits.append(split_B);
+
+						if (clip->opening_transition != NULL) {
+							delete split_B->opening_transition;
+							split_B->opening_transition = NULL;
+
+							delete split_A->opening_transition;
+							split_A->opening_transition = NULL;
+						}
+
+						if (clip->closing_transition != NULL) {
+							ta->delete_transition(sequence, j, TA_CLOSING_TRANSITION);
+
+							delete split_A->closing_transition;
+							split_A->closing_transition = NULL;
+						}
 
                         ta->set_timeline_out(sequence, j, s.in);
                         split = true;

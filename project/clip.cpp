@@ -131,6 +131,7 @@ void Clip::run_video_pre_effect_stack(long playhead, int* anchor_x, int* anchor_
             opening_transition->process_transition((double)transition_progress/(double)opening_transition->length);
         }
     }
+
     if (closing_transition != NULL) {
         int transition_progress = closing_transition->length - (playhead - timeline_in - getLength() + closing_transition->length);
         if (transition_progress < closing_transition->length) {

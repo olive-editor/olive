@@ -38,8 +38,8 @@ void init_audio() {
 		if (!info.isFormatSupported(audio_format)) {
 			qWarning() << "[WARNING] Couldn't initialize audio. Audio format is not supported by backend";
 		} else {
-            audio_output = new QAudioOutput(audio_format);
-            audio_output->setBufferSize(20480);
+			audio_output = new QAudioOutput(audio_format);
+			audio_output->setBufferSize(20480);
 
 			// connect
 			audio_io_device = audio_output->start();

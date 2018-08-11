@@ -1579,7 +1579,7 @@ void TimelineWidget::redraw_clips() {
 			}
 		}
 
-		if (minimumWidth() != panel_width || /*clip_pixmap.height() != height() || */panel_height != minimumHeight()) {
+		if (minimumWidth() != panel_width || clip_pixmap.height() != height() || panel_height != minimumHeight()) {
             setMinimumWidth(panel_width);
 			container->setMinimumWidth(panel_width);
 			setMinimumHeight(panel_height);

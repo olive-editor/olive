@@ -66,7 +66,9 @@ SOURCES += \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
     effects/solideffect.cpp \
-    dialogs/replaceclipmediadialog.cpp
+    dialogs/replaceclipmediadialog.cpp \
+    effects/inverteffect.cpp \
+    effects/linearfadetransition.cpp
 
 HEADERS += \
         mainwindow.h \

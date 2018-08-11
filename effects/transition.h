@@ -15,11 +15,6 @@ enum AudioTransitions {
     AUDIO_TRANSITION_COUNT
 };
 
-void init_transitions();
-
-extern QVector<QString> video_transition_names;
-extern QVector<QString> audio_transition_names;
-
 class Transition
 {
 public:
@@ -28,20 +23,31 @@ public:
 	int id;
 	QString name;
 	int length;
-    Transition* link;
+	Transition* link;
 	virtual void process_transition(double);
 	virtual void process_audio(double, double, quint8*, int, bool);
-    virtual Transition* copy();
+	virtual Transition* copy();
 };
 
+void init_transitions();
+Transition* create_transition(int transition_id, Clip* c);
+extern QVector<QString> video_transition_names;
+extern QVector<QString> audio_transition_names;
+
+// Video Transitions
 class CrossDissolveTransition : public Transition {
 public:
     CrossDissolveTransition();
 	void process_transition(double);
-	void process_audio(double, double, quint8*, int, bool);
     Transition* copy();
 };
 
-Transition* create_transition(int transition_id, Clip* c);
+// Audio Transitions
+class LinearFadeTransition : public Transition {
+public:
+	LinearFadeTransition();
+	void process_audio(double, double, quint8*, int, bool);
+	Transition* copy();
+};
 
 #endif // TRANSITION_H

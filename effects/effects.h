@@ -21,6 +21,7 @@ enum VideoEffects {
     VIDEO_SHAKE_EFFECT,
     VIDEO_TEXT_EFFECT,
     VIDEO_SOLID_EFFECT,
+	VIDEO_INVERT_EFFECT,
     VIDEO_EFFECT_COUNT
 };
 
@@ -128,6 +129,19 @@ private slots:
     void update_texture();
 private:
     QOpenGLTexture* texture;
+};
+
+class InvertEffect : public Effect {
+	Q_OBJECT
+public:
+	InvertEffect(Clip* c);
+	void init();
+	void process_gl(int *anchor_x, int *anchor_y);
+	Effect* copy(Clip *c);
+	void load(QXmlStreamReader* stream);
+	void save(QXmlStreamWriter* stream);
+
+	LabelSlider* amount_val;
 };
 
 // audio effects
