@@ -21,10 +21,9 @@ PanEffect::PanEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT) {
 void PanEffect::refresh() {}
 
 Effect* PanEffect::copy(Clip* c) {
-	/*PanEffect* p = new PanEffect(c);
-    p->pan_val->set_value(pan_val->value());
-	return p;*/
-	return NULL;
+	PanEffect* p = new PanEffect(c);
+	p->pan_val->set_double_value(pan_val->get_double_value());
+	return p;
 }
 
 void PanEffect::process_audio(quint8 *samples, int nb_bytes) {

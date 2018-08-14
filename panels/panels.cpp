@@ -1,6 +1,6 @@
 #include "panels.h"
 
-Project* panel_project;
-EffectControls* panel_effect_controls;
-Viewer* panel_viewer;
-Timeline* panel_timeline;
+Project* panel_project = 0;
+EffectControls* panel_effect_controls = 0;
+Viewer* panel_viewer = 0;
+Timeline* panel_timeline = 0;

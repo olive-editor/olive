@@ -48,9 +48,7 @@ EffectRow* Effect::row(int i) {
 	return rows.at(i);
 }
 
-void Effect::refresh() {
-    qDebug() << "[WARNING] Tried to init base Effect class - type:" << type << "- id:" << id;
-}
+void Effect::refresh() {}
 
 void Effect::field_changed() {
 	panel_viewer->viewer_widget->update();
@@ -65,9 +63,80 @@ bool Effect::is_enabled() {
     return container->enabled_check->isChecked();
 }
 
+void Effect::load(QXmlStreamReader* stream) {
+	for (int i=0;i<rows.size();i++) {
+		EffectRow* row = rows.at(i);
+		while (!stream->atEnd()) {
+			stream->readNext();
+			if (stream->name() == "row" && stream->isStartElement()) {
+				for (int j=0;j<row->fieldCount();j++) {
+					EffectField* field = row->field(j);
+					while (!stream->atEnd()) {
+						stream->readNext();
+						if (stream->name() == "field" && stream->isStartElement()) {
+							stream->readNext();
+							switch (field->type) {
+							case EFFECT_FIELD_DOUBLE:
+								field->set_double_value(stream->text().toDouble());
+								break;
+							case EFFECT_FIELD_COLOR:
+								field->set_color_value(QColor(stream->text().toString()));
+								break;
+							case EFFECT_FIELD_STRING:
+								field->set_string_value(stream->text().toString());
+								break;
+							case EFFECT_FIELD_BOOL:
+								field->set_bool_value(stream->text() == "1");
+								break;
+							case EFFECT_FIELD_COMBO:
+								field->set_combo_string(stream->text().toString());
+								break;
+							case EFFECT_FIELD_FONT:
+								field->set_combo_string(stream->text().toString());
+								break;
+							}
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+}
+
+void Effect::save(QXmlStreamWriter* stream) {
+	for (int i=0;i<rows.size();i++) {
+		EffectRow* row = rows.at(i);
+		stream->writeStartElement("row");
+		for (int j=0;j<row->fieldCount();j++) {
+			EffectField* field = row->field(j);
+			switch (field->type) {
+			case EFFECT_FIELD_DOUBLE:
+				stream->writeTextElement("field", QString::number(field->get_double_value()));
+				break;
+			case EFFECT_FIELD_COLOR:
+				stream->writeTextElement("field", field->get_color_value().name());
+				break;
+			case EFFECT_FIELD_STRING:
+				stream->writeTextElement("field", field->get_string_value());
+				break;
+			case EFFECT_FIELD_BOOL:
+				stream->writeTextElement("field", QString::number(field->get_bool_value()));
+				break;
+			case EFFECT_FIELD_COMBO:
+				stream->writeTextElement("field", field->get_combo_string());
+				break;
+			case EFFECT_FIELD_FONT:
+				stream->writeTextElement("field", field->get_font_name());
+				break;
+			}
+		}
+		stream->writeEndElement(); // row
+	}
+}
+
 Effect* Effect::copy(Clip*) {return NULL;}
-void Effect::load(QXmlStreamReader*) {}
-void Effect::save(QXmlStreamWriter*) {}
 void Effect::process_gl(int*, int*) {}
 void Effect::post_gl() {}
 void Effect::process_audio(uint8_t*, int) {}
@@ -90,6 +159,14 @@ EffectRow::~EffectRow() {
 	for (int i=0;i<fields.size();i++) {
 		delete fields.at(i);
 	}
+}
+
+EffectField* EffectRow::field(int i) {
+	return fields.at(i);
+}
+
+int EffectRow::fieldCount() {
+	return fields.size();
 }
 
 /* Effect Field Definitions */
@@ -191,6 +268,10 @@ void EffectField::set_combo_index(int index) {
 	static_cast<QComboBox*>(ui_element)->setCurrentIndex(index);
 }
 
+void EffectField::set_combo_string(const QString& s) {
+	static_cast<QComboBox*>(ui_element)->setCurrentText(s);
+}
+
 bool EffectField::get_bool_value() {
 	return static_cast<QCheckBox*>(ui_element)->isChecked();
 }
@@ -213,4 +294,8 @@ const QString EffectField::get_font_name() {
 
 QColor EffectField::get_color_value() {
 	return static_cast<ColorButton*>(ui_element)->get_color();
+}
+
+void EffectField::set_color_value(QColor color) {
+	static_cast<ColorButton*>(ui_element)->set_color(color);
 }

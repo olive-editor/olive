@@ -446,7 +446,7 @@ void Cacher::run() {
 	open_clip_worker(clip);
 
     while (caching) {
-        clip->can_cache.wait(&clip->lock);
+		clip->can_cache.wait(&clip->lock);
         if (!caching) {
 			break;
 		} else {

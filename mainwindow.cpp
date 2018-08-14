@@ -20,6 +20,8 @@
 #include "dialogs/exportdialog.h"
 #include "dialogs/preferencesdialog.h"
 
+#include "playback/audio.h"
+
 #include "ui_timeline.h"
 
 #include <QDebug>
@@ -148,6 +150,8 @@ MainWindow::~MainWindow() {
     if (!config_dir.isEmpty()) {
         config.save(config_dir);
     }
+
+	stop_audio();
 
 	delete ui;
 

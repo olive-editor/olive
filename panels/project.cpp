@@ -1110,7 +1110,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 for (int k=0;k<c->effects.size();k++) {
                                     stream.writeStartElement("effect"); // effect
                                     Effect* e = c->effects.at(k);
-                                    stream.writeAttribute("id", QString::number(e->id));
+                                    stream.writeAttribute("id", QString::number(e->id));									
                                     e->save(&stream);
                                     stream.writeEndElement(); // effect
                                 }

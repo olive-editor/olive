@@ -44,12 +44,11 @@ void ShakeEffect::refresh() {
 }
 
 Effect* ShakeEffect::copy(Clip* c) {
-	/*ShakeEffect* e = new ShakeEffect(c);
-    e->intensity_val->set_value(intensity_val->value());
-    e->rotation_val->set_value(rotation_val->value());
-	e->frequency_val->set_value(frequency_val->value());
-	return e;*/
-	return NULL;
+	ShakeEffect* e = new ShakeEffect(c);
+	e->intensity_val->set_double_value(intensity_val->get_double_value());
+	e->rotation_val->set_double_value(rotation_val->get_double_value());
+	e->frequency_val->set_double_value(frequency_val->get_double_value());
+	return e;
 }
 
 void ShakeEffect::process_gl(int*, int*) {

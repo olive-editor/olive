@@ -13,24 +13,11 @@
 struct Clip;
 struct Sequence;
 
-class AudioSenderThread : public QThread {
-public:
-	AudioSenderThread();
-	void run();
-	QWaitCondition cond;
-	bool close;
-	QMutex lock;
-private:
-	QVector<qint16> samples;
-	int send_audio_to_output(int offset, int max);
-};
-
 class ViewerWidget : public QOpenGLWidget, public QOpenGLFunctions
 {
 	Q_OBJECT
 public:
-    ViewerWidget(QWidget *parent = 0);
-    ~ViewerWidget();
+	ViewerWidget(QWidget *parent = 0);
 
     bool multithreaded;
     bool force_audio;
@@ -43,7 +30,6 @@ protected:
 //    void resizeGL(int w, int h);
 private:
 	QTimer retry_timer;
-	AudioSenderThread audio_sender_thread;
 private slots:
 	void retry();
     void deleteFunction();

@@ -37,9 +37,10 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
 
 void AudioMonitor::paintEvent(QPaintEvent *) {
     if (sequence != NULL) {
+
         QPainter p(this);
         int channel_x = AUDIO_MONITOR_GAP;
-        int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
+		int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
         if (peaks.size() != channel_count) {
             peaks.resize(channel_count);
             peaks.fill(false);

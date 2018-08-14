@@ -2,6 +2,10 @@
 
 #include "project/sequence.h"
 
+#include "panels/panels.h"
+#include "panels/timeline.h"
+#include "ui_timeline.h"
+
 #include <QAudioOutput>
 #include <QtMath>
 #include <QDebug>
@@ -18,12 +22,10 @@ qint8 audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
 
+AudioSenderThread* audio_thread;
+
 void init_audio() {
-	if (audio_device_set) {
-		audio_output->stop();
-		delete audio_output;
-		audio_device_set = false;
-	}
+	stop_audio();
 
     if (sequence != NULL) {
 		QAudioFormat audio_format;
@@ -45,8 +47,22 @@ void init_audio() {
 			audio_io_device = audio_output->start();
 			audio_device_set = true;
 
+			// start sender thread
+			audio_thread = new AudioSenderThread();
+			audio_thread->start();
+
             clear_audio_ibuffer();
 		}
+	}
+}
+
+void stop_audio() {
+	if (audio_device_set) {
+		audio_thread->stop();
+
+		audio_output->stop();
+		delete audio_output;
+		audio_device_set = false;
 	}
 }
 
@@ -62,4 +78,75 @@ int get_buffer_offset_from_frame(long frame) {
         qDebug() << "[WARNING] get_buffer_offset_from_frame called incorrectly";
         return 0;
     }
+}
+
+AudioSenderThread::AudioSenderThread() : close(false) {
+	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+}
+
+void AudioSenderThread::stop() {
+	close = true;
+	cond.wakeAll();
+	wait();
+}
+
+void AudioSenderThread::run() {
+	// start data loop
+	send_audio_to_output(0, audio_ibuffer_size);
+
+	lock.lock();
+	while (true) {
+		msleep(20);
+		if (close) {
+			break;
+		} else if (panel_timeline->playing) {
+			int written_bytes = 0;
+
+			int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
+			int max_write = audio_ibuffer_size - adjusted_read_index;
+			int actual_write = send_audio_to_output(adjusted_read_index, max_write);
+			written_bytes += actual_write;
+			if (actual_write == max_write) {
+				// got all the bytes, write again
+				written_bytes += send_audio_to_output(0, audio_ibuffer_size);
+			}
+		}
+	}
+	lock.unlock();
+}
+
+int AudioSenderThread::send_audio_to_output(int offset, int max) {
+	// send audio to device
+	int actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
+	audio_ibuffer_read += actual_write;
+
+	// send samples to audio monitor cache
+	if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
+		panel_timeline->ui->audio_monitor->sample_cache_offset = panel_timeline->playhead;
+	}
+	int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
+	long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + (panel_timeline->ui->audio_monitor->sample_cache.size()/channel_count);
+	int next_buffer_offset, buffer_offset_adjusted, i;
+	int buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead);
+	if (samples.size() != channel_count) samples.resize(channel_count);
+	samples.fill(0);
+
+	// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
+	while (buffer_offset < audio_ibuffer_read) {
+		sample_cache_playhead++;
+		next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_read);
+		while (buffer_offset < next_buffer_offset) {
+			for (i=0;i<samples.size();i++) {
+				buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
+				samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
+				buffer_offset += 2;
+			}
+		}
+		panel_timeline->ui->audio_monitor->sample_cache.append(samples);
+		buffer_offset = next_buffer_offset;
+	}
+
+	memset(audio_ibuffer+offset, 0, actual_write);
+
+	return actual_write;
 }

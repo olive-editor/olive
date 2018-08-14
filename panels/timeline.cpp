@@ -138,15 +138,15 @@ void Timeline::reset_all_audio() {
     }
     ui->audio_monitor->reset();
     clear_audio_ibuffer();
+	audio_ibuffer_frame = playhead;
 }
 
 void Timeline::seek(long p) {
     pause();
 
-    reset_all_audio();
-    audio_ibuffer_frame = p;
-
 	playhead = p;
+
+	reset_all_audio();
 
     repaint_timeline();
 }
@@ -170,6 +170,7 @@ void Timeline::play() {
 void Timeline::pause() {
 	playing = false;
     panel_viewer->set_playpause_icon(true);
+	playback_updater.stop();
 }
 
 void Timeline::go_to_end() {

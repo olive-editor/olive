@@ -44,6 +44,7 @@ public:
 	const QVariant get_combo_data();
 	const QString get_combo_string();
 	void set_combo_index(int index);
+	void set_combo_string(const QString& s);
 
 	bool get_bool_value();
 	void set_bool_value(bool b);
@@ -51,6 +52,7 @@ public:
 	const QString get_font_name();
 
 	QColor get_color_value();
+	void set_color_value(QColor color);
 
 	QWidget* get_ui_element();
 	void set_enabled(bool e);
@@ -64,6 +66,7 @@ public:
 	~EffectRow();
 	EffectField* add_field(int type);
 	EffectField* field(int i);
+	int fieldCount();
 	void set_keyframe(int field, long time);
 	void move_keyframe(int field, long from, long to);
 	void delete_keyframe(int field, long time);

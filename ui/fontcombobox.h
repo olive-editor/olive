@@ -6,8 +6,6 @@
 class FontCombobox : public ComboBoxEx {
 public:
 	FontCombobox(QWidget* parent = 0);
-protected:
-	void showPopup();
 };
 
 #endif // FONTCOMBOBOX_H

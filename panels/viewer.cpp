@@ -29,9 +29,7 @@ Viewer::Viewer(QWidget *parent) :
     update_end_timecode();
 }
 
-Viewer::~Viewer()
-{
-    init_audio();
+Viewer::~Viewer() {
 	delete ui;
 }
 
