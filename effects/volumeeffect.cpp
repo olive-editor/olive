@@ -10,43 +10,30 @@
 #include "ui/collapsiblewidget.h"
 
 VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_EFFECT) {
-    ui_layout->addWidget(new QLabel("Volume:"), 0, 0);
-    volume_val = new LabelSlider();
-    volume_val->set_minimum_value(0);
-    volume_val->set_maximum_value(400);
-    ui_layout->addWidget(volume_val, 0, 1);
+	EffectRow* volume_row = add_row("Volume:");
+	volume_val = volume_row->add_field(EFFECT_FIELD_DOUBLE);
+	volume_val->set_double_minimum_value(0);
+	volume_val->set_double_maximum_value(400);
 
 	// set defaults
-    volume_val->set_value(100);
+	volume_val->set_double_default_value(100);
 }
 
-void VolumeEffect::init() {}
+void VolumeEffect::refresh() {}
 
 Effect* VolumeEffect::copy(Clip* c) {
-    VolumeEffect* v = new VolumeEffect(c);
+	/*VolumeEffect* v = new VolumeEffect(c);
     v->volume_val->set_value(volume_val->value());
-    return v;
-}
-
-void VolumeEffect::load(QXmlStreamReader* stream) {
-    while (!(stream->isEndElement() && stream->name() == "effect") && !stream->atEnd()) {
-        stream->readNext();
-        if (stream->isStartElement() && stream->name() == "volume") {
-            stream->readNext();
-            volume_val->set_value(stream->text().toDouble());
-        }
-    }
-}
-
-void VolumeEffect::save(QXmlStreamWriter* stream) {
-    stream->writeTextElement("volume", QString::number(volume_val->value()));
+	return v;*/
+	return NULL;
 }
 
 void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
-    if (volume_val->value() != 100) {
+	double vol_val = volume_val->get_double_value();
+	if (vol_val != 100) {
         for (int i=0;i<nb_bytes;i+=2) {
             qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-            double val = qPow(volume_val->value()*0.01, 3);
+			double val = qPow(vol_val*0.01, 3);
             samp *= val;
             if (samp > INT16_MAX) {
                 samp = INT16_MAX;

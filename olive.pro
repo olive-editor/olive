@@ -68,7 +68,8 @@ SOURCES += \
     effects/solideffect.cpp \
     dialogs/replaceclipmediadialog.cpp \
     effects/inverteffect.cpp \
-    effects/linearfadetransition.cpp
+    effects/linearfadetransition.cpp \
+    ui/fontcombobox.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -106,7 +107,8 @@ HEADERS += \
     ui/scrollarea.h \
     ui/comboboxex.h \
     ui/colorbutton.h \
-    dialogs/replaceclipmediadialog.h
+    dialogs/replaceclipmediadialog.h \
+    ui/fontcombobox.h
 
 FORMS += \
         mainwindow.ui \

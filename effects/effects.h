@@ -41,22 +41,19 @@ class TransformEffect : public Effect {
 	Q_OBJECT
 public:
     TransformEffect(Clip* c);
-    void init();
+	void refresh();
 	void process_gl(int* anchor_x, int* anchor_y);
-    Effect* copy(Clip* c);
-    void load(QXmlStreamReader* stream);
-    void save(QXmlStreamWriter* stream);
 
-    LabelSlider* position_x;
-    LabelSlider* position_y;
-    LabelSlider* scale_x;
-    LabelSlider* scale_y;
-	QCheckBox* uniform_scale_box;
-    LabelSlider* rotation;
-    LabelSlider* anchor_x_box;
-    LabelSlider* anchor_y_box;
-    LabelSlider* opacity;
-    ComboBoxEx* blend_mode_box;
+	EffectField* position_x;
+	EffectField* position_y;
+	EffectField* scale_x;
+	EffectField* scale_y;
+	EffectField* uniform_scale_field;
+	EffectField* rotation;
+	EffectField* anchor_x_box;
+	EffectField* anchor_y_box;
+	EffectField* opacity;
+	EffectField* blend_mode_box;
 public slots:
 	void toggle_uniform_scale(bool enabled);
 private:
@@ -69,15 +66,13 @@ class ShakeEffect : public Effect {
 public:
     ShakeEffect(Clip* c);
     void process_gl(int* anchor_x, int* anchor_y);
-    Effect* copy(Clip *c);
-    void load(QXmlStreamReader* stream);
-    void save(QXmlStreamWriter* stream);
+	Effect* copy(Clip *c);
 
-    LabelSlider* intensity_val;
-    LabelSlider* rotation_val;
-    LabelSlider* frequency_val;
+	EffectField* intensity_val;
+	EffectField* rotation_val;
+	EffectField* frequency_val;
 public slots:
-    void init();
+	void refresh();
 private:
     int shake_progress;
     int shake_limit;
@@ -102,13 +97,12 @@ public:
     TextEffect(Clip* c);
     ~TextEffect();
     void post_gl();
-    Effect* copy(Clip* c);
-    void load(QXmlStreamReader* stream);
-    void save(QXmlStreamWriter* stream);
-    QTextEdit* text_val;
-    LabelSlider* size_val;
-    ColorButton* set_color_button;
-    ComboBoxEx* set_font_combobox;
+	Effect* copy(Clip* c);
+
+	EffectField* text_val;
+	EffectField* size_val;
+	EffectField* set_color_button;
+	EffectField* set_font_combobox;
 private slots:
     void update_texture();
 private:
@@ -135,38 +129,31 @@ class InvertEffect : public Effect {
 	Q_OBJECT
 public:
 	InvertEffect(Clip* c);
-	void init();
 	void process_gl(int *anchor_x, int *anchor_y);
 	Effect* copy(Clip *c);
-	void load(QXmlStreamReader* stream);
-	void save(QXmlStreamWriter* stream);
 
-	LabelSlider* amount_val;
+	EffectField* amount_val;
 };
 
 // audio effects
 class VolumeEffect : public Effect {
 public:
     VolumeEffect(Clip* c);
-    void init();
+	void refresh();
     void process_audio(quint8* samples, int nb_bytes);
-    Effect* copy(Clip* c);
-    void load(QXmlStreamReader* stream);
-    void save(QXmlStreamWriter* stream);
+	Effect* copy(Clip* c);
 
-    LabelSlider* volume_val;
+	EffectField* volume_val;
 };
 
 class PanEffect : public Effect {
 public:
     PanEffect(Clip* c);
-    void init();
+	void refresh();
     void process_audio(quint8* samples, int nb_bytes);
-    Effect* copy(Clip* c);
-    void load(QXmlStreamReader* stream);
-    void save(QXmlStreamWriter* stream);
+	Effect* copy(Clip* c);
 
-    LabelSlider* pan_val;
+	EffectField* pan_val;
 };
 
 #endif // EFFECTS_H

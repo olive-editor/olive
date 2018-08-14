@@ -1825,7 +1825,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
                     int cursor_y = getScreenPointFromTrack(panel_timeline->split_tracks.at(i));
 
                     p.setPen(QColor(64, 64, 64));
-                    p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->cursor_track, -1));
+					p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->split_tracks.at(i), -1));
                 }
             }
         }

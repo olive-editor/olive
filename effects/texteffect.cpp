@@ -17,26 +17,7 @@
 #include "project/sequence.h"
 #include "ui/comboboxex.h"
 #include "ui/colorbutton.h"
-
-class FontCombobox : public ComboBoxEx {
-public:
-    FontCombobox(QWidget* parent = 0) : ComboBoxEx(parent) {}
-protected:
-    void showPopup() {
-        QString current = currentText();
-        clear();
-        QStringList fonts = QFontDatabase().families();
-        bool found = false;
-        for (int i=0;i<fonts.size();i++) {
-            addItem(fonts.at(i));
-            if (!found && fonts.at(i) == current) {
-                setCurrentIndex(i);
-                found = true;
-            }
-        }
-        QComboBox::showPopup();
-    }
-};
+#include "ui/fontcombobox.h"
 
 TextEffect::TextEffect(Clip *c) :
     Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TEXT_EFFECT),
@@ -44,33 +25,26 @@ TextEffect::TextEffect(Clip *c) :
     width(0),
     height(0)
 {
-    ui_layout->addWidget(new QLabel("Text:"), 0, 0);
-    text_val = new QTextEdit();
-    text_val->setUndoRedoEnabled(true);
-    ui_layout->addWidget(text_val, 0, 1);
+	EffectRow* text_row = add_row("Text:");
+	text_val = text_row->add_field(EFFECT_FIELD_STRING);
 
-    ui_layout->addWidget(new QLabel("Font:"), 1, 0);
-    set_font_combobox = new FontCombobox();
-    ui_layout->addWidget(set_font_combobox, 1, 1);
+	EffectRow* font_row = add_row("Font:");
+	set_font_combobox = font_row->add_field(EFFECT_FIELD_FONT);
 
-    ui_layout->addWidget(new QLabel("Size:"), 2, 0);
-    size_val = new LabelSlider();
-    size_val->set_minimum_value(0);
-    ui_layout->addWidget(size_val, 2, 1);
+	EffectRow* size_row = add_row("Size:");
+	size_val = size_row->add_field(EFFECT_FIELD_DOUBLE);
+	size_val->set_double_minimum_value(0);
 
-    ui_layout->addWidget(new QLabel("Color:"), 3, 0);
-    set_color_button = new ColorButton();
-    ui_layout->addWidget(set_color_button, 3, 1);
+	EffectRow* color_row = add_row("Color:");
+	set_color_button = color_row->add_field(EFFECT_FIELD_COLOR);
 
-    set_font_combobox->addItem(font.family());
+	connect(static_cast<QTextEdit*>(text_val->get_ui_element()), SIGNAL(textChanged()), this, SLOT(update_texture()));
+	connect(static_cast<LabelSlider*>(size_val->get_ui_element()), SIGNAL(valueChanged()), this, SLOT(update_texture()));
+	connect(static_cast<ColorButton*>(set_color_button->get_ui_element()), SIGNAL(color_changed()), this, SLOT(update_texture()));
+	connect(static_cast<FontCombobox*>(set_font_combobox->get_ui_element()), SIGNAL(currentTextChanged(QString)), this, SLOT(update_texture()));
 
-    connect(text_val, SIGNAL(textChanged()), this, SLOT(update_texture()));
-    connect(size_val, SIGNAL(valueChanged()), this, SLOT(update_texture()));
-    connect(set_color_button, SIGNAL(color_changed()), this, SLOT(update_texture()));
-    connect(set_font_combobox, SIGNAL(currentTextChanged(QString)), this, SLOT(update_texture()));
-
-    size_val->set_value(24);
-    text_val->setText("Sample Text");
+	size_val->set_double_default_value(24);
+	text_val->set_string_value("Sample Text");
 }
 
 TextEffect::~TextEffect() {
@@ -93,13 +67,13 @@ void TextEffect::update_texture() {
     p.setRenderHint(QPainter::TextAntialiasing, true);
 
     // set font
-    font.setFamily(set_font_combobox->currentText());
-    font.setPointSize(size_val->value());
+	font.setFamily(set_font_combobox->get_font_name());
+	font.setPointSize(size_val->get_double_value());
     font.setStyleHint(QFont::Helvetica, QFont::PreferAntialias);
     p.setFont(font);
 
-    p.setPen(set_color_button->get_color());
-    p.drawText(QRect(0, 0, width, height), Qt::AlignCenter | Qt::TextWordWrap, text_val->toPlainText());
+	p.setPen(set_color_button->get_color_value());
+	p.drawText(QRect(0, 0, width, height), Qt::AlignCenter | Qt::TextWordWrap, text_val->get_string_value());
 
     if (texture == NULL) {
         texture = new QOpenGLTexture(pixmap);
@@ -137,40 +111,10 @@ void TextEffect::post_gl() {
 }
 
 Effect* TextEffect::copy(Clip* c) {
-    TextEffect* e = new TextEffect(c);
+	/*TextEffect* e = new TextEffect(c);
     e->text_val->setPlainText(text_val->toPlainText());
     e->size_val->set_value(size_val->value());
-    e->set_color_button->set_color(set_color_button->get_color());
-    return e;
-}
-
-void TextEffect::load(QXmlStreamReader* stream) {
-    const QXmlStreamAttributes& attr = stream->attributes();
-    for (int i=0;i<attr.size();i++) {
-        const QXmlStreamAttribute& a = attr.at(i);
-        if (a.name() == "size") {
-            size_val->set_value(a.value().toDouble());
-        } else if (a.name() == "r") {
-            set_color_button->get_color().setRed(a.value().toInt());
-        } else if (a.name() == "g") {
-            set_color_button->get_color().setGreen(a.value().toInt());
-        } else if (a.name() == "b") {
-            set_color_button->get_color().setBlue(a.value().toInt());
-        }
-    }
-    while (!(stream->name() == "effect" && stream->isEndElement())) {
-        stream->readNext();
-        if (stream->name() == "text" && stream->isStartElement()) {
-            stream->readNext();
-            text_val->setPlainText(stream->text().toString());
-        }
-    }
-}
-
-void TextEffect::save(QXmlStreamWriter* stream) {
-    stream->writeAttribute("size", QString::number(size_val->value()));
-    stream->writeAttribute("r", QString::number(set_color_button->get_color().red()));
-    stream->writeAttribute("g", QString::number(set_color_button->get_color().green()));
-    stream->writeAttribute("b", QString::number(set_color_button->get_color().blue()));
-    stream->writeTextElement("text", text_val->toPlainText());
+	e->set_color_button->set_color(set_color_button->get_color());
+	return e;*/
+	return NULL;
 }

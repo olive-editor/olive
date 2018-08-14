@@ -116,7 +116,7 @@ void Clip::refresh() {
 
     // reinitializes all effects... just in case
     for (int i=0;i<effects.size();i++) {
-        effects.at(i)->init();
+		effects.at(i)->refresh();
     }
 }
 
