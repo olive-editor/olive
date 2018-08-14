@@ -16,6 +16,8 @@ PanEffect::PanEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT) {
 
 	// set defaults
 	pan_val->set_double_default_value(0);
+
+	connect(pan_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
 void PanEffect::refresh() {}

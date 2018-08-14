@@ -14,11 +14,11 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
     setCursor(Qt::SizeHorCursor);
     internal_value = -1;
     set_default_value(0);
-    set_value(0);
+	set_value(0, false);
     set = false;
 }
 
-void LabelSlider::set_value(double v) {
+void LabelSlider::set_value(double v, bool userSet) {
     set = true;
     if (v != internal_value) {
         if (min_enabled && v < min_value) {
@@ -30,7 +30,7 @@ void LabelSlider::set_value(double v) {
         }
 
         setText(QString::number(internal_value));
-        emit valueChanged();
+		if (userSet) emit valueChanged();
     }
 }
 
@@ -45,7 +45,7 @@ double LabelSlider::value() {
 void LabelSlider::set_default_value(double v) {
     default_value = v;
 	if (!set) {
-		set_value(v);
+		set_value(v, false);
 		set = false;
 	}
 }
@@ -68,7 +68,7 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
         vcc->new_val = default_value;
         undo_stack.push(vcc);
 
-        set_value(default_value);
+		set_value(default_value, true);
     } else {
         qApp->setOverrideCursor(Qt::BlankCursor);
         drag_start_value = internal_value;
@@ -80,7 +80,7 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 
 void LabelSlider::mouseMoveEvent(QMouseEvent*) {
     if (drag_start) {
-        set_value(internal_value + (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y()));
+		set_value(internal_value + (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y()), true);
         cursor().setPos(drag_start_x, drag_start_y);
         drag_proc = true;
     }
@@ -106,7 +106,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
                 vcc->source = this;
                 vcc->old_val = internal_value;
 
-                set_value(d);
+				set_value(d, true);
 
                 vcc->new_val = internal_value;
                 undo_stack.push(vcc);

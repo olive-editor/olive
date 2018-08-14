@@ -23,7 +23,6 @@ void ColorButton::set_button_color() {
     QPalette pal = palette();
     pal.setColor(QPalette::Button, color);
     setPalette(pal);
-	emit color_changed();
 }
 
 void ColorButton::open_dialog() {
@@ -34,6 +33,8 @@ void ColorButton::open_dialog() {
         undo_stack.push(command);
 
         set_button_color();
+
+		emit color_changed();
     }
 }
 

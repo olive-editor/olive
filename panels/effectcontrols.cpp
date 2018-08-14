@@ -9,12 +9,14 @@
 #include "effects/effects.h"
 #include "effects/transition.h"
 #include "project/clip.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "project/sequence.h"
 #include "project/undo.h"
 #include "panels/project.h"
 #include "panels/timeline.h"
+#include "panels/viewer.h"
+#include "ui/viewerwidget.h"
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
@@ -173,6 +175,7 @@ void EffectControls::delete_effects() {
     }
     if (command->clips.size() > 0) {
         undo_stack.push(command);
+		panel_viewer->viewer_widget->update();
     } else {
         delete command;
     }

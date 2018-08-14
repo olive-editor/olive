@@ -17,6 +17,8 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_
 
 	// set defaults
 	volume_val->set_double_default_value(100);
+
+	connect(volume_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
 void VolumeEffect::refresh() {}

@@ -9,7 +9,7 @@
 #include "effects/effects.h"
 #include "panels/timeline.h"
 #include "project/sequence.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "effects/transition.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"

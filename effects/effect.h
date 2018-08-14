@@ -24,10 +24,19 @@ class Effect;
 #define EFFECT_FIELD_COMBO 4
 #define EFFECT_FIELD_FONT 5
 
-class EffectField : QObject {
+#define EFFECT_KEYFRAME_LINEAR 0
+#define EFFECT_KEYFRAME_HOLD 1
+#define EFFECT_KEYFRAME_BEZIER 2
+
+class EffectKeyframe {
+public:
+	long frame;
+};
+
+class EffectField : public QObject {
 	Q_OBJECT
 public:
-	EffectField(Effect* parent, int t);
+	EffectField(int t);
 	int type;
 
 	double get_double_value();
@@ -56,6 +65,8 @@ public:
 
 	QWidget* get_ui_element();
 	void set_enabled(bool e);
+signals:
+	void changed();
 private:
 	QWidget* ui_element;
 };
@@ -106,7 +117,6 @@ public:
     virtual void process_audio(quint8* samples, int nb_bytes);
 public slots:
 	void field_changed();
-    void checkbox_command();
 private:
 	QVector<EffectRow*> rows;
 	QGridLayout* ui_layout;

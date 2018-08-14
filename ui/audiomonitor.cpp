@@ -37,14 +37,13 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
 
 void AudioMonitor::paintEvent(QPaintEvent *) {
     if (sequence != NULL) {
-
         QPainter p(this);
         int channel_x = AUDIO_MONITOR_GAP;
 		int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
-        if (peaks.size() != channel_count) {
+		/*if (peaks.size() != channel_count) {
             peaks.resize(channel_count);
             peaks.fill(false);
-        }
+		}*/
         int channel_width = (width()/channel_count) - AUDIO_MONITOR_GAP;
         long playhead_offset = -1;
         int i;
@@ -52,25 +51,25 @@ void AudioMonitor::paintEvent(QPaintEvent *) {
             QRect r(channel_x, AUDIO_MONITOR_PEAK_HEIGHT + AUDIO_MONITOR_GAP, channel_width, height());
             p.fillRect(r, gradient);
 
-            if (sample_cache_offset != -1) {
+			if (sample_cache_offset != -1 && sample_cache.size() > 0) {
                 playhead_offset = (panel_timeline->playhead - sample_cache_offset) * channel_count;
-                if (playhead_offset >= 0 && playhead_offset < sample_cache.size()) {
-                    double multiplier = 1 - qAbs((double) sample_cache.at(playhead_offset+i) / 32768.0); // 16-bit int divided to float
-                    if (multiplier == (double) 0) {
+				if (playhead_offset >= 0 && playhead_offset < sample_cache.size()) {
+					double multiplier = 1 - qAbs((double) sample_cache.at(playhead_offset+i) / 32768.0); // 16-bit int divided to float
+					/*if (multiplier == (double) 0) {
                         peaks[i] = true;
-                    }
+					}*/
                     r.setHeight(r.height()*multiplier);
                 } else {
                     reset();
                 }
             }
 
-            QRect peak_rect(channel_x, 0, channel_width, AUDIO_MONITOR_PEAK_HEIGHT);
-            if (peaks.at(i)) {
+			/*QRect peak_rect(channel_x, 0, channel_width, AUDIO_MONITOR_PEAK_HEIGHT);
+			if (peaks.at(i)) {
                 p.fillRect(peak_rect, QColor(255, 0, 0));
             } else {
                 p.fillRect(peak_rect, QColor(64, 0, 0));
-            }
+			}*/
 
             p.fillRect(r, QColor(0, 0, 0, 160));
 

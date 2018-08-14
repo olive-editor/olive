@@ -789,14 +789,14 @@ void MediaRename::redo() {
 ValueChangeCommand::ValueChangeCommand() : done(true), old_project_changed(project_changed) {}
 
 void ValueChangeCommand::undo() {
-	source->set_value(old_val);
+	source->set_value(old_val, false);
 	done = false;
 	project_changed = old_project_changed;
 }
 
 void ValueChangeCommand::redo() {
 	if (!done) {
-		source->set_value(new_val);
+		source->set_value(new_val, false);
 	}
 	project_changed = true;
 }

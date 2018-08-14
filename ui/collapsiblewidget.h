@@ -8,6 +8,7 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QPushButton;
 class QFrame;
+class CheckboxEx;
 
 class CollapsibleWidgetHeader : public QWidget {
     Q_OBJECT
@@ -30,7 +31,7 @@ public:
 	void setText(const QString &);
     bool is_focused();
 
-    QCheckBox* enabled_check;
+	CheckboxEx* enabled_check;
     bool selected;
 private:
 	QLabel* header;

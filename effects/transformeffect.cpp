@@ -64,6 +64,16 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 	blend_mode_box->set_combo_index(0);
 	refresh();
 
+	connect(position_x, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(position_y, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(scale_x, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(scale_y, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(uniform_scale_field, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(rotation, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(anchor_x_box, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(anchor_y_box, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(opacity, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(blend_mode_box, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 }
 

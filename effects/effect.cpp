@@ -11,6 +11,7 @@
 #include "ui/colorbutton.h"
 #include "ui/comboboxex.h"
 #include "ui/fontcombobox.h"
+#include "ui/checkboxex.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -22,8 +23,7 @@ Effect::Effect(Clip* c, int t, int i) : parent_clip(c), type(t), id(i) {
         container->setText(video_effect_names[i]);
     } else if (type == EFFECT_TYPE_AUDIO) {
         container->setText(audio_effect_names[i]);
-    }
-    connect(container->enabled_check, SIGNAL(clicked(bool)), this, SLOT(checkbox_command()));
+	}
     connect(container->enabled_check, SIGNAL(clicked(bool)), this, SLOT(field_changed()));
     ui = new QWidget();
 
@@ -54,11 +54,6 @@ void Effect::field_changed() {
 	panel_viewer->viewer_widget->update();
 }
 
-void Effect::checkbox_command() {
-    CheckboxCommand* c = new CheckboxCommand(static_cast<QCheckBox*>(sender()));
-    undo_stack.push(c);
-}
-
 bool Effect::is_enabled() {
     return container->enabled_check->isChecked();
 }
@@ -66,12 +61,12 @@ bool Effect::is_enabled() {
 void Effect::load(QXmlStreamReader* stream) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-		while (!stream->atEnd()) {
+		while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
 			stream->readNext();
 			if (stream->name() == "row" && stream->isStartElement()) {
 				for (int j=0;j<row->fieldCount();j++) {
 					EffectField* field = row->field(j);
-					while (!stream->atEnd()) {
+					while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
 						stream->readNext();
 						if (stream->name() == "field" && stream->isStartElement()) {
 							stream->readNext();
@@ -103,6 +98,7 @@ void Effect::load(QXmlStreamReader* stream) {
 			}
 		}
 	}
+
 }
 
 void Effect::save(QXmlStreamWriter* stream) {
@@ -148,7 +144,7 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
 }
 
 EffectField* EffectRow::add_field(int type) {
-	EffectField* field = new EffectField(parent_effect, type);
+	EffectField* field = new EffectField(type);
 	fields.append(field);
 	QWidget* element = field->get_ui_element();
 	ui->addWidget(element, ui_row, fields.size());
@@ -171,18 +167,20 @@ int EffectRow::fieldCount() {
 
 /* Effect Field Definitions */
 
-EffectField::EffectField(Effect *parent, int t) : type(t) {
+EffectField::EffectField(int t) : type(t) {
 	switch (t) {
 	case EFFECT_FIELD_DOUBLE:
 	{
 		LabelSlider* ls = new LabelSlider();
 		ui_element = ls;
-		QObject::connect(ls, SIGNAL(valueChanged()), parent, SLOT(field_changed()));
+		connect(ls, SIGNAL(valueChanged()), this, SIGNAL(changed()));
 	}
 		break;
 	case EFFECT_FIELD_COLOR:
 	{
-		ui_element = new ColorButton();
+		ColorButton* cb = new ColorButton();
+		ui_element = cb;
+		connect(cb, SIGNAL(color_changed()), this, SIGNAL(changed()));
 	}
 		break;
 	case EFFECT_FIELD_STRING:
@@ -190,24 +188,28 @@ EffectField::EffectField(Effect *parent, int t) : type(t) {
 		QTextEdit* edit = new QTextEdit();
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
+		connect(edit, SIGNAL(textChanged()), this, SIGNAL(changed()));
 	}
 		break;
 	case EFFECT_FIELD_BOOL:
 	{
-		QCheckBox* cb = new QCheckBox();
+		CheckboxEx* cb = new CheckboxEx();
 		ui_element = cb;
-		QObject::connect(cb, SIGNAL(toggled(bool)), parent, SLOT(field_changed()));
-		QObject::connect(cb, SIGNAL(clicked(bool)), parent, SLOT(checkbox_command()));
+		connect(cb, SIGNAL(toggled(bool)), this, SIGNAL(changed()));
 	}
 		break;
 	case EFFECT_FIELD_COMBO:
 	{
-		ui_element = new ComboBoxEx();
+		ComboBoxEx* cb = new ComboBoxEx();
+		ui_element = cb;
+		connect(cb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(changed()));
 	}
 		break;
 	case EFFECT_FIELD_FONT:
 	{
-		ui_element = new FontCombobox();
+		FontCombobox* fcb = new FontCombobox();
+		ui_element = fcb;
+		connect(fcb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(changed()));
 	}
 		break;
 	}
@@ -218,14 +220,7 @@ QWidget* EffectField::get_ui_element() {
 }
 
 void EffectField::set_enabled(bool e) {
-	switch (type) {
-	case EFFECT_FIELD_DOUBLE: static_cast<LabelSlider*>(ui_element)->setEnabled(e); break;
-	case EFFECT_FIELD_COLOR: static_cast<ColorButton*>(ui_element)->setEnabled(e); break;
-	case EFFECT_FIELD_STRING: static_cast<QTextEdit*>(ui_element)->setEnabled(e); break;
-	case EFFECT_FIELD_BOOL: static_cast<QCheckBox*>(ui_element)->setEnabled(e); break;
-	case EFFECT_FIELD_COMBO: static_cast<ComboBoxEx*>(ui_element)->setEnabled(e); break;
-	case EFFECT_FIELD_FONT: static_cast<FontCombobox*>(ui_element)->setEnabled(e); break;
-	}
+	ui_element->setEnabled(e);
 }
 
 double EffectField::get_double_value() {
@@ -233,7 +228,7 @@ double EffectField::get_double_value() {
 }
 
 void EffectField::set_double_value(double v) {
-	static_cast<LabelSlider*>(ui_element)->set_value(v);
+	static_cast<LabelSlider*>(ui_element)->set_value(v, false);
 }
 
 void EffectField::set_double_default_value(double v) {

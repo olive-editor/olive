@@ -1,7 +1,7 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 
-#include "project/effect.h"
+#include "effect.h"
 
 #include <QPixmap>
 #include <QFont>
@@ -98,11 +98,14 @@ public:
     ~TextEffect();
     void post_gl();
 	Effect* copy(Clip* c);
+	void refresh();
 
 	EffectField* text_val;
 	EffectField* size_val;
 	EffectField* set_color_button;
 	EffectField* set_font_combobox;
+	EffectField* halign_field;
+	EffectField* valign_field;
 private slots:
     void update_texture();
 private:

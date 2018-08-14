@@ -48,7 +48,6 @@ SOURCES += \
     panels/panels.cpp \
     effects/volumeeffect.cpp \
     effects/paneffect.cpp \
-    project/effect.cpp \
     effects/effects.cpp \
     playback/cacher.cpp \
     io/exportthread.cpp \
@@ -69,7 +68,9 @@ SOURCES += \
     dialogs/replaceclipmediadialog.cpp \
     effects/inverteffect.cpp \
     effects/linearfadetransition.cpp \
-    ui/fontcombobox.cpp
+    ui/fontcombobox.cpp \
+    ui/checkboxex.cpp \
+    effects/effect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -92,7 +93,6 @@ HEADERS += \
     ui/viewercontainer.h \
     dialogs/exportdialog.h \
     ui/collapsiblewidget.h \
-    project/effect.h \
     panels/panels.h \
     playback/cacher.h \
     io/exportthread.h \
@@ -108,7 +108,9 @@ HEADERS += \
     ui/comboboxex.h \
     ui/colorbutton.h \
     dialogs/replaceclipmediadialog.h \
-    ui/fontcombobox.h
+    ui/fontcombobox.h \
+    ui/checkboxex.h \
+    effects/effect.h
 
 FORMS += \
         mainwindow.ui \

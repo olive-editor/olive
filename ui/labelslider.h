@@ -9,7 +9,7 @@ class LabelSlider : public QLabel
     Q_OBJECT
 public:
     LabelSlider(QWidget* parent = 0);
-    void set_value(double v);
+	void set_value(double v, bool userSet);
     void set_default_value(double v);
     void set_minimum_value(double v);
     void set_maximum_value(double v);

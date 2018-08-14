@@ -31,6 +31,10 @@ ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFF
 	frequency_val->set_double_default_value(10);
 
 	refresh();
+
+	connect(intensity_val, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(rotation_val, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(frequency_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
 void ShakeEffect::refresh() {

@@ -96,7 +96,7 @@ void AudioSenderThread::run() {
 
 	lock.lock();
 	while (true) {
-		msleep(20);
+		msleep(15);
 		if (close) {
 			break;
 		} else if (panel_timeline->playing) {

@@ -1,8 +1,9 @@
 #include "collapsiblewidget.h"
 
+#include "ui/checkboxex.h"
+
 #include <QDebug>
 #include <QLabel>
-#include <QCheckBox>
 #include <QLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -24,7 +25,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
     QHBoxLayout* title_bar_layout = new QHBoxLayout();
 	title_bar_layout->setMargin(5);
 	title_bar->setLayout(title_bar_layout);
-	enabled_check = new QCheckBox();
+	enabled_check = new CheckboxEx();
 	enabled_check->setChecked(true);
 	header = new QLabel();
 	collapse_button = new QPushButton("[-]");
