@@ -5,7 +5,7 @@
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "project/sequence.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "effects/transition.h"
 #include "playback/playback.h"
 #include "playback/audio.h"

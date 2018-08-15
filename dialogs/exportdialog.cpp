@@ -486,7 +486,7 @@ void ExportDialog::on_pushButton_clicked()
 		et->audio_enabled = ui->audioGroupbox->isChecked();
         if (et->audio_enabled) {
             et->audio_codec = format_acodecs.at(ui->acodecCombobox->currentIndex());
-            et->audio_sampling_rate = 48000;
+			et->audio_sampling_rate = ui->samplingRateSpinbox->value();
             et->audio_bitrate = ui->audiobitrateSpinbox->value();
         }
 

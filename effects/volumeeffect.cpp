@@ -24,10 +24,9 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_
 void VolumeEffect::refresh() {}
 
 Effect* VolumeEffect::copy(Clip* c) {
-	/*VolumeEffect* v = new VolumeEffect(c);
-    v->volume_val->set_value(volume_val->value());
-	return v;*/
-	return NULL;
+	VolumeEffect* v = new VolumeEffect(c);
+	v->volume_val->set_double_value(volume_val->get_double_value());
+	return v;
 }
 
 void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {

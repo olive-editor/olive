@@ -143,11 +143,11 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
 	ui->addWidget(new QLabel(name), row, 0);
 }
 
-EffectField* EffectRow::add_field(int type) {
+EffectField* EffectRow::add_field(int type, int colspan) {
 	EffectField* field = new EffectField(type);
 	fields.append(field);
 	QWidget* element = field->get_ui_element();
-	ui->addWidget(element, ui_row, fields.size());
+	ui->addWidget(element, ui_row, fields.size(), 1, colspan);
 	return field;
 }
 
@@ -285,6 +285,10 @@ void EffectField::set_string_value(const QString& s) {
 
 const QString EffectField::get_font_name() {
 	return static_cast<FontCombobox*>(ui_element)->currentText();
+}
+
+void EffectField::set_font_name(const QString& s) {
+	static_cast<FontCombobox*>(ui_element)->setCurrentText(s);
 }
 
 QColor EffectField::get_color_value() {

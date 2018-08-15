@@ -77,6 +77,21 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 }
 
+Effect* TransformEffect::copy(Clip* c) {
+	TransformEffect* t = new TransformEffect(c);
+	t->position_x->set_double_value(position_x->get_double_value());
+	t->position_y->set_double_value(position_y->get_double_value());
+	t->scale_x->set_double_value(scale_x->get_double_value());
+	t->scale_y->set_double_value(scale_y->get_double_value());
+	t->uniform_scale_field->set_bool_value(uniform_scale_field->get_bool_value());
+	t->rotation->set_double_value(rotation->get_double_value());
+	t->anchor_x_box->set_double_value(anchor_x_box->get_double_value());
+	t->anchor_y_box->set_double_value(anchor_y_box->get_double_value());
+	t->opacity->set_double_value(opacity->get_double_value());
+	t->blend_mode_box->set_combo_index(blend_mode_box->get_combo_index());
+	return t;
+}
+
 void TransformEffect::refresh() {
 	if (parent_clip->sequence != NULL) {
         double default_pos_x = parent_clip->sequence->width/2;

@@ -7,6 +7,7 @@
 #include <QFont>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QWidget>
 class QSpinBox;
 class QCheckBox;
 class LabelSlider;
@@ -43,6 +44,7 @@ public:
     TransformEffect(Clip* c);
 	void refresh();
 	void process_gl(int* anchor_x, int* anchor_y);
+	Effect* copy(Clip *c);
 
 	EffectField* position_x;
 	EffectField* position_y;
@@ -97,8 +99,8 @@ public:
     TextEffect(Clip* c);
     ~TextEffect();
     void post_gl();
-	Effect* copy(Clip* c);
 	void refresh();
+	Effect* copy(Clip* c);
 
 	EffectField* text_val;
 	EffectField* size_val;
@@ -106,15 +108,24 @@ public:
 	EffectField* set_font_combobox;
 	EffectField* halign_field;
 	EffectField* valign_field;
+	EffectField* word_wrap_field;
+
+	EffectField* outline_bool;
+	EffectField* outline_width;
+	EffectField* outline_color;
+
+	EffectField* shadow_bool;
+	EffectField* shadow_distance;
+	EffectField* shadow_color;
+	EffectField* shadow_softness;
+	EffectField* shadow_opacity;
 private slots:
     void update_texture();
 private:
     void destroy_texture();
-    QOpenGLTexture* texture;
-    QImage pixmap;
-    QFont font;
-    int width;
-    int height;
+	QOpenGLTexture* texture;
+	QFont font;
+	QImage pixmap;
 };
 
 class SolidEffect : public Effect {

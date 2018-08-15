@@ -59,6 +59,7 @@ public:
 	void set_bool_value(bool b);
 
 	const QString get_font_name();
+	void set_font_name(const QString& s);
 
 	QColor get_color_value();
 	void set_color_value(QColor color);
@@ -75,7 +76,7 @@ class EffectRow {
 public:
 	EffectRow(Effect* parent, QGridLayout* uilayout, const QString& n, int row);
 	~EffectRow();
-	EffectField* add_field(int type);
+	EffectField* add_field(int type, int colspan = 1);
 	EffectField* field(int i);
 	int fieldCount();
 	void set_keyframe(int field, long time);

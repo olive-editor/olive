@@ -53,7 +53,7 @@ void ExportThread::run() {
     panel_timeline->pause();
 //    av_log_set_level(AV_LOG_DEBUG);
 
-    if (!panel_viewer->viewer_widget->context()->makeCurrent(&surface)) {
+	if (!panel_viewer->viewer_widget->context()->makeCurrent(&surface)) {
         qDebug() << "[ERROR] Make current failed";
         ed->export_error = "could not make OpenGL context current";
         return;
