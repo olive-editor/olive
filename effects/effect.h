@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QColor>
 class QWidget;
 class CollapsibleWidget;
 class QGridLayout;
@@ -28,9 +29,17 @@ class Effect;
 #define EFFECT_KEYFRAME_HOLD 1
 #define EFFECT_KEYFRAME_BEZIER 2
 
+union KeyframeValue {
+	double d;
+	QColor c;
+	bool b;
+};
+
 class EffectKeyframe {
 public:
 	long frame;
+	int type;
+	KeyframeValue value;
 };
 
 class EffectField : public QObject {
@@ -68,6 +77,7 @@ public:
 	void set_enabled(bool e);
 signals:
 	void changed();
+	void toggled(bool);
 private:
 	QWidget* ui_element;
 };
@@ -112,6 +122,11 @@ public:
 
 	void load(QXmlStreamReader* stream);
 	void save(QXmlStreamWriter* stream);
+
+	bool enable_ffmpeg;
+	bool enable_qimage;
+	bool enable_pre_gl;
+	bool enable_post_gl;
 
 	virtual void process_gl(int* anchor_x, int* anchor_y);
     virtual void post_gl();

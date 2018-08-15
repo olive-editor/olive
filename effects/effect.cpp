@@ -17,7 +17,16 @@
 #include <QGridLayout>
 #include <QTextEdit>
 
-Effect::Effect(Clip* c, int t, int i) : parent_clip(c), type(t), id(i) {
+Effect::Effect(Clip* c, int t, int i) :
+	parent_clip(c),
+	type(t),
+	id(i),
+	enable_ffmpeg(false),
+	enable_qimage(false),
+	enable_pre_gl(false),
+	enable_post_gl(false)
+
+{
     container = new CollapsibleWidget();
     if (type == EFFECT_TYPE_VIDEO) {
         container->setText(video_effect_names[i]);
@@ -195,7 +204,8 @@ EffectField::EffectField(int t) : type(t) {
 	{
 		CheckboxEx* cb = new CheckboxEx();
 		ui_element = cb;
-		connect(cb, SIGNAL(toggled(bool)), this, SIGNAL(changed()));
+		connect(cb, SIGNAL(clicked(bool)), this, SIGNAL(changed()));
+		connect(cb, SIGNAL(toggled(bool)), this, SIGNAL(toggled(bool)));
 	}
 		break;
 	case EFFECT_FIELD_COMBO:

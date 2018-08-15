@@ -676,10 +676,16 @@
    <property name="text">
     <string>Delete In/Out</string>
    </property>
+   <property name="shortcut">
+    <string>;</string>
+   </property>
   </action>
   <action name="actionRipple_Delete_In_Out">
    <property name="text">
     <string>Ripple Delete In/Out</string>
+   </property>
+   <property name="shortcut">
+    <string>'</string>
    </property>
   </action>
   <action name="actionRectified_Waveforms">

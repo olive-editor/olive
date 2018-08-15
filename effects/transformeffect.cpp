@@ -23,6 +23,8 @@
 #define BLEND_MODE_OVERLAY 3
 
 TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT) {
+	enable_pre_gl = true;
+
 	EffectRow* position_row = add_row("Position:");
 	position_x = position_row->add_field(EFFECT_FIELD_DOUBLE); // position X
 	position_y = position_row->add_field(EFFECT_FIELD_DOUBLE); // position Y
@@ -58,7 +60,6 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 	blend_mode_box->add_combo_item("Multiply", BLEND_MODE_MULTIPLY);
 
 	// set defaults
-	QCheckBox* uniform_scale_box = static_cast<QCheckBox*>(uniform_scale_field->get_ui_element());
 	scale_y->set_enabled(false);
 	uniform_scale_field->set_bool_value(true);
 	blend_mode_box->set_combo_index(0);
@@ -74,7 +75,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 	connect(anchor_y_box, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(opacity, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(blend_mode_box, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(uniform_scale_box, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
+	connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 }
 
 Effect* TransformEffect::copy(Clip* c) {

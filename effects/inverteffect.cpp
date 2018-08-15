@@ -9,6 +9,7 @@
 #include <QXmlStreamAttributes>
 
 InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_EFFECT) {
+
 	EffectRow* amount_row = add_row("Amount:");
 	amount_val = amount_row->add_field(EFFECT_FIELD_DOUBLE);
 	amount_val->set_double_minimum_value(0);

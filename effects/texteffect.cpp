@@ -24,6 +24,8 @@ TextEffect::TextEffect(Clip *c) :
     Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TEXT_EFFECT),
 	texture(NULL)
 {
+	enable_post_gl = true;
+
 	text_val = add_row("Text:")->add_field(EFFECT_FIELD_STRING, 2);
 
 	set_font_combobox = add_row("Font:")->add_field(EFFECT_FIELD_FONT, 2);
@@ -74,6 +76,9 @@ TextEffect::TextEffect(Clip *c) :
 	shadow_opacity->set_double_default_value(80);
 	outline_width->set_double_default_value(2);
 
+	outline_enable(false);
+	shadow_enable(false);
+
 	connect(text_val, SIGNAL(changed()), this, SLOT(update_texture()));
 	connect(size_val, SIGNAL(changed()), this, SLOT(update_texture()));
 	connect(set_color_button, SIGNAL(changed()), this, SLOT(update_texture()));
@@ -90,6 +95,9 @@ TextEffect::TextEffect(Clip *c) :
 	connect(shadow_softness, SIGNAL(changed()), this, SLOT(update_texture()));
 	connect(shadow_opacity, SIGNAL(changed()), this, SLOT(update_texture()));
 
+	connect(shadow_bool, SIGNAL(toggled(bool)), this, SLOT(shadow_enable(bool)));
+	connect(outline_bool, SIGNAL(toggled(bool)), this, SLOT(outline_enable(bool)));
+
 	update_texture();
 }
 
@@ -103,6 +111,18 @@ void TextEffect::refresh() {
 
 void TextEffect::destroy_texture() {
     texture->destroy();
+}
+
+void TextEffect::shadow_enable(bool e) {
+	shadow_color->set_enabled(e);
+	shadow_distance->set_enabled(e);
+	shadow_softness->set_enabled(e);
+	shadow_opacity->set_enabled(e);
+}
+
+void TextEffect::outline_enable(bool e) {
+	outline_color->set_enabled(e);
+	outline_width->set_enabled(e);
 }
 
 QImage blurred(const QImage& image, const QRect& rect, int radius, bool alphaOnly = false)

@@ -121,6 +121,8 @@ public:
 	EffectField* shadow_opacity;
 private slots:
     void update_texture();
+	void outline_enable(bool);
+	void shadow_enable(bool);
 private:
     void destroy_texture();
 	QOpenGLTexture* texture;
@@ -133,7 +135,11 @@ class SolidEffect : public Effect {
 public:
     SolidEffect(Clip* c);
     void post_gl();
+	EffectField* solid_type;
+	EffectField* solid_color_field;
+	EffectField* opacity_field;
 private slots:
+	void enable_color();
     void update_texture();
 private:
     QOpenGLTexture* texture;
