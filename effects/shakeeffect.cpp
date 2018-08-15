@@ -13,6 +13,8 @@
 #include "panels/timeline.h"
 
 ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT), inside(false) {
+	enable_pre_gl = true;
+
 	EffectRow* intensity_row = add_row("Intensity:");
 	intensity_val = intensity_row->add_field(EFFECT_FIELD_DOUBLE);
 	intensity_val->set_double_minimum_value(0);

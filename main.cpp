@@ -3,14 +3,14 @@
 
 extern "C" {
 	#include <libavformat/avformat.h>
+	#include <libavfilter/avfilter.h>
 }
 
 int main(int argc, char *argv[])
 {
 	// init ffmpeg subsystem
     av_register_all();
-
-//    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts, true);
+	avfilter_register_all();
 
     QApplication a(argc, argv);
 	MainWindow w;

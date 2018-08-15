@@ -18,6 +18,8 @@ struct AVCodec;
 struct AVCodecContext;
 struct AVFrame;
 struct AVPacket;
+struct AVFilterGraph;
+struct AVFilterContext;
 struct SwsContext;
 struct SwrContext;
 class QOpenGLTexture;
@@ -27,6 +29,7 @@ struct ClipCache {
 	long offset;
 	bool written;
 	bool unread;
+	int write_count;
 	QMutex mutex;
 };
 
@@ -78,6 +81,13 @@ struct Clip
     AVCodecContext* codecCtx;
     AVPacket* pkt;
     AVFrame* frame;
+	AVFrame* sws_frame;
+
+	// ffmpeg filters
+	AVFilterGraph* filter_graph;
+	AVFilterContext* buffersink_ctx;
+	AVFilterContext* buffersrc_ctx;
+
     bool pkt_written;
     bool reached_end;
     bool open;
@@ -88,7 +98,7 @@ struct Clip
     bool multithreaded;
     Cacher* cacher;
     QWaitCondition can_cache;
-    quint16 cache_size;
+	int cache_size;
     ClipCache cache_A;
     ClipCache cache_B;
     QMutex lock;

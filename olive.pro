@@ -127,16 +127,16 @@ win32 {
     LIBS += -L../ffmpeg/lib -lopengl32
     INCLUDEPATH = ../ffmpeg/include
     RC_FILE = icons/win.rc
-    LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
 }
 
 mac {
-    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lswscale -lswresample
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
     INCLUDEPATH = /usr/local/include
 }
 
 linux {
-    LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
 }
 
 RESOURCES += \

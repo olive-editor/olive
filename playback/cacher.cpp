@@ -12,6 +12,10 @@
 
 extern "C" {
 	#include <libavformat/avformat.h>
+	#include <libavutil/opt.h>
+	#include <libavfilter/avfilter.h>
+	#include <libavfilter/buffersrc.h>
+	#include <libavfilter/buffersink.h>
 	#include <libavcodec/avcodec.h>
 	#include <libswscale/swscale.h>
 	#include <libswresample/swresample.h>
@@ -155,16 +159,9 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                     int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
                     int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
                     qint16 old_sample = (qint16) ((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
-                    qint16 new_sample = (qint16) ((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
-                    qint32 mixed_sample;
-
-                    // peak handling
-                    mixed_sample = old_sample + new_sample;
-                    if (mixed_sample > INT16_MAX) {
-                        mixed_sample = INT16_MAX;
-                    } else if (mixed_sample < INT16_MIN) {
-                        mixed_sample = INT16_MIN;
-                    }
+					qint16 new_sample = (qint16) ((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
+					qint32 mixed_sample = old_sample + new_sample;
+					mixed_sample = qMax(qMin(mixed_sample, (qint32)INT16_MAX), (qint32)INT16_MIN);
 
                     audio_ibuffer[upper_byte_index] = (quint8) (mixed_sample >> 8);
                     audio_ibuffer[lower_byte_index] = (quint8) mixed_sample;
@@ -184,16 +181,52 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
     cache->mutex.lock();
 
     cache->offset = playhead;
-    if (!c->reached_end) {
-        for (size_t i=0;i<c->cache_size;i++) {
-            retrieve_next_frame_raw_data(c, cache->frames[i]);
-            if (c->reached_end) break;
-        }
+
+	bool error = false;
+
+	int i = 0;
+	if (!c->reached_end) {
+		while (i < c->cache_size) {
+			av_frame_unref(cache->frames[i]);
+			int ret = av_buffersink_get_frame(c->buffersink_ctx, cache->frames[i]);
+			if (ret < 0) {
+				if (ret == AVERROR(EAGAIN)) {
+					ret = retrieve_next_frame(c, c->frame);
+					if (ret >= 0) {
+						if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+							qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
+							error = true;
+							break;
+						}
+					} else {
+						if (ret == AVERROR_EOF) {
+							c->reached_end = true;
+						} else {
+							qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
+							error = true;
+						}
+						break;
+					}
+				} else {
+					if (ret != AVERROR_EOF) {
+						qDebug() << "[ERROR] Could not pull from filtergraph";
+						error = true;
+					}
+					break;
+				}
+			} else {
+				i++;
+			}
+		}
     }
-    cache->written = true;
-    cache->unread = true;
-    // setting the cache to written even if it hasn't reached_end prevents playback from
-    // signaling a seek/reset because it wasn't able to find the frame
+	cache->write_count = i;
+
+	if (!error) {
+		// setting the cache to written even if it hasn't reached_end prevents playback from
+		// signaling a seek/reset because it wasn't able to find the frame
+		cache->written = true;
+		cache->unread = true;
+	}
 
 	cache->mutex.unlock();
 }
@@ -204,7 +237,7 @@ void reset_cache(Clip* c, long target_frame) {
     if (ms->infinite_length) {
 		// if this clip is a still image, we only need one frame
 		if (!c->cache_A.written) {
-			retrieve_next_frame_raw_data(c, c->cache_A.frames[0]);
+			retrieve_next_frame_raw_data(c, c->sws_frame);
 			c->cache_A.written = true;
 		}
 	} else {
@@ -299,14 +332,16 @@ void open_clip_worker(Clip* clip) {
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		// set up swscale context - primarily used for colorspace conversion
 		// as "scaling" is actually done by OpenGL
+		int dstW = ceil(clip->stream->codecpar->width/2)*2;
+		int dstH = ceil(clip->stream->codecpar->height/2)*2;
 		int dest_format = AV_PIX_FMT_RGBA;
 
 		clip->sws_ctx = sws_getContext(
 				clip->stream->codecpar->width,
 				clip->stream->codecpar->height,
 				static_cast<AVPixelFormat>(clip->stream->codecpar->format),
-				ceil(clip->stream->codecpar->width/2)*2,
-				ceil(clip->stream->codecpar->height/2)*2,
+				dstW,
+				dstH,
 				static_cast<AVPixelFormat>(dest_format),
 				SWS_FAST_BILINEAR,
 				NULL,
@@ -321,31 +356,79 @@ void open_clip_worker(Clip* clip) {
 			clip->cache_size = ceil(av_q2d(av_guess_frame_rate(clip->formatCtx, clip->stream, NULL))/4); // cache is half a second in total
 
 			// infinite length doesn't need cache B
+			clip->cache_A.frames = new AVFrame* [clip->cache_size];
 			clip->cache_B.frames = new AVFrame* [clip->cache_size];
-
-		}
-		clip->cache_A.frames = new AVFrame* [clip->cache_size];
-
-
-		for (size_t i=0;i<clip->cache_size;i++) {
-			clip->cache_A.frames[i] = av_frame_alloc();
-			av_frame_make_writable(clip->cache_A.frames[i]);
-			clip->cache_A.frames[i]->width = clip->stream->codecpar->width;
-			clip->cache_A.frames[i]->height = clip->stream->codecpar->height;
-			clip->cache_A.frames[i]->format = dest_format;
-			av_frame_get_buffer(clip->cache_A.frames[i], 0);
-			clip->cache_A.frames[i]->linesize[0] = clip->stream->codecpar->width*4;
-
-            if (!ms->infinite_length) {
+			for (int i=0;i<clip->cache_size;i++) {
+				clip->cache_A.frames[i] = av_frame_alloc();
 				clip->cache_B.frames[i] = av_frame_alloc();
-				av_frame_make_writable(clip->cache_B.frames[i]);
-				clip->cache_B.frames[i]->width = clip->stream->codecpar->width;
-				clip->cache_B.frames[i]->height = clip->stream->codecpar->height;
-				clip->cache_B.frames[i]->format = dest_format;
-				av_frame_get_buffer(clip->cache_B.frames[i], 0);
-				clip->cache_B.frames[i]->linesize[0] = clip->stream->codecpar->width*4;
 			}
 		}
+
+		// alloc temporary scale frame
+		clip->sws_frame = av_frame_alloc();
+		av_frame_make_writable(clip->sws_frame);
+		clip->sws_frame->width = dstW;
+		clip->sws_frame->height = dstH;
+		clip->sws_frame->format = dest_format;
+		if (av_frame_get_buffer(clip->sws_frame, 0)) {
+			qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
+		}
+		clip->sws_frame->linesize[0] = clip->stream->codecpar->width*4;
+
+		// SET UP FFMPEG FILTERGRAPH
+		AVFilter *buffersrc  = avfilter_get_by_name("buffer");
+		AVFilter *buffersink = avfilter_get_by_name("buffersink");
+		AVFilterInOut *outputs = avfilter_inout_alloc();
+		AVFilterInOut *inputs  = avfilter_inout_alloc();
+
+		clip->filter_graph = avfilter_graph_alloc();
+
+		if (outputs == NULL || inputs == NULL || clip->filter_graph == NULL) {
+			qDebug() << "[ERROR] Couldn't alloc filter graphs. Out of memory?";
+		} else {
+			char args[512];
+			snprintf(args, sizeof(args),
+						"video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+						clip->stream->codecpar->width, clip->stream->codecpar->height, clip->stream->codecpar->format,
+						clip->stream->time_base.num, clip->stream->time_base.den,
+						clip->stream->codecpar->sample_aspect_ratio.num, clip->stream->codecpar->sample_aspect_ratio.den);
+
+			int ret = avfilter_graph_create_filter(&clip->buffersrc_ctx, buffersrc, "in", args, NULL, clip->filter_graph);
+			if (ret < 0) {
+				qDebug() << "[ERROR] Could not create buffer source";
+			} else {
+				ret = avfilter_graph_create_filter(&clip->buffersink_ctx, buffersink, "out", NULL, NULL, clip->filter_graph);
+				if (ret < 0) {
+					qDebug() << "[ERROR] Could not create buffer sink";
+				} else {
+					enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
+					av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+
+					outputs->name = av_strdup("in");
+					outputs->filter_ctx = clip->buffersrc_ctx;
+					outputs->pad_idx = 0;
+					outputs->next = NULL;
+
+					inputs->name = av_strdup("out");
+					inputs->filter_ctx = clip->buffersink_ctx;
+					inputs->pad_idx = 0;
+					inputs->next = 0;
+
+					ret = avfilter_graph_parse_ptr(clip->filter_graph, "null", &inputs, &outputs, NULL);
+					if (ret < 0) {
+						qDebug() << "[ERROR] Couldn't set NEGATE filter";
+					} else {
+						ret = avfilter_graph_config(clip->filter_graph, NULL);
+						if (ret < 0) {
+							qDebug() << "[ERROR] AVFilter config failed";
+						}
+					}
+				}
+			}
+		}
+
+		avfilter_inout_free(&inputs);
+		avfilter_inout_free(&outputs);
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		// if FFmpeg can't pick up the channel layout (usually WAV), assume
 		// based on channel count (doesn't support surround sound sources yet)
@@ -414,6 +497,10 @@ void close_clip_worker(Clip* clip) {
     MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->media_stream);
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 		sws_freeContext(clip->sws_ctx);
+
+		// TODO will eventually be in audio too
+		avfilter_graph_free(&clip->filter_graph);
+		av_frame_free(&clip->sws_frame);
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		swr_free(&clip->swr_ctx);
 	}
@@ -422,7 +509,7 @@ void close_clip_worker(Clip* clip) {
 	avcodec_free_context(&clip->codecCtx);
 	avformat_close_input(&clip->formatCtx);
 
-	for (size_t i=0;i<clip->cache_size;i++) {
+	for (int i=0;i<clip->cache_size;i++) {
 		av_frame_free(&clip->cache_A.frames[i]);
         if (!ms->infinite_length) av_frame_free(&clip->cache_B.frames[i]);
 	}
