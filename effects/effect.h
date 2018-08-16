@@ -13,6 +13,7 @@ struct Clip;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 class Effect;
+class CheckboxEx;
 
 #define EFFECT_TYPE_INVALID 0
 #define EFFECT_TYPE_VIDEO 1
@@ -98,6 +99,8 @@ private:
 	QString name;
 	int ui_row;
 	QVector<EffectField*> fields;
+
+	CheckboxEx* keyframe_enable;
 };
 
 class Effect : public QObject {
@@ -127,6 +130,8 @@ public:
 	bool enable_qimage;
 	bool enable_pre_gl;
 	bool enable_post_gl;
+
+	const char* ffmpeg_filter;
 
 	virtual void process_gl(int* anchor_x, int* anchor_y);
     virtual void post_gl();

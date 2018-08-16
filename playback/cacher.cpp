@@ -414,14 +414,24 @@ void open_clip_worker(Clip* clip) {
 					inputs->pad_idx = 0;
 					inputs->next = 0;
 
-					ret = avfilter_graph_parse_ptr(clip->filter_graph, "null", &inputs, &outputs, NULL);
+					/*ret = avfilter_graph_config(clip->filter_graph, NULL);
 					if (ret < 0) {
-						qDebug() << "[ERROR] Couldn't set NEGATE filter";
+						qDebug() << "[ERROR] AVFilter config failed";
+					}*/
+
+					ret = avfilter_graph_parse_ptr(clip->filter_graph, "gblur=sigma=20:steps=4", &inputs, &outputs, NULL);
+					if (ret < 0) {
+						qDebug() << "[ERROR] Couldn't parse filters." << ret;
 					} else {
 						ret = avfilter_graph_config(clip->filter_graph, NULL);
 						if (ret < 0) {
-							qDebug() << "[ERROR] AVFilter config failed";
+							qDebug() << "[ERROR] AVFilter config failed." << ret;
 						}
+
+						/*ret = avfilter_graph_send_command(clip->filter_graph, "gblur", "enable", "2", NULL, 0, 0);
+						if (ret < 0) {
+							qDebug() << "[ERROR] Failed to send graph command." << ret << AVERROR(ENOSYS);
+						}*/
 					}
 				}
 			}

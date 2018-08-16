@@ -150,6 +150,10 @@ void Effect::process_audio(uint8_t*, int) {}
 
 EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, int row) : parent_effect(parent), ui(uilayout), name(n), ui_row(row) {
 	ui->addWidget(new QLabel(name), row, 0);
+
+	/*keyframe_enable = new CheckboxEx();
+	keyframe_enable->setToolTip("Enable Keyframes");
+	ui->addWidget(keyframe_enable, row, 5);*/
 }
 
 EffectField* EffectRow::add_field(int type, int colspan) {

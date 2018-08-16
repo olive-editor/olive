@@ -34,6 +34,10 @@ QUndoStack undo_stack;
 #define TA_MODIFY_TRANSITION 11
 #define TA_DELETE_TRANSITION 12
 
+extern "C" {
+	#include "libavfilter/avfilter.h"
+}
+
 TimelineAction::TimelineAction() :
     done(false),
     change_seq(false),
@@ -423,7 +427,8 @@ void TimelineAction::redo() {
         {
             Clip* c = sequences.at(i)->get_clip(clips.at(i));
             old_values[i] = c->effects.size();
-            c->effects.append(create_effect(new_values.at(i), c));
+			Effect* e = create_effect(new_values.at(i), c);
+			c->effects.append(e);
         }
             break;
 		case TA_ADD_TRANSITION:
