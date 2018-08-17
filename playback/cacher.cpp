@@ -25,6 +25,8 @@ extern "C" {
 #include <QtMath>
 #include <math.h>
 
+int dest_format = AV_PIX_FMT_RGBA;
+
 void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
     // perform all audio effects
     for (int j=0;j<c->effects.size();j++) {
@@ -188,9 +190,35 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 	if (!c->reached_end) {
 		while (i < c->cache_size) {
 			av_frame_unref(cache->frames[i]);
-			int ret = av_buffersink_get_frame(c->buffersink_ctx, cache->frames[i]);
+
+			int ret = (c->filter_graph == NULL) ? AVERROR(EAGAIN) : av_buffersink_get_frame(c->buffersink_ctx, cache->frames[i]);
+
 			if (ret < 0) {
 				if (ret == AVERROR(EAGAIN)) {
+					if (c->filter_graph != NULL) {
+						avfilter_graph_free(&c->filter_graph);
+					}
+					c->filter_graph = avfilter_graph_alloc();
+					char args[512];
+					snprintf(args, sizeof(args),
+								"video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+								c->stream->codecpar->width, c->stream->codecpar->height, c->stream->codecpar->format,
+								c->stream->time_base.num, c->stream->time_base.den,
+								c->stream->codecpar->sample_aspect_ratio.num, c->stream->codecpar->sample_aspect_ratio.den);
+					avfilter_graph_create_filter(&c->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", args, NULL, c->filter_graph);
+					avfilter_graph_create_filter(&c->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, c->filter_graph);
+					enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
+					av_opt_set_int_list(c->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+
+					AVFilterContext* gblur_ctx;
+//					avfilter_graph_create_filter(&gblur_ctx, avfilter_get_by_name("gblur"), "ol_gblur", "sigma=20:steps=1", NULL, c->filter_graph);
+					avfilter_graph_create_filter(&gblur_ctx, avfilter_get_by_name("negate"), "ol_gblur", NULL, NULL, c->filter_graph);
+//					avfilter_graph_create_filter(&gblur_ctx, avfilter_get_by_name("null"), "ol_gblur", NULL, NULL, c->filter_graph);
+					avfilter_link(c->buffersrc_ctx, 0, gblur_ctx, 0);
+					avfilter_link(gblur_ctx, 0, c->buffersink_ctx, 0);
+
+					avfilter_graph_config(c->filter_graph, NULL);
+
 					ret = retrieve_next_frame(c, c->frame);
 					if (ret >= 0) {
 						if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
@@ -334,7 +362,6 @@ void open_clip_worker(Clip* clip) {
 		// as "scaling" is actually done by OpenGL
 		int dstW = ceil(clip->stream->codecpar->width/2)*2;
 		int dstH = ceil(clip->stream->codecpar->height/2)*2;
-		int dest_format = AV_PIX_FMT_RGBA;
 
 		clip->sws_ctx = sws_getContext(
 				clip->stream->codecpar->width,
@@ -374,71 +401,6 @@ void open_clip_worker(Clip* clip) {
 			qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
 		}
 		clip->sws_frame->linesize[0] = clip->stream->codecpar->width*4;
-
-		// SET UP FFMPEG FILTERGRAPH
-		AVFilter *buffersrc  = avfilter_get_by_name("buffer");
-		AVFilter *buffersink = avfilter_get_by_name("buffersink");
-		AVFilterInOut *outputs = avfilter_inout_alloc();
-		AVFilterInOut *inputs  = avfilter_inout_alloc();
-
-		clip->filter_graph = avfilter_graph_alloc();
-
-		if (outputs == NULL || inputs == NULL || clip->filter_graph == NULL) {
-			qDebug() << "[ERROR] Couldn't alloc filter graphs. Out of memory?";
-		} else {
-			char args[512];
-			snprintf(args, sizeof(args),
-						"video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-						clip->stream->codecpar->width, clip->stream->codecpar->height, clip->stream->codecpar->format,
-						clip->stream->time_base.num, clip->stream->time_base.den,
-						clip->stream->codecpar->sample_aspect_ratio.num, clip->stream->codecpar->sample_aspect_ratio.den);
-
-			int ret = avfilter_graph_create_filter(&clip->buffersrc_ctx, buffersrc, "in", args, NULL, clip->filter_graph);
-			if (ret < 0) {
-				qDebug() << "[ERROR] Could not create buffer source";
-			} else {
-				ret = avfilter_graph_create_filter(&clip->buffersink_ctx, buffersink, "out", NULL, NULL, clip->filter_graph);
-				if (ret < 0) {
-					qDebug() << "[ERROR] Could not create buffer sink";
-				} else {
-					enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
-					av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
-
-					outputs->name = av_strdup("in");
-					outputs->filter_ctx = clip->buffersrc_ctx;
-					outputs->pad_idx = 0;
-					outputs->next = NULL;
-
-					inputs->name = av_strdup("out");
-					inputs->filter_ctx = clip->buffersink_ctx;
-					inputs->pad_idx = 0;
-					inputs->next = 0;
-
-					/*ret = avfilter_graph_config(clip->filter_graph, NULL);
-					if (ret < 0) {
-						qDebug() << "[ERROR] AVFilter config failed";
-					}*/
-
-					ret = avfilter_graph_parse_ptr(clip->filter_graph, "gblur=sigma=20:steps=4", &inputs, &outputs, NULL);
-					if (ret < 0) {
-						qDebug() << "[ERROR] Couldn't parse filters." << ret;
-					} else {
-						ret = avfilter_graph_config(clip->filter_graph, NULL);
-						if (ret < 0) {
-							qDebug() << "[ERROR] AVFilter config failed." << ret;
-						}
-
-						/*ret = avfilter_graph_send_command(clip->filter_graph, "gblur", "enable", "2", NULL, 0, 0);
-						if (ret < 0) {
-							qDebug() << "[ERROR] Failed to send graph command." << ret << AVERROR(ENOSYS);
-						}*/
-					}
-				}
-			}
-		}
-
-		avfilter_inout_free(&inputs);
-		avfilter_inout_free(&outputs);
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		// if FFmpeg can't pick up the channel layout (usually WAV), assume
 		// based on channel count (doesn't support surround sound sources yet)
@@ -509,7 +471,6 @@ void close_clip_worker(Clip* clip) {
 		sws_freeContext(clip->sws_ctx);
 
 		// TODO will eventually be in audio too
-		avfilter_graph_free(&clip->filter_graph);
 		av_frame_free(&clip->sws_frame);
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		swr_free(&clip->swr_ctx);

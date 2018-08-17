@@ -512,187 +512,183 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 				repaint = true;
 				if (panel_timeline->ghosts.size() > 0) {
 					 const Ghost& first_ghost = panel_timeline->ghosts.at(0);
-					 if (first_ghost.old_in != first_ghost.in
-							 || first_ghost.old_out != first_ghost.out
-							 || first_ghost.old_clip_in != first_ghost.clip_in
-							 || first_ghost.old_track != first_ghost.track) {
-						 TimelineAction* ta = new TimelineAction();
 
-						 // if we were RIPPLING, move all the clips
-						 if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-							 long ripple_length, ripple_point;
+					 TimelineAction* ta = new TimelineAction();
 
-							 // ripple_length becomes the length/number of frames we trimmed
-							 // ripple point becomes the point to ripple (i.e. the point after or before which we move every clip)
-							 if (panel_timeline->trim_in_point) {
-								 ripple_length = first_ghost.old_in - panel_timeline->ghosts.at(0).in;
-								 ripple_point = first_ghost.old_in;
-							 } else {
-								 // if we're trimming an out-point
-								 ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
-								 ripple_point = first_ghost.old_out;
-							 }
-							 QVector<int> ignore_clips;
-							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
-								 const Ghost& g = panel_timeline->ghosts.at(i);
+					 // if we were RIPPLING, move all the clips
+					 if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
+						 long ripple_length, ripple_point;
 
-								 // push rippled clips forward if necessary
-								 if (panel_timeline->trim_in_point) {
-									 ignore_clips.append(g.clip);
-									 panel_timeline->ghosts[i].in += ripple_length;
-									 panel_timeline->ghosts[i].out += ripple_length;
-								 }
-
-								 long comp_point = panel_timeline->trim_in_point ? g.old_in : g.old_out;
-								 ripple_point = qMin(ripple_point, comp_point);
-							 }
-							 if (!panel_timeline->trim_in_point) ripple_length = -ripple_length;
-							 ta->ripple(sequence, ripple_point, ripple_length, ignore_clips);
+						 // ripple_length becomes the length/number of frames we trimmed
+						 // ripple point becomes the point to ripple (i.e. the point after or before which we move every clip)
+						 if (panel_timeline->trim_in_point) {
+							 ripple_length = first_ghost.old_in - panel_timeline->ghosts.at(0).in;
+							 ripple_point = first_ghost.old_in;
+						 } else {
+							 // if we're trimming an out-point
+							 ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
+							 ripple_point = first_ghost.old_out;
 						 }
+						 QVector<int> ignore_clips;
+						 for (int i=0;i<panel_timeline->ghosts.size();i++) {
+							 const Ghost& g = panel_timeline->ghosts.at(i);
 
-						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER
-								 && (event->modifiers() & Qt::AltModifier)
-								 && panel_timeline->trim_target == -1) { // if holding alt (and not trimming), duplicate rather than move
-							 // duplicate clips
-							 QVector<int> old_clips;
-							 QVector<Clip*> new_clips;
+							 // push rippled clips forward if necessary
+							 if (panel_timeline->trim_in_point) {
+								 ignore_clips.append(g.clip);
+								 panel_timeline->ghosts[i].in += ripple_length;
+								 panel_timeline->ghosts[i].out += ripple_length;
+							 }
+
+							 long comp_point = panel_timeline->trim_in_point ? g.old_in : g.old_out;
+							 ripple_point = qMin(ripple_point, comp_point);
+						 }
+						 if (!panel_timeline->trim_in_point) ripple_length = -ripple_length;
+						 ta->ripple(sequence, ripple_point, ripple_length, ignore_clips);
+					 }
+
+					 if (panel_timeline->tool == TIMELINE_TOOL_POINTER
+							 && (event->modifiers() & Qt::AltModifier)
+							 && panel_timeline->trim_target == -1) { // if holding alt (and not trimming), duplicate rather than move
+						 // duplicate clips
+						 QVector<int> old_clips;
+						 QVector<Clip*> new_clips;
+						 QVector<Selection> delete_areas;
+						 for (int i=0;i<panel_timeline->ghosts.size();i++) {
+							 const Ghost& g = panel_timeline->ghosts.at(i);
+							 if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
+								 // create copy of clip
+								 Clip* c = sequence->get_clip(g.clip)->copy(sequence);
+
+								 c->timeline_in = g.in;
+								 c->timeline_out = g.out;
+								 c->track = g.track;
+
+								 Selection s;
+								 s.in = g.in;
+								 s.out = g.out;
+								 s.track = g.track;
+								 delete_areas.append(s);
+
+								 old_clips.append(g.clip);
+								 new_clips.append(c);
+							 }
+						 }
+						 if (new_clips.size() > 0) {
+							 panel_timeline->delete_areas_and_relink(ta, delete_areas);
+
+							 // relink duplicated clips
+							 panel_timeline->relink_clips_using_ids(old_clips, new_clips);
+
+							 for (int i=0;i<new_clips.size();i++) {
+								 ta->add_clips(sequence, new_clips);
+							 }
+						 }
+					 } else {
+						 // move clips
+						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
 							 QVector<Selection> delete_areas;
 							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
+								 // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
 								 const Ghost& g = panel_timeline->ghosts.at(i);
-								 if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
-									 // create copy of clip
-									 Clip* c = sequence->get_clip(g.clip)->copy(sequence);
 
-									 c->timeline_in = g.in;
-									 c->timeline_out = g.out;
-									 c->track = g.track;
+								 sequence->get_clip(g.clip)->undeletable = true;
 
-									 Selection s;
-									 s.in = g.in;
-									 s.out = g.out;
-									 s.track = g.track;
-									 delete_areas.append(s);
-
-									 old_clips.append(g.clip);
-									 new_clips.append(c);
-								 }
+								 Selection s;
+								 s.in = g.in;
+								 s.out = g.out;
+								 s.track = g.track;
+								 delete_areas.append(s);
 							 }
-							 if (new_clips.size() > 0) {
-								 panel_timeline->delete_areas_and_relink(ta, delete_areas);
-
-								 // relink duplicated clips
-								 panel_timeline->relink_clips_using_ids(old_clips, new_clips);
-
-								 for (int i=0;i<new_clips.size();i++) {
-									 ta->add_clips(sequence, new_clips);
-								 }
-							 }
-						 } else {
-							 // move clips
-							 if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
-								 QVector<Selection> delete_areas;
-								 for (int i=0;i<panel_timeline->ghosts.size();i++) {
-									 // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
-									 const Ghost& g = panel_timeline->ghosts.at(i);
-
-									 sequence->get_clip(g.clip)->undeletable = true;
-
-									 Selection s;
-									 s.in = g.in;
-									 s.out = g.out;
-									 s.track = g.track;
-									 delete_areas.append(s);
-								 }
-								 panel_timeline->delete_areas_and_relink(ta, delete_areas);
-								 for (int i=0;i<panel_timeline->ghosts.size();i++) {
-									 sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = false;
-								 }
-							 }
+							 panel_timeline->delete_areas_and_relink(ta, delete_areas);
 							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
-								 Ghost& g = panel_timeline->ghosts[i];
+								 sequence->get_clip(panel_timeline->ghosts[i].clip)->undeletable = false;
+							 }
+						 }
+						 for (int i=0;i<panel_timeline->ghosts.size();i++) {
+							 Ghost& g = panel_timeline->ghosts[i];
 
-								 // step 3 - move clips
-								 Clip* c = sequence->get_clip(g.clip);
-								 if (g.transition == NULL) {
-									 ta->increase_timeline_in(sequence, g.clip, g.in - g.old_in);
-									 ta->increase_timeline_out(sequence, g.clip, g.out - g.old_out);
-									 ta->increase_track(sequence, g.clip, g.track - g.old_track);
-									 ta->increase_clip_in(sequence, g.clip, g.clip_in - g.old_clip_in);
+							 // step 3 - move clips
+							 Clip* c = sequence->get_clip(g.clip);
+							 if (g.transition == NULL) {
+								 ta->increase_timeline_in(sequence, g.clip, g.in - g.old_in);
+								 ta->increase_timeline_out(sequence, g.clip, g.out - g.old_out);
+								 ta->increase_track(sequence, g.clip, g.track - g.old_track);
+								 ta->increase_clip_in(sequence, g.clip, g.clip_in - g.old_clip_in);
 
-									 // adjust transitions if we need to
-									 long new_clip_length = (g.out - g.in);
-									 if (c->opening_transition != NULL) {
-										 long max_open_length = new_clip_length;
-										 if (c->closing_transition != NULL && !panel_timeline->trim_in_point) {
-											 max_open_length -= c->closing_transition->length;
-										 }
-										 if (max_open_length <= 0) {
-											 ta->delete_transition(sequence, g.clip, TA_OPENING_TRANSITION);
-										 } else if (c->opening_transition->length > max_open_length) {
-											 ta->modify_transition(sequence, g.clip, TA_OPENING_TRANSITION, max_open_length);
-										 }
+								 // adjust transitions if we need to
+								 long new_clip_length = (g.out - g.in);
+								 if (c->opening_transition != NULL) {
+									 long max_open_length = new_clip_length;
+									 if (c->closing_transition != NULL && !panel_timeline->trim_in_point) {
+										 max_open_length -= c->closing_transition->length;
 									 }
+									 if (max_open_length <= 0) {
+										 ta->delete_transition(sequence, g.clip, TA_OPENING_TRANSITION);
+									 } else if (c->opening_transition->length > max_open_length) {
+										 ta->modify_transition(sequence, g.clip, TA_OPENING_TRANSITION, max_open_length);
+									 }
+								 }
+								 if (c->closing_transition != NULL) {
+									 long max_open_length = new_clip_length;
+									 if (c->opening_transition != NULL && panel_timeline->trim_in_point) {
+										 max_open_length -= c->opening_transition->length;
+									 }
+									 if (max_open_length <= 0) {
+										 ta->delete_transition(sequence, g.clip, TA_CLOSING_TRANSITION);
+									 } else if (c->closing_transition->length > max_open_length) {
+										 ta->modify_transition(sequence, g.clip, TA_CLOSING_TRANSITION, max_open_length);
+									 }
+								 }
+							 } else {
+								 bool is_opening_transition = (g.transition == c->opening_transition);
+								 long new_transition_length = g.out - g.in;
+								 ta->modify_transition(
+											 sequence,
+											 g.clip,
+											 is_opening_transition ? TA_OPENING_TRANSITION : TA_CLOSING_TRANSITION,
+											 new_transition_length
+										 );
+
+								 long clip_length = c->getLength();
+								 if (is_opening_transition) {
+									 if (g.in != g.old_in) {
+										 // if transition is going to make the clip bigger, make the clip bigger
+										 ta->increase_timeline_in(sequence, g.clip, g.in - g.old_in);
+										 clip_length -= (g.in - g.old_in);
+										 ta->increase_clip_in(sequence, g.clip, g.clip_in - g.old_clip_in);
+									 }
+
 									 if (c->closing_transition != NULL) {
-										 long max_open_length = new_clip_length;
-										 if (c->opening_transition != NULL && panel_timeline->trim_in_point) {
-											 max_open_length -= c->opening_transition->length;
-										 }
-										 if (max_open_length <= 0) {
+										 if (new_transition_length == clip_length) {
 											 ta->delete_transition(sequence, g.clip, TA_CLOSING_TRANSITION);
-										 } else if (c->closing_transition->length > max_open_length) {
-											 ta->modify_transition(sequence, g.clip, TA_CLOSING_TRANSITION, max_open_length);
+										 } else if (new_transition_length > clip_length - c->closing_transition->length) {
+											 ta->modify_transition(sequence, g.clip, TA_CLOSING_TRANSITION, clip_length - new_transition_length);
 										 }
 									 }
 								 } else {
-									 bool is_opening_transition = (g.transition == c->opening_transition);
-									 long new_transition_length = g.out - g.in;
-									 ta->modify_transition(
-												 sequence,
-												 g.clip,
-												 is_opening_transition ? TA_OPENING_TRANSITION : TA_CLOSING_TRANSITION,
-												 new_transition_length
-											 );
+									 if (g.out != g.old_out) {
+										 // if transition is going to make the clip bigger, make the clip bigger
+										 ta->increase_timeline_out(sequence, g.clip, g.out - g.old_out);
+										 clip_length += (g.out - g.old_out);
+									 }
 
-									 long clip_length = c->getLength();
-									 if (is_opening_transition) {
-										 if (g.in != g.old_in) {
-											 // if transition is going to make the clip bigger, make the clip bigger
-											 ta->increase_timeline_in(sequence, g.clip, g.in - g.old_in);
-											 clip_length -= (g.in - g.old_in);
-											 ta->increase_clip_in(sequence, g.clip, g.clip_in - g.old_clip_in);
-										 }
-
-										 if (c->closing_transition != NULL) {
-											 if (new_transition_length == clip_length) {
-												 ta->delete_transition(sequence, g.clip, TA_CLOSING_TRANSITION);
-											 } else if (new_transition_length > clip_length - c->closing_transition->length) {
-												 ta->modify_transition(sequence, g.clip, TA_CLOSING_TRANSITION, clip_length - new_transition_length);
-											 }
-										 }
-									 } else {
-										 if (g.out != g.old_out) {
-											 // if transition is going to make the clip bigger, make the clip bigger
-											 ta->increase_timeline_out(sequence, g.clip, g.out - g.old_out);
-											 clip_length += (g.out - g.old_out);
-										 }
-
-										 if (c->opening_transition != NULL) {
-											 if (new_transition_length == clip_length) {
-												 ta->delete_transition(sequence, g.clip, TA_OPENING_TRANSITION);
-											 } else if (new_transition_length > clip_length - c->opening_transition->length) {
-												 ta->modify_transition(sequence, g.clip, TA_OPENING_TRANSITION, clip_length - new_transition_length);
-											 }
+									 if (c->opening_transition != NULL) {
+										 if (new_transition_length == clip_length) {
+											 ta->delete_transition(sequence, g.clip, TA_OPENING_TRANSITION);
+										 } else if (new_transition_length > clip_length - c->opening_transition->length) {
+											 ta->modify_transition(sequence, g.clip, TA_OPENING_TRANSITION, clip_length - new_transition_length);
 										 }
 									 }
 								 }
 							 }
 						 }
-
-						 undo_stack.push(ta);
-
-						 panel_timeline->redraw_all_clips(true);
-						 repaint = false;
 					 }
+
+					 undo_stack.push(ta);
+
+					 panel_timeline->redraw_all_clips(true);
+					 repaint = false;
 				}
             } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
                 repaint = true;
