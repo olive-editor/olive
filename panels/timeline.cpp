@@ -254,7 +254,7 @@ void Timeline::update_sequence() {
 }
 
 int Timeline::get_snap_range() {
-    return getFrameFromScreenPoint(10);
+	return getTimelineFrameFromScreenPoint(10);
 }
 
 bool Timeline::focused() {
@@ -265,9 +265,12 @@ void Timeline::repaint_timeline() {
     if (playing) {
         playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
-    ui->headers->update();
+
+	ui->headers->update_header(zoom);
 	ui->video_area->update();
 	ui->audio_area->update();
+	panel_effect_controls->update_keyframes();
+
     if (last_frame != playhead) {
 		panel_viewer->viewer_widget->update();
         ui->audio_monitor->update();
@@ -282,9 +285,10 @@ void Timeline::redraw_all_clips(bool changed) {
         panel_viewer->viewer_widget->update();
     }
 
+	ui->headers->update_header(zoom);
     ui->video_area->redraw_clips();
     ui->audio_area->redraw_clips();
-    ui->headers->update();
+	panel_effect_controls->update_keyframes();
 
     panel_viewer->update_end_timecode();
 }
@@ -396,24 +400,12 @@ void Timeline::set_zoom(bool in) {
     ui->timeline_area->horizontalScrollBar()->setValue(
                 lerp(
                     ui->timeline_area->horizontalScrollBar()->value(),
-                    getScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2),
+					getTimelineScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2),
                     0.99
                 )
             );
     redraw_all_clips(false);
 }
-
-/*void Timeline::ripple(TimelineAction* ta, long ripple_point, long ripple_length) {
-    // ripple the selections
-    for (int i=0;i<selections.size();i++) {
-        Selection& s = selections[i];
-        // only ripple the selection if it's within range of the ripple point
-        if (s.old_in >= ripple_point) {
-            s.in += ripple_length;
-            s.out += ripple_length;
-        }
-    }
-}*/
 
 void Timeline::decheck_tool_buttons(QObject* sender) {
 	for (int i=0;i<tool_buttons.count();i++) {
@@ -1083,16 +1075,24 @@ void Timeline::deselect() {
     repaint_timeline();
 }
 
-long Timeline::getFrameFromScreenPoint(int x) {
-    long f = round((float) x / zoom);
-    if (f < 0) {
-        return 0;
-    }
-    return f;
+long getFrameFromScreenPoint(double zoom, int x) {
+	long f = round((float) x / zoom);
+	if (f < 0) {
+		return 0;
+	}
+	return f;
 }
 
-int Timeline::getScreenPointFromFrame(long frame) {
-    return (int) round(frame*zoom);
+int getScreenPointFromFrame(double zoom, long frame) {
+	return (int) round(frame*zoom);
+}
+
+long Timeline::getTimelineFrameFromScreenPoint(int x) {
+	return getFrameFromScreenPoint(zoom, x);
+}
+
+int Timeline::getTimelineScreenPointFromFrame(long frame) {
+	return getScreenPointFromFrame(zoom, frame);
 }
 
 void Timeline::on_toolArrowButton_clicked() {

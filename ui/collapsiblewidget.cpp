@@ -29,7 +29,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 	enabled_check->setChecked(true);
 	header = new QLabel();
 	collapse_button = new QPushButton("[-]");
-	collapse_button->setStyleSheet("QPushButton { border: none; }");
+	collapse_button->setStyleSheet("QPushButton { border: none; } QPushButton:hover { text-decoration: underline; }");
 	collapse_button->setMaximumWidth(25);
 	setText("<untitled>");
     title_bar_layout->addWidget(collapse_button);
@@ -61,6 +61,10 @@ bool CollapsibleWidget::is_focused() {
     return title_bar->hasFocus();
 }
 
+bool CollapsibleWidget::is_expanded() {
+	return contents->isVisible();
+}
+
 void CollapsibleWidget::setContents(QWidget* c) {
 	bool existing = (contents != NULL);
 	contents = c;
@@ -82,6 +86,7 @@ void CollapsibleWidget::on_enabled_change(bool b) {
 void CollapsibleWidget::on_visible_change() {
 	contents->setVisible(!contents->isVisible());
 	collapse_button->setText(contents->isVisible() ? "[-]" : "[+]");
+	emit visibleChanged();
 }
 
 CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {}

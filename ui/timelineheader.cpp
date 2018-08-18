@@ -12,16 +12,21 @@
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
 
-TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(false), resizing_workarea(false) {
+TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(false), resizing_workarea(false), zoom(1), in_visible(0), snapping(true) {
     setCursor(Qt::ArrowCursor);
     setMouseTracking(true);
 }
 
-void set_playhead(int mouse_x) {
-    long frame = panel_timeline->getFrameFromScreenPoint(mouse_x);
-    panel_timeline->snap_to_clip(&frame, false);
+void TimelineHeader::set_playhead(int mouse_x) {
+	long frame = getFrameFromScreenPoint(zoom, mouse_x);
+	if (snapping) panel_timeline->snap_to_clip(&frame, false);
     panel_timeline->seek(frame);
     panel_timeline->repaint_timeline();
+}
+
+void TimelineHeader::set_visible_in(long i) {
+	in_visible = i;
+	update();
 }
 
 void TimelineHeader::set_in_point(long new_in) {
@@ -66,7 +71,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
     if (dragging) {
         if (resizing_workarea) {
-            long frame = panel_timeline->getFrameFromScreenPoint(event->pos().x());
+			long frame = getFrameFromScreenPoint(zoom, event->pos().x());
             panel_timeline->snap_to_clip(&frame, true);
             if (resizing_workarea_in) {
                 temp_workarea_in = qMax(qMin(temp_workarea_out-1, frame), 0L);
@@ -81,8 +86,8 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
         resizing_workarea = false;
         unsetCursor();
         if (sequence->using_workarea) {
-            long min_frame = panel_timeline->getFrameFromScreenPoint(event->pos().x() - CLICK_RANGE) - 1;
-            long max_frame = panel_timeline->getFrameFromScreenPoint(event->pos().x() + CLICK_RANGE) + 1;
+			long min_frame = getFrameFromScreenPoint(zoom, event->pos().x() - CLICK_RANGE) - 1;
+			long max_frame = getFrameFromScreenPoint(zoom, event->pos().x() + CLICK_RANGE) + 1;
             if (sequence->workarea_in > min_frame && sequence->workarea_in < max_frame) {
                 resizing_workarea = true;
                 resizing_workarea_in = true;
@@ -112,6 +117,11 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
     panel_timeline->repaint_timeline();
 }
 
+void TimelineHeader::update_header(double z) {
+	zoom = z;
+	update();
+}
+
 void TimelineHeader::paintEvent(QPaintEvent*) {
     if (sequence != NULL) {
         QPainter p(this);
@@ -120,7 +130,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         int multiplier = 0;
         do {
             multiplier++;
-            interval = panel_timeline->getScreenPointFromFrame(sequence->frame_rate*multiplier);
+			interval = getScreenPointFromFrame(zoom, sequence->frame_rate*multiplier);
         } while (interval < 10);
         for (int i=0;i<width();i+=interval) {
             p.drawLine(i, 0, i, height());
@@ -129,8 +139,8 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         // draw in/out selection
         int in_x;
         if (sequence->using_workarea) {
-            in_x = panel_timeline->getScreenPointFromFrame(resizing_workarea ? temp_workarea_in : sequence->workarea_in);
-            int out_x = panel_timeline->getScreenPointFromFrame(resizing_workarea ? temp_workarea_out :sequence->workarea_out);
+			in_x = getScreenPointFromFrame(zoom, resizing_workarea ? temp_workarea_in : sequence->workarea_in);
+			int out_x = getScreenPointFromFrame(zoom, resizing_workarea ? temp_workarea_out :sequence->workarea_out);
             p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
             p.setPen(Qt::white);
             p.drawLine(in_x, 0, in_x, height());
@@ -138,7 +148,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         }
 
         // draw playhead triangle
-        in_x = panel_timeline->getScreenPointFromFrame(panel_timeline->playhead);
+		in_x = getScreenPointFromFrame(zoom, panel_timeline->playhead - in_visible);
         QPoint start(in_x, height());
         QPainterPath path;
         path.moveTo(start);

@@ -44,9 +44,7 @@ struct Clip
     Clip* copy(Sequence* s);
     void reset_audio();
 	void reset();
-    void refresh();
-    void run_video_pre_effect_stack(long playhead, int *anchor_x, int *anchor_y);
-    void run_video_post_effect_stack();
+	void refresh();
 
 	// timeline variables
     Sequence* sequence;
@@ -80,8 +78,9 @@ struct Clip
     AVCodec* codec;
     AVCodecContext* codecCtx;
     AVPacket* pkt;
-    AVFrame* frame;
-	AVFrame* sws_frame;
+	AVFrame* frame;
+	uchar* comp_frame;
+	int comp_frame_size;
 
 	// ffmpeg filters
 	AVFilterGraph* filter_graph;
@@ -105,7 +104,7 @@ struct Clip
     QMutex open_lock;
 
     // video playback variables
-    SwsContext* sws_ctx;
+	//SwsContext* sws_ctx;
     QOpenGLTexture* texture;
     long texture_frame;
 

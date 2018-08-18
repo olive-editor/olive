@@ -121,32 +121,6 @@ void Clip::refresh() {
     }
 }
 
-void Clip::run_video_pre_effect_stack(long playhead, int* anchor_x, int* anchor_y) {
-    for (int j=0;j<effects.size();j++) {
-		if (effects.at(j)->enable_pre_gl && effects.at(j)->is_enabled()) effects.at(j)->process_gl(anchor_x, anchor_y);
-    }
-
-    if (opening_transition != NULL) {
-        int transition_progress = playhead - timeline_in;
-        if (transition_progress < opening_transition->length) {
-            opening_transition->process_transition((double)transition_progress/(double)opening_transition->length);
-        }
-    }
-
-    if (closing_transition != NULL) {
-        int transition_progress = closing_transition->length - (playhead - timeline_in - getLength() + closing_transition->length);
-        if (transition_progress < closing_transition->length) {
-            closing_transition->process_transition((double)transition_progress/(double)closing_transition->length);
-        }
-    }
-}
-
-void Clip::run_video_post_effect_stack() {
-    for (int j=0;j<effects.size();j++) {
-		if (effects.at(j)->enable_post_gl && effects.at(j)->is_enabled()) effects.at(j)->post_gl();
-    }
-}
-
 Clip::~Clip() {
     if (open) {
 		close_clip(this);

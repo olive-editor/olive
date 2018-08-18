@@ -8,10 +8,12 @@ class ComboBoxEx : public QComboBox {
     Q_OBJECT
 public:
     ComboBoxEx(QWidget* parent = 0);
+	void setCurrentIndexEx(int i);
+	void setCurrentTextEx(const QString &text);
 private slots:
-    void index_changed(int);
+	void index_changed(int);
 private:
-    int index;
+	int index;
     void wheelEvent(QWheelEvent* e);
 };
 

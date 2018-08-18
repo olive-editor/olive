@@ -44,11 +44,7 @@ SOURCES += \
     ui/viewercontainer.cpp \
     dialogs/exportdialog.cpp \
     ui/collapsiblewidget.cpp \
-    effects/transformeffect.cpp \
     panels/panels.cpp \
-    effects/volumeeffect.cpp \
-    effects/paneffect.cpp \
-    effects/effects.cpp \
     playback/cacher.cpp \
     io/exportthread.cpp \
     ui/timelineheader.cpp \
@@ -60,17 +56,21 @@ SOURCES += \
     ui/audiomonitor.cpp \
     project/undo.cpp \
     ui/scrollarea.cpp \
-    effects/shakeeffect.cpp \
-    effects/texteffect.cpp \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
-    effects/solideffect.cpp \
     dialogs/replaceclipmediadialog.cpp \
-    effects/inverteffect.cpp \
     effects/linearfadetransition.cpp \
     ui/fontcombobox.cpp \
     ui/checkboxex.cpp \
-    effects/effect.cpp
+    effects/effect.cpp \
+    effects/video/transformeffect.cpp \
+    effects/audio/volumeeffect.cpp \
+    effects/audio/paneffect.cpp \
+    effects/video/texteffect.cpp \
+    effects/video/solideffect.cpp \
+    effects/video/shakeeffect.cpp \
+    effects/video/inverteffect.cpp \
+    ui/keyframeview.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -86,7 +86,6 @@ HEADERS += \
     project/clip.h \
     playback/playback.h \
     playback/audio.h \
-    effects/effects.h \
     io/config.h \
     dialogs/newsequencedialog.h \
     ui/viewerwidget.h \
@@ -110,7 +109,15 @@ HEADERS += \
     dialogs/replaceclipmediadialog.h \
     ui/fontcombobox.h \
     ui/checkboxex.h \
-    effects/effect.h
+    effects/effect.h \
+    effects/video/transformeffect.h \
+    effects/video/solideffect.h \
+    effects/video/shakeeffect.h \
+    effects/video/texteffect.h \
+    effects/video/inverteffect.h \
+    effects/audio/volumeeffect.h \
+    effects/audio/paneffect.h \
+    ui/keyframeview.h
 
 FORMS += \
         mainwindow.ui \

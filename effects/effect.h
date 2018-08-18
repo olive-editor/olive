@@ -5,6 +5,8 @@
 #include <QString>
 #include <QVector>
 #include <QColor>
+#include <QOpenGLShaderProgram>
+class QLabel;
 class QWidget;
 class CollapsibleWidget;
 class QGridLayout;
@@ -14,6 +16,26 @@ class QXmlStreamReader;
 class QXmlStreamWriter;
 class Effect;
 class CheckboxEx;
+
+enum VideoEffects {
+	VIDEO_TRANSFORM_EFFECT,
+	VIDEO_SHAKE_EFFECT,
+	VIDEO_TEXT_EFFECT,
+	VIDEO_SOLID_EFFECT,
+	VIDEO_INVERT_EFFECT,
+	VIDEO_EFFECT_COUNT
+};
+
+enum AudioEffects {
+	AUDIO_VOLUME_EFFECT,
+	AUDIO_PAN_EFFECT,
+	AUDIO_EFFECT_COUNT
+};
+
+extern QVector<QString> video_effect_names;
+extern QVector<QString> audio_effect_names;
+void init_effects();
+Effect* create_effect(int effect_id, Clip* c);
 
 #define EFFECT_TYPE_INVALID 0
 #define EFFECT_TYPE_VIDEO 1
@@ -93,6 +115,7 @@ public:
 	void set_keyframe(int field, long time);
 	void move_keyframe(int field, long from, long to);
 	void delete_keyframe(int field, long time);
+	QLabel* label;
 private:
 	Effect* parent_effect;
 	QGridLayout* ui;
@@ -116,6 +139,7 @@ public:
 
 	EffectRow* add_row(const QString &name);
 	EffectRow* row(int i);
+	int row_count();
 
     bool is_enabled();
 
@@ -126,15 +150,13 @@ public:
 	void load(QXmlStreamReader* stream);
 	void save(QXmlStreamWriter* stream);
 
-	bool enable_ffmpeg;
-	bool enable_qimage;
-	bool enable_pre_gl;
-	bool enable_post_gl;
+	bool enable_image;
+	bool enable_opengl;
 
 	const char* ffmpeg_filter;
 
-	virtual void process_gl(int* anchor_x, int* anchor_y);
-    virtual void post_gl();
+	virtual void process_image(QImage& img);
+	virtual void process_gl(QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
     virtual void process_audio(quint8* samples, int nb_bytes);
 public slots:
 	void field_changed();

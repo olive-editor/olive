@@ -22,6 +22,8 @@ struct MediaStream;
 
 int lerp(int a, int b, double t);
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
+int getScreenPointFromFrame(double zoom, long frame);
+long getFrameFromScreenPoint(double zoom, int x);
 
 struct Ghost {
     int clip;
@@ -100,8 +102,8 @@ public:
     void delete_in_out(bool ripple);
 
     int get_snap_range();
-    int getScreenPointFromFrame(long frame);
-    long getFrameFromScreenPoint(int x);
+	int getTimelineScreenPointFromFrame(long frame);
+	long getTimelineFrameFromScreenPoint(int x);
 
     bool snap_to_point(long point, long* l);
     void snap_to_clip(long* l, bool playhead_inclusive);
@@ -176,9 +178,6 @@ public:
 
 	// importing
 	bool importing;
-
-	// ripple
-//    void ripple(TimelineAction* ta, long ripple_point, long ripple_length);
 
     Ui::Timeline *ui;
 public slots:

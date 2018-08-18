@@ -1,0 +1,31 @@
+#ifndef TRANSFORMEFFECT_H
+#define TRANSFORMEFFECT_H
+
+#include "../effect.h"
+
+class TransformEffect : public Effect {
+	Q_OBJECT
+public:
+	TransformEffect(Clip* c);
+	void refresh();
+	void process_gl(QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
+	Effect* copy(Clip *c);
+
+	EffectField* position_x;
+	EffectField* position_y;
+	EffectField* scale_x;
+	EffectField* scale_y;
+	EffectField* uniform_scale_field;
+	EffectField* rotation;
+	EffectField* anchor_x_box;
+	EffectField* anchor_y_box;
+	EffectField* opacity;
+	EffectField* blend_mode_box;
+public slots:
+	void toggle_uniform_scale(bool enabled);
+private:
+	int default_anchor_x;
+	int default_anchor_y;
+};
+
+#endif // TRANSFORMEFFECT_H

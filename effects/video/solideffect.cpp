@@ -1,4 +1,4 @@
-#include "effects.h"
+#include "solideffect.h"
 
 #include <QOpenGLTexture>
 #include <QPainter>
@@ -15,8 +15,8 @@
 #define SMPTE_STRIP_COUNT 3
 #define SMPTE_LOWER_BARS 4
 
-SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT), texture(NULL) {
-	enable_post_gl = true;
+SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT) {
+	enable_image = true;
 
 	solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
 	solid_type->add_combo_item("Solid Color", SOLID_TYPE_COLOR);
@@ -30,30 +30,30 @@ SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFF
 	opacity_field->set_double_maximum_value(100);
 	opacity_field->set_double_default_value(100);
 
-	connect(solid_type, SIGNAL(changed()), this, SLOT(update_texture()));
+	connect(solid_type, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(solid_type, SIGNAL(changed()), this, SLOT(enable_color()));
-	connect(solid_color_field, SIGNAL(changed()), this, SLOT(update_texture()));
+	connect(solid_color_field, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(opacity_field, SIGNAL(changed()), this, SLOT(field_changed()));
-
-    update_texture();
 }
 
 void SolidEffect::enable_color() {
 	solid_color_field->set_enabled(solid_type->get_combo_data() == SOLID_TYPE_COLOR);
 }
 
-void SolidEffect::update_texture() {
-    QImage img(parent_clip->sequence->width, parent_clip->sequence->height, QImage::Format_RGB888);
+void SolidEffect::process_image(QImage& img) {
+	QPainter p(&img);
+	int width = img.width();
+	int height = img.height();
 
 	switch (solid_type->get_combo_data().toInt()) {
 	case SOLID_TYPE_COLOR:
-		img.fill(solid_color_field->get_color_value());
+	{
+		QColor brush = solid_color_field->get_color_value();
+		p.fillRect(0, 0, width, height, QColor(brush.red(), brush.green(), brush.blue(), opacity_field->get_double_value()*2.55));
+	}
 		break;
 	case SOLID_TYPE_BARS:
 		// draw smpte bars
-		img.fill(Qt::black);
-
-		QPainter p(&img);
 		int bar_width = qCeil((double) parent_clip->sequence->width / 7.0);
 		int first_bar_height = qCeil((double) parent_clip->sequence->height / 3.0 * 2.0);
 		int second_bar_height = qCeil((double) parent_clip->sequence->height / 12.5);
@@ -130,41 +130,4 @@ void SolidEffect::update_texture() {
 		}
 		break;
 	}
-
-    if (texture == NULL) {
-        texture = new QOpenGLTexture(img);
-    } else {
-        texture->destroy();
-        texture->setData(img);
-    }
-
-    field_changed();
-}
-
-void SolidEffect::post_gl() {
-    if (texture != NULL) {
-		float color[4];
-		glGetFloatv(GL_CURRENT_COLOR, color);
-		glColor4f(1.0, 1.0, 1.0, color[3]*(opacity_field->get_double_value()*0.01));
-
-        texture->bind();
-
-        int half_width = parent_clip->sequence->width/2;
-        int half_height = parent_clip->sequence->height/2;
-
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0, 0.0);
-        glVertex2f(-half_width, -half_height);
-        glTexCoord2f(1.0, 0.0);
-        glVertex2f(half_width, -half_height);
-        glTexCoord2f(1.0, 1.0);
-        glVertex2f(half_width, half_height);
-        glTexCoord2f(0.0, 1.0);
-        glVertex2f(-half_width, half_height);
-        glEnd();
-
-		texture->release();
-
-		glColor4f(color[0], color[1], color[2], color[3]);
-    }
 }

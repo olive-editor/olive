@@ -8,7 +8,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-#include <algorithm>
+#include "effects/effect.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -17,6 +17,7 @@ extern "C" {
 	#include <libswresample/swresample.h>
 }
 
+#include <algorithm>
 #include <QObject>
 #include <QOpenGLTexture>
 #include <QDebug>
@@ -79,7 +80,7 @@ void get_clip_frame(Clip* c, long playhead) {
 
 		// do we need to update the texture?
         MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
-        if ((!ms->infinite_length && c->texture_frame != clip_time) ||
+		if ((!ms->infinite_length/* && c->texture_frame != clip_time*/) ||
                 (ms->infinite_length && c->texture_frame == -1)) {
 			AVFrame* current_frame = NULL;
 			bool no_frame = false;
@@ -88,16 +89,11 @@ void get_clip_frame(Clip* c, long playhead) {
             if (ms->infinite_length) { // if clip is a still frame, we only need one
 				if (c->cache_A.written) {
 					// retrieve cached frame
-					current_frame = c->sws_frame;
-				} else if (c->multithreaded) {
-					if (c->lock.tryLock()) {
-						// grab image (multi-threaded)
-                        cache_clip(c, 0, false, false, true, NULL);
-						c->lock.unlock();
-					}
-				} else {
-					// grab image (single-threaded)
-					reset_cache(c, playhead);
+					current_frame = c->cache_A.frames[0];
+				} else if (c->lock.tryLock()) {
+					// grab image
+					cache_clip(c, 0, true, false, false, NULL);
+					c->lock.unlock();
 				}
 			} else {
 				// keeping a RAM cache improves performance, however it's detrimental when rendering
@@ -169,7 +165,15 @@ void get_clip_frame(Clip* c, long playhead) {
 					c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 				}
 
-				c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
+				memcpy(c->comp_frame, current_frame->data[0], c->comp_frame_size);
+				QImage img(c->comp_frame, current_frame->width, current_frame->height, QImage::Format_RGBA8888);
+				for (int i=0;i<c->effects.size();i++) {
+					if (c->effects.at(i)->enable_image) {
+						c->effects.at(i)->process_image(img);
+					}
+				}
+
+				c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, c->comp_frame);
 				c->texture_frame = clip_time;
 			} else if (!no_frame) {
 				texture_failed = true;
@@ -240,7 +244,7 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
         int ret = retrieve_next_frame(c, c->frame);
         if (ret >= 0) {
             if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
+//				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
 //				output->pts = c->frame->best_effort_timestamp;
             } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 output->pts = c->frame->pts;

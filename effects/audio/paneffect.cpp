@@ -1,4 +1,4 @@
-#include "effects/effects.h"
+#include "paneffect.h"
 
 #include <QGridLayout>
 #include <QLabel>

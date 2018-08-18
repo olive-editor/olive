@@ -1,4 +1,4 @@
-#include "effects/effects.h"
+#include "shakeeffect.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -13,7 +13,7 @@
 #include "panels/timeline.h"
 
 ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT), inside(false) {
-	enable_pre_gl = true;
+	enable_opengl = true;
 
 	EffectRow* intensity_row = add_row("Intensity:");
 	intensity_val = intensity_row->add_field(EFFECT_FIELD_DOUBLE);
@@ -57,7 +57,7 @@ Effect* ShakeEffect::copy(Clip* c) {
 	return e;
 }
 
-void ShakeEffect::process_gl(int*, int*) {
+void ShakeEffect::process_gl(QOpenGLShaderProgram&, int*, int*) {
     if (shake_progress > shake_limit) {
 		double ival = intensity_val->get_double_value();
 		if ((int)ival > 0) {

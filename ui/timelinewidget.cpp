@@ -11,7 +11,7 @@
 #include "panels/effectcontrols.h"
 #include "project/undo.h"
 
-#include "effects/effects.h"
+#include "effects/effect.h"
 #include "effects/transition.h"
 
 #include <QPainter>
@@ -123,8 +123,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 if (got_video_values && got_audio_values) break;
             }
         } else {
-            entry_point = panel_timeline->getFrameFromScreenPoint(pos.x());
-            panel_timeline->drag_frame_start = entry_point + panel_timeline->getFrameFromScreenPoint(50);
+			entry_point = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
+			panel_timeline->drag_frame_start = entry_point + panel_timeline->getTimelineFrameFromScreenPoint(50);
             panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
             predicted_new_frame_rate = sequence->frame_rate;
         }
@@ -369,7 +369,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 panel_timeline->drag_track_start = panel_timeline->cursor_track;
             } else {
                 QPoint pos = event->pos();
-                panel_timeline->drag_frame_start = panel_timeline->getFrameFromScreenPoint(pos.x());
+				panel_timeline->drag_frame_start = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
                 panel_timeline->drag_track_start = getTrackFromScreenPoint(pos.y());
             }
 
@@ -867,7 +867,7 @@ void validate_snapping(const Ghost& g, long* frame_diff) {
 
 void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
-    long frame_diff = panel_timeline->getFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
+	long frame_diff = panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
 	int track_diff = (panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) ? 0 : mouse_track - panel_timeline->drag_track_start;
     long validator;
 
@@ -1073,7 +1073,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
     if (sequence != NULL) {
         bool alt = (event->modifiers() & Qt::AltModifier);
 
-        panel_timeline->cursor_frame = panel_timeline->getFrameFromScreenPoint(event->pos().x());
+		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
         panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
         if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
@@ -1359,8 +1359,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 panel_timeline->rect_select_h = event->pos().y() - panel_timeline->rect_select_y;
                 if (bottom_align) panel_timeline->rect_select_h -= height();
 
-                long frame_start = panel_timeline->getFrameFromScreenPoint(panel_timeline->rect_select_x);
-                long frame_end = panel_timeline->getFrameFromScreenPoint(event->pos().x());
+				long frame_start = panel_timeline->getTimelineFrameFromScreenPoint(panel_timeline->rect_select_x);
+				long frame_end = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
                 long frame_min = qMin(frame_start, frame_end);
                 long frame_max = qMax(frame_start, frame_end);
 
@@ -1432,8 +1432,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
             int lim = 5;
             int mouse_track = getTrackFromScreenPoint(pos.y());
-            long mouse_frame_lower = panel_timeline->getFrameFromScreenPoint(pos.x()-lim)-1;
-            long mouse_frame_upper = panel_timeline->getFrameFromScreenPoint(pos.x()+lim)+1;
+			long mouse_frame_lower = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
+			long mouse_frame_upper = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
             bool found = false;
             bool cursor_contains_clip = false;
             int closeness = INT_MAX;
@@ -1563,7 +1563,7 @@ void TimelineWidget::redraw_clips() {
 				audio_track_limit = qMax(audio_track_limit, clip->track);
 			}
 		}
-		int panel_width = panel_timeline->getScreenPointFromFrame(end_frame) + 100;
+		int panel_width = panel_timeline->getTimelineScreenPointFromFrame(end_frame) + 100;
 		int panel_height = 0;
 		if (bottom_align) {
 			for (int i=-1;i>=video_track_limit;i--) {
@@ -1589,7 +1589,7 @@ void TimelineWidget::redraw_clips() {
         for (int i=0;i<sequence->clip_count();i++) {
             Clip* clip = sequence->get_clip(i);
 			if (clip != NULL && is_track_visible(clip->track)) {
-                QRect clip_rect(panel_timeline->getScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
+				QRect clip_rect(panel_timeline->getTimelineScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
                 clip_painter.fillRect(clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
 
                 int thumb_x = clip_rect.x() + 1;
@@ -1606,7 +1606,7 @@ void TimelineWidget::redraw_clips() {
                     } else if (ms->preview_done) {
                         // draw thumbnail/waveform
 						long media_length = m->get_length_in_frames(clip->sequence->frame_rate);
-						int waveform_limit = qMin(clip_rect.width(), panel_timeline->getScreenPointFromFrame(media_length - clip->clip_in));
+						int waveform_limit = qMin(clip_rect.width(), panel_timeline->getTimelineScreenPointFromFrame(media_length - clip->clip_in));
 
 						if (waveform_limit < clip_rect.width()) {
 							draw_checkerboard = true;
@@ -1616,12 +1616,12 @@ void TimelineWidget::redraw_clips() {
                         if (clip->track < 0) {
 							int space_for_thumb = clip_rect.width();
 							if (clip->opening_transition != NULL) {
-								int ot_width = panel_timeline->getScreenPointFromFrame(clip->opening_transition->length);
+								int ot_width = panel_timeline->getTimelineScreenPointFromFrame(clip->opening_transition->length);
 								thumb_x += ot_width;
 								space_for_thumb -= ot_width;
 							}
 							if (clip->closing_transition != NULL) {
-								space_for_thumb -= panel_timeline->getScreenPointFromFrame(clip->closing_transition->length);
+								space_for_thumb -= panel_timeline->getTimelineScreenPointFromFrame(clip->closing_transition->length);
 							}
                             int thumb_y = clip_painter.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
                             int thumb_height = clip_rect.height()-thumb_y;
@@ -1688,7 +1688,7 @@ void TimelineWidget::redraw_clips() {
 				for (int i=0;i<2;i++) {
 					Transition* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
 					if (t != NULL) {
-						int transition_width = panel_timeline->getScreenPointFromFrame(t->length);
+						int transition_width = panel_timeline->getTimelineScreenPointFromFrame(t->length);
 						int transition_height = clip_rect.height();
 						int tr_y = clip_rect.y();
 						int tr_x = 0;
@@ -1780,8 +1780,8 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 			const Selection& s = panel_timeline->selections.at(i);
 			if (is_track_visible(s.track)) {
 				int selection_y = getScreenPointFromTrack(s.track);
-                int selection_x = panel_timeline->getScreenPointFromFrame(s.in);
-                p.fillRect(selection_x, selection_y, panel_timeline->getScreenPointFromFrame(s.out) - selection_x, panel_timeline->calculate_track_height(s.track, -1), QColor(0, 0, 0, 64));
+				int selection_x = panel_timeline->getTimelineScreenPointFromFrame(s.in);
+				p.fillRect(selection_x, selection_y, panel_timeline->getTimelineScreenPointFromFrame(s.out) - selection_x, panel_timeline->calculate_track_height(s.track, -1), QColor(0, 0, 0, 64));
 			}
 		}
 
@@ -1802,9 +1802,9 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
 			const Ghost& g = panel_timeline->ghosts.at(i);
 			if (is_track_visible(g.track)) {
-                int ghost_x = panel_timeline->getScreenPointFromFrame(g.in);
+				int ghost_x = panel_timeline->getTimelineScreenPointFromFrame(g.in);
 				int ghost_y = getScreenPointFromTrack(g.track);
-                int ghost_width = panel_timeline->getScreenPointFromFrame(g.out - g.in) - 1;
+				int ghost_width = panel_timeline->getTimelineScreenPointFromFrame(g.out - g.in) - 1;
                 int ghost_height = panel_timeline->calculate_track_height(g.track, -1) - 1;
 				p.setPen(QColor(255, 255, 0));
 				for (int j=0;j<GHOST_THICKNESS;j++) {
@@ -1817,7 +1817,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
         if (panel_timeline->splitting) {
             for (int i=0;i<panel_timeline->split_tracks.size();i++) {
                 if (is_track_visible(panel_timeline->split_tracks.at(i))) {
-                    int cursor_x = panel_timeline->getScreenPointFromFrame(panel_timeline->drag_frame_start);
+					int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->drag_frame_start);
                     int cursor_y = getScreenPointFromTrack(panel_timeline->split_tracks.at(i));
 
                     p.setPen(QColor(64, 64, 64));
@@ -1828,7 +1828,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
         // Draw playhead
         p.setPen(Qt::red);
-        int playhead_x = panel_timeline->getScreenPointFromFrame(panel_timeline->playhead);
+		int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->playhead);
         p.drawLine(playhead_x, rect().top(), playhead_x, rect().bottom());
 
         // draw border
@@ -1839,15 +1839,15 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
         // draw snap point
         if (panel_timeline->snapped) {
             p.setPen(Qt::white);
-            int snap_x = panel_timeline->getScreenPointFromFrame(panel_timeline->snap_point);
+			int snap_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->snap_point);
             p.drawLine(snap_x, 0, snap_x, height());
         }
 
 		// Draw edit cursor
 		if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
             if (is_track_visible(panel_timeline->cursor_track)) {
-                int cursor_x = panel_timeline->getScreenPointFromFrame(panel_timeline->cursor_frame);
-                int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
+				int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->cursor_frame);
+				int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
 
 				p.setPen(Qt::gray);
                 p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->cursor_track, -1));

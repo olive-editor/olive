@@ -30,19 +30,21 @@ public:
 	void setContents(QWidget* c);
 	void setText(const QString &);
     bool is_focused();
+	bool is_expanded();
 
 	CheckboxEx* enabled_check;
     bool selected;
+	QWidget* contents;
+	CollapsibleWidgetHeader* title_bar;
 private:
 	QLabel* header;
-    CollapsibleWidgetHeader* title_bar;
 	QVBoxLayout* layout;
 	QPushButton* collapse_button;
-	QWidget* contents;
 	QFrame* line;
 
 signals:
     void deselect_others(QWidget*);
+	void visibleChanged();
 
 private slots:
 	void on_enabled_change(bool b);

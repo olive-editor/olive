@@ -206,6 +206,8 @@ void MainWindow::on_actionZoom_In_triggered()
 {
 	if (panel_timeline->focused()) {
         panel_timeline->set_zoom(true);
+	} else if (panel_effect_controls->keyframe_focus()) {
+		panel_effect_controls->set_zoom(true);
 	}
 }
 
@@ -213,6 +215,8 @@ void MainWindow::on_actionZoom_out_triggered()
 {
 	if (panel_timeline->focused()) {
         panel_timeline->set_zoom(false);
+	} else if (panel_effect_controls->keyframe_focus()) {
+		panel_effect_controls->set_zoom(false);
 	}
 }
 

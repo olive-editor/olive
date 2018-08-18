@@ -1,4 +1,4 @@
-#include "effects/effects.h"
+#include "volumeeffect.h"
 
 #include <QGridLayout>
 #include <QLabel>

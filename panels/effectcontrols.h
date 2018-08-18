@@ -7,6 +7,7 @@
 struct Clip;
 class QMenu;
 class Effect;
+class TimelineHeader;
 
 namespace Ui {
 class EffectControls;
@@ -24,7 +25,11 @@ public:
     void delete_effects();
     bool is_focused();
     void reload_clips();
+	void update_keyframes();
+	void set_zoom(bool in);
+	bool keyframe_focus();
 
+	double zoom;
 private slots:
     void menu_select(QAction* q);
     void on_add_video_effect_button_clicked();
@@ -36,10 +41,11 @@ private slots:
 	void on_add_audio_transition_button_clicked();
 
 private:
-    Ui::EffectControls *ui;
+	Ui::EffectControls *ui;
     QVector<int> selected_clips;
 	void show_effect_menu(bool video, bool transitions);
 	void load_effects();
+	void load_keyframes();
 
 	bool video_menu;
 	bool transition_menu;

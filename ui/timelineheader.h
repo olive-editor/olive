@@ -7,9 +7,14 @@ class TimelineHeader : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TimelineHeader(QWidget *parent = 0);
+	explicit TimelineHeader(QWidget *parent = 0);
     void set_in_point(long p);
     void set_out_point(long p);
+	void set_visible_in(long i);
+
+	bool snapping;
+
+	void update_header(double z);
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -25,6 +30,12 @@ private:
     long temp_workarea_in;
     long temp_workarea_out;
     long sequence_end;
+
+	long in_visible;
+
+	double zoom;
+
+	void set_playhead(int mouse_x);
 
 signals:
 

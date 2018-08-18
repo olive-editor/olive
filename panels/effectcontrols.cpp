@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 
 #include "panels/panels.h"
-#include "effects/effects.h"
+#include "effects/effect.h"
 #include "effects/transition.h"
 #include "project/clip.h"
 #include "effects/effect.h"
@@ -20,17 +20,31 @@
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
-	ui(new Ui::EffectControls)
+	ui(new Ui::EffectControls),
+	zoom(1)
 {
 	ui->setupUi(this);
     init_effects();
 	init_transitions();
     clear_effects(false);
+	ui->headers->snapping = false;
 }
 
-EffectControls::~EffectControls()
-{
+EffectControls::~EffectControls() {
 	delete ui;
+}
+
+bool EffectControls::keyframe_focus() {
+	return ui->headers->hasFocus() || ui->keyframeView->hasFocus();
+}
+
+void EffectControls::set_zoom(bool in) {
+	if (in) {
+		zoom *= 2;
+	} else {
+		zoom *= 0.5;
+	}
+	update_keyframes();
 }
 
 void EffectControls::menu_select(QAction* q) {
@@ -55,7 +69,13 @@ void EffectControls::menu_select(QAction* q) {
 		panel_timeline->redraw_all_clips(true);
 	} else {
 		reload_clips();
+		panel_viewer->viewer_widget->update();
 	}
+}
+
+void EffectControls::update_keyframes() {
+	if (ui->headers->isVisible()) ui->headers->update_header(zoom);
+	ui->keyframeView->update();
 }
 
 void EffectControls::show_effect_menu(bool video, bool transitions) {
@@ -109,24 +129,28 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 
 void EffectControls::clear_effects(bool clear_cache) {
     // clear existing clips
+	ui->keyframeView->effects.clear();
     QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
     QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
     QLayoutItem* item;
     while ((item = video_layout->takeAt(0))) {
         item->widget()->setParent(NULL);
-        disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
     }
     while ((item = audio_layout->takeAt(0))) {
         item->widget()->setParent(NULL);
         disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
     }
     ui->vcontainer->setVisible(false);
     ui->acontainer->setVisible(false);
+	ui->headers->setVisible(false);
+	ui->keyframeView->setEnabled(false);
     if (clear_cache) selected_clips.clear();
 }
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
-    QVector<Effect*> delete_effects;
     for (int i=0;i<selected_clips.size();i++) {
         Clip* c = sequence->get_clip(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
@@ -138,26 +162,37 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
 }
 
 void EffectControls::load_effects() {
-    // load in new clips
+	// load in new clips
+	long effects_in = LONG_MAX;
+	long effects_out = 0;
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = sequence->get_clip(selected_clips.at(i));
-        if (c->track < 0) {
-            ui->vcontainer->setVisible(true);
-        } else {
-            ui->acontainer->setVisible(true);
-        }
+		Clip* c = sequence->get_clip(selected_clips.at(i));
+		effects_in = qMin(effects_in, c->timeline_in);
+		effects_out = qMax(effects_out, c->timeline_out);
         for (int j=0;j<c->effects.size();j++) {
-            CollapsibleWidget* container = c->effects.at(j)->container;
+			Effect* e = c->effects.at(j);
+			ui->keyframeView->effects.append(e);
+			CollapsibleWidget* container = e->container;
             if (c->track < 0) {
                 static_cast<QVBoxLayout*>(ui->video_effect_area->layout())->addWidget(container);
                 ui->vcontainer->setVisible(true);
             } else {
                 static_cast<QVBoxLayout*>(ui->audio_effect_area->layout())->addWidget(container);
                 ui->acontainer->setVisible(true);
-            }
+			}
             connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+			connect(container, SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
         }
     }
+	if (selected_clips.size() > 0) {
+		ui->keyframeView->setEnabled(true);
+		ui->keyframeView->visible_in = effects_in;
+		ui->keyframeView->visible_out = effects_out;
+		ui->keyframeView->update();
+
+		ui->headers->set_visible_in(effects_in);
+		ui->headers->setVisible(true);
+	}
 }
 
 void EffectControls::delete_effects() {

@@ -12,7 +12,7 @@
 #include "panels/effectcontrols.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
-#include "effects/effects.h"
+#include "effects/effect.h"
 #include "io/media.h"
 #include "playback/cacher.h"
 #include "effects/transition.h"
