@@ -69,6 +69,12 @@ Timeline::Timeline(QWidget *parent) :
 
 	ui->toolArrowButton->click();
 
+	int timeline_area_height = (ui->timeline_area->height()>>1);
+	ui->videoScrollArea->resize(ui->videoScrollArea->width(), timeline_area_height);
+	ui->audioScrollArea->resize(ui->audioScrollArea->width(), timeline_area_height);
+	connect(ui->audioScrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->videoScrollArea->horizontalScrollBar(), SLOT(setValue(int)));
+	connect(ui->audioScrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->headerScrollArea->horizontalScrollBar(), SLOT(setValue(int)));
+
     update_sequence();
 
     connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
@@ -396,14 +402,7 @@ void Timeline::set_zoom(bool in) {
         zoom *= 2;
     } else {
         zoom /= 2;
-    }
-    ui->timeline_area->horizontalScrollBar()->setValue(
-                lerp(
-                    ui->timeline_area->horizontalScrollBar()->value(),
-					getTimelineScreenPointFromFrame(playhead) - (ui->timeline_area->width()/2),
-                    0.99
-                )
-            );
+	}
     redraw_all_clips(false);
 }
 

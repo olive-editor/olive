@@ -10,7 +10,6 @@ public:
 	explicit TimelineHeader(QWidget *parent = 0);
     void set_in_point(long p);
     void set_out_point(long p);
-	void set_visible_in(long i);
 
 	bool snapping;
 
@@ -40,6 +39,7 @@ private:
 signals:
 
 public slots:
+	void set_visible_in(long i);
 };
 
 #endif // TIMELINEHEADER_H

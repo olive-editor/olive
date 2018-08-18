@@ -10,7 +10,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 
-#define KEYFRAME_SIZE 5
+#define KEYFRAME_SIZE 6
 #define KEYFRAME_POINT_COUNT 4
 
 KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mouseover(false), visible_in(0), visible_out(0) {

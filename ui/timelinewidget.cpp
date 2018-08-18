@@ -10,6 +10,7 @@
 #include "ui/sourcetable.h"
 #include "panels/effectcontrols.h"
 #include "project/undo.h"
+#include "ui_timeline.h"
 
 #include "effects/effect.h"
 #include "effects/transition.h"
@@ -1576,8 +1577,8 @@ void TimelineWidget::redraw_clips() {
 		}
 
 		if (minimumWidth() != panel_width || clip_pixmap.height() != height() || panel_height != minimumHeight()) {
-            setMinimumWidth(panel_width);
-			container->setMinimumWidth(panel_width);
+			panel_timeline->ui->headers->setMinimumWidth(panel_width);
+			setMinimumWidth(panel_width);
 			setMinimumHeight(panel_height);
 			clip_pixmap = QPixmap(qMax(width(), panel_width), qMax(height(), panel_height));
         }
