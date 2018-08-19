@@ -29,9 +29,10 @@ Effect* InvertEffect::copy(Clip* c) {
 }
 
 void InvertEffect::process_gl(long p, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y) {
-	double value = amount_val->get_double_value(p)*0.01;
-	vert_shader.compileSourceCode("varying vec2 vTexCoord; void main() { vTexCoord = gl_MultiTexCoord0; gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; }");
-	frag_shader.compileSourceCode("uniform sampler2D myTexture; varying vec2 vTexCoord; void main(void) { vec4 textureColor = texture2D(myTexture, vTexCoord); gl_FragColor = vec4(textureColor.r+((1.0-textureColor.r-textureColor.r)*" + QString::number(value) + "), textureColor.g+((1.0-textureColor.g-textureColor.g)*" + QString::number(value) + "), textureColor.b+((1.0-textureColor.b-textureColor.b)*" + QString::number(value) + "), 1); }");
+    double value = amount_val->get_double_value(p)*0.01;
+
+    vert_shader.compileSourceCode("varying vec2 vTexCoord;\nvoid main() {\n\tvTexCoord = gl_MultiTexCoord0.xy;\n\tgl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n}");
+    frag_shader.compileSourceCode("uniform sampler2D myTexture;\nvarying vec2 vTexCoord;\nvoid main(void) {\n\tvec4 textureColor = texture2D(myTexture, vTexCoord);\n\tgl_FragColor = vec4(textureColor.r+((1.0-textureColor.r-textureColor.r)*" + QString::number(value, 'f', 2) + "), textureColor.g+((1.0-textureColor.g-textureColor.g)*" + QString::number(value, 'f', 2) + "), textureColor.b+((1.0-textureColor.b-textureColor.b)*" + QString::number(value, 'f', 2) + "), 1);\n}");
 
 	shader_prog.addShader(&vert_shader);
 	shader_prog.addShader(&frag_shader);

@@ -144,12 +144,10 @@ void EffectControls::clear_effects(bool clear_cache) {
     while ((item = video_layout->takeAt(0))) {
         item->widget()->setParent(NULL);
 		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
-		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
     }
     while ((item = audio_layout->takeAt(0))) {
         item->widget()->setParent(NULL);
         disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
-		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
     }
     ui->vcontainer->setVisible(false);
     ui->acontainer->setVisible(false);
@@ -189,7 +187,6 @@ void EffectControls::load_effects() {
                 ui->acontainer->setVisible(true);
 			}
             connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
-			connect(container, SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
 		}
     }
 	if (selected_clips.size() > 0) {

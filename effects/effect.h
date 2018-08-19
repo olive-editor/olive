@@ -1,4 +1,4 @@
-#ifndef EFFECT_H
+﻿#ifndef EFFECT_H
 #define EFFECT_H
 
 #include <QObject>
@@ -15,6 +15,7 @@ struct Clip;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 class Effect;
+class EffectRow;
 class CheckboxEx;
 
 enum VideoEffects {
@@ -52,20 +53,18 @@ Effect* create_effect(int effect_id, Clip* c);
 #define EFFECT_KEYFRAME_HOLD 1
 #define EFFECT_KEYFRAME_BEZIER 2
 
-struct EffectKeyframe {
-	long frame;
-	int type;
-	QVariant data;
-};
-
 class EffectField : public QObject {
 	Q_OBJECT
 public:
-	EffectField(int t);
+    EffectField(EffectRow* parent, int t);
+    EffectRow* parent_row;
 	int type;
 
-	QVariant get_keyframe_data(long p);
-	bool is_keyframed(long p);
+    QVariant get_current_data();
+    void set_keyframe_data(int i);
+    void get_keyframe_data(long frame, int* before, int *after, double* d);
+//  QVariant get_keyframe_data(long p);
+//	bool is_keyframed(long p);
 
 	double get_double_value(long p);
 	void set_double_value(double v);
@@ -94,26 +93,35 @@ public:
 
 	QWidget* get_ui_element();
 	void set_enabled(bool e);
-	QVector<EffectKeyframe> keyframes;
+    QVector<QVariant> keyframe_data;
+private:
+    QWidget* ui_element;
+private slots:
+    void uiElementChange();
 signals:
 	void changed();
 	void toggled(bool);
-private:
-	QWidget* ui_element;
 };
 
-class EffectRow {
+class EffectRow : public QObject {
+    Q_OBJECT
 public:
 	EffectRow(Effect* parent, QGridLayout* uilayout, const QString& n, int row);
 	~EffectRow();
 	EffectField* add_field(int type, int colspan = 1);
 	EffectField* field(int i);
-	int fieldCount();
+    int fieldCount();
 	void set_keyframe(long time);
 	void move_keyframe(long from, long to);
 	void delete_keyframe(long time);
 	QLabel* label;
 	Effect* parent_effect;
+
+    bool keyframing;
+    QVector<long> keyframe_times;
+    QVector<int> keyframe_types;
+public slots:
+    void set_keyframe_now();
 private:
 	QGridLayout* ui;
 	QString name;

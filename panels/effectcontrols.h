@@ -36,11 +36,12 @@ public:
     void delete_effects();
     bool is_focused();
     void reload_clips();
-	void update_keyframes();
 	void set_zoom(bool in);
 	bool keyframe_focus();
 
 	double zoom;
+public slots:
+    void update_keyframes();
 private slots:
     void menu_select(QAction* q);
     void on_add_video_effect_button_clicked();

@@ -13,6 +13,7 @@
 #include "ui/checkboxex.h"
 #include "project/clip.h"
 #include "panels/timeline.h"
+#include "panels/effectcontrols.h"
 
 #include "effects/video/transformeffect.h"
 #include "effects/video/inverteffect.h"
@@ -65,6 +66,10 @@ Effect* create_effect(int effect_id, Clip* c) {
 	return NULL;
 }
 
+double double_lerp(double a, double b, double t) {
+    return ((1.0 - t) * a) + (t * b);
+}
+
 Effect::Effect(Clip* c, int t, int i) :
 	parent_clip(c),
 	type(t),
@@ -96,9 +101,11 @@ Effect::~Effect() {
 void Effect::copy_field_keyframes(Effect* e) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
+        e->rows.at(i)->keyframe_times = rows.at(i)->keyframe_times;
+        e->rows.at(i)->keyframe_types = rows.at(i)->keyframe_types;
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
-			e->rows.at(i)->field(j)->keyframes = field->keyframes;
+            e->rows.at(i)->field(j)->keyframe_data = field->keyframe_data;
 		}
 	}
 }
@@ -128,7 +135,8 @@ bool Effect::is_enabled() {
 }
 
 void Effect::load(QXmlStreamReader* stream) {
-	for (int i=0;i<rows.size();i++) {
+    stream->readNext();
+    /*for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
 		while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
 			stream->readNext();
@@ -138,27 +146,47 @@ void Effect::load(QXmlStreamReader* stream) {
 					while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
 						stream->readNext();
 						if (stream->name() == "field" && stream->isStartElement()) {
-							stream->readNext();
-							switch (field->type) {
-							case EFFECT_FIELD_DOUBLE:
-								field->set_double_value(stream->text().toDouble());
-								break;
-							case EFFECT_FIELD_COLOR:
-								field->set_color_value(QColor(stream->text().toString()));
-								break;
-							case EFFECT_FIELD_STRING:
-								field->set_string_value(stream->text().toString());
-								break;
-							case EFFECT_FIELD_BOOL:
-								field->set_bool_value(stream->text() == "1");
-								break;
-							case EFFECT_FIELD_COMBO:
-								field->set_combo_string(stream->text().toString());
-								break;
-							case EFFECT_FIELD_FONT:
-								field->set_combo_string(stream->text().toString());
-								break;
-							}
+                            // read all keyframes
+                            QVector<EffectKeyframe> keys;
+                            while (!stream->atEnd() && (stream->name() == "field" && stream->isEndElement())) {
+                                stream->readNext();
+                                if (stream->name() == "key" && stream->isStartElement()) {
+                                    EffectKeyframe kf;
+                                    for (int k=0;k<stream->attributes().size();k++) {
+                                        const QXmlStreamAttribute& attr = stream->attributes().at(k);
+                                        if (attr.name() == "frame") {
+                                            kf.frame = attr.value().toLong();
+                                        } else if (attr.name() == "type") {
+                                            kf.type = attr.value().toInt();
+                                        } else if (attr.name() == "value") {
+                                            switch (field->type) {
+                                            case EFFECT_FIELD_DOUBLE:
+                                                kf.data = attr.value().toDouble();
+                                                break;
+                                            case EFFECT_FIELD_COLOR:
+                                            {
+                                                kf.data = QColor(attr.value().toString());
+                                            }
+                                                break;
+                                            case EFFECT_FIELD_STRING:
+                                                kf.data = attr.value().toString();
+                                                break;
+                                            case EFFECT_FIELD_BOOL:
+                                                kf.data = (stream->text() == "1");
+                                                break;
+                                            case EFFECT_FIELD_COMBO:
+                                                kf.data = (stream->text().toInt());
+                                                break;
+                                            case EFFECT_FIELD_FONT:
+                                                kf.data = (stream->text().toString());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    keys.append(kf);
+                                }
+                            }
+                            field->keyframes = keys;
 							break;
 						}
 					}
@@ -166,29 +194,32 @@ void Effect::load(QXmlStreamReader* stream) {
 				break;
 			}
 		}
-	}
-
+    }*/
 }
 
 void Effect::save(QXmlStreamWriter* stream) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-		stream->writeStartElement("row");
+        stream->writeStartElement("row");
+        for (int j=0;j<row->keyframe_times.size();j++) {
+            stream->writeStartElement("key");
+            stream->writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
+            stream->writeAttribute("type", QString::number(row->keyframe_types.at(j)));
+            stream->writeEndElement(); // key
+        }
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
 			stream->writeStartElement("field");
-			for (int k=0;k<field->keyframes.size();k++) {
-				const EffectKeyframe& key = field->keyframes.at(i);
-				stream->writeStartElement("key");
-				stream->writeAttribute("frame", QString::number(key.frame));
-				stream->writeAttribute("type", QString::number(key.type));
+            for (int k=0;k<field->keyframe_data.size();k++) {
+                const QVariant& data = field->keyframe_data.at(k);
+                stream->writeStartElement("key");
 				switch (field->type) {
-				case EFFECT_FIELD_DOUBLE: stream->writeAttribute("value", QString::number(key.data.toDouble())); break;
-				case EFFECT_FIELD_COLOR: stream->writeAttribute("value", key.data.value<QColor>().name()); break;
-				case EFFECT_FIELD_STRING: stream->writeAttribute("value", key.data.toString()); break;
-				case EFFECT_FIELD_BOOL: stream->writeAttribute("value", QString::number(key.data.toBool())); break;
-				case EFFECT_FIELD_COMBO: stream->writeAttribute("value", key.data.toString()); break;
-				case EFFECT_FIELD_FONT: stream->writeAttribute("value", key.data.toString()); break;
+                case EFFECT_FIELD_DOUBLE: stream->writeAttribute("value", QString::number(data.toDouble())); break;
+                case EFFECT_FIELD_COLOR: stream->writeAttribute("value", data.value<QColor>().name()); break;
+                case EFFECT_FIELD_STRING: stream->writeAttribute("value", data.toString()); break;
+                case EFFECT_FIELD_BOOL: stream->writeAttribute("value", QString::number(data.toBool())); break;
+                case EFFECT_FIELD_COMBO: stream->writeAttribute("value", QString::number(data.toInt())); break;
+                case EFFECT_FIELD_FONT: stream->writeAttribute("value", data.toString()); break;
 				}
 				stream->writeEndElement();
 			}
@@ -205,17 +236,28 @@ void Effect::process_audio(uint8_t*, int) {}
 
 /* Effect Row Definitions */
 
-EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, int row) : parent_effect(parent), ui(uilayout), name(n), ui_row(row) {
-	label = new QLabel(name);
+EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, int row) :
+    parent_effect(parent),
+    keyframing(false),
+    ui(uilayout),
+    name(n),
+    ui_row(row)
+{
+    label = new QLabel(name);
 	ui->addWidget(label, row, 0);
 
+    // DEBUG STARTS
+    QPushButton* nkf = new QPushButton();
+    connect(nkf, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_now()));
+    ui->addWidget(nkf, row, 5);
+    // DEBUG ENDS
 	/*keyframe_enable = new CheckboxEx();
 	keyframe_enable->setToolTip("Enable Keyframes");
 	ui->addWidget(keyframe_enable, row, 5);*/
 }
 
 EffectField* EffectRow::add_field(int type, int colspan) {
-	EffectField* field = new EffectField(type);
+    EffectField* field = new EffectField(this, type);
 	fields.append(field);
 	QWidget* element = field->get_ui_element();
 	ui->addWidget(element, ui_row, fields.size(), 1, colspan);
@@ -228,6 +270,29 @@ EffectRow::~EffectRow() {
 	}
 }
 
+void EffectRow::set_keyframe_now() {
+    set_keyframe(panel_timeline->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in);
+}
+
+void EffectRow::set_keyframe(long time) {
+    keyframing = true;
+    int index = -1;
+    for (int i=0;i<keyframe_times.size();i++) {
+        if (keyframe_times.at(i) == time) {
+            index = i;
+            break;
+        }
+    }
+    if (index == -1) {
+        keyframe_times.append(time);
+        keyframe_types.append((keyframe_types.size() > 0) ? keyframe_types.last() : EFFECT_KEYFRAME_LINEAR);
+    }
+    for (int i=0;i<fields.size();i++) {
+        fields.at(i)->set_keyframe_data(index);
+    }
+    panel_effect_controls->update_keyframes();
+}
+
 EffectField* EffectRow::field(int i) {
 	return fields.at(i);
 }
@@ -238,25 +303,20 @@ int EffectRow::fieldCount() {
 
 /* Effect Field Definitions */
 
-EffectField::EffectField(int t) : type(t) {
-	// DEFAULT KEYFRAME
-	EffectKeyframe key;
-	key.frame = -1;
-	keyframes.append(key);
-
+EffectField::EffectField(EffectRow *parent, int t) : parent_row(parent), type(t) {
 	switch (t) {
 	case EFFECT_FIELD_DOUBLE:
 	{
 		LabelSlider* ls = new LabelSlider();
 		ui_element = ls;
-		connect(ls, SIGNAL(valueChanged()), this, SIGNAL(changed()));
+        connect(ls, SIGNAL(valueChanged()), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_COLOR:
 	{
 		ColorButton* cb = new ColorButton();
 		ui_element = cb;
-		connect(cb, SIGNAL(color_changed()), this, SIGNAL(changed()));
+        connect(cb, SIGNAL(color_changed()), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_STRING:
@@ -264,14 +324,14 @@ EffectField::EffectField(int t) : type(t) {
 		QTextEdit* edit = new QTextEdit();
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
-		connect(edit, SIGNAL(textChanged()), this, SIGNAL(changed()));
+        connect(edit, SIGNAL(textChanged()), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_BOOL:
 	{
 		CheckboxEx* cb = new CheckboxEx();
 		ui_element = cb;
-		connect(cb, SIGNAL(clicked(bool)), this, SIGNAL(changed()));
+        connect(cb, SIGNAL(clicked(bool)), this, SLOT(uiElementChange()));
 		connect(cb, SIGNAL(toggled(bool)), this, SIGNAL(toggled(bool)));
 	}
 		break;
@@ -279,73 +339,86 @@ EffectField::EffectField(int t) : type(t) {
 	{
 		ComboBoxEx* cb = new ComboBoxEx();
 		ui_element = cb;
-		connect(cb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(changed()));
+        connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_FONT:
 	{
 		FontCombobox* fcb = new FontCombobox();
 		ui_element = fcb;
-		connect(fcb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(changed()));
+        connect(fcb, SIGNAL(currentIndexChanged(int)), this, SLOT(uiElementChange()));
 	}
 		break;
 	}
 }
 
-bool EffectField::is_keyframed(long p) {
-	return keyframes.size() == 0 || p < 0;
+QVariant EffectField::get_current_data() {
+    switch (type) {
+    case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->value(); break;
+    case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->get_color(); break;
+    case EFFECT_FIELD_STRING: return static_cast<QTextEdit*>(ui_element)->toPlainText(); break;
+    case EFFECT_FIELD_BOOL: return static_cast<QCheckBox*>(ui_element)->isChecked(); break;
+    case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->currentIndex(); break;
+    case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->currentText(); break;
+    }
+    return QVariant();
 }
 
-QVariant EffectField::get_keyframe_data(long p) {
-	if (keyframes.size() == 1) {
-		return keyframes.at(0).data;
-	}
+void EffectField::set_keyframe_data(int i) {
+    if (i == -1) {
+        keyframe_data.append(get_current_data());
+    } else {
+        keyframe_data[i] = get_current_data();
+    }
+}
 
-	EffectKeyframe* before = NULL;
-	EffectKeyframe* after = NULL;
-	for (int i=1;i<keyframes.size();i++) {
-		if (keyframes.at(i).frame == p) {
-			return keyframes.at(i).data;
-		} else if (keyframes.at(i).frame < p && !(before != NULL && keyframes.at(i).frame <= before->frame)) {
-			before = &keyframes[i];
-		} else if (keyframes.at(i).frame > p && !(after != NULL && keyframes.at(i).frame >= after->frame)) {
-			after = &keyframes[i];
-		}
-	}
+void EffectField::get_keyframe_data(long frame, int* before, int* after, double* progress) {
+    int before_keyframe_index = -1;
+    int after_keyframe_index = -1;
+    long before_keyframe_time = LONG_MIN;
+    long after_keyframe_time = LONG_MAX;
 
-	// interpolate data
-	if (before != NULL && after != NULL) {
-		double progress = (p - before->frame)/(after->frame - before->frame);
-		switch (type) {
-		case EFFECT_FIELD_DOUBLE:
-		{
-			return lerp(before->data.toDouble(), after->data.toDouble(), progress);
-		}
-			break;
-		case EFFECT_FIELD_COLOR:
-		{
-			QColor before_color = before->data.value<QColor>();
-			QColor after_color = after->data.value<QColor>();
-			QColor interval_color = QColor(
-						lerp(before_color.red(), after_color.red(), progress),
-						lerp(before_color.green(), after_color.green(), progress),
-						lerp(before_color.blue(), after_color.blue(), progress)
-					);
-			return QVariant(interval_color);
-		}
-			break;
-		case EFFECT_FIELD_STRING:
-		case EFFECT_FIELD_BOOL:
-		case EFFECT_FIELD_COMBO:
-		case EFFECT_FIELD_FONT:
-			return before->data;
-			break;
-		}
-	}
+    for (int i=0;i<parent_row->keyframe_times.size();i++) {
+        long eval_keyframe_time = parent_row->keyframe_times.at(i);
+        if (eval_keyframe_time == frame) {
+            *before = i;
+            *after = i;
+            return;
+        } else if (eval_keyframe_time < frame && eval_keyframe_time > before_keyframe_time) {
+            before_keyframe_index = i;
+            before_keyframe_time = eval_keyframe_time;
+        } else if (eval_keyframe_time > frame && eval_keyframe_time < after_keyframe_time) {
+            after_keyframe_index = i;
+            after_keyframe_time = eval_keyframe_time;
+        }
+    }
 
-	// return pre or post data
-	if (before != NULL) return before->data;
-	if (after != NULL) return after->data;
+    if (type == EFFECT_FIELD_DOUBLE || type == EFFECT_FIELD_COLOR) {
+        if (before_keyframe_index > -1 && after_keyframe_index > -1) {
+            // interpolate
+            *before = before_keyframe_index;
+            *after = after_keyframe_index;
+            *progress = (double)(frame-before_keyframe_time)/(double)(after_keyframe_time-before_keyframe_time);
+
+            // TODO routines for bezier - currently this is purely linear
+        } else if (before_keyframe_index > -1) {
+            *before = before_keyframe_index;
+            *after = before_keyframe_index;
+        } else if (after_keyframe_index > -1) {
+            *before = after_keyframe_index;
+            *after = after_keyframe_index;
+        }
+    } else {
+        *before = before_keyframe_index;
+        *after = before_keyframe_index;
+    }
+}
+
+void EffectField::uiElementChange() {
+    if (parent_row->keyframing) {
+        parent_row->set_keyframe_now();
+    }
+    emit changed();
 }
 
 QWidget* EffectField::get_ui_element() {
@@ -357,12 +430,28 @@ void EffectField::set_enabled(bool e) {
 }
 
 double EffectField::get_double_value(long p) {
-	return get_keyframe_data(p).toDouble();
+    if (parent_row->keyframing) {
+        int before_keyframe;
+        int after_keyframe;
+        double progress;
+        get_keyframe_data(p, &before_keyframe, &after_keyframe, &progress);
+        double value;
+        if (before_keyframe == after_keyframe) {
+            value = keyframe_data.at(before_keyframe).toDouble();
+        } else {
+            double before_data = keyframe_data.at(before_keyframe).toDouble();
+            double after_data = keyframe_data.at(after_keyframe).toDouble();
+            value = double_lerp(before_data, after_data, progress);
+        }
+        static_cast<LabelSlider*>(ui_element)->set_value(value, false);
+        return value;
+    } else {
+        return static_cast<LabelSlider*>(ui_element)->value();
+    }
 }
 
 void EffectField::set_double_value(double v) {
-
-	static_cast<LabelSlider*>(ui_element)->set_value(v, false);
+    static_cast<LabelSlider*>(ui_element)->set_value(v, false);
 }
 
 void EffectField::set_double_default_value(double v) {
@@ -382,15 +471,15 @@ void EffectField::add_combo_item(const QString& name, const QVariant& data) {
 }
 
 int EffectField::get_combo_index(long p) {
-	return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
+    return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
 }
 
 const QVariant EffectField::get_combo_data(long p) {
-	return static_cast<ComboBoxEx*>(ui_element)->currentData();
+    return static_cast<ComboBoxEx*>(ui_element)->currentData();
 }
 
 const QString EffectField::get_combo_string(long p) {
-	return static_cast<ComboBoxEx*>(ui_element)->itemText(get_keyframe_data(p).toInt());
+    return static_cast<ComboBoxEx*>(ui_element)->currentText();
 }
 
 void EffectField::set_combo_index(int index) {
@@ -426,6 +515,20 @@ void EffectField::set_font_name(const QString& s) {
 }
 
 QColor EffectField::get_color_value(long p) {
+    if (parent_row->keyframing) {
+        int before_keyframe;
+        int after_keyframe;
+        double progress;
+        get_keyframe_data(p, &before_keyframe, &after_keyframe, &progress);
+        if (before_keyframe == after_keyframe) {
+            return keyframe_data.at(before_keyframe).value<QColor>();
+        } else {
+            QColor before_data = keyframe_data.at(before_keyframe).value<QColor>();
+            QColor after_data = keyframe_data.at(after_keyframe).value<QColor>();
+            return QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
+        }
+    }
+
 	return static_cast<ColorButton*>(ui_element)->get_color();
 }
 

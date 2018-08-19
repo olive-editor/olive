@@ -29,13 +29,17 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		Effect* e = effects.at(i);
 		if (e->container->is_expanded()) {
 			for (int j=0;j<e->row_count();j++) {
-				QLabel* label = e->row(j)->label;
-				QWidget* contents = e->container->contents;
-				long frame = 20;
-				int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
-				draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, frame), keyframe_y, false);
+                EffectRow* row = e->row(j);
 
-				rows.append(e->row(j));
+                QLabel* label = row->label;
+				QWidget* contents = e->container->contents;
+
+                int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
+                for (int k=0;k<row->keyframe_times.size();k++) {
+                    draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, row->keyframe_times.at(k)), keyframe_y, false);
+                }
+
+                rows.append(row);
 				rowY.append(keyframe_y);
 			}
 		}
@@ -65,7 +69,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
-	unsetCursor();
+    /*unsetCursor();
 	bool new_mo = false;
 	for (int i=0;i<rowY.size();i++) {
 		if (event->y() > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && event->y() < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
@@ -79,7 +83,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 	if (new_mo || (new_mo != mouseover)) {
 		update();
 	}
-	mouseover = new_mo;
+    mouseover = new_mo;*/
 }
 
 void KeyframeView::mouseReleaseEvent(QMouseEvent* event) {
