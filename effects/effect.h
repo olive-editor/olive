@@ -155,8 +155,8 @@ public:
     Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
-	void load(QXmlStreamReader* stream);
-	void save(QXmlStreamWriter* stream);
+    void load(QXmlStreamReader& stream);
+    void save(QXmlStreamWriter& stream);
 
 	bool enable_image;
 	bool enable_opengl;

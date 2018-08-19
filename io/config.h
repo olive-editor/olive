@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#define SAVE_VERSION "180814"
+#define SAVE_VERSION "180820" // YYMMDD
 
 struct Config {
     Config();

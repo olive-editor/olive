@@ -853,7 +853,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                         }
                                                         if (effect_id != -1) {
                                                             Effect* e = create_effect(effect_id, c);
-                                                            e->load(&stream);
+                                                            e->load(stream);
                                                             c->effects.append(e);
                                                         }
                                                     }
@@ -1111,7 +1111,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                     stream.writeStartElement("effect"); // effect
                                     Effect* e = c->effects.at(k);
                                     stream.writeAttribute("id", QString::number(e->id));									
-                                    e->save(&stream);
+                                    e->save(stream);
                                     stream.writeEndElement(); // effect
                                 }
                                 stream.writeEndElement(); // effects

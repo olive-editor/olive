@@ -136,8 +136,8 @@ bool Effect::is_enabled() {
     return container->enabled_check->isChecked();
 }
 
-void Effect::load(QXmlStreamReader* stream) {
-    stream->readNext();
+void Effect::load(QXmlStreamReader& stream) {
+    stream.readNext();
     /*for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
 		while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
@@ -199,35 +199,41 @@ void Effect::load(QXmlStreamReader* stream) {
     }*/
 }
 
-void Effect::save(QXmlStreamWriter* stream) {
+QString save_data(int type, const QVariant& data) {
+    switch (type) {
+    case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble()); break;
+    case EFFECT_FIELD_COLOR: return data.value<QColor>().name(); break;
+    case EFFECT_FIELD_STRING: return data.toString(); break;
+    case EFFECT_FIELD_BOOL: return QString::number(data.toBool()); break;
+    case EFFECT_FIELD_COMBO: return QString::number(data.toInt()); break;
+    case EFFECT_FIELD_FONT: return data.toString(); break;
+    }
+    return QString();
+}
+
+void Effect::save(QXmlStreamWriter& stream) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-        stream->writeStartElement("row");
+        stream.writeStartElement("row"); // row
+        stream.writeStartElement("keyframes"); // keyframes
+        stream.writeAttribute("enabled", QString::number(row->keyframing));
         for (int j=0;j<row->keyframe_times.size();j++) {
-            stream->writeStartElement("key");
-            stream->writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
-            stream->writeAttribute("type", QString::number(row->keyframe_types.at(j)));
-            stream->writeEndElement(); // key
+            stream.writeStartElement("key"); // key
+            stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
+            stream.writeAttribute("type", QString::number(row->keyframe_types.at(j)));
+            stream.writeEndElement(); // key
         }
+        stream.writeEndElement(); // keyframes
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
-			stream->writeStartElement("field");
+            stream.writeStartElement("field"); // field
+            stream.writeAttribute("value", save_data(field->type, field->get_current_data()));
             for (int k=0;k<field->keyframe_data.size();k++) {
-                const QVariant& data = field->keyframe_data.at(k);
-                stream->writeStartElement("key");
-				switch (field->type) {
-                case EFFECT_FIELD_DOUBLE: stream->writeAttribute("value", QString::number(data.toDouble())); break;
-                case EFFECT_FIELD_COLOR: stream->writeAttribute("value", data.value<QColor>().name()); break;
-                case EFFECT_FIELD_STRING: stream->writeAttribute("value", data.toString()); break;
-                case EFFECT_FIELD_BOOL: stream->writeAttribute("value", QString::number(data.toBool())); break;
-                case EFFECT_FIELD_COMBO: stream->writeAttribute("value", QString::number(data.toInt())); break;
-                case EFFECT_FIELD_FONT: stream->writeAttribute("value", data.toString()); break;
-				}
-				stream->writeEndElement();
+                stream.writeTextElement("key", save_data(field->type, field->keyframe_data.at(k)));
 			}
-			stream->writeEndElement(); // field
+            stream.writeEndElement(); // field
 		}
-		stream->writeEndElement(); // row
+        stream.writeEndElement(); // row
 	}
 }
 
