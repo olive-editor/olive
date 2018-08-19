@@ -78,12 +78,6 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 	connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 }
 
-Effect* TransformEffect::copy(Clip* c) {
-	TransformEffect* t = new TransformEffect(c);
-	copy_field_keyframes(t);
-	return t;
-}
-
 void TransformEffect::refresh() {
 	if (parent_clip->sequence != NULL) {
         double default_pos_x = parent_clip->sequence->width/2;

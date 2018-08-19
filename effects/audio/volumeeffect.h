@@ -5,10 +5,8 @@
 
 class VolumeEffect : public Effect {
 public:
-	VolumeEffect(Clip* c);
-	void refresh();
-	void process_audio(quint8* samples, int nb_bytes);
-	Effect* copy(Clip* c);
+    VolumeEffect(Clip* c);
+    void process_audio(quint8* samples, int nb_bytes);
 
 	EffectField* volume_val;
 };

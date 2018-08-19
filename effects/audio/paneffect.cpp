@@ -20,14 +20,6 @@ PanEffect::PanEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT) {
 	connect(pan_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void PanEffect::refresh() {}
-
-Effect* PanEffect::copy(Clip* c) {
-	PanEffect* p = new PanEffect(c);
-	copy_field_keyframes(p);
-	return p;
-}
-
 void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
 	double pval = pan_val->get_double_value(-1);
 	if (pval != 0) {

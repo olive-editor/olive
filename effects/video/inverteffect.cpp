@@ -22,12 +22,6 @@ InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_
 	connect(amount_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-Effect* InvertEffect::copy(Clip* c) {
-	InvertEffect* i = new InvertEffect(c);
-	copy_field_keyframes(i);
-	return i;
-}
-
 void InvertEffect::process_gl(long p, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y) {
     double value = amount_val->get_double_value(p)*0.01;
 

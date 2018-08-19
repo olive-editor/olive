@@ -49,12 +49,6 @@ void ShakeEffect::refresh() {
     }
 }
 
-Effect* ShakeEffect::copy(Clip* c) {
-	ShakeEffect* e = new ShakeEffect(c);
-	copy_field_keyframes(e);
-	return e;
-}
-
 void ShakeEffect::process_gl(long p, QOpenGLShaderProgram&, int*, int*) {
     if (shake_progress > shake_limit) {
 		double ival = intensity_val->get_double_value(p);

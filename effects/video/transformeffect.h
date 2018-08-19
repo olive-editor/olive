@@ -8,8 +8,7 @@ class TransformEffect : public Effect {
 public:
 	TransformEffect(Clip* c);
 	void refresh();
-	void process_gl(long p, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
-	Effect* copy(Clip *c);
+    void process_gl(long p, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
 
 	EffectField* position_x;
 	EffectField* position_y;

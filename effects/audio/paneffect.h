@@ -5,10 +5,8 @@
 
 class PanEffect : public Effect {
 public:
-	PanEffect(Clip* c);
-	void refresh();
-	void process_audio(quint8* samples, int nb_bytes);
-	Effect* copy(Clip* c);
+    PanEffect(Clip* c);
+    void process_audio(quint8* samples, int nb_bytes);
 
 	EffectField* pan_val;
 };

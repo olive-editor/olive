@@ -283,7 +283,7 @@ bool EffectControls::is_focused() {
 
 EffectsArea::EffectsArea(QWidget* parent) : QWidget(parent) {}
 
-void EffectsArea::resizeEvent(QResizeEvent *event) {
+void EffectsArea::resizeEvent(QResizeEvent*) {
 	parent_widget->setMinimumWidth(sizeHint().width());
 	keyframe_area->setMinimumHeight(height() - header->height());
 }

@@ -61,6 +61,7 @@ public:
 	int type;
 
     QVariant get_current_data();
+    void set_current_data(const QVariant&);
     void set_keyframe_data(int i);
     void get_keyframe_data(long frame, int* before, int *after, double* d);
     void validate_keyframe_data(long frame);
@@ -151,7 +152,7 @@ public:
 
 	virtual void refresh();
 
-    virtual Effect* copy(Clip* c);
+    Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
 	void load(QXmlStreamReader* stream);

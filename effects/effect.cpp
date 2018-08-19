@@ -101,10 +101,12 @@ Effect::~Effect() {
 void Effect::copy_field_keyframes(Effect* e) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
+        e->rows.at(i)->keyframing = rows.at(i)->keyframing;
         e->rows.at(i)->keyframe_times = rows.at(i)->keyframe_times;
         e->rows.at(i)->keyframe_types = rows.at(i)->keyframe_types;
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
+            e->rows.at(i)->field(j)->set_current_data(field->get_current_data());
             e->rows.at(i)->field(j)->keyframe_data = field->keyframe_data;
 		}
 	}
@@ -229,7 +231,12 @@ void Effect::save(QXmlStreamWriter* stream) {
 	}
 }
 
-Effect* Effect::copy(Clip*) {return NULL;}
+Effect* Effect::copy(Clip* c) {
+    Effect* copy = create_effect(id, c);
+    copy_field_keyframes(copy);
+    return copy;
+}
+
 void Effect::process_image(long, QImage&) {}
 void Effect::process_gl(long, QOpenGLShaderProgram&, int*, int*) {}
 void Effect::process_audio(uint8_t*, int) {}
@@ -362,6 +369,17 @@ QVariant EffectField::get_current_data() {
     case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->currentText(); break;
     }
     return QVariant();
+}
+
+void EffectField::set_current_data(const QVariant& data) {
+    switch (type) {
+    case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->set_value(data.toDouble(), false); break;
+    case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->set_color(data.value<QColor>()); break;
+    case EFFECT_FIELD_STRING: return static_cast<QTextEdit*>(ui_element)->setPlainText(data.toString()); break;
+    case EFFECT_FIELD_BOOL: return static_cast<QCheckBox*>(ui_element)->setChecked(data.toBool()); break;
+    case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->setCurrentIndexEx(data.toInt()); break;
+    case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->setCurrentTextEx(data.toString()); break;
+    }
 }
 
 void EffectField::set_keyframe_data(int i) {

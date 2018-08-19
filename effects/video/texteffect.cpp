@@ -357,9 +357,3 @@ void TextEffect::process_image(long frame, QImage& img) {
 	p.setBrush(set_color_button->get_color_value(frame));
 	p.drawPath(path);
 }
-
-Effect* TextEffect::copy(Clip* c) {
-	TextEffect* e = new TextEffect(c);
-	copy_field_keyframes(e);
-	return e;
-}

@@ -21,14 +21,6 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_
 	connect(volume_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void VolumeEffect::refresh() {}
-
-Effect* VolumeEffect::copy(Clip* c) {
-	VolumeEffect* v = new VolumeEffect(c);
-	copy_field_keyframes(v);
-	return v;
-}
-
 void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
 	double vol_val = volume_val->get_double_value(-1);
 	if (vol_val != 100) {

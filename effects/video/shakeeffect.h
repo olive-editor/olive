@@ -7,8 +7,7 @@ class ShakeEffect : public Effect {
 	Q_OBJECT
 public:
 	ShakeEffect(Clip* c);
-	void process_gl(long p, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
-	Effect* copy(Clip *c);
+    void process_gl(long p, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
 
 	EffectField* intensity_val;
 	EffectField* rotation_val;
