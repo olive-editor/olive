@@ -13,7 +13,7 @@
 #define KEYFRAME_SIZE 6
 #define KEYFRAME_POINT_COUNT 4
 
-KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mouseover(false), visible_in(0), visible_out(0) {
+KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mousedown(false), visible_in(0), visible_out(0) {
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
 }
@@ -36,7 +36,16 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 
                 int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
                 for (int k=0;k<row->keyframe_times.size();k++) {
-                    draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, row->keyframe_times.at(k)), keyframe_y, false);
+                    bool keyframe_selected = false;
+                    for (int l=0;l<selected_rows.size();l++) {
+//                        qDebug() << selected_rows.at(l) << rows.size() << selected_keyframes.at(l) << k;
+                        if (selected_rows.at(l) == rows.size() && selected_keyframes.at(l) == k) {
+                            keyframe_selected = true;
+                            break;
+                        }
+                    }
+
+                    draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, row->keyframe_times.at(k)-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in)), keyframe_y, keyframe_selected);
                 }
 
                 rows.append(row);
@@ -51,21 +60,64 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		p.drawLine(playhead_x, 0, playhead_x, height());
 	}
 
-	if (mouseover && mouseover_row < rowY.size()) {
+    /*if (mouseover && mouseover_row < rowY.size()) {
 		draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, mouseover_frame - visible_in), rowY.at(mouseover_row), true);
-	}
+    }*/
 }
 
-void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool semiTransparent) {
+void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool darker) {
 	QPoint points[KEYFRAME_POINT_COUNT] = {QPoint(x-KEYFRAME_SIZE, y), QPoint(x, y-KEYFRAME_SIZE), QPoint(x+KEYFRAME_SIZE, y), QPoint(x, y+KEYFRAME_SIZE)};
-	int alpha = (semiTransparent) ? 128 : 255;
-	p.setPen(QColor(0, 0, 0, alpha));
-	p.setBrush(QColor(160, 160, 160, alpha));
+    int color = (darker) ? 100 : 160;
+    p.setPen(QColor(0, 0, 0));
+    p.setBrush(QColor(color, color, color));
 	p.drawPolygon(points, KEYFRAME_POINT_COUNT);
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {
-	qDebug() << "create keyframe @ clip frame" << mouseover_frame - visible_in + (rows.at(mouseover_row)->parent_effect->parent_clip->clip_in) << "effect row" << mouseover_row;
+    int row_index = -1;
+    int keyframe_index = -1;
+    long frame_diff = 0;
+    long frame_min = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x()-KEYFRAME_SIZE);
+    long frame_mid = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x());
+    long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x()+KEYFRAME_SIZE);
+    for (int i=0;i<rowY.size();i++) {
+        if (event->y() > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && event->y() < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
+            EffectRow* row = rows.at(i);
+            for (int j=0;j<row->keyframe_times.size();j++) {
+                long eval_keyframe_time = row->keyframe_times.at(j)-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
+                if (eval_keyframe_time >= frame_min && eval_keyframe_time <= frame_max) {
+                    long eval_frame_diff = qAbs(eval_keyframe_time - frame_mid);
+                    if (keyframe_index == -1 || eval_frame_diff < frame_diff) {
+                        row_index = i;
+                        keyframe_index = j;
+                        frame_diff = eval_frame_diff;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    bool already_selected = false;
+    if (keyframe_index > -1) {
+        for (int i=0;i<selected_rows.size();i++) {
+            if (selected_rows.at(i) == row_index && selected_keyframes.at(i) == keyframe_index) {
+                already_selected = true;
+            }
+        }
+    }
+    if (!already_selected) {
+        if (!(event->modifiers() & Qt::ShiftModifier)) {
+            selected_rows.clear();
+            selected_keyframes.clear();
+        }
+        if (keyframe_index > -1) {
+            selected_rows.append(row_index);
+            selected_keyframes.append(keyframe_index);
+        }
+    }
+
+    update();
+    mousedown = true;
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
@@ -84,8 +136,11 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 		update();
 	}
     mouseover = new_mo;*/
+    if (mousedown) {
+
+    }
 }
 
 void KeyframeView::mouseReleaseEvent(QMouseEvent* event) {
-
+    mousedown = false;
 }

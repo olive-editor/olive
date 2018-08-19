@@ -74,7 +74,7 @@ void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool rese
 	}
 }
 
-void get_clip_frame(Clip* c, long playhead) {
+bool get_clip_frame(Clip* c, long playhead) {
 	if (c->open) {
 		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
 		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
@@ -176,12 +176,15 @@ void get_clip_frame(Clip* c, long playhead) {
 
 				c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, c->comp_frame);
 				c->texture_frame = clip_time;
+
+                return true;
 			} else if (!no_frame) {
 				texture_failed = true;
 				qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
 			}
 		}
 	}
+    return false;
 }
 
 double playhead_to_seconds(Clip* c, long playhead) {

@@ -63,6 +63,7 @@ public:
     QVariant get_current_data();
     void set_keyframe_data(int i);
     void get_keyframe_data(long frame, int* before, int *after, double* d);
+    void validate_keyframe_data(long frame);
 //  QVariant get_keyframe_data(long p);
 //	bool is_keyframed(long p);
 

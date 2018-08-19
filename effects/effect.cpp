@@ -339,14 +339,14 @@ EffectField::EffectField(EffectRow *parent, int t) : parent_row(parent), type(t)
 	{
 		ComboBoxEx* cb = new ComboBoxEx();
 		ui_element = cb;
-        connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(uiElementChange()));
+        connect(cb, SIGNAL(activated(int)), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_FONT:
 	{
 		FontCombobox* fcb = new FontCombobox();
 		ui_element = fcb;
-        connect(fcb, SIGNAL(currentIndexChanged(int)), this, SLOT(uiElementChange()));
+        connect(fcb, SIGNAL(activated(int)), this, SLOT(uiElementChange()));
 	}
 		break;
 	}
@@ -414,6 +414,59 @@ void EffectField::get_keyframe_data(long frame, int* before, int* after, double*
     }
 }
 
+void EffectField::validate_keyframe_data(long frame) {
+    if (parent_row->keyframing) {
+        int before_keyframe;
+        int after_keyframe;
+        double progress;
+        get_keyframe_data(frame, &before_keyframe, &after_keyframe, &progress);
+
+        const QVariant& before_data = keyframe_data.at(before_keyframe);
+        switch (type) {
+        case EFFECT_FIELD_DOUBLE:
+        {
+            double value;
+            if (before_keyframe == after_keyframe) {
+                value = keyframe_data.at(before_keyframe).toDouble();
+            } else {
+                double before_dbl = keyframe_data.at(before_keyframe).toDouble();
+                double after_dbl = keyframe_data.at(after_keyframe).toDouble();
+                value = double_lerp(before_dbl, after_dbl, progress);
+            }
+            static_cast<LabelSlider*>(ui_element)->set_value(value, false);
+        }
+            break;
+        case EFFECT_FIELD_COLOR:
+        {
+            QColor value;
+            if (before_keyframe == after_keyframe) {
+                value = keyframe_data.at(before_keyframe).value<QColor>();
+            } else {
+                QColor before_data = keyframe_data.at(before_keyframe).value<QColor>();
+                QColor after_data = keyframe_data.at(after_keyframe).value<QColor>();
+                value = QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
+            }
+            return static_cast<ColorButton*>(ui_element)->set_color(value);
+        }
+            break;
+        case EFFECT_FIELD_STRING:
+            static_cast<QTextEdit*>(ui_element)->setPlainText(before_data.toString());
+            break;
+        case EFFECT_FIELD_BOOL:
+            static_cast<QCheckBox*>(ui_element)->setChecked(before_data.toBool());
+            break;
+        case EFFECT_FIELD_COMBO:
+            static_cast<ComboBoxEx*>(ui_element)->setCurrentIndexEx(before_data.toInt());
+            break;
+        case EFFECT_FIELD_FONT:
+            static_cast<FontCombobox*>(ui_element)->setCurrentTextEx(before_data.toString());
+            break;
+        }
+
+
+    }
+}
+
 void EffectField::uiElementChange() {
     if (parent_row->keyframing) {
         parent_row->set_keyframe_now();
@@ -430,24 +483,8 @@ void EffectField::set_enabled(bool e) {
 }
 
 double EffectField::get_double_value(long p) {
-    if (parent_row->keyframing) {
-        int before_keyframe;
-        int after_keyframe;
-        double progress;
-        get_keyframe_data(p, &before_keyframe, &after_keyframe, &progress);
-        double value;
-        if (before_keyframe == after_keyframe) {
-            value = keyframe_data.at(before_keyframe).toDouble();
-        } else {
-            double before_data = keyframe_data.at(before_keyframe).toDouble();
-            double after_data = keyframe_data.at(after_keyframe).toDouble();
-            value = double_lerp(before_data, after_data, progress);
-        }
-        static_cast<LabelSlider*>(ui_element)->set_value(value, false);
-        return value;
-    } else {
-        return static_cast<LabelSlider*>(ui_element)->value();
-    }
+    validate_keyframe_data(p);
+    return static_cast<LabelSlider*>(ui_element)->value();
 }
 
 void EffectField::set_double_value(double v) {
@@ -471,14 +508,17 @@ void EffectField::add_combo_item(const QString& name, const QVariant& data) {
 }
 
 int EffectField::get_combo_index(long p) {
+    validate_keyframe_data(p);
     return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
 }
 
 const QVariant EffectField::get_combo_data(long p) {
+    validate_keyframe_data(p);
     return static_cast<ComboBoxEx*>(ui_element)->currentData();
 }
 
 const QString EffectField::get_combo_string(long p) {
+    validate_keyframe_data(p);
     return static_cast<ComboBoxEx*>(ui_element)->currentText();
 }
 
@@ -491,6 +531,7 @@ void EffectField::set_combo_string(const QString& s) {
 }
 
 bool EffectField::get_bool_value(long p) {
+    validate_keyframe_data(p);
 	return static_cast<QCheckBox*>(ui_element)->isChecked();
 }
 
@@ -499,6 +540,7 @@ void EffectField::set_bool_value(bool b) {
 }
 
 const QString EffectField::get_string_value(long p) {
+    validate_keyframe_data(p);
 	return static_cast<QTextEdit*>(ui_element)->toPlainText();
 }
 
@@ -507,6 +549,7 @@ void EffectField::set_string_value(const QString& s) {
 }
 
 const QString EffectField::get_font_name(long p) {
+    validate_keyframe_data(p);
 	return static_cast<FontCombobox*>(ui_element)->currentText();
 }
 
@@ -515,20 +558,7 @@ void EffectField::set_font_name(const QString& s) {
 }
 
 QColor EffectField::get_color_value(long p) {
-    if (parent_row->keyframing) {
-        int before_keyframe;
-        int after_keyframe;
-        double progress;
-        get_keyframe_data(p, &before_keyframe, &after_keyframe, &progress);
-        if (before_keyframe == after_keyframe) {
-            return keyframe_data.at(before_keyframe).value<QColor>();
-        } else {
-            QColor before_data = keyframe_data.at(before_keyframe).value<QColor>();
-            QColor after_data = keyframe_data.at(after_keyframe).value<QColor>();
-            return QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
-        }
-    }
-
+    validate_keyframe_data(p);
 	return static_cast<ColorButton*>(ui_element)->get_color();
 }
 

@@ -17,17 +17,19 @@ public:
 	long visible_in;
 	long visible_out;
 private:
+    QVector<int> selected_rows;
+    QVector<int> selected_keyframes;
 	QVector<int> rowY;
 	QVector<EffectRow*> rows;
 	void mousePressEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
-	void draw_keyframe(QPainter& p, int x, int y, bool semiTransparent);
-	bool enable_reload;
-	bool mouseover;
-	long mouseover_frame;
-	int mouseover_row;
+    void draw_keyframe(QPainter& p, int x, int y, bool darker);
+    bool mousedown;
+
+    int drag_row_index;
+    int drag_keyframe_index;
 };
 
 #endif // KEYFRAMEVIEW_H

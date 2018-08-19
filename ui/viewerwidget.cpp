@@ -172,33 +172,33 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                         if (flip) half_height = -half_height;
                         glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
                         int anchor_x = ms->video_width/2;
-						int anchor_y = ms->video_height/2;
+                        int anchor_y = ms->video_height/2;
 
-						QOpenGLShaderProgram shader;
+                        QOpenGLShaderProgram shader;
 
-						for (int j=0;j<c->effects.size();j++) {
-							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(panel_timeline->playhead-c->timeline_in+c->clip_in, shader, &anchor_x, &anchor_y);
-						}
+                        for (int j=0;j<c->effects.size();j++) {
+                            if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(panel_timeline->playhead-c->timeline_in+c->clip_in, shader, &anchor_x, &anchor_y);
+                        }
 
-						if (c->opening_transition != NULL) {
-							int transition_progress = playhead - c->timeline_in;
-							if (transition_progress < c->opening_transition->length) {
-								c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
-							}
-						}
+                        if (c->opening_transition != NULL) {
+                            int transition_progress = playhead - c->timeline_in;
+                            if (transition_progress < c->opening_transition->length) {
+                                c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
+                            }
+                        }
 
-						if (c->closing_transition != NULL) {
-							int transition_progress = c->closing_transition->length - (playhead - c->timeline_in - c->getLength() + c->closing_transition->length);
-							if (transition_progress < c->closing_transition->length) {
-								c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
-							}
-						}
+                        if (c->closing_transition != NULL) {
+                            int transition_progress = c->closing_transition->length - (playhead - c->timeline_in - c->getLength() + c->closing_transition->length);
+                            if (transition_progress < c->closing_transition->length) {
+                                c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
+                            }
+                        }
 
                         int anchor_right = ms->video_width - anchor_x;
                         int anchor_bottom = ms->video_height - anchor_y;
 
-						bool use_gl_shaders = shader.link();
-						if (use_gl_shaders) shader.bind();
+                        bool use_gl_shaders = shader.link();
+                        if (use_gl_shaders) shader.bind();
 
                         c->texture->bind();
 
@@ -213,9 +213,9 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                         glVertex2f(-anchor_x, anchor_bottom);
                         glEnd();
 
-						c->texture->release();
+                        c->texture->release();
 
-						if (use_gl_shaders) shader.release();
+                        if (use_gl_shaders) shader.release();
                     }
                 } else if (render_audio &&
                            c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
