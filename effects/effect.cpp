@@ -12,6 +12,7 @@
 #include "ui/fontcombobox.h"
 #include "ui/checkboxex.h"
 #include "project/clip.h"
+#include "panels/timeline.h"
 
 #include "effects/video/transformeffect.h"
 #include "effects/video/inverteffect.h"
@@ -92,6 +93,16 @@ Effect::~Effect() {
 	}
 }
 
+void Effect::copy_field_keyframes(Effect* e) {
+	for (int i=0;i<rows.size();i++) {
+		EffectRow* row = rows.at(i);
+		for (int j=0;j<row->fieldCount();j++) {
+			EffectField* field = row->field(j);
+			e->rows.at(i)->field(j)->keyframes = field->keyframes;
+		}
+	}
+}
+
 EffectRow* Effect::add_row(const QString& name) {
 	EffectRow* row = new EffectRow(this, ui_layout, name, rows.size());
 	rows.append(row);
@@ -165,34 +176,31 @@ void Effect::save(QXmlStreamWriter* stream) {
 		stream->writeStartElement("row");
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
-			switch (field->type) {
-			case EFFECT_FIELD_DOUBLE:
-				stream->writeTextElement("field", QString::number(field->get_double_value()));
-				break;
-			case EFFECT_FIELD_COLOR:
-				stream->writeTextElement("field", field->get_color_value().name());
-				break;
-			case EFFECT_FIELD_STRING:
-				stream->writeTextElement("field", field->get_string_value());
-				break;
-			case EFFECT_FIELD_BOOL:
-				stream->writeTextElement("field", QString::number(field->get_bool_value()));
-				break;
-			case EFFECT_FIELD_COMBO:
-				stream->writeTextElement("field", field->get_combo_string());
-				break;
-			case EFFECT_FIELD_FONT:
-				stream->writeTextElement("field", field->get_font_name());
-				break;
+			stream->writeStartElement("field");
+			for (int k=0;k<field->keyframes.size();k++) {
+				const EffectKeyframe& key = field->keyframes.at(i);
+				stream->writeStartElement("key");
+				stream->writeAttribute("frame", QString::number(key.frame));
+				stream->writeAttribute("type", QString::number(key.type));
+				switch (field->type) {
+				case EFFECT_FIELD_DOUBLE: stream->writeAttribute("value", QString::number(key.data.toDouble())); break;
+				case EFFECT_FIELD_COLOR: stream->writeAttribute("value", key.data.value<QColor>().name()); break;
+				case EFFECT_FIELD_STRING: stream->writeAttribute("value", key.data.toString()); break;
+				case EFFECT_FIELD_BOOL: stream->writeAttribute("value", QString::number(key.data.toBool())); break;
+				case EFFECT_FIELD_COMBO: stream->writeAttribute("value", key.data.toString()); break;
+				case EFFECT_FIELD_FONT: stream->writeAttribute("value", key.data.toString()); break;
+				}
+				stream->writeEndElement();
 			}
+			stream->writeEndElement(); // field
 		}
 		stream->writeEndElement(); // row
 	}
 }
 
 Effect* Effect::copy(Clip*) {return NULL;}
-void Effect::process_image(QImage&) {}
-void Effect::process_gl(QOpenGLShaderProgram&, int*, int*) {}
+void Effect::process_image(long, QImage&) {}
+void Effect::process_gl(long, QOpenGLShaderProgram&, int*, int*) {}
 void Effect::process_audio(uint8_t*, int) {}
 
 /* Effect Row Definitions */
@@ -231,6 +239,11 @@ int EffectRow::fieldCount() {
 /* Effect Field Definitions */
 
 EffectField::EffectField(int t) : type(t) {
+	// DEFAULT KEYFRAME
+	EffectKeyframe key;
+	key.frame = -1;
+	keyframes.append(key);
+
 	switch (t) {
 	case EFFECT_FIELD_DOUBLE:
 	{
@@ -279,6 +292,62 @@ EffectField::EffectField(int t) : type(t) {
 	}
 }
 
+bool EffectField::is_keyframed(long p) {
+	return keyframes.size() == 0 || p < 0;
+}
+
+QVariant EffectField::get_keyframe_data(long p) {
+	if (keyframes.size() == 1) {
+		return keyframes.at(0).data;
+	}
+
+	EffectKeyframe* before = NULL;
+	EffectKeyframe* after = NULL;
+	for (int i=1;i<keyframes.size();i++) {
+		if (keyframes.at(i).frame == p) {
+			return keyframes.at(i).data;
+		} else if (keyframes.at(i).frame < p && !(before != NULL && keyframes.at(i).frame <= before->frame)) {
+			before = &keyframes[i];
+		} else if (keyframes.at(i).frame > p && !(after != NULL && keyframes.at(i).frame >= after->frame)) {
+			after = &keyframes[i];
+		}
+	}
+
+	// interpolate data
+	if (before != NULL && after != NULL) {
+		double progress = (p - before->frame)/(after->frame - before->frame);
+		switch (type) {
+		case EFFECT_FIELD_DOUBLE:
+		{
+			return lerp(before->data.toDouble(), after->data.toDouble(), progress);
+		}
+			break;
+		case EFFECT_FIELD_COLOR:
+		{
+			QColor before_color = before->data.value<QColor>();
+			QColor after_color = after->data.value<QColor>();
+			QColor interval_color = QColor(
+						lerp(before_color.red(), after_color.red(), progress),
+						lerp(before_color.green(), after_color.green(), progress),
+						lerp(before_color.blue(), after_color.blue(), progress)
+					);
+			return QVariant(interval_color);
+		}
+			break;
+		case EFFECT_FIELD_STRING:
+		case EFFECT_FIELD_BOOL:
+		case EFFECT_FIELD_COMBO:
+		case EFFECT_FIELD_FONT:
+			return before->data;
+			break;
+		}
+	}
+
+	// return pre or post data
+	if (before != NULL) return before->data;
+	if (after != NULL) return after->data;
+}
+
 QWidget* EffectField::get_ui_element() {
 	return ui_element;
 }
@@ -287,11 +356,12 @@ void EffectField::set_enabled(bool e) {
 	ui_element->setEnabled(e);
 }
 
-double EffectField::get_double_value() {
-	return static_cast<LabelSlider*>(ui_element)->value();
+double EffectField::get_double_value(long p) {
+	return get_keyframe_data(p).toDouble();
 }
 
 void EffectField::set_double_value(double v) {
+
 	static_cast<LabelSlider*>(ui_element)->set_value(v, false);
 }
 
@@ -311,16 +381,16 @@ void EffectField::add_combo_item(const QString& name, const QVariant& data) {
 	static_cast<ComboBoxEx*>(ui_element)->addItem(name, data);
 }
 
-int EffectField::get_combo_index() {
+int EffectField::get_combo_index(long p) {
 	return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
 }
 
-const QVariant EffectField::get_combo_data() {
+const QVariant EffectField::get_combo_data(long p) {
 	return static_cast<ComboBoxEx*>(ui_element)->currentData();
 }
 
-const QString EffectField::get_combo_string() {
-	return static_cast<ComboBoxEx*>(ui_element)->currentText();
+const QString EffectField::get_combo_string(long p) {
+	return static_cast<ComboBoxEx*>(ui_element)->itemText(get_keyframe_data(p).toInt());
 }
 
 void EffectField::set_combo_index(int index) {
@@ -331,7 +401,7 @@ void EffectField::set_combo_string(const QString& s) {
 	static_cast<ComboBoxEx*>(ui_element)->setCurrentTextEx(s);
 }
 
-bool EffectField::get_bool_value() {
+bool EffectField::get_bool_value(long p) {
 	return static_cast<QCheckBox*>(ui_element)->isChecked();
 }
 
@@ -339,7 +409,7 @@ void EffectField::set_bool_value(bool b) {
 	return static_cast<QCheckBox*>(ui_element)->setChecked(b);
 }
 
-const QString EffectField::get_string_value() {
+const QString EffectField::get_string_value(long p) {
 	return static_cast<QTextEdit*>(ui_element)->toPlainText();
 }
 
@@ -347,7 +417,7 @@ void EffectField::set_string_value(const QString& s) {
 	static_cast<QTextEdit*>(ui_element)->setText(s);
 }
 
-const QString EffectField::get_font_name() {
+const QString EffectField::get_font_name(long p) {
 	return static_cast<FontCombobox*>(ui_element)->currentText();
 }
 
@@ -355,7 +425,7 @@ void EffectField::set_font_name(const QString& s) {
 	static_cast<FontCombobox*>(ui_element)->setCurrentText(s);
 }
 
-QColor EffectField::get_color_value() {
+QColor EffectField::get_color_value(long p) {
 	return static_cast<ColorButton*>(ui_element)->get_color();
 }
 

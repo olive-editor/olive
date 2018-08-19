@@ -41,7 +41,7 @@ ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFF
 
 void ShakeEffect::refresh() {
     if (parent_clip->sequence != NULL) {
-		shake_limit = qRound(parent_clip->sequence->frame_rate / frequency_val->get_double_value());
+		shake_limit = qRound(parent_clip->sequence->frame_rate / frequency_val->get_double_value(-1));
         shake_progress = shake_limit;
         next_x = 0;
         next_y = 0;
@@ -51,15 +51,13 @@ void ShakeEffect::refresh() {
 
 Effect* ShakeEffect::copy(Clip* c) {
 	ShakeEffect* e = new ShakeEffect(c);
-	e->intensity_val->set_double_value(intensity_val->get_double_value());
-	e->rotation_val->set_double_value(rotation_val->get_double_value());
-	e->frequency_val->set_double_value(frequency_val->get_double_value());
+	copy_field_keyframes(e);
 	return e;
 }
 
-void ShakeEffect::process_gl(QOpenGLShaderProgram&, int*, int*) {
+void ShakeEffect::process_gl(long p, QOpenGLShaderProgram&, int*, int*) {
     if (shake_progress > shake_limit) {
-		double ival = intensity_val->get_double_value();
+		double ival = intensity_val->get_double_value(p);
 		if ((int)ival > 0) {
             prev_x = next_x;
             prev_y = next_y;
@@ -89,7 +87,7 @@ void ShakeEffect::process_gl(QOpenGLShaderProgram&, int*, int*) {
             offset_x = 0;
             offset_y = 0;
         }
-		double rot_val = rotation_val->get_double_value();
+		double rot_val = rotation_val->get_double_value(p);
 		if ((int)rot_val > 0) {
             prev_rot = next_rot;
 			next_rot = (qrand() % (int) (rot_val * 2)) - rot_val;

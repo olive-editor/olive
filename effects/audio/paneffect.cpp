@@ -24,12 +24,12 @@ void PanEffect::refresh() {}
 
 Effect* PanEffect::copy(Clip* c) {
 	PanEffect* p = new PanEffect(c);
-	p->pan_val->set_double_value(pan_val->get_double_value());
+	copy_field_keyframes(p);
 	return p;
 }
 
 void PanEffect::process_audio(quint8 *samples, int nb_bytes) {
-	double pval = pan_val->get_double_value();
+	double pval = pan_val->get_double_value(-1);
 	if (pval != 0) {
         for (int i=0;i<nb_bytes;i+=4) {
             qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));

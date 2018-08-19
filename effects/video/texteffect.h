@@ -9,7 +9,7 @@ class TextEffect : public Effect {
 	Q_OBJECT
 public:
 	TextEffect(Clip* c);
-	void process_image(QImage& img);
+	void process_image(long frame, QImage& img);
 	Effect* copy(Clip* c);
 
 	EffectField* text_val;

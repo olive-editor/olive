@@ -25,12 +25,12 @@ void VolumeEffect::refresh() {}
 
 Effect* VolumeEffect::copy(Clip* c) {
 	VolumeEffect* v = new VolumeEffect(c);
-	v->volume_val->set_double_value(volume_val->get_double_value());
+	copy_field_keyframes(v);
 	return v;
 }
 
 void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
-	double vol_val = volume_val->get_double_value();
+	double vol_val = volume_val->get_double_value(-1);
 	if (vol_val != 100) {
         for (int i=0;i<nb_bytes;i+=2) {
             qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));

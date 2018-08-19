@@ -16,12 +16,6 @@
 KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mouseover(false), visible_in(0), visible_out(0) {
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
-	reload();
-}
-
-void KeyframeView::reload() {
-	enable_reload = true;
-	update();
 }
 
 void KeyframeView::paintEvent(QPaintEvent*) {
@@ -30,6 +24,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 	setMinimumWidth(getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in));
 
 	rowY.clear();
+	rows.clear();
 	for (int i=0;i<effects.size();i++) {
 		Effect* e = effects.at(i);
 		if (e->container->is_expanded()) {
@@ -39,6 +34,8 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 				long frame = 20;
 				int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
 				draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, frame), keyframe_y, false);
+
+				rows.append(e->row(j));
 				rowY.append(keyframe_y);
 			}
 		}
@@ -51,7 +48,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 	}
 
 	if (mouseover && mouseover_row < rowY.size()) {
-		draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, mouseover_frame) - visible_in, rowY.at(mouseover_row), true);
+		draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, mouseover_frame - visible_in), rowY.at(mouseover_row), true);
 	}
 }
 
@@ -61,6 +58,10 @@ void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool semiTransparent
 	p.setPen(QColor(0, 0, 0, alpha));
 	p.setBrush(QColor(160, 160, 160, alpha));
 	p.drawPolygon(points, KEYFRAME_POINT_COUNT);
+}
+
+void KeyframeView::mousePressEvent(QMouseEvent *event) {
+	qDebug() << "create keyframe @ clip frame" << mouseover_frame - visible_in + (rows.at(mouseover_row)->parent_effect->parent_clip->clip_in) << "effect row" << mouseover_row;
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
@@ -79,4 +80,8 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 		update();
 	}
 	mouseover = new_mo;
+}
+
+void KeyframeView::mouseReleaseEvent(QMouseEvent* event) {
+
 }

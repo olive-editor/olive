@@ -8,6 +8,17 @@ struct Clip;
 class QMenu;
 class Effect;
 class TimelineHeader;
+class QScrollArea;
+class KeyframeView;
+
+class EffectsArea : public QWidget {
+public:
+	EffectsArea(QWidget* parent = 0);
+	void resizeEvent(QResizeEvent *event);
+	QScrollArea* parent_widget;
+	KeyframeView* keyframe_area;
+	TimelineHeader* header;
+};
 
 namespace Ui {
 class EffectControls;

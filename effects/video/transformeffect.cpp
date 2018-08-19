@@ -80,16 +80,7 @@ TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_T
 
 Effect* TransformEffect::copy(Clip* c) {
 	TransformEffect* t = new TransformEffect(c);
-	t->position_x->set_double_value(position_x->get_double_value());
-	t->position_y->set_double_value(position_y->get_double_value());
-	t->scale_x->set_double_value(scale_x->get_double_value());
-	t->scale_y->set_double_value(scale_y->get_double_value());
-	t->uniform_scale_field->set_bool_value(uniform_scale_field->get_bool_value());
-	t->rotation->set_double_value(rotation->get_double_value());
-	t->anchor_x_box->set_double_value(anchor_x_box->get_double_value());
-	t->anchor_y_box->set_double_value(anchor_y_box->get_double_value());
-	t->opacity->set_double_value(opacity->get_double_value());
-	t->blend_mode_box->set_combo_index(blend_mode_box->get_combo_index());
+	copy_field_keyframes(t);
 	return t;
 }
 
@@ -136,24 +127,24 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 }
 
-void TransformEffect::process_gl(QOpenGLShaderProgram&, int* anchor_x, int* anchor_y) {
+void TransformEffect::process_gl(long frame, QOpenGLShaderProgram&, int* anchor_x, int* anchor_y) {
 	// position
-	glTranslatef(position_x->get_double_value()-(parent_clip->sequence->width/2), position_y->get_double_value()-(parent_clip->sequence->height/2), 0);
+	glTranslatef(position_x->get_double_value(frame)-(parent_clip->sequence->width/2), position_y->get_double_value(frame)-(parent_clip->sequence->height/2), 0);
 
 	// anchor point
-	*anchor_x += (anchor_x_box->get_double_value()-default_anchor_x);
-	*anchor_y += (anchor_y_box->get_double_value()-default_anchor_y);
+	*anchor_x += (anchor_x_box->get_double_value(frame)-default_anchor_x);
+	*anchor_y += (anchor_y_box->get_double_value(frame)-default_anchor_y);
 
 	// rotation
-	glRotatef(rotation->get_double_value(), 0, 0, 1);
+	glRotatef(rotation->get_double_value(frame), 0, 0, 1);
 
 	// scale
-	float sx = scale_x->get_double_value()*0.01;
-	float sy = (uniform_scale_field->get_bool_value()) ? sx : scale_y->get_double_value()*0.01;
+	float sx = scale_x->get_double_value(frame)*0.01;
+	float sy = (uniform_scale_field->get_bool_value(frame)) ? sx : scale_y->get_double_value(frame)*0.01;
     glScalef(sx, sy, 1);
 
     // blend mode
-	switch (blend_mode_box->get_combo_data().toInt()) {
+	switch (blend_mode_box->get_combo_data(frame).toInt()) {
     case BLEND_MODE_NORMAL:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
@@ -173,5 +164,5 @@ void TransformEffect::process_gl(QOpenGLShaderProgram&, int* anchor_x, int* anch
 	// opacity
     float color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
-	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value()*0.01));
+	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(frame)*0.01));
 }

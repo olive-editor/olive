@@ -10,7 +10,7 @@ public:
 	EffectField* solid_type;
 	EffectField* solid_color_field;
 	EffectField* opacity_field;
-	void process_image(QImage &img);
+	void process_image(long p, QImage &img);
 private slots:
 	void enable_color();
 };

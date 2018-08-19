@@ -16,14 +16,12 @@ public:
 
 	long visible_in;
 	long visible_out;
-public slots:
-	void reload();
 private:
 	QVector<int> rowY;
 	QVector<EffectRow*> rows;
+	void mousePressEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
-	/*void mousePressEvent(QMouseEvent* event);
-	void mouseReleaseEvent(QMouseEvent *event);*/
+	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
 	void draw_keyframe(QPainter& p, int x, int y, bool semiTransparent);
 	bool enable_reload;

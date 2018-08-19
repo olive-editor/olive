@@ -4,6 +4,8 @@
 #include <QMenu>
 #include <QDebug>
 #include <QVBoxLayout>
+#include <QResizeEvent>
+#include <QScrollBar>
 
 #include "panels/panels.h"
 #include "effects/effect.h"
@@ -28,6 +30,12 @@ EffectControls::EffectControls(QWidget *parent) :
 	init_transitions();
     clear_effects(false);
 	ui->headers->snapping = false;
+
+	ui->effects_area->parent_widget = ui->scrollArea;
+	ui->effects_area->keyframe_area = ui->keyframeView;
+	ui->effects_area->header = ui->headers;
+
+	connect(ui->keyframeScroller->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
 }
 
 EffectControls::~EffectControls() {
@@ -182,9 +190,18 @@ void EffectControls::load_effects() {
 			}
             connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
 			connect(container, SIGNAL(visibleChanged()), ui->keyframeView, SLOT(reload()));
-        }
+		}
     }
 	if (selected_clips.size() > 0) {
+//		ui->scrollArea->setMinimumWidth(ui->effects_area->width());
+
+		/*ui->effects_area->layout()->update();
+		ui->effects_area->layout()->activate();
+		qDebug() << ui->effects_area->height();
+
+		ui->keyframeView->resize(ui->keyframeView->width(), ui->effects_area->height());*/
+
+		ui->keyframeView->setMinimumHeight(ui->effects_area->height());
 		ui->keyframeView->setEnabled(true);
 		ui->keyframeView->visible_in = effects_in;
 		ui->keyframeView->visible_out = effects_out;
@@ -265,4 +282,11 @@ bool EffectControls::is_focused() {
         }
     }
     return false;
+}
+
+EffectsArea::EffectsArea(QWidget* parent) : QWidget(parent) {}
+
+void EffectsArea::resizeEvent(QResizeEvent *event) {
+	parent_widget->setMinimumWidth(sizeHint().width());
+	keyframe_area->setMinimumHeight(height() - header->height());
 }

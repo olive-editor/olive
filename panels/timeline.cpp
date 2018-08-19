@@ -394,7 +394,7 @@ void Timeline::delete_selection(bool ripple_delete) {
 }
 
 int lerp(int a, int b, double t) {
-    return ((1.0 - t) * a) + (t * b);
+	return ((1.0 - t) * a) + (t * b);
 }
 
 void Timeline::set_zoom(bool in) {

@@ -37,19 +37,19 @@ SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFF
 }
 
 void SolidEffect::enable_color() {
-	solid_color_field->set_enabled(solid_type->get_combo_data() == SOLID_TYPE_COLOR);
+	solid_color_field->set_enabled(solid_type->get_combo_data(-1) == SOLID_TYPE_COLOR);
 }
 
-void SolidEffect::process_image(QImage& img) {
+void SolidEffect::process_image(long frame, QImage& img) {
 	QPainter p(&img);
 	int width = img.width();
 	int height = img.height();
 
-	switch (solid_type->get_combo_data().toInt()) {
+	switch (solid_type->get_combo_data(frame).toInt()) {
 	case SOLID_TYPE_COLOR:
 	{
-		QColor brush = solid_color_field->get_color_value();
-		p.fillRect(0, 0, width, height, QColor(brush.red(), brush.green(), brush.blue(), opacity_field->get_double_value()*2.55));
+		QColor brush = solid_color_field->get_color_value(frame);
+		p.fillRect(0, 0, width, height, QColor(brush.red(), brush.green(), brush.blue(), opacity_field->get_double_value(frame)*2.55));
 	}
 		break;
 	case SOLID_TYPE_BARS:

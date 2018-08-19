@@ -242,7 +242,7 @@ void blurred2(QImage& result, const QRect& rect, int radius, bool alphaOnly = fa
 	}
 }
 
-void TextEffect::process_image(QImage& img) {
+void TextEffect::process_image(long frame, QImage& img) {
 	QPainter p(&img);
 	p.setRenderHint(QPainter::Antialiasing);
 	int width = img.width();
@@ -250,15 +250,15 @@ void TextEffect::process_image(QImage& img) {
 
 	// set font
 	font.setStyleHint(QFont::Helvetica, QFont::PreferAntialias);
-	font.setFamily(set_font_combobox->get_font_name());
-	font.setPointSize(size_val->get_double_value());
+	font.setFamily(set_font_combobox->get_font_name(frame));
+	font.setPointSize(size_val->get_double_value(frame));
 	p.setFont(font);
 	QFontMetrics fm(font);
 
-	QStringList lines = text_val->get_string_value().split('\n');
+	QStringList lines = text_val->get_string_value(frame).split('\n');
 
 	// word wrap function
-	if (word_wrap_field->get_bool_value()) {
+	if (word_wrap_field->get_bool_value(frame)) {
 		for (int i=0;i<lines.size();i++) {
 			const QString& s = lines.at(i);
 			if (fm.width(s) > width) {
@@ -287,7 +287,7 @@ void TextEffect::process_image(QImage& img) {
 	for (int i=0;i<lines.size();i++) {
 		int text_x, text_y;
 
-		switch (halign_field->get_combo_data().toInt()) {
+		switch (halign_field->get_combo_data(frame).toInt()) {
 		case Qt::AlignLeft: text_x = 0; break;
 		case Qt::AlignHCenter: text_x = (width/2) - (fm.width(lines.at(i))/2); break;
 		case Qt::AlignRight: text_x = width - fm.width(lines.at(i)); break;
@@ -316,7 +316,7 @@ void TextEffect::process_image(QImage& img) {
 			break;
 		}
 
-		switch (valign_field->get_combo_data().toInt()) {
+		switch (valign_field->get_combo_data(frame).toInt()) {
 		case Qt::AlignTop: text_y = (fm.height()*i)+fm.ascent(); break;
 		case Qt::AlignVCenter: text_y = ((height/2) - (text_height/2) - fm.descent()) + (fm.height()*(i+1)); break;
 		case Qt::AlignBottom: text_y = (height - text_height - fm.descent()) + (fm.height()*(i+1)); break;
@@ -328,43 +328,38 @@ void TextEffect::process_image(QImage& img) {
 	p.setPen(Qt::NoPen);
 
 	// draw shadow
-	if (shadow_bool->get_bool_value()) {
+	if (shadow_bool->get_bool_value(frame)) {
 		QImage shadow(width, height, QImage::Format_ARGB32_Premultiplied);
 		shadow.fill(Qt::transparent);
 		QPainter spaint(&shadow);
 
-		int shadow_offset = shadow_distance->get_double_value();
-		QColor col = shadow_color->get_color_value();
-		col.setAlphaF(shadow_opacity->get_double_value()*0.01);
+		int shadow_offset = shadow_distance->get_double_value(frame);
+		QColor col = shadow_color->get_color_value(frame);
+		col.setAlphaF(shadow_opacity->get_double_value(frame)*0.01);
 		spaint.setBrush(col);
 		spaint.drawPath(path);
 
-		blurred2(shadow, shadow.rect(), shadow_softness->get_double_value(), false);
+		blurred2(shadow, shadow.rect(), shadow_softness->get_double_value(frame), false);
 		p.drawImage(shadow_offset, shadow_offset, shadow);
 
 		spaint.end();
 	}
 
 	// draw outline
-	int outline_width_val = outline_width->get_double_value();
-	if (outline_bool->get_bool_value() && outline_width_val > 0) {
-		QPen outline(outline_color->get_color_value());
+	int outline_width_val = outline_width->get_double_value(frame);
+	if (outline_bool->get_bool_value(frame) && outline_width_val > 0) {
+		QPen outline(outline_color->get_color_value(frame));
 		outline.setWidth(outline_width_val);
 		p.setPen(outline);
 	}
 
 	// draw "master" text
-	p.setBrush(set_color_button->get_color_value());
+	p.setBrush(set_color_button->get_color_value(frame));
 	p.drawPath(path);
 }
 
 Effect* TextEffect::copy(Clip* c) {
 	TextEffect* e = new TextEffect(c);
-	e->text_val->set_string_value(text_val->get_string_value());
-	e->size_val->set_double_value(size_val->get_double_value());
-	e->set_color_button->set_color_value(set_color_button->get_color_value());
-	e->set_font_combobox->set_font_name(set_font_combobox->get_font_name());
-	e->halign_field->set_combo_index(halign_field->get_combo_index());
-	e->valign_field->set_combo_index(valign_field->get_combo_index());
+	copy_field_keyframes(e);
 	return e;
 }

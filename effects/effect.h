@@ -52,17 +52,10 @@ Effect* create_effect(int effect_id, Clip* c);
 #define EFFECT_KEYFRAME_HOLD 1
 #define EFFECT_KEYFRAME_BEZIER 2
 
-union KeyframeValue {
-	double d;
-	QColor c;
-	bool b;
-};
-
-class EffectKeyframe {
-public:
+struct EffectKeyframe {
 	long frame;
 	int type;
-	KeyframeValue value;
+	QVariant data;
 };
 
 class EffectField : public QObject {
@@ -71,33 +64,37 @@ public:
 	EffectField(int t);
 	int type;
 
-	double get_double_value();
+	QVariant get_keyframe_data(long p);
+	bool is_keyframed(long p);
+
+	double get_double_value(long p);
 	void set_double_value(double v);
 	void set_double_default_value(double v);
 	void set_double_minimum_value(double v);
 	void set_double_maximum_value(double v);
 
-	const QString get_string_value();
+	const QString get_string_value(long p);
 	void set_string_value(const QString &s);
 
 	void add_combo_item(const QString& name, const QVariant &data);
-	int get_combo_index();
-	const QVariant get_combo_data();
-	const QString get_combo_string();
+	int get_combo_index(long p);
+	const QVariant get_combo_data(long p);
+	const QString get_combo_string(long p);
 	void set_combo_index(int index);
 	void set_combo_string(const QString& s);
 
-	bool get_bool_value();
+	bool get_bool_value(long p);
 	void set_bool_value(bool b);
 
-	const QString get_font_name();
+	const QString get_font_name(long p);
 	void set_font_name(const QString& s);
 
-	QColor get_color_value();
+	QColor get_color_value(long p);
 	void set_color_value(QColor color);
 
 	QWidget* get_ui_element();
 	void set_enabled(bool e);
+	QVector<EffectKeyframe> keyframes;
 signals:
 	void changed();
 	void toggled(bool);
@@ -112,12 +109,12 @@ public:
 	EffectField* add_field(int type, int colspan = 1);
 	EffectField* field(int i);
 	int fieldCount();
-	void set_keyframe(int field, long time);
-	void move_keyframe(int field, long from, long to);
-	void delete_keyframe(int field, long time);
+	void set_keyframe(long time);
+	void move_keyframe(long from, long to);
+	void delete_keyframe(long time);
 	QLabel* label;
-private:
 	Effect* parent_effect;
+private:
 	QGridLayout* ui;
 	QString name;
 	int ui_row;
@@ -146,6 +143,7 @@ public:
 	virtual void refresh();
 
     virtual Effect* copy(Clip* c);
+	void copy_field_keyframes(Effect *e);
 
 	void load(QXmlStreamReader* stream);
 	void save(QXmlStreamWriter* stream);
@@ -155,8 +153,8 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(QImage& img);
-	virtual void process_gl(QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
+	virtual void process_image(long frame, QImage& img);
+	virtual void process_gl(long frame, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
     virtual void process_audio(quint8* samples, int nb_bytes);
 public slots:
 	void field_changed();

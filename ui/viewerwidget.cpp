@@ -177,7 +177,7 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 						QOpenGLShaderProgram shader;
 
 						for (int j=0;j<c->effects.size();j++) {
-							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(shader, &anchor_x, &anchor_y);
+							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(panel_timeline->playhead-c->timeline_in+c->clip_in, shader, &anchor_x, &anchor_y);
 						}
 
 						if (c->opening_transition != NULL) {

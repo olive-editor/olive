@@ -76,7 +76,8 @@ void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool rese
 
 void get_clip_frame(Clip* c, long playhead) {
 	if (c->open) {
-		long clip_time = refactor_frame_number(playhead - c->timeline_in + c->clip_in, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
+		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
+		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
 
 		// do we need to update the texture?
         MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
@@ -169,7 +170,7 @@ void get_clip_frame(Clip* c, long playhead) {
 				QImage img(c->comp_frame, current_frame->width, current_frame->height, QImage::Format_RGBA8888);
 				for (int i=0;i<c->effects.size();i++) {
 					if (c->effects.at(i)->enable_image) {
-						c->effects.at(i)->process_image(img);
+						c->effects.at(i)->process_image(sequence_clip_time, img);
 					}
 				}
 
