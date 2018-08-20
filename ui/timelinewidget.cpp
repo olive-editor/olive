@@ -1565,7 +1565,7 @@ void TimelineWidget::redraw_clips() {
 			}
 		}
 		int panel_width = panel_timeline->getTimelineScreenPointFromFrame(end_frame) + 100;
-		int panel_height = 0;
+		int panel_height = 100;
 		if (bottom_align) {
 			for (int i=-1;i>=video_track_limit;i--) {
 				panel_height += panel_timeline->calculate_track_height(i, -1);
@@ -1577,7 +1577,7 @@ void TimelineWidget::redraw_clips() {
 		}
 
 		if (minimumWidth() != panel_width || clip_pixmap.height() != height() || panel_height != minimumHeight()) {
-			panel_timeline->ui->headers->setMinimumWidth(panel_width);
+			panel_timeline->ui->headers->setMinimumWidth(panel_width + 100);
 			setMinimumWidth(panel_width);
 			setMinimumHeight(panel_height);
 			clip_pixmap = QPixmap(qMax(width(), panel_width), qMax(height(), panel_height));

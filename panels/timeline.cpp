@@ -148,13 +148,10 @@ void Timeline::reset_all_audio() {
 }
 
 void Timeline::seek(long p) {
-    pause();
-
+	pause();
 	playhead = p;
-
 	reset_all_audio();
-
-    repaint_timeline();
+	repaint_timeline();
 }
 
 void Timeline::toggle_play() {
@@ -268,7 +265,7 @@ bool Timeline::focused() {
 }
 
 void Timeline::repaint_timeline() {
-    if (playing) {
+	if (playing) {
         playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
 
@@ -282,7 +279,7 @@ void Timeline::repaint_timeline() {
         ui->audio_monitor->update();
 		last_frame = playhead;
 	}
-    panel_viewer->update_playhead_timecode(playhead);
+	panel_viewer->update_playhead_timecode(playhead);
 }
 
 void Timeline::redraw_all_clips(bool changed) {
@@ -296,7 +293,7 @@ void Timeline::redraw_all_clips(bool changed) {
     ui->audio_area->redraw_clips();
 	panel_effect_controls->update_keyframes();
 
-    panel_viewer->update_end_timecode();
+	panel_viewer->update_end_timecode();
 }
 
 void Timeline::select_all() {

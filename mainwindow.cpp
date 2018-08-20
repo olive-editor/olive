@@ -47,7 +47,9 @@ void MainWindow::setup_layout() {
     addDockWidget(Qt::TopDockWidgetArea, panel_project);
     addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
     addDockWidget(Qt::TopDockWidgetArea, panel_viewer);
-    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+
+	resizeDocks({panel_project}, {40}, Qt::Horizontal);
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -84,7 +86,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setWindowTitle("Olive (August 2018 | Alpha)");
     statusBar()->showMessage("Welcome to Olive");
 
-    ui->centralWidget->setMaximumSize(0, 0);
     setDockNestingEnabled(true);
 
     // TODO maybe replace these with non-pointers later on?
@@ -398,42 +399,42 @@ void MainWindow::on_actionDeselect_All_triggered()
     }
 }
 
-void MainWindow::on_actionGo_to_start_triggered()
-{
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
-        panel_timeline->go_to_start();
-    }
-}
-
 void MainWindow::on_actionReset_to_default_layout_triggered()
 {
     setup_layout();
 }
 
+void MainWindow::on_actionGo_to_start_triggered()
+{
+	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
+		panel_timeline->go_to_start();
+	}
+}
+
 void MainWindow::on_actionPrevious_Frame_triggered()
 {
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
         panel_timeline->previous_frame();
     }
 }
 
 void MainWindow::on_actionNext_Frame_triggered()
 {
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
         panel_timeline->next_frame();
     }
 }
 
 void MainWindow::on_actionGo_to_End_triggered()
 {
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
         panel_timeline->go_to_end();
     }
 }
 
 void MainWindow::on_actionPlay_Pause_triggered()
 {
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
         panel_timeline->toggle_play();
     }
 }

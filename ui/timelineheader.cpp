@@ -20,8 +20,7 @@ TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(fals
 void TimelineHeader::set_playhead(int mouse_x) {
 	long frame = getFrameFromScreenPoint(zoom, mouse_x);
 	if (snapping) panel_timeline->snap_to_clip(&frame, false);
-    panel_timeline->seek(frame);
-    panel_timeline->repaint_timeline();
+	panel_timeline->seek(frame);
 }
 
 void TimelineHeader::set_visible_in(long i) {
