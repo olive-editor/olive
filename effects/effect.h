@@ -53,6 +53,26 @@ Effect* create_effect(int effect_id, Clip* c);
 #define EFFECT_KEYFRAME_HOLD 1
 #define EFFECT_KEYFRAME_BEZIER 2
 
+struct GLTextureCoords {
+	int vertexTopLeftX;
+	int vertexTopLeftY;
+	int vertexTopRightX;
+	int vertexTopRightY;
+	int vertexBottomLeftX;
+	int vertexBottomLeftY;
+	int vertexBottomRightX;
+	int vertexBottomRightY;
+
+	double textureTopLeftX;
+	double textureTopLeftY;
+	double textureTopRightX;
+	double textureTopRightY;
+	double textureBottomRightX;
+	double textureBottomRightY;
+	double textureBottomLeftX;
+	double textureBottomLeftY;
+};
+
 class EffectField : public QObject {
 	Q_OBJECT
 public:
@@ -163,8 +183,8 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(long frame, QImage& img);
-	virtual void process_gl(long frame, QOpenGLShaderProgram& shader_prog, int* anchor_x, int* anchor_y);
+	virtual void process_image(long frame, uint8_t* data, int width, int height);
+	virtual void process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords);
     virtual void process_audio(quint8* samples, int nb_bytes);
 public slots:
 	void field_changed();

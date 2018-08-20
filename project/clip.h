@@ -18,8 +18,6 @@ struct AVCodec;
 struct AVCodecContext;
 struct AVFrame;
 struct AVPacket;
-struct AVFilterGraph;
-struct AVFilterContext;
 struct SwsContext;
 struct SwrContext;
 class QOpenGLTexture;
@@ -81,11 +79,7 @@ struct Clip
 	AVFrame* frame;
 	uchar* comp_frame;
 	int comp_frame_size;
-
-	// ffmpeg filters
-	AVFilterGraph* filter_graph;
-	AVFilterContext* buffersink_ctx;
-	AVFilterContext* buffersrc_ctx;
+	SwsContext* sws_ctx;
 
     bool pkt_written;
     bool reached_end;

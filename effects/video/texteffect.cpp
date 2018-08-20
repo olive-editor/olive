@@ -242,7 +242,8 @@ void blurred2(QImage& result, const QRect& rect, int radius, bool alphaOnly = fa
 	}
 }
 
-void TextEffect::process_image(long frame, QImage& img) {
+void TextEffect::process_image(long frame, uint8_t* data, int w, int h) {
+	QImage img(data, w, h, QImage::Format_RGBA8888);
 	QPainter p(&img);
 	p.setRenderHint(QPainter::Antialiasing);
 	int width = img.width();

@@ -16,7 +16,7 @@
 #define SMPTE_LOWER_BARS 4
 
 SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT) {
-	enable_image = true;
+	enable_opengl = true;
 
 	solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
 	solid_type->add_combo_item("Solid Color", SOLID_TYPE_COLOR);
@@ -40,7 +40,12 @@ void SolidEffect::enable_color() {
 	solid_color_field->set_enabled(solid_type->get_combo_data(-1) == SOLID_TYPE_COLOR);
 }
 
-void SolidEffect::process_image(long frame, QImage& img) {
+void SolidEffect::process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords) {
+
+}
+
+void SolidEffect::process_image(long frame, uint8_t* data, int w, int h) {
+	QImage img(data, w, h, QImage::Format_RGBA8888); // create QImage wrapper
 	QPainter p(&img);
 	int width = img.width();
 	int height = img.height();

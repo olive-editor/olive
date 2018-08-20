@@ -373,7 +373,7 @@
          <property name="childrenCollapsible">
           <bool>false</bool>
          </property>
-         <widget class="QScrollArea" name="videoScrollArea">
+         <widget class="ScrollArea" name="videoScrollArea">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -395,7 +395,7 @@
              <x>0</x>
              <y>0</y>
              <width>807</width>
-             <height>277</height>
+             <height>163</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -424,7 +424,7 @@
            </layout>
           </widget>
          </widget>
-         <widget class="QScrollArea" name="audioScrollArea">
+         <widget class="ScrollArea" name="audioScrollArea">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -446,7 +446,7 @@
              <x>0</x>
              <y>0</y>
              <width>807</width>
-             <height>263</height>
+             <height>377</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -495,21 +495,27 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TimelineWidget</class>
-   <extends>QWidget</extends>
-   <header>ui/timelinewidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>TimelineHeader</class>
    <extends>QWidget</extends>
    <header>ui/timelineheader.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>TimelineWidget</class>
+   <extends>QWidget</extends>
+   <header>ui/timelinewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>AudioMonitor</class>
    <extends>QWidget</extends>
    <header>ui/audiomonitor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScrollArea</class>
+   <extends>QScrollArea</extends>
+   <header>ui/scrollarea.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

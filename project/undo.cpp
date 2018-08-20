@@ -34,10 +34,6 @@ QUndoStack undo_stack;
 #define TA_MODIFY_TRANSITION 11
 #define TA_DELETE_TRANSITION 12
 
-extern "C" {
-	#include "libavfilter/avfilter.h"
-}
-
 TimelineAction::TimelineAction() :
     done(false),
     change_seq(false),

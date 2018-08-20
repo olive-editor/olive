@@ -136,79 +136,111 @@ bool Effect::is_enabled() {
     return container->enabled_check->isChecked();
 }
 
-void Effect::load(QXmlStreamReader& stream) {
-    stream.readNext();
-    /*for (int i=0;i<rows.size();i++) {
-		EffectRow* row = rows.at(i);
-		while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
-			stream->readNext();
-			if (stream->name() == "row" && stream->isStartElement()) {
-				for (int j=0;j<row->fieldCount();j++) {
-					EffectField* field = row->field(j);
-					while (!stream->atEnd() && !(stream->name() == "effect" && stream->isEndElement())) {
-						stream->readNext();
-						if (stream->name() == "field" && stream->isStartElement()) {
-                            // read all keyframes
-                            QVector<EffectKeyframe> keys;
-                            while (!stream->atEnd() && (stream->name() == "field" && stream->isEndElement())) {
-                                stream->readNext();
-                                if (stream->name() == "key" && stream->isStartElement()) {
-                                    EffectKeyframe kf;
-                                    for (int k=0;k<stream->attributes().size();k++) {
-                                        const QXmlStreamAttribute& attr = stream->attributes().at(k);
-                                        if (attr.name() == "frame") {
-                                            kf.frame = attr.value().toLong();
-                                        } else if (attr.name() == "type") {
-                                            kf.type = attr.value().toInt();
-                                        } else if (attr.name() == "value") {
-                                            switch (field->type) {
-                                            case EFFECT_FIELD_DOUBLE:
-                                                kf.data = attr.value().toDouble();
-                                                break;
-                                            case EFFECT_FIELD_COLOR:
-                                            {
-                                                kf.data = QColor(attr.value().toString());
-                                            }
-                                                break;
-                                            case EFFECT_FIELD_STRING:
-                                                kf.data = attr.value().toString();
-                                                break;
-                                            case EFFECT_FIELD_BOOL:
-                                                kf.data = (stream->text() == "1");
-                                                break;
-                                            case EFFECT_FIELD_COMBO:
-                                                kf.data = (stream->text().toInt());
-                                                break;
-                                            case EFFECT_FIELD_FONT:
-                                                kf.data = (stream->text().toString());
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    keys.append(kf);
-                                }
-                            }
-                            field->keyframes = keys;
-							break;
-						}
-					}
-				}
-				break;
-			}
-		}
-    }*/
+QVariant load_data_from_string(int type, const QString& string) {
+	switch (type) {
+	case EFFECT_FIELD_DOUBLE: return string.toDouble(); break;
+	case EFFECT_FIELD_COLOR: return QColor(string); break;
+	case EFFECT_FIELD_STRING: return string; break;
+	case EFFECT_FIELD_BOOL: return (string == "1"); break;
+	case EFFECT_FIELD_COMBO: return string.toInt(); break;
+	case EFFECT_FIELD_FONT: return string; break;
+	}
+	return QVariant();
 }
 
-QString save_data(int type, const QVariant& data) {
-    switch (type) {
-    case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble()); break;
-    case EFFECT_FIELD_COLOR: return data.value<QColor>().name(); break;
-    case EFFECT_FIELD_STRING: return data.toString(); break;
-    case EFFECT_FIELD_BOOL: return QString::number(data.toBool()); break;
-    case EFFECT_FIELD_COMBO: return QString::number(data.toInt()); break;
-    case EFFECT_FIELD_FONT: return data.toString(); break;
-    }
-    return QString();
+QString save_data_to_string(int type, const QVariant& data) {
+	switch (type) {
+	case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble()); break;
+	case EFFECT_FIELD_COLOR: return data.value<QColor>().name(); break;
+	case EFFECT_FIELD_STRING: return data.toString(); break;
+	case EFFECT_FIELD_BOOL: return QString::number(data.toBool()); break;
+	case EFFECT_FIELD_COMBO: return QString::number(data.toInt()); break;
+	case EFFECT_FIELD_FONT: return data.toString(); break;
+	}
+	return QString();
+}
+
+void Effect::load(QXmlStreamReader& stream) {
+	int row_count = 0;
+
+	while (!stream.atEnd() && !(stream.name() == "effect" && stream.isEndElement())) {
+		stream.readNext();
+		if (stream.name() == "row" && stream.isStartElement()) {
+			if (row_count < rows.size()) {
+				EffectRow* row = rows.at(row_count);
+				int field_count = 0;
+
+				while (!stream.atEnd() && !(stream.name() == "row" && stream.isEndElement())) {
+					stream.readNext();
+
+					// read keyframes
+					if (stream.name() == "keyframes" && stream.isStartElement()) {
+						for (int k=0;k<stream.attributes().size();k++) {
+							const QXmlStreamAttribute& attr = stream.attributes().at(k);
+							if (attr.name() == "enabled") {
+								row->keyframing = (attr.value() == "1");
+								break;
+							}
+						}
+						if (row->keyframing) {
+							stream.readNext();
+							while (!stream.atEnd() && !(stream.name() == "keyframes" && stream.isEndElement())) {
+								if (stream.name() == "key" && stream.isStartElement()) {
+									long keyframe_frame;
+									int keyframe_type;
+									for (int k=0;k<stream.attributes().size();k++) {
+										const QXmlStreamAttribute& attr = stream.attributes().at(k);
+										if (attr.name() == "frame") {
+											keyframe_frame = attr.value().toLong();
+										} else if (attr.name() == "type") {
+											keyframe_type = attr.value().toInt();
+										}
+									}
+									row->keyframe_times.append(keyframe_frame);
+									row->keyframe_types.append(keyframe_type);
+								}
+								stream.readNext();
+							}
+						}
+						stream.readNext();
+					}
+
+					// read field
+					if (stream.name() == "field" && stream.isStartElement()) {
+						if (field_count < row->fieldCount()) {
+							EffectField* field = row->field(field_count);
+
+							for (int k=0;k<stream.attributes().size();k++) {
+								const QXmlStreamAttribute& attr = stream.attributes().at(k);
+								if (attr.name() == "value") {
+									field->set_current_data(load_data_from_string(field->type, attr.value().toString()));
+									break;
+								}
+							}
+
+							while (!stream.atEnd() && !(stream.name() == "field" && stream.isEndElement())) {
+								stream.readNext();
+
+								// read all keyframes
+								if (stream.name() == "key" && stream.isStartElement()) {
+									stream.readNext();
+									field->keyframe_data.append(load_data_from_string(field->type, stream.text().toString()));
+								}
+							}
+						} else {
+							qDebug() << "[ERROR] Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
+						}
+						field_count++;
+						break;
+					}
+				}
+
+			} else {
+				qDebug() << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
+			}
+			row_count++;
+		}
+	}
 }
 
 void Effect::save(QXmlStreamWriter& stream) {
@@ -227,9 +259,9 @@ void Effect::save(QXmlStreamWriter& stream) {
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
             stream.writeStartElement("field"); // field
-            stream.writeAttribute("value", save_data(field->type, field->get_current_data()));
+			stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
             for (int k=0;k<field->keyframe_data.size();k++) {
-                stream.writeTextElement("key", save_data(field->type, field->keyframe_data.at(k)));
+				stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
 			}
             stream.writeEndElement(); // field
 		}
@@ -243,8 +275,8 @@ Effect* Effect::copy(Clip* c) {
     return copy;
 }
 
-void Effect::process_image(long, QImage&) {}
-void Effect::process_gl(long, QOpenGLShaderProgram&, int*, int*) {}
+void Effect::process_image(long, uint8_t*, int, int) {}
+void Effect::process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords) {}
 void Effect::process_audio(uint8_t*, int) {}
 
 /* Effect Row Definitions */
@@ -261,6 +293,7 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
 
     // DEBUG STARTS
     QPushButton* nkf = new QPushButton();
+	nkf->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     connect(nkf, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_now()));
     ui->addWidget(nkf, row, 5);
     // DEBUG ENDS
@@ -337,7 +370,7 @@ EffectField::EffectField(EffectRow *parent, int t) : parent_row(parent), type(t)
 		QTextEdit* edit = new QTextEdit();
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
-        connect(edit, SIGNAL(textChanged()), this, SLOT(uiElementChange()));
+		connect(edit->document(), SIGNAL(contentsChanged()), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_BOOL:
@@ -432,9 +465,14 @@ void EffectField::get_keyframe_data(long frame, int* before, int* after, double*
             *before = after_keyframe_index;
             *after = after_keyframe_index;
         }
-    } else {
-        *before = before_keyframe_index;
-        *after = before_keyframe_index;
+	} else {
+		if (before_keyframe_index > -1) {
+			*before = before_keyframe_index;
+			*after = before_keyframe_index;
+		} else {
+			*before = after_keyframe_time;
+			*after = after_keyframe_time;
+		}
     }
 }
 

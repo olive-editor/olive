@@ -25,8 +25,7 @@ Clip::Clip(Sequence* s) :
     media(NULL),
     opening_transition(NULL),
     closing_transition(NULL),
-    pkt(new AVPacket()),
-	filter_graph(NULL),
+	pkt(new AVPacket()),
 	replaced(false),
     texture(NULL)
 {

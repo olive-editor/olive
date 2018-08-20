@@ -10,7 +10,8 @@ public:
 	EffectField* solid_type;
 	EffectField* solid_color_field;
 	EffectField* opacity_field;
-	void process_image(long p, QImage &img);
+	void process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords);
+	void process_image(long p, uint8_t* data, int width, int height);
 private slots:
 	void enable_color();
 };

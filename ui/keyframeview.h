@@ -7,12 +7,15 @@
 struct Clip;
 class Effect;
 class EffectRow;
+class TimelineHeader;
 
 class KeyframeView : public QWidget {
 	Q_OBJECT
 public:
 	KeyframeView(QWidget* parent = 0);
 	QVector<Effect*> effects;
+
+	TimelineHeader* header;
 
 	long visible_in;
 	long visible_out;

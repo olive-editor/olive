@@ -35,7 +35,10 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->effects_area->keyframe_area = ui->keyframeView;
 	ui->effects_area->header = ui->headers;
 
+	ui->keyframeView->header = ui->headers;
+
 	connect(ui->keyframeScroller->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
+	connect(ui->keyframeScroller->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->keyframeHeaderScroller->horizontalScrollBar(), SLOT(setValue(int)));
 }
 
 EffectControls::~EffectControls() {

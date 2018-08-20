@@ -121,13 +121,21 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 }
 
-void TransformEffect::process_gl(long frame, QOpenGLShaderProgram&, int* anchor_x, int* anchor_y) {
+void TransformEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoords& coords) {
 	// position
 	glTranslatef(position_x->get_double_value(frame)-(parent_clip->sequence->width/2), position_y->get_double_value(frame)-(parent_clip->sequence->height/2), 0);
 
 	// anchor point
-	*anchor_x += (anchor_x_box->get_double_value(frame)-default_anchor_x);
-	*anchor_y += (anchor_y_box->get_double_value(frame)-default_anchor_y);
+	int anchor_x_offset = (anchor_x_box->get_double_value(frame)-default_anchor_x);
+	int anchor_y_offset = (anchor_y_box->get_double_value(frame)-default_anchor_y);
+	coords.vertexTopLeftX += anchor_x_offset;
+	coords.vertexTopRightX += anchor_x_offset;
+	coords.vertexBottomLeftX += anchor_x_offset;
+	coords.vertexBottomRightX += anchor_x_offset;
+	coords.vertexTopLeftY += anchor_y_offset;
+	coords.vertexTopRightY += anchor_y_offset;
+	coords.vertexBottomLeftY += anchor_y_offset;
+	coords.vertexBottomRightY += anchor_y_offset;
 
 	// rotation
 	glRotatef(rotation->get_double_value(frame), 0, 0, 1);

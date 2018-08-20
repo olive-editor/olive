@@ -29,7 +29,7 @@ void LabelSlider::set_value(double v, bool userSet) {
             internal_value = v;
         }
 
-        setText(QString::number(internal_value));
+		setText(QString::number(internal_value, 'f', 1));
 		if (userSet) emit valueChanged();
     }
 }

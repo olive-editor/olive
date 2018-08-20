@@ -9,12 +9,9 @@ class InvertEffect : public Effect {
 	Q_OBJECT
 public:
 	InvertEffect(Clip* c);
-    void process_gl(long p, QOpenGLShaderProgram& shader_prog, int *anchor_x, int *anchor_y);
-
-	EffectField* amount_val;
+	void process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords);
 private:
-	QOpenGLShader vert_shader;
-	QOpenGLShader frag_shader;
+	EffectField* amount_val;
 };
 
 #endif // INVERTEFFECT_H

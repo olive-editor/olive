@@ -6,6 +6,7 @@
 #include "panels/effectcontrols.h"
 #include "project/clip.h"
 #include "panels/timeline.h"
+#include "ui/timelineheader.h"
 
 #include <QLabel>
 #include <QMouseEvent>
@@ -21,7 +22,9 @@ KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mousedown(false),
 void KeyframeView::paintEvent(QPaintEvent*) {
 	QPainter p(this);
 
-	setMinimumWidth(getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in));
+	int width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
+	setMinimumWidth(width);
+	header->setMinimumWidth(width);
 
 	rowY.clear();
 	rows.clear();
@@ -37,8 +40,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
                 int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
                 for (int k=0;k<row->keyframe_times.size();k++) {
                     bool keyframe_selected = false;
-                    for (int l=0;l<selected_rows.size();l++) {
-//                        qDebug() << selected_rows.at(l) << rows.size() << selected_keyframes.at(l) << k;
+					for (int l=0;l<selected_rows.size();l++) {
                         if (selected_rows.at(l) == rows.size() && selected_keyframes.at(l) == k) {
                             keyframe_selected = true;
                             break;

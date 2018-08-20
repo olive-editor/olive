@@ -171,13 +171,20 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                         int half_height = sequence->height/2;
                         if (flip) half_height = -half_height;
                         glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
-                        int anchor_x = ms->video_width/2;
-                        int anchor_y = ms->video_height/2;
+
+						GLTextureCoords coords;
+						coords.vertexTopLeftX = coords.vertexBottomLeftX = -ms->video_width/2;
+						coords.vertexTopLeftY = coords.vertexTopRightY = -ms->video_height/2;
+						coords.vertexTopRightX = coords.vertexBottomRightX = ms->video_width/2;
+						coords.vertexBottomLeftY = coords.vertexBottomRightY = ms->video_height/2;
+						coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
+						coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
 
                         QOpenGLShaderProgram shader;
 
                         for (int j=0;j<c->effects.size();j++) {
-                            if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) c->effects.at(j)->process_gl(panel_timeline->playhead-c->timeline_in+c->clip_in, shader, &anchor_x, &anchor_y);
+							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled())
+								c->effects.at(j)->process_gl(panel_timeline->playhead-c->timeline_in+c->clip_in, shader, coords);
                         }
 
                         if (c->opening_transition != NULL) {
@@ -192,10 +199,7 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                             if (transition_progress < c->closing_transition->length) {
                                 c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
                             }
-                        }
-
-                        int anchor_right = ms->video_width - anchor_x;
-                        int anchor_bottom = ms->video_height - anchor_y;
+						}
 
                         bool use_gl_shaders = shader.link();
                         if (use_gl_shaders) shader.bind();
@@ -203,14 +207,14 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                         c->texture->bind();
 
                         glBegin(GL_QUADS);
-                        glTexCoord2f(0.0, 0.0);
-                        glVertex2f(-anchor_x, -anchor_y);
-                        glTexCoord2f(1.0, 0.0);
-                        glVertex2f(anchor_right, -anchor_y);
-                        glTexCoord2f(1.0, 1.0);
-                        glVertex2f(anchor_right, anchor_bottom);
-                        glTexCoord2f(0.0, 1.0);
-                        glVertex2f(-anchor_x, anchor_bottom);
+						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
+						glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
+						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
+						glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
+						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
+						glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
+						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
                         glEnd();
 
                         c->texture->release();

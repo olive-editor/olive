@@ -166,11 +166,11 @@ bool get_clip_frame(Clip* c, long playhead) {
 					c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 				}
 
+
 				memcpy(c->comp_frame, current_frame->data[0], c->comp_frame_size);
-				QImage img(c->comp_frame, current_frame->width, current_frame->height, QImage::Format_RGBA8888);
 				for (int i=0;i<c->effects.size();i++) {
 					if (c->effects.at(i)->enable_image) {
-						c->effects.at(i)->process_image(sequence_clip_time, img);
+						c->effects.at(i)->process_image(sequence_clip_time, c->comp_frame, current_frame->width, current_frame->height);
 					}
 				}
 
@@ -248,7 +248,7 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
         int ret = retrieve_next_frame(c, c->frame);
         if (ret >= 0) {
             if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-//				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
+				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
 //				output->pts = c->frame->best_effort_timestamp;
             } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 output->pts = c->frame->pts;
