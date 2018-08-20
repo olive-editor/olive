@@ -70,7 +70,8 @@ SOURCES += \
     effects/video/solideffect.cpp \
     effects/video/shakeeffect.cpp \
     effects/video/inverteffect.cpp \
-    ui/keyframeview.cpp
+    ui/keyframeview.cpp \
+    ui/texteditex.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -117,7 +118,8 @@ HEADERS += \
     effects/video/inverteffect.h \
     effects/audio/volumeeffect.h \
     effects/audio/paneffect.h \
-    ui/keyframeview.h
+    ui/keyframeview.h \
+    ui/texteditex.h
 
 FORMS += \
         mainwindow.ui \

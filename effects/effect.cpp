@@ -11,6 +11,7 @@
 #include "ui/comboboxex.h"
 #include "ui/fontcombobox.h"
 #include "ui/checkboxex.h"
+#include "ui/texteditex.h"
 #include "project/clip.h"
 #include "panels/timeline.h"
 #include "panels/effectcontrols.h"
@@ -26,7 +27,6 @@
 
 #include <QCheckBox>
 #include <QGridLayout>
-#include <QTextEdit>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QMessageBox>
@@ -407,10 +407,10 @@ EffectField::EffectField(EffectRow *parent, int t) : parent_row(parent), type(t)
 		break;
 	case EFFECT_FIELD_STRING:
 	{
-		QTextEdit* edit = new QTextEdit();
+		TextEditEx* edit = new TextEditEx();
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
-		connect(edit->document(), SIGNAL(contentsChanged()), this, SLOT(uiElementChange()));
+		connect(edit, SIGNAL(textChanged()), this, SLOT(uiElementChange()));
 	}
 		break;
 	case EFFECT_FIELD_BOOL:
@@ -442,7 +442,7 @@ QVariant EffectField::get_current_data() {
     switch (type) {
     case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->value(); break;
     case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->get_color(); break;
-    case EFFECT_FIELD_STRING: return static_cast<QTextEdit*>(ui_element)->toPlainText(); break;
+	case EFFECT_FIELD_STRING: return static_cast<TextEditEx*>(ui_element)->toPlainText(); break;
     case EFFECT_FIELD_BOOL: return static_cast<QCheckBox*>(ui_element)->isChecked(); break;
     case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->currentIndex(); break;
     case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->currentText(); break;
@@ -454,7 +454,7 @@ void EffectField::set_current_data(const QVariant& data) {
     switch (type) {
     case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->set_value(data.toDouble(), false); break;
     case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->set_color(data.value<QColor>()); break;
-    case EFFECT_FIELD_STRING: return static_cast<QTextEdit*>(ui_element)->setPlainText(data.toString()); break;
+	case EFFECT_FIELD_STRING: return static_cast<TextEditEx*>(ui_element)->setPlainTextEx(data.toString()); break;
     case EFFECT_FIELD_BOOL: return static_cast<QCheckBox*>(ui_element)->setChecked(data.toBool()); break;
     case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->setCurrentIndexEx(data.toInt()); break;
     case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->setCurrentTextEx(data.toString()); break;
@@ -544,7 +544,7 @@ void EffectField::validate_keyframe_data(long frame) {
         }
             break;
         case EFFECT_FIELD_STRING:
-            static_cast<QTextEdit*>(ui_element)->setPlainText(before_data.toString());
+			static_cast<TextEditEx*>(ui_element)->setPlainTextEx(before_data.toString());
             break;
         case EFFECT_FIELD_BOOL:
             static_cast<QCheckBox*>(ui_element)->setChecked(before_data.toBool());
@@ -633,11 +633,11 @@ void EffectField::set_bool_value(bool b) {
 
 const QString EffectField::get_string_value(long p) {
     validate_keyframe_data(p);
-	return static_cast<QTextEdit*>(ui_element)->toPlainText();
+	return static_cast<TextEditEx*>(ui_element)->toPlainText();
 }
 
 void EffectField::set_string_value(const QString& s) {
-	static_cast<QTextEdit*>(ui_element)->setText(s);
+	static_cast<TextEditEx*>(ui_element)->setText(s);
 }
 
 const QString EffectField::get_font_name(long p) {
