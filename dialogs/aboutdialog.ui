@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>220</height>
+    <width>358</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>About Olive</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/icons/olive-splash.png&quot;/&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://www.olivevideoeditor.org/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;https://www.olivevideoeditor.org/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Olive is a non-linear video editor. This software is free and protected by the GNU GPL.&lt;/p&gt;&lt;p&gt;Olive Team is obliged to inform users that Olive source code is available for download from its website.&lt;/p&gt;&lt;p&gt;Olive uses (at least) the following libraries in accordance with the GNU GPL/LGPL:&lt;/p&gt;&lt;p&gt;Qt, FFmpeg, libass, libfreetype, libmp3lame, libopenjpeg, libopus, libtheora, libtwolame, libvpx, libwavpack, libwebp, libx264, libx265, lzma, bzlib, zlib, libvidstab, libvorbis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

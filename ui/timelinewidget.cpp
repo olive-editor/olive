@@ -1793,10 +1793,8 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
             if (bottom_align) {
                 rsy += height();
             }
-            QRect rect_select(panel_timeline->rect_select_x, rsy, panel_timeline->rect_select_w, rsh);
-            p.setPen(QColor(204, 204, 204));
-            p.drawRect(rect_select);
-            p.fillRect(rect_select, QColor(0, 0, 0, 32));
+			QRect rect_select(panel_timeline->rect_select_x, rsy, panel_timeline->rect_select_w, rsh);
+			draw_selection_rectangle(p, rect_select);
         }
 
 		// Draw ghosts

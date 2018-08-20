@@ -29,8 +29,10 @@ void ColorButton::open_dialog() {
     QColor old_color = color;
     QColor new_color = QColorDialog::getColor(color, NULL);
 	if (new_color.isValid() && old_color != new_color) {
-        ColorCommand* command = new ColorCommand(this, old_color, new_color);
-        undo_stack.push(command);
+		ColorCommand* command = new ColorCommand(this, old_color, new_color);
+//        undo_stack.push(command);
+		command->redo();
+		delete command;
 
         set_button_color();
 

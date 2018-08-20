@@ -29,6 +29,7 @@
 #include <QTextEdit>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QMessageBox>
 
 QVector<QString> video_effect_names;
 QVector<QString> audio_effect_names;
@@ -101,7 +102,7 @@ Effect::~Effect() {
 void Effect::copy_field_keyframes(Effect* e) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-        e->rows.at(i)->keyframing = rows.at(i)->keyframing;
+		e->rows.at(i)->setKeyframing(rows.at(i)->isKeyframing());
         e->rows.at(i)->keyframe_times = rows.at(i)->keyframe_times;
         e->rows.at(i)->keyframe_types = rows.at(i)->keyframe_types;
 		for (int j=0;j<row->fieldCount();j++) {
@@ -178,11 +179,11 @@ void Effect::load(QXmlStreamReader& stream) {
 						for (int k=0;k<stream.attributes().size();k++) {
 							const QXmlStreamAttribute& attr = stream.attributes().at(k);
 							if (attr.name() == "enabled") {
-								row->keyframing = (attr.value() == "1");
+								row->setKeyframing(attr.value() == "1");
 								break;
 							}
 						}
-						if (row->keyframing) {
+						if (row->isKeyframing()) {
 							stream.readNext();
 							while (!stream.atEnd() && !(stream.name() == "keyframes" && stream.isEndElement())) {
 								if (stream.name() == "key" && stream.isStartElement()) {
@@ -248,7 +249,7 @@ void Effect::save(QXmlStreamWriter& stream) {
 		EffectRow* row = rows.at(i);
         stream.writeStartElement("row"); // row
         stream.writeStartElement("keyframes"); // keyframes
-        stream.writeAttribute("enabled", QString::number(row->keyframing));
+		stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
         for (int j=0;j<row->keyframe_times.size();j++) {
             stream.writeStartElement("key"); // key
             stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
@@ -286,20 +287,44 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
     keyframing(false),
     ui(uilayout),
     name(n),
-    ui_row(row)
+	ui_row(row),
+	just_made_unsafe_keyframe(false)
 {
     label = new QLabel(name);
 	ui->addWidget(label, row, 0);
 
-    // DEBUG STARTS
-    QPushButton* nkf = new QPushButton();
-	nkf->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-    connect(nkf, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_now()));
-    ui->addWidget(nkf, row, 5);
-    // DEBUG ENDS
-	/*keyframe_enable = new CheckboxEx();
+	keyframe_enable = new CheckboxEx();
 	keyframe_enable->setToolTip("Enable Keyframes");
-	ui->addWidget(keyframe_enable, row, 5);*/
+	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
+	ui->addWidget(keyframe_enable, row, 6);
+}
+
+bool EffectRow::isKeyframing() {
+	return keyframing;
+}
+
+void EffectRow::setKeyframing(bool b) {
+	keyframing = b;
+	keyframe_enable->setChecked(b);
+}
+
+void EffectRow::set_keyframe_enabled(bool enabled) {
+	if (enabled) {
+		set_keyframe_now(true);
+	} else {
+		if (QMessageBox::question(panel_effect_controls, "Disable Keyframes", "Disabling keyframes will delete all current keyframes. Are you sure you want to do this?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+			// clear
+			KeyframeDelete* kd = new KeyframeDelete();
+			for (int i=keyframe_times.size()-1;i>=0;i--) {
+				delete_keyframe(kd, i);
+			}
+			kd->disable_keyframes_on_row = this;
+			undo_stack.push(kd);
+			panel_effect_controls->update_keyframes();
+		} else {
+			setKeyframing(true);
+		}
+	}
 }
 
 EffectField* EffectRow::add_field(int type, int colspan) {
@@ -316,27 +341,42 @@ EffectRow::~EffectRow() {
 	}
 }
 
-void EffectRow::set_keyframe_now() {
-    set_keyframe(panel_timeline->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in);
+void EffectRow::set_keyframe_now(bool undoable) {
+	int index = -1;
+	long time = panel_timeline->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
+	for (int i=0;i<keyframe_times.size();i++) {
+		if (keyframe_times.at(i) == time) {
+			index = i;
+			break;
+		}
+	}
+
+	KeyframeSet* ks = new KeyframeSet(this, index, time, just_made_unsafe_keyframe);
+
+	if (undoable) {
+		just_made_unsafe_keyframe = false;
+		undo_stack.push(ks);
+	} else {
+		if (index == -1) just_made_unsafe_keyframe = true;
+		ks->redo();
+		delete ks;
+	}
+
+	panel_effect_controls->update_keyframes();
 }
 
-void EffectRow::set_keyframe(long time) {
-    keyframing = true;
-    int index = -1;
-    for (int i=0;i<keyframe_times.size();i++) {
-        if (keyframe_times.at(i) == time) {
-            index = i;
-            break;
-        }
-    }
-    if (index == -1) {
-        keyframe_times.append(time);
-        keyframe_types.append((keyframe_types.size() > 0) ? keyframe_types.last() : EFFECT_KEYFRAME_LINEAR);
-    }
-    for (int i=0;i<fields.size();i++) {
-        fields.at(i)->set_keyframe_data(index);
-    }
-    panel_effect_controls->update_keyframes();
+void EffectRow::delete_keyframe_at_time(KeyframeDelete* kd, long time) {
+	for (int i=0;i<keyframe_times.size();i++) {
+		if (keyframe_times.at(i) == time) {
+			delete_keyframe(kd, i);
+			break;
+		}
+	}
+}
+
+void EffectRow::delete_keyframe(KeyframeDelete* kd, int index) {
+	kd->rows.append(this);
+	kd->keyframes.append(index);
 }
 
 EffectField* EffectRow::field(int i) {
@@ -421,15 +461,7 @@ void EffectField::set_current_data(const QVariant& data) {
     }
 }
 
-void EffectField::set_keyframe_data(int i) {
-    if (i == -1) {
-        keyframe_data.append(get_current_data());
-    } else {
-        keyframe_data[i] = get_current_data();
-    }
-}
-
-void EffectField::get_keyframe_data(long frame, int* before, int* after, double* progress) {
+void EffectField::get_keyframe_data(long frame, int &before, int &after, double &progress) {
     int before_keyframe_index = -1;
     int after_keyframe_index = -1;
     long before_keyframe_time = LONG_MIN;
@@ -438,8 +470,8 @@ void EffectField::get_keyframe_data(long frame, int* before, int* after, double*
     for (int i=0;i<parent_row->keyframe_times.size();i++) {
         long eval_keyframe_time = parent_row->keyframe_times.at(i);
         if (eval_keyframe_time == frame) {
-            *before = i;
-            *after = i;
+			before = i;
+			after = i;
             return;
         } else if (eval_keyframe_time < frame && eval_keyframe_time > before_keyframe_time) {
             before_keyframe_index = i;
@@ -448,40 +480,40 @@ void EffectField::get_keyframe_data(long frame, int* before, int* after, double*
             after_keyframe_index = i;
             after_keyframe_time = eval_keyframe_time;
         }
-    }
+	}
 
     if (type == EFFECT_FIELD_DOUBLE || type == EFFECT_FIELD_COLOR) {
         if (before_keyframe_index > -1 && after_keyframe_index > -1) {
             // interpolate
-            *before = before_keyframe_index;
-            *after = after_keyframe_index;
-            *progress = (double)(frame-before_keyframe_time)/(double)(after_keyframe_time-before_keyframe_time);
+			before = before_keyframe_index;
+			after = after_keyframe_index;
+			progress = (double)(frame-before_keyframe_time)/(double)(after_keyframe_time-before_keyframe_time);
 
             // TODO routines for bezier - currently this is purely linear
         } else if (before_keyframe_index > -1) {
-            *before = before_keyframe_index;
-            *after = before_keyframe_index;
+			before = before_keyframe_index;
+			after = before_keyframe_index;
         } else if (after_keyframe_index > -1) {
-            *before = after_keyframe_index;
-            *after = after_keyframe_index;
+			before = after_keyframe_index;
+			after = after_keyframe_index;
         }
 	} else {
 		if (before_keyframe_index > -1) {
-			*before = before_keyframe_index;
-			*after = before_keyframe_index;
+			before = before_keyframe_index;
+			after = before_keyframe_index;
 		} else {
-			*before = after_keyframe_time;
-			*after = after_keyframe_time;
+			before = after_keyframe_index;
+			after = after_keyframe_index;
 		}
     }
 }
 
 void EffectField::validate_keyframe_data(long frame) {
-    if (parent_row->keyframing) {
+	if (parent_row->isKeyframing()) {
         int before_keyframe;
         int after_keyframe;
         double progress;
-        get_keyframe_data(frame, &before_keyframe, &after_keyframe, &progress);
+		get_keyframe_data(frame, before_keyframe, after_keyframe, progress);
 
         const QVariant& before_data = keyframe_data.at(before_keyframe);
         switch (type) {
@@ -524,14 +556,12 @@ void EffectField::validate_keyframe_data(long frame) {
             static_cast<FontCombobox*>(ui_element)->setCurrentTextEx(before_data.toString());
             break;
         }
-
-
     }
 }
 
 void EffectField::uiElementChange() {
-    if (parent_row->keyframing) {
-        parent_row->set_keyframe_now();
+	if (parent_row->isKeyframing()) {
+		parent_row->set_keyframe_now(!(type == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging()));
     }
     emit changed();
 }

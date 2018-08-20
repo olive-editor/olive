@@ -49,7 +49,7 @@ void ShakeEffect::refresh() {
     }
 }
 
-void ShakeEffect::process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords) {
+void ShakeEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoords&) {
     if (shake_progress > shake_limit) {
 		double ival = intensity_val->get_double_value(frame);
 		if ((int)ival > 0) {

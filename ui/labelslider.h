@@ -15,6 +15,8 @@ public:
     void set_maximum_value(double v);
     double value();
     bool is_set();
+	double get_drag_start_value();
+	bool is_dragging();
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
@@ -36,7 +38,7 @@ private:
 
     bool set;
 signals:
-    void valueChanged();
+	void valueChanged();
 };
 
 #endif // LABELSLIDER_H

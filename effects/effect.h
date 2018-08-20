@@ -17,6 +17,7 @@ class QXmlStreamWriter;
 class Effect;
 class EffectRow;
 class CheckboxEx;
+class KeyframeDelete;
 
 enum VideoEffects {
 	VIDEO_TRANSFORM_EFFECT,
@@ -81,9 +82,8 @@ public:
 	int type;
 
     QVariant get_current_data();
-    void set_current_data(const QVariant&);
-    void set_keyframe_data(int i);
-    void get_keyframe_data(long frame, int* before, int *after, double* d);
+	void set_current_data(const QVariant&);
+	void get_keyframe_data(long frame, int& before, int& after, double& d);
     void validate_keyframe_data(long frame);
 //  QVariant get_keyframe_data(long p);
 //	bool is_keyframed(long p);
@@ -116,8 +116,8 @@ public:
 	QWidget* get_ui_element();
 	void set_enabled(bool e);
     QVector<QVariant> keyframe_data;
+	QWidget* ui_element;
 private:
-    QWidget* ui_element;
 private slots:
     void uiElementChange();
 signals:
@@ -133,24 +133,29 @@ public:
 	EffectField* add_field(int type, int colspan = 1);
 	EffectField* field(int i);
     int fieldCount();
-	void set_keyframe(long time);
-	void move_keyframe(long from, long to);
-	void delete_keyframe(long time);
+	void set_keyframe_now(bool undoable);
+	void delete_keyframe(KeyframeDelete *kd, int index);
+	void delete_keyframe_at_time(KeyframeDelete* kd, long time);
 	QLabel* label;
 	Effect* parent_effect;
 
-    bool keyframing;
+	bool isKeyframing();
+	void setKeyframing(bool);
+
     QVector<long> keyframe_times;
     QVector<int> keyframe_types;
-public slots:
-    void set_keyframe_now();
+private slots:
+	void set_keyframe_enabled(bool);
 private:
+	bool keyframing;
 	QGridLayout* ui;
 	QString name;
 	int ui_row;
 	QVector<EffectField*> fields;
 
 	CheckboxEx* keyframe_enable;
+
+	bool just_made_unsafe_keyframe;
 };
 
 class Effect : public QObject {

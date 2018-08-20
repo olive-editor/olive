@@ -6,6 +6,7 @@ class QCheckBox;
 class LabelSlider;
 class Effect;
 class SourceTable;
+class EffectRow;
 struct Clip;
 struct Sequence;
 struct Media;
@@ -200,17 +201,50 @@ private:
 	bool old_project_changed;
 };
 
-class ValueChangeCommand : public QUndoCommand {
+class KeyframeMove : public QUndoCommand {
 public:
-	ValueChangeCommand();
-	LabelSlider* source;
-	float old_val;
-	float new_val;
+	KeyframeMove();
+	QVector<EffectRow*> rows;
+	QVector<int> keyframes;
+	long movement;
 	void undo();
 	void redo();
 private:
-	bool done;
 	bool old_project_changed;
+};
+
+class KeyframeDelete : public QUndoCommand {
+public:
+	KeyframeDelete();
+	QVector<EffectRow*> rows;
+	EffectRow* disable_keyframes_on_row;
+	QVector<int> keyframes;
+	void undo();
+	void redo();
+private:
+	bool old_project_changed;
+	QVector<long> deleted_keyframe_times;
+	QVector<int> deleted_keyframe_types;
+	QVector<QVariant> deleted_keyframe_data;
+	bool sorted;
+};
+
+
+class KeyframeSet : public QUndoCommand {
+public:
+	KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
+	void undo();
+	void redo();
+	QVector<QVariant> old_values;
+	QVector<QVariant> new_values;
+private:
+	bool old_project_changed;
+	EffectRow* row;
+	int index;
+	long time;
+	bool enable_keyframes;
+	bool just_made_keyframe;
+	bool done;
 };
 
 #endif // UNDO_H

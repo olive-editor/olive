@@ -38,5 +38,6 @@
         <file>zoomout-disabled.png</file>
         <file>add-transition.png</file>
         <file>add-effect.png</file>
+        <file>olive-splash.png</file>
     </qresource>
 </RCC>

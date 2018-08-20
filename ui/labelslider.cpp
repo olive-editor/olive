@@ -8,6 +8,7 @@
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
     drag_start = false;
+	drag_proc = false;
     min_enabled = false;
     max_enabled = false;
     setStyleSheet("QLabel{color:#ffc000;text-decoration:underline;}QLabel:disabled{color:#808080;}");
@@ -38,6 +39,10 @@ bool LabelSlider::is_set() {
     return set;
 }
 
+bool LabelSlider::is_dragging() {
+	return drag_proc;
+}
+
 double LabelSlider::value() {
     return internal_value;
 }
@@ -60,18 +65,16 @@ void LabelSlider::set_maximum_value(double v) {
     max_enabled = true;
 }
 
-void LabelSlider::mousePressEvent(QMouseEvent *ev) {
-    if (ev->modifiers() & Qt::AltModifier) {
-        ValueChangeCommand* vcc = new ValueChangeCommand();
-        vcc->source = this;
-        vcc->old_val = internal_value;
-        vcc->new_val = default_value;
-        undo_stack.push(vcc);
+double LabelSlider::get_drag_start_value() {
+	return drag_start_value;
+}
 
+void LabelSlider::mousePressEvent(QMouseEvent *ev) {
+	drag_start_value = internal_value;
+	if (ev->modifiers() & Qt::AltModifier) {
 		set_value(default_value, true);
     } else {
         qApp->setOverrideCursor(Qt::BlankCursor);
-        drag_start_value = internal_value;
         drag_start = true;
         drag_start_x = cursor().pos().x();
         drag_start_y = cursor().pos().y();
@@ -80,9 +83,9 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 
 void LabelSlider::mouseMoveEvent(QMouseEvent*) {
     if (drag_start) {
+		drag_proc = true;
 		set_value(internal_value + (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y()), true);
         cursor().setPos(drag_start_x, drag_start_y);
-        drag_proc = true;
     }
 }
 
@@ -91,25 +94,12 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
         qApp->restoreOverrideCursor();
         drag_start = false;
         if (drag_proc) {
-            // send undo event
-            ValueChangeCommand* vcc = new ValueChangeCommand();
-            vcc->source = this;
-            vcc->old_val = drag_start_value;
-            vcc->new_val = internal_value;
-            undo_stack.push(vcc);
-
-            drag_proc = false;
+			drag_proc = false;
+			emit valueChanged();
         } else {
             double d = QInputDialog::getDouble(this, "Set Value", "New value:", internal_value);
             if (d != internal_value) {
-                ValueChangeCommand* vcc = new ValueChangeCommand();
-                vcc->source = this;
-                vcc->old_val = internal_value;
-
 				set_value(d, true);
-
-                vcc->new_val = internal_value;
-                undo_stack.push(vcc);
             }
         }
     }

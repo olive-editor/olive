@@ -186,7 +186,9 @@ void MainWindow::on_actionDelete_triggered()
         panel_effect_controls->delete_effects();
     } else if (panel_project->is_focused()) {
         panel_project->delete_selected_media();
-    }
+	} else if (panel_effect_controls->keyframe_focus()) {
+		panel_effect_controls->delete_selected_keyframes();
+	}
 }
 
 void MainWindow::on_actionSelect_All_triggered()

@@ -89,6 +89,10 @@ void EffectControls::update_keyframes() {
 	ui->keyframeView->update();
 }
 
+void EffectControls::delete_selected_keyframes() {
+	ui->keyframeView->delete_selected_keyframes();
+}
+
 void EffectControls::show_effect_menu(bool video, bool transitions) {
     video_menu = video;
 	transition_menu = transitions;
