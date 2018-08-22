@@ -6,6 +6,7 @@
 #include "ui/collapsiblewidget.h"
 #include "panels/project.h"
 #include "project/undo.h"
+#include "project/sequence.h"
 #include "ui/labelslider.h"
 #include "ui/colorbutton.h"
 #include "ui/comboboxex.h"
@@ -21,6 +22,7 @@
 #include "effects/video/shakeeffect.h"
 #include "effects/video/solideffect.h"
 #include "effects/video/texteffect.h"
+#include "effects/video/chromakeyeffect.h"
 
 #include "effects/audio/paneffect.h"
 #include "effects/audio/volumeeffect.h"
@@ -43,6 +45,7 @@ void init_effects() {
 	video_effect_names[VIDEO_TEXT_EFFECT] = "Text";
 	video_effect_names[VIDEO_SOLID_EFFECT] = "Solid";
 	video_effect_names[VIDEO_INVERT_EFFECT] = "Invert";
+	video_effect_names[VIDEO_CHROMAKEY_EFFECT] = "Chroma Key";
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
@@ -56,6 +59,7 @@ Effect* create_effect(int effect_id, Clip* c) {
 		case VIDEO_TEXT_EFFECT: return new TextEffect(c); break;
 		case VIDEO_SOLID_EFFECT: return new SolidEffect(c); break;
 		case VIDEO_INVERT_EFFECT: return new InvertEffect(c); break;
+		case VIDEO_CHROMAKEY_EFFECT: return new ChromaKeyEffect(c); break;
 		}
 	} else {
 		switch (effect_id) {
@@ -276,9 +280,9 @@ Effect* Effect::copy(Clip* c) {
     return copy;
 }
 
-void Effect::process_image(long, uint8_t*, int, int) {}
-void Effect::process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords) {}
-void Effect::process_audio(uint8_t*, int) {}
+void Effect::process_image(double, uint8_t*, int, int) {}
+void Effect::process_gl(double, QOpenGLShaderProgram&, GLTextureCoords&) {}
+void Effect::process_audio(double, double, quint8*, int, int) {}
 
 /* Effect Row Definitions */
 
@@ -447,7 +451,15 @@ QVariant EffectField::get_current_data() {
     case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->currentIndex(); break;
     case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->currentText(); break;
     }
-    return QVariant();
+	return QVariant();
+}
+
+double EffectField::frameToTimecode(long frame) {
+	return ((double) frame / parent_row->parent_effect->parent_clip->sequence->frame_rate);
+}
+
+long EffectField::timecodeToFrame(double timecode) {
+	return qRound(timecode * parent_row->parent_effect->parent_clip->sequence->frame_rate);
 }
 
 void EffectField::set_current_data(const QVariant& data) {
@@ -461,59 +473,51 @@ void EffectField::set_current_data(const QVariant& data) {
     }
 }
 
-void EffectField::get_keyframe_data(long frame, int &before, int &after, double &progress) {
+void EffectField::get_keyframe_data(double timecode, int &before, int &after, double &progress) {
     int before_keyframe_index = -1;
     int after_keyframe_index = -1;
     long before_keyframe_time = LONG_MIN;
     long after_keyframe_time = LONG_MAX;
+	long frame = timecodeToFrame(timecode);
 
     for (int i=0;i<parent_row->keyframe_times.size();i++) {
         long eval_keyframe_time = parent_row->keyframe_times.at(i);
-        if (eval_keyframe_time == frame) {
+		if (eval_keyframe_time == frame) {
 			before = i;
 			after = i;
             return;
-        } else if (eval_keyframe_time < frame && eval_keyframe_time > before_keyframe_time) {
+		} else if (eval_keyframe_time < frame && eval_keyframe_time > before_keyframe_time) {
             before_keyframe_index = i;
             before_keyframe_time = eval_keyframe_time;
-        } else if (eval_keyframe_time > frame && eval_keyframe_time < after_keyframe_time) {
+		} else if (eval_keyframe_time > frame && eval_keyframe_time < after_keyframe_time) {
             after_keyframe_index = i;
             after_keyframe_time = eval_keyframe_time;
         }
 	}
 
-    if (type == EFFECT_FIELD_DOUBLE || type == EFFECT_FIELD_COLOR) {
-        if (before_keyframe_index > -1 && after_keyframe_index > -1) {
-            // interpolate
-			before = before_keyframe_index;
-			after = after_keyframe_index;
-			progress = (double)(frame-before_keyframe_time)/(double)(after_keyframe_time-before_keyframe_time);
+	if ((type == EFFECT_FIELD_DOUBLE || type == EFFECT_FIELD_COLOR) && (before_keyframe_index > -1 && after_keyframe_index > -1)) {
+		// interpolate
+		before = before_keyframe_index;
+		after = after_keyframe_index;
 
-            // TODO routines for bezier - currently this is purely linear
-        } else if (before_keyframe_index > -1) {
-			before = before_keyframe_index;
-			after = before_keyframe_index;
-        } else if (after_keyframe_index > -1) {
-			before = after_keyframe_index;
-			after = after_keyframe_index;
-        }
+		progress = (timecode-frameToTimecode(before_keyframe_time))/(frameToTimecode(after_keyframe_time)-frameToTimecode(before_keyframe_time));
+
+		// TODO routines for bezier - currently this is purely linear
+	} else if (before_keyframe_index > -1) {
+		before = before_keyframe_index;
+		after = before_keyframe_index;
 	} else {
-		if (before_keyframe_index > -1) {
-			before = before_keyframe_index;
-			after = before_keyframe_index;
-		} else {
-			before = after_keyframe_index;
-			after = after_keyframe_index;
-		}
-    }
+		before = after_keyframe_index;
+		after = after_keyframe_index;
+	}
 }
 
-void EffectField::validate_keyframe_data(long frame) {
+void EffectField::validate_keyframe_data(double timecode) {
 	if (parent_row->isKeyframing()) {
         int before_keyframe;
         int after_keyframe;
         double progress;
-		get_keyframe_data(frame, before_keyframe, after_keyframe, progress);
+		get_keyframe_data(timecode, before_keyframe, after_keyframe, progress);
 
         const QVariant& before_data = keyframe_data.at(before_keyframe);
         switch (type) {
@@ -574,8 +578,8 @@ void EffectField::set_enabled(bool e) {
 	ui_element->setEnabled(e);
 }
 
-double EffectField::get_double_value(long p) {
-    validate_keyframe_data(p);
+double EffectField::get_double_value(double timecode) {
+	validate_keyframe_data(timecode);
     return static_cast<LabelSlider*>(ui_element)->value();
 }
 
@@ -599,18 +603,18 @@ void EffectField::add_combo_item(const QString& name, const QVariant& data) {
 	static_cast<ComboBoxEx*>(ui_element)->addItem(name, data);
 }
 
-int EffectField::get_combo_index(long p) {
-    validate_keyframe_data(p);
+int EffectField::get_combo_index(double timecode) {
+	validate_keyframe_data(timecode);
     return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
 }
 
-const QVariant EffectField::get_combo_data(long p) {
-    validate_keyframe_data(p);
+const QVariant EffectField::get_combo_data(double timecode) {
+	validate_keyframe_data(timecode);
     return static_cast<ComboBoxEx*>(ui_element)->currentData();
 }
 
-const QString EffectField::get_combo_string(long p) {
-    validate_keyframe_data(p);
+const QString EffectField::get_combo_string(double timecode) {
+	validate_keyframe_data(timecode);
     return static_cast<ComboBoxEx*>(ui_element)->currentText();
 }
 
@@ -622,8 +626,8 @@ void EffectField::set_combo_string(const QString& s) {
 	static_cast<ComboBoxEx*>(ui_element)->setCurrentTextEx(s);
 }
 
-bool EffectField::get_bool_value(long p) {
-    validate_keyframe_data(p);
+bool EffectField::get_bool_value(double timecode) {
+	validate_keyframe_data(timecode);
 	return static_cast<QCheckBox*>(ui_element)->isChecked();
 }
 
@@ -631,8 +635,8 @@ void EffectField::set_bool_value(bool b) {
 	return static_cast<QCheckBox*>(ui_element)->setChecked(b);
 }
 
-const QString EffectField::get_string_value(long p) {
-    validate_keyframe_data(p);
+const QString EffectField::get_string_value(double timecode) {
+	validate_keyframe_data(timecode);
 	return static_cast<TextEditEx*>(ui_element)->toPlainText();
 }
 
@@ -640,8 +644,8 @@ void EffectField::set_string_value(const QString& s) {
 	static_cast<TextEditEx*>(ui_element)->setText(s);
 }
 
-const QString EffectField::get_font_name(long p) {
-    validate_keyframe_data(p);
+const QString EffectField::get_font_name(double timecode) {
+	validate_keyframe_data(timecode);
 	return static_cast<FontCombobox*>(ui_element)->currentText();
 }
 
@@ -649,8 +653,8 @@ void EffectField::set_font_name(const QString& s) {
 	static_cast<FontCombobox*>(ui_element)->setCurrentText(s);
 }
 
-QColor EffectField::get_color_value(long p) {
-    validate_keyframe_data(p);
+QColor EffectField::get_color_value(double timecode) {
+	validate_keyframe_data(timecode);
 	return static_cast<ColorButton*>(ui_element)->get_color();
 }
 

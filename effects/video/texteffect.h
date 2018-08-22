@@ -9,7 +9,7 @@ class TextEffect : public Effect {
 	Q_OBJECT
 public:
 	TextEffect(Clip* c);
-	void process_image(long frame, uint8_t* data, int width, int height);
+	void process_image(double timecode, uint8_t* data, int width, int height);
 
 	EffectField* text_val;
 	EffectField* size_val;

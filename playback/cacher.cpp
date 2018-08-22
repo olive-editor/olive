@@ -25,20 +25,21 @@ int dest_format = AV_PIX_FMT_RGBA;
 
 void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
     // perform all audio effects
+	double timecode_start = (frame->pts * av_q2d(c->stream->time_base));
+	double timecode_end = timecode_start + ((double) (nb_bytes >> 1) / frame->channels / frame->sample_rate);
+
     for (int j=0;j<c->effects.size();j++) {
-        Effect* e = c->effects.at(j);
-        if (e->is_enabled()) e->process_audio(frame->data[0], nb_bytes);
+		Effect* e = c->effects.at(j);
+		if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
     }
 	if (c->opening_transition != NULL) {
 		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
 			double transition_start = (c->clip_in / c->sequence->frame_rate);
 			double transition_end = transition_start + (c->opening_transition->length / c->sequence->frame_rate);
-			double range_start = (frame->pts * av_q2d(c->stream->time_base));
-			double range_end = range_start + ((double) nb_bytes * 0.5 / frame->channels / frame->sample_rate);
-			if (range_end < transition_end) {
+			if (timecode_end < transition_end) {
 				double adjustment = transition_end - transition_start;
-				double adjusted_range_start = (range_start - transition_start) / adjustment;
-				double adjusted_range_end = (range_end - transition_start) / adjustment;
+				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
+				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
 				c->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, false);
 			}
 		}
@@ -47,12 +48,10 @@ void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
 		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
 			double transition_end = (c->clip_in + c->getLength()) / c->sequence->frame_rate;
 			double transition_start = transition_end - (c->closing_transition->length / c->sequence->frame_rate);
-			double range_start = (frame->pts * av_q2d(c->stream->time_base));
-			double range_end = range_start + ((double) nb_bytes * 0.5 / frame->channels / frame->sample_rate);
-			if (range_start > transition_start) {
+			if (timecode_start > transition_start) {
 				double adjustment = transition_end - transition_start;
-				double adjusted_range_start = (range_start - transition_start) / adjustment;
-				double adjusted_range_end = (range_end - transition_start) / adjustment;
+				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
+				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
 				c->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, true);
 			}
 		}
@@ -176,7 +175,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 }
 
 void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
-    cache->mutex.lock();
+	cache->mutex.lock();
 
     cache->offset = playhead;
 
@@ -187,6 +186,7 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 	if (!c->reached_end) {
 		while (i < c->cache_size) {
 			retrieve_next_frame_raw_data(c, cache->frames[i]);
+
 			if (c->reached_end) break;
 			i++;
 		}

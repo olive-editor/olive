@@ -25,6 +25,7 @@ enum VideoEffects {
 	VIDEO_TEXT_EFFECT,
 	VIDEO_SOLID_EFFECT,
 	VIDEO_INVERT_EFFECT,
+	VIDEO_CHROMAKEY_EFFECT,
 	VIDEO_EFFECT_COUNT
 };
 
@@ -82,35 +83,37 @@ public:
 	int type;
 
     QVariant get_current_data();
+	double frameToTimecode(long frame);
+	long timecodeToFrame(double timecode);
 	void set_current_data(const QVariant&);
-	void get_keyframe_data(long frame, int& before, int& after, double& d);
-    void validate_keyframe_data(long frame);
+	void get_keyframe_data(double timecode, int& before, int& after, double& d);
+	void validate_keyframe_data(double timecode);
 //  QVariant get_keyframe_data(long p);
 //	bool is_keyframed(long p);
 
-	double get_double_value(long p);
+	double get_double_value(double timecode);
 	void set_double_value(double v);
 	void set_double_default_value(double v);
 	void set_double_minimum_value(double v);
 	void set_double_maximum_value(double v);
 
-	const QString get_string_value(long p);
+	const QString get_string_value(double timecode);
 	void set_string_value(const QString &s);
 
 	void add_combo_item(const QString& name, const QVariant &data);
-	int get_combo_index(long p);
-	const QVariant get_combo_data(long p);
-	const QString get_combo_string(long p);
+	int get_combo_index(double timecode);
+	const QVariant get_combo_data(double timecode);
+	const QString get_combo_string(double timecode);
 	void set_combo_index(int index);
 	void set_combo_string(const QString& s);
 
-	bool get_bool_value(long p);
+	bool get_bool_value(double timecode);
 	void set_bool_value(bool b);
 
-	const QString get_font_name(long p);
+	const QString get_font_name(double timecode);
 	void set_font_name(const QString& s);
 
-	QColor get_color_value(long p);
+	QColor get_color_value(double timecode);
 	void set_color_value(QColor color);
 
 	QWidget* get_ui_element();
@@ -188,9 +191,9 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(long frame, uint8_t* data, int width, int height);
-	virtual void process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords& coords);
-    virtual void process_audio(quint8* samples, int nb_bytes);
+	virtual void process_image(double timecode, uint8_t* data, int width, int height);
+	virtual void process_gl(double timecode, QOpenGLShaderProgram& shaders, GLTextureCoords& coords);
+	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();
 private:

@@ -242,7 +242,7 @@ void blurred2(QImage& result, const QRect& rect, int radius, bool alphaOnly = fa
 	}
 }
 
-void TextEffect::process_image(long frame, uint8_t* data, int w, int h) {
+void TextEffect::process_image(double timecode, uint8_t* data, int w, int h) {
 	QImage img(data, w, h, QImage::Format_RGBA8888);
 	QPainter p(&img);
 	p.setRenderHint(QPainter::Antialiasing);
@@ -251,15 +251,15 @@ void TextEffect::process_image(long frame, uint8_t* data, int w, int h) {
 
 	// set font
 	font.setStyleHint(QFont::Helvetica, QFont::PreferAntialias);
-	font.setFamily(set_font_combobox->get_font_name(frame));
-	font.setPointSize(size_val->get_double_value(frame));
+	font.setFamily(set_font_combobox->get_font_name(timecode));
+	font.setPointSize(size_val->get_double_value(timecode));
 	p.setFont(font);
 	QFontMetrics fm(font);
 
-	QStringList lines = text_val->get_string_value(frame).split('\n');
+	QStringList lines = text_val->get_string_value(timecode).split('\n');
 
 	// word wrap function
-	if (word_wrap_field->get_bool_value(frame)) {
+	if (word_wrap_field->get_bool_value(timecode)) {
 		for (int i=0;i<lines.size();i++) {
 			const QString& s = lines.at(i);
 			if (fm.width(s) > width) {
@@ -288,7 +288,7 @@ void TextEffect::process_image(long frame, uint8_t* data, int w, int h) {
 	for (int i=0;i<lines.size();i++) {
 		int text_x, text_y;
 
-		switch (halign_field->get_combo_data(frame).toInt()) {
+		switch (halign_field->get_combo_data(timecode).toInt()) {
 		case Qt::AlignLeft: text_x = 0; break;
 		case Qt::AlignHCenter: text_x = (width/2) - (fm.width(lines.at(i))/2); break;
 		case Qt::AlignRight: text_x = width - fm.width(lines.at(i)); break;
@@ -317,7 +317,7 @@ void TextEffect::process_image(long frame, uint8_t* data, int w, int h) {
 			break;
 		}
 
-		switch (valign_field->get_combo_data(frame).toInt()) {
+		switch (valign_field->get_combo_data(timecode).toInt()) {
 		case Qt::AlignTop: text_y = (fm.height()*i)+fm.ascent(); break;
 		case Qt::AlignVCenter: text_y = ((height/2) - (text_height/2) - fm.descent()) + (fm.height()*(i+1)); break;
 		case Qt::AlignBottom: text_y = (height - text_height - fm.descent()) + (fm.height()*(i+1)); break;
@@ -329,32 +329,32 @@ void TextEffect::process_image(long frame, uint8_t* data, int w, int h) {
 	p.setPen(Qt::NoPen);
 
 	// draw shadow
-	if (shadow_bool->get_bool_value(frame)) {
+	if (shadow_bool->get_bool_value(timecode)) {
 		QImage shadow(width, height, QImage::Format_ARGB32_Premultiplied);
 		shadow.fill(Qt::transparent);
 		QPainter spaint(&shadow);
 
-		int shadow_offset = shadow_distance->get_double_value(frame);
-		QColor col = shadow_color->get_color_value(frame);
-		col.setAlphaF(shadow_opacity->get_double_value(frame)*0.01);
+		int shadow_offset = shadow_distance->get_double_value(timecode);
+		QColor col = shadow_color->get_color_value(timecode);
+		col.setAlphaF(shadow_opacity->get_double_value(timecode)*0.01);
 		spaint.setBrush(col);
 		spaint.drawPath(path);
 
-		blurred2(shadow, shadow.rect(), shadow_softness->get_double_value(frame), false);
+		blurred2(shadow, shadow.rect(), shadow_softness->get_double_value(timecode), false);
 		p.drawImage(shadow_offset, shadow_offset, shadow);
 
 		spaint.end();
 	}
 
 	// draw outline
-	int outline_width_val = outline_width->get_double_value(frame);
-	if (outline_bool->get_bool_value(frame) && outline_width_val > 0) {
-		QPen outline(outline_color->get_color_value(frame));
+	int outline_width_val = outline_width->get_double_value(timecode);
+	if (outline_bool->get_bool_value(timecode) && outline_width_val > 0) {
+		QPen outline(outline_color->get_color_value(timecode));
 		outline.setWidth(outline_width_val);
 		p.setPen(outline);
 	}
 
 	// draw "master" text
-	p.setBrush(set_color_button->get_color_value(frame));
+	p.setBrush(set_color_button->get_color_value(timecode));
 	p.drawPath(path);
 }

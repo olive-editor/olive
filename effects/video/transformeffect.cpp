@@ -121,13 +121,13 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 }
 
-void TransformEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoords& coords) {
+void TransformEffect::process_gl(double timecode, QOpenGLShaderProgram&, GLTextureCoords& coords) {
 	// position
-	glTranslatef(position_x->get_double_value(frame)-(parent_clip->sequence->width/2), position_y->get_double_value(frame)-(parent_clip->sequence->height/2), 0);
+	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 
 	// anchor point
-	int anchor_x_offset = (anchor_x_box->get_double_value(frame)-default_anchor_x);
-	int anchor_y_offset = (anchor_y_box->get_double_value(frame)-default_anchor_y);
+	int anchor_x_offset = (anchor_x_box->get_double_value(timecode)-default_anchor_x);
+	int anchor_y_offset = (anchor_y_box->get_double_value(timecode)-default_anchor_y);
 	coords.vertexTopLeftX -= anchor_x_offset;
 	coords.vertexTopRightX -= anchor_x_offset;
 	coords.vertexBottomLeftX -= anchor_x_offset;
@@ -138,15 +138,15 @@ void TransformEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoo
 	coords.vertexBottomRightY -= anchor_y_offset;
 
 	// rotation
-	glRotatef(rotation->get_double_value(frame), 0, 0, 1);
+	glRotatef(rotation->get_double_value(timecode), 0, 0, 1);
 
 	// scale
-	float sx = scale_x->get_double_value(frame)*0.01;
-	float sy = (uniform_scale_field->get_bool_value(frame)) ? sx : scale_y->get_double_value(frame)*0.01;
+	float sx = scale_x->get_double_value(timecode)*0.01;
+	float sy = (uniform_scale_field->get_bool_value(timecode)) ? sx : scale_y->get_double_value(timecode)*0.01;
     glScalef(sx, sy, 1);
 
     // blend mode
-	switch (blend_mode_box->get_combo_data(frame).toInt()) {
+	switch (blend_mode_box->get_combo_data(timecode).toInt()) {
     case BLEND_MODE_NORMAL:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
@@ -166,5 +166,5 @@ void TransformEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoo
 	// opacity
     float color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
-	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(frame)*0.01));
+	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
 }

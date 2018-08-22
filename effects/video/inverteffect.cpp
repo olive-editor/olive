@@ -22,8 +22,8 @@ InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_
 	connect(amount_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void InvertEffect::process_gl(long frame, QOpenGLShaderProgram& shaders, GLTextureCoords&) {
-	double value = amount_val->get_double_value(frame)*0.01;
+void InvertEffect::process_gl(double timecode, QOpenGLShaderProgram& shaders, GLTextureCoords&) {
+	double value = amount_val->get_double_value(timecode)*0.01;
 	shaders.addShaderFromSourceCode(QOpenGLShader::Vertex, "varying vec2 vTexCoord;\nvoid main() {\n\tvTexCoord = gl_MultiTexCoord0.xy;\n\tgl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n}");
-	shaders.addShaderFromSourceCode(QOpenGLShader::Fragment, "uniform sampler2D myTexture;\nvarying vec2 vTexCoord;\nvoid main(void) {\n\tvec4 textureColor = texture2D(myTexture, vTexCoord);\n\tgl_FragColor = vec4(textureColor.r+((1.0-textureColor.r-textureColor.r)*" + QString::number(value, 'f', 2) + "), textureColor.g+((1.0-textureColor.g-textureColor.g)*" + QString::number(value, 'f', 2) + "), textureColor.b+((1.0-textureColor.b-textureColor.b)*" + QString::number(value, 'f', 2) + "), 1);\n}");
+	shaders.addShaderFromSourceCode(QOpenGLShader::Fragment, "uniform sampler2D myTexture;\nvarying vec2 vTexCoord;\nvoid main(void) {\n\tvec4 textureColor = texture2D(myTexture, vTexCoord);\n\tgl_FragColor = vec4(textureColor.r+((1.0-textureColor.r-textureColor.r)*" + QString::number(value, 'f', 2) + "), textureColor.g+((1.0-textureColor.g-textureColor.g)*" + QString::number(value, 'f', 2) + "), textureColor.b+((1.0-textureColor.b-textureColor.b)*" + QString::number(value, 'f', 2) + "), textureColor.a);\n}");
 }

@@ -21,21 +21,22 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_
 	connect(volume_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void VolumeEffect::process_audio(quint8* samples, int nb_bytes) {
-	double vol_val = volume_val->get_double_value(-1);
-	if (vol_val != 100) {
-        for (int i=0;i<nb_bytes;i+=2) {
-            qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-			double val = qPow(vol_val*0.01, 3);
-            samp *= val;
-            if (samp > INT16_MAX) {
-                samp = INT16_MAX;
-            } else if (samp < INT16_MIN) {
-                samp = INT16_MIN;
-            }
+void VolumeEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
+//	qDebug() << timecode_start << timecode_end;
+	double interval = (timecode_end-timecode_start)/nb_bytes;
+	for (int i=0;i<nb_bytes;i+=2) {
+		double vol_val = volume_val->get_double_value(timecode_start+(interval*i));
+//		qDebug() << timecode_start+(interval*i);
+		qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+		double val = qPow(vol_val*0.01, 3);
+		samp *= val;
+		if (samp > INT16_MAX) {
+			samp = INT16_MAX;
+		} else if (samp < INT16_MIN) {
+			samp = INT16_MIN;
+		}
 
-            samples[i+1] = (quint8) (samp >> 8);
-            samples[i] = (quint8) samp;
-        }
-    }
+		samples[i+1] = (quint8) (samp >> 8);
+		samples[i] = (quint8) samp;
+	}
 }

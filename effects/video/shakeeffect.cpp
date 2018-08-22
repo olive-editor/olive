@@ -49,9 +49,9 @@ void ShakeEffect::refresh() {
     }
 }
 
-void ShakeEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoords&) {
+void ShakeEffect::process_gl(double timecode, QOpenGLShaderProgram&, GLTextureCoords&) {
     if (shake_progress > shake_limit) {
-		double ival = intensity_val->get_double_value(frame);
+		double ival = intensity_val->get_double_value(timecode);
 		if ((int)ival > 0) {
             prev_x = next_x;
             prev_y = next_y;
@@ -81,7 +81,7 @@ void ShakeEffect::process_gl(long frame, QOpenGLShaderProgram&, GLTextureCoords&
             offset_x = 0;
             offset_y = 0;
         }
-		double rot_val = rotation_val->get_double_value(frame);
+		double rot_val = rotation_val->get_double_value(timecode);
 		if ((int)rot_val > 0) {
             prev_rot = next_rot;
 			next_rot = (qrand() % (int) (rot_val * 2)) - rot_val;

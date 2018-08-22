@@ -71,7 +71,8 @@ SOURCES += \
     effects/video/shakeeffect.cpp \
     effects/video/inverteffect.cpp \
     ui/keyframeview.cpp \
-    ui/texteditex.cpp
+    ui/texteditex.cpp \
+    effects/video/chromakeyeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -119,7 +120,8 @@ HEADERS += \
     effects/audio/volumeeffect.h \
     effects/audio/paneffect.h \
     ui/keyframeview.h \
-    ui/texteditex.h
+    ui/texteditex.h \
+    effects/video/chromakeyeffect.h
 
 FORMS += \
         mainwindow.ui \
