@@ -20,7 +20,7 @@ PanEffect::PanEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_PAN_EFFECT) {
 	connect(pan_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void PanEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
+void PanEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
 	double interval = (timecode_end - timecode_start)/nb_bytes;
 	for (int i=0;i<nb_bytes;i+=4) {
 		double pval = pan_val->get_double_value(timecode_start+(interval*i));

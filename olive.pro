@@ -72,7 +72,10 @@ SOURCES += \
     effects/video/inverteffect.cpp \
     ui/keyframeview.cpp \
     ui/texteditex.cpp \
-    effects/video/chromakeyeffect.cpp
+    effects/video/chromakeyeffect.cpp \
+    effects/video/gaussianblureffect.cpp \
+    effects/video/cropeffect.cpp \
+    effects/video/flipeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -121,7 +124,10 @@ HEADERS += \
     effects/audio/paneffect.h \
     ui/keyframeview.h \
     ui/texteditex.h \
-    effects/video/chromakeyeffect.h
+    effects/video/chromakeyeffect.h \
+    effects/video/gaussianblureffect.h \
+    effects/video/cropeffect.h \
+    effects/video/flipeffect.h
 
 FORMS += \
         mainwindow.ui \
