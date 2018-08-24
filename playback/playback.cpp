@@ -167,7 +167,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 			memcpy(c->comp_frame, current_frame->data[0], c->comp_frame_size);
 			for (int i=0;i<c->effects.size();i++) {
-				if (c->effects.at(i)->enable_image) {
+                if (c->effects.at(i)->is_enabled() && c->effects.at(i)->enable_image) {
 					c->effects.at(i)->process_image(sequence_clip_time, c->comp_frame, current_frame->width, current_frame->height);
 				}
 			}

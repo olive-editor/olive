@@ -15,7 +15,7 @@
 #define SMPTE_STRIP_COUNT 3
 #define SMPTE_LOWER_BARS 4
 
-SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT) {
+SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT), vert(QOpenGLShader::Vertex), frag(QOpenGLShader::Fragment) {
 	enable_opengl = true;
 
 	solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
@@ -30,18 +30,26 @@ SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFF
 	opacity_field->set_double_maximum_value(100);
 	opacity_field->set_double_default_value(100);
 
-	connect(solid_type, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(solid_type, SIGNAL(changed()), this, SLOT(enable_color()));
+    connect(solid_type, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(solid_color_field, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(opacity_field, SIGNAL(changed()), this, SLOT(field_changed()));
+
+    vert.compileSourceCode("varying vec2 vTexCoord;\nvoid main() {\n\tvTexCoord = gl_MultiTexCoord0.xy;\n\tgl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n}");
+    frag.compileSourceCode("uniform vec4 solidColor;\nuniform float amount_val;\nuniform sampler2D myTexture;\nvarying vec2 vTexCoord;\nvoid main(void) {\n\tvec4 textureColor = texture2D(myTexture, vTexCoord);\n\tgl_FragColor = vec4(textureColor.r+((solidColor.r-textureColor.r)*amount_val), textureColor.g+((solidColor.g-textureColor.g)*amount_val), textureColor.b+((solidColor.b-textureColor.b)*amount_val), textureColor.a);\n}");
+    program.addShader(&vert);
+    program.addShader(&frag);
 }
 
-void SolidEffect::enable_color() {
-	solid_color_field->set_enabled(solid_type->get_combo_data(-1) == SOLID_TYPE_COLOR);
+void SolidEffect::process_gl(double timecode, GLTextureCoords&) {
+    solid_color_field->set_enabled(solid_type->get_combo_data(timecode) == SOLID_TYPE_COLOR);
+
+    program.bind();
+    program.setUniformValue("solidColor", solid_color_field->get_color_value(timecode));
+    program.setUniformValue("amount_val", (GLfloat) (opacity_field->get_double_value(timecode)*0.01));
 }
 
-void SolidEffect::process_gl(double timecode, GLTextureCoords& coords) {
-
+void SolidEffect::clean_gl() {
+    program.release();
 }
 
 void SolidEffect::process_image(long frame, uint8_t* data, int w, int h) {

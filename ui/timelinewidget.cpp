@@ -1607,11 +1607,14 @@ void TimelineWidget::redraw_clips() {
                     } else if (ms->preview_done) {
                         // draw thumbnail/waveform
 						long media_length = m->get_length_in_frames(clip->sequence->frame_rate);
-						int waveform_limit = qMin(clip_rect.width(), panel_timeline->getTimelineScreenPointFromFrame(media_length - clip->clip_in));
+                        int waveform_limit;
 
-                        if (waveform_limit < clip_rect.width() && !ms->infinite_length) {
-                            draw_checkerboard = true;
-                            if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
+                        if (!ms->infinite_length) {
+                            waveform_limit = qMin(clip_rect.width(), panel_timeline->getTimelineScreenPointFromFrame(media_length - clip->clip_in));
+                            if (waveform_limit < clip_rect.width()) {
+                                draw_checkerboard = true;
+                                if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
+                            }
 						}
 
                         if (clip->track < 0) {

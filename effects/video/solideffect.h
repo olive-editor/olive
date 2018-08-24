@@ -11,9 +11,12 @@ public:
 	EffectField* solid_color_field;
 	EffectField* opacity_field;
 	void process_gl(double timecode, GLTextureCoords& coords);
-	void process_image(long p, uint8_t* data, int width, int height);
-private slots:
-	void enable_color();
+    void clean_gl();
+    void process_image(long p, uint8_t* data, int width, int height);
+private:
+    QOpenGLShaderProgram program;
+    QOpenGLShader vert;
+    QOpenGLShader frag;
 };
 
 #endif // SOLIDEFFECT_H

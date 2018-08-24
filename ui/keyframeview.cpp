@@ -27,7 +27,7 @@ KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mousedown(false),
 }
 
 void KeyframeView::paintEvent(QPaintEvent*) {
-	QPainter p(this);
+    QPainter p(this);
 
 	int width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
 	setMinimumWidth(width);
@@ -66,7 +66,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 
 	if (select_rect) {
 		draw_selection_rectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
-	}
+    }
 
     /*if (mouseover && mouseover_row < rowY.size()) {
 		draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, mouseover_frame - visible_in), rowY.at(mouseover_row), true);
