@@ -894,13 +894,13 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 
 		MediaStream* ms = NULL;
 		if (g.clip != -1 && c->media_type == MEDIA_TYPE_FOOTAGE) {
-			ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
+            ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 		}
 
         // validate ghosts for trimming
         if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
             if (c->media_type == MEDIA_TYPE_SEQUENCE
-                    || (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream)->infinite_length)) {
+                    || (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream)->infinite_length)) {
                 // prevent slip moving a clip below 0 clip_in
                 validator = g.old_clip_in - frame_diff;
                 if (validator < 0) frame_diff += validator;
@@ -1599,9 +1599,9 @@ void TimelineWidget::redraw_clips() {
 
                 if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
 					bool draw_checkerboard = false;
-					QRect checkerboard_rect = clip_rect;
+                    QRect checkerboard_rect(clip_rect);
                     Media* m = static_cast<Media*>(clip->media);
-                    MediaStream* ms = m->get_stream_from_file_index(clip->media_stream);
+                    MediaStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
                     if (ms == NULL) {
 						draw_checkerboard = true;
                     } else if (ms->preview_done) {
@@ -1609,9 +1609,9 @@ void TimelineWidget::redraw_clips() {
 						long media_length = m->get_length_in_frames(clip->sequence->frame_rate);
 						int waveform_limit = qMin(clip_rect.width(), panel_timeline->getTimelineScreenPointFromFrame(media_length - clip->clip_in));
 
-						if (waveform_limit < clip_rect.width()) {
-							draw_checkerboard = true;
-							checkerboard_rect.setLeft(clip_rect.left() + waveform_limit);
+                        if (waveform_limit < clip_rect.width() && !ms->infinite_length) {
+                            draw_checkerboard = true;
+                            if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
 						}
 
                         if (clip->track < 0) {
@@ -1666,7 +1666,7 @@ void TimelineWidget::redraw_clips() {
 						// draw "error lines" if media stream is missing
 						clip_painter.setPen(QPen(QColor(64, 64, 64), 2));
 						int limit = checkerboard_rect.width();
-						int clip_height = checkerboard_rect.bottom()-checkerboard_rect.top();
+                        int clip_height = checkerboard_rect.height();
 						for (int j=-clip_height;j<limit;j+=15) {
 							int lines_start_x = checkerboard_rect.left()+j;
 							int lines_start_y = checkerboard_rect.bottom();

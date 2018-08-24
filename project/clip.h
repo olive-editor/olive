@@ -60,6 +60,7 @@ struct Clip
     quint8 color_g;
     quint8 color_b;
     long getLength();
+    long getMediaLength(double framerate);
     void* media; // attached media
     int media_type;
     int media_stream;

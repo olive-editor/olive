@@ -261,7 +261,7 @@ void TextEffect::process_image(double timecode, uint8_t* data, int w, int h) {
 	// word wrap function
 	if (word_wrap_field->get_bool_value(timecode)) {
 		for (int i=0;i<lines.size();i++) {
-			const QString& s = lines.at(i);
+            QString s(lines.at(i));
 			if (fm.width(s) > width) {
 				int last_space_index = 0;
 				for (int j=0;j<s.length();j++) {

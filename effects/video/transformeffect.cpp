@@ -94,7 +94,7 @@ void TransformEffect::refresh() {
             switch (parent_clip->media_type) {
             case MEDIA_TYPE_FOOTAGE:
             {
-                MediaStream* ms = static_cast<Media*>(parent_clip->media)->get_stream_from_file_index(parent_clip->media_stream);
+                MediaStream* ms = static_cast<Media*>(parent_clip->media)->get_stream_from_file_index(parent_clip->track < 0, parent_clip->media_stream);
                 if (ms != NULL) {
                     default_anchor_x = ms->video_width/2;
                     default_anchor_y = ms->video_height/2;

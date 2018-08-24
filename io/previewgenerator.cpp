@@ -37,7 +37,7 @@ void PreviewGenerator::parse_media() {
         if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
             qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
         } else {
-            MediaStream* ms = media->get_stream_from_file_index(i);
+            MediaStream* ms = media->get_stream_from_file_index(fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, i);
             bool append = false;
             if (ms == NULL) {
                 ms = new MediaStream();
@@ -139,7 +139,7 @@ void PreviewGenerator::generate_waveform() {
             }
 		}
         if (!end_of_file) {
-            MediaStream* s = media->get_stream_from_file_index(packet.stream_index);
+            MediaStream* s = media->get_stream_from_file_index(fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet.stream_index);
 			if (s != NULL) {
 				if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 					if (!s->preview_done) {

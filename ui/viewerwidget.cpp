@@ -106,7 +106,7 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
             {
                 Media* m = static_cast<Media*>(c->media);
 				if (m->ready) {
-					if (m->get_stream_from_file_index(c->media_stream) != NULL
+                    if (m->get_stream_from_file_index(c->track < 0, c->media_stream) != NULL
 							&& is_clip_active(c, playhead)) {
 						// if thread is already working, we don't want to touch this,
 						// but we also don't want to hang the UI thread
@@ -161,7 +161,7 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                         qDebug() << "[WARNING] Texture hasn't been created yet";
                         texture_failed = true;
                     } else if (playhead >= c->timeline_in) {
-                        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
+                        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         glColor4f(1.0, 1.0, 1.0, 1.0);

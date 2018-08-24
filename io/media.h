@@ -40,7 +40,7 @@ struct Media {
     bool ready;
 
     long get_length_in_frames(double frame_rate);
-	MediaStream* get_stream_from_file_index(int index);
+    MediaStream* get_stream_from_file_index(bool video, int index);
     void reset();
 };
 

@@ -7,6 +7,7 @@
 #include "playback/cacher.h"
 #include "panels/project.h"
 #include "project/sequence.h"
+#include "panels/timeline.h"
 
 #include <QDebug>
 
@@ -158,5 +159,27 @@ long Clip::get_timeline_out_with_transition() {
 
 // timeline functions
 long Clip::getLength() {
-	return timeline_out - timeline_in;
+    return timeline_out - timeline_in;
+}
+
+long Clip::getMediaLength(double framerate) {
+    switch (media_type) {
+    case MEDIA_TYPE_FOOTAGE:
+    {
+        Media* m = static_cast<Media*>(media);
+        if (m->get_stream_from_file_index(track < 0, media_stream)->infinite_length) {
+            return LONG_MAX;
+        } else {
+            return m->get_length_in_frames(framerate);
+        }
+    }
+        break;
+    case MEDIA_TYPE_SEQUENCE:
+    {
+        Sequence* s = static_cast<Sequence*>(media);
+        return refactor_frame_number(s->getEndFrame(), s->frame_rate, framerate);
+    }
+        break;
+    }
+    return 0;
 }

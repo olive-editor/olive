@@ -206,7 +206,7 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
-    MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
+    MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 	if (!ms->infinite_length) {
 		// flush ffmpeg codecs
 		avcodec_flush_buffers(c->codecCtx);
@@ -249,7 +249,7 @@ void open_clip_worker(Clip* clip) {
     Media* m = static_cast<Media*>(clip->media);
     QByteArray ba = m->url.toUtf8();
 	const char* filename = ba.constData();
-    MediaStream* ms = m->get_stream_from_file_index(clip->media_stream);
+    MediaStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 
 	int errCode = avformat_open_input(
 			&clip->formatCtx,
@@ -410,7 +410,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 
 void close_clip_worker(Clip* clip) {
     // closes ffmpeg file handle and frees any memory used for caching
-    MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->media_stream);
+    MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 //		sws_freeContext(clip->sws_ctx);
 

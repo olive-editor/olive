@@ -80,7 +80,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
 
 		// do we need to update the texture?
-		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
+        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
 		AVFrame* current_frame = NULL;
 		bool no_frame = false;
@@ -263,7 +263,10 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
 }
 
 bool is_clip_active(Clip* c, long playhead) {
-	return c->timeline_in < playhead + ceil(c->sequence->frame_rate) && c->timeline_out > playhead && c->enabled;
+    return c->enabled
+            && c->timeline_in < playhead + ceil(c->sequence->frame_rate)
+            && c->timeline_out > playhead
+            && playhead - c->timeline_in + c->clip_in < c->getMediaLength(c->sequence->frame_rate);
 }
 
 void set_sequence(Sequence* s) {
