@@ -55,7 +55,8 @@ Timeline::Timeline(QWidget *parent) :
     splitting(false),
     importing(false),
     ui(new Ui::Timeline),
-    last_frame(0)
+    last_frame(0),
+    zoomChanged(false)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
@@ -298,7 +299,13 @@ void Timeline::redraw_all_clips(bool changed) {
 	ui->headers->update_header(zoom);
     ui->video_area->redraw_clips();
     ui->audio_area->redraw_clips();
-	panel_effect_controls->update_keyframes();
+    panel_effect_controls->update_keyframes();
+
+    if (zoomChanged) {
+        ui->audioScrollArea->update();
+        ui->audioScrollArea->horizontalScrollBar()->setValue(getTimelineScreenPointFromFrame(playhead)-(ui->audioScrollArea->width()/2));
+        zoomChanged = false;
+    }
 
 	panel_viewer->update_end_timecode();
 }
@@ -408,7 +415,8 @@ void Timeline::set_zoom(bool in) {
         zoom *= 2;
     } else {
         zoom /= 2;
-	}
+    }
+    zoomChanged = true;
     redraw_all_clips(false);
 }
 

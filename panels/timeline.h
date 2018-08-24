@@ -180,6 +180,9 @@ public:
 	// importing
 	bool importing;
 
+    // zoom variables
+    bool zoomChanged;
+
     Ui::Timeline *ui;
 public slots:
 	void repaint_timeline();
