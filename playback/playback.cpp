@@ -80,108 +80,105 @@ bool get_clip_frame(Clip* c, long playhead) {
 		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
 
 		// do we need to update the texture?
-        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
-		if ((!ms->infinite_length/* && c->texture_frame != clip_time*/) ||
-                (ms->infinite_length && c->texture_frame == -1)) {
-			AVFrame* current_frame = NULL;
-			bool no_frame = false;
+		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->media_stream);
 
-			// get frame data
-            if (ms->infinite_length) { // if clip is a still frame, we only need one
-				if (c->cache_A.written) {
-					// retrieve cached frame
-					current_frame = c->cache_A.frames[0];
-				} else if (c->lock.tryLock()) {
-					// grab image
-					cache_clip(c, 0, true, false, false, NULL);
-					c->lock.unlock();
-				}
-			} else {
-				// keeping a RAM cache improves performance, however it's detrimental when rendering
-				// determine which cache contains the requested frame
-				bool using_cache_A = false;
-				bool using_cache_B = false;
-				AVFrame** cache = NULL;
-				long cache_offset = 0;
-				bool cache_needs_reset = false;
+		AVFrame* current_frame = NULL;
+		bool no_frame = false;
 
-				if (c->cache_A.written && clip_time >= c->cache_A.offset && clip_time < c->cache_A.offset + c->cache_size) {
-					if (clip_time < c->cache_A.offset + c->cache_A.write_count) {
-						if (c->cache_A.mutex.tryLock()) { // lock in case cacher is still writing to it
-							using_cache_A = true;
-							c->cache_A.unread = false;
-							cache = c->cache_A.frames;
-							cache_offset = c->cache_A.offset;
-							c->cache_A.mutex.unlock();
-						}
-					} else {
-						no_frame = true;
-					}
-				} else if (c->cache_B.written && clip_time >= c->cache_B.offset && clip_time < c->cache_B.offset + c->cache_size) {
-					if (clip_time < c->cache_B.offset + c->cache_B.write_count) {
-						if (c->cache_B.mutex.tryLock()) { // lock in case cacher is still writing to it
-							using_cache_B = true;
-							c->cache_B.unread = false;
-							cache = c->cache_B.frames;
-							cache_offset = c->cache_B.offset;
-							c->cache_B.mutex.unlock();
-						}
-					} else {
-						no_frame = true;
+		// get frame data
+		if (ms->infinite_length) { // if clip is a still frame, we only need one
+			if (c->cache_A.written) {
+				// retrieve cached frame
+				current_frame = c->cache_A.frames[0];
+			} else if (c->lock.tryLock()) {
+				// grab image
+				cache_clip(c, 0, true, false, false, NULL);
+				c->lock.unlock();
+			}
+		} else {
+			// keeping a RAM cache improves performance, however it's detrimental when rendering
+			// determine which cache contains the requested frame
+			bool using_cache_A = false;
+			bool using_cache_B = false;
+			AVFrame** cache = NULL;
+			long cache_offset = 0;
+			bool cache_needs_reset = false;
+
+			if (c->cache_A.written && clip_time >= c->cache_A.offset && clip_time < c->cache_A.offset + c->cache_size) {
+				if (clip_time < c->cache_A.offset + c->cache_A.write_count) {
+					if (c->cache_A.mutex.tryLock()) { // lock in case cacher is still writing to it
+						using_cache_A = true;
+						c->cache_A.unread = false;
+						cache = c->cache_A.frames;
+						cache_offset = c->cache_A.offset;
+						c->cache_A.mutex.unlock();
 					}
 				} else {
-					// this is technically bad, unless we just seeked
-					c->cache_A.unread = c->cache_B.unread = false;
-					cache_needs_reset = true;
+					no_frame = true;
+				}
+			} else if (c->cache_B.written && clip_time >= c->cache_B.offset && clip_time < c->cache_B.offset + c->cache_size) {
+				if (clip_time < c->cache_B.offset + c->cache_B.write_count) {
+					if (c->cache_B.mutex.tryLock()) { // lock in case cacher is still writing to it
+						using_cache_B = true;
+						c->cache_B.unread = false;
+						cache = c->cache_B.frames;
+						cache_offset = c->cache_B.offset;
+						c->cache_B.mutex.unlock();
+					}
+				} else {
+					no_frame = true;
+				}
+			} else {
+				// this is technically bad, unless we just seeked
+				c->cache_A.unread = c->cache_B.unread = false;
+				cache_needs_reset = true;
+			}
+
+			if (!no_frame) {
+				if (cache != NULL) {
+					current_frame = cache[clip_time - cache_offset];
 				}
 
-				if (!no_frame) {
-					if (cache != NULL) {
-						current_frame = cache[clip_time - cache_offset];
-					}
-
-					// determine whether we should start filling the other cache
-					if (!using_cache_A || !using_cache_B) {
-						if (c->lock.tryLock()) {
-							bool write_A = (!using_cache_A && !c->cache_A.unread);
-							bool write_B = (!using_cache_B && !c->cache_B.unread);
-							if (write_A || write_B) {
-								// if we have no cache and need to seek, start us at the current playhead, otherwise start at the end of the current cache
-								cache_clip(c, (cache_needs_reset) ? clip_time : cache_offset + c->cache_size, write_A, write_B, cache_needs_reset, NULL);
-							}
-							c->lock.unlock();
+				// determine whether we should start filling the other cache
+				if (!using_cache_A || !using_cache_B) {
+					if (c->lock.tryLock()) {
+						bool write_A = (!using_cache_A && !c->cache_A.unread);
+						bool write_B = (!using_cache_B && !c->cache_B.unread);
+						if (write_A || write_B) {
+							// if we have no cache and need to seek, start us at the current playhead, otherwise start at the end of the current cache
+							cache_clip(c, (cache_needs_reset) ? clip_time : cache_offset + c->cache_size, write_A, write_B, cache_needs_reset, NULL);
 						}
+						c->lock.unlock();
 					}
 				}
 			}
+		}
 
-			if (current_frame != NULL) {
-				// set up opengl texture
-				if (c->texture == NULL) {
-					c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-					c->texture->setSize(current_frame->width, current_frame->height);
-					c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-					c->texture->setMipLevels(c->texture->maximumMipLevels());
-					c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-					c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
-				}
-
-
-				memcpy(c->comp_frame, current_frame->data[0], c->comp_frame_size);
-				for (int i=0;i<c->effects.size();i++) {
-					if (c->effects.at(i)->enable_image) {
-						c->effects.at(i)->process_image(sequence_clip_time, c->comp_frame, current_frame->width, current_frame->height);
-					}
-				}
-
-				c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, c->comp_frame);
-				c->texture_frame = clip_time;
-
-                return true;
-			} else if (!no_frame) {
-				texture_failed = true;
-				qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
+		if (current_frame != NULL) {
+			// set up opengl texture
+			if (c->texture == NULL) {
+				c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+				c->texture->setSize(current_frame->width, current_frame->height);
+				c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+				c->texture->setMipLevels(c->texture->maximumMipLevels());
+				c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+				c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 			}
+
+			memcpy(c->comp_frame, current_frame->data[0], c->comp_frame_size);
+			for (int i=0;i<c->effects.size();i++) {
+				if (c->effects.at(i)->enable_image) {
+					c->effects.at(i)->process_image(sequence_clip_time, c->comp_frame, current_frame->width, current_frame->height);
+				}
+			}
+
+			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, c->comp_frame);
+			c->texture_frame = clip_time;
+
+			return true;
+		} else if (!no_frame) {
+			texture_failed = true;
+			qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
 		}
 	}
     return false;

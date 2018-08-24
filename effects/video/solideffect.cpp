@@ -40,7 +40,7 @@ void SolidEffect::enable_color() {
 	solid_color_field->set_enabled(solid_type->get_combo_data(-1) == SOLID_TYPE_COLOR);
 }
 
-void SolidEffect::process_gl(double timecode, QOpenGLShaderProgram& shaders, GLTextureCoords& coords) {
+void SolidEffect::process_gl(double timecode, GLTextureCoords& coords) {
 
 }
 

@@ -23,7 +23,7 @@ CropEffect::CropEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_CROP_EFFECT
 	connect(bottom_field, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void CropEffect::process_gl(double timecode, QOpenGLShaderProgram&, GLTextureCoords &coords) {
+void CropEffect::process_gl(double timecode, GLTextureCoords &coords) {
 	// store initial coord data
 	int left = coords.vertexTopLeftX;
 	int top = coords.vertexTopLeftY;

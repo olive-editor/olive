@@ -304,16 +304,18 @@ void Timeline::redraw_all_clips(bool changed) {
 }
 
 void Timeline::select_all() {
-	selections.clear();
-	for (int i=0;i<sequence->clip_count();i++) {
-        Clip* c = sequence->get_clip(i);
-        Selection s;
-        s.in = c->timeline_in;
-        s.out = c->timeline_out;
-        s.track = c->track;
-        if (c != NULL) selections.append(s);
+	if (sequence != NULL) {
+		selections.clear();
+		for (int i=0;i<sequence->clip_count();i++) {
+			Clip* c = sequence->get_clip(i);
+			Selection s;
+			s.in = c->timeline_in;
+			s.out = c->timeline_out;
+			s.track = c->track;
+			if (c != NULL) selections.append(s);
+		}
+		repaint_timeline();
 	}
-    repaint_timeline();
 }
 
 void Timeline::delete_in_out(bool ripple) {

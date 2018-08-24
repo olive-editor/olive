@@ -10,7 +10,7 @@ FlipEffect::FlipEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_FLIP_EFFECT
 	connect(vertical_field, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void FlipEffect::process_gl(double timecode, QOpenGLShaderProgram &, GLTextureCoords &coords) {
+void FlipEffect::process_gl(double timecode, GLTextureCoords &coords) {
 	if (horizontal_field->get_bool_value(timecode)) {
 		double tlX = coords.textureTopLeftX;
 		double blX = coords.textureBottomLeftX;

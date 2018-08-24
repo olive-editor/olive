@@ -180,6 +180,7 @@ public:
 	int row_count();
 
     bool is_enabled();
+	void set_enabled(bool b);
 
 	virtual void refresh();
 
@@ -195,7 +196,8 @@ public:
 	const char* ffmpeg_filter;
 
 	virtual void process_image(double timecode, uint8_t* data, int width, int height);
-	virtual void process_gl(double timecode, QOpenGLShaderProgram& shaders, GLTextureCoords& coords);
+	virtual void process_gl(double timecode, GLTextureCoords& coords);
+	virtual void clean_gl();
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();

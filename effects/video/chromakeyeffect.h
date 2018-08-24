@@ -6,10 +6,14 @@
 class ChromaKeyEffect : public Effect {
 public:
 	ChromaKeyEffect(Clip* c);
-	void process_gl(double timecode, QOpenGLShaderProgram &shaders, GLTextureCoords &coords);
+	void process_gl(double timecode, GLTextureCoords &coords);
+	void clean_gl();
 private:
 	EffectField* color_field;
 	EffectField* tolerance_field;
+	QOpenGLShaderProgram program;
+	QOpenGLShader vert;
+	QOpenGLShader frag;
 };
 
 #endif // CHROMAKEYEFFECT_H

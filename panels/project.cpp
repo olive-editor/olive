@@ -844,15 +844,19 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                     stream.readNext();
                                                     if (stream.name() == "effect" && stream.isStartElement()) {
                                                         int effect_id = -1;
+														bool effect_enabled = true;
                                                         for (int j=0;j<stream.attributes().size();j++) {
                                                             const QXmlStreamAttribute& attr = stream.attributes().at(j);
-                                                            if (attr.name().toString() == QLatin1String("id")) {
-                                                                effect_id = attr.value().toInt();
-                                                                break;
-                                                            }
+															if (attr.name() == "id") {
+																effect_id = attr.value().toInt();
+															} else if (attr.name() == "enabled") {
+																effect_enabled = (attr.value() == "1");
+															}
                                                         }
                                                         if (effect_id != -1) {
                                                             Effect* e = create_effect(effect_id, c);
+															e->set_enabled(effect_enabled);
+//															stream.writeAttribute("enabled", QString::number(e->is_enabled()));
                                                             e->load(stream);
                                                             c->effects.append(e);
                                                         }
@@ -1111,6 +1115,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                     stream.writeStartElement("effect"); // effect
                                     Effect* e = c->effects.at(k);
                                     stream.writeAttribute("id", QString::number(e->id));									
+									stream.writeAttribute("enabled", QString::number(e->is_enabled()));
                                     e->save(stream);
                                     stream.writeEndElement(); // effect
                                 }

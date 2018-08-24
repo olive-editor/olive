@@ -180,11 +180,9 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 						coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
 						coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
 
-                        QOpenGLShaderProgram shader;
-
                         for (int j=0;j<c->effects.size();j++) {
 							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
-								c->effects.at(j)->process_gl(((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate), shader, coords);
+								c->effects.at(j)->process_gl(((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate), coords);
 							}
                         }
 
@@ -202,9 +200,6 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                             }
 						}
 
-                        bool use_gl_shaders = shader.link();
-                        if (use_gl_shaders) shader.bind();
-
                         c->texture->bind();
 
                         glBegin(GL_QUADS);
@@ -218,9 +213,13 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
                         glEnd();
 
-                        c->texture->release();
+						c->texture->release();
 
-                        if (use_gl_shaders) shader.release();
+						for (int j=0;j<c->effects.size();j++) {
+							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
+								c->effects.at(j)->clean_gl();
+							}
+						}
                     }
                 } else if (render_audio &&
                            c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&

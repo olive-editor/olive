@@ -147,7 +147,11 @@ void Effect::field_changed() {
 }
 
 bool Effect::is_enabled() {
-    return container->enabled_check->isChecked();
+	return container->enabled_check->isChecked();
+}
+
+void Effect::set_enabled(bool b) {
+	container->enabled_check->setChecked(b);
 }
 
 QVariant load_data_from_string(int type, const QString& string) {
@@ -290,8 +294,9 @@ Effect* Effect::copy(Clip* c) {
 }
 
 void Effect::process_image(double, uint8_t*, int, int) {}
-void Effect::process_gl(double, QOpenGLShaderProgram&, GLTextureCoords&) {}
+void Effect::process_gl(double, GLTextureCoords&) {}
 void Effect::process_audio(double, double, quint8*, int, int) {}
+void Effect::clean_gl() {}
 
 /* Effect Row Definitions */
 

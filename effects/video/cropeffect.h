@@ -7,7 +7,7 @@ class CropEffect : public Effect
 {
 public:
 	CropEffect(Clip* c);
-	void process_gl(double timecode, QOpenGLShaderProgram &shaders, GLTextureCoords &coords);
+	void process_gl(double timecode, GLTextureCoords &coords);
 private:
 	EffectField* left_field;
 	EffectField* top_field;
