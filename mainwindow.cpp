@@ -37,6 +37,7 @@
 
 QTimer autorecovery_timer;
 QString config_dir;
+QString appName = "Olive (August 2018 | Alpha)";
 
 void MainWindow::setup_layout() {
     panel_project->show();
@@ -78,12 +79,11 @@ MainWindow::MainWindow(QWidget *parent) :
     qApp->setPalette(darkPalette);
 
 	// end style
-
-	setWindowState(Qt::WindowMaximized);
-
 	ui->setupUi(this);
 
-	setWindowTitle("Olive (August 2018 | Alpha)");
+	updateTitle("");
+	setWindowState(Qt::WindowMaximized);
+
     statusBar()->showMessage("Welcome to Olive");
 
     setDockNestingEnabled(true);
@@ -111,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent) :
             autorecovery_filename = data_dir + "/autorecovery.ove";
             if (QFile::exists(autorecovery_filename)) {
                 if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-                    project_url = autorecovery_filename;
+					updateTitle(autorecovery_filename);
                     panel_project->load_project();
                 }
             }
@@ -318,7 +318,7 @@ bool MainWindow::save_project_as() {
         if (!fn.endsWith(".ove", Qt::CaseInsensitive)) {
             fn += ".ove";
         }
-        project_url = fn;
+		updateTitle(fn);
         panel_project->save_project(false);
         return true;
     }
@@ -351,7 +351,12 @@ bool MainWindow::can_close_project() {
             return false;
         }
     }
-    return true;
+	return true;
+}
+
+void MainWindow::updateTitle(const QString& url) {
+	project_url = url;
+	setWindowTitle(appName + " - " + ((project_url.isEmpty()) ? "<untitled>" : project_url));
 }
 
 void MainWindow::closeEvent(QCloseEvent *e) {
@@ -371,7 +376,7 @@ void MainWindow::on_action_Open_Project_triggered()
 {
     QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
     if (!fn.isEmpty() && can_close_project()) {
-        project_url = fn;
+		updateTitle(fn);
         panel_project->load_project();
         undo_stack.clear();
     }
@@ -384,6 +389,7 @@ void MainWindow::on_actionProject_triggered()
         undo_stack.clear();
         project_url.clear();
         panel_project->new_project();
+		updateTitle("");
         panel_timeline->redraw_all_clips(false);
         panel_timeline->playhead = 0;
     }
@@ -635,8 +641,8 @@ void MainWindow::load_recent_project() {
             recent_projects.removeAt(index);
             panel_project->save_recent_projects();
         }
-    } else if (can_close_project()) {
-        project_url = recent_url;
+	} else if (can_close_project()) {
+		updateTitle(recent_url);
         panel_project->load_project();
     }
 }

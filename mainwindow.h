@@ -176,6 +176,7 @@ private:
     bool save_project_as();
     bool save_project();
     bool can_close_project();
+	void updateTitle(const QString &url);
 };
 
 #endif // MAINWINDOW_H

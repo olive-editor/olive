@@ -17,6 +17,7 @@
 #include <QAudioOutput>
 #include <QOpenGLShaderProgram>
 #include <QtMath>
+#include <QOpenGLFramebufferObject>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -27,7 +28,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
     multithreaded(true),
     force_audio(false),
     enable_paint(true),
-    flip(false)
+	flip(false),
+	fbo(NULL)
 {
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -59,15 +61,15 @@ void ViewerWidget::retry() {
 	update();
 }
 
-void ViewerWidget::initializeGL() {
+void ViewerWidget::initializeGL() {	
+	/*if (fbo != NULL) {
+		delete fbo;
+		fbo = NULL;
+	}*/
+
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(deleteFunction()));
 
-    initializeOpenGLFunctions();
-
-    glClearColor(0, 0, 0, 1);
-    glMatrixMode(GL_PROJECTION);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
+	initializeOpenGLFunctions();
 
     update();
 }
@@ -78,6 +80,28 @@ void ViewerWidget::initializeGL() {
 
 void ViewerWidget::paintEvent(QPaintEvent *e) {
     if (enable_paint) QOpenGLWidget::paintEvent(e);
+}
+
+GLuint ViewerWidget::draw_clip(GLuint texture) {
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, 1, 0, 1, -1, 1);
+	fbo->bind();
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); // top left
+	glVertex2f(0, 0); // top left
+	glTexCoord2f(1, 0); // top right
+	glVertex2f(1, 0); // top right
+	glTexCoord2f(1, 1); // bottom right
+	glVertex2f(1, 1); // bottom right
+	glTexCoord2f(0, 1); // bottom left
+	glVertex2f(0, 1); // bottom left
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, NULL);
+	fbo->release();
+	glPopMatrix();
+	return fbo->takeTexture();
 }
 
 void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
@@ -160,17 +184,23 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                     if (c->texture == NULL) {
                         qDebug() << "[WARNING] Texture hasn't been created yet";
                         texture_failed = true;
-                    } else if (playhead >= c->timeline_in) {
-                        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
+                    } else if (playhead >= c->timeline_in) {						
+						MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                        glColor4f(1.0, 1.0, 1.0, 1.0);
-                        glLoadIdentity();
+						int half_width = sequence->width/2;
+						int half_height = sequence->height/2;
+						if (flip) half_height = -half_height;
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glColor4f(1.0, 1.0, 1.0, 1.0);
+						glLoadIdentity();
+						glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
+						glViewport(0, 0, ms->video_width, ms->video_height);
 
-                        int half_width = sequence->width/2;
-                        int half_height = sequence->height/2;
-                        if (flip) half_height = -half_height;
-                        glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
+						// TEMP DEBUG CODE
+						if (fbo != NULL) delete fbo;
+						fbo = new QOpenGLFramebufferObject(ms->video_width, ms->video_height);
+						GLuint composite_texture = draw_clip(c->texture->textureId());
+						// END
 
 						GLTextureCoords coords;
 						coords.vertexTopLeftX = coords.vertexBottomLeftX = -ms->video_width/2;
@@ -180,11 +210,13 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 						coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
 						coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
 
+						// EFFECT CODE START
                         for (int j=0;j<c->effects.size();j++) {
 							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
 								c->effects.at(j)->process_gl(((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate), coords);
+								composite_texture = draw_clip(composite_texture);
 							}
-                        }
+						}
 
                         if (c->opening_transition != NULL) {
                             int transition_progress = playhead - c->timeline_in;
@@ -199,10 +231,22 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                                 c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
                             }
 						}
+						// EFFECT CODE END
 
-                        c->texture->bind();
+						for (int j=0;j<c->effects.size();j++) {
+							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
+								c->effects.at(j)->clean_gl();
+							}
+						}
 
-                        glBegin(GL_QUADS);
+						glViewport(0, 0, width(), height());
+
+						glBindTexture(GL_TEXTURE_2D, composite_texture);
+
+						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+						glBegin(GL_QUADS);
 						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
 						glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
 						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
@@ -211,15 +255,9 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 						glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
 						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
 						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
-                        glEnd();
+						glEnd();
 
-						c->texture->release();
-
-						for (int j=0;j<c->effects.size();j++) {
-							if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
-								c->effects.at(j)->clean_gl();
-							}
-						}
+						glDeleteTextures(1, &composite_texture);
                     }
                 } else if (render_audio &&
                            c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
@@ -227,7 +265,7 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
                     // clip is not caching, start caching audio
                     cache_clip(c, playhead, false, false, c->audio_reset, nest);
                     c->lock.unlock();
-                }
+				}
                 break;
 			case MEDIA_TYPE_SEQUENCE:
 				nests.append(c);
@@ -239,6 +277,11 @@ void ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 }
 
 void ViewerWidget::paintGL() {
+	glClearColor(0, 0, 0, 1);
+	glMatrixMode(GL_PROJECTION);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
     bool loop = true;
 	while (loop) {
         loop = false;
@@ -261,4 +304,7 @@ void ViewerWidget::paintGL() {
             }
         }
     }
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 }
