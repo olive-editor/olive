@@ -315,11 +315,13 @@ void Timeline::select_all() {
 		selections.clear();
 		for (int i=0;i<sequence->clip_count();i++) {
 			Clip* c = sequence->get_clip(i);
-			Selection s;
-			s.in = c->timeline_in;
-			s.out = c->timeline_out;
-			s.track = c->track;
-			if (c != NULL) selections.append(s);
+			if (c != NULL) {
+				Selection s;
+				s.in = c->timeline_in;
+				s.out = c->timeline_out;
+				s.track = c->track;
+				selections.append(s);
+			}
 		}
 		repaint_timeline();
 	}

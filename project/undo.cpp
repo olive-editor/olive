@@ -727,7 +727,7 @@ void EffectDeleteCommand::redo() {
 	deleted_objects.clear();
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
-		int fx_id = fx.at(i);
+		int fx_id = fx.at(i) - i;
 		deleted_objects.append(c->effects.at(fx_id));
 		c->effects.removeAt(fx_id);
 	}
