@@ -362,9 +362,9 @@ void open_clip_worker(Clip* clip) {
 		// init resampling context
 		clip->swr_ctx = swr_alloc_set_opts(
 				NULL,
-				clip->sequence->audio_layout,
+                sequence->audio_layout,
 				static_cast<AVSampleFormat>(sample_format),
-				clip->sequence->audio_frequency,
+                sequence->audio_frequency,
                 clip->codecCtx->channel_layout,
 				static_cast<AVSampleFormat>(clip->stream->codecpar->format),
 				clip->stream->codecpar->sample_rate,
@@ -377,9 +377,9 @@ void open_clip_worker(Clip* clip) {
 		clip->cache_A.frames = new AVFrame* [1];
 		clip->cache_A.frames[0] = av_frame_alloc();
 		clip->cache_A.frames[0]->format = sample_format;
-		clip->cache_A.frames[0]->channel_layout = clip->sequence->audio_layout;
+        clip->cache_A.frames[0]->channel_layout = sequence->audio_layout;
 		clip->cache_A.frames[0]->channels = av_get_channel_layout_nb_channels(clip->cache_A.frames[0]->channel_layout);
-		clip->cache_A.frames[0]->sample_rate = clip->sequence->audio_frequency;
+        clip->cache_A.frames[0]->sample_rate = sequence->audio_frequency;
 		av_frame_make_writable(clip->cache_A.frames[0]);
 
         clip->audio_reset = true;

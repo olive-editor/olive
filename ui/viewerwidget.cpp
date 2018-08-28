@@ -183,8 +183,9 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					video_height = ms->video_height;
 					if (c->texture != NULL) textureID = c->texture->textureId();
 				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-					video_width = s->width;
-					video_height = s->height;
+                    Sequence* cs = static_cast<Sequence*>(c->media);
+                    video_width = cs->width;
+                    video_height = cs->height;
 					textureID = compose_sequence(c, render_audio);
 				}
 
