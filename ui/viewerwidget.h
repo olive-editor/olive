@@ -10,7 +10,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-class QOpenGLFramebufferObject;
 struct Clip;
 struct Sequence;
 
@@ -31,12 +30,11 @@ protected:
 //    void resizeGL(int w, int h);
 private:
 	QTimer retry_timer;
-	QOpenGLFramebufferObject* fbo;
 private slots:
 	void retry();
     void deleteFunction();
-	void compose_sequence(QVector<Clip*>& nests, bool render_audio);
-	GLuint draw_clip(GLuint texture);
+	GLuint compose_sequence(Clip *nest, bool render_audio);
+	GLuint draw_clip(Clip *clip, GLuint texture);
 };
 
 #endif // VIEWERWIDGET_H

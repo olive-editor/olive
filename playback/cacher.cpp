@@ -18,15 +18,17 @@ extern "C" {
 }
 
 #include <QDebug>
+#include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <math.h>
 
 int dest_format = AV_PIX_FMT_RGBA;
 
-void apply_audio_effects(Clip* c, AVFrame* frame, int nb_bytes) {
+void apply_audio_effects(Clip* c, double timebase, AVFrame* frame, int nb_bytes) {
     // perform all audio effects
-	double timecode_start = (frame->pts * av_q2d(c->stream->time_base));
-	double timecode_end = timecode_start + ((double) (nb_bytes >> 1) / frame->channels / frame->sample_rate);
+	double timecode_start, timecode_end;
+	timecode_start = (frame->pts * timebase);
+	timecode_end = timecode_start + ((double) (nb_bytes >> 1) / frame->channels / frame->sample_rate);
 
     for (int j=0;j<c->effects.size();j++) {
 		Effect* e = c->effects.at(j);
@@ -84,8 +86,9 @@ void cache_audio_worker(Clip* c, Clip* nest) {
             if (!c->reached_end) {
                 retrieve_next_frame_raw_data(c, frame);
                 int byte_count = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-                apply_audio_effects(c, frame, byte_count);
-				if (nest != NULL) apply_audio_effects(nest, frame, byte_count);
+				double timebase = av_q2d(c->stream->time_base);
+				apply_audio_effects(c, timebase, frame, byte_count);
+				if (nest != NULL) apply_audio_effects(nest, timebase, frame, byte_count);
             } else {
                 // set by retrieve_next_frame_raw_data indicating no more frames in file,
                 // but there still may be samples in swresample
@@ -145,7 +148,9 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                 }
             }
             if (apply_effects) {
-                apply_audio_effects(c, frame, nb_bytes);
+				double timebase = av_q2d(c->stream->time_base);
+				apply_audio_effects(c, timebase, frame, nb_bytes);
+				if (nest != NULL) apply_audio_effects(nest, timebase, frame, nb_bytes);
             }
 
             while (c->frame_sample_index < nb_bytes) {
@@ -343,7 +348,7 @@ void open_clip_worker(Clip* clip) {
 			clip->cache_B.frames[i]->linesize[0] = dstW*4;
 		}
 
-		clip->comp_frame_size = clip->stream->codecpar->width * clip->stream->codecpar->height * 4;
+		clip->comp_frame_size = dstW * dstH * 4;
 		clip->comp_frame = new uchar[clip->comp_frame_size];
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		// if FFmpeg can't pick up the channel layout (usually WAV), assume
@@ -412,10 +417,11 @@ void close_clip_worker(Clip* clip) {
     // closes ffmpeg file handle and frees any memory used for caching
     MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-//		sws_freeContext(clip->sws_ctx);
+		sws_freeContext(clip->sws_ctx);
 
-		// TODO will eventually be in audio too
 		delete [] clip->comp_frame;
+		delete clip->fbo;
+		clip->fbo = NULL;
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		swr_free(&clip->swr_ctx);
 	}

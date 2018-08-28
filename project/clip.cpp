@@ -28,7 +28,8 @@ Clip::Clip(Sequence* s) :
     closing_transition(NULL),
 	pkt(new AVPacket()),
 	replaced(false),
-    texture(NULL)
+	texture(NULL),
+	fbo(NULL)
 {
     reset();
 }

@@ -75,7 +75,8 @@ SOURCES += \
     effects/video/chromakeyeffect.cpp \
     effects/video/gaussianblureffect.cpp \
     effects/video/cropeffect.cpp \
-    effects/video/flipeffect.cpp
+    effects/video/flipeffect.cpp \
+    effects/audio/audionoiseeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -127,7 +128,8 @@ HEADERS += \
     effects/video/chromakeyeffect.h \
     effects/video/gaussianblureffect.h \
     effects/video/cropeffect.h \
-    effects/video/flipeffect.h
+    effects/video/flipeffect.h \
+    effects/audio/audionoiseeffect.h
 
 FORMS += \
         mainwindow.ui \

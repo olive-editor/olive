@@ -8,6 +8,7 @@
 class Cacher;
 class Effect;
 class Transition;
+class QOpenGLFramebufferObject;
 struct Sequence;
 struct Media;
 struct MediaStream;
@@ -80,7 +81,6 @@ struct Clip
 	AVFrame* frame;
 	uchar* comp_frame;
 	int comp_frame_size;
-	SwsContext* sws_ctx;
 
     bool pkt_written;
     bool reached_end;
@@ -99,7 +99,8 @@ struct Clip
     QMutex open_lock;
 
     // video playback variables
-	//SwsContext* sws_ctx;
+	SwsContext* sws_ctx;
+	QOpenGLFramebufferObject* fbo;
     QOpenGLTexture* texture;
     long texture_frame;
 

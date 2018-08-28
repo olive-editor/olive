@@ -35,6 +35,7 @@ enum VideoEffects {
 enum AudioEffects {
 	AUDIO_VOLUME_EFFECT,
 	AUDIO_PAN_EFFECT,
+	AUDIO_NOISE_EFFECT,
 	AUDIO_EFFECT_COUNT
 };
 

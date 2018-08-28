@@ -29,6 +29,7 @@
 
 #include "effects/audio/paneffect.h"
 #include "effects/audio/volumeeffect.h"
+#include "effects/audio/audionoiseeffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -55,6 +56,7 @@ void init_effects() {
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
+	audio_effect_names[AUDIO_NOISE_EFFECT] = "Noise";
 }
 
 Effect* create_effect(int effect_id, Clip* c) {
@@ -74,6 +76,7 @@ Effect* create_effect(int effect_id, Clip* c) {
 		switch (effect_id) {
 		case AUDIO_VOLUME_EFFECT: return new VolumeEffect(c); break;
 		case AUDIO_PAN_EFFECT: return new PanEffect(c); break;
+		case AUDIO_NOISE_EFFECT: return new AudioNoiseEffect(c); break;
 		}
 	}
 	qDebug() << "[ERROR] Invalid effect ID";
