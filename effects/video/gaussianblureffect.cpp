@@ -6,8 +6,10 @@ GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, V
 	enable_opengl = true;
 	enable_image = false;
 
-    vert.compileSourceCode("attribute vec2 position;\nvoid main() { gl_Position = vec4(position, 1, 1); }");
-    frag.compileSourceCode("uniform vec3 resolution;\nuniform sampler2D image;\nuniform bool flip;\nuniform vec2 direction;\n\nvoid main() {\n  vec2 uv = vec2(gl_FragCoord.xy / resolution.xy);\n  if (flip) {\n    uv.y = 1.0 - uv.y;\n  }\n\n  vec4 color = vec4(0.0);\n  vec2 off1 = vec2(1.3846153846) * direction;\n  vec2 off2 = vec2(3.2307692308) * direction;\n  color += texture2D(image, uv) * 0.2270270270;\n  color += texture2D(image, uv + (off1 / resolution.xy)) * 0.3162162162;\n  color += texture2D(image, uv - (off1 / resolution.xy)) * 0.3162162162;\n  color += texture2D(image, uv + (off2 / resolution.xy)) * 0.0702702703;\n  color += texture2D(image, uv - (off2 / resolution.xy)) * 0.0702702703;\n  gl_FragColor = color;\n}\n");
+    vert.compileSourceCode("void main() {\ngl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n}");
+//    vert.compileSourceCode("#version 330 core\nin vec2 VertexPosition;\nvoid main(void) {\ngl_Position = vec4(VertexPosition, 0.0, 1.0);\n}");
+    frag.compileSourceCode("#version 330 core\n\nuniform sampler2D image;\n\nout vec4 FragmentColor;\n\nuniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );\nuniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );\n\nvoid main(void)\n{\n	FragmentColor = texture2D( image, vec2(gl_FragCoord)/vec2(640.0, 360.0) ) * weight[0];\n	for (int i=1; i<3; i++) {\n		FragmentColor += texture2D( image, ( vec2(gl_FragCoord)+vec2(offset[i], 0.0) )/vec2(640.0, 360.0) ) * weight[i];\n		FragmentColor += texture2D( image, ( vec2(gl_FragCoord)-vec2(offset[i], 0.0) )/vec2(640.0, 360.0) ) * weight[i];\n	}\n}");
+//    frag.compileSourceCode("#version 330 core\n\nuniform sampler2D image;\n\nout vec4 FragmentColor;\n\nvoid main(void)\n{\n	FragmentColor = texture2D( image, vec2(gl_FragCoord)/vec2(640.0, 360.0) );\n}");
 	program.addShader(&frag);
 	program.addShader(&vert);
 	program.link();
