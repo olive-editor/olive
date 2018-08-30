@@ -88,28 +88,11 @@ void TransformEffect::refresh() {
 		scale_x->set_double_default_value(100);
 		scale_y->set_double_default_value(100);
 
-        default_anchor_x = default_pos_x;
-        default_anchor_y = default_pos_y;
-        if (parent_clip->media != NULL) {
-            switch (parent_clip->media_type) {
-            case MEDIA_TYPE_FOOTAGE:
-            {
-                MediaStream* ms = static_cast<Media*>(parent_clip->media)->get_stream_from_file_index(parent_clip->track < 0, parent_clip->media_stream);
-                if (ms != NULL) {
-                    default_anchor_x = ms->video_width/2;
-                    default_anchor_y = ms->video_height/2;
-                }
-                break;
-            }
-            case MEDIA_TYPE_SEQUENCE:
-            {
-                Sequence* s = static_cast<Sequence*>(parent_clip->media);
-                default_anchor_x = s->width/2;
-                default_anchor_y = s->height/2;
-                break;
-            }
-            }
-        }
+		default_anchor_x = parent_clip->getWidth()/2;
+		default_anchor_y = parent_clip->getHeight()/2;
+
+		if (default_anchor_x == 0) default_anchor_x = default_pos_x;
+		if (default_anchor_y == 0) default_anchor_y = default_pos_y;
 
 		anchor_x_box->set_double_default_value(default_anchor_x);
 		anchor_y_box->set_double_default_value(default_anchor_y);

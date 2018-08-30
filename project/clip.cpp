@@ -182,5 +182,39 @@ long Clip::getMediaLength(double framerate) {
     }
         break;
     }
-    return 0;
+	return 0;
+}
+
+int Clip::getWidth() {
+	if (media == NULL && sequence != NULL) return sequence->width;
+	switch (media_type) {
+	case MEDIA_TYPE_FOOTAGE:
+	{
+		MediaStream* ms = static_cast<Media*>(media)->get_stream_from_file_index(track < 0, media_stream);
+		if (ms != NULL) return ms->video_width;
+	}
+	case MEDIA_TYPE_SEQUENCE:
+	{
+		Sequence* s = static_cast<Sequence*>(media);
+		return s->width;
+	}
+	}
+	return 0;
+}
+
+int Clip::getHeight() {
+	if (media == NULL && sequence != NULL) return sequence->height;
+	switch (media_type) {
+	case MEDIA_TYPE_FOOTAGE:
+	{
+		MediaStream* ms = static_cast<Media*>(media)->get_stream_from_file_index(track < 0, media_stream);
+		if (ms != NULL) return ms->video_height;
+	}
+	case MEDIA_TYPE_SEQUENCE:
+	{
+		Sequence* s = static_cast<Sequence*>(media);
+		return s->height;
+	}
+	}
+	return 0;
 }

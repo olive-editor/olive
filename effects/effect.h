@@ -194,6 +194,9 @@ public:
 	bool enable_image;
 	bool enable_opengl;
 
+	int getIterations();
+	void setIterations(int i);
+
 	const char* ffmpeg_filter;
 
 	virtual void process_image(double timecode, uint8_t* data, int width, int height);
@@ -206,6 +209,7 @@ private:
 	QVector<EffectRow*> rows;
 	QGridLayout* ui_layout;
 	QWidget* ui;
+	int iterations;
 };
 
 #endif // EFFECT_H

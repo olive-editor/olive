@@ -65,6 +65,8 @@ struct Clip
     void* media; // attached media
     int media_type;
     int media_stream;
+	int getWidth();
+	int getHeight();
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;

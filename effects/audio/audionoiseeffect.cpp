@@ -12,6 +12,9 @@ AudioNoiseEffect::AudioNoiseEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO
 	mix_val->set_bool_value(true);
 
 	srand(QDateTime::currentMSecsSinceEpoch());
+
+	connect(amount_val, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(mix_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
 void AudioNoiseEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {

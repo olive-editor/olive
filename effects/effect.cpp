@@ -92,8 +92,8 @@ Effect::Effect(Clip* c, int t, int i) :
 	type(t),
 	id(i),
 	enable_image(false),
-	enable_opengl(false)
-
+	enable_opengl(false),
+	iterations(1)
 {
     container = new CollapsibleWidget();
     if (type == EFFECT_TYPE_VIDEO) {
@@ -288,6 +288,14 @@ void Effect::save(QXmlStreamWriter& stream) {
 		}
         stream.writeEndElement(); // row
 	}
+}
+
+int Effect::getIterations() {
+	return iterations;
+}
+
+void Effect::setIterations(int i) {
+	iterations = qMax(i, 1);
 }
 
 Effect* Effect::copy(Clip* c) {
