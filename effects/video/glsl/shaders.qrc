@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>gaussianblureffect.frag</file>
+        <file>common.vert</file>
+        <file>inverteffect.frag</file>
+        <file>chromakeyeffect.frag</file>
+        <file>solideffect.frag</file>
+    </qresource>
+</RCC>

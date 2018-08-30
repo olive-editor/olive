@@ -34,8 +34,8 @@ SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFF
 	connect(solid_color_field, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(opacity_field, SIGNAL(changed()), this, SLOT(field_changed()));
 
-    vert.compileSourceCode("varying vec2 vTexCoord;\nvoid main() {\n\tvTexCoord = gl_MultiTexCoord0.xy;\n\tgl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n}");
-    frag.compileSourceCode("uniform vec4 solidColor;\nuniform float amount_val;\nuniform sampler2D myTexture;\nvarying vec2 vTexCoord;\nvoid main(void) {\n\tvec4 textureColor = texture2D(myTexture, vTexCoord);\n\tgl_FragColor = vec4(textureColor.r+((solidColor.r-textureColor.r)*amount_val), textureColor.g+((solidColor.g-textureColor.g)*amount_val), textureColor.b+((solidColor.b-textureColor.b)*amount_val), textureColor.a);\n}");
+    vert.compileSourceFile(":/shaders/common.vert");
+    frag.compileSourceFile(":/shaders/solideffect.frag");
     program.addShader(&vert);
     program.addShader(&frag);
 }

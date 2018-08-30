@@ -159,4 +159,5 @@ linux {
 }
 
 RESOURCES += \
-    icons/icons.qrc
+    icons/icons.qrc \
+    effects/video/glsl/shaders.qrc

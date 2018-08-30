@@ -12,8 +12,8 @@ ChromaKeyEffect::ChromaKeyEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_C
 	tolerance_field->set_double_minimum_value(0);
 	tolerance_field->set_double_maximum_value(100);
 
-	vert.compileSourceCode("varying vec2 vTexCoord;\nvoid main() {\n\tvTexCoord = gl_MultiTexCoord0.xy;\n\tgl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n}");
-	frag.compileSourceCode("uniform vec4 keyColor;\nuniform float threshold;\nuniform sampler2D myTexture;\nvarying vec2 vTexCoord;\nvoid main(void) {\n\tvec4 textureColor = texture2D(myTexture, vTexCoord);\nfloat diff = length(keyColor - textureColor);\nif (diff < threshold) {gl_FragColor = vec4(0, 0, 0, 0);} else {gl_FragColor = textureColor;}\n}");
+    vert.compileSourceFile(":/shaders/common.vert");
+    frag.compileSourceFile(":/shaders/chromakeyeffect.frag");
 	program.addShader(&vert);
 	program.addShader(&frag);
 	program.link();

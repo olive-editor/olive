@@ -3,8 +3,6 @@
 
 #include "../effect.h"
 
-//#include <QOpenGLShader>
-
 class InvertEffect : public Effect {
 	Q_OBJECT
 public:
