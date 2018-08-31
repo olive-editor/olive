@@ -197,14 +197,6 @@ void EffectControls::load_effects() {
 		}
     }
 	if (selected_clips.size() > 0) {
-//		ui->scrollArea->setMinimumWidth(ui->effects_area->width());
-
-		/*ui->effects_area->layout()->update();
-		ui->effects_area->layout()->activate();
-		qDebug() << ui->effects_area->height();
-
-		ui->keyframeView->resize(ui->keyframeView->width(), ui->effects_area->height());*/
-
 		ui->keyframeView->setMinimumHeight(ui->effects_area->height());
 		ui->keyframeView->setEnabled(true);
 		ui->keyframeView->visible_in = effects_in;

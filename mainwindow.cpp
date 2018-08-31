@@ -21,6 +21,7 @@
 #include "dialogs/preferencesdialog.h"
 
 #include "playback/audio.h"
+#include "playback/playback.h"
 
 #include "ui_timeline.h"
 
@@ -142,6 +143,8 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
+	set_sequence(NULL);
+
     QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
         if (QFile::exists(autorecovery_filename)) {
@@ -375,7 +378,7 @@ void MainWindow::on_action_Save_Project_triggered()
 void MainWindow::on_action_Open_Project_triggered()
 {
     QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
-    if (!fn.isEmpty() && can_close_project()) {
+	if (!fn.isEmpty() && can_close_project()) {
 		updateTitle(fn);
         panel_project->load_project();
         undo_stack.clear();
@@ -385,7 +388,7 @@ void MainWindow::on_action_Open_Project_triggered()
 void MainWindow::on_actionProject_triggered()
 {
     if (can_close_project()) {
-        panel_effect_controls->clear_effects(true);
+		panel_effect_controls->clear_effects(true);
         undo_stack.clear();
         project_url.clear();
         panel_project->new_project();

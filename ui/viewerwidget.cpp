@@ -11,6 +11,7 @@
 #include "playback/audio.h"
 #include "io/media.h"
 #include "ui_timeline.h"
+#include "playback/cacher.h"
 
 #include <QDebug>
 #include <QPainter>
@@ -18,6 +19,7 @@
 #include <QOpenGLShaderProgram>
 #include <QtMath>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLFunctions>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -41,36 +43,20 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
 void ViewerWidget::deleteFunction() {
     // destroy all textures as well
-    for (int i=0;i<sequence->clip_count();i++) {
-        Clip* c = sequence->get_clip(i);
-        if (c->texture != NULL) {
-            /* TODO NOTE: apparently "destroy()" is non-functional here because
-             * it requires a valid current context, and I guess it's no longer
-             * valid or current by the time this function is called. Not sure
-             * how to handle that just yet...
-             */
-
-            c->texture->destroy();
-            c->texture = NULL;
-        }
-    }
+	makeCurrent();
+	closeActiveClips(sequence, true);
+	doneCurrent();
 }
 
 void ViewerWidget::retry() {
 	update();
 }
 
-void ViewerWidget::initializeGL() {	
-	/*if (fbo != NULL) {
-		delete fbo;
-		fbo = NULL;
-	}*/
+void ViewerWidget::initializeGL() {
+	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(deleteFunction()), Qt::DirectConnection);
+	glClearColor(0, 0, 0, 1);
 
-    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(deleteFunction()));
-
-	initializeOpenGLFunctions();
-
-    update();
+	retry_timer.start();
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
@@ -78,7 +64,10 @@ void ViewerWidget::initializeGL() {
 //}
 
 void ViewerWidget::paintEvent(QPaintEvent *e) {
-    if (enable_paint) QOpenGLWidget::paintEvent(e);
+	if (enable_paint) {
+		makeCurrent();
+		QOpenGLWidget::paintEvent(e);
+	}
 }
 
 GLuint ViewerWidget::draw_clip(Clip* clip, GLuint texture) {
@@ -122,12 +111,12 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 		if (c != NULL && !(nest != NULL && !same_sign(c->track, nest->track))) {
             bool clip_is_active = false;
 
-            switch (c->media_type) {
-            case MEDIA_TYPE_FOOTAGE:
-            {
-                Media* m = static_cast<Media*>(c->media);
+			switch (c->media_type) {
+			case MEDIA_TYPE_FOOTAGE:
+			{
+				Media* m = static_cast<Media*>(c->media);
 				if (m->ready) {
-                    if (m->get_stream_from_file_index(c->track < 0, c->media_stream) != NULL
+					if (m->get_stream_from_file_index(c->track < 0, c->media_stream) != NULL
 							&& is_clip_active(c, playhead)) {
 						// if thread is already working, we don't want to touch this,
 						// but we also don't want to hang the UI thread
@@ -142,12 +131,17 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				} else {
 					texture_failed = true;
 				}
-            }
-                break;
-            case MEDIA_TYPE_SEQUENCE:
-                clip_is_active = true;
-                break;
-            }
+			}
+				break;
+			case MEDIA_TYPE_SEQUENCE:
+				if (is_clip_active(c, playhead)) {
+					if (!c->open) open_clip(c, multithreaded);
+					clip_is_active = true;
+				} else if (c->open) {
+					close_clip(c);
+				}
+				break;
+			}
 
             if (clip_is_active) {
                 bool added = false;
@@ -294,12 +288,12 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 }
 
 void ViewerWidget::paintGL() {
-	glClearColor(0, 0, 0, 1);
 	glMatrixMode(GL_PROJECTION);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 
     bool loop = true;
+
 	while (loop) {
         loop = false;
         texture_failed = false;

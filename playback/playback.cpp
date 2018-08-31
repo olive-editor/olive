@@ -22,27 +22,32 @@ extern "C" {
 #include <QOpenGLTexture>
 #include <QDebug>
 #include <QOpenGLPixelTransferOptions>
+#include <QOpenGLFramebufferObject>
 
 bool texture_failed = false;
 
 void open_clip(Clip* clip, bool multithreaded) {
-    if (multithreaded) {
-        if (clip->open_lock.tryLock()) {
-            clip->multithreaded = true;
+	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+		if (multithreaded) {
+			if (clip->open_lock.tryLock()) {
+				clip->multithreaded = true;
 
-            // maybe keep cacher instance in memory while clip exists for performance?
-            clip->cacher = new Cacher(clip);
-            QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
+				// maybe keep cacher instance in memory while clip exists for performance?
+				clip->cacher = new Cacher(clip);
+				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
 
-            clip->cacher->start(QThread::LowPriority);
-        }
-    } else {
-        clip->multithreaded = false;
-        clip->finished_opening = false;
-        clip->open = true;
+				clip->cacher->start(QThread::LowPriority);
+			}
+		} else {
+			clip->multithreaded = false;
+			clip->finished_opening = false;
+			clip->open = true;
 
-        open_clip_worker(clip);
-    }
+			open_clip_worker(clip);
+		}
+	} else if (clip->media_type == MEDIA_TYPE_SEQUENCE) {
+		clip->open = true;
+	}
 }
 
 void close_clip(Clip* clip) {
@@ -52,11 +57,21 @@ void close_clip(Clip* clip) {
 		clip->texture = NULL;
 	}
 
-	if (clip->multithreaded) {
-		clip->cacher->caching = false;
-		clip->can_cache.wakeAll();
-	} else {
-		close_clip_worker(clip);
+	if (clip->fbo != NULL) {
+		delete clip->fbo;
+		clip->fbo = NULL;
+	}
+
+	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+		if (clip->multithreaded) {
+			clip->cacher->caching = false;
+			clip->can_cache.wakeAll();
+		} else {
+			close_clip_worker(clip);
+		}
+	} else if (clip->media_type == MEDIA_TYPE_SEQUENCE) {
+		closeActiveClips(static_cast<Sequence*>(clip->media), false);
+		clip->open = false;
 	}
 }
 
@@ -270,17 +285,26 @@ bool is_clip_active(Clip* c, long playhead) {
 }
 
 void set_sequence(Sequence* s) {
-    if (sequence != NULL) {
-        // clean up - close all open clips
-        for (int i=0;i<sequence->clip_count();i++) {
-            Clip* c = sequence->get_clip(i);
-            if (c != NULL && c->open) {
-                close_clip(c);
-            }
-        }
-    }
+	closeActiveClips(sequence, true);
     sequence = s;
     panel_timeline->update_sequence();
     panel_viewer->update_sequence();
     panel_timeline->setFocus();
+}
+
+void closeActiveClips(Sequence *s, bool wait) {
+	if (s != NULL) {
+		for (int i=0;i<s->clip_count();i++) {
+			Clip* c = s->get_clip(i);
+			if (c != NULL) {
+				if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+					closeActiveClips(static_cast<Sequence*>(c->media), wait);
+					close_clip(c);
+				} else if (c->media_type == MEDIA_TYPE_FOOTAGE && c->open) {
+					close_clip(c);
+					if (c->multithreaded && wait) c->cacher->wait();
+				}
+			}
+		}
+	}
 }

@@ -17,6 +17,7 @@
 #include "io/config.h"
 #include "playback/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
+#include "panels/effectcontrols.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -559,6 +560,9 @@ void Project::delete_clips_using_selected_media() {
 }
 
 void Project::clear() {
+	// clear effects cache
+	panel_effect_controls->clear_effects(true);
+
     // delete sequences first because it's important to close all the clips before deleting the media
     QVector<Sequence*> sequences = list_all_project_sequences();
     for (int i=0;i<sequences.size();i++) {
@@ -574,7 +578,7 @@ void Project::clear() {
 }
 
 void Project::new_project() {
-    // clear existing project
+	// clear existing project
     set_sequence(NULL);
     clear();
     project_changed = false;

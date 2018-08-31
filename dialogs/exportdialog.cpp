@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QDebug>
 #include <QMessageBox>
+#include <QOpenGLContext>
 
 #include "panels/panels.h"
 #include "panels/viewer.h"

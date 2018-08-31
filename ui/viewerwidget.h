@@ -2,7 +2,6 @@
 #define VIEWERWIDGET_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
 #include <QTimer>
@@ -13,7 +12,7 @@
 struct Clip;
 struct Sequence;
 
-class ViewerWidget : public QOpenGLWidget, public QOpenGLFunctions
+class ViewerWidget : public QOpenGLWidget
 {
 	Q_OBJECT
 public:

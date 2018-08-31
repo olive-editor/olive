@@ -16,11 +16,6 @@ class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
 
-#define MEDIA_TYPE_FOOTAGE 0
-#define MEDIA_TYPE_SEQUENCE 1
-#define MEDIA_TYPE_FOLDER 2
-#define MEDIA_TYPE_SOLID 3
-
 #define LOAD_TYPE_VERSION 69
 
 class TimelineAction;

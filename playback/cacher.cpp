@@ -416,13 +416,11 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 void close_clip_worker(Clip* clip) {
     // closes ffmpeg file handle and frees any memory used for caching
     MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
-	if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+	if (clip->track < 0) {
 		sws_freeContext(clip->sws_ctx);
 
 		delete [] clip->comp_frame;
-		delete clip->fbo;
-		clip->fbo = NULL;
-	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+	} else {
 		swr_free(&clip->swr_ctx);
 	}
 
