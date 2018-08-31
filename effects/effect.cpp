@@ -26,6 +26,7 @@
 #include "effects/video/gaussianblureffect.h"
 #include "effects/video/cropeffect.h"
 #include "effects/video/flipeffect.h"
+#include "effects/video/boxblureffect.h"
 
 #include "effects/audio/paneffect.h"
 #include "effects/audio/volumeeffect.h"
@@ -53,6 +54,7 @@ void init_effects() {
 	video_effect_names[VIDEO_GAUSSIANBLUR_EFFECT] = "Gaussian Blur";
 	video_effect_names[VIDEO_CROP_EFFECT] = "Crop";
 	video_effect_names[VIDEO_FLIP_EFFECT] = "Flip";
+    video_effect_names[VIDEO_BOXBLUR_EFFECT] = "Box Blur";
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
@@ -71,6 +73,7 @@ Effect* create_effect(int effect_id, Clip* c) {
 		case VIDEO_GAUSSIANBLUR_EFFECT: return new GaussianBlurEffect(c); break;
 		case VIDEO_CROP_EFFECT: return new CropEffect(c);
 		case VIDEO_FLIP_EFFECT: return new FlipEffect(c);
+        case VIDEO_BOXBLUR_EFFECT: return new BoxBlurEffect(c);
 		}
 	} else {
 		switch (effect_id) {

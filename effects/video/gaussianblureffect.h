@@ -14,12 +14,10 @@ private:
 	QOpenGLShader vert;
 	QOpenGLShader frag;
 
-    EffectField* kernelsz_val;
+    EffectField* radius_val;
     EffectField* sigma_val;
 	EffectField* horiz_val;
-	EffectField* vert_val;
-
-	bool bound;
+    EffectField* vert_val;
 };
 
 #endif // GAUSSIANBLUREFFECT_H

@@ -76,7 +76,8 @@ SOURCES += \
     effects/video/gaussianblureffect.cpp \
     effects/video/cropeffect.cpp \
     effects/video/flipeffect.cpp \
-    effects/audio/audionoiseeffect.cpp
+    effects/audio/audionoiseeffect.cpp \
+    effects/video/boxblureffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -129,7 +130,8 @@ HEADERS += \
     effects/video/gaussianblureffect.h \
     effects/video/cropeffect.h \
     effects/video/flipeffect.h \
-    effects/audio/audionoiseeffect.h
+    effects/audio/audionoiseeffect.h \
+    effects/video/boxblureffect.h
 
 FORMS += \
         mainwindow.ui \
