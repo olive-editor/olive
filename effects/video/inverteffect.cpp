@@ -9,7 +9,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttributes>
 
-InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_EFFECT), vert(QOpenGLShader::Vertex), frag(QOpenGLShader::Fragment) {
+InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_EFFECT) {
 	enable_opengl = true;
 
 	EffectRow* amount_row = add_row("Amount:");
@@ -22,18 +22,10 @@ InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_
 
 	connect(amount_val, SIGNAL(changed()), this, SLOT(field_changed()));
 
-    vert.compileSourceFile(":/shaders/common.vert");
-    frag.compileSourceFile(":/shaders/inverteffect.frag");
-	program.addShader(&vert);
-	program.addShader(&frag);
-	program.link();
+	vertPath = ":/shaders/common.vert";
+	fragPath = ":/shaders/inverteffect.frag";
 }
 
 void InvertEffect::process_gl(double timecode, GLTextureCoords&) {
-	program.bind();
-	program.setUniformValue("amount_val", (GLfloat) (amount_val->get_double_value(timecode)*0.01));
-}
-
-void InvertEffect::clean_gl() {
-	program.release();
+	glslProgram->setUniformValue("amount_val", (GLfloat) (amount_val->get_double_value(timecode)*0.01));
 }

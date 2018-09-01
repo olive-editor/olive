@@ -8,12 +8,8 @@ class InvertEffect : public Effect {
 public:
 	InvertEffect(Clip* c);
 	void process_gl(double timecode, GLTextureCoords& coords);
-	void clean_gl();
 private:
 	EffectField* amount_val;
-	QOpenGLShader frag;
-	QOpenGLShader vert;
-	QOpenGLShaderProgram program;
 };
 
 #endif // INVERTEFFECT_H

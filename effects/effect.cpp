@@ -37,6 +37,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QMessageBox>
+#include <QOpenGLContext>
 
 QVector<QString> video_effect_names;
 QVector<QString> audio_effect_names;
@@ -96,7 +97,10 @@ Effect::Effect(Clip* c, int t, int i) :
 	id(i),
 	enable_image(false),
 	enable_opengl(false),
-	iterations(1)
+	iterations(1),
+	isOpen(false),
+	glslProgram(NULL),
+	bound(false)
 {
     container = new CollapsibleWidget();
     if (type == EFFECT_TYPE_VIDEO) {
@@ -113,6 +117,10 @@ Effect::Effect(Clip* c, int t, int i) :
 }
 
 Effect::~Effect() {
+	if (isOpen) {
+		close();
+	}
+
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
 	}
@@ -293,6 +301,45 @@ void Effect::save(QXmlStreamWriter& stream) {
 	}
 }
 
+void Effect::open() {
+	if (isOpen) {
+		qDebug() << "[WARNING] Tried to open an effect that was already open";
+		close();
+	}
+	if (QOpenGLContext::currentContext() == NULL) {
+		qDebug() << "[WARNING] No current context to create a shader program for - will retry next repaint";
+	} else {
+		glslProgram = new QOpenGLShaderProgram();
+		if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, vertPath);
+		if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, fragPath);
+		glslProgram->link();
+		isOpen = true;
+	}
+}
+
+void Effect::close() {
+	if (!isOpen) {
+		qDebug() << "[WARNING] Tried to close an effect that was already closed";
+	} else {
+		delete glslProgram;
+	}
+	glslProgram = NULL;
+	isOpen = false;
+}
+
+void Effect::startEffect() {
+	if (!isOpen) {
+		open();
+		qDebug() << "[WARNING] Tried to start a closed effect - opening";
+	}
+	bound = glslProgram->bind();
+}
+
+void Effect::endEffect() {
+	if (bound) glslProgram->release();
+	bound = false;
+}
+
 int Effect::getIterations() {
 	return iterations;
 }
@@ -311,7 +358,6 @@ Effect* Effect::copy(Clip* c) {
 void Effect::process_image(double, uint8_t*, int, int) {}
 void Effect::process_gl(double, GLTextureCoords&) {}
 void Effect::process_audio(double, double, quint8*, int, int) {}
-void Effect::clean_gl() {}
 
 /* Effect Row Definitions */
 
@@ -542,7 +588,7 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
 }
 
 void EffectField::validate_keyframe_data(double timecode) {
-	if (parent_row->isKeyframing()) {
+	if (parent_row->isKeyframing() && keyframe_data.size() > 0) {
         int before_keyframe;
         int after_keyframe;
         double progress;

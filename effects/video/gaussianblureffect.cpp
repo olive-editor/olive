@@ -4,7 +4,7 @@
 
 #include <QImage>
 
-GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_GAUSSIANBLUR_EFFECT), frag(QOpenGLShader::Fragment), vert(QOpenGLShader::Vertex) {
+GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_GAUSSIANBLUR_EFFECT) {
     enable_opengl = true;
 
     radius_val = add_row("Radius:")->add_field(EFFECT_FIELD_DOUBLE);
@@ -21,11 +21,8 @@ GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, V
 	horiz_val->set_bool_value(true);
 	vert_val->set_bool_value(true);
 
-    vert.compileSourceFile(":/shaders/common.vert");
-    frag.compileSourceFile(":/shaders/gaussianblureffect.frag");
-	program.addShader(&vert);
-	program.addShader(&frag);
-    program.link();
+	vertPath = ":/shaders/common.vert";
+	fragPath = ":/shaders/gaussianblureffect.frag";
 
     connect(radius_val, SIGNAL(changed()), this, SLOT(field_changed()));
     connect(sigma_val, SIGNAL(changed()), this, SLOT(field_changed()));
@@ -34,15 +31,9 @@ GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, V
 }
 
 void GaussianBlurEffect::process_gl(double timecode, GLTextureCoords &coords) {
-    program.bind();
-
-    program.setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
-    program.setUniformValue("radius", (GLfloat) radius_val->get_double_value(timecode));
-    program.setUniformValue("sigma", (GLfloat) sigma_val->get_double_value(timecode));
-    program.setUniformValue("horiz_blur", horiz_val->get_bool_value(timecode));
-    program.setUniformValue("vert_blur", vert_val->get_bool_value(timecode));
-}
-
-void GaussianBlurEffect::clean_gl() {
-    program.release();
+	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
+	glslProgram->setUniformValue("radius", (GLfloat) radius_val->get_double_value(timecode));
+	glslProgram->setUniformValue("sigma", (GLfloat) sigma_val->get_double_value(timecode));
+	glslProgram->setUniformValue("horiz_blur", horiz_val->get_bool_value(timecode));
+	glslProgram->setUniformValue("vert_blur", vert_val->get_bool_value(timecode));
 }

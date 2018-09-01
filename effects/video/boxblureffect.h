@@ -8,13 +8,8 @@ class BoxBlurEffect : public Effect
 public:
     BoxBlurEffect(Clip* c);
 
-    void process_gl(double timecode, GLTextureCoords &coords);
-    void clean_gl();
+	void process_gl(double timecode, GLTextureCoords &coords);
 private:
-    QOpenGLShaderProgram program;
-    QOpenGLShader vert;
-    QOpenGLShader frag;
-
     EffectField* radius_val;
     EffectField* iteration_val;
     EffectField* horiz_val;

@@ -15,7 +15,7 @@
 #define SMPTE_STRIP_COUNT 3
 #define SMPTE_LOWER_BARS 4
 
-SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT), vert(QOpenGLShader::Vertex), frag(QOpenGLShader::Fragment) {
+SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFFECT) {
 	enable_opengl = true;
 
 	solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
@@ -34,22 +34,15 @@ SolidEffect::SolidEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SOLID_EFF
 	connect(solid_color_field, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(opacity_field, SIGNAL(changed()), this, SLOT(field_changed()));
 
-    vert.compileSourceFile(":/shaders/common.vert");
-    frag.compileSourceFile(":/shaders/solideffect.frag");
-    program.addShader(&vert);
-    program.addShader(&frag);
+	vertPath = ":/shaders/common.vert";
+	fragPath = ":/shaders/solideffect.frag";
 }
 
 void SolidEffect::process_gl(double timecode, GLTextureCoords&) {
     solid_color_field->set_enabled(solid_type->get_combo_data(timecode) == SOLID_TYPE_COLOR);
 
-    program.bind();
-    program.setUniformValue("solidColor", solid_color_field->get_color_value(timecode));
-    program.setUniformValue("amount_val", (GLfloat) (opacity_field->get_double_value(timecode)*0.01));
-}
-
-void SolidEffect::clean_gl() {
-    program.release();
+	glslProgram->setUniformValue("solidColor", solid_color_field->get_color_value(timecode));
+	glslProgram->setUniformValue("amount_val", (GLfloat) (opacity_field->get_double_value(timecode)*0.01));
 }
 
 void SolidEffect::process_image(long frame, uint8_t* data, int w, int h) {

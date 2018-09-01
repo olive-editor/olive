@@ -385,6 +385,10 @@ void open_clip_worker(Clip* clip) {
         clip->audio_reset = true;
 	}
 
+	for (int i=0;i<clip->effects.size();i++) {
+		clip->effects.at(i)->open();
+	}
+
 	clip->frame = av_frame_alloc();
 
     clip->finished_opening = true;
@@ -414,6 +418,10 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 }
 
 void close_clip_worker(Clip* clip) {
+	for (int i=0;i<clip->effects.size();i++) {
+		clip->effects.at(i)->close();
+	}
+
     // closes ffmpeg file handle and frees any memory used for caching
     MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 	if (clip->track < 0) {

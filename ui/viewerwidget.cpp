@@ -216,6 +216,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					// EFFECT CODE START
 					for (int j=0;j<c->effects.size();j++) {
 						if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
+							c->effects.at(j)->startEffect();
 							for (int k=0;k<c->effects.at(j)->getIterations();k++) {
 								c->effects.at(j)->process_gl(((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate), coords);
 								composite_texture = draw_clip(c, composite_texture);
@@ -240,7 +241,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 					for (int j=0;j<c->effects.size();j++) {
 						if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
-							c->effects.at(j)->clean_gl();
+							c->effects.at(j)->endEffect();
 						}
 					}
 

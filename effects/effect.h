@@ -192,6 +192,12 @@ public:
     void load(QXmlStreamReader& stream);
     void save(QXmlStreamWriter& stream);
 
+	// glsl handling
+	void open();
+	void close();
+	void startEffect();
+	void endEffect();
+
 	bool enable_image;
 	bool enable_opengl;
 
@@ -202,15 +208,20 @@ public:
 
 	virtual void process_image(double timecode, uint8_t* data, int width, int height);
 	virtual void process_gl(double timecode, GLTextureCoords& coords);
-	virtual void clean_gl();
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();
+protected:
+	QOpenGLShaderProgram* glslProgram;
+	QString vertPath;
+	QString fragPath;
+	bool isOpen;
 private:
 	QVector<EffectRow*> rows;
 	QGridLayout* ui_layout;
 	QWidget* ui;
 	int iterations;
+	bool bound;
 };
 
 #endif // EFFECT_H
