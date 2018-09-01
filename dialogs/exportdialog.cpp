@@ -14,6 +14,7 @@
 #include "ui/viewerwidget.h"
 #include "project/sequence.h"
 #include "io/exportthread.h"
+#include "playback/playback.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -459,19 +460,16 @@ void ExportDialog::on_pushButton_clicked()
             }
         }
 
-        et = new ExportThread();
-
-		et->surface.create();
+		et = new ExportThread();
 
 		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
         connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int)), this, SLOT(update_progress_bar(int)));
 
-        panel_viewer->viewer_widget->multithreaded = false;
-        panel_viewer->viewer_widget->enable_paint = false;
+		closeActiveClips(sequence, true);
+
 		panel_viewer->viewer_widget->context()->doneCurrent();
 		panel_viewer->viewer_widget->context()->moveToThread(et);
-        panel_viewer->viewer_widget->force_audio = true;
 
         prep_ui_for_render(true);
 
@@ -499,7 +497,7 @@ void ExportDialog::on_pushButton_clicked()
         }
 
         et->ed = this;
-        cancelled = false;
+		cancelled = false;
 
 		et->start();
 	}
@@ -510,6 +508,6 @@ void ExportDialog::update_progress_bar(int value) {
 }
 
 void ExportDialog::on_renderCancel_clicked() {
-    et->fail = true;
+	et->continueEncode = false;
     cancelled = true;
 }

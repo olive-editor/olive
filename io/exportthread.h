@@ -14,6 +14,7 @@ struct AVStream;
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
+	ExportThread();
     void run();
 
 	// export parameters
@@ -33,13 +34,16 @@ public:
 
 	QOffscreenSurface surface;
 
-    ExportDialog* ed;
+	ExportDialog* ed;
 
-    bool fail;
+	bool continueEncode;
 signals:
     void progress_changed(int value);
 private:
-    bool encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream);
+	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream);
+	bool setupVideo();
+	bool setupAudio();
+	bool setupContainer();
 };
 
 #endif // EXPORTTHREAD_H

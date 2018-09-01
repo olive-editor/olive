@@ -303,6 +303,7 @@ void Effect::setIterations(int i) {
 
 Effect* Effect::copy(Clip* c) {
     Effect* copy = create_effect(id, c);
+	copy->set_enabled(is_enabled());
     copy_field_keyframes(copy);
     return copy;
 }

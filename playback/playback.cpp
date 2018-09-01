@@ -28,10 +28,9 @@ bool texture_failed = false;
 
 void open_clip(Clip* clip, bool multithreaded) {
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+		clip->multithreaded = multithreaded;
 		if (multithreaded) {
 			if (clip->open_lock.tryLock()) {
-				clip->multithreaded = true;
-
 				// maybe keep cacher instance in memory while clip exists for performance?
 				clip->cacher = new Cacher(clip);
 				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
@@ -39,7 +38,6 @@ void open_clip(Clip* clip, bool multithreaded) {
 				clip->cacher->start(QThread::LowPriority);
 			}
 		} else {
-			clip->multithreaded = false;
 			clip->finished_opening = false;
 			clip->open = true;
 

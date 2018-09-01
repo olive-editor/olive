@@ -11,6 +11,7 @@
 
 struct Clip;
 struct Sequence;
+class QOpenGLFramebufferObject;
 
 class ViewerWidget : public QOpenGLWidget
 {
@@ -18,12 +19,11 @@ class ViewerWidget : public QOpenGLWidget
 public:
 	ViewerWidget(QWidget *parent = 0);
 
-    bool multithreaded;
-    bool force_audio;
-    bool enable_paint;
-    bool flip;
+	bool rendering;
     void paintGL();
     void initializeGL();
+
+	QOpenGLFramebufferObject* fbo;
 protected:
     void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);

@@ -27,10 +27,8 @@ extern "C" {
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
     QOpenGLWidget(parent),
-    multithreaded(true),
-    force_audio(false),
-    enable_paint(true),
-	flip(false)
+	rendering(false),
+	fbo(NULL)
 {
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -54,7 +52,6 @@ void ViewerWidget::retry() {
 
 void ViewerWidget::initializeGL() {
 	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(deleteFunction()), Qt::DirectConnection);
-	glClearColor(0, 0, 0, 1);
 
 	retry_timer.start();
 }
@@ -64,7 +61,7 @@ void ViewerWidget::initializeGL() {
 //}
 
 void ViewerWidget::paintEvent(QPaintEvent *e) {
-	if (enable_paint) {
+	if (!rendering) {
 		makeCurrent();
 		QOpenGLWidget::paintEvent(e);
 	}
@@ -74,7 +71,9 @@ GLuint ViewerWidget::draw_clip(Clip* clip, GLuint texture) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, 1, 0, 1, -1, 1);
+
 	clip->fbo->bind();
+
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); // top left
@@ -87,7 +86,10 @@ GLuint ViewerWidget::draw_clip(Clip* clip, GLuint texture) {
 	glVertex2f(0, 1); // bottom left
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, NULL);
+
 	clip->fbo->release();
+	if (fbo != NULL) fbo->bind();
+
 	glPopMatrix();
 	return clip->fbo->takeTexture();
 }
@@ -121,9 +123,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						// if thread is already working, we don't want to touch this,
 						// but we also don't want to hang the UI thread
 						if (!c->open) {
-							open_clip(c, multithreaded);
+							open_clip(c, !rendering);
 						}
-
 						clip_is_active = true;
 					} else if (c->open) {
 						close_clip(c);
@@ -135,7 +136,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				break;
 			case MEDIA_TYPE_SEQUENCE:
 				if (is_clip_active(c, playhead)) {
-					if (!c->open) open_clip(c, multithreaded);
+					if (!c->open) open_clip(c, !rendering);
 					clip_is_active = true;
 				} else if (c->open) {
 					close_clip(c);
@@ -158,6 +159,14 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
             }
         }
     }
+
+	int half_width = s->width/2;
+	int half_height = s->height/2;
+	if (rendering || nest != NULL) half_height = -half_height;
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glLoadIdentity();
+	glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
 
     for (int i=0;i<current_clips.size();i++) {
         Clip* c = current_clips.at(i);
@@ -188,15 +197,10 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					texture_failed = true;
 				} else if (playhead >= c->timeline_in) {
 					// start preparing cache
-					if (c->fbo == NULL) c->fbo = new QOpenGLFramebufferObject(video_width, video_height);
+					if (c->fbo == NULL) {
+						c->fbo = new QOpenGLFramebufferObject(video_width, video_height);
+					}
 
-					int half_width = c->sequence->width/2;
-					int half_height = c->sequence->height/2;
-					if (flip || nest != NULL) half_height = -half_height;
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					glColor4f(1.0, 1.0, 1.0, 1.0);
-					glLoadIdentity();
-					glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
 					glViewport(0, 0, video_width, video_height);
 
 					GLuint composite_texture = draw_clip(c, textureID);
@@ -244,6 +248,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						if (nest->fbo == NULL) nest->fbo = new QOpenGLFramebufferObject(s->width, s->height);
 						nest->fbo->bind();
 						glViewport(0, 0, s->width, s->height);
+					} else if (rendering) {
+						glViewport(0, 0, s->width, s->height);
 					} else {
 						glViewport(0, 0, width(), height());
 					}
@@ -268,6 +274,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 					if (nest != NULL) {
 						nest->fbo->release();
+						if (fbo != NULL) fbo->bind();
 					}
 				}
 			} else {
@@ -288,33 +295,34 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 }
 
 void ViewerWidget::paintGL() {
-	glMatrixMode(GL_PROJECTION);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
+	bool loop = false;
+	do {
+		loop = false;
 
-    bool loop = true;
+		glClearColor(0, 0, 0, 1);
+		glMatrixMode(GL_PROJECTION);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
 
-	while (loop) {
-        loop = false;
         texture_failed = false;
 
-        if (multithreaded) retry_timer.stop();
+		if (!rendering) retry_timer.stop();
 
         glClear(GL_COLOR_BUFFER_BIT);
 
 		// compose video preview
-		compose_sequence(NULL, (panel_timeline->playing || force_audio));
+		compose_sequence(NULL, (panel_timeline->playing || rendering));
 
         if (texture_failed) {
-            if (multithreaded) {
-                retry_timer.start();
+			if (rendering) {
+				qDebug() << "[INFO] Texture failed - looping";
+				loop = true;
             } else {
-                qDebug() << "[INFO] Texture failed - looping";
-                loop = true;
+				retry_timer.start();
             }
         }
-    }
 
-	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
+		glDisable(GL_BLEND);
+		glDisable(GL_TEXTURE_2D);
+	} while (loop);
 }
