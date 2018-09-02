@@ -528,7 +528,16 @@ int get_type_from_tree(QTreeWidgetItem* item) {
 }
 
 void Project::delete_media(QTreeWidgetItem* item) {
-	delete get_media_from_tree(item);
+    int type = get_type_from_tree(item);
+    void* media = get_media_from_tree(item);
+    switch (type) {
+    case MEDIA_TYPE_FOOTAGE:
+        delete static_cast<Media*>(media);
+        break;
+    case MEDIA_TYPE_SEQUENCE:
+        delete static_cast<Sequence*>(media);
+        break;
+    }
 }
 
 void Project::delete_clips_using_selected_media() {

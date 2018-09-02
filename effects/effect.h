@@ -211,7 +211,7 @@ public:
 
 	virtual void process_shader(double timecode);
 	virtual void process_coords(double timecode, GLTextureCoords& coords);
-	virtual const GLuint process_superimpose(double timecode);
+    virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();
@@ -233,7 +233,7 @@ public:
 	SuperimposeEffect(Clip* c, int t, int i);
 	virtual void open();
 	virtual void close();
-	virtual const GLuint process_superimpose(double timecode);
+    virtual GLuint process_superimpose(double timecode);
 	virtual void redraw(double timecode);
 protected:
 	QImage img;

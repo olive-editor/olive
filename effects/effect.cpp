@@ -358,7 +358,7 @@ Effect* Effect::copy(Clip* c) {
 
 void Effect::process_shader(double) {}
 void Effect::process_coords(double, GLTextureCoords&) {}
-const GLuint Effect::process_superimpose(double) {return 0;}
+GLuint Effect::process_superimpose(double) {return 0;}
 void Effect::process_audio(double, double, quint8*, int, int) {}
 
 SuperimposeEffect::SuperimposeEffect(Clip* c, int t, int i) : Effect(c, t, i), texture(NULL) {
@@ -375,7 +375,7 @@ void SuperimposeEffect::close() {
 	deleteTexture();
 }
 
-const GLuint SuperimposeEffect::process_superimpose(double timecode) {
+GLuint SuperimposeEffect::process_superimpose(double timecode) {
 	bool recreate_texture = false;
 	int width = parent_clip->getWidth();
 	int height = parent_clip->getHeight();

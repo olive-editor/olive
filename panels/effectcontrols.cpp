@@ -22,8 +22,8 @@
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
-	ui(new Ui::EffectControls),
-	zoom(1)
+    zoom(1),
+    ui(new Ui::EffectControls)
 {
 	ui->setupUi(this);
     init_effects();
@@ -62,7 +62,7 @@ void EffectControls::menu_select(QAction* q) {
     TimelineAction* ta = new TimelineAction();
     for (int i=0;i<selected_clips.size();i++) {
 		Clip* c = sequence->get_clip(selected_clips.at(i));
-		if (c->track < 0 == video_menu) {
+        if ((c->track < 0) == video_menu) {
 			if (transition_menu) {
 				if (c->opening_transition == NULL) {
 					ta->add_transition(sequence, selected_clips.at(i), q->data().toInt(), TA_OPENING_TRANSITION);
