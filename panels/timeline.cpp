@@ -54,9 +54,9 @@ Timeline::Timeline(QWidget *parent) :
     trim_in_point(false),
     splitting(false),
     importing(false),
+    zoomChanged(false),
     ui(new Ui::Timeline),
-    last_frame(0),
-    zoomChanged(false)
+    last_frame(0)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
