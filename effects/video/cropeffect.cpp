@@ -1,7 +1,7 @@
 #include "cropeffect.h"
 
 CropEffect::CropEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_CROP_EFFECT) {
-	enable_opengl = true;
+	enable_coords = true;
 
 	left_field = add_row("Left:")->add_field(EFFECT_FIELD_DOUBLE);
 	top_field = add_row("Top:")->add_field(EFFECT_FIELD_DOUBLE);
@@ -23,7 +23,7 @@ CropEffect::CropEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_CROP_EFFECT
 	connect(bottom_field, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void CropEffect::process_gl(double timecode, GLTextureCoords &coords) {
+void CropEffect::process_coords(double timecode, GLTextureCoords &coords) {
 	// store initial coord data
 	int left = coords.vertexTopLeftX;
 	int top = coords.vertexTopLeftY;

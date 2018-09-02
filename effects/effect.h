@@ -5,7 +5,9 @@
 #include <QString>
 #include <QVector>
 #include <QColor>
+#include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLTexture>
 class QLabel;
 class QWidget;
 class CollapsibleWidget;
@@ -193,21 +195,23 @@ public:
     void save(QXmlStreamWriter& stream);
 
 	// glsl handling
-	void open();
-	void close();
-	void startEffect();
-	void endEffect();
+	virtual void open();
+	virtual void close();
+	virtual void startEffect();
+	virtual void endEffect();
 
-	bool enable_image;
-	bool enable_opengl;
+	bool enable_shader;
+	bool enable_coords;
+	bool enable_superimpose;
 
 	int getIterations();
 	void setIterations(int i);
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(double timecode, uint8_t* data, int width, int height);
-	virtual void process_gl(double timecode, GLTextureCoords& coords);
+	virtual void process_shader(double timecode);
+	virtual void process_coords(double timecode, GLTextureCoords& coords);
+	virtual const GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();
@@ -222,6 +226,22 @@ private:
 	QWidget* ui;
 	int iterations;
 	bool bound;
+};
+
+class SuperimposeEffect : public Effect {
+public:
+	SuperimposeEffect(Clip* c, int t, int i);
+	virtual void open();
+	virtual void close();
+	virtual const GLuint process_superimpose(double timecode);
+	virtual void redraw(double timecode);
+protected:
+	QImage img;
+	QOpenGLTexture* texture;
+	void deleteTexture();
+	bool valueHasChanged(double timecode);
+private:
+	QVector<QVariant> cachedValues;
 };
 
 #endif // EFFECT_H

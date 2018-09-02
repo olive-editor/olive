@@ -7,8 +7,7 @@ class BoxBlurEffect : public Effect
 {
 public:
     BoxBlurEffect(Clip* c);
-
-	void process_gl(double timecode, GLTextureCoords &coords);
+	void process_shader(double timecode);
 private:
     EffectField* radius_val;
     EffectField* iteration_val;

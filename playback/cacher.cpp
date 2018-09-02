@@ -347,9 +347,6 @@ void open_clip_worker(Clip* clip) {
 			}
 			clip->cache_B.frames[i]->linesize[0] = dstW*4;
 		}
-
-		clip->comp_frame_size = dstW * dstH * 4;
-		clip->comp_frame = new uchar[clip->comp_frame_size];
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		// if FFmpeg can't pick up the channel layout (usually WAV), assume
 		// based on channel count (doesn't support surround sound sources yet)
@@ -418,16 +415,10 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 }
 
 void close_clip_worker(Clip* clip) {
-	for (int i=0;i<clip->effects.size();i++) {
-		clip->effects.at(i)->close();
-	}
-
     // closes ffmpeg file handle and frees any memory used for caching
     MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 	if (clip->track < 0) {
 		sws_freeContext(clip->sws_ctx);
-
-		delete [] clip->comp_frame;
 	} else {
 		swr_free(&clip->swr_ctx);
 	}

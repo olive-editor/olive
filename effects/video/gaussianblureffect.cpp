@@ -5,7 +5,7 @@
 #include <QImage>
 
 GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_GAUSSIANBLUR_EFFECT) {
-    enable_opengl = true;
+	enable_shader = true;
 
     radius_val = add_row("Radius:")->add_field(EFFECT_FIELD_DOUBLE);
     sigma_val = add_row("Sigma:")->add_field(EFFECT_FIELD_DOUBLE);
@@ -30,7 +30,7 @@ GaussianBlurEffect::GaussianBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, V
     connect(vert_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void GaussianBlurEffect::process_gl(double timecode, GLTextureCoords &coords) {
+void GaussianBlurEffect::process_shader(double timecode) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
 	glslProgram->setUniformValue("radius", (GLfloat) radius_val->get_double_value(timecode));
 	glslProgram->setUniformValue("sigma", (GLfloat) sigma_val->get_double_value(timecode));

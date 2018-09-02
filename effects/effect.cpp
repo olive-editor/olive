@@ -95,8 +95,9 @@ Effect::Effect(Clip* c, int t, int i) :
 	parent_clip(c),
 	type(t),
 	id(i),
-	enable_image(false),
-	enable_opengl(false),
+	enable_shader(false),
+	enable_coords(false),
+	enable_superimpose(false),
 	iterations(1),
 	isOpen(false),
 	glslProgram(NULL),
@@ -355,9 +356,87 @@ Effect* Effect::copy(Clip* c) {
     return copy;
 }
 
-void Effect::process_image(double, uint8_t*, int, int) {}
-void Effect::process_gl(double, GLTextureCoords&) {}
+void Effect::process_shader(double) {}
+void Effect::process_coords(double, GLTextureCoords&) {}
+const GLuint Effect::process_superimpose(double) {return 0;}
 void Effect::process_audio(double, double, quint8*, int, int) {}
+
+SuperimposeEffect::SuperimposeEffect(Clip* c, int t, int i) : Effect(c, t, i), texture(NULL) {
+	enable_superimpose = true;
+}
+
+void SuperimposeEffect::open() {
+	Effect::open();
+	texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+}
+
+void SuperimposeEffect::close() {
+	Effect::close();
+	deleteTexture();
+}
+
+const GLuint SuperimposeEffect::process_superimpose(double timecode) {
+	bool recreate_texture = false;
+	int width = parent_clip->getWidth();
+	int height = parent_clip->getHeight();
+
+	if (width != img.width() || height != img.height()) {
+		img = QImage(width, height, QImage::Format_RGBA8888);
+		recreate_texture = true;
+	}
+
+	if (valueHasChanged(timecode) || recreate_texture) {
+		redraw(timecode);
+	}
+
+	if (texture != NULL) {
+		if (recreate_texture || texture->width() != img.width() || texture->height() != img.height()) {
+			deleteTexture();
+			texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+			texture->setData(img);
+		} else {
+			texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, img.constBits());
+		}
+		return texture->textureId();
+	}
+	return 0;
+
+}
+
+void SuperimposeEffect::redraw(double) {}
+
+void SuperimposeEffect::deleteTexture() {
+	delete texture;
+	texture = NULL;
+}
+
+bool SuperimposeEffect::valueHasChanged(double timecode) {
+	if (cachedValues.size() == 0) {
+		for (int i=0;i<row_count();i++) {
+			EffectRow* crow = row(i);
+			for (int j=0;j<crow->fieldCount();j++) {
+				cachedValues.append(crow->field(j)->get_current_data());
+			}
+		}
+		return true;
+	} else {
+		bool changed = false;
+		int index = 0;
+		for (int i=0;i<row_count();i++) {
+			EffectRow* crow = row(i);
+			for (int j=0;j<crow->fieldCount();j++) {
+				EffectField* field = crow->field(j);
+				field->validate_keyframe_data(timecode);
+				if (cachedValues.at(index) != field->get_current_data()) {
+					changed = true;
+				}
+				cachedValues[index] = field->get_current_data();
+				index++;
+			}
+		}
+		return changed;
+	}
+}
 
 /* Effect Row Definitions */
 

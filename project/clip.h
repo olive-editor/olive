@@ -81,8 +81,6 @@ struct Clip
     AVCodecContext* codecCtx;
     AVPacket* pkt;
 	AVFrame* frame;
-	uchar* comp_frame;
-	int comp_frame_size;
 
     bool pkt_written;
     bool reached_end;
@@ -102,7 +100,7 @@ struct Clip
 
     // video playback variables
 	SwsContext* sws_ctx;
-	QOpenGLFramebufferObject* fbo;
+	QOpenGLFramebufferObject** fbo;
     QOpenGLTexture* texture;
     long texture_frame;
 

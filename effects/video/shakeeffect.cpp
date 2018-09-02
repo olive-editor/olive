@@ -13,7 +13,7 @@
 #include "panels/timeline.h"
 
 ShakeEffect::ShakeEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_SHAKE_EFFECT), inside(false) {
-	enable_opengl = true;
+	enable_coords = true;
 
 	EffectRow* intensity_row = add_row("Intensity:");
 	intensity_val = intensity_row->add_field(EFFECT_FIELD_DOUBLE);
@@ -49,7 +49,7 @@ void ShakeEffect::refresh() {
     }
 }
 
-void ShakeEffect::process_gl(double timecode, GLTextureCoords&) {
+void ShakeEffect::process_coords(double timecode, GLTextureCoords&) {
     if (shake_progress > shake_limit) {
 		double ival = intensity_val->get_double_value(timecode);
 		if ((int)ival > 0) {

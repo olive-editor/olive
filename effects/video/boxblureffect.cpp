@@ -3,7 +3,7 @@
 #include "project/clip.h"
 
 BoxBlurEffect::BoxBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_BOXBLUR_EFFECT) {
-    enable_opengl = true;
+	enable_shader = true;
 
     radius_val = add_row("Radius:")->add_field(EFFECT_FIELD_DOUBLE);
 //    iteration_val = add_row("Iterations:")->add_field(EFFECT_FIELD_DOUBLE);
@@ -33,7 +33,7 @@ BoxBlurEffect::BoxBlurEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_BOXBL
     connect(vert_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void BoxBlurEffect::process_gl(double timecode, GLTextureCoords&) {
+void BoxBlurEffect::process_shader(double timecode) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
 	glslProgram->setUniformValue("radius", (GLfloat) radius_val->get_double_value(timecode));
 	glslProgram->setUniformValue("horiz_blur", horiz_val->get_bool_value(timecode));

@@ -23,7 +23,7 @@
 #define BLEND_MODE_OVERLAY 3
 
 TransformEffect::TransformEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_TRANSFORM_EFFECT) {
-	enable_opengl = true;
+	enable_coords = true;
 
 	EffectRow* position_row = add_row("Position:");
 	position_x = position_row->add_field(EFFECT_FIELD_DOUBLE); // position X
@@ -104,7 +104,7 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 }
 
-void TransformEffect::process_gl(double timecode, GLTextureCoords& coords) {
+void TransformEffect::process_coords(double timecode, GLTextureCoords& coords) {
 	// position
 	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 

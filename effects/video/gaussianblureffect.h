@@ -7,7 +7,7 @@ class GaussianBlurEffect : public Effect
 {
 public:
     GaussianBlurEffect(Clip* c);
-	void process_gl(double timecode, GLTextureCoords &coords);
+	void process_shader(double timecode);
 private:
     EffectField* radius_val;
     EffectField* sigma_val;

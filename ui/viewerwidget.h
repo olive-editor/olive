@@ -23,7 +23,7 @@ public:
     void paintGL();
     void initializeGL();
 
-	QOpenGLFramebufferObject* fbo;
+	QOpenGLFramebufferObject* default_fbo;
 protected:
     void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);
@@ -33,7 +33,7 @@ private slots:
 	void retry();
     void deleteFunction();
 	GLuint compose_sequence(Clip *nest, bool render_audio);
-	GLuint draw_clip(Clip *clip, GLuint texture);
+	GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture);
 };
 
 #endif // VIEWERWIDGET_H

@@ -6,7 +6,7 @@
 class ChromaKeyEffect : public Effect {
 public:
 	ChromaKeyEffect(Clip* c);
-	void process_gl(double timecode, GLTextureCoords &coords);
+	void process_shader(double timecode);
 private:
 	EffectField* color_field;
 	EffectField* tolerance_field;

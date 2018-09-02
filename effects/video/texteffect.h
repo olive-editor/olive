@@ -4,12 +4,14 @@
 #include "../effect.h"
 
 #include <QFont>
+#include <QImage>
+class QOpenGLTexture;
 
-class TextEffect : public Effect {
+class TextEffect : public SuperimposeEffect {
 	Q_OBJECT
 public:
 	TextEffect(Clip* c);
-	void process_image(double timecode, uint8_t* data, int width, int height);
+	void redraw(double timecode);
 
 	EffectField* text_val;
 	EffectField* size_val;

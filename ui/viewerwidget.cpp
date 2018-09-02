@@ -28,7 +28,7 @@ extern "C" {
 ViewerWidget::ViewerWidget(QWidget *parent) :
     QOpenGLWidget(parent),
 	rendering(false),
-	fbo(NULL)
+	default_fbo(NULL)
 {
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -67,12 +67,12 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
 	}
 }
 
-GLuint ViewerWidget::draw_clip(Clip* clip, GLuint texture) {
+GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, 1, 0, 1, -1, 1);
 
-	clip->fbo->bind();
+	fbo->bind();
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
@@ -87,11 +87,11 @@ GLuint ViewerWidget::draw_clip(Clip* clip, GLuint texture) {
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
-	clip->fbo->release();
-	if (fbo != NULL) fbo->bind();
+	fbo->release();
+	if (default_fbo != NULL) default_fbo->bind();
 
 	glPopMatrix();
-	return clip->fbo->takeTexture();
+	return fbo->texture();
 }
 
 GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
@@ -198,12 +198,15 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				} else if (playhead >= c->timeline_in) {
 					// start preparing cache
 					if (c->fbo == NULL) {
-						c->fbo = new QOpenGLFramebufferObject(video_width, video_height);
+						c->fbo = new QOpenGLFramebufferObject* [2];
+						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
+						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
 					}
 
 					glViewport(0, 0, video_width, video_height);
 
-					GLuint composite_texture = draw_clip(c, textureID);
+					GLuint composite_texture = draw_clip(c->fbo[0], textureID);
+					bool fbo_switcher = true;
 
 					GLTextureCoords coords;
 					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
@@ -215,11 +218,23 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 					// EFFECT CODE START
 					for (int j=0;j<c->effects.size();j++) {
-						if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
-							c->effects.at(j)->startEffect();
-							for (int k=0;k<c->effects.at(j)->getIterations();k++) {
-								c->effects.at(j)->process_gl(((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate), coords);
-								composite_texture = draw_clip(c, composite_texture);
+						Effect* e = c->effects.at(j);
+						if (e->is_enabled()) {
+							double timecode = ((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate);
+							if (e->enable_coords) {
+								e->process_coords(timecode, coords);
+							}
+							if (e->enable_shader || e->enable_superimpose) {
+								e->startEffect();
+								for (int k=0;k<e->getIterations();k++) {
+									e->process_shader(timecode);
+									composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
+									if (e->enable_superimpose) {
+										GLuint superimpose_texture = e->process_superimpose(timecode);
+										if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
+									}
+									fbo_switcher = !fbo_switcher;
+								}
 							}
 						}
 					}
@@ -237,17 +252,17 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 							c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
 						}
 					}
-					// EFFECT CODE END
 
 					for (int j=0;j<c->effects.size();j++) {
-						if (c->effects.at(j)->enable_opengl && c->effects.at(j)->is_enabled()) {
+						if ((c->effects.at(j)->enable_shader || c->effects.at(j)->enable_superimpose) && c->effects.at(j)->is_enabled()) {
 							c->effects.at(j)->endEffect();
 						}
 					}
+					// EFFECT CODE END
 
 					if (nest != NULL) {
-						if (nest->fbo == NULL) nest->fbo = new QOpenGLFramebufferObject(s->width, s->height);
-						nest->fbo->bind();
+//						if (nest->fbo == NULL) nest->fbo = new QOpenGLFramebufferObject(s->width, s->height);
+						nest->fbo[0]->bind();
 						glViewport(0, 0, s->width, s->height);
 					} else if (rendering) {
 						glViewport(0, 0, s->width, s->height);
@@ -271,11 +286,9 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
 					glEnd();
 
-					glDeleteTextures(1, &composite_texture);
-
 					if (nest != NULL) {
-						nest->fbo->release();
-						if (fbo != NULL) fbo->bind();
+						nest->fbo[0]->release();
+						if (default_fbo != NULL) default_fbo->bind();
 					}
 				}
 			} else {
@@ -292,7 +305,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
         }
     }
 
-	return (nest != NULL && nest->fbo != NULL) ? nest->fbo->takeTexture() : 0;
+	return (nest != NULL && nest->fbo != NULL) ? nest->fbo[0]->texture() : 0;
 }
 
 void ViewerWidget::paintGL() {

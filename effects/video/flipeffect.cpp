@@ -1,7 +1,7 @@
 #include "flipeffect.h"
 
 FlipEffect::FlipEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_FLIP_EFFECT) {
-	enable_opengl = true;
+	enable_coords = true;
 
 	horizontal_field = add_row("Horizontal:")->add_field(EFFECT_FIELD_BOOL);
 	vertical_field = add_row("Vertical:")->add_field(EFFECT_FIELD_BOOL);
@@ -10,7 +10,7 @@ FlipEffect::FlipEffect(Clip *c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_FLIP_EFFECT
 	connect(vertical_field, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void FlipEffect::process_gl(double timecode, GLTextureCoords &coords) {
+void FlipEffect::process_coords(double timecode, GLTextureCoords &coords) {
 	if (horizontal_field->get_bool_value(timecode)) {
 		double tlX = coords.textureTopLeftX;
 		double blX = coords.textureBottomLeftX;

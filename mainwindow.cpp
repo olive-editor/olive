@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	updateTitle("");
 	setWindowState(Qt::WindowMaximized);
 
-    statusBar()->showMessage("Welcome to Olive");
+	statusBar()->showMessage("Welcome to " + appName);
 
     setDockNestingEnabled(true);
 

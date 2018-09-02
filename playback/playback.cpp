@@ -55,8 +55,14 @@ void close_clip(Clip* clip) {
 		clip->texture = NULL;
 	}
 
+	for (int i=0;i<clip->effects.size();i++) {
+		clip->effects.at(i)->close();
+	}
+
 	if (clip->fbo != NULL) {
-		delete clip->fbo;
+		delete clip->fbo[0];
+		delete clip->fbo[1];
+		delete [] clip->fbo;
 		clip->fbo = NULL;
 	}
 
@@ -178,14 +184,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 				c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 			}
 
-			memcpy(c->comp_frame, current_frame->data[0], c->comp_frame_size);
-			for (int i=0;i<c->effects.size();i++) {
-                if (c->effects.at(i)->is_enabled() && c->effects.at(i)->enable_image) {
-					c->effects.at(i)->process_image(sequence_clip_time, c->comp_frame, current_frame->width, current_frame->height);
-				}
-			}
-
-			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, c->comp_frame);
+			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
 			c->texture_frame = clip_time;
 
 			return true;

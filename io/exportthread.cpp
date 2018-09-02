@@ -321,7 +321,7 @@ void ExportThread::run() {
 	fbo.bind();
 
 	panel_viewer->viewer_widget->rendering = true;
-	panel_viewer->viewer_widget->fbo = &fbo;
+	panel_viewer->viewer_widget->default_fbo = &fbo;
 
 	long file_audio_samples = 0;
 
@@ -371,7 +371,7 @@ void ExportThread::run() {
 		panel_timeline->playhead++;
 	}
 
-	panel_viewer->viewer_widget->fbo = NULL;
+	panel_viewer->viewer_widget->default_fbo = NULL;
 	panel_viewer->viewer_widget->rendering = false;
 
 	fbo.release();

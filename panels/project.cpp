@@ -1281,7 +1281,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 	}
 
     // redraw clips
-//	panel_timeline->redraw_all_clips(replace);
+	panel_timeline->redraw_all_clips(replace);
 
     panel_project->source_table->viewport()->update();
     deleteLater();

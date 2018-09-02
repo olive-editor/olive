@@ -7,7 +7,7 @@ class InvertEffect : public Effect {
 	Q_OBJECT
 public:
 	InvertEffect(Clip* c);
-	void process_gl(double timecode, GLTextureCoords& coords);
+	void process_shader(double timecode);
 private:
 	EffectField* amount_val;
 };

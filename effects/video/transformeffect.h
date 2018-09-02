@@ -8,7 +8,7 @@ class TransformEffect : public Effect {
 public:
 	TransformEffect(Clip* c);
 	void refresh();
-	void process_gl(double timecode, GLTextureCoords& coords);
+	void process_coords(double timecode, GLTextureCoords& coords);
 
 	EffectField* position_x;
 	EffectField* position_y;
