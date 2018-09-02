@@ -51,7 +51,7 @@ void open_clip(Clip* clip, bool multithreaded) {
 void close_clip(Clip* clip) {
 	// destroy opengl texture in main thread
 	if (clip->texture != NULL) {
-		clip->texture->destroy();
+		delete clip->texture;
 		clip->texture = NULL;
 	}
 

@@ -581,9 +581,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 // relink duplicated clips
 							 panel_timeline->relink_clips_using_ids(old_clips, new_clips);
 
-							 for (int i=0;i<new_clips.size();i++) {
-								 ta->add_clips(sequence, new_clips);
-							 }
+							 ta->add_clips(sequence, new_clips);
 						 }
 					 } else {
 						 // move clips
