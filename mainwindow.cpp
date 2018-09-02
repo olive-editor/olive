@@ -417,49 +417,36 @@ void MainWindow::on_actionReset_to_default_layout_triggered()
 
 void MainWindow::on_actionGo_to_start_triggered()
 {
-	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
 		panel_timeline->go_to_start();
 	}
 }
 
 void MainWindow::on_actionPrevious_Frame_triggered()
 {
-	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->previous_frame();
     }
 }
 
 void MainWindow::on_actionNext_Frame_triggered()
 {
-	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->next_frame();
     }
 }
 
 void MainWindow::on_actionGo_to_End_triggered()
 {
-	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->go_to_end();
     }
 }
 
 void MainWindow::on_actionPlay_Pause_triggered()
 {
-	if (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->toggle_play();
-    }
-}
-
-void MainWindow::on_actionCrash_triggered()
-{
-    if (QMessageBox::warning(this, "Are you sure you want to crash?", "WARNING: This is a debugging function designed to crash the program. Olive WILL crash and any unsaved progress WILL be lost. Are you sure you wish to do this?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-        // intentionally tries to crash the program - mostly used for debugging
-        Timeline* temp = NULL;
-        temp->snapped = true;
-        int* kek;
-        kek[5] = 69;
-		kek[99999] = kek[5];
-        delete temp;
     }
 }
 
@@ -500,14 +487,14 @@ void MainWindow::on_actionSlip_Tool_triggered()
 
 void MainWindow::on_actionGo_to_Previous_Cut_triggered()
 {
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus())) {
         panel_timeline->previous_cut();
     }
 }
 
 void MainWindow::on_actionGo_to_Next_Cut_triggered()
 {
-    if (panel_timeline->focused() || panel_viewer->hasFocus()) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus())) {
         panel_timeline->next_cut();
     }
 }

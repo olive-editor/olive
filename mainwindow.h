@@ -84,9 +84,7 @@ private slots:
 
     void on_actionGo_to_End_triggered();
 
-    void on_actionPlay_Pause_triggered();
-
-    void on_actionCrash_triggered();
+	void on_actionPlay_Pause_triggered();
 
     void on_actionEdit_Tool_triggered();
 

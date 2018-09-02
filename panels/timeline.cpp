@@ -269,7 +269,7 @@ int Timeline::get_snap_range() {
 }
 
 bool Timeline::focused() {
-    return (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus());
+	return (sequence != NULL && (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus()));
 }
 
 void Timeline::repaint_timeline() {
