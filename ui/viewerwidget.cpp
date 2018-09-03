@@ -163,6 +163,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 	int half_width = s->width/2;
 	int half_height = s->height/2;
 	if (rendering || nest != NULL) half_height = -half_height;
+	glPushMatrix();
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glLoadIdentity();
@@ -189,7 +190,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
                     Sequence* cs = static_cast<Sequence*>(c->media);
                     video_width = cs->width;
                     video_height = cs->height;
-					textureID = compose_sequence(c, render_audio);
+					textureID = -1;
 				}
 
 				if (textureID == 0) {
@@ -202,6 +203,17 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
 						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
 					}
+
+					// clear fbos
+					c->fbo[0]->bind();
+					glClear(GL_COLOR_BUFFER_BIT);
+					c->fbo[0]->release();
+					c->fbo[1]->bind();
+					glClear(GL_COLOR_BUFFER_BIT);
+					c->fbo[1]->release();
+
+					// for nested sequences
+					if (textureID == -1) textureID = compose_sequence(c, render_audio);
 
 					glViewport(0, 0, video_width, video_height);
 
@@ -261,7 +273,6 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					// EFFECT CODE END
 
 					if (nest != NULL) {
-//						if (nest->fbo == NULL) nest->fbo = new QOpenGLFramebufferObject(s->width, s->height);
 						nest->fbo[0]->bind();
 						glViewport(0, 0, s->width, s->height);
 					} else if (rendering) {
@@ -305,6 +316,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
         }
     }
 
+	glPopMatrix();
+
 	return (nest != NULL && nest->fbo != NULL) ? nest->fbo[0]->texture() : 0;
 }
 
@@ -325,6 +338,7 @@ void ViewerWidget::paintGL() {
         glClear(GL_COLOR_BUFFER_BIT);
 
 		// compose video preview
+		glClearColor(0, 0, 0, 0);
 		compose_sequence(NULL, (panel_timeline->playing || rendering));
 
         if (texture_failed) {

@@ -143,8 +143,7 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 }
 
 void EffectControls::clear_effects(bool clear_cache) {
-    // clear existing clips
-	ui->keyframeView->effects.clear();
+	// clear existing clips
     QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
     QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
     QLayoutItem* item;
@@ -176,15 +175,10 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
 
 void EffectControls::load_effects() {
 	// load in new clips
-	long effects_in = LONG_MAX;
-	long effects_out = 0;
     for (int i=0;i<selected_clips.size();i++) {
 		Clip* c = sequence->get_clip(selected_clips.at(i));
-		effects_in = qMin(effects_in, c->timeline_in);
-		effects_out = qMax(effects_out, c->timeline_out);
         for (int j=0;j<c->effects.size();j++) {
 			Effect* e = c->effects.at(j);
-			ui->keyframeView->effects.append(e);
 			CollapsibleWidget* container = e->container;
             if (c->track < 0) {
                 static_cast<QVBoxLayout*>(ui->video_effect_area->layout())->addWidget(container);
@@ -199,12 +193,8 @@ void EffectControls::load_effects() {
 	if (selected_clips.size() > 0) {
 		ui->keyframeView->setMinimumHeight(ui->effects_area->height());
 		ui->keyframeView->setEnabled(true);
-		ui->keyframeView->visible_in = effects_in;
-		ui->keyframeView->visible_out = effects_out;
-		ui->keyframeView->update();
-
-		ui->headers->set_visible_in(effects_in);
 		ui->headers->setVisible(true);
+		ui->keyframeView->update();
 	}
 }
 

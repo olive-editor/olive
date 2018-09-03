@@ -145,10 +145,8 @@ FORMS += \
     dialogs/preferencesdialog.ui
 
 win32 {
-    LIBS += -L../ffmpeg/lib -lopengl32
-    INCLUDEPATH = ../ffmpeg/include
-    RC_FILE = icons/win.rc
-    LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample
+    RC_ICONS = icons/olive.ico
+    LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample -lopengl32
 }
 
 mac {

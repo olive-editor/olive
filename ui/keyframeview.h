@@ -13,7 +13,6 @@ class KeyframeView : public QWidget {
 	Q_OBJECT
 public:
 	KeyframeView(QWidget* parent = 0);
-	QVector<Effect*> effects;
 
 	void delete_selected_keyframes();
 

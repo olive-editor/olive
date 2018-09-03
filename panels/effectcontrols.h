@@ -40,6 +40,8 @@ public:
 	bool keyframe_focus();
 	void delete_selected_keyframes();
 
+	QVector<int> selected_clips;
+
 	double zoom;
 public slots:
     void update_keyframes();
@@ -55,7 +57,6 @@ private slots:
 
 private:
 	Ui::EffectControls *ui;
-    QVector<int> selected_clips;
 	void show_effect_menu(bool video, bool transitions);
 	void load_effects();
 	void load_keyframes();

@@ -94,9 +94,9 @@ void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool rese
 }
 
 bool get_clip_frame(Clip* c, long playhead) {
-	if (c->open) {
+	if (c->finished_opening) {
 		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
-		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
+		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(c->stream->avg_frame_rate));
 
 		// do we need to update the texture?
         MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
@@ -133,6 +133,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 						c->cache_A.mutex.unlock();
 					}
 				} else {
+					// frame is coming but isn't here yet, no need to reset cache
 					no_frame = true;
 				}
 			} else if (c->cache_B.written && clip_time >= c->cache_B.offset && clip_time < c->cache_B.offset + c->cache_size) {
@@ -145,6 +146,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 						c->cache_B.mutex.unlock();
 					}
 				} else {
+					// frame is coming but isn't here yet, no need to reset cache
 					no_frame = true;
 				}
 			} else {
@@ -158,14 +160,14 @@ bool get_clip_frame(Clip* c, long playhead) {
 					current_frame = cache[clip_time - cache_offset];
 				}
 
-				// determine whether we should start filling the other cache
+				// determine whether we should s1tart filling the other cache
 				if (!using_cache_A || !using_cache_B) {
 					if (c->lock.tryLock()) {
 						bool write_A = (!using_cache_A && !c->cache_A.unread);
 						bool write_B = (!using_cache_B && !c->cache_B.unread);
 						if (write_A || write_B) {
 							// if we have no cache and need to seek, start us at the current playhead, otherwise start at the end of the current cache
-							cache_clip(c, (cache_needs_reset) ? clip_time : cache_offset + c->cache_size, write_A, write_B, cache_needs_reset, NULL);
+							cache_clip(c, (cache_needs_reset) ? qMax(clip_time, 0L) : cache_offset + c->cache_size, write_A, write_B, cache_needs_reset, NULL);
 						}
 						c->lock.unlock();
 					}
