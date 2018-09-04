@@ -21,7 +21,8 @@ public:
     ~MainWindow();
 
 protected:
-    void closeEvent(QCloseEvent *);
+	void closeEvent(QCloseEvent *);
+	void paintEvent(QPaintEvent *event);
 
 private slots:
 	void on_action_Import_triggered();

@@ -19,6 +19,7 @@
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/exportdialog.h"
 #include "dialogs/preferencesdialog.h"
+#include "dialogs/demonotice.h"
 
 #include "playback/audio.h"
 #include "playback/playback.h"
@@ -39,6 +40,7 @@
 QTimer autorecovery_timer;
 QString config_dir;
 QString appName = "Olive (August 2018 | Alpha)";
+bool demoNoticeShown = false;
 
 void MainWindow::setup_layout() {
     panel_project->show();
@@ -139,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
             config_dir = data_dir + "/config.xml";
             config.load(config_dir);
         }
-    }
+	}
 }
 
 MainWindow::~MainWindow() {
@@ -367,7 +369,16 @@ void MainWindow::closeEvent(QCloseEvent *e) {
         e->accept();
     } else {
         e->ignore();
-    }
+	}
+}
+
+void MainWindow::paintEvent(QPaintEvent *event) {
+	QMainWindow::paintEvent(event);
+	if (!demoNoticeShown) {
+		DemoNotice* d = new DemoNotice(this);
+		d->open();
+		demoNoticeShown = true;
+	}
 }
 
 void MainWindow::on_action_Save_Project_triggered()

@@ -77,7 +77,8 @@ SOURCES += \
     effects/video/cropeffect.cpp \
     effects/video/flipeffect.cpp \
     effects/audio/audionoiseeffect.cpp \
-    effects/video/boxblureffect.cpp
+    effects/video/boxblureffect.cpp \
+    dialogs/demonotice.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -131,7 +132,8 @@ HEADERS += \
     effects/video/cropeffect.h \
     effects/video/flipeffect.h \
     effects/audio/audionoiseeffect.h \
-    effects/video/boxblureffect.h
+    effects/video/boxblureffect.h \
+    dialogs/demonotice.h
 
 FORMS += \
         mainwindow.ui \
@@ -142,7 +144,8 @@ FORMS += \
     dialogs/aboutdialog.ui \
     dialogs/newsequencedialog.ui \
     dialogs/exportdialog.ui \
-    dialogs/preferencesdialog.ui
+    dialogs/preferencesdialog.ui \
+    dialogs/demonotice.ui
 
 win32 {
     RC_ICONS = icons/olive.ico
@@ -151,6 +154,7 @@ win32 {
 
 mac {
     LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lswscale -lswresample
+    ICON = icons/olive.icns
     INCLUDEPATH = /usr/local/include
 }
 
