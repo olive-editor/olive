@@ -33,46 +33,48 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 	rowY.clear();
 	rows.clear();
 
-	long effects_in = LONG_MAX;
-	long effects_out = 0;
 
-	for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-		Clip* c = sequence->get_clip(panel_effect_controls->selected_clips.at(j));
-		effects_in = qMin(effects_in, c->timeline_in);
-		effects_out = qMax(effects_out, c->timeline_out);
-		for (int i=0;i<c->effects.size();i++) {
-			Effect* e = c->effects.at(i);
-			if (e->container->is_expanded()) {
-				for (int j=0;j<e->row_count();j++) {
-					EffectRow* row = e->row(j);
 
-					QLabel* label = row->label;
-					QWidget* contents = e->container->contents;
+	if (panel_effect_controls->selected_clips.size() > 0) {
+		long effects_in = LONG_MAX;
+		long effects_out = 0;
 
-					int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
-					for (int k=0;k<row->keyframe_times.size();k++) {
-						bool keyframe_selected = keyframeIsSelected(row, k);
-						long keyframe_frame = adjust_row_keyframe(row, row->keyframe_times.at(k));
-						if (dragging && keyframe_selected) keyframe_frame += frame_diff;
-						draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame), keyframe_y, keyframe_selected);
+		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
+			Clip* c = sequence->get_clip(panel_effect_controls->selected_clips.at(j));
+			effects_in = qMin(effects_in, c->timeline_in);
+			effects_out = qMax(effects_out, c->timeline_out);
+			for (int i=0;i<c->effects.size();i++) {
+				Effect* e = c->effects.at(i);
+				if (e->container->is_expanded()) {
+					for (int j=0;j<e->row_count();j++) {
+						EffectRow* row = e->row(j);
+
+						QLabel* label = row->label;
+						QWidget* contents = e->container->contents;
+
+						int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
+						for (int k=0;k<row->keyframe_times.size();k++) {
+							bool keyframe_selected = keyframeIsSelected(row, k);
+							long keyframe_frame = adjust_row_keyframe(row, row->keyframe_times.at(k));
+							if (dragging && keyframe_selected) keyframe_frame += frame_diff;
+							draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame), keyframe_y, keyframe_selected);
+						}
+
+						rows.append(row);
+						rowY.append(keyframe_y);
 					}
-
-					rows.append(row);
-					rowY.append(keyframe_y);
 				}
 			}
 		}
-	}
 
-	visible_in = effects_in;
-	visible_out = effects_out;
+		visible_in = effects_in;
+		visible_out = effects_out;
 
-	int width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
-	setMinimumWidth(width);
-	header->setMinimumWidth(width);
-	header->set_visible_in(effects_in);
+		int width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
+		setMinimumWidth(width);
+		header->setMinimumWidth(width);
+		header->set_visible_in(effects_in);
 
-	if (rowY.size() > 0) {
 		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, panel_timeline->playhead-visible_in);
 		p.setPen(Qt::red);
 		p.drawLine(playhead_x, 0, playhead_x, height());
@@ -80,7 +82,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 
 	if (select_rect) {
 		draw_selection_rectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
-    }
+	}
 
     /*if (mouseover && mouseover_row < rowY.size()) {
 		draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, mouseover_frame - visible_in), rowY.at(mouseover_row), true);

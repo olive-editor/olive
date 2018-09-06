@@ -69,13 +69,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
     if (nest != NULL) {
         timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
         timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
-    }
-
-	//
-	// (c->clip_in / c->sequence->frame_rate) is the starting point in seconds
-	// we need to convert it to bytes
-	//
-	//
+	}
 
     while (written < max_write) {
         // gets one frame worth of audio and sends it to the audio buffer
@@ -126,15 +120,15 @@ void cache_audio_worker(Clip* c, Clip* nest) {
             if (c->audio_buffer_write == 0) {
                 c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
 
-                int offset = audio_ibuffer_read - c->audio_buffer_write;
-                if (offset > 0) {
+				int offset = audio_ibuffer_read - c->audio_buffer_write;
+				if (offset > 0) {
                     c->audio_buffer_write += offset;
                     c->frame_sample_index += offset;
-                }
+				}
             }
             bool apply_effects = false;
             while (c->frame_sample_index > nb_bytes) {
-                // get new frame
+				// get new frame
                 retrieve_next_frame_raw_data(c, frame);
                 apply_effects = true;
                 nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
@@ -142,7 +136,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
                 // code DISGUSTINGLY copy/pasted from above
                 int offset = audio_ibuffer_read - c->audio_buffer_write;
-                if (offset > 0) {
+				if (offset > 0) {
                     c->audio_buffer_write += offset;
                     c->frame_sample_index += offset;
                 }
@@ -153,30 +147,32 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				if (nest != NULL) apply_audio_effects(nest, timebase, frame, nb_bytes);
             }
 
+			long buffer_timeline_out = get_buffer_offset_from_frame(timeline_out);
             while (c->frame_sample_index < nb_bytes) {
-                if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= get_buffer_offset_from_frame(timeline_out)) {
+				if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= buffer_timeline_out) {
                     written = max_write;
                     break;
-                } else {
-                    int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
+				} else {
+					int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
                     int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
-                    qint16 old_sample = (qint16) ((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
-					qint16 new_sample = (qint16) ((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
-					qint32 mixed_sample = old_sample + new_sample;
-					mixed_sample = qMax(qMin(mixed_sample, (qint32)INT16_MAX), (qint32)INT16_MIN);
+					qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
+					qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
+					qint32 mixed_sample = static_cast<qint32>(old_sample) + static_cast<qint32>(new_sample);
+					mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
 
-                    audio_ibuffer[upper_byte_index] = (quint8) (mixed_sample >> 8);
-                    audio_ibuffer[lower_byte_index] = (quint8) mixed_sample;
+					audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
+					audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);
+
                     c->audio_buffer_write+=2;
                     c->frame_sample_index+=2;
-                    written+=2;
+					written+=2;
                 }
             }
             if (c->frame_sample_index == nb_bytes) {
                 c->need_new_audio_frame = true;
             }
         }
-    }
+	}
 }
 
 void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {

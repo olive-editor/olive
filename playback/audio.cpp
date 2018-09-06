@@ -41,7 +41,7 @@ void init_audio() {
 			qWarning() << "[WARNING] Couldn't initialize audio. Audio format is not supported by backend";
 		} else {
 			audio_output = new QAudioOutput(audio_format);
-			audio_output->setBufferSize(20480);
+			audio_output->setNotifyInterval(5);
 
 			// connect
 			audio_io_device = audio_output->start();
@@ -49,7 +49,8 @@ void init_audio() {
 
 			// start sender thread
 			audio_thread = new AudioSenderThread();
-			audio_thread->start();
+			QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
+			audio_thread->start(QThread::TimeCriticalPriority);
 
             clear_audio_ibuffer();
 		}
@@ -67,7 +68,7 @@ void stop_audio() {
 }
 
 void clear_audio_ibuffer() {
-    memset(audio_ibuffer, 0, audio_ibuffer_size);
+	memset(audio_ibuffer, 0, audio_ibuffer_size);
     audio_ibuffer_read = 0;
 }
 
@@ -90,13 +91,17 @@ void AudioSenderThread::stop() {
 	wait();
 }
 
+void AudioSenderThread::notifyReceiver() {
+	cond.wakeAll();
+}
+
 void AudioSenderThread::run() {
 	// start data loop
 	send_audio_to_output(0, audio_ibuffer_size);
 
 	lock.lock();
 	while (true) {
-		msleep(15);
+		cond.wait(&lock);
 		if (close) {
 			break;
 		} else if (panel_timeline->playing) {
@@ -118,7 +123,8 @@ void AudioSenderThread::run() {
 int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	// send audio to device
 	int actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
-	audio_ibuffer_read += actual_write;
+
+	int audio_ibuffer_limit = audio_ibuffer_read + actual_write;
 
 	// send samples to audio monitor cache
 	if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
@@ -132,9 +138,9 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	samples.fill(0);
 
 	// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
-	while (buffer_offset < audio_ibuffer_read) {
+	while (buffer_offset < audio_ibuffer_limit) {
 		sample_cache_playhead++;
-		next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_read);
+		next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_limit);
 		while (buffer_offset < next_buffer_offset) {
 			for (i=0;i<samples.size();i++) {
 				buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
@@ -147,6 +153,8 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	}
 
 	memset(audio_ibuffer+offset, 0, actual_write);
+
+	audio_ibuffer_read = audio_ibuffer_limit;
 
 	return actual_write;
 }

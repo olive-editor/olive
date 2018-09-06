@@ -14,8 +14,25 @@ class QAudioOutput;
 
 struct Sequence;
 
+class AudioSenderThread : public QThread {
+	Q_OBJECT
+public:
+	AudioSenderThread();
+	void run();
+	void stop();
+	QWaitCondition cond;
+	bool close;
+	QMutex lock;
+public slots:
+	void notifyReceiver();
+private:
+	QVector<qint16> samples;
+	int send_audio_to_output(int offset, int max);
+};
+
 extern QAudioOutput* audio_output;
 extern QIODevice* audio_io_device;
+extern AudioSenderThread* audio_thread;
 
 #define audio_ibuffer_size 192000
 extern qint8 audio_ibuffer[audio_ibuffer_size];
@@ -26,19 +43,5 @@ void clear_audio_ibuffer();
 void init_audio();
 void stop_audio();
 int get_buffer_offset_from_frame(long frame);
-
-class AudioSenderThread : public QThread {
-	Q_OBJECT
-public:
-	AudioSenderThread();
-	void run();
-	void stop();
-	QWaitCondition cond;
-	bool close;
-	QMutex lock;
-private:
-	QVector<qint16> samples;
-	int send_audio_to_output(int offset, int max);
-};
 
 #endif // AUDIO_H

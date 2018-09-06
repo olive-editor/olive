@@ -374,11 +374,13 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 void MainWindow::paintEvent(QPaintEvent *event) {
 	QMainWindow::paintEvent(event);
+#ifndef QT_DEBUG
 	if (!demoNoticeShown) {
 		DemoNotice* d = new DemoNotice(this);
 		d->open();
 		demoNoticeShown = true;
 	}
+#endif
 }
 
 void MainWindow::on_action_Save_Project_triggered()

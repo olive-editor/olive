@@ -35,7 +35,11 @@ void open_clip(Clip* clip, bool multithreaded) {
 				clip->cacher = new Cacher(clip);
 				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
 
-				clip->cacher->start(QThread::LowPriority);
+				if (clip->track < 0) {
+					clip->cacher->start(QThread::LowPriority);
+				} else {
+					clip->cacher->start(QThread::TimeCriticalPriority);
+				}
 			}
 		} else {
 			clip->finished_opening = false;

@@ -176,6 +176,7 @@ void Timeline::play() {
 	playback_updater.start();
     playing = true;
     panel_viewer->set_playpause_icon(false);
+	audio_thread->notifyReceiver();
 }
 
 void Timeline::pause() {
