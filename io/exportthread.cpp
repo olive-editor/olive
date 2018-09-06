@@ -139,6 +139,7 @@ bool ExportThread::setupVideo() {
 	video_frame->width = sequence->width;
 	video_frame->height = sequence->height;
 	av_frame_get_buffer(video_frame, 0);
+	qDebug() << video_frame->linesize[0] << video_frame->linesize[1] << video_frame->linesize[2];
 
 	av_init_packet(&video_pkt);
 
@@ -331,7 +332,7 @@ void ExportThread::run() {
 		double timecode_secs = (double) (panel_timeline->playhead-start_frame) / sequence->frame_rate;
 		if (video_enabled) {
 			// get image from opengl
-			glReadPixels(0, 0, sequence->width, sequence->height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
+			glReadPixels(0, 0, video_frame->linesize[0]/4, sequence->height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
 
 			// change pixel format
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);

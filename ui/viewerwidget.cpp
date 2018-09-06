@@ -226,7 +226,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					coords.vertexTopRightX = coords.vertexBottomRightX = video_width/2;
 					coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
 					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
-					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
+					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;					
 
 					// EFFECT CODE START
 					for (int j=0;j<c->effects.size();j++) {

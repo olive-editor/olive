@@ -329,8 +329,12 @@ void ExportDialog::prep_ui_for_render(bool rendering) {
     ui->renderCancel->setEnabled(rendering);
 }
 
-void ExportDialog::on_pushButton_clicked()
-{
+void ExportDialog::on_pushButton_clicked() {
+	if (ui->widthSpinbox->value()%2 == 1 || ui->heightSpinbox->value()%2 == 1) {
+		QMessageBox::critical(this, "Invalid dimensions", "Export width and height must both be even numbers/divisible by 2.", QMessageBox::Ok);
+		return;
+	}
+
 	QString ext;
 	switch (ui->formatCombobox->currentIndex()) {
 	case FORMAT_3GPP:

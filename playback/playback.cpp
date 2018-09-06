@@ -190,7 +190,9 @@ bool get_clip_frame(Clip* c, long playhead) {
 				c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 			}
 
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, current_frame->linesize[0]/4);
 			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 			c->texture_frame = clip_time;
 
 			return true;

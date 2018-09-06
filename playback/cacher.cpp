@@ -332,7 +332,7 @@ void open_clip_worker(Clip* clip) {
 			if (av_frame_get_buffer(clip->cache_A.frames[i], 0)) {
 				qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
 			}
-			clip->cache_A.frames[i]->linesize[0] = dstW*4;
+//			clip->cache_A.frames[i]->linesize[0] = dstW*4;
 
 			clip->cache_B.frames[i] = av_frame_alloc();
 			av_frame_make_writable(clip->cache_B.frames[i]);
@@ -342,7 +342,7 @@ void open_clip_worker(Clip* clip) {
 			if (av_frame_get_buffer(clip->cache_B.frames[i], 0)) {
 				qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
 			}
-			clip->cache_B.frames[i]->linesize[0] = dstW*4;
+//			clip->cache_B.frames[i]->linesize[0] = dstW*4;
 		}
 	} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 		// if FFmpeg can't pick up the channel layout (usually WAV), assume
