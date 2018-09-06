@@ -116,7 +116,6 @@ void cache_audio_worker(Clip* c, Clip* nest) {
         } else {
             int nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
 
-            int half_buffer = (audio_ibuffer_size/2);
             if (c->audio_buffer_write == 0) {
                 c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
 
@@ -148,29 +147,31 @@ void cache_audio_worker(Clip* c, Clip* nest) {
             }
 
 			long buffer_timeline_out = get_buffer_offset_from_frame(timeline_out);
-            while (c->frame_sample_index < nb_bytes) {
-				if (c->audio_buffer_write >= audio_ibuffer_read+half_buffer || c->audio_buffer_write >= buffer_timeline_out) {
-                    written = max_write;
-                    break;
-				} else {
-					int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
-                    int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
-					qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
-					qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
-					qint32 mixed_sample = static_cast<qint32>(old_sample) + static_cast<qint32>(new_sample);
-					mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
+			audio_write_lock.lock();
+			while (c->frame_sample_index < nb_bytes
+				   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size
+				   && c->audio_buffer_write < buffer_timeline_out) {
+				int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
+				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
+				qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
+				qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
+				qint32 mixed_sample = static_cast<qint32>(old_sample) + static_cast<qint32>(new_sample);
+				mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
 
-					audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
-					audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);
+				audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
+				audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);
 
-                    c->audio_buffer_write+=2;
-                    c->frame_sample_index+=2;
-					written+=2;
-                }
+				c->audio_buffer_write+=2;
+				c->frame_sample_index+=2;
+				written+=2;
             }
+			audio_write_lock.unlock();
             if (c->frame_sample_index == nb_bytes) {
                 c->need_new_audio_frame = true;
-            }
+			} else {
+				// assume we have no more data to send
+				break;
+			}
         }
 	}
 }

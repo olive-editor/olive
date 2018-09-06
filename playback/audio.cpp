@@ -17,6 +17,7 @@ extern "C" {
 QAudioOutput* audio_output;
 QIODevice* audio_io_device;
 bool audio_device_set = false;
+QMutex audio_write_lock;
 
 qint8 audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
