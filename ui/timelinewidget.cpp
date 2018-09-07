@@ -542,27 +542,41 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 				c->color_b = 64;
 				c->track = g.track;
 
+				Selection s;
+				s.in = c->timeline_in;
+				s.out = c->timeline_out;
+				s.track = c->track;
+				QVector<Selection> areas;
+				areas.append(s);
+				panel_timeline->delete_areas_and_relink(ta, areas);
+
 				QVector<Clip*> add;
 				add.append(c);
 				ta->add_clips(sequence, add);
 
-				ta->add_effect(sequence, sequence->clip_count(), VIDEO_TRANSFORM_EFFECT);
+				int clipIndex = sequence->clip_count();
+				ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
 				switch (panel_timeline->creatingObject) {
 				case ADD_OBJ_TITLE:
 					c->name = "Title";
-					ta->add_effect(sequence, sequence->clip_count(), VIDEO_TEXT_EFFECT);
+					ta->add_effect(sequence, clipIndex, VIDEO_TEXT_EFFECT);
 					break;
 				case ADD_OBJ_SOLID:
 					c->name = "Solid Color";
-					ta->add_effect(sequence, sequence->clip_count(), VIDEO_SOLID_EFFECT);
+					ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
 					break;
 				case ADD_OBJ_BARS:
 					c->name = "Bars and Tone";
-					ta->add_effect(sequence, sequence->clip_count(), VIDEO_SOLID_EFFECT);
+					ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
 					break;
 				}
 
 				undo_stack.push(ta);
+
+				// pretty hacky
+				if (panel_timeline->creatingObject == ADD_OBJ_BARS) {
+					sequence->get_clip(clipIndex)->effects.at(1)->row(0)->field(0)->set_combo_index(1);
+				}
 
 				panel_timeline->redraw_all_clips(true);
 			} else if (panel_timeline->moving_proc) {
@@ -891,7 +905,7 @@ bool subvalidate_snapping(const Ghost& g, long* frame_diff, long snap_point) {
         panel_timeline->snap_point = snap_point;
         panel_timeline->snapped = true;
         return true;
-    } else if (!g.trim_in && out_validator > -snap_range && out_validator < snap_range) {
+	} else if ((panel_timeline->trim_target == -1 || !g.trim_in) && out_validator > -snap_range && out_validator < snap_range) {
         *frame_diff -= out_validator;
         panel_timeline->snap_point = snap_point;
         panel_timeline->snapped = true;

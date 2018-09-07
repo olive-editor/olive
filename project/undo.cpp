@@ -624,7 +624,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
 			Clip* c = s->get_clip(j);
 			if (c != NULL && c->media == media && c->open) {
 				close_clip(c);
-				c->cacher->wait();
+				if (c->media_type == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
 				c->replaced = true;
 			}
 		}
@@ -666,7 +666,7 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 		Clip* c = clips.at(i);
 		if (c->open) {
 			close_clip(c);
-			c->cacher->wait();
+			if (c->media_type == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
 		}
 
 		if (undo) {

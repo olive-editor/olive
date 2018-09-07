@@ -127,7 +127,7 @@ Clip::~Clip() {
 		close_clip(this);
 
         // make sure clip has closed before clip is destroyed
-        if (multithreaded) {
+		if (multithreaded && media_type == MEDIA_TYPE_FOOTAGE) {
             cacher->wait();
         }
     }
