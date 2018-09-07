@@ -264,7 +264,6 @@ void Effect::load(QXmlStreamReader& stream) {
 							qDebug() << "[ERROR] Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
 						}
 						field_count++;
-						break;
 					}
 				}
 

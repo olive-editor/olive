@@ -18,7 +18,7 @@ TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(fals
 }
 
 void TimelineHeader::set_playhead(int mouse_x) {
-	long frame = getFrameFromScreenPoint(zoom, mouse_x);
+	long frame = getFrameFromScreenPoint(zoom, mouse_x) + in_visible;
 	if (snapping) panel_timeline->snap_to_clip(&frame, false);
 	panel_timeline->seek(frame);
 }
@@ -62,7 +62,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
     if (resizing_workarea) {
         sequence_end = sequence->getEndFrame();
     } else {
-        set_playhead(event->pos().x());
+		set_playhead(event->pos().x());
     }
     dragging = true;
 }
@@ -79,7 +79,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
             }
             panel_timeline->repaint_timeline();
         } else {
-            set_playhead(event->pos().x());
+			set_playhead(event->pos().x());
         }
     } else {
         resizing_workarea = false;

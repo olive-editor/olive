@@ -23,6 +23,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QPainter>
+#include <QMenu>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
     if (source_frame_rate == target_frame_rate) return framenumber;
@@ -56,7 +57,8 @@ Timeline::Timeline(QWidget *parent) :
     importing(false),
     zoomChanged(false),
     ui(new Ui::Timeline),
-    last_frame(0)
+	last_frame(0),
+	creating(false)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
@@ -253,6 +255,7 @@ void Timeline::update_sequence() {
     ui->snappingButton->setEnabled(!null_sequence);
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
+	ui->addButton->setEnabled(!null_sequence);
     ui->headers->setEnabled(!null_sequence);
 
 	if (null_sequence) {
@@ -1154,4 +1157,43 @@ void Timeline::on_toolSlideButton_clicked()
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::ArrowCursor);
     tool = TIMELINE_TOOL_SLIDE;
+}
+
+void Timeline::on_addButton_clicked() {
+	QMenu add_menu(this);
+
+	QAction* titleMenuItem = new QAction(&add_menu);
+	titleMenuItem->setText("Title...");
+	titleMenuItem->setData(ADD_OBJ_TITLE);
+	add_menu.addAction(titleMenuItem);
+
+	QAction* solidMenuItem = new QAction(&add_menu);
+	solidMenuItem->setText("Solid Color...");
+	solidMenuItem->setData(ADD_OBJ_SOLID);
+	add_menu.addAction(solidMenuItem);
+
+	QAction* barsMenuItem = new QAction(&add_menu);
+	barsMenuItem->setText("Bars and Tone...");
+	barsMenuItem->setData(ADD_OBJ_BARS);
+	add_menu.addAction(barsMenuItem);
+
+	connect(&add_menu, SIGNAL(triggered(QAction*)), this, SLOT(addMenuItem(QAction*)));
+
+	add_menu.exec(QCursor::pos());
+}
+
+void Timeline::addMenuItem(QAction* action) {
+	creating = true;
+	creatingObject = action->data().toInt();
+	/*switch (action->data()) {
+	case ADD_OBJ_TITLE:
+
+		break;
+	case ADD_OBJ_SOLID:
+
+		break;
+	case ADD_OBJ_BARS:
+
+		break;
+	}*/
 }

@@ -181,7 +181,10 @@ long Clip::getMediaLength(double framerate) {
         return refactor_frame_number(s->getEndFrame(), s->frame_rate, framerate);
     }
         break;
-    }
+	case MEDIA_TYPE_SOLID:
+		return timeline_out - timeline_in;
+		break;
+	}
 	return 0;
 }
 

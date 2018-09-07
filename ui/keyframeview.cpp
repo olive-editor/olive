@@ -101,7 +101,7 @@ bool KeyframeView::keyframeIsSelected(EffectRow *row, int keyframe) {
 void KeyframeView::delete_selected_keyframes() {
 	KeyframeDelete* kd = new KeyframeDelete();
 	bool del = false;
-	for (int i=0;i<selected_keyframes.size();i++) {		
+	for (int i=0;i<selected_keyframes.size();i++) {
 		selected_rows.at(i)->delete_keyframe(kd, selected_keyframes.at(i));
 		del = true;
 	}

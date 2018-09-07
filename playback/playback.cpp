@@ -27,7 +27,8 @@ extern "C" {
 bool texture_failed = false;
 
 void open_clip(Clip* clip, bool multithreaded) {
-	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+	switch (clip->media_type) {
+	case MEDIA_TYPE_FOOTAGE:
 		clip->multithreaded = multithreaded;
 		if (multithreaded) {
 			if (clip->open_lock.tryLock()) {
@@ -47,8 +48,11 @@ void open_clip(Clip* clip, bool multithreaded) {
 
 			open_clip_worker(clip);
 		}
-	} else if (clip->media_type == MEDIA_TYPE_SEQUENCE) {
+		break;
+	case MEDIA_TYPE_SEQUENCE:
+	case MEDIA_TYPE_SOLID:
 		clip->open = true;
+		break;
 	}
 }
 
@@ -70,16 +74,20 @@ void close_clip(Clip* clip) {
 		clip->fbo = NULL;
 	}
 
-	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+	switch (clip->media_type) {
+	case MEDIA_TYPE_FOOTAGE:
 		if (clip->multithreaded) {
 			clip->cacher->caching = false;
 			clip->can_cache.wakeAll();
 		} else {
 			close_clip_worker(clip);
 		}
-	} else if (clip->media_type == MEDIA_TYPE_SEQUENCE) {
+		break;
+	case MEDIA_TYPE_SEQUENCE:
 		closeActiveClips(static_cast<Sequence*>(clip->media), false);
+	case MEDIA_TYPE_SOLID:
 		clip->open = false;
+		break;
 	}
 }
 

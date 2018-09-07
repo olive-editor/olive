@@ -246,6 +246,22 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="addButton">
+         <property name="toolTip">
+          <string>Add title, solid, bars, etc.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/add-button.png</normalon>
+           <disabledon>:/icons/add-button-disabled.png</disabledon>
+          </iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

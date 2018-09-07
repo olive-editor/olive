@@ -14,6 +14,7 @@
 
 #include "effects/effect.h"
 #include "effects/transition.h"
+#include "effects/video/solideffect.h"
 
 #include <QPainter>
 #include <QColor>
@@ -362,14 +363,18 @@ void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
     }
 }
 
+bool isLiveEditing() {
+	return (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR || panel_timeline->creating);
+}
+
 void TimelineWidget::mousePressEvent(QMouseEvent *event) {
     if (sequence != NULL) {
         if (event->button() == Qt::LeftButton) {
-            if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
+			QPoint pos = event->pos();
+			if (isLiveEditing()) {
                 panel_timeline->drag_frame_start = panel_timeline->cursor_frame;
                 panel_timeline->drag_track_start = panel_timeline->cursor_track;
-            } else {
-                QPoint pos = event->pos();
+			} else {
 				panel_timeline->drag_frame_start = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
                 panel_timeline->drag_track_start = getTrackFromScreenPoint(pos.y());
             }
@@ -386,118 +391,130 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 panel_timeline->selection_offset = 0;
             }
 
-            switch (panel_timeline->tool) {
-            case TIMELINE_TOOL_POINTER:
-            case TIMELINE_TOOL_RIPPLE:
-            case TIMELINE_TOOL_SLIP:
-            case TIMELINE_TOOL_ROLLING:
-            case TIMELINE_TOOL_SLIDE:
-            {
-                if (track_resizing) {
-                    track_resize_mouse_cache = event->pos().y();
-                    panel_timeline->moving_init = true;
-                } else {
-                    if (clip_index >= 0) {
-                        Clip* clip = sequence->get_clip(clip_index);
-                        if (clip != NULL) {
-                            if (panel_timeline->is_clip_selected(clip, true)) {
-								if (shift) {
-									panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
+			if (panel_timeline->creating) {
+				Ghost g;
+				g.in = g.old_in = g.out = g.old_out = panel_timeline->drag_frame_start;
+				g.track = g.old_track = panel_timeline->drag_track_start;
+				g.transition = NULL;
+				g.clip = -1;
+				panel_timeline->ghosts.append(g);
 
-									if (!alt) {
-										for (int i=0;i<clip->linked.size();i++) {
-											Clip* link = sequence->get_clip(clip->linked.at(i));
-											panel_timeline->deselect_area(link->timeline_in, link->timeline_out, link->track);
+				panel_timeline->moving_init = true;
+				panel_timeline->moving_proc = true;
+			} else {
+				switch (panel_timeline->tool) {
+				case TIMELINE_TOOL_POINTER:
+				case TIMELINE_TOOL_RIPPLE:
+				case TIMELINE_TOOL_SLIP:
+				case TIMELINE_TOOL_ROLLING:
+				case TIMELINE_TOOL_SLIDE:
+				{
+					if (track_resizing) {
+						track_resize_mouse_cache = event->pos().y();
+						panel_timeline->moving_init = true;
+					} else {
+						if (clip_index >= 0) {
+							Clip* clip = sequence->get_clip(clip_index);
+							if (clip != NULL) {
+								if (panel_timeline->is_clip_selected(clip, true)) {
+									if (shift) {
+										panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
+
+										if (!alt) {
+											for (int i=0;i<clip->linked.size();i++) {
+												Clip* link = sequence->get_clip(clip->linked.at(i));
+												panel_timeline->deselect_area(link->timeline_in, link->timeline_out, link->track);
+											}
+										}
+									} else {
+										if (panel_timeline->transition_select != TA_NO_TRANSITION) {
+											panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
+
+											for (int i=0;i<clip->linked.size();i++) {
+												Clip* link = sequence->get_clip(clip->linked.at(i));
+												panel_timeline->deselect_area(link->timeline_in, link->timeline_out, link->track);
+											}
+
+											Selection s;
+											s.track = clip->track;
+											if (panel_timeline->transition_select == TA_OPENING_TRANSITION && clip->opening_transition != NULL) {
+												s.in = clip->timeline_in;
+												s.out = clip->timeline_in + clip->opening_transition->length;
+											} else if (panel_timeline->transition_select == TA_CLOSING_TRANSITION && clip->closing_transition != NULL) {
+												s.in = clip->timeline_out - clip->closing_transition->length;
+												s.out = clip->timeline_out;
+											}
+											panel_timeline->selections.append(s);
 										}
 									}
 								} else {
-									if (panel_timeline->transition_select != TA_NO_TRANSITION) {
-										panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
+									// if "shift" is not down
+									if (!shift) {
+										panel_timeline->selections.clear();
+									}
 
+									Selection s;
+
+									s.in = clip->timeline_in;
+									s.out = clip->timeline_out;
+
+									if (panel_timeline->transition_select == TA_OPENING_TRANSITION) {
+										s.out = clip->timeline_in + clip->opening_transition->length;
+									}
+
+									if (panel_timeline->transition_select == TA_CLOSING_TRANSITION) {
+										s.in = clip->timeline_out - clip->closing_transition->length;
+									}
+
+									s.track = clip->track;
+									panel_timeline->selections.append(s);
+
+									if (config.select_also_seeks) {
+										panel_timeline->seek(clip->timeline_in);
+									}
+
+									// if alt is not down, select links
+									if (!alt && panel_timeline->transition_select == TA_NO_TRANSITION) {
 										for (int i=0;i<clip->linked.size();i++) {
 											Clip* link = sequence->get_clip(clip->linked.at(i));
-											panel_timeline->deselect_area(link->timeline_in, link->timeline_out, link->track);
+											if (!panel_timeline->is_clip_selected(link, true)) {
+												Selection ss;
+												ss.in = link->timeline_in;
+												ss.out = link->timeline_out;
+												ss.track = link->track;
+												panel_timeline->selections.append(ss);
+											}
 										}
-
-										Selection s;
-										s.track = clip->track;
-										if (panel_timeline->transition_select == TA_OPENING_TRANSITION && clip->opening_transition != NULL) {
-											s.in = clip->timeline_in;
-											s.out = clip->timeline_in + clip->opening_transition->length;
-										} else if (panel_timeline->transition_select == TA_CLOSING_TRANSITION && clip->closing_transition != NULL) {
-											s.in = clip->timeline_out - clip->closing_transition->length;
-											s.out = clip->timeline_out;
-										}
-										panel_timeline->selections.append(s);
 									}
 								}
-                            } else {
-                                // if "shift" is not down
-                                if (!shift) {
-                                    panel_timeline->selections.clear();
-                                }
+							}
 
-                                Selection s;
+							panel_timeline->moving_init = true;
+						} else {
+							// if "shift" is not down
+							if (!shift) {
+								panel_timeline->selections.clear();
+							}
 
-								s.in = clip->timeline_in;
-                                s.out = clip->timeline_out;
-
-								if (panel_timeline->transition_select == TA_OPENING_TRANSITION) {
-									s.out = clip->timeline_in + clip->opening_transition->length;
-								}
-
-								if (panel_timeline->transition_select == TA_CLOSING_TRANSITION) {
-									s.in = clip->timeline_out - clip->closing_transition->length;
-								}
-
-                                s.track = clip->track;
-                                panel_timeline->selections.append(s);
-
-                                if (config.select_also_seeks) {
-                                    panel_timeline->seek(clip->timeline_in);
-                                }
-
-                                // if alt is not down, select links
-								if (!alt && panel_timeline->transition_select == TA_NO_TRANSITION) {
-                                    for (int i=0;i<clip->linked.size();i++) {
-                                        Clip* link = sequence->get_clip(clip->linked.at(i));
-                                        if (!panel_timeline->is_clip_selected(link, true)) {
-                                            Selection ss;
-                                            ss.in = link->timeline_in;
-                                            ss.out = link->timeline_out;
-                                            ss.track = link->track;
-                                            panel_timeline->selections.append(ss);
-                                        }
-                                    }
-								}
-                            }
-                        }
-
-                        panel_timeline->moving_init = true;
-                    } else {
-                        // if "shift" is not down
-                        if (!shift) {
-                            panel_timeline->selections.clear();
-                        }
-
-                        panel_timeline->rect_select_init = true;
-                    }
-                    panel_timeline->repaint_timeline();
-                }
-            }
-                break;
-            case TIMELINE_TOOL_EDIT:
-                if (config.edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
-                panel_timeline->selecting = true;
-                break;
-            case TIMELINE_TOOL_RAZOR:
-            {
-                panel_timeline->splitting = true;
-                panel_timeline->split_tracks.append(panel_timeline->drag_track_start);
-                panel_timeline->repaint_timeline();
-            }
-                break;
-            }
+							panel_timeline->rect_select_init = true;
+						}
+						panel_timeline->repaint_timeline();
+					}
+				}
+					break;
+				case TIMELINE_TOOL_EDIT:
+					if (config.edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
+					panel_timeline->selecting = true;
+					break;
+				case TIMELINE_TOOL_RAZOR:
+				{
+					panel_timeline->splitting = true;
+					panel_timeline->split_tracks.append(panel_timeline->drag_track_start);
+					panel_timeline->repaint_timeline();
+				}
+					break;
+				}
+			}
         }
     }
 }
@@ -509,7 +526,46 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (event->button() == Qt::LeftButton) {
             bool repaint = false;
 
-            if (panel_timeline->moving_proc) {
+			if (panel_timeline->creating) {
+				const Ghost& g = panel_timeline->ghosts.at(0);
+
+				TimelineAction* ta = new TimelineAction();
+
+				Clip* c = new Clip(sequence);
+				c->media = NULL;
+				c->media_type = MEDIA_TYPE_SOLID;
+				c->timeline_in = qMin(g.in, g.out);
+				c->timeline_out = qMax(g.in, g.out);
+				c->clip_in = 0;
+				c->color_r = 192;
+				c->color_g = 192;
+				c->color_b = 64;
+				c->track = g.track;
+
+				QVector<Clip*> add;
+				add.append(c);
+				ta->add_clips(sequence, add);
+
+				ta->add_effect(sequence, sequence->clip_count(), VIDEO_TRANSFORM_EFFECT);
+				switch (panel_timeline->creatingObject) {
+				case ADD_OBJ_TITLE:
+					c->name = "Title";
+					ta->add_effect(sequence, sequence->clip_count(), VIDEO_TEXT_EFFECT);
+					break;
+				case ADD_OBJ_SOLID:
+					c->name = "Solid Color";
+					ta->add_effect(sequence, sequence->clip_count(), VIDEO_SOLID_EFFECT);
+					break;
+				case ADD_OBJ_BARS:
+					c->name = "Bars and Tone";
+					ta->add_effect(sequence, sequence->clip_count(), VIDEO_SOLID_EFFECT);
+					break;
+				}
+
+				undo_stack.push(ta);
+
+				panel_timeline->redraw_all_clips(true);
+			} else if (panel_timeline->moving_proc) {
 				repaint = true;
 				if (panel_timeline->ghosts.size() > 0) {
 					 const Ghost& first_ghost = panel_timeline->ghosts.at(0);
@@ -718,6 +774,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             // clear split tracks
             panel_timeline->split_tracks.clear();
 
+			panel_timeline->creating = false;
             panel_timeline->selecting = false;
             panel_timeline->moving_proc = false;
             panel_timeline->moving_init = false;
@@ -896,7 +953,9 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 		}
 
         // validate ghosts for trimming
-        if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+		if (panel_timeline->creating) {
+
+		} else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
             if (c->media_type == MEDIA_TYPE_SEQUENCE
                     || (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream)->infinite_length)) {
                 // prevent slip moving a clip below 0 clip_in
@@ -1075,7 +1134,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
         panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
-        if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
+		if (isLiveEditing()) {
             panel_timeline->snap_to_clip(&panel_timeline->cursor_frame, !config.edit_tool_also_seeks || !panel_timeline->selecting);
         }
         if (panel_timeline->selecting) {
@@ -1422,6 +1481,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 panel_timeline->rect_select_h = 0;
                 panel_timeline->rect_select_proc = true;
             }
+		} else if (isLiveEditing()) {
+			// redraw because we have a cursor
+			panel_timeline->repaint_timeline();
         } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
                    panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
                    panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
@@ -1529,10 +1591,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 } else {
                     unsetCursor();
                 }
-            }
-        } else if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
-            // redraw because we have a cursor
-            panel_timeline->repaint_timeline();
+			}
         } else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
             if (getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track) > -1) {
                 setCursor(Qt::SizeHorCursor);
@@ -1820,7 +1879,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->drag_frame_start);
                     int cursor_y = getScreenPointFromTrack(panel_timeline->split_tracks.at(i));
 
-                    p.setPen(QColor(64, 64, 64));
+					p.setPen(QColor(64, 64, 64));
 					p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->split_tracks.at(i), -1));
                 }
             }
@@ -1844,7 +1903,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
         }
 
 		// Draw edit cursor
-		if (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR) {
+		if (isLiveEditing()) {
             if (is_track_visible(panel_timeline->cursor_track)) {
 				int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->cursor_frame);
 				int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);

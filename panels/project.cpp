@@ -778,6 +778,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     //<clip id="0" name="Brock_Drying_Pan.gif" clipin="0" in="44" out="144" track="-1" r="192" g="128" b="128" media="2" stream="0">
                                     int media_id, stream_id;
                                     Clip* c = new Clip(s);
+									c->media_type = MEDIA_TYPE_SOLID;
+									c->media = NULL;
                                     for (int j=0;j<stream.attributes().size();j++) {
                                         const QXmlStreamAttribute& attr = stream.attributes().at(j);
                                         if (attr.name() == "name") {
@@ -814,26 +816,22 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     }
 
                                     // set media and media stream
-                                    /*switch (c->media_type) {
+									switch (c->media_type) {
                                     case MEDIA_TYPE_FOOTAGE:
-
-
-                                        break;
-                                    }*/
-                                    if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-                                        if (media_id == 0) {
-                                            c->media = NULL;
-                                        } else {
-                                            for (int j=0;j<loaded_media.size();j++) {
-                                                Media* m = loaded_media.at(j);
-                                                if (m->save_id == media_id) {
-                                                    c->media = m;
-                                                    c->media_stream = stream_id;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
+										if (media_id == 0) {
+											c->media = NULL;
+										} else {
+											for (int j=0;j<loaded_media.size();j++) {
+												Media* m = loaded_media.at(j);
+												if (m->save_id == media_id) {
+													c->media = m;
+													c->media_stream = stream_id;
+													break;
+												}
+											}
+										}
+										break;
+									}
 
                                     // load links and effects
                                     while (!(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {

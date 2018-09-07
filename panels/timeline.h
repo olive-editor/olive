@@ -10,6 +10,10 @@
 
 #define TRACK_DEFAULT_HEIGHT 40
 
+#define ADD_OBJ_TITLE 0
+#define ADD_OBJ_SOLID 1
+#define ADD_OBJ_BARS 2
+
 class QPushButton;
 class SourceTable;
 class ViewerWidget;
@@ -183,6 +187,10 @@ public:
     // zoom variables
     bool zoomChanged;
 
+	// creating variables
+	bool creating;
+	int creatingObject;
+
     Ui::Timeline *ui;
 public slots:
 	void repaint_timeline();
@@ -208,6 +216,10 @@ private slots:
     void on_toolRazorButton_clicked();
 
     void on_toolSlipButton_clicked();
+
+	void on_addButton_clicked();
+
+	void addMenuItem(QAction*);
 
 private:
 	QVector<QPushButton*> tool_buttons;

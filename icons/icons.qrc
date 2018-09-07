@@ -39,5 +39,7 @@
         <file>add-transition.png</file>
         <file>add-effect.png</file>
         <file>olive-splash.png</file>
+        <file>add-button.png</file>
+        <file>add-button-disabled.png</file>
     </qresource>
 </RCC>

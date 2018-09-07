@@ -808,17 +808,17 @@ KeyframeDelete::KeyframeDelete() : old_project_changed(project_changed), disable
 void KeyframeDelete::undo() {
 	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(true);
 
-	int data_index = 0;
-	for (int i=0;i<rows.size();i++) {
+	int data_index = deleted_keyframe_data.size()-1;
+	for (int i=rows.size()-1;i>=0;i--) {
 		EffectRow* row = rows.at(i);
 		int keyframe_index = keyframes.at(i);
 
 		row->keyframe_times.insert(keyframe_index, deleted_keyframe_times.at(i));
 		row->keyframe_types.insert(keyframe_index, deleted_keyframe_types.at(i));
 
-		for (int j=0;j<row->fieldCount();j++) {
+		for (int j=row->fieldCount()-1;j>=0;j--) {
 			row->field(j)->keyframe_data.insert(keyframe_index, deleted_keyframe_data.at(data_index));
-			data_index++;
+			data_index--;
 		}
 	}
 
@@ -827,45 +827,41 @@ void KeyframeDelete::undo() {
 
 void KeyframeDelete::redo() {
 	if (!sorted) {
-		for (int i=0;i<keyframes.size();i++) {
-			for (int j=i+1;j<keyframes.size();j++) {
-				if (keyframes.at(i) > keyframes.at(j)) {
-					int temp = keyframes.at(i);
-					EffectRow* temp_row = rows.at(i);
-
-					keyframes[i] = keyframes.at(j);
-					rows[i] = rows.at(j);
-
-					keyframes[j] = temp;
-					rows[j] = temp_row;
-				}
-			}
-		}
-		sorted = true;
+		deleted_keyframe_times.resize(rows.size());
+		deleted_keyframe_types.resize(rows.size());
+		deleted_keyframe_data.clear();
 	}
 
-	deleted_keyframe_times.resize(rows.size());
-	deleted_keyframe_types.resize(rows.size());
-	deleted_keyframe_data.clear();
-
-	for (int i=0;i<rows.size();i++) {
+	for (int i=0;i<keyframes.size();i++) {
 		EffectRow* row = rows.at(i);
-		int keyframe_index = keyframes.at(i) - i;
+		int keyframe_index = keyframes.at(i);
 
-		deleted_keyframe_times[i] = (row->keyframe_times.at(keyframe_index));
-		deleted_keyframe_types[i] = (row->keyframe_types.at(keyframe_index));
+		if (!sorted) {
+			deleted_keyframe_times[i] = (row->keyframe_times.at(keyframe_index));
+			deleted_keyframe_types[i] = (row->keyframe_types.at(keyframe_index));
+		}
 
 		row->keyframe_times.removeAt(keyframe_index);
 		row->keyframe_types.removeAt(keyframe_index);
 
 		for (int j=0;j<row->fieldCount();j++) {
-			deleted_keyframe_data.append(row->field(j)->keyframe_data.at(keyframe_index));
+			if (!sorted) deleted_keyframe_data.append(row->field(j)->keyframe_data.at(keyframe_index));
 			row->field(j)->keyframe_data.removeAt(keyframe_index);
+		}
+
+		// correct following indices
+		if (!sorted) {
+			for (int j=i+1;j<keyframes.size();j++) {
+				if (rows.at(j) == row && keyframes.at(j) > keyframe_index) {
+					keyframes[j]--;
+				}
+			}
 		}
 	}
 
 	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(false);
 	project_changed = true;
+	sorted = true;
 }
 
 KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :

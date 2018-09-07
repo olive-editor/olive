@@ -177,16 +177,18 @@ void EffectControls::load_effects() {
 	// load in new clips
     for (int i=0;i<selected_clips.size();i++) {
 		Clip* c = sequence->get_clip(selected_clips.at(i));
+		QVBoxLayout* layout;
+		if (c->track < 0) {
+			ui->vcontainer->setVisible(true);
+			layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
+		} else {
+			ui->acontainer->setVisible(true);
+			layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
+		}
         for (int j=0;j<c->effects.size();j++) {
 			Effect* e = c->effects.at(j);
 			CollapsibleWidget* container = e->container;
-            if (c->track < 0) {
-                static_cast<QVBoxLayout*>(ui->video_effect_area->layout())->addWidget(container);
-                ui->vcontainer->setVisible(true);
-            } else {
-                static_cast<QVBoxLayout*>(ui->audio_effect_area->layout())->addWidget(container);
-                ui->acontainer->setVisible(true);
-			}
+			layout->addWidget(container);
             connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
 		}
     }

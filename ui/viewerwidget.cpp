@@ -135,6 +135,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 			}
 				break;
 			case MEDIA_TYPE_SEQUENCE:
+			case MEDIA_TYPE_SOLID:
 				if (is_clip_active(c, playhead)) {
 					if (!c->open) open_clip(c, !rendering);
 					clip_is_active = true;
@@ -170,30 +171,27 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 	glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
 
     for (int i=0;i<current_clips.size();i++) {
-        Clip* c = current_clips.at(i);
+		Clip* c = current_clips.at(i);
 
         if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
             qDebug() << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
         } else {
 			if (c->track < 0) {
+				glPushMatrix();
+
 				GLuint textureID = 0;
-				int video_width, video_height;
+				int video_width = c->getWidth();
+				int video_height = c->getHeight();
 
 				if (c->media_type == MEDIA_TYPE_FOOTAGE) {
 					get_clip_frame(c, playhead);
-					MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
-					video_width = ms->video_width;
-					video_height = ms->video_height;
 					if (c->texture != NULL) textureID = c->texture->textureId();
 				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-                    Sequence* cs = static_cast<Sequence*>(c->media);
-                    video_width = cs->width;
-                    video_height = cs->height;
 					textureID = -1;
 				}
 
-				if (textureID == 0) {
+				if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
 					qDebug() << "[WARNING] Texture hasn't been created yet";
 					texture_failed = true;
 				} else if (playhead >= c->timeline_in) {
@@ -213,11 +211,17 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					c->fbo[1]->release();
 
 					// for nested sequences
-					if (textureID == -1) textureID = compose_sequence(c, render_audio);
+					if (c->media_type == MEDIA_TYPE_SEQUENCE) textureID = compose_sequence(c, render_audio);
 
 					glViewport(0, 0, video_width, video_height);
 
-					GLuint composite_texture = draw_clip(c->fbo[0], textureID);
+					GLuint composite_texture;
+					if (c->media_type == MEDIA_TYPE_SOLID) {
+						composite_texture = c->fbo[0]->texture();
+					} else {
+						composite_texture = draw_clip(c->fbo[0], textureID);
+					}
+
 					bool fbo_switcher = true;
 
 					GLTextureCoords coords;
@@ -302,6 +306,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						if (default_fbo != NULL) default_fbo->bind();
 					}
 				}
+
+				glPopMatrix();
 			} else {
 				if (c->media_type == MEDIA_TYPE_FOOTAGE
 						&& render_audio
