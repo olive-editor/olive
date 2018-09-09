@@ -126,13 +126,17 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         QPainter p(this);
         p.setPen(Qt::gray);
         int interval = 0;
-        int multiplier = 0;
+		int multiplier = 0;
         do {
             multiplier++;
-			interval = getScreenPointFromFrame(zoom, sequence->frame_rate*multiplier);
+			interval = getScreenPointFromFrame(zoom, 1*multiplier);
         } while (interval < 10);
         for (int i=0;i<width();i+=interval) {
-            p.drawLine(i, 0, i, height());
+			int drawHeight = height();
+			if (i%5 > 0) {
+				drawHeight = drawHeight>>1;
+			}
+			p.drawLine(i, 0, i, drawHeight);
         }
 
         // draw in/out selection

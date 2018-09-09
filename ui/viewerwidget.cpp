@@ -309,7 +309,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 				glPopMatrix();
 			} else {
-				if (c->media_type == MEDIA_TYPE_FOOTAGE
+				if ((c->media_type == MEDIA_TYPE_FOOTAGE || c->media_type == MEDIA_TYPE_SOLID)
 						&& render_audio
 						&& c->lock.tryLock()) {
 					// clip is not caching, start caching audio

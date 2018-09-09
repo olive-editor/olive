@@ -39,6 +39,7 @@ enum AudioEffects {
 	AUDIO_VOLUME_EFFECT,
 	AUDIO_PAN_EFFECT,
 	AUDIO_NOISE_EFFECT,
+	AUDIO_TONE_EFFECT,
 	AUDIO_EFFECT_COUNT
 };
 
@@ -81,6 +82,8 @@ struct GLTextureCoords {
 	double textureBottomLeftX;
 	double textureBottomLeftY;
 };
+
+qint16 mixAudioSample(qint16 a, qint16 b);
 
 class EffectField : public QObject {
 	Q_OBJECT

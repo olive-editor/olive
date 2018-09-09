@@ -26,6 +26,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QtMath>
+#include <QScrollBar>
 
 #define MAX_TEXT_WIDTH 20
 
@@ -542,14 +543,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 				c->color_b = 64;
 				c->track = g.track;
 
-				Selection s;
-				s.in = c->timeline_in;
-				s.out = c->timeline_out;
-				s.track = c->track;
-				QVector<Selection> areas;
-				areas.append(s);
-				panel_timeline->delete_areas_and_relink(ta, areas);
-
 				QVector<Clip*> add;
 				add.append(c);
 				ta->add_clips(sequence, add);
@@ -566,10 +559,22 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
 					break;
 				case ADD_OBJ_BARS:
-					c->name = "Bars and Tone";
+					c->name = "Bars";
 					ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
 					break;
+				case ADD_OBJ_TONE:
+					c->name = "Tone";
+					ta->add_effect(sequence, clipIndex, AUDIO_TONE_EFFECT);
+					break;
 				}
+
+				Selection s;
+				s.in = c->timeline_in;
+				s.out = c->timeline_out;
+				s.track = c->track;
+				QVector<Selection> areas;
+				areas.append(s);
+				panel_timeline->delete_areas_and_relink(ta, areas);
 
 				undo_stack.push(ta);
 
@@ -1650,7 +1655,12 @@ void TimelineWidget::redraw_clips() {
 		if (minimumWidth() != panel_width || clip_pixmap.height() != height() || panel_height != minimumHeight()) {
 			panel_timeline->ui->headers->setMinimumWidth(panel_width + 100);
 			setMinimumWidth(panel_width);
+			int scrollOffset = (panel_height-minimumHeight());
 			setMinimumHeight(panel_height);
+			if (bottom_align) {
+				updateGeometry();
+				container->verticalScrollBar()->setValue(container->verticalScrollBar()->value()+scrollOffset);
+			}
 			clip_pixmap = QPixmap(qMax(width(), panel_width), qMax(height(), panel_height));
         }
 

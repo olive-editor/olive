@@ -14,6 +14,7 @@ struct Sequence;
 struct Clip;
 class Timeline;
 class TimelineAction;
+class QScrollArea;
 
 bool same_sign(int a, int b);
 
@@ -26,7 +27,7 @@ public:
 
     void redraw_clips();
 
-	QWidget* container;
+	QScrollArea* container;
 protected:
     void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent*);

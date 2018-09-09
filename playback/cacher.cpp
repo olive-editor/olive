@@ -155,8 +155,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
 				qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
 				qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
-				qint32 mixed_sample = static_cast<qint32>(old_sample) + static_cast<qint32>(new_sample);
-				mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
+				qint16 mixed_sample = mixAudioSample(old_sample, new_sample);
 
 				audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
 				audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);

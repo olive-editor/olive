@@ -78,7 +78,8 @@ SOURCES += \
     effects/video/flipeffect.cpp \
     effects/audio/audionoiseeffect.cpp \
     effects/video/boxblureffect.cpp \
-    dialogs/demonotice.cpp
+    dialogs/demonotice.cpp \
+    effects/audio/toneeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -133,7 +134,8 @@ HEADERS += \
     effects/video/flipeffect.h \
     effects/audio/audionoiseeffect.h \
     effects/video/boxblureffect.h \
-    dialogs/demonotice.h
+    dialogs/demonotice.h \
+    effects/audio/toneeffect.h
 
 FORMS += \
         mainwindow.ui \

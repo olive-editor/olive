@@ -92,16 +92,18 @@ void close_clip(Clip* clip) {
 }
 
 void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip* nest) {
-	if (clip->multithreaded) {
-		clip->cacher->playhead = playhead;
-		clip->cacher->write_A = write_A;
-		clip->cacher->write_B = write_B;
-		clip->cacher->reset = reset;
-        clip->cacher->nest = nest;
+	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+		if (clip->multithreaded) {
+			clip->cacher->playhead = playhead;
+			clip->cacher->write_A = write_A;
+			clip->cacher->write_B = write_B;
+			clip->cacher->reset = reset;
+			clip->cacher->nest = nest;
 
-		clip->can_cache.wakeAll();
-	} else {
-        cache_clip_worker(clip, playhead, write_A, write_B, reset, nest);
+			clip->can_cache.wakeAll();
+		} else {
+			cache_clip_worker(clip, playhead, write_A, write_B, reset, nest);
+		}
 	}
 }
 

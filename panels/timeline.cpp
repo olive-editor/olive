@@ -1173,9 +1173,14 @@ void Timeline::on_addButton_clicked() {
 	add_menu.addAction(solidMenuItem);
 
 	QAction* barsMenuItem = new QAction(&add_menu);
-	barsMenuItem->setText("Bars and Tone...");
+	barsMenuItem->setText("Bars...");
 	barsMenuItem->setData(ADD_OBJ_BARS);
 	add_menu.addAction(barsMenuItem);
+
+	QAction* toneMenuItem = new QAction(&add_menu);
+	toneMenuItem->setText("Tone...");
+	toneMenuItem->setData(ADD_OBJ_TONE);
+	add_menu.addAction(toneMenuItem);
 
 	connect(&add_menu, SIGNAL(triggered(QAction*)), this, SLOT(addMenuItem(QAction*)));
 
@@ -1185,15 +1190,4 @@ void Timeline::on_addButton_clicked() {
 void Timeline::addMenuItem(QAction* action) {
 	creating = true;
 	creatingObject = action->data().toInt();
-	/*switch (action->data()) {
-	case ADD_OBJ_TITLE:
-
-		break;
-	case ADD_OBJ_SOLID:
-
-		break;
-	case ADD_OBJ_BARS:
-
-		break;
-	}*/
 }

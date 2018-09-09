@@ -31,6 +31,7 @@
 #include "effects/audio/paneffect.h"
 #include "effects/audio/volumeeffect.h"
 #include "effects/audio/audionoiseeffect.h"
+#include "effects/audio/toneeffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -60,6 +61,7 @@ void init_effects() {
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
 	audio_effect_names[AUDIO_NOISE_EFFECT] = "Noise";
+	audio_effect_names[AUDIO_TONE_EFFECT] = "Tone";
 }
 
 Effect* create_effect(int effect_id, Clip* c) {
@@ -81,6 +83,7 @@ Effect* create_effect(int effect_id, Clip* c) {
 		case AUDIO_VOLUME_EFFECT: return new VolumeEffect(c); break;
 		case AUDIO_PAN_EFFECT: return new PanEffect(c); break;
 		case AUDIO_NOISE_EFFECT: return new AudioNoiseEffect(c); break;
+		case AUDIO_TONE_EFFECT: return new ToneEffect(c); break;
 		}
 	}
 	qDebug() << "[ERROR] Invalid effect ID";
@@ -813,4 +816,10 @@ QColor EffectField::get_color_value(double timecode) {
 
 void EffectField::set_color_value(QColor color) {
 	static_cast<ColorButton*>(ui_element)->set_color(color);
+}
+
+qint16 mixAudioSample(qint16 a, qint16 b) {
+	qint32 mixed_sample = static_cast<qint32>(a) + static_cast<qint32>(b);
+	mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
+	return static_cast<qint16>(mixed_sample);
 }
