@@ -39,6 +39,7 @@ public:
 	void set_zoom(bool in);
 	bool keyframe_focus();
 	void delete_selected_keyframes();
+	bool multiple;
 
 	QVector<int> selected_clips;
 

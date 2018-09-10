@@ -34,8 +34,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	format.setDepthBufferSize(24);
 	setFormat(format);
 
-    // error handler - retries after 250ms if we couldn't get the entire image
-    retry_timer.setInterval(250);
+	// error handler - retries after 500ms if we couldn't get the entire image
+	retry_timer.setInterval(500);
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
 }
 

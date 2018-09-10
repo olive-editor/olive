@@ -22,6 +22,7 @@
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
+	multiple(false),
     zoom(1),
     ui(new Ui::EffectControls)
 {
@@ -36,6 +37,8 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->effects_area->header = ui->headers;
 
 	ui->keyframeView->header = ui->headers;
+
+	ui->label_2->setVisible(false);
 
 	connect(ui->keyframeScroller->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
 	connect(ui->keyframeScroller->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->keyframeHeaderScroller->horizontalScrollBar(), SLOT(setValue(int)));
@@ -174,29 +177,33 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
 }
 
 void EffectControls::load_effects() {
-	// load in new clips
-    for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->get_clip(selected_clips.at(i));
-		QVBoxLayout* layout;
-		if (c->track < 0) {
-			ui->vcontainer->setVisible(true);
-			layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
-		} else {
-			ui->acontainer->setVisible(true);
-			layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
+	ui->label_2->setVisible(multiple);
+
+	if (!multiple) {
+		// load in new clips
+		for (int i=0;i<selected_clips.size();i++) {
+			Clip* c = sequence->get_clip(selected_clips.at(i));
+			QVBoxLayout* layout;
+			if (c->track < 0) {
+				ui->vcontainer->setVisible(true);
+				layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
+			} else {
+				ui->acontainer->setVisible(true);
+				layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
+			}
+			for (int j=0;j<c->effects.size();j++) {
+				Effect* e = c->effects.at(j);
+				CollapsibleWidget* container = e->container;
+				layout->addWidget(container);
+				connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+			}
 		}
-        for (int j=0;j<c->effects.size();j++) {
-			Effect* e = c->effects.at(j);
-			CollapsibleWidget* container = e->container;
-			layout->addWidget(container);
-            connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+		if (selected_clips.size() > 0) {
+			ui->keyframeView->setMinimumHeight(ui->effects_area->height());
+			ui->keyframeView->setEnabled(true);
+			ui->headers->setVisible(true);
+			ui->keyframeView->update();
 		}
-    }
-	if (selected_clips.size() > 0) {
-		ui->keyframeView->setMinimumHeight(ui->effects_area->height());
-		ui->keyframeView->setEnabled(true);
-		ui->headers->setVisible(true);
-		ui->keyframeView->update();
 	}
 }
 

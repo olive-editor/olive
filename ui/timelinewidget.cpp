@@ -810,48 +810,45 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             // find out how many clips are selected
             // limits to one video clip and one audio clip and only if they're linked
             // one of these days it might be nice to have multiple clips in the effects panel
-            bool got_vclip = false;
-            bool got_aclip = false;
+			panel_effect_controls->multiple = false;
             int vclip = -1;
             int aclip = -1;
             for (int i=0;i<sequence->clip_count();i++) {
                 Clip* clip = sequence->get_clip(i);
-                if (clip != NULL && panel_timeline->is_clip_selected(clip, true)) {
-                    if (clip->track < 0) {
-                        if (got_vclip) {
-                            vclip = -1;
-                        } else {
-                            vclip = i;
-                            got_vclip = true;
-                        }
-                    } else {
-                        if (got_aclip) {
-                            aclip = -1;
-                        } else {
-                            aclip = i;
-                            got_aclip = true;
-                        }
-                    }
+				if (clip != NULL && panel_timeline->is_clip_selected(clip, true)) {
+					if (clip->track < 0 && vclip == -1) {
+						vclip = i;
+					} else if (clip->track >= 0 && aclip == -1) {
+						aclip = i;
+					} else {
+						vclip = -2;
+						aclip = -2;
+						panel_effect_controls->multiple = true;
+						break;
+					}
                 }
             }
             // check if aclip is linked to vclip
             QVector<int> selected_clips;
-            if (vclip != -1) selected_clips.append(vclip);
-            if (aclip != -1) selected_clips.append(aclip);
-            if (vclip != -1 && aclip != -1) {
-                bool found = false;
-                Clip* vclip_ref = sequence->get_clip(vclip);
-                for (int i=0;i<vclip_ref->linked.size();i++) {
-                    if (vclip_ref->linked.at(i) == aclip) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    // only display multiple clips if they're linked
-                    selected_clips.clear();
-                }
-            }
+			if (!panel_effect_controls->multiple) {
+				if (vclip >= 0) selected_clips.append(vclip);
+				if (aclip >= 0) selected_clips.append(aclip);
+				if (vclip >= 0 && aclip >= 0) {
+					bool found = false;
+					Clip* vclip_ref = sequence->get_clip(vclip);
+					for (int i=0;i<vclip_ref->linked.size();i++) {
+						if (vclip_ref->linked.at(i) == aclip) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						// only display multiple clips if they're linked
+						selected_clips.clear();
+						panel_effect_controls->multiple = true;
+					}
+				}
+			}
             panel_effect_controls->set_clips(selected_clips);
         }
     }

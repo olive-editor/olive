@@ -45,26 +45,28 @@ void PreviewGenerator::parse_media() {
                 ms->file_index = i;
                 append = true;
             }
-			if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                if (fmt_ctx->streams[i]->avg_frame_rate.den == 0) { // source is LIKELY a still image
-                    ms->infinite_length = true;
-                    contains_still_image = true;
-                    ms->video_frame_rate = 0;
-                } else {
-                    ms->infinite_length = false;
+			if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
+					&& fmt_ctx->streams[i]->codecpar->width > 0
+					&& fmt_ctx->streams[i]->codecpar->height > 0) {
+				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0) { // source is LIKELY a still image
+					ms->infinite_length = true;
+					contains_still_image = true;
+					ms->video_frame_rate = 0;
+				} else {
+					ms->infinite_length = false;
 					ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
 				}
-                ms->video_width = fmt_ctx->streams[i]->codecpar->width;
-                ms->video_height = fmt_ctx->streams[i]->codecpar->height;
-                if (append) media->video_tracks.append(ms);
+				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
+				ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+				if (append) media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
                 ms->audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
                 ms->audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
                 if (append) media->audio_tracks.append(ms);
-            } else {
-                delete ms;
-            }
+			} else if (append) {
+				delete ms;
+			}
         }
     }
     media->length = fmt_ctx->duration;
