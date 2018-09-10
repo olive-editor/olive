@@ -393,15 +393,31 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
             }
 
 			if (panel_timeline->creating) {
-				Ghost g;
-				g.in = g.old_in = g.out = g.old_out = panel_timeline->drag_frame_start;
-				g.track = g.old_track = panel_timeline->drag_track_start;
-				g.transition = NULL;
-				g.clip = -1;
-				panel_timeline->ghosts.append(g);
+				int comp = 0;
+				switch (panel_timeline->creatingObject) {
+				case ADD_OBJ_TITLE:
+				case ADD_OBJ_SOLID:
+				case ADD_OBJ_BARS:
+					comp = -1;
+					break;
+				case ADD_OBJ_TONE:
+					comp = 1;
+					break;
+				}
 
-				panel_timeline->moving_init = true;
-				panel_timeline->moving_proc = true;
+				if ((panel_timeline->drag_track_start < 0) == (comp < 0)) {
+					Ghost g;
+					g.in = g.old_in = g.out = g.old_out = panel_timeline->drag_frame_start;
+					g.track = g.old_track = panel_timeline->drag_track_start;
+					g.transition = NULL;
+					g.clip = -1;
+					g.trimming = true;
+					g.trim_in = false;
+					panel_timeline->ghosts.append(g);
+
+					panel_timeline->moving_init = true;
+					panel_timeline->moving_proc = true;
+				}
 			} else {
 				switch (panel_timeline->tool) {
 				case TIMELINE_TOOL_POINTER:
@@ -523,67 +539,74 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (sequence != NULL) {
         bool alt = (event->modifiers() & Qt::AltModifier);
+		bool shift = (event->modifiers() & Qt::ShiftModifier);
 
         if (event->button() == Qt::LeftButton) {
             bool repaint = false;
 
 			if (panel_timeline->creating) {
-				const Ghost& g = panel_timeline->ghosts.at(0);
+				if (panel_timeline->ghosts.size() > 0) {
+					const Ghost& g = panel_timeline->ghosts.at(0);
 
-				TimelineAction* ta = new TimelineAction();
+					TimelineAction* ta = new TimelineAction();
 
-				Clip* c = new Clip(sequence);
-				c->media = NULL;
-				c->media_type = MEDIA_TYPE_SOLID;
-				c->timeline_in = qMin(g.in, g.out);
-				c->timeline_out = qMax(g.in, g.out);
-				c->clip_in = 0;
-				c->color_r = 192;
-				c->color_g = 192;
-				c->color_b = 64;
-				c->track = g.track;
+					Clip* c = new Clip(sequence);
+					c->media = NULL;
+					c->media_type = MEDIA_TYPE_SOLID;
+					c->timeline_in = qMin(g.in, g.out);
+					c->timeline_out = qMax(g.in, g.out);
+					c->clip_in = 0;
+					c->color_r = 192;
+					c->color_g = 192;
+					c->color_b = 64;
+					c->track = g.track;
 
-				QVector<Clip*> add;
-				add.append(c);
-				ta->add_clips(sequence, add);
+					QVector<Clip*> add;
+					add.append(c);
+					ta->add_clips(sequence, add);
 
-				int clipIndex = sequence->clip_count();
-				ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
-				switch (panel_timeline->creatingObject) {
-				case ADD_OBJ_TITLE:
-					c->name = "Title";
-					ta->add_effect(sequence, clipIndex, VIDEO_TEXT_EFFECT);
-					break;
-				case ADD_OBJ_SOLID:
-					c->name = "Solid Color";
-					ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
-					break;
-				case ADD_OBJ_BARS:
-					c->name = "Bars";
-					ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
-					break;
-				case ADD_OBJ_TONE:
-					c->name = "Tone";
-					ta->add_effect(sequence, clipIndex, AUDIO_TONE_EFFECT);
-					break;
+					int clipIndex = sequence->clip_count();
+					ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
+					switch (panel_timeline->creatingObject) {
+					case ADD_OBJ_TITLE:
+						c->name = "Title";
+						ta->add_effect(sequence, clipIndex, VIDEO_TEXT_EFFECT);
+						break;
+					case ADD_OBJ_SOLID:
+						c->name = "Solid Color";
+						ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
+						break;
+					case ADD_OBJ_BARS:
+						c->name = "Bars";
+						ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
+						break;
+					case ADD_OBJ_TONE:
+						c->name = "Tone";
+						ta->add_effect(sequence, clipIndex, AUDIO_TONE_EFFECT);
+						break;
+					}
+
+					Selection s;
+					s.in = c->timeline_in;
+					s.out = c->timeline_out;
+					s.track = c->track;
+					QVector<Selection> areas;
+					areas.append(s);
+					panel_timeline->delete_areas_and_relink(ta, areas);
+
+					undo_stack.push(ta);
+
+					// pretty hacky (and doesn't survive undo/redo)
+					if (panel_timeline->creatingObject == ADD_OBJ_BARS) {
+						sequence->get_clip(clipIndex)->effects.at(1)->row(0)->field(0)->set_combo_index(1);
+					}
+
+					panel_timeline->redraw_all_clips(true);
+
+					if (!shift) {
+						panel_timeline->creating = false;
+					}
 				}
-
-				Selection s;
-				s.in = c->timeline_in;
-				s.out = c->timeline_out;
-				s.track = c->track;
-				QVector<Selection> areas;
-				areas.append(s);
-				panel_timeline->delete_areas_and_relink(ta, areas);
-
-				undo_stack.push(ta);
-
-				// pretty hacky
-				if (panel_timeline->creatingObject == ADD_OBJ_BARS) {
-					sequence->get_clip(clipIndex)->effects.at(1)->row(0)->field(0)->set_combo_index(1);
-				}
-
-				panel_timeline->redraw_all_clips(true);
 			} else if (panel_timeline->moving_proc) {
 				repaint = true;
 				if (panel_timeline->ghosts.size() > 0) {
@@ -793,7 +816,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             // clear split tracks
             panel_timeline->split_tracks.clear();
 
-			panel_timeline->creating = false;
             panel_timeline->selecting = false;
             panel_timeline->moving_proc = false;
             panel_timeline->moving_init = false;
@@ -970,7 +992,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 
         // validate ghosts for trimming
 		if (panel_timeline->creating) {
-
+			// i feel like we might need something here but we haven't so far?
 		} else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
             if (c->media_type == MEDIA_TYPE_SEQUENCE
                     || (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream)->infinite_length)) {

@@ -12,6 +12,7 @@
 #define MEDIA_TYPE_SEQUENCE 1
 #define MEDIA_TYPE_FOLDER 2
 #define MEDIA_TYPE_SOLID 3
+#define MEDIA_TYPE_TONE 4
 
 struct Sequence;
 struct Clip;
