@@ -24,10 +24,14 @@ extern "C" {
 
 int dest_format = AV_PIX_FMT_RGBA;
 
+double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
+	return ((double) (nb_bytes >> 1) / nb_channels / sample_rate);
+}
+
 void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes) {
 	// perform all audio effects
 	double timecode_end;
-	timecode_end = timecode_start + ((double) (nb_bytes >> 1) / frame->channels / frame->sample_rate); // converts bytes to seconds
+	timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
 
     for (int j=0;j<c->effects.size();j++) {
 		Effect* e = c->effects.at(j);
@@ -70,8 +74,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
         timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
 	}
 
-    while (written < max_write) {
-		qDebug() << "written:" << written << max_write;
+	while (written < max_write) {
 		// gets one frame worth of audio and sends it to the audio buffer
 		AVFrame* frame;
 		int nb_bytes = INT_MAX;
@@ -115,7 +118,6 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 					c->frame_sample_index = 0;
 				}
 
-				qDebug() << "atf:" << c->audio_target_frame << audio_ibuffer_frame << c->frame_sample_index;
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
 
 				int offset = audio_ibuffer_read - c->audio_buffer_write;
@@ -138,7 +140,8 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			if (c->frame_sample_index < 0) {
 				// create "new frame"
 				memset(c->frame->data[0], 0, nb_bytes);
-				apply_audio_effects(c, 0, frame, nb_bytes);
+				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes);
+				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
 			}
@@ -257,6 +260,7 @@ void reset_cache(Clip* c, long target_frame) {
 	case MEDIA_TYPE_TONE:
 		c->audio_target_frame = target_frame;
 		c->frame_sample_index = -1;
+		c->frame->pts = 0;
 		break;
 	}
 }
