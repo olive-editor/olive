@@ -137,21 +137,24 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 		case MEDIA_TYPE_TONE:
 			frame = c->frame;
 			nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-			if (c->frame_sample_index < 0) {
+			if (c->frame_sample_index < 0 || c->frame_sample_index >= nb_bytes) {
 				// create "new frame"
 				memset(c->frame->data[0], 0, nb_bytes);
 				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes);
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
+				int offset = audio_ibuffer_read - c->audio_buffer_write;
+				if (offset > 0) {
+					c->audio_buffer_write += offset;
+					c->frame_sample_index += offset;
+				}
 			}
 			break;
 		default: // shouldn't ever get here
 			qDebug() << "[ERROR] Tried to cache a non-footage/tone clip";
 			return;
 		}
-
-		qDebug() << c->audio_buffer_write << c->frame_sample_index;
 
 		// mix audio into internal buffer
 		if (frame->nb_samples == 0) {
