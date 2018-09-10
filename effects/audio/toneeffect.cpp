@@ -51,6 +51,10 @@ void ToneEffect::process_audio(double timecode_start, double timecode_end, quint
 		samples[i+1] = (quint8) (left_tone_sample >> 8);
 		samples[i] = (quint8) left_tone_sample;
 
+		int presin = sinX;
 		sinX++;
+		if (sinX < presin) {
+			qDebug() << "overflowed";
+		}
 	}
 }

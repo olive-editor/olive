@@ -105,8 +105,7 @@ struct Clip
     long texture_frame;
 
     // audio playback variables
-    SwrContext* swr_ctx;
-    bool need_new_audio_frame;
+	SwrContext* swr_ctx;
     int frame_sample_index;
     int audio_buffer_write;
     bool audio_reset;

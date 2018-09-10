@@ -29,6 +29,7 @@ bool texture_failed = false;
 void open_clip(Clip* clip, bool multithreaded) {
 	switch (clip->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
+	case MEDIA_TYPE_TONE:
 		clip->multithreaded = multithreaded;
 		if (multithreaded) {
 			if (clip->open_lock.tryLock()) {
@@ -76,6 +77,7 @@ void close_clip(Clip* clip) {
 
 	switch (clip->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
+	case MEDIA_TYPE_TONE:
 		if (clip->multithreaded) {
 			clip->cacher->caching = false;
 			clip->can_cache.wakeAll();
@@ -92,7 +94,7 @@ void close_clip(Clip* clip) {
 }
 
 void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip* nest) {
-	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
 			clip->cacher->write_A = write_A;

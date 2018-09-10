@@ -144,17 +144,17 @@ void Timeline::next_cut() {
 
 void Timeline::reset_all_audio() {
     // reset all clip audio
-    if (sequence != NULL) {
-        for (int i=0;i<sequence->clip_count();i++) {
-            Clip* c = sequence->get_clip(i);
-            if (c != NULL) {
-                c->reset_audio();
-            }
-        }
-    }
-    ui->audio_monitor->reset();
-    clear_audio_ibuffer();
 	audio_ibuffer_frame = playhead;
+	if (sequence != NULL) {
+		for (int i=0;i<sequence->clip_count();i++) {
+			Clip* c = sequence->get_clip(i);
+			if (c != NULL) {
+				c->reset_audio();
+			}
+		}
+	}
+	ui->audio_monitor->reset();
+    clear_audio_ibuffer();
 }
 
 void Timeline::seek(long p) {

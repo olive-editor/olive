@@ -75,9 +75,8 @@ void Clip::reset() {
     cache_B.unread = false;
     reached_end = false;
     audio_reset = false;
-    frame_sample_index = false;
-    audio_buffer_write = false;
-    need_new_audio_frame = false;
+	frame_sample_index = -1;
+	audio_buffer_write = false;
 	texture_frame = -1;
 	formatCtx = NULL;
 	stream = NULL;
@@ -90,9 +89,10 @@ void Clip::reset() {
 
 void Clip::reset_audio() {
     switch (media_type) {
-    case MEDIA_TYPE_FOOTAGE:
+	case MEDIA_TYPE_FOOTAGE:
+	case MEDIA_TYPE_TONE:
         audio_reset = true;
-        frame_sample_index = 0;
+		frame_sample_index = -1;
         audio_buffer_write = 0;
 		reached_end = false;
         break;
@@ -182,6 +182,7 @@ long Clip::getMediaLength(double framerate) {
     }
         break;
 	case MEDIA_TYPE_SOLID:
+	case MEDIA_TYPE_TONE:
 		return timeline_out - timeline_in;
 		break;
 	}

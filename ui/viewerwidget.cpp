@@ -136,6 +136,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				break;
 			case MEDIA_TYPE_SEQUENCE:
 			case MEDIA_TYPE_SOLID:
+			case MEDIA_TYPE_TONE:
 				if (is_clip_active(c, playhead)) {
 					if (!c->open) open_clip(c, !rendering);
 					clip_is_active = true;
@@ -309,14 +310,19 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 				glPopMatrix();
 			} else {
-				if ((c->media_type == MEDIA_TYPE_FOOTAGE || c->media_type == MEDIA_TYPE_SOLID)
-						&& render_audio
-						&& c->lock.tryLock()) {
-					// clip is not caching, start caching audio
-					cache_clip(c, playhead, false, false, c->audio_reset, nest);
-					c->lock.unlock();
-				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+				switch (c->media_type) {
+				case MEDIA_TYPE_FOOTAGE:
+				case MEDIA_TYPE_TONE:
+					if (render_audio
+							&& c->lock.tryLock()) {
+						// clip is not caching, start caching audio
+						cache_clip(c, playhead, false, false, c->audio_reset, nest);
+						c->lock.unlock();
+					}
+					break;
+				case MEDIA_TYPE_SEQUENCE:
 					compose_sequence(c, render_audio);
+					break;
 				}
 			}
         }

@@ -552,7 +552,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 					Clip* c = new Clip(sequence);
 					c->media = NULL;
-					c->media_type = MEDIA_TYPE_SOLID;
 					c->timeline_in = qMin(g.in, g.out);
 					c->timeline_out = qMax(g.in, g.out);
 					c->clip_in = 0;
@@ -566,7 +565,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					ta->add_clips(sequence, add);
 
 					int clipIndex = sequence->clip_count();
-					ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
+					if (c->track < 0) {
+						// default video effects (before custom effects)
+						ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
+						c->media_type = MEDIA_TYPE_SOLID;
+					}
+
 					switch (panel_timeline->creatingObject) {
 					case ADD_OBJ_TITLE:
 						c->name = "Title";
@@ -584,6 +588,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						c->name = "Tone";
 						ta->add_effect(sequence, clipIndex, AUDIO_TONE_EFFECT);
 						break;
+					}
+
+					if (c->track >= 0) {
+						// default audio effects (after custom effects)
+						ta->add_effect(sequence, clipIndex, AUDIO_VOLUME_EFFECT);
+						ta->add_effect(sequence, clipIndex, AUDIO_PAN_EFFECT);
+						c->media_type = MEDIA_TYPE_TONE;
 					}
 
 					Selection s;
