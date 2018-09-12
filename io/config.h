@@ -5,6 +5,10 @@
 
 #define SAVE_VERSION "180820" // YYMMDD
 
+#define TIMECODE_DROP 0
+#define TIMECODE_NONDROP 1
+#define TIMECODE_FRAMES 2
+
 struct Config {
     Config();
     bool saved_layout;
@@ -17,6 +21,7 @@ struct Config {
     QString img_seq_formats;
 	bool rectified_waveforms;
 	int default_transition_length;
+    int timecode_view;
 
     void load(QString path);
     void save(QString path);

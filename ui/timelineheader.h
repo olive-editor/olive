@@ -2,6 +2,8 @@
 #define TIMELINEHEADER_H
 
 #include <QWidget>
+#include <QFontMetrics>
+class QScrollArea;
 
 class TimelineHeader : public QWidget
 {
@@ -13,7 +15,7 @@ public:
 
 	bool snapping;
 
-	void update_header(double z);
+    void update_header(double z);
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -35,6 +37,8 @@ private:
 	double zoom;
 
 	void set_playhead(int mouse_x);
+
+    QFontMetrics fm;
 
 signals:
 

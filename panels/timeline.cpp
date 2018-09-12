@@ -82,6 +82,7 @@ Timeline::Timeline(QWidget *parent) :
 	int timeline_area_height = (ui->timeline_area->height()>>1);
 	ui->videoScrollArea->resize(ui->videoScrollArea->width(), timeline_area_height);
 	ui->audioScrollArea->resize(ui->audioScrollArea->width(), timeline_area_height);
+    ui->headerScrollArea->setMaximumHeight(ui->headers->minimumHeight());
 	connect(ui->audioScrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->videoScrollArea->horizontalScrollBar(), SLOT(setValue(int)));
 	connect(ui->audioScrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->headerScrollArea->horizontalScrollBar(), SLOT(setValue(int)));
 
@@ -1095,7 +1096,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-	long f = round((float) x / zoom);
+    long f = qRound((float) x / zoom);
 	if (f < 0) {
 		return 0;
 	}
@@ -1103,7 +1104,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-	return (int) round(frame*zoom);
+    return (int) qRound(frame*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {

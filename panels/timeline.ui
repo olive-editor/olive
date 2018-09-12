@@ -304,16 +304,10 @@
        <item>
         <widget class="QScrollArea" name="headerScrollArea">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>15</height>
-          </size>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -327,18 +321,13 @@
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
          <widget class="QWidget" name="scrollAreaWidgetContents_5">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>821</width>
-            <height>16</height>
-           </rect>
-          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
@@ -369,12 +358,6 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>15</height>
-              </size>
-             </property>
              <property name="focusPolicy">
               <enum>Qt::ClickFocus</enum>
              </property>
@@ -389,7 +372,7 @@
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
+           <verstretch>1</verstretch>
           </sizepolicy>
          </property>
          <property name="orientation">
@@ -422,8 +405,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>807</width>
-             <height>163</height>
+             <width>817</width>
+             <height>174</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -473,8 +456,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>807</width>
-             <height>377</height>
+             <width>817</width>
+             <height>339</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">

@@ -4,17 +4,22 @@
 #include "panels/timeline.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "panels/viewer.h"
+#include "io/config.h"
 
 #include <QPainter>
 #include <QMouseEvent>
 #include <QDebug>
+#include <QScrollArea>
+#include <QtMath>
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
 
-TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(false), resizing_workarea(false), zoom(1), in_visible(0), snapping(true) {
+TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(false), resizing_workarea(false), zoom(1), in_visible(0), snapping(true), fm(font()) {
     setCursor(Qt::ArrowCursor);
     setMouseTracking(true);
+    setMinimumHeight(fm.height()*2);
 }
 
 void TimelineHeader::set_playhead(int mouse_x) {
@@ -121,22 +126,58 @@ void TimelineHeader::update_header(double z) {
 	update();
 }
 
+#define LINE_MIN_PADDING 50
+
 void TimelineHeader::paintEvent(QPaintEvent*) {
     if (sequence != NULL) {
         QPainter p(this);
-        p.setPen(Qt::gray);
-        int interval = 0;
-		int multiplier = 0;
-        do {
-            multiplier++;
-			interval = getScreenPointFromFrame(zoom, 1*multiplier);
-        } while (interval < 10);
-        for (int i=0;i<width();i+=interval) {
-			int drawHeight = height();
-			if (i%5 > 0) {
-				drawHeight = drawHeight>>1;
-			}
-			p.drawLine(i, 0, i, drawHeight);
+        int yoff = height()/2;
+
+        double interval = sequence->frame_rate;
+        int textWidth = 0;
+        int lastTextBoundary = 0;
+
+        int i = 0;
+        int lastLineX = -LINE_MIN_PADDING-1;
+
+        int sublineCount = 1;
+        int sublineTest = qRound(interval*zoom);
+        int sublineInterval = 1;
+        while (sublineTest > LINE_MIN_PADDING
+               && sublineInterval >= 1) {
+            sublineCount *= 2;
+            sublineInterval = (interval/sublineCount);
+            sublineTest = qRound(sublineInterval*zoom);
+        }
+        sublineCount = qMin(sublineCount, qRound(interval));
+
+        while (true) {
+            long frame = qRound(interval*i);
+            int lineX = qRound(frame*zoom);
+            if (lineX > width()) break;
+            if (lineX > lastLineX+LINE_MIN_PADDING) {
+                // draw text
+                if (lineX-textWidth > lastTextBoundary) {
+                    p.setPen(Qt::white);
+                    QString timecode = frame_to_timecode(frame, config.timecode_view, sequence->frame_rate);
+                    textWidth = fm.width(timecode)>>1;
+                    lastTextBoundary = lineX+textWidth;
+                    p.drawText(QRect(lineX-textWidth, 0, lastTextBoundary, yoff), timecode);
+                }
+
+                // draw line markers
+                p.setPen(Qt::gray);
+                p.drawLine(lineX, yoff, lineX, height());
+
+                lastLineX = lineX;
+
+                // draw sub-line markers
+                for (int j=1;j<sublineCount;j++) {
+                    int sublineX = lineX+(qRound(j*interval/sublineCount)*zoom);
+                    p.drawLine(sublineX, yoff, sublineX, yoff+(yoff>>1));
+                }
+            }
+            i++;
         }
 
         // draw in/out selection
@@ -151,12 +192,12 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         }
 
         // draw playhead triangle
-		in_x = getScreenPointFromFrame(zoom, panel_timeline->playhead - in_visible);
-        QPoint start(in_x, height());
+        in_x = getScreenPointFromFrame(zoom, panel_timeline->playhead - in_visible);
+        QPoint start(in_x, height()+2);
         QPainterPath path;
         path.moveTo(start);
-        path.lineTo(in_x-PLAYHEAD_SIZE, 0);
-        path.lineTo(in_x+PLAYHEAD_SIZE, 0);
+        path.lineTo(in_x-PLAYHEAD_SIZE, yoff);
+        path.lineTo(in_x+PLAYHEAD_SIZE, yoff);
         path.lineTo(start);
         p.fillPath(path, Qt::red);
     }

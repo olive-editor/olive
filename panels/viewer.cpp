@@ -5,6 +5,7 @@
 #include "timeline.h"
 #include "project/sequence.h"
 #include "panels/panels.h"
+#include "io/config.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
@@ -22,7 +23,6 @@ Viewer::Viewer(QWidget *parent) :
 	ui->setupUi(this);
 	ui->glViewerPane->child = ui->openGLWidget;
     viewer_widget = ui->openGLWidget;
-    timecode_view = TIMECODE_DROP;
     update_sequence();
 
     update_playhead_timecode(0);
@@ -99,14 +99,14 @@ bool frame_rate_is_droppable(float rate) {
 }
 
 void Viewer::update_playhead_timecode(long p) {
-    ui->currentTimecode->setText(frame_to_timecode(p, timecode_view, (sequence != NULL) ? sequence->frame_rate : 30));
+    ui->currentTimecode->setText(frame_to_timecode(p, config.timecode_view, (sequence != NULL) ? sequence->frame_rate : 30));
 }
 
 void Viewer::update_end_timecode() {
     if (sequence == NULL) {
-        ui->endTimecode->setText(frame_to_timecode(0, timecode_view, 30));
+        ui->endTimecode->setText(frame_to_timecode(0, config.timecode_view, 30));
     } else {
-        ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame(), timecode_view, sequence->frame_rate));
+        ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame(), config.timecode_view, sequence->frame_rate));
     }
 }
 
@@ -125,9 +125,9 @@ void Viewer::update_sequence() {
 
     if (!null_sequence) {
         if (frame_rate_is_droppable(sequence->frame_rate)) {
-            timecode_view = TIMECODE_DROP;
+            config.timecode_view = TIMECODE_DROP;
         } else {
-            timecode_view = TIMECODE_NONDROP;
+            config.timecode_view = TIMECODE_NONDROP;
         }
 
         update_playhead_timecode(panel_timeline->playhead);

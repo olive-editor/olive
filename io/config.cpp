@@ -17,7 +17,8 @@ Config::Config()
       select_also_seeks(false),
 	  paste_seeks(true),
 	  rectified_waveforms(false),
-	  default_transition_length(30)
+      default_transition_length(30),
+      timecode_view(TIMECODE_DROP)
 {
 
 }
@@ -55,10 +56,15 @@ void Config::load(QString path) {
                     stream.readNext();
                     img_seq_formats = stream.text().toString();
 				} else if (stream.name() == "RectifiedWaveforms") {
+                    stream.readNext();
 					rectified_waveforms = (stream.text() == "1");
 				} else if (stream.name() == "DefaultTransitionLength") {
-					rectified_waveforms = stream.text().toInt();
-				}
+                    stream.readNext();
+                    default_transition_length = stream.text().toInt();
+                } else if (stream.name() == "TimecodeView") {
+                    stream.readNext();
+                    timecode_view = stream.text().toInt();
+                }
             }
         }
         if (stream.hasError()) {
@@ -114,6 +120,7 @@ void Config::save(QString path) {
     stream.writeTextElement("ImageSequenceFormats", img_seq_formats);
 	stream.writeTextElement("RectifiedWaveforms", QString::number(rectified_waveforms));
 	stream.writeTextElement("DefaultTransitionLength", QString::number(default_transition_length));
+    stream.writeTextElement("TimecodeView", QString::number(timecode_view));
 
     stream.writeEndElement();
     stream.writeEndDocument(); // doc

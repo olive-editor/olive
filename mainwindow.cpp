@@ -39,7 +39,7 @@
 
 QTimer autorecovery_timer;
 QString config_dir;
-QString appName = "Olive (August 2018 | Alpha)";
+QString appName = "Olive (September 2018 | Alpha)";
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout() {
@@ -538,15 +538,15 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
     ui->actionTimeline_Track_Lines->setChecked(config.show_track_lines);
-    ui->actionFrames->setChecked(panel_viewer->timecode_view == TIMECODE_FRAMES);
-    ui->actionDrop_Frame->setChecked(panel_viewer->timecode_view == TIMECODE_DROP);
-    if (sequence != NULL) ui->actionDrop_Frame->setEnabled(frame_rate_is_droppable(sequence->frame_rate));
-    ui->actionNon_Drop_Frame->setChecked(panel_viewer->timecode_view == TIMECODE_NONDROP);
+    ui->actionFrames->setChecked(config.timecode_view == TIMECODE_FRAMES);
+    ui->actionDrop_Frame->setChecked(config.timecode_view == TIMECODE_DROP);
+//    if (sequence != NULL) ui->actionDrop_Frame->setEnabled(frame_rate_is_droppable(sequence->frame_rate));
+    ui->actionNon_Drop_Frame->setChecked(config.timecode_view == TIMECODE_NONDROP);
 }
 
 void MainWindow::on_actionFrames_triggered()
 {
-    panel_viewer->timecode_view = TIMECODE_FRAMES;
+    config.timecode_view = TIMECODE_FRAMES;
     if (sequence != NULL) {
         panel_viewer->update_playhead_timecode(panel_timeline->playhead);
         panel_viewer->update_end_timecode();
@@ -555,7 +555,7 @@ void MainWindow::on_actionFrames_triggered()
 
 void MainWindow::on_actionDrop_Frame_triggered()
 {
-    panel_viewer->timecode_view = TIMECODE_DROP;
+    config.timecode_view = TIMECODE_DROP;
     if (sequence != NULL) {
         panel_viewer->update_playhead_timecode(panel_timeline->playhead);
         panel_viewer->update_end_timecode();
@@ -564,7 +564,7 @@ void MainWindow::on_actionDrop_Frame_triggered()
 
 void MainWindow::on_actionNon_Drop_Frame_triggered()
 {
-    panel_viewer->timecode_view = TIMECODE_NONDROP;
+    config.timecode_view = TIMECODE_NONDROP;
     if (sequence != NULL) {
         panel_viewer->update_playhead_timecode(panel_timeline->playhead);
         panel_viewer->update_end_timecode();

@@ -1,10 +1,6 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#define TIMECODE_DROP 0
-#define TIMECODE_NONDROP 1
-#define TIMECODE_FRAMES 2
-
 #include <QDockWidget>
 
 class Timeline;
@@ -28,7 +24,6 @@ public:
     void update_sequence();
 	void compose();
     void set_playpause_icon(bool play);
-    int timecode_view;
     void update_playhead_timecode(long p);
     void update_end_timecode();
 
