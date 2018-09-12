@@ -1118,24 +1118,28 @@ void Timeline::on_toolArrowButton_clicked() {
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::ArrowCursor);
     tool = TIMELINE_TOOL_POINTER;
+	creating = false;
 }
 
 void Timeline::on_toolEditButton_clicked() {
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::IBeamCursor);
     tool = TIMELINE_TOOL_EDIT;
+	creating = false;
 }
 
 void Timeline::on_toolRippleButton_clicked() {
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::ArrowCursor);
     tool = TIMELINE_TOOL_RIPPLE;
+	creating = false;
 }
 
 void Timeline::on_toolRollingButton_clicked() {
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::ArrowCursor);
     tool = TIMELINE_TOOL_ROLLING;
+	creating = false;
 }
 
 void Timeline::on_toolRazorButton_clicked()
@@ -1143,6 +1147,7 @@ void Timeline::on_toolRazorButton_clicked()
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::IBeamCursor);
     tool = TIMELINE_TOOL_RAZOR;
+	creating = false;
 }
 
 void Timeline::on_toolSlipButton_clicked()
@@ -1150,6 +1155,7 @@ void Timeline::on_toolSlipButton_clicked()
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::ArrowCursor);
     tool = TIMELINE_TOOL_SLIP;
+	creating = false;
 }
 
 void Timeline::on_toolSlideButton_clicked()
@@ -1157,6 +1163,7 @@ void Timeline::on_toolSlideButton_clicked()
     decheck_tool_buttons(sender());
     ui->timeline_area->setCursor(Qt::ArrowCursor);
     tool = TIMELINE_TOOL_SLIDE;
+	creating = false;
 }
 
 void Timeline::on_addButton_clicked() {
@@ -1176,6 +1183,8 @@ void Timeline::on_addButton_clicked() {
 	barsMenuItem->setText("Bars...");
 	barsMenuItem->setData(ADD_OBJ_BARS);
 	add_menu.addAction(barsMenuItem);
+
+	add_menu.addSeparator();
 
 	QAction* toneMenuItem = new QAction(&add_menu);
 	toneMenuItem->setText("Tone...");

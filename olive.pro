@@ -150,7 +150,7 @@ FORMS += \
     dialogs/demonotice.ui
 
 win32 {
-    RC_ICONS = icons/olive.ico
+    RC_FILE = icons/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample -lopengl32
 }
 

@@ -548,74 +548,76 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 				if (panel_timeline->ghosts.size() > 0) {
 					const Ghost& g = panel_timeline->ghosts.at(0);
 
-					TimelineAction* ta = new TimelineAction();
+					if (g.in != g.out) {
+						TimelineAction* ta = new TimelineAction();
 
-					Clip* c = new Clip(sequence);
-					c->media = NULL;
-					c->timeline_in = qMin(g.in, g.out);
-					c->timeline_out = qMax(g.in, g.out);
-					c->clip_in = 0;
-					c->color_r = 192;
-					c->color_g = 192;
-					c->color_b = 64;
-					c->track = g.track;
+						Clip* c = new Clip(sequence);
+						c->media = NULL;
+						c->timeline_in = qMin(g.in, g.out);
+						c->timeline_out = qMax(g.in, g.out);
+						c->clip_in = 0;
+						c->color_r = 192;
+						c->color_g = 192;
+						c->color_b = 64;
+						c->track = g.track;
 
-					QVector<Clip*> add;
-					add.append(c);
-					ta->add_clips(sequence, add);
+						QVector<Clip*> add;
+						add.append(c);
+						ta->add_clips(sequence, add);
 
-					int clipIndex = sequence->clip_count();
-					if (c->track < 0) {
-						// default video effects (before custom effects)
-						ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
-						c->media_type = MEDIA_TYPE_SOLID;
-					}
+						int clipIndex = sequence->clip_count();
+						if (c->track < 0) {
+							// default video effects (before custom effects)
+							ta->add_effect(sequence, clipIndex, VIDEO_TRANSFORM_EFFECT);
+							c->media_type = MEDIA_TYPE_SOLID;
+						}
 
-					switch (panel_timeline->creatingObject) {
-					case ADD_OBJ_TITLE:
-						c->name = "Title";
-						ta->add_effect(sequence, clipIndex, VIDEO_TEXT_EFFECT);
-						break;
-					case ADD_OBJ_SOLID:
-						c->name = "Solid Color";
-						ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
-						break;
-					case ADD_OBJ_BARS:
-						c->name = "Bars";
-						ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
-						break;
-					case ADD_OBJ_TONE:
-						c->name = "Tone";
-						ta->add_effect(sequence, clipIndex, AUDIO_TONE_EFFECT);
-						break;
-					}
+						switch (panel_timeline->creatingObject) {
+						case ADD_OBJ_TITLE:
+							c->name = "Title";
+							ta->add_effect(sequence, clipIndex, VIDEO_TEXT_EFFECT);
+							break;
+						case ADD_OBJ_SOLID:
+							c->name = "Solid Color";
+							ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
+							break;
+						case ADD_OBJ_BARS:
+							c->name = "Bars";
+							ta->add_effect(sequence, clipIndex, VIDEO_SOLID_EFFECT);
+							break;
+						case ADD_OBJ_TONE:
+							c->name = "Tone";
+							ta->add_effect(sequence, clipIndex, AUDIO_TONE_EFFECT);
+							break;
+						}
 
-					if (c->track >= 0) {
-						// default audio effects (after custom effects)
-						ta->add_effect(sequence, clipIndex, AUDIO_VOLUME_EFFECT);
-						ta->add_effect(sequence, clipIndex, AUDIO_PAN_EFFECT);
-						c->media_type = MEDIA_TYPE_TONE;
-					}
+						if (c->track >= 0) {
+							// default audio effects (after custom effects)
+							ta->add_effect(sequence, clipIndex, AUDIO_VOLUME_EFFECT);
+							ta->add_effect(sequence, clipIndex, AUDIO_PAN_EFFECT);
+							c->media_type = MEDIA_TYPE_TONE;
+						}
 
-					Selection s;
-					s.in = c->timeline_in;
-					s.out = c->timeline_out;
-					s.track = c->track;
-					QVector<Selection> areas;
-					areas.append(s);
-					panel_timeline->delete_areas_and_relink(ta, areas);
+						Selection s;
+						s.in = c->timeline_in;
+						s.out = c->timeline_out;
+						s.track = c->track;
+						QVector<Selection> areas;
+						areas.append(s);
+						panel_timeline->delete_areas_and_relink(ta, areas);
 
-					undo_stack.push(ta);
+						undo_stack.push(ta);
 
-					// pretty hacky (and doesn't survive undo/redo)
-					if (panel_timeline->creatingObject == ADD_OBJ_BARS) {
-						sequence->get_clip(clipIndex)->effects.at(1)->row(0)->field(0)->set_combo_index(1);
-					}
+						// pretty hacky (and doesn't survive undo/redo)
+						if (panel_timeline->creatingObject == ADD_OBJ_BARS) {
+							sequence->get_clip(clipIndex)->effects.at(1)->row(0)->field(0)->set_combo_index(1);
+						}
 
-					panel_timeline->redraw_all_clips(true);
+						panel_timeline->redraw_all_clips(true);
 
-					if (!shift) {
-						panel_timeline->creating = false;
+						if (!shift) {
+							panel_timeline->creating = false;
+						}
 					}
 				}
 			} else if (panel_timeline->moving_proc) {

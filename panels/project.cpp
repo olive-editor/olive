@@ -778,7 +778,6 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     //<clip id="0" name="Brock_Drying_Pan.gif" clipin="0" in="44" out="144" track="-1" r="192" g="128" b="128" media="2" stream="0">
                                     int media_id, stream_id;
                                     Clip* c = new Clip(s);
-									c->media_type = MEDIA_TYPE_SOLID;
 									c->media = NULL;
                                     for (int j=0;j<stream.attributes().size();j++) {
                                         const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -800,6 +799,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             c->color_g = attr.value().toInt();
                                         } else if (attr.name() == "b") {
                                             c->color_b = attr.value().toInt();
+										} else if (attr.name() == "type") {
+											c->media_type = attr.value().toInt();
                                         } else if (attr.name() == "media") {
                                             c->media_type = MEDIA_TYPE_FOOTAGE;
                                             media_id = attr.value().toInt();

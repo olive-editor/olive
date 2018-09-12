@@ -30,7 +30,7 @@ void LabelSlider::set_value(double v, bool userSet) {
             internal_value = v;
         }
 
-		setText(QString::number(internal_value, 'f', 1));
+		setText(valueToString(internal_value));
 		if (userSet) emit valueChanged();
     }
 }
@@ -41,6 +41,10 @@ bool LabelSlider::is_set() {
 
 bool LabelSlider::is_dragging() {
 	return drag_proc;
+}
+
+QString LabelSlider::valueToString(double v) {
+	return QString::number(v, 'f', 1);
 }
 
 double LabelSlider::value() {

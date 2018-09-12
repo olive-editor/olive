@@ -19,7 +19,7 @@ ToneEffect::ToneEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_TONE_EFFECT
 	amount_val = add_row("Amount:")->add_field(EFFECT_FIELD_DOUBLE);
 	amount_val->set_double_minimum_value(0);
 	amount_val->set_double_maximum_value(100);
-	amount_val->set_double_default_value(80);
+	amount_val->set_double_default_value(25);
 
 	mix_val = add_row("Mix:")->add_field(EFFECT_FIELD_BOOL);
 	mix_val->set_bool_value(true);

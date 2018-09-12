@@ -17,6 +17,7 @@ public:
     bool is_set();
 	double get_drag_start_value();
 	bool is_dragging();
+	virtual QString valueToString(double v);
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
