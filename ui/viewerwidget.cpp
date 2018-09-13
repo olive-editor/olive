@@ -431,7 +431,7 @@ void ViewerWidget::paintGL() {
             }
         }
 
-        if (config.show_title_safe_area) {
+        if (config.show_title_safe_area && !rendering) {
             drawTitleSafeArea();
         }
 
