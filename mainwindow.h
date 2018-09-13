@@ -167,7 +167,17 @@ private slots:
 
     void on_actionTimeline_Track_Lines_triggered();
 
-	void on_actionRectified_Waveforms_triggered();
+    void on_actionRectified_Waveforms_triggered();
+
+    void on_actionDefault_triggered();
+
+    void on_actionOff_triggered();
+
+    void on_action4_3_triggered();
+
+    void on_action16_9_triggered();
+
+    void on_actionCustom_triggered();
 
 private:
 	Ui::MainWindow *ui;

@@ -18,7 +18,10 @@ Config::Config()
 	  paste_seeks(true),
 	  rectified_waveforms(false),
       default_transition_length(30),
-      timecode_view(TIMECODE_DROP)
+      timecode_view(TIMECODE_DROP),
+      show_title_safe_area(false),
+      use_custom_title_safe_ratio(false),
+      custom_title_safe_ratio(1)
 {
 
 }
@@ -64,6 +67,15 @@ void Config::load(QString path) {
                 } else if (stream.name() == "TimecodeView") {
                     stream.readNext();
                     timecode_view = stream.text().toInt();
+                }else if (stream.name() == "ShowTitleSafeArea") {
+                    stream.readNext();
+                    show_title_safe_area = (stream.text() == "1");
+                } else if (stream.name() == "UseCustomTitleSafeRatio") {
+                    stream.readNext();
+                    use_custom_title_safe_ratio = (stream.text() == "1");
+                } else if (stream.name() == "CustomTitleSafeRatio") {
+                    stream.readNext();
+                    custom_title_safe_ratio = stream.text().toDouble();
                 }
             }
         }
@@ -121,6 +133,9 @@ void Config::save(QString path) {
 	stream.writeTextElement("RectifiedWaveforms", QString::number(rectified_waveforms));
 	stream.writeTextElement("DefaultTransitionLength", QString::number(default_transition_length));
     stream.writeTextElement("TimecodeView", QString::number(timecode_view));
+    stream.writeTextElement("ShowTitleSafeArea", QString::number(show_title_safe_area));
+    stream.writeTextElement("UseCustomTitleSafeRatio", QString::number(use_custom_title_safe_ratio));
+    stream.writeTextElement("CustomTitleSafeRatio", QString::number(custom_title_safe_ratio));
 
     stream.writeEndElement();
     stream.writeEndDocument(); // doc

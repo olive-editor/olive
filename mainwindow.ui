@@ -37,7 +37,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>20</height>
+     <height>16</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -120,6 +120,16 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <widget class="QMenu" name="menuTitle_Action_Safe_Area">
+     <property name="title">
+      <string>Title/Action Safe Area</string>
+     </property>
+     <addaction name="actionOff"/>
+     <addaction name="actionDefault"/>
+     <addaction name="action4_3"/>
+     <addaction name="action16_9"/>
+     <addaction name="actionCustom"/>
+    </widget>
     <addaction name="actionTimeline_Track_Lines"/>
     <addaction name="actionZoom_In"/>
     <addaction name="actionZoom_out"/>
@@ -129,6 +139,8 @@
     <addaction name="actionFrames"/>
     <addaction name="actionDrop_Frame"/>
     <addaction name="actionNon_Drop_Frame"/>
+    <addaction name="separator"/>
+    <addaction name="menuTitle_Action_Safe_Area"/>
    </widget>
    <widget class="QMenu" name="menuPlayback">
     <property name="title">
@@ -707,6 +719,46 @@
    </property>
    <property name="text">
     <string>Rectified Waveforms</string>
+   </property>
+  </action>
+  <action name="actionDefault">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionOff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Off</string>
+   </property>
+  </action>
+  <action name="action4_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>4:3</string>
+   </property>
+  </action>
+  <action name="action16_9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>16:9</string>
+   </property>
+  </action>
+  <action name="actionCustom">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Custom</string>
    </property>
   </action>
  </widget>

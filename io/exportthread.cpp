@@ -12,7 +12,8 @@
 
 extern "C" {
 	#include <libavcodec/avcodec.h>
-	#include <libavformat/avformat.h>
+    #include <libavformat/avformat.h>
+    #include <libavutil/opt.h>
 	#include <libswresample/swresample.h>
 	#include <libswscale/swscale.h>
 }
@@ -108,15 +109,21 @@ bool ExportThread::setupVideo() {
 	vcodec_ctx->sample_aspect_ratio = av_d2q(video_width/video_height, INT_MAX);
 	vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
 	vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
-	vcodec_ctx->bit_rate = video_bitrate * 1000000;
+    vcodec_ctx->bit_rate = video_bitrate * 1000000;
 	vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
 
 	if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 		vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 	}
 
+    if (vcodec_ctx->codec_id == AV_CODEC_ID_H264) {
+//        av_opt_set(vcodec_ctx->priv_data, "preset", "veryslow", AV_OPT_SEARCH_CHILDREN);
+//        av_opt_set(vcodec_ctx->priv_data, "crf", "0", AV_OPT_SEARCH_CHILDREN);
+        av_opt_set(vcodec_ctx->priv_data, "x264-params", "nal-hrd=cbr", AV_OPT_SEARCH_CHILDREN);
+    }
+
 	// open encoder
-	vcodec_ctx->gop_size = 12; // ? does this help?
+    vcodec_ctx->gop_size = 40; // ? does this help?
 	ret = avcodec_open2(vcodec_ctx, vcodec, NULL);
 	if (ret < 0) {
 		qDebug() << "[ERROR] Could not open output video encoder." << ret;

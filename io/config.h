@@ -22,6 +22,9 @@ struct Config {
 	bool rectified_waveforms;
 	int default_transition_length;
     int timecode_view;
+    bool show_title_safe_area;
+    bool use_custom_title_safe_ratio;
+    double custom_title_safe_ratio;
 
     void load(QString path);
     void save(QString path);

@@ -12,6 +12,7 @@
 #include "io/media.h"
 #include "ui_timeline.h"
 #include "playback/cacher.h"
+#include "io/config.h"
 
 #include <QDebug>
 #include <QPainter>
@@ -64,7 +65,75 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
 	if (!rendering) {
 		makeCurrent();
 		QOpenGLWidget::paintEvent(e);
-	}
+    }
+}
+
+void ViewerWidget::drawTitleSafeArea() {
+    double halfWidth = 0.5;
+    double halfHeight = 0.5;
+    double viewportAr = (double) width() / (double) height();
+    double halfAr = viewportAr*0.5;
+
+    if (config.use_custom_title_safe_ratio && config.custom_title_safe_ratio > 0) {
+        if (config.custom_title_safe_ratio > viewportAr) {
+            halfHeight = (config.custom_title_safe_ratio/viewportAr)*0.5;
+        } else {
+            halfWidth = (viewportAr/config.custom_title_safe_ratio)*0.5;
+        }
+    }
+
+    glLoadIdentity();
+    glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
+
+    glColor3f(0.5, 0.5, 0.5);
+    glBegin(GL_LINES);
+
+    // action safe rectangle
+    glVertex2d(-0.45, -0.45);
+    glVertex2d(0.45, -0.45);
+    glVertex2d(0.45, -0.45);
+    glVertex2d(0.45, 0.45);
+    glVertex2d(0.45, 0.45);
+    glVertex2d(-0.45, 0.45);
+    glVertex2d(-0.45, 0.45);
+    glVertex2d(-0.45, -0.45);
+
+    // title safe rectangle
+    glVertex2d(-0.4, -0.4);
+    glVertex2d(0.4, -0.4);
+    glVertex2d(0.4, -0.4);
+    glVertex2d(0.4, 0.4);
+    glVertex2d(0.4, 0.4);
+    glVertex2d(-0.4, 0.4);
+    glVertex2d(-0.4, 0.4);
+    glVertex2d(-0.4, -0.4);
+
+    // horizontal centers
+    glVertex2d(-0.45, 0);
+    glVertex2d(-0.375, 0);
+    glVertex2d(0.45, 0);
+    glVertex2d(0.375, 0);
+
+    // vertical centers
+    glVertex2d(0, -0.45);
+    glVertex2d(0, -0.375);
+    glVertex2d(0, 0.45);
+    glVertex2d(0, 0.375);
+
+    glEnd();
+
+    // center cross
+    glLoadIdentity();
+    glOrtho(-halfAr, halfAr, 0.5, -0.5, -1, 1);
+
+    glBegin(GL_LINES);
+
+    glVertex2d(-0.05, 0);
+    glVertex2d(0.05, 0);
+    glVertex2d(0, -0.05);
+    glVertex2d(0, 0.05);
+
+    glEnd();
 }
 
 GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
@@ -360,6 +429,10 @@ void ViewerWidget::paintGL() {
             } else {
 				retry_timer.start();
             }
+        }
+
+        if (config.show_title_safe_area) {
+            drawTitleSafeArea();
         }
 
 		glDisable(GL_BLEND);

@@ -29,6 +29,7 @@ protected:
 //    void resizeGL(int w, int h);
 private:
 	QTimer retry_timer;
+    void drawTitleSafeArea();
 private slots:
 	void retry();
     void deleteFunction();

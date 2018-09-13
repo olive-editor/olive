@@ -318,8 +318,8 @@ void open_clip_worker(Clip* clip) {
 			av_dict_set(&opts, "threads", "auto", 0);
 		}
 		if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {
-			av_dict_set(&opts, "tune", "fastdecode", 0);
-			av_dict_set(&opts, "tune", "zerolatency", 0);
+            av_dict_set(&opts, "tune", "fastdecode", 0);
+            av_dict_set(&opts, "tune", "zerolatency", 0);
 		}
 
 		// Open codec

@@ -6,6 +6,7 @@
 #include "project/sequence.h"
 
 #include "ui/sourcetable.h"
+#include "ui/viewerwidget.h"
 
 #include "panels/panels.h"
 #include "panels/project.h"
@@ -34,6 +35,8 @@
 #include <QTimer>
 #include <QCloseEvent>
 #include <QMovie>
+#include <QInputDialog>
+#include <QRegExp>
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
@@ -540,8 +543,13 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
     ui->actionTimeline_Track_Lines->setChecked(config.show_track_lines);
     ui->actionFrames->setChecked(config.timecode_view == TIMECODE_FRAMES);
     ui->actionDrop_Frame->setChecked(config.timecode_view == TIMECODE_DROP);
-//    if (sequence != NULL) ui->actionDrop_Frame->setEnabled(frame_rate_is_droppable(sequence->frame_rate));
     ui->actionNon_Drop_Frame->setChecked(config.timecode_view == TIMECODE_NONDROP);
+
+    ui->actionOff->setChecked(!config.show_title_safe_area);
+    ui->actionDefault->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
+    ui->action4_3->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 4.0/3.0);
+    ui->action16_9->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 16.0/9.0);
+    ui->actionCustom->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && !ui->action4_3->isChecked() && !ui->action16_9->isChecked());
 }
 
 void MainWindow::on_actionFrames_triggered()
@@ -714,4 +722,53 @@ void MainWindow::on_actionRectified_Waveforms_triggered()
 {
 	config.rectified_waveforms = !config.rectified_waveforms;
 	panel_timeline->redraw_all_clips(false);
+}
+
+void MainWindow::on_actionDefault_triggered() {
+    config.show_title_safe_area = true;
+    config.use_custom_title_safe_ratio = false;
+    panel_viewer->viewer_widget->update();
+}
+
+void MainWindow::on_actionOff_triggered() {
+    config.show_title_safe_area = false;
+    panel_viewer->viewer_widget->update();
+}
+
+void MainWindow::on_action4_3_triggered() {
+    config.show_title_safe_area = true;
+    config.use_custom_title_safe_ratio = true;
+    config.custom_title_safe_ratio = 4.0/3.0;
+    panel_viewer->viewer_widget->update();
+}
+
+void MainWindow::on_action16_9_triggered() {
+    config.show_title_safe_area = true;
+    config.use_custom_title_safe_ratio = true;
+    config.custom_title_safe_ratio = 16.0/9.0;
+    panel_viewer->viewer_widget->update();
+}
+
+void MainWindow::on_actionCustom_triggered() {
+    QString input;
+    bool invalid = false;
+    QRegExp arTest("[0-9.]+:[0-9.]+");
+
+    do {
+        if (invalid) {
+            QMessageBox::critical(this, "Invalid aspect ratio", "The aspect ratio '" + input + "' is invalid. Please try again.");
+        }
+
+        input = QInputDialog::getText(this, "Enter custom aspect ratio", "Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):");
+        invalid = !arTest.exactMatch(input) && !input.isEmpty();
+    } while (invalid);
+
+    if (!input.isEmpty()) {
+        QStringList inputList = input.split(':');
+
+        config.show_title_safe_area = true;
+        config.use_custom_title_safe_ratio = true;
+        config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
+        panel_viewer->viewer_widget->update();
+    }
 }
