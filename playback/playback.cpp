@@ -311,8 +311,8 @@ void set_sequence(Sequence* s) {
 
 void closeActiveClips(Sequence *s, bool wait) {
 	if (s != NULL) {
-		for (int i=0;i<s->clip_count();i++) {
-			Clip* c = s->get_clip(i);
+        for (int i=0;i<s->clips.size();i++) {
+            Clip* c = s->clips.at(i);
 			if (c != NULL) {
 				if (c->media_type == MEDIA_TYPE_SEQUENCE) {
 					closeActiveClips(static_cast<Sequence*>(c->media), wait);

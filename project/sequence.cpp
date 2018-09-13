@@ -26,38 +26,24 @@ Sequence* Sequence::copy() {
     s->frame_rate = frame_rate;
     s->audio_frequency = audio_frequency;
     s->audio_layout = audio_layout;
-    for (int i=0;i<clip_count();i++) {
-        Clip* c = get_clip(i);
-        if (c != NULL) {
+    s->clips.resize(clips.size());
+    for (int i=0;i<clips.size();i++) {
+        Clip* c = clips.at(i);
+        if (c == NULL) {
+            s->clips[i] = NULL;
+        } else {
             Clip* copy = c->copy(s);
             copy->linked = c->linked;
-            s->add_clip(copy);
+            s->clips[i] = copy;
         }
     }
     return s;
 }
 
-int Sequence::add_clip(Clip* c) {
-    clips.append(c);
-    return clip_count() - 1;
-}
-
-int Sequence::clip_count() {
-    return clips.size();
-}
-
-Clip* Sequence::get_clip(int i) {
-    return clips.at(i);
-}
-
-void Sequence::replace_clip(int i, Clip* c) {
-    clips[i] = c;
-}
-
 long Sequence::getEndFrame() {
     long end = 0;
-    for (int j=0;j<clip_count();j++) {
-        Clip* c = get_clip(j);
+    for (int j=0;j<clips.size();j++) {
+        Clip* c = clips.at(j);
         if (c != NULL && c->timeline_out > end) {
             end = c->timeline_out;
         }
@@ -65,16 +51,11 @@ long Sequence::getEndFrame() {
     return end;
 }
 
-void Sequence::destroy_clip(int i, bool del) {
-    if (del) delete clips.at(i);
-    clips.removeAt(i);
-}
-
-void Sequence::get_track_limits(int* video_tracks, int* audio_tracks) {
+void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 	int vt = 0;
 	int at = 0;
-	for (int j=0;j<clip_count();j++) {
-        Clip* c = get_clip(j);
+    for (int j=0;j<clips.size();j++) {
+        Clip* c = clips.at(j);
         if (c != NULL) {
             if (c->track < 0 && c->track < vt) { // video clip
                 vt = c->track;

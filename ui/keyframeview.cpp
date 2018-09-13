@@ -40,7 +40,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		long effects_out = 0;
 
 		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-			Clip* c = sequence->get_clip(panel_effect_controls->selected_clips.at(j));
+            Clip* c = sequence->clips.at(panel_effect_controls->selected_clips.at(j));
 			effects_in = qMin(effects_in, c->timeline_in);
 			effects_out = qMax(effects_out, c->timeline_out);
 			for (int i=0;i<c->effects.size();i++) {

@@ -4,19 +4,15 @@
 #include <QVector>
 
 #include "project/clip.h"
+#include "project/marker.h"
 
 struct Sequence {
 public:
 	Sequence();
 	~Sequence();
     Sequence* copy();
-	QString name;
-    int add_clip(Clip* c);
-	int clip_count();
-    Clip* get_clip(int i);
-    void replace_clip(int i, Clip* c);
-	void get_track_limits(int* video_tracks, int* audio_tracks);
-    void destroy_clip(int i, bool del);
+    QString name;
+    void getTrackLimits(int* video_tracks, int* audio_tracks);
 	long getEndFrame();
 	int width;
 	int height;
@@ -29,8 +25,10 @@ public:
     long workarea_out;
 
     int save_id;
-private:
+
+    QVector<Marker> markers;
     QVector<Clip*> clips;
+private:
 };
 
 // static variable for the currently active sequence

@@ -99,8 +99,8 @@ void Clip::reset_audio() {
     case MEDIA_TYPE_SEQUENCE:
     {
         Sequence* nested_sequence = static_cast<Sequence*>(media);
-        for (int i=0;i<nested_sequence->clip_count();i++) {
-            Clip* c = nested_sequence->get_clip(i);
+        for (int i=0;i<nested_sequence->clips.size();i++) {
+            Clip* c = nested_sequence->clips.at(i);
             if (c != NULL) c->reset_audio();
         }
     }

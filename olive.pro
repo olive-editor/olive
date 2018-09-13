@@ -79,7 +79,8 @@ SOURCES += \
     effects/audio/audionoiseeffect.cpp \
     effects/video/boxblureffect.cpp \
     dialogs/demonotice.cpp \
-    effects/audio/toneeffect.cpp
+    effects/audio/toneeffect.cpp \
+    project/marker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -135,7 +136,8 @@ HEADERS += \
     effects/audio/audionoiseeffect.h \
     effects/video/boxblureffect.h \
     dialogs/demonotice.h \
-    effects/audio/toneeffect.h
+    effects/audio/toneeffect.h \
+    project/marker.h
 
 FORMS += \
         mainwindow.ui \

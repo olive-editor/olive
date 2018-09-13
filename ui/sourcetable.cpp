@@ -121,9 +121,7 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 	} else if (selectedItems().count() == 1) {
         QTreeWidgetItem* item = selectedItems().at(0);
         if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
-            TimelineAction* ta = new TimelineAction();
-            ta->change_sequence(get_sequence_from_tree(item));
-            undo_stack.push(ta);
+            undo_stack.push(new ChangeSequenceAction(get_sequence_from_tree(item)));
         }
     }
 }

@@ -18,7 +18,7 @@
 class QPushButton;
 class SourceTable;
 class ViewerWidget;
-class TimelineAction;
+class ComboAction;
 class Transition;
 struct Sequence;
 struct Clip;
@@ -86,14 +86,14 @@ public:
     void copy(bool del);
     void paste();
     void deselect();
-	Clip* split_clip(TimelineAction* ta, int p, long frame);
-	Clip* split_clip(TimelineAction* ta, int p, long frame, long post_in);
-    bool split_selection(TimelineAction* ta);
+    Clip* split_clip(ComboAction* ca, int p, long frame);
+    Clip* split_clip(ComboAction* ca, int p, long frame, long post_in);
+    bool split_selection(ComboAction* ca);
     void split_at_playhead();
-    bool split_clip_and_relink(TimelineAction* ta, int clip, long frame, bool relink);
+    bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
     void clean_up_selections(QVector<Selection>& areas);
 	void deselect_area(long in, long out, int track);
-    void delete_areas_and_relink(TimelineAction* ta, QVector<Selection>& areas);
+    void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas);
     void relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips);
     void update_sequence();
     void increase_track_height();

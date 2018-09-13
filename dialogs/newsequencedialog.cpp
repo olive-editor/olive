@@ -62,9 +62,9 @@ void NewSequenceDialog::on_buttonBox_accepted()
 	s->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
 	s->audio_layout = AV_CH_LAYOUT_STEREO;
 
-    TimelineAction* ta = new TimelineAction();
-    panel_project->new_sequence(ta, s, true, NULL);
-    undo_stack.push(ta);
+    ComboAction* ca = new ComboAction();
+    panel_project->new_sequence(ca, s, true, NULL);
+    undo_stack.push(ca);
 }
 
 void NewSequenceDialog::on_comboBox_currentIndexChanged(int index)

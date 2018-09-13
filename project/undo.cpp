@@ -20,15 +20,368 @@
 
 QUndoStack undo_stack;
 
-#define TA_IN 0
-#define TA_OUT 1
-#define TA_CLIP_IN 2
-#define TA_TRACK 3
-#define TA_DELETE 4
-#define TA_ADD_IN 5
-#define TA_ADD_OUT 6
-#define TA_ADD_CLIP_IN 7
-#define TA_ADD_TRACK 8
+ComboAction::ComboAction() {}
+
+ComboAction::~ComboAction() {
+    for (int i=0;i<commands.size();i++) {
+        delete commands.at(i);
+    }
+}
+
+void ComboAction::undo() {
+    for (int i=commands.size()-1;i>=0;i--) {
+        commands.at(i)->undo();
+    }
+}
+
+void ComboAction::redo() {
+    for (int i=0;i<commands.size();i++) {
+        commands.at(i)->redo();
+    }
+}
+
+void ComboAction::append(QUndoCommand* u) {
+    commands.append(u);
+}
+
+MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack) :
+    clip(c),
+    new_in(iin),
+    new_out(iout),
+    new_clip_in(iclip_in),
+    new_track(itrack)
+{}
+
+void MoveClipAction::undo() {
+    clip->timeline_in = old_in;
+    clip->timeline_out = old_out;
+    clip->clip_in = old_clip_in;
+    clip->track = old_track;
+}
+
+void MoveClipAction::redo() {
+    old_in = clip->timeline_in;
+    old_out = clip->timeline_out;
+    old_clip_in = clip->clip_in;
+    old_track = clip->track;
+
+    clip->timeline_in = new_in;
+    clip->timeline_out = new_out;
+    clip->clip_in = new_clip_in;
+    clip->track = new_track;
+}
+
+DeleteClipAction::DeleteClipAction(Sequence* s, int clip) :
+    seq(s),
+    index(clip)
+{}
+
+DeleteClipAction::~DeleteClipAction() {
+    if (ref != NULL) delete ref;
+}
+
+void DeleteClipAction::undo() {
+    seq->clips[index] = ref;
+    ref = NULL;
+}
+
+void DeleteClipAction::redo() {
+    ref = seq->clips.at(index);
+    seq->clips[index] = NULL;
+}
+
+ChangeSequenceAction::ChangeSequenceAction(Sequence* s) :
+    new_sequence(s)
+{}
+
+void ChangeSequenceAction::undo() {
+    set_sequence(old_sequence);
+}
+
+void ChangeSequenceAction::redo() {
+    old_sequence = sequence;
+    set_sequence(new_sequence);
+}
+
+SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long in, long out) :
+    seq(s),
+    new_enabled(enabled),
+    new_in(in),
+    new_out(out)
+{}
+
+void SetTimelineInOutCommand::undo() {
+    seq->using_workarea = old_enabled;
+    seq->workarea_in = old_in;
+    seq->workarea_out = old_out;
+}
+
+void SetTimelineInOutCommand::redo() {
+    old_enabled = seq->using_workarea;
+    old_in = seq->workarea_in;
+    old_out = seq->workarea_out;
+
+    seq->using_workarea = new_enabled;
+    seq->workarea_in = new_in;
+    seq->workarea_out = new_out;
+}
+
+AddEffectCommand::AddEffectCommand(Clip* c, int ieffect) :
+    clip(c),
+    effect(ieffect),
+    ref(NULL),
+    done(false)
+{}
+
+AddEffectCommand::~AddEffectCommand() {
+    if (!done && ref != NULL) delete ref;
+}
+
+void AddEffectCommand::undo() {
+    clip->effects.removeLast();
+    done = false;
+}
+
+void AddEffectCommand::redo() {
+    if (ref == NULL) {
+        ref = create_effect(effect, clip);
+    }
+    clip->effects.append(ref);
+    done = true;
+}
+
+AddTransitionCommand::AddTransitionCommand(Clip* c, int itransition, int itype) :
+    clip(c),
+    transition(itransition),
+    type(itype)
+{}
+
+void AddTransitionCommand::undo() {
+    if (type == TA_OPENING_TRANSITION) {
+        delete clip->opening_transition;
+        clip->opening_transition = NULL;
+    } else {
+        delete clip->closing_transition;
+        clip->closing_transition = NULL;
+    }
+}
+
+void AddTransitionCommand::redo() {
+    if (type == TA_OPENING_TRANSITION) {
+        clip->opening_transition = create_transition(transition, clip);
+    } else {
+        clip->closing_transition = create_transition(transition, clip);
+    }
+}
+
+ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilength) :
+    clip(c),
+    type(itype),
+    new_length(ilength)
+{}
+
+void ModifyTransitionCommand::undo() {
+    if (type == TA_OPENING_TRANSITION) {
+        clip->opening_transition->length = old_length;
+    } else {
+        clip->closing_transition->length = old_length;
+    }
+}
+
+void ModifyTransitionCommand::redo() {
+    if (type == TA_OPENING_TRANSITION) {
+        old_length = clip->opening_transition->length;
+        clip->opening_transition->length = new_length;
+    } else {
+        old_length = clip->closing_transition->length;
+        clip->closing_transition->length = new_length;
+    }
+}
+
+DeleteTransitionCommand::DeleteTransitionCommand(Clip* c, int itype) :
+    clip(c),
+    type(itype),
+    transition(NULL)
+{}
+
+DeleteTransitionCommand::~DeleteTransitionCommand() {
+    if (transition != NULL) delete transition;
+}
+
+void DeleteTransitionCommand::undo() {
+    if (type == TA_OPENING_TRANSITION) {
+        clip->opening_transition = transition;
+    } else {
+        clip->closing_transition = transition;
+    }
+    transition = NULL;
+}
+
+void DeleteTransitionCommand::redo() {
+    if (type == TA_OPENING_TRANSITION) {
+        transition = clip->opening_transition;
+        clip->opening_transition = NULL;
+    } else {
+        transition = clip->closing_transition;
+        clip->closing_transition = NULL;
+    }
+}
+
+NewSequenceCommand::NewSequenceCommand(QTreeWidgetItem *s, QTreeWidgetItem* iparent) :
+    seq(s),
+    parent(iparent),
+    done(false)
+{}
+
+NewSequenceCommand::~NewSequenceCommand() {
+    if (!done) delete seq;
+}
+
+void NewSequenceCommand::undo() {
+    if (parent == NULL) {
+        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(seq));
+    } else {
+        parent->removeChild(seq);
+    }
+    done = false;
+}
+
+void NewSequenceCommand::redo() {
+    if (parent == NULL) {
+        panel_project->source_table->addTopLevelItem(seq);
+    } else {
+        parent->addChild(seq);
+    }
+    done = true;
+}
+
+AddMediaCommand::AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparent) :
+    item(iitem),
+    parent(iparent),
+    done(false)
+{}
+
+AddMediaCommand::~AddMediaCommand() {
+    if (!done) {
+        panel_project->delete_media(item);
+        delete item;
+    }
+}
+
+void AddMediaCommand::undo() {
+    if (parent == NULL) {
+        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
+    } else {
+        parent->removeChild(item);
+    }
+    done = false;
+}
+
+void AddMediaCommand::redo() {
+    if (parent == NULL) {
+        panel_project->source_table->addTopLevelItem(item);
+    } else {
+        parent->addChild(item);
+    }
+    done = true;
+}
+
+DeleteMediaCommand::DeleteMediaCommand(QTreeWidgetItem* i) :
+    item(i)
+{}
+
+DeleteMediaCommand::~DeleteMediaCommand() {
+    panel_project->delete_media(item);
+    delete item;
+}
+
+void DeleteMediaCommand::undo() {
+    if (parent == NULL) {
+        panel_project->source_table->addTopLevelItem(item);
+    } else {
+        parent->addChild(item);
+    }
+}
+
+void DeleteMediaCommand::redo() {
+    parent = item->parent();
+
+    if (parent == NULL) {
+        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
+    } else {
+        parent->removeChild(item);
+    }
+}
+
+RippleCommand::RippleCommand(Sequence *s, long ipoint, long ilength) :
+    seq(s),
+    point(ipoint),
+    length(ilength)
+{}
+
+void RippleCommand::undo() {
+    for (int i=0;i<rippled.size();i++) {
+        Clip* c = rippled.at(i);
+        c->timeline_in -= length;
+        c->timeline_out -= length;
+    }
+}
+
+void RippleCommand::redo() {
+    rippled.clear();
+    for (int j=0;j<seq->clips.size();j++) {
+        Clip* c = seq->clips.at(j);
+        bool found = false;
+        for (int i=0;i<ignore.size();i++) {
+            if (ignore.at(i) == c) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            if (c != NULL && c->timeline_in >= point) {
+                c->timeline_in += length;
+                c->timeline_out += length;
+                rippled.append(c);
+            }
+        }
+    }
+}
+
+AddClipCommand::AddClipCommand(Sequence* s, QVector<Clip*>& add) :
+    seq(s),
+    clips(add)
+{}
+
+AddClipCommand::~AddClipCommand() {
+    for (int i=0;i<clips.size();i++) {
+        delete clips.at(i);
+    }
+}
+
+void AddClipCommand::undo() {
+    for (int i=0;i<clips.size();i++) {
+        delete seq->clips.last();
+        seq->clips.removeLast();
+    }
+}
+
+void AddClipCommand::redo() {
+    // TODO does this actually need to copy?
+    int linkOffset = seq->clips.size();
+    for (int i=0;i<clips.size();i++) {
+        Clip* original = clips.at(i);
+        Clip* copy = original->copy(seq);
+        copy->linked.resize(original->linked.size());
+        for (int j=0;j<original->linked.size();j++) {
+            copy->linked[j] = original->linked.at(j) + linkOffset;
+        }
+        seq->clips.append(copy);
+    }
+}
+
+/*
 #define TA_ADD_EFFECT 9
 #define TA_ADD_TRANSITION 10
 #define TA_MODIFY_TRANSITION 11
@@ -439,7 +792,7 @@ void TimelineAction::redo() {
 			break;
 		case TA_MODIFY_TRANSITION:
 		{
-			Clip* c = sequences.at(i)->get_clip(clips.at(i));
+            Clip* c = sequences.at(i)->get_clip(clips.at(i));
 			if (transition_types.at(i) == TA_OPENING_TRANSITION) {
 				old_values[i] = c->opening_transition->length;
 				c->opening_transition->length = new_values.at(i);
@@ -555,7 +908,7 @@ void TimelineAction::redo() {
 	project_changed = true;
 
     done = true;
-}
+}*/
 
 LinkCommand::LinkCommand() : link(true), old_project_changed(project_changed) {}
 
@@ -620,8 +973,8 @@ void ReplaceMediaCommand::replace(QString& filename) {
 	QVector<Sequence*> all_sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<all_sequences.size();i++) {
 		Sequence* s = all_sequences.at(i);
-		for (int j=0;j<s->clip_count();j++) {
-			Clip* c = s->get_clip(j);
+        for (int j=0;j<s->clips.size();j++) {
+            Clip* c = s->clips.at(j);
 			if (c != NULL && c->media == media && c->open) {
 				close_clip(c);
 				if (c->media_type == MEDIA_TYPE_FOOTAGE) c->cacher->wait();

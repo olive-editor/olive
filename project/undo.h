@@ -7,6 +7,7 @@ class LabelSlider;
 class Effect;
 class SourceTable;
 class EffectRow;
+class Transition;
 struct Clip;
 struct Sequence;
 struct Media;
@@ -21,7 +22,183 @@ struct Media;
 
 extern QUndoStack undo_stack;
 
-class TimelineAction : public QUndoCommand {
+class ComboAction : public QUndoCommand {
+public:
+    ComboAction();
+    ~ComboAction();
+    void undo();
+    void redo();
+    void append(QUndoCommand* u);
+private:
+    QVector<QUndoCommand*> commands;
+};
+
+class MoveClipAction : public QUndoCommand {
+public:
+    MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack);
+    void undo();
+    void redo();
+private:
+    Clip* clip;
+
+    long new_in;
+    long new_out;
+    long new_clip_in;
+    int new_track;
+
+    long old_in;
+    long old_out;
+    long old_clip_in;
+    int old_track;
+};
+
+class DeleteClipAction : public QUndoCommand {
+public:
+    DeleteClipAction(Sequence* s, int clip);
+    ~DeleteClipAction();
+    void undo();
+    void redo();
+private:
+    Sequence* seq;
+    Clip* ref;
+    int index;
+};
+
+class ChangeSequenceAction : public QUndoCommand {
+public:
+    ChangeSequenceAction(Sequence* s);
+    void undo();
+    void redo();
+private:
+    Sequence* old_sequence;
+    Sequence* new_sequence;
+};
+
+class AddEffectCommand : public QUndoCommand {
+public:
+    AddEffectCommand(Clip* c, int ieffect);
+    ~AddEffectCommand();
+    void undo();
+    void redo();
+private:
+    Clip* clip;
+    int effect;
+    Effect* ref;
+    bool done;
+};
+
+class AddTransitionCommand : public QUndoCommand {
+public:
+    AddTransitionCommand(Clip* c, int itransition, int itype);
+    void undo();
+    void redo();
+private:
+    Clip* clip;
+    int transition;
+    int type;
+};
+
+class ModifyTransitionCommand : public QUndoCommand {
+public:
+    ModifyTransitionCommand(Clip* c, int itype, long ilength);
+    void undo();
+    void redo();
+private:
+    Clip* clip;
+    int type;
+    long new_length;
+    long old_length;
+};
+
+class DeleteTransitionCommand : public QUndoCommand {
+public:
+    DeleteTransitionCommand(Clip* c, int itype);
+    ~DeleteTransitionCommand();
+    void undo();
+    void redo();
+private:
+    Clip* clip;
+    int type;
+    Transition* transition;
+};
+
+class SetTimelineInOutCommand : public QUndoCommand {
+public:
+    SetTimelineInOutCommand(Sequence* s, bool enabled, long in, long out);
+    void undo();
+    void redo();
+private:
+    Sequence* seq;
+
+    bool old_enabled;
+    long old_in;
+    long old_out;
+
+    bool new_enabled;
+    long new_in;
+    long new_out;
+};
+
+class NewSequenceCommand : public QUndoCommand {
+public:
+    NewSequenceCommand(QTreeWidgetItem *s, QTreeWidgetItem* iparent);
+    ~NewSequenceCommand();
+    void undo();
+    void redo();
+private:
+    QTreeWidgetItem* seq;
+    QTreeWidgetItem* parent;
+    bool done;
+};
+
+class AddMediaCommand : public QUndoCommand {
+public:
+    AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparent);
+    ~AddMediaCommand();
+    void undo();
+    void redo();
+private:
+    QTreeWidgetItem* item;
+    QTreeWidgetItem* parent;
+    bool done;
+};
+
+class DeleteMediaCommand : public QUndoCommand {
+public:
+    DeleteMediaCommand(QTreeWidgetItem* i);
+    ~DeleteMediaCommand();
+    void undo();
+    void redo();
+private:
+    QTreeWidgetItem* item;
+    QTreeWidgetItem* parent;
+};
+
+class RippleCommand : public QUndoCommand {
+public:
+    RippleCommand(Sequence* s, long ipoint, long ilength);
+    QVector<Clip*> ignore;
+    void undo();
+    void redo();
+private:
+    Sequence* seq;
+    long point;
+    long length;
+    QVector<Clip*> rippled;
+};
+
+class AddClipCommand : public QUndoCommand {
+public:
+    AddClipCommand(Sequence* s, QVector<Clip*>& add);
+    ~AddClipCommand();
+    void undo();
+    void redo();
+private:
+    Sequence* seq;
+    QVector<Clip*> clips;
+};
+
+/*class TimelineAction : public QUndoCommand {
 public:
     TimelineAction();
     ~TimelineAction();
@@ -103,7 +280,7 @@ private:
     void offset_links(QVector<Clip*>& clips, int offset);
 
 	bool old_project_changed;
-};
+};*/
 
 class LinkCommand : public QUndoCommand {
 public:

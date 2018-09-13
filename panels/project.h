@@ -15,10 +15,9 @@ class QTreeWidgetItem;
 class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
+class ComboAction;
 
 #define LOAD_TYPE_VERSION 69
-
-class TimelineAction;
 
 namespace Ui {
 class Project;
@@ -47,7 +46,7 @@ public:
 	~Project();
     bool is_focused();
 	void clear();
-    void new_sequence(TimelineAction* ta, Sequence* s, bool open, QTreeWidgetItem* parent);
+    void new_sequence(ComboAction *ca, Sequence* s, bool open, QTreeWidgetItem* parent);
 	QString get_next_sequence_name();
     void delete_media(QTreeWidgetItem* item);
 	void process_file_list(bool recursive, QStringList& files, QTreeWidgetItem *parent, QTreeWidgetItem* replace);

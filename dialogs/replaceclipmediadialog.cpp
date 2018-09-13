@@ -83,8 +83,8 @@ void ReplaceClipMediaDialog::replace() {
 							use_same_media_in_points->isChecked()
 						);
 
-				for (int i=0;i<sequence->clip_count();i++) {
-					Clip* c = sequence->get_clip(i);
+                for (int i=0;i<sequence->clips.size();i++) {
+                    Clip* c = sequence->clips.at(i);
 					if (c != NULL && c->media == old_media) {
 						rcmc->clips.append(c);
 					}

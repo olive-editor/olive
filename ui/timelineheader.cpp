@@ -41,9 +41,7 @@ void TimelineHeader::set_in_point(long new_in) {
         new_out = sequence->getEndFrame();
     }
 
-    TimelineAction* ta = new TimelineAction();
-    ta->set_in_out(sequence, true, new_in, new_out);
-    undo_stack.push(ta);
+    undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
 
     update();
 }
@@ -56,9 +54,7 @@ void TimelineHeader::set_out_point(long new_out) {
         new_in = 0;
     }
 
-    TimelineAction* ta = new TimelineAction();
-    ta->set_in_out(sequence, true, new_in, new_out);
-    undo_stack.push(ta);
+    undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
 
     update();
 }
@@ -110,9 +106,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 
 void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
     if (resizing_workarea) {
-        TimelineAction* ta = new TimelineAction();
-        ta->set_in_out(sequence, true, temp_workarea_in, temp_workarea_out);
-        undo_stack.push(ta);
+        undo_stack.push(new SetTimelineInOutCommand(sequence, true, temp_workarea_in, temp_workarea_out));
     }
 
     resizing_workarea = false;

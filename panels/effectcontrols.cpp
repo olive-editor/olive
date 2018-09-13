@@ -62,23 +62,23 @@ void EffectControls::set_zoom(bool in) {
 }
 
 void EffectControls::menu_select(QAction* q) {
-    TimelineAction* ta = new TimelineAction();
+    ComboAction* ca = new ComboAction();
     for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->get_clip(selected_clips.at(i));
+        Clip* c = sequence->clips.at(selected_clips.at(i));
         if ((c->track < 0) == video_menu) {
 			if (transition_menu) {
 				if (c->opening_transition == NULL) {
-					ta->add_transition(sequence, selected_clips.at(i), q->data().toInt(), TA_OPENING_TRANSITION);
+                    ca->append(new AddTransitionCommand(c, q->data().toInt(), TA_OPENING_TRANSITION));
 				}
 				if (c->closing_transition == NULL) {
-					ta->add_transition(sequence, selected_clips.at(i), q->data().toInt(), TA_CLOSING_TRANSITION);
+                    ca->append(new AddTransitionCommand(c, q->data().toInt(), TA_CLOSING_TRANSITION));
 				}
 			} else {
-				ta->add_effect(sequence, selected_clips.at(i), q->data().toInt());
+                ca->append(new AddEffectCommand(c, q->data().toInt()));
 			}
         }
     }
-    undo_stack.push(ta);
+    undo_stack.push(ca);
 	if (transition_menu) {
 		panel_timeline->redraw_all_clips(true);
 	} else {
@@ -167,7 +167,7 @@ void EffectControls::clear_effects(bool clear_cache) {
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = sequence->get_clip(selected_clips.at(i));
+        Clip* c = sequence->clips.at(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
             if (c->effects.at(j)->container != sender) {
                 c->effects.at(j)->container->header_click(false, false);
@@ -182,7 +182,7 @@ void EffectControls::load_effects() {
 	if (!multiple) {
 		// load in new clips
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->get_clip(selected_clips.at(i));
+            Clip* c = sequence->clips.at(selected_clips.at(i));
 			QVBoxLayout* layout;
 			if (c->track < 0) {
 				ui->vcontainer->setVisible(true);
@@ -211,7 +211,7 @@ void EffectControls::delete_effects() {
     // load in new clips
     EffectDeleteCommand* command = new EffectDeleteCommand();
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = sequence->get_clip(selected_clips.at(i));
+        Clip* c = sequence->clips.at(selected_clips.at(i));
         for (int j=0;j<c->effects.size();j++) {
             Effect* effect = c->effects.at(j);
             if (effect->container->selected) {
@@ -265,7 +265,7 @@ void EffectControls::on_add_audio_transition_button_clicked()
 bool EffectControls::is_focused() {
     if (this->hasFocus()) return true;
     for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = sequence->get_clip(selected_clips.at(i));
+        Clip* c = sequence->clips.at(selected_clips.at(i));
         if (c != NULL) {
             for (int j=0;j<c->effects.size();j++) {
                 if (c->effects.at(j)->container->is_focused()) {

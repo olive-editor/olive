@@ -622,9 +622,7 @@ void MainWindow::on_actionSlide_Tool_triggered()
 }
 
 void MainWindow::on_actionFolder_triggered() {
-	TimelineAction* ta = new TimelineAction();
-	ta->add_media(panel_project->new_folder(0), panel_project->get_selected_folder());
-	undo_stack.push(ta);
+    undo_stack.push(new AddMediaCommand(panel_project->new_folder(0), panel_project->get_selected_folder()));
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {
@@ -688,12 +686,9 @@ void MainWindow::on_actionSet_Out_Point_triggered()
     if (panel_timeline->focused()) panel_timeline->set_out_point();
 }
 
-void MainWindow::on_actionClear_In_Out_triggered()
-{
+void MainWindow::on_actionClear_In_Out_triggered() {
     if (panel_timeline->focused() && sequence->using_workarea) {
-        TimelineAction* ta = new TimelineAction();
-        ta->set_in_out(sequence, false, 0, 0);
-        undo_stack.push(ta);
+        undo_stack.push(new SetTimelineInOutCommand(sequence, false, 0, 0));
         panel_timeline->repaint_timeline();
     }
 }

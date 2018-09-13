@@ -92,18 +92,18 @@ void Project::rename_media(QTreeWidgetItem* item, int column) {
 void Project::duplicate_selected() {
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
     bool duped = false;
-    TimelineAction* ta = new TimelineAction();
+    ComboAction* ca = new ComboAction();
     for (int j=0;j<items.size();j++) {
         QTreeWidgetItem* i = items.at(j);
         if (get_type_from_tree(i) == MEDIA_TYPE_SEQUENCE) {
-            new_sequence(ta, get_sequence_from_tree(i)->copy(), false, i->parent());
+            new_sequence(ca, get_sequence_from_tree(i)->copy(), false, i->parent());
             duped = true;
         }
     }
     if (duped) {
-        undo_stack.push(ta);
+        undo_stack.push(ca);
     } else {
-        delete ta;
+        delete ca;
     }
 }
 
@@ -141,14 +141,14 @@ void Project::replace_clip_media() {
 	}
 }
 
-void Project::new_sequence(TimelineAction *ta, Sequence *s, bool open, QTreeWidgetItem* parent) {
+void Project::new_sequence(ComboAction *ca, Sequence *s, bool open, QTreeWidgetItem* parent) {
     QTreeWidgetItem* item = new_item();
     item->setText(0, s->name);
     set_sequence_of_tree(item, s);
 
-    if (ta != NULL) {
-        ta->new_sequence(item, parent);
-        if (open) ta->change_sequence(s);
+    if (ca != NULL) {
+        ca->append(new NewSequenceCommand(item, parent));
+        if (open) ca->append(new ChangeSequenceAction(s));
     } else {
         if (parent == NULL) {
             ui->treeWidget->addTopLevelItem(item);
@@ -208,7 +208,7 @@ void Project::get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTre
 }
 
 void Project::delete_selected_media() {
-    TimelineAction* ta = new TimelineAction();
+    ComboAction* ca = new ComboAction();
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
     bool remove = true;
     bool redraw = false;
@@ -230,8 +230,8 @@ void Project::delete_selected_media() {
             bool confirm_delete = false;
             for (int j=0;j<sequence_items.size();j++) {
                 Sequence* s = get_sequence_from_tree(sequence_items.at(j));
-                for (int k=0;k<s->clip_count();k++) {
-                    Clip* c = s->get_clip(k);
+                for (int k=0;k<s->clips.size();k++) {
+                    Clip* c = s->clips.at(k);
                     if (c != NULL && c->media == media) {
                         if (!confirm_delete) {
                             // we found a reference, so we know we'll need to ask if the user wants to delete it
@@ -272,18 +272,18 @@ void Project::delete_selected_media() {
                                 }
 
                                 j = sequence_items.size();
-                                k = s->clip_count();
+                                k = s->clips.size();
                             } else if (confirm.clickedButton() == abort_button) {
                                 // break out of loop
                                 i = media_items.size();
                                 j = sequence_items.size();
-                                k = s->clip_count();
+                                k = s->clips.size();
 
                                 remove = false;
                             }
                         }
                         if (confirm_delete) {
-                            ta->delete_clip(s, k);
+                            ca->append(new DeleteClipAction(s, k));
                         }
                     }
                 }
@@ -304,20 +304,24 @@ void Project::delete_selected_media() {
         }
 
         for (int i=0;i<items.size();i++) {
-            // send delete command to the TimelineAction
+            ca->append(new DeleteMediaCommand(items.at(i)));
+
             if (get_type_from_tree(items.at(i)) == MEDIA_TYPE_SEQUENCE) {
                 redraw = true;
+
+                if (get_sequence_from_tree(items.at(i)) == sequence) {
+                    ca->append(new ChangeSequenceAction(NULL));
+                }
             }
-            ta->delete_media(items.at(i));
         }
-        undo_stack.push(ta);
+        undo_stack.push(ca);
 
         // redraw clips
         if (redraw) {
             panel_timeline->redraw_all_clips(true);
 		}
     } else {
-        delete ta;
+        delete ca;
     }
 }
 
@@ -329,8 +333,8 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
     QStringList image_sequence_formats = config.img_seq_formats.split("|");
 
 	bool create_undo_action = (!recursive && replace == NULL);
-	TimelineAction* ta;
-	if (create_undo_action) ta = new TimelineAction();
+    ComboAction* ca;
+    if (create_undo_action) ca = new ComboAction();
 
 	for (int i=0;i<files.size();i++) {
 		if (QFileInfo(files.at(i)).isDir()) {
@@ -350,7 +354,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 			process_file_list(true, subdir_filenames, folder, NULL);
 
 			if (create_undo_action) {
-				ta->add_media(folder, parent);
+                ca->append(new AddMediaCommand(folder, parent));
 			} else {
 				parent->addChild(folder);
 			}
@@ -452,7 +456,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 
 				if (replace == NULL) {
 					if (create_undo_action) {
-						ta->add_media(item, parent);
+                        ca->append(new AddMediaCommand(item, parent));
 					} else {
 						parent->addChild(item);
 					}
@@ -464,9 +468,9 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
     }
 	if (create_undo_action) {
 		if (imported) {
-			undo_stack.push(ta);
+            undo_stack.push(ca);
 		} else {
-			delete ta;
+            delete ca;
 		}
 	}
 }
@@ -544,26 +548,26 @@ void Project::delete_clips_using_selected_media() {
 	if (sequence == NULL) {
 		QMessageBox::critical(this, "No active sequence", "No sequence is active, please open the sequence you want to delete clips from.", QMessageBox::Ok);
 	} else {
-		TimelineAction* ta = new TimelineAction();
+        ComboAction* ca = new ComboAction();
 		bool deleted = false;
-		for (int i=0;i<sequence->clip_count();i++) {
-			Clip* c = sequence->get_clip(i);
+        for (int i=0;i<sequence->clips.size();i++) {
+            Clip* c = sequence->clips.at(i);
 			if (c != NULL) {
 				QList<QTreeWidgetItem*> items = source_table->selectedItems();
 				for (int j=0;j<items.size();j++) {
 					Media* m = get_footage_from_tree(items.at(j));
 					if (c->media == m) {
-						ta->delete_clip(sequence, i);
+                        ca->append(new DeleteClipAction(sequence, i));
 						deleted = true;
 					}
 				}
 			}
 		}
 		if (deleted) {
-			undo_stack.push(ta);
+            undo_stack.push(ca);
 			panel_timeline->redraw_all_clips(true);
 		} else {
-			delete ta;
+            delete ca;
 		}
 	}
 }
@@ -878,18 +882,18 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         }
                                     }
 
-                                    s->add_clip(c);
+                                    s->clips.append(c);
                                 }
                             }
 
                             // correct links and clip IDs
-                            for (int i=0;i<s->clip_count();i++) {
+                            for (int i=0;i<s->clips.size();i++) {
                                 // correct links
-                                Clip* correct_clip = s->get_clip(i);
+                                Clip* correct_clip = s->clips.at(i);
                                 for (int j=0;j<correct_clip->linked.size();j++) {
                                     bool found = false;
-                                    for (int k=0;k<s->clip_count();k++) {
-                                        if (s->get_clip(k)->load_id == correct_clip->linked.at(j)) {
+                                    for (int k=0;k<s->clips.size();k++) {
+                                        if (s->clips.at(k)->load_id == correct_clip->linked.at(j)) {
                                             correct_clip->linked[j] = k;
                                             found = true;
                                             break;
@@ -1083,8 +1087,8 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                             stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
                             stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
                         }
-                        for (int j=0;j<s->clip_count();j++) {
-                            Clip* c = s->get_clip(j);
+                        for (int j=0;j<s->clips.size();j++) {
+                            Clip* c = s->clips.at(j);
                             if (c != NULL) {
                                 stream.writeStartElement("clip"); // clip
                                 stream.writeAttribute("id", QString::number(j));
@@ -1280,8 +1284,8 @@ void MediaThrobber::stop(int icon_type, bool replace) {
     QVector<Sequence*> sequences = panel_project->list_all_project_sequences();
     for (int i=0;i<sequences.size();i++) {
         Sequence* s = sequences.at(i);
-        for (int j=0;j<s->clip_count();j++) {
-            Clip* c = s->get_clip(j);
+        for (int j=0;j<s->clips.size();j++) {
+            Clip* c = s->clips.at(j);
 			if (c != NULL) {
 				c->refresh();
             }

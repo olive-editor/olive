@@ -85,7 +85,7 @@ void ViewerWidget::drawTitleSafeArea() {
     glLoadIdentity();
     glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
 
-    glColor3f(0.5, 0.5, 0.5);
+    glColor4f(0.5, 0.5, 0.5, 1.0);
     glBegin(GL_LINES);
 
     // action safe rectangle
@@ -175,8 +175,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
     QVector<Clip*> current_clips;
 
-    for (int i=0;i<s->clip_count();i++) {
-        Clip* c = s->get_clip(i);
+    for (int i=0;i<s->clips.size();i++) {
+        Clip* c = s->clips.at(i);
 
         // if clip starts within one second and/or hasn't finished yet
 		if (c != NULL && !(nest != NULL && !same_sign(c->track, nest->track))) {
