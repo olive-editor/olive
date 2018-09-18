@@ -81,13 +81,36 @@ DeleteClipAction::~DeleteClipAction() {
 }
 
 void DeleteClipAction::undo() {
+	// restore ref to clip
     seq->clips[index] = ref;
     ref = NULL;
+
+	// restore links to this clip
+	for (int i=linkClipIndex.size()-1;i>=0;i--) {
+		seq->clips.at(linkClipIndex.at(i))->linked.insert(linkLinkIndex.at(i), index);
+	}
 }
 
 void DeleteClipAction::redo() {
+	// remove ref to clip
     ref = seq->clips.at(index);
     seq->clips[index] = NULL;
+
+	// delete link to this clip
+	linkClipIndex.clear();
+	linkLinkIndex.clear();
+	for (int i=0;i<seq->clips.size();i++) {
+		Clip* c = seq->clips.at(i);
+		if (c != NULL) {
+			for (int j=0;j<c->linked.size();j++) {
+				if (c->linked.at(j) == index) {
+					linkClipIndex.append(i);
+					linkLinkIndex.append(j);
+					c->linked.removeAt(j);
+				}
+			}
+		}
+	}
 }
 
 ChangeSequenceAction::ChangeSequenceAction(Sequence* s) :

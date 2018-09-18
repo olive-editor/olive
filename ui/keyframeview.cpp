@@ -33,8 +33,6 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 	rowY.clear();
 	rows.clear();
 
-
-
 	if (panel_effect_controls->selected_clips.size() > 0) {
 		long effects_in = LONG_MAX;
 		long effects_out = 0;

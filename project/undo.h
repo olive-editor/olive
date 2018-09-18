@@ -62,6 +62,9 @@ private:
     Sequence* seq;
     Clip* ref;
     int index;
+
+	QVector<int> linkClipIndex;
+	QVector<int> linkLinkIndex;
 };
 
 class ChangeSequenceAction : public QUndoCommand {
