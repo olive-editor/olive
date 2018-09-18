@@ -515,3 +515,9 @@ void ExportDialog::on_renderCancel_clicked() {
 	et->continueEncode = false;
     cancelled = true;
 }
+
+void ExportDialog::on_vcodecCombobox_currentIndexChanged(int index) {
+	bool vbrEnabled = (format_vcodecs.size() > 0 && format_vcodecs.at(index) == AV_CODEC_ID_H264);
+	ui->compressionTypeCombobox->setEnabled(vbrEnabled);
+	if (!vbrEnabled) ui->compressionTypeCombobox->setCurrentIndex(0);
+}

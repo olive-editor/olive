@@ -31,6 +31,8 @@ private slots:
 
     void render_thread_finished();
 
+	void on_vcodecCombobox_currentIndexChanged(int index);
+
 private:
 	Ui::ExportDialog *ui;
 

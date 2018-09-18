@@ -1242,6 +1242,11 @@ void Timeline::on_addButton_clicked() {
 	toneMenuItem->setData(ADD_OBJ_TONE);
 	add_menu.addAction(toneMenuItem);
 
+	QAction* noiseMenuItem = new QAction(&add_menu);
+	noiseMenuItem->setText("Noise...");
+	noiseMenuItem->setData(ADD_OBJ_NOISE);
+	add_menu.addAction(noiseMenuItem);
+
 	connect(&add_menu, SIGNAL(triggered(QAction*)), this, SLOT(addMenuItem(QAction*)));
 
 	add_menu.exec(QCursor::pos());

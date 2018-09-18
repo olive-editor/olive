@@ -14,6 +14,7 @@
 #define ADD_OBJ_SOLID 1
 #define ADD_OBJ_BARS 2
 #define ADD_OBJ_TONE 3
+#define ADD_OBJ_NOISE 4
 
 class QPushButton;
 class SourceTable;

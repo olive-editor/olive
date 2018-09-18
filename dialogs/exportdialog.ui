@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>358</width>
-    <height>442</height>
+    <height>470</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,7 +123,7 @@
       <item row="5" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Bitrate (Mbps/CBR):</string>
+         <string>Bitrate (Mbps):</string>
         </property>
        </widget>
       </item>
@@ -135,6 +135,32 @@
         <property name="value">
          <double>2.000000000000000</double>
         </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Compression Type:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="compressionTypeCombobox">
+        <item>
+         <property name="text">
+          <string>Constant Bitrate</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Variable Bitrate (One-Pass)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Variable Bitrate (Two-Pass)</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>

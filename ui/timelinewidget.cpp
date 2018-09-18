@@ -400,6 +400,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 					comp = -1;
 					break;
 				case ADD_OBJ_TONE:
+				case ADD_OBJ_NOISE:
 					comp = 1;
 					break;
 				}
@@ -591,7 +592,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							break;
 						case ADD_OBJ_TONE:
 							c->name = "Tone";
-                            c->effects.append(create_effect(VIDEO_TEXT_EFFECT, c));
+							c->effects.append(create_effect(AUDIO_TONE_EFFECT, c));
+							break;
+						case ADD_OBJ_NOISE:
+							c->name = "Noise";
+							c->effects.append(create_effect(AUDIO_NOISE_EFFECT, c));
 							break;
 						}
 
