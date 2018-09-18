@@ -107,10 +107,10 @@ public:
     void set_out_point();
     void delete_in_out(bool ripple);
 
-    int get_snap_range();
 	int getTimelineScreenPointFromFrame(long frame);
 	long getTimelineFrameFromScreenPoint(int x);
 
+	int get_snap_range();
     bool snap_to_point(long point, long* l);
     void snap_to_clip(long* l, bool playhead_inclusive);
 
@@ -140,6 +140,7 @@ public:
 	long drag_frame_start;
 	int drag_track_start;
     void redraw_all_clips(bool changed);
+	void update_effect_controls();
 
     QVector<int> video_track_heights;
     QVector<int> audio_track_heights;
