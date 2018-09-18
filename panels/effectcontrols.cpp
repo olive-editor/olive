@@ -158,6 +158,7 @@ void EffectControls::clear_effects(bool clear_cache) {
         item->widget()->setParent(NULL);
         disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
     }
+    ui->label_2->setVisible(false);
     ui->vcontainer->setVisible(false);
     ui->acontainer->setVisible(false);
 	ui->headers->setVisible(false);
