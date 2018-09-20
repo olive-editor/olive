@@ -7,6 +7,7 @@ class LabelSlider;
 class Effect;
 class SourceTable;
 class EffectRow;
+class EffectField;
 class Transition;
 struct Clip;
 struct Sequence;
@@ -15,6 +16,7 @@ struct Media;
 #include <QUndoStack>
 #include <QUndoCommand>
 #include <QVector>
+#include <QVariant>
 
 #define TA_NO_TRANSITION 0
 #define TA_OPENING_TRANSITION 1
@@ -424,6 +426,18 @@ private:
 	long time;
 	bool enable_keyframes;
 	bool just_made_keyframe;
+	bool done;
+};
+
+class EffectFieldUndo : public QUndoCommand {
+public:
+	EffectFieldUndo(EffectField* field);
+	void undo();
+	void redo();
+private:
+	EffectField* field;
+	QVariant old_val;
+	QVariant new_val;
 	bool done;
 };
 

@@ -1302,3 +1302,19 @@ void KeyframeSet::redo() {
 	project_changed = true;
 	done = true;
 }
+
+EffectFieldUndo::EffectFieldUndo(EffectField* f) : field(f), done(true) {
+	old_val = field->get_previous_data();
+	new_val = field->get_current_data();
+}
+
+void EffectFieldUndo::undo() {
+	field->set_current_data(old_val);
+	done = false;
+}
+
+void EffectFieldUndo::redo() {
+	if (!done) {
+		field->set_current_data(new_val);
+	}
+}

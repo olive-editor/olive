@@ -536,6 +536,7 @@ void ExportDialog::on_compressionTypeCombobox_currentIndexChanged(int) {
 	ui->videobitrateSpinbox->setMaximum(99.99);
 	switch (ui->compressionTypeCombobox->currentData().toInt()) {
 	case COMPRESSION_TYPE_CBR:
+	case COMPRESSION_TYPE_TARGETBR:
 		ui->videoBitrateLabel->setText("Bitrate (Mbps):");
 		ui->videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence->height) - 4.5)));
 		break;
@@ -547,10 +548,6 @@ void ExportDialog::on_compressionTypeCombobox_currentIndexChanged(int) {
 		break;
 	case COMPRESSION_TYPE_TARGETSIZE:
 		ui->videoBitrateLabel->setText("Target File Size (MB):");
-		ui->videobitrateSpinbox->setValue(100);
-		break;
-	case COMPRESSION_TYPE_TARGETBR:
-		ui->videoBitrateLabel->setText("Target Bitrate (Mbps):");
 		ui->videobitrateSpinbox->setValue(100);
 		break;
 	}

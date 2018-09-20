@@ -47,6 +47,10 @@ QString LabelSlider::valueToString(double v) {
 	return QString::number(v, 'f', 1);
 }
 
+double LabelSlider::getPreviousValue() {
+	return previous_value;
+}
+
 double LabelSlider::value() {
     return internal_value;
 }
@@ -76,7 +80,10 @@ double LabelSlider::get_drag_start_value() {
 void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 	drag_start_value = internal_value;
 	if (ev->modifiers() & Qt::AltModifier) {
-		set_value(default_value, true);
+		if (internal_value != default_value) {
+			previous_value = internal_value;
+			set_value(default_value, true);
+		}
     } else {
         qApp->setOverrideCursor(Qt::BlankCursor);
         drag_start = true;
@@ -99,10 +106,12 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
         drag_start = false;
         if (drag_proc) {
 			drag_proc = false;
+			previous_value = drag_start_value;
 			emit valueChanged();
         } else {
             double d = QInputDialog::getDouble(this, "Set Value", "New value:", internal_value);
             if (d != internal_value) {
+				previous_value = internal_value;
 				set_value(d, true);
             }
         }

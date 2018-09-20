@@ -18,6 +18,7 @@ public:
 	double get_drag_start_value();
 	bool is_dragging();
 	virtual QString valueToString(double v);
+	double getPreviousValue();
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
@@ -26,6 +27,7 @@ private:
     double default_value;
     double internal_value;
     double drag_start_value;
+	double previous_value;
 
     bool min_enabled;
     double min_value;

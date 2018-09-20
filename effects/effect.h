@@ -92,6 +92,7 @@ public:
     EffectRow* parent_row;
 	int type;
 
+	QVariant get_previous_data();
     QVariant get_current_data();
 	double frameToTimecode(long frame);
 	long timecodeToFrame(double timecode);

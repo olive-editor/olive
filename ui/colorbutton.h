@@ -11,8 +11,10 @@ public:
     ColorButton(QWidget* parent = 0);
     QColor get_color();
     void set_color(QColor c);
+	const QColor& getPreviousValue();
 private:
     QColor color;
+	QColor previousColor;
     void set_button_color();
 signals:
     void color_changed();

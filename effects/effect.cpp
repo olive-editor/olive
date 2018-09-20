@@ -598,6 +598,18 @@ EffectField::EffectField(EffectRow *parent, int t) : parent_row(parent), type(t)
 	}
 }
 
+QVariant EffectField::get_previous_data() {
+	switch (type) {
+	case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->getPreviousValue(); break;
+	case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->getPreviousValue(); break;
+	case EFFECT_FIELD_STRING: return static_cast<TextEditEx*>(ui_element)->getPreviousValue(); break;
+	case EFFECT_FIELD_BOOL: return !static_cast<QCheckBox*>(ui_element)->isChecked(); break;
+	case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->getPreviousIndex(); break;
+	case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->getPreviousValue(); break;
+	}
+	return QVariant();
+}
+
 QVariant EffectField::get_current_data() {
     switch (type) {
     case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->value(); break;
@@ -720,9 +732,14 @@ void EffectField::validate_keyframe_data(double timecode) {
 }
 
 void EffectField::uiElementChange() {
+	bool enableKeyframes = !(type == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging());
 	if (parent_row->isKeyframing()) {
-		parent_row->set_keyframe_now(!(type == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging()));
-    }
+		parent_row->set_keyframe_now(enableKeyframes);
+	} else if (enableKeyframes) {
+		// set undo
+		qDebug() << "h";
+		undo_stack.push(new EffectFieldUndo(this));
+	}
     emit changed();
 }
 
@@ -797,7 +814,7 @@ const QString EffectField::get_string_value(double timecode) {
 }
 
 void EffectField::set_string_value(const QString& s) {
-	static_cast<TextEditEx*>(ui_element)->setText(s);
+	static_cast<TextEditEx*>(ui_element)->setPlainTextEx(s);
 }
 
 const QString EffectField::get_font_name(double timecode) {

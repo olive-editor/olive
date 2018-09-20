@@ -15,8 +15,13 @@ QColor ColorButton::get_color() {
 }
 
 void ColorButton::set_color(QColor c) {
+	previousColor = color;
     color = c;
 	set_button_color();
+}
+
+const QColor &ColorButton::getPreviousValue() {
+	return previousColor;
 }
 
 void ColorButton::set_button_color() {
@@ -26,16 +31,10 @@ void ColorButton::set_button_color() {
 }
 
 void ColorButton::open_dialog() {
-    QColor old_color = color;
     QColor new_color = QColorDialog::getColor(color, NULL);
-	if (new_color.isValid() && old_color != new_color) {
-		ColorCommand* command = new ColorCommand(this, old_color, new_color);
-//        undo_stack.push(command);
-		command->redo();
-		delete command;
-
+	if (new_color.isValid() && color != new_color) {
+		set_color(new_color);
         set_button_color();
-
 		emit color_changed();
     }
 }

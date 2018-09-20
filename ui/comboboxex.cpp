@@ -43,8 +43,13 @@ void ComboBoxEx::setCurrentTextEx(const QString &text) {
 	index = currentIndex();
 }
 
+int ComboBoxEx::getPreviousIndex() {
+	return previousIndex;
+}
+
 void ComboBoxEx::index_changed(int i) {
 	if (index != i) {
+		previousIndex = index;
 //		undo_stack.push(new ComboBoxExCommand(this, index, i));
 		index = i;
 	}
