@@ -49,26 +49,28 @@ ExportThread::ExportThread() : continueEncode(true) {
 }
 
 bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream) {
-	int ret = avcodec_send_frame(codec_ctx, frame);
-    if (ret < 0/* && ret != AVERROR(EAGAIN) && frame != NULL*/) {
+	ret = avcodec_send_frame(codec_ctx, frame);
+	if (ret < 0) {
 		qDebug() << "[ERROR] Failed to send frame to encoder." << ret;
-        ed->export_error = "failed to send frame to encoder (" + QString::number(ret) + ")";
-
+		ed->export_error = "failed to send frame to encoder (" + QString::number(ret) + ")";
 		return false;
-	} else {
-		while (ret >= 0) {
-			ret = avcodec_receive_packet(codec_ctx, packet);
-			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-				// do nothing, encoder needs more input
-			} else if (ret < 0) {
+	}
+
+	while (ret >= 0) {
+		ret = avcodec_receive_packet(codec_ctx, packet);
+		if (ret == AVERROR(EAGAIN)) {
+			return true;
+		} else if (ret < 0) {
+			if (ret != AVERROR_EOF) {
 				qDebug() << "[ERROR] Failed to receive packet from encoder." << ret;
-                ed->export_error = "failed to receive packet from encoder (" + QString::number(ret) + ")";
-				return false;
-			} else {
-				packet->stream_index = stream->index;
-				av_interleaved_write_frame(ofmt_ctx, packet);
+				ed->export_error = "failed to receive packet from encoder (" + QString::number(ret) + ")";
 			}
+			return false;
 		}
+
+		packet->stream_index = stream->index;
+		av_interleaved_write_frame(ofmt_ctx, packet);
+		av_packet_unref(packet);
 	}
 	return true;
 }
@@ -95,7 +97,8 @@ bool ExportThread::setupVideo() {
 	}
 
 	// allocate context
-	vcodec_ctx = avcodec_alloc_context3(vcodec);
+	vcodec_ctx = video_stream->codec;
+//	vcodec_ctx = avcodec_alloc_context3(vcodec);
 	if (!vcodec_ctx) {
 		qDebug() << "[ERROR] Could not allocate video encoding context";
 		ed->export_error = "could not allocate video encoding context";
@@ -103,27 +106,33 @@ bool ExportThread::setupVideo() {
 	}
 
 	// setup context
-	vcodec_ctx->codec_id = (enum AVCodecID) video_codec;
+	vcodec_ctx->codec_id = static_cast<AVCodecID>(video_codec);
 	vcodec_ctx->width = video_width;
 	vcodec_ctx->height = video_height;
 	vcodec_ctx->sample_aspect_ratio = av_d2q(video_width/video_height, INT_MAX);
 	vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
 	vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
-    vcodec_ctx->bit_rate = video_bitrate * 1000000;
+	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = video_bitrate * 1000000;
 	vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
+	video_stream->time_base = vcodec_ctx->time_base;
 
 	if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 		vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 	}
 
-    if (vcodec_ctx->codec_id == AV_CODEC_ID_H264) {
-//        av_opt_set(vcodec_ctx->priv_data, "preset", "veryslow", AV_OPT_SEARCH_CHILDREN);
-//        av_opt_set(vcodec_ctx->priv_data, "crf", "0", AV_OPT_SEARCH_CHILDREN);
-        av_opt_set(vcodec_ctx->priv_data, "x264-params", "nal-hrd=cbr", AV_OPT_SEARCH_CHILDREN);
-    }
+	if (vcodec_ctx->codec_id == AV_CODEC_ID_H264) {
+		/*char buffer[50];
+		itoa(vcodec_ctx, buffer, 10);*/
 
-	// open encoder
-    vcodec_ctx->gop_size = 40; // ? does this help?
+		av_opt_set(vcodec_ctx->priv_data, "preset", "slow", AV_OPT_SEARCH_CHILDREN);
+
+		switch (video_compression_type) {
+		case COMPRESSION_TYPE_CFR:
+			av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(video_bitrate)).toLatin1(), AV_OPT_SEARCH_CHILDREN);
+			break;
+		}
+	}
+
 	ret = avcodec_open2(vcodec_ctx, vcodec, NULL);
 	if (ret < 0) {
 		qDebug() << "[ERROR] Could not open output video encoder." << ret;
@@ -146,7 +155,6 @@ bool ExportThread::setupVideo() {
 	video_frame->width = sequence->width;
 	video_frame->height = sequence->height;
 	av_frame_get_buffer(video_frame, 0);
-	qDebug() << video_frame->linesize[0] << video_frame->linesize[1] << video_frame->linesize[2];
 
 	av_init_packet(&video_pkt);
 
@@ -177,7 +185,7 @@ bool ExportThread::setupAudio() {
 	if (!audio_enabled) return true;
 
 	// find encoder
-	acodec = avcodec_find_encoder((enum AVCodecID) audio_codec);
+	acodec = avcodec_find_encoder(static_cast<AVCodecID>(audio_codec));
 	if (!acodec) {
 		qDebug() << "[ERROR] Could not find audio encoder";
 		ed->export_error = "could not audio encoder for " + QString::number(audio_codec);
@@ -194,7 +202,8 @@ bool ExportThread::setupAudio() {
 	}
 
 	// allocate context
-	acodec_ctx = avcodec_alloc_context3(acodec);
+	acodec_ctx = audio_stream->codec;
+//	acodec_ctx = avcodec_alloc_context3(acodec);
 	if (!acodec_ctx) {
 		qDebug() << "[ERROR] Could not find allocate audio encoding context";
 		ed->export_error = "could not allocate audio encoding context";
@@ -202,13 +211,16 @@ bool ExportThread::setupAudio() {
 	}
 
 	// setup context
+	acodec_ctx->codec_id = static_cast<AVCodecID>(audio_codec);
 	acodec_ctx->sample_rate = audio_sampling_rate;
 	acodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;  // change this to support surround/mono sound in the future (this is what the user sets the output audio to)
 	acodec_ctx->channels = av_get_channel_layout_nb_channels(acodec_ctx->channel_layout);
 	acodec_ctx->sample_fmt = acodec->sample_fmts[0];
 	acodec_ctx->bit_rate = audio_bitrate * 1000;
+
 	acodec_ctx->time_base.num = 1;
 	acodec_ctx->time_base.den = audio_sampling_rate;
+	audio_stream->time_base = acodec_ctx->time_base;
 
 	if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 		acodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -282,7 +294,7 @@ bool ExportThread::setupContainer() {
 		return false;
 	}
 
-	av_dump_format(fmt_ctx, 0, c_filename, 1);
+//	av_dump_format(fmt_ctx, 0, c_filename, 1);
 
 	ret = avio_open(&fmt_ctx->pb, c_filename, AVIO_FLAG_WRITE);
 	if (ret < 0) {
@@ -384,26 +396,26 @@ void ExportThread::run() {
 
 	fbo.release();
 
-	if (continueEncode) {
-		// flush remaining packets
-		if (video_enabled) {
-			while (encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream)) {}
-		}
-		if (audio_enabled) {
-			// flush swresample
-			do {
-				swr_convert_frame(swr_ctx, swr_frame, NULL);
-				swr_frame->pts = file_audio_samples;
-				if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) continueEncode = false;
-				file_audio_samples += swr_frame->nb_samples;
-			} while (swr_frame->nb_samples > 0);
-
-			// flush encoder
-			while (encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream)) {}
-		}
+	if (audio_enabled) {
+		// flush swresample
+		do {
+			swr_convert_frame(swr_ctx, swr_frame, NULL);
+			if (swr_frame->nb_samples == 0) break;
+			swr_frame->pts = file_audio_samples;
+			if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) continueEncode = false;
+			file_audio_samples += swr_frame->nb_samples;
+		} while (swr_frame->nb_samples > 0);
 	}
 
+	bool continueVideo = true;
+	bool continueAudio = true;
 	if (continueEncode) {
+		// flush remaining packets
+		while (continueVideo && continueAudio) {
+			if (continueVideo) continueVideo = encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream);
+			if (continueAudio) continueAudio = encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream);
+		}
+
 		ret = av_write_trailer(fmt_ctx);
 		if (ret < 0) {
 			qDebug() << "[ERROR] Could not write output file trailer." << ret;
@@ -420,14 +432,14 @@ void ExportThread::run() {
 		avcodec_close(vcodec_ctx);
 		av_packet_unref(&video_pkt);
 		av_frame_free(&video_frame);
-		avcodec_free_context(&vcodec_ctx);
+//		avcodec_free_context(&vcodec_ctx);
 	}
 
 	if (audio_enabled) {
 		avcodec_close(acodec_ctx);
 		av_packet_unref(&audio_pkt);
 		av_frame_free(&audio_frame);
-		avcodec_free_context(&acodec_ctx);
+//		avcodec_free_context(&acodec_ctx);
 	}
 
 	avformat_free_context(fmt_ctx);

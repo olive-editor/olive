@@ -84,7 +84,6 @@ ExportDialog::ExportDialog(QWidget *parent) :
 
     ui->widthSpinbox->setValue(sequence->width);
 	ui->heightSpinbox->setValue(sequence->height);
-	ui->videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence->height) - 4.5)));
     ui->samplingRateSpinbox->setValue(sequence->audio_frequency);
     ui->framerateSpinbox->setValue(sequence->frame_rate);
 }
@@ -484,7 +483,8 @@ void ExportDialog::on_pushButton_clicked() {
             et->video_width = ui->widthSpinbox->value();
             et->video_height = ui->heightSpinbox->value();
             et->video_frame_rate = ui->framerateSpinbox->value();
-            et->video_bitrate = ui->videobitrateSpinbox->value();
+			et->video_compression_type = ui->compressionTypeCombobox->currentData().toInt();
+			et->video_bitrate = ui->videobitrateSpinbox->value();
         }
 		et->audio_enabled = ui->audioGroupbox->isChecked();
         if (et->audio_enabled) {
@@ -517,7 +517,41 @@ void ExportDialog::on_renderCancel_clicked() {
 }
 
 void ExportDialog::on_vcodecCombobox_currentIndexChanged(int index) {
-	bool vbrEnabled = (format_vcodecs.size() > 0 && format_vcodecs.at(index) == AV_CODEC_ID_H264);
-	ui->compressionTypeCombobox->setEnabled(vbrEnabled);
-	if (!vbrEnabled) ui->compressionTypeCombobox->setCurrentIndex(0);
+	ui->compressionTypeCombobox->clear();
+	if ((format_vcodecs.size() > 0 && format_vcodecs.at(index) == AV_CODEC_ID_H264)) {
+		ui->compressionTypeCombobox->setEnabled(true);
+		ui->compressionTypeCombobox->addItem("Quality-based (Constant Rate Factor)", COMPRESSION_TYPE_CFR);
+//		ui->compressionTypeCombobox->addItem("File size-based (Two-Pass)", COMPRESSION_TYPE_TARGETSIZE);
+//		ui->compressionTypeCombobox->addItem("Average bitrate (Two-Pass)", COMPRESSION_TYPE_TARGETBR);
+	} else {
+		ui->compressionTypeCombobox->addItem("Constant Bitrate", COMPRESSION_TYPE_CBR);
+		ui->compressionTypeCombobox->setCurrentIndex(0);
+		ui->compressionTypeCombobox->setEnabled(false);
+	}
+}
+
+void ExportDialog::on_compressionTypeCombobox_currentIndexChanged(int) {
+	ui->videobitrateSpinbox->setToolTip("");
+	ui->videobitrateSpinbox->setMinimum(0);
+	ui->videobitrateSpinbox->setMaximum(99.99);
+	switch (ui->compressionTypeCombobox->currentData().toInt()) {
+	case COMPRESSION_TYPE_CBR:
+		ui->videoBitrateLabel->setText("Bitrate (Mbps):");
+		ui->videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence->height) - 4.5)));
+		break;
+	case COMPRESSION_TYPE_CFR:
+		ui->videoBitrateLabel->setText("Quality (CRF):");
+		ui->videobitrateSpinbox->setValue(23);
+		ui->videobitrateSpinbox->setMaximum(51);
+		ui->videobitrateSpinbox->setToolTip("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = default, high quality\n51 = lowest quality possible");
+		break;
+	case COMPRESSION_TYPE_TARGETSIZE:
+		ui->videoBitrateLabel->setText("Target File Size (MB):");
+		ui->videobitrateSpinbox->setValue(100);
+		break;
+	case COMPRESSION_TYPE_TARGETBR:
+		ui->videoBitrateLabel->setText("Target Bitrate (Mbps):");
+		ui->videobitrateSpinbox->setValue(100);
+		break;
+	}
 }

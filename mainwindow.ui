@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons/icons.qrc">
+   <iconset>
     <normaloff>:/icons/full-icon.png</normaloff>:/icons/full-icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -37,7 +37,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>16</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -763,8 +763,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="icons/icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

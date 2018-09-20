@@ -11,6 +11,11 @@ struct AVFrame;
 struct AVPacket;
 struct AVStream;
 
+#define COMPRESSION_TYPE_CBR 0
+#define COMPRESSION_TYPE_CFR 1
+#define COMPRESSION_TYPE_TARGETSIZE 2
+#define COMPRESSION_TYPE_TARGETBR 3
+
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
@@ -24,6 +29,7 @@ public:
 	int video_width;
 	int video_height;
 	double video_frame_rate;
+	int video_compression_type;
 	double video_bitrate;
 	bool audio_enabled;
 	int audio_codec;

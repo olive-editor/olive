@@ -65,6 +65,27 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="0">
+       <widget class="QLabel" name="compressionTypeLabel">
+        <property name="text">
+         <string>Compression Type:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="compressionTypeCombobox">
+        <item>
+         <property name="text">
+          <string>Quality-based (Constant Rate Factor)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>File size-based (Two-Pass)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -75,10 +96,10 @@
       <item row="0" column="1">
        <widget class="QComboBox" name="vcodecCombobox"/>
       </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="widthSpinbox">
-        <property name="maximum">
-         <number>16777216</number>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Height:</string>
         </property>
        </widget>
       </item>
@@ -89,17 +110,34 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Height:</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="1">
        <widget class="QSpinBox" name="heightSpinbox">
         <property name="maximum">
          <number>16777216</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="widthSpinbox">
+        <property name="maximum">
+         <number>16777216</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDoubleSpinBox" name="videobitrateSpinbox">
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>2.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="videoBitrateLabel">
+        <property name="text">
+         <string>Bitrate (Mbps):</string>
         </property>
        </widget>
       </item>
@@ -118,49 +156,6 @@
         <property name="value">
          <double>0.000000000000000</double>
         </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Bitrate (Mbps):</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QDoubleSpinBox" name="videobitrateSpinbox">
-        <property name="maximum">
-         <double>100.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>2.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Compression Type:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="compressionTypeCombobox">
-        <item>
-         <property name="text">
-          <string>Constant Bitrate</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Variable Bitrate (One-Pass)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Variable Bitrate (Two-Pass)</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>

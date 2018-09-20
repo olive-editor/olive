@@ -33,6 +33,8 @@ private slots:
 
 	void on_vcodecCombobox_currentIndexChanged(int index);
 
+	void on_compressionTypeCombobox_currentIndexChanged(int index);
+
 private:
 	Ui::ExportDialog *ui;
 
