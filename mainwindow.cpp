@@ -426,8 +426,7 @@ void MainWindow::on_actionProject_triggered()
         project_url.clear();
         panel_project->new_project();
 		updateTitle("");
-        panel_timeline->redraw_all_clips(false);
-		sequence->playhead = 0;
+		panel_timeline->redraw_all_clips(false);
     }
 }
 

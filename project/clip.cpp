@@ -29,7 +29,8 @@ Clip::Clip(Sequence* s) :
 	pkt(new AVPacket()),
 	replaced(false),
 	texture(NULL),
-	fbo(NULL)
+	fbo(NULL),
+	autoscale(false)
 {
     reset();
 }

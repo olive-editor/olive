@@ -103,6 +103,7 @@ struct Clip
 	QOpenGLFramebufferObject** fbo;
     QOpenGLTexture* texture;
     long texture_frame;
+	bool autoscale;
 
     // audio playback variables
 	SwrContext* swr_ctx;

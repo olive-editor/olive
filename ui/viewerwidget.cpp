@@ -302,6 +302,13 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
 					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;					
 
+					if (c->autoscale && (video_width != s->width || video_height != s->height)) {
+						double width_multiplier = (double) s->width / (double) video_width;
+						double height_multiplier = (double) s->height / (double) video_height;
+						double scale_multiplier = qMin(width_multiplier, height_multiplier);
+						glScalef(scale_multiplier, scale_multiplier, 1);
+					}
+
 					// EFFECT CODE START
 					for (int j=0;j<c->effects.size();j++) {
 						Effect* e = c->effects.at(j);

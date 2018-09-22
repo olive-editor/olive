@@ -35,6 +35,6 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	reverseLayout->addWidget(reverse);
 	layout->addLayout(reverseLayout, 3, 0, 2, 1);
 
-	QDialogButtonBox* buttonBox = new QDialogButtonBox(this, QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	layout->addWidget(buttonBox, 4, 0, 2, 1);
 }
