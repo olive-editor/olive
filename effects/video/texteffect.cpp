@@ -216,7 +216,7 @@ void TextEffect::redraw(double timecode) {
 		case Qt::AlignJustify:
 			// add spaces until the string is too big
 			text_x = 0;
-			while (fm.width(lines.at(i) < width)) {
+			while (fm.width(lines.at(i)) < width) {
 				bool space = false;
 				QString spaced(lines.at(i));
 				for (int i=0;i<spaced.length();i++) {

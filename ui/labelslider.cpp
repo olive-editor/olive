@@ -1,6 +1,9 @@
 #include "labelslider.h"
 
 #include "project/undo.h"
+#include "panels/viewer.h"
+#include "io/config.h"
+#include "project/sequence.h"
 
 #include <QMouseEvent>
 #include <QInputDialog>
@@ -16,7 +19,12 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
     internal_value = -1;
     set_default_value(0);
 	set_value(0, false);
-    set = false;
+	set = false;
+	display_type = LABELSLIDER_NORMAL;
+}
+
+void LabelSlider::set_display_type(int type) {
+	display_type = type;
 }
 
 void LabelSlider::set_value(double v, bool userSet) {
@@ -44,6 +52,10 @@ bool LabelSlider::is_dragging() {
 }
 
 QString LabelSlider::valueToString(double v) {
+	switch (display_type) {
+	case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, sequence->frame_rate);
+	case LABELSLIDER_PERCENT: return QString::number(v, 'f', 1) + "%";
+	}
 	return QString::number(v, 'f', 1);
 }
 

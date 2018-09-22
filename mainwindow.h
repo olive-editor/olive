@@ -8,6 +8,8 @@ class EffectControls;
 class Viewer;
 class Timeline;
 
+extern QMainWindow* mainWindow;
+
 namespace Ui {
 class MainWindow;
 }
@@ -19,6 +21,11 @@ class MainWindow : public QMainWindow
 public:
 	explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+public slots:
+	void undo();
+	void redo();
+	void openSpeedDialog();
 
 protected:
 	void closeEvent(QCloseEvent *);
@@ -52,10 +59,6 @@ private slots:
 	void on_actionTimeline_toggled(bool arg1);
 
 	void on_actionRipple_Delete_triggered();
-
-    void on_action_Undo_triggered();
-
-    void on_action_Redo_triggered();
 
     void on_actionSplit_at_Playhead_triggered();
 
@@ -178,6 +181,8 @@ private slots:
     void on_action16_9_triggered();
 
     void on_actionCustom_triggered();
+
+	void on_actionEnable_Drag_Files_to_Timeline_triggered();
 
 private:
 	Ui::MainWindow *ui;

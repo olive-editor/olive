@@ -135,7 +135,7 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 
 	// send samples to audio monitor cache
 	if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
-		panel_timeline->ui->audio_monitor->sample_cache_offset = panel_timeline->playhead;
+		panel_timeline->ui->audio_monitor->sample_cache_offset = sequence->playhead;
 	}
 	int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
 	long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + (panel_timeline->ui->audio_monitor->sample_cache.size()/channel_count);

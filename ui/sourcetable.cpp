@@ -127,7 +127,7 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 }
 
 void SourceTable::dragEnterEvent(QDragEnterEvent *event) {
-    if (event->mimeData()->hasUrls()) {
+	if (event->mimeData()->hasUrls()) {
         event->acceptProposedAction();
     } else {
         QTreeWidget::dragEnterEvent(event);

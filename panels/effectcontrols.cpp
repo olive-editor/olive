@@ -36,6 +36,7 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->effects_area->keyframe_area = ui->keyframeView;
 	ui->effects_area->header = ui->headers;
 
+	ui->keyframeHeaderScroller->setMaximumHeight(ui->headers->minimumHeight());
 	ui->keyframeView->header = ui->headers;
 
 	ui->label_2->setVisible(false);

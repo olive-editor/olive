@@ -111,11 +111,11 @@ void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool rese
 
 bool get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
-		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
-		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, av_q2d(c->stream->avg_frame_rate));
-
 		// do we need to update the texture?
-        MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
+		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
+
+		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
+		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, ms->video_frame_rate);
 
 		AVFrame* current_frame = NULL;
 		bool no_frame = false;

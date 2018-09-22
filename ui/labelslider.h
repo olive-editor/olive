@@ -4,11 +4,16 @@
 #include <QLabel>
 #include <QUndoCommand>
 
+#define LABELSLIDER_NORMAL 0
+#define LABELSLIDER_FRAMENUMBER 1
+#define LABELSLIDER_PERCENT 2
+
 class LabelSlider : public QLabel
 {
     Q_OBJECT
 public:
     LabelSlider(QWidget* parent = 0);
+	void set_display_type(int type);
 	void set_value(double v, bool userSet);
     void set_default_value(double v);
     void set_minimum_value(double v);
@@ -40,6 +45,8 @@ private:
     int drag_start_y;
 
     bool set;
+
+	int display_type;
 signals:
 	void valueChanged();
 };

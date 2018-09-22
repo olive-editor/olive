@@ -73,7 +73,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		header->setMinimumWidth(width);
 		header->set_visible_in(effects_in);
 
-		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, panel_timeline->playhead-visible_in);
+		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, sequence->playhead-visible_in);
 		p.setPen(Qt::red);
 		p.drawLine(playhead_x, 0, playhead_x, height());
 	}

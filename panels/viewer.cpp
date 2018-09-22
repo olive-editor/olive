@@ -130,7 +130,7 @@ void Viewer::update_sequence() {
             config.timecode_view = TIMECODE_NONDROP;
         }
 
-        update_playhead_timecode(panel_timeline->playhead);
+		update_playhead_timecode(sequence->playhead);
         update_end_timecode();
 
         ui->glViewerPane->aspect_ratio = (float) sequence->width / (float) sequence->height;

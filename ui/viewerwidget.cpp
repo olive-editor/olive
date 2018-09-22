@@ -165,7 +165,7 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 
 GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 	Sequence* s = sequence;
-	long playhead = panel_timeline->playhead;
+	long playhead = sequence->playhead;
 
 	if (nest != NULL) {
 		s = static_cast<Sequence*>(nest->media);
@@ -306,7 +306,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					for (int j=0;j<c->effects.size();j++) {
 						Effect* e = c->effects.at(j);
 						if (e->is_enabled()) {
-							double timecode = ((double)(panel_timeline->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate);
+							double timecode = ((double)(sequence->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate);
 							if (e->enable_coords) {
 								e->process_coords(timecode, coords);
 							}

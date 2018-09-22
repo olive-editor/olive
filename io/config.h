@@ -25,6 +25,7 @@ struct Config {
     bool show_title_safe_area;
     bool use_custom_title_safe_ratio;
     double custom_title_safe_ratio;
+	bool enable_drag_files_to_timeline;
 
     void load(QString path);
     void save(QString path);

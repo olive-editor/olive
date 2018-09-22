@@ -21,6 +21,7 @@
 #include "dialogs/exportdialog.h"
 #include "dialogs/preferencesdialog.h"
 #include "dialogs/demonotice.h"
+#include "dialogs/speeddialog.h"
 
 #include "playback/audio.h"
 #include "playback/playback.h"
@@ -37,6 +38,8 @@
 #include <QMovie>
 #include <QInputDialog>
 #include <QRegExp>
+
+QMainWindow* mainWindow;
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
@@ -63,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
+	mainWindow = this;
+
 	// set up style?
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
@@ -145,6 +150,9 @@ MainWindow::MainWindow(QWidget *parent) :
             config.load(config_dir);
         }
 	}
+
+	connect(ui->action_Undo, SIGNAL(triggered(bool)), this, SLOT(undo()));
+	connect(ui->action_Redo, SIGNAL(triggered(bool)), this, SLOT(redo()));
 }
 
 MainWindow::~MainWindow() {
@@ -271,18 +279,27 @@ void MainWindow::editMenu_About_To_Be_Shown() {
     ui->action_Redo->setEnabled(undo_stack.canRedo());
 }
 
-void MainWindow::on_action_Undo_triggered()
-{
-    undo_stack.undo();
-    editMenu_About_To_Be_Shown();
+void MainWindow::undo() {
+	undo_stack.undo();
     panel_timeline->redraw_all_clips(true);
 }
 
-void MainWindow::on_action_Redo_triggered()
-{
-    undo_stack.redo();
-    editMenu_About_To_Be_Shown();
-    panel_timeline->redraw_all_clips(true);
+void MainWindow::redo() {
+	undo_stack.redo();
+	panel_timeline->redraw_all_clips(true);
+}
+
+void MainWindow::openSpeedDialog() {
+	if (sequence != NULL) {
+		SpeedDialog s(this);
+		for (int i=0;i<sequence->clips.size();i++) {
+			Clip* c = sequence->clips.at(i);
+			if (c != NULL & panel_timeline->is_clip_selected(c, true)) {
+				s.clips.append(c);
+			}
+		}
+		if (s.clips.size() > 0) s.exec();
+	}
 }
 
 void MainWindow::on_actionSplit_at_Playhead_triggered()
@@ -410,7 +427,7 @@ void MainWindow::on_actionProject_triggered()
         panel_project->new_project();
 		updateTitle("");
         panel_timeline->redraw_all_clips(false);
-        panel_timeline->playhead = 0;
+		sequence->playhead = 0;
     }
 }
 
@@ -556,7 +573,7 @@ void MainWindow::on_actionFrames_triggered()
 {
     config.timecode_view = TIMECODE_FRAMES;
     if (sequence != NULL) {
-        panel_viewer->update_playhead_timecode(panel_timeline->playhead);
+		panel_viewer->update_playhead_timecode(sequence->playhead);
         panel_viewer->update_end_timecode();
     }
 }
@@ -565,7 +582,7 @@ void MainWindow::on_actionDrop_Frame_triggered()
 {
     config.timecode_view = TIMECODE_DROP;
     if (sequence != NULL) {
-        panel_viewer->update_playhead_timecode(panel_timeline->playhead);
+		panel_viewer->update_playhead_timecode(sequence->playhead);
         panel_viewer->update_end_timecode();
     }
 }
@@ -574,7 +591,7 @@ void MainWindow::on_actionNon_Drop_Frame_triggered()
 {
     config.timecode_view = TIMECODE_NONDROP;
     if (sequence != NULL) {
-        panel_viewer->update_playhead_timecode(panel_timeline->playhead);
+		panel_viewer->update_playhead_timecode(sequence->playhead);
         panel_viewer->update_end_timecode();
     }
 }
@@ -587,6 +604,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionToggle_Snapping->setChecked(panel_timeline->snapping);
     ui->actionScroll_Wheel_Zooms->setChecked(config.scroll_zooms);
 	ui->actionRectified_Waveforms->setChecked(config.rectified_waveforms);
+	ui->actionEnable_Drag_Files_to_Timeline->setChecked(config.enable_drag_files_to_timeline);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -766,4 +784,8 @@ void MainWindow::on_actionCustom_triggered() {
         config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
         panel_viewer->viewer_widget->update();
     }
+}
+
+void MainWindow::on_actionEnable_Drag_Files_to_Timeline_triggered() {
+	config.enable_drag_files_to_timeline = !config.enable_drag_files_to_timeline;
 }

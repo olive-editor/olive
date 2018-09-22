@@ -153,7 +153,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
                 // draw text
                 if (lineX-textWidth > lastTextBoundary) {
                     p.setPen(Qt::white);
-                    QString timecode = frame_to_timecode(frame, config.timecode_view, sequence->frame_rate);
+					QString timecode = frame_to_timecode(frame + in_visible, config.timecode_view, sequence->frame_rate);
                     textWidth = fm.width(timecode)>>1;
                     lastTextBoundary = lineX+textWidth;
                     p.drawText(QRect(lineX-textWidth, 0, lastTextBoundary, yoff), timecode);
@@ -186,7 +186,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         }
 
         // draw playhead triangle
-        in_x = getScreenPointFromFrame(zoom, panel_timeline->playhead - in_visible);
+		in_x = getScreenPointFromFrame(zoom, sequence->playhead - in_visible);
         QPoint start(in_x, height()+2);
         QPainterPath path;
         path.moveTo(start);

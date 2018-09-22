@@ -459,12 +459,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>15</height>
-           </size>
-          </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
           </property>
@@ -480,7 +474,7 @@
              <x>0</x>
              <y>0</y>
              <width>390</width>
-             <height>16</height>
+             <height>68</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -506,12 +500,6 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>15</height>
-               </size>
               </property>
               <property name="focusPolicy">
                <enum>Qt::ClickFocus</enum>
@@ -551,7 +539,7 @@
              <x>0</x>
              <y>0</y>
              <width>378</width>
-             <height>462</height>
+             <height>407</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">

@@ -345,10 +345,10 @@ void ExportThread::run() {
 
 	long file_audio_samples = 0;
 
-	while (panel_timeline->playhead < end_frame && continueEncode) {
+	while (sequence->playhead < end_frame && continueEncode) {
 		panel_viewer->viewer_widget->paintGL();
 
-		double timecode_secs = (double) (panel_timeline->playhead-start_frame) / sequence->frame_rate;
+		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
 		if (video_enabled) {
 			// get image from opengl
 			glReadPixels(0, 0, video_frame->linesize[0]/4, sequence->height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
@@ -387,8 +387,8 @@ void ExportThread::run() {
 				file_audio_samples += swr_frame->nb_samples;
 			}
 		}
-		emit progress_changed(((double) (panel_timeline->playhead-start_frame) / (double) (end_frame-start_frame)) * 100);
-		panel_timeline->playhead++;
+		emit progress_changed(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100);
+		sequence->playhead++;
 	}
 
 	panel_viewer->viewer_widget->default_fbo = NULL;

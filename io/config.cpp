@@ -21,7 +21,8 @@ Config::Config()
       timecode_view(TIMECODE_DROP),
       show_title_safe_area(false),
       use_custom_title_safe_ratio(false),
-      custom_title_safe_ratio(1)
+	  custom_title_safe_ratio(1),
+	  enable_drag_files_to_timeline(false)
 {
 
 }
@@ -76,7 +77,10 @@ void Config::load(QString path) {
                 } else if (stream.name() == "CustomTitleSafeRatio") {
                     stream.readNext();
                     custom_title_safe_ratio = stream.text().toDouble();
-                }
+				} else if (stream.name() == "EnableDragFilesToTimeline") {
+					stream.readNext();
+					enable_drag_files_to_timeline = (stream.text() == "1");;
+				}
             }
         }
         if (stream.hasError()) {
@@ -136,6 +140,7 @@ void Config::save(QString path) {
     stream.writeTextElement("ShowTitleSafeArea", QString::number(show_title_safe_area));
     stream.writeTextElement("UseCustomTitleSafeRatio", QString::number(use_custom_title_safe_ratio));
     stream.writeTextElement("CustomTitleSafeRatio", QString::number(custom_title_safe_ratio));
+	stream.writeTextElement("EnableDragFilesToTimeline", QString::number(enable_drag_files_to_timeline));
 
     stream.writeEndElement();
     stream.writeEndDocument(); // doc

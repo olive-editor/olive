@@ -2,6 +2,7 @@
 #define TIMELINE_H
 
 #include "ui/timelinetools.h"
+#include "project/selection.h"
 
 #include <QDockWidget>
 #include <QVector>
@@ -59,18 +60,6 @@ struct Ghost {
 	Transition* transition;
 };
 
-struct Selection {
-	long in;
-	long out;
-	int track;
-
-	long old_in;
-	long old_out;
-	int old_track;
-
-    bool trim_in;
-};
-
 namespace Ui {
 class Timeline;
 }
@@ -115,8 +104,6 @@ public:
     bool snap_to_point(long point, long* l);
     void snap_to_clip(long* l, bool playhead_inclusive);
 
-    long playhead;
-
 	// playback functions
 	void go_to_start();
 	void previous_frame();
@@ -156,7 +143,6 @@ public:
 	// selecting functions
 	bool selecting;
     int selection_offset;
-	QVector<Selection> selections;
     bool is_clip_selected(Clip* clip, bool containing);
 	void delete_selection(bool ripple);
 	void select_all();

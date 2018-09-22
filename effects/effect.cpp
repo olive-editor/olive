@@ -503,7 +503,7 @@ EffectRow::~EffectRow() {
 
 void EffectRow::set_keyframe_now(bool undoable) {
 	int index = -1;
-	long time = panel_timeline->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
+	long time = sequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
 	for (int i=0;i<keyframe_times.size();i++) {
 		if (keyframe_times.at(i) == time) {
 			index = i;

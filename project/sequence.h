@@ -5,6 +5,7 @@
 
 #include "project/clip.h"
 #include "project/marker.h"
+#include "project/selection.h"
 
 struct Sequence {
 public:
@@ -19,6 +20,9 @@ public:
     double frame_rate;
 	int audio_frequency;
     int audio_layout;
+
+	QVector<Selection> selections;
+	long playhead;
 
     bool using_workarea;
     long workarea_in;

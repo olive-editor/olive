@@ -37,8 +37,7 @@ void draw_selection_rectangle(QPainter& painter, const QRect& rect) {
 }
 
 Timeline::Timeline(QWidget *parent) :
-    QDockWidget(parent),
-    playhead(0),
+	QDockWidget(parent),
     playing(false),
     cursor_frame(0),
     cursor_track(0),
@@ -101,22 +100,22 @@ void Timeline::go_to_start() {
 }
 
 void Timeline::previous_frame() {
-    if (playhead > 0) seek(playhead-1);
+	if (sequence->playhead > 0) seek(sequence->playhead-1);
 }
 
 void Timeline::next_frame() {
-	seek(playhead+1);
+	seek(sequence->playhead+1);
 }
 
 void Timeline::previous_cut() {
-    if (playhead > 0) {
+	if (sequence->playhead > 0) {
         long p_cut = 0;
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
             if (c != NULL) {
-                if (c->timeline_out > p_cut && c->timeline_out < playhead) {
+				if (c->timeline_out > p_cut && c->timeline_out < sequence->playhead) {
                     p_cut = c->timeline_out;
-                } else if (c->timeline_in > p_cut && c->timeline_in < playhead) {
+				} else if (c->timeline_in > p_cut && c->timeline_in < sequence->playhead) {
                     p_cut = c->timeline_in;
                 }
             }
@@ -131,10 +130,10 @@ void Timeline::next_cut() {
     for (int i=0;i<sequence->clips.size();i++) {
         Clip* c = sequence->clips.at(i);
         if (c != NULL) {
-            if (c->timeline_in < n_cut && c->timeline_in > playhead) {
+			if (c->timeline_in < n_cut && c->timeline_in > sequence->playhead) {
                 n_cut = c->timeline_in;
                 seek_enabled = true;
-            } else if (c->timeline_out < n_cut && c->timeline_out > playhead) {
+			} else if (c->timeline_out < n_cut && c->timeline_out > sequence->playhead) {
                 n_cut = c->timeline_out;
                 seek_enabled = true;
             }
@@ -145,7 +144,7 @@ void Timeline::next_cut() {
 
 void Timeline::reset_all_audio() {
     // reset all clip audio
-	audio_ibuffer_frame = playhead;
+	audio_ibuffer_frame = sequence->playhead;
 	if (sequence != NULL) {
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
@@ -160,7 +159,7 @@ void Timeline::reset_all_audio() {
 
 void Timeline::seek(long p) {
 	pause();
-	playhead = p;
+	sequence->playhead = p;
 	reset_all_audio();
 	repaint_timeline();
 }
@@ -174,7 +173,7 @@ void Timeline::toggle_play() {
 }
 
 void Timeline::play() {
-    playhead_start = playhead;
+	playhead_start = sequence->playhead;
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
     playing = true;
@@ -240,11 +239,11 @@ int Timeline::calculate_track_height(int track, int value) {
 }
 
 void Timeline::set_in_point() {
-    ui->headers->set_in_point(playhead);
+	ui->headers->set_in_point(sequence->playhead);
 }
 
 void Timeline::set_out_point() {
-    ui->headers->set_out_point(playhead);
+	ui->headers->set_out_point(sequence->playhead);
 }
 
 void Timeline::update_sequence() {
@@ -279,7 +278,7 @@ bool Timeline::focused() {
 
 void Timeline::repaint_timeline() {
 	if (playing) {
-        playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
+		sequence->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
 
 	ui->headers->update_header(zoom);
@@ -287,12 +286,12 @@ void Timeline::repaint_timeline() {
 	ui->audio_area->update();
 	panel_effect_controls->update_keyframes();
 
-    if (last_frame != playhead) {
+	if (last_frame != sequence->playhead) {
 		panel_viewer->viewer_widget->update();
         ui->audio_monitor->update();
-		last_frame = playhead;
+		last_frame = sequence->playhead;
 	}
-	panel_viewer->update_playhead_timecode(playhead);
+	panel_viewer->update_playhead_timecode(sequence->playhead);
 }
 
 void Timeline::redraw_all_clips(bool changed) {
@@ -308,7 +307,7 @@ void Timeline::redraw_all_clips(bool changed) {
 
     if (zoomChanged) {
         ui->audioScrollArea->update();
-        ui->audioScrollArea->horizontalScrollBar()->setValue(getTimelineScreenPointFromFrame(playhead)-(ui->audioScrollArea->width()/2));
+		ui->audioScrollArea->horizontalScrollBar()->setValue(getTimelineScreenPointFromFrame(sequence->playhead)-(ui->audioScrollArea->width()/2));
         zoomChanged = false;
     }
 
@@ -319,7 +318,7 @@ void Timeline::redraw_all_clips(bool changed) {
 
 void Timeline::select_all() {
 	if (sequence != NULL) {
-		selections.clear();
+		sequence->selections.clear();
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
 			if (c != NULL) {
@@ -327,7 +326,7 @@ void Timeline::select_all() {
 				s.in = c->timeline_in;
 				s.out = c->timeline_out;
 				s.track = c->track;
-				selections.append(s);
+				sequence->selections.append(s);
 			}
 		}
 		repaint_timeline();
@@ -405,20 +404,20 @@ void Timeline::delete_in_out(bool ripple) {
 }
 
 void Timeline::delete_selection(bool ripple_delete) {
-	if (selections.size() > 0) {
+	if (sequence->selections.size() > 0) {
         panel_effect_controls->clear_effects(true);
 
         ComboAction* ca = new ComboAction();
 
-        delete_areas_and_relink(ca, selections);
+		delete_areas_and_relink(ca, sequence->selections);
 
         if (ripple_delete) {
-            long ripple_point = selections.at(0).in;
-            long ripple_length = selections.at(0).out - selections.at(0).in;
+			long ripple_point = sequence->selections.at(0).in;
+			long ripple_length = sequence->selections.at(0).out - sequence->selections.at(0).in;
 
             // retrieve ripple_point and ripple_length from current selection
-            for (int i=1;i<selections.size();i++) {
-                const Selection& s = selections.at(i);
+			for (int i=1;i<sequence->selections.size();i++) {
+				const Selection& s = sequence->selections.at(i);
                 ripple_point = qMin(ripple_point, s.in);
                 ripple_length = qMin(ripple_length, s.out - s.in);
             }
@@ -432,8 +431,8 @@ void Timeline::delete_selection(bool ripple_delete) {
                 if (c->timeline_in < ripple_point && c->timeline_out > ripple_point) {
                     // conflict detected, but this clip may be getting deleted so let's check
                     bool deleted = false;
-                    for (int j=0;j<selections.size();j++) {
-                        const Selection& s = selections.at(j);
+					for (int j=0;j<sequence->selections.size();j++) {
+						const Selection& s = sequence->selections.at(j);
                         if (s.track == c->track
                                 && !(c->timeline_in < s.in && c->timeline_out < s.in)
                                 && !(c->timeline_in > s.out && c->timeline_out > s.out)) {
@@ -456,7 +455,7 @@ void Timeline::delete_selection(bool ripple_delete) {
             if (can_ripple) ca->append(new RippleCommand(sequence, ripple_point, -ripple_length));
 		}
 
-        selections.clear();
+		sequence->selections.clear();
 
         undo_stack.push(ca);
 
@@ -504,8 +503,8 @@ void Timeline::on_pushButton_5_clicked()
 }
 
 bool Timeline::is_clip_selected(Clip* clip, bool containing) {
-	for (int i=0;i<selections.size();i++) {
-		const Selection& s = selections.at(i);
+	for (int i=0;i<clip->sequence->selections.size();i++) {
+		const Selection& s = clip->sequence->selections.at(i);
         if (clip->track == s.track && ((clip->timeline_in >= s.in && clip->timeline_out <= s.out && containing) ||
                 (!containing && !(clip->timeline_in < s.in && clip->timeline_out < s.in) && !(clip->timeline_in > s.in && clip->timeline_out > s.in)))) {
 			return true;
@@ -709,8 +708,8 @@ void Timeline::copy(bool del) {
     for (int i=0;i<sequence->clips.size();i++) {
         Clip* c = sequence->clips.at(i);
         if (c != NULL) {
-            for (int j=0;j<selections.size();j++) {
-                const Selection& s = selections.at(j);
+			for (int j=0;j<sequence->selections.size();j++) {
+				const Selection& s = sequence->selections.at(j);
                 if (s.track == c->track && !((c->timeline_in <= s.in && c->timeline_out <= s.in) || (c->timeline_in >= s.out && c->timeline_out >= s.out))) {
                     if (!cleared) {
                         clip_clipboard.clear();
@@ -785,8 +784,8 @@ void Timeline::paste() {
 
             // create copy of clip and offset by playhead
             Clip* cc = c->copy(sequence);
-            cc->timeline_in += playhead;
-            cc->timeline_out += playhead;
+			cc->timeline_in += sequence->playhead;
+			cc->timeline_out += sequence->playhead;
             cc->track = c->track;
             if (cc->timeline_out > paste_end) paste_end = cc->timeline_out;
             cc->sequence = sequence;
@@ -841,18 +840,18 @@ void Timeline::ripple_to_in_point(bool in) {
             Clip* c = sequence->clips.at(i);
             track_min = qMin(track_min, c->track);
             track_max = qMax(track_max, c->track);
-            if ((in && c->timeline_in > in_point && c->timeline_in <= playhead)
-                    || (!in && c->timeline_in < in_point && c->timeline_in >= playhead)) {
+			if ((in && c->timeline_in > in_point && c->timeline_in <= sequence->playhead)
+					|| (!in && c->timeline_in < in_point && c->timeline_in >= sequence->playhead)) {
                 in_point = c->timeline_in;
-                if (playhead == in_point) {
+				if (sequence->playhead == in_point) {
                     one_frame_mode = true;
                     break;
                 }
             }
-            if ((in && c->timeline_out > in_point && c->timeline_out <= playhead)
-                    || (!in && c->timeline_out < in_point && c->timeline_out > playhead)) {
+			if ((in && c->timeline_out > in_point && c->timeline_out <= sequence->playhead)
+					|| (!in && c->timeline_out < in_point && c->timeline_out > sequence->playhead)) {
                 in_point = c->timeline_out;
-                if (playhead == in_point) {
+				if (sequence->playhead == in_point) {
                     one_frame_mode = true;
                     break;
                 }
@@ -866,8 +865,8 @@ void Timeline::ripple_to_in_point(bool in) {
             QVector<Selection> areas;
             for (int i=track_min;i<=track_max;i++) {
                 Selection s;
-                s.in = qMin(in_point, playhead);
-                s.out = qMax(in_point, playhead);
+				s.in = qMin(in_point, sequence->playhead);
+				s.out = qMax(in_point, sequence->playhead);
                 s.track = i;
                 areas.append(s);
             }
@@ -875,7 +874,7 @@ void Timeline::ripple_to_in_point(bool in) {
             // trim and move clips around the in point
             ComboAction* ca = new ComboAction();
             delete_areas_and_relink(ca, areas);
-            ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - playhead) : (playhead - in_point)));
+			ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point)));
             undo_stack.push(ca);
 
             redraw_all_clips(true);
@@ -897,8 +896,8 @@ bool Timeline::split_selection(ComboAction* ca) {
     for (int j=0;j<sequence->clips.size();j++) {
         Clip* clip = sequence->clips.at(j);
         if (clip != NULL) {
-            for (int i=0;i<selections.size();i++) {
-                const Selection& s = selections.at(i);
+			for (int i=0;i<sequence->selections.size();i++) {
+				const Selection& s = sequence->selections.at(i);
                 if (s.track == clip->track) {
 					if (clip->timeline_in < s.in && clip->timeline_out > s.out) {
                         Clip* split_A = clip->copy(sequence);
@@ -970,14 +969,14 @@ void Timeline::split_at_playhead() {
     bool split_selected = false;
     split_cache.clear();
 
-    if (selections.size() > 0) {
+	if (sequence->selections.size() > 0) {
         // see if whole clips are selected
         QVector<int> pre_clips;
         QVector<Clip*> post_clips;
         for (int j=0;j<sequence->clips.size();j++) {
             Clip* clip = sequence->clips.at(j);
             if (clip != NULL && is_clip_selected(clip, true)) {
-                Clip* s = split_clip(ca, j, playhead);
+				Clip* s = split_clip(ca, j, sequence->playhead);
                 if (s != NULL) {
                     pre_clips.append(j);
                     post_clips.append(s);
@@ -1002,7 +1001,7 @@ void Timeline::split_at_playhead() {
             Clip* c = sequence->clips.at(j);
             if (c != NULL) {
                 // always relinks
-                if (split_clip_and_relink(ca, j, playhead, true)) {
+				if (split_clip_and_relink(ca, j, sequence->playhead, true)) {
                     split_selected = true;
                 }
             }
@@ -1018,13 +1017,13 @@ void Timeline::split_at_playhead() {
 }
 
 void Timeline::deselect_area(long in, long out, int track) {
-	int len = selections.size();
+	int len = sequence->selections.size();
 	for (int i=0;i<len;i++) {
-		Selection& s = selections[i];
+		Selection& s = sequence->selections[i];
 		if (s.track == track) {
 			if (s.in >= in && s.out <= out) {
 				// whole selection is in deselect area
-				selections.removeAt(i);
+				sequence->selections.removeAt(i);
 				i--;
 				len--;
 			} else if (s.in < in && s.out > out) {
@@ -1033,7 +1032,7 @@ void Timeline::deselect_area(long in, long out, int track) {
 				new_sel.in = out;
 				new_sel.out = s.out;
 				new_sel.track = s.track;
-				selections.append(new_sel);
+				sequence->selections.append(new_sel);
 
 				s.out = in;
 			} else if (s.in < in && s.out > in) {
@@ -1062,7 +1061,7 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
     snapped = false;
     if (snapping) {
         if (playhead_inclusive && !playing) {
-            playhead_inclusive = snap_to_point(playhead, l);
+			playhead_inclusive = snap_to_point(sequence->playhead, l);
         } else {
             playhead_inclusive = false;
         }
@@ -1141,7 +1140,7 @@ void Timeline::decrease_track_height() {
 }
 
 void Timeline::deselect() {
-    selections.clear();
+	sequence->selections.clear();
     repaint_timeline();
 }
 

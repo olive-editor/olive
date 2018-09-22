@@ -80,7 +80,9 @@ SOURCES += \
     effects/video/boxblureffect.cpp \
     dialogs/demonotice.cpp \
     effects/audio/toneeffect.cpp \
-    project/marker.cpp
+    project/marker.cpp \
+    dialogs/speeddialog.cpp \
+    dialogs/speeddialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -137,7 +139,10 @@ HEADERS += \
     effects/video/boxblureffect.h \
     dialogs/demonotice.h \
     effects/audio/toneeffect.h \
-    project/marker.h
+    project/marker.h \
+    project/selection.h \
+    dialogs/speeddialog.h \
+    dialogs/speeddialog.h
 
 FORMS += \
         mainwindow.ui \

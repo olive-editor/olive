@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="icons/icons.qrc">
     <normaloff>:/icons/full-icon.png</normaloff>:/icons/full-icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -175,6 +175,7 @@
     <addaction name="actionSeek_to_the_End_of_Pastes"/>
     <addaction name="actionScroll_Wheel_Zooms"/>
     <addaction name="actionRectified_Waveforms"/>
+    <addaction name="actionEnable_Drag_Files_to_Timeline"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionCrash"/>
@@ -761,8 +762,18 @@
     <string>Custom</string>
    </property>
   </action>
+  <action name="actionEnable_Drag_Files_to_Timeline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Drag Files to Timeline</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
