@@ -10,7 +10,8 @@ Sequence::Sequence() :
     using_workarea(false),
     workarea_in(0),
     workarea_out(0)
-{}
+{
+}
 
 Sequence::~Sequence() {
     // dealloc all clips

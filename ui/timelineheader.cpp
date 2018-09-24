@@ -15,6 +15,8 @@
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
+#define LINE_MIN_PADDING 50
+#define MARKER_SIZE 4
 
 TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(false), resizing_workarea(false), zoom(1), in_visible(0), snapping(true), fm(font()) {
     setCursor(Qt::ArrowCursor);
@@ -120,8 +122,6 @@ void TimelineHeader::update_header(double z) {
 	update();
 }
 
-#define LINE_MIN_PADDING 50
-
 void TimelineHeader::paintEvent(QPaintEvent*) {
     if (sequence != NULL) {
         QPainter p(this);
@@ -184,6 +184,22 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
             p.drawLine(in_x, 0, in_x, height());
             p.drawLine(out_x, 0, out_x, height());
         }
+
+		// draw markers
+		for (int i=0;i<sequence->markers.size();i++) {
+			const Marker& m = sequence->markers.at(i);
+			int marker_x = getScreenPointFromFrame(zoom, m.frame);
+			const QPoint points[5] = {
+				QPoint(marker_x, height()-1),
+				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
+				QPoint(marker_x + MARKER_SIZE, yoff),
+				QPoint(marker_x - MARKER_SIZE, yoff),
+				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
+			};
+			p.setPen(Qt::black);
+			p.setBrush(QColor(128, 224, 128));
+			p.drawPolygon(points, 5);
+		}
 
         // draw playhead triangle
 		in_x = getScreenPointFromFrame(zoom, sequence->playhead - in_visible);
