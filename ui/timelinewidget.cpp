@@ -63,9 +63,35 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		menu.addSeparator();
 		QAction* speedAction = menu.addAction("&Speed/Duration");
 		connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(openSpeedDialog()));
+        QAction* autoscaleAction = menu.addAction("Auto-s&cale");
+        autoscaleAction->setCheckable(true);
+        connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
+
+        for (int i=0;i<sequence->clips.size();i++) {
+            Clip* c = sequence->clips.at(i);
+            if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+                autoscaleAction->setChecked(c->autoscale);
+                break;
+            }
+        }
 	}
 
     menu.exec(mapToGlobal(pos));
+}
+
+void TimelineWidget::toggle_autoscale() {
+    SetAutoscaleAction* action = new SetAutoscaleAction();
+    for (int i=0;i<sequence->clips.size();i++) {
+        Clip* c = sequence->clips.at(i);
+        if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+            action->clips.append(c);
+        }
+    }
+    if (action->clips.size() > 0) {
+        undo_stack.push(action);
+    } else {
+        delete action;
+    }
 }
 
 bool same_sign(int a, int b) {

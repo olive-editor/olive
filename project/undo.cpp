@@ -10,6 +10,7 @@
 #include "panels/panels.h"
 #include "panels/project.h"
 #include "panels/effectcontrols.h"
+#include "panels/viewer.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
 #include "effects/effect.h"
@@ -17,6 +18,7 @@
 #include "playback/cacher.h"
 #include "effects/transition.h"
 #include "ui/labelslider.h"
+#include "ui/viewerwidget.h"
 
 QUndoStack undo_stack;
 
@@ -1317,4 +1319,18 @@ void EffectFieldUndo::redo() {
 	if (!done) {
 		field->set_current_data(new_val);
 	}
+}
+
+void SetAutoscaleAction::undo() {
+    for (int i=0;i<clips.size();i++) {
+        clips.at(i)->autoscale = !clips.at(i)->autoscale;
+    }
+    panel_viewer->viewer_widget->update();
+}
+
+void SetAutoscaleAction::redo() {
+    for (int i=0;i<clips.size();i++) {
+        clips.at(i)->autoscale = !clips.at(i)->autoscale;
+    }
+    panel_viewer->viewer_widget->update();
 }

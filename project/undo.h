@@ -441,4 +441,11 @@ private:
 	bool done;
 };
 
+class SetAutoscaleAction : public QUndoCommand {
+public:
+    void undo();
+    void redo();
+    QVector<Clip*> clips;
+};
+
 #endif // UNDO_H

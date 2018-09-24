@@ -3,6 +3,7 @@
 #include "effects/effect.h"
 #include "effects/transition.h"
 #include "io/media.h"
+#include "io/config.h"
 #include "playback/playback.h"
 #include "playback/cacher.h"
 #include "panels/project.h"
@@ -30,7 +31,7 @@ Clip::Clip(Sequence* s) :
 	replaced(false),
 	texture(NULL),
 	fbo(NULL),
-	autoscale(false)
+    autoscale(config.autoscale_by_default)
 {
     reset();
 }
@@ -51,6 +52,7 @@ Clip* Clip::copy(Sequence* s) {
     copy->media = media;
     copy->media_type = media_type;
     copy->media_stream = media_stream;
+    copy->autoscale = autoscale;
 
     for (int i=0;i<effects.size();i++) {
         copy->effects.append(effects.at(i)->copy(copy));

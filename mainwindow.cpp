@@ -294,7 +294,7 @@ void MainWindow::openSpeedDialog() {
 		SpeedDialog s(this);
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != NULL & panel_timeline->is_clip_selected(c, true)) {
+            if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
 				s.clips.append(c);
 			}
 		}
@@ -604,6 +604,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionScroll_Wheel_Zooms->setChecked(config.scroll_zooms);
 	ui->actionRectified_Waveforms->setChecked(config.rectified_waveforms);
 	ui->actionEnable_Drag_Files_to_Timeline->setChecked(config.enable_drag_files_to_timeline);
+    ui->actionAuto_scale_by_Default->setChecked(config.autoscale_by_default);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -787,4 +788,8 @@ void MainWindow::on_actionCustom_triggered() {
 
 void MainWindow::on_actionEnable_Drag_Files_to_Timeline_triggered() {
 	config.enable_drag_files_to_timeline = !config.enable_drag_files_to_timeline;
+}
+
+void MainWindow::on_actionAuto_scale_by_Default_triggered() {
+    config.autoscale_by_default = !config.autoscale_by_default;
 }

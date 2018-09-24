@@ -58,7 +58,6 @@ private:
     QVector<Clip*> post_clips;
 
     QPixmap clip_pixmap;
-//	QPixmap selection_pixmap;
 
     int predicted_video_width;
     int predicted_video_height;
@@ -71,6 +70,7 @@ public slots:
 
 private slots:
     void show_context_menu(const QPoint& pos);
+    void toggle_autoscale();
 };
 
 #endif // TIMELINEWIDGET_H

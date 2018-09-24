@@ -37,7 +37,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>20</height>
+     <height>16</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -176,6 +176,7 @@
     <addaction name="actionScroll_Wheel_Zooms"/>
     <addaction name="actionRectified_Waveforms"/>
     <addaction name="actionEnable_Drag_Files_to_Timeline"/>
+    <addaction name="actionAuto_scale_by_Default"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionCrash"/>
@@ -768,6 +769,14 @@
    </property>
    <property name="text">
     <string>Enable Drag Files to Timeline</string>
+   </property>
+  </action>
+  <action name="actionAuto_scale_by_Default">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto-scale by Default</string>
    </property>
   </action>
  </widget>

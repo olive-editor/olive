@@ -184,6 +184,8 @@ private slots:
 
 	void on_actionEnable_Drag_Files_to_Timeline_triggered();
 
+    void on_actionAuto_scale_by_Default_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();
