@@ -336,6 +336,7 @@ void ExportThread::run() {
 	}
 
 	panel_timeline->seek(start_frame);
+	panel_timeline->reset_all_audio();
 
 	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 	fbo.bind();

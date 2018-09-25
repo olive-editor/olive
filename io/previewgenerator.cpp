@@ -55,7 +55,7 @@ void PreviewGenerator::parse_media() {
 					ms->video_frame_rate = 0;
 				} else {
 					ms->infinite_length = false;
-					ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate)*0.5;
+					ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
 				}
 				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
 				ms->video_height = fmt_ctx->streams[i]->codecpar->height;

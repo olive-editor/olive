@@ -103,6 +103,7 @@ public:
 	int get_snap_range();
     bool snap_to_point(long point, long* l);
     void snap_to_clip(long* l, bool playhead_inclusive);
+	void set_marker();
 
 	// playback functions
 	void go_to_start();
@@ -180,6 +181,8 @@ public:
 	bool creating;
 	int creatingObject;
 
+	void reset_all_audio();
+
     Ui::Timeline *ui;
 public slots:
 	void repaint_timeline();
@@ -216,7 +219,7 @@ private:
 	void set_tool(int tool);
 	long last_frame;
     QVector<Clip*> clip_clipboard;
-    void reset_all_audio();
+	bool queue_audio_reset;
 
 	int default_track_height;
 };

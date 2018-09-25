@@ -130,7 +130,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			// apply any audio effects to the data
 			if (nb_bytes == INT_MAX) nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
 			if (new_frame) {
-				apply_audio_effects(c, (frame->pts * av_q2d(c->stream->time_base)), frame, nb_bytes);
+				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, sequence->audio_frequency) + audio_ibuffer_timecode, frame, nb_bytes);
 			}
 		}
 			break;

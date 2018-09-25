@@ -57,7 +57,8 @@ Timeline::Timeline(QWidget *parent) :
     zoomChanged(false),
     ui(new Ui::Timeline),
 	last_frame(0),
-	creating(false)
+	creating(false),
+	queue_audio_reset(false)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
@@ -144,8 +145,10 @@ void Timeline::next_cut() {
 
 void Timeline::reset_all_audio() {
     // reset all clip audio
-	audio_ibuffer_frame = sequence->playhead;
 	if (sequence != NULL) {
+		audio_ibuffer_frame = sequence->playhead;
+		audio_ibuffer_timecode = (double) audio_ibuffer_frame / sequence->frame_rate;
+
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
 			if (c != NULL) {
@@ -160,7 +163,7 @@ void Timeline::reset_all_audio() {
 void Timeline::seek(long p) {
 	pause();
 	sequence->playhead = p;
-	reset_all_audio();
+	queue_audio_reset = true;
 	repaint_timeline();
 }
 
@@ -173,6 +176,10 @@ void Timeline::toggle_play() {
 }
 
 void Timeline::play() {
+	if (queue_audio_reset) {
+		reset_all_audio();
+		queue_audio_reset = false;
+	}
 	playhead_start = sequence->playhead;
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
@@ -1081,7 +1088,23 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
                 }
             }
         }
-    }
+	}
+}
+
+void Timeline::set_marker() {
+	/* TODO make undoable */
+	bool found = false;
+	for (int i=0;i<sequence->markers.size();i++) {
+		if (sequence->markers.at(i).frame == sequence->playhead) {
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		Marker m;
+		m.frame = sequence->playhead;
+		sequence->markers.append(m);
+	}
 }
 
 void Timeline::toggle_links() {

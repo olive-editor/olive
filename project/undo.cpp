@@ -51,7 +51,8 @@ MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int 
     new_in(iin),
     new_out(iout),
     new_clip_in(iclip_in),
-    new_track(itrack)
+	new_track(itrack),
+	old_project_changed(project_changed)
 {}
 
 void MoveClipAction::undo() {
@@ -59,6 +60,8 @@ void MoveClipAction::undo() {
     clip->timeline_out = old_out;
     clip->clip_in = old_clip_in;
     clip->track = old_track;
+
+	project_changed = old_project_changed;
 }
 
 void MoveClipAction::redo() {
@@ -71,11 +74,14 @@ void MoveClipAction::redo() {
     clip->timeline_out = new_out;
     clip->clip_in = new_clip_in;
     clip->track = new_track;
+
+	project_changed = true;
 }
 
 DeleteClipAction::DeleteClipAction(Sequence* s, int clip) :
     seq(s),
-    index(clip)
+	index(clip),
+	old_project_changed(project_changed)
 {}
 
 DeleteClipAction::~DeleteClipAction() {
@@ -91,6 +97,8 @@ void DeleteClipAction::undo() {
 	for (int i=linkClipIndex.size()-1;i>=0;i--) {
 		seq->clips.at(linkClipIndex.at(i))->linked.insert(linkLinkIndex.at(i), index);
 	}
+
+	project_changed = old_project_changed;
 }
 
 void DeleteClipAction::redo() {
@@ -113,6 +121,8 @@ void DeleteClipAction::redo() {
 			}
 		}
 	}
+
+	project_changed = true;
 }
 
 ChangeSequenceAction::ChangeSequenceAction(Sequence* s) :
@@ -132,13 +142,16 @@ SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long
     seq(s),
     new_enabled(enabled),
     new_in(in),
-    new_out(out)
+	new_out(out),
+	old_project_changed(project_changed)
 {}
 
 void SetTimelineInOutCommand::undo() {
     seq->using_workarea = old_enabled;
     seq->workarea_in = old_in;
     seq->workarea_out = old_out;
+
+	project_changed = old_project_changed;
 }
 
 void SetTimelineInOutCommand::redo() {
@@ -149,13 +162,16 @@ void SetTimelineInOutCommand::redo() {
     seq->using_workarea = new_enabled;
     seq->workarea_in = new_in;
     seq->workarea_out = new_out;
+
+	project_changed = true;
 }
 
 AddEffectCommand::AddEffectCommand(Clip* c, int ieffect) :
     clip(c),
     effect(ieffect),
     ref(NULL),
-    done(false)
+	done(false),
+	old_project_changed(project_changed)
 {}
 
 AddEffectCommand::~AddEffectCommand() {
@@ -165,6 +181,7 @@ AddEffectCommand::~AddEffectCommand() {
 void AddEffectCommand::undo() {
     clip->effects.removeLast();
     done = false;
+	project_changed = old_project_changed;
 }
 
 void AddEffectCommand::redo() {
@@ -173,12 +190,14 @@ void AddEffectCommand::redo() {
     }
     clip->effects.append(ref);
     done = true;
+	project_changed = true;
 }
 
 AddTransitionCommand::AddTransitionCommand(Clip* c, int itransition, int itype) :
     clip(c),
     transition(itransition),
-    type(itype)
+	type(itype),
+	old_project_changed(project_changed)
 {}
 
 void AddTransitionCommand::undo() {
@@ -189,6 +208,7 @@ void AddTransitionCommand::undo() {
         delete clip->closing_transition;
         clip->closing_transition = NULL;
     }
+	project_changed = old_project_changed;
 }
 
 void AddTransitionCommand::redo() {
@@ -197,12 +217,14 @@ void AddTransitionCommand::redo() {
     } else {
         clip->closing_transition = create_transition(transition, clip);
     }
+	project_changed = true;
 }
 
 ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilength) :
     clip(c),
     type(itype),
-    new_length(ilength)
+	new_length(ilength),
+	old_project_changed(project_changed)
 {}
 
 void ModifyTransitionCommand::undo() {
@@ -211,6 +233,7 @@ void ModifyTransitionCommand::undo() {
     } else {
         clip->closing_transition->length = old_length;
     }
+	project_changed = old_project_changed;
 }
 
 void ModifyTransitionCommand::redo() {
@@ -221,12 +244,14 @@ void ModifyTransitionCommand::redo() {
         old_length = clip->closing_transition->length;
         clip->closing_transition->length = new_length;
     }
+	project_changed = true;
 }
 
 DeleteTransitionCommand::DeleteTransitionCommand(Clip* c, int itype) :
     clip(c),
     type(itype),
-    transition(NULL)
+	transition(NULL),
+	old_project_changed(project_changed)
 {}
 
 DeleteTransitionCommand::~DeleteTransitionCommand() {
@@ -240,6 +265,7 @@ void DeleteTransitionCommand::undo() {
         clip->closing_transition = transition;
     }
     transition = NULL;
+	project_changed = old_project_changed;
 }
 
 void DeleteTransitionCommand::redo() {
@@ -250,12 +276,14 @@ void DeleteTransitionCommand::redo() {
         transition = clip->closing_transition;
         clip->closing_transition = NULL;
     }
+	project_changed = true;
 }
 
 NewSequenceCommand::NewSequenceCommand(QTreeWidgetItem *s, QTreeWidgetItem* iparent) :
     seq(s),
     parent(iparent),
-    done(false)
+	done(false),
+	old_project_changed(project_changed)
 {}
 
 NewSequenceCommand::~NewSequenceCommand() {
@@ -269,6 +297,7 @@ void NewSequenceCommand::undo() {
         parent->removeChild(seq);
     }
     done = false;
+	project_changed = old_project_changed;
 }
 
 void NewSequenceCommand::redo() {
@@ -278,12 +307,14 @@ void NewSequenceCommand::redo() {
         parent->addChild(seq);
     }
     done = true;
+	project_changed = true;
 }
 
 AddMediaCommand::AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparent) :
     item(iitem),
     parent(iparent),
-    done(false)
+	done(false),
+	old_project_changed(project_changed)
 {}
 
 AddMediaCommand::~AddMediaCommand() {
@@ -300,6 +331,7 @@ void AddMediaCommand::undo() {
         parent->removeChild(item);
     }
     done = false;
+	project_changed = old_project_changed;
 }
 
 void AddMediaCommand::redo() {
@@ -309,10 +341,12 @@ void AddMediaCommand::redo() {
         parent->addChild(item);
     }
     done = true;
+	project_changed = true;
 }
 
 DeleteMediaCommand::DeleteMediaCommand(QTreeWidgetItem* i) :
-    item(i)
+	item(i),
+	old_project_changed(project_changed)
 {}
 
 DeleteMediaCommand::~DeleteMediaCommand() {
@@ -326,6 +360,8 @@ void DeleteMediaCommand::undo() {
     } else {
         parent->addChild(item);
     }
+
+	old_project_changed = project_changed;
 }
 
 void DeleteMediaCommand::redo() {
@@ -336,12 +372,15 @@ void DeleteMediaCommand::redo() {
     } else {
         parent->removeChild(item);
     }
+
+	project_changed = true;
 }
 
 RippleCommand::RippleCommand(Sequence *s, long ipoint, long ilength) :
     seq(s),
     point(ipoint),
-    length(ilength)
+	length(ilength),
+	old_project_changed(project_changed)
 {}
 
 void RippleCommand::undo() {
@@ -350,6 +389,7 @@ void RippleCommand::undo() {
         c->timeline_in -= length;
         c->timeline_out -= length;
     }
+	project_changed = old_project_changed;
 }
 
 void RippleCommand::redo() {
@@ -372,11 +412,13 @@ void RippleCommand::redo() {
             }
         }
     }
+	project_changed = true;
 }
 
 AddClipCommand::AddClipCommand(Sequence* s, QVector<Clip*>& add) :
     seq(s),
-    clips(add)
+	clips(add),
+	old_project_changed(project_changed)
 {}
 
 AddClipCommand::~AddClipCommand() {
@@ -390,6 +432,7 @@ void AddClipCommand::undo() {
         delete seq->clips.last();
         seq->clips.removeLast();
     }
+	project_changed = old_project_changed;
 }
 
 void AddClipCommand::redo() {
@@ -404,6 +447,7 @@ void AddClipCommand::redo() {
         }
         seq->clips.append(copy);
     }
+	project_changed = true;
 }
 
 /*

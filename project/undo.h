@@ -52,6 +52,8 @@ private:
     long old_out;
     long old_clip_in;
     int old_track;
+
+	bool old_project_changed;
 };
 
 class DeleteClipAction : public QUndoCommand {
@@ -67,6 +69,8 @@ private:
 
 	QVector<int> linkClipIndex;
 	QVector<int> linkLinkIndex;
+
+	bool old_project_changed;
 };
 
 class ChangeSequenceAction : public QUndoCommand {
@@ -90,6 +94,7 @@ private:
     int effect;
     Effect* ref;
     bool done;
+	bool old_project_changed;
 };
 
 class AddTransitionCommand : public QUndoCommand {
@@ -101,6 +106,7 @@ private:
     Clip* clip;
     int transition;
     int type;
+	bool old_project_changed;
 };
 
 class ModifyTransitionCommand : public QUndoCommand {
@@ -113,6 +119,7 @@ private:
     int type;
     long new_length;
     long old_length;
+	bool old_project_changed;
 };
 
 class DeleteTransitionCommand : public QUndoCommand {
@@ -125,6 +132,7 @@ private:
     Clip* clip;
     int type;
     Transition* transition;
+	bool old_project_changed;
 };
 
 class SetTimelineInOutCommand : public QUndoCommand {
@@ -142,6 +150,8 @@ private:
     bool new_enabled;
     long new_in;
     long new_out;
+
+	bool old_project_changed;
 };
 
 class NewSequenceCommand : public QUndoCommand {
@@ -154,6 +164,7 @@ private:
     QTreeWidgetItem* seq;
     QTreeWidgetItem* parent;
     bool done;
+	bool old_project_changed;
 };
 
 class AddMediaCommand : public QUndoCommand {
@@ -166,6 +177,7 @@ private:
     QTreeWidgetItem* item;
     QTreeWidgetItem* parent;
     bool done;
+	bool old_project_changed;
 };
 
 class DeleteMediaCommand : public QUndoCommand {
@@ -177,6 +189,7 @@ public:
 private:
     QTreeWidgetItem* item;
     QTreeWidgetItem* parent;
+	bool old_project_changed;
 };
 
 class RippleCommand : public QUndoCommand {
@@ -190,6 +203,7 @@ private:
     long point;
     long length;
     QVector<Clip*> rippled;
+	bool old_project_changed;
 };
 
 class AddClipCommand : public QUndoCommand {
@@ -201,6 +215,7 @@ public:
 private:
     Sequence* seq;
     QVector<Clip*> clips;
+	bool old_project_changed;
 };
 
 /*class TimelineAction : public QUndoCommand {

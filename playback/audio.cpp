@@ -22,6 +22,7 @@ QMutex audio_write_lock;
 qint8 audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
+double audio_ibuffer_timecode = 0;
 
 AudioSenderThread* audio_thread;
 
