@@ -186,6 +186,8 @@ private slots:
 
     void on_actionAuto_scale_by_Default_triggered();
 
+	void on_actionSet_Edit_Marker_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

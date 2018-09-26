@@ -463,4 +463,18 @@ public:
     QVector<Clip*> clips;
 };
 
+class AddMarkerAction : public QUndoCommand {
+public:
+	AddMarkerAction(Sequence* s, long t, QString n);
+	void undo();
+	void redo();
+private:
+	Sequence* seq;
+	long time;
+	QString name;
+	QString old_name;
+	bool old_project_changed;
+	int index;
+};
+
 #endif // UNDO_H

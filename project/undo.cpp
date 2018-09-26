@@ -1378,3 +1378,41 @@ void SetAutoscaleAction::redo() {
     }
     panel_viewer->viewer_widget->update();
 }
+
+AddMarkerAction::AddMarkerAction(Sequence* s, long t, QString n) :
+	seq(s),
+	time(t),
+	name(n),
+	old_project_changed(project_changed)
+{}
+
+void AddMarkerAction::undo() {
+	if (index == -1) {
+		sequence->markers.removeLast();
+	} else {
+		sequence->markers[index].name = old_name;
+	}
+
+	project_changed = old_project_changed;
+}
+
+void AddMarkerAction::redo() {
+	index = -1;
+	for (int i=0;i<sequence->markers.size();i++) {
+		if (sequence->markers.at(i).frame == time) {
+			index = i;
+			break;
+		}
+	}
+
+	if (index == -1) {
+		Marker m;
+		m.frame = time;
+		sequence->markers.append(m);
+	} else {
+		old_name = sequence->markers.at(index).name;
+		sequence->markers[index].name = name;
+	}
+
+	project_changed = true;
+}

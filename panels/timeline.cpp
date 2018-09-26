@@ -24,6 +24,7 @@
 #include <QScreen>
 #include <QPainter>
 #include <QMenu>
+#include <QInputDialog>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
     if (source_frame_rate == target_frame_rate) return framenumber;
@@ -1092,18 +1093,12 @@ void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
 }
 
 void Timeline::set_marker() {
-	/* TODO make undoable */
-	bool found = false;
-	for (int i=0;i<sequence->markers.size();i++) {
-		if (sequence->markers.at(i).frame == sequence->playhead) {
-			found = true;
-			break;
-		}
-	}
-	if (!found) {
-		Marker m;
-		m.frame = sequence->playhead;
-		sequence->markers.append(m);
+	QInputDialog d(this);
+	d.setWindowTitle("Set Marker");
+	d.setLabelText("Set marker name:");
+	d.setInputMode(QInputDialog::TextInput);
+	if (d.exec() == QDialog::Accepted) {
+		undo_stack.push(new AddMarkerAction(sequence, sequence->playhead, d.textValue()));
 	}
 }
 

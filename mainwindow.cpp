@@ -793,3 +793,7 @@ void MainWindow::on_actionEnable_Drag_Files_to_Timeline_triggered() {
 void MainWindow::on_actionAuto_scale_by_Default_triggered() {
     config.autoscale_by_default = !config.autoscale_by_default;
 }
+
+void MainWindow::on_actionSet_Edit_Marker_triggered() {
+	if (sequence != NULL) panel_timeline->set_marker();
+}

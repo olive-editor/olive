@@ -37,4 +37,5 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	layout->addWidget(buttonBox, 4, 0, 2, 1);
+	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }

@@ -778,8 +778,18 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             // load all clips and clip information
                             while (!(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
                                 stream.readNextStartElement();
-                                if (stream.name() == "clip" && stream.isStartElement()) {
-                                    //<clip id="0" name="Brock_Drying_Pan.gif" clipin="0" in="44" out="144" track="-1" r="192" g="128" b="128" media="2" stream="0">
+								if (stream.name() == "marker" && stream.isStartElement()) {
+									Marker m;
+									for (int j=0;j<stream.attributes().size();j++) {
+										const QXmlStreamAttribute& attr = stream.attributes().at(j);
+										if (attr.name() == "frame") {
+											m.frame = attr.value().toLong();
+										} else if (attr.name() == "name") {
+											m.name = attr.value().toString();
+										}
+									}
+									s->markers.append(m);
+								} else if (stream.name() == "clip" && stream.isStartElement()) {
                                     int media_id, stream_id;
                                     Clip* c = new Clip(s);
 
@@ -1147,6 +1157,12 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 stream.writeEndElement(); // clip
                             }
                         }
+						for (int j=0;j<s->markers.size();j++) {
+							stream.writeStartElement("marker");
+							stream.writeAttribute("frame", QString::number(s->markers.at(j).frame));
+							stream.writeAttribute("name", s->markers.at(j).name);
+							stream.writeEndElement();
+						}
                         stream.writeEndElement();
                     }
                 }
