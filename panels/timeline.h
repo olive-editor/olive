@@ -102,7 +102,7 @@ public:
 
 	int get_snap_range();
     bool snap_to_point(long point, long* l);
-    void snap_to_clip(long* l, bool playhead_inclusive);
+	bool snap_to_timeline(long* l, bool use_playhead, bool use_markers, bool use_workarea);
 	void set_marker();
 
 	// playback functions

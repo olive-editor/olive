@@ -19,6 +19,7 @@
 #include "effects/transition.h"
 #include "ui/labelslider.h"
 #include "ui/viewerwidget.h"
+#include "project/marker.h"
 
 QUndoStack undo_stack;
 
@@ -1415,4 +1416,45 @@ void AddMarkerAction::redo() {
 	}
 
 	project_changed = true;
+}
+
+MoveMarkerAction::MoveMarkerAction(Marker* m, long o, long n) :
+	marker(m),
+	old_time(o),
+	new_time(n)
+{}
+
+void MoveMarkerAction::undo() {
+	marker->frame = old_time;
+}
+
+void MoveMarkerAction::redo() {
+	marker->frame = new_time;
+}
+
+DeleteMarkerAction::DeleteMarkerAction(Sequence* s) :
+	seq(s),
+	sorted(false)
+{}
+
+void DeleteMarkerAction::undo() {
+	for (int i=markers.size()-1;i>=0;i--) {
+		seq->markers.insert(markers.at(i), copies.at(i));
+	}
+}
+
+void DeleteMarkerAction::redo() {
+	for (int i=0;i<markers.size();i++) {
+		// correct future removals
+		if (!sorted) {
+			copies.append(seq->markers.at(markers.at(i)));
+			for (int j=i+1;j<markers.size();j++) {
+				if (markers.at(j) > markers.at(i)) {
+					markers[j]--;
+				}
+			}
+		}
+		seq->markers.removeAt(markers.at(i));
+	}
+	sorted = true;
 }

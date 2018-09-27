@@ -13,6 +13,8 @@ struct Clip;
 struct Sequence;
 struct Media;
 
+#include "project/marker.h"
+
 #include <QUndoStack>
 #include <QUndoCommand>
 #include <QVector>
@@ -475,6 +477,29 @@ private:
 	QString old_name;
 	bool old_project_changed;
 	int index;
+};
+
+class MoveMarkerAction : public QUndoCommand {
+public:
+	MoveMarkerAction(Marker* m, long o, long n);
+	void undo();
+	void redo();
+private:
+	Marker* marker;
+	long old_time;
+	long new_time;
+};
+
+class DeleteMarkerAction : public QUndoCommand {
+public:
+	DeleteMarkerAction(Sequence* s);
+	void undo();
+	void redo();
+	QVector<int> markers;
+private:
+	Sequence* seq;
+	QVector<Marker> copies;
+	bool sorted;
 };
 
 #endif // UNDO_H

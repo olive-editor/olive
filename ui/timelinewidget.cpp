@@ -945,60 +945,32 @@ void TimelineWidget::init_ghosts() {
 	}
 }
 
-bool subvalidate_snapping(const Ghost& g, long* frame_diff, long snap_point) {
-    int snap_range = panel_timeline->get_snap_range();
-    long in_validator = g.old_in + *frame_diff - snap_point;
-    long out_validator = g.old_out + *frame_diff - snap_point;
-
-    if ((panel_timeline->trim_target == -1 || g.trim_in) && in_validator > -snap_range && in_validator < snap_range) {
-        *frame_diff -= in_validator;
-        panel_timeline->snap_point = snap_point;
-        panel_timeline->snapped = true;
-        return true;
-	} else if ((panel_timeline->trim_target == -1 || !g.trim_in) && out_validator > -snap_range && out_validator < snap_range) {
-        *frame_diff -= out_validator;
-        panel_timeline->snap_point = snap_point;
-        panel_timeline->snapped = true;
-        return true;
-    }
-    return false;
-}
-
-void validate_snapping(const Ghost& g, long* frame_diff) {
-    if (panel_timeline->snapping) {
-        bool snap_to_clip = true;
-        if (!panel_timeline->playing) {
-			snap_to_clip = !subvalidate_snapping(g, frame_diff, sequence->playhead);
-        }
-        if (snap_to_clip) {
-            for (int j=0;j<sequence->clips.size();j++) {
-                Clip* c = sequence->clips.at(j);
-                if (c != NULL) {
-					if (!subvalidate_snapping(g, frame_diff, c->timeline_in)
-							&& !subvalidate_snapping(g, frame_diff, c->timeline_out)
-							&& (c->opening_transition != NULL && !subvalidate_snapping(g, frame_diff, c->timeline_in + c->opening_transition->length))
-							&& (c->closing_transition != NULL && !subvalidate_snapping(g, frame_diff, c->timeline_out - c->closing_transition->length))) {}
-                    if (panel_timeline->snapped) break;
-                }
-            }
-        }
-    }
-}
-
 void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
 	long frame_diff = panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
 	int track_diff = (panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) ? 0 : mouse_track - panel_timeline->drag_track_start;
     long validator;
 
-    // first try to snap
-    panel_timeline->snapped = false;
+	// first try to snap
+	long fm;
     if (panel_timeline->tool != TIMELINE_TOOL_SLIP) {
         // slipping doesn't move the clips so we don't bother snapping for it
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
-            Ghost& g = panel_timeline->ghosts[i];
-            validate_snapping(g, &frame_diff);
-            if (panel_timeline->snapped) break;
+			Ghost& g = panel_timeline->ghosts[i];
+			if (panel_timeline->trim_target == -1 || g.trim_in) {
+				fm = g.old_in + frame_diff;
+				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+					frame_diff = fm - g.old_in;
+					break;
+				}
+			}
+			if (panel_timeline->trim_target == -1 || !g.trim_in) {
+				fm = g.old_out + frame_diff;
+				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+					frame_diff = fm - g.old_out;
+					break;
+				}
+			}
         }
     }
 
@@ -1199,7 +1171,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
 		if (isLiveEditing()) {
-            panel_timeline->snap_to_clip(&panel_timeline->cursor_frame, !config.edit_tool_also_seeks || !panel_timeline->selecting);
+			panel_timeline->snap_to_timeline(&panel_timeline->cursor_frame, !config.edit_tool_also_seeks || !panel_timeline->selecting, true, true);
         }
         if (panel_timeline->selecting) {
             int selection_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start) + panel_timeline->selection_offset;

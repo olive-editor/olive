@@ -18,15 +18,32 @@
 #define LINE_MIN_PADDING 50
 #define MARKER_SIZE 4
 
-TimelineHeader::TimelineHeader(QWidget *parent) : QWidget(parent), dragging(false), resizing_workarea(false), zoom(1), in_visible(0), snapping(true), fm(font()) {
+TimelineHeader::TimelineHeader(QWidget *parent) :
+	QWidget(parent),
+	dragging(false),
+	resizing_workarea(false),
+	zoom(1),
+	in_visible(0),
+	snapping(true),
+	fm(font()),
+	dragging_markers(false)
+{
     setCursor(Qt::ArrowCursor);
     setMouseTracking(true);
     setMinimumHeight(fm.height()*2);
 }
 
+long TimelineHeader::getHeaderFrameFromScreenPoint(int x) {
+	return getFrameFromScreenPoint(zoom, x) + in_visible;
+}
+
+int TimelineHeader::getHeaderScreenPointFromFrame(long frame) {
+	return getScreenPointFromFrame(zoom, frame - in_visible);
+}
+
 void TimelineHeader::set_playhead(int mouse_x) {
-	long frame = getFrameFromScreenPoint(zoom, mouse_x) + in_visible;
-	if (snapping) panel_timeline->snap_to_clip(&frame, false);
+	long frame = getHeaderFrameFromScreenPoint(mouse_x);
+	if (snapping) panel_timeline->snap_to_timeline(&frame, false, true, true);
 	panel_timeline->seek(frame);
 }
 
@@ -44,8 +61,7 @@ void TimelineHeader::set_in_point(long new_in) {
     }
 
     undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
-
-    update();
+	panel_timeline->repaint_timeline();
 }
 
 void TimelineHeader::set_out_point(long new_out) {
@@ -55,41 +71,107 @@ void TimelineHeader::set_out_point(long new_out) {
     } else if (new_in > new_out) {
         new_in = 0;
     }
-
     undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
-
-    update();
+	panel_timeline->repaint_timeline();
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
     if (resizing_workarea) {
-        sequence_end = sequence->getEndFrame();
-    } else {
-		set_playhead(event->pos().x());
+		sequence_end = sequence->getEndFrame();
+	} else {
+		bool shift = (event->modifiers() & Qt::ShiftModifier);
+		bool clicked_on_marker = false;
+		for (int i=0;i<sequence->markers.size();i++) {
+			int marker_pos = getHeaderScreenPointFromFrame(sequence->markers.at(i).frame);
+			if (event->pos().x() > marker_pos - MARKER_SIZE && event->pos().x() < marker_pos + MARKER_SIZE) {
+				bool found = false;
+				for (int j=0;j<selected_markers.size();j++) {
+					if (selected_markers.at(j) == i) {
+						if (shift) {
+							selected_markers.removeAt(j);
+						}
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					if (!shift) {
+						selected_markers.clear();
+					}
+					selected_markers.append(i);
+				}
+				clicked_on_marker = true;
+				update();
+				break;
+			}
+		}
+		if (clicked_on_marker) {
+			selected_marker_original_times.resize(selected_markers.size());
+			for (int i=0;i<selected_markers.size();i++) {
+				selected_marker_original_times[i] = sequence->markers.at(selected_markers.at(i)).frame;
+			}
+			drag_start = event->pos().x();
+			dragging_markers = true;
+		} else {
+			if (selected_markers.size() > 0) {
+				selected_markers.clear();
+				update();
+			}
+			set_playhead(event->pos().x());
+		}
     }
     dragging = true;
 }
 
 void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
     if (dragging) {
-        if (resizing_workarea) {
-			long frame = getFrameFromScreenPoint(zoom, event->pos().x());
-            panel_timeline->snap_to_clip(&frame, true);
+		if (resizing_workarea) {
+			long frame = getHeaderFrameFromScreenPoint(event->pos().x());
+			panel_timeline->snap_to_timeline(&frame, true, true, false);
+
             if (resizing_workarea_in) {
                 temp_workarea_in = qMax(qMin(temp_workarea_out-1, frame), 0L);
             } else {
                 temp_workarea_out = qMin(qMax(temp_workarea_in+1, frame), sequence_end);
             }
-            panel_timeline->repaint_timeline();
-        } else {
+
+			panel_timeline->repaint_timeline();
+		} else if (dragging_markers) {
+			long frame_movement = getHeaderFrameFromScreenPoint(event->pos().x()) - getHeaderFrameFromScreenPoint(drag_start);
+
+			// snap markers
+			for (int i=0;i<selected_markers.size();i++) {
+				long fm = selected_marker_original_times.at(i) + frame_movement;
+				if (panel_timeline->snap_to_timeline(&fm, true, false, true)) {
+					frame_movement = fm - selected_marker_original_times.at(i);
+					break;
+				}
+			}
+
+			// validate markers (ensure none go below 0)
+			long validator;
+			for (int i=0;i<selected_markers.size();i++) {
+				validator = selected_marker_original_times.at(i) + frame_movement;
+				if (validator < 0) {
+					frame_movement -= validator;
+				}
+			}
+
+			// move markers
+			for (int i=0;i<selected_markers.size();i++) {
+				sequence->markers[selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
+			}
+
+			panel_timeline->repaint_timeline();
+		} else {
 			set_playhead(event->pos().x());
         }
     } else {
-        resizing_workarea = false;
+		resizing_workarea = false;
         unsetCursor();
         if (sequence->using_workarea) {
-			long min_frame = getFrameFromScreenPoint(zoom, event->pos().x() - CLICK_RANGE) - 1;
-			long max_frame = getFrameFromScreenPoint(zoom, event->pos().x() + CLICK_RANGE) + 1;
+			long min_frame = getHeaderFrameFromScreenPoint(event->pos().x() - CLICK_RANGE) - 1;
+			long max_frame = getHeaderFrameFromScreenPoint(event->pos().x() + CLICK_RANGE) + 1;
             if (sequence->workarea_in > min_frame && sequence->workarea_in < max_frame) {
                 resizing_workarea = true;
                 resizing_workarea_in = true;
@@ -102,24 +184,56 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
                 temp_workarea_out = sequence->workarea_out;
                 setCursor(Qt::SizeHorCursor);
             }
-        }
+		}
     }
 }
 
 void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
     if (resizing_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, true, temp_workarea_in, temp_workarea_out));
-    }
+	} else if (dragging_markers && selected_markers.size() > 0) {
+		bool moved = false;
+		ComboAction* ca = new ComboAction();
+		for (int i=0;i<selected_markers.size();i++) {
+			Marker* m = &sequence->markers[selected_markers.at(i)];
+			if (selected_marker_original_times.at(i) != m->frame) {
+				ca->append(new MoveMarkerAction(m, selected_marker_original_times.at(i), m->frame));
+				moved = true;
+			}
+		}
+		if (moved) {
+			undo_stack.push(ca);
+		} else {
+			delete ca;
+		}
+	}
 
     resizing_workarea = false;
     dragging = false;
+	dragging_markers = false;
     panel_timeline->snapped = false;
-    panel_timeline->repaint_timeline();
+	panel_timeline->repaint_timeline();
+}
+
+void TimelineHeader::focusOutEvent(QFocusEvent*) {
+	selected_markers.clear();
+	update();
 }
 
 void TimelineHeader::update_header(double z) {
 	zoom = z;
 	update();
+}
+
+void TimelineHeader::delete_markers() {
+	if (selected_markers.size() > 0) {
+		DeleteMarkerAction* dma = new DeleteMarkerAction(sequence);
+		for (int i=0;i<selected_markers.size();i++) {
+			dma->markers.append(selected_markers.at(i));
+		}
+		undo_stack.push(dma);
+		panel_timeline->repaint_timeline();
+	}
 }
 
 void TimelineHeader::paintEvent(QPaintEvent*) {
@@ -177,8 +291,8 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         // draw in/out selection
         int in_x;
         if (sequence->using_workarea) {
-			in_x = getScreenPointFromFrame(zoom, resizing_workarea ? temp_workarea_in : sequence->workarea_in);
-			int out_x = getScreenPointFromFrame(zoom, resizing_workarea ? temp_workarea_out :sequence->workarea_out);
+			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : sequence->workarea_in));
+			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : sequence->workarea_out));
             p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
             p.setPen(Qt::white);
             p.drawLine(in_x, 0, in_x, height());
@@ -188,7 +302,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		// draw markers
 		for (int i=0;i<sequence->markers.size();i++) {
 			const Marker& m = sequence->markers.at(i);
-			int marker_x = getScreenPointFromFrame(zoom, m.frame);
+			int marker_x = getHeaderScreenPointFromFrame(m.frame);
 			const QPoint points[5] = {
 				QPoint(marker_x, height()-1),
 				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
@@ -197,12 +311,23 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
 			};
 			p.setPen(Qt::black);
-			p.setBrush(QColor(128, 224, 128));
+			bool selected = false;
+			for (int j=0;j<selected_markers.size();j++) {
+				if (selected_markers.at(j) == i) {
+					selected = true;
+					break;
+				}
+			}
+			if (selected) {
+				p.setBrush(QColor(208, 255, 208));
+			} else {
+				p.setBrush(QColor(128, 224, 128));
+			}
 			p.drawPolygon(points, 5);
 		}
 
         // draw playhead triangle
-		in_x = getScreenPointFromFrame(zoom, sequence->playhead - in_visible);
+		in_x = getHeaderScreenPointFromFrame(sequence->playhead);
         QPoint start(in_x, height()+2);
         QPainterPath path;
         path.moveTo(start);

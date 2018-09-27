@@ -17,11 +17,14 @@ public:
 
     void update_header(double z);
 
+	void delete_markers();
+
 protected:
     void paintEvent(QPaintEvent*);
     void mousePressEvent(QMouseEvent*);
     void mouseMoveEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
+	void focusOutEvent(QFocusEvent *event);
 
 private:
     bool dragging;
@@ -39,6 +42,14 @@ private:
 	void set_playhead(int mouse_x);
 
     QFontMetrics fm;
+
+	int drag_start;
+	bool dragging_markers;
+	QVector<int> selected_markers;
+	QVector<long> selected_marker_original_times;
+
+	long getHeaderFrameFromScreenPoint(int x);
+	int getHeaderScreenPointFromFrame(long frame);
 
 signals:
 

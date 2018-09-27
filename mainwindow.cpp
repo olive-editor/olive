@@ -196,7 +196,9 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionDelete_triggered()
 {
-	if (panel_timeline->focused()) {
+	if (panel_timeline->ui->headers->hasFocus()) {
+		panel_timeline->ui->headers->delete_markers();
+	} else if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(false);
     } else if (panel_effect_controls->is_focused()) {
         panel_effect_controls->delete_effects();

@@ -1065,31 +1065,44 @@ bool Timeline::snap_to_point(long point, long* l) {
     return false;
 }
 
-void Timeline::snap_to_clip(long* l, bool playhead_inclusive) {
+bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bool use_workarea) {
     snapped = false;
-    if (snapping) {
-        if (playhead_inclusive && !playing) {
-			playhead_inclusive = snap_to_point(sequence->playhead, l);
-        } else {
-            playhead_inclusive = false;
-        }
-        if (!playhead_inclusive) {
-            for (int i=0;i<sequence->clips.size();i++) {
-                Clip* c = sequence->clips.at(i);
-                if (c != NULL) {
-                    if (snap_to_point(c->timeline_in, l)) {
-                        break;
-                    } else if (snap_to_point(c->timeline_out, l)) {
-                        break;
-					} else if (c->opening_transition != NULL && snap_to_point(c->timeline_in + c->opening_transition->length, l)) {
-						break;
-					} else if (c->closing_transition != NULL && snap_to_point(c->timeline_out - c->closing_transition->length, l)) {
-						break;
-					}
-                }
-            }
-        }
+	if (snapping) {
+		if (use_playhead && !playing) {
+			// snap to playhead
+			if (snap_to_point(sequence->playhead, l)) return true;
+		}
+
+		// snap to marker
+		if (use_markers) {
+			for (int i=0;i<sequence->markers.size();i++) {
+				if (snap_to_point(sequence->markers.at(i).frame, l)) return true;
+			}
+		}
+
+		// snap to in/out
+		if (use_workarea && sequence->using_workarea) {
+			if (snap_to_point(sequence->workarea_in, l)) return true;
+			if (snap_to_point(sequence->workarea_out, l)) return true;
+		}
+
+		// snap to clip/transition
+		for (int i=0;i<sequence->clips.size();i++) {
+			Clip* c = sequence->clips.at(i);
+			if (c != NULL) {
+				if (snap_to_point(c->timeline_in, l)) {
+					return true;
+				} else if (snap_to_point(c->timeline_out, l)) {
+					return true;
+				} else if (c->opening_transition != NULL && snap_to_point(c->timeline_in + c->opening_transition->length, l)) {
+					return true;
+				} else if (c->closing_transition != NULL && snap_to_point(c->timeline_out - c->closing_transition->length, l)) {
+					return true;
+				}
+			}
+		}
 	}
+	return false;
 }
 
 void Timeline::set_marker() {
