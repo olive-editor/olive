@@ -81,7 +81,6 @@ SOURCES += \
     dialogs/demonotice.cpp \
     effects/audio/toneeffect.cpp \
     project/marker.cpp \
-    dialogs/speeddialog.cpp \
     dialogs/speeddialog.cpp
 
 HEADERS += \
