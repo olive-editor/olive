@@ -169,7 +169,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
 				qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
 				qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
-				qint16 mixed_sample = mixAudioSample(old_sample, new_sample);
+				qint16 mixed_sample = mix_audio_sample(old_sample, new_sample);
 
 				audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
 				audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);
@@ -234,6 +234,7 @@ void reset_cache(Clip* c, long target_frame) {
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
 
+				qint64 seek_start = QDateTime::currentMSecsSinceEpoch();
 				av_seek_frame(c->formatCtx, ms->file_index, (int64_t) qFloor(clip_frame_to_seconds(c, target_frame) / timebase), AVSEEK_FLAG_BACKWARD);
 
 				// play up to the frame we actually want
@@ -247,6 +248,8 @@ void reset_cache(Clip* c, long target_frame) {
 						retrieved_frame++;
 					}
 				} while (retrieved_frame < target_frame);
+
+				stat_seek_time = (QDateTime::currentMSecsSinceEpoch() - seek_start);
 
 				av_frame_free(&temp);
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {

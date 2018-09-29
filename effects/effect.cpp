@@ -835,7 +835,7 @@ void EffectField::set_color_value(QColor color) {
 	static_cast<ColorButton*>(ui_element)->set_color(color);
 }
 
-qint16 mixAudioSample(qint16 a, qint16 b) {
+qint16 mix_audio_sample(qint16 a, qint16 b) {
 	qint32 mixed_sample = static_cast<qint32>(a) + static_cast<qint32>(b);
 	mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
 	return static_cast<qint16>(mixed_sample);

@@ -112,6 +112,10 @@ struct Clip
     bool audio_reset;
     bool audio_just_reset;
     long audio_target_frame;
+
+	// statistics
+	int stat_seek_time;
+	int stat_read_time;
 };
 
 #endif // CLIP_H

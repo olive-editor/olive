@@ -83,7 +83,7 @@ struct GLTextureCoords {
 	double textureBottomLeftY;
 };
 
-qint16 mixAudioSample(qint16 a, qint16 b);
+qint16 mix_audio_sample(qint16 a, qint16 b);
 
 class EffectField : public QObject {
 	Q_OBJECT

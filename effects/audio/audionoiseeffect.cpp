@@ -33,8 +33,8 @@ void AudioNoiseEffect::process_audio(double timecode_start, double timecode_end,
 		if (mix_val->get_bool_value(timecode)) {
 			qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
 			qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-			left_noise_sample = mixAudioSample(left_noise_sample, left_sample);
-			right_noise_sample = mixAudioSample(right_noise_sample, right_sample);
+			left_noise_sample = mix_audio_sample(left_noise_sample, left_sample);
+			right_noise_sample = mix_audio_sample(right_noise_sample, right_sample);
 		}
 
 		samples[i+3] = (quint8) (right_noise_sample >> 8);

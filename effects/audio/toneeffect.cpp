@@ -42,8 +42,8 @@ void ToneEffect::process_audio(double timecode_start, double timecode_end, quint
 		if (mix_val->get_bool_value(timecode)) {
 			qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
 			qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-			left_tone_sample = mixAudioSample(left_tone_sample, left_sample);
-			right_tone_sample = mixAudioSample(right_tone_sample, right_sample);
+			left_tone_sample = mix_audio_sample(left_tone_sample, left_sample);
+			right_tone_sample = mix_audio_sample(right_tone_sample, right_sample);
 		}
 
 		samples[i+3] = (quint8) (right_tone_sample >> 8);
