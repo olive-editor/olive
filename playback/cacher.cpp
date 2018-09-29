@@ -96,13 +96,19 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				}
 				new_frame = true;
 
+				if (c->frame_sample_index < 0) {
+					c->frame_sample_index = 0;
+				} else {
+					c->frame_sample_index -= nb_bytes;
+				}
+
 				nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
 
 				if (c->audio_just_reset) {
 					// get precise sample offset for the elected clip_in from this audio frame
 					double target_sts = 0;
 					if (c->audio_target_frame < timeline_in) {
-						target_sts = clip_frame_to_seconds(c, c->clip_in);
+						target_sts = ((double) c->clip_in / c->sequence->frame_rate);
 					} else {
 						target_sts = playhead_to_seconds(c, c->audio_target_frame);
 					}
@@ -114,13 +120,11 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 						c->frame_sample_index = av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
 					}
 					c->audio_just_reset = false;
-				} else {
-					c->frame_sample_index = 0;
 				}
 
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
 
-				int offset = audio_ibuffer_read - c->audio_buffer_write;
+				int offset = (audio_ibuffer_read + 2048) - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
 					c->frame_sample_index += offset;
@@ -162,6 +166,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 		} else {
 			long buffer_timeline_out = get_buffer_offset_from_frame(timeline_out);
 			audio_write_lock.lock();
+			qDebug() << "starting to write:" << audio_ibuffer_read;
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size
 				   && c->audio_buffer_write < buffer_timeline_out) {
@@ -234,7 +239,6 @@ void reset_cache(Clip* c, long target_frame) {
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
 
-				qint64 seek_start = QDateTime::currentMSecsSinceEpoch();
 				av_seek_frame(c->formatCtx, ms->file_index, (int64_t) qFloor(clip_frame_to_seconds(c, target_frame) / timebase), AVSEEK_FLAG_BACKWARD);
 
 				// play up to the frame we actually want
@@ -243,13 +247,11 @@ void reset_cache(Clip* c, long target_frame) {
 				do {
 					retrieve_next_frame(c, temp);
 					if (retrieved_frame == 0) {
-						if (target_frame != 0) retrieved_frame = floor(temp->pts * timebase * av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, temp)));
+						if (target_frame != 0) retrieved_frame = floor(temp->pts * timebase * av_q2d(c->stream->avg_frame_rate));
 					} else {
 						retrieved_frame++;
 					}
 				} while (retrieved_frame < target_frame);
-
-				stat_seek_time = (QDateTime::currentMSecsSinceEpoch() - seek_start);
 
 				av_frame_free(&temp);
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -350,7 +352,7 @@ void open_clip_worker(Clip* clip) {
 				);
 
 			// create memory cache for video
-			clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(av_guess_frame_rate(clip->formatCtx, clip->stream, NULL))/4); // cache is half a second in total
+			clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(clip->stream->avg_frame_rate)/4); // cache is half a second in total
 
 			// infinite length doesn't need cache B
 			clip->cache_A.frames = new AVFrame* [clip->cache_size];

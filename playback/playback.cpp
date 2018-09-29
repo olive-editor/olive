@@ -224,7 +224,7 @@ double playhead_to_seconds(Clip* c, long playhead) {
 long seconds_to_clip_frame(Clip* c, double seconds) {
 	// returns time as frame number (according to clip's frame rate)
 	if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-		return floor(seconds*av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame)));
+		return floor(seconds*av_q2d(c->stream->avg_frame_rate));
 	} else {
 		qDebug() << "[ERROR] seconds_to_clip_frame only works on video streams";
 		return 0;
@@ -233,7 +233,7 @@ long seconds_to_clip_frame(Clip* c, double seconds) {
 
 double clip_frame_to_seconds(Clip* c, long clip_frame) {
     // returns frame number in decimal seconds
-	return (double) clip_frame / av_q2d(av_guess_frame_rate(c->formatCtx, c->stream, c->frame));
+	return (double) clip_frame / av_q2d(c->stream->avg_frame_rate);
 }
 
 int retrieve_next_frame(Clip* c, AVFrame* f) {
