@@ -157,17 +157,17 @@ FORMS += \
 
 win32 {
     RC_FILE = icons/resources.rc
-    LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample -lopengl32
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
 }
 
 mac {
-    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lswscale -lswresample
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
     ICON = icons/olive.icns
     INCLUDEPATH = /usr/local/include
 }
 
 linux {
-    LIBS += -lavutil -lavformat -lavcodec -lswscale -lswresample
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
 }
 
 RESOURCES += \

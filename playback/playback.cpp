@@ -277,7 +277,7 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
         int ret = retrieve_next_frame(c, c->frame);
         if (ret >= 0) {
             if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
+//				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
 //				output->pts = c->frame->best_effort_timestamp;
             } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 output->pts = c->frame->pts;

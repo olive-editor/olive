@@ -15,6 +15,10 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 	#include <libswscale/swscale.h>
 	#include <libswresample/swresample.h>
+	#include <libavfilter/avfilter.h>
+	#include <libavfilter/buffersrc.h>
+	#include <libavfilter/buffersink.h>
+	#include <libavutil/opt.h>
 }
 
 #include <QDebug>
@@ -203,12 +207,51 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 
 	int i = 0;
 
+	/* old swscale solution
 	if (!c->reached_end) {
 		while (i < c->cache_size) {
 			retrieve_next_frame_raw_data(c, cache->frames[i]);
 
 			if (c->reached_end) break;
 			i++;
+		}
+	}*/
+
+	/* new AVFilter solution */
+	if (!c->reached_end) {
+		while (i < c->cache_size) {
+			av_frame_unref(cache->frames[i]);
+
+			int ret = (c->filter_graph == NULL) ? AVERROR(EAGAIN) : av_buffersink_get_frame(c->buffersink_ctx, cache->frames[i]);
+
+			if (ret < 0) {
+				if (ret == AVERROR(EAGAIN)) {
+					ret = retrieve_next_frame(c, c->frame);
+					if (ret >= 0) {
+						if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+							qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
+							error = true;
+							break;
+						}
+					} else {
+						if (ret == AVERROR_EOF) {
+							c->reached_end = true;
+						} else {
+							qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
+							error = true;
+						}
+						break;
+					}
+				} else {
+					if (ret != AVERROR_EOF) {
+						qDebug() << "[ERROR] Could not pull from filtergraph";
+						error = true;
+					}
+					break;
+				}
+			} else {
+				i++;
+			}
 		}
 	}
 
@@ -335,10 +378,11 @@ void open_clip_worker(Clip* clip) {
 		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 			// set up swscale context - primarily used for colorspace conversion
 			// as "scaling" is actually done by OpenGL
-			int dstW = ceil(clip->stream->codecpar->width/2)*2;
-			int dstH = ceil(clip->stream->codecpar->height/2)*2;
 
-			clip->sws_ctx = sws_getContext(
+			//int dstW = ceil(clip->stream->codecpar->width/2)*2;
+			//int dstH = ceil(clip->stream->codecpar->height/2)*2;
+
+			/*clip->sws_ctx = sws_getContext(
 					clip->stream->codecpar->width,
 					clip->stream->codecpar->height,
 					static_cast<AVPixelFormat>(clip->stream->codecpar->format),
@@ -349,15 +393,20 @@ void open_clip_worker(Clip* clip) {
 					NULL,
 					NULL,
 					NULL
-				);
+				);*/
 
 			// create memory cache for video
 			clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(clip->stream->avg_frame_rate)/4); // cache is half a second in total
 
-			// infinite length doesn't need cache B
 			clip->cache_A.frames = new AVFrame* [clip->cache_size];
 			clip->cache_B.frames = new AVFrame* [clip->cache_size];
+
 			for (int i=0;i<clip->cache_size;i++) {
+				clip->cache_A.frames[i] = av_frame_alloc();
+				clip->cache_B.frames[i] = av_frame_alloc();
+			}
+
+			/*for (int i=0;i<clip->cache_size;i++) {
 				clip->cache_A.frames[i] = av_frame_alloc();
 				av_frame_make_writable(clip->cache_A.frames[i]);
 				clip->cache_A.frames[i]->width = dstW;
@@ -375,7 +424,42 @@ void open_clip_worker(Clip* clip) {
 				if (av_frame_get_buffer(clip->cache_B.frames[i], 0)) {
 					qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
 				}
+			}*/
+
+			clip->filter_graph = avfilter_graph_alloc();
+			if (clip->filter_graph == NULL) {
+				qDebug() << "couldn't create filtergraph";
 			}
+
+			char args[512];
+			snprintf(args, sizeof(args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+						clip->stream->codecpar->width,
+						clip->stream->codecpar->height,
+						clip->stream->codecpar->format,
+						clip->stream->time_base.num,
+						clip->stream->time_base.den,
+						clip->stream->codecpar->sample_aspect_ratio.num,
+						clip->stream->codecpar->sample_aspect_ratio.den
+					 );
+
+			char errormsg[100];
+
+			AVFilter* buffersrc = avfilter_get_by_name("buffer");
+			AVFilter* buffersink = avfilter_get_by_name("buffersink");
+
+			if (buffersrc == NULL || buffersink == NULL) {
+				qDebug() << "lol";
+			}
+
+			avfilter_graph_create_filter(&clip->buffersrc_ctx, buffersrc, "in", args, NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersink_ctx, buffersink, "out", NULL, NULL, clip->filter_graph);
+
+			enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
+			av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+
+			avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+
+			avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			// if FFmpeg can't pick up the channel layout (usually WAV), assume
 			// based on channel count (doesn't support surround sound sources yet)
@@ -469,7 +553,8 @@ void close_clip_worker(Clip* clip) {
 		// closes ffmpeg file handle and frees any memory used for caching
 		MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 		if (clip->track < 0) {
-			sws_freeContext(clip->sws_ctx);
+//			sws_freeContext(clip->sws_ctx);
+			avfilter_graph_free(&clip->filter_graph);
 		} else {
 			swr_free(&clip->swr_ctx);
 		}

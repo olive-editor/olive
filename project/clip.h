@@ -21,6 +21,8 @@ struct AVFrame;
 struct AVPacket;
 struct SwsContext;
 struct SwrContext;
+struct AVFilterGraph;
+struct AVFilterContext;
 class QOpenGLTexture;
 
 struct ClipCache {
@@ -98,8 +100,13 @@ struct Clip
     QMutex lock;
     QMutex open_lock;
 
+	// converters/filters
+	AVFilterGraph* filter_graph;
+	AVFilterContext* buffersink_ctx;
+	AVFilterContext* buffersrc_ctx;
+
     // video playback variables
-	SwsContext* sws_ctx;
+//	SwsContext* sws_ctx;
 	QOpenGLFramebufferObject** fbo;
     QOpenGLTexture* texture;
     long texture_frame;

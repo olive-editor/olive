@@ -29,6 +29,7 @@ Clip::Clip(Sequence* s) :
     closing_transition(NULL),
 	pkt(new AVPacket()),
 	replaced(false),
+	filter_graph(NULL),
 	texture(NULL),
 	fbo(NULL),
     autoscale(config.autoscale_by_default)
