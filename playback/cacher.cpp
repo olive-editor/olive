@@ -170,7 +170,6 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 		} else {
 			long buffer_timeline_out = get_buffer_offset_from_frame(timeline_out);
 			audio_write_lock.lock();
-			qDebug() << "starting to write:" << audio_ibuffer_read;
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size
 				   && c->audio_buffer_write < buffer_timeline_out) {
@@ -207,6 +206,8 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 
 	int i = 0;
 
+	double fr_ratio = qRound((c->sequence->frame_rate / c->frame_rate)*100)*0.01;
+
 	/* old swscale solution
 	if (!c->reached_end) {
 		while (i < c->cache_size) {
@@ -227,11 +228,19 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 			if (ret < 0) {
 				if (ret == AVERROR(EAGAIN)) {
 					ret = retrieve_next_frame(c, c->frame);
+
 					if (ret >= 0) {
-						if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-							qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
-							error = true;
-							break;
+						// optimization: mathematically determine based on the sequence and clips' frame rates whether this frame will actually be shown
+						double timeline_frame = (i+cache->offset) * fr_ratio;
+
+						if (qFloor(timeline_frame) == timeline_frame) {
+							if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+								qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
+								error = true;
+								break;
+							}
+						} else {
+							i++;
 						}
 					} else {
 						if (ret == AVERROR_EOF) {
@@ -442,29 +451,25 @@ void open_clip_worker(Clip* clip) {
 						clip->stream->codecpar->sample_aspect_ratio.den
 					 );
 
-			char errormsg[100];
+			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", args, NULL, clip->filter_graph);
 
-			AVFilter* buffersrc = avfilter_get_by_name("buffer");
-			AVFilter* buffersink = avfilter_get_by_name("buffersink");
+			AVFilterContext* negate_ctx;
+			avfilter_graph_create_filter(&negate_ctx, avfilter_get_by_name("setpts"), "rev", "0.5*PTS", NULL, clip->filter_graph);
 
-			if (buffersrc == NULL || buffersink == NULL) {
-				qDebug() << "lol";
-			}
-
-			avfilter_graph_create_filter(&clip->buffersrc_ctx, buffersrc, "in", args, NULL, clip->filter_graph);
-			avfilter_graph_create_filter(&clip->buffersink_ctx, buffersink, "out", NULL, NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
 
 			enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
 			av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
 
-			avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+			avfilter_link(clip->buffersrc_ctx, 0, negate_ctx, 0);
+			avfilter_link(negate_ctx, 0, clip->buffersink_ctx, 0);
 
 			avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			// if FFmpeg can't pick up the channel layout (usually WAV), assume
 			// based on channel count (doesn't support surround sound sources yet)
 			if (clip->codecCtx->channel_layout == 0) {
-				clip->codecCtx->channel_layout = guess_layout_from_channels(clip->stream->codecpar->channels);
+				clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
 			}
 
 			// init resampling context

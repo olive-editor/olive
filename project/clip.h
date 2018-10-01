@@ -69,6 +69,7 @@ struct Clip
     int media_stream;
 	int getWidth();
 	int getHeight();
+	double frame_rate;
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;

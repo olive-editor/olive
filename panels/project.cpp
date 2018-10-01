@@ -685,46 +685,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 } else if (attr.name() == "duration") {
                                     m->length = attr.value().toLongLong();
                                 }
-                            }
-
-                            /*while (!(stream.name() == child_search && stream.isEndElement())) {
-                                stream.readNext();
-                                if (stream.isStartElement()) {
-                                    if (stream.name() == "video") {
-                                        MediaStream* ms = new MediaStream();
-                                        for (int j=0;j<stream.attributes().size();j++) {
-                                            const QXmlStreamAttribute& attr = stream.attributes().at(j);
-                                            if (attr.name() == "id") {
-                                                ms->file_index = attr.value().toInt();
-                                            } else if (attr.name() == "width") {
-                                                ms->video_width = attr.value().toInt();
-                                            } else if (attr.name() == "height") {
-                                                ms->video_height = attr.value().toInt();
-                                            } else if (attr.name() == "framerate") {
-                                                ms->video_frame_rate = attr.value().toDouble();
-                                            } else if (attr.name() == "infinite") {
-                                                ms->infinite_length = (attr.value().toInt() == 1);
-                                            }
-                                        }
-                                        m->video_tracks.append(ms);
-                                    } else if (stream.name() == "audio") {
-                                        MediaStream* ms = new MediaStream();
-                                        for (int j=0;j<stream.attributes().size();j++) {
-                                            const QXmlStreamAttribute& attr = stream.attributes().at(j);
-                                            if (attr.name() == "id") {
-                                                ms->file_index = attr.value().toInt();
-                                            } else if (attr.name() == "channels") {
-                                                ms->audio_channels = attr.value().toInt();
-                                            } else if (attr.name() == "layout") {
-                                                ms->audio_layout = attr.value().toInt();
-                                            } else if (attr.name() == "frequency") {
-                                                ms->audio_frequency = attr.value().toInt();
-                                            }
-                                        }
-                                        m->audio_tracks.append(ms);
-                                    }
-                                }
-                            }*/
+							}
 
 							set_footage_of_tree(item, m);
 
@@ -794,7 +755,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     Clip* c = new Clip(s);
 
                                     // backwards compatibility code
-                                    c->autoscale = false;
+									c->autoscale = false;
+									c->frame_rate = 0;
 
                                     c->media = NULL;
                                     for (int j=0;j<stream.attributes().size();j++) {
@@ -826,6 +788,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             media_id = attr.value().toInt();
                                         } else if (attr.name() == "stream") {
                                             stream_id = attr.value().toInt();
+										} else if (attr.name() == "framerate") {
+											c->frame_rate = attr.value().toDouble();
                                         } else if (attr.name() == "sequence") {
                                             c->media_type = MEDIA_TYPE_SEQUENCE;
 
@@ -1124,6 +1088,8 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 stream.writeAttribute("b", QString::number(c->color_b));
 
                                 stream.writeAttribute("autoscale", QString::number(c->autoscale));
+
+								stream.writeAttribute("framerate", QString::number(c->frame_rate));
 
                                 stream.writeAttribute("type", QString::number(c->media_type));
                                 switch (c->media_type) {

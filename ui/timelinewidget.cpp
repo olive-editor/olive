@@ -329,6 +329,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             c->timeline_in = g.in;
             c->timeline_out = g.out;
             c->clip_in = g.clip_in;
+			c->track = g.track;
             if (c->media_type == MEDIA_TYPE_FOOTAGE) {
                 Media* m = static_cast<Media*>(c->media);
                 if (m->video_tracks.size() == 0) {
@@ -347,6 +348,9 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                     c->color_g = 128;
                     c->color_b = 192;
                 }
+				if (c->track < 0) {
+					c->frame_rate = m->get_stream_from_file_index(true, c->media_stream)->video_frame_rate;
+				}
                 c->name = m->name;
             } else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
                 // sequence (red?ish?)
@@ -354,10 +358,10 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->color_g = 128;
                 c->color_b = 128;
 
-                c->name = static_cast<Sequence*>(c->media)->name;
+				Sequence* media = static_cast<Sequence*>(c->media);
+				c->frame_rate = media->frame_rate;
+				c->name = media->name;
             }
-
-            c->track = g.track;
 
             added_clips.append(c);
 		}
@@ -617,11 +621,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						c->color_b = 64;
 						c->track = g.track;
 
+						if (c->track < 0) c->frame_rate = sequence->frame_rate;
+
 						QVector<Clip*> add;
 						add.append(c);
                         ca->append(new AddClipCommand(sequence, add));
 
-                        int clipIndex = sequence->clips.size();
+//                        int clipIndex = sequence->clips.size();
 						if (c->track < 0) {
 							// default video effects (before custom effects)
                             c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));

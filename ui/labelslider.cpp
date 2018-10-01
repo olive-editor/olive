@@ -21,6 +21,7 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	set_value(0, false);
 	set = false;
 	display_type = LABELSLIDER_NORMAL;
+	decimal_places = 1;
 }
 
 void LabelSlider::set_display_type(int type) {
@@ -54,9 +55,9 @@ bool LabelSlider::is_dragging() {
 QString LabelSlider::valueToString(double v) {
 	switch (display_type) {
 	case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, sequence->frame_rate);
-	case LABELSLIDER_PERCENT: return QString::number(v, 'f', 1) + "%";
+	case LABELSLIDER_PERCENT: return QString::number(v, 'f', decimal_places) + "%";
 	}
-	return QString::number(v, 'f', 1);
+	return QString::number(v, 'f', decimal_places);
 }
 
 double LabelSlider::getPreviousValue() {

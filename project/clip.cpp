@@ -54,6 +54,7 @@ Clip* Clip::copy(Sequence* s) {
     copy->media_type = media_type;
     copy->media_stream = media_stream;
     copy->autoscale = autoscale;
+	copy->frame_rate = frame_rate;
 
     for (int i=0;i<effects.size();i++) {
         copy->effects.append(effects.at(i)->copy(copy));

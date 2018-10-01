@@ -46,12 +46,3 @@ MediaStream* Media::get_stream_from_file_index(bool video, int index) {
     }
     return NULL;
 }
-
-int guess_layout_from_channels(int channel_count) {
-    if (channel_count == 1) {
-        return AV_CH_LAYOUT_MONO;
-    } else {
-        qDebug() << "[WARNING] Could not detect audio channel layout - assuming stereo";
-        return AV_CH_LAYOUT_STEREO;
-    }
-}

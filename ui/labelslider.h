@@ -24,6 +24,7 @@ public:
 	bool is_dragging();
 	virtual QString valueToString(double v);
 	double getPreviousValue();
+	int decimal_places;
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);

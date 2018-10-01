@@ -50,6 +50,4 @@ struct Media {
     void reset();
 };
 
-int guess_layout_from_channels(int channel_count);
-
 #endif // MEDIA_H

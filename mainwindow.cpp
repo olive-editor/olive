@@ -300,7 +300,7 @@ void MainWindow::openSpeedDialog() {
 				s.clips.append(c);
 			}
 		}
-		if (s.clips.size() > 0) s.exec();
+		if (s.clips.size() > 0) s.run();
 	}
 }
 
