@@ -25,6 +25,7 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	percent = new LabelSlider();
 	percent->decimal_places = 2;
 	percent->set_display_type(LABELSLIDER_PERCENT);
+	percent->set_default_value(1);
 	grid->addWidget(percent, 0, 1);
 
 	grid->addWidget(new QLabel("Frame Rate:"), 1, 0);
@@ -56,53 +57,93 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 }
 
 void SpeedDialog::run() {
-	if (clips.size() > 1) {
-		qDebug() << "[WARNING] Setting multiple clip speeds at once is unsupported and may break things - sorry!";
+	bool enable_frame_rate = false;
+
+	default_frame_rate = NAN;
+	current_frame_rate = NAN;
+	current_percent = NAN;
+	default_length = -1;
+	current_length = -1;
+
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+
+		double clip_percent;
+
+		// get default frame rate/percentage
+		if (c->track < 0) {
+			double media_frame_rate = c->getMediaFrameRate();
+
+			clip_percent = c->frame_rate / media_frame_rate;
+
+			// get "default" frame rate"
+			if (enable_frame_rate) {
+				// check if frame rate is equal to default
+				if (!qIsNaN(default_frame_rate) && media_frame_rate != default_frame_rate) {
+					default_frame_rate = NAN;
+				}
+			} else {
+				default_frame_rate = media_frame_rate;
+			}
+
+			enable_frame_rate = true;
+		} else {
+			clip_percent = c->frame_rate;
+
+			if (i > 0) {
+				if (!qIsNaN(default_percent) && c->frame_rate != default_percent) {
+					default_percent = NAN;
+				}
+			} else {
+				default_percent = c->frame_rate;
+			}
+		}
+
+		// get default length
+		if (i == 0) {
+			current_length = c->getLength();
+			default_length = qRound(c->getLength() * clip_percent);
+		} else if (current_length != -1 && c->getLength() != current_length) {
+			current_length = -1;
+		}
 	}
 
-	normal_fr = 1;
-
-	Clip* first_clip = clips.at(0);
-
-	switch (first_clip->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-		normal_fr = static_cast<Media*>(first_clip->media)->get_stream_from_file_index(true, first_clip->media_stream)->video_frame_rate;
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-		normal_fr = static_cast<Sequence*>(first_clip->media)->frame_rate;
-		break;
-	}
-
-	frame_rate->set_default_value(first_clip->frame_rate);
-	percent->set_default_value((first_clip->frame_rate / normal_fr) * 100);
-	duration->set_default_value(first_clip->getLength());
+	frame_rate->setEnabled(enable_frame_rate);
+	frame_rate->set_default_value(default_frame_rate);
+	frame_rate->set_value(current_frame_rate, false);
+	percent->set_value(current_percent, false);
+	duration->set_default_value(default_length);
 
 	exec();
 }
 
 void SpeedDialog::percent_update() {
-	double pc = (percent->value()*0.01);
-	frame_rate->set_value(normal_fr * pc, false);
-	duration->set_value(clips.at(0)->getLength() / pc, false);
+	frame_rate->set_value(default_frame_rate * percent->value(), false);
+	duration->set_value(clips.at(0)->getLength() / percent->value(), false);
 }
 
 void SpeedDialog::duration_update() {
 	double pc = clips.at(0)->getLength() / duration->value();
-	frame_rate->set_value(normal_fr * pc, false);
-	percent->set_value(pc * 100, false);
+	frame_rate->set_value(default_frame_rate * pc, false);
+	percent->set_value(pc, false);
 }
 
 void SpeedDialog::frame_rate_update() {
 	double fr = (frame_rate->value());
-	double pc = (fr / normal_fr);
-	percent->set_value(pc * 100, false);
+	double pc = (fr / default_frame_rate);
+	percent->set_value(pc, false);
 	duration->set_value(clips.at(0)->getLength() / pc, false);
 }
 
 void SpeedDialog::accept() {
 	for (int i=0;i<clips.size();i++) {
-		clips.at(i)->frame_rate = frame_rate->value();
-		close_clip(clips.at(i));
+		Clip* c = clips.at(i);
+		if (c->track < 0) {
+			c->frame_rate = frame_rate->value();
+		} else {
+			c->frame_rate = percent->value();
+		}
+		close_clip(c);
 	}
 	QDialog::accept();
 }

@@ -192,6 +192,16 @@ long Clip::getMediaLength(double framerate) {
 	return 0;
 }
 
+double Clip::getMediaFrameRate() {
+	Q_ASSERT(track < 0);
+	switch (media_type) {
+	case MEDIA_TYPE_FOOTAGE: return static_cast<Media*>(media)->get_stream_from_file_index(track < 0, media_stream)->video_frame_rate;
+	case MEDIA_TYPE_SEQUENCE: return static_cast<Sequence*>(media)->frame_rate;
+	}
+	if (sequence != NULL) return sequence->frame_rate;
+	return NAN;
+}
+
 int Clip::getWidth() {
 	if (media == NULL && sequence != NULL) return sequence->width;
 	switch (media_type) {

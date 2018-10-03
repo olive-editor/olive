@@ -53,11 +53,15 @@ bool LabelSlider::is_dragging() {
 }
 
 QString LabelSlider::valueToString(double v) {
-	switch (display_type) {
-	case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, sequence->frame_rate);
-	case LABELSLIDER_PERCENT: return QString::number(v, 'f', decimal_places) + "%";
+	if (qIsNaN(v)) {
+		return "---";
+	} else {
+		switch (display_type) {
+		case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, sequence->frame_rate);
+		case LABELSLIDER_PERCENT: return QString::number((v*100), 'f', decimal_places) + "%";
+		}
+		return QString::number(v, 'f', decimal_places);
 	}
-	return QString::number(v, 'f', decimal_places);
 }
 
 double LabelSlider::getPreviousValue() {
@@ -98,6 +102,8 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 			set_value(default_value, true);
 		}
     } else {
+		if (qIsNaN(internal_value)) internal_value = 0;
+
         qApp->setOverrideCursor(Qt::BlankCursor);
         drag_start = true;
         drag_start_x = cursor().pos().x();
@@ -108,7 +114,12 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 void LabelSlider::mouseMoveEvent(QMouseEvent*) {
     if (drag_start) {
 		drag_proc = true;
-		set_value(internal_value + (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y()), true);
+		int diff = (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y());
+		if (display_type == LABELSLIDER_PERCENT) {
+			set_value(internal_value + (diff*0.01), true);
+		} else {
+			set_value(internal_value + diff, true);
+		}
         cursor().setPos(drag_start_x, drag_start_y);
     }
 }

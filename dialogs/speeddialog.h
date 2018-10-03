@@ -27,7 +27,11 @@ private:
 
 	QCheckBox* reverse;
 
-	double normal_fr;
+	double default_frame_rate;
+	double current_frame_rate;
+	double current_percent;
+	long default_length;
+	long current_length;
 };
 
 #endif // SPEEDDIALOG_H
