@@ -36,12 +36,7 @@ void open_clip(Clip* clip, bool multithreaded) {
 				// maybe keep cacher instance in memory while clip exists for performance?
 				clip->cacher = new Cacher(clip);
 				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
-
-				if (clip->track < 0) {
-					clip->cacher->start(QThread::LowPriority);
-				} else {
-					clip->cacher->start(QThread::TimeCriticalPriority);
-				}
+				clip->cacher->start((clip->track < 0) ? QThread::LowPriority : QThread::TimeCriticalPriority);
 			}
 		} else {
 			clip->finished_opening = false;
@@ -113,11 +108,6 @@ bool get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
 		// do we need to update the texture?
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
-
-		// backwards compatibilty code
-		if (c->frame_rate == 0) {
-			c->frame_rate = ms->video_frame_rate;
-		}
 
 		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
 		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, c->frame_rate);
@@ -286,7 +276,10 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
 //				output->pts = c->frame->best_effort_timestamp;
             } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 output->pts = c->frame->pts;
-                ret = swr_convert_frame(c->swr_ctx, output, c->frame);
+				ret = swr_convert_frame(c->swr_ctx, output, c->frame);
+
+
+
                 if (ret < 0) {
                     qDebug() << "[ERROR] Failed to resample audio." << ret;
                 }
@@ -303,7 +296,7 @@ bool is_clip_active(Clip* c, long playhead) {
     return c->enabled
             && c->timeline_in < playhead + ceil(c->sequence->frame_rate)
             && c->timeline_out > playhead
-            && playhead - c->timeline_in + c->clip_in < c->getMediaLength(c->sequence->frame_rate);
+			&& playhead - c->timeline_in + c->clip_in < c->getMaximumLength();
 }
 
 void set_sequence(Sequence* s) {

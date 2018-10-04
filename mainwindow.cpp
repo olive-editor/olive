@@ -45,7 +45,7 @@ QMainWindow* mainWindow;
 
 QTimer autorecovery_timer;
 QString config_dir;
-QString appName = "Olive (September 2018 | Alpha)";
+QString appName = "Olive (October 2018 | Alpha)";
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout() {
@@ -383,7 +383,7 @@ bool MainWindow::can_close_project() {
 
 void MainWindow::updateTitle(const QString& url) {
 	project_url = url;
-	setWindowTitle(appName + " - " + ((project_url.isEmpty()) ? "<untitled>" : project_url));
+	setWindowTitle(appName + " - " + ((project_url.isEmpty()) ? "<untitled>" : project_url) + "[*]");
 }
 
 void MainWindow::closeEvent(QCloseEvent *e) {

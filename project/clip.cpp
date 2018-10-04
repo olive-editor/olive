@@ -124,7 +124,9 @@ void Clip::refresh() {
     // reinitializes all effects... just in case
     for (int i=0;i<effects.size();i++) {
 		effects.at(i)->refresh();
-    }
+	}
+
+	recalculateMaxLength();
 }
 
 Clip::~Clip() {
@@ -168,28 +170,39 @@ long Clip::getLength() {
     return timeline_out - timeline_in;
 }
 
-long Clip::getMediaLength(double framerate) {
-    switch (media_type) {
-    case MEDIA_TYPE_FOOTAGE:
-    {
-        Media* m = static_cast<Media*>(media);
-        if (m->get_stream_from_file_index(track < 0, media_stream)->infinite_length) {
-            return LONG_MAX;
-        } else {
-            return m->get_length_in_frames(framerate);
-        }
-    }
-        break;
-    case MEDIA_TYPE_SEQUENCE:
-    {
-        Sequence* s = static_cast<Sequence*>(media);
-        return refactor_frame_number(s->getEndFrame(), s->frame_rate, framerate);
+void Clip::recalculateMaxLength() {
+	double fr = this->sequence->frame_rate;
+
+	if (track < 0) {
+		fr *= (getMediaFrameRate()/frame_rate);
+	} else {
+		fr /= frame_rate;
+	}
+
+	switch (media_type) {
+	case MEDIA_TYPE_FOOTAGE:
+	{
+		Media* m = static_cast<Media*>(media);
+		if (m->get_stream_from_file_index(track < 0, media_stream)->infinite_length) {
+			calculated_length = LONG_MAX;
+		} else {
+			calculated_length = m->get_length_in_frames(fr);
+		}
+	}
+		break;
+	case MEDIA_TYPE_SEQUENCE:
+	{
+		Sequence* s = static_cast<Sequence*>(media);
+		calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
 	}
 	case MEDIA_TYPE_SOLID:
 	case MEDIA_TYPE_TONE:
-		return LONG_MAX;
+		calculated_length = LONG_MAX;
 	}
-	return 0;
+}
+
+long Clip::getMaximumLength() {
+	return calculated_length;
 }
 
 double Clip::getMediaFrameRate() {

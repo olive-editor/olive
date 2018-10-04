@@ -25,6 +25,11 @@ Viewer::Viewer(QWidget *parent) :
     viewer_widget = ui->openGLWidget;
     update_sequence();
 
+	ui->currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);
+	ui->currentTimecode->set_default_value(NAN);
+	ui->currentTimecode->set_value(0, false);
+	connect(ui->currentTimecode, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
+
     update_playhead_timecode(0);
     update_end_timecode();
 }
@@ -81,6 +86,8 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 
         token = ";";
     } else {
+		// non-drop timecode
+
         int int_fps = qRound(frame_rate);
         hours = f/ (3600 * int_fps);
         mins = f / (60*int_fps) % 60;
@@ -99,7 +106,7 @@ bool frame_rate_is_droppable(float rate) {
 }
 
 void Viewer::update_playhead_timecode(long p) {
-    ui->currentTimecode->setText(frame_to_timecode(p, config.timecode_view, (sequence != NULL) ? sequence->frame_rate : 30));
+	ui->currentTimecode->set_value(p, false);
 }
 
 void Viewer::update_end_timecode() {
@@ -124,11 +131,7 @@ void Viewer::update_sequence() {
     init_audio();
 
     if (!null_sequence) {
-        if (frame_rate_is_droppable(sequence->frame_rate)) {
-            config.timecode_view = TIMECODE_DROP;
-        } else {
-            config.timecode_view = TIMECODE_NONDROP;
-        }
+		config.timecode_view = (frame_rate_is_droppable(sequence->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
 
 		update_playhead_timecode(sequence->playhead);
         update_end_timecode();
@@ -167,13 +170,13 @@ void Viewer::on_pushButton_4_clicked()
 
 void Viewer::on_pushButton_3_clicked()
 {
-    panel_timeline->toggle_play();
+	panel_timeline->toggle_play();
+}
+
+void Viewer::update_playhead() {
+	panel_timeline->seek(ui->currentTimecode->value());
 }
 
 void Viewer::set_playpause_icon(bool play) {
-    if (play) {
-        ui->pushButton_3->setIcon(QIcon(":/icons/play.png"));
-    } else {
-        ui->pushButton_3->setIcon(QIcon(":/icons/pause.png"));
-    }
+	ui->pushButton_3->setIcon(QIcon((play) ? ":/icons/play.png" : ":/icons/pause.png"));
 }

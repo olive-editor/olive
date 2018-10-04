@@ -15,7 +15,6 @@ const QString& FontCombobox::getPreviousValue() {
 }
 
 void FontCombobox::updateInternals() {
-	qDebug() << "h";
 	previousValue = value;
 	value = currentText();
 }

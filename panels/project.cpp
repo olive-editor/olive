@@ -1030,7 +1030,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                         stream.writeAttribute("id", QString::number(ms->file_index));
                         stream.writeAttribute("width", QString::number(ms->video_width));
                         stream.writeAttribute("height", QString::number(ms->video_height));
-                        stream.writeAttribute("framerate", QString::number(ms->video_frame_rate));
+						stream.writeAttribute("framerate", QString::number(ms->video_frame_rate, 'f', 10));
                         stream.writeAttribute("infinite", QString::number(ms->infinite_length));
                         stream.writeEndElement();
                     }
@@ -1057,7 +1057,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                         stream.writeAttribute("name", s->name);
                         stream.writeAttribute("width", QString::number(s->width));
                         stream.writeAttribute("height", QString::number(s->height));
-                        stream.writeAttribute("framerate", QString::number(s->frame_rate));
+						stream.writeAttribute("framerate", QString::number(s->frame_rate, 'f', 10));
                         stream.writeAttribute("afreq", QString::number(s->audio_frequency));
                         stream.writeAttribute("alayout", QString::number(s->audio_layout));
                         if (s == sequence) {
@@ -1089,7 +1089,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
 
                                 stream.writeAttribute("autoscale", QString::number(c->autoscale));
 
-								stream.writeAttribute("framerate", QString::number(c->frame_rate));
+								stream.writeAttribute("framerate", QString::number(c->frame_rate, 'f', 10));
 
                                 stream.writeAttribute("type", QString::number(c->media_type));
                                 switch (c->media_type) {

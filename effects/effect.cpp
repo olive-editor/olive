@@ -737,7 +737,6 @@ void EffectField::uiElementChange() {
 		parent_row->set_keyframe_now(enableKeyframes);
 	} else if (enableKeyframes) {
 		// set undo
-		qDebug() << "h";
 		undo_stack.push(new EffectFieldUndo(this));
 	}
     emit changed();

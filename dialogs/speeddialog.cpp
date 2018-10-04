@@ -13,6 +13,8 @@
 #include "project/sequence.h"
 #include "io/media.h"
 #include "playback/playback.h"
+#include "panels/panels.h"
+#include "panels/timeline.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -79,32 +81,38 @@ void SpeedDialog::run() {
 			// get "default" frame rate"
 			if (enable_frame_rate) {
 				// check if frame rate is equal to default
-				if (!qIsNaN(default_frame_rate) && media_frame_rate != default_frame_rate) {
+				if (!qIsNaN(default_frame_rate) && !qFuzzyCompare(media_frame_rate, default_frame_rate)) {
 					default_frame_rate = NAN;
+				}
+				if (!qIsNaN(current_frame_rate) && !qFuzzyCompare(c->frame_rate, current_frame_rate)) {
+					current_frame_rate = NAN;
 				}
 			} else {
 				default_frame_rate = media_frame_rate;
+				current_frame_rate = c->frame_rate;
 			}
 
 			enable_frame_rate = true;
 		} else {
 			clip_percent = c->frame_rate;
-
-			if (i > 0) {
-				if (!qIsNaN(default_percent) && c->frame_rate != default_percent) {
-					default_percent = NAN;
-				}
-			} else {
-				default_percent = c->frame_rate;
-			}
 		}
 
 		// get default length
+		long clip_default_length = qRound(c->getLength() * clip_percent);
 		if (i == 0) {
 			current_length = c->getLength();
-			default_length = qRound(c->getLength() * clip_percent);
-		} else if (current_length != -1 && c->getLength() != current_length) {
-			current_length = -1;
+			default_length = clip_default_length;
+			current_percent = clip_percent;
+		} else {
+			if (current_length != -1 && c->getLength() != current_length) {
+				current_length = -1;
+			}
+			if (default_length != -1 && clip_default_length != default_length) {
+				default_length = -1;
+			}
+			if (!qIsNaN(current_percent) && !qFuzzyCompare(clip_percent, current_percent)) {
+				current_percent = NAN;
+			}
 		}
 	}
 
@@ -113,17 +121,18 @@ void SpeedDialog::run() {
 	frame_rate->set_value(current_frame_rate, false);
 	percent->set_value(current_percent, false);
 	duration->set_default_value(default_length);
+	duration->set_value(current_length, false);
 
 	exec();
 }
 
 void SpeedDialog::percent_update() {
 	frame_rate->set_value(default_frame_rate * percent->value(), false);
-	duration->set_value(clips.at(0)->getLength() / percent->value(), false);
+	duration->set_value(default_length / percent->value(), false);
 }
 
 void SpeedDialog::duration_update() {
-	double pc = clips.at(0)->getLength() / duration->value();
+	double pc = default_length / duration->value();
 	frame_rate->set_value(default_frame_rate * pc, false);
 	percent->set_value(pc, false);
 }
@@ -132,18 +141,27 @@ void SpeedDialog::frame_rate_update() {
 	double fr = (frame_rate->value());
 	double pc = (fr / default_frame_rate);
 	percent->set_value(pc, false);
-	duration->set_value(clips.at(0)->getLength() / pc, false);
+	duration->set_value(default_length / pc, false);
 }
 
 void SpeedDialog::accept() {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
-		if (c->track < 0) {
-			c->frame_rate = frame_rate->value();
-		} else {
-			c->frame_rate = percent->value();
-		}
 		close_clip(c);
+		if (c->track < 0) {
+			if (!qIsNaN(frame_rate->value())) {
+				// TODO add validators
+				c->timeline_out = c->timeline_in + (c->getLength() * (c->frame_rate / frame_rate->value()));
+				c->frame_rate = frame_rate->value();
+			}
+		} else {
+			if (!qIsNaN(percent->value())) {
+				c->timeline_out = c->timeline_in + (c->getLength() * (c->frame_rate / percent->value()));
+				c->frame_rate = percent->value();
+			}
+		}
+		c->recalculateMaxLength();
 	}
+	panel_timeline->redraw_all_clips(true);
 	QDialog::accept();
 }

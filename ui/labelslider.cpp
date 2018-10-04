@@ -10,6 +10,7 @@
 #include <QApplication>
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
+	decimal_places = 1;
     drag_start = false;
 	drag_proc = false;
     min_enabled = false;
@@ -21,7 +22,6 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	set_value(0, false);
 	set = false;
 	display_type = LABELSLIDER_NORMAL;
-	decimal_places = 1;
 }
 
 void LabelSlider::set_display_type(int type) {
@@ -57,7 +57,7 @@ QString LabelSlider::valueToString(double v) {
 		return "---";
 	} else {
 		switch (display_type) {
-		case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, sequence->frame_rate);
+		case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, (sequence != NULL) ? sequence->frame_rate : 30);
 		case LABELSLIDER_PERCENT: return QString::number((v*100), 'f', decimal_places) + "%";
 		}
 		return QString::number(v, 'f', decimal_places);
@@ -97,7 +97,7 @@ double LabelSlider::get_drag_start_value() {
 void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 	drag_start_value = internal_value;
 	if (ev->modifiers() & Qt::AltModifier) {
-		if (internal_value != default_value) {
+		if (internal_value != default_value && !qIsNaN(default_value)) {
 			previous_value = internal_value;
 			set_value(default_value, true);
 		}
@@ -115,11 +115,7 @@ void LabelSlider::mouseMoveEvent(QMouseEvent*) {
     if (drag_start) {
 		drag_proc = true;
 		int diff = (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y());
-		if (display_type == LABELSLIDER_PERCENT) {
-			set_value(internal_value + (diff*0.01), true);
-		} else {
-			set_value(internal_value + diff, true);
-		}
+		set_value(internal_value + ((display_type == LABELSLIDER_PERCENT) ? (diff*0.01) : diff), true);
         cursor().setPos(drag_start_x, drag_start_y);
     }
 }
@@ -133,7 +129,16 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 			previous_value = drag_start_value;
 			emit valueChanged();
         } else {
-            double d = QInputDialog::getDouble(this, "Set Value", "New value:", internal_value);
+			double d = QInputDialog::getDouble(
+						this,
+						"Set Value",
+						"New value:",
+						(display_type == LABELSLIDER_PERCENT) ? internal_value * 100 : internal_value,
+						(min_enabled) ? min_value : INT_MIN,
+						(max_enabled) ? max_value : INT_MAX,
+						decimal_places
+					);
+			if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
             if (d != internal_value) {
 				previous_value = internal_value;
 				set_value(d, true);

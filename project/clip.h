@@ -63,7 +63,8 @@ struct Clip
     quint8 color_g;
     quint8 color_b;
     long getLength();
-    long getMediaLength(double framerate);
+	long getMaximumLength();
+	void recalculateMaxLength();
 	double getMediaFrameRate();
     void* media; // attached media
     int media_type;
@@ -71,6 +72,7 @@ struct Clip
 	int getWidth();
 	int getHeight();
 	double frame_rate;
+	long calculated_length;
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;
@@ -101,6 +103,7 @@ struct Clip
     ClipCache cache_B;
     QMutex lock;
     QMutex open_lock;
+	int last_cached_frame;
 
 	// converters/filters
 	AVFilterGraph* filter_graph;
@@ -115,7 +118,7 @@ struct Clip
 	bool autoscale;
 
     // audio playback variables
-	SwrContext* swr_ctx;
+//	SwrContext* swr_ctx;
     int frame_sample_index;
     int audio_buffer_write;
     bool audio_reset;

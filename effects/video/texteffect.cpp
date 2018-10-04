@@ -73,7 +73,7 @@ TextEffect::TextEffect(Clip *c) :
 	shadow_softness->set_double_default_value(5);
 	shadow_distance->set_double_default_value(5);
 	shadow_opacity->set_double_default_value(80);
-	outline_width->set_double_default_value(2);
+	outline_width->set_double_default_value(20);
 
 	outline_enable(false);
 	shadow_enable(false);
@@ -245,12 +245,11 @@ void TextEffect::redraw(double timecode) {
 		}
 
 		path.addText(text_x, text_y, font, lines.at(i));
-	}
-
-	p.setPen(Qt::NoPen);
+	}	
 
 	// draw shadow
 	if (shadow_bool->get_bool_value(timecode)) {
+		p.setPen(Qt::NoPen);
 		int shadow_offset = shadow_distance->get_double_value(timecode);
 
 		QPainterPath shadow_path(path);
@@ -271,9 +270,12 @@ void TextEffect::redraw(double timecode) {
 		QPen outline(outline_color->get_color_value(timecode));
 		outline.setWidth(outline_width_val);
 		p.setPen(outline);
+		p.setBrush(Qt::NoBrush);
+		p.drawPath(path);
 	}
 
 	// draw "master" text
+	p.setPen(Qt::NoPen);
 	p.setBrush(set_color_button->get_color_value(timecode));
 	p.drawPath(path);
 }

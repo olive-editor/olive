@@ -348,9 +348,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                     c->color_g = 128;
                     c->color_b = 192;
                 }
-				if (c->track < 0) {
-					c->frame_rate = m->get_stream_from_file_index(true, c->media_stream)->video_frame_rate;
-				}
+				c->frame_rate = (c->track < 0) ? m->get_stream_from_file_index(true, c->media_stream)->video_frame_rate : 1.0;
                 c->name = m->name;
             } else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
                 // sequence (red?ish?)
@@ -359,7 +357,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->color_b = 128;
 
 				Sequence* media = static_cast<Sequence*>(c->media);
-				c->frame_rate = media->frame_rate;
+				c->frame_rate = (c->track < 0) ? media->frame_rate : 1.0;
 				c->name = media->name;
             }
 
@@ -621,13 +619,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						c->color_b = 64;
 						c->track = g.track;
 
-						if (c->track < 0) c->frame_rate = sequence->frame_rate;
+						c->frame_rate = (c->track < 0) ? sequence->frame_rate : 1.0;
 
 						QVector<Clip*> add;
 						add.append(c);
                         ca->append(new AddClipCommand(sequence, add));
 
-//                        int clipIndex = sequence->clips.size();
 						if (c->track < 0) {
 							// default video effects (before custom effects)
                             c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));
@@ -933,15 +930,7 @@ void TimelineWidget::init_ghosts() {
 		}
 
 		// used for trim ops
-		switch (c->media_type) {
-		case MEDIA_TYPE_FOOTAGE:
-			g.media_length = static_cast<Media*>(c->media)->get_length_in_frames(sequence->frame_rate);
-			break;
-		case MEDIA_TYPE_SEQUENCE:
-			Sequence* s = static_cast<Sequence*>(c->media);
-			g.media_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, sequence->frame_rate);
-			break;
-		}
+		g.media_length = c->getMaximumLength();
 	}
 	for (int i=0;i<sequence->selections.size();i++) {
 		Selection& s = sequence->selections[i];
@@ -1710,18 +1699,10 @@ void TimelineWidget::redraw_clips() {
 						draw_checkerboard = true;
                     } else if (ms->preview_done) {
                         // draw thumbnail/waveform
-						long media_length = m->get_length_in_frames(clip->sequence->frame_rate);
-                        int waveform_limit;
-
-                        if (!ms->infinite_length) {
-                            waveform_limit = qMin(clip_rect.width(), panel_timeline->getTimelineScreenPointFromFrame(media_length - clip->clip_in));
-                            if (waveform_limit < clip_rect.width()) {
-                                draw_checkerboard = true;
-                                if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
-                            }
-						}
+						long media_length = clip->getMaximumLength();
 
                         if (clip->track < 0) {
+							// draw thumbnail
 							int space_for_thumb = clip_rect.width();
 							if (clip->opening_transition != NULL) {
 								int ot_width = panel_timeline->getTimelineScreenPointFromFrame(clip->opening_transition->length);
@@ -1739,13 +1720,21 @@ void TimelineWidget::redraw_clips() {
                                 clip_painter.drawImage(thumb_rect, ms->video_preview);
                             }
 						} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
+							int waveform_limit = qMin(clip_rect.width(), panel_timeline->getTimelineScreenPointFromFrame(media_length - clip->clip_in));
+
+							if (waveform_limit < clip_rect.width()) {
+								draw_checkerboard = true;
+								if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
+							}
+
+							// draw waveform
 							clip_painter.setPen(QColor(80, 80, 80));
 
 							int divider = ms->audio_channels*2;
 							int channel_height = clip_rect.height()/ms->audio_channels;
 
 							for (int i=0;i<waveform_limit;i++) {
-								int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+								int waveform_index = qFloor((((clip->clip_in + ((double) (i*clip->frame_rate)/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 
 								int rectified_height = 0;
 
