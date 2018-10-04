@@ -330,7 +330,6 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             c->timeline_out = g.out;
             c->clip_in = g.clip_in;
 			c->track = g.track;
-			c->speed = 1.0;
             if (c->media_type == MEDIA_TYPE_FOOTAGE) {
                 Media* m = static_cast<Media*>(c->media);
                 if (m->video_tracks.size() == 0) {
@@ -617,8 +616,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						c->color_g = 192;
 						c->color_b = 64;
 						c->track = g.track;
-
-						c->speed = 1.0;
 
 						QVector<Clip*> add;
 						add.append(c);

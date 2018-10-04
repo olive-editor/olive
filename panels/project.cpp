@@ -756,7 +756,6 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
                                     // backwards compatibility code
 									c->autoscale = false;
-									c->speed = 1.0;
 
                                     c->media = NULL;
                                     for (int j=0;j<stream.attributes().size();j++) {

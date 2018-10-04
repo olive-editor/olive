@@ -24,6 +24,7 @@ Clip::Clip(Sequence* s) :
     timeline_out(0),
     track(0),
     undeletable(0),
+    speed(1.0),
     media(NULL),
     opening_transition(NULL),
     closing_transition(NULL),
