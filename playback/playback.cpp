@@ -110,7 +110,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
 		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
-		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, c->frame_rate);
+		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, c->getMediaFrameRate()*c->speed);
 
 		AVFrame* current_frame = NULL;
 		bool no_frame = false;
@@ -213,7 +213,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 double playhead_to_seconds(Clip* c, long playhead) {
 	// returns time in seconds
-    return (qMax((long) 0, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate;
+	return ((qMax(0L, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate)*c->speed;
 }
 
 long seconds_to_clip_frame(Clip* c, double seconds) {

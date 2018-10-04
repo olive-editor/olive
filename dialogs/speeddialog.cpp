@@ -73,28 +73,38 @@ void SpeedDialog::run() {
 		double clip_percent;
 
 		// get default frame rate/percentage
+		clip_percent = c->speed;
 		if (c->track < 0) {
-			double media_frame_rate = c->getMediaFrameRate();
-
-			clip_percent = c->frame_rate / media_frame_rate;
-
-			// get "default" frame rate"
-			if (enable_frame_rate) {
-				// check if frame rate is equal to default
-				if (!qIsNaN(default_frame_rate) && !qFuzzyCompare(media_frame_rate, default_frame_rate)) {
-					default_frame_rate = NAN;
+			bool process_video = true;
+			if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+				Media* m = static_cast<Media*>(c->media);
+				if (m != NULL) {
+					MediaStream* ms = m->get_stream_from_file_index(true, c->media_stream);
+					if (ms != NULL && ms->infinite_length) {
+						process_video = false;
+					}
 				}
-				if (!qIsNaN(current_frame_rate) && !qFuzzyCompare(c->frame_rate, current_frame_rate)) {
-					current_frame_rate = NAN;
-				}
-			} else {
-				default_frame_rate = media_frame_rate;
-				current_frame_rate = c->frame_rate;
 			}
 
-			enable_frame_rate = true;
-		} else {
-			clip_percent = c->frame_rate;
+			if (process_video) {
+				double media_frame_rate = c->getMediaFrameRate();
+
+				// get "default" frame rate"
+				if (enable_frame_rate) {
+					// check if frame rate is equal to default
+					if (!qIsNaN(default_frame_rate) && !qFuzzyCompare(media_frame_rate, default_frame_rate)) {
+						default_frame_rate = NAN;
+					}
+					if (!qIsNaN(current_frame_rate) && !qFuzzyCompare(media_frame_rate*c->speed, current_frame_rate)) {
+						current_frame_rate = NAN;
+					}
+				} else {
+					default_frame_rate = media_frame_rate;
+					current_frame_rate = media_frame_rate*c->speed;
+				}
+
+				enable_frame_rate = true;
+			}
 		}
 
 		// get default length
@@ -145,21 +155,29 @@ void SpeedDialog::frame_rate_update() {
 }
 
 void SpeedDialog::accept() {
+	// TODO make undoable lmao
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		close_clip(c);
-		if (c->track < 0) {
-			if (!qIsNaN(frame_rate->value())) {
-				// TODO add validators
-				c->timeline_out = c->timeline_in + (c->getLength() * (c->frame_rate / frame_rate->value()));
-				c->frame_rate = frame_rate->value();
-			}
-		} else {
-			if (!qIsNaN(percent->value())) {
-				c->timeline_out = c->timeline_in + (c->getLength() * (c->frame_rate / percent->value()));
-				c->frame_rate = percent->value();
+		long proposed_out = c->timeline_out;
+		if (!qIsNaN(percent->value())) {
+			double multiplier = (c->speed / percent->value());
+			proposed_out = c->timeline_in + (c->getLength() * multiplier);
+			c->clip_in *= multiplier;
+			c->speed = percent->value();
+		}
+		if (proposed_out > c->timeline_out) {
+			for (int i=0;i<c->sequence->clips.size();i++) {
+				Clip* compare = c->sequence->clips.at(i);
+				if (compare != NULL
+						&& compare->track == c->track
+						&& compare->timeline_in >= c->timeline_out && compare->timeline_in < proposed_out) {
+					proposed_out = compare->timeline_in;
+				}
 			}
 		}
+		c->timeline_out = proposed_out;
+
 		c->recalculateMaxLength();
 	}
 	panel_timeline->redraw_all_clips(true);

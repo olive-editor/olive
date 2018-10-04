@@ -71,7 +71,7 @@ struct Clip
     int media_stream;
 	int getWidth();
 	int getHeight();
-	double frame_rate;
+	double speed;
 	long calculated_length;
 
 	// other variables (should be "duplicated" in copy())
@@ -110,15 +110,14 @@ struct Clip
 	AVFilterContext* buffersink_ctx;
 	AVFilterContext* buffersrc_ctx;
 
-    // video playback variables
-//	SwsContext* sws_ctx;
+	// video playback variables
 	QOpenGLFramebufferObject** fbo;
     QOpenGLTexture* texture;
     long texture_frame;
 	bool autoscale;
 
     // audio playback variables
-//	SwrContext* swr_ctx;
+	SwrContext* swr_ctx;
     int frame_sample_index;
     int audio_buffer_write;
     bool audio_reset;

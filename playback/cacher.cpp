@@ -110,19 +110,10 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 				if (c->audio_just_reset) {
 					// get precise sample offset for the elected clip_in from this audio frame
-					double target_sts = 0;
-					if (c->audio_target_frame < timeline_in) {
-						target_sts = ((double) c->clip_in / c->sequence->frame_rate);
-					} else {
-						target_sts = playhead_to_seconds(c, c->audio_target_frame);
-					}
+					double target_sts = playhead_to_seconds(c, c->audio_target_frame);
 					double frame_sts = (frame->pts * av_q2d(c->stream->time_base));
 					int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);
-					if (nb_samples == 0) {
-						c->frame_sample_index = 0;
-					} else {
-						c->frame_sample_index = av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
-					}
+					c->frame_sample_index = (nb_samples == 0) ? 0 : av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
 					c->audio_just_reset = false;
 				}
 
@@ -280,7 +271,7 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 }
 
 void reset_cache(Clip* c, long target_frame) {
-	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
+	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
 	switch (c->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
@@ -482,7 +473,7 @@ void open_clip_worker(Clip* clip) {
 					NULL,
 					sequence->audio_layout,
 					static_cast<AVSampleFormat>(sample_format),
-					sequence->audio_frequency,
+					sequence->audio_frequency / clip->speed,
 					clip->codecCtx->channel_layout,
 					static_cast<AVSampleFormat>(clip->stream->codecpar->format),
 					clip->stream->codecpar->sample_rate,
@@ -497,7 +488,7 @@ void open_clip_worker(Clip* clip) {
 			clip->cache_A.frames[0]->format = sample_format;
 			clip->cache_A.frames[0]->channel_layout = sequence->audio_layout;
 			clip->cache_A.frames[0]->channels = av_get_channel_layout_nb_channels(clip->cache_A.frames[0]->channel_layout);
-			clip->cache_A.frames[0]->sample_rate = sequence->audio_frequency;
+			clip->cache_A.frames[0]->sample_rate = sequence->audio_frequency / clip->speed;
 			av_frame_make_writable(clip->cache_A.frames[0]);
 
 			clip->audio_reset = true;

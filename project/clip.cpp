@@ -54,7 +54,7 @@ Clip* Clip::copy(Sequence* s) {
     copy->media_type = media_type;
     copy->media_stream = media_stream;
     copy->autoscale = autoscale;
-	copy->frame_rate = frame_rate;
+	copy->speed = speed;
 
     for (int i=0;i<effects.size();i++) {
         copy->effects.append(effects.at(i)->copy(copy));
@@ -62,6 +62,8 @@ Clip* Clip::copy(Sequence* s) {
 
     if (opening_transition != NULL) copy->opening_transition = opening_transition->copy();
     if (closing_transition != NULL) copy->closing_transition = closing_transition->copy();
+
+	copy->recalculateMaxLength();
 
     return copy;
 }
@@ -173,11 +175,7 @@ long Clip::getLength() {
 void Clip::recalculateMaxLength() {
 	double fr = this->sequence->frame_rate;
 
-	if (track < 0) {
-		fr *= (getMediaFrameRate()/frame_rate);
-	} else {
-		fr /= frame_rate;
-	}
+	fr /= speed;
 
 	switch (media_type) {
 	case MEDIA_TYPE_FOOTAGE:

@@ -756,7 +756,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
                                     // backwards compatibility code
 									c->autoscale = false;
-									c->frame_rate = 0;
+									c->speed = 1.0;
 
                                     c->media = NULL;
                                     for (int j=0;j<stream.attributes().size();j++) {
@@ -788,8 +788,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             media_id = attr.value().toInt();
                                         } else if (attr.name() == "stream") {
                                             stream_id = attr.value().toInt();
-										} else if (attr.name() == "framerate") {
-											c->frame_rate = attr.value().toDouble();
+										} else if (attr.name() == "speed") {
+											c->speed = attr.value().toDouble();
                                         } else if (attr.name() == "sequence") {
                                             c->media_type = MEDIA_TYPE_SEQUENCE;
 
@@ -1089,7 +1089,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
 
                                 stream.writeAttribute("autoscale", QString::number(c->autoscale));
 
-								stream.writeAttribute("framerate", QString::number(c->frame_rate, 'f', 10));
+								stream.writeAttribute("speed", QString::number(c->speed, 'f', 10));
 
                                 stream.writeAttribute("type", QString::number(c->media_type));
                                 switch (c->media_type) {

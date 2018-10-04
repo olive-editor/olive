@@ -180,12 +180,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
         // if clip starts within one second and/or hasn't finished yet
 		if (c != NULL && !(nest != NULL && !same_sign(c->track, nest->track))) {
-            bool clip_is_active = false;
-
-			// backwards compatibilty
-			if (c->frame_rate == 0 && c->track >= 0) {
-				c->frame_rate = 1.0;
-			}
+			bool clip_is_active = false;
 
 			switch (c->media_type) {
 			case MEDIA_TYPE_FOOTAGE:
@@ -194,9 +189,6 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				if (m->ready) {
 					MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
 					if (ms != NULL && is_clip_active(c, playhead)) {
-						// backwards compatibility
-						if (c->frame_rate == 0 && c->track < 0) c->frame_rate = ms->video_frame_rate;
-
 						// if thread is already working, we don't want to touch this,
 						// but we also don't want to hang the UI thread
 						if (!c->open) {
@@ -212,13 +204,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 			}
 				break;
 			case MEDIA_TYPE_SEQUENCE:
-				// backwards compatibility
-				if (c->frame_rate == 0 == c->track < 0) c->frame_rate = static_cast<Sequence*>(c->media)->frame_rate;
 			case MEDIA_TYPE_SOLID:
 			case MEDIA_TYPE_TONE:
-				// backwards compatibility
-				if (c->frame_rate == 0 && c->track < 0) c->frame_rate = s->frame_rate;
-
 				if (is_clip_active(c, playhead)) {
 					if (!c->open) open_clip(c, !rendering);
 					clip_is_active = true;

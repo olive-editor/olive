@@ -330,6 +330,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             c->timeline_out = g.out;
             c->clip_in = g.clip_in;
 			c->track = g.track;
+			c->speed = 1.0;
             if (c->media_type == MEDIA_TYPE_FOOTAGE) {
                 Media* m = static_cast<Media*>(c->media);
                 if (m->video_tracks.size() == 0) {
@@ -347,8 +348,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                     c->color_r = 128;
                     c->color_g = 128;
                     c->color_b = 192;
-                }
-				c->frame_rate = (c->track < 0) ? m->get_stream_from_file_index(true, c->media_stream)->video_frame_rate : 1.0;
+				}
                 c->name = m->name;
             } else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
                 // sequence (red?ish?)
@@ -357,10 +357,9 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 c->color_b = 128;
 
 				Sequence* media = static_cast<Sequence*>(c->media);
-				c->frame_rate = (c->track < 0) ? media->frame_rate : 1.0;
 				c->name = media->name;
             }
-
+			c->recalculateMaxLength();
             added_clips.append(c);
 		}
 
@@ -619,7 +618,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						c->color_b = 64;
 						c->track = g.track;
 
-						c->frame_rate = (c->track < 0) ? sequence->frame_rate : 1.0;
+						c->speed = 1.0;
 
 						QVector<Clip*> add;
 						add.append(c);
@@ -1734,7 +1733,7 @@ void TimelineWidget::redraw_clips() {
 							int channel_height = clip_rect.height()/ms->audio_channels;
 
 							for (int i=0;i<waveform_limit;i++) {
-								int waveform_index = qFloor((((clip->clip_in + ((double) (i*clip->frame_rate)/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+								int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 
 								int rectified_height = 0;
 
@@ -1742,13 +1741,17 @@ void TimelineWidget::redraw_clips() {
 									int mid = clip_rect.top()+channel_height*j+(channel_height/2);
 									int offset = waveform_index+(j*2);
 
-									qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
-									qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+									if ((offset + 1) < ms->audio_preview.size()) {
+										qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
+										qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
 
-									if (config.rectified_waveforms)  {
-										rectified_height += (max - min);
+										if (config.rectified_waveforms)  {
+											rectified_height += (max - min);
+										} else {
+											clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+										}
 									} else {
-										clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+										qDebug() << "tried to reach" << offset + 1 << "limit:" << ms->audio_preview.size();
 									}
 								}
 
