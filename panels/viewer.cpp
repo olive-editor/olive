@@ -25,7 +25,7 @@ Viewer::Viewer(QWidget *parent) :
     viewer_widget = ui->openGLWidget;
     update_sequence();
 
-	ui->currentTimecode->set_default_value(NAN);
+	ui->currentTimecode->set_default_value(qSNaN());
 	ui->currentTimecode->set_value(0, false);
 	ui->currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);
 	connect(ui->currentTimecode, SIGNAL(valueChanged()), this, SLOT(update_playhead()));

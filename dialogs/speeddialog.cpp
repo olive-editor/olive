@@ -64,9 +64,9 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 void SpeedDialog::run() {
 	bool enable_frame_rate = false;
 
-	default_frame_rate = NAN;
-	current_frame_rate = NAN;
-	current_percent = NAN;
+	default_frame_rate = qSNaN();
+	current_frame_rate = qSNaN();
+	current_percent = qSNaN();
 	default_length = -1;
 	current_length = -1;
 
@@ -96,10 +96,10 @@ void SpeedDialog::run() {
 				if (enable_frame_rate) {
 					// check if frame rate is equal to default
 					if (!qIsNaN(default_frame_rate) && !qFuzzyCompare(media_frame_rate, default_frame_rate)) {
-						default_frame_rate = NAN;
+						default_frame_rate = qSNaN();
 					}
 					if (!qIsNaN(current_frame_rate) && !qFuzzyCompare(media_frame_rate*c->speed, current_frame_rate)) {
-						current_frame_rate = NAN;
+						current_frame_rate = qSNaN();
 					}
 				} else {
 					default_frame_rate = media_frame_rate;
@@ -124,7 +124,7 @@ void SpeedDialog::run() {
 				default_length = -1;
 			}
 			if (!qIsNaN(current_percent) && !qFuzzyCompare(clip_percent, current_percent)) {
-				current_percent = NAN;
+				current_percent = qSNaN();
 			}
 		}
 	}

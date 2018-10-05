@@ -212,7 +212,7 @@ double Clip::getMediaFrameRate() {
 	case MEDIA_TYPE_SEQUENCE: return static_cast<Sequence*>(media)->frame_rate;
 	}
 	if (sequence != NULL) return sequence->frame_rate;
-	return NAN;
+	return qSNaN();
 }
 
 int Clip::getWidth() {
