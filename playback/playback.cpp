@@ -271,19 +271,21 @@ void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
     } else {
         int ret = retrieve_next_frame(c, c->frame);
         if (ret >= 0) {
+			/*
             if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 //				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
 //				output->pts = c->frame->best_effort_timestamp;
             } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                output->pts = c->frame->pts;
+				output->pts = c->frame->pts;
 				ret = swr_convert_frame(c->swr_ctx, output, c->frame);
 
 
 
-                if (ret < 0) {
-                    qDebug() << "[ERROR] Failed to resample audio." << ret;
-                }
+				if (ret < 0) {
+					qDebug() << "[ERROR] Failed to resample audio." << ret;
+				}
             }
+			*/
         } else if (ret == AVERROR_EOF) {
             c->reached_end = true;
         } else {

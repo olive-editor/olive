@@ -93,10 +93,39 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			while ((c->frame_sample_index < 0 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
 				// no more audio left in frame, get a new one
 				if (!c->reached_end) {
-					retrieve_next_frame_raw_data(c, frame);
+					av_frame_unref(frame);
+
+					int ret;
+
+					while ((ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
+						ret = retrieve_next_frame(c, c->frame);
+
+						if (ret >= 0) {
+							if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+								qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
+								break;
+							}
+						} else {
+							if (ret == AVERROR_EOF) {
+								c->reached_end = true;
+							} else {
+								qDebug() << "[WARNING] Raw audio frame data could not be retrieved." << ret;
+								c->reached_end = true;
+							}
+							break;
+						}
+					}
+
+					if (ret < 0) {
+						if (ret != AVERROR_EOF) {
+							qDebug() << "[ERROR] Could not pull from filtergraph";
+							c->reached_end = true;
+						}
+						break;
+					}
 				} else {
 					// if there is no more data in the file, we flush the remainder out of swresample
-					swr_convert_frame(c->swr_ctx, frame, NULL);
+//					swr_convert_frame(c->swr_ctx, frame, NULL);
 				}
 				new_frame = true;
 
@@ -111,7 +140,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				if (c->audio_just_reset) {
 					// get precise sample offset for the elected clip_in from this audio frame
 					double target_sts = playhead_to_seconds(c, c->audio_target_frame);
-					double frame_sts = (frame->pts * av_q2d(c->stream->time_base));
+					double frame_sts = (c->frame->pts * av_q2d(c->stream->time_base));
 					int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);
 					c->frame_sample_index = (nb_samples == 0) ? 0 : av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
 					c->audio_just_reset = false;
@@ -304,7 +333,7 @@ void reset_cache(Clip* c, long target_frame) {
 				c->last_cached_frame = -1;
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
-				swr_drop_output(c->swr_ctx, swr_get_out_samples(c->swr_ctx, 0));
+//				swr_drop_output(c->swr_ctx, swr_get_out_samples(c->swr_ctx, 0));
 				av_seek_frame(c->formatCtx, ms->file_index, playhead_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
 				c->audio_target_frame = target_frame;
 				c->frame_sample_index = -1;
@@ -323,7 +352,7 @@ void reset_cache(Clip* c, long target_frame) {
 
 Cacher::Cacher(Clip* c) : clip(c) {}
 
-int sample_format = AV_SAMPLE_FMT_S16;
+AVSampleFormat sample_format = AV_SAMPLE_FMT_S16;
 
 void open_clip_worker(Clip* clip) {
 	switch (clip->media_type) {
@@ -380,26 +409,14 @@ void open_clip_worker(Clip* clip) {
 			qDebug() << "[ERROR] Could not open codec";
 		}
 
+		// allocate filtergraph
+		clip->filter_graph = avfilter_graph_alloc();
+		if (clip->filter_graph == NULL) {
+			qDebug() << "couldn't create filtergraph";
+		}
+		char filter_args[512];
+
 		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-			// set up swscale context - primarily used for colorspace conversion
-			// as "scaling" is actually done by OpenGL
-
-			//int dstW = ceil(clip->stream->codecpar->width/2)*2;
-			//int dstH = ceil(clip->stream->codecpar->height/2)*2;
-
-			/*clip->sws_ctx = sws_getContext(
-					clip->stream->codecpar->width,
-					clip->stream->codecpar->height,
-					static_cast<AVPixelFormat>(clip->stream->codecpar->format),
-					dstW,
-					dstH,
-					static_cast<AVPixelFormat>(dest_format),
-					SWS_FAST_BILINEAR,
-					NULL,
-					NULL,
-					NULL
-				);*/
-
 			// create memory cache for video
 			clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(clip->stream->avg_frame_rate)/4); // cache is half a second in total
 
@@ -411,33 +428,7 @@ void open_clip_worker(Clip* clip) {
 				clip->cache_B.frames[i] = av_frame_alloc();
 			}
 
-			/*for (int i=0;i<clip->cache_size;i++) {
-				clip->cache_A.frames[i] = av_frame_alloc();
-				av_frame_make_writable(clip->cache_A.frames[i]);
-				clip->cache_A.frames[i]->width = dstW;
-				clip->cache_A.frames[i]->height = dstH;
-				clip->cache_A.frames[i]->format = dest_format;
-				if (av_frame_get_buffer(clip->cache_A.frames[i], 0)) {
-					qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
-				}
-
-				clip->cache_B.frames[i] = av_frame_alloc();
-				av_frame_make_writable(clip->cache_B.frames[i]);
-				clip->cache_B.frames[i]->width = dstW;
-				clip->cache_B.frames[i]->height = dstH;
-				clip->cache_B.frames[i]->format = dest_format;
-				if (av_frame_get_buffer(clip->cache_B.frames[i], 0)) {
-					qDebug() << "[ERROR] Could not allocate buffer for sws_frame";
-				}
-			}*/
-
-			clip->filter_graph = avfilter_graph_alloc();
-			if (clip->filter_graph == NULL) {
-				qDebug() << "couldn't create filtergraph";
-			}
-
-			char args[512];
-			snprintf(args, sizeof(args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+			snprintf(filter_args, sizeof(filter_args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
 						clip->stream->codecpar->width,
 						clip->stream->codecpar->height,
 						clip->stream->codecpar->format,
@@ -447,28 +438,24 @@ void open_clip_worker(Clip* clip) {
 						clip->stream->codecpar->sample_aspect_ratio.den
 					 );
 
-			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", args, NULL, clip->filter_graph);
-
-			AVFilterContext* negate_ctx;
-			avfilter_graph_create_filter(&negate_ctx, avfilter_get_by_name("setpts"), "rev", "0.5*PTS", NULL, clip->filter_graph);
-
+			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
 			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
 
 			enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
-			av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+			if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
+				qDebug() << "[ERROR] Could not set output pixel format";
+			}
 
-			avfilter_link(clip->buffersrc_ctx, 0, negate_ctx, 0);
-			avfilter_link(negate_ctx, 0, clip->buffersink_ctx, 0);
+			avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 
 			avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			// if FFmpeg can't pick up the channel layout (usually WAV), assume
 			// based on channel count (doesn't support surround sound sources yet)
-			if (clip->codecCtx->channel_layout == 0) {
-				clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
-			}
+			if (clip->codecCtx->channel_layout == 0) clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
 
 			// init resampling context
+			/*
 			clip->swr_ctx = swr_alloc_set_opts(
 					NULL,
 					sequence->audio_layout,
@@ -481,15 +468,36 @@ void open_clip_worker(Clip* clip) {
 					NULL
 				);
 			swr_init(clip->swr_ctx);
+			*/
 
 			// set up cache
 			clip->cache_A.frames = new AVFrame* [1];
 			clip->cache_A.frames[0] = av_frame_alloc();
-			clip->cache_A.frames[0]->format = sample_format;
-			clip->cache_A.frames[0]->channel_layout = sequence->audio_layout;
-			clip->cache_A.frames[0]->channels = av_get_channel_layout_nb_channels(clip->cache_A.frames[0]->channel_layout);
-			clip->cache_A.frames[0]->sample_rate = sequence->audio_frequency / clip->speed;
-			av_frame_make_writable(clip->cache_A.frames[0]);
+
+			snprintf(filter_args, sizeof(filter_args), "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
+						clip->stream->time_base.num,
+						clip->stream->time_base.den,
+						clip->stream->codecpar->sample_rate,
+						av_get_sample_fmt_name(clip->codecCtx->sample_fmt),
+						clip->codecCtx->channel_layout
+					 );
+
+			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("abuffer"), "in", filter_args, NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, clip->filter_graph);
+
+			enum AVSampleFormat sample_fmts[] = { sample_format,  static_cast<AVSampleFormat>(-1) };
+			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_fmts", sample_fmts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
+				qDebug() << "[ERROR] Could not set output sample format";
+			}
+
+			int sample_rates[] = { qRound(sequence->audio_frequency / clip->speed), 0 };
+			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_rates", sample_rates, 0, AV_OPT_SEARCH_CHILDREN) < 0) {
+				qDebug() << "[ERROR] Could not set output sample rates";
+			}
+
+			avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+
+			avfilter_graph_config(clip->filter_graph, NULL);
 
 			clip->audio_reset = true;
 		}
@@ -553,12 +561,8 @@ void close_clip_worker(Clip* clip) {
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
 		// closes ffmpeg file handle and frees any memory used for caching
 		MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
-		if (clip->track < 0) {
-//			sws_freeContext(clip->sws_ctx);
-			avfilter_graph_free(&clip->filter_graph);
-		} else {
-			swr_free(&clip->swr_ctx);
-		}
+
+		avfilter_graph_free(&clip->filter_graph);
 
 		avcodec_close(clip->codecCtx);
 		avcodec_free_context(&clip->codecCtx);

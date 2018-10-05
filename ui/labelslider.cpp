@@ -26,6 +26,7 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 
 void LabelSlider::set_display_type(int type) {
 	display_type = type;
+	setText(valueToString(internal_value));
 }
 
 void LabelSlider::set_value(double v, bool userSet) {

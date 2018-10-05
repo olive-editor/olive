@@ -117,7 +117,7 @@ struct Clip
 	bool autoscale;
 
     // audio playback variables
-	SwrContext* swr_ctx;
+//	SwrContext* swr_ctx;
     int frame_sample_index;
     int audio_buffer_write;
     bool audio_reset;
