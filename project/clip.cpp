@@ -33,7 +33,8 @@ Clip::Clip(Sequence* s) :
 	filter_graph(NULL),
 	texture(NULL),
 	fbo(NULL),
-    autoscale(config.autoscale_by_default)
+	autoscale(config.autoscale_by_default),
+	maintain_audio_pitch(false)
 {
     reset();
 }

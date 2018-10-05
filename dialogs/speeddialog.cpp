@@ -43,9 +43,12 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	main_layout->addLayout(grid);
 
 	reverse = new QCheckBox("Reverse");
+	maintain_pitch = new QCheckBox("Maintain Audio Pitch");
+	ripple = new QCheckBox("Ripple Changes");
+
 	main_layout->addWidget(reverse);
-	main_layout->addWidget(new QCheckBox("Maintain Audio Pitch"));
-	main_layout->addWidget(new QCheckBox("Ripple"));
+	main_layout->addWidget(maintain_pitch);
+	main_layout->addWidget(ripple);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	buttonBox->setCenterButtons(true);
@@ -179,6 +182,8 @@ void SpeedDialog::accept() {
 		c->timeline_out = proposed_out;
 
 		c->recalculateMaxLength();
+
+		c->maintain_audio_pitch = maintain_pitch->isChecked();
 	}
 	panel_timeline->redraw_all_clips(true);
 	QDialog::accept();

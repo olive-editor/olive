@@ -26,6 +26,8 @@ private:
 	LabelSlider* frame_rate;
 
 	QCheckBox* reverse;
+	QCheckBox* maintain_pitch;
+	QCheckBox* ripple;
 
 	double default_frame_rate;
 	double current_frame_rate;

@@ -116,8 +116,8 @@ struct Clip
     long texture_frame;
 	bool autoscale;
 
-    // audio playback variables
-//	SwrContext* swr_ctx;
+	// audio playback variables
+	bool maintain_audio_pitch;
     int frame_sample_index;
     int audio_buffer_write;
     bool audio_reset;

@@ -490,12 +490,27 @@ void open_clip_worker(Clip* clip) {
 				qDebug() << "[ERROR] Could not set output sample format";
 			}
 
-			int sample_rates[] = { qRound(sequence->audio_frequency / clip->speed), 0 };
+			int target_sample_rate = sequence->audio_frequency;
+
+			if (qFuzzyCompare(clip->speed, 1.0)) {
+				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+			} else if (clip->maintain_audio_pitch) {
+				char speed_param[10];
+				snprintf(speed_param, sizeof(speed_param), "%f", clip->speed);
+
+				AVFilterContext* tempo_filter;
+				avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+				avfilter_link(clip->buffersrc_ctx, 0, tempo_filter, 0);
+				avfilter_link(tempo_filter, 0, clip->buffersink_ctx, 0);
+			} else {
+				target_sample_rate = qRound(sequence->audio_frequency / clip->speed);
+				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+			}
+
+			int sample_rates[] = { target_sample_rate, 0 };
 			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_rates", sample_rates, 0, AV_OPT_SEARCH_CHILDREN) < 0) {
 				qDebug() << "[ERROR] Could not set output sample rates";
 			}
-
-			avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 
 			avfilter_graph_config(clip->filter_graph, NULL);
 
