@@ -12,6 +12,7 @@ class QLabel;
 class QWidget;
 class CollapsibleWidget;
 class QGridLayout;
+class QPushButton;
 
 struct Clip;
 class QXmlStreamReader;
@@ -167,7 +168,7 @@ private:
 	int ui_row;
 	QVector<EffectField*> fields;
 
-	CheckboxEx* keyframe_enable;
+    QPushButton* keyframe_enable;
 
 	bool just_made_unsafe_keyframe;
 };
