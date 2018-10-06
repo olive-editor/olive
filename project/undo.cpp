@@ -49,6 +49,10 @@ void ComboAction::append(QUndoCommand* u) {
 
 MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack) :
     clip(c),
+	old_in(c->timeline_in),
+	old_out(c->timeline_out),
+	old_clip_in(c->clip_in),
+	old_track(c->track),
     new_in(iin),
     new_out(iout),
     new_clip_in(iclip_in),
@@ -66,11 +70,6 @@ void MoveClipAction::undo() {
 }
 
 void MoveClipAction::redo() {
-    old_in = clip->timeline_in;
-    old_out = clip->timeline_out;
-    old_clip_in = clip->clip_in;
-    old_track = clip->track;
-
     clip->timeline_in = new_in;
     clip->timeline_out = new_out;
     clip->clip_in = new_clip_in;

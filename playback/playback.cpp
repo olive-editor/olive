@@ -111,7 +111,9 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
 
-		if (c->reverse && !ms->infinite_length) sequence_clip_time = c->getMaximumLength() - sequence_clip_time - 1;
+		if (c->reverse && !ms->infinite_length) {
+			sequence_clip_time = c->getMaximumLength() - sequence_clip_time - 1;
+		}
 
 		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, c->getMediaFrameRate()*c->speed);
 

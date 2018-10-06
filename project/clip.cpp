@@ -108,7 +108,7 @@ void Clip::reset_audio() {
         audio_buffer_write = 0;
 		reached_end = false;
         break;
-    case MEDIA_TYPE_SEQUENCE:
+	case MEDIA_TYPE_SEQUENCE:
     {
         Sequence* nested_sequence = static_cast<Sequence*>(media);
         for (int i=0;i<nested_sequence->clips.size();i++) {

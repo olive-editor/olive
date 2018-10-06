@@ -296,12 +296,12 @@ void SpeedDialog::frame_rate_update() {
 	duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
 }
 
-void set_speed(ComboAction* ca, Clip* c, double speed) {
+void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, long& lr) {
 	long proposed_out = c->timeline_out;
 	double multiplier = (c->speed / speed);
 	proposed_out = c->timeline_in + (c->getLength() * multiplier);
 	ca->append(new SetSpeedAction(c, speed));
-	if (proposed_out > c->timeline_out) {
+	if (!ripple && proposed_out > c->timeline_out) {
 		for (int i=0;i<c->sequence->clips.size();i++) {
 			Clip* compare = c->sequence->clips.at(i);
 			if (compare != NULL
@@ -311,23 +311,31 @@ void set_speed(ComboAction* ca, Clip* c, double speed) {
 			}
 		}
 	}
+	ep = qMin(ep, c->timeline_out);
+	lr = qMax(lr, proposed_out - c->timeline_out);
 	ca->append(new MoveClipAction(c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track));
 }
 
 void SpeedDialog::accept() {
 	ComboAction* ca = new ComboAction();
 
+	long earliest_point = LONG_MAX;
+	long longest_ripple = LONG_MIN;
+
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		if (c->open) close_clip(c);
 
-		if (c->track >= 0) {
-			if (maintain_pitch->checkState() != Qt::PartiallyChecked) {
-				ca->append(new SetBool(&c->maintain_audio_pitch, maintain_pitch->isChecked()));
-			}
+		if (c->track >= 0
+				&& maintain_pitch->checkState() != Qt::PartiallyChecked
+				&& c->maintain_audio_pitch != maintain_pitch->isChecked()) {
+			ca->append(new SetBool(&c->maintain_audio_pitch, maintain_pitch->isChecked()));
 		}
 
-		if (reverse->checkState() != Qt::PartiallyChecked) {
+		if (reverse->checkState() != Qt::PartiallyChecked && c->reverse != reverse->isChecked()) {
+			long new_clip_in = (c->getMaximumLength() - (c->getLength() + c->clip_in));
+			ca->append(new MoveClipAction(c, c->timeline_in, c->timeline_out, new_clip_in, c->track));
+			c->clip_in = new_clip_in;
 			ca->append(new SetBool(&c->reverse, reverse->isChecked()));
 		}
 	}
@@ -336,7 +344,7 @@ void SpeedDialog::accept() {
 		// simply set speed
 		for (int i=0;i<clips.size();i++) {
 			Clip* c = clips.at(i);
-			set_speed(ca, c, percent->value());
+			set_speed(ca, c, percent->value(), ripple->isChecked(), earliest_point, longest_ripple);
 		}
 	} else if (!qIsNaN(frame_rate->value())) {
 		bool can_change_all = true;
@@ -365,17 +373,21 @@ void SpeedDialog::accept() {
 		for (int i=0;i<clips.size();i++) {
 			Clip* c = clips.at(i);
 			if (c->track < 0) {
-				set_speed(ca, c, frame_rate->value() / c->getMediaFrameRate());
+				set_speed(ca, c, frame_rate->value() / c->getMediaFrameRate(), ripple->isChecked(), earliest_point, longest_ripple);
 			} else if (can_change_all) {
-				set_speed(ca, c, frame_rate->value() / cached_fr);
+				set_speed(ca, c, frame_rate->value() / cached_fr, ripple->isChecked(), earliest_point, longest_ripple);
 			}
 		}
 	} else if (!qIsNaN(duration->value())) {
 		// simply set duration
 		for (int i=0;i<clips.size();i++) {
 			Clip* c = clips.at(i);
-			set_speed(ca, c, (c->getLength() * c->speed) / duration->value());
+			set_speed(ca, c, (c->getLength() * c->speed) / duration->value(), ripple->isChecked(), earliest_point, longest_ripple);
 		}
+	}
+
+	if (ripple->isChecked()) {
+		ca->append(new RippleCommand(clips.at(0)->sequence, earliest_point, longest_ripple));
 	}
 
 	undo_stack.push(ca);

@@ -1732,6 +1732,10 @@ void TimelineWidget::redraw_clips() {
 							for (int i=0;i<waveform_limit;i++) {
 								int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 
+								if (clip->reverse) {
+									waveform_index = ms->audio_preview.size() - waveform_index;
+								}
+
 								int rectified_height = 0;
 
 								for (int j=0;j<ms->audio_channels;j++) {
@@ -1748,7 +1752,7 @@ void TimelineWidget::redraw_clips() {
 											clip_painter.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
 										}
 									} else {
-										qDebug() << "tried to reach" << offset + 1 << "limit:" << ms->audio_preview.size();
+										qDebug() << "[WARNING] Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
 									}
 								}
 

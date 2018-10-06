@@ -257,7 +257,8 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 						}
 					} else {
 						if (ret == AVERROR_EOF) {
-							c->reached_end = true;
+							// TODO sorta hacky? not even sure if "reached_end" serves a proper purpose anymore
+							if (!c->reverse) c->reached_end = true;
 						} else {
 							qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
 							error = true;
@@ -559,6 +560,8 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 }
 
 void close_clip_worker(Clip* clip) {
+	clip->finished_opening = false;
+
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
 		// closes ffmpeg file handle and frees any memory used for caching
 		MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
