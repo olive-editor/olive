@@ -250,21 +250,11 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 					ret = retrieve_next_frame(c, c->frame);
 
 					if (ret >= 0) {
-						// optimization: mathematically determine based on the sequence and clips' frame rates whether this frame will actually be shown
-						// note: is not actually much faster and currently leads to crashes, may remove in the future
-//						int proposed_frame = qFloor((i+cache->offset) * fr_ratio);
-
-//						if (proposed_frame != c->last_cached_frame) {
-							if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-								qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
-								error = true;
-								break;
-//							} else {
-//								c->last_cached_frame = proposed_frame;
-							}
-//						} else {
-//							i++;
-//						}
+						if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+							qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
+							error = true;
+							break;
+						}
 					} else {
 						if (ret == AVERROR_EOF) {
 							c->reached_end = true;
@@ -313,7 +303,6 @@ void reset_cache(Clip* c, long target_frame) {
 
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
-
 				av_seek_frame(c->formatCtx, ms->file_index, (int64_t) qFloor(clip_frame_to_seconds(c, target_frame) / timebase), AVSEEK_FLAG_BACKWARD);
 
 				// play up to the frame we actually want
@@ -329,11 +318,8 @@ void reset_cache(Clip* c, long target_frame) {
 				} while (retrieved_frame < target_frame);
 
 				av_frame_free(&temp);
-
-				c->last_cached_frame = -1;
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
-//				swr_drop_output(c->swr_ctx, swr_get_out_samples(c->swr_ctx, 0));
 				av_seek_frame(c->formatCtx, ms->file_index, playhead_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
 				c->audio_target_frame = target_frame;
 				c->frame_sample_index = -1;

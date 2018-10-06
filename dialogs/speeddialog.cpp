@@ -15,6 +15,7 @@
 #include "playback/playback.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
+#include "project/undo.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -63,6 +64,8 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 
 void SpeedDialog::run() {
 	bool enable_frame_rate = false;
+	bool multiple_audio = false;
+	maintain_pitch->setEnabled(false);
 
 	default_frame_rate = qSNaN();
 	current_frame_rate = qSNaN();
@@ -108,6 +111,23 @@ void SpeedDialog::run() {
 
 				enable_frame_rate = true;
 			}
+		} else {
+			maintain_pitch->setEnabled(true);
+
+			if (!multiple_audio) {
+				maintain_pitch->setChecked(c->maintain_audio_pitch);
+				multiple_audio = true;
+			} else if (!maintain_pitch->isTristate() && maintain_pitch->isChecked() != c->maintain_audio_pitch) {
+				maintain_pitch->setCheckState(Qt::PartiallyChecked);
+				maintain_pitch->setTristate(true);
+			}
+		}
+
+		if (i == 0) {
+			reverse->setChecked(c->reverse);
+		} else if (c->reverse != reverse->isChecked()) {
+			reverse->setTristate(true);
+			reverse->setCheckState(Qt::PartiallyChecked);
 		}
 
 		// get default length
@@ -127,64 +147,239 @@ void SpeedDialog::run() {
 				current_percent = qSNaN();
 			}
 		}
+
+
 	}
+
+	frame_rate->set_minimum_value(1);
+	percent->set_minimum_value(0.0001);
+	duration->set_minimum_value(1);
 
 	frame_rate->setEnabled(enable_frame_rate);
 	frame_rate->set_default_value(default_frame_rate);
 	frame_rate->set_value(current_frame_rate, false);
 	percent->set_value(current_percent, false);
 	duration->set_default_value(default_length);
-	duration->set_value(current_length, false);
+	duration->set_value((current_length == -1) ? qSNaN() : current_length, false);
 
 	exec();
 }
 
 void SpeedDialog::percent_update() {
-	frame_rate->set_value(default_frame_rate * percent->value(), false);
-	duration->set_value(default_length / percent->value(), false);
+	bool got_fr = false;
+	double fr_val = qSNaN();
+	long len_val = -1;
+
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+
+		// get frame rate
+		if (frame_rate->isEnabled() && c->track < 0) {
+			double clip_fr = c->getMediaFrameRate() * percent->value();
+			if (got_fr) {
+				if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
+					fr_val = qSNaN();
+				}
+			} else {
+				fr_val = clip_fr;
+				got_fr = true;
+			}
+		}
+
+		// get duration
+		long clip_default_length = qRound(c->getLength() * c->speed);
+		long new_clip_length = qRound(clip_default_length / percent->value());
+		if (i == 0) {
+			len_val = new_clip_length;
+		} else if (len_val > -1 && len_val != new_clip_length) {
+			len_val = -1;
+		}
+	}
+
+	frame_rate->set_value(fr_val, false);
+	duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
 }
 
 void SpeedDialog::duration_update() {
-	double pc = default_length / duration->value();
-	frame_rate->set_value(default_frame_rate * pc, false);
-	percent->set_value(pc, false);
+	double pc_val = qSNaN();
+	bool got_fr = false;
+	double fr_val = qSNaN();
+
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+
+		// get percent
+		long clip_default_length = qRound(c->getLength() * c->speed);
+		double clip_pc = clip_default_length / duration->value();
+		if (i == 0) {
+			pc_val = clip_pc;
+		} else if (!qIsNaN(pc_val) && !qFuzzyCompare(clip_pc, pc_val)) {
+			pc_val = qSNaN();
+		}
+
+		// get frame rate
+		if (frame_rate->isEnabled() && c->track < 0) {
+			double clip_fr = c->getMediaFrameRate() * clip_pc;
+			if (got_fr) {
+				if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
+					fr_val = qSNaN();
+				}
+			} else {
+				fr_val = clip_fr;
+				got_fr = true;
+			}
+		}
+	}
+
+	frame_rate->set_value(fr_val, false);
+	percent->set_value(pc_val, false);
 }
 
 void SpeedDialog::frame_rate_update() {
-	double fr = (frame_rate->value());
+	/*double fr = (frame_rate->value());
 	double pc = (fr / default_frame_rate);
 	percent->set_value(pc, false);
-	duration->set_value(default_length / pc, false);
+	duration->set_value(default_length / pc, false);*/
+
+	double old_pc_val = qSNaN();
+	bool got_pc_val = false;
+	double pc_val = qSNaN();
+	bool got_len_val = false;
+	long len_val = -1;
+
+	// analyze video clips
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+
+		// check if all selected clips are currently the same speed
+		if (i == 0) {
+			old_pc_val = c->speed;
+		} else if (!qIsNaN(old_pc_val) && !qFuzzyCompare(c->speed, old_pc_val)) {
+			old_pc_val = qSNaN();
+		}
+
+		if (c->track < 0) {
+			// what would the new speed be based on this frame rate
+			double new_clip_speed = frame_rate->value() / c->getMediaFrameRate();
+			if (!got_pc_val) {
+				pc_val = new_clip_speed;
+				got_pc_val = true;
+			} else if (!qIsNaN(pc_val) && !qFuzzyCompare(pc_val, new_clip_speed)) {
+				pc_val = qSNaN();
+			}
+
+			// what would be the new length based on this speed
+			long new_clip_len = (c->getLength() * c->speed) / new_clip_speed;
+			if (!got_len_val) {
+				len_val = new_clip_len;
+				got_len_val = true;
+			} else if (len_val > -1 && new_clip_len != len_val) {
+				len_val = -1;
+			}
+		}
+	}
+
+	// analyze audio clips
+	for (int i=0;i<clips.size();i++) {
+		Clip* c = clips.at(i);
+
+		if (c->track >= 0) {
+			long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ? c->getLength() : ((c->getLength() * c->speed) / pc_val);
+			if (len_val > -1 && new_clip_len != len_val) {
+				len_val = -1;
+				break;
+			}
+		}
+	}
+
+	percent->set_value(pc_val, false);
+	duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
+}
+
+void set_speed(ComboAction* ca, Clip* c, double speed) {
+	long proposed_out = c->timeline_out;
+	double multiplier = (c->speed / speed);
+	proposed_out = c->timeline_in + (c->getLength() * multiplier);
+	ca->append(new SetSpeedAction(c, speed));
+	if (proposed_out > c->timeline_out) {
+		for (int i=0;i<c->sequence->clips.size();i++) {
+			Clip* compare = c->sequence->clips.at(i);
+			if (compare != NULL
+					&& compare->track == c->track
+					&& compare->timeline_in >= c->timeline_out && compare->timeline_in < proposed_out) {
+				proposed_out = compare->timeline_in;
+			}
+		}
+	}
+	ca->append(new MoveClipAction(c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track));
 }
 
 void SpeedDialog::accept() {
-	// TODO make undoable lmao
+	ComboAction* ca = new ComboAction();
+
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
-		close_clip(c);
-		long proposed_out = c->timeline_out;
-		if (!qIsNaN(percent->value())) {
-			double multiplier = (c->speed / percent->value());
-			proposed_out = c->timeline_in + (c->getLength() * multiplier);
-			c->clip_in *= multiplier;
-			c->speed = percent->value();
+		if (c->open) close_clip(c);
+
+		if (c->track >= 0) {
+			if (maintain_pitch->checkState() != Qt::PartiallyChecked) {
+				ca->append(new SetBool(&c->maintain_audio_pitch, maintain_pitch->isChecked()));
+			}
 		}
-		if (proposed_out > c->timeline_out) {
-			for (int i=0;i<c->sequence->clips.size();i++) {
-				Clip* compare = c->sequence->clips.at(i);
-				if (compare != NULL
-						&& compare->track == c->track
-						&& compare->timeline_in >= c->timeline_out && compare->timeline_in < proposed_out) {
-					proposed_out = compare->timeline_in;
+
+		if (reverse->checkState() != Qt::PartiallyChecked) {
+			ca->append(new SetBool(&c->reverse, reverse->isChecked()));
+		}
+	}
+
+	if (!qIsNaN(percent->value())) {
+		// simply set speed
+		for (int i=0;i<clips.size();i++) {
+			Clip* c = clips.at(i);
+			set_speed(ca, c, percent->value());
+		}
+	} else if (!qIsNaN(frame_rate->value())) {
+		bool can_change_all = true;
+		double cached_speed;
+		double cached_fr = qSNaN();
+
+		// see if we can use the frame rate to change all the speeds
+		for (int i=0;i<clips.size();i++) {
+			Clip* c = clips.at(i);
+			if (i == 0) {
+				cached_speed = c->speed;
+			} else if (!qFuzzyCompare(cached_speed, c->speed)) {
+				can_change_all = false;
+			}
+			if (c->track < 0) {
+				if (qIsNaN(cached_fr)) {
+					cached_fr = c->getMediaFrameRate();
+				} else if (!qFuzzyCompare(cached_fr, c->getMediaFrameRate())) {
+					can_change_all = false;
+					break;
 				}
 			}
 		}
-		c->timeline_out = proposed_out;
 
-		c->recalculateMaxLength();
-
-		c->maintain_audio_pitch = maintain_pitch->isChecked();
+		// make changes
+		for (int i=0;i<clips.size();i++) {
+			Clip* c = clips.at(i);
+			if (c->track < 0) {
+				set_speed(ca, c, frame_rate->value() / c->getMediaFrameRate());
+			} else if (can_change_all) {
+				set_speed(ca, c, frame_rate->value() / cached_fr);
+			}
+		}
+	} else if (!qIsNaN(duration->value())) {
+		// simply set duration
+		for (int i=0;i<clips.size();i++) {
+			Clip* c = clips.at(i);
+			set_speed(ca, c, (c->getLength() * c->speed) / duration->value());
+		}
 	}
+
+	undo_stack.push(ca);
+
 	panel_timeline->redraw_all_clips(true);
 	QDialog::accept();
 }

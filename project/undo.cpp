@@ -1458,3 +1458,33 @@ void DeleteMarkerAction::redo() {
 	}
 	sorted = true;
 }
+
+SetSpeedAction::SetSpeedAction(Clip* c, double speed) :
+	clip(c),
+	old_speed(c->speed),
+	new_speed(speed)
+{}
+
+void SetSpeedAction::undo() {
+	clip->speed = old_speed;
+	clip->recalculateMaxLength();
+}
+
+void SetSpeedAction::redo() {
+	clip->speed = new_speed;
+	clip->recalculateMaxLength();
+}
+
+SetBool::SetBool(bool* b, bool setting) :
+	boolean(b),
+	old_setting(*b),
+	new_setting(setting)
+{}
+
+void SetBool::undo() {
+	*boolean = old_setting;
+}
+
+void SetBool::redo() {
+	*boolean = new_setting;
+}

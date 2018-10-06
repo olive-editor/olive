@@ -502,4 +502,26 @@ private:
 	bool sorted;
 };
 
+class SetSpeedAction : public QUndoCommand {
+public:
+	SetSpeedAction(Clip* c, double speed);
+	void undo();
+	void redo();
+private:
+	Clip* clip;
+	double old_speed;
+	double new_speed;
+};
+
+class SetBool : public QUndoCommand {
+public:
+	SetBool(bool* b, bool setting);
+	void undo();
+	void redo();
+private:
+	bool* boolean;
+	bool old_setting;
+	bool new_setting;
+};
+
 #endif // UNDO_H

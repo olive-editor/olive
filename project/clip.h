@@ -72,6 +72,7 @@ struct Clip
 	int getWidth();
 	int getHeight();
 	double speed;
+	bool reverse;
 	long calculated_length;
 
 	// other variables (should be "duplicated" in copy())
@@ -102,8 +103,7 @@ struct Clip
     ClipCache cache_A;
     ClipCache cache_B;
     QMutex lock;
-    QMutex open_lock;
-	int last_cached_frame;
+	QMutex open_lock;
 
 	// converters/filters
 	AVFilterGraph* filter_graph;

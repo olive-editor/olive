@@ -110,6 +110,9 @@ bool get_clip_frame(Clip* c, long playhead) {
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
 		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
+
+		if (c->reverse && !ms->infinite_length) sequence_clip_time = c->getMaximumLength() - sequence_clip_time - 1;
+
 		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, c->getMediaFrameRate()*c->speed);
 
 		AVFrame* current_frame = NULL;
@@ -162,7 +165,8 @@ bool get_clip_frame(Clip* c, long playhead) {
 				}
 			} else {
 				// this is technically bad, unless we just seeked
-				c->cache_A.unread = c->cache_B.unread = false;
+				c->cache_A.unread = false;
+				c->cache_B.unread = false;
 				cache_needs_reset = true;
 			}
 
@@ -171,14 +175,23 @@ bool get_clip_frame(Clip* c, long playhead) {
 					current_frame = cache[clip_time - cache_offset];
 				}
 
-				// determine whether we should s1tart filling the other cache
+				// determine whether we should start filling the other cache
 				if (!using_cache_A || !using_cache_B) {
 					if (c->lock.tryLock()) {
+						long cache_time;
+						if (cache_needs_reset) {
+							cache_time = (c->reverse) ? qMax(clip_time - c->cache_size, 0L) : qMax(clip_time, 0L);
+						} else if (c->reverse) {
+							cache_time = (cache_offset - c->cache_size);
+						} else {
+							cache_time = (cache_offset + c->cache_size);
+						}
+
 						bool write_A = (!using_cache_A && !c->cache_A.unread);
 						bool write_B = (!using_cache_B && !c->cache_B.unread);
 						if (write_A || write_B) {
 							// if we have no cache and need to seek, start us at the current playhead, otherwise start at the end of the current cache
-							cache_clip(c, (cache_needs_reset) ? qMax(clip_time, 0L) : cache_offset + c->cache_size, write_A, write_B, cache_needs_reset, NULL);
+							cache_clip(c, cache_time, write_A, write_B, (cache_needs_reset || c->reverse), NULL);
 						}
 						c->lock.unlock();
 					}

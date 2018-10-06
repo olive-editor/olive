@@ -34,7 +34,8 @@ Clip::Clip(Sequence* s) :
 	texture(NULL),
 	fbo(NULL),
 	autoscale(config.autoscale_by_default),
-	maintain_audio_pitch(false)
+	maintain_audio_pitch(false),
+	reverse(false)
 {
     reset();
 }
@@ -57,6 +58,8 @@ Clip* Clip::copy(Sequence* s) {
     copy->media_stream = media_stream;
     copy->autoscale = autoscale;
 	copy->speed = speed;
+	copy->maintain_audio_pitch = maintain_audio_pitch;
+	copy->reverse = reverse;
 
     for (int i=0;i<effects.size();i++) {
         copy->effects.append(effects.at(i)->copy(copy));
@@ -183,7 +186,8 @@ void Clip::recalculateMaxLength() {
 	case MEDIA_TYPE_FOOTAGE:
 	{
 		Media* m = static_cast<Media*>(media);
-		if (m->get_stream_from_file_index(track < 0, media_stream)->infinite_length) {
+		MediaStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
+		if (ms != NULL && ms->infinite_length) {
 			calculated_length = LONG_MAX;
 		} else {
 			calculated_length = m->get_length_in_frames(fr);
@@ -195,9 +199,12 @@ void Clip::recalculateMaxLength() {
 		Sequence* s = static_cast<Sequence*>(media);
 		calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
 	}
-	case MEDIA_TYPE_SOLID:
-	case MEDIA_TYPE_TONE:
+		break;
+	/*case MEDIA_TYPE_SOLID:
+	case MEDIA_TYPE_TONE:*/
+	default:
 		calculated_length = LONG_MAX;
+		break;
 	}
 }
 
