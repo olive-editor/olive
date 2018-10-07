@@ -228,7 +228,11 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 double playhead_to_seconds(Clip* c, long playhead) {
 	// returns time in seconds
-	return ((qMax(0L, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate)*c->speed;
+    if (c->reverse) {
+        return ((c->getMaximumLength() - (qMax(0L, playhead - c->timeline_in) + c->clip_in))/c->sequence->frame_rate)*c->speed;
+    } else {
+        return ((qMax(0L, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate)*c->speed;
+    }
 }
 
 long seconds_to_clip_frame(Clip* c, double seconds) {

@@ -111,17 +111,13 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                             if (!c->audio_just_reset) {
                                 // get previous frame?
                                 avcodec_flush_buffers(c->codecCtx);
-                                qDebug() << "seeking to:" << (c->frame->pts - 1);
-                                if (av_seek_frame(c->formatCtx, c->stream->index, c->frame->pts - 1, AVSEEK_FLAG_BACKWARD) < 0) {
-                                    qDebug() << "SEEK FAILED";
-                                }
+                                av_seek_frame(c->formatCtx, c->stream->index, c->frame->pts - c->frame->pkt_duration, AVSEEK_FLAG_BACKWARD);
                             }
 
                             ret = retrieve_next_frame(c, c->frame);
 
                             // reverse it
                             int frame_bytes = av_samples_get_buffer_size(NULL, c->frame->channels, c->frame->nb_samples, static_cast<AVSampleFormat>(c->frame->format), 1);
-                            qDebug() << "frame bytes:" << frame_bytes;
                             int half_frame_bytes = frame_bytes >> 1;
                             int sample_size = c->frame->channels*2;
                             char* temp_chars = new char[sample_size];
@@ -179,13 +175,15 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 				nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
 
-				if (c->audio_just_reset) {
-					// get precise sample offset for the elected clip_in from this audio frame
-					double target_sts = playhead_to_seconds(c, c->audio_target_frame);
-					double frame_sts = (c->frame->pts * av_q2d(c->stream->time_base));
-					int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);
-					c->frame_sample_index = (nb_samples == 0) ? 0 : av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
-					c->audio_just_reset = false;
+                if (c->audio_just_reset) {
+                    // get precise sample offset for the elected clip_in from this audio frame
+                    double timebase = av_q2d(c->stream->time_base);
+                    double target_sts = playhead_to_seconds(c, c->audio_target_frame);
+                    double frame_sts = (c->frame->pts * timebase);
+                    int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);
+                    c->frame_sample_index = (nb_samples == 0) ? 0 : av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(c->sequence->audio_layout), nb_samples, AV_SAMPLE_FMT_S16, 1);
+                    if (c->reverse) c->frame_sample_index = nb_bytes - c->frame_sample_index;
+                    c->audio_just_reset = false;
 				}
 
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
@@ -365,7 +363,7 @@ void reset_cache(Clip* c, long target_frame) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
                 int64_t timestamp = qRound(playhead_to_seconds(c, target_frame) / timebase); // TODO qRound here might lead to clicking? or might fix it... who knows
                 if (c->reverse) {
-                    timestamp = c->stream->duration - timestamp - 1;
+                    timestamp--;
                 }
                 av_seek_frame(c->formatCtx, ms->file_index, timestamp, AVSEEK_FLAG_BACKWARD);
 				c->audio_target_frame = target_frame;
