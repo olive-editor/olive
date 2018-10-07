@@ -64,11 +64,16 @@ private:
     double predicted_new_frame_rate;
     int predicted_audio_freq;
 	int predicted_audio_layout;
+
+	// used for "right click ripple"
+	long rc_ripple_min;
+	long rc_ripple_max;
 signals:
 
 public slots:
 
 private slots:
+	void right_click_ripple();
     void show_context_menu(const QPoint& pos);
     void toggle_autoscale();
 };

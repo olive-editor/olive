@@ -2,24 +2,26 @@
 
 #include "project/undo.h"
 #include "panels/project.h"
+#include "mainwindow.h"
 
 #include <QUndoCommand>
 #include <QWheelEvent>
 
+
 class ComboBoxExCommand : public QUndoCommand {
 public:
     ComboBoxExCommand(ComboBoxEx* obj, int old_index, int new_index) :
-		combobox(obj), old_val(old_index), new_val(new_index), done(true), old_project_changed(project_changed) {}
+		combobox(obj), old_val(old_index), new_val(new_index), done(true), old_project_changed(mainWindow->isWindowModified()) {}
     void undo() {
         combobox->setCurrentIndex(old_val);
         done = false;
-		project_changed = old_project_changed;
+		mainWindow->setWindowModified(old_project_changed);
     }
     void redo() {
         if (!done) {
             combobox->setCurrentIndex(new_val);
         }
-		project_changed = true;
+		mainWindow->setWindowModified(true);
     }
 private:
     ComboBoxEx* combobox;

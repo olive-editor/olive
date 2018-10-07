@@ -333,7 +333,7 @@ void MainWindow::on_action_Paste_triggered()
 }
 
 void MainWindow::autorecover_interval() {
-    if (project_changed) {
+	if (isWindowModified()) {
         panel_project->save_project(true);
         qDebug() << "[INFO] Auto-recovery project saved";
     }
@@ -362,7 +362,7 @@ bool MainWindow::save_project() {
 }
 
 bool MainWindow::can_close_project() {
-    if (project_changed) {
+	if (isWindowModified()) {
         QMessageBox* m = new QMessageBox(
                     QMessageBox::Question,
                     "Unsaved Project",

@@ -29,6 +29,7 @@
 #include <QtMath>
 #include <QScrollBar>
 #include <QMimeData>
+#include <QToolTip>
 
 #define MAX_TEXT_WIDTH 20
 
@@ -43,7 +44,42 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
 }
 
+void TimelineWidget::right_click_ripple() {
+	bool can_ripple = true;
+
+	// validate the ripple
+	for (int i=0;i<sequence->clips.size();i++) {
+		Clip* c = sequence->clips.at(i);
+		if (c->timeline_in > rc_ripple_min) {
+			for (int j=0;j<sequence->clips.size();j++) {
+				Clip* cc = sequence->clips.at(j);
+				if (cc->track == c->track) {
+					if (cc->timeline_out == c->timeline_in) {
+						can_ripple = false;
+						break;
+					} else if (cc->timeline_out < c->timeline_in) {
+						long validator = (c->timeline_in - (rc_ripple_max - rc_ripple_min)) - cc->timeline_out;
+						if (validator < 0) {
+							rc_ripple_min = cc->timeline_out;
+							rc_ripple_max = c->timeline_in;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (can_ripple) {
+		undo_stack.push(new RippleCommand(sequence, rc_ripple_min, rc_ripple_min - rc_ripple_max));
+		panel_timeline->redraw_all_clips(true);
+	}
+}
+
 void TimelineWidget::show_context_menu(const QPoint& pos) {
+	// hack because sometimes right clicking doesn't trigger mouseReleaseEvent
+	panel_timeline->rect_select_init = false;
+	panel_timeline->rect_select_proc = false;
+
     QMenu menu(this);
 
 	QAction* undoAction = menu.addAction("&Undo");
@@ -55,6 +91,38 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 	menu.addSeparator();
 
 	if (sequence->selections.size() == 0) {
+		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
+		panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
+
+		bool can_ripple_delete = true;
+		bool at_end_of_sequence = true;
+		rc_ripple_min = LONG_MIN;
+		rc_ripple_max = LONG_MAX;
+
+		for (int i=0;i<sequence->clips.size();i++) {
+			Clip* c = sequence->clips.at(i);
+			if (c != NULL) {
+				if (c->timeline_in > panel_timeline->cursor_frame || c->timeline_out > panel_timeline->cursor_frame) {
+					at_end_of_sequence = false;
+				}
+				if (c->track == panel_timeline->cursor_track) {
+					if (c->timeline_in <= panel_timeline->cursor_frame && c->timeline_out >= panel_timeline->cursor_frame) {
+						can_ripple_delete = false;
+						break;
+					} else if (c->timeline_out < panel_timeline->cursor_frame) {
+						rc_ripple_min = qMax(rc_ripple_min, c->timeline_out);
+					} else if (c->timeline_in > panel_timeline->cursor_frame) {
+						rc_ripple_max = qMin(rc_ripple_max, c->timeline_in);
+					}
+				}
+			}
+		}
+
+		if (can_ripple_delete && !at_end_of_sequence) {
+			QAction* ripple_delete_action = menu.addAction("&Ripple Delete");
+			connect(ripple_delete_action, SIGNAL(triggered(bool)), this, SLOT(right_click_ripple()));
+		}
+
 		menu.addAction("Sequence settings coming soon...");
 	} else {
 		QAction* cutAction = menu.addAction("C&ut");
@@ -1588,6 +1656,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 					}
                 }
             }
+			if (cursor_contains_clip) {
+				QToolTip::showText(mapToGlobal(event->pos()), "HOVER OVER CLIP");
+			}
             if (found) {
                 setCursor(Qt::SizeHorCursor);
             } else {
@@ -1835,7 +1906,13 @@ void TimelineWidget::redraw_clips() {
                         int underline_width = qMin(text_rect.width() - 1, clip_painter.fontMetrics().width(clip->name));
                         clip_painter.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
                     }
-                    clip_painter.drawText(text_rect, 0, clip->name, &text_rect);
+					QString name = clip->name;
+					if (clip->speed != 1.0 || clip->reverse) {
+						name += " (";
+						if (clip->reverse) name += "-";
+						name += QString::number(clip->speed*100) + "%)";
+					}
+					clip_painter.drawText(text_rect, 0, name, &text_rect);
                 }
 
                 // bottom right gray

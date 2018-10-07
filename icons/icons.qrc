@@ -40,5 +40,6 @@
         <file>olive-splash.png</file>
         <file>add-button.png</file>
         <file>add-button-disabled.png</file>
+        <file>clock.png</file>
     </qresource>
 </RCC>

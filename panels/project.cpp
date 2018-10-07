@@ -39,7 +39,6 @@ extern "C" {
 #define MAXIMUM_RECENT_PROJECTS 10
 
 QString autorecovery_filename;
-bool project_changed = false;
 QString project_url = "";
 QStringList recent_projects;
 QString recent_proj_file;
@@ -594,7 +593,7 @@ void Project::new_project() {
 	// clear existing project
     set_sequence(NULL);
     clear();
-    project_changed = false;
+	mainWindow->setWindowModified(false);
 }
 
 QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
@@ -978,7 +977,7 @@ void Project::load_project() {
         if (open_seq != NULL) set_sequence(open_seq);
 
         panel_timeline->redraw_all_clips(false);
-        project_changed = false;
+		mainWindow->setWindowModified(false);
     } else {
         new_project();
     }
@@ -1179,7 +1178,7 @@ void Project::save_project(bool autorecovery) {
 
     if (!autorecovery) {
         add_recent_project(project_url);
-        project_changed = false;
+		mainWindow->setWindowModified(false);
     }
 }
 

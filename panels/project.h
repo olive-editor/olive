@@ -24,7 +24,6 @@ class Project;
 }
 
 extern QString autorecovery_filename;
-extern bool project_changed;
 extern QString project_url;
 extern QStringList recent_projects;
 extern QString recent_proj_file;

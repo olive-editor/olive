@@ -453,7 +453,8 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
     label = new QLabel(name);
 	ui->addWidget(label, row, 0);
 
-    keyframe_enable = new QPushButton();
+	keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "");
+	keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     keyframe_enable->setCheckable(true);
 	keyframe_enable->setToolTip("Enable Keyframes");
 	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
