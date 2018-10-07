@@ -1804,14 +1804,14 @@ void TimelineWidget::redraw_clips() {
 								int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 
 								if (clip->reverse) {
-									waveform_index = ms->audio_preview.size() - waveform_index;
+                                    waveform_index = ms->audio_preview.size() - waveform_index - (ms->audio_channels * 2);
 								}
 
 								int rectified_height = 0;
 
 								for (int j=0;j<ms->audio_channels;j++) {
-									int mid = clip_rect.top()+channel_height*j+(channel_height/2);
-									int offset = waveform_index+(j*2);
+                                    int mid = clip_rect.top()+channel_height*j+(channel_height/2);
+                                    int offset = waveform_index+(j*2);
 
 									if ((offset + 1) < ms->audio_preview.size()) {
 										qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);

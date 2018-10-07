@@ -117,22 +117,44 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                             ret = retrieve_next_frame(c, c->frame);
 
                             // reverse it
-                            int frame_bytes = av_samples_get_buffer_size(NULL, c->frame->channels, c->frame->nb_samples, static_cast<AVSampleFormat>(c->frame->format), 1);
-                            int half_frame_bytes = frame_bytes >> 1;
-                            int sample_size = c->frame->channels*2;
-                            char* temp_chars = new char[sample_size];
-                            for (int i=0;i<half_frame_bytes;i+=sample_size) {
-                                for (int j=0;j<sample_size;j++) {
-                                    temp_chars[j] = c->frame->data[0][i+j];
+                            AVSampleFormat sample_fmt = static_cast<AVSampleFormat>(c->frame->format);
+                            if (av_sample_fmt_is_planar(sample_fmt)) {
+                                int sample_size = av_get_bytes_per_sample(sample_fmt);
+                                char* temp_chars = new char[sample_size];
+                                for (int j=0;j<c->frame->channels;j++) {
+                                    int frame_bytes = c->frame->linesize[0];
+                                    int half_frame_bytes = frame_bytes >> 1;
+                                    for (int i=0;i<half_frame_bytes;i+=sample_size) {
+                                        for (int k=0;k<sample_size;k++) {
+                                            temp_chars[k] = c->frame->data[j][i+k];
+                                        }
+                                        for (int k=0;k<sample_size;k++) {
+                                            c->frame->data[j][i+k] = c->frame->data[j][frame_bytes-i-sample_size+k];
+                                        }
+                                        for (int k=0;k<sample_size;k++) {
+                                            c->frame->data[j][frame_bytes-i-sample_size+k] = temp_chars[k];
+                                        }
+                                    }
                                 }
-                                for (int j=0;j<sample_size;j++) {
-                                    c->frame->data[0][i+j] = c->frame->data[0][frame_bytes-i-sample_size+j];
+                                delete [] temp_chars;
+                            } else {
+                                int frame_bytes = av_samples_get_buffer_size(NULL, c->frame->channels, c->frame->nb_samples, sample_fmt, 1);
+                                int half_frame_bytes = frame_bytes >> 1;
+                                int sample_size = c->frame->channels*av_get_bytes_per_sample(sample_fmt);
+                                char* temp_chars = new char[sample_size];
+                                for (int i=0;i<half_frame_bytes;i+=sample_size) {
+                                    for (int j=0;j<sample_size;j++) {
+                                        temp_chars[j] = c->frame->data[0][i+j];
+                                    }
+                                    for (int j=0;j<sample_size;j++) {
+                                        c->frame->data[0][i+j] = c->frame->data[0][frame_bytes-i-sample_size+j];
+                                    }
+                                    for (int j=0;j<sample_size;j++) {
+                                        c->frame->data[0][frame_bytes-i-sample_size+j] = temp_chars[j];
+                                    }
                                 }
-                                for (int j=0;j<sample_size;j++) {
-                                    c->frame->data[0][frame_bytes-i-sample_size+j] = temp_chars[j];
-                                }
+                                delete [] temp_chars;
                             }
-                            delete [] temp_chars;
                         } else {
                             ret = retrieve_next_frame(c, c->frame);
                         }
