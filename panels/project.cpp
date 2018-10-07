@@ -788,6 +788,10 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             stream_id = attr.value().toInt();
 										} else if (attr.name() == "speed") {
 											c->speed = attr.value().toDouble();
+                                        } else if (attr.name() == "maintainpitch") {
+                                            c->maintain_audio_pitch = (attr.value() == "1");
+                                        } else if (attr.name() == "reverse") {
+                                            c->reverse = (attr.value() == "1");
                                         } else if (attr.name() == "sequence") {
                                             c->media_type = MEDIA_TYPE_SEQUENCE;
 
@@ -1086,8 +1090,9 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 stream.writeAttribute("b", QString::number(c->color_b));
 
                                 stream.writeAttribute("autoscale", QString::number(c->autoscale));
-
 								stream.writeAttribute("speed", QString::number(c->speed, 'f', 10));
+                                stream.writeAttribute("maintainpitch", QString::number(c->maintain_audio_pitch));
+                                stream.writeAttribute("reverse", QString::number(c->reverse));
 
                                 stream.writeAttribute("type", QString::number(c->media_type));
                                 switch (c->media_type) {

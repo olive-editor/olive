@@ -98,7 +98,48 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 					int ret;
 
 					while ((ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
-						ret = retrieve_next_frame(c, c->frame);
+                        if (c->reverse) {
+                            /* TODO i have a feeling that here we're going to have to:
+                             * - seek to previous frame
+                             * - read it
+                             * - convert it to 16-bit PCM LE
+                             * - reverse it
+                             *
+                             * ...good luck :|
+                            */
+
+                            if (!c->audio_just_reset) {
+                                // get previous frame?
+                                avcodec_flush_buffers(c->codecCtx);
+                                qDebug() << "seeking to:" << (c->frame->pts - 1);
+                                if (av_seek_frame(c->formatCtx, c->stream->index, c->frame->pts - 1, AVSEEK_FLAG_BACKWARD) < 0) {
+                                    qDebug() << "SEEK FAILED";
+                                }
+                            }
+
+                            ret = retrieve_next_frame(c, c->frame);
+
+                            // reverse it
+                            int frame_bytes = av_samples_get_buffer_size(NULL, c->frame->channels, c->frame->nb_samples, static_cast<AVSampleFormat>(c->frame->format), 1);
+                            qDebug() << "frame bytes:" << frame_bytes;
+                            int half_frame_bytes = frame_bytes >> 1;
+                            int sample_size = c->frame->channels*2;
+                            char* temp_chars = new char[sample_size];
+                            for (int i=0;i<half_frame_bytes;i+=sample_size) {
+                                for (int j=0;j<sample_size;j++) {
+                                    temp_chars[j] = c->frame->data[0][i+j];
+                                }
+                                for (int j=0;j<sample_size;j++) {
+                                    c->frame->data[0][i+j] = c->frame->data[0][frame_bytes-i-sample_size+j];
+                                }
+                                for (int j=0;j<sample_size;j++) {
+                                    c->frame->data[0][frame_bytes-i-sample_size+j] = temp_chars[j];
+                                }
+                            }
+                            delete [] temp_chars;
+                        } else {
+                            ret = retrieve_next_frame(c, c->frame);
+                        }
 
 						if (ret >= 0) {
 							if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
@@ -107,7 +148,8 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 							}
 						} else {
 							if (ret == AVERROR_EOF) {
-								c->reached_end = true;
+                                // TODO likewise, I'm not sure if this if statement breaks anything (see equivalent section in cache_video_worker)
+                                if (c->reverse) c->reached_end = true;
 							} else {
 								qDebug() << "[WARNING] Raw audio frame data could not be retrieved." << ret;
 								c->reached_end = true;
@@ -321,7 +363,11 @@ void reset_cache(Clip* c, long target_frame) {
 				av_frame_free(&temp);
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
-				av_seek_frame(c->formatCtx, ms->file_index, playhead_to_seconds(c, target_frame) / timebase, AVSEEK_FLAG_BACKWARD);
+                int64_t timestamp = qRound(playhead_to_seconds(c, target_frame) / timebase); // TODO qRound here might lead to clicking? or might fix it... who knows
+                if (c->reverse) {
+                    timestamp = c->stream->duration - timestamp - 1;
+                }
+                av_seek_frame(c->formatCtx, ms->file_index, timestamp, AVSEEK_FLAG_BACKWARD);
 				c->audio_target_frame = target_frame;
 				c->frame_sample_index = -1;
 				c->audio_just_reset = true;

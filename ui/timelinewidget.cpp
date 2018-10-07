@@ -1656,9 +1656,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 					}
                 }
             }
-			if (cursor_contains_clip) {
+            /*if (cursor_contains_clip) {
 				QToolTip::showText(mapToGlobal(event->pos()), "HOVER OVER CLIP");
-			}
+            }*/
             if (found) {
                 setCursor(Qt::SizeHorCursor);
             } else {
