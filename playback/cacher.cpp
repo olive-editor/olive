@@ -69,7 +69,7 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 
 void cache_audio_worker(Clip* c, Clip* nest) {
     int written = 0;
-    int max_write = 16384;
+	int max_write = 16384; // TODO totally arbitrary, should probably remove
 
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
@@ -78,7 +78,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
         timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
 	}
 
-	while (written < max_write) {
+	while (written < max_write) { // TODO max_write is totally arbitrary, should probably just be an infinite loop or something
 		// gets one frame worth of audio and sends it to the audio buffer
 		AVFrame* frame;
 		int nb_bytes = INT_MAX;
@@ -110,19 +110,22 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
                             if (!c->audio_just_reset) {
                                 // get previous frame?
-                                avcodec_flush_buffers(c->codecCtx);
-                                av_seek_frame(c->formatCtx, c->stream->index, c->frame->pts - c->frame->pkt_duration, AVSEEK_FLAG_BACKWARD);
+								avcodec_flush_buffers(c->codecCtx);
+								av_seek_frame(c->formatCtx, c->stream->index, c->frame->pts - c->frame->pkt_duration - c->frame->pkt_duration, AVSEEK_FLAG_BACKWARD);
                             }
 
-                            ret = retrieve_next_frame(c, c->frame);
+							ret = retrieve_next_frame(c, c->frame);
+							qDebug() << c->frame->nb_samples << c->frame->linesize[0];
+							ret = retrieve_next_frame(c, c->frame);
+							qDebug() << c->frame->nb_samples << c->frame->linesize[0];
 
                             // reverse it
                             AVSampleFormat sample_fmt = static_cast<AVSampleFormat>(c->frame->format);
                             if (av_sample_fmt_is_planar(sample_fmt)) {
-                                int sample_size = av_get_bytes_per_sample(sample_fmt);
+								int sample_size = av_get_bytes_per_sample(sample_fmt);
                                 char* temp_chars = new char[sample_size];
                                 for (int j=0;j<c->frame->channels;j++) {
-                                    int frame_bytes = c->frame->linesize[0];
+									int frame_bytes = c->frame->linesize[0]/2;
                                     int half_frame_bytes = frame_bytes >> 1;
                                     for (int i=0;i<half_frame_bytes;i+=sample_size) {
                                         for (int k=0;k<sample_size;k++) {
@@ -136,7 +139,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                                         }
                                     }
                                 }
-                                delete [] temp_chars;
+								delete [] temp_chars;
                             } else {
                                 int frame_bytes = av_samples_get_buffer_size(NULL, c->frame->channels, c->frame->nb_samples, sample_fmt, 1);
                                 int half_frame_bytes = frame_bytes >> 1;
