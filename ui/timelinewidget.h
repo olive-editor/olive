@@ -1,6 +1,7 @@
 #ifndef TIMELINEWIDGET_H
 #define TIMELINEWIDGET_H
 
+#include <QTimer>
 #include <QWidget>
 #include "timelinetools.h"
 
@@ -33,6 +34,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void leaveEvent(QEvent *event);
 
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dragLeaveEvent(QDragLeaveEvent *event);
@@ -63,6 +65,9 @@ private:
 	// used for "right click ripple"
 	long rc_ripple_min;
 	long rc_ripple_max;
+
+    QTimer tooltip_timer;
+    int tooltip_clip;
 signals:
 
 public slots:
@@ -71,6 +76,7 @@ private slots:
 	void right_click_ripple();
     void show_context_menu(const QPoint& pos);
     void toggle_autoscale();
+    void tooltip_timer_timeout();
 };
 
 #endif // TIMELINEWIDGET_H

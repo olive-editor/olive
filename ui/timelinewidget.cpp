@@ -9,6 +9,7 @@
 #include "io/media.h"
 #include "ui/sourcetable.h"
 #include "panels/effectcontrols.h"
+#include "panels/viewer.h"
 #include "project/undo.h"
 #include "ui_timeline.h"
 #include "mainwindow.h"
@@ -42,6 +43,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
+
+    tooltip_timer.setInterval(500);
+    connect(&tooltip_timer, SIGNAL(timeout()), this, SLOT(tooltip_timer_timeout()));
 }
 
 void TimelineWidget::right_click_ripple() {
@@ -159,6 +163,19 @@ void TimelineWidget::toggle_autoscale() {
         undo_stack.push(action);
     } else {
         delete action;
+    }
+}
+
+void TimelineWidget::tooltip_timer_timeout() {
+    if (sequence != NULL) {
+        Clip* c = sequence->clips.at(tooltip_clip);
+        if (c != NULL) {
+            QToolTip::showText(QCursor::pos(),
+                        c->name
+                               + "\nStart: " + frame_to_timecode(c->timeline_in, config.timecode_view, sequence->frame_rate)
+                               + "\nEnd: " + frame_to_timecode(c->timeline_out, config.timecode_view, sequence->frame_rate)
+                               + "\nDuration: " + frame_to_timecode(c->getLength(), config.timecode_view, sequence->frame_rate));
+        }
     }
 }
 
@@ -1215,9 +1232,12 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
             }
         }
     }
+
+    QToolTip::showText(mapToGlobal(mouse_pos), ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate));
 }
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
+    tooltip_timer.stop();
     if (sequence != NULL) {
         bool alt = (event->modifiers() & Qt::AltModifier);
 
@@ -1596,6 +1616,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                             panel_timeline->cursor_frame <= c->timeline_out) {
                         cursor_contains_clip = true;
 
+                        tooltip_timer.start();
+                        tooltip_clip = i;
+
 						if (c->opening_transition != NULL && panel_timeline->cursor_frame <= c->timeline_in + c->opening_transition->length) {
 							panel_timeline->transition_select = TA_OPENING_TRANSITION;
 						} else if (c->closing_transition != NULL && panel_timeline->cursor_frame >= c->timeline_out - c->closing_transition->length) {
@@ -1693,6 +1716,10 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             }
         }
     }
+}
+
+void TimelineWidget::leaveEvent(QEvent *event) {
+    tooltip_timer.stop();
 }
 
 int color_brightness(int r, int g, int b) {
