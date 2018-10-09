@@ -25,12 +25,9 @@ public:
 
 	bool bottom_align;
 
-    void redraw_clips();
-
 	QScrollArea* container;
 protected:
-    void paintEvent(QPaintEvent*);
-    void resizeEvent(QResizeEvent*);
+	void paintEvent(QPaintEvent*);
 
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -55,9 +52,7 @@ private:
     int track_target;
 
     QVector<Clip*> pre_clips;
-    QVector<Clip*> post_clips;
-
-    QPixmap clip_pixmap;
+	QVector<Clip*> post_clips;
 
     int predicted_video_width;
     int predicted_video_height;

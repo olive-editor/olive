@@ -392,6 +392,6 @@ void SpeedDialog::accept() {
 
 	undo_stack.push(ca);
 
-	panel_timeline->redraw_all_clips(true);
+	panel_timeline->repaint_timeline(true);
 	QDialog::accept();
 }

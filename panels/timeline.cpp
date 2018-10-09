@@ -59,7 +59,8 @@ Timeline::Timeline(QWidget *parent) :
     ui(new Ui::Timeline),
 	last_frame(0),
 	creating(false),
-	queue_audio_reset(false)
+	queue_audio_reset(false),
+	scroll(0)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
@@ -80,16 +81,16 @@ Timeline::Timeline(QWidget *parent) :
 
 	ui->toolArrowButton->click();
 
-	int timeline_area_height = (ui->timeline_area->height()>>1);
+	/*int timeline_area_height = (ui->timeline_area->height()>>1);
 	ui->videoScrollArea->resize(ui->videoScrollArea->width(), timeline_area_height);
-	ui->audioScrollArea->resize(ui->audioScrollArea->width(), timeline_area_height);
-    ui->headerScrollArea->setMaximumHeight(ui->headers->minimumHeight());
-	connect(ui->audioScrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->videoScrollArea->horizontalScrollBar(), SLOT(setValue(int)));
-	connect(ui->audioScrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->headerScrollArea->horizontalScrollBar(), SLOT(setValue(int)));
+	ui->audioScrollArea->resize(ui->audioScrollArea->width(), timeline_area_height);*/
+    ui->headerScrollArea->setMaximumHeight(ui->headers->minimumHeight());	
+	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
+	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
 
     update_sequence();
 
-    connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
+	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
 }
 
 Timeline::~Timeline()
@@ -165,7 +166,7 @@ void Timeline::seek(long p) {
 	pause();
 	sequence->playhead = p;
 	queue_audio_reset = true;
-	repaint_timeline();
+	repaint_timeline(false);
 }
 
 void Timeline::toggle_play() {
@@ -231,7 +232,7 @@ void Timeline::add_transition() {
         delete ca;
 	}
 
-	redraw_all_clips(true);
+	repaint_timeline(true);
 }
 
 int Timeline::calculate_track_height(int track, int value) {
@@ -271,57 +272,51 @@ void Timeline::update_sequence() {
 	} else {
 		setWindowTitle("Timeline: " + sequence->name);
         reset_all_audio();
-        redraw_all_clips(false);
+		repaint_timeline(false);
         playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
 	}
 }
 
 int Timeline::get_snap_range() {
-	return getTimelineFrameFromScreenPoint(10);
+	return getFrameFromScreenPoint(zoom, 10);
 }
 
 bool Timeline::focused() {
 	return (sequence != NULL && (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus()));
 }
 
-void Timeline::repaint_timeline() {
+void Timeline::repaint_timeline(bool changed) {
 	if (playing) {
 		sequence->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
+	} else if (changed) {
+		reset_all_audio();
 	}
 
-	ui->headers->update_header(zoom);
+	ui->headers->update();
 	ui->video_area->update();
 	ui->audio_area->update();
 	panel_effect_controls->update_keyframes();
 
-	if (last_frame != sequence->playhead) {
-		panel_viewer->viewer_widget->update();
-        ui->audio_monitor->update();
-		last_frame = sequence->playhead;
-	}
-	panel_viewer->update_playhead_timecode(sequence->playhead);
-}
-
-void Timeline::redraw_all_clips(bool changed) {
-	if (changed) {
-        if (!playing) reset_all_audio();
-        panel_viewer->viewer_widget->update();
-    }
-
-	ui->headers->update_header(zoom);
-    ui->video_area->redraw_clips();
-    ui->audio_area->redraw_clips();
-    panel_effect_controls->update_keyframes();
-
-    if (zoomChanged) {
-        ui->audioScrollArea->update();
-		ui->audioScrollArea->horizontalScrollBar()->setValue(getTimelineScreenPointFromFrame(sequence->playhead)-(ui->audioScrollArea->width()/2));
-        zoomChanged = false;
-    }
-
-	panel_viewer->update_end_timecode();
-
 	update_effect_controls();
+
+	if (sequence != NULL) {
+		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequence->getEndFrame()) + 100 - ui->editAreas->width()));
+
+		if (last_frame != sequence->playhead) {
+			panel_viewer->viewer_widget->update();
+			ui->audio_monitor->update();
+			last_frame = sequence->playhead;
+		}
+
+		if (zoomChanged) {
+			zoomChanged = false;
+			int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
+			// TODO find a way to gradually move towards target_scroll instead of just setting it?
+			ui->horizontalScrollBar->setValue(target_scroll);
+		}
+
+		panel_viewer->update_playhead_timecode(sequence->playhead);
+	}
 }
 
 void Timeline::select_all() {
@@ -337,7 +332,7 @@ void Timeline::select_all() {
 				sequence->selections.append(s);
 			}
 		}
-		repaint_timeline();
+		repaint_timeline(false);
 	}
 }
 
@@ -407,7 +402,7 @@ void Timeline::delete_in_out(bool ripple) {
         if (ripple) ca->append(new RippleCommand(sequence, sequence->workarea_in, sequence->workarea_in - sequence->workarea_out));
         ca->append(new SetTimelineInOutCommand(sequence, false, 0, 0));
         undo_stack.push(ca);
-        redraw_all_clips(true);
+		repaint_timeline(true);
     }
 }
 
@@ -467,7 +462,7 @@ void Timeline::delete_selection(bool ripple_delete) {
 
         undo_stack.push(ca);
 
-        redraw_all_clips(true);
+		repaint_timeline(true);
 	}
 }
 
@@ -481,8 +476,9 @@ void Timeline::set_zoom(bool in) {
     } else {
         zoom /= 2;
     }
+	ui->headers->update_zoom(zoom);
     zoomChanged = true;
-    redraw_all_clips(false);
+	repaint_timeline(false);
 }
 
 void Timeline::decheck_tool_buttons(QObject* sender) {
@@ -826,7 +822,7 @@ void Timeline::paste() {
 
         undo_stack.push(ca);
 
-        redraw_all_clips(true);
+		repaint_timeline(true);
 
         if (config.paste_seeks) {
             seek(paste_end);
@@ -885,7 +881,7 @@ void Timeline::ripple_to_in_point(bool in) {
 			ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point)));
             undo_stack.push(ca);
 
-            redraw_all_clips(true);
+			repaint_timeline(true);
 
             if (in) seek(in_point);
         }
@@ -1018,7 +1014,7 @@ void Timeline::split_at_playhead() {
 
     if (split_selected) {
         undo_stack.push(ca);
-        redraw_all_clips(true);
+		repaint_timeline(true);
     } else {
         delete ca;
     }
@@ -1142,7 +1138,7 @@ void Timeline::toggle_links() {
     }
     if (command->clips.size() > 0) {
         undo_stack.push(command);
-        redraw_all_clips(true);
+		repaint_timeline(true);
     } else {
         delete command;
     }
@@ -1155,7 +1151,7 @@ void Timeline::increase_track_height() {
     for (int i=0;i<audio_track_heights.size();i++) {
         audio_track_heights[i] += TRACK_HEIGHT_INCREMENT;
     }
-    redraw_all_clips(false);
+	repaint_timeline(false);
 }
 
 void Timeline::decrease_track_height() {
@@ -1167,12 +1163,12 @@ void Timeline::decrease_track_height() {
         audio_track_heights[i] -= TRACK_HEIGHT_INCREMENT;
         if (audio_track_heights[i] < TRACK_MIN_HEIGHT) audio_track_heights[i] = TRACK_MIN_HEIGHT;
     }
-    redraw_all_clips(false);
+	repaint_timeline(false);
 }
 
 void Timeline::deselect() {
 	sequence->selections.clear();
-    repaint_timeline();
+	repaint_timeline(false);
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
@@ -1188,11 +1184,11 @@ int getScreenPointFromFrame(double zoom, long frame) {
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
-	return getFrameFromScreenPoint(zoom, x);
+	return getFrameFromScreenPoint(zoom, x + scroll);
 }
 
 int Timeline::getTimelineScreenPointFromFrame(long frame) {
-	return getScreenPointFromFrame(zoom, frame);
+	return getScreenPointFromFrame(zoom, frame) - scroll;
 }
 
 void Timeline::on_toolArrowButton_clicked() {
@@ -1285,4 +1281,9 @@ void Timeline::on_addButton_clicked() {
 void Timeline::addMenuItem(QAction* action) {
 	creating = true;
 	creatingObject = action->data().toInt();
+}
+
+void Timeline::setScroll(int s) {
+	scroll = s;
+	repaint_timeline(false);
 }

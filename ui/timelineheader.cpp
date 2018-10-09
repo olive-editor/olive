@@ -16,6 +16,7 @@
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
 #define LINE_MIN_PADDING 50
+#define SUBLINE_MIN_PADDING 50 // TODO play with this
 #define MARKER_SIZE 4
 
 TimelineHeader::TimelineHeader(QWidget *parent) :
@@ -26,19 +27,25 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
 	in_visible(0),
 	snapping(true),
 	fm(font()),
-	dragging_markers(false)
+	dragging_markers(false),
+	scroll(0)
 {
     setCursor(Qt::ArrowCursor);
     setMouseTracking(true);
-    setMinimumHeight(fm.height()*2);
+	setMinimumHeight(fm.height()*2);
+}
+
+void TimelineHeader::set_scroll(int s) {
+	scroll = s;
+	update();
 }
 
 long TimelineHeader::getHeaderFrameFromScreenPoint(int x) {
-	return getFrameFromScreenPoint(zoom, x) + in_visible;
+	return getFrameFromScreenPoint(zoom, x + scroll) + in_visible;
 }
 
 int TimelineHeader::getHeaderScreenPointFromFrame(long frame) {
-	return getScreenPointFromFrame(zoom, frame - in_visible);
+	return getScreenPointFromFrame(zoom, frame - in_visible) - scroll;
 }
 
 void TimelineHeader::set_playhead(int mouse_x) {
@@ -61,7 +68,7 @@ void TimelineHeader::set_in_point(long new_in) {
     }
 
     undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
-	panel_timeline->repaint_timeline();
+	panel_timeline->repaint_timeline(false);
 }
 
 void TimelineHeader::set_out_point(long new_out) {
@@ -72,7 +79,7 @@ void TimelineHeader::set_out_point(long new_out) {
         new_in = 0;
     }
     undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
-	panel_timeline->repaint_timeline();
+	panel_timeline->repaint_timeline(false);
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
@@ -135,7 +142,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
                 temp_workarea_out = qMin(qMax(temp_workarea_in+1, frame), sequence_end);
             }
 
-			panel_timeline->repaint_timeline();
+			panel_timeline->repaint_timeline(false);
 		} else if (dragging_markers) {
 			long frame_movement = getHeaderFrameFromScreenPoint(event->pos().x()) - getHeaderFrameFromScreenPoint(drag_start);
 
@@ -162,7 +169,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 				sequence->markers[selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
 			}
 
-			panel_timeline->repaint_timeline();
+			panel_timeline->repaint_timeline(false);
 		} else {
 			set_playhead(event->pos().x());
         }
@@ -212,7 +219,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
     dragging = false;
 	dragging_markers = false;
     panel_timeline->snapped = false;
-	panel_timeline->repaint_timeline();
+	panel_timeline->repaint_timeline(false);
 }
 
 void TimelineHeader::focusOutEvent(QFocusEvent*) {
@@ -220,7 +227,7 @@ void TimelineHeader::focusOutEvent(QFocusEvent*) {
 	update();
 }
 
-void TimelineHeader::update_header(double z) {
+void TimelineHeader::update_zoom(double z) {
 	zoom = z;
 	update();
 }
@@ -232,7 +239,7 @@ void TimelineHeader::delete_markers() {
 			dma->markers.append(selected_markers.at(i));
 		}
 		undo_stack.push(dma);
-		panel_timeline->repaint_timeline();
+		panel_timeline->repaint_timeline(false);
 	}
 }
 
@@ -243,15 +250,15 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
         double interval = sequence->frame_rate;
         int textWidth = 0;
-        int lastTextBoundary = 0;
+		int lastTextBoundary = INT_MIN;
 
         int i = 0;
-        int lastLineX = -LINE_MIN_PADDING-1;
+		int lastLineX = INT_MIN;
 
         int sublineCount = 1;
         int sublineTest = qRound(interval*zoom);
         int sublineInterval = 1;
-        while (sublineTest > LINE_MIN_PADDING
+		while (sublineTest > SUBLINE_MIN_PADDING
                && sublineInterval >= 1) {
             sublineCount *= 2;
             sublineInterval = (interval/sublineCount);
@@ -261,30 +268,35 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
         while (true) {
             long frame = qRound(interval*i);
-            int lineX = qRound(frame*zoom);
+			int lineX = qRound(frame*zoom) - scroll;
+			int next_lineX = qRound(qRound(interval*(i+1))*zoom) - scroll;
+
             if (lineX > width()) break;
-            if (lineX > lastLineX+LINE_MIN_PADDING) {
-                // draw text
-                if (lineX-textWidth > lastTextBoundary) {
-                    p.setPen(Qt::white);
+			if (next_lineX > 0 && lineX > lastLineX+LINE_MIN_PADDING) {
+				// draw text
+				if (lineX-textWidth > lastTextBoundary) {
+					p.setPen(Qt::white);
 					QString timecode = frame_to_timecode(frame + in_visible, config.timecode_view, sequence->frame_rate);
-                    textWidth = fm.width(timecode)>>1;
-                    lastTextBoundary = lineX+textWidth;
-                    p.drawText(QRect(lineX-textWidth, 0, lastTextBoundary, yoff), timecode);
-                }
+					textWidth = fm.width(timecode)>>1;
+					if (lineX + textWidth > 0) {
+						int text_x = qMax(lineX-textWidth, 0);
+						lastTextBoundary = text_x+textWidth+textWidth;
+						p.drawText(QRect(text_x, 0, lastTextBoundary, yoff), timecode);
+					}
+				}
 
-                // draw line markers
-                p.setPen(Qt::gray);
-                p.drawLine(lineX, yoff, lineX, height());
+				// draw line markers
+				p.setPen(Qt::gray);
+				p.drawLine(lineX, yoff, lineX, height());
 
-                lastLineX = lineX;
+				lastLineX = lineX;
 
-                // draw sub-line markers
-                for (int j=1;j<sublineCount;j++) {
-                    int sublineX = lineX+(qRound(j*interval/sublineCount)*zoom);
-                    p.drawLine(sublineX, yoff, sublineX, yoff+(yoff>>1));
-                }
-            }
+				// draw sub-line markers
+				for (int j=1;j<sublineCount;j++) {
+					int sublineX = lineX+(qRound(j*interval/sublineCount)*zoom);
+					p.drawLine(sublineX, yoff, sublineX, yoff+(yoff>>1));
+				}
+			}
             i++;
         }
 

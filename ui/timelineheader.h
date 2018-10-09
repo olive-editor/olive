@@ -15,9 +15,13 @@ public:
 
 	bool snapping;
 
-    void update_header(double z);
+	void update_zoom(double z);
 
 	void delete_markers();
+
+public slots:
+	void set_scroll(int);
+	void set_visible_in(long i);
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -51,10 +55,9 @@ private:
 	long getHeaderFrameFromScreenPoint(int x);
 	int getHeaderScreenPointFromFrame(long frame);
 
-signals:
+	int scroll;
 
-public slots:
-	void set_visible_in(long i);
+signals:
 };
 
 #endif // TIMELINEHEADER_H

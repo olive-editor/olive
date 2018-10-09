@@ -99,6 +99,8 @@ public:
 
 	int getTimelineScreenPointFromFrame(long frame);
 	long getTimelineFrameFromScreenPoint(int x);
+	int getDisplayScreenPointFromFrame(long frame);
+	long getDisplayFrameFromScreenPoint(int x);
 
 	int get_snap_range();
     bool snap_to_point(long point, long* l);
@@ -128,7 +130,6 @@ public:
     double zoom;
 	long drag_frame_start;
 	int drag_track_start;
-    void redraw_all_clips(bool changed);
 	void update_effect_controls();
 
     QVector<int> video_track_heights;
@@ -185,7 +186,7 @@ public:
 
     Ui::Timeline *ui;
 public slots:
-	void repaint_timeline();
+	void repaint_timeline(bool changed = false);
 
 private slots:
 
@@ -213,6 +214,8 @@ private slots:
 
 	void addMenuItem(QAction*);
 
+	void setScroll(int);
+
 private:
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
@@ -220,6 +223,7 @@ private:
 	long last_frame;
     QVector<Clip*> clip_clipboard;
 	bool queue_audio_reset;
+	int scroll;
 
 	int default_track_height;
 };
