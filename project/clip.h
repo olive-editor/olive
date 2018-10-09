@@ -95,6 +95,8 @@ struct Clip
     bool finished_opening;
 	bool replaced;
 
+	int64_t rev_target;
+
     // caching functions
     bool multithreaded;
     Cacher* cacher;

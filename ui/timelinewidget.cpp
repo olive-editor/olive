@@ -50,11 +50,11 @@ void TimelineWidget::right_click_ripple() {
 	// validate the ripple
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c->timeline_in > rc_ripple_min) {
+		if (c != NULL && c->timeline_in > rc_ripple_min) {
 			for (int j=0;j<sequence->clips.size();j++) {
 				Clip* cc = sequence->clips.at(j);
-				if (cc->track == c->track) {
-					if (cc->timeline_out == c->timeline_in) {
+				if (cc != NULL && cc->track == c->track) {
+					if (cc->timeline_in < rc_ripple_min && cc->timeline_out == c->timeline_in) {
 						can_ripple = false;
 						break;
 					} else if (cc->timeline_out < c->timeline_in) {

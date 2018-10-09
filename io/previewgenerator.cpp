@@ -187,7 +187,7 @@ void PreviewGenerator::generate_waveform() {
 					AVFrame* swr_frame = av_frame_alloc();
 					swr_frame->channel_layout = temp_frame->channel_layout;
 					swr_frame->sample_rate = temp_frame->sample_rate;
-					swr_frame->format = AV_SAMPLE_FMT_S16;
+					swr_frame->format = AV_SAMPLE_FMT_S16P;
 
 					swr_ctx = swr_alloc_set_opts(
 								NULL,
@@ -205,17 +205,24 @@ void PreviewGenerator::generate_waveform() {
 
 					swr_convert_frame(swr_ctx, swr_frame, temp_frame);
 
-					int channel_skip = swr_frame->channels * 2;
-					for (int i=0;i<swr_frame->nb_samples;i+=interval) {
+					// TODO implement a way to terminate this if the user suddenly closes the project while the waveform is being generated
+					int sample_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(swr_frame->format));
+					int nb_bytes = swr_frame->nb_samples * sample_size;
+					int byte_interval = interval * sample_size;
+					for (int i=0;i<nb_bytes;i+=byte_interval) {
 						for (int j=0;j<swr_frame->channels;j++) {
 							qint16 min = 0;
 							qint16 max = 0;
-							for (int k=j*2;k<interval;k+=channel_skip) {
-								qint16 sample = ((swr_frame->data[0][i+k+1] << 8) | swr_frame->data[0][i+k]);
-								if (sample > max) {
-									max = sample;
-								} else if (sample < min) {
-									min = sample;
+							for (int k=0;k<byte_interval;k+=sample_size) {
+								if (i+k < nb_bytes) {
+									qint16 sample = ((swr_frame->data[j][i+k+1] << 8) | swr_frame->data[j][i+k]);
+									if (sample > max) {
+										max = sample;
+									} else if (sample < min) {
+										min = sample;
+									}
+								} else {
+									break;
 								}
 							}
 							s->audio_preview.append(min >> 8);
@@ -224,6 +231,7 @@ void PreviewGenerator::generate_waveform() {
 					}
 
 					swr_free(&swr_ctx);
+					av_frame_unref(swr_frame);
 					av_frame_free(&swr_frame);
 				}
 			}

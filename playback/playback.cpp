@@ -228,9 +228,9 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 double playhead_to_seconds(Clip* c, long playhead) {
 	// returns time in seconds
-    if (c->reverse) {
-        return ((c->getMaximumLength() - (qMax(0L, playhead - c->timeline_in) + c->clip_in))/c->sequence->frame_rate)*c->speed;
-    } else {
+	if (c->reverse) {
+		return ((c->getMaximumLength() - (qMax(0L, playhead - c->timeline_in) + c->clip_in))/c->sequence->frame_rate)*c->speed;
+	} else {
         return ((qMax(0L, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate)*c->speed;
     }
 }
@@ -260,9 +260,12 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 		do {
 			if (c->pkt_written) {
 				av_packet_unref(c->pkt);
+				c->pkt_written = false;
 			}
 			read_ret = av_read_frame(c->formatCtx, c->pkt);
-			c->pkt_written = true;
+			if (read_ret >= 0) {
+				c->pkt_written = true;
+			}
         } while (read_ret >= 0 && c->pkt->stream_index != c->media_stream);
 
 		if (read_ret >= 0) {
@@ -282,35 +285,6 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 	}
 
 	return result;
-}
-
-void retrieve_next_frame_raw_data(Clip* c, AVFrame* output) {
-    if (c->reached_end) {
-        qDebug() << "[WARNING] Attempted to retrieve frame of stream with no frames left";
-    } else {
-        int ret = retrieve_next_frame(c, c->frame);
-        if (ret >= 0) {
-			/*
-            if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-//				sws_scale(c->sws_ctx, c->frame->data, c->frame->linesize, 0, c->stream->codecpar->height, output->data, output->linesize);
-//				output->pts = c->frame->best_effort_timestamp;
-            } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-				output->pts = c->frame->pts;
-				ret = swr_convert_frame(c->swr_ctx, output, c->frame);
-
-
-
-				if (ret < 0) {
-					qDebug() << "[ERROR] Failed to resample audio." << ret;
-				}
-            }
-			*/
-        } else if (ret == AVERROR_EOF) {
-            c->reached_end = true;
-        } else {
-            qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
-        }
-    }
 }
 
 bool is_clip_active(Clip* c, long playhead) {

@@ -23,7 +23,6 @@ double playhead_to_seconds(Clip* c, long playhead);
 long seconds_to_clip_frame(Clip* c, double seconds);
 double clip_frame_to_seconds(Clip* c, long clip_frame);
 int retrieve_next_frame(Clip* c, AVFrame* f);
-void retrieve_next_frame_raw_data(Clip* c, AVFrame* output);
 bool is_clip_active(Clip* c, long playhead);
 void get_next_audio(Clip* c, bool mix);
 void set_sequence(Sequence* s);
