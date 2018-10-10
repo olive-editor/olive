@@ -15,7 +15,7 @@ struct Sequence;
 struct Clip;
 class Timeline;
 class TimelineAction;
-class QScrollArea;
+class QScrollBar;
 class SetSelectionsCommand;
 
 bool same_sign(int a, int b);
@@ -24,10 +24,8 @@ class TimelineWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit TimelineWidget(QWidget *parent = 0);
-
+	QScrollBar* scrollBar;
 	bool bottom_align;
-
-	QScrollArea* container;
 protected:
 	void paintEvent(QPaintEvent*);
 
@@ -41,6 +39,8 @@ protected:
 	void dragLeaveEvent(QDragLeaveEvent *event);
 	void dropEvent(QDropEvent* event);
 	void dragMoveEvent(QDragMoveEvent *event);
+
+	void wheelEvent(QWheelEvent *event);
 private:
 	void init_ghosts();
 	void update_ghosts(QPoint& mouse_pos);
@@ -70,10 +70,16 @@ private:
     QTimer tooltip_timer;
     int tooltip_clip;
 
+	int scroll;
+
     SetSelectionsCommand* selection_command;
+
+	/*QVector<QTreeWidgetItem*> file_import_items;
+	QVector<Media*> file_import_media;*/
 signals:
 
 public slots:
+	void setScroll(int);
 
 private slots:
 	void right_click_ripple();

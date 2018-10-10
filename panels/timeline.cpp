@@ -78,9 +78,8 @@ Timeline::Timeline(QWidget *parent) :
     /* --- */
 
 	ui->video_area->bottom_align = true;
-
-	ui->video_area->container = ui->videoScrollArea;
-	ui->audio_area->container = ui->audioScrollArea;
+	ui->video_area->scrollBar = ui->videoScrollbar;
+	ui->audio_area->scrollBar = ui->audioScrollbar;
 
 	tool_buttons.append(ui->toolArrowButton);
 	tool_buttons.append(ui->toolEditButton);
@@ -92,12 +91,11 @@ Timeline::Timeline(QWidget *parent) :
 
 	ui->toolArrowButton->click();
 
-	/*int timeline_area_height = (ui->timeline_area->height()>>1);
-	ui->videoScrollArea->resize(ui->videoScrollArea->width(), timeline_area_height);
-	ui->audioScrollArea->resize(ui->audioScrollArea->width(), timeline_area_height);*/
     ui->headerScrollArea->setMaximumHeight(ui->headers->minimumHeight());	
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
+	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
+	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
 
     update_sequence();
 
