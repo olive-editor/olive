@@ -35,6 +35,8 @@
 #define MAX_TEXT_WIDTH 20
 
 TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
+    selection_command = NULL;
+
 	bottom_align = false;
     track_resizing = false;
     setMouseTracking(true);
@@ -690,13 +692,14 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             bool repaint = false;
 			bool redraw = false;
 
+            ComboAction* ca = new ComboAction();
+            bool push_undo = false;
+
 			if (panel_timeline->creating) {
 				if (panel_timeline->ghosts.size() > 0) {
 					const Ghost& g = panel_timeline->ghosts.at(0);
 
-					if (g.in != g.out) {
-                        ComboAction* ca = new ComboAction();
-
+                    if (g.in != g.out) {
 						Clip* c = new Clip(sequence);
 						c->media = NULL;
 						c->timeline_in = qMin(g.in, g.out);
@@ -759,8 +762,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						areas.append(s);
                         panel_timeline->delete_areas_and_relink(ca, areas);
 
-                        undo_stack.push(ca);
-
+                        push_undo = true;
 						redraw = true;
 
 						if (!shift) {
@@ -771,9 +773,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 			} else if (panel_timeline->moving_proc) {
 				repaint = true;
 				if (panel_timeline->ghosts.size() > 0) {
-					 const Ghost& first_ghost = panel_timeline->ghosts.at(0);
-
-                     ComboAction* ca = new ComboAction();
+                     const Ghost& first_ghost = panel_timeline->ghosts.at(0);
 
 					 // if we were RIPPLING, move all the clips
 					 if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
@@ -934,14 +934,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 								 }
 							 }
 						 }
-					 }
-                     undo_stack.push(ca);
+                     }
+                     push_undo = true;
 					 redraw = true;
 				}
             } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
                 repaint = true;
             } else if (panel_timeline->splitting) {
-                ComboAction* ca = new ComboAction();
                 bool split = false;
                 for (int i=0;i<panel_timeline->split_tracks.size();i++) {
                     int split_index = getClipIndexFromCoords(panel_timeline->drag_frame_start, panel_timeline->split_tracks.at(i));
@@ -950,16 +949,27 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     }
                 }
                 if (split) {
-                    undo_stack.push(ca);
+                    push_undo = true;
 					redraw = true;
-                } else {
-                    delete ca;
                 }
                 panel_timeline->split_cache.clear();
             }
 
             // remove duplicate selections
 			panel_timeline->clean_up_selections(sequence->selections);
+
+            if (selection_command != NULL) {
+                selection_command->new_data = sequence->selections;
+                ca->append(selection_command);
+                selection_command = NULL;
+                push_undo = true;
+            }
+
+            if (push_undo) {
+                undo_stack.push(ca);
+            } else {
+                delete ca;
+            }
 
             // destroy all ghosts
             panel_timeline->ghosts.clear();
@@ -1501,6 +1511,10 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                         }
                     }
                 }
+
+                // store selections
+                selection_command = new SetSelectionsCommand(sequence);
+                selection_command->old_data = sequence->selections;
 
                 panel_timeline->moving_proc = true;
             }

@@ -14,6 +14,7 @@ struct Sequence;
 struct Media;
 
 #include "project/marker.h"
+#include "project/selection.h"
 
 #include <QUndoStack>
 #include <QUndoCommand>
@@ -522,6 +523,18 @@ private:
 	bool* boolean;
 	bool old_setting;
 	bool new_setting;
+};
+
+class SetSelectionsCommand : public QUndoCommand {
+public:
+    SetSelectionsCommand(Sequence *s);
+    void undo();
+    void redo();
+    QVector<Selection> old_data;
+    QVector<Selection> new_data;
+private:
+    Sequence* seq;
+    bool done;
 };
 
 #endif // UNDO_H

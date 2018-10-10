@@ -16,6 +16,7 @@ struct Clip;
 class Timeline;
 class TimelineAction;
 class QScrollArea;
+class SetSelectionsCommand;
 
 bool same_sign(int a, int b);
 
@@ -68,6 +69,8 @@ private:
 
     QTimer tooltip_timer;
     int tooltip_clip;
+
+    SetSelectionsCommand* selection_command;
 signals:
 
 public slots:

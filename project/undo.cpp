@@ -1488,3 +1488,20 @@ void SetBool::undo() {
 void SetBool::redo() {
 	*boolean = new_setting;
 }
+
+SetSelectionsCommand::SetSelectionsCommand(Sequence* s) :
+    seq(s),
+    done(true)
+{}
+
+void SetSelectionsCommand::undo() {
+    sequence->selections = old_data;
+    done = false;
+}
+
+void SetSelectionsCommand::redo() {
+    if (!done) {
+        sequence->selections = new_data;
+        done = true;
+    }
+}
