@@ -177,6 +177,7 @@ void TimelineWidget::tooltip_timer_timeout() {
                                + "\nDuration: " + frame_to_timecode(c->getLength(), config.timecode_view, sequence->frame_rate));
         }
     }
+	tooltip_timer.stop();
 }
 
 bool same_sign(int a, int b) {
@@ -672,6 +673,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
+	QToolTip::hideText();
     if (sequence != NULL) {
         bool alt = (event->modifiers() & Qt::AltModifier);
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
@@ -836,7 +838,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						 }
 					 } else {
 						 // move clips
-						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
 							 QVector<Selection> delete_areas;
 							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
 								 // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
@@ -925,9 +927,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 }
 						 }
 					 }
-
                      undo_stack.push(ca);
-
 					 redraw = true;
 				}
             } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
@@ -1019,7 +1019,7 @@ void TimelineWidget::init_ghosts() {
 void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
 	long frame_diff = panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
-	int track_diff = (panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) ? 0 : mouse_track - panel_timeline->drag_track_start;
+	int track_diff = ((panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) && !panel_timeline->importing) ? 0 : mouse_track - panel_timeline->drag_track_start;
     long validator;
 
 	// first try to snap
@@ -1420,7 +1420,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                         panel_timeline->ghosts[i].trimming = false;
                         for (int j=0;j<sequence->clips.size();j++) {
                             Clip* c = sequence->clips.at(j);
-                            if (c->track == ghost_clip->track) {
+							if (c != NULL && c->track == ghost_clip->track) {
                                 bool found = false;
                                 for (int k=0;k<size;k++) {
                                     if (panel_timeline->ghosts.at(k).clip == j) {
@@ -1598,6 +1598,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                    panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
                    panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
             track_resizing = false;
+
+			QToolTip::hideText();
 
             QPoint pos = event->pos();
 
