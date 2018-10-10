@@ -1039,6 +1039,7 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	long frame_diff = panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
 	int track_diff = ((panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) && !panel_timeline->importing) ? 0 : mouse_track - panel_timeline->drag_track_start;
     long validator;
+	long earliest_in_point = LONG_MAX;
 
 	// first try to snap
 	long fm;
@@ -1217,6 +1218,8 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 g.track += track_diff;
             }
         }
+
+		earliest_in_point = qMin(earliest_in_point, g.in);
     }
 
     // apply changes to selections
@@ -1251,7 +1254,11 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
         }
     }
 
-    QToolTip::showText(mapToGlobal(mouse_pos), ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate));
+	if (panel_timeline->importing) {
+		QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, config.timecode_view, sequence->frame_rate));
+	} else {
+		QToolTip::showText(mapToGlobal(mouse_pos), ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate));
+	}
 }
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
@@ -1787,7 +1794,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					QRect actual_clip_rect = clip_rect;
 					if (actual_clip_rect.x() < 0) actual_clip_rect.setX(0);
 					if (actual_clip_rect.right() >= width()) actual_clip_rect.setRight(width());
-					p.fillRect(actual_clip_rect, QColor(clip->color_r, clip->color_g, clip->color_b));
+					p.fillRect(actual_clip_rect, (clip->enabled) ? QColor(clip->color_r, clip->color_g, clip->color_b) : QColor(96, 96, 96));
 
 					int thumb_x = clip_rect.x() + 1;
 
@@ -1944,7 +1951,9 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
 					// draw text
 					if (text_rect.width() > MAX_TEXT_WIDTH && text_rect.right() > 0 && text_rect.left() < width()) {
-						if (color_brightness(clip->color_r, clip->color_g, clip->color_b) > 160) {
+						if (!clip->enabled) {
+							p.setPen(Qt::gray);
+						} else if (color_brightness(clip->color_r, clip->color_g, clip->color_b) > 160) {
 							// set to black if color is bright
 							p.setPen(Qt::black);
 						}

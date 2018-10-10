@@ -188,6 +188,8 @@ private slots:
 
 	void on_actionSet_Edit_Marker_triggered();
 
+	void on_actionEnable_Disable_Clip_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

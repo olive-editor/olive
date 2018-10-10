@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>16</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -96,6 +96,7 @@
     <addaction name="actionRipple_Delete_In_Out"/>
     <addaction name="separator"/>
     <addaction name="actionSet_Edit_Marker"/>
+    <addaction name="actionEnable_Disable_Clip"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -786,6 +787,14 @@
    </property>
    <property name="shortcut">
     <string>M</string>
+   </property>
+  </action>
+  <action name="actionEnable_Disable_Clip">
+   <property name="text">
+    <string>Enable/Disable Clip</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+E</string>
    </property>
   </action>
  </widget>

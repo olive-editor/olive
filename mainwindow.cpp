@@ -799,3 +799,23 @@ void MainWindow::on_actionAuto_scale_by_Default_triggered() {
 void MainWindow::on_actionSet_Edit_Marker_triggered() {
 	if (sequence != NULL) panel_timeline->set_marker();
 }
+
+void MainWindow::on_actionEnable_Disable_Clip_triggered() {
+	if (sequence != NULL) {
+		ComboAction* ca = new ComboAction();
+		bool push_undo = false;
+		for (int i=0;i<sequence->clips.size();i++) {
+			Clip* c = sequence->clips.at(i);
+			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+				ca->append(new SetEnableCommand(c, !c->enabled));
+				push_undo = true;
+			}
+		}
+		if (push_undo) {
+			undo_stack.push(ca);
+			panel_timeline->repaint_timeline(true);
+		} else {
+			delete ca;
+		}
+	}
+}

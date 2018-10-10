@@ -1505,3 +1505,20 @@ void SetSelectionsCommand::redo() {
         done = true;
     }
 }
+
+SetEnableCommand::SetEnableCommand(Clip* c, bool enable) :
+	clip(c),
+	old_val(c->enabled),
+	new_val(enable),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void SetEnableCommand::undo() {
+	clip->enabled = old_val;
+	mainWindow->setWindowModified(old_project_changed);
+}
+
+void SetEnableCommand::redo() {
+	clip->enabled = new_val;
+	mainWindow->setWindowModified(true);
+}

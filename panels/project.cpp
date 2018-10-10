@@ -761,6 +761,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         const QXmlStreamAttribute& attr = stream.attributes().at(j);
                                         if (attr.name() == "name") {
                                             c->name = attr.value().toString();
+										} else if (attr.name() == "enabled") {
+											c->enabled = (attr.value() == "1");
                                         } else if (attr.name() == "id") {
                                             c->load_id = attr.value().toInt();
                                         } else if (attr.name() == "clipin") {
@@ -1074,6 +1076,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                             if (c != NULL) {
                                 stream.writeStartElement("clip"); // clip
                                 stream.writeAttribute("id", QString::number(j));
+								stream.writeAttribute("enabled", QString::number(c->enabled));
                                 stream.writeAttribute("name", c->name);
                                 stream.writeAttribute("clipin", QString::number(c->clip_in));
                                 stream.writeAttribute("in", QString::number(c->timeline_in));

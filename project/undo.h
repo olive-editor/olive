@@ -537,4 +537,16 @@ private:
     bool done;
 };
 
+class SetEnableCommand : public QUndoCommand {
+public:
+	SetEnableCommand(Clip* c, bool enable);
+	void undo();
+	void redo();
+private:
+	Clip* clip;
+	bool old_val;
+	bool new_val;
+	bool old_project_changed;
+};
+
 #endif // UNDO_H
