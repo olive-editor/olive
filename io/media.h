@@ -14,6 +14,10 @@
 #define MEDIA_TYPE_SOLID 3
 #define MEDIA_TYPE_TONE 4
 
+#define VIDEO_PROGRESSIVE 0
+#define VIDEO_TOP_FIELD_FIRST 1
+#define VIDEO_BOTTOM_FIELD_FIRST 2
+
 struct Sequence;
 struct Clip;
 
@@ -23,6 +27,7 @@ struct MediaStream {
 	int video_height;
 	bool infinite_length;
     double video_frame_rate;
+    int video_interlacing;
     int audio_channels;
     int audio_layout;
     int audio_frequency;

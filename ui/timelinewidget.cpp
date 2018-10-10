@@ -341,10 +341,18 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             g.old_track = g.track;
         }
         panel_timeline->importing = true;
-	}/* else if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
-		event->accept();
+    } else if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
+        // TODO for this to work, we need a way to abort PreviewGenerator
 
-	}*/
+		event->accept();
+        qDebug() << "TODO get data for:";
+        QList<QUrl> urls = event->mimeData()->urls();
+        if (!urls.isEmpty()) {
+            for (int i=0;i<urls.size();i++) {
+                qDebug() << (urls.at(i).toLocalFile());
+            }
+        }
+    }
 }
 
 void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {

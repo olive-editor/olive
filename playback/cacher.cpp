@@ -541,12 +541,24 @@ void open_clip_worker(Clip* clip) {
 			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
 			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
 
-			enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
-			if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
-				qDebug() << "[ERROR] Could not set output pixel format";
-			}
+            enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
+            if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
+                qDebug() << "[ERROR] Could not set output pixel format";
+            }
 
-			avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+            bool interlaced = false;
+            if (interlaced) {
+                // TODO make better
+                AVFilterContext* yadif_filter;
+                avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", "mode=3", NULL, clip->filter_graph);
+
+                clip->speed *= 2;
+
+                avfilter_link(clip->buffersrc_ctx, 0, yadif_filter, 0);
+                avfilter_link(yadif_filter, 0, clip->buffersink_ctx, 0);
+            } else {
+                avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+            }
 
 			avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
