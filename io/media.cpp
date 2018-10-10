@@ -1,6 +1,7 @@
 #include "media.h"
 
 #include <QDebug>
+#include "io/previewgenerator.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -8,13 +9,17 @@ extern "C" {
 
 #include "project/clip.h"
 
-Media::Media() : ready(false) {}
+Media::Media() : ready(false), preview_gen(NULL) {}
 
 Media::~Media() {
     reset();
 }
 
 void Media::reset() {
+	if (preview_gen != NULL) {
+		preview_gen->cancel();
+		preview_gen->wait();
+	}
     for (int i=0;i<video_tracks.size();i++) {
         delete video_tracks.at(i);
     }

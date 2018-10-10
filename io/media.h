@@ -20,6 +20,7 @@
 
 struct Sequence;
 struct Clip;
+class PreviewGenerator;
 
 struct MediaStream {
 	int file_index;
@@ -49,6 +50,8 @@ struct Media {
     QVector<MediaStream*> audio_tracks;
     int save_id;
     bool ready;
+
+	PreviewGenerator* preview_gen;
 
     long get_length_in_frames(double frame_rate);
     MediaStream* get_stream_from_file_index(bool video, int index);

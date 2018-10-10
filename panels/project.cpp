@@ -163,8 +163,8 @@ void Project::start_preview_generator(QTreeWidgetItem* item, Media* media, bool 
     MediaThrobber* throbber = new MediaThrobber(item);
 
 	PreviewGenerator* pg = new PreviewGenerator(item, media, replacing);
+	media->preview_gen = pg;
 	connect(pg, SIGNAL(set_icon(int, bool)), throbber, SLOT(stop(int, bool)));
-    connect(pg, SIGNAL(finished()), pg, SLOT(deleteLater()));
     pg->start(QThread::LowPriority);
 }
 
@@ -1209,7 +1209,7 @@ void Project::save_recent_projects() {
 
 void Project::clear_recent_projects() {
     recent_projects.clear();
-    save_recent_projects();
+	save_recent_projects();
 }
 
 void Project::add_recent_project(QString url) {

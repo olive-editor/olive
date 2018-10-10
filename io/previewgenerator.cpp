@@ -26,9 +26,10 @@ PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
 	media(m),
 	retrieve_duration(false),
 	contains_still_image(false),
-	replace(r)
+	replace(r),
+	cancelled(false)
 {
-    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
 void PreviewGenerator::parse_media() {
@@ -227,12 +228,18 @@ void PreviewGenerator::generate_waveform() {
 							}
 							s->audio_preview.append(min >> 8);
 							s->audio_preview.append(max >> 8);
+							if (cancelled) break;
 						}
 					}
 
 					swr_free(&swr_ctx);
 					av_frame_unref(swr_frame);
 					av_frame_free(&swr_frame);
+
+					if (cancelled) {
+						end_of_file = true;
+						break;
+					}
 				}
 			}
 
@@ -314,4 +321,9 @@ void PreviewGenerator::run() {
         item->setToolTip(0, QString());
     }
     delete [] filename;
+	media->preview_gen = NULL;
+}
+
+void PreviewGenerator::cancel() {
+	cancelled = true;
 }

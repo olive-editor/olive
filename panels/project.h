@@ -93,7 +93,7 @@ private:
 	QString get_file_name_from_path(const QString &path);
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
-    void clear_recent_projects();
+	void clear_recent_projects();
 };
 
 class MediaThrobber : public QObject {

@@ -18,6 +18,7 @@ class PreviewGenerator : public QThread
 public:
 	PreviewGenerator(QTreeWidgetItem*, Media*, bool);
     void run();
+	void cancel();
 signals:
 	void set_icon(int, bool);
 private:
@@ -30,6 +31,7 @@ private:
 	bool retrieve_duration;
 	bool contains_still_image;
 	bool replace;
+	bool cancelled;
 };
 
 #endif // PREVIEWGENERATOR_H
