@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>20</height>
+     <height>16</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -487,6 +487,9 @@
    </property>
    <property name="shortcut">
     <string>N</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionPreferences">

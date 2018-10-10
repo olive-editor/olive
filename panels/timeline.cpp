@@ -66,6 +66,17 @@ Timeline::Timeline(QWidget *parent) :
 
 	ui->setupUi(this);
 
+    /* --- TEMPORARY ---
+     * I feel like the rolling edit tool is unnecessary, but just
+     * in case I change my mind, I'm leaving all the functionality
+     * intact and only hiding the UI to get to it. Still deciding
+     * on this one but the pointer tool literally does the same
+     * functionality.
+     */
+    ui->toolRollingButton->setVisible(false);
+    ui->toolRollingButton->setEnabled(false);
+    /* --- */
+
 	ui->video_area->bottom_align = true;
 
 	ui->video_area->container = ui->videoScrollArea;
