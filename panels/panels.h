@@ -8,7 +8,7 @@ class Timeline;
 
 extern Project* panel_project;
 extern EffectControls* panel_effect_controls;
-extern Viewer* panel_viewer;
+extern Viewer* panel_sequence_viewer;
 extern Timeline* panel_timeline;
 
 #endif // PANELS_H

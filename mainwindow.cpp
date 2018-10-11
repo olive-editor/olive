@@ -51,12 +51,12 @@ bool demoNoticeShown = false;
 void MainWindow::setup_layout() {
     panel_project->show();
     panel_effect_controls->show();
-    panel_viewer->show();
+    panel_sequence_viewer->show();
     panel_timeline->show();
 
     addDockWidget(Qt::TopDockWidgetArea, panel_project);
     addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
-    addDockWidget(Qt::TopDockWidgetArea, panel_viewer);
+    addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 
 	resizeDocks({panel_project}, {40}, Qt::Horizontal);
@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // TODO maybe replace these with non-pointers later on?
     panel_project = new Project(this);
     panel_effect_controls = new EffectControls(this);
-    panel_viewer = new Viewer(this);
+    panel_sequence_viewer = new Viewer(this);
     panel_timeline = new Timeline(this);
 
 	setup_layout();
@@ -174,7 +174,7 @@ MainWindow::~MainWindow() {
 
     delete panel_project;
     delete panel_effect_controls;
-    delete panel_viewer;
+    delete panel_sequence_viewer;
     delete panel_timeline;
 }
 
@@ -263,7 +263,7 @@ void MainWindow::on_actionEffect_Controls_toggled(bool arg1)
 
 void MainWindow::on_actionViewer_toggled(bool arg1)
 {
-	panel_viewer->setVisible(arg1);
+	panel_sequence_viewer->setVisible(arg1);
 }
 
 void MainWindow::on_actionTimeline_toggled(bool arg1)
@@ -451,35 +451,35 @@ void MainWindow::on_actionReset_to_default_layout_triggered()
 
 void MainWindow::on_actionGo_to_start_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
 		panel_timeline->go_to_start();
 	}
 }
 
 void MainWindow::on_actionPrevious_Frame_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->previous_frame();
     }
 }
 
 void MainWindow::on_actionNext_Frame_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->next_frame();
     }
 }
 
 void MainWindow::on_actionGo_to_End_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->go_to_end();
     }
 }
 
 void MainWindow::on_actionPlay_Pause_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
         panel_timeline->toggle_play();
     }
 }
@@ -521,14 +521,14 @@ void MainWindow::on_actionSlip_Tool_triggered()
 
 void MainWindow::on_actionGo_to_Previous_Cut_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus())) {
         panel_timeline->previous_cut();
     }
 }
 
 void MainWindow::on_actionGo_to_Next_Cut_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_viewer->hasFocus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus())) {
         panel_timeline->next_cut();
     }
 }
@@ -554,7 +554,7 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
     ui->actionProject_2->setChecked(panel_project->isVisible());
     ui->actionEffect_Controls->setChecked(panel_effect_controls->isVisible());
     ui->actionTimeline->setChecked(panel_timeline->isVisible());
-    ui->actionViewer->setChecked(panel_viewer->isVisible());
+    ui->actionViewer->setChecked(panel_sequence_viewer->isVisible());
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
@@ -574,8 +574,8 @@ void MainWindow::on_actionFrames_triggered()
 {
     config.timecode_view = TIMECODE_FRAMES;
     if (sequence != NULL) {
-		panel_viewer->update_playhead_timecode(sequence->playhead);
-        panel_viewer->update_end_timecode();
+		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
+        panel_sequence_viewer->update_end_timecode();
     }
 }
 
@@ -583,8 +583,8 @@ void MainWindow::on_actionDrop_Frame_triggered()
 {
     config.timecode_view = TIMECODE_DROP;
     if (sequence != NULL) {
-		panel_viewer->update_playhead_timecode(sequence->playhead);
-        panel_viewer->update_end_timecode();
+		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
+        panel_sequence_viewer->update_end_timecode();
     }
 }
 
@@ -592,8 +592,8 @@ void MainWindow::on_actionNon_Drop_Frame_triggered()
 {
     config.timecode_view = TIMECODE_NONDROP;
     if (sequence != NULL) {
-		panel_viewer->update_playhead_timecode(sequence->playhead);
-        panel_viewer->update_end_timecode();
+		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
+        panel_sequence_viewer->update_end_timecode();
     }
 }
 
@@ -742,26 +742,26 @@ void MainWindow::on_actionRectified_Waveforms_triggered()
 void MainWindow::on_actionDefault_triggered() {
     config.show_title_safe_area = true;
     config.use_custom_title_safe_ratio = false;
-    panel_viewer->viewer_widget->update();
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void MainWindow::on_actionOff_triggered() {
     config.show_title_safe_area = false;
-    panel_viewer->viewer_widget->update();
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void MainWindow::on_action4_3_triggered() {
     config.show_title_safe_area = true;
     config.use_custom_title_safe_ratio = true;
     config.custom_title_safe_ratio = 4.0/3.0;
-    panel_viewer->viewer_widget->update();
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void MainWindow::on_action16_9_triggered() {
     config.show_title_safe_area = true;
     config.use_custom_title_safe_ratio = true;
     config.custom_title_safe_ratio = 16.0/9.0;
-    panel_viewer->viewer_widget->update();
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void MainWindow::on_actionCustom_triggered() {
@@ -784,7 +784,7 @@ void MainWindow::on_actionCustom_triggered() {
         config.show_title_safe_area = true;
         config.use_custom_title_safe_ratio = true;
         config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
-        panel_viewer->viewer_widget->update();
+        panel_sequence_viewer->viewer_widget->update();
     }
 }
 

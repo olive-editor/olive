@@ -161,7 +161,7 @@ int Effect::row_count() {
 void Effect::refresh() {}
 
 void Effect::field_changed() {
-	panel_viewer->viewer_widget->update();
+	panel_sequence_viewer->viewer_widget->update();
 }
 
 bool Effect::is_enabled() {
@@ -556,7 +556,7 @@ void EffectRow::toggle_key() {
 		delete_keyframe(kd, index);
 		undo_stack.push(kd);
 		panel_effect_controls->update_keyframes();
-		panel_viewer->viewer_widget->update();
+		panel_sequence_viewer->viewer_widget->update();
 	}
 }
 

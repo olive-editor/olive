@@ -193,13 +193,13 @@ void Timeline::play() {
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
     playing = true;
-    panel_viewer->set_playpause_icon(false);
+	panel_sequence_viewer->set_playpause_icon(false);
 	audio_thread->notifyReceiver();
 }
 
 void Timeline::pause() {
 	playing = false;
-    panel_viewer->set_playpause_icon(true);
+	panel_sequence_viewer->set_playpause_icon(true);
 	playback_updater.stop();
 }
 
@@ -296,7 +296,7 @@ void Timeline::repaint_timeline(bool changed) {
 	if (changed) {
 		reset_all_audio();
 		update_effect_controls();
-		if (!playing) panel_viewer->viewer_widget->update();
+		if (!playing) panel_sequence_viewer->viewer_widget->update();
 	} else if (playing) {
 		sequence->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
@@ -310,7 +310,7 @@ void Timeline::repaint_timeline(bool changed) {
 		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequence->getEndFrame()) + 100 - ui->editAreas->width()));
 
 		if (last_frame != sequence->playhead) {
-			panel_viewer->viewer_widget->update();
+			panel_sequence_viewer->viewer_widget->update();
 			ui->audio_monitor->update();
 			last_frame = sequence->playhead;
 		}
@@ -323,7 +323,7 @@ void Timeline::repaint_timeline(bool changed) {
 			ui->horizontalScrollBar->setValue(target_scroll);
 		}
 
-		panel_viewer->update_playhead_timecode(sequence->playhead);
+		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "project/sequence.h"
 #include "panels/panels.h"
 #include "io/config.h"
+#include "io/media.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
@@ -23,7 +24,7 @@ Viewer::Viewer(QWidget *parent) :
 	ui->setupUi(this);
 	ui->glViewerPane->child = ui->openGLWidget;
     viewer_widget = ui->openGLWidget;
-    update_sequence();
+	update_media(MEDIA_TYPE_SEQUENCE, NULL);
 
 	ui->currentTimecode->set_default_value(qSNaN());
 	ui->currentTimecode->set_value(0, false);
@@ -117,39 +118,47 @@ void Viewer::update_end_timecode() {
     }
 }
 
-/*void Viewer::update_media(int type) {
+void Viewer::update_media(int type, void* media) {
+	switch (type) {
+	case MEDIA_TYPE_FOOTAGE:
+	{
+	}
+		break;
+	case MEDIA_TYPE_SEQUENCE:
+	{
+		Sequence* s = static_cast<Sequence*>(media);
 
-}*/
+		bool null_sequence = (s == NULL);
 
-void Viewer::update_sequence() {
-    bool null_sequence = (sequence == NULL);
+		ui->openGLWidget->setEnabled(!null_sequence);
+		ui->openGLWidget->setVisible(!null_sequence);
+		ui->pushButton->setEnabled(!null_sequence);
+		ui->pushButton_2->setEnabled(!null_sequence);
+		ui->pushButton_3->setEnabled(!null_sequence);
+		ui->pushButton_4->setEnabled(!null_sequence);
+		ui->pushButton_5->setEnabled(!null_sequence);
 
-    ui->openGLWidget->setEnabled(!null_sequence);
-    ui->openGLWidget->setVisible(!null_sequence);
-    ui->pushButton->setEnabled(!null_sequence);
-    ui->pushButton_2->setEnabled(!null_sequence);
-    ui->pushButton_3->setEnabled(!null_sequence);
-    ui->pushButton_4->setEnabled(!null_sequence);
-    ui->pushButton_5->setEnabled(!null_sequence);
+		init_audio();
 
-    init_audio();
+		if (!null_sequence) {
+			config.timecode_view = (frame_rate_is_droppable(s->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
 
-    if (!null_sequence) {
-		config.timecode_view = (frame_rate_is_droppable(sequence->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
+			update_playhead_timecode(s->playhead);
+			update_end_timecode();
 
-		update_playhead_timecode(sequence->playhead);
-        update_end_timecode();
+			ui->glViewerPane->aspect_ratio = (float) s->width / (float) s->height;
+			ui->glViewerPane->adjust();
+		} else {
+			update_playhead_timecode(0);
+			update_end_timecode();
+		}
 
-        ui->glViewerPane->aspect_ratio = (float) sequence->width / (float) sequence->height;
-        ui->glViewerPane->adjust();
-    } else {
-        update_playhead_timecode(0);
-        update_end_timecode();
-    }
+		viewer_widget->update();
 
-	viewer_widget->update();
-
-    update();
+		update();
+	}
+		break;
+	}
 }
 
 void Viewer::on_pushButton_clicked()

@@ -309,7 +309,7 @@ bool ExportThread::setupContainer() {
 void ExportThread::run() {
 	panel_timeline->pause();
 
-	if (!panel_viewer->viewer_widget->context()->makeCurrent(&surface)) {
+	if (!panel_sequence_viewer->viewer_widget->context()->makeCurrent(&surface)) {
 		qDebug() << "[ERROR] Make current failed";
 		ed->export_error = "could not make OpenGL context current";
 		return;
@@ -341,13 +341,13 @@ void ExportThread::run() {
 	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 	fbo.bind();
 
-	panel_viewer->viewer_widget->rendering = true;
-	panel_viewer->viewer_widget->default_fbo = &fbo;
+	panel_sequence_viewer->viewer_widget->rendering = true;
+	panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 	long file_audio_samples = 0;
 
 	while (sequence->playhead < end_frame && continueEncode) {
-		panel_viewer->viewer_widget->paintGL();
+		panel_sequence_viewer->viewer_widget->paintGL();
 
 		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
 		if (video_enabled) {
@@ -392,8 +392,8 @@ void ExportThread::run() {
 		sequence->playhead++;
 	}
 
-	panel_viewer->viewer_widget->default_fbo = NULL;
-	panel_viewer->viewer_widget->rendering = false;
+	panel_sequence_viewer->viewer_widget->default_fbo = NULL;
+	panel_sequence_viewer->viewer_widget->rendering = false;
 
 	fbo.release();
 
@@ -456,6 +456,6 @@ void ExportThread::run() {
 
 	delete [] c_filename;
 
-	panel_viewer->viewer_widget->context()->doneCurrent();
-	panel_viewer->viewer_widget->context()->moveToThread(qApp->thread());
+	panel_sequence_viewer->viewer_widget->context()->doneCurrent();
+	panel_sequence_viewer->viewer_widget->context()->moveToThread(qApp->thread());
 }

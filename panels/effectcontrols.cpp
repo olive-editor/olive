@@ -89,7 +89,7 @@ void EffectControls::menu_select(QAction* q) {
 		panel_timeline->repaint_timeline(true);
 	} else {
 		reload_clips();
-		panel_viewer->viewer_widget->update();
+		panel_sequence_viewer->viewer_widget->update();
 	}
 }
 
@@ -229,7 +229,7 @@ void EffectControls::delete_effects() {
     }
     if (command->clips.size() > 0) {
         undo_stack.push(command);
-		panel_viewer->viewer_widget->update();
+		panel_sequence_viewer->viewer_widget->update();
     } else {
         delete command;
     }

@@ -318,8 +318,8 @@ void ExportDialog::render_thread_finished() {
         QMessageBox::critical(this, "Export Failed", "Export failed - " + export_error, QMessageBox::Ok);
     }
     prep_ui_for_render(false);
-    panel_viewer->viewer_widget->makeCurrent();
-    panel_viewer->viewer_widget->initializeGL();
+    panel_sequence_viewer->viewer_widget->makeCurrent();
+    panel_sequence_viewer->viewer_widget->initializeGL();
 }
 
 void ExportDialog::prep_ui_for_render(bool rendering) {
@@ -471,8 +471,8 @@ void ExportDialog::on_pushButton_clicked() {
 
 		closeActiveClips(sequence, true);
 
-		panel_viewer->viewer_widget->context()->doneCurrent();
-		panel_viewer->viewer_widget->context()->moveToThread(et);
+		panel_sequence_viewer->viewer_widget->context()->doneCurrent();
+		panel_sequence_viewer->viewer_widget->context()->moveToThread(et);
 
         prep_ui_for_render(true);
 

@@ -21,7 +21,7 @@ class Viewer : public QDockWidget
 public:
 	explicit Viewer(QWidget *parent = 0);
 	~Viewer();
-    void update_sequence();
+	void update_media(int type, void* media);
 	void compose();
     void set_playpause_icon(bool play);
     void update_playhead_timecode(long p);

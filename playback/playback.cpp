@@ -302,7 +302,7 @@ void set_sequence(Sequence* s) {
 	closeActiveClips(sequence, true);
     sequence = s;
     panel_timeline->update_sequence();
-    panel_viewer->update_sequence();
+	panel_sequence_viewer->update_media(MEDIA_TYPE_SEQUENCE, sequence);
     panel_timeline->setFocus();
 }
 

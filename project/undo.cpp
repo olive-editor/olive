@@ -11,6 +11,7 @@
 #include "panels/project.h"
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
+#include "panels/timeline.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
 #include "effects/effect.h"
@@ -426,28 +427,39 @@ AddClipCommand::~AddClipCommand() {
     for (int i=0;i<clips.size();i++) {
         delete clips.at(i);
     }
+	for (int i=0;i<undone_clips.size();i++) {
+		delete undone_clips.at(i);
+	}
 }
 
 void AddClipCommand::undo() {
     for (int i=0;i<clips.size();i++) {
-        delete seq->clips.last();
+		Clip* c = seq->clips.last();
+		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
+		undone_clips.prepend(c);
         seq->clips.removeLast();
     }
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddClipCommand::redo() {
-    // TODO does this actually need to copy?
-    int linkOffset = seq->clips.size();
-    for (int i=0;i<clips.size();i++) {
-        Clip* original = clips.at(i);
-        Clip* copy = original->copy(seq);
-        copy->linked.resize(original->linked.size());
-        for (int j=0;j<original->linked.size();j++) {
-            copy->linked[j] = original->linked.at(j) + linkOffset;
-        }
-        seq->clips.append(copy);
-    }
+	if (undone_clips.size() > 0) {
+		for (int i=0;i<undone_clips.size();i++) {
+			seq->clips.append(undone_clips.at(i));
+		}
+		undone_clips.clear();
+	} else {
+		int linkOffset = seq->clips.size();
+		for (int i=0;i<clips.size();i++) {
+			Clip* original = clips.at(i);
+			Clip* copy = original->copy(seq);
+			copy->linked.resize(original->linked.size());
+			for (int j=0;j<original->linked.size();j++) {
+				copy->linked[j] = original->linked.at(j) + linkOffset;
+			}
+			seq->clips.append(copy);
+		}
+	}
 	mainWindow->setWindowModified(true);
 }
 
@@ -1370,14 +1382,14 @@ void SetAutoscaleAction::undo() {
     for (int i=0;i<clips.size();i++) {
         clips.at(i)->autoscale = !clips.at(i)->autoscale;
     }
-    panel_viewer->viewer_widget->update();
+	panel_sequence_viewer->viewer_widget->update();
 }
 
 void SetAutoscaleAction::redo() {
     for (int i=0;i<clips.size();i++) {
         clips.at(i)->autoscale = !clips.at(i)->autoscale;
     }
-    panel_viewer->viewer_widget->update();
+	panel_sequence_viewer->viewer_widget->update();
 }
 
 AddMarkerAction::AddMarkerAction(Sequence* s, long t, QString n) :

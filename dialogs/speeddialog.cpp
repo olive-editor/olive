@@ -296,6 +296,8 @@ void SpeedDialog::frame_rate_update() {
 }
 
 void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, long& lr) {
+	panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
+
 	long proposed_out = c->timeline_out;
 	double multiplier = (c->speed / speed);
 	proposed_out = c->timeline_in + (c->getLength() * multiplier);
@@ -327,10 +329,19 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 			}
 		}
 	}
+
+	Selection sel;
+	sel.in = c->timeline_in;
+	sel.out = proposed_out;
+	sel.track = c->track;
+	sequence->selections.append(sel);
 }
 
 void SpeedDialog::accept() {
 	ComboAction* ca = new ComboAction();
+
+	SetSelectionsCommand* sel_command = new SetSelectionsCommand(sequence);
+	sel_command->old_data = sequence->selections;
 
 	long earliest_point = LONG_MAX;
 	long longest_ripple = LONG_MIN;
@@ -402,6 +413,9 @@ void SpeedDialog::accept() {
 	if (ripple->isChecked()) {
 		ca->append(new RippleCommand(clips.at(0)->sequence, earliest_point, longest_ripple));
 	}
+
+	sel_command->new_data = sequence->selections;
+	ca->append(sel_command);
 
 	undo_stack.push(ca);
 
