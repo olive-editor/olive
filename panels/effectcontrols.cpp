@@ -36,13 +36,18 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->effects_area->keyframe_area = ui->keyframeView;
 	ui->effects_area->header = ui->headers;
 
-	ui->keyframeHeaderScroller->setMaximumHeight(ui->headers->minimumHeight());
 	ui->keyframeView->header = ui->headers;
 
 	ui->label_2->setVisible(false);
 
-	connect(ui->keyframeScroller->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
-	connect(ui->keyframeScroller->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->keyframeHeaderScroller->horizontalScrollBar(), SLOT(setValue(int)));
+	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
+	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->keyframeView, SLOT(set_x_scroll(int)));
+	connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), ui->keyframeView, SLOT(set_y_scroll(int)));
+	connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
+	connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->verticalScrollBar, SLOT(setValue(int)));
+
+	/*connect(ui->keyframeScroller->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
+	connect(ui->keyframeScroller->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));*/
 }
 
 EffectControls::~EffectControls() {
@@ -201,7 +206,7 @@ void EffectControls::load_effects() {
 			}
 		}
 		if (selected_clips.size() > 0) {
-			ui->keyframeView->setMinimumHeight(ui->effects_area->height());
+			ui->verticalScrollBar->setMaximum(qMax(0, ui->effects_area->height() - ui->keyframeView->height() - ui->headers->height()));
 			ui->keyframeView->setEnabled(true);
 			ui->headers->setVisible(true);
 			ui->keyframeView->update();
@@ -264,6 +269,10 @@ void EffectControls::on_add_audio_transition_button_clicked()
 	show_effect_menu(false, true);
 }
 
+void EffectControls::resizeEvent(QResizeEvent *event) {
+	ui->verticalScrollBar->setMaximum(qMax(0, ui->effects_area->height() - ui->keyframeView->height() - ui->headers->height()));
+}
+
 bool EffectControls::is_focused() {
     if (this->hasFocus()) return true;
     for (int i=0;i<selected_clips.size();i++) {
@@ -285,5 +294,4 @@ EffectsArea::EffectsArea(QWidget* parent) : QWidget(parent) {}
 
 void EffectsArea::resizeEvent(QResizeEvent*) {
 	parent_widget->setMinimumWidth(sizeHint().width());
-	keyframe_area->setMinimumHeight(height() - header->height());
 }

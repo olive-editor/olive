@@ -24,11 +24,11 @@ public slots:
 	void set_visible_in(long i);
 
 protected:
-    void paintEvent(QPaintEvent*);
-    void mousePressEvent(QMouseEvent*);
-    void mouseMoveEvent(QMouseEvent*);
-    void mouseReleaseEvent(QMouseEvent*);
-	void focusOutEvent(QFocusEvent *event);
+	void paintEvent(QPaintEvent*);
+	void mousePressEvent(QMouseEvent*);
+	void mouseMoveEvent(QMouseEvent*);
+	void mouseReleaseEvent(QMouseEvent*);
+	void focusOutEvent(QFocusEvent*);
 
 private:
     bool dragging;

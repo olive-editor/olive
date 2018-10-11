@@ -367,14 +367,20 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void TimelineWidget::wheelEvent(QWheelEvent *event) {
-	if (config.scroll_zooms) {
-		if (event->angleDelta().y() != 0) panel_timeline->set_zoom(event->angleDelta().y() > 0);
-	} else {
-		QScrollBar* bar = (event->modifiers() & Qt::ShiftModifier) ? scrollBar : panel_timeline->ui->horizontalScrollBar;
+	bool alt = (event->modifiers() & Qt::AltModifier);
+	int scroll_amount = alt ? (event->angleDelta().x()) : (event->angleDelta().y());
+	if (scroll_amount != 0) {
+		bool shift = (event->modifiers() & Qt::ShiftModifier);
+		bool in = (scroll_amount > 0);
+		if (config.scroll_zooms != shift) {
+			panel_timeline->set_zoom(in);
+		} else {
+			QScrollBar* bar = alt ? scrollBar : panel_timeline->ui->horizontalScrollBar;
 
-		int step = bar->singleStep();
-		if (event->angleDelta().y() > 0) step = -step;
-		bar->setValue(bar->value() + step);
+			int step = bar->singleStep();
+			if (in) step = -step;
+			bar->setValue(bar->value() + step);
+		}
 	}
 }
 

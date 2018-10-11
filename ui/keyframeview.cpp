@@ -11,9 +11,11 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 #include "project/sequence.h"
+#include "ui_effectcontrols.h"
 
 #include <QLabel>
 #include <QMouseEvent>
+#include <QtMath>
 
 #define KEYFRAME_SIZE 6
 #define KEYFRAME_POINT_COUNT 4
@@ -22,7 +24,17 @@ long KeyframeView::adjust_row_keyframe(EffectRow* row, long time) {
 	return time-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
 }
 
-KeyframeView::KeyframeView(QWidget *parent) : QWidget(parent), mousedown(false), dragging(false), keys_selected(false), select_rect(false), visible_in(0), visible_out(0) {
+KeyframeView::KeyframeView(QWidget *parent) :
+	QWidget(parent),
+	mousedown(false),
+	dragging(false),
+	keys_selected(false),
+	select_rect(false),
+	visible_in(0),
+	visible_out(0),
+	x_scroll(0),
+	y_scroll(0)
+{
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
 }
@@ -50,12 +62,12 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 						QLabel* label = row->label;
 						QWidget* contents = e->container->contents;
 
-						int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height();
+						int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height()/* - y_scroll*/;
 						for (int k=0;k<row->keyframe_times.size();k++) {
 							bool keyframe_selected = keyframeIsSelected(row, k);
 							long keyframe_frame = adjust_row_keyframe(row, row->keyframe_times.at(k));
 							if (dragging && keyframe_selected) keyframe_frame += frame_diff;
-							draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame), keyframe_y, keyframe_selected);
+							draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
 						}
 
 						rows.append(row);
@@ -68,12 +80,11 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		visible_in = effects_in;
 		visible_out = effects_out;
 
-		int width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
-		setMinimumWidth(width);
-		header->setMinimumWidth(width);
+		int max_width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
+		panel_effect_controls->ui->horizontalScrollBar->setMaximum(qMax(max_width - width(), 0));
 		header->set_visible_in(effects_in);
 
-		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, sequence->playhead-visible_in);
+		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, sequence->playhead-visible_in) - x_scroll;
 		p.setPen(Qt::red);
 		p.drawLine(playhead_x, 0, playhead_x, height());
 	}
@@ -113,6 +124,16 @@ void KeyframeView::delete_selected_keyframes() {
 	} else {
 		delete kd;
 	}
+}
+
+void KeyframeView::set_x_scroll(int s) {
+	x_scroll = s;
+	update();
+}
+
+void KeyframeView::set_y_scroll(int s) {
+	y_scroll = s;
+	update();
 }
 
 void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool darker) {

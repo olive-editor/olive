@@ -20,6 +20,9 @@ public:
 
 	long visible_in;
 	long visible_out;
+public slots:
+	void set_x_scroll(int);
+	void set_y_scroll(int);
 private:
 	long adjust_row_keyframe(EffectRow* row, long time);
 	QVector<EffectRow*> selected_rows;
@@ -45,6 +48,9 @@ private:
 	int rect_select_y;
 	int rect_select_w;
 	int rect_select_h;
+
+	int x_scroll;
+	int y_scroll;
 };
 
 #endif // KEYFRAMEVIEW_H

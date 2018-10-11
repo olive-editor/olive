@@ -91,9 +91,7 @@ Timeline::Timeline(QWidget *parent) :
 
 	ui->toolArrowButton->click();
 
-    ui->headerScrollArea->setMaximumHeight(ui->headers->minimumHeight());	
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
-	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
 	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
 
@@ -1294,5 +1292,6 @@ void Timeline::addMenuItem(QAction* action) {
 
 void Timeline::setScroll(int s) {
 	scroll = s;
+	ui->headers->set_scroll(s);
 	repaint_timeline(false);
 }

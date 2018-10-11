@@ -44,6 +44,8 @@ public:
 	QVector<int> selected_clips;
 
 	double zoom;
+
+	Ui::EffectControls *ui;
 public slots:
     void update_keyframes();
 private slots:
@@ -55,9 +57,9 @@ private slots:
 	void on_add_video_transition_button_clicked();
 
 	void on_add_audio_transition_button_clicked();
-
+protected:
+	void resizeEvent(QResizeEvent *event);
 private:
-	Ui::EffectControls *ui;
 	void show_effect_menu(bool video, bool transitions);
 	void load_effects();
 	void load_keyframes();

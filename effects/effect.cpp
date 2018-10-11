@@ -453,12 +453,38 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
     label = new QLabel(name);
 	ui->addWidget(label, row, 0);
 
+	QSize button_size(20, 20);
+	QSize icon_size(12, 12);
+
+	QHBoxLayout* key_controls = new QHBoxLayout();
+	key_controls->setSpacing(0);
+	key_controls->setMargin(0);
+
 	keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "");
 	keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+	keyframe_enable->setMaximumSize(button_size);
+	keyframe_enable->setIconSize(icon_size);
     keyframe_enable->setCheckable(true);
 	keyframe_enable->setToolTip("Enable Keyframes");
 	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
-	ui->addWidget(keyframe_enable, row, 6);
+	key_controls->addWidget(keyframe_enable);
+
+	QPushButton* left_key_nav = new QPushButton("<");
+	left_key_nav->setMaximumSize(button_size);
+	key_controls->addWidget(left_key_nav);
+	connect(left_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_previous_key()));
+
+	QPushButton* key_addremove = new QPushButton(".");
+	key_addremove->setMaximumSize(button_size);
+	key_controls->addWidget(key_addremove);
+	connect(key_addremove, SIGNAL(clicked(bool)), this, SLOT(toggle_key()));
+
+	QPushButton* right_key_nav = new QPushButton(">");
+	right_key_nav->setMaximumSize(button_size);
+	key_controls->addWidget(right_key_nav);
+	connect(right_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_next_key()));
+
+	ui->addLayout(key_controls, row, 6);
 }
 
 bool EffectRow::isKeyframing() {
@@ -487,6 +513,52 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 			setKeyframing(true);
 		}
 	}
+}
+
+void EffectRow::goto_previous_key() {
+	long key = LONG_MIN;
+	Clip* c = parent_effect->parent_clip;
+	for (int i=0;i<keyframe_times.size();i++) {
+		long comp = keyframe_times.at(i) - c->clip_in + c->timeline_in;
+		if (comp < sequence->playhead) {
+			key = qMax(comp, key);
+		}
+	}
+	if (key != LONG_MIN) panel_timeline->seek(key);
+}
+
+void EffectRow::toggle_key() {
+	int index = -1;
+	Clip* c = parent_effect->parent_clip;
+	for (int i=0;i<keyframe_times.size();i++) {
+		long comp = c->timeline_in - c->clip_in + keyframe_times.at(i);
+		if (comp == sequence->playhead) {
+			index = i;
+			break;
+		}
+	}
+	if (index < 0) {
+		// keyframe doesn't exist, set one
+		set_keyframe_now(true);
+	} else {
+		KeyframeDelete* kd = new KeyframeDelete();
+		delete_keyframe(kd, index);
+		undo_stack.push(kd);
+		panel_effect_controls->update_keyframes();
+		panel_viewer->viewer_widget->update();
+	}
+}
+
+void EffectRow::goto_next_key() {
+	long key = LONG_MAX;
+	Clip* c = parent_effect->parent_clip;
+	for (int i=0;i<keyframe_times.size();i++) {
+		long comp = c->timeline_in - c->clip_in + keyframe_times.at(i);
+		if (comp > sequence->playhead) {
+			key = qMin(comp, key);
+		}
+	}
+	if (key != LONG_MAX) panel_timeline->seek(key);
 }
 
 EffectField* EffectRow::add_field(int type, int colspan) {

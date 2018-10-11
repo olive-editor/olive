@@ -32,7 +32,8 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
 {
     setCursor(Qt::ArrowCursor);
     setMouseTracking(true);
-	setMinimumHeight(fm.height()*2);
+	setFixedHeight(fm.height()*2);
+	setFocusPolicy(Qt::ClickFocus);
 }
 
 void TimelineHeader::set_scroll(int s) {
@@ -51,7 +52,9 @@ int TimelineHeader::getHeaderScreenPointFromFrame(long frame) {
 void TimelineHeader::set_playhead(int mouse_x) {
 	long frame = getHeaderFrameFromScreenPoint(mouse_x);
 	if (snapping) panel_timeline->snap_to_timeline(&frame, false, true, true);
-	panel_timeline->seek(frame);
+	if (frame != sequence->playhead) {
+		panel_timeline->seek(frame);
+	}
 }
 
 void TimelineHeader::set_visible_in(long i) {
@@ -83,6 +86,7 @@ void TimelineHeader::set_out_point(long new_out) {
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
+	qDebug() << "press???!?!?!??!";
     if (resizing_workarea) {
 		sequence_end = sequence->getEndFrame();
 	} else {
@@ -127,11 +131,15 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			set_playhead(event->pos().x());
 		}
     }
+	qDebug() << "3";
     dragging = true;
+	qDebug() << "5" << dragging;
+	event->accept();
 }
 
 void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
-    if (dragging) {
+	qDebug() << "move";
+	if (dragging) {
 		if (resizing_workarea) {
 			long frame = getHeaderFrameFromScreenPoint(event->pos().x());
 			panel_timeline->snap_to_timeline(&frame, true, true, false);
@@ -193,9 +201,11 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
             }
 		}
     }
+	event->accept();
 }
 
-void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
+void TimelineHeader::mouseReleaseEvent(QMouseEvent* event) {
+	qDebug() << "release???!?!?!??!";
     if (resizing_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, true, temp_workarea_in, temp_workarea_out));
 	} else if (dragging_markers && selected_markers.size() > 0) {
@@ -220,6 +230,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 	dragging_markers = false;
     panel_timeline->snapped = false;
 	panel_timeline->repaint_timeline(false);
+	event->accept();
 }
 
 void TimelineHeader::focusOutEvent(QFocusEvent*) {

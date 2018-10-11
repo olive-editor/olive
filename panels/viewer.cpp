@@ -117,6 +117,10 @@ void Viewer::update_end_timecode() {
     }
 }
 
+/*void Viewer::update_media(int type) {
+
+}*/
+
 void Viewer::update_sequence() {
     bool null_sequence = (sequence == NULL);
 

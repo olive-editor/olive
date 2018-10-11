@@ -161,6 +161,9 @@ public:
     QVector<int> keyframe_types;
 private slots:
 	void set_keyframe_enabled(bool);
+	void goto_previous_key();
+	void toggle_key();
+	void goto_next_key();
 private:
 	bool keyframing;
 	QGridLayout* ui;
