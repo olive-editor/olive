@@ -115,7 +115,9 @@ bool get_clip_frame(Clip* c, long playhead) {
 			sequence_clip_time = c->getMaximumLength() - sequence_clip_time - 1;
 		}
 
-		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, c->getMediaFrameRate()*c->speed);
+		double rate = c->getMediaFrameRate();
+		if (c->skip_type == SKIP_TYPE_DISCARD) rate *= c->speed;
+		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, rate);
 
 		AVFrame* current_frame = NULL;
 		bool no_frame = false;
@@ -139,28 +141,29 @@ bool get_clip_frame(Clip* c, long playhead) {
 			long cache_offset = 0;
 			bool cache_needs_reset = false;
 
+			// TODO just removed a bunch of mutexes - is this safe????
 			if (c->cache_A.written && clip_time >= c->cache_A.offset && clip_time < c->cache_A.offset + c->cache_size) {
-				if (clip_time < c->cache_A.offset + c->cache_A.write_count) {
-					if (c->cache_A.mutex.tryLock()) { // lock in case cacher is still writing to it
+				if (clip_time < (c->cache_A.offset + c->cache_A.write_count)) {
+//					if (c->cache_A.mutex.tryLock()) { // lock in case cacher is still writing to it
 						using_cache_A = true;
 						c->cache_A.unread = false;
 						cache = c->cache_A.frames;
 						cache_offset = c->cache_A.offset;
-						c->cache_A.mutex.unlock();
-					}
+//						c->cache_A.mutex.unlock();
+//					}
 				} else {
 					// frame is coming but isn't here yet, no need to reset cache
 					no_frame = true;
 				}
 			} else if (c->cache_B.written && clip_time >= c->cache_B.offset && clip_time < c->cache_B.offset + c->cache_size) {
-				if (clip_time < c->cache_B.offset + c->cache_B.write_count) {
-					if (c->cache_B.mutex.tryLock()) { // lock in case cacher is still writing to it
+				if (clip_time < (c->cache_B.offset + c->cache_B.write_count)) {
+//					if (c->cache_B.mutex.tryLock()) { // lock in case cacher is still writing to it
 						using_cache_B = true;
 						c->cache_B.unread = false;
 						cache = c->cache_B.frames;
 						cache_offset = c->cache_B.offset;
-						c->cache_B.mutex.unlock();
-					}
+//						c->cache_B.mutex.unlock();
+//					}
 				} else {
 					// frame is coming but isn't here yet, no need to reset cache
 					no_frame = true;
@@ -201,6 +204,8 @@ bool get_clip_frame(Clip* c, long playhead) {
 			}
 		}
 
+		qDebug() << "current_frame is NULL:" << (current_frame == NULL);
+
 		if (current_frame != NULL) {
 			// set up opengl texture
 			if (c->texture == NULL) {
@@ -216,11 +221,10 @@ bool get_clip_frame(Clip* c, long playhead) {
 			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 			c->texture_frame = clip_time;
-
 			return true;
-		} else if (!no_frame) {
+		} else {
 			texture_failed = true;
-			qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
+			if (!no_frame) qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
 		}
 	}
     return false;

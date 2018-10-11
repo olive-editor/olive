@@ -5,6 +5,9 @@
 #include <QMutex>
 #include <QVector>
 
+#define SKIP_TYPE_DISCARD 0
+#define SKIP_TYPE_SEEK 1
+
 class Cacher;
 class Effect;
 class Transition;
@@ -74,6 +77,7 @@ struct Clip
 	double speed;
 	bool reverse;
 	long calculated_length;
+	int skip_type;
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;

@@ -28,7 +28,7 @@
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
     if (source_frame_rate == target_frame_rate) return framenumber;
-    return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
+	return qFloor(((double)framenumber/source_frame_rate)*target_frame_rate);
 }
 
 void draw_selection_rectangle(QPainter& painter, const QRect& rect) {

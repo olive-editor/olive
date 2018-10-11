@@ -345,9 +345,21 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 		}
 	}*/
 
+	if (!error) {
+		// setting the cache to written even if it hasn't reached_end prevents playback from
+		// signaling a seek/reset because it wasn't able to find the frame
+		cache->written = true;
+		cache->unread = true;
+	}
+
 	/* new AVFilter solution */
 	if (!c->reached_end) {
 		while (i < c->cache_size) {
+			if (c->skip_type == SKIP_TYPE_SEEK) {
+				long seek_frame = refactor_frame_number(i + cache->offset, c->getMediaFrameRate(), c->getMediaFrameRate()*c->speed);
+				reset_cache(c, seek_frame);
+			}
+
 			av_frame_unref(cache->frames[i]);
 
 			int ret = (c->filter_graph == NULL) ? AVERROR(EAGAIN) : av_buffersink_get_frame(c->buffersink_ctx, cache->frames[i]);
@@ -381,21 +393,17 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 				}
 			} else {
 				i++;
+				cache->write_count = i;
 			}
 		}
 	}
 
 	cache->write_count = i;
 
-	if (!error) {
-		// setting the cache to written even if it hasn't reached_end prevents playback from
-		// signaling a seek/reset because it wasn't able to find the frame
-		cache->written = true;
-		cache->unread = true;
-	}
-
 	cache->mutex.unlock();
 }
+
+
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
@@ -415,11 +423,12 @@ void reset_cache(Clip* c, long target_frame) {
 
 				// play up to the frame we actually want
 				long retrieved_frame = 0;
+				target_frame--;
 				AVFrame* temp = av_frame_alloc();
 				do {
 					retrieve_next_frame(c, temp);
 					if (retrieved_frame == 0) {
-						if (target_frame != 0) retrieved_frame = floor(temp->pts * timebase * av_q2d(c->stream->avg_frame_rate));
+						if (target_frame != -1) retrieved_frame = floor(temp->pts * timebase * av_q2d(c->stream->avg_frame_rate));
 					} else {
 						retrieved_frame++;
 					}
@@ -517,8 +526,24 @@ void open_clip_worker(Clip* clip) {
 		char filter_args[512];
 
 		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+			/* SKIP_TYPE_SEEK is used if a video is playing at a speed so fast
+			 * that it is quicker to seek to the next frame than to just play
+			 * up to it (e.g. 2000% speed would require playing and skipping
+			 * 20 frames per frame and it many cases it would be quicker to
+			 * seek to it and cache in memory instead.
+			 *
+			 * TODO there could probably be a better heuristic than
+			 * (speed >= 5) for using seek mode. Experiment with the value
+			 * but also in the future perhaps we could implement a system
+			 * of testing how long it takes to seek vs how long it takes to
+			 * decode a frame and compare them to choose with method.
+			 */
+			clip->skip_type = (clip->speed < 5) ? SKIP_TYPE_DISCARD : SKIP_TYPE_SEEK;
+
 			// create memory cache for video
 			clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(clip->stream->avg_frame_rate)/4); // cache is half a second in total
+
+//			if (clip->skip_type == SKIP_TYPE_SEEK) clip->cache_size *= 2;
 
 			clip->cache_A.frames = new AVFrame* [clip->cache_size];
 			clip->cache_B.frames = new AVFrame* [clip->cache_size];
@@ -544,7 +569,7 @@ void open_clip_worker(Clip* clip) {
             enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
             if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
                 qDebug() << "[ERROR] Could not set output pixel format";
-            }
+			}
 
             bool interlaced = false;
             if (interlaced) {
