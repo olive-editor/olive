@@ -293,18 +293,18 @@ bool Timeline::focused() {
 }
 
 void Timeline::repaint_timeline(bool changed) {
-	if (playing) {
-		sequence->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
-	} else if (changed) {
+	if (changed) {
 		reset_all_audio();
+		update_effect_controls();
+		if (!playing) panel_viewer->viewer_widget->update();
+	} else if (playing) {
+		sequence->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
 	}
 
 	ui->headers->update();
 	ui->video_area->update();
 	ui->audio_area->update();
 	panel_effect_controls->update_keyframes();
-
-	update_effect_controls();
 
 	if (sequence != NULL) {
 		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequence->getEndFrame()) + 100 - ui->editAreas->width()));
@@ -318,6 +318,7 @@ void Timeline::repaint_timeline(bool changed) {
 		if (zoomChanged) {
 			zoomChanged = false;
 			int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
+
 			// TODO find a way to gradually move towards target_scroll instead of just setting it?
 			ui->horizontalScrollBar->setValue(target_scroll);
 		}

@@ -60,6 +60,7 @@ void PreviewGenerator::parse_media() {
 				}
 				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
 				ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+				ms->video_interlacing = VIDEO_PROGRESSIVE; // default value, we get the true value later in generate_waveform()
 				if (append) media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
@@ -170,7 +171,13 @@ void PreviewGenerator::generate_waveform() {
 
 						s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
 
-		//                  delete [] data;
+						// is video interlaced?
+						if (temp_frame->interlaced_frame) {
+							s->video_interlacing = (temp_frame->top_field_first) ? VIDEO_TOP_FIELD_FIRST : VIDEO_BOTTOM_FIELD_FIRST;
+							s->video_frame_rate *= 2;
+						} else {
+							s->video_interlacing = VIDEO_PROGRESSIVE;
+						}
 
 						s->preview_done = true;
 

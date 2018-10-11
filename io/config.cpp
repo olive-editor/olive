@@ -9,7 +9,7 @@ Config config;
 
 Config::Config()
     : saved_layout(false),
-      show_track_lines(false),
+	  show_track_lines(true),
       scroll_zooms(false),
       img_seq_formats("jpg|jpeg|bmp|tiff|tif|psd|png|tga|jp2|gif"),
       edit_tool_selects_links(false),
@@ -24,9 +24,7 @@ Config::Config()
 	  custom_title_safe_ratio(1),
       enable_drag_files_to_timeline(false),
       autoscale_by_default(false)
-{
-
-}
+{}
 
 void Config::load(QString path) {
     QFile f(path);

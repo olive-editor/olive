@@ -117,7 +117,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 		double rate = c->getMediaFrameRate();
 		if (c->skip_type == SKIP_TYPE_DISCARD) rate *= c->speed;
-		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, rate);
+		long clip_time = qMax(0L, refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, rate));
 
 		AVFrame* current_frame = NULL;
 		bool no_frame = false;
@@ -170,6 +170,8 @@ bool get_clip_frame(Clip* c, long playhead) {
 				}
 			} else {
 				// this is technically bad, unless we just seeked
+				c->cache_A.write_count = 0;
+				c->cache_B.write_count = 0;
 				c->cache_A.unread = false;
 				c->cache_B.unread = false;
 				cache_needs_reset = true;
@@ -204,8 +206,6 @@ bool get_clip_frame(Clip* c, long playhead) {
 			}
 		}
 
-		qDebug() << "current_frame is NULL:" << (current_frame == NULL);
-
 		if (current_frame != NULL) {
 			// set up opengl texture
 			if (c->texture == NULL) {
@@ -224,7 +224,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 			return true;
 		} else {
 			texture_failed = true;
-			if (!no_frame) qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
+			qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
 		}
 	}
     return false;
@@ -242,7 +242,7 @@ double playhead_to_seconds(Clip* c, long playhead) {
 long seconds_to_clip_frame(Clip* c, double seconds) {
 	// returns time as frame number (according to clip's frame rate)
 	if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-		return floor(seconds*av_q2d(c->stream->avg_frame_rate));
+		return floor(seconds*c->getMediaFrameRate());
 	} else {
 		qDebug() << "[ERROR] seconds_to_clip_frame only works on video streams";
 		return 0;
@@ -251,7 +251,7 @@ long seconds_to_clip_frame(Clip* c, double seconds) {
 
 double clip_frame_to_seconds(Clip* c, long clip_frame) {
     // returns frame number in decimal seconds
-	return (double) clip_frame / av_q2d(c->stream->avg_frame_rate);
+	return (double) clip_frame / c->getMediaFrameRate();
 }
 
 int retrieve_next_frame(Clip* c, AVFrame* f) {

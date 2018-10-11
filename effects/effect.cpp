@@ -467,19 +467,23 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
     keyframe_enable->setCheckable(true);
 	keyframe_enable->setToolTip("Enable Keyframes");
 	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
+	connect(keyframe_enable, SIGNAL(toggled(bool)), this, SLOT(keyframe_ui_enabled(bool)));
 	key_controls->addWidget(keyframe_enable);
 
-	QPushButton* left_key_nav = new QPushButton("<");
+	left_key_nav = new QPushButton("<");
+	left_key_nav->setVisible(false);
 	left_key_nav->setMaximumSize(button_size);
 	key_controls->addWidget(left_key_nav);
 	connect(left_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_previous_key()));
 
-	QPushButton* key_addremove = new QPushButton(".");
+	key_addremove = new QPushButton(".");
+	key_addremove->setVisible(false);
 	key_addremove->setMaximumSize(button_size);
 	key_controls->addWidget(key_addremove);
 	connect(key_addremove, SIGNAL(clicked(bool)), this, SLOT(toggle_key()));
 
-	QPushButton* right_key_nav = new QPushButton(">");
+	right_key_nav = new QPushButton(">");
+	right_key_nav->setVisible(false);
 	right_key_nav->setMaximumSize(button_size);
 	key_controls->addWidget(right_key_nav);
 	connect(right_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_next_key()));
@@ -513,6 +517,12 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 			setKeyframing(true);
 		}
 	}
+}
+
+void EffectRow::keyframe_ui_enabled(bool enabled) {
+	left_key_nav->setVisible(enabled);
+	key_addremove->setVisible(enabled);
+	right_key_nav->setVisible(enabled);
 }
 
 void EffectRow::goto_previous_key() {

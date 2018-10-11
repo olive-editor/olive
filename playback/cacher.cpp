@@ -344,13 +344,7 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 			i++;
 		}
 	}*/
-
-	if (!error) {
-		// setting the cache to written even if it hasn't reached_end prevents playback from
-		// signaling a seek/reset because it wasn't able to find the frame
-		cache->written = true;
-		cache->unread = true;
-	}
+	cache->unread = true;
 
 	/* new AVFilter solution */
 	if (!c->reached_end) {
@@ -392,6 +386,7 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 					break;
 				}
 			} else {
+				cache->written = true;
 				i++;
 				cache->write_count = i;
 			}
@@ -399,6 +394,13 @@ void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
 	}
 
 	cache->write_count = i;
+
+	/*if (!error) {
+		// setting the cache to written even if it hasn't reached_end prevents playback from
+		// signaling a seek/reset because it wasn't able to find the frame
+		cache->written = true;
+		cache->unread = true;
+	}*/
 
 	cache->mutex.unlock();
 }
@@ -415,26 +417,39 @@ void reset_cache(Clip* c, long target_frame) {
 			// flush ffmpeg codecs
 			avcodec_flush_buffers(c->codecCtx);
 
+			// flush filtergraph
+			/*while (av_buffersink_get_frame(c->buffersink_ctx, temp) >= 0) {
+				qDebug() << "flushed?";
+				av_frame_unref(temp);
+			}*/
+
 			double timebase = av_q2d(c->stream->time_base);
 
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-				// seeks to nearest keyframe (target_frame represents internal clip frame)
-				av_seek_frame(c->formatCtx, ms->file_index, (int64_t) qFloor(clip_frame_to_seconds(c, target_frame) / timebase), AVSEEK_FLAG_BACKWARD);
+				if (target_frame > 0) {
+					AVFrame* temp = av_frame_alloc();
 
-				// play up to the frame we actually want
-				long retrieved_frame = 0;
-				target_frame--;
-				AVFrame* temp = av_frame_alloc();
-				do {
-					retrieve_next_frame(c, temp);
-					if (retrieved_frame == 0) {
-						if (target_frame != -1) retrieved_frame = floor(temp->pts * timebase * av_q2d(c->stream->avg_frame_rate));
-					} else {
-						retrieved_frame++;
-					}
-				} while (retrieved_frame < target_frame);
+					// seeks to nearest keyframe (target_frame represents internal clip frame)
+					int64_t seek_ts = qRound(clip_frame_to_seconds(c, target_frame) / timebase);
+					av_seek_frame(c->formatCtx, ms->file_index, seek_ts - (av_q2d(av_inv_q(c->stream->time_base))), AVSEEK_FLAG_BACKWARD);
 
-				av_frame_free(&temp);
+					qDebug() << "seek ts:" << seek_ts;
+
+					// play up to the frame we actually want
+					int ret;
+					do {
+						ret = retrieve_next_frame(c, temp);
+						if (ret < 0) {
+							qDebug() << "[WARNING] Seeking terminated prematurely";
+							break;
+						}
+						qDebug() << "received ts:" << temp->pts;
+					} while (temp->pts + temp->pkt_duration + temp->pkt_duration < seek_ts);
+					av_frame_unref(temp);
+					av_frame_free(&temp);
+				} else {
+					av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);
+				}
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
 				int64_t timestamp = qRound(playhead_to_seconds(c, target_frame) / timebase); // TODO qRound here might lead to clicking? or might fix it... who knows
@@ -521,7 +536,7 @@ void open_clip_worker(Clip* clip) {
 		// allocate filtergraph
 		clip->filter_graph = avfilter_graph_alloc();
 		if (clip->filter_graph == NULL) {
-			qDebug() << "couldn't create filtergraph";
+			qDebug() << "[ERROR] Could not create filtergraph";
 		}
 		char filter_args[512];
 
@@ -544,6 +559,7 @@ void open_clip_worker(Clip* clip) {
 			clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(clip->stream->avg_frame_rate)/4); // cache is half a second in total
 
 //			if (clip->skip_type == SKIP_TYPE_SEEK) clip->cache_size *= 2;
+			if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->cache_size *= 2;
 
 			clip->cache_A.frames = new AVFrame* [clip->cache_size];
 			clip->cache_B.frames = new AVFrame* [clip->cache_size];
@@ -571,19 +587,17 @@ void open_clip_worker(Clip* clip) {
                 qDebug() << "[ERROR] Could not set output pixel format";
 			}
 
-            bool interlaced = false;
-            if (interlaced) {
-                // TODO make better
-                AVFilterContext* yadif_filter;
-                avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", "mode=3", NULL, clip->filter_graph);
-
-                clip->speed *= 2;
-
-                avfilter_link(clip->buffersrc_ctx, 0, yadif_filter, 0);
-                avfilter_link(yadif_filter, 0, clip->buffersink_ctx, 0);
-            } else {
+			if (ms->video_interlacing == VIDEO_PROGRESSIVE) {
                 avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
-            }
+			} else {
+				AVFilterContext* yadif_filter;
+				char yadif_args[100];
+				snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // try mode 1
+				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, NULL, clip->filter_graph);
+
+				avfilter_link(clip->buffersrc_ctx, 0, yadif_filter, 0);
+				avfilter_link(yadif_filter, 0, clip->buffersink_ctx, 0);
+			}
 
 			avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -765,7 +779,7 @@ void Cacher::run() {
 
 	open_clip_worker(clip);
 
-    while (caching) {
+	while (caching) {
 		clip->can_cache.wait(&clip->lock);
         if (!caching) {
 			break;

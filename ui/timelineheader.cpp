@@ -86,8 +86,7 @@ void TimelineHeader::set_out_point(long new_out) {
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
-	qDebug() << "press???!?!?!??!";
-    if (resizing_workarea) {
+	if (resizing_workarea) {
 		sequence_end = sequence->getEndFrame();
 	} else {
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
@@ -130,15 +129,11 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			}
 			set_playhead(event->pos().x());
 		}
-    }
-	qDebug() << "3";
-    dragging = true;
-	qDebug() << "5" << dragging;
-	event->accept();
+	}
+	dragging = true;
 }
 
 void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
-	qDebug() << "move";
 	if (dragging) {
 		if (resizing_workarea) {
 			long frame = getHeaderFrameFromScreenPoint(event->pos().x());
@@ -180,7 +175,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 			panel_timeline->repaint_timeline(false);
 		} else {
 			set_playhead(event->pos().x());
-        }
+		}
     } else {
 		resizing_workarea = false;
         unsetCursor();
@@ -200,13 +195,12 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
                 setCursor(Qt::SizeHorCursor);
             }
 		}
-    }
-	event->accept();
+	}
 }
 
 void TimelineHeader::mouseReleaseEvent(QMouseEvent* event) {
-	qDebug() << "release???!?!?!??!";
-    if (resizing_workarea) {
+	dragging = false;
+	if (resizing_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, true, temp_workarea_in, temp_workarea_out));
 	} else if (dragging_markers && selected_markers.size() > 0) {
 		bool moved = false;
@@ -230,7 +224,6 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent* event) {
 	dragging_markers = false;
     panel_timeline->snapped = false;
 	panel_timeline->repaint_timeline(false);
-	event->accept();
 }
 
 void TimelineHeader::focusOutEvent(QFocusEvent*) {
