@@ -16,6 +16,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "project/undo.h"
+#include "effects/effect.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -147,8 +148,6 @@ void SpeedDialog::run() {
 				current_percent = qSNaN();
 			}
 		}
-
-
 	}
 
 	frame_rate->set_minimum_value(1);
@@ -313,7 +312,21 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	}
 	ep = qMin(ep, c->timeline_out);
 	lr = qMax(lr, proposed_out - c->timeline_out);
-	ca->append(new MoveClipAction(c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track));
+	ca->append(new MoveClipAction(c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track));	
+	for (int i=0;i<c->effects.size();i++) {
+		Effect* e = c->effects.at(i);
+		for (int j=0;j<e->row_count();j++) {
+			EffectRow* r = e->row(j);
+			for (int k=0;k<r->keyframe_times.size();k++) {
+				long new_pos = r->keyframe_times.at(k) / speed;
+				KeyframeMove* km = new KeyframeMove();
+				km->movement = new_pos - r->keyframe_times.at(k);
+				km->rows.append(r);
+				km->keyframes.append(k);
+				ca->append(km);
+			}
+		}
+	}
 }
 
 void SpeedDialog::accept() {

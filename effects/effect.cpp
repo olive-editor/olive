@@ -459,16 +459,7 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
 	QHBoxLayout* key_controls = new QHBoxLayout();
 	key_controls->setSpacing(0);
 	key_controls->setMargin(0);
-
-	keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "");
-	keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-	keyframe_enable->setMaximumSize(button_size);
-	keyframe_enable->setIconSize(icon_size);
-    keyframe_enable->setCheckable(true);
-	keyframe_enable->setToolTip("Enable Keyframes");
-	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
-	connect(keyframe_enable, SIGNAL(toggled(bool)), this, SLOT(keyframe_ui_enabled(bool)));
-	key_controls->addWidget(keyframe_enable);
+	key_controls->addStretch();
 
 	left_key_nav = new QPushButton("<");
 	left_key_nav->setVisible(false);
@@ -487,6 +478,16 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
 	right_key_nav->setMaximumSize(button_size);
 	key_controls->addWidget(right_key_nav);
 	connect(right_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_next_key()));
+
+	keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "");
+	keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+	keyframe_enable->setMaximumSize(button_size);
+	keyframe_enable->setIconSize(icon_size);
+	keyframe_enable->setCheckable(true);
+	keyframe_enable->setToolTip("Enable Keyframes");
+	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
+	connect(keyframe_enable, SIGNAL(toggled(bool)), this, SLOT(keyframe_ui_enabled(bool)));
+	key_controls->addWidget(keyframe_enable);
 
 	ui->addLayout(key_controls, row, 6);
 }

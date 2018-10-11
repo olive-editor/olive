@@ -433,8 +433,6 @@ void reset_cache(Clip* c, long target_frame) {
 					int64_t seek_ts = qRound(clip_frame_to_seconds(c, target_frame) / timebase);
 					av_seek_frame(c->formatCtx, ms->file_index, seek_ts - (av_q2d(av_inv_q(c->stream->time_base))), AVSEEK_FLAG_BACKWARD);
 
-					qDebug() << "seek ts:" << seek_ts;
-
 					// play up to the frame we actually want
 					int ret;
 					do {
@@ -443,7 +441,6 @@ void reset_cache(Clip* c, long target_frame) {
 							qDebug() << "[WARNING] Seeking terminated prematurely";
 							break;
 						}
-						qDebug() << "received ts:" << temp->pts;
 					} while (temp->pts + temp->pkt_duration + temp->pkt_duration < seek_ts);
 					av_frame_unref(temp);
 					av_frame_free(&temp);
