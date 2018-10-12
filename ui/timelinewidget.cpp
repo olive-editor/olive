@@ -1009,10 +1009,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 			if (redraw) {
 				panel_timeline->repaint_timeline(true);
 			} else {
+				panel_timeline->update_effect_controls();
 				if (repaint) {
 					panel_timeline->repaint_timeline(false);
 				}
-				panel_timeline->update_effect_controls();
 			}
         }
     }

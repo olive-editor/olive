@@ -5,6 +5,8 @@
 #include "panels/project.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "panels/timeline.h"
+#include "playback/playback.h"
 
 #include <QVariant>
 #include <QDebug>
@@ -74,21 +76,28 @@ void NewSequenceDialog::showEvent(QShowEvent *) {
 }
 
 void NewSequenceDialog::on_buttonBox_accepted() {
-	Sequence* s = (existing_sequence != NULL) ? existing_sequence : new Sequence();
-
-	s->name = ui->lineEdit->text();
-	s->width = ui->width_numeric->value();
-	s->height = ui->height_numeric->value();
-	s->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
-	s->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
-	s->audio_layout = AV_CH_LAYOUT_STEREO;
-
 	if (existing_sequence == NULL) {
+		Sequence* s = new Sequence();
+
+		s->name = ui->lineEdit->text();
+		s->width = ui->width_numeric->value();
+		s->height = ui->height_numeric->value();
+		s->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
+		s->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
+		s->audio_layout = AV_CH_LAYOUT_STEREO;
+
 		ComboAction* ca = new ComboAction();
 		panel_project->new_sequence(ca, s, true, NULL);
 		undo_stack.push(ca);
 	} else {
-		// TODO make editing undoable
+		EditSequenceCommand* esc = new EditSequenceCommand(existing_item, existing_sequence);
+		esc->name = ui->lineEdit->text();
+		esc->width = ui->width_numeric->value();
+		esc->height = ui->height_numeric->value();
+		esc->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
+		esc->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
+		esc->audio_layout = AV_CH_LAYOUT_STEREO;
+		undo_stack.push(esc);
 	}
 }
 

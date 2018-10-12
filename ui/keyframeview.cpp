@@ -46,13 +46,17 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 	rows.clear();
 
 	if (panel_effect_controls->selected_clips.size() > 0) {
-		long effects_in = LONG_MAX;
-		long effects_out = 0;
+		visible_in = LONG_MAX;
+		visible_out = 0;
 
 		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-            Clip* c = sequence->clips.at(panel_effect_controls->selected_clips.at(j));
-			effects_in = qMin(effects_in, c->timeline_in);
-			effects_out = qMax(effects_out, c->timeline_out);
+			Clip* c = sequence->clips.at(panel_effect_controls->selected_clips.at(j));
+			visible_in = qMin(visible_in, c->timeline_in);
+			visible_out = qMax(visible_out, c->timeline_out);
+		}
+
+		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
+			Clip* c = sequence->clips.at(panel_effect_controls->selected_clips.at(j));
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
 				if (e->container->is_expanded()) {
@@ -77,16 +81,12 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 			}
 		}
 
-		visible_in = effects_in;
-		visible_out = effects_out;
-
 		int max_width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
-		qDebug() << max_width << width();
 		if (max_width < width()) {
 			p.fillRect(QRect(max_width, 0, width(), height()), QColor(0, 0, 0, 64));
 		}
 		panel_effect_controls->ui->horizontalScrollBar->setMaximum(qMax(max_width - width(), 0));
-		header->set_visible_in(effects_in);
+		header->set_visible_in(visible_in);
 
 		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, sequence->playhead-visible_in) - x_scroll;
 		if (dragging && panel_timeline->snapped) {
@@ -150,6 +150,7 @@ void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool darker) {
     p.setPen(QColor(0, 0, 0));
     p.setBrush(QColor(color, color, color));
 	p.drawPolygon(points, KEYFRAME_POINT_COUNT);
+	qDebug() << "drew key at" << x << y;
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {

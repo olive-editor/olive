@@ -158,10 +158,8 @@ void Project::open_properties() {
 			NewSequenceDialog nsd(this);
 			Sequence* s = get_sequence_from_tree(item);
 			nsd.existing_sequence = s;
-			if (nsd.exec() == QDialog::Accepted) {
-				set_sequence_of_tree(item, s);
-				panel_timeline->repaint_timeline(true);
-			}
+			nsd.existing_item = item;
+			nsd.exec();
 		}
 			break;
 		default:

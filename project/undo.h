@@ -467,4 +467,30 @@ private:
 	bool old_project_changed;
 };
 
+class EditSequenceCommand : public QUndoCommand {
+public:
+	EditSequenceCommand(QTreeWidgetItem *i, Sequence* s);
+	void undo();
+	void redo();
+	void update();
+
+	QString name;
+	int width;
+	int height;
+	double frame_rate;
+	int audio_frequency;
+	int audio_layout;
+private:
+	QTreeWidgetItem* item;
+	Sequence* seq;
+	bool old_project_changed;
+
+	QString old_name;
+	int old_width;
+	int old_height;
+	double old_frame_rate;
+	int old_audio_frequency;
+	int old_audio_layout;
+};
+
 #endif // UNDO_H

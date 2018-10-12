@@ -75,6 +75,8 @@ double LabelSlider::value() {
 }
 
 void LabelSlider::set_default_value(double v) {
+	if (internal_value == default_value) set = false; // TODO: CONTROVERSIAL - may be undesirable behaviour
+
     default_value = v;
 	if (!set) {
 		set_value(v, false);

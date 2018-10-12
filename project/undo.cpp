@@ -1538,3 +1538,53 @@ void SetEnableCommand::redo() {
 	clip->enabled = new_val;
 	mainWindow->setWindowModified(true);
 }
+
+EditSequenceCommand::EditSequenceCommand(QTreeWidgetItem* i, Sequence *s) :
+	item(i),
+	seq(s),
+	old_project_changed(mainWindow->isWindowModified()),
+	old_name(s->name),
+	old_width(s->width),
+	old_height(s->height),
+	old_frame_rate(s->frame_rate),
+	old_audio_frequency(s->audio_frequency),
+	old_audio_layout(s->audio_layout)
+{}
+
+void EditSequenceCommand::undo() {
+	seq->name = old_name;
+	seq->width = old_width;
+	seq->height = old_height;
+	seq->frame_rate = old_frame_rate;
+	seq->audio_frequency = old_audio_frequency;
+	seq->audio_layout = old_audio_layout;
+	update();
+}
+
+void EditSequenceCommand::redo() {
+	seq->name = name;
+	seq->width = width;
+	seq->height = height;
+	seq->frame_rate = frame_rate;
+	seq->audio_frequency = audio_frequency;
+	seq->audio_layout = audio_layout;
+	update();
+}
+
+void EditSequenceCommand::update() {
+	// update tooltip
+	set_sequence_of_tree(item, seq);
+
+	for (int i=0;i<seq->clips.size();i++) {
+		// TODO shift in/out/clipin points to match new frame rate
+		//		BUT ALSO copy/paste must need a similar routine, no?
+		//		See if one exists or if you have to make one, make it
+		//		re-usable
+
+		seq->clips.at(i)->refresh();
+	}
+
+	if (sequence == seq) {
+		set_sequence(seq);
+	}
+}
