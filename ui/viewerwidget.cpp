@@ -85,7 +85,7 @@ void ViewerWidget::drawTitleSafeArea() {
     glLoadIdentity();
     glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
 
-    glColor4f(0.5, 0.5, 0.5, 1.0);
+	glColor4f(0.66f, 0.66f, 0.66f, 1.0f);
     glBegin(GL_LINES);
 
     // action safe rectangle
@@ -378,6 +378,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
 					glEnd();
 
+					glBindTexture(GL_TEXTURE_2D, 0);
+
 					if (nest != NULL) {
 						nest->fbo[0]->release();
 						if (default_fbo != NULL) default_fbo->bind();
@@ -386,19 +388,32 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 				glPopMatrix();
 			} else {
-				switch (c->media_type) {
-				case MEDIA_TYPE_FOOTAGE:
-				case MEDIA_TYPE_TONE:
-					if (render_audio
-							&& c->lock.tryLock()) {
-						// clip is not caching, start caching audio
-						cache_clip(c, playhead, false, false, c->audio_reset, nest);
-						c->lock.unlock();
+				if (render_audio) {
+					switch (c->media_type) {
+					case MEDIA_TYPE_FOOTAGE:
+					case MEDIA_TYPE_TONE:
+						if (c->lock.tryLock()) {
+							// clip is not caching, start caching audio
+							cache_clip(c, playhead, false, false, c->audio_reset, nest);
+							c->lock.unlock();
+						}
+						break;
+					case MEDIA_TYPE_SEQUENCE:
+						compose_sequence(c, render_audio);
+						break;
 					}
-					break;
-				case MEDIA_TYPE_SEQUENCE:
-					compose_sequence(c, render_audio);
-					break;
+				}
+
+				// visually update all the keyframe values
+				double ts = (playhead - c->timeline_in + c->clip_in)/sequence->frame_rate;
+				for (int i=0;i<c->effects.size();i++) {
+					Effect* e = c->effects.at(i);
+					for (int j=0;j<e->row_count();j++) {
+						EffectRow* r = e->row(j);
+						for (int k=0;k<r->fieldCount();k++) {
+							r->field(k)->validate_keyframe_data(ts);
+						}
+					}
 				}
 			}
         }

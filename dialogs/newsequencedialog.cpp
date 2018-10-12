@@ -15,6 +15,7 @@ extern "C" {
 
 NewSequenceDialog::NewSequenceDialog(QWidget *parent) :
 	QDialog(parent),
+	existing_sequence(NULL),
 	ui(new Ui::NewSequenceDialog)
 {
 	ui->setupUi(this);
@@ -51,20 +52,44 @@ void NewSequenceDialog::set_sequence_name(const QString& s) {
 	ui->lineEdit->setText(s);
 }
 
-void NewSequenceDialog::on_buttonBox_accepted()
-{
-	Sequence* s = new Sequence();
+void NewSequenceDialog::showEvent(QShowEvent *) {
+	if (existing_sequence != NULL) {
+		ui->width_numeric->setValue(existing_sequence->width);
+		ui->height_numeric->setValue(existing_sequence->height);
+		int comp_rate = qRound(existing_sequence->frame_rate*100);
+		for (int i=0;i<ui->frame_rate_combobox->count();i++) {
+			if (qRound(ui->frame_rate_combobox->itemData(i).toDouble()*100) == comp_rate) {
+				ui->frame_rate_combobox->setCurrentIndex(i);
+				break;
+			}
+		}
+		ui->lineEdit->setText(existing_sequence->name);
+		for (int i=0;i<ui->audio_frequency_combobox->count();i++) {
+			if (ui->audio_frequency_combobox->itemData(i) == existing_sequence->audio_frequency) {
+				ui->audio_frequency_combobox->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
+}
+
+void NewSequenceDialog::on_buttonBox_accepted() {
+	Sequence* s = (existing_sequence != NULL) ? existing_sequence : new Sequence();
 
 	s->name = ui->lineEdit->text();
 	s->width = ui->width_numeric->value();
 	s->height = ui->height_numeric->value();
-    s->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
+	s->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
 	s->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
 	s->audio_layout = AV_CH_LAYOUT_STEREO;
 
-    ComboAction* ca = new ComboAction();
-    panel_project->new_sequence(ca, s, true, NULL);
-    undo_stack.push(ca);
+	if (existing_sequence == NULL) {
+		ComboAction* ca = new ComboAction();
+		panel_project->new_sequence(ca, s, true, NULL);
+		undo_stack.push(ca);
+	} else {
+		// TODO make editing undoable
+	}
 }
 
 void NewSequenceDialog::on_comboBox_currentIndexChanged(int index)

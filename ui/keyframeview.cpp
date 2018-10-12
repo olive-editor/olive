@@ -81,6 +81,10 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		visible_out = effects_out;
 
 		int max_width = getScreenPointFromFrame(panel_effect_controls->zoom, visible_out - visible_in);
+		qDebug() << max_width << width();
+		if (max_width < width()) {
+			p.fillRect(QRect(max_width, 0, width(), height()), QColor(0, 0, 0, 64));
+		}
 		panel_effect_controls->ui->horizontalScrollBar->setMaximum(qMax(max_width - width(), 0));
 		header->set_visible_in(effects_in);
 
@@ -152,11 +156,13 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
     int row_index = -1;
     int keyframe_index = -1;
     long frame_diff = 0;
-    long frame_min = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x()-KEYFRAME_SIZE);
-	drag_frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x());
-    long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x()+KEYFRAME_SIZE);
+	int mouse_x = event->x() + x_scroll;
+	int mouse_y = event->y();
+	long frame_min = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x-KEYFRAME_SIZE);
+	drag_frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x);
+	long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x+KEYFRAME_SIZE);
     for (int i=0;i<rowY.size();i++) {
-        if (event->y() > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && event->y() < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
+		if (mouse_y > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && mouse_y < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
             EffectRow* row = rows.at(i);
             for (int j=0;j<row->keyframe_times.size();j++) {
                 long eval_keyframe_time = row->keyframe_times.at(j)-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
@@ -199,9 +205,10 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 	if (mousedown) {
+		int mouse_x = event->x() + x_scroll;
 		if (keys_selected) {
 			// move keyframes
-			frame_diff = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x()) - drag_frame_start;
+			frame_diff = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x) - drag_frame_start;
 
 			// snapping to playhead
 			if (panel_timeline->snapping) {
@@ -210,7 +217,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 					Clip* c = row->parent_effect->parent_clip;
 					long key_time = row->keyframe_times.at(selected_keyframes.at(i)) + frame_diff - c->clip_in + c->timeline_in;
 					long key_eval = key_time;
-					if (panel_timeline->snap_to_timeline(&key_eval, true, true, true)) {
+					if (panel_timeline->snap_to_point(sequence->playhead, &key_eval)) {
 						frame_diff += (key_eval - key_time);
 						break;
 					}
@@ -245,8 +252,8 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 			int min_row = qMin(rect_select_y, event->y())-KEYFRAME_SIZE;
 			int max_row = qMax(rect_select_y, event->y())+KEYFRAME_SIZE;
 
-			long frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, rect_select_x);
-			long frame_end = getFrameFromScreenPoint(panel_effect_controls->zoom, event->x());
+			long frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, rect_select_x+x_scroll);
+			long frame_end = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x);
 			long min_frame = qMin(frame_start, frame_end)-KEYFRAME_SIZE;
 			long max_frame = qMax(frame_start, frame_end)+KEYFRAME_SIZE;
 

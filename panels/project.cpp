@@ -18,6 +18,8 @@
 #include "playback/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
 #include "panels/effectcontrols.h"
+#include "dialogs/newsequencedialog.h"
+#include "dialogs/mediapropertiesdialog.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -28,6 +30,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QPushButton>
+#include <QInputDialog>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -136,6 +139,39 @@ void Project::replace_clip_media() {
 		} else {
 			ReplaceClipMediaDialog dialog(this, ui->treeWidget, item);
 			dialog.exec();
+		}
+	}
+}
+
+void Project::open_properties() {
+	if (ui->treeWidget->selectedItems().size() == 1) {
+		QTreeWidgetItem* item = ui->treeWidget->selectedItems().at(0);
+		switch (get_type_from_tree(item)) {
+		case MEDIA_TYPE_FOOTAGE:
+		{
+			MediaPropertiesDialog mpd(this);
+			mpd.exec();
+		}
+			break;
+		case MEDIA_TYPE_SEQUENCE:
+		{
+			NewSequenceDialog nsd(this);
+			Sequence* s = get_sequence_from_tree(item);
+			nsd.existing_sequence = s;
+			if (nsd.exec() == QDialog::Accepted) {
+				set_sequence_of_tree(item, s);
+				panel_timeline->repaint_timeline(true);
+			}
+		}
+			break;
+		default:
+		{
+			// fall back to renaming
+			QString new_name = QInputDialog::getText(this, "Rename '" + item->text(0) + "'", "Enter new name:");
+			if (!new_name.isEmpty()) {
+				item->setText(0, new_name);
+			}
+		}
 		}
 	}
 }
@@ -521,9 +557,27 @@ Sequence* get_sequence_from_tree(QTreeWidgetItem* item) {
     return reinterpret_cast<Sequence*>(item->data(0, Qt::UserRole + 2).value<quintptr>());
 }
 
-void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence) {
+QString get_channel_layout_name(int channels, int layout) {
+	switch (channels) {
+	case 0: return "Invalid"; break;
+	case 1: return "Mono"; break;
+	case 2: return "Stereo"; break;
+	default: {
+		char buf[50];
+		av_get_channel_layout_string(buf, sizeof(buf), channels, layout);
+		return QString(buf);
+	}
+	}
+}
+
+void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* s) {
     item->setData(0, Qt::UserRole + 1, MEDIA_TYPE_SEQUENCE);
-    item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(sequence)));
+	item->setData(0, Qt::UserRole + 2, QVariant::fromValue(reinterpret_cast<quintptr>(s)));
+	item->setToolTip(0, "Name: " + s->name
+					 + "\nVideo Dimensions: " + QString::number(s->width) + "x" + QString::number(s->height)
+					 + "\nFrame Rate: " + QString::number(s->frame_rate)
+					 + "\nAudio Frequency: " + QString::number(s->audio_frequency)
+					 + "\nAudio Layout: " + get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout));
 }
 
 int get_type_from_tree(QTreeWidgetItem* item) {
@@ -1293,4 +1347,13 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 
     panel_project->source_table->viewport()->update();
     deleteLater();
+}
+
+QString get_interlacing_name(int interlacing) {
+	switch (interlacing) {
+	case VIDEO_PROGRESSIVE: return "None (Progressive)";
+	case VIDEO_TOP_FIELD_FIRST: return "Top Field First";
+	case VIDEO_BOTTOM_FIELD_FIRST: return "Bottom Field First";
+	default: return "Invalid";
+	}
 }

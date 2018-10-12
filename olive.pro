@@ -81,7 +81,8 @@ SOURCES += \
     dialogs/demonotice.cpp \
     effects/audio/toneeffect.cpp \
     project/marker.cpp \
-    dialogs/speeddialog.cpp
+    dialogs/speeddialog.cpp \
+    dialogs/mediapropertiesdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -141,7 +142,8 @@ HEADERS += \
     project/marker.h \
     project/selection.h \
     dialogs/speeddialog.h \
-    dialogs/speeddialog.h
+    dialogs/speeddialog.h \
+    dialogs/mediapropertiesdialog.h
 
 FORMS += \
         mainwindow.ui \

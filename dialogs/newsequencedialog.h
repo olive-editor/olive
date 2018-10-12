@@ -4,6 +4,7 @@
 #include <QDialog>
 
 class Project;
+struct Sequence;
 
 namespace Ui {
 class NewSequenceDialog;
@@ -16,7 +17,11 @@ class NewSequenceDialog : public QDialog
 public:
 	explicit NewSequenceDialog(QWidget *parent = 0);
 	~NewSequenceDialog();
+	Sequence* existing_sequence;
 	void set_sequence_name(const QString& s);
+
+protected:
+	void showEvent(QShowEvent *);
 
 private slots:
 	void on_buttonBox_accepted();

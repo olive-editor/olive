@@ -25,11 +25,9 @@ void VolumeEffect::process_audio(double timecode_start, double timecode_end, qui
 //	qDebug() << timecode_start << timecode_end;
 	double interval = (timecode_end-timecode_start)/nb_bytes;
 	for (int i=0;i<nb_bytes;i+=2) {
-		double vol_val = volume_val->get_double_value(timecode_start+(interval*i));
-//		qDebug() << timecode_start+(interval*i);
+		double vol_val = qSqrt(volume_val->get_double_value(timecode_start+(interval*i), true)*0.01);
 		qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-		double val = qPow(vol_val*0.01, 3);
-		samp *= val;
+		samp *= vol_val;
 		if (samp > INT16_MAX) {
 			samp = INT16_MAX;
 		} else if (samp < INT16_MIN) {

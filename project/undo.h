@@ -193,6 +193,7 @@ private:
     QTreeWidgetItem* item;
     QTreeWidgetItem* parent;
 	bool old_project_changed;
+	bool done;
 };
 
 class RippleCommand : public QUndoCommand {

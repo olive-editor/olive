@@ -2,6 +2,7 @@
 
 #include "media.h"
 #include "panels/viewer.h"
+#include "panels/project.h"
 #include "io/config.h"
 
 #include <QPainter>
@@ -301,19 +302,20 @@ void PreviewGenerator::run() {
     char* filename = new char[ba.size()+1];
     strcpy(filename, ba.data());
 
+	QString errorStr;
     bool error = false;
     int errCode = avformat_open_input(&fmt_ctx, filename, NULL, NULL);
     if(errCode != 0) {
         char err[1024];
         av_strerror(errCode, err, 1024);
-        item->setToolTip(0, "Could not open file - " + QString(err));
+		errorStr = "Could not open file - " + QString(err);
         error = true;
     } else {
         errCode = avformat_find_stream_info(fmt_ctx, NULL);
         if (errCode < 0) {
             char err[1024];
             av_strerror(errCode, err, 1024);
-            item->setToolTip(0, "Could not find stream information - " + QString(err));
+			errorStr = "Could not find stream information - " + QString(err);
             error = true;
         } else {
             av_dump_format(fmt_ctx, 0, filename, 0);
@@ -321,12 +323,67 @@ void PreviewGenerator::run() {
             generate_waveform();
         }
         avformat_close_input(&fmt_ctx);
-    }
+	}
+	QString tooltip = "Name: " + media->name + "\nFilename: " + media->url + "\n";
     if (error) {
+		tooltip += errorStr;
 		emit set_icon(ICON_TYPE_ERROR, replace);
     } else {
-        item->setToolTip(0, QString());
+//		tooltip += "Video Tracks: " + QString::number(media->video_tracks.size()) + "\nAudio Tracks: " + QString::number(media->audio_tracks.size()) + "\n";
+
+		if (media->video_tracks.size() > 0) {
+			tooltip += "Video Dimensions: ";
+			for (int i=0;i<media->video_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += QString::number(media->video_tracks.at(i)->video_width) + "x" + QString::number(media->video_tracks.at(i)->video_height);
+			}
+			tooltip += "\n";
+
+			tooltip += "Frame Rate: ";
+			for (int i=0;i<media->video_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
+				if (media->video_tracks.at(i)->video_interlacing != VIDEO_PROGRESSIVE) {
+					tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate*0.5) + " frames)";
+				}
+			}
+			tooltip += "\n";
+
+			tooltip += "Interlacing: ";
+			for (int i=0;i<media->video_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += get_interlacing_name(media->video_tracks.at(i)->video_interlacing);
+			}
+			tooltip += "\n";
+		}
+
+		if (media->audio_tracks.size() > 0) {
+			tooltip += "Audio Frequency: ";
+			for (int i=0;i<media->audio_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += QString::number(media->audio_tracks.at(i)->audio_frequency);
+			}
+			tooltip += "\n";
+
+			tooltip += "Audio Channels: ";
+			for (int i=0;i<media->audio_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += get_channel_layout_name(media->audio_tracks.at(i)->audio_channels, media->audio_tracks.at(i)->audio_layout);
+			}
+//			tooltip += "\n";
+		}
     }
+	item->setToolTip(0, tooltip);
     delete [] filename;
 	media->preview_gen = NULL;
 }

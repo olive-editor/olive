@@ -352,8 +352,10 @@ DeleteMediaCommand::DeleteMediaCommand(QTreeWidgetItem* i) :
 {}
 
 DeleteMediaCommand::~DeleteMediaCommand() {
-    panel_project->delete_media(item);
-    delete item;
+	if (done) {
+		panel_project->delete_media(item);
+		delete item;
+	}
 }
 
 void DeleteMediaCommand::undo() {
@@ -364,6 +366,7 @@ void DeleteMediaCommand::undo() {
     }
 
 	mainWindow->setWindowModified(old_project_changed);
+	done = false;
 }
 
 void DeleteMediaCommand::redo() {
@@ -373,9 +376,10 @@ void DeleteMediaCommand::redo() {
         panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
     } else {
         parent->removeChild(item);
-    }
+    }	
 
 	mainWindow->setWindowModified(true);
+	done = true;
 }
 
 RippleCommand::RippleCommand(Sequence *s, long ipoint, long ilength) :

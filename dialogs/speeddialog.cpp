@@ -320,7 +320,8 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 		for (int j=0;j<e->row_count();j++) {
 			EffectRow* r = e->row(j);
 			for (int k=0;k<r->keyframe_times.size();k++) {
-				long new_pos = r->keyframe_times.at(k) / speed;
+				long new_pos = r->keyframe_times.at(k) * c->speed / speed;
+				qDebug() << "old key" << r->keyframe_times.at(k) << "new key" << new_pos;
 				KeyframeMove* km = new KeyframeMove();
 				km->movement = new_pos - r->keyframe_times.at(k);
 				km->rows.append(r);

@@ -27,7 +27,7 @@ private slots:
     void item_click(QTreeWidgetItem* item, int column);
     void stop_rename_timer();
     void item_renamed(QTreeWidgetItem *item);
-    void show_context_menu(const QPoint& pos);
+	void show_context_menu();
 };
 
 #endif // SOURCETABLE_H

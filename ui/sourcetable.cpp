@@ -24,10 +24,10 @@ SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(item_click(QTreeWidgetItem*,int)));
     connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(item_renamed(QTreeWidgetItem*)));
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 }
 
-void SourceTable::show_context_menu(const QPoint& pos) {
+void SourceTable::show_context_menu() {
     QMenu menu(this);
 
     if (selectedItems().size() == 0) {
@@ -75,9 +75,14 @@ void SourceTable::show_context_menu(const QPoint& pos) {
         // delete media
         QAction* delete_action = menu.addAction("Delete");
         connect(delete_action, SIGNAL(triggered(bool)), panel_project, SLOT(delete_selected_media()));
+
+		if (selectedItems().size() == 1) {
+			QAction* properties_action = menu.addAction("Properties...");
+			connect(properties_action, SIGNAL(triggered(bool)), panel_project, SLOT(open_properties()));
+		}
     }
 
-    menu.exec(mapToGlobal(pos));
+	menu.exec(QCursor::pos());
 }
 
 void SourceTable::item_renamed(QTreeWidgetItem* item) {

@@ -8,7 +8,6 @@
 #include "project/selection.h"
 
 struct Sequence {
-public:
 	Sequence();
 	~Sequence();
     Sequence* copy();
@@ -31,8 +30,7 @@ public:
     int save_id;
 
     QVector<Marker> markers;
-    QVector<Clip*> clips;
-private:
+	QVector<Clip*> clips;
 };
 
 // static variable for the currently active sequence

@@ -36,6 +36,9 @@ Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
 void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
 void set_item_to_folder(QTreeWidgetItem* item);
 
+QString get_channel_layout_name(int channels, int layout);
+QString get_interlacing_name(int interlacing);
+
 class Project : public QDockWidget
 {
 	Q_OBJECT
@@ -70,6 +73,7 @@ public slots:
 	void delete_clips_using_selected_media();
 	void replace_selected_file();
 	void replace_clip_media();
+	void open_properties();
 private:
 	Ui::Project *ui;
     QTreeWidgetItem* new_item();

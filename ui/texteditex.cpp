@@ -5,9 +5,29 @@
 TextEditEx::TextEditEx(QWidget *parent) : QTextEdit(parent) {
 	setUndoRedoEnabled(false);
 	connect(this, SIGNAL(textChanged()), this, SLOT(updateInternals()));
+	connect(this, SIGNAL(updateSelf()), this, SLOT(updateText()));
 }
 
-void TextEditEx::setPlainTextEx(const QString &text) {
+const QString& TextEditEx::getPlainTextEx() {
+	return text;
+}
+
+void TextEditEx::setPlainTextEx(const QString &t) {
+	previousText = text;
+	text = t;
+	emit updateSelf();
+}
+
+const QString &TextEditEx::getPreviousValue() {
+	return previousText;
+}
+
+void TextEditEx::updateInternals() {
+	previousText = text;
+	text = toPlainText();
+}
+
+void TextEditEx::updateText() {
 	blockSignals(true);
 
 	int pos = textCursor().position();
@@ -18,16 +38,5 @@ void TextEditEx::setPlainTextEx(const QString &text) {
 	newCursor.setPosition(pos);
 	setTextCursor(newCursor);
 
-	updateInternals();
-
 	blockSignals(false);
-}
-
-const QString &TextEditEx::getPreviousValue() {
-	return previousText;
-}
-
-void TextEditEx::updateInternals() {
-	previousText = text;
-	text = toPlainText();
 }

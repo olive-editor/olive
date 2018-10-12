@@ -9,8 +9,12 @@ public:
 	TextEditEx(QWidget* parent = 0);
 	void setPlainTextEx(const QString &text);
 	const QString& getPreviousValue();
+	const QString& getPlainTextEx();
+signals:
+	void updateSelf();
 private slots:
 	void updateInternals();
+	void updateText();
 private:
 	QString previousText;
 	QString text;

@@ -178,33 +178,35 @@ long Clip::getLength() {
 }
 
 void Clip::recalculateMaxLength() {
-	double fr = this->sequence->frame_rate;
+	if (sequence != NULL) {
+		double fr = this->sequence->frame_rate;
 
-	fr /= speed;
+		fr /= speed;
 
-	switch (media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	{
-		Media* m = static_cast<Media*>(media);
-		MediaStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
-		if (ms != NULL && ms->infinite_length) {
-			calculated_length = LONG_MAX;
-		} else {
-			calculated_length = m->get_length_in_frames(fr);
+		switch (media_type) {
+		case MEDIA_TYPE_FOOTAGE:
+		{
+			Media* m = static_cast<Media*>(media);
+			MediaStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
+			if (ms != NULL && ms->infinite_length) {
+				calculated_length = LONG_MAX;
+			} else {
+				calculated_length = m->get_length_in_frames(fr);
+			}
 		}
-	}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-	{
-		Sequence* s = static_cast<Sequence*>(media);
-		calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
-	}
-		break;
-	/*case MEDIA_TYPE_SOLID:
-	case MEDIA_TYPE_TONE:*/
-	default:
-		calculated_length = LONG_MAX;
-		break;
+			break;
+		case MEDIA_TYPE_SEQUENCE:
+		{
+			Sequence* s = static_cast<Sequence*>(media);
+			calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
+		}
+			break;
+		/*case MEDIA_TYPE_SOLID:
+		case MEDIA_TYPE_TONE:*/
+		default:
+			calculated_length = LONG_MAX;
+			break;
+		}
 	}
 }
 

@@ -109,7 +109,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 		// do we need to update the texture?
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
-		long sequence_clip_time = playhead - c->timeline_in + c->clip_in;
+		long sequence_clip_time = qMax(0L, playhead - c->timeline_in + c->clip_in);
 
 		if (c->reverse && !ms->infinite_length) {
 			sequence_clip_time = c->getMaximumLength() - sequence_clip_time - 1;
@@ -117,7 +117,7 @@ bool get_clip_frame(Clip* c, long playhead) {
 
 		double rate = c->getMediaFrameRate();
 		if (c->skip_type == SKIP_TYPE_DISCARD) rate *= c->speed;
-		long clip_time = qMax(0L, refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, rate));
+		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, rate);
 
 		AVFrame* current_frame = NULL;
 		bool no_frame = false;
@@ -206,25 +206,27 @@ bool get_clip_frame(Clip* c, long playhead) {
 			}
 		}
 
-		if (current_frame != NULL) {
-			// set up opengl texture
-			if (c->texture == NULL) {
-				c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-				c->texture->setSize(current_frame->width, current_frame->height);
-				c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-				c->texture->setMipLevels(c->texture->maximumMipLevels());
-				c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-				c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
-			}
+		if (playhead >= c->timeline_in) {
+			if (current_frame != NULL) {
+				// set up opengl texture
+				if (c->texture == NULL) {
+					c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+					c->texture->setSize(current_frame->width, current_frame->height);
+					c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+					c->texture->setMipLevels(c->texture->maximumMipLevels());
+					c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+					c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+				}
 
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, current_frame->linesize[0]/4);
-			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-			c->texture_frame = clip_time;
-			return true;
-		} else {
-			texture_failed = true;
-			qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
+				glPixelStorei(GL_UNPACK_ROW_LENGTH, current_frame->linesize[0]/4);
+				c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
+				glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+				c->texture_frame = clip_time;
+				return true;
+			} else {
+				texture_failed = true;
+				qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
+			}
 		}
 	}
     return false;

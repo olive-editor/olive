@@ -1,6 +1,7 @@
 #include "audionoiseeffect.h"
 
 #include <QDateTime>
+#include <QtMath>
 
 AudioNoiseEffect::AudioNoiseEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_NOISE_EFFECT) {
 	amount_val = add_row("Amount:")->add_field(EFFECT_FIELD_DOUBLE);
@@ -26,11 +27,12 @@ void AudioNoiseEffect::process_audio(double timecode_start, double timecode_end,
 		qint16 right_noise_sample = rand();
 
 		// set noise volume
-		left_noise_sample *= amount_val->get_double_value(timecode)*0.01;
-		right_noise_sample *= amount_val->get_double_value(timecode)*0.01;
+		double vol = qSqrt(amount_val->get_double_value(timecode, true)*0.01);
+		left_noise_sample *= vol;
+		right_noise_sample *= vol;
 
 		// mix with source audio
-		if (mix_val->get_bool_value(timecode)) {
+		if (mix_val->get_bool_value(timecode, true)) {
 			qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
 			qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
 			left_noise_sample = mix_audio_sample(left_noise_sample, left_sample);

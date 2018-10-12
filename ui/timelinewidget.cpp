@@ -1947,7 +1947,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					for (int i=0;i<2;i++) {
 						Transition* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
 						if (t != NULL) {
-							int transition_width = panel_timeline->getTimelineScreenPointFromFrame(t->length);
+							int transition_width = getScreenPointFromFrame(panel_timeline->zoom, t->length);
 							int transition_height = clip_rect.height();
 							int tr_y = clip_rect.y();
 							int tr_x = 0;

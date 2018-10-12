@@ -260,7 +260,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			// apply any audio effects to the data
 			if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 			if (new_frame) {
-				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, sequence->audio_frequency) + audio_ibuffer_timecode, frame, nb_bytes);
+				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, sequence->audio_frequency) + audio_ibuffer_timecode + ((double) (c->clip_in - c->timeline_in)/sequence->frame_rate), frame, nb_bytes);
 			}
 		}
 			break;
@@ -431,7 +431,7 @@ void reset_cache(Clip* c, long target_frame) {
 
 					// seeks to nearest keyframe (target_frame represents internal clip frame)
 					int64_t seek_ts = qRound(clip_frame_to_seconds(c, target_frame) / timebase);
-					av_seek_frame(c->formatCtx, ms->file_index, seek_ts - (av_q2d(av_inv_q(c->stream->time_base))), AVSEEK_FLAG_BACKWARD);
+					av_seek_frame(c->formatCtx, ms->file_index, seek_ts/* - (av_q2d(av_inv_q(c->stream->time_base)))*/, AVSEEK_FLAG_BACKWARD);
 
 					// play up to the frame we actually want
 					int ret;

@@ -8,6 +8,7 @@
 #include <QMouseEvent>
 #include <QInputDialog>
 #include <QApplication>
+#include <QDebug>
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	decimal_places = 1;

@@ -22,7 +22,7 @@ public:
     bool is_set();
 	double get_drag_start_value();
 	bool is_dragging();
-	virtual QString valueToString(double v);
+	QString valueToString(double v);
 	double getPreviousValue();
 	int decimal_places;
 protected:
