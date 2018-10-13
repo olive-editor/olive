@@ -16,9 +16,7 @@ public:
 	bool snapping;
 
 	void show_text(bool enable);
-
 	void update_zoom(double z);
-
 	void delete_markers();
 
 public slots:

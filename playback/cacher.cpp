@@ -453,6 +453,11 @@ void reset_cache(Clip* c, long target_frame) {
 				qDebug() << "flushed?";
 				av_frame_unref(temp);
 			}*/
+			/*av_buffersrc_add_frame(c->buffersrc_ctx, NULL);
+			av_frame_unref(c->frame);
+			while (av_buffersink_get_frame(c->buffersink_ctx, c->frame) >= 0) {
+				av_frame_unref(c->frame);
+			}*/
 
 			double timebase = av_q2d(c->stream->time_base);
 
@@ -462,7 +467,8 @@ void reset_cache(Clip* c, long target_frame) {
 
 					// seeks to nearest keyframe (target_frame represents internal clip frame)
 					int64_t seek_ts = qRound(clip_frame_to_seconds(c, target_frame) / timebase);
-					av_seek_frame(c->formatCtx, ms->file_index, seek_ts/* - (av_q2d(av_inv_q(c->stream->time_base)))*/, AVSEEK_FLAG_BACKWARD);
+					qDebug() << "requesting: " << seek_ts;
+					av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
 
 					// play up to the frame we actually want
 					int ret;
@@ -476,7 +482,7 @@ void reset_cache(Clip* c, long target_frame) {
 					av_frame_unref(temp);
 					av_frame_free(&temp);
 				} else {
-					av_seek_frame(c->formatCtx, ms->file_index, c->stream->start_time, AVSEEK_FLAG_BACKWARD);
+					av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);
 				}
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)

@@ -145,26 +145,20 @@ bool get_clip_frame(Clip* c, long playhead) {
 			// TODO just removed a bunch of mutexes - is this safe????
 			if (c->cache_A.written && clip_time >= c->cache_A.offset && clip_time < c->cache_A.offset + c->cache_size) {
 				if (clip_time < (c->cache_A.offset + c->cache_A.write_count)) {
-//					if (c->cache_A.mutex.tryLock()) { // lock in case cacher is still writing to it
-						using_cache_A = true;
-						c->cache_A.unread = false;
-						cache = c->cache_A.frames;
-						cache_offset = c->cache_A.offset;
-//						c->cache_A.mutex.unlock();
-//					}
+					using_cache_A = true;
+					c->cache_A.unread = false;
+					cache = c->cache_A.frames;
+					cache_offset = c->cache_A.offset;
 				} else {
 					// frame is coming but isn't here yet, no need to reset cache
 					no_frame = true;
 				}
 			} else if (c->cache_B.written && clip_time >= c->cache_B.offset && clip_time < c->cache_B.offset + c->cache_size) {
 				if (clip_time < (c->cache_B.offset + c->cache_B.write_count)) {
-//					if (c->cache_B.mutex.tryLock()) { // lock in case cacher is still writing to it
-						using_cache_B = true;
-						c->cache_B.unread = false;
-						cache = c->cache_B.frames;
-						cache_offset = c->cache_B.offset;
-//						c->cache_B.mutex.unlock();
-//					}
+					using_cache_B = true;
+					c->cache_B.unread = false;
+					cache = c->cache_B.frames;
+					cache_offset = c->cache_B.offset;
 				} else {
 					// frame is coming but isn't here yet, no need to reset cache
 					no_frame = true;
