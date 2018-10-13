@@ -378,7 +378,7 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 		}
 	}
 	if (receive_ret < 0) {
-		qDebug() << "[ERROR] Failed to receive packet from decoder." << receive_ret;
+		if (receive_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to receive packet from decoder." << receive_ret;
 		result = receive_ret;
 	}
 

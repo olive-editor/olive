@@ -29,19 +29,6 @@ struct AVFilterGraph;
 struct AVFilterContext;
 class QOpenGLTexture;
 
-struct ClipCache {
-	AVFrame** frames;
-	long offset;
-	bool written;
-	bool unread;
-	int write_count;
-	QMutex mutex;
-};
-
-/*struct ClipPlayback {
-
-};*/
-
 struct Clip
 {
     Clip(Sequence* s);
@@ -51,68 +38,67 @@ struct Clip
 	void reset();
 	void refresh();
 	void clear_queue();
+	long get_timeline_in_with_transition();
+	long get_timeline_out_with_transition();
+	long getLength();
+	long getMaximumLength();
+	void recalculateMaxLength();
+	double getMediaFrameRate();
+	int getWidth();
+	int getHeight();
+	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
+	Sequence* sequence;
 
-	// timeline variables
-    Sequence* sequence;
+	// timeline variables (should be copied in copy())
     bool enabled;
     long clip_in;
     long timeline_in;
     long timeline_out;
     int track;
-    bool undeletable;
-    int load_id;
 	QString name;
-    long get_timeline_in_with_transition();
-    long get_timeline_out_with_transition();
     quint8 color_r;
     quint8 color_g;
-    quint8 color_b;
-    long getLength();
-	long getMaximumLength();
-	void recalculateMaxLength();
-	double getMediaFrameRate();
+    quint8 color_b;    
     void* media; // attached media
     int media_type;
-    int media_stream;
-	int getWidth();
-	int getHeight();
+    int media_stream;	
 	double speed;
 	bool reverse;
-	long calculated_length;
-	int skip_type;
-	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
+	bool maintain_audio_pitch;
+	bool autoscale;
 
-	// other variables (should be "duplicated" in copy())
+	// other variables (should be deep copied/duplicated in copy())
     QList<Effect*> effects;
     QVector<int> linked;
     Transition* opening_transition;
     Transition* closing_transition;
 
-    // media handling
+	// media handling
     AVFormatContext* formatCtx;
     AVStream* stream;
     AVCodec* codec;
     AVCodecContext* codecCtx;
     AVPacket* pkt;
 	AVFrame* frame;
+	long calculated_length;
 
+	// temporary variables
+	int load_id;
+	bool undeletable;
 	bool reached_end; // deprecated
 	bool pkt_written;
     bool open;
     bool finished_opening;
 	bool replaced;
-
-	int64_t rev_target;
+	int skip_type;
 
 	// caching functions
 	bool use_existing_frame;
     bool multithreaded;
-    Cacher* cacher;
-	int cache_size; // deprecated
+	Cacher* cacher;
     QWaitCondition can_cache;
 	int max_queue_size;
 	QVector<AVFrame*> queue;
-	ClipCache cache_A; // deprecated
 	QMutex queue_lock;
     QMutex lock;
 	QMutex open_lock;
@@ -125,11 +111,10 @@ struct Clip
 	// video playback variables
 	QOpenGLFramebufferObject** fbo;
     QOpenGLTexture* texture;
-    long texture_frame;
-	bool autoscale;
+	long texture_frame;
 
 	// audio playback variables
-	bool maintain_audio_pitch;
+	int64_t reverse_target;
     int frame_sample_index;
     int audio_buffer_write;
     bool audio_reset;

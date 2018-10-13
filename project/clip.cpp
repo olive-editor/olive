@@ -53,8 +53,7 @@ Clip* Clip::copy(Sequence* s) {
     copy->track = track;
     copy->color_r = color_r;
     copy->color_g = color_g;
-    copy->color_b = color_b;
-    copy->sequence = s;
+	copy->color_b = color_b;
     copy->media = media;
     copy->media_type = media_type;
     copy->media_stream = media_stream;
