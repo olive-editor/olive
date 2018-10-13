@@ -18,7 +18,7 @@ extern "C" {
 	#include <libswresample/swresample.h>
 }
 
-#include <algorithm>
+#include <QtMath>
 #include <QObject>
 #include <QOpenGLTexture>
 #include <QDebug>
@@ -37,7 +37,7 @@ void open_clip(Clip* clip, bool multithreaded) {
 				// maybe keep cacher instance in memory while clip exists for performance?
 				clip->cacher = new Cacher(clip);
 				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
-				clip->cacher->start((clip->track < 0) ? QThread::LowPriority : QThread::TimeCriticalPriority);
+				clip->cacher->start((clip->track < 0) ? QThread::NormalPriority : QThread::TimeCriticalPriority);
 			}
 		} else {
 			clip->finished_opening = false;
@@ -89,23 +89,116 @@ void close_clip(Clip* clip) {
 	}
 }
 
-void cache_clip(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip* nest) {
+void cache_clip(Clip* clip, long playhead, bool reset, Clip* nest) {
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
-			clip->cacher->write_A = write_A;
-			clip->cacher->write_B = write_B;
 			clip->cacher->reset = reset;
 			clip->cacher->nest = nest;
 
 			clip->can_cache.wakeAll();
 		} else {
-			cache_clip_worker(clip, playhead, write_A, write_B, reset, nest);
+			cache_clip_worker(clip, playhead, reset, nest);
 		}
 	}
 }
 
-bool get_clip_frame(Clip* c, long playhead) {
+void get_clip_frame(Clip* c, long playhead) {
+	if (c->finished_opening) {
+		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
+
+		int64_t target_pts = playhead_to_timestamp(c, playhead);
+		int64_t second_pts = qRound(av_q2d(av_inv_q(c->stream->time_base)));
+		if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
+			target_pts *= 2;
+			second_pts *= 2;
+		}
+		AVFrame* target_frame = NULL;
+
+//		qDebug() << "target pts:" << target_pts;
+
+		bool reset = false;
+
+		/*while (c->queue.size() > 0) {
+			if (c->queue.first()->pts == target_pts) {
+				target_frame = c->queue.first();
+
+				qDebug() << "GCF ==> USE PRECISE";
+				break;
+			} else if (c->queue.size() > 1 && c->queue.at(1)->pts > target_pts) {
+				// use this frame
+				target_frame = c->queue.first();
+
+				qDebug() << "GCF ==> USE IMPRECISE";
+				break;
+			} else {
+
+				break;
+			} else {
+				// skip this frame
+				c->queue_mutex.lock(); // thread safety when removing from queue
+				av_frame_free(&c->queue.first()); // may be a little heavy for the UI thread?
+				c->queue.removeFirst();
+				c->queue_mutex.unlock();
+				qDebug() << "GCF ==> SKIP";
+			}
+		}*/
+
+		if (c->queue.size() > 0) {
+			// correct frame may be somewhere else in the queue
+			int closest_frame = 0;
+			for (int i=1;i<c->queue.size();i++) {
+				if (c->queue.at(i)->pts == target_pts) {
+					qDebug() << "GCF ==> USE PRECISE";
+					closest_frame = i;
+					break;
+				} else if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
+					closest_frame = i;
+				}
+			}
+
+			// remove all frames earlier than this one from the queue
+			target_frame = c->queue.at(closest_frame);
+			c->queue_lock.lock();
+			for (int i=0;i<c->queue.size();i++) {
+				if (c->queue.at(i)->pts < target_frame->pts) {
+					av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
+					c->queue.removeAt(i);
+					i--;
+				}
+			}
+			c->queue_lock.unlock();
+
+			// if this frame is more than one second out, we probably need to reset
+			if (qAbs(target_pts - target_frame->pts) > second_pts) {
+				target_frame = NULL;
+//				qDebug() << "GCF ==> COMPLACENT";
+				qDebug() << "GCF ==> RESET";
+				reset = true;
+			} else {
+				qDebug() << "GCF ==> USE IMPRECISE";
+			}
+		}
+
+		// get more frames
+		cache_clip(c, playhead, reset, NULL);
+
+		if (target_frame == NULL || reset) {
+			// reset cache
+			texture_failed = true;
+			qDebug() << "[INFO] Cache couldn't keep up - either the user seeked or the system is overloaded";
+		}
+
+		if (target_frame != NULL) {
+			// add gate if this is the same frame
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/4);
+			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, target_frame->data[0]);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		}
+	}
+}
+
+/*bool get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
 		// do we need to update the texture?
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
@@ -225,30 +318,25 @@ bool get_clip_frame(Clip* c, long playhead) {
 		}
 	}
     return false;
+}*/
+
+long playhead_to_clip_frame(Clip* c, long playhead) {
+	return (qMax(0L, playhead - c->timeline_in) + c->clip_in);
 }
 
-double playhead_to_seconds(Clip* c, long playhead) {
+double playhead_to_clip_seconds(Clip* c, long playhead) {
 	// returns time in seconds
-	if (c->reverse) {
-		return ((c->getMaximumLength() - (qMax(0L, playhead - c->timeline_in) + c->clip_in))/c->sequence->frame_rate)*c->speed;
-	} else {
-        return ((qMax(0L, playhead - c->timeline_in) + c->clip_in)/c->sequence->frame_rate)*c->speed;
-    }
+	long clip_frame = playhead_to_clip_frame(c, playhead);
+	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame;
+	return ((double) clip_frame/c->sequence->frame_rate)*c->speed;
 }
 
-long seconds_to_clip_frame(Clip* c, double seconds) {
-	// returns time as frame number (according to clip's frame rate)
-	if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-		return floor(seconds*c->getMediaFrameRate());
-	} else {
-		qDebug() << "[ERROR] seconds_to_clip_frame only works on video streams";
-		return 0;
-	}
+int64_t seconds_to_timestamp(Clip* c, double seconds) {
+	return qFloor((seconds * c->stream->time_base.den)/c->stream->time_base.num);
 }
 
-double clip_frame_to_seconds(Clip* c, long clip_frame) {
-    // returns frame number in decimal seconds
-	return (double) clip_frame / c->getMediaFrameRate();
+int64_t playhead_to_timestamp(Clip* c, long playhead) {
+	return seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 }
 
 int retrieve_next_frame(Clip* c, AVFrame* f) {
@@ -256,6 +344,7 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
     int receive_ret;
 
 	// do we need to retrieve a new packet for a new frame?
+	av_frame_unref(f);
     while ((receive_ret = avcodec_receive_frame(c->codecCtx, f)) == AVERROR(EAGAIN)) {
 		int read_ret = 0;
 		do {

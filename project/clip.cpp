@@ -36,7 +36,8 @@ Clip::Clip(Sequence* s) :
 	fbo(NULL),
 	autoscale(config.autoscale_by_default),
 	maintain_audio_pitch(false),
-	reverse(false)
+	reverse(false),
+	use_existing_frame(false)
 {
     reset();
 }
@@ -75,17 +76,10 @@ Clip* Clip::copy(Sequence* s) {
 }
 
 void Clip::reset() {
-    cache_size = false;
     audio_just_reset = false;
-    cache_A.offset = false;
-    cache_B.offset = false;
     open = false;
     finished_opening = false;
-    pkt_written = false;
-    cache_A.written = false;
-    cache_B.written = false;
-    cache_A.unread = false;
-    cache_B.unread = false;
+	pkt_written = false;
     reached_end = false;
     audio_reset = false;
 	frame_sample_index = -1;
@@ -96,8 +90,6 @@ void Clip::reset() {
 	codec = NULL;
 	codecCtx = NULL;
 	texture = NULL;
-	cache_A.frames = NULL;
-    cache_B.frames = NULL;
 }
 
 void Clip::reset_audio() {
@@ -135,6 +127,13 @@ void Clip::refresh() {
 	}
 
 	recalculateMaxLength();
+}
+
+void Clip::clear_queue() {
+	while (queue.size() > 0) {
+		av_frame_free(&queue.first());
+		queue.removeFirst();
+	}
 }
 
 Clip::~Clip() {

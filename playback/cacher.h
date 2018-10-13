@@ -16,8 +16,6 @@ public:
 
 	// must be set before caching
 	long playhead;
-	bool write_A;
-	bool write_B;
 	bool reset;
     Clip* nest;
 
@@ -26,7 +24,7 @@ private:
 };
 
 void open_clip_worker(Clip* clip);
-void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip *nest);
+void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip *nest);
 void close_clip_worker(Clip* clip);
 
 #endif // CACHER_H

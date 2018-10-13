@@ -247,7 +247,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
                 if (c->audio_just_reset) {
                     // get precise sample offset for the elected clip_in from this audio frame
-                    double target_sts = playhead_to_seconds(c, c->audio_target_frame);
+					double target_sts = playhead_to_clip_seconds(c, c->audio_target_frame);
 					double frame_sts = (frame->pts * timebase);
                     int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);					
 					c->frame_sample_index = nb_samples * 4;
@@ -354,88 +354,42 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 	}
 }
 
-void cache_video_worker(Clip* c, long playhead, ClipCache* cache) {
-	cache->mutex.lock();
+void cache_video_worker(Clip* c) {
+	int read_ret, send_ret, retr_ret;
+	while (c->queue.size() < c->max_queue_size) {
+		AVFrame* frame = av_frame_alloc();
 
-    cache->offset = playhead;
-
-	bool error = false;
-
-	int i = 0;
-
-	/* old swscale solution
-	if (!c->reached_end) {
-		while (i < c->cache_size) {
-			retrieve_next_frame_raw_data(c, cache->frames[i]);
-
-			if (c->reached_end) break;
-			i++;
-		}
-	}*/
-	cache->unread = true;
-
-	/* new AVFilter solution */
-	if (!c->reached_end) {
-		while (i < c->cache_size) {
-			if (c->skip_type == SKIP_TYPE_SEEK) {
-				long seek_frame = refactor_frame_number(i + cache->offset, c->getMediaFrameRate(), c->getMediaFrameRate()*c->speed);
-				reset_cache(c, seek_frame);
-			}
-
-			av_frame_unref(cache->frames[i]);
-
-			int ret = (c->filter_graph == NULL) ? AVERROR(EAGAIN) : av_buffersink_get_frame(c->buffersink_ctx, cache->frames[i]);
-
-			if (ret < 0) {
-				if (ret == AVERROR(EAGAIN)) {
-					ret = retrieve_next_frame(c, c->frame);
-
-					if (ret >= 0) {
-						if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-							qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
-							error = true;
-							break;
-						}
-					} else {
-						if (ret == AVERROR_EOF) {
-							// TODO sorta hacky? not even sure if "reached_end" serves a proper purpose anymore
-							if (!c->reverse) c->reached_end = true;
-						} else {
-							qDebug() << "[WARNING] Raw frame data could not be retrieved." << ret;
-							error = true;
-						}
-						break;
-					}
-				} else {
-					if (ret != AVERROR_EOF) {
-						qDebug() << "[ERROR] Could not pull from filtergraph";
-						error = true;
-					}
+		while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
+			AVFrame* send_frame = c->frame;
+			read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
+			c->use_existing_frame = false;
+			if (read_ret >= 0 || read_ret == AVERROR_EOF) {
+				if (read_ret == AVERROR_EOF) send_frame = NULL;
+				if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+					qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
 					break;
 				}
+				if (read_ret >= 0) {
+					av_frame_unref(c->frame);
+				}
 			} else {
-				qDebug() << "retrieved PTS:" << cache->frames[i]->pts << c->stream->time_base.num << "/" << c->stream->time_base.den;
-
-				cache->written = true;
-				i++;
-				cache->write_count = i;
+				qDebug() << "[ERROR] Failed to read frame." << read_ret;
+				break;
 			}
 		}
+
+		if (retr_ret < 0) {
+			qDebug() << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
+			av_frame_free(&frame);
+			break;
+		} else {
+			// thread-safety while adding frame to the queue
+			c->queue_lock.lock();
+			c->queue.append(frame);
+			c->queue_lock.unlock();
+		}
 	}
-
-	cache->write_count = i;
-
-	/*if (!error) {
-		// setting the cache to written even if it hasn't reached_end prevents playback from
-		// signaling a seek/reset because it wasn't able to find the frame
-		cache->written = true;
-		cache->unread = true;
-	}*/
-
-	cache->mutex.unlock();
 }
-
-
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
@@ -445,48 +399,63 @@ void reset_cache(Clip* c, long target_frame) {
 		c->reached_end = false;
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 		if (!ms->infinite_length) {
-			// flush ffmpeg codecs
-			avcodec_flush_buffers(c->codecCtx);
-
-			// flush filtergraph
-			/*while (av_buffersink_get_frame(c->buffersink_ctx, temp) >= 0) {
-				qDebug() << "flushed?";
-				av_frame_unref(temp);
-			}*/
-			/*av_buffersrc_add_frame(c->buffersrc_ctx, NULL);
-			av_frame_unref(c->frame);
-			while (av_buffersink_get_frame(c->buffersink_ctx, c->frame) >= 0) {
-				av_frame_unref(c->frame);
-			}*/
-
-			double timebase = av_q2d(c->stream->time_base);
-
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-				if (target_frame > 0) {
-					AVFrame* temp = av_frame_alloc();
+				// clear current queue
+				c->clear_queue();
 
-					// seeks to nearest keyframe (target_frame represents internal clip frame)
-					int64_t seek_ts = qRound(clip_frame_to_seconds(c, target_frame) / timebase);
-					qDebug() << "requesting: " << seek_ts;
-					av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
+				// seeks to nearest keyframe (target_frame represents internal clip frame)
+				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
+//				if (ms->video_interlacing != VIDEO_PROGRESSIVE) target_ts *= 2;
+				int64_t seek_ts = target_ts;
 
-					// play up to the frame we actually want
-					int ret;
-					do {
-						ret = retrieve_next_frame(c, temp);
+				int64_t timebase_half_second = qRound(av_q2d(av_inv_q(c->stream->time_base)));
+				while (true) {
+					// flush ffmpeg codecs
+					avcodec_flush_buffers(c->codecCtx);
+
+					if (seek_ts > 0) {
+						av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
+
+						// play up to the frame we actually want
+						/*int ret;
+						do {
+							av_frame_unref(c->frame);
+							ret = retrieve_next_frame(c, c->frame);
+							if (ret < 0) {
+								qDebug() << "[WARNING] Seeking terminated prematurely";
+								break;
+							}
+							qDebug() << "ret pts:" << c->frame->pts << "dur:" << c->frame->pkt_duration << "target:" << target_ts;
+						} while (c->frame->pts + c->frame->pkt_duration + c->frame->pkt_duration < target_ts);
+						if (c->frame->pts <= target_ts) {
+							c->use_existing_frame = true;
+							break;
+						} else {
+							seek_ts -= timebase_second;
+						}*/
+						av_frame_unref(c->frame);
+						int ret = retrieve_next_frame(c, c->frame);
 						if (ret < 0) {
 							qDebug() << "[WARNING] Seeking terminated prematurely";
 							break;
 						}
-					} while (temp->pts + temp->pkt_duration + temp->pkt_duration < seek_ts);
-					av_frame_unref(temp);
-					av_frame_free(&temp);
-				} else {
-					av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);
+						qDebug() << "seek ts:" << seek_ts << "target ts:" << target_ts << "retrieved ts:" << c->frame->pts;
+						if (c->frame->pts <= target_ts) {
+							c->use_existing_frame = true;
+							break;
+						} else {
+							seek_ts -= timebase_half_second;
+						}
+					} else {
+						av_frame_unref(c->frame);
+						av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);
+						c->use_existing_frame = false;
+						break;
+					}
 				}
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
-				int64_t timestamp = qRound(playhead_to_seconds(c, target_frame) / timebase); // TODO qRound here might lead to clicking? or might fix it... who knows
+				int64_t timestamp = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame)); // TODO qRound here might lead to clicking? or might fix it... who knows
                 if (c->reverse) {
 					c->rev_target = timestamp;
 					timestamp -= av_q2d(av_inv_q(c->stream->time_base));
@@ -550,6 +519,8 @@ void open_clip_worker(Clip* clip) {
 		clip->codecCtx = avcodec_alloc_context3(clip->codec);
 		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
+		clip->max_queue_size = 30;
+
 		AVDictionary* opts = NULL;
 
 		// optimized decoding settings
@@ -596,14 +567,6 @@ void open_clip_worker(Clip* clip) {
 
 //			if (clip->skip_type == SKIP_TYPE_SEEK) clip->cache_size *= 2;
 			if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->cache_size *= 2;
-
-			clip->cache_A.frames = new AVFrame* [clip->cache_size];
-			clip->cache_B.frames = new AVFrame* [clip->cache_size];
-
-			for (int i=0;i<clip->cache_size;i++) {
-				clip->cache_A.frames[i] = av_frame_alloc();
-				clip->cache_B.frames[i] = av_frame_alloc();
-			}
 
 			snprintf(filter_args, sizeof(filter_args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
 						clip->stream->codecpar->width,
@@ -750,7 +713,7 @@ void open_clip_worker(Clip* clip) {
     qDebug() << "[INFO] Clip opened on track" << clip->track;
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bool reset, Clip* nest) {
+void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip* nest) {
 	if (reset) {
 		// note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
 		reset_cache(clip, playhead);
@@ -760,14 +723,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool write_A, bool write_B, bo
 	switch (clip->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
 		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-			if (write_A) {
-				cache_video_worker(clip, playhead, &clip->cache_A);
-				playhead += clip->cache_size;
-			}
-
-			if (write_B) {
-				cache_video_worker(clip, playhead, &clip->cache_B);
-			}
+			cache_video_worker(clip);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			cache_audio_worker(clip, nest);
 		}
@@ -782,8 +738,7 @@ void close_clip_worker(Clip* clip) {
 	clip->finished_opening = false;
 
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
-		// closes ffmpeg file handle and frees any memory used for caching
-		MediaStream* ms = static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream);
+		clip->clear_queue();
 
 		avfilter_graph_free(&clip->filter_graph);
 
@@ -791,12 +746,12 @@ void close_clip_worker(Clip* clip) {
 		avcodec_free_context(&clip->codecCtx);
 		avformat_close_input(&clip->formatCtx);
 
-		for (int i=0;i<clip->cache_size;i++) {
-			av_frame_free(&clip->cache_A.frames[i]);
-			if (!ms->infinite_length && clip->track < 0) av_frame_free(&clip->cache_B.frames[i]);
+		if (clip->track >= 0) {
+			for (int i=0;i<clip->cache_size;i++) {
+				av_frame_free(&clip->cache_A.frames[i]);
+			}
+			delete [] clip->cache_A.frames;
 		}
-		delete [] clip->cache_A.frames;
-		if (!ms->infinite_length) delete [] clip->cache_B.frames;
 	}
 
 	av_frame_free(&clip->frame);
@@ -820,7 +775,7 @@ void Cacher::run() {
         if (!caching) {
 			break;
 		} else {
-            cache_clip_worker(clip, playhead, write_A, write_B, reset, nest);
+			cache_clip_worker(clip, playhead, reset, nest);
 		}
 	}
 

@@ -50,6 +50,7 @@ struct Clip
     void reset_audio();
 	void reset();
 	void refresh();
+	void clear_queue();
 
 	// timeline variables
     Sequence* sequence;
@@ -95,21 +96,24 @@ struct Clip
     AVPacket* pkt;
 	AVFrame* frame;
 
-    bool pkt_written;
-    bool reached_end;
+	bool reached_end; // deprecated
+	bool pkt_written;
     bool open;
     bool finished_opening;
 	bool replaced;
 
 	int64_t rev_target;
 
-    // caching functions
+	// caching functions
+	bool use_existing_frame;
     bool multithreaded;
     Cacher* cacher;
+	int cache_size; // deprecated
     QWaitCondition can_cache;
-	int cache_size;
-    ClipCache cache_A;
-    ClipCache cache_B;
+	int max_queue_size;
+	QVector<AVFrame*> queue;
+	ClipCache cache_A; // deprecated
+	QMutex queue_lock;
     QMutex lock;
 	QMutex open_lock;
 
@@ -130,11 +134,7 @@ struct Clip
     int audio_buffer_write;
     bool audio_reset;
     bool audio_just_reset;
-    long audio_target_frame;
-
-	// statistics
-	int stat_seek_time;
-	int stat_read_time;
+	long audio_target_frame;
 };
 
 #endif // CLIP_H

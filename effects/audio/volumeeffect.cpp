@@ -13,7 +13,7 @@ VolumeEffect::VolumeEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_VOLUME_
 	EffectRow* volume_row = add_row("Volume:");
 	volume_val = volume_row->add_field(EFFECT_FIELD_DOUBLE);
 	volume_val->set_double_minimum_value(0);
-	volume_val->set_double_maximum_value(400);
+//	volume_val->set_double_maximum_value(1000);
 
 	// set defaults
 	volume_val->set_double_default_value(100);

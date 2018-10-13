@@ -255,6 +255,16 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				int video_height = c->getHeight();
 
 				if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+					// set up opengl texture
+					if (c->texture == NULL) {
+						c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+						c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
+						c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+						c->texture->setMipLevels(c->texture->maximumMipLevels());
+						c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+						c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+					}
+
 					get_clip_frame(c, playhead);
 					if (c->texture != NULL) textureID = c->texture->textureId();
 				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
@@ -394,7 +404,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					case MEDIA_TYPE_TONE:
 						if (c->lock.tryLock()) {
 							// clip is not caching, start caching audio
-							cache_clip(c, playhead, false, false, c->audio_reset, nest);
+							cache_clip(c, playhead, c->audio_reset, nest);
 							c->lock.unlock();
 						}
 						break;
