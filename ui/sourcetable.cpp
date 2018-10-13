@@ -7,6 +7,7 @@
 #include "panels/panels.h"
 #include "playback/playback.h"
 #include "project/undo.h"
+#include "mainwindow.h"
 
 #include <QDragEnterEvent>
 #include <QMimeData>
@@ -33,6 +34,9 @@ void SourceTable::show_context_menu() {
     if (selectedItems().size() == 0) {
         QAction* import_action = menu.addAction("Import...");
         connect(import_action, SIGNAL(triggered(bool)), panel_project, SLOT(import_dialog()));
+
+		QAction* new_folder_action = menu.addAction("New Folder...");
+		connect(new_folder_action, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionFolder_triggered()));
     } else {
         if (selectedItems().size() == 1) {
             // replace footage

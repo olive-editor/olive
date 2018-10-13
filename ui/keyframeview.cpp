@@ -150,7 +150,6 @@ void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool darker) {
     p.setPen(QColor(0, 0, 0));
     p.setBrush(QColor(color, color, color));
 	p.drawPolygon(points, KEYFRAME_POINT_COUNT);
-	qDebug() << "drew key at" << x << y;
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {

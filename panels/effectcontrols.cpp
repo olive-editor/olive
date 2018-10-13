@@ -59,11 +59,7 @@ bool EffectControls::keyframe_focus() {
 }
 
 void EffectControls::set_zoom(bool in) {
-	if (in) {
-		zoom *= 2;
-	} else {
-		zoom *= 0.5;
-	}
+	zoom *= (in) ? 2 : 0.5;
 	update_keyframes();
 }
 
@@ -94,7 +90,7 @@ void EffectControls::menu_select(QAction* q) {
 }
 
 void EffectControls::update_keyframes() {
-	if (ui->headers->isVisible()) ui->headers->update_zoom(zoom);
+	ui->headers->update_zoom(zoom);
 	ui->keyframeView->update();
 }
 

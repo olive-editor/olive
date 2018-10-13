@@ -90,6 +90,10 @@ void NewSequenceDialog::on_buttonBox_accepted() {
 		panel_project->new_sequence(ca, s, true, NULL);
 		undo_stack.push(ca);
 	} else {
+		ComboAction* ca = new ComboAction();
+
+		double multiplier = ui->frame_rate_combobox->currentData().toDouble() / existing_sequence->frame_rate;
+
 		EditSequenceCommand* esc = new EditSequenceCommand(existing_item, existing_sequence);
 		esc->name = ui->lineEdit->text();
 		esc->width = ui->width_numeric->value();
@@ -97,7 +101,16 @@ void NewSequenceDialog::on_buttonBox_accepted() {
 		esc->frame_rate = ui->frame_rate_combobox->currentData().toDouble();
 		esc->audio_frequency = ui->audio_frequency_combobox->currentData().toInt();
 		esc->audio_layout = AV_CH_LAYOUT_STEREO;
-		undo_stack.push(esc);
+		ca->append(esc);
+
+		for (int i=0;i<existing_sequence->clips.size();i++) {
+			Clip* c = existing_sequence->clips.at(i);
+			if (c != NULL) {
+				c->refactor_frame_rate(ca, multiplier, true);
+			}
+		}
+
+		undo_stack.push(ca);
 	}
 }
 

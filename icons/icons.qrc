@@ -41,5 +41,7 @@
         <file>add-button.png</file>
         <file>add-button-disabled.png</file>
         <file>clock.png</file>
+        <file>sequence.png</file>
+        <file>folder.png</file>
     </qresource>
 </RCC>

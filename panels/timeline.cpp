@@ -307,7 +307,9 @@ void Timeline::repaint_timeline(bool changed) {
 	panel_effect_controls->update_keyframes();
 
 	if (sequence != NULL) {
-		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequence->getEndFrame()) + 100 - ui->editAreas->width()));
+		long sequenceEndFrame = sequence->getEndFrame();
+
+		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequenceEndFrame) + 100 - ui->editAreas->width()));
 
 		if (last_frame != sequence->playhead) {
 			panel_sequence_viewer->viewer_widget->update();
@@ -324,6 +326,13 @@ void Timeline::repaint_timeline(bool changed) {
 		}
 
 		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
+
+
+		if (sequenceEndFrame > 0) {
+			panel_sequence_viewer->ui->headers->update_zoom((double) panel_sequence_viewer->ui->headers->width() / (double) sequenceEndFrame);
+		} else {
+			panel_sequence_viewer->ui->headers->update_zoom(1);
+		}
 	}
 }
 

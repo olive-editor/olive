@@ -315,21 +315,8 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	ep = qMin(ep, c->timeline_out);
 	lr = qMax(lr, proposed_out - c->timeline_out);
 	ca->append(new MoveClipAction(c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track));	
-	for (int i=0;i<c->effects.size();i++) {
-		Effect* e = c->effects.at(i);
-		for (int j=0;j<e->row_count();j++) {
-			EffectRow* r = e->row(j);
-			for (int k=0;k<r->keyframe_times.size();k++) {
-				long new_pos = r->keyframe_times.at(k) * c->speed / speed;
-				qDebug() << "old key" << r->keyframe_times.at(k) << "new key" << new_pos;
-				KeyframeMove* km = new KeyframeMove();
-				km->movement = new_pos - r->keyframe_times.at(k);
-				km->rows.append(r);
-				km->keyframes.append(k);
-				ca->append(km);
-			}
-		}
-	}
+
+	c->refactor_frame_rate(ca, multiplier, false);
 
 	Selection sel;
 	sel.in = c->timeline_in;

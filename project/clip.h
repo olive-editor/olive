@@ -12,6 +12,7 @@ class Cacher;
 class Effect;
 class Transition;
 class QOpenGLFramebufferObject;
+class ComboAction;
 struct Sequence;
 struct Media;
 struct MediaStream;
@@ -78,6 +79,7 @@ struct Clip
 	bool reverse;
 	long calculated_length;
 	int skip_type;
+	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
 
 	// other variables (should be "duplicated" in copy())
     QList<Effect*> effects;

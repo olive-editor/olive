@@ -38,6 +38,9 @@
       <property name="spacing">
        <number>0</number>
       </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="ViewerContainer" name="glViewerPane" native="true">
         <property name="sizePolicy">
@@ -57,6 +60,9 @@
          </property>
         </widget>
        </widget>
+      </item>
+      <item>
+       <widget class="TimelineHeader" name="headers" native="true"/>
       </item>
       <item>
        <widget class="QWidget" name="playbackControls" native="true">
@@ -232,6 +238,12 @@
    <class>LabelSlider</class>
    <extends>QLabel</extends>
    <header>ui/labelslider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TimelineHeader</class>
+   <extends>QWidget</extends>
+   <header>ui/timelineheader.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

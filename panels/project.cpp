@@ -165,9 +165,13 @@ void Project::open_properties() {
 		default:
 		{
 			// fall back to renaming
-			QString new_name = QInputDialog::getText(this, "Rename '" + item->text(0) + "'", "Enter new name:");
+			QString new_name = QInputDialog::getText(this, "Rename '" + item->text(0) + "'", "Enter new name:", QLineEdit::Normal, item->text(0));
 			if (!new_name.isEmpty()) {
-				item->setText(0, new_name);
+				MediaRename* mr = new MediaRename();
+				mr->from = item->text(0);
+				mr->item = item;
+				mr->to = new_name;
+				undo_stack.push(mr);
 			}
 		}
 		}
@@ -220,6 +224,7 @@ QTreeWidgetItem* Project::new_folder(QString name) {
     QTreeWidgetItem* item = new_item();
     item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 	item->setText(0, (name.isEmpty()) ? "New Folder" : name);
+	item->setIcon(0, QIcon(":/icons/folder.png"));
     set_item_to_folder(item);
     return item;
 }
@@ -576,6 +581,7 @@ void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* s) {
 					 + "\nFrame Rate: " + QString::number(s->frame_rate)
 					 + "\nAudio Frequency: " + QString::number(s->audio_frequency)
 					 + "\nAudio Layout: " + get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout));
+	item->setIcon(0, QIcon(":/icons/sequence.png"));
 }
 
 int get_type_from_tree(QTreeWidgetItem* item) {

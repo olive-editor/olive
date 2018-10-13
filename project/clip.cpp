@@ -9,6 +9,7 @@
 #include "panels/project.h"
 #include "project/sequence.h"
 #include "panels/timeline.h"
+#include "undo.h"
 
 #include <QDebug>
 
@@ -258,4 +259,29 @@ int Clip::getHeight() {
 	}
 	}
 	return 0;
+}
+
+void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points) {
+	if (change_timeline_points) {
+		ca->append(new MoveClipAction(this,
+									  qRound((double) timeline_in * multiplier),
+									  qRound((double) timeline_out * multiplier),
+									  qRound((double) clip_in * multiplier),
+								track));
+	}
+
+	for (int i=0;i<effects.size();i++) {
+		Effect* e = effects.at(i);
+		for (int j=0;j<e->row_count();j++) {
+			EffectRow* r = e->row(j);
+			for (int k=0;k<r->keyframe_times.size();k++) {
+				long new_pos = r->keyframe_times.at(k) * multiplier;
+				KeyframeMove* km = new KeyframeMove();
+				km->movement = new_pos - r->keyframe_times.at(k);
+				km->rows.append(r);
+				km->keyframes.append(k);
+				ca->append(km);
+			}
+		}
+	}
 }

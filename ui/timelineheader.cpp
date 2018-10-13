@@ -30,10 +30,11 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
 	dragging_markers(false),
 	scroll(0)
 {
+	height_actual = fm.height();
     setCursor(Qt::ArrowCursor);
     setMouseTracking(true);
-	setFixedHeight(fm.height()*2);
 	setFocusPolicy(Qt::ClickFocus);
+	show_text(true);
 }
 
 void TimelineHeader::set_scroll(int s) {
@@ -83,6 +84,16 @@ void TimelineHeader::set_out_point(long new_out) {
     }
     undo_stack.push(new SetTimelineInOutCommand(sequence, true, new_in, new_out));
 	panel_timeline->repaint_timeline(false);
+}
+
+void TimelineHeader::show_text(bool enable) {
+	text_enabled = enable;
+	if (enable) {
+		setFixedHeight(height_actual*2);
+	} else {
+		setFixedHeight(height_actual);
+	}
+	update();
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
@@ -137,7 +148,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 	if (dragging) {
 		if (resizing_workarea) {
 			long frame = getHeaderFrameFromScreenPoint(event->pos().x());
-			panel_timeline->snap_to_timeline(&frame, true, true, false);
+			if (snapping) panel_timeline->snap_to_timeline(&frame, true, true, false);
 
             if (resizing_workarea_in) {
                 temp_workarea_in = qMax(qMin(temp_workarea_out-1, frame), 0L);
@@ -152,7 +163,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 			// snap markers
 			for (int i=0;i<selected_markers.size();i++) {
 				long fm = selected_marker_original_times.at(i) + frame_movement;
-				if (panel_timeline->snap_to_timeline(&fm, true, false, true)) {
+				if (snapping && panel_timeline->snap_to_timeline(&fm, true, false, true)) {
 					frame_movement = fm - selected_marker_original_times.at(i);
 					break;
 				}
@@ -179,7 +190,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
     } else {
 		resizing_workarea = false;
         unsetCursor();
-        if (sequence->using_workarea) {
+		if (sequence != NULL && sequence->using_workarea) {
 			long min_frame = getHeaderFrameFromScreenPoint(event->pos().x() - CLICK_RANGE) - 1;
 			long max_frame = getHeaderFrameFromScreenPoint(event->pos().x() + CLICK_RANGE) + 1;
             if (sequence->workarea_in > min_frame && sequence->workarea_in < max_frame) {
@@ -198,7 +209,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 	}
 }
 
-void TimelineHeader::mouseReleaseEvent(QMouseEvent* event) {
+void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 	dragging = false;
 	if (resizing_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, true, temp_workarea_in, temp_workarea_out));
@@ -248,9 +259,9 @@ void TimelineHeader::delete_markers() {
 }
 
 void TimelineHeader::paintEvent(QPaintEvent*) {
-    if (sequence != NULL) {
+	if (sequence != NULL && zoom > 0) {
         QPainter p(this);
-        int yoff = height()/2;
+		int yoff = (text_enabled) ? height()/2 : 0;
 
         double interval = sequence->frame_rate;
         int textWidth = 0;
@@ -278,14 +289,15 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
             if (lineX > width()) break;
 			if (next_lineX > 0 && lineX > lastLineX+LINE_MIN_PADDING) {
 				// draw text
-				if (lineX-textWidth > lastTextBoundary) {
+				if (text_enabled && lineX-textWidth > lastTextBoundary) {
 					p.setPen(Qt::white);
 					QString timecode = frame_to_timecode(frame + in_visible, config.timecode_view, sequence->frame_rate);
-					textWidth = fm.width(timecode)>>1;
-					if (lineX + textWidth > 0) {
-						int text_x = qMax(lineX-textWidth, 0);
-						lastTextBoundary = text_x+textWidth+textWidth;
-						p.drawText(QRect(text_x, 0, lastTextBoundary, yoff), timecode);
+					int fullTextWidth = fm.width(timecode);
+					textWidth = fullTextWidth>>1;
+					int text_x = lineX-textWidth;
+					lastTextBoundary = lineX+textWidth;
+					if (lastTextBoundary >= 0) {
+						p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
 					}
 				}
 
@@ -351,5 +363,5 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         path.lineTo(in_x+PLAYHEAD_SIZE, yoff);
         path.lineTo(start);
         p.fillPath(path, Qt::red);
-    }
+	}
 }

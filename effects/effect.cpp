@@ -116,6 +116,7 @@ Effect::Effect(Clip* c, int t, int i) :
     ui = new QWidget();
 
     ui_layout = new QGridLayout();
+	ui_layout->setSpacing(4);
     ui->setLayout(ui_layout);
 	container->setContents(ui);
 }

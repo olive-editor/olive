@@ -1572,6 +1572,9 @@ void EditSequenceCommand::redo() {
 }
 
 void EditSequenceCommand::update() {
+	// update name
+	item->setText(0, seq->name);
+
 	// update tooltip
 	set_sequence_of_tree(item, seq);
 

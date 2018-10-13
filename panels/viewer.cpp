@@ -22,6 +22,7 @@ Viewer::Viewer(QWidget *parent) :
 	ui(new Ui::Viewer)
 {
 	ui->setupUi(this);
+	ui->headers->show_text(false);
 	ui->glViewerPane->child = ui->openGLWidget;
     viewer_widget = ui->openGLWidget;
 	update_media(MEDIA_TYPE_SEQUENCE, NULL);
@@ -111,11 +112,7 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-    if (sequence == NULL) {
-        ui->endTimecode->setText(frame_to_timecode(0, config.timecode_view, 30));
-    } else {
-        ui->endTimecode->setText(frame_to_timecode(sequence->getEndFrame(), config.timecode_view, sequence->frame_rate));
-    }
+	ui->endTimecode->setText((sequence == NULL) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(sequence->getEndFrame(), config.timecode_view, sequence->frame_rate));
 }
 
 void Viewer::update_media(int type, void* media) {

@@ -15,6 +15,8 @@ public:
 
 	bool snapping;
 
+	void show_text(bool enable);
+
 	void update_zoom(double z);
 
 	void delete_markers();
@@ -56,6 +58,9 @@ private:
 	int getHeaderScreenPointFromFrame(long frame);
 
 	int scroll;
+
+	int height_actual;
+	bool text_enabled;
 
 signals:
 };

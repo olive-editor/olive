@@ -56,6 +56,7 @@ void MainWindow::setup_layout() {
 
     addDockWidget(Qt::TopDockWidgetArea, panel_project);
     addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
+	tabifyDockWidget(panel_effect_controls, panel_footage_viewer);
     addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 
@@ -103,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     panel_project = new Project(this);
     panel_effect_controls = new EffectControls(this);
     panel_sequence_viewer = new Viewer(this);
+	panel_footage_viewer = new Viewer(this);
     panel_timeline = new Timeline(this);
 
 	setup_layout();
@@ -174,8 +176,9 @@ MainWindow::~MainWindow() {
 
     delete panel_project;
     delete panel_effect_controls;
+	delete panel_timeline;
     delete panel_sequence_viewer;
-    delete panel_timeline;
+	delete panel_footage_viewer;
 }
 
 void MainWindow::on_action_Import_triggered()
@@ -698,16 +701,16 @@ void MainWindow::on_actionRipple_to_Out_Point_triggered()
 
 void MainWindow::on_actionSet_In_Point_triggered()
 {
-    if (panel_timeline->focused()) panel_timeline->set_in_point();
+	if (panel_timeline->focused() || panel_sequence_viewer->hasFocus()) panel_timeline->set_in_point();
 }
 
 void MainWindow::on_actionSet_Out_Point_triggered()
 {
-    if (panel_timeline->focused()) panel_timeline->set_out_point();
+	if (panel_timeline->focused() || panel_sequence_viewer->hasFocus()) panel_timeline->set_out_point();
 }
 
 void MainWindow::on_actionClear_In_Out_triggered() {
-    if (panel_timeline->focused() && sequence->using_workarea) {
+	if ((panel_timeline->focused() || panel_sequence_viewer->hasFocus()) && sequence->using_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, false, 0, 0));
 		panel_timeline->repaint_timeline(false);
     }

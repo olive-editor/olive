@@ -9,6 +9,7 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "effects/effect.h"
+#include "panels/effectcontrols.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -281,8 +282,16 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
                 return send_ret;
 			}
         } else {
-			if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Could not read frame." << read_ret;
-			return read_ret; // skips trying to find a frame at all
+			if (read_ret == AVERROR_EOF) {
+				int send_ret = avcodec_send_packet(c->codecCtx, NULL);
+				if (send_ret < 0) {
+					qDebug() << "[ERROR] Failed to send packet to decoder." << send_ret;
+					return send_ret;
+				}
+			} else {
+				qDebug() << "[ERROR] Could not read frame." << read_ret;
+				return read_ret; // skips trying to find a frame at all
+			}
 		}
 	}
 	if (receive_ret < 0) {
@@ -302,6 +311,7 @@ bool is_clip_active(Clip* c, long playhead) {
 
 void set_sequence(Sequence* s) {
 	closeActiveClips(sequence, true);
+	panel_effect_controls->clear_effects(true);
     sequence = s;
     panel_timeline->update_sequence();
 	panel_sequence_viewer->update_media(MEDIA_TYPE_SEQUENCE, sequence);
