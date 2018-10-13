@@ -27,6 +27,7 @@ Viewer::Viewer(QWidget *parent) :
     viewer_widget = ui->openGLWidget;
 	update_media(MEDIA_TYPE_SEQUENCE, NULL);
 
+    ui->currentTimecode->setEnabled(false);
 	ui->currentTimecode->set_default_value(qSNaN());
 	ui->currentTimecode->set_value(0, false);
 	ui->currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);
@@ -127,6 +128,7 @@ void Viewer::update_media(int type, void* media) {
 
 		bool null_sequence = (s == NULL);
 
+        ui->currentTimecode->setEnabled(!null_sequence);
 		ui->openGLWidget->setEnabled(!null_sequence);
 		ui->openGLWidget->setVisible(!null_sequence);
 		ui->pushButton->setEnabled(!null_sequence);
