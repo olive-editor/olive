@@ -493,4 +493,26 @@ private:
 	int old_audio_layout;
 };
 
+class SetInt : public QUndoCommand {
+public:
+    SetInt(int* pointer, int new_value);
+    void undo();
+    void redo();
+private:
+    int* p;
+    int oldval;
+    int newval;
+};
+
+class SetString : public QUndoCommand {
+public:
+    SetString(QString* pointer, QString new_value);
+    void undo();
+    void redo();
+private:
+    QString* p;
+    QString oldval;
+    QString newval;
+};
+
 #endif // UNDO_H

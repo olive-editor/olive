@@ -149,7 +149,7 @@ void Project::open_properties() {
 		switch (get_type_from_tree(item)) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
-			MediaPropertiesDialog mpd(this);
+            MediaPropertiesDialog mpd(this, item, get_footage_from_tree(item));
 			mpd.exec();
 		}
 			break;

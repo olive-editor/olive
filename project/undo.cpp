@@ -1591,3 +1591,31 @@ void EditSequenceCommand::update() {
 		set_sequence(seq);
 	}
 }
+
+SetInt::SetInt(int* pointer, int new_value) :
+    p(pointer),
+    oldval(*pointer),
+    newval(new_value)
+{}
+
+void SetInt::undo() {
+    *p = oldval;
+}
+
+void SetInt::redo() {
+    *p = newval;
+}
+
+SetString::SetString(QString* pointer, QString new_value) :
+    p(pointer),
+    oldval(*pointer),
+    newval(new_value)
+{}
+
+void SetString::undo() {
+    *p = oldval;
+}
+
+void SetString::redo() {
+    *p = newval;
+}
