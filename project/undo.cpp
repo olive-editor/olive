@@ -37,16 +37,26 @@ void ComboAction::undo() {
     for (int i=commands.size()-1;i>=0;i--) {
         commands.at(i)->undo();
     }
+	for (int i=0;i<post_commands.size();i++) {
+		post_commands.at(i)->undo();
+	}
 }
 
 void ComboAction::redo() {
     for (int i=0;i<commands.size();i++) {
         commands.at(i)->redo();
     }
+	for (int i=0;i<post_commands.size();i++) {
+		post_commands.at(i)->redo();
+	}
 }
 
 void ComboAction::append(QUndoCommand* u) {
     commands.append(u);
+}
+
+void ComboAction::appendPost(QUndoCommand* u) {
+	post_commands.append(u);
 }
 
 MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack) :
@@ -1366,7 +1376,11 @@ void KeyframeSet::redo() {
 	done = true;
 }
 
-EffectFieldUndo::EffectFieldUndo(EffectField* f) : field(f), done(true) {
+EffectFieldUndo::EffectFieldUndo(EffectField* f) :
+	field(f),
+	done(true),
+	old_project_changed(mainWindow->isWindowModified())
+{
 	old_val = field->get_previous_data();
 	new_val = field->get_current_data();
 }
@@ -1374,19 +1388,26 @@ EffectFieldUndo::EffectFieldUndo(EffectField* f) : field(f), done(true) {
 void EffectFieldUndo::undo() {
 	field->set_current_data(old_val);
 	done = false;
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void EffectFieldUndo::redo() {
 	if (!done) {
 		field->set_current_data(new_val);
 	}
+	mainWindow->setWindowModified(true);
 }
+
+SetAutoscaleAction::SetAutoscaleAction() :
+	old_project_changed(mainWindow->isWindowModified())
+{}
 
 void SetAutoscaleAction::undo() {
     for (int i=0;i<clips.size();i++) {
         clips.at(i)->autoscale = !clips.at(i)->autoscale;
     }
 	panel_sequence_viewer->viewer_widget->update();
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetAutoscaleAction::redo() {
@@ -1394,6 +1415,7 @@ void SetAutoscaleAction::redo() {
         clips.at(i)->autoscale = !clips.at(i)->autoscale;
     }
 	panel_sequence_viewer->viewer_widget->update();
+	mainWindow->setWindowModified(true);
 }
 
 AddMarkerAction::AddMarkerAction(Sequence* s, long t, QString n) :
@@ -1437,26 +1459,31 @@ void AddMarkerAction::redo() {
 MoveMarkerAction::MoveMarkerAction(Marker* m, long o, long n) :
 	marker(m),
 	old_time(o),
-	new_time(n)
+	new_time(n),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void MoveMarkerAction::undo() {
 	marker->frame = old_time;
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MoveMarkerAction::redo() {
 	marker->frame = new_time;
+	mainWindow->setWindowModified(true);
 }
 
 DeleteMarkerAction::DeleteMarkerAction(Sequence* s) :
 	seq(s),
-	sorted(false)
+	sorted(false),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void DeleteMarkerAction::undo() {
 	for (int i=markers.size()-1;i>=0;i--) {
 		seq->markers.insert(markers.at(i), copies.at(i));
 	}
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void DeleteMarkerAction::redo() {
@@ -1473,46 +1500,55 @@ void DeleteMarkerAction::redo() {
 		seq->markers.removeAt(markers.at(i));
 	}
 	sorted = true;
+	mainWindow->setWindowModified(true);
 }
 
 SetSpeedAction::SetSpeedAction(Clip* c, double speed) :
 	clip(c),
 	old_speed(c->speed),
-	new_speed(speed)
+	new_speed(speed),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetSpeedAction::undo() {
 	clip->speed = old_speed;
 	clip->recalculateMaxLength();
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetSpeedAction::redo() {
 	clip->speed = new_speed;
 	clip->recalculateMaxLength();
+	mainWindow->setWindowModified(true);
 }
 
 SetBool::SetBool(bool* b, bool setting) :
 	boolean(b),
 	old_setting(*b),
-	new_setting(setting)
+	new_setting(setting),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetBool::undo() {
 	*boolean = old_setting;
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetBool::redo() {
 	*boolean = new_setting;
+	mainWindow->setWindowModified(true);
 }
 
 SetSelectionsCommand::SetSelectionsCommand(Sequence* s) :
     seq(s),
-    done(true)
+	done(true),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetSelectionsCommand::undo() {
     sequence->selections = old_data;
     done = false;
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetSelectionsCommand::redo() {
@@ -1520,6 +1556,7 @@ void SetSelectionsCommand::redo() {
         sequence->selections = new_data;
         done = true;
     }
+	mainWindow->setWindowModified(true);
 }
 
 SetEnableCommand::SetEnableCommand(Clip* c, bool enable) :
@@ -1559,6 +1596,8 @@ void EditSequenceCommand::undo() {
 	seq->audio_frequency = old_audio_frequency;
 	seq->audio_layout = old_audio_layout;
 	update();
+
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void EditSequenceCommand::redo() {
@@ -1569,6 +1608,8 @@ void EditSequenceCommand::redo() {
 	seq->audio_frequency = audio_frequency;
 	seq->audio_layout = audio_layout;
 	update();
+
+	mainWindow->setWindowModified(true);
 }
 
 void EditSequenceCommand::update() {
@@ -1595,27 +1636,54 @@ void EditSequenceCommand::update() {
 SetInt::SetInt(int* pointer, int new_value) :
     p(pointer),
     oldval(*pointer),
-    newval(new_value)
+	newval(new_value),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetInt::undo() {
     *p = oldval;
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetInt::redo() {
     *p = newval;
+	mainWindow->setWindowModified(true);
 }
 
 SetString::SetString(QString* pointer, QString new_value) :
     p(pointer),
     oldval(*pointer),
-    newval(new_value)
+	newval(new_value),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetString::undo() {
     *p = oldval;
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetString::redo() {
     *p = newval;
+	mainWindow->setWindowModified(true);
+}
+
+void CloseAllClipsCommand::undo() {
+	redo();
+}
+
+void CloseAllClipsCommand::redo() {
+	closeActiveClips(sequence, true);
+}
+
+UpdateFootageTooltip::UpdateFootageTooltip(QTreeWidgetItem *i, Media *m) :
+	item(i),
+	media(m)
+{}
+
+void UpdateFootageTooltip::undo() {
+	redo();
+}
+
+void UpdateFootageTooltip::redo() {
+	update_footage_tooltip(item, media);
 }

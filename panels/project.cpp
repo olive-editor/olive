@@ -1361,3 +1361,65 @@ QString get_interlacing_name(int interlacing) {
 	default: return "Invalid";
 	}
 }
+
+void update_footage_tooltip(QTreeWidgetItem *item, Media *media, QString error) {
+	QString tooltip = "Name: " + media->name + "\nFilename: " + media->url + "\n";
+
+	if (error.isEmpty()) {
+		if (media->video_tracks.size() > 0) {
+			tooltip += "Video Dimensions: ";
+			for (int i=0;i<media->video_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += QString::number(media->video_tracks.at(i)->video_width) + "x" + QString::number(media->video_tracks.at(i)->video_height);
+			}
+			tooltip += "\n";
+
+			tooltip += "Frame Rate: ";
+			for (int i=0;i<media->video_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
+				if (media->video_tracks.at(i)->video_interlacing != VIDEO_PROGRESSIVE) {
+					tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate*0.5) + " frames)";
+				}
+			}
+			tooltip += "\n";
+
+			tooltip += "Interlacing: ";
+			for (int i=0;i<media->video_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += get_interlacing_name(media->video_tracks.at(i)->video_interlacing);
+			}
+			tooltip += "\n";
+		}
+
+		if (media->audio_tracks.size() > 0) {
+			tooltip += "Audio Frequency: ";
+			for (int i=0;i<media->audio_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += QString::number(media->audio_tracks.at(i)->audio_frequency);
+			}
+			tooltip += "\n";
+
+			tooltip += "Audio Channels: ";
+			for (int i=0;i<media->audio_tracks.size();i++) {
+				if (i > 0) {
+					tooltip += ", ";
+				}
+				tooltip += get_channel_layout_name(media->audio_tracks.at(i)->audio_channels, media->audio_tracks.at(i)->audio_layout);
+			}
+			// tooltip += "\n";
+		}
+	} else {
+
+	}
+
+	item->setToolTip(0, tooltip);
+}

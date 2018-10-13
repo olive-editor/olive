@@ -35,6 +35,7 @@ void set_footage_of_tree(QTreeWidgetItem* item, Media* media);
 Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
 void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
 void set_item_to_folder(QTreeWidgetItem* item);
+void update_footage_tooltip(QTreeWidgetItem* item, Media* media, QString error = 0);
 
 QString get_channel_layout_name(int channels, int layout);
 QString get_interlacing_name(int interlacing);

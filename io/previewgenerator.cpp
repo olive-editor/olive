@@ -61,6 +61,7 @@ void PreviewGenerator::parse_media() {
 				}
 				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
 				ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+				ms->video_auto_interlacing = VIDEO_PROGRESSIVE;
 				ms->video_interlacing = VIDEO_PROGRESSIVE; // default value, we get the true value later in generate_waveform()
 				if (append) media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -173,7 +174,8 @@ void PreviewGenerator::generate_waveform() {
 						s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
 
 						// is video interlaced?
-                        s->video_interlacing = (temp_frame->interlaced_frame) ? ((temp_frame->top_field_first) ? VIDEO_TOP_FIELD_FIRST : VIDEO_BOTTOM_FIELD_FIRST) : VIDEO_PROGRESSIVE;
+						s->video_auto_interlacing = (temp_frame->interlaced_frame) ? ((temp_frame->top_field_first) ? VIDEO_TOP_FIELD_FIRST : VIDEO_BOTTOM_FIELD_FIRST) : VIDEO_PROGRESSIVE;
+						s->video_interlacing = s->video_auto_interlacing;
 
 						s->preview_done = true;
 
@@ -319,66 +321,14 @@ void PreviewGenerator::run() {
         }
         avformat_close_input(&fmt_ctx);
 	}
-	QString tooltip = "Name: " + media->name + "\nFilename: " + media->url + "\n";
-    if (error) {
-		tooltip += errorStr;
+
+	if (error) {
+		update_footage_tooltip(item, media, errorStr);
 		emit set_icon(ICON_TYPE_ERROR, replace);
-    } else {
-//		tooltip += "Video Tracks: " + QString::number(media->video_tracks.size()) + "\nAudio Tracks: " + QString::number(media->audio_tracks.size()) + "\n";
-
-		if (media->video_tracks.size() > 0) {
-			tooltip += "Video Dimensions: ";
-			for (int i=0;i<media->video_tracks.size();i++) {
-				if (i > 0) {
-					tooltip += ", ";
-				}
-				tooltip += QString::number(media->video_tracks.at(i)->video_width) + "x" + QString::number(media->video_tracks.at(i)->video_height);
-			}
-			tooltip += "\n";
-
-			tooltip += "Frame Rate: ";
-			for (int i=0;i<media->video_tracks.size();i++) {
-				if (i > 0) {
-					tooltip += ", ";
-				}
-				tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
-				if (media->video_tracks.at(i)->video_interlacing != VIDEO_PROGRESSIVE) {
-					tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate*0.5) + " frames)";
-				}
-			}
-			tooltip += "\n";
-
-			tooltip += "Interlacing: ";
-			for (int i=0;i<media->video_tracks.size();i++) {
-				if (i > 0) {
-					tooltip += ", ";
-				}
-				tooltip += get_interlacing_name(media->video_tracks.at(i)->video_interlacing);
-			}
-			tooltip += "\n";
-		}
-
-		if (media->audio_tracks.size() > 0) {
-			tooltip += "Audio Frequency: ";
-			for (int i=0;i<media->audio_tracks.size();i++) {
-				if (i > 0) {
-					tooltip += ", ";
-				}
-				tooltip += QString::number(media->audio_tracks.at(i)->audio_frequency);
-			}
-			tooltip += "\n";
-
-			tooltip += "Audio Channels: ";
-			for (int i=0;i<media->audio_tracks.size();i++) {
-				if (i > 0) {
-					tooltip += ", ";
-				}
-				tooltip += get_channel_layout_name(media->audio_tracks.at(i)->audio_channels, media->audio_tracks.at(i)->audio_layout);
-			}
-//			tooltip += "\n";
-		}
+	} else {
+		update_footage_tooltip(item, media);
     }
-	item->setToolTip(0, tooltip);
+
     delete [] filename;
 	media->preview_gen = NULL;
 }

@@ -29,6 +29,7 @@ struct MediaStream {
 	bool infinite_length;
     double video_frame_rate;
     int video_interlacing;
+	int video_auto_interlacing;
     int audio_channels;
     int audio_layout;
     int audio_frequency;

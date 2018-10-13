@@ -34,8 +34,10 @@ public:
     void undo();
     void redo();
     void append(QUndoCommand* u);
+	void appendPost(QUndoCommand* u);
 private:
     QVector<QUndoCommand*> commands;
+	QVector<QUndoCommand*> post_commands;
 };
 
 class MoveClipAction : public QUndoCommand {
@@ -375,13 +377,17 @@ private:
 	QVariant old_val;
 	QVariant new_val;
 	bool done;
+	bool old_project_changed;
 };
 
 class SetAutoscaleAction : public QUndoCommand {
 public:
+	SetAutoscaleAction();
     void undo();
     void redo();
     QVector<Clip*> clips;
+private:
+	bool old_project_changed;
 };
 
 class AddMarkerAction : public QUndoCommand {
@@ -407,6 +413,7 @@ private:
 	Marker* marker;
 	long old_time;
 	long new_time;
+	bool old_project_changed;
 };
 
 class DeleteMarkerAction : public QUndoCommand {
@@ -419,6 +426,7 @@ private:
 	Sequence* seq;
 	QVector<Marker> copies;
 	bool sorted;
+	bool old_project_changed;
 };
 
 class SetSpeedAction : public QUndoCommand {
@@ -430,6 +438,7 @@ private:
 	Clip* clip;
 	double old_speed;
 	double new_speed;
+	bool old_project_changed;
 };
 
 class SetBool : public QUndoCommand {
@@ -441,6 +450,7 @@ private:
 	bool* boolean;
 	bool old_setting;
 	bool new_setting;
+	bool old_project_changed;
 };
 
 class SetSelectionsCommand : public QUndoCommand {
@@ -453,6 +463,7 @@ public:
 private:
     Sequence* seq;
     bool done;
+	bool old_project_changed;
 };
 
 class SetEnableCommand : public QUndoCommand {
@@ -502,6 +513,7 @@ private:
     int* p;
     int oldval;
     int newval;
+	bool old_project_changed;
 };
 
 class SetString : public QUndoCommand {
@@ -513,6 +525,23 @@ private:
     QString* p;
     QString oldval;
     QString newval;
+	bool old_project_changed;
+};
+
+class CloseAllClipsCommand : public QUndoCommand {
+public:
+	void undo();
+	void redo();
+};
+
+class UpdateFootageTooltip : public QUndoCommand {
+public:
+	UpdateFootageTooltip(QTreeWidgetItem* i, Media* m);
+	void undo();
+	void redo();
+private:
+	QTreeWidgetItem* item;
+	Media* media;
 };
 
 #endif // UNDO_H

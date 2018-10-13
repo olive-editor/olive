@@ -23,10 +23,12 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, QTreeWidgetItem *i
 
     if (m->video_tracks.size() > 0) {
         interlacing_box = new QComboBox();
+		interlacing_box->addItem("Auto (" + get_interlacing_name(media->video_tracks.at(0)->video_auto_interlacing) + ")");
         interlacing_box->addItem(get_interlacing_name(VIDEO_PROGRESSIVE));
         interlacing_box->addItem(get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
         interlacing_box->addItem(get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
-        interlacing_box->setCurrentIndex(media->video_tracks.at(0)->video_interlacing);
+
+		interlacing_box->setCurrentIndex((media->video_tracks.at(0)->video_auto_interlacing == media->video_tracks.at(0)->video_interlacing) ? 0 : media->video_tracks.at(0)->video_interlacing + 1);
 
         grid->addWidget(new QLabel("Interlacing:"), 0, 0);
         grid->addWidget(interlacing_box, 0, 1);
@@ -45,19 +47,27 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, QTreeWidgetItem *i
 }
 
 void MediaPropertiesDialog::accept() {
-    ComboAction* ca = new ComboAction();
-    ca->append(new SetInt(&media->video_tracks.at(0)->video_interlacing, interlacing_box->currentIndex()));
-    ca->append(new SetString(&media->name, name_box->text()));
+	ComboAction* ca = new ComboAction();
 
-    item->setText(0, name_box->text());
+	//set interlacing
+	if (interlacing_box->currentIndex() > 0) {
+		ca->append(new SetInt(&media->video_tracks.at(0)->video_interlacing, interlacing_box->currentIndex() - 1));
+	} else {
+		ca->append(new SetInt(&media->video_tracks.at(0)->video_interlacing, media->video_tracks.at(0)->video_auto_interlacing));
+	}
 
-    MediaRename* mr = new MediaRename();
-    mr->from = media->name;
-    mr->item = item;
-    mr->to = name_box->text();
-    ca->append(mr);
+	//set name
+	MediaRename* mr = new MediaRename();
+	mr->from = media->name;
+	mr->item = item;
+	mr->to = name_box->text();
+	item->setText(0, name_box->text());
 
-    undo_stack.push(ca);
+	ca->append(mr);
+	ca->appendPost(new CloseAllClipsCommand());
+	ca->appendPost(new UpdateFootageTooltip(item, media));
+
+	undo_stack.push(ca);
 
     QDialog::accept();
 }
