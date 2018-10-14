@@ -42,7 +42,7 @@ extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;
 void clear_audio_ibuffer();
 
-void init_audio();
+void init_audio(Sequence *s);
 void stop_audio();
 int get_buffer_offset_from_frame(long frame);
 

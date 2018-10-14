@@ -243,9 +243,6 @@ void Timeline::repaint_timeline(bool changed) {
 			last_frame = sequence->playhead;
         }
 
-		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
-
-
 		if (sequenceEndFrame > 0) {
 			panel_sequence_viewer->ui->headers->update_zoom((double) panel_sequence_viewer->ui->headers->width() / (double) sequenceEndFrame);
 		} else {

@@ -27,13 +27,13 @@ double audio_ibuffer_timecode = 0;
 
 AudioSenderThread* audio_thread;
 
-void init_audio() {
+void init_audio(Sequence* s) {
 	stop_audio();
 
-    if (sequence != NULL) {
+	if (s != NULL) {
 		QAudioFormat audio_format;
-        audio_format.setSampleRate(sequence->audio_frequency);
-        audio_format.setChannelCount(av_get_channel_layout_nb_channels(sequence->audio_layout));
+		audio_format.setSampleRate(s->audio_frequency);
+		audio_format.setChannelCount(av_get_channel_layout_nb_channels(s->audio_layout));
 		audio_format.setSampleSize(16);
 		audio_format.setCodec("audio/pcm");
 		audio_format.setByteOrder(QAudioFormat::LittleEndian);
@@ -136,29 +136,31 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	int audio_ibuffer_limit = audio_ibuffer_read + actual_write;
 
 	// send samples to audio monitor cache
-	if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
-		panel_timeline->ui->audio_monitor->sample_cache_offset = sequence->playhead;
-	}
-	int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
-	long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + (panel_timeline->ui->audio_monitor->sample_cache.size()/channel_count);
-	int next_buffer_offset, buffer_offset_adjusted, i;
-	int buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead);
-	if (samples.size() != channel_count) samples.resize(channel_count);
-	samples.fill(0);
-
-	// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
-	while (buffer_offset < audio_ibuffer_limit) {
-		sample_cache_playhead++;
-		next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_limit);
-		while (buffer_offset < next_buffer_offset) {
-			for (i=0;i<samples.size();i++) {
-				buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
-				samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
-				buffer_offset += 2;
-			}
+	if (sequence != NULL) {
+		if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
+			panel_timeline->ui->audio_monitor->sample_cache_offset = sequence->playhead;
 		}
-		panel_timeline->ui->audio_monitor->sample_cache.append(samples);
-		buffer_offset = next_buffer_offset;
+		int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
+		long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + (panel_timeline->ui->audio_monitor->sample_cache.size()/channel_count);
+		int next_buffer_offset, buffer_offset_adjusted, i;
+		int buffer_offset = get_buffer_offset_from_frame(sample_cache_playhead);
+		if (samples.size() != channel_count) samples.resize(channel_count);
+		samples.fill(0);
+
+		// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
+		while (buffer_offset < audio_ibuffer_limit) {
+			sample_cache_playhead++;
+			next_buffer_offset = qMin(get_buffer_offset_from_frame(sample_cache_playhead), audio_ibuffer_limit);
+			while (buffer_offset < next_buffer_offset) {
+				for (i=0;i<samples.size();i++) {
+					buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
+					samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
+					buffer_offset += 2;
+				}
+			}
+			panel_timeline->ui->audio_monitor->sample_cache.append(samples);
+			buffer_offset = next_buffer_offset;
+		}
 	}
 
 	memset(audio_ibuffer+offset, 0, actual_write);

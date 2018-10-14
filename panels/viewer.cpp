@@ -27,7 +27,8 @@ Viewer::Viewer(QWidget *parent) :
     ui(new Ui::Viewer),
 	seq(NULL),
 	queue_audio_reset(false),
-	playing(false)
+	playing(false),
+	created_sequence(false)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
@@ -53,6 +54,7 @@ Viewer::~Viewer() {
 }
 
 void Viewer::set_main_sequence() {
+	clean_created_seq();
     set_sequence(true, sequence);
 }
 
@@ -199,10 +201,46 @@ void Viewer::update_end_timecode() {
 }
 
 void Viewer::set_media(int type, void* media) {
+	clean_created_seq();
 	switch (type) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
+		Media* footage = static_cast<Media*>(media);
 
+		seq = new Sequence();
+		created_sequence = true;
+
+		if (footage->video_tracks.size() > 0) {
+			MediaStream* video_stream = footage->video_tracks.at(0);
+			seq->width = video_stream->video_width;
+			seq->height = video_stream->video_height;
+			seq->frame_rate = video_stream->video_frame_rate;
+
+			Clip* c = new Clip(seq);
+			c->media = footage;
+			c->media_type = type;
+			c->media_stream = footage->video_tracks.at(0)->file_index;
+			c->timeline_in = 0;
+			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+			c->track = -1;
+			c->clip_in = 0;
+			c->recalculateMaxLength();
+		} else {
+			seq->width = 1920;
+			seq->height = 1080;
+			seq->frame_rate = 30;
+		}
+
+		if (footage->audio_tracks.size() > 0) {
+			MediaStream* audio_stream = footage->audio_tracks.at(0);
+			seq->audio_frequency = audio_stream->audio_frequency;
+		} else {
+			seq->audio_frequency = 48000;
+		}
+
+		seq->audio_layout = AV_CH_LAYOUT_STEREO;
+
+		set_sequence(false, seq);
 	}
 		break;
 	case MEDIA_TYPE_SEQUENCE:
@@ -236,11 +274,20 @@ void Viewer::update_playhead() {
 }
 
 void Viewer::timer_update() {
+	update_playhead_timecode(seq->playhead);
 	seq->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
 	if (main_sequence) panel_timeline->repaint_timeline(false);
 }
 
-void Viewer::set_sequence(bool main, Sequence *s) {
+void Viewer::clean_created_seq() {
+	if (created_sequence) {
+		delete seq;
+		seq = NULL;
+		created_sequence = false;
+	}
+}
+
+void Viewer::set_sequence(bool main, Sequence *s) {	
 	reset_all_audio();
 
     main_sequence = main;
@@ -259,7 +306,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
     ui->pushButton_4->setEnabled(!null_sequence);
     ui->pushButton_5->setEnabled(!null_sequence);
 
-    init_audio();
+	init_audio(seq);
 
     if (!null_sequence) {
 		playback_updater.setInterval(qFloor(1000 / seq->frame_rate));

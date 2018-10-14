@@ -129,9 +129,14 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 		panel_project->import_dialog();
 	} else if (selectedItems().count() == 1) {
         QTreeWidgetItem* item = selectedItems().at(0);
-        if (get_type_from_tree(item) == MEDIA_TYPE_SEQUENCE) {
-            undo_stack.push(new ChangeSequenceAction(get_sequence_from_tree(item)));
-        }
+		switch (get_type_from_tree(item)) {
+		case MEDIA_TYPE_FOOTAGE:
+			panel_footage_viewer->set_media(get_type_from_tree(item), get_media_from_tree(item));
+			break;
+		case MEDIA_TYPE_SEQUENCE:
+			undo_stack.push(new ChangeSequenceAction(get_sequence_from_tree(item)));
+			break;
+		}
     }
 }
 

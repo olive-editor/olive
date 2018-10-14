@@ -49,6 +49,8 @@ public:
 	ViewerWidget* viewer_widget;
 
     Ui::Viewer *ui;
+public slots:
+
 private slots:
 	void on_pushButton_clicked();
     void on_pushButton_5_clicked();
@@ -58,8 +60,10 @@ private slots:
 	void update_playhead();
 	void timer_update();
 private:
+	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
     bool main_sequence;
+	bool created_sequence;
     Sequence* seq;
 	bool queue_audio_reset;
 };
