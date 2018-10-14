@@ -11,6 +11,8 @@
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
 
+QString panel_name = "Viewer: ";
+
 extern "C" {
 	#include <libavcodec/avcodec.h>
 }
@@ -19,13 +21,14 @@ extern "C" {
 
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
-	ui(new Ui::Viewer)
+    ui(new Ui::Viewer),
+    seq(NULL)
 {
 	ui->setupUi(this);
 	ui->headers->show_text(false);
 	ui->glViewerPane->child = ui->openGLWidget;
     viewer_widget = ui->openGLWidget;
-	update_media(MEDIA_TYPE_SEQUENCE, NULL);
+    set_media(MEDIA_TYPE_SEQUENCE, NULL);
 
     ui->currentTimecode->setEnabled(false);
 	ui->currentTimecode->set_default_value(qSNaN());
@@ -38,7 +41,11 @@ Viewer::Viewer(QWidget *parent) :
 }
 
 Viewer::~Viewer() {
-	delete ui;
+    delete ui;
+}
+
+void Viewer::set_main_sequence() {
+    set_sequence(true, sequence);
 }
 
 QString frame_to_timecode(long f, int view, double frame_rate) {
@@ -113,80 +120,85 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-	ui->endTimecode->setText((sequence == NULL) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(sequence->getEndFrame(), config.timecode_view, sequence->frame_rate));
+    ui->endTimecode->setText((seq == NULL) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), config.timecode_view, seq->frame_rate));
 }
 
-void Viewer::update_media(int type, void* media) {
+void Viewer::set_media(int type, void* media) {
 	switch (type) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
+
 	}
 		break;
 	case MEDIA_TYPE_SEQUENCE:
-	{
-		Sequence* s = static_cast<Sequence*>(media);
-
-		bool null_sequence = (s == NULL);
-
-        ui->currentTimecode->setEnabled(!null_sequence);
-		ui->openGLWidget->setEnabled(!null_sequence);
-		ui->openGLWidget->setVisible(!null_sequence);
-		ui->pushButton->setEnabled(!null_sequence);
-		ui->pushButton_2->setEnabled(!null_sequence);
-		ui->pushButton_3->setEnabled(!null_sequence);
-		ui->pushButton_4->setEnabled(!null_sequence);
-		ui->pushButton_5->setEnabled(!null_sequence);
-
-		init_audio();
-
-		if (!null_sequence) {
-			config.timecode_view = (frame_rate_is_droppable(s->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
-
-			update_playhead_timecode(s->playhead);
-			update_end_timecode();
-
-			ui->glViewerPane->aspect_ratio = (float) s->width / (float) s->height;
-			ui->glViewerPane->adjust();
-		} else {
-			update_playhead_timecode(0);
-			update_end_timecode();
-		}
-
-		viewer_widget->update();
-
-		update();
-	}
+        set_sequence(false, static_cast<Sequence*>(media));
 		break;
 	}
 }
 
-void Viewer::on_pushButton_clicked()
-{
+void Viewer::on_pushButton_clicked() {
 	panel_timeline->go_to_start();
 }
 
-void Viewer::on_pushButton_5_clicked()
-{
+void Viewer::on_pushButton_5_clicked() {
 	panel_timeline->go_to_end();
 }
 
-void Viewer::on_pushButton_2_clicked()
-{
+void Viewer::on_pushButton_2_clicked() {
 	panel_timeline->previous_frame();
 }
 
-void Viewer::on_pushButton_4_clicked()
-{
+void Viewer::on_pushButton_4_clicked() {
 	panel_timeline->next_frame();
 }
 
-void Viewer::on_pushButton_3_clicked()
-{
+void Viewer::on_pushButton_3_clicked() {
 	panel_timeline->toggle_play();
 }
 
 void Viewer::update_playhead() {
-	panel_timeline->seek(ui->currentTimecode->value());
+    panel_timeline->seek(ui->currentTimecode->value());
+}
+
+void Viewer::set_sequence(bool main, Sequence *s) {
+    main_sequence = main;
+    seq = (main) ? sequence : s;
+    viewer_widget->display_sequence = seq;
+
+    bool null_sequence = (seq == NULL);
+
+    ui->headers->setEnabled(!null_sequence);
+    ui->currentTimecode->setEnabled(!null_sequence);
+    ui->openGLWidget->setEnabled(!null_sequence);
+    ui->openGLWidget->setVisible(!null_sequence);
+    ui->pushButton->setEnabled(!null_sequence);
+    ui->pushButton_2->setEnabled(!null_sequence);
+    ui->pushButton_3->setEnabled(!null_sequence);
+    ui->pushButton_4->setEnabled(!null_sequence);
+    ui->pushButton_5->setEnabled(!null_sequence);
+
+    init_audio();
+
+    if (!null_sequence) {
+        config.timecode_view = (frame_rate_is_droppable(seq->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
+
+        update_playhead_timecode(seq->playhead);
+        update_end_timecode();
+
+        ui->glViewerPane->aspect_ratio = (float) seq->width / (float) seq->height;
+        ui->glViewerPane->adjust();
+
+        setWindowTitle(panel_name + seq->name);
+    } else {
+        update_playhead_timecode(0);
+        update_end_timecode();
+
+        setWindowTitle(panel_name + "(none)");
+    }
+
+    viewer_widget->update();
+
+    update();
 }
 
 void Viewer::set_playpause_icon(bool play) {

@@ -29,7 +29,8 @@ extern "C" {
 ViewerWidget::ViewerWidget(QWidget *parent) :
     QOpenGLWidget(parent),
 	rendering(false),
-	default_fbo(NULL)
+    default_fbo(NULL),
+    display_sequence(NULL)
 {
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -43,7 +44,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 void ViewerWidget::deleteFunction() {
     // destroy all textures as well
 	makeCurrent();
-	closeActiveClips(sequence, true);
+    closeActiveClips(display_sequence, true);
 	doneCurrent();
 }
 
@@ -164,8 +165,8 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 }
 
 GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
-	Sequence* s = sequence;
-	long playhead = sequence->playhead;
+    Sequence* s = display_sequence;
+    long playhead = display_sequence->playhead;
 
 	if (nest != NULL) {
 		s = static_cast<Sequence*>(nest->media);
@@ -323,7 +324,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					for (int j=0;j<c->effects.size();j++) {
 						Effect* e = c->effects.at(j);
 						if (e->is_enabled()) {
-							double timecode = ((double)(sequence->playhead-c->timeline_in+c->clip_in)/(double)sequence->frame_rate);
+                            double timecode = ((double)(playhead-c->timeline_in+c->clip_in)/(double)c->sequence->frame_rate);
 							if (e->enable_coords) {
 								e->process_coords(timecode, coords);
 							}
@@ -415,7 +416,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				}
 
 				// visually update all the keyframe values
-				double ts = (playhead - c->timeline_in + c->clip_in)/sequence->frame_rate;
+                double ts = (playhead - c->timeline_in + c->clip_in)/s->frame_rate;
 				for (int i=0;i<c->effects.size();i++) {
 					Effect* e = c->effects.at(i);
 					for (int j=0;j<e->row_count();j++) {

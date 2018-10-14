@@ -22,6 +22,7 @@ public:
 	bool rendering;
     void paintGL();
     void initializeGL();
+    Sequence* display_sequence;
 
 	QOpenGLFramebufferObject* default_fbo;
 protected:

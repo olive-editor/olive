@@ -21,7 +21,9 @@ class Viewer : public QDockWidget
 public:
 	explicit Viewer(QWidget *parent = 0);
 	~Viewer();
-	void update_media(int type, void* media);
+
+    void set_main_sequence();
+    void set_media(int type, void* media);
 	void compose();
     void set_playpause_icon(bool play);
     void update_playhead_timecode(long p);
@@ -32,16 +34,15 @@ public:
     Ui::Viewer *ui;
 private slots:
 	void on_pushButton_clicked();
-
-	void on_pushButton_5_clicked();
-
+    void on_pushButton_5_clicked();
 	void on_pushButton_2_clicked();
-
 	void on_pushButton_4_clicked();
-
     void on_pushButton_3_clicked();
-
 	void update_playhead();
+private:
+    void set_sequence(bool main, Sequence* s);
+    bool main_sequence;
+    Sequence* seq;
 };
 
 #endif // VIEWER_H

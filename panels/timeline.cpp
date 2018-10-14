@@ -55,7 +55,6 @@ Timeline::Timeline(QWidget *parent) :
     trim_in_point(false),
     splitting(false),
     importing(false),
-    zoomChanged(false),
     ui(new Ui::Timeline),
 	last_frame(0),
 	creating(false),
@@ -315,15 +314,7 @@ void Timeline::repaint_timeline(bool changed) {
 			panel_sequence_viewer->viewer_widget->update();
 			ui->audio_monitor->update();
 			last_frame = sequence->playhead;
-		}
-
-		if (zoomChanged) {
-			zoomChanged = false;
-			int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
-
-			// TODO find a way to gradually move towards target_scroll instead of just setting it?
-			ui->horizontalScrollBar->setValue(target_scroll);
-		}
+        }
 
 		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
 
@@ -488,14 +479,13 @@ int lerp(int a, int b, double t) {
 }
 
 void Timeline::set_zoom(bool in) {
-    if (in) {
-        zoom *= 2;
-    } else {
-        zoom /= 2;
-    }
+    zoom *= (in) ? 2 : 0.5;
 	ui->headers->update_zoom(zoom);
-    zoomChanged = true;
-	repaint_timeline(false);
+    repaint_timeline(false);
+
+    // TODO find a way to gradually move towards target_scroll instead of just setting it?
+    int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
+    ui->horizontalScrollBar->setValue(target_scroll);
 }
 
 void Timeline::decheck_tool_buttons(QObject* sender) {

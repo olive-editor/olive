@@ -173,10 +173,7 @@ public:
     QVector<int> split_cache;
 
 	// importing
-	bool importing;
-
-    // zoom variables
-    bool zoomChanged;
+    bool importing;
 
 	// creating variables
 	bool creating;
