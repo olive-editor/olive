@@ -32,6 +32,7 @@ Viewer::Viewer(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
+	ui->headers->snapping = false;
 	ui->headers->show_text(false);
 	ui->glViewerPane->child = ui->openGLWidget;
     viewer_widget = ui->openGLWidget;
@@ -178,13 +179,13 @@ void Viewer::play() {
 	start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
 	playing = true;
-	panel_sequence_viewer->set_playpause_icon(false);
+	set_playpause_icon(false);
 	audio_thread->notifyReceiver();
 }
 
 void Viewer::pause() {
 	playing = false;
-	panel_sequence_viewer->set_playpause_icon(true);
+	set_playpause_icon(true);
 	playback_updater.stop();
 }
 
@@ -197,10 +198,28 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-    ui->endTimecode->setText((seq == NULL) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), config.timecode_view, seq->frame_rate));
+	ui->endTimecode->setText((seq == NULL) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), config.timecode_view, seq->frame_rate));
+}
+
+void Viewer::update_header_zoom() {
+	if (seq != NULL) {
+		long sequenceEndFrame = seq->getEndFrame();
+		if (sequenceEndFrame > 0) {
+			ui->headers->update_zoom((double) ui->headers->width() / (double) sequenceEndFrame);
+		} else {
+			ui->headers->update_zoom(1);
+		}
+	}
+}
+
+void Viewer::update_viewer() {
+	viewer_widget->update();
+	update_header_zoom();
+	update_playhead_timecode(seq->playhead);
 }
 
 void Viewer::set_media(int type, void* media) {
+	main_sequence = false;
 	clean_created_seq();
 	switch (type) {
 	case MEDIA_TYPE_FOOTAGE:
@@ -209,6 +228,7 @@ void Viewer::set_media(int type, void* media) {
 
 		seq = new Sequence();
 		created_sequence = true;
+		seq->name = footage->name;
 
 		if (footage->video_tracks.size() > 0) {
 			MediaStream* video_stream = footage->video_tracks.at(0);
@@ -219,12 +239,13 @@ void Viewer::set_media(int type, void* media) {
 			Clip* c = new Clip(seq);
 			c->media = footage;
 			c->media_type = type;
-			c->media_stream = footage->video_tracks.at(0)->file_index;
+			c->media_stream = video_stream->file_index;
 			c->timeline_in = 0;
 			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
 			c->track = -1;
 			c->clip_in = 0;
 			c->recalculateMaxLength();
+			seq->clips.append(c);
 		} else {
 			seq->width = 1920;
 			seq->height = 1080;
@@ -234,6 +255,17 @@ void Viewer::set_media(int type, void* media) {
 		if (footage->audio_tracks.size() > 0) {
 			MediaStream* audio_stream = footage->audio_tracks.at(0);
 			seq->audio_frequency = audio_stream->audio_frequency;
+
+			Clip* c = new Clip(seq);
+			c->media = footage;
+			c->media_type = type;
+			c->media_stream = footage->video_tracks.at(0)->file_index;
+			c->timeline_in = 0;
+			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+			c->track = -1;
+			c->clip_in = 0;
+			c->recalculateMaxLength();
+			seq->clips.append(c);
 		} else {
 			seq->audio_frequency = 48000;
 		}
@@ -274,9 +306,11 @@ void Viewer::update_playhead() {
 }
 
 void Viewer::timer_update() {
-	update_playhead_timecode(seq->playhead);
 	seq->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
-	if (main_sequence) panel_timeline->repaint_timeline(false);
+	update_viewer();
+	if (main_sequence) {
+		panel_timeline->repaint_timeline(false);
+	}
 }
 
 void Viewer::clean_created_seq() {
@@ -297,6 +331,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
     bool null_sequence = (seq == NULL);
 
     ui->headers->setEnabled(!null_sequence);
+	qDebug() << "headers enabled:" << ui->headers->isEnabled();
     ui->currentTimecode->setEnabled(!null_sequence);
     ui->openGLWidget->setEnabled(!null_sequence);
     ui->openGLWidget->setVisible(!null_sequence);
@@ -311,8 +346,6 @@ void Viewer::set_sequence(bool main, Sequence *s) {
     if (!null_sequence) {
 		playback_updater.setInterval(qFloor(1000 / seq->frame_rate));
 
-        config.timecode_view = (frame_rate_is_droppable(seq->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
-
         update_playhead_timecode(seq->playhead);
         update_end_timecode();
 
@@ -326,6 +359,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
         setWindowTitle(panel_name + "(none)");
     }
+
+	update_header_zoom();
 
     viewer_widget->update();
 

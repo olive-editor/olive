@@ -220,17 +220,10 @@ bool Timeline::focused() {
 	return (sequence != NULL && (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus()));
 }
 
-void Timeline::repaint_timeline(bool changed) {
-	if (changed) {
-		panel_sequence_viewer->reset_all_audio();
-		update_effect_controls();
-		if (!panel_sequence_viewer->playing) panel_sequence_viewer->viewer_widget->update();
-	}
-
+void Timeline::repaint_timeline() {
 	ui->headers->update();
 	ui->video_area->update();
 	ui->audio_area->update();
-	panel_effect_controls->update_keyframes();
 
 	if (sequence != NULL) {
 		long sequenceEndFrame = sequence->getEndFrame();
@@ -238,15 +231,8 @@ void Timeline::repaint_timeline(bool changed) {
 		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequenceEndFrame) + 100 - ui->editAreas->width()));
 
 		if (last_frame != sequence->playhead) {
-			panel_sequence_viewer->viewer_widget->update();
 			ui->audio_monitor->update();
 			last_frame = sequence->playhead;
-        }
-
-		if (sequenceEndFrame > 0) {
-			panel_sequence_viewer->ui->headers->update_zoom((double) panel_sequence_viewer->ui->headers->width() / (double) sequenceEndFrame);
-		} else {
-			panel_sequence_viewer->ui->headers->update_zoom(1);
 		}
 	}
 }
@@ -266,55 +252,6 @@ void Timeline::select_all() {
 		}
 		repaint_timeline(false);
 	}
-}
-
-void Timeline::update_effect_controls() {
-	// SEND CLIPS TO EFFECT CONTROLS
-	// find out how many clips are selected
-	// limits to one video clip and one audio clip and only if they're linked
-	// one of these days it might be nice to have multiple clips in the effects panel
-	panel_effect_controls->multiple = false;
-	int vclip = -1;
-	int aclip = -1;
-	QVector<int> selected_clips;
-	if (sequence != NULL) {
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* clip = sequence->clips.at(i);
-			if (clip != NULL && panel_timeline->is_clip_selected(clip, true)) {
-				if (clip->track < 0 && vclip == -1) {
-					vclip = i;
-				} else if (clip->track >= 0 && aclip == -1) {
-					aclip = i;
-				} else {
-					vclip = -2;
-					aclip = -2;
-					panel_effect_controls->multiple = true;
-					break;
-				}
-			}
-		}
-		// check if aclip is linked to vclip
-		if (!panel_effect_controls->multiple) {
-			if (vclip >= 0) selected_clips.append(vclip);
-			if (aclip >= 0) selected_clips.append(aclip);
-			if (vclip >= 0 && aclip >= 0) {
-				bool found = false;
-				Clip* vclip_ref = sequence->clips.at(vclip);
-				for (int i=0;i<vclip_ref->linked.size();i++) {
-					if (vclip_ref->linked.at(i) == aclip) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					// only display multiple clips if they're linked
-					selected_clips.clear();
-					panel_effect_controls->multiple = true;
-				}
-			}
-		}
-	}
-	panel_effect_controls->set_clips(selected_clips);
 }
 
 void Timeline::delete_in_out(bool ripple) {

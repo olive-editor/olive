@@ -166,7 +166,7 @@ public:
 
     Ui::Timeline *ui;
 public slots:
-	void repaint_timeline(bool changed = false);
+	void repaint_timeline();
 
 private slots:
 

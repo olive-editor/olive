@@ -29,6 +29,8 @@ public:
     void set_playpause_icon(bool play);
     void update_playhead_timecode(long p);
     void update_end_timecode();
+	void update_header_zoom();
+	void update_viewer();
 
 	// playback functions
 	void go_to_start();
@@ -48,6 +50,8 @@ public:
 
 	ViewerWidget* viewer_widget;
 
+	Sequence* seq;
+
     Ui::Viewer *ui;
 public slots:
 
@@ -64,7 +68,6 @@ private:
     void set_sequence(bool main, Sequence* s);
     bool main_sequence;
 	bool created_sequence;
-    Sequence* seq;
 	bool queue_audio_reset;
 };
 
