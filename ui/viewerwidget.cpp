@@ -453,7 +453,7 @@ void ViewerWidget::paintGL() {
 
 		// compose video preview
 		glClearColor(0, 0, 0, 0);
-		compose_sequence(NULL, (panel_timeline->playing || rendering));
+		compose_sequence(NULL, (panel_sequence_viewer->playing || rendering));
 
         if (texture_failed) {
 			if (rendering) {

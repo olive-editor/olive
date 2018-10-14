@@ -653,7 +653,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 								sequence->selections.append(s);
 
 								if (config.select_also_seeks) {
-									panel_timeline->seek(clip->timeline_in);
+									panel_sequence_viewer->seek(clip->timeline_in);
 								}
 
 								// if alt is not down, select links
@@ -686,7 +686,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 			}
 				break;
 			case TIMELINE_TOOL_EDIT:
-				if (config.edit_tool_also_seeks) panel_timeline->seek(panel_timeline->drag_frame_start);
+				if (config.edit_tool_also_seeks) panel_sequence_viewer->seek(panel_timeline->drag_frame_start);
 				panel_timeline->selecting = true;
 				break;
 			case TIMELINE_TOOL_RAZOR:
@@ -1341,7 +1341,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             }
 
             if (config.edit_tool_also_seeks) {
-                panel_timeline->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
+				panel_sequence_viewer->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
             } else {
 				panel_timeline->repaint_timeline(false);
             }

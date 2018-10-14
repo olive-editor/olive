@@ -4,6 +4,7 @@
 
 #include "panels/panels.h"
 #include "panels/timeline.h"
+#include "panels/viewer.h"
 #include "ui_timeline.h"
 
 #include <QAudioOutput>
@@ -112,7 +113,7 @@ void AudioSenderThread::run() {
 		cond.wait(&lock);
 		if (close) {
 			break;
-		} else if (panel_timeline->playing) {
+		} else if (panel_sequence_viewer->playing) {
 			int written_bytes = 0;
 
 			int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;

@@ -455,35 +455,35 @@ void MainWindow::on_actionReset_to_default_layout_triggered()
 void MainWindow::on_actionGo_to_start_triggered()
 {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
-		panel_timeline->go_to_start();
+		panel_sequence_viewer->go_to_start();
 	}
 }
 
 void MainWindow::on_actionPrevious_Frame_triggered()
 {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
-        panel_timeline->previous_frame();
+		panel_sequence_viewer->previous_frame();
     }
 }
 
 void MainWindow::on_actionNext_Frame_triggered()
 {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
-        panel_timeline->next_frame();
+		panel_sequence_viewer->next_frame();
     }
 }
 
 void MainWindow::on_actionGo_to_End_triggered()
 {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
-        panel_timeline->go_to_end();
+		panel_sequence_viewer->go_to_end();
     }
 }
 
 void MainWindow::on_actionPlay_Pause_triggered()
 {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
-        panel_timeline->toggle_play();
+		panel_sequence_viewer->toggle_play();
     }
 }
 

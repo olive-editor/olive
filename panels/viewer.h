@@ -2,6 +2,7 @@
 #define VIEWER_H
 
 #include <QDockWidget>
+#include <QTimer>
 
 class Timeline;
 class ViewerWidget;
@@ -29,6 +30,22 @@ public:
     void update_playhead_timecode(long p);
     void update_end_timecode();
 
+	// playback functions
+	void go_to_start();
+	void previous_frame();
+	void next_frame();
+	void seek(long p);
+	void toggle_play();
+	void play();
+	void pause();
+	void go_to_end();
+	bool playing;
+	long playhead_start;
+	qint64 start_msecs;
+	QTimer playback_updater;
+
+	void reset_all_audio();
+
 	ViewerWidget* viewer_widget;
 
     Ui::Viewer *ui;
@@ -39,10 +56,12 @@ private slots:
 	void on_pushButton_4_clicked();
     void on_pushButton_3_clicked();
 	void update_playhead();
+	void timer_update();
 private:
     void set_sequence(bool main, Sequence* s);
     bool main_sequence;
     Sequence* seq;
+	bool queue_audio_reset;
 };
 
 #endif // VIEWER_H

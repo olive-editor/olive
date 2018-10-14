@@ -54,7 +54,7 @@ void TimelineHeader::set_playhead(int mouse_x) {
 	long frame = getHeaderFrameFromScreenPoint(mouse_x);
 	if (snapping) panel_timeline->snap_to_timeline(&frame, false, true, true);
 	if (frame != sequence->playhead) {
-		panel_timeline->seek(frame);
+		viewer->seek(frame);
 	}
 }
 

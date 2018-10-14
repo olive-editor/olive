@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QFontMetrics>
 class QScrollArea;
+class Viewer;
 
 class TimelineHeader : public QWidget
 {
@@ -12,6 +13,8 @@ public:
 	explicit TimelineHeader(QWidget *parent = 0);
     void set_in_point(long p);
     void set_out_point(long p);
+
+	Viewer* viewer;
 
 	bool snapping;
 

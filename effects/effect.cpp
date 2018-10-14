@@ -536,7 +536,7 @@ void EffectRow::goto_previous_key() {
 			key = qMax(comp, key);
 		}
 	}
-	if (key != LONG_MIN) panel_timeline->seek(key);
+	if (key != LONG_MIN) panel_sequence_viewer->seek(key);
 }
 
 void EffectRow::toggle_key() {
@@ -570,7 +570,7 @@ void EffectRow::goto_next_key() {
 			key = qMin(comp, key);
 		}
 	}
-	if (key != LONG_MAX) panel_timeline->seek(key);
+	if (key != LONG_MAX) panel_sequence_viewer->seek(key);
 }
 
 EffectField* EffectRow::add_field(int type, int colspan) {

@@ -307,7 +307,7 @@ bool ExportThread::setupContainer() {
 }
 
 void ExportThread::run() {
-	panel_timeline->pause();
+	panel_sequence_viewer->pause();
 
 	if (!panel_sequence_viewer->viewer_widget->context()->makeCurrent(&surface)) {
 		qDebug() << "[ERROR] Make current failed";
@@ -335,8 +335,8 @@ void ExportThread::run() {
 		}
 	}
 
-	panel_timeline->seek(start_frame);
-	panel_timeline->reset_all_audio();
+	panel_sequence_viewer->seek(start_frame);
+	panel_sequence_viewer->reset_all_audio();
 
 	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 	fbo.bind();

@@ -7,7 +7,6 @@
 #include <QDockWidget>
 #include <QVector>
 #include <QTime>
-#include <QTimer>
 
 #define TRACK_DEFAULT_HEIGHT 40
 
@@ -96,6 +95,8 @@ public:
     void set_in_point();
     void set_out_point();
     void delete_in_out(bool ripple);
+	void previous_cut();
+	void next_cut();
 
 	int getTimelineScreenPointFromFrame(long frame);
 	long getTimelineFrameFromScreenPoint(int x);
@@ -106,22 +107,6 @@ public:
     bool snap_to_point(long point, long* l);
 	bool snap_to_timeline(long* l, bool use_playhead, bool use_markers, bool use_workarea);
 	void set_marker();
-
-	// playback functions
-	void go_to_start();
-	void previous_frame();
-	void next_frame();
-    void previous_cut();
-    void next_cut();
-	void seek(long p);
-    void toggle_play();
-	void play();
-	void pause();
-	void go_to_end();
-	bool playing;
-	long playhead_start;
-    qint64 start_msecs;
-	QTimer playback_updater;
 
     // shared information
 	int tool;
@@ -179,8 +164,6 @@ public:
 	bool creating;
 	int creatingObject;
 
-	void reset_all_audio();
-
     Ui::Timeline *ui;
 public slots:
 	void repaint_timeline(bool changed = false);
@@ -218,8 +201,7 @@ private:
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
 	long last_frame;
-    QVector<Clip*> clip_clipboard;
-	bool queue_audio_reset;
+	QVector<Clip*> clip_clipboard;
 	int scroll;
 
 	int default_track_height;

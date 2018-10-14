@@ -39,7 +39,6 @@ void draw_selection_rectangle(QPainter& painter, const QRect& rect) {
 
 Timeline::Timeline(QWidget *parent) :
 	QDockWidget(parent),
-    playing(false),
     cursor_frame(0),
     cursor_track(0),
     zoom(1.0),
@@ -58,12 +57,13 @@ Timeline::Timeline(QWidget *parent) :
     ui(new Ui::Timeline),
 	last_frame(0),
 	creating(false),
-	queue_audio_reset(false),
 	scroll(0)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
 	ui->setupUi(this);
+
+	ui->headers->viewer = panel_sequence_viewer;
 
     /* --- TEMPORARY ---
      * I feel like the rolling edit tool is unnecessary, but just
@@ -95,25 +95,11 @@ Timeline::Timeline(QWidget *parent) :
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
 
     update_sequence();
-
-	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(repaint_timeline()));
 }
 
 Timeline::~Timeline()
 {
 	delete ui;
-}
-
-void Timeline::go_to_start() {
-	seek(0);
-}
-
-void Timeline::previous_frame() {
-	if (sequence->playhead > 0) seek(sequence->playhead-1);
-}
-
-void Timeline::next_frame() {
-	seek(sequence->playhead+1);
 }
 
 void Timeline::previous_cut() {
@@ -129,7 +115,7 @@ void Timeline::previous_cut() {
                 }
             }
         }
-        seek(p_cut);
+		panel_sequence_viewer->seek(p_cut);
     }
 }
 
@@ -148,62 +134,7 @@ void Timeline::next_cut() {
             }
         }
     }
-    if (seek_enabled) seek(n_cut);
-}
-
-void Timeline::reset_all_audio() {
-    // reset all clip audio
-	if (sequence != NULL) {
-		audio_ibuffer_frame = sequence->playhead;
-		audio_ibuffer_timecode = (double) audio_ibuffer_frame / sequence->frame_rate;
-
-        for (int i=0;i<sequence->clips.size();i++) {
-            Clip* c = sequence->clips.at(i);
-			if (c != NULL) {
-				c->reset_audio();
-			}
-		}
-	}
-	ui->audio_monitor->reset();
-    clear_audio_ibuffer();
-}
-
-void Timeline::seek(long p) {
-	pause();
-	sequence->playhead = p;
-	queue_audio_reset = true;
-	repaint_timeline(false);
-}
-
-void Timeline::toggle_play() {
-	if (playing) {
-		pause();
-	} else {
-		play();
-    }
-}
-
-void Timeline::play() {
-	if (queue_audio_reset) {
-		reset_all_audio();
-		queue_audio_reset = false;
-	}
-	playhead_start = sequence->playhead;
-    start_msecs = QDateTime::currentMSecsSinceEpoch();
-	playback_updater.start();
-    playing = true;
-	panel_sequence_viewer->set_playpause_icon(false);
-	audio_thread->notifyReceiver();
-}
-
-void Timeline::pause() {
-	playing = false;
-	panel_sequence_viewer->set_playpause_icon(true);
-	playback_updater.stop();
-}
-
-void Timeline::go_to_end() {
-	seek(sequence->getEndFrame());
+	if (seek_enabled) panel_sequence_viewer->seek(n_cut);
 }
 
 int Timeline::get_track_height_size(bool video) {
@@ -277,9 +208,7 @@ void Timeline::update_sequence() {
 		setWindowTitle("Timeline: <none>");
 	} else {
 		setWindowTitle("Timeline: " + sequence->name);
-        reset_all_audio();
 		repaint_timeline(false);
-        playback_updater.setInterval(qFloor(1000 / sequence->frame_rate));
 	}
 }
 
@@ -293,11 +222,9 @@ bool Timeline::focused() {
 
 void Timeline::repaint_timeline(bool changed) {
 	if (changed) {
-		reset_all_audio();
+		panel_sequence_viewer->reset_all_audio();
 		update_effect_controls();
-		if (!playing) panel_sequence_viewer->viewer_widget->update();
-	} else if (playing) {
-		sequence->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * sequence->frame_rate));
+		if (!panel_sequence_viewer->playing) panel_sequence_viewer->viewer_widget->update();
 	}
 
 	ui->headers->update();
@@ -832,7 +759,7 @@ void Timeline::paste() {
 		repaint_timeline(true);
 
         if (config.paste_seeks) {
-            seek(paste_end);
+			panel_sequence_viewer->seek(paste_end);
         }
     }
 }
@@ -890,7 +817,7 @@ void Timeline::ripple_to_in_point(bool in) {
 
 			repaint_timeline(true);
 
-            if (in) seek(in_point);
+			if (in) panel_sequence_viewer->seek(in_point);
         }
     }
 }
@@ -1071,7 +998,7 @@ bool Timeline::snap_to_point(long point, long* l) {
 bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bool use_workarea) {
     snapped = false;
 	if (snapping) {
-		if (use_playhead && !playing) {
+		if (use_playhead && !panel_sequence_viewer->playing) {
 			// snap to playhead
 			if (snap_to_point(sequence->playhead, l)) return true;
 		}

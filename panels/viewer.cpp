@@ -7,6 +7,8 @@
 #include "panels/panels.h"
 #include "io/config.h"
 #include "io/media.h"
+#include "ui/audiomonitor.h"
+#include "ui_timeline.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
@@ -17,14 +19,18 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 }
 
+#include <QtMath>
 #include <QAudioOutput>
 
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
     ui(new Ui::Viewer),
-    seq(NULL)
+	seq(NULL),
+	queue_audio_reset(false),
+	playing(false)
 {
 	ui->setupUi(this);
+	ui->headers->viewer = this;
 	ui->headers->show_text(false);
 	ui->glViewerPane->child = ui->openGLWidget;
     viewer_widget = ui->openGLWidget;
@@ -36,6 +42,8 @@ Viewer::Viewer(QWidget *parent) :
 	ui->currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);
 	connect(ui->currentTimecode, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
 
+	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
+
     update_playhead_timecode(0);
     update_end_timecode();
 }
@@ -46,6 +54,23 @@ Viewer::~Viewer() {
 
 void Viewer::set_main_sequence() {
     set_sequence(true, sequence);
+}
+
+void Viewer::reset_all_audio() {
+	// reset all clip audio
+	if (seq != NULL) {
+		audio_ibuffer_frame = seq->playhead;
+		audio_ibuffer_timecode = (double) audio_ibuffer_frame / seq->frame_rate;
+
+		for (int i=0;i<seq->clips.size();i++) {
+			Clip* c = seq->clips.at(i);
+			if (c != NULL) {
+				c->reset_audio();
+			}
+		}
+	}
+	// panel_timeline->ui->audio_monitor->reset();
+	clear_audio_ibuffer();
 }
 
 QString frame_to_timecode(long f, int view, double frame_rate) {
@@ -115,6 +140,56 @@ bool frame_rate_is_droppable(float rate) {
     return (rate == 23.976f || rate == 29.97f || rate == 59.94f);
 }
 
+void Viewer::seek(long p) {
+	pause();
+	seq->playhead = p;
+	queue_audio_reset = true;
+	panel_timeline->repaint_timeline(false);
+}
+
+void Viewer::go_to_start() {
+	seek(0);
+}
+
+void Viewer::previous_frame() {
+	if (seq->playhead > 0) seek(seq->playhead-1);
+}
+
+void Viewer::next_frame() {
+	seek(seq->playhead+1);
+}
+
+void Viewer::toggle_play() {
+	if (playing) {
+		pause();
+	} else {
+		play();
+	}
+}
+
+void Viewer::play() {
+	if (queue_audio_reset) {
+		reset_all_audio();
+		queue_audio_reset = false;
+	}
+	playhead_start = seq->playhead;
+	start_msecs = QDateTime::currentMSecsSinceEpoch();
+	playback_updater.start();
+	playing = true;
+	panel_sequence_viewer->set_playpause_icon(false);
+	audio_thread->notifyReceiver();
+}
+
+void Viewer::pause() {
+	playing = false;
+	panel_sequence_viewer->set_playpause_icon(true);
+	playback_updater.stop();
+}
+
+void Viewer::go_to_end() {
+	seek(seq->getEndFrame());
+}
+
 void Viewer::update_playhead_timecode(long p) {
 	ui->currentTimecode->set_value(p, false);
 }
@@ -137,30 +212,37 @@ void Viewer::set_media(int type, void* media) {
 }
 
 void Viewer::on_pushButton_clicked() {
-	panel_timeline->go_to_start();
+	go_to_start();
 }
 
 void Viewer::on_pushButton_5_clicked() {
-	panel_timeline->go_to_end();
+	go_to_end();
 }
 
 void Viewer::on_pushButton_2_clicked() {
-	panel_timeline->previous_frame();
+	previous_frame();
 }
 
 void Viewer::on_pushButton_4_clicked() {
-	panel_timeline->next_frame();
+	next_frame();
 }
 
 void Viewer::on_pushButton_3_clicked() {
-	panel_timeline->toggle_play();
+	toggle_play();
 }
 
 void Viewer::update_playhead() {
-    panel_timeline->seek(ui->currentTimecode->value());
+	seek(ui->currentTimecode->value());
+}
+
+void Viewer::timer_update() {
+	seq->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
+	if (main_sequence) panel_timeline->repaint_timeline(false);
 }
 
 void Viewer::set_sequence(bool main, Sequence *s) {
+	reset_all_audio();
+
     main_sequence = main;
     seq = (main) ? sequence : s;
     viewer_widget->display_sequence = seq;
@@ -180,6 +262,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
     init_audio();
 
     if (!null_sequence) {
+		playback_updater.setInterval(qFloor(1000 / seq->frame_rate));
+
         config.timecode_view = (frame_rate_is_droppable(seq->frame_rate)) ? TIMECODE_DROP : TIMECODE_NONDROP;
 
         update_playhead_timecode(seq->playhead);
