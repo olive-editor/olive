@@ -687,13 +687,11 @@ void MainWindow::on_actionRipple_To_In_Point_triggered()
     if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true);
 }
 
-void MainWindow::on_actionRipple_to_Out_Point_triggered()
-{
+void MainWindow::on_actionRipple_to_Out_Point_triggered() {
     if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false);
 }
 
-void MainWindow::on_actionSet_In_Point_triggered()
-{
+void MainWindow::on_actionSet_In_Point_triggered() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
 		panel_sequence_viewer->set_in_point();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -701,8 +699,7 @@ void MainWindow::on_actionSet_In_Point_triggered()
 	}
 }
 
-void MainWindow::on_actionSet_Out_Point_triggered()
-{
+void MainWindow::on_actionSet_Out_Point_triggered() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
 		panel_sequence_viewer->set_out_point();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -711,9 +708,10 @@ void MainWindow::on_actionSet_Out_Point_triggered()
 }
 
 void MainWindow::on_actionClear_In_Out_triggered() {
-	if ((panel_timeline->focused() || panel_sequence_viewer->is_focused()) && sequence->using_workarea) {
-        undo_stack.push(new SetTimelineInOutCommand(sequence, false, 0, 0));
-		update_ui(false);
+    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->clear_inout_point();
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->clear_inout_point();
     }
 }
 

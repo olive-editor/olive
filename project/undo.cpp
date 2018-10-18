@@ -163,6 +163,14 @@ void SetTimelineInOutCommand::undo() {
     seq->workarea_in = old_in;
     seq->workarea_out = old_out;
 
+    // footage viewer functions
+    if (seq->wrapper_sequence) {
+        Media* m = static_cast<Media*>(seq->clips.at(0)->media);
+        m->using_inout = old_enabled;
+        m->in = old_in;
+        m->out = old_out;
+    }
+
 	mainWindow->setWindowModified(old_project_changed);
 }
 
@@ -174,6 +182,14 @@ void SetTimelineInOutCommand::redo() {
     seq->using_workarea = new_enabled;
     seq->workarea_in = new_in;
     seq->workarea_out = new_out;
+
+    // footage viewer functions
+    if (seq->wrapper_sequence) {
+        Media* m = static_cast<Media*>(seq->clips.at(0)->media);
+        m->using_inout = new_enabled;
+        m->in = new_in;
+        m->out = new_out;
+    }
 
 	mainWindow->setWindowModified(true);
 }

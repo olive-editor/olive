@@ -32,6 +32,7 @@ public:
     void update_end_timecode();
 	void update_header_zoom();
 	void update_viewer();
+    void clear_inout_point();
 	void set_in_point();
 	void set_out_point();
 

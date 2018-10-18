@@ -7,6 +7,7 @@
 #include "panels/panels.h"
 #include "io/config.h"
 #include "io/media.h"
+#include "project/undo.h"
 #include "ui/audiomonitor.h"
 #include "ui_timeline.h"
 
@@ -230,16 +231,21 @@ void Viewer::update_viewer() {
 	viewer_widget->update();
 	update_header_zoom();
 	if (seq != NULL) update_playhead_timecode(seq->playhead);
-	update_end_timecode();
+    update_end_timecode();
+}
+
+void Viewer::clear_inout_point() {
+    if (seq->using_workarea) {
+        undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
+        update_parents();
+    }
 }
 
 void Viewer::set_in_point() {
-	qDebug() << "in h";
 	ui->headers->set_in_point(seq->playhead);
 }
 
 void Viewer::set_out_point() {
-	qDebug() << "out h";
 	ui->headers->set_out_point(seq->playhead);
 }
 
@@ -253,14 +259,18 @@ void Viewer::set_media(int type, void* media) {
 
 		seq = new Sequence();
 		created_sequence = true;
+        seq->wrapper_sequence = true;
 		seq->name = footage->name;
+
+        seq->using_workarea = footage->using_inout;
+        seq->workarea_in = footage->in;
+        seq->workarea_out = footage->out;
 
 		if (footage->video_tracks.size() > 0) {
 			MediaStream* video_stream = footage->video_tracks.at(0);
 			seq->width = video_stream->video_width;
 			seq->height = video_stream->video_height;
 			if (video_stream->video_frame_rate > 0) seq->frame_rate = video_stream->video_frame_rate;
-			qDebug() << seq->frame_rate << video_stream->video_frame_rate;
 
 			Clip* c = new Clip(seq);
 			c->media = footage;
@@ -338,6 +348,11 @@ void Viewer::timer_update() {
 
 void Viewer::clean_created_seq() {
 	if (created_sequence) {
+        // TODO delete undo commands referencing this sequence to avoid crashes
+        /*for (int i=0;i<undo_stack.count();i++) {
+            undo_stack.command(i)
+        }*/
+
 		delete seq;
 		seq = NULL;
 		created_sequence = false;

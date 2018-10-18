@@ -272,12 +272,18 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             Sequence* s = NULL;
             void* media = NULL;
             long sequence_length;
+            long default_clip_in = 0;
 
             switch (item_type) {
             case MEDIA_TYPE_FOOTAGE:
 				m = get_footage_from_tree(item);
                 media = m;
                 can_import = m->ready;
+                if (m->using_inout) {
+                    double source_fr = 30;
+                    if (m->video_tracks.size() > 0) source_fr = m->video_tracks.at(0)->video_frame_rate;
+                    default_clip_in = refactor_frame_number(m->in, source_fr, predicted_new_frame_rate);
+                }
                 break;
             case MEDIA_TYPE_SEQUENCE:
                 s = get_sequence_from_tree(item);
@@ -285,6 +291,9 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, sequence->frame_rate);
                 media = s;
                 can_import = (s != sequence && sequence_length != 0);
+                if (s->using_workarea) {
+                    default_clip_in = refactor_frame_number(s->workarea_in, s->frame_rate, predicted_new_frame_rate);
+                }
                 break;
             default:
                 can_import = false;
@@ -295,18 +304,18 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 g.clip = -1;
                 g.media_type = item_type;
                 g.trimming = false;
-                g.old_clip_in = g.clip_in = 0;
+                g.old_clip_in = g.clip_in = default_clip_in;
                 g.media = media;
                 g.in = entry_point;
 				g.transition = NULL;
 
-                // is video source a still image?
                 switch (item_type) {
                 case MEDIA_TYPE_FOOTAGE:
+                    // is video source a still image?
                     if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
                         g.out = g.in + 100;
                     } else {
-                        g.out = entry_point + m->get_length_in_frames(predicted_new_frame_rate);
+                        g.out = entry_point + m->get_length_in_frames(predicted_new_frame_rate) - default_clip_in;
                     }
 
                     for (int j=0;j<m->audio_tracks.size();j++) {

@@ -27,6 +27,8 @@ struct Sequence {
     long workarea_in;
     long workarea_out;
 
+    bool wrapper_sequence;
+
     int save_id;
 
     QVector<Marker> markers;

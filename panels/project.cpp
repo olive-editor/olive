@@ -484,6 +484,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 					m = new Media();
 				}
 
+                m->using_inout = false;
 				m->url = file;
 				m->name = get_file_name_from_path(files.at(i));
 
@@ -728,6 +729,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
 							QTreeWidgetItem* item = new_item();
                             Media* m = new Media();
+
+                            // TODO make save/load-able
+                            m->using_inout = false;
 
                             for (int j=0;j<stream.attributes().size();j++) {
                                 const QXmlStreamAttribute& attr = stream.attributes().at(j);
