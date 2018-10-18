@@ -47,12 +47,14 @@ public:
 	QTimer playback_updater;
 
 	void reset_all_audio();
+	void update_parents();
 
 	ViewerWidget* viewer_widget;
 
 	Sequence* seq;
 
     Ui::Viewer *ui;
+
 public slots:
 
 private slots:
@@ -66,9 +68,8 @@ private slots:
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
-    bool main_sequence;
+	bool main_sequence;
 	bool created_sequence;
-	bool queue_audio_reset;
 };
 
 #endif // VIEWER_H

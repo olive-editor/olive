@@ -29,8 +29,7 @@ extern "C" {
 ViewerWidget::ViewerWidget(QWidget *parent) :
     QOpenGLWidget(parent),
 	rendering(false),
-    default_fbo(NULL),
-    display_sequence(NULL)
+	default_fbo(NULL)
 {
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
@@ -44,7 +43,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 void ViewerWidget::deleteFunction() {
     // destroy all textures as well
 	makeCurrent();
-    closeActiveClips(display_sequence, true);
+	closeActiveClips(viewer->seq, true);
 	doneCurrent();
 }
 
@@ -165,8 +164,8 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 }
 
 GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
-    Sequence* s = display_sequence;
-    long playhead = display_sequence->playhead;
+	Sequence* s = viewer->seq;
+	long playhead = s->playhead;
 
 	if (nest != NULL) {
 		s = static_cast<Sequence*>(nest->media);
@@ -453,7 +452,7 @@ void ViewerWidget::paintGL() {
 
 		// compose video preview
 		glClearColor(0, 0, 0, 0);
-		compose_sequence(NULL, (panel_sequence_viewer->playing || rendering));
+		compose_sequence(NULL, (viewer->playing || rendering));
 
         if (texture_failed) {
 			if (rendering) {

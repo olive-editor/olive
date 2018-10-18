@@ -16,6 +16,7 @@
 QString panel_name = "Viewer: ";
 
 extern "C" {
+	#include <libavformat/avformat.h>
 	#include <libavcodec/avcodec.h>
 }
 
@@ -26,7 +27,6 @@ Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
     ui(new Ui::Viewer),
 	seq(NULL),
-	queue_audio_reset(false),
 	playing(false),
 	created_sequence(false)
 {
@@ -35,6 +35,7 @@ Viewer::Viewer(QWidget *parent) :
 	ui->headers->snapping = false;
 	ui->headers->show_text(false);
 	ui->glViewerPane->child = ui->openGLWidget;
+	ui->openGLWidget->viewer = this;
     viewer_widget = ui->openGLWidget;
     set_media(MEDIA_TYPE_SEQUENCE, NULL);
 
@@ -72,7 +73,6 @@ void Viewer::reset_all_audio() {
 			}
 		}
 	}
-	// panel_timeline->ui->audio_monitor->reset();
 	clear_audio_ibuffer();
 }
 
@@ -146,8 +146,7 @@ bool frame_rate_is_droppable(float rate) {
 void Viewer::seek(long p) {
 	pause();
 	seq->playhead = p;
-	queue_audio_reset = true;
-	panel_timeline->repaint_timeline(false);
+	update_parents();
 }
 
 void Viewer::go_to_start() {
@@ -171,10 +170,11 @@ void Viewer::toggle_play() {
 }
 
 void Viewer::play() {
-	if (queue_audio_reset) {
-		reset_all_audio();
-		queue_audio_reset = false;
+	if (audio_output->format().sampleRate() != seq->audio_frequency
+			|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
+		init_audio(seq);
 	}
+	reset_all_audio();
 	playhead_start = seq->playhead;
 	start_msecs = QDateTime::currentMSecsSinceEpoch();
 	playback_updater.start();
@@ -207,15 +207,23 @@ void Viewer::update_header_zoom() {
 		if (sequenceEndFrame > 0) {
 			ui->headers->update_zoom((double) ui->headers->width() / (double) sequenceEndFrame);
 		} else {
-			ui->headers->update_zoom(1);
 		}
+		ui->headers->update_zoom((sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1);
+	}
+}
+
+void Viewer::update_parents() {
+	if (main_sequence) {
+		update_ui(false);
+	} else {
+		update_viewer();
 	}
 }
 
 void Viewer::update_viewer() {
 	viewer_widget->update();
 	update_header_zoom();
-	update_playhead_timecode(seq->playhead);
+	if (seq != NULL) update_playhead_timecode(seq->playhead);
 }
 
 void Viewer::set_media(int type, void* media) {
@@ -259,10 +267,10 @@ void Viewer::set_media(int type, void* media) {
 			Clip* c = new Clip(seq);
 			c->media = footage;
 			c->media_type = type;
-			c->media_stream = footage->video_tracks.at(0)->file_index;
+			c->media_stream = audio_stream->file_index;
 			c->timeline_in = 0;
 			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
-			c->track = -1;
+			c->track = 0;
 			c->clip_in = 0;
 			c->recalculateMaxLength();
 			seq->clips.append(c);
@@ -307,10 +315,7 @@ void Viewer::update_playhead() {
 
 void Viewer::timer_update() {
 	seq->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
-	update_viewer();
-	if (main_sequence) {
-		panel_timeline->repaint_timeline(false);
-	}
+	update_parents();
 }
 
 void Viewer::clean_created_seq() {
@@ -325,13 +330,11 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	reset_all_audio();
 
     main_sequence = main;
-    seq = (main) ? sequence : s;
-    viewer_widget->display_sequence = seq;
+	seq = (main) ? sequence : s;
 
     bool null_sequence = (seq == NULL);
 
-    ui->headers->setEnabled(!null_sequence);
-	qDebug() << "headers enabled:" << ui->headers->isEnabled();
+	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
     ui->openGLWidget->setEnabled(!null_sequence);
     ui->openGLWidget->setVisible(!null_sequence);

@@ -3,6 +3,7 @@
 #include "timeline.h"
 #include "effectcontrols.h"
 #include "viewer.h"
+#include "project/sequence.h"
 
 Project* panel_project = 0;
 EffectControls* panel_effect_controls = 0;
@@ -10,7 +11,7 @@ Viewer* panel_sequence_viewer = 0;
 Viewer* panel_footage_viewer = 0;
 Timeline* panel_timeline = 0;
 
-void Timeline::update_effect_controls() {
+void update_effect_controls() {
 	// SEND CLIPS TO EFFECT CONTROLS
 	// find out how many clips are selected
 	// limits to one video clip and one audio clip and only if they're linked

@@ -12,4 +12,6 @@ extern Viewer* panel_sequence_viewer;
 extern Viewer* panel_footage_viewer;
 extern Timeline* panel_timeline;
 
+void update_ui(bool modified);
+
 #endif // PANELS_H

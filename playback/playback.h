@@ -31,12 +31,4 @@ void get_next_audio(Clip* c, bool mix);
 void set_sequence(Sequence* s);
 void closeActiveClips(Sequence* s, bool wait);
 
-struct ClipCacheData {
-	Clip& clip;
-	long playhead;
-	bool write_A;
-	bool write_B;
-	bool reset;
-};
-
 #endif // PLAYBACK_H

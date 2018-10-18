@@ -356,7 +356,7 @@ void Project::delete_selected_media() {
 
         // redraw clips
         if (redraw) {
-			panel_timeline->repaint_timeline(true);
+			update_ui(true);
 		}
     } else {
         delete ca;
@@ -622,7 +622,7 @@ void Project::delete_clips_using_selected_media() {
 		}
 		if (deleted) {
             undo_stack.push(ca);
-			panel_timeline->repaint_timeline(true);
+			update_ui(true);
 		} else {
             delete ca;
 		}
@@ -1040,7 +1040,7 @@ void Project::load_project() {
     if (cont) {
         if (open_seq != NULL) set_sequence(open_seq);
 
-		panel_timeline->repaint_timeline(false);
+		update_ui(false);
 		mainWindow->setWindowModified(false);
     } else {
         new_project();
@@ -1347,7 +1347,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 	}
 
     // redraw clips
-	panel_timeline->repaint_timeline(replace);
+	update_ui(replace);
 
     panel_project->source_table->viewport()->update();
     deleteLater();

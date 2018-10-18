@@ -407,6 +407,6 @@ void SpeedDialog::accept() {
 
 	undo_stack.push(ca);
 
-	panel_timeline->repaint_timeline(true);
+	update_ui(true);
 	QDialog::accept();
 }

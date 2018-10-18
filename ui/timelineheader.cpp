@@ -72,7 +72,7 @@ void TimelineHeader::set_in_point(long new_in) {
     }
 
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
-	panel_timeline->repaint_timeline(false);
+	update_parents();
 }
 
 void TimelineHeader::set_out_point(long new_out) {
@@ -83,7 +83,7 @@ void TimelineHeader::set_out_point(long new_out) {
         new_in = 0;
     }
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
-	panel_timeline->repaint_timeline(false);
+	update_parents();
 }
 
 void TimelineHeader::show_text(bool enable) {
@@ -159,7 +159,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 					temp_workarea_out = qMin(qMax(temp_workarea_in+1, frame), sequence_end);
 				}
 
-				panel_timeline->repaint_timeline(false);
+				update_parents();
 			} else if (dragging_markers) {
 				long frame_movement = getHeaderFrameFromScreenPoint(event->pos().x()) - getHeaderFrameFromScreenPoint(drag_start);
 
@@ -186,7 +186,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 					viewer->seq->markers[selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
 				}
 
-				panel_timeline->repaint_timeline(false);
+				update_parents();
 			} else {
 				set_playhead(event->pos().x());
 			}
@@ -239,13 +239,17 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 		dragging = false;
 		dragging_markers = false;
 		panel_timeline->snapped = false;
-		panel_timeline->repaint_timeline(false);
+		update_parents();
 	}
 }
 
 void TimelineHeader::focusOutEvent(QFocusEvent*) {
 	selected_markers.clear();
 	update();
+}
+
+void TimelineHeader::update_parents() {
+	viewer->update_parents();
 }
 
 void TimelineHeader::update_zoom(double z) {
@@ -260,7 +264,7 @@ void TimelineHeader::delete_markers() {
 			dma->markers.append(selected_markers.at(i));
 		}
 		undo_stack.push(dma);
-		panel_timeline->repaint_timeline(false);
+		update_parents();
 	}
 }
 

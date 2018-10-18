@@ -78,7 +78,7 @@ void TimelineWidget::right_click_ripple() {
 
 	if (can_ripple) {
 		undo_stack.push(new RippleCommand(sequence, rc_ripple_min, rc_ripple_min - rc_ripple_max));
-		panel_timeline->repaint_timeline(true);
+		update_ui(true);
 	}
 }
 
@@ -362,7 +362,7 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
     if (sequence != NULL && panel_timeline->importing) {
 		QPoint pos = event->pos();
         update_ghosts(pos);
-		panel_timeline->repaint_timeline(false);
+		update_ui(false);
 	}
 }
 
@@ -388,7 +388,7 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
     if (sequence != NULL && panel_timeline->importing) {
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
-		panel_timeline->repaint_timeline(false);
+		update_ui(false);
 	}
 }
 
@@ -503,7 +503,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
         setFocus();
 
-		panel_timeline->repaint_timeline(true);
+		update_ui(true);
 	}
 }
 
@@ -518,7 +518,7 @@ void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
             s.out = clip->timeline_out;
             s.track = clip->track;
 			sequence->selections.append(s);
-			panel_timeline->repaint_timeline(false);
+			update_ui(false);
         }
     }
 }
@@ -681,7 +681,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 
 						panel_timeline->rect_select_init = true;
 					}
-					panel_timeline->repaint_timeline(false);
+					update_ui(false);
 				}
 			}
 				break;
@@ -693,7 +693,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 			{
 				panel_timeline->splitting = true;
 				panel_timeline->split_tracks.append(panel_timeline->drag_track_start);
-				panel_timeline->repaint_timeline(false);
+				update_ui(false);
 			}
 				break;
 			}
@@ -707,9 +707,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         bool alt = (event->modifiers() & Qt::AltModifier);
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
 
-        if (event->button() == Qt::LeftButton) {
-            bool repaint = false;
-			bool redraw = false;
+		if (event->button() == Qt::LeftButton) {
+			bool changed = false;
 
             ComboAction* ca = new ComboAction();
             bool push_undo = false;
@@ -782,7 +781,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                         panel_timeline->delete_areas_and_relink(ca, areas);
 
                         push_undo = true;
-						redraw = true;
+						changed = true;
 
 						if (!shift) {
 							panel_timeline->creating = false;
@@ -790,7 +789,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					}
 				}
 			} else if (panel_timeline->moving_proc) {
-				repaint = true;
 				if (panel_timeline->ghosts.size() > 0) {
                      const Ghost& first_ghost = panel_timeline->ghosts.at(0);
 
@@ -955,10 +953,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						 }
                      }
                      push_undo = true;
-					 redraw = true;
+					 changed = true;
 				}
             } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
-                repaint = true;
+				changed = true;
             } else if (panel_timeline->splitting) {
                 bool split = false;
                 for (int i=0;i<panel_timeline->split_tracks.size();i++) {
@@ -969,7 +967,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                 }
                 if (split) {
                     push_undo = true;
-					redraw = true;
+					changed = true;
                 }
                 panel_timeline->split_cache.clear();
             }
@@ -1006,14 +1004,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             pre_clips.clear();
             post_clips.clear();
 
-			if (redraw) {
-				panel_timeline->repaint_timeline(true);
-			} else {
-				panel_timeline->update_effect_controls();
-				if (repaint) {
-					panel_timeline->repaint_timeline(false);
-				}
-			}
+			update_ui(changed);
         }
     }
 }
@@ -1342,8 +1333,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
             if (config.edit_tool_also_seeks) {
 				panel_sequence_viewer->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
-            } else {
-				panel_timeline->repaint_timeline(false);
+			} else {
+				panel_timeline->repaint_timeline();
             }
         } else if (panel_timeline->moving_init) {
             if (track_resizing) {
@@ -1544,7 +1535,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
                 panel_timeline->moving_proc = true;
             }
-			panel_timeline->repaint_timeline(false);
+			update_ui(true);
         } else if (panel_timeline->splitting) {
             int track_start = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
             int track_end = qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start);
@@ -1568,7 +1559,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     }
                 }
             }
-			panel_timeline->repaint_timeline(false);
+			update_ui(true);
         } else if (panel_timeline->rect_select_init) {
             if (panel_timeline->rect_select_proc) {
                 panel_timeline->rect_select_w = event->pos().x() - panel_timeline->rect_select_x;
@@ -1630,7 +1621,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     s.old_track = s.track = clip->track;
                 }
 
-				panel_timeline->repaint_timeline(false);
+				panel_timeline->repaint_timeline();
             } else {
                 panel_timeline->rect_select_x = event->pos().x();
                 panel_timeline->rect_select_y = event->pos().y();
@@ -1641,7 +1632,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             }
 		} else if (isLiveEditing()) {
 			// redraw because we have a cursor
-			panel_timeline->repaint_timeline(false);
+			panel_timeline->repaint_timeline();
         } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
                    panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
                    panel_timeline->tool == TIMELINE_TOOL_ROLLING) {

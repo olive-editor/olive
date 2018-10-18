@@ -44,6 +44,6 @@ void clear_audio_ibuffer();
 
 void init_audio(Sequence *s);
 void stop_audio();
-int get_buffer_offset_from_frame(long frame);
+int get_buffer_offset_from_frame(Sequence *s, long frame);
 
 #endif // AUDIO_H

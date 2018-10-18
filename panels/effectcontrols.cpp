@@ -82,7 +82,7 @@ void EffectControls::menu_select(QAction* q) {
     }
     undo_stack.push(ca);
 	if (transition_menu) {
-		panel_timeline->repaint_timeline(true);
+		update_ui(true);
 	} else {
 		reload_clips();
 		panel_sequence_viewer->viewer_widget->update();

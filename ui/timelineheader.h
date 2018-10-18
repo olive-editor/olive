@@ -34,6 +34,8 @@ protected:
 	void focusOutEvent(QFocusEvent*);
 
 private:
+	void update_parents();
+
     bool dragging;
 
     bool resizing_workarea;

@@ -9,8 +9,8 @@
 #include <QMutex>
 #include <QWaitCondition>
 
+class Viewer;
 struct Clip;
-struct Sequence;
 class QOpenGLFramebufferObject;
 
 class ViewerWidget : public QOpenGLWidget
@@ -22,7 +22,7 @@ public:
 	bool rendering;
     void paintGL();
     void initializeGL();
-    Sequence* display_sequence;
+	Viewer* viewer;
 
 	QOpenGLFramebufferObject* default_fbo;
 protected:

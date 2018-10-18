@@ -169,7 +169,7 @@ void Timeline::add_transition() {
         delete ca;
 	}
 
-	repaint_timeline(true);
+	update_ui(true);
 }
 
 int Timeline::calculate_track_height(int track, int value) {
@@ -208,7 +208,7 @@ void Timeline::update_sequence() {
 		setWindowTitle("Timeline: <none>");
 	} else {
 		setWindowTitle("Timeline: " + sequence->name);
-		repaint_timeline(false);
+		update_ui(false);
 	}
 }
 
@@ -250,7 +250,7 @@ void Timeline::select_all() {
 				sequence->selections.append(s);
 			}
 		}
-		repaint_timeline(false);
+		repaint_timeline();
 	}
 }
 
@@ -271,7 +271,7 @@ void Timeline::delete_in_out(bool ripple) {
         if (ripple) ca->append(new RippleCommand(sequence, sequence->workarea_in, sequence->workarea_in - sequence->workarea_out));
         ca->append(new SetTimelineInOutCommand(sequence, false, 0, 0));
         undo_stack.push(ca);
-		repaint_timeline(true);
+		update_ui(true);
     }
 }
 
@@ -331,7 +331,7 @@ void Timeline::delete_selection(bool ripple_delete) {
 
         undo_stack.push(ca);
 
-		repaint_timeline(true);
+		update_ui(true);
 	}
 }
 
@@ -342,7 +342,7 @@ int lerp(int a, int b, double t) {
 void Timeline::set_zoom(bool in) {
     zoom *= (in) ? 2 : 0.5;
 	ui->headers->update_zoom(zoom);
-    repaint_timeline(false);
+	repaint_timeline();
 
     // TODO find a way to gradually move towards target_scroll instead of just setting it?
     int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
@@ -690,7 +690,7 @@ void Timeline::paste() {
 
         undo_stack.push(ca);
 
-		repaint_timeline(true);
+		update_ui(true);
 
         if (config.paste_seeks) {
 			panel_sequence_viewer->seek(paste_end);
@@ -749,7 +749,7 @@ void Timeline::ripple_to_in_point(bool in) {
 			ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point)));
             undo_stack.push(ca);
 
-			repaint_timeline(true);
+			update_ui(true);
 
 			if (in) panel_sequence_viewer->seek(in_point);
         }
@@ -882,7 +882,7 @@ void Timeline::split_at_playhead() {
 
     if (split_selected) {
         undo_stack.push(ca);
-		repaint_timeline(true);
+		update_ui(true);
     } else {
         delete ca;
     }
@@ -1006,7 +1006,7 @@ void Timeline::toggle_links() {
     }
     if (command->clips.size() > 0) {
         undo_stack.push(command);
-		repaint_timeline(true);
+		repaint_timeline();
     } else {
         delete command;
     }
@@ -1019,7 +1019,7 @@ void Timeline::increase_track_height() {
     for (int i=0;i<audio_track_heights.size();i++) {
         audio_track_heights[i] += TRACK_HEIGHT_INCREMENT;
     }
-	repaint_timeline(false);
+	repaint_timeline();
 }
 
 void Timeline::decrease_track_height() {
@@ -1031,12 +1031,12 @@ void Timeline::decrease_track_height() {
         audio_track_heights[i] -= TRACK_HEIGHT_INCREMENT;
         if (audio_track_heights[i] < TRACK_MIN_HEIGHT) audio_track_heights[i] = TRACK_MIN_HEIGHT;
     }
-	repaint_timeline(false);
+	repaint_timeline();
 }
 
 void Timeline::deselect() {
 	sequence->selections.clear();
-	repaint_timeline(false);
+	repaint_timeline();
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
@@ -1154,5 +1154,5 @@ void Timeline::addMenuItem(QAction* action) {
 void Timeline::setScroll(int s) {
 	scroll = s;
 	ui->headers->set_scroll(s);
-	repaint_timeline(false);
+	repaint_timeline();
 }

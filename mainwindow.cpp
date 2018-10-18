@@ -286,12 +286,12 @@ void MainWindow::editMenu_About_To_Be_Shown() {
 
 void MainWindow::undo() {
 	undo_stack.undo();
-	panel_timeline->repaint_timeline(true);
+	update_ui(true);
 }
 
 void MainWindow::redo() {
 	undo_stack.redo();
-	panel_timeline->repaint_timeline(true);
+	update_ui(true);
 }
 
 void MainWindow::openSpeedDialog() {
@@ -431,7 +431,7 @@ void MainWindow::on_actionProject_triggered()
         project_url.clear();
         panel_project->new_project();
 		updateTitle("");
-		panel_timeline->repaint_timeline(false);
+		update_ui(false);
     }
 }
 
@@ -712,7 +712,7 @@ void MainWindow::on_actionSet_Out_Point_triggered()
 void MainWindow::on_actionClear_In_Out_triggered() {
 	if ((panel_timeline->focused() || panel_sequence_viewer->hasFocus()) && sequence->using_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, false, 0, 0));
-		panel_timeline->repaint_timeline(false);
+		panel_timeline->repaint_timeline();
     }
 }
 
@@ -733,13 +733,13 @@ void MainWindow::on_actionRipple_Delete_In_Out_triggered()
 void MainWindow::on_actionTimeline_Track_Lines_triggered()
 {
     config.show_track_lines = !config.show_track_lines;
-	panel_timeline->repaint_timeline(false);
+	panel_timeline->repaint_timeline();
 }
 
 void MainWindow::on_actionRectified_Waveforms_triggered()
 {
 	config.rectified_waveforms = !config.rectified_waveforms;
-	panel_timeline->repaint_timeline(false);
+	panel_timeline->repaint_timeline();
 }
 
 void MainWindow::on_actionDefault_triggered() {
@@ -816,7 +816,7 @@ void MainWindow::on_actionEnable_Disable_Clip_triggered() {
 		}
 		if (push_undo) {
 			undo_stack.push(ca);
-			panel_timeline->repaint_timeline(true);
+			update_ui(true);
 		} else {
 			delete ca;
 		}

@@ -71,6 +71,8 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 }
 
 void cache_audio_worker(Clip* c, Clip* nest) {
+	qDebug() << "caw called";
+
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
     if (nest != NULL) {
@@ -191,7 +193,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 #ifdef AUDIOWARNINGS
 									qDebug() << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->rev_target;
 #endif
-									rev_frame->nb_samples = qRound(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * sequence->audio_frequency);
+									rev_frame->nb_samples = qRound(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * c->sequence->audio_frequency);
 #ifdef AUDIOWARNINGS
 									qDebug() << "post cutoff deets::" << rev_frame->nb_samples;
 #endif
@@ -263,7 +265,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				qDebug() << "fsi-post-post:" << c->frame_sample_index;
 #endif
 
-				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
+				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
 
 				int offset = (audio_ibuffer_read + 2048) - c->audio_buffer_write;
 				if (offset > 0) {
@@ -287,7 +289,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			// apply any audio effects to the data
 			if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 			if (new_frame) {
-				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, sequence->audio_frequency) + audio_ibuffer_timecode + ((double) (c->clip_in - c->timeline_in)/sequence->frame_rate), frame, nb_bytes);
+				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, c->sequence->audio_frequency) + audio_ibuffer_timecode + ((double) (c->clip_in - c->timeline_in)/c->sequence->frame_rate), frame, nb_bytes);
 			}
 		}
 			break;
@@ -300,7 +302,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes);
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
-				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(qMax(timeline_in, c->audio_target_frame));
+				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
 				int offset = audio_ibuffer_read - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
@@ -317,7 +319,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
-			long buffer_timeline_out = get_buffer_offset_from_frame(timeline_out);
+			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence, timeline_out);
 			audio_write_lock.lock();
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size
@@ -628,9 +630,9 @@ void open_clip_worker(Clip* clip) {
 				AVFrame* reverse_frame = av_frame_alloc();
 
 				reverse_frame->format = sample_format;
-				reverse_frame->nb_samples = sequence->audio_frequency*2;
-				reverse_frame->channel_layout = sequence->audio_layout;
-				reverse_frame->channels = av_get_channel_layout_nb_channels(sequence->audio_layout);
+				reverse_frame->nb_samples = clip->sequence->audio_frequency*2;
+				reverse_frame->channel_layout = clip->sequence->audio_layout;
+				reverse_frame->channels = av_get_channel_layout_nb_channels(clip->sequence->audio_layout);
 				av_frame_get_buffer(reverse_frame, 0);
 
 				clip->queue.append(reverse_frame);
@@ -657,7 +659,7 @@ void open_clip_worker(Clip* clip) {
 				qDebug() << "[ERROR] Could not set output sample format";
 			}
 
-			int target_sample_rate = sequence->audio_frequency;
+			int target_sample_rate = clip->sequence->audio_frequency;
 
 			if (qFuzzyCompare(clip->speed, 1.0)) {
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
@@ -670,7 +672,7 @@ void open_clip_worker(Clip* clip) {
 				avfilter_link(clip->buffersrc_ctx, 0, tempo_filter, 0);
 				avfilter_link(tempo_filter, 0, clip->buffersink_ctx, 0);
 			} else {
-				target_sample_rate = qRound(sequence->audio_frequency / clip->speed);
+				target_sample_rate = qRound(clip->sequence->audio_frequency / clip->speed);
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 			}
 
@@ -690,9 +692,9 @@ void open_clip_worker(Clip* clip) {
 	case MEDIA_TYPE_TONE:
 		clip->frame = av_frame_alloc();
 		clip->frame->format = sample_format;
-		clip->frame->channel_layout = sequence->audio_layout;
+		clip->frame->channel_layout = clip->sequence->audio_layout;
 		clip->frame->channels = av_get_channel_layout_nb_channels(clip->frame->channel_layout);
-		clip->frame->sample_rate = sequence->audio_frequency;
+		clip->frame->sample_rate = clip->sequence->audio_frequency;
 		clip->frame->nb_samples = 2048;
 		av_frame_make_writable(clip->frame);
 		if (av_frame_get_buffer(clip->frame, 0)) {
