@@ -300,7 +300,7 @@ void Timeline::delete_selection(bool ripple_delete) {
             bool can_ripple = true;
             for (int i=0;i<sequence->clips.size();i++) {
                 Clip* c = sequence->clips.at(i);
-                if (c->timeline_in < ripple_point && c->timeline_out > ripple_point) {
+				if (c != NULL && c->timeline_in < ripple_point && c->timeline_out > ripple_point) {
                     // conflict detected, but this clip may be getting deleted so let's check
                     bool deleted = false;
 					for (int j=0;j<sequence->selections.size();j++) {
