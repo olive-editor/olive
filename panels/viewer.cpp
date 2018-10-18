@@ -41,6 +41,7 @@ Viewer::Viewer(QWidget *parent) :
     set_media(MEDIA_TYPE_SEQUENCE, NULL);
 
     ui->currentTimecode->setEnabled(false);
+    ui->currentTimecode->set_minimum_value(0);
 	ui->currentTimecode->set_default_value(qSNaN());
 	ui->currentTimecode->set_value(0, false);
 	ui->currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);

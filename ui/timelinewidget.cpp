@@ -273,6 +273,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             void* media = NULL;
             long sequence_length;
             long default_clip_in = 0;
+            long default_clip_out = 0;
 
             switch (item_type) {
             case MEDIA_TYPE_FOOTAGE:
@@ -283,16 +284,18 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                     double source_fr = 30;
                     if (m->video_tracks.size() > 0) source_fr = m->video_tracks.at(0)->video_frame_rate;
                     default_clip_in = refactor_frame_number(m->in, source_fr, predicted_new_frame_rate);
+                    default_clip_out = refactor_frame_number(m->out, source_fr, predicted_new_frame_rate);
                 }
                 break;
             case MEDIA_TYPE_SEQUENCE:
                 s = get_sequence_from_tree(item);
                 sequence_length = s->getEndFrame();
-                if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, sequence->frame_rate);
+                if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, predicted_new_frame_rate);
                 media = s;
                 can_import = (s != sequence && sequence_length != 0);
                 if (s->using_workarea) {
                     default_clip_in = refactor_frame_number(s->workarea_in, s->frame_rate, predicted_new_frame_rate);
+                    default_clip_out = refactor_frame_number(s->workarea_out, s->frame_rate, predicted_new_frame_rate);
                 }
                 break;
             default:
@@ -315,7 +318,11 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                     if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
                         g.out = g.in + 100;
                     } else {
-                        g.out = entry_point + m->get_length_in_frames(predicted_new_frame_rate) - default_clip_in;
+                        long length = m->get_length_in_frames(predicted_new_frame_rate);
+                        g.out = entry_point + length - default_clip_in;
+                        if (m->using_inout) {
+                            g.out -= (length - default_clip_out);
+                        }
                     }
 
                     for (int j=0;j<m->audio_tracks.size();j++) {
@@ -332,7 +339,11 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                     }
                     break;
                 case MEDIA_TYPE_SEQUENCE:
-                    g.out = entry_point + sequence_length;
+                    g.out = entry_point + sequence_length - default_clip_in;
+
+                    if (s->using_workarea) {
+                        g.out -= (sequence_length - default_clip_out);
+                    }
 
                     g.track = -1;
                     panel_timeline->ghosts.append(g);
