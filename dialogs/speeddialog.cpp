@@ -40,6 +40,7 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	grid->addWidget(new QLabel("Duration:"), 2, 0);
 	duration = new LabelSlider();
 	duration->set_display_type(LABELSLIDER_FRAMENUMBER);
+	duration->set_frame_rate(sequence->frame_rate);
 	grid->addWidget(duration, 2, 1);
 
 	main_layout->addLayout(grid);

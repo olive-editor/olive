@@ -3,7 +3,6 @@
 #include "project/undo.h"
 #include "panels/viewer.h"
 #include "io/config.h"
-#include "project/sequence.h"
 
 #include <QMouseEvent>
 #include <QInputDialog>
@@ -11,6 +10,7 @@
 #include <QDebug>
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
+	frame_rate = 30;
 	decimal_places = 1;
     drag_start = false;
 	drag_proc = false;
@@ -23,6 +23,10 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	set_value(0, false);
 	set = false;
 	display_type = LABELSLIDER_NORMAL;
+}
+
+void LabelSlider::set_frame_rate(double d) {
+	frame_rate = d;
 }
 
 void LabelSlider::set_display_type(int type) {
@@ -59,7 +63,7 @@ QString LabelSlider::valueToString(double v) {
 		return "---";
 	} else {
 		switch (display_type) {
-		case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, (sequence != NULL) ? sequence->frame_rate : 30);
+		case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, frame_rate);
 		case LABELSLIDER_PERCENT: return QString::number((v*100), 'f', decimal_places) + "%";
 		}
 		return QString::number(v, 'f', decimal_places);

@@ -13,6 +13,7 @@ class LabelSlider : public QLabel
     Q_OBJECT
 public:
     LabelSlider(QWidget* parent = 0);
+	void set_frame_rate(double d);
 	void set_display_type(int type);
 	void set_value(double v, bool userSet);
     void set_default_value(double v);
@@ -48,6 +49,8 @@ private:
     bool set;
 
 	int display_type;
+
+	double frame_rate;
 signals:
 	void valueChanged();
 };

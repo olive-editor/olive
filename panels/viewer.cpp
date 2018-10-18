@@ -347,6 +347,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	init_audio(seq);
 
     if (!null_sequence) {
+		ui->currentTimecode->set_frame_rate(seq->frame_rate);
+
 		playback_updater.setInterval(qFloor(1000 / seq->frame_rate));
 
         update_playhead_timecode(seq->playhead);

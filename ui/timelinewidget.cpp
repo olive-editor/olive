@@ -259,7 +259,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             }
         } else {
 			entry_point = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
-			panel_timeline->drag_frame_start = entry_point + panel_timeline->getTimelineFrameFromScreenPoint(50);
+			panel_timeline->drag_frame_start = entry_point + getFrameFromScreenPoint(panel_timeline->zoom, 50);
             panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
             predicted_new_frame_rate = sequence->frame_rate;
         }
@@ -347,14 +347,14 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     } else if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
         // TODO for this to work, we need a way to abort PreviewGenerator
 
-		event->accept();
+		/*event->accept();
         qDebug() << "TODO get data for:";
         QList<QUrl> urls = event->mimeData()->urls();
         if (!urls.isEmpty()) {
             for (int i=0;i<urls.size();i++) {
                 qDebug() << (urls.at(i).toLocalFile());
             }
-        }
+		}*/
     }
 }
 
