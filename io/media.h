@@ -54,6 +54,10 @@ struct Media {
 
 	PreviewGenerator* preview_gen;
 
+    bool using_inout;
+    long in;
+    long out;
+
     long get_length_in_frames(double frame_rate);
     MediaStream* get_stream_from_file_index(bool video, int index);
     void reset();

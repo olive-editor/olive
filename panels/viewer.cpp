@@ -56,7 +56,13 @@ Viewer::~Viewer() {
 }
 
 bool Viewer::is_focused() {
-	return ui->headers->hasFocus() || ui->openGLWidget->hasFocus();
+    return ui->headers->hasFocus()
+            || ui->openGLWidget->hasFocus()
+            || ui->pushButton->hasFocus()
+            || ui->pushButton_2->hasFocus()
+            || ui->pushButton_3->hasFocus()
+            || ui->pushButton_4->hasFocus()
+            || ui->pushButton_5->hasFocus();
 }
 
 void Viewer::set_main_sequence() {
