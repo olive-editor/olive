@@ -23,6 +23,7 @@ public:
 	explicit Viewer(QWidget *parent = 0);
 	~Viewer();
 
+	bool is_focused();
     void set_main_sequence();
     void set_media(int type, void* media);
 	void compose();
@@ -31,6 +32,8 @@ public:
     void update_end_timecode();
 	void update_header_zoom();
 	void update_viewer();
+	void set_in_point();
+	void set_out_point();
 
 	// playback functions
 	void go_to_start();

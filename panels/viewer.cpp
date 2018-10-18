@@ -52,7 +52,11 @@ Viewer::Viewer(QWidget *parent) :
 }
 
 Viewer::~Viewer() {
-    delete ui;
+	delete ui;
+}
+
+bool Viewer::is_focused() {
+	return ui->headers->hasFocus() || ui->openGLWidget->hasFocus();
 }
 
 void Viewer::set_main_sequence() {
@@ -140,7 +144,7 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 }
 
 bool frame_rate_is_droppable(float rate) {
-    return (rate == 23.976f || rate == 29.97f || rate == 59.94f);
+	return (qFuzzyCompare(rate, 23.976f) || qFuzzyCompare(rate, 29.97f) || qFuzzyCompare(rate, 59.94f));
 }
 
 void Viewer::seek(long p) {
@@ -204,10 +208,6 @@ void Viewer::update_end_timecode() {
 void Viewer::update_header_zoom() {
 	if (seq != NULL) {
 		long sequenceEndFrame = seq->getEndFrame();
-		if (sequenceEndFrame > 0) {
-			ui->headers->update_zoom((double) ui->headers->width() / (double) sequenceEndFrame);
-		} else {
-		}
 		ui->headers->update_zoom((sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1);
 	}
 }
@@ -224,6 +224,17 @@ void Viewer::update_viewer() {
 	viewer_widget->update();
 	update_header_zoom();
 	if (seq != NULL) update_playhead_timecode(seq->playhead);
+	update_end_timecode();
+}
+
+void Viewer::set_in_point() {
+	qDebug() << "in h";
+	ui->headers->set_in_point(seq->playhead);
+}
+
+void Viewer::set_out_point() {
+	qDebug() << "out h";
+	ui->headers->set_out_point(seq->playhead);
 }
 
 void Viewer::set_media(int type, void* media) {
@@ -242,7 +253,8 @@ void Viewer::set_media(int type, void* media) {
 			MediaStream* video_stream = footage->video_tracks.at(0);
 			seq->width = video_stream->video_width;
 			seq->height = video_stream->video_height;
-			seq->frame_rate = video_stream->video_frame_rate;
+			if (video_stream->video_frame_rate > 0) seq->frame_rate = video_stream->video_frame_rate;
+			qDebug() << seq->frame_rate << video_stream->video_frame_rate;
 
 			Clip* c = new Clip(seq);
 			c->media = footage;

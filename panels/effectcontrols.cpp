@@ -30,6 +30,7 @@ EffectControls::EffectControls(QWidget *parent) :
     init_effects();
 	init_transitions();
     clear_effects(false);
+	ui->headers->viewer = panel_sequence_viewer;
 	ui->headers->snapping = false;
 
 	ui->effects_area->parent_widget = ui->scrollArea;
@@ -45,9 +46,6 @@ EffectControls::EffectControls(QWidget *parent) :
 	connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), ui->keyframeView, SLOT(set_y_scroll(int)));
 	connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
 	connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->verticalScrollBar, SLOT(setValue(int)));
-
-	/*connect(ui->keyframeScroller->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));
-	connect(ui->keyframeScroller->horizontalScrollBar(), SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));*/
 }
 
 EffectControls::~EffectControls() {

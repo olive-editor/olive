@@ -184,14 +184,6 @@ int Timeline::calculate_track_height(int track, int value) {
     return vector.at(index);
 }
 
-void Timeline::set_in_point() {
-	ui->headers->set_in_point(sequence->playhead);
-}
-
-void Timeline::set_out_point() {
-	ui->headers->set_out_point(sequence->playhead);
-}
-
 void Timeline::update_sequence() {
     bool null_sequence = (sequence == NULL);
 
@@ -315,7 +307,8 @@ void Timeline::delete_selection(bool ripple_delete) {
                     if (!deleted) {
                         for (int j=0;j<sequence->clips.size();j++) {
                             Clip* cc = sequence->clips.at(j);
-                            if (cc->track == c->track
+							if (cc != NULL
+									&& cc->track == c->track
                                     && cc->timeline_in > c->timeline_out
                                     && cc->timeline_in < c->timeline_out + ripple_length) {
                                 ripple_length = cc->timeline_in - c->timeline_out;

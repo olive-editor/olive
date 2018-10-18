@@ -92,8 +92,6 @@ public:
     bool has_clip_been_split(int c);
     void toggle_links();
     void ripple_to_in_point(bool in);
-    void set_in_point();
-    void set_out_point();
     void delete_in_out(bool ripple);
 	void previous_cut();
 	void next_cut();

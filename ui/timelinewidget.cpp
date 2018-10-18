@@ -708,8 +708,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
 
 		if (event->button() == Qt::LeftButton) {
-			bool changed = false;
-
             ComboAction* ca = new ComboAction();
             bool push_undo = false;
 
@@ -780,8 +778,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						areas.append(s);
                         panel_timeline->delete_areas_and_relink(ca, areas);
 
-                        push_undo = true;
-						changed = true;
+						push_undo = true;
 
 						if (!shift) {
 							panel_timeline->creating = false;
@@ -952,11 +949,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 }
 						 }
                      }
-                     push_undo = true;
-					 changed = true;
+					 push_undo = true;
 				}
-            } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
-				changed = true;
+			} else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
             } else if (panel_timeline->splitting) {
                 bool split = false;
                 for (int i=0;i<panel_timeline->split_tracks.size();i++) {
@@ -966,8 +961,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     }
                 }
                 if (split) {
-                    push_undo = true;
-					changed = true;
+					push_undo = true;
                 }
                 panel_timeline->split_cache.clear();
             }
@@ -1004,7 +998,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             pre_clips.clear();
             post_clips.clear();
 
-			update_ui(changed);
+			update_ui(true);
         }
     }
 }

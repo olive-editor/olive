@@ -55,11 +55,13 @@ void MainWindow::setup_layout() {
     panel_timeline->show();
 
     addDockWidget(Qt::TopDockWidgetArea, panel_project);
-    addDockWidget(Qt::TopDockWidgetArea, panel_effect_controls);
-	tabifyDockWidget(panel_effect_controls, panel_footage_viewer);
+	addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
+	tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
+	panel_footage_viewer->raise();
     addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 
+	// workaround for older versions of Qt
 	resizeDocks({panel_project}, {40}, Qt::Horizontal);
 }
 
@@ -101,10 +103,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setDockNestingEnabled(true);
 
     // TODO maybe replace these with non-pointers later on?
-    panel_project = new Project(this);
-    panel_effect_controls = new EffectControls(this);
     panel_sequence_viewer = new Viewer(this);
 	panel_footage_viewer = new Viewer(this);
+	panel_project = new Project(this);
+	panel_effect_controls = new EffectControls(this);
     panel_timeline = new Timeline(this);
 
 	setup_layout();
@@ -454,35 +456,35 @@ void MainWindow::on_actionReset_to_default_layout_triggered()
 
 void MainWindow::on_actionGo_to_start_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
 		panel_sequence_viewer->go_to_start();
 	}
 }
 
 void MainWindow::on_actionPrevious_Frame_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
 		panel_sequence_viewer->previous_frame();
     }
 }
 
 void MainWindow::on_actionNext_Frame_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
 		panel_sequence_viewer->next_frame();
     }
 }
 
 void MainWindow::on_actionGo_to_End_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
 		panel_sequence_viewer->go_to_end();
     }
 }
 
 void MainWindow::on_actionPlay_Pause_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus() || panel_effect_controls->keyframe_focus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
 		panel_sequence_viewer->toggle_play();
     }
 }
@@ -524,14 +526,14 @@ void MainWindow::on_actionSlip_Tool_triggered()
 
 void MainWindow::on_actionGo_to_Previous_Cut_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
         panel_timeline->previous_cut();
     }
 }
 
 void MainWindow::on_actionGo_to_Next_Cut_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->hasFocus())) {
+	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
         panel_timeline->next_cut();
     }
 }
@@ -576,28 +578,19 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
 void MainWindow::on_actionFrames_triggered()
 {
     config.timecode_view = TIMECODE_FRAMES;
-    if (sequence != NULL) {
-		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
-        panel_sequence_viewer->update_end_timecode();
-    }
+	update_ui(false);
 }
 
 void MainWindow::on_actionDrop_Frame_triggered()
 {
     config.timecode_view = TIMECODE_DROP;
-    if (sequence != NULL) {
-		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
-        panel_sequence_viewer->update_end_timecode();
-    }
+	update_ui(false);
 }
 
 void MainWindow::on_actionNon_Drop_Frame_triggered()
 {
     config.timecode_view = TIMECODE_NONDROP;
-    if (sequence != NULL) {
-		panel_sequence_viewer->update_playhead_timecode(sequence->playhead);
-        panel_sequence_viewer->update_end_timecode();
-    }
+	update_ui(false);
 }
 
 void MainWindow::toolMenu_About_To_Be_Shown() {
@@ -701,18 +694,26 @@ void MainWindow::on_actionRipple_to_Out_Point_triggered()
 
 void MainWindow::on_actionSet_In_Point_triggered()
 {
-	if (panel_timeline->focused() || panel_sequence_viewer->hasFocus()) panel_timeline->set_in_point();
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+		panel_sequence_viewer->set_in_point();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->set_in_point();
+	}
 }
 
 void MainWindow::on_actionSet_Out_Point_triggered()
 {
-	if (panel_timeline->focused() || panel_sequence_viewer->hasFocus()) panel_timeline->set_out_point();
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+		panel_sequence_viewer->set_out_point();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->set_out_point();
+	}
 }
 
 void MainWindow::on_actionClear_In_Out_triggered() {
-	if ((panel_timeline->focused() || panel_sequence_viewer->hasFocus()) && sequence->using_workarea) {
+	if ((panel_timeline->focused() || panel_sequence_viewer->is_focused()) && sequence->using_workarea) {
         undo_stack.push(new SetTimelineInOutCommand(sequence, false, 0, 0));
-		panel_timeline->repaint_timeline();
+		update_ui(false);
     }
 }
 
