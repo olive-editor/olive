@@ -4,10 +4,11 @@
 #include <QResizeEvent>
 
 // enforces aspect ratio
-ViewerContainer::ViewerContainer(QWidget *parent) : QWidget(parent) {
-	child = NULL;
-	aspect_ratio = 1;
-}
+ViewerContainer::ViewerContainer(QWidget *parent) :
+	QWidget(parent),
+	child(NULL),
+	aspect_ratio(1)
+{}
 
 void ViewerContainer::adjust() {
 	if (child != NULL) {

@@ -11,6 +11,7 @@
 
 class Viewer;
 struct Clip;
+struct MediaStream;
 class QOpenGLFramebufferObject;
 
 class ViewerWidget : public QOpenGLWidget
@@ -19,10 +20,13 @@ class ViewerWidget : public QOpenGLWidget
 public:
 	ViewerWidget(QWidget *parent = 0);
 
-	bool rendering;
     void paintGL();
     void initializeGL();
 	Viewer* viewer;
+
+	bool waveform;
+	Clip* waveform_clip;
+	MediaStream* waveform_ms;
 
 	QOpenGLFramebufferObject* default_fbo;
 protected:

@@ -137,7 +137,7 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 
 	// send samples to audio monitor cache
     // TODO make this work for the footage viewer
-    Sequence* s = NULL;
+	/*Sequence* s = NULL;
     if (panel_footage_viewer->playing) {
         s = panel_footage_viewer->seq;
     }
@@ -169,7 +169,7 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 			panel_timeline->ui->audio_monitor->sample_cache.append(samples);
 			buffer_offset = next_buffer_offset;
 		}
-	}
+	}*/
 
 	memset(audio_ibuffer+offset, 0, actual_write);
 

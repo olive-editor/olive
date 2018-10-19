@@ -23,14 +23,14 @@ extern "C" {
 
 #include <QtMath>
 #include <QAudioOutput>
+#include <QPainter>
 
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
     ui(new Ui::Viewer),
 	seq(NULL),
 	playing(false),
-	created_sequence(false),
-	disable_viewer(false)
+	created_sequence(false)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
@@ -81,9 +81,7 @@ void Viewer::reset_all_audio() {
 
 		for (int i=0;i<seq->clips.size();i++) {
 			Clip* c = seq->clips.at(i);
-			if (c != NULL) {
-				c->reset_audio();
-			}
+			if (c != NULL) c->reset_audio();
 		}
 	}
 	clear_audio_ibuffer();
@@ -199,17 +197,20 @@ void Viewer::toggle_play() {
 }
 
 void Viewer::play() {
+	if (panel_sequence_viewer->playing) panel_sequence_viewer->pause();
+	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
+
 	if (seq != NULL) {
+		reset_all_audio();
 		if (audio_output->format().sampleRate() != seq->audio_frequency
 				|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
 			init_audio(seq);
 		}
-		reset_all_audio();
 		playhead_start = seq->playhead;
 		start_msecs = QDateTime::currentMSecsSinceEpoch();
-		playback_updater.start();
 		playing = true;
 		set_playpause_icon(false);
+		playback_updater.start();
 		audio_thread->notifyReceiver();
 	}
 }
@@ -302,7 +303,6 @@ void Viewer::set_media(int type, void* media) {
 			seq->width = 1920;
 			seq->height = 1080;
 			seq->frame_rate = 30;
-			disable_viewer = true;
 		}
 
 		if (footage->audio_tracks.size() > 0) {
@@ -319,6 +319,13 @@ void Viewer::set_media(int type, void* media) {
 			c->clip_in = 0;
 			c->recalculateMaxLength();
 			seq->clips.append(c);
+
+			if (footage->video_tracks.size() == 0) {
+				viewer_widget->waveform = true;
+				viewer_widget->waveform_clip = c;
+				viewer_widget->waveform_ms = audio_stream;
+				viewer_widget->update();
+			}
 		} else {
 			seq->audio_frequency = 48000;
 		}
@@ -364,7 +371,7 @@ void Viewer::timer_update() {
 }
 
 void Viewer::clean_created_seq() {
-	disable_viewer = false;
+	viewer_widget->waveform = false;
 
 	if (created_sequence) {
         // TODO delete undo commands referencing this sequence to avoid crashes
@@ -388,8 +395,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
 	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
-	ui->openGLWidget->setEnabled(!null_sequence && !disable_viewer);
-	ui->openGLWidget->setVisible(!null_sequence && !disable_viewer);
+	ui->openGLWidget->setEnabled(!null_sequence);
+	ui->openGLWidget->setVisible(!null_sequence);
     ui->pushButton->setEnabled(!null_sequence);
     ui->pushButton_2->setEnabled(!null_sequence);
     ui->pushButton_3->setEnabled(!null_sequence);

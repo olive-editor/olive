@@ -43,7 +43,7 @@ private:
 	QVector<int> format_acodecs;
 
     ExportThread* et;
-    void prep_ui_for_render(bool rendering);
+	void prep_ui_for_render(bool r);
     bool cancelled;
 };
 

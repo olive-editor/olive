@@ -26,6 +26,7 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 bool texture_failed = false;
+bool rendering = false;
 
 void open_clip(Clip* clip, bool multithreaded) {
 	switch (clip->media_type) {
@@ -117,8 +118,6 @@ void get_clip_frame(Clip* c, long playhead) {
 
 		bool reset = false;
 
-		qDebug() << "QS:" << c->queue.size();
-
 		if (c->queue.size() > 0) {
 			if (ms->infinite_length) {
 				target_frame = c->queue.at(0);
@@ -140,14 +139,10 @@ void get_clip_frame(Clip* c, long playhead) {
 				target_frame = c->queue.at(closest_frame);
 				c->queue_lock.lock();
 				for (int i=0;i<c->queue.size();i++) {
-					if (c->queue.at(i)->pts != target_frame->pts) {
-						if ((c->queue.at(i)->pts < target_frame->pts) == (!c->reverse)) {
-							qDebug() << "removed frame whose pts was" << c->queue.at(i)->pts << "compared to target" << target_frame->pts;
-
-							av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
-							c->queue.removeAt(i);
-							i--;
-						}
+					if (c->queue.at(i)->pts != target_frame->pts && (c->queue.at(i)->pts < target_frame->pts) == (!c->reverse)) {
+						av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
+						c->queue.removeAt(i);
+						i--;
 					}
 				}
 				c->queue_lock.unlock();
@@ -166,9 +161,6 @@ void get_clip_frame(Clip* c, long playhead) {
 			reset = true;
 		}
 
-		// get more frames
-		cache_clip(c, playhead, reset, NULL);
-
 		if (target_frame == NULL || reset) {
 			// reset cache
 			texture_failed = true;
@@ -181,6 +173,9 @@ void get_clip_frame(Clip* c, long playhead) {
 			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, target_frame->data[0]);
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		}
+
+		// get more frames
+		cache_clip(c, playhead, reset, NULL);
 	}
 }
 

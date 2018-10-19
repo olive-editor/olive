@@ -27,10 +27,12 @@ extern "C" {
 }
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
-    QOpenGLWidget(parent),
-	rendering(false),
-	default_fbo(NULL)
+	QOpenGLWidget(parent),
+	default_fbo(NULL),
+	waveform(false)
 {
+	setFocusPolicy(Qt::ClickFocus);
+
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
 	setFormat(format);
@@ -175,61 +177,70 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
     QVector<Clip*> current_clips;
 
+	long endFrame = LONG_MIN;
     for (int i=0;i<s->clips.size();i++) {
 		Clip* c = s->clips.at(i);
 
         // if clip starts within one second and/or hasn't finished yet
-		if (c != NULL && !(nest != NULL && !same_sign(c->track, nest->track))) {
-			bool clip_is_active = false;
+		if (c != NULL) {
+			endFrame = qMax(endFrame, c->timeline_out);
 
-			switch (c->media_type) {
-			case MEDIA_TYPE_FOOTAGE:
-			{
-				Media* m = static_cast<Media*>(c->media);
-				if (m->ready) {
-					MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
-					if (ms != NULL && is_clip_active(c, playhead)) {
-						// if thread is already working, we don't want to touch this,
-						// but we also don't want to hang the UI thread
-						if (!c->open) {
-							open_clip(c, !rendering);
+			if (!(nest != NULL && !same_sign(c->track, nest->track))) {
+				bool clip_is_active = false;
+
+				switch (c->media_type) {
+				case MEDIA_TYPE_FOOTAGE:
+				{
+					Media* m = static_cast<Media*>(c->media);
+					if (m->ready) {
+						MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
+						if (ms != NULL && is_clip_active(c, playhead)) {
+							// if thread is already working, we don't want to touch this,
+							// but we also don't want to hang the UI thread
+							if (!c->open) {
+								open_clip(c, !rendering);
+							}
+							clip_is_active = true;
+						} else if (c->open) {
+							close_clip(c);
 						}
+					} else {
+						texture_failed = true;
+					}
+				}
+					break;
+				case MEDIA_TYPE_SEQUENCE:
+				case MEDIA_TYPE_SOLID:
+				case MEDIA_TYPE_TONE:
+					if (is_clip_active(c, playhead)) {
+						if (!c->open) open_clip(c, !rendering);
 						clip_is_active = true;
 					} else if (c->open) {
 						close_clip(c);
 					}
-				} else {
-					texture_failed = true;
+					break;
 				}
-			}
-				break;
-			case MEDIA_TYPE_SEQUENCE:
-			case MEDIA_TYPE_SOLID:
-			case MEDIA_TYPE_TONE:
-				if (is_clip_active(c, playhead)) {
-					if (!c->open) open_clip(c, !rendering);
-					clip_is_active = true;
-				} else if (c->open) {
-					close_clip(c);
-				}
-				break;
-			}
 
-            if (clip_is_active) {
-                bool added = false;
-                for (int j=0;j<current_clips.size();j++) {
-                    if (current_clips.at(j)->track < c->track) {
-                        current_clips.insert(j, c);
-                        added = true;
-                        break;
-                    }
-                }
-                if (!added) {
-                    current_clips.append(c);
-                }
-            }
-        }
+				if (clip_is_active) {
+					bool added = false;
+					for (int j=0;j<current_clips.size();j++) {
+						if (current_clips.at(j)->track < c->track) {
+							current_clips.insert(j, c);
+							added = true;
+							break;
+						}
+					}
+					if (!added) {
+						current_clips.append(c);
+					}
+				}
+			}
+		}
     }
+
+	if (viewer->playing && s->playhead == endFrame) {
+		viewer->pause();
+	}
 
 	int half_width = s->width/2;
 	int half_height = s->height/2;
@@ -444,28 +455,43 @@ void ViewerWidget::paintGL() {
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 
-        texture_failed = false;
+		texture_failed = false;
 
 		if (!rendering) retry_timer.stop();
 
-        glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		// compose video preview
 		glClearColor(0, 0, 0, 0);
 		compose_sequence(NULL, (viewer->playing || rendering));
 
-        if (texture_failed) {
+		if (waveform) {
+			double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();
+			double timeline_zoom = (double) width() / (double) waveform_clip->timeline_out;
+
+			QPainter p(this);
+			p.setPen(QColor(0, 255, 0));
+			if (viewer->seq->using_workarea) {
+				p.fillRect(QRect(getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in), 0, getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out-viewer->seq->workarea_in), height()), QColor(255, 255, 255, 64));
+			}
+			draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, rect(), 0, width(), waveform_zoom);
+			p.setPen(Qt::red);
+			int playhead_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->playhead);
+			p.drawLine(playhead_x, 0, playhead_x, height());
+		}
+
+		if (texture_failed) {
 			if (rendering) {
 				qDebug() << "[INFO] Texture failed - looping";
 				loop = true;
-            } else {
+			} else {
 				retry_timer.start();
-            }
-        }
+			}
+		}
 
-        if (config.show_title_safe_area && !rendering) {
-            drawTitleSafeArea();
-        }
+		if (config.show_title_safe_area && !rendering) {
+			drawTitleSafeArea();
+		}
 
 		glDisable(GL_BLEND);
 		glDisable(GL_TEXTURE_2D);

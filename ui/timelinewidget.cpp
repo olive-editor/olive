@@ -1777,12 +1777,43 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
-void TimelineWidget::leaveEvent(QEvent *event) {
+void TimelineWidget::leaveEvent(QEvent*) {
     tooltip_timer.stop();
 }
 
 int color_brightness(int r, int g, int b) {
 	return (0.2126*r + 0.7152*g + 0.0722*b);
+}
+
+void draw_waveform(Clip* clip, MediaStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
+	int divider = ms->audio_channels*2;
+	int channel_height = clip_rect.height()/ms->audio_channels;
+
+	for (int i=waveform_start;i<waveform_limit;i++) {
+		int waveform_index = qFloor((((clip->clip_in + ((double) i/zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+
+		if (clip->reverse) {
+			waveform_index = ms->audio_preview.size() - waveform_index - (ms->audio_channels * 2);
+		}
+
+		for (int j=0;j<ms->audio_channels;j++) {
+			int mid = (config.rectified_waveforms) ? clip_rect.top()+channel_height*(j+1) : clip_rect.top()+channel_height*j+(channel_height/2);
+			int offset = waveform_index+(j*2);
+
+			if ((offset + 1) < ms->audio_preview.size()) {
+				qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
+				qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+
+				if (config.rectified_waveforms)  {
+					p->drawLine(clip_rect.left()+i, mid, clip_rect.left()+i, mid - (max - min));
+				} else {
+					p->drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+				}
+			}/* else {
+				qDebug() << "[WARNING] Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
+			}*/
+		}
+	}
 }
 
 void TimelineWidget::paintEvent(QPaintEvent*) {
@@ -1869,6 +1900,9 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 									}
 								}
 							} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
+								// draw waveform
+								p.setPen(QColor(80, 80, 80));
+
 								int waveform_start = -qMin(clip_rect.x(), 0);
 								int waveform_limit = qMin(clip_rect.width(), getScreenPointFromFrame(panel_timeline->zoom, media_length - clip->clip_in));
 
@@ -1879,43 +1913,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 									if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
 								}
 
-								// draw waveform
-								p.setPen(QColor(80, 80, 80));
-
-								int divider = ms->audio_channels*2;
-								int channel_height = clip_rect.height()/ms->audio_channels;
-
-								for (int i=waveform_start;i<waveform_limit;i++) {
-									int waveform_index = qFloor((((clip->clip_in + ((double) i/panel_timeline->zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
-
-									if (clip->reverse) {
-										waveform_index = ms->audio_preview.size() - waveform_index - (ms->audio_channels * 2);
-									}
-
-									int rectified_height = 0;
-
-									for (int j=0;j<ms->audio_channels;j++) {
-										int mid = clip_rect.top()+channel_height*j+(channel_height/2);
-										int offset = waveform_index+(j*2);
-
-										if ((offset + 1) < ms->audio_preview.size()) {
-											qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
-											qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
-
-											if (config.rectified_waveforms)  {
-												rectified_height += (max - min);
-											} else {
-												p.drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
-											}
-										} else {
-											qDebug() << "[WARNING] Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
-										}
-									}
-
-									if (config.rectified_waveforms) {
-										p.drawLine(clip_rect.left()+i, clip_rect.height(), clip_rect.left()+i, clip_rect.height() - rectified_height);
-									}
-								}
+								draw_waveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, panel_timeline->zoom);
 							}
 						}
 						if (draw_checkerboard) {

@@ -322,10 +322,10 @@ void ExportDialog::render_thread_finished() {
     panel_sequence_viewer->viewer_widget->initializeGL();
 }
 
-void ExportDialog::prep_ui_for_render(bool rendering) {
-    ui->pushButton->setEnabled(!rendering);
-    ui->pushButton_2->setEnabled(!rendering);
-    ui->renderCancel->setEnabled(rendering);
+void ExportDialog::prep_ui_for_render(bool r) {
+	ui->pushButton->setEnabled(!r);
+	ui->pushButton_2->setEnabled(!r);
+	ui->renderCancel->setEnabled(r);
 }
 
 void ExportDialog::on_pushButton_clicked() {
