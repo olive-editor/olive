@@ -27,12 +27,13 @@
 #include "effects/video/cropeffect.h"
 #include "effects/video/flipeffect.h"
 #include "effects/video/boxblureffect.h"
+#include "effects/video/waveeffect.h"
+#include "effects/video/temperatureeffect.h"
 
 #include "effects/audio/paneffect.h"
 #include "effects/audio/volumeeffect.h"
 #include "effects/audio/audionoiseeffect.h"
 #include "effects/audio/toneeffect.h"
-#include "effects/video/waveeffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -59,6 +60,7 @@ void init_effects() {
 	video_effect_names[VIDEO_FLIP_EFFECT] = "Flip";
     video_effect_names[VIDEO_BOXBLUR_EFFECT] = "Box Blur";
 	video_effect_names[VIDEO_WAVE_EFFECT] = "Wave";
+    video_effect_names[VIDEO_TEMPERATURE_EFFECT] = "Temperature";
 
 	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
 	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
@@ -80,6 +82,7 @@ Effect* create_effect(int effect_id, Clip* c) {
 		case VIDEO_FLIP_EFFECT: return new FlipEffect(c);
         case VIDEO_BOXBLUR_EFFECT: return new BoxBlurEffect(c);
 		case VIDEO_WAVE_EFFECT: return new WaveEffect(c);
+        case VIDEO_TEMPERATURE_EFFECT: return new TemperatureEffect(c);
 		}
 	} else {
 		switch (effect_id) {

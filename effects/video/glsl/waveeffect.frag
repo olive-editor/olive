@@ -10,7 +10,7 @@ uniform sampler2D myTexture;
 varying vec2 vTexCoord;
 
 void main(void) {
-	float offset = sin((vTexCoord.x+evolution)*frequency)*intensity;
+	float offset = sin((vTexCoord.x-evolution)*frequency)*intensity;
 
 	float y = vTexCoord.y-offset;
 	if (y < 0.0 || y > 1.0) {

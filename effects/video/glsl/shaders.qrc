@@ -7,5 +7,6 @@
         <file>solideffect.frag</file>
         <file>boxblureffect.frag</file>
         <file>waveeffect.frag</file>
+        <file>temperatureeffect.frag</file>
     </qresource>
 </RCC>

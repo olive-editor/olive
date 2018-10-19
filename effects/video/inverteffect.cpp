@@ -4,10 +4,6 @@
 
 #include <QLabel>
 #include <QGridLayout>
-#include <QOpenGLFunctions>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-#include <QXmlStreamAttributes>
 
 InvertEffect::InvertEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_INVERT_EFFECT) {
 	enable_shader = true;
