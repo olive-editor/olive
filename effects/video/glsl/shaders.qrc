@@ -6,5 +6,6 @@
         <file>chromakeyeffect.frag</file>
         <file>solideffect.frag</file>
         <file>boxblureffect.frag</file>
+        <file>waveeffect.frag</file>
     </qresource>
 </RCC>

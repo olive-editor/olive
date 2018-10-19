@@ -82,7 +82,8 @@ SOURCES += \
     effects/audio/toneeffect.cpp \
     project/marker.cpp \
     dialogs/speeddialog.cpp \
-    dialogs/mediapropertiesdialog.cpp
+    dialogs/mediapropertiesdialog.cpp \
+    effects/video/waveeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -143,7 +144,8 @@ HEADERS += \
     project/selection.h \
     dialogs/speeddialog.h \
     dialogs/speeddialog.h \
-    dialogs/mediapropertiesdialog.h
+    dialogs/mediapropertiesdialog.h \
+    effects/video/waveeffect.h
 
 FORMS += \
         mainwindow.ui \
