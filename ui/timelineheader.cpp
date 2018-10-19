@@ -320,7 +320,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
 					int sublineX = lineX+(qRound(j*interval/sublineCount)*zoom);
-					p.drawLine(sublineX, yoff, sublineX, yoff+(yoff>>1));
+					p.drawLine(sublineX, yoff, sublineX, yoff+(height()/4));
 				}
 			}
             i++;

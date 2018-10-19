@@ -26,6 +26,9 @@ public slots:
 	void undo();
 	void redo();
 	void openSpeedDialog();
+	void cut();
+	void copy();
+	void paste();
 
 protected:
 	void closeEvent(QCloseEvent *);
@@ -60,13 +63,7 @@ private slots:
 
 	void on_actionRipple_Delete_triggered();
 
-    void on_actionSplit_at_Playhead_triggered();
-
-    void on_actionCu_t_triggered();
-
-    void on_actionCop_y_triggered();
-
-    void on_action_Paste_triggered();
+	void on_actionSplit_at_Playhead_triggered();
 
     void on_action_Save_Project_triggered();
 

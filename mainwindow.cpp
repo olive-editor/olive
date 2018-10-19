@@ -157,6 +157,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(ui->action_Undo, SIGNAL(triggered(bool)), this, SLOT(undo()));
 	connect(ui->action_Redo, SIGNAL(triggered(bool)), this, SLOT(redo()));
+	connect(ui->actionCu_t, SIGNAL(triggered(bool)), this, SLOT(cut()));
+	connect(ui->actionCop_y, SIGNAL(triggered(bool)), this, SLOT(copy()));
+	connect(ui->action_Paste, SIGNAL(triggered(bool)), this, SLOT(paste()));
 }
 
 MainWindow::~MainWindow() {
@@ -309,31 +312,28 @@ void MainWindow::openSpeedDialog() {
 	}
 }
 
+void MainWindow::cut() {
+	if (panel_timeline->focused() && sequence != NULL) {
+		panel_timeline->copy(true);
+	}
+}
+
+void MainWindow::copy() {
+	if (panel_timeline->focused() && sequence != NULL) {
+		panel_timeline->copy(false);
+	}
+}
+
+void MainWindow::paste() {
+	if (panel_timeline->focused() && sequence != NULL) {
+		panel_timeline->paste();
+	}
+}
+
 void MainWindow::on_actionSplit_at_Playhead_triggered()
 {
     if (panel_timeline->focused()) {
         panel_timeline->split_at_playhead();
-    }
-}
-
-void MainWindow::on_actionCu_t_triggered()
-{
-    if (panel_timeline->focused()) {
-        panel_timeline->copy(true);
-    }
-}
-
-void MainWindow::on_actionCop_y_triggered()
-{
-    if (panel_timeline->focused()) {
-        panel_timeline->copy(false);
-    }
-}
-
-void MainWindow::on_action_Paste_triggered()
-{
-    if (panel_timeline->focused()) {
-        panel_timeline->paste();
     }
 }
 
@@ -456,37 +456,43 @@ void MainWindow::on_actionReset_to_default_layout_triggered()
 
 void MainWindow::on_actionGo_to_start_triggered()
 {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->go_to_start();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->go_to_start();
 	}
 }
 
-void MainWindow::on_actionPrevious_Frame_triggered()
-{
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
+void MainWindow::on_actionPrevious_Frame_triggered() {
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->previous_frame();
-    }
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->previous_frame();
+	}
 }
 
-void MainWindow::on_actionNext_Frame_triggered()
-{
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
+void MainWindow::on_actionNext_Frame_triggered() {
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->next_frame();
-    }
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->next_frame();
+	}
 }
 
-void MainWindow::on_actionGo_to_End_triggered()
-{
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
+void MainWindow::on_actionGo_to_End_triggered() {
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->go_to_end();
-    }
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->go_to_end();
+	}
 }
 
-void MainWindow::on_actionPlay_Pause_triggered()
-{
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus())) {
+void MainWindow::on_actionPlay_Pause_triggered() {
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->toggle_play();
-    }
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->toggle_play();
+	}
 }
 
 void MainWindow::on_actionEdit_Tool_triggered()

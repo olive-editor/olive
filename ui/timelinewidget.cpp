@@ -133,8 +133,11 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		menu.addAction("Sequence settings coming soon...");
 	} else {
 		QAction* cutAction = menu.addAction("C&ut");
+		connect(cutAction, SIGNAL(triggered(bool)), mainWindow, SLOT(cut()));
 		QAction* copyAction = menu.addAction("Cop&y");
+		connect(copyAction, SIGNAL(triggered(bool)), mainWindow, SLOT(copy()));
 		QAction* pasteAction = menu.addAction("&Paste");
+		connect(pasteAction, SIGNAL(triggered(bool)), mainWindow, SLOT(paste()));
 		menu.addSeparator();
 		QAction* speedAction = menu.addAction("&Speed/Duration");
 		connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(openSpeedDialog()));

@@ -71,8 +71,6 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 }
 
 void cache_audio_worker(Clip* c, Clip* nest) {
-	qDebug() << "caw called";
-
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
     if (nest != NULL) {
@@ -358,39 +356,71 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 void cache_video_worker(Clip* c) {
 	int read_ret, send_ret, retr_ret;
-	while (c->queue.size() < c->max_queue_size) {
-		AVFrame* frame = av_frame_alloc();
 
-		// SKIP TYPE SEEK
+	// SKIP TYPE SEEK
 
-		while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
-			AVFrame* send_frame = c->frame;
-			read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
-			c->use_existing_frame = false;
-			if (read_ret >= 0 || read_ret == AVERROR_EOF) {
-				if (read_ret == AVERROR_EOF) send_frame = NULL;
-				if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-					qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
-					break;
-				}
-				if (read_ret >= 0) {
-					av_frame_unref(c->frame);
-				}
-			} else {
-				qDebug() << "[ERROR] Failed to read frame." << read_ret;
-				break;
+	int limit = c->max_queue_size;
+	if (c->reverse) limit *= 2;
+
+	if (c->queue.size() < limit) {
+		int64_t smallest_pts = INT64_MAX;
+		if (c->reverse && c->queue.size() > 0) {
+			int64_t quarter_sec = qRound(av_q2d(av_inv_q(c->stream->time_base))) >> 2;
+			for (int i=0;i<c->queue.size();i++) {
+				smallest_pts = qMin(smallest_pts, c->queue.at(i)->pts);
 			}
+			avcodec_flush_buffers(c->codecCtx);
+			av_seek_frame(c->formatCtx, c->stream->index, qMax(static_cast<int64_t>(0), smallest_pts - quarter_sec), AVSEEK_FLAG_BACKWARD);
+		} else {
+			smallest_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, c->cacher->playhead));
 		}
 
-		if (retr_ret < 0) {
-			if (retr_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
-			av_frame_free(&frame);
-			break;
-		} else {
-			// thread-safety while adding frame to the queue
-			c->queue_lock.lock();
-			c->queue.append(frame);
-			c->queue_lock.unlock();
+		while (true) {
+			AVFrame* frame = av_frame_alloc();
+
+			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
+				AVFrame* send_frame = c->frame;
+				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
+				c->use_existing_frame = false;
+				if (read_ret >= 0) {
+					/*if (read_ret == AVERROR_EOF) send_frame = NULL;
+					if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+						qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
+						break;
+					}
+					if (read_ret >= 0) {
+						av_frame_unref(c->frame);
+					}*/
+					if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+						qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
+						break;
+					}
+					av_frame_unref(c->frame);
+				} else {
+					if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read frame." << read_ret;
+					break;
+				}
+			}
+
+			if (retr_ret < 0) {
+				if (retr_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
+				av_frame_free(&frame);
+				break;
+			} else {
+				if (c->reverse && smallest_pts != INT64_MAX && frame->pts >= smallest_pts) {
+					av_frame_free(&frame);
+					break;
+				} else {
+					// thread-safety while adding frame to the queue
+					c->queue_lock.lock();
+					c->queue.append(frame);
+					c->queue_lock.unlock();
+
+					qDebug() << "appended" << frame->pts << "/ min:" << smallest_pts;
+
+					if ((!c->reverse || smallest_pts == INT64_MAX) && c->queue.size() == limit) break;
+				}
+			}
 		}
 	}
 }
@@ -409,10 +439,10 @@ void reset_cache(Clip* c, long target_frame) {
 
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
 				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
-//				if (ms->video_interlacing != VIDEO_PROGRESSIVE) target_ts *= 2;
 				int64_t seek_ts = target_ts;
-
 				int64_t timebase_half_second = qRound(av_q2d(av_inv_q(c->stream->time_base)));
+				if (c->reverse) seek_ts -= timebase_half_second;
+
 				while (true) {
 					// flush ffmpeg codecs
 					avcodec_flush_buffers(c->codecCtx);
@@ -420,23 +450,6 @@ void reset_cache(Clip* c, long target_frame) {
 					if (seek_ts > 0) {
 						av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
 
-						// play up to the frame we actually want
-						/*int ret;
-						do {
-							av_frame_unref(c->frame);
-							ret = retrieve_next_frame(c, c->frame);
-							if (ret < 0) {
-								qDebug() << "[WARNING] Seeking terminated prematurely";
-								break;
-							}
-							qDebug() << "ret pts:" << c->frame->pts << "dur:" << c->frame->pkt_duration << "target:" << target_ts;
-						} while (c->frame->pts + c->frame->pkt_duration + c->frame->pkt_duration < target_ts);
-						if (c->frame->pts <= target_ts) {
-							c->use_existing_frame = true;
-							break;
-						} else {
-							seek_ts -= timebase_second;
-						}*/
 						av_frame_unref(c->frame);
 						int ret = retrieve_next_frame(c, c->frame);
 						if (ret < 0) {
@@ -523,7 +536,7 @@ void open_clip_worker(Clip* clip) {
 		clip->codecCtx = avcodec_alloc_context3(clip->codec);
 		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
-		clip->max_queue_size = 30;
+		clip->max_queue_size = (ms->infinite_length) ? 1 : 15;
 
 		AVDictionary* opts = NULL;
 
@@ -604,25 +617,7 @@ void open_clip_worker(Clip* clip) {
 
 			avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-			// if FFmpeg can't pick up the channel layout (usually WAV), assume
-			// based on channel count (doesn't support surround sound sources yet)
 			if (clip->codecCtx->channel_layout == 0) clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
-
-			// init resampling context
-			/*
-			clip->swr_ctx = swr_alloc_set_opts(
-					NULL,
-					sequence->audio_layout,
-					static_cast<AVSampleFormat>(sample_format),
-					sequence->audio_frequency / clip->speed,
-					clip->codecCtx->channel_layout,
-					static_cast<AVSampleFormat>(clip->stream->codecpar->format),
-					clip->stream->codecpar->sample_rate,
-					0,
-					NULL
-				);
-			swr_init(clip->swr_ctx);
-			*/
 
 			// set up cache
 			clip->queue.append(av_frame_alloc());
@@ -713,7 +708,7 @@ void open_clip_worker(Clip* clip) {
     qDebug() << "[INFO] Clip opened on track" << clip->track;
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip* nest) {
+void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip* nest) {	
 	if (reset) {
 		// note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
 		reset_cache(clip, playhead);

@@ -115,69 +115,55 @@ void get_clip_frame(Clip* c, long playhead) {
 		}
 		AVFrame* target_frame = NULL;
 
-//		qDebug() << "target pts:" << target_pts;
-
 		bool reset = false;
 
-		/*while (c->queue.size() > 0) {
-			if (c->queue.first()->pts == target_pts) {
-				target_frame = c->queue.first();
-
-				qDebug() << "GCF ==> USE PRECISE";
-				break;
-			} else if (c->queue.size() > 1 && c->queue.at(1)->pts > target_pts) {
-				// use this frame
-				target_frame = c->queue.first();
-
-				qDebug() << "GCF ==> USE IMPRECISE";
-				break;
-			} else {
-
-				break;
-			} else {
-				// skip this frame
-				c->queue_mutex.lock(); // thread safety when removing from queue
-				av_frame_free(&c->queue.first()); // may be a little heavy for the UI thread?
-				c->queue.removeFirst();
-				c->queue_mutex.unlock();
-				qDebug() << "GCF ==> SKIP";
-			}
-		}*/
+		qDebug() << "QS:" << c->queue.size();
 
 		if (c->queue.size() > 0) {
-			// correct frame may be somewhere else in the queue
-			int closest_frame = 0;
-			for (int i=1;i<c->queue.size();i++) {
-				if (c->queue.at(i)->pts == target_pts) {
-					qDebug() << "GCF ==> USE PRECISE";
-					closest_frame = i;
-					break;
-				} else if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
-					closest_frame = i;
-				}
-			}
-
-			// remove all frames earlier than this one from the queue
-			target_frame = c->queue.at(closest_frame);
-			c->queue_lock.lock();
-			for (int i=0;i<c->queue.size();i++) {
-				if (c->queue.at(i)->pts < target_frame->pts) {
-					av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
-					c->queue.removeAt(i);
-					i--;
-				}
-			}
-			c->queue_lock.unlock();
-
-			// if this frame is more than one second out, we probably need to reset
-			if (qAbs(target_pts - target_frame->pts) > second_pts) {
-				target_frame = NULL;
-//				qDebug() << "GCF ==> COMPLACENT";
-				qDebug() << "GCF ==> RESET";
-				reset = true;
+			if (ms->infinite_length) {
+				target_frame = c->queue.at(0);
+				qDebug() << "GCF ==> USE PRECISE (INFINITE)";
 			} else {
-				qDebug() << "GCF ==> USE IMPRECISE";
+				// correct frame may be somewhere else in the queue
+				int closest_frame = 0;
+				for (int i=1;i<c->queue.size();i++) {
+					if (c->queue.at(i)->pts == target_pts) {
+						qDebug() << "GCF ==> USE PRECISE";
+						closest_frame = i;
+						break;
+					} else if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
+						closest_frame = i;
+					}
+				}
+
+				// remove all frames earlier than this one from the queue
+				target_frame = c->queue.at(closest_frame);
+				c->queue_lock.lock();
+				for (int i=0;i<c->queue.size();i++) {
+					if (c->queue.at(i)->pts != target_frame->pts) {
+						if ((c->queue.at(i)->pts < target_frame->pts) == (!c->reverse)) {
+							qDebug() << "removed frame whose pts was" << c->queue.at(i)->pts << "compared to target" << target_frame->pts;
+
+							av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
+							c->queue.removeAt(i);
+							i--;
+						}
+					}
+				}
+				c->queue_lock.unlock();
+
+				// if this frame is more than one second out, we probably need to reset
+				if (qAbs(target_pts - target_frame->pts) > second_pts) {
+					target_frame = NULL;
+					// qDebug() << "GCF ==> COMPLACENT";
+					qDebug() << "GCF ==> RESET";
+					reset = true;
+				} else {
+					qDebug() << "GCF ==> USE IMPRECISE";
+				}
 			}
+		} else {
+			reset = true;
 		}
 
 		// get more frames
@@ -186,7 +172,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		if (target_frame == NULL || reset) {
 			// reset cache
 			texture_failed = true;
-			qDebug() << "[INFO] Cache couldn't keep up - either the user seeked or the system is overloaded";
+			qDebug() << "[INFO] Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
 		}
 
 		if (target_frame != NULL) {

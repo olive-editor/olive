@@ -29,7 +29,8 @@ Viewer::Viewer(QWidget *parent) :
     ui(new Ui::Viewer),
 	seq(NULL),
 	playing(false),
-	created_sequence(false)
+	created_sequence(false),
+	disable_viewer(false)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
@@ -162,15 +163,31 @@ void Viewer::seek(long p) {
 }
 
 void Viewer::go_to_start() {
-	seek(0);
+	if (seq != NULL) {
+		if (seq->using_workarea && seq->playhead != seq->workarea_in) {
+			seek(seq->workarea_in);
+		} else {
+			seek(0);
+		}
+	}
 }
 
 void Viewer::previous_frame() {
-	if (seq->playhead > 0) seek(seq->playhead-1);
+	if (seq != NULL && seq->playhead > 0) seek(seq->playhead-1);
 }
 
 void Viewer::next_frame() {
-	seek(seq->playhead+1);
+	if (seq != NULL) seek(seq->playhead+1);
+}
+
+void Viewer::go_to_end() {
+	if (seq != NULL) {
+		if (seq->using_workarea && seq->playhead != seq->workarea_out) {
+			seek(seq->workarea_out);
+		} else {
+			seek(seq->getEndFrame());
+		}
+	}
 }
 
 void Viewer::toggle_play() {
@@ -182,27 +199,25 @@ void Viewer::toggle_play() {
 }
 
 void Viewer::play() {
-	if (audio_output->format().sampleRate() != seq->audio_frequency
-			|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
-		init_audio(seq);
+	if (seq != NULL) {
+		if (audio_output->format().sampleRate() != seq->audio_frequency
+				|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
+			init_audio(seq);
+		}
+		reset_all_audio();
+		playhead_start = seq->playhead;
+		start_msecs = QDateTime::currentMSecsSinceEpoch();
+		playback_updater.start();
+		playing = true;
+		set_playpause_icon(false);
+		audio_thread->notifyReceiver();
 	}
-	reset_all_audio();
-	playhead_start = seq->playhead;
-	start_msecs = QDateTime::currentMSecsSinceEpoch();
-	playback_updater.start();
-	playing = true;
-	set_playpause_icon(false);
-	audio_thread->notifyReceiver();
 }
 
 void Viewer::pause() {
 	playing = false;
 	set_playpause_icon(true);
 	playback_updater.stop();
-}
-
-void Viewer::go_to_end() {
-	seek(seq->getEndFrame());
 }
 
 void Viewer::update_playhead_timecode(long p) {
@@ -287,6 +302,7 @@ void Viewer::set_media(int type, void* media) {
 			seq->width = 1920;
 			seq->height = 1080;
 			seq->frame_rate = 30;
+			disable_viewer = true;
 		}
 
 		if (footage->audio_tracks.size() > 0) {
@@ -348,6 +364,8 @@ void Viewer::timer_update() {
 }
 
 void Viewer::clean_created_seq() {
+	disable_viewer = false;
+
 	if (created_sequence) {
         // TODO delete undo commands referencing this sequence to avoid crashes
         /*for (int i=0;i<undo_stack.count();i++) {
@@ -370,8 +388,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
 	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
-    ui->openGLWidget->setEnabled(!null_sequence);
-    ui->openGLWidget->setVisible(!null_sequence);
+	ui->openGLWidget->setEnabled(!null_sequence && !disable_viewer);
+	ui->openGLWidget->setVisible(!null_sequence && !disable_viewer);
     ui->pushButton->setEnabled(!null_sequence);
     ui->pushButton_2->setEnabled(!null_sequence);
     ui->pushButton_3->setEnabled(!null_sequence);

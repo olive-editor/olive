@@ -74,6 +74,7 @@ private:
     void set_sequence(bool main, Sequence* s);
 	bool main_sequence;
 	bool created_sequence;
+	bool disable_viewer;
 };
 
 #endif // VIEWER_H
