@@ -13,13 +13,19 @@ void main(void) {
 	vec4 textureColor = texture2D(myTexture, vTexCoord);
 
 	// red value
-	float red = (temperature <= 66.0) ? 1.0 : min(1.0, max(0.0, (329.698727446 * (pow(temperature - 60.0, -0.1332047592)))/255.0));
+	float red = (temperature <= 66.0) ? 1.0 : min(1.0, max(0.0,
+			(1.2929361861 * pow(temperature - 60.0, -0.1332047592))
+		));
 
 	// green value
-	float green = min(1.0, max(0.0, ((temperature <= 66.0) ? (99.4708025861 * log(temperature) - 161.1195681661) : 288.1221695283 * (pow(temperature - 60.0, -0.0755148492)))/255.0));
+	float green = min(1.0, max(0.0,
+			(temperature <= 66.0) ? (0.3900815788 * log(temperature) - 0.6318414438) : (1.1298908609 * pow(temperature - 60.0, -0.0755148492))
+		));
 
 	// blue value
-	float blue = (temperature >= 66.0) ? 1.0 : min(1.0, max(0.0, (138.5177312231 * log(temperature - 10.0) - 305.0447927307)/255.0));
+	float blue = (temperature >= 66.0) ? 1.0 : min(1.0, max(0.0,
+			(0.5432067891 * log(temperature - 10.0) - 1.1962540891)
+		));
 
 	gl_FragColor = vec4(
 		textureColor.r*red,
