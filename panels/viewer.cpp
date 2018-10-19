@@ -211,6 +211,7 @@ void Viewer::play() {
 		playing = true;
 		set_playpause_icon(false);
 		playback_updater.start();
+		timer_update();
 		audio_thread->notifyReceiver();
 	}
 }
