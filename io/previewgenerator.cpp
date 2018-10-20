@@ -74,7 +74,7 @@ void PreviewGenerator::parse_media() {
 			}
         }
     }
-    media->length = fmt_ctx->duration;
+	media->length = fmt_ctx->duration;
 
 	if (fmt_ctx->duration == INT64_MIN) {
 		retrieve_duration = true;
@@ -284,7 +284,7 @@ void PreviewGenerator::generate_waveform() {
 				maximum_stream = i;
 			}
 		}
-		media->length = (double) media_lengths[maximum_stream] / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE;
+		media->length = (double) media_lengths[maximum_stream] / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE; // TODO redo with PTS
 		finalize_media();
 	}
 	delete [] media_lengths;

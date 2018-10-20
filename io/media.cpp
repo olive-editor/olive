@@ -1,6 +1,7 @@
 #include "media.h"
 
 #include <QDebug>
+#include <QtMath>
 #include "io/previewgenerator.h"
 
 extern "C" {
@@ -32,7 +33,7 @@ void Media::reset() {
 }
 
 long Media::get_length_in_frames(double frame_rate) {
-    return ceil(((double) length / (double) AV_TIME_BASE) * frame_rate);
+	return qFloor(((double) length / (double) AV_TIME_BASE) * frame_rate);
 }
 
 MediaStream* Media::get_stream_from_file_index(bool video, int index) {

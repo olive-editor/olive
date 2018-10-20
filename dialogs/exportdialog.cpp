@@ -52,7 +52,10 @@ ExportDialog::ExportDialog(QWidget *parent) :
 	ui->setupUi(this);
 
     ui->rangeCombobox->setCurrentIndex(0);
-    ui->rangeCombobox->setEnabled(sequence->using_workarea);
+	if (sequence->using_workarea) {
+		ui->rangeCombobox->setEnabled(sequence->using_workarea);
+		ui->rangeCombobox->setCurrentIndex(1);
+	}
 
 	format_strings.resize(FORMAT_SIZE);
 	format_strings[FORMAT_3GPP] = "3GPP";
@@ -471,6 +474,7 @@ void ExportDialog::on_pushButton_clicked() {
 
 		closeActiveClips(sequence, true);
 
+		rendering = true;
 		panel_sequence_viewer->viewer_widget->context()->doneCurrent();
 		panel_sequence_viewer->viewer_widget->context()->moveToThread(et);
 

@@ -341,7 +341,6 @@ void ExportThread::run() {
 	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 	fbo.bind();
 
-	rendering = true;
 	panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 	long file_audio_samples = 0;
@@ -458,4 +457,6 @@ void ExportThread::run() {
 
 	panel_sequence_viewer->viewer_widget->context()->doneCurrent();
 	panel_sequence_viewer->viewer_widget->context()->moveToThread(qApp->thread());
+
+	rendering = false;
 }

@@ -79,7 +79,6 @@ void Clip::reset() {
     open = false;
     finished_opening = false;
 	pkt_written = false;
-    reached_end = false;
     audio_reset = false;
 	frame_sample_index = -1;
 	audio_buffer_write = false;
@@ -97,8 +96,7 @@ void Clip::reset_audio() {
 	case MEDIA_TYPE_TONE:
         audio_reset = true;
 		frame_sample_index = -1;
-        audio_buffer_write = 0;
-		reached_end = false;
+		audio_buffer_write = 0;
         break;
 	case MEDIA_TYPE_SEQUENCE:
     {

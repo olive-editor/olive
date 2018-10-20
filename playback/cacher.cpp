@@ -98,6 +98,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 					if (c->reverse && !c->audio_just_reset) {
 						avcodec_flush_buffers(c->codecCtx);
+						c->reached_end = false;
 						int64_t backtrack_seek = qMax(c->reverse_target - static_cast<int64_t>(av_q2d(av_inv_q(c->stream->time_base))), static_cast<int64_t>(0));
 						av_seek_frame(c->formatCtx, c->stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
 #ifdef AUDIOWARNINGS
@@ -248,7 +249,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                 if (c->audio_just_reset) {
                     // get precise sample offset for the elected clip_in from this audio frame
 					double target_sts = playhead_to_clip_seconds(c, c->audio_target_frame);
-					double frame_sts = (frame->pts * timebase);
+					double frame_sts = ((frame->pts - c->stream->start_time) * timebase);
                     int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);					
 					c->frame_sample_index = nb_samples * 4;
 #ifdef AUDIOWARNINGS
@@ -361,16 +362,20 @@ void cache_video_worker(Clip* c, long playhead) {
 	if (c->reverse) limit *= 2;
 
 	if (c->queue.size() < limit) {
+		int64_t eighth_second = av_q2d(av_inv_q(c->stream->time_base))*0.125;
 		int64_t smallest_pts = INT64_MAX;
+		int64_t target_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 		if (c->reverse && c->queue.size() > 0) {
 			int64_t quarter_sec = qRound(av_q2d(av_inv_q(c->stream->time_base))) >> 2;
 			for (int i=0;i<c->queue.size();i++) {
 				smallest_pts = qMin(smallest_pts, c->queue.at(i)->pts);
 			}
 			avcodec_flush_buffers(c->codecCtx);
-			av_seek_frame(c->formatCtx, c->stream->index, qMax(static_cast<int64_t>(0), smallest_pts - quarter_sec), AVSEEK_FLAG_BACKWARD);
+			c->reached_end = false;
+			int64_t seek_ts = qMax(static_cast<int64_t>(0), smallest_pts - quarter_sec);
+			av_seek_frame(c->formatCtx, c->stream->index, seek_ts, AVSEEK_FLAG_BACKWARD);
 		} else {
-			smallest_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
+			smallest_pts = target_pts;
 		}
 
 		while (true) {
@@ -381,58 +386,67 @@ void cache_video_worker(Clip* c, long playhead) {
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
 				c->use_existing_frame = false;
 				if (read_ret >= 0) {
-					// sending NULL to avfiltergraph is supposed to flush it but it'll also no longer accept frames - particularly unhelpful when reversing
-					// we'll see if it still works completely without doing so
-					/*if (read_ret == AVERROR_EOF) send_frame = NULL;
-					if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-						qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
-						break;
-					}
-					if (read_ret >= 0) {
-						av_frame_unref(c->frame);
-					}*/
+					bool send_it = false;
 
-					if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-						qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
-						break;
+					if (c->reverse) {
+						send_it = true;
+					} else if (send_frame->pts > target_pts - eighth_second) {
+						send_it = true;
+					} else {
+						qDebug() << "skipped adding a frame to the queue" << target_pts << "(" << send_frame->pts << send_frame->pkt_duration;
 					}
+
+					if (send_it) {
+						if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+							qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
+							break;
+						}
+					}
+
 					av_frame_unref(c->frame);
 				} else {
-					if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read frame." << read_ret;
+					if (read_ret == AVERROR_EOF) {
+						c->reached_end = true;
+					} else {
+						qDebug() << "[ERROR] Failed to read frame." << read_ret;
+					}
 					break;
 				}
 			}
 
 			if (retr_ret < 0) {
-				if (retr_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
+				if (retr_ret == AVERROR_EOF) {
+					c->reached_end = true;
+				} else {
+					qDebug() << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
+				}
 				av_frame_free(&frame);
 				break;
 			} else {
-				if (c->reverse && frame->pts >= smallest_pts) {
+				if (c->reverse && ((smallest_pts == target_pts && frame->pts >= smallest_pts) || (smallest_pts != target_pts && frame->pts > smallest_pts))) {
 					av_frame_free(&frame);
 					break;
 				} else {
 					// thread-safety while adding frame to the queue
 					c->queue_lock.lock();
 					c->queue.append(frame);
-					c->queue_lock.unlock();
 
-					//break;
 					if (!c->reverse && c->queue.size() == limit) {
-						if (rendering) {
+//						if (rendering) {
 							// see if we got the frame we needed (used for speed ups primarily)
 							bool found = false;
 							for (int i=0;i<c->queue.size();i++) {
-								// TODO/NOTE: this will not work on sped up AND reversed video
-								if (c->queue.at(i)->pts >= smallest_pts) {
+								// TODO/NOTE: this will not work on clips that are sped up AND reversed
+								if (c->queue.at(i)->pts >= target_pts) {
 									found = true;
 									break;
 								}
 							}
 							if (found) {
+								c->queue_lock.unlock();
 								break;
 							} else {
-								// remove earliest frame and store another
+								// remove earliest frame and loop to store another
 								int earliest_frame = 0;
 								for (int i=1;i<c->queue.size();i++) {
 									// TODO/NOTE: this will not work on sped up AND reversed video
@@ -440,15 +454,14 @@ void cache_video_worker(Clip* c, long playhead) {
 										earliest_frame = i;
 									}
 								}
-								c->queue_lock.lock();
 								av_frame_free(&c->queue[earliest_frame]);
 								c->queue.removeAt(earliest_frame);
-								c->queue_lock.unlock();
 							}
-						} else {
-							break;
-						}
+//						} else {
+//							break;
+//						}
 					}
+					c->queue_lock.unlock();
 				}
 			}
 		}
@@ -460,7 +473,6 @@ void reset_cache(Clip* c, long target_frame) {
 	switch (c->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-		c->reached_end = false;
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 		if (!ms->infinite_length) {
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -476,6 +488,7 @@ void reset_cache(Clip* c, long target_frame) {
 				while (true) {
 					// flush ffmpeg codecs
 					avcodec_flush_buffers(c->codecCtx);
+					c->reached_end = false;
 
 					if (seek_ts > 0) {
 						av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
@@ -502,6 +515,7 @@ void reset_cache(Clip* c, long target_frame) {
 			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				// flush ffmpeg codecs
 				avcodec_flush_buffers(c->codecCtx);
+				c->reached_end = false;
 
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
 
@@ -571,7 +585,8 @@ void open_clip_worker(Clip* clip) {
 		clip->codecCtx = avcodec_alloc_context3(clip->codec);
 		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
-		clip->max_queue_size = (ms->infinite_length) ? 1 : 15;
+		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.25);
+		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
 		AVDictionary* opts = NULL;
 

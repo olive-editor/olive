@@ -25,6 +25,10 @@ extern "C" {
 #include <QOpenGLPixelTransferOptions>
 #include <QOpenGLFramebufferObject>
 
+#ifdef QT_DEBUG
+//#define GCF_DEBUG
+#endif
+
 bool texture_failed = false;
 bool rendering = false;
 
@@ -57,6 +61,7 @@ void open_clip(Clip* clip, bool multithreaded) {
 void close_clip(Clip* clip) {
 	// destroy opengl texture in main thread
 	if (clip->texture != NULL) {
+		clip->texture->destroy();
 		delete clip->texture;
 		clip->texture = NULL;
 	}
@@ -117,17 +122,26 @@ void get_clip_frame(Clip* c, long playhead) {
 		AVFrame* target_frame = NULL;
 
 		bool reset = false;
+		bool cache = true;
 
+		c->queue_lock.lock();
 		if (c->queue.size() > 0) {
 			if (ms->infinite_length) {
 				target_frame = c->queue.at(0);
+#ifdef GCF_DEBUG
 				qDebug() << "GCF ==> USE PRECISE (INFINITE)";
+#endif
 			} else {
 				// correct frame may be somewhere else in the queue
 				int closest_frame = 0;
+
 				for (int i=1;i<c->queue.size();i++) {
+					//qDebug() << "results for" << i << qAbs(c->queue.at(i)->pts - target_pts) << qAbs(c->queue.at(closest_frame)->pts - target_pts) << c->queue.at(i)->pts << target_pts;
+
 					if (c->queue.at(i)->pts == target_pts) {
+#ifdef GCF_DEBUG
 						qDebug() << "GCF ==> USE PRECISE";
+#endif
 						closest_frame = i;
 						break;
 					} else if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
@@ -137,24 +151,44 @@ void get_clip_frame(Clip* c, long playhead) {
 
 				// remove all frames earlier than this one from the queue
 				target_frame = c->queue.at(closest_frame);
-				c->queue_lock.lock();
+				//qDebug() << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
 				for (int i=0;i<c->queue.size();i++) {
-					if (c->queue.at(i)->pts != target_frame->pts && (c->queue.at(i)->pts < target_frame->pts) == (!c->reverse)) {
+					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > target_frame->pts) == c->reverse)) {
+						//qDebug() << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
 						av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
 						c->queue.removeAt(i);
 						i--;
 					}
 				}
-				c->queue_lock.unlock();
 
-				// if this frame is more than one second out, we probably need to reset
-				if (qAbs(target_pts - target_frame->pts) > second_pts) {
-					target_frame = NULL;
-					// qDebug() << "GCF ==> COMPLACENT";
-					qDebug() << "GCF ==> RESET";
-					reset = true;
-				} else {
-					qDebug() << "GCF ==> USE IMPRECISE";
+				// we didn't get the exact frame
+				if (target_frame->pts != target_pts) {
+					if (target_pts > target_frame->pts && target_pts <= target_frame->pts + target_frame->pkt_duration) {
+#ifdef GCF_DEBUG
+						qDebug() << "GCF ==> USE IMPRECISE";
+#endif
+					} else {
+						int64_t pts_diff = qAbs(target_pts - target_frame->pts);
+						if (c->reached_end && target_pts > target_frame->pts) {
+#ifdef GCF_DEBUG
+							qDebug() << "GCF ==> EOF TOLERANT";
+#endif
+							c->reached_end = false;
+							cache = false;
+						} else if (target_pts < target_frame->pts || pts_diff > second_pts) {
+
+#ifdef GCF_DEBUG
+							qDebug() << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
+#endif
+							target_frame = NULL;
+							reset = true;
+						} else {
+#ifdef GCF_DEBUG
+							qDebug() << "GCF ==> WAIT - target:" << target_pts << "closest frame:" << target_frame->pts;
+#endif
+							target_frame = NULL;
+						}
+					}
 				}
 			}
 		} else {
@@ -174,132 +208,12 @@ void get_clip_frame(Clip* c, long playhead) {
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		}
 
+		c->queue_lock.unlock();
+
 		// get more frames
-		cache_clip(c, playhead, reset, NULL);
+		if (cache) cache_clip(c, playhead, reset, NULL);
 	}
 }
-
-/*bool get_clip_frame(Clip* c, long playhead) {
-	if (c->finished_opening) {
-		// do we need to update the texture?
-		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
-
-		long sequence_clip_time = qMax(0L, playhead - c->timeline_in + c->clip_in);
-
-		if (c->reverse && !ms->infinite_length) {
-			sequence_clip_time = c->getMaximumLength() - sequence_clip_time - 1;
-		}
-
-		double rate = c->getMediaFrameRate();
-		if (c->skip_type == SKIP_TYPE_DISCARD) rate *= c->speed;
-		long clip_time = refactor_frame_number(sequence_clip_time, c->sequence->frame_rate, rate);
-
-		AVFrame* current_frame = NULL;
-		bool no_frame = false;
-
-		// get frame data
-		if (ms->infinite_length) { // if clip is a still frame, we only need one
-			if (c->cache_A.written) {
-				// retrieve cached frame
-				current_frame = c->cache_A.frames[0];
-			} else if (c->lock.tryLock()) {
-				// grab image
-				cache_clip(c, 0, true, false, false, NULL);
-				c->lock.unlock();
-			}
-		} else {
-			// keeping a RAM cache improves performance, however it's detrimental when rendering
-			// determine which cache contains the requested frame
-			bool using_cache_A = false;
-			bool using_cache_B = false;
-			AVFrame** cache = NULL;
-			long cache_offset = 0;
-			bool cache_needs_reset = false;
-
-			// TODO just removed a bunch of mutexes - is this safe????
-			if (c->cache_A.written && clip_time >= c->cache_A.offset && clip_time < c->cache_A.offset + c->cache_size) {
-				if (clip_time < (c->cache_A.offset + c->cache_A.write_count)) {
-					using_cache_A = true;
-					c->cache_A.unread = false;
-					cache = c->cache_A.frames;
-					cache_offset = c->cache_A.offset;
-				} else {
-					// frame is coming but isn't here yet, no need to reset cache
-					no_frame = true;
-				}
-			} else if (c->cache_B.written && clip_time >= c->cache_B.offset && clip_time < c->cache_B.offset + c->cache_size) {
-				if (clip_time < (c->cache_B.offset + c->cache_B.write_count)) {
-					using_cache_B = true;
-					c->cache_B.unread = false;
-					cache = c->cache_B.frames;
-					cache_offset = c->cache_B.offset;
-				} else {
-					// frame is coming but isn't here yet, no need to reset cache
-					no_frame = true;
-				}
-			} else {
-				// this is technically bad, unless we just seeked
-				c->cache_A.write_count = 0;
-				c->cache_B.write_count = 0;
-				c->cache_A.unread = false;
-				c->cache_B.unread = false;
-				cache_needs_reset = true;
-			}
-
-			if (!no_frame) {
-				if (cache != NULL) {
-					current_frame = cache[clip_time - cache_offset];
-				}
-
-				// determine whether we should start filling the other cache
-				if (!using_cache_A || !using_cache_B) {
-					if (c->lock.tryLock()) {
-						long cache_time;
-						if (cache_needs_reset) {
-							cache_time = (c->reverse) ? qMax(clip_time - c->cache_size, 0L) : qMax(clip_time, 0L);
-						} else if (c->reverse) {
-							cache_time = (cache_offset - c->cache_size);
-						} else {
-							cache_time = (cache_offset + c->cache_size);
-						}
-
-						bool write_A = (!using_cache_A && !c->cache_A.unread);
-						bool write_B = (!using_cache_B && !c->cache_B.unread);
-						if (write_A || write_B) {
-							// if we have no cache and need to seek, start us at the current playhead, otherwise start at the end of the current cache
-							cache_clip(c, cache_time, write_A, write_B, (cache_needs_reset || c->reverse), NULL);
-						}
-						c->lock.unlock();
-					}
-				}
-			}
-		}
-
-		if (playhead >= c->timeline_in) {
-			if (current_frame != NULL) {
-				// set up opengl texture
-				if (c->texture == NULL) {
-					c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-					c->texture->setSize(current_frame->width, current_frame->height);
-					c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-					c->texture->setMipLevels(c->texture->maximumMipLevels());
-					c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-					c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
-				}
-
-				glPixelStorei(GL_UNPACK_ROW_LENGTH, current_frame->linesize[0]/4);
-				c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, current_frame->data[0]);
-				glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-				c->texture_frame = clip_time;
-				return true;
-			} else {
-				texture_failed = true;
-				qDebug() << "[ERROR] Failed to retrieve frame from cache (R:" << clip_time << "| A:" << c->cache_A.offset << "-" << c->cache_A.offset+c->cache_size-1 << "| B:" << c->cache_B.offset << "-" << c->cache_B.offset+c->cache_size-1 << "| WA:" << c->cache_A.written << "| WB:" << c->cache_B.written << ")";
-			}
-		}
-	}
-    return false;
-}*/
 
 long playhead_to_clip_frame(Clip* c, long playhead) {
 	return (qMax(0L, playhead - c->timeline_in) + c->clip_in);
@@ -308,12 +222,12 @@ long playhead_to_clip_frame(Clip* c, long playhead) {
 double playhead_to_clip_seconds(Clip* c, long playhead) {
 	// returns time in seconds
 	long clip_frame = playhead_to_clip_frame(c, playhead);
-	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame;
+	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame - 1;
 	return ((double) clip_frame/c->sequence->frame_rate)*c->speed;
 }
 
 int64_t seconds_to_timestamp(Clip* c, double seconds) {
-	return qFloor((seconds * c->stream->time_base.den)/c->stream->time_base.num);
+	return qRound((seconds * c->stream->time_base.den)/c->stream->time_base.num) + c->stream->start_time;
 }
 
 int64_t playhead_to_timestamp(Clip* c, long playhead) {
@@ -368,7 +282,7 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 
 bool is_clip_active(Clip* c, long playhead) {
     return c->enabled
-            && c->timeline_in < playhead + ceil(c->sequence->frame_rate)
+			&& c->timeline_in < playhead + ceil(c->sequence->frame_rate*2)
             && c->timeline_out > playhead
 			&& playhead - c->timeline_in + c->clip_in < c->getMaximumLength();
 }

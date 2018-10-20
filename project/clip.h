@@ -85,7 +85,7 @@ struct Clip
 	// temporary variables
 	int load_id;
 	bool undeletable;
-	bool reached_end; // deprecated
+	bool reached_end;
 	bool pkt_written;
     bool open;
     bool finished_opening;

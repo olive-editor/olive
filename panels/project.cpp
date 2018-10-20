@@ -789,8 +789,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     s->audio_layout = attr.value().toInt();
                                 } else if (attr.name() == "open") {
                                     open_seq = s;
-                                } else if (attr.name() == "workareaIn") {
-                                    s->using_workarea = true;
+								} else if (attr.name() == "workarea") {
+									s->using_workarea = (attr.value() == "1");
+                                } else if (attr.name() == "workareaIn") {                                    
                                     s->workarea_in = attr.value().toLong();
                                 } else if (attr.name() == "workareaOut") {
                                     s->workarea_out = attr.value().toLong();
@@ -1129,11 +1130,10 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                         stream.writeAttribute("alayout", QString::number(s->audio_layout));
                         if (s == sequence) {
                             stream.writeAttribute("open", "1");
-                        }
-                        if (s->using_workarea) {
-                            stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
-                            stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
-                        }
+						}
+						stream.writeAttribute("workarea", QString::number(s->using_workarea));
+						stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
+						stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
                         for (int j=0;j<s->clips.size();j++) {
                             Clip* c = s->clips.at(j);
                             if (c != NULL) {
@@ -1390,9 +1390,11 @@ void update_footage_tooltip(QTreeWidgetItem *item, Media *media, QString error) 
 				if (i > 0) {
 					tooltip += ", ";
 				}
-				tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
 				if (media->video_tracks.at(i)->video_interlacing != VIDEO_PROGRESSIVE) {
-					tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate*0.5) + " frames)";
+					tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
+				} else {
+					tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate * 2);
+					tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate) + " frames)";
 				}
 			}
 			tooltip += "\n";

@@ -192,8 +192,6 @@ bool same_sign(int a, int b) {
 }
 
 void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
-	qDebug() << "DRAG ENTER CALLED";
-
 	bool import_init = false;
 
 	QVector<void*> media_list;
@@ -272,6 +270,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                                 predicted_video_height = ms->video_height;
                                 if (ms->video_frame_rate != 0) {
                                     predicted_new_frame_rate = ms->video_frame_rate;
+
+									if (ms->video_interlacing != VIDEO_PROGRESSIVE) predicted_new_frame_rate *= 2;
 
                                     // only break with a decent frame rate, otherwise there may be a better candidate
                                     got_video_values = true;
