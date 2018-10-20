@@ -13,9 +13,13 @@ WaveEffect::WaveEffect(Clip* c) : Effect(c, EFFECT_TYPE_VIDEO, VIDEO_WAVE_EFFECT
 	evolution_val = add_row("Evolution:")->add_field(EFFECT_FIELD_DOUBLE);
 	evolution_val->set_double_default_value(0);
 
+	vertical_val = add_row("Vertical:")->add_field(EFFECT_FIELD_BOOL);
+	vertical_val->set_bool_value(false);
+
 	connect(frequency_val, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(intensity_val, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(evolution_val, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(vertical_val, SIGNAL(changed()), this, SLOT(field_changed()));
 
 	vertPath = ":/shaders/common.vert";
 	fragPath = ":/shaders/waveeffect.frag";
@@ -25,4 +29,5 @@ void WaveEffect::process_shader(double timecode) {
 	glslProgram->setUniformValue("frequency", (GLfloat) (frequency_val->get_double_value(timecode)));
 	glslProgram->setUniformValue("intensity", (GLfloat) (intensity_val->get_double_value(timecode)*0.01));
 	glslProgram->setUniformValue("evolution", (GLfloat) (evolution_val->get_double_value(timecode)*0.01));
+	glslProgram->setUniformValue("vertical", vertical_val->get_bool_value(timecode));
 }

@@ -24,6 +24,7 @@ extern "C" {
 #include <QtMath>
 #include <QAudioOutput>
 #include <QPainter>
+#include <QStringList>
 
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
@@ -85,6 +86,48 @@ void Viewer::reset_all_audio() {
 		}
 	}
 	clear_audio_ibuffer();
+}
+
+long timecode_to_frame(const QString& s, int view, double frame_rate) {
+	QList<QString> list = s.split(QRegExp("[:;]"));
+
+	for (int i=0;i<list.size();i++) {
+		qDebug() << "list" << i << list.at(i);
+	}
+
+	if (view == TIMECODE_FRAMES || list.size() == 1) {
+		return s.toLong();
+	}
+
+	int frRound = qRound(frame_rate);
+	int hours = ((list.size() > 0) ? list.at(0).toInt() : 0) * frRound * 3600;
+	int minutes = ((list.size() > 1) ? list.at(1).toInt() : 0) * frRound * 60;
+	int seconds = ((list.size() > 2) ? list.at(2).toInt() : 0) * frRound;
+	int frames = (list.size() > 3) ? list.at(3).toInt() : 0;
+
+	int f = (frames + seconds + minutes + hours);
+
+	if (view == TIMECODE_DROP && frame_rate_is_droppable(frame_rate)) {
+		// return drop
+		int d;
+		int m;
+
+		int dropFrames = round(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
+		int framesPer10Minutes = round(frame_rate * 60 * 10); //Number of frames per ten minutes
+		int framesPerMinute = (round(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
+
+		d = f / framesPer10Minutes;
+		f -= dropFrames*9*d;
+
+		m = f % framesPer10Minutes;
+
+		if (m > dropFrames) {
+			f -= (dropFrames * ((m - dropFrames) / framesPerMinute));
+		}
+	}
+
+	// return non-drop
+	return f;
 }
 
 QString frame_to_timecode(long f, int view, double frame_rate) {

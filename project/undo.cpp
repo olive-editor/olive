@@ -1210,6 +1210,8 @@ void MediaMove::undo() {
 		} else {
 			to->removeChild(items.at(i));
 		}
+	}
+	for (int i=0;i<items.size();i++) {
 		if (froms.at(i) == NULL) {
 			table->addTopLevelItem(items.at(i));
 		} else {
@@ -1220,14 +1222,22 @@ void MediaMove::undo() {
 }
 
 void MediaMove::redo() {
+	froms.resize(items.size());
 	for (int i=0;i<items.size();i++) {
 		QTreeWidgetItem* parent = items.at(i)->parent();
-		froms.append(parent);
+		froms[i] = parent;
 		if (parent == NULL) {
 			table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
 		} else {
 			parent->removeChild(items.at(i));
 		}
+		if (to == NULL) {
+			table->addTopLevelItem(items.at(i));
+		} else {
+			to->addChild(items.at(i));
+		}
+	}	
+	for (int i=0;i<items.size();i++) {
 		if (to == NULL) {
 			table->addTopLevelItem(items.at(i));
 		} else {

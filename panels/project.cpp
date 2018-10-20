@@ -1060,7 +1060,8 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
     int len = root ? ui->treeWidget->topLevelItemCount() : parent->childCount();
     for (int i=0;i<len;i++) {
         QTreeWidgetItem* item = root ? ui->treeWidget->topLevelItem(i) : parent->child(i);
-        int item_type = get_type_from_tree(item);
+		int item_type = get_type_from_tree(item);
+
         if (type == item_type) {
             if (item_type == MEDIA_TYPE_FOLDER) {
                 if (set_ids_only) {
@@ -1078,7 +1079,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                     }
                     stream.writeEndElement();
                 }
-                save_folder(stream, item, type, set_ids_only);
+				// save_folder(stream, item, type, set_ids_only);
             } else {
                 int folder = root ? 0 : parent->data(0, Qt::UserRole + 3).toInt();
                 if (type == MEDIA_TYPE_FOOTAGE) {
@@ -1202,6 +1203,10 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                 }
             }
         }
+
+		if (item_type == MEDIA_TYPE_FOLDER) {
+			save_folder(stream, item, type, set_ids_only);
+		}
     }
 }
 

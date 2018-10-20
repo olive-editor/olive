@@ -112,7 +112,7 @@ void SourceTable::rename_interval() {
     }
 }
 void SourceTable::item_click(QTreeWidgetItem* item, int column) {
-    if (column == 0) {
+	if (column == 0 && selectedItems().size() == 1) {
         editing_item = item;
         rename_timer.start();
     }
@@ -186,30 +186,34 @@ void SourceTable::dropEvent(QDropEvent* event) {
         }
         event->acceptProposedAction();
     } else {
+		event->ignore();
+
         // dragging files within project
-        QVector<QTreeWidgetItem*> move_items;
         // if we dragged to the root OR dragged to a folder
         if (drop_item == NULL || (drop_item != NULL && get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER)) {
+			QVector<QTreeWidgetItem*> move_items;
             QList<QTreeWidgetItem*> selected_items = selectedItems();
             for (int i=0;i<selected_items.size();i++) {
                 QTreeWidgetItem* s = selected_items.at(i);
-                bool ignore = false;
-                if (s->parent() != NULL) {
-                    // if child belongs to a selected parent, assume the user is just moving the parent and ignore the child
-                    QTreeWidgetItem* par = s->parent();
-                    while (par != NULL) {
-                        for (int j=0;j<selected_items.size();j++) {
-                            if (par == selected_items.at(j)) {
-                                ignore = true;
-                                break;
-                            }
-                        }
-                        par = par->parent();
-                    }
-                }
-                if (!ignore) {
-                    move_items.append(s);
-                }
+				if (s->parent() != drop_item && s != drop_item) {
+					bool ignore = false;
+					if (s->parent() != NULL) {
+						// if child belongs to a selected parent, assume the user is just moving the parent and ignore the child
+						QTreeWidgetItem* par = s->parent();
+						while (par != NULL && !ignore) {
+							for (int j=0;j<selected_items.size();j++) {
+								if (par == selected_items.at(j)) {
+									ignore = true;
+									break;
+								}
+							}
+							par = par->parent();
+						}
+					}
+					if (!ignore) {
+						move_items.append(s);
+					}
+				}
             }
             if (move_items.size() > 0) {
                 MediaMove* mm = new MediaMove(this);
@@ -217,6 +221,6 @@ void SourceTable::dropEvent(QDropEvent* event) {
                 mm->items = move_items;
                 undo_stack.push(mm);
             }
-        }
+		}
     }
 }

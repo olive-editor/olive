@@ -12,6 +12,8 @@ private:
 	EffectField* frequency_val;
 	EffectField* intensity_val;
 	EffectField* evolution_val;
+
+	EffectField* vertical_val;
 };
 
 #endif // WAVEEFFECT_H

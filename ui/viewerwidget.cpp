@@ -21,6 +21,9 @@
 #include <QtMath>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions>
+#include <QMouseEvent>
+#include <QMimeData>
+#include <QDrag>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -29,7 +32,8 @@ extern "C" {
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
 	default_fbo(NULL),
-	waveform(false)
+	waveform(false),
+	dragging(false)
 {
 	setFocusPolicy(Qt::ClickFocus);
 
@@ -67,7 +71,34 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
 	if (!rendering) {
 		makeCurrent();
 		QOpenGLWidget::paintEvent(e);
-    }
+	}
+}
+
+void ViewerWidget::seek_from_click(int x) {
+	viewer->seek(getFrameFromScreenPoint((double) width() / (double) waveform_clip->timeline_out, x));
+}
+
+void ViewerWidget::mousePressEvent(QMouseEvent* event) {
+	if (waveform) seek_from_click(event->x());
+	dragging = true;
+}
+
+void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
+	if (dragging) {
+		if (waveform) {
+			seek_from_click(event->x());
+		} else {
+			QDrag* drag = new QDrag(this);
+			QMimeData* mimeData = new QMimeData;
+			mimeData->setText("h");
+			drag->setMimeData(mimeData);
+			Qt::DropAction dropAction = drag->exec();
+		}
+	}
+}
+
+void ViewerWidget::mouseReleaseEvent(QMouseEvent *) {
+	dragging = false;
 }
 
 void ViewerWidget::drawTitleSafeArea() {
@@ -238,7 +269,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 		}
     }
 
-	if (viewer->playing && s->playhead == endFrame) {
+	if (viewer->playing && (s->playhead == endFrame || (s->using_workarea && s->playhead == s->workarea_out))) {
 		viewer->pause();
 	}
 
@@ -470,10 +501,16 @@ void ViewerWidget::paintGL() {
 			double timeline_zoom = (double) width() / (double) waveform_clip->timeline_out;
 
 			QPainter p(this);
-			p.setPen(QColor(0, 255, 0));
 			if (viewer->seq->using_workarea) {
-				p.fillRect(QRect(getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in), 0, getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out-viewer->seq->workarea_in), height()), QColor(255, 255, 255, 64));
+				int in_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in);
+				int out_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out);
+
+				p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
+				p.setPen(Qt::white);
+				p.drawLine(in_x, 0, in_x, height());
+				p.drawLine(out_x, 0, out_x, height());
 			}
+			p.setPen(Qt::green);
 			draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, rect(), 0, width(), waveform_zoom);
 			p.setPen(Qt::red);
 			int playhead_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->playhead);

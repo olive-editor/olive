@@ -32,14 +32,19 @@ public:
 protected:
     void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 private:
 	QTimer retry_timer;
     void drawTitleSafeArea();
+	bool dragging;
+	void seek_from_click(int x);
+	GLuint compose_sequence(Clip *nest, bool render_audio);
+	GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture);
 private slots:
 	void retry();
     void deleteFunction();
-	GLuint compose_sequence(Clip *nest, bool render_audio);
-	GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture);
 };
 
 #endif // VIEWERWIDGET_H

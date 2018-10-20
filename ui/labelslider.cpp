@@ -136,21 +136,33 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 			drag_proc = false;
 			previous_value = drag_start_value;
 			emit valueChanged();
-        } else {
-			double d = QInputDialog::getDouble(
-						this,
-						"Set Value",
-						"New value:",
-						(display_type == LABELSLIDER_PERCENT) ? internal_value * 100 : internal_value,
-						(min_enabled) ? min_value : INT_MIN,
-						(max_enabled) ? max_value : INT_MAX,
-						decimal_places
-					);
-			if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
-            if (d != internal_value) {
+		} else {
+			double d = internal_value;
+			if (display_type == LABELSLIDER_FRAMENUMBER) {
+				QString s = QInputDialog::getText(
+							this,
+							"Set Value",
+							"New value:",
+							QLineEdit::Normal,
+							valueToString(internal_value)
+						);
+				d = timecode_to_frame(s, config.timecode_view, frame_rate); // string to frame number
+			} else {
+				d = QInputDialog::getDouble(
+							this,
+							"Set Value",
+							"New value:",
+							(display_type == LABELSLIDER_PERCENT) ? internal_value * 100 : internal_value,
+							(min_enabled) ? min_value : INT_MIN,
+							(max_enabled) ? max_value : INT_MAX,
+							decimal_places
+						);
+				if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
+			}
+			if (d != internal_value) {
 				previous_value = internal_value;
 				set_value(d, true);
-            }
-        }
+			}
+		}
     }
 }

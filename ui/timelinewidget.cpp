@@ -13,6 +13,7 @@
 #include "project/undo.h"
 #include "ui_timeline.h"
 #include "mainwindow.h"
+#include "ui/viewerwidget.h"
 
 #include "effects/effect.h"
 #include "effects/transition.h"
@@ -191,13 +192,59 @@ bool same_sign(int a, int b) {
 }
 
 void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
-    if (event->source() == panel_project->source_table) {
+	qDebug() << "DRAG ENTER CALLED";
+
+	bool import_init = false;
+
+	QVector<void*> media_list;
+	QVector<int> type_list;
+
+	if (event->source() == panel_project->source_table) {
+		QList<QTreeWidgetItem*> items = panel_project->source_table->selectedItems();
+		media_list.resize(items.size());
+		type_list.resize(items.size());
+		for (int i=0;i<items.size();i++) {
+			type_list[i] = get_type_from_tree(items.at(i));
+			media_list[i] = get_media_from_tree(items.at(i));
+		}
+		import_init = true;
+	}
+
+	if (event->source() == panel_footage_viewer->viewer_widget) {
+		Sequence* proposed_seq = panel_footage_viewer->seq;
+		if (proposed_seq != sequence) { // don't allow nesting the same sequence
+			if (proposed_seq->wrapper_sequence) {
+				type_list.append(MEDIA_TYPE_FOOTAGE);
+				media_list.append(proposed_seq->clips.at(0)->media);
+			} else {
+				type_list.append(MEDIA_TYPE_SEQUENCE);
+				media_list.append(proposed_seq);
+			}
+			import_init = true;
+		}
+	}
+
+	/*if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
+		// TODO for this to work, we need a way to abort PreviewGenerator
+
+
+		qDebug() << "TODO get data for:";
+		QList<QUrl> urls = event->mimeData()->urls();
+		if (!urls.isEmpty()) {
+			for (int i=0;i<urls.size();i++) {
+				qDebug() << (urls.at(i).toLocalFile());
+			}
+		}
+
+		import_init = true;
+	}*/
+
+	if (import_init) {
         event->accept();
 
         panel_timeline->video_ghosts = false;
         panel_timeline->audio_ghosts = false;
-        QPoint pos = event->pos();
-        QList<QTreeWidgetItem*> items = panel_project->source_table->selectedItems();
+		QPoint pos = event->pos();
         long entry_point;
         if (sequence == NULL) {
             // if no sequence, we're going to create a new one using the clips as a reference
@@ -212,12 +259,11 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 
             bool got_video_values = false;
             bool got_audio_values = false;
-            for (int i=0;i<items.size();i++) {
-                QTreeWidgetItem* item = items.at(i);
-                switch (get_type_from_tree(item)) {
+			for (int i=0;i<media_list.size();i++) {
+				switch (type_list.at(i)) {
                 case MEDIA_TYPE_FOOTAGE:
                 {
-					Media* m = get_footage_from_tree(item);
+					Media* m = static_cast<Media*>(media_list.at(i));
                     if (m->ready) {
                         if (!got_video_values) {
                             for (int j=0;j<m->video_tracks.size();j++) {
@@ -246,7 +292,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                     break;
                 case MEDIA_TYPE_SEQUENCE:
                 {
-                    Sequence* s = get_sequence_from_tree(item);
+					Sequence* s = static_cast<Sequence*>(media_list.at(i));
                     predicted_video_width = s->width;
                     predicted_video_height = s->height;
                     predicted_new_frame_rate = s->frame_rate;
@@ -266,9 +312,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
             predicted_new_frame_rate = sequence->frame_rate;
         }
-        for (int i=0;i<items.size();i++) {
-            QTreeWidgetItem* item = items.at(i);
-            int item_type = get_type_from_tree(item);
+		for (int i=0;i<media_list.size();i++) {
             bool can_import = true;
 
             Media* m = NULL;
@@ -278,9 +322,9 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             long default_clip_in = 0;
             long default_clip_out = 0;
 
-            switch (item_type) {
+			switch (type_list.at(i)) {
             case MEDIA_TYPE_FOOTAGE:
-				m = get_footage_from_tree(item);
+				m = static_cast<Media*>(media_list.at(i));
                 media = m;
                 can_import = m->ready;
                 if (m->using_inout) {
@@ -291,7 +335,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 }
                 break;
             case MEDIA_TYPE_SEQUENCE:
-                s = get_sequence_from_tree(item);
+				s = static_cast<Sequence*>(media_list.at(i));
                 sequence_length = s->getEndFrame();
                 if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, predicted_new_frame_rate);
                 media = s;
@@ -308,14 +352,14 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             if (can_import) {
                 Ghost g;
                 g.clip = -1;
-                g.media_type = item_type;
+				g.media_type = type_list.at(i);
                 g.trimming = false;
                 g.old_clip_in = g.clip_in = default_clip_in;
                 g.media = media;
                 g.in = entry_point;
 				g.transition = NULL;
 
-                switch (item_type) {
+				switch (type_list.at(i)) {
                 case MEDIA_TYPE_FOOTAGE:
                     // is video source a still image?
                     if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
@@ -367,18 +411,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
             g.old_track = g.track;
         }
         panel_timeline->importing = true;
-    } else if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
-        // TODO for this to work, we need a way to abort PreviewGenerator
-
-		/*event->accept();
-        qDebug() << "TODO get data for:";
-        QList<QUrl> urls = event->mimeData()->urls();
-        if (!urls.isEmpty()) {
-            for (int i=0;i<urls.size();i++) {
-                qDebug() << (urls.at(i).toLocalFile());
-            }
-		}*/
-    }
+	}
 }
 
 void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
@@ -1284,7 +1317,12 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	if (panel_timeline->importing) {
 		QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, config.timecode_view, sequence->frame_rate));
 	} else {
-		QToolTip::showText(mapToGlobal(mouse_pos), ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate));
+		QToolTip::showText(mapToGlobal(mouse_pos),
+						   ((frame_diff < 0) ? "-" : "+")
+						   + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate)
+						   + " Duration: "
+						   + frame_to_timecode((panel_timeline->ghosts.at(0).old_out-panel_timeline->ghosts.at(0).old_in)+frame_diff, config.timecode_view, sequence->frame_rate)
+		);
 	}
 }
 
@@ -1666,71 +1704,77 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             bool found = false;
             bool cursor_contains_clip = false;
             int closeness = INT_MAX;
+			int min_track = INT_MAX;
+			int max_track = INT_MIN;
 			panel_timeline->transition_select = TA_NO_TRANSITION;
             for (int i=0;i<sequence->clips.size();i++) {
                 Clip* c = sequence->clips.at(i);
-                if (c != NULL && c->track == mouse_track) {
-                    if (panel_timeline->cursor_frame >= c->timeline_in &&
-                            panel_timeline->cursor_frame <= c->timeline_out) {
-                        cursor_contains_clip = true;
+				if (c != NULL) {
+					min_track = qMin(min_track, c->track);
+					max_track = qMax(max_track, c->track);
+					if (c->track == mouse_track) {
+						if (panel_timeline->cursor_frame >= c->timeline_in &&
+								panel_timeline->cursor_frame <= c->timeline_out) {
+							cursor_contains_clip = true;
 
-                        tooltip_timer.start();
-                        tooltip_clip = i;
+							tooltip_timer.start();
+							tooltip_clip = i;
 
-						if (c->opening_transition != NULL && panel_timeline->cursor_frame <= c->timeline_in + c->opening_transition->length) {
-							panel_timeline->transition_select = TA_OPENING_TRANSITION;
-						} else if (c->closing_transition != NULL && panel_timeline->cursor_frame >= c->timeline_out - c->closing_transition->length) {
-							panel_timeline->transition_select = TA_CLOSING_TRANSITION;
-						}
-                    }
-                    if (c->timeline_in > mouse_frame_lower && c->timeline_in < mouse_frame_upper) {
-                        int nc = qAbs(c->timeline_in + 1 - panel_timeline->cursor_frame);
-                        if (nc < closeness) {
-                            panel_timeline->trim_target = i;
-							panel_timeline->trim_in_point = true;
-                            closeness = nc;
-                            found = true;
-                        }
-                    }
-                    if (c->timeline_out > mouse_frame_lower && c->timeline_out < mouse_frame_upper) {
-                        int nc = qAbs(c->timeline_out - 1 - panel_timeline->cursor_frame);
-                        if (nc < closeness) {
-                            panel_timeline->trim_target = i;
-							panel_timeline->trim_in_point = false;
-                            closeness = nc;
-                            found = true;
-                        }
-                    }
-					if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
-						if (c->opening_transition != NULL) {
-							long transition_point = c->timeline_in + c->opening_transition->length;
-
-							if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
-								int nc = qAbs(transition_point - 1 - panel_timeline->cursor_frame);
-								if (nc < closeness) {
-									panel_timeline->trim_target = i;
-									panel_timeline->trim_in_point = false;
-									panel_timeline->transition_select = TA_OPENING_TRANSITION;
-									closeness = nc;
-									found = true;
-								}
+							if (c->opening_transition != NULL && panel_timeline->cursor_frame <= c->timeline_in + c->opening_transition->length) {
+								panel_timeline->transition_select = TA_OPENING_TRANSITION;
+							} else if (c->closing_transition != NULL && panel_timeline->cursor_frame >= c->timeline_out - c->closing_transition->length) {
+								panel_timeline->transition_select = TA_CLOSING_TRANSITION;
 							}
 						}
-						if (c->closing_transition != NULL) {
-							long transition_point = c->timeline_out - c->closing_transition->length;
-							if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
-								int nc = qAbs(transition_point + 1 - panel_timeline->cursor_frame);
-								if (nc < closeness) {
-									panel_timeline->trim_target = i;
-									panel_timeline->trim_in_point = true;
-									panel_timeline->transition_select = TA_CLOSING_TRANSITION;
-									closeness = nc;
-									found = true;
+						if (c->timeline_in > mouse_frame_lower && c->timeline_in < mouse_frame_upper) {
+							int nc = qAbs(c->timeline_in + 1 - panel_timeline->cursor_frame);
+							if (nc < closeness) {
+								panel_timeline->trim_target = i;
+								panel_timeline->trim_in_point = true;
+								closeness = nc;
+								found = true;
+							}
+						}
+						if (c->timeline_out > mouse_frame_lower && c->timeline_out < mouse_frame_upper) {
+							int nc = qAbs(c->timeline_out - 1 - panel_timeline->cursor_frame);
+							if (nc < closeness) {
+								panel_timeline->trim_target = i;
+								panel_timeline->trim_in_point = false;
+								closeness = nc;
+								found = true;
+							}
+						}
+						if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+							if (c->opening_transition != NULL) {
+								long transition_point = c->timeline_in + c->opening_transition->length;
+
+								if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
+									int nc = qAbs(transition_point - 1 - panel_timeline->cursor_frame);
+									if (nc < closeness) {
+										panel_timeline->trim_target = i;
+										panel_timeline->trim_in_point = false;
+										panel_timeline->transition_select = TA_OPENING_TRANSITION;
+										closeness = nc;
+										found = true;
+									}
+								}
+							}
+							if (c->closing_transition != NULL) {
+								long transition_point = c->timeline_out - c->closing_transition->length;
+								if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
+									int nc = qAbs(transition_point + 1 - panel_timeline->cursor_frame);
+									if (nc < closeness) {
+										panel_timeline->trim_target = i;
+										panel_timeline->trim_in_point = true;
+										panel_timeline->transition_select = TA_CLOSING_TRANSITION;
+										closeness = nc;
+										found = true;
+									}
 								}
 							}
 						}
 					}
-                }
+				}
             }
             /*if (cursor_contains_clip) {
 				QToolTip::showText(mapToGlobal(event->pos()), "HOVER OVER CLIP");
@@ -1744,21 +1788,23 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 int track_y = 0;
                 for (int i=0;i<panel_timeline->get_track_height_size(bottom_align);i++) {
                     int track = (bottom_align) ? -1-i : i;
-                    int track_height = panel_timeline->calculate_track_height(track, -1);
-                    track_y += track_height;
-                    int y_test_value = (bottom_align) ? rect().bottom() - track_y : track_y;
-                    int test_range = 5;
-					int mouse_pos = pos.y() + scroll;
-					if (mouse_pos > y_test_value-test_range && mouse_pos < y_test_value+test_range) {
-                        // if track lines are hidden, only resize track if a clip is already there
-                        if (config.show_track_lines || cursor_contains_clip) {
-                            found = true;
-                            track_resizing = true;
-                            track_target = track;
-                            track_resize_old_value = track_height;
-                        }
-                        break;
-                    }
+					if (track >= min_track && track <= max_track) {
+						int track_height = panel_timeline->calculate_track_height(track, -1);
+						track_y += track_height;
+						int y_test_value = (bottom_align) ? rect().bottom() - track_y : track_y;
+						int test_range = 5;
+						int mouse_pos = pos.y() + scroll;
+						if (mouse_pos > y_test_value-test_range && mouse_pos < y_test_value+test_range) {
+							// if track lines are hidden, only resize track if a clip is already there
+							if (config.show_track_lines || cursor_contains_clip) {
+								found = true;
+								track_resizing = true;
+								track_target = track;
+								track_resize_old_value = track_height;
+							}
+							break;
+						}
+					}
                 }
 
                 if (found) {

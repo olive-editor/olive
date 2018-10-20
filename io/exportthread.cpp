@@ -109,7 +109,7 @@ bool ExportThread::setupVideo() {
 	vcodec_ctx->codec_id = static_cast<AVCodecID>(video_codec);
 	vcodec_ctx->width = video_width;
 	vcodec_ctx->height = video_height;
-	vcodec_ctx->sample_aspect_ratio = av_d2q(video_width/video_height, INT_MAX);
+	vcodec_ctx->sample_aspect_ratio = {1, 1};
 	vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
 	vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
 	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = video_bitrate * 1000000;
