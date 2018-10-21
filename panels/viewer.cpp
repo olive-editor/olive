@@ -181,7 +181,7 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 		// non-drop timecode
 
         int int_fps = qRound(frame_rate);
-        hours = f/ (3600 * int_fps);
+		hours = f / (3600 * int_fps);
         mins = f / (60*int_fps) % 60;
         secs = f/int_fps % 60;
         frames = f%int_fps;
@@ -327,11 +327,13 @@ void Viewer::set_media(int type, void* media) {
         seq->workarea_in = footage->in;
         seq->workarea_out = footage->out;
 
+		seq->frame_rate = 30;
+
 		if (footage->video_tracks.size() > 0) {
 			MediaStream* video_stream = footage->video_tracks.at(0);
 			seq->width = video_stream->video_width;
 			seq->height = video_stream->video_height;
-			if (video_stream->video_frame_rate > 0) seq->frame_rate = video_stream->video_frame_rate;
+			if (video_stream->video_frame_rate > 0 && !video_stream->infinite_length) seq->frame_rate = video_stream->video_frame_rate;
 
 			Clip* c = new Clip(seq);
 			c->media = footage;
@@ -339,6 +341,7 @@ void Viewer::set_media(int type, void* media) {
 			c->media_stream = video_stream->file_index;
 			c->timeline_in = 0;
 			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+			if (c->timeline_out <= 0) c->timeline_out = 150;
 			c->track = -1;
 			c->clip_in = 0;
 			c->recalculateMaxLength();
@@ -346,7 +349,6 @@ void Viewer::set_media(int type, void* media) {
 		} else {
 			seq->width = 1920;
 			seq->height = 1080;
-			seq->frame_rate = 30;
 		}
 
 		if (footage->audio_tracks.size() > 0) {

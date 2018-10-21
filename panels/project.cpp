@@ -239,7 +239,7 @@ void Project::get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTre
                 children.append(item->child(j));
             }
 			get_all_media_from_table(children, list, search_type);
-        } else if (search_type == type) {
+		} else if (search_type == type || search_type == -1) {
             list.append(item);
         }
     }
@@ -523,6 +523,31 @@ QTreeWidgetItem* Project::get_selected_folder() {
 	return NULL;
 }
 
+bool Project::reveal_media(void *media, QTreeWidgetItem* parent) {
+	int count = (parent == NULL) ? ui->treeWidget->topLevelItemCount() : parent->childCount();
+
+	for (int i=0;i<count;i++) {
+		QTreeWidgetItem* item = (parent == NULL) ? ui->treeWidget->topLevelItem(i) : parent->child(i);
+		if (get_type_from_tree(item) == MEDIA_TYPE_FOLDER) {
+			if (reveal_media(media, item)) return true;
+		} else if (get_media_from_tree(item) == media) {
+			// expand all folders leading to this media
+			QTreeWidgetItem* hierarchy = item->parent();
+			while (hierarchy != NULL) {
+				hierarchy->setExpanded(true);
+				hierarchy = hierarchy->parent();
+			}
+
+			// select item
+			item->setSelected(true);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void Project::import_dialog() {
 	QFileDialog fd(this, "Import media...", "", "All Files (*)");
 	fd.setFileMode(QFileDialog::ExistingFiles);
@@ -538,13 +563,14 @@ void set_item_to_folder(QTreeWidgetItem* item) {
 }
 
 void* get_media_from_tree(QTreeWidgetItem* item) {
-	int type = get_type_from_tree(item);
+	return reinterpret_cast<void*>(item->data(0, Qt::UserRole + 2).value<quintptr>());
+	/*int type = get_type_from_tree(item);
 	switch (type) {
 	case MEDIA_TYPE_FOOTAGE: return get_footage_from_tree(item);
 	case MEDIA_TYPE_SEQUENCE: return get_sequence_from_tree(item);
 	default: qDebug() << "[ERROR] Invalid media type when retrieving media";
 	}
-	return NULL;
+	return NULL;*/
 }
 
 Media* get_footage_from_tree(QTreeWidgetItem* item) {

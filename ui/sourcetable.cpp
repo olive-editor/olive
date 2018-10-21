@@ -178,9 +178,14 @@ void SourceTable::dropEvent(QDropEvent* event) {
 			}
 			if (!replace) {
 				QTreeWidgetItem* parent = NULL;
-				if (drop_item != NULL && get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER) {
-					parent = drop_item;
+				if (drop_item != NULL) {
+					if (get_type_from_tree(drop_item) == MEDIA_TYPE_FOLDER) {
+						parent = drop_item;
+					} else {
+						parent = drop_item->parent();
+					}
 				}
+				if (parent != NULL) parent->setExpanded(true);
 				panel_project->process_file_list(false, paths, parent, NULL);
 			}
         }

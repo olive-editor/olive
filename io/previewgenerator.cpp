@@ -51,13 +51,25 @@ void PreviewGenerator::parse_media() {
 			if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
 					&& fmt_ctx->streams[i]->codecpar->width > 0
 					&& fmt_ctx->streams[i]->codecpar->height > 0) {
-				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0) { // source is LIKELY a still image
+
+				/*qDebug() << "avg_frame_rate was:" << fmt_ctx->streams[i]->avg_frame_rate.num << "/" << fmt_ctx->streams[i]->avg_frame_rate.den;
+				qDebug() << "r_frame_rate was:" << fmt_ctx->streams[i]->r_frame_rate.num << "/" << fmt_ctx->streams[i]->r_frame_rate.den;
+				qDebug() << "codec_frame_rate was:" << fmt_ctx->streams[i]->codec->framerate.num << "/" << fmt_ctx->streams[i]->codec->framerate.den;
+				qDebug() << "nb_frames was:" << fmt_ctx->streams[i]->nb_frames;
+				qDebug() << "duration was:" << fmt_ctx->streams[i]->duration << "OR fmt_ctx's duration is:" << fmt_ctx->duration;*/
+
+				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0
+						&& fmt_ctx->streams[i]->duration == AV_NOPTS_VALUE) { // source is LIKELY a still image
 					ms->infinite_length = true;
 					contains_still_image = true;
 					ms->video_frame_rate = 0;
 				} else {
 					ms->infinite_length = false;
-					ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
+					if (fmt_ctx->streams[i]->r_frame_rate.den == 0) {
+						ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
+					} else {
+						ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->r_frame_rate);
+					}
 				}
 				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
 				ms->video_height = fmt_ctx->streams[i]->codecpar->height;

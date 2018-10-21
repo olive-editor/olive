@@ -26,7 +26,7 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 #ifdef QT_DEBUG
-//#define GCF_DEBUG
+#define GCF_DEBUG
 #endif
 
 bool texture_failed = false;
@@ -115,6 +115,7 @@ void get_clip_frame(Clip* c, long playhead) {
 
 		int64_t target_pts = playhead_to_timestamp(c, playhead);
 		int64_t second_pts = qRound(av_q2d(av_inv_q(c->stream->time_base)));
+		int64_t quarter_pts = second_pts >> 2;
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 			target_pts *= 2;
 			second_pts *= 2;
@@ -151,9 +152,11 @@ void get_clip_frame(Clip* c, long playhead) {
 
 				// remove all frames earlier than this one from the queue
 				target_frame = c->queue.at(closest_frame);
+				int64_t minimum_ts = target_frame->pts;
+				if (c->reverse) minimum_ts += quarter_pts; else minimum_ts -= quarter_pts;
 				//qDebug() << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
 				for (int i=0;i<c->queue.size();i++) {
-					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > target_frame->pts) == c->reverse)) {
+					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
 						//qDebug() << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
 						av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
 						c->queue.removeAt(i);
@@ -186,6 +189,7 @@ void get_clip_frame(Clip* c, long playhead) {
 #ifdef GCF_DEBUG
 							qDebug() << "GCF ==> WAIT - target:" << target_pts << "closest frame:" << target_frame->pts;
 #endif
+							//if (c->queue.size() >= c->max_queue_size) c->queue_remove_earliest();
 							target_frame = NULL;
 						}
 					}

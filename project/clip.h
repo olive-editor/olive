@@ -37,7 +37,6 @@ struct Clip
     void reset_audio();
 	void reset();
 	void refresh();
-	void clear_queue();
 	long get_timeline_in_with_transition();
 	long get_timeline_out_with_transition();
 	long getLength();
@@ -48,6 +47,10 @@ struct Clip
 	int getHeight();
 	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
 	Sequence* sequence;
+
+	// queue functions
+	void queue_clear();
+	void queue_remove_earliest();
 
 	// timeline variables (should be copied in copy())
     bool enabled;

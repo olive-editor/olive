@@ -55,6 +55,7 @@ public:
 	void process_file_list(bool recursive, QStringList& files, QTreeWidgetItem *parent, QTreeWidgetItem* replace);
 	void replace_media(QTreeWidgetItem* item, QString filename);
 	QTreeWidgetItem* get_selected_folder();
+	bool reveal_media(void* media, QTreeWidgetItem *parent = 0);
 
     void new_project();
     void load_project();

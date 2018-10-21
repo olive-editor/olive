@@ -53,34 +53,18 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
 }
 
 void TimelineWidget::right_click_ripple() {
-	bool can_ripple = true;
+	QVector<Selection> sels;
 
-	// validate the ripple
-	for (int i=0;i<sequence->clips.size();i++) {
-		Clip* c = sequence->clips.at(i);
-		if (c != NULL && c->timeline_in > rc_ripple_min) {
-			for (int j=0;j<sequence->clips.size();j++) {
-				Clip* cc = sequence->clips.at(j);
-				if (cc != NULL && cc->track == c->track) {
-					if (cc->timeline_in < rc_ripple_min && cc->timeline_out == c->timeline_in) {
-						can_ripple = false;
-						break;
-					} else if (cc->timeline_out < c->timeline_in) {
-						long validator = (c->timeline_in - (rc_ripple_max - rc_ripple_min)) - cc->timeline_out;
-						if (validator < 0) {
-							rc_ripple_min = cc->timeline_out;
-							rc_ripple_max = c->timeline_in;
-						}
-					}
-				}
-			}
-		}
-	}
+	Selection s;
+	s.in = rc_ripple_min;
+	s.out = rc_ripple_max;
+	s.track = panel_timeline->cursor_track;
 
-	if (can_ripple) {
-		undo_stack.push(new RippleCommand(sequence, rc_ripple_min, rc_ripple_min - rc_ripple_max));
-		update_ui(true);
-	}
+	qDebug() << s.in << s.out << s.track;
+
+	sels.append(s);
+
+	panel_timeline->delete_selection(sels, true);
 }
 
 void TimelineWidget::show_context_menu(const QPoint& pos) {
@@ -99,6 +83,8 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 	menu.addSeparator();
 
 	if (sequence->selections.size() == 0) {
+		// no clips are selected
+
 		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
 		panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 
@@ -133,6 +119,8 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		menu.addAction("Sequence settings coming soon...");
 	} else {
+		// clips are selected
+
 		QAction* cutAction = menu.addAction("C&ut");
 		connect(cutAction, SIGNAL(triggered(bool)), mainWindow, SLOT(cut()));
 		QAction* copyAction = menu.addAction("Cop&y");
@@ -146,13 +134,33 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
         autoscaleAction->setCheckable(true);
         connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
 
+		// collect all the selected clips
+		QVector<Clip*> selected_clips;
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
             if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
-                autoscaleAction->setChecked(c->autoscale);
-                break;
+				selected_clips.append(c);
             }
         }
+
+		// set autoscale arbitrarily to the first selected clip
+		autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
+
+		// check if all selected clips have the same media for a "Reveal In Project"
+		bool same_media = true;
+		rc_reveal_media = selected_clips.at(0)->media;
+		for (int i=1;i<selected_clips.size();i++) {
+			if (selected_clips.at(i)->media != rc_reveal_media) {
+				same_media = false;
+				break;
+			}
+		}
+
+		if (same_media) {
+			QAction* revealInProjectAction = menu.addAction("&Reveal in Project");
+			connect(revealInProjectAction, SIGNAL(triggered(bool)), this, SLOT(reveal_media()));
+
+		}
 	}
 
     menu.exec(mapToGlobal(pos));
@@ -1317,12 +1325,29 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 	if (panel_timeline->importing) {
 		QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, config.timecode_view, sequence->frame_rate));
 	} else {
-		QToolTip::showText(mapToGlobal(mouse_pos),
-						   ((frame_diff < 0) ? "-" : "+")
-						   + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate)
-						   + " Duration: "
-						   + frame_to_timecode((panel_timeline->ghosts.at(0).old_out-panel_timeline->ghosts.at(0).old_in)+frame_diff, config.timecode_view, sequence->frame_rate)
-		);
+		QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate);
+		if (panel_timeline->trim_target > -1) {
+			// find which clip is being moved
+			const Ghost* g = NULL;
+			for (int i=0;i<panel_timeline->ghosts.size();i++) {
+				if (panel_timeline->ghosts.at(i).clip == panel_timeline->trim_target) {
+					g = &panel_timeline->ghosts.at(i);
+					break;
+				}
+			}
+
+			if (g != NULL) {
+				tip += " Duration: ";
+				long len = (g->old_out-g->old_in);
+				if (panel_timeline->trim_in_point) {
+					len -= frame_diff;
+				} else {
+					len += frame_diff;
+				}
+				tip += frame_to_timecode(len, config.timecode_view, sequence->frame_rate);
+			}
+		}
+		QToolTip::showText(mapToGlobal(mouse_pos), tip);
 	}
 }
 
@@ -1908,6 +1933,40 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					if (actual_clip_rect.bottom() > height()) actual_clip_rect.setBottom(height());
 					p.fillRect(actual_clip_rect, (clip->enabled) ? QColor(clip->color_r, clip->color_g, clip->color_b) : QColor(96, 96, 96));
 
+					// draw top and tail triangles
+					if (clip->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream)->infinite_length) {
+						int triangle_size = TRACK_MIN_HEIGHT >> 2;
+						p.setPen(Qt::NoPen);
+						p.setBrush(QColor(80, 80, 80));
+						if (clip->clip_in == 0
+								&& clip_rect.x() + triangle_size > 0
+								&& clip_rect.y() + triangle_size > 0
+								&& clip_rect.x() < width()
+								&& clip_rect.y() < height()) {
+							const QPoint points[3] = {
+								QPoint(clip_rect.x(), clip_rect.y()),
+								QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
+								QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
+							};
+							p.drawPolygon(points, 3);
+							text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
+						}
+						if (clip->timeline_out - clip->timeline_in + clip->clip_in == clip->getMaximumLength()
+								&& clip_rect.right() - triangle_size < width()
+								&& clip_rect.y() + triangle_size > 0
+								&& clip_rect.right() > 0
+								&& clip_rect.y() < height()) {
+							const QPoint points[3] = {
+								QPoint(clip_rect.right(), clip_rect.y()),
+								QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
+								QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
+							};
+							p.drawPolygon(points, 3);
+							text_rect.setRight(text_rect.right() - (triangle_size >> 2));
+						}
+						p.setBrush(Qt::NoBrush);
+					}
+
 					int thumb_x = clip_rect.x() + 1;
 
 					if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
@@ -2091,6 +2150,8 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 			if (is_track_visible(s.track)) {
 				int selection_y = getScreenPointFromTrack(s.track);
 				int selection_x = panel_timeline->getTimelineScreenPointFromFrame(s.in);
+				p.setPen(Qt::NoPen);
+				p.setBrush(Qt::NoBrush);
 				p.fillRect(selection_x, selection_y, panel_timeline->getTimelineScreenPointFromFrame(s.out) - selection_x, panel_timeline->calculate_track_height(s.track, -1), QColor(0, 0, 0, 64));
 			}
 		}
@@ -2220,4 +2281,8 @@ int TimelineWidget::getClipIndexFromCoords(long frame, int track) {
 void TimelineWidget::setScroll(int s) {
 	scroll = s;
 	update();
+}
+
+void TimelineWidget::reveal_media() {
+	panel_project->reveal_media(rc_reveal_media);
 }

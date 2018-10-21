@@ -69,6 +69,7 @@ private:
 	// used for "right click ripple"
 	long rc_ripple_min;
 	long rc_ripple_max;
+	void* rc_reveal_media;
 
     QTimer tooltip_timer;
     int tooltip_clip;
@@ -85,6 +86,7 @@ public slots:
 	void setScroll(int);
 
 private slots:
+	void reveal_media();
 	void right_click_ripple();
     void show_context_menu(const QPoint& pos);
     void toggle_autoscale();

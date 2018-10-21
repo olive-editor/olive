@@ -220,7 +220,7 @@ void Timeline::repaint_timeline() {
 	if (sequence != NULL) {
 		long sequenceEndFrame = sequence->getEndFrame();
 
-		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequenceEndFrame) + 100 - ui->editAreas->width()));
+		panel_timeline->ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(panel_timeline->zoom, sequenceEndFrame) - (ui->editAreas->width()/2)));
 
 		if (last_frame != sequence->playhead) {
 			ui->audio_monitor->update();
@@ -267,21 +267,21 @@ void Timeline::delete_in_out(bool ripple) {
     }
 }
 
-void Timeline::delete_selection(bool ripple_delete) {
-	if (sequence->selections.size() > 0) {
+void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_delete) {
+	if (selections.size() > 0) {
         panel_effect_controls->clear_effects(true);
 
         ComboAction* ca = new ComboAction();
 
-		delete_areas_and_relink(ca, sequence->selections);
+		delete_areas_and_relink(ca, selections);
 
-        if (ripple_delete) {
-			long ripple_point = sequence->selections.at(0).in;
-			long ripple_length = sequence->selections.at(0).out - sequence->selections.at(0).in;
+		if (ripple_delete) {
+			long ripple_point = selections.at(0).in;
+			long ripple_length = selections.at(0).out - selections.at(0).in;
 
             // retrieve ripple_point and ripple_length from current selection
-			for (int i=1;i<sequence->selections.size();i++) {
-				const Selection& s = sequence->selections.at(i);
+			for (int i=1;i<selections.size();i++) {
+				const Selection& s = selections.at(i);
                 ripple_point = qMin(ripple_point, s.in);
                 ripple_length = qMin(ripple_length, s.out - s.in);
             }
@@ -295,8 +295,8 @@ void Timeline::delete_selection(bool ripple_delete) {
 				if (c != NULL && c->timeline_in < ripple_point && c->timeline_out > ripple_point) {
                     // conflict detected, but this clip may be getting deleted so let's check
                     bool deleted = false;
-					for (int j=0;j<sequence->selections.size();j++) {
-						const Selection& s = sequence->selections.at(j);
+					for (int j=0;j<selections.size();j++) {
+						const Selection& s = selections.at(j);
                         if (s.track == c->track
                                 && !(c->timeline_in < s.in && c->timeline_out < s.in)
                                 && !(c->timeline_in > s.out && c->timeline_out > s.out)) {
@@ -317,10 +317,13 @@ void Timeline::delete_selection(bool ripple_delete) {
                     }
                 }
 			}
+
+			qDebug() << "going to ripple at" << ripple_point << "by" << ripple_length;
+
             if (can_ripple) ca->append(new RippleCommand(sequence, ripple_point, -ripple_length));
 		}
 
-		sequence->selections.clear();
+		selections.clear();
 
         undo_stack.push(ca);
 
@@ -617,7 +620,7 @@ void Timeline::copy(bool del) {
     }
 
     if (del && copied) {
-        delete_selection(false);
+		delete_selection(sequence->selections, false);
     }
 }
 
@@ -703,24 +706,26 @@ void Timeline::ripple_to_in_point(bool in) {
         long in_point = in ? 0 : LONG_MAX;
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
-            track_min = qMin(track_min, c->track);
-            track_max = qMax(track_max, c->track);
-			if ((in && c->timeline_in > in_point && c->timeline_in <= sequence->playhead)
-					|| (!in && c->timeline_in < in_point && c->timeline_in >= sequence->playhead)) {
-                in_point = c->timeline_in;
-				if (sequence->playhead == in_point) {
-                    one_frame_mode = true;
-                    break;
-                }
-            }
-			if ((in && c->timeline_out > in_point && c->timeline_out <= sequence->playhead)
-					|| (!in && c->timeline_out < in_point && c->timeline_out > sequence->playhead)) {
-                in_point = c->timeline_out;
-				if (sequence->playhead == in_point) {
-                    one_frame_mode = true;
-                    break;
-                }
-            }
+			if (c != NULL) {
+				track_min = qMin(track_min, c->track);
+				track_max = qMax(track_max, c->track);
+				if ((in && c->timeline_in > in_point && c->timeline_in <= sequence->playhead)
+						|| (!in && c->timeline_in < in_point && c->timeline_in >= sequence->playhead)) {
+					in_point = c->timeline_in;
+					if (sequence->playhead == in_point) {
+						one_frame_mode = true;
+						break;
+					}
+				}
+				if ((in && c->timeline_out > in_point && c->timeline_out <= sequence->playhead)
+						|| (!in && c->timeline_out < in_point && c->timeline_out > sequence->playhead)) {
+					in_point = c->timeline_out;
+					if (sequence->playhead == in_point) {
+						one_frame_mode = true;
+						break;
+					}
+				}
+			}
         }
 
         if (one_frame_mode) {

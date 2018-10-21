@@ -125,7 +125,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 #ifdef AUDIOWARNINGS
 										qDebug() << "reached EOF while reading";
 #endif
-									// TODO likewise, I'm not sure if this if statement breaks anything (see equivalent section in cache_video_worker)
+									// TODO revise usage of reached_end in audio
 									if (!c->reverse) {
 										c->reached_end = true;
 									} else {
@@ -358,13 +358,27 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 void cache_video_worker(Clip* c, long playhead) {
 	int read_ret, send_ret, retr_ret;
 
+	int64_t target_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
+
 	int limit = c->max_queue_size;
 	if (c->reverse) limit *= 2;
+	/*if (c->reverse) {
+		bool found = false;
+		for (int i=0;i<c->queue.size();i++) {
+			if (target_pts > c->queue.at(i)->pts && target_pts <= c->queue.at(i)->pts + c->queue.at(i)->pkt_duration) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			// we need like one more frame
+			limit = c->queue.size() + 1;
+		}
+	}*/
 
 	if (c->queue.size() < limit) {
 		int64_t eighth_second = av_q2d(av_inv_q(c->stream->time_base))*0.125;
 		int64_t smallest_pts = INT64_MAX;
-		int64_t target_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 		if (c->reverse && c->queue.size() > 0) {
 			int64_t quarter_sec = qRound(av_q2d(av_inv_q(c->stream->time_base))) >> 2;
 			for (int i=0;i<c->queue.size();i++) {
@@ -392,8 +406,10 @@ void cache_video_worker(Clip* c, long playhead) {
 						send_it = true;
 					} else if (send_frame->pts > target_pts - eighth_second) {
 						send_it = true;
+					} else if (static_cast<Media*>(c->media)->get_stream_from_file_index(true, c->media_stream)->infinite_length) {
+						send_it = true;
 					} else {
-						qDebug() << "skipped adding a frame to the queue" << target_pts << "(" << send_frame->pts << send_frame->pkt_duration;
+						qDebug() << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
 					}
 
 					if (send_it) {
@@ -447,15 +463,7 @@ void cache_video_worker(Clip* c, long playhead) {
 								break;
 							} else {
 								// remove earliest frame and loop to store another
-								int earliest_frame = 0;
-								for (int i=1;i<c->queue.size();i++) {
-									// TODO/NOTE: this will not work on sped up AND reversed video
-									if (c->queue.at(i)->pts < c->queue.at(earliest_frame)->pts) {
-										earliest_frame = i;
-									}
-								}
-								av_frame_free(&c->queue[earliest_frame]);
-								c->queue.removeAt(earliest_frame);
+								c->queue_remove_earliest();
 							}
 //						} else {
 //							break;
@@ -477,7 +485,7 @@ void reset_cache(Clip* c, long target_frame) {
 		if (!ms->infinite_length) {
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 				// clear current queue
-				c->clear_queue();
+				c->queue_clear();
 
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
 				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
@@ -585,7 +593,7 @@ void open_clip_worker(Clip* clip) {
 		clip->codecCtx = avcodec_alloc_context3(clip->codec);
 		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
-		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.25);
+		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.5);
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
 		AVDictionary* opts = NULL;
@@ -783,7 +791,7 @@ void close_clip_worker(Clip* clip) {
 	clip->finished_opening = false;
 
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
-		clip->clear_queue();
+		clip->queue_clear();
 
 		avfilter_graph_free(&clip->filter_graph);
 

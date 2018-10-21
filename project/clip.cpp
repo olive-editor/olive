@@ -126,11 +126,23 @@ void Clip::refresh() {
 	recalculateMaxLength();
 }
 
-void Clip::clear_queue() {
+void Clip::queue_clear() {
 	while (queue.size() > 0) {
 		av_frame_free(&queue.first());
 		queue.removeFirst();
 	}
+}
+
+void Clip::queue_remove_earliest() {
+	int earliest_frame = 0;
+	for (int i=1;i<queue.size();i++) {
+		// TODO/NOTE: this will not work on sped up AND reversed video
+		if (queue.at(i)->pts < queue.at(earliest_frame)->pts) {
+			earliest_frame = i;
+		}
+	}
+	av_frame_free(&queue[earliest_frame]);
+	queue.removeAt(earliest_frame);
 }
 
 Clip::~Clip() {

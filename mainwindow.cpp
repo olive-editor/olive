@@ -207,7 +207,7 @@ void MainWindow::on_actionDelete_triggered()
 	if (panel_timeline->ui->headers->hasFocus()) {
 		panel_timeline->ui->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
-		panel_timeline->delete_selection(false);
+		panel_timeline->delete_selection(sequence->selections, false);
     } else if (panel_effect_controls->is_focused()) {
         panel_effect_controls->delete_effects();
     } else if (panel_project->is_focused()) {
@@ -281,7 +281,7 @@ void MainWindow::on_actionTimeline_toggled(bool arg1)
 
 void MainWindow::on_actionRipple_Delete_triggered()
 {
-	panel_timeline->delete_selection(true);
+	panel_timeline->delete_selection(sequence->selections, true);
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {

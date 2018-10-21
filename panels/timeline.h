@@ -129,7 +129,7 @@ public:
 	bool selecting;
     int selection_offset;
     bool is_clip_selected(Clip* clip, bool containing);
-	void delete_selection(bool ripple);
+	void delete_selection(QVector<Selection> &selections, bool ripple);
 	void select_all();
     bool rect_select_init;
     bool rect_select_proc;
