@@ -37,7 +37,7 @@ struct MediaStream {
     // preview thumbnail/waveform
     bool preview_done;
     QImage video_preview; // TODO change to QPixmap
-    QVector<qint8> audio_preview;
+	QVector<char> audio_preview;
 };
 
 struct Media {

@@ -1933,40 +1933,6 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					if (actual_clip_rect.bottom() > height()) actual_clip_rect.setBottom(height());
 					p.fillRect(actual_clip_rect, (clip->enabled) ? QColor(clip->color_r, clip->color_g, clip->color_b) : QColor(96, 96, 96));
 
-					// draw top and tail triangles
-					if (clip->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(clip->media)->get_stream_from_file_index(clip->track < 0, clip->media_stream)->infinite_length) {
-						int triangle_size = TRACK_MIN_HEIGHT >> 2;
-						p.setPen(Qt::NoPen);
-						p.setBrush(QColor(80, 80, 80));
-						if (clip->clip_in == 0
-								&& clip_rect.x() + triangle_size > 0
-								&& clip_rect.y() + triangle_size > 0
-								&& clip_rect.x() < width()
-								&& clip_rect.y() < height()) {
-							const QPoint points[3] = {
-								QPoint(clip_rect.x(), clip_rect.y()),
-								QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
-								QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
-							};
-							p.drawPolygon(points, 3);
-							text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
-						}
-						if (clip->timeline_out - clip->timeline_in + clip->clip_in == clip->getMaximumLength()
-								&& clip_rect.right() - triangle_size < width()
-								&& clip_rect.y() + triangle_size > 0
-								&& clip_rect.right() > 0
-								&& clip_rect.y() < height()) {
-							const QPoint points[3] = {
-								QPoint(clip_rect.right(), clip_rect.y()),
-								QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
-								QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
-							};
-							p.drawPolygon(points, 3);
-							text_rect.setRight(text_rect.right() - (triangle_size >> 2));
-						}
-						p.setBrush(Qt::NoBrush);
-					}
-
 					int thumb_x = clip_rect.x() + 1;
 
 					if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
@@ -1977,6 +1943,38 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 						if (ms == NULL) {
 							draw_checkerboard = true;
 						} else if (ms->preview_done) {
+							// draw top and tail triangles
+							int triangle_size = TRACK_MIN_HEIGHT >> 2;
+							p.setPen(Qt::NoPen);
+							p.setBrush(QColor(80, 80, 80));
+							if (clip->clip_in == 0
+									&& clip_rect.x() + triangle_size > 0
+									&& clip_rect.y() + triangle_size > 0
+									&& clip_rect.x() < width()
+									&& clip_rect.y() < height()) {
+								const QPoint points[3] = {
+									QPoint(clip_rect.x(), clip_rect.y()),
+									QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
+									QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
+								};
+								p.drawPolygon(points, 3);
+								text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
+							}
+							if (clip->timeline_out - clip->timeline_in + clip->clip_in == clip->getMaximumLength()
+									&& clip_rect.right() - triangle_size < width()
+									&& clip_rect.y() + triangle_size > 0
+									&& clip_rect.right() > 0
+									&& clip_rect.y() < height()) {
+								const QPoint points[3] = {
+									QPoint(clip_rect.right(), clip_rect.y()),
+									QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
+									QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
+								};
+								p.drawPolygon(points, 3);
+								text_rect.setRight(text_rect.right() - (triangle_size >> 2));
+							}
+							p.setBrush(Qt::NoBrush);
+
 							// draw thumbnail/waveform
 							long media_length = clip->getMaximumLength();
 

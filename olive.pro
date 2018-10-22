@@ -84,7 +84,9 @@ SOURCES += \
     dialogs/speeddialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
     effects/video/waveeffect.cpp \
-    effects/video/temperatureeffect.cpp
+    effects/video/temperatureeffect.cpp \
+    io/crc32.cpp \
+    dialogs/loaddialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -147,7 +149,9 @@ HEADERS += \
     dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
     effects/video/waveeffect.h \
-    effects/video/temperatureeffect.h
+    effects/video/temperatureeffect.h \
+    io/crc32.h \
+    dialogs/loaddialog.h
 
 FORMS += \
         mainwindow.ui \

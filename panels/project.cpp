@@ -20,6 +20,7 @@
 #include "panels/effectcontrols.h"
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/mediapropertiesdialog.h"
+#include "dialogs/loaddialog.h"
 
 #include <QFileDialog>
 #include <QString>
@@ -1000,6 +1001,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
 void Project::load_project() {
     new_project();
+
+	/*LoadDialog ld;
+	ld.exec();*/
 
     QFile file(project_url);
     if (!file.open(QIODevice::ReadOnly)) {

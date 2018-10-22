@@ -318,8 +318,6 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
                 }
 			}
 
-			qDebug() << "going to ripple at" << ripple_point << "by" << ripple_length;
-
             if (can_ripple) ca->append(new RippleCommand(sequence, ripple_point, -ripple_length));
 		}
 

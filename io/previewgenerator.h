@@ -23,6 +23,7 @@ signals:
 	void set_icon(int, bool);
 private:
     void parse_media();
+	bool retrieve_preview(const QString &hash);
     void generate_waveform();
 	void finalize_media();
     QTreeWidgetItem* item;
@@ -32,6 +33,9 @@ private:
 	bool contains_still_image;
 	bool replace;
 	bool cancelled;
+	QString data_path;
+	QString get_thumbnail_path(const QString &hash, MediaStream* ms);
+	QString get_waveform_path(const QString& hash, MediaStream* ms);
 };
 
 #endif // PREVIEWGENERATOR_H

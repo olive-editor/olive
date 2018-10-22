@@ -4,12 +4,18 @@
 #include "panels/viewer.h"
 #include "panels/project.h"
 #include "io/config.h"
+#include "io/crc32.h"
 
 #include <QPainter>
 #include <QPixmap>
 #include <QDebug>
 #include <QtMath>
 #include <QTreeWidgetItem>
+#include <QSemaphore>
+#include <QCryptographicHash>
+#include <QFile>
+#include <QStandardPaths>
+#include <QDir>
 
 #define WAVEFORM_RESOLUTION 64
 
@@ -19,6 +25,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 }
+
+QSemaphore sem(4); // only 4 preview generators can run at one time
 
 PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
 	QThread(0),
@@ -30,6 +38,12 @@ PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
 	replace(r),
 	cancelled(false)
 {
+	data_path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/previews";
+	QDir data_dir(data_path);
+	if (!data_dir.exists()) {
+		data_dir.mkpath(".");
+	}
+
 	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
@@ -38,7 +52,7 @@ void PreviewGenerator::parse_media() {
     for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
         // Find the decoder for the video stream
         if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
-            qDebug() << "[ERROR] Unsupported codec in stream %d.\n";
+			qDebug() << "[ERROR] Unsupported codec in stream" << i << "of file" << media->name;
         } else {
             MediaStream* ms = media->get_stream_from_file_index(fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, i);
             bool append = false;
@@ -95,6 +109,61 @@ void PreviewGenerator::parse_media() {
 	}
 }
 
+bool PreviewGenerator::retrieve_preview(const QString& hash) {
+	// returns true if generate_waveform must be run, false if we got all previews from cached files
+
+	if (retrieve_duration) {
+		return true;
+	}
+
+	bool found = true;
+	for (int i=0;i<media->video_tracks.size();i++) {
+		MediaStream* ms = media->video_tracks.at(i);
+		QString thumb_path = get_thumbnail_path(hash, ms);
+		QFile f(thumb_path);
+		if (f.exists()) {
+			qDebug() << "loaded thumb" << ms->file_index << "from" << thumb_path;
+			ms->video_preview.load(thumb_path);
+			ms->preview_done = true;
+		} else {
+			found = false;
+			break;
+		}
+	}
+	for (int i=0;i<media->audio_tracks.size();i++) {
+		MediaStream* ms = media->audio_tracks.at(i);
+		QString waveform_path = get_waveform_path(hash, ms);
+		QFile f(waveform_path);
+		if (f.exists()) {
+			qDebug() << "loaded wave" << ms->file_index << "from" << waveform_path;
+			f.open(QFile::ReadOnly);
+			QByteArray data = f.readAll();
+			ms->audio_preview.resize(data.size());
+			for (int j=0;j<data.size();j++) {
+				// faster way?
+				ms->audio_preview[j] = data.at(j);
+			}
+			ms->preview_done = true;
+			f.close();
+		} else {
+			found = false;
+			break;
+		}
+	}
+	if (!found) {
+		for (int i=0;i<media->video_tracks.size();i++) {
+			MediaStream* ms = media->video_tracks.at(i);
+			ms->preview_done = false;
+		}
+		for (int i=0;i<media->audio_tracks.size();i++) {
+			MediaStream* ms = media->audio_tracks.at(i);
+			ms->audio_preview.clear();
+			ms->preview_done = false;
+		}
+	}
+	return !found;
+}
+
 void PreviewGenerator::finalize_media() {
 	media->ready = true;
 
@@ -124,7 +193,6 @@ void PreviewGenerator::generate_waveform() {
             codec_ctx[i] = avcodec_alloc_context3(codec);
             avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
             avcodec_open2(codec_ctx[i], codec, NULL);
-
             if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && codec_ctx[i]->channel_layout == 0) {
 				codec_ctx[i]->channel_layout = av_get_default_channel_layout(fmt_ctx->streams[i]->codecpar->channels);
             }
@@ -300,16 +368,24 @@ void PreviewGenerator::generate_waveform() {
 		finalize_media();
 	}
 	delete [] media_lengths;
-    delete [] codec_ctx;
+	delete [] codec_ctx;
 }
 
-void PreviewGenerator::run() {
+QString PreviewGenerator::get_thumbnail_path(const QString& hash, MediaStream* ms) {
+	return data_path + "/" + hash + "t" + QString::number(ms->file_index);
+}
+
+QString PreviewGenerator::get_waveform_path(const QString& hash, MediaStream* ms) {
+	return data_path + "/" + hash + "w" + QString::number(ms->file_index);
+}
+
+void PreviewGenerator::run() {	
     Q_ASSERT(media != NULL);
-    Q_ASSERT(item != NULL);
+	Q_ASSERT(item != NULL);
 
     QByteArray ba = media->url.toLatin1();
     char* filename = new char[ba.size()+1];
-    strcpy(filename, ba.data());
+	strcpy(filename, ba.data());
 
 	QString errorStr;
     bool error = false;
@@ -328,8 +404,35 @@ void PreviewGenerator::run() {
             error = true;
         } else {
             av_dump_format(fmt_ctx, 0, filename, 0);
-            parse_media();
-            generate_waveform();
+			parse_media();
+			sem.acquire();
+
+			// see if we already have data for this
+			QFileInfo file_info(media->url);
+			QString cache_file = media->url + QString::number(file_info.lastModified().toMSecsSinceEpoch());
+			QString hash = QCryptographicHash::hash(cache_file.toLatin1(), QCryptographicHash::Md5).toHex();
+
+			if (retrieve_preview(hash)) {
+				generate_waveform();
+
+				// save preview to file
+				for (int i=0;i<media->video_tracks.size();i++) {
+					MediaStream* ms = media->video_tracks.at(i);
+					if (ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG")) {
+						qDebug() << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
+					}
+				}
+				for (int i=0;i<media->audio_tracks.size();i++) {
+					MediaStream* ms = media->audio_tracks.at(i);
+					QFile f(get_waveform_path(hash, ms));
+					f.open(QFile::WriteOnly);
+					f.write(ms->audio_preview.constData(), ms->audio_preview.size());
+					f.close();
+					qDebug() << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
+				}
+			}
+
+			sem.release();
         }
         avformat_close_input(&fmt_ctx);
 	}

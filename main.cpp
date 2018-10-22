@@ -6,8 +6,7 @@ extern "C" {
 	#include <libavfilter/avfilter.h>
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	// init ffmpeg subsystem
 	av_register_all();
 	avfilter_register_all();
