@@ -90,7 +90,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		bool can_ripple_delete = true;
 		bool at_end_of_sequence = true;
-		rc_ripple_min = LONG_MIN;
+		rc_ripple_min = 0;
 		rc_ripple_max = LONG_MAX;
 
 		for (int i=0;i<sequence->clips.size();i++) {
@@ -183,14 +183,16 @@ void TimelineWidget::toggle_autoscale() {
 
 void TimelineWidget::tooltip_timer_timeout() {
     if (sequence != NULL) {
-        Clip* c = sequence->clips.at(tooltip_clip);
-        if (c != NULL) {
-            QToolTip::showText(QCursor::pos(),
-                        c->name
-                               + "\nStart: " + frame_to_timecode(c->timeline_in, config.timecode_view, sequence->frame_rate)
-                               + "\nEnd: " + frame_to_timecode(c->timeline_out, config.timecode_view, sequence->frame_rate)
-                               + "\nDuration: " + frame_to_timecode(c->getLength(), config.timecode_view, sequence->frame_rate));
-        }
+		if (tooltip_clip < sequence->clips.size()) {
+			Clip* c = sequence->clips.at(tooltip_clip);
+			if (c != NULL) {
+				QToolTip::showText(QCursor::pos(),
+							c->name
+								   + "\nStart: " + frame_to_timecode(c->timeline_in, config.timecode_view, sequence->frame_rate)
+								   + "\nEnd: " + frame_to_timecode(c->timeline_out, config.timecode_view, sequence->frame_rate)
+								   + "\nDuration: " + frame_to_timecode(c->getLength(), config.timecode_view, sequence->frame_rate));
+			}
+		}
     }
 	tooltip_timer.stop();
 }
@@ -456,6 +458,90 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
 	}
 }
 
+void delete_area_under_ghosts(ComboAction* ca) {
+	// delete areas before adding
+	QVector<Selection> delete_areas;
+	for (int i=0;i<panel_timeline->ghosts.size();i++) {
+		const Ghost& g = panel_timeline->ghosts.at(i);
+		Selection sel;
+		sel.in = g.in;
+		sel.out = g.out;
+		sel.track = g.track;
+		delete_areas.append(sel);
+	}
+	panel_timeline->delete_areas_and_relink(ca, delete_areas);
+}
+
+void insert_clips(ComboAction* ca) {
+	bool ripple_old_point = true;
+
+	long earliest_old_point = LONG_MAX;
+	long latest_old_point = LONG_MIN;
+
+	long earliest_new_point = LONG_MAX;
+	long latest_new_point = LONG_MIN;
+
+	QVector<Clip*> ignore_clips;
+	for (int i=0;i<panel_timeline->ghosts.size();i++) {
+		const Ghost& g = panel_timeline->ghosts.at(i);
+
+		earliest_old_point = qMin(earliest_old_point, g.old_in);
+		latest_old_point = qMax(latest_old_point, g.old_out);
+		earliest_new_point = qMin(earliest_new_point, g.in);
+		latest_new_point = qMax(latest_new_point, g.out);
+
+		if (g.clip >= 0) {
+			ignore_clips.append(sequence->clips.at(g.clip));
+		} else {
+			ripple_old_point = false;
+		}
+	}
+
+	for (int i=0;i<sequence->clips.size();i++) {
+		Clip* c = sequence->clips.at(i);
+		if (c != NULL) {
+			if (c->timeline_in < earliest_new_point && c->timeline_out > earliest_new_point) {
+				panel_timeline->split_clip_and_relink(ca, i, earliest_new_point, true);
+			}
+			if (ripple_old_point
+					&& !((c->timeline_in < earliest_old_point && c->timeline_out <= earliest_old_point) || (c->timeline_in >= latest_old_point && c->timeline_out > latest_old_point))
+					&& !ignore_clips.contains(c)) {
+				ripple_old_point = false;
+			}
+		}
+	}
+
+	panel_timeline->split_cache.clear();
+
+	long ripple_length = (latest_new_point - earliest_new_point);
+
+	RippleCommand* rc = new RippleCommand(sequence, earliest_new_point, ripple_length);
+	rc->ignore = ignore_clips;
+	ca->append(rc);
+
+	if (ripple_old_point) {
+		// works for moving later clips earlier but not earlier to later
+		long second_ripple_length = (earliest_old_point - latest_old_point);
+
+		RippleCommand* rc2 = new RippleCommand(sequence, latest_old_point, second_ripple_length);
+		rc2->ignore = ignore_clips;
+		ca->append(rc2);
+
+		if (earliest_old_point < earliest_new_point) {
+			for (int i=0;i<panel_timeline->ghosts.size();i++) {
+				Ghost& g = panel_timeline->ghosts[i];
+				g.in += second_ripple_length;
+				g.out += second_ripple_length;
+			}
+			for (int i=0;i<sequence->selections.size();i++) {
+				Selection& s = sequence->selections[i];
+				s.in += second_ripple_length;
+				s.out += second_ripple_length;
+			}
+		}
+	}
+}
+
 void TimelineWidget::dropEvent(QDropEvent* event) {
     if (panel_timeline->importing && panel_timeline->ghosts.size() > 0) {
         event->accept();
@@ -479,19 +565,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
             s->audio_layout = predicted_audio_layout;
 
             panel_project->new_sequence(ca, s, true, NULL);
-        } else {
-            // delete areas before adding
-            QVector<Selection> delete_areas;
-            for (int i=0;i<panel_timeline->ghosts.size();i++) {
-                const Ghost& g = panel_timeline->ghosts.at(i);
-                Selection sel;
-                sel.in = g.in;
-                sel.out = g.out;
-                sel.track = g.track;
-                delete_areas.append(sel);
-            }
-            panel_timeline->delete_areas_and_relink(ca, delete_areas);
-        }
+		} else if (event->keyboardModifiers() & Qt::ControlModifier) {
+			insert_clips(ca);
+		} else {
+			delete_area_under_ghosts(ca);
+		}
 
         // add clips
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -923,8 +1001,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                              ca->append(new AddClipCommand(sequence, new_clips));
 						 }
 					 } else {
-						 // move clips
-						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
+						 // INSERT if holding ctrl
+						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (event->modifiers() & Qt::ControlModifier)) {
+							 insert_clips(ca);
+						 } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
+							// move clips
 							 QVector<Selection> delete_areas;
 							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
 								 // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
