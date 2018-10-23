@@ -246,6 +246,19 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="recordButton">
+         <property name="toolTip">
+          <string>Record audio</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/record.png</normalon>
+           <disabledon>:/icons/record-disabled.png</disabledon>
+          </iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="addButton">
          <property name="toolTip">
           <string>Add title, solid, bars, etc.</string>

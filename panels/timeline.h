@@ -194,6 +194,8 @@ private slots:
 
 	void setScroll(int);
 
+	void on_recordButton_clicked();
+
 private:
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);

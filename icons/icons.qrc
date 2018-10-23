@@ -43,5 +43,7 @@
         <file>clock.png</file>
         <file>sequence.png</file>
         <file>folder.png</file>
+        <file>record.png</file>
+        <file>record-disabled.png</file>
     </qresource>
 </RCC>

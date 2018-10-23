@@ -8,7 +8,9 @@
 #include "ui_timeline.h"
 
 #include <QAudioOutput>
+#include <QAudioInput>
 #include <QtMath>
+#include <QFile>
 #include <QDebug>
 
 extern "C" {
@@ -19,6 +21,9 @@ QAudioOutput* audio_output;
 QIODevice* audio_io_device;
 bool audio_device_set = false;
 QMutex audio_write_lock;
+QAudioInput* audio_input = NULL;
+QFile output_recording;
+bool recording = false;
 
 qint8 audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
@@ -176,4 +181,122 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	audio_ibuffer_read = audio_ibuffer_limit;
 
 	return actual_write;
+}
+
+void int32_to_char_array(qint32 i, char* array) {
+	memcpy(array, &i, 4);
+}
+
+void write_wave_header(QFile& f, const QAudioFormat& format) {
+	qint32 int32bit;
+	char arr[4];
+
+	// 4 byte riff header
+	f.write("RIFF");
+
+	// 4 byte file size, filled in later
+	for (int i=0;i<4;i++) f.putChar(0);
+
+	// 4 byte file type header + 4 byte format chunk marker
+	f.write("WAVEfmt");
+	f.putChar(0x20);
+
+	// 4 byte length of the above format data (always 16 bytes)
+	f.putChar(16);
+	for (int i=0;i<3;i++) f.putChar(0);
+
+	// 2 byte type format (1 is PCM)
+	f.putChar(1);
+	f.putChar(0);
+
+	// 2 byte channel count (2 for stereo)
+	f.putChar(2);
+	f.putChar(0);
+
+	// 4 byte integer for sample rate
+	int32bit = format.sampleRate();
+	int32_to_char_array(int32bit, arr);
+	f.write(arr, 4);
+
+	// 4 byte integer for bytes per second
+	int32bit = (format.sampleRate() * format.sampleSize() * format.channelCount()) / 8;
+	int32_to_char_array(int32bit, arr);
+	f.write(arr, 4);
+
+	// 2 byte integer for bytes per sample per channel
+	int32bit = (format.sampleSize() * format.channelCount()) / 8;
+	int32_to_char_array(int32bit, arr);
+	f.write(arr, 2);
+
+	// 2 byte integer for bits per sample (16)
+	int32bit = format.sampleSize();
+	int32_to_char_array(int32bit, arr);
+	f.write(arr, 2);
+
+	// data chunk header
+	f.write("data");
+
+	// 4 byte integer for data chunk size (filled in later)?
+	for (int i=0;i<4;i++) f.putChar(0);
+}
+
+void write_wave_trailer(QFile& f) {
+	char arr[4];
+
+	f.seek(4);
+
+	// 4 bytes for total file size - 8 bytes
+	qint32 file_size = f.size() - 8;
+	int32_to_char_array(file_size, arr);
+	f.write(arr, 4);
+
+	f.seek(40);
+
+	// 4 bytes for data chunk size (file size - header)
+	file_size = f.size() - 44;
+	int32_to_char_array(file_size, arr);
+	f.write(arr, 4);
+}
+
+bool start_recording() {
+	if (sequence == NULL) {
+		qDebug() << "[ERROR] No active sequence to record into";
+		return false;
+	}
+	output_recording.setFileName("C:/Users/Matt/output.wav");
+	if (!output_recording.open(QFile::WriteOnly)) {
+		qDebug() << "[ERROR] Failed to open output file. Does Olive have permission to write to this directory?";
+		return false;
+	}
+
+	QAudioFormat audio_format = audio_output->format();
+	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
+	if (!info.isFormatSupported(audio_format)) {
+		qDebug() << "[WARNING] Default format not supported, using nearest";
+		audio_format = info.nearestFormat(audio_format);
+	}
+	write_wave_header(output_recording, audio_format);
+	audio_input = new QAudioInput(audio_format);
+	audio_input->start(&output_recording);
+	recording = true;
+
+	return true;
+}
+
+void stop_recording() {
+	if (recording) {
+		audio_input->stop();
+
+		/*if (audio_input->state() == QAudio::ActiveState) {
+
+		}*/
+
+		write_wave_trailer(output_recording);
+
+		output_recording.close();
+
+		delete audio_input;
+		audio_input = NULL;
+	}
+	recording = false;
 }

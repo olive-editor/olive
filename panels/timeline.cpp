@@ -193,6 +193,7 @@ void Timeline::update_sequence() {
     ui->snappingButton->setEnabled(!null_sequence);
 	ui->pushButton_4->setEnabled(!null_sequence);
 	ui->pushButton_5->setEnabled(!null_sequence);
+	ui->recordButton->setEnabled(!null_sequence);
 	ui->addButton->setEnabled(!null_sequence);
     ui->headers->setEnabled(!null_sequence);
 
@@ -1151,4 +1152,8 @@ void Timeline::setScroll(int s) {
 	scroll = s;
 	ui->headers->set_scroll(s);
 	repaint_timeline();
+}
+
+void Timeline::on_recordButton_clicked() {
+	qDebug() << "recording is a" << start_recording();
 }

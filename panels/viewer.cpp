@@ -263,6 +263,7 @@ void Viewer::pause() {
 	playing = false;
 	set_playpause_icon(true);
 	playback_updater.stop();
+	stop_recording();
 }
 
 void Viewer::update_playhead_timecode(long p) {
