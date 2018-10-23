@@ -95,6 +95,8 @@ Timeline::Timeline(QWidget *parent) :
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
 
     update_sequence();
+
+	ui->recordButton->setVisible(false);
 }
 
 Timeline::~Timeline()
