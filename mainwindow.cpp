@@ -122,6 +122,36 @@ MainWindow::MainWindow(QWidget *parent) :
         QDir dir(data_dir);
         dir.mkpath(".");
         if (dir.exists()) {
+			qint64 a_month_ago = QDateTime::currentSecsSinceEpoch() - 2592000;
+			qint64 a_week_ago = QDateTime::currentSecsSinceEpoch() - 604800;
+
+			// delete auto-recoveries older than 7 days
+			QStringList old_autorecoveries = dir.entryList(QStringList("autorecovery.ove.*"), QDir::Files);
+			int deleted_ars = 0;
+			for (int i=0;i<old_autorecoveries.size();i++) {
+				QString file_name = data_dir + "/" + old_autorecoveries.at(i);
+				qint64 file_time = QFileInfo(file_name).lastModified().toSecsSinceEpoch();
+				if (file_time < a_week_ago) {
+					if (QFile(file_name).remove()) deleted_ars++;
+				}
+			}
+			if (deleted_ars > 0) qDebug() << "[INFO] Deleted" << deleted_ars << "autorecovery" << ((deleted_ars == 1) ? "file that was" : "files that were") << "older than 7 days";
+
+			// delete previews older than 30 days
+			QDir preview_dir = QDir(data_dir + "/previews");
+			if (preview_dir.exists()) {
+				deleted_ars = 0;
+				QStringList old_prevs = preview_dir.entryList(QDir::Files);
+				for (int i=0;i<old_prevs.size();i++) {
+					QString file_name = preview_dir.absolutePath() + "/" + old_prevs.at(i);
+					qint64 file_time = QFileInfo(file_name).lastRead().toSecsSinceEpoch();
+					if (file_time < a_month_ago) {
+						if (QFile(file_name).remove()) deleted_ars++;
+					}
+				}
+				if (deleted_ars > 0) qDebug() << "[INFO] Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
+			}
+
             // detect auto-recovery file
             autorecovery_filename = data_dir + "/autorecovery.ove";
             if (QFile::exists(autorecovery_filename)) {
