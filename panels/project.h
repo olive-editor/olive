@@ -68,6 +68,8 @@ public:
     QVector<Sequence*> list_all_project_sequences();
 
 	SourceTable* source_table;
+
+	QVector<Media*> last_imported_media;
 public slots:
 	void import_dialog();
     void delete_selected_media();

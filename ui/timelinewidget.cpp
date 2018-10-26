@@ -1,5 +1,6 @@
 #include "timelinewidget.h"
 
+#include "playback/audio.h"
 #include "panels/panels.h"
 #include "io/config.h"
 #include "project/sequence.h"
@@ -59,8 +60,6 @@ void TimelineWidget::right_click_ripple() {
 	s.in = rc_ripple_min;
 	s.out = rc_ripple_max;
 	s.track = panel_timeline->cursor_track;
-
-	qDebug() << s.in << s.out << s.track;
 
 	sels.append(s);
 
@@ -700,7 +699,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 
 		if (panel_timeline->creating) {
 			int comp = 0;
-			switch (panel_timeline->creatingObject) {
+			switch (panel_timeline->creating_object) {
 			case ADD_OBJ_TITLE:
 			case ADD_OBJ_SOLID:
 			case ADD_OBJ_BARS:
@@ -708,6 +707,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 				break;
 			case ADD_OBJ_TONE:
 			case ADD_OBJ_NOISE:
+			case ADD_OBJ_AUDIO:
 				comp = 1;
 				break;
 			}
@@ -857,7 +857,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 				if (panel_timeline->ghosts.size() > 0) {
 					const Ghost& g = panel_timeline->ghosts.at(0);
 
-                    if (g.in != g.out) {
+					if (panel_timeline->creating_object == ADD_OBJ_AUDIO) {
+						panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
+						panel_timeline->creating = false;
+					} else if (g.in != g.out) {
 						Clip* c = new Clip(sequence);
 						c->media = NULL;
 						c->timeline_in = qMin(g.in, g.out);
@@ -878,7 +881,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							c->media_type = MEDIA_TYPE_SOLID;
 						}
 
-						switch (panel_timeline->creatingObject) {
+						switch (panel_timeline->creating_object) {
 						case ADD_OBJ_TITLE:
 							c->name = "Title";
                             c->effects.append(create_effect(VIDEO_TEXT_EFFECT, c));
@@ -2004,7 +2007,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* clip = sequence->clips.at(i);
 			if (clip != NULL && is_track_visible(clip->track)) {
-				QRect clip_rect(panel_timeline->getTimelineScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), clip->getLength() * panel_timeline->zoom, panel_timeline->calculate_track_height(clip->track, -1));
+				QRect clip_rect(panel_timeline->getTimelineScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), getScreenPointFromFrame(panel_timeline->zoom, clip->getLength()), panel_timeline->calculate_track_height(clip->track, -1));
 				QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
 				if (clip_rect.left() < width() && clip_rect.right() >= 0 && clip_rect.top() < height() && clip_rect.bottom() >= 0) {
 					QRect actual_clip_rect = clip_rect;
@@ -2199,6 +2202,47 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					if (clip_rect.right() >= 0 && clip_rect.right() < width()) p.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
 					if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
 				}
+			}
+		}
+
+		// Draw recording clip if recording if valid
+		if (panel_sequence_viewer->is_recording_cued() && is_track_visible(panel_sequence_viewer->recording_track)) {
+			int rec_track_x = panel_timeline->getTimelineScreenPointFromFrame(panel_sequence_viewer->recording_start);
+			int rec_track_y = getScreenPointFromTrack(panel_sequence_viewer->recording_track);
+			int rec_track_height = panel_timeline->calculate_track_height(panel_sequence_viewer->recording_track, -1);
+			if (panel_sequence_viewer->recording_start != panel_sequence_viewer->recording_end) {
+				QRect rec_rect(
+							rec_track_x,
+							rec_track_y,
+							getScreenPointFromFrame(panel_timeline->zoom, panel_sequence_viewer->recording_end - panel_sequence_viewer->recording_start),
+							rec_track_height
+						 );
+				p.setPen(QPen(QColor(96, 96, 96), 2));
+				p.fillRect(rec_rect, QColor(192, 192, 192));
+				p.drawRect(rec_rect);
+			}
+			QRect active_rec_rect(
+						rec_track_x,
+						rec_track_y,
+						getScreenPointFromFrame(panel_timeline->zoom, panel_sequence_viewer->seq->playhead - panel_sequence_viewer->recording_start),
+						rec_track_height
+					 );
+			p.setPen(QPen(QColor(192, 0, 0), 2));
+			p.fillRect(active_rec_rect, QColor(255, 96, 96));
+			p.drawRect(active_rec_rect);
+
+			p.setPen(Qt::NoPen);
+
+			if (!panel_sequence_viewer->playing) {
+				int rec_marker_size = 8;
+				int rec_track_midY = rec_track_y + (rec_track_height >> 1);
+				p.setBrush(Qt::white);
+				QPoint cue_marker[3] = {
+					QPoint(rec_track_x, rec_track_midY - rec_marker_size),
+					QPoint(rec_track_x + rec_marker_size, rec_track_midY),
+					QPoint(rec_track_x, rec_track_midY + rec_marker_size)
+				};
+				p.drawPolygon(cue_marker, 3);
 			}
 		}
 

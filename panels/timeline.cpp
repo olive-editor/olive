@@ -94,9 +94,7 @@ Timeline::Timeline(QWidget *parent) :
 	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
 
-    update_sequence();
-
-	ui->recordButton->setVisible(false);
+	update_sequence();
 }
 
 Timeline::~Timeline()
@@ -1147,7 +1145,7 @@ void Timeline::on_addButton_clicked() {
 
 void Timeline::addMenuItem(QAction* action) {
 	creating = true;
-	creatingObject = action->data().toInt();
+	creating_object = action->data().toInt();
 }
 
 void Timeline::setScroll(int s) {
@@ -1157,5 +1155,7 @@ void Timeline::setScroll(int s) {
 }
 
 void Timeline::on_recordButton_clicked() {
-	qDebug() << "recording is a" << start_recording();
+	creating = true;
+	creating_object = ADD_OBJ_AUDIO;
+	//qDebug() << "recording is a" << start_recording();
 }

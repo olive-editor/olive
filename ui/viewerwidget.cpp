@@ -529,9 +529,12 @@ void ViewerWidget::paintGL() {
 		glDisable(GL_TEXTURE_2D);
 	} while (loop);
 
+	// TODO this could be cleaned up but it's not a priority rn
 	if (!recording
 			&& viewer->playing
 			&& (viewer->seq->playhead == viewer->seq->getEndFrame() || (viewer->seq->using_workarea && viewer->seq->playhead >= viewer->seq->workarea_out))) {
+		viewer->pause();
+	} else if (recording && viewer->recording_start != viewer->recording_end && viewer->seq->playhead >= viewer->recording_end) {
 		viewer->pause();
 	}
 }

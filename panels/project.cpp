@@ -371,6 +371,8 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
     QVector<bool> image_sequence_importassequence;
     QStringList image_sequence_formats = config.img_seq_formats.split("|");
 
+	if (!recursive) last_imported_media.clear();
+
 	bool create_undo_action = (!recursive && replace == NULL);
     ComboAction* ca;
     if (create_undo_action) ca = new ComboAction();
@@ -493,6 +495,8 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 				start_preview_generator(item, m, replace != NULL);
 
 				set_footage_of_tree(item, m);
+
+				last_imported_media.append(m);
 
 				if (replace == NULL) {
 					if (create_undo_action) {

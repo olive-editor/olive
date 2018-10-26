@@ -2,6 +2,7 @@
 
 #include "project/sequence.h"
 
+#include "panels/project.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
@@ -11,6 +12,7 @@
 #include <QAudioInput>
 #include <QtMath>
 #include <QFile>
+#include <QDir>
 #include <QDebug>
 
 extern "C" {
@@ -263,7 +265,22 @@ bool start_recording() {
 		qDebug() << "[ERROR] No active sequence to record into";
 		return false;
 	}
-	output_recording.setFileName("C:/Users/Matt/output.wav");
+
+	QString audio_path = project_url + " Audio";
+	QDir audio_dir(audio_path);
+	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
+		qDebug() << "[ERROR] Failed to create audio directory";
+		return false;
+	}
+
+	QString audio_filename;
+	int file_number = 0;
+	do {
+		file_number++;
+		audio_filename = audio_path + "/Recording " + QString::number(file_number) + ".wav";
+	} while (QFile(audio_filename).exists());
+
+	output_recording.setFileName(audio_filename);
 	if (!output_recording.open(QFile::WriteOnly)) {
 		qDebug() << "[ERROR] Failed to open output file. Does Olive have permission to write to this directory?";
 		return false;
@@ -287,16 +304,16 @@ void stop_recording() {
 	if (recording) {
 		audio_input->stop();
 
-		/*if (audio_input->state() == QAudio::ActiveState) {
-
-		}*/
-
 		write_wave_trailer(output_recording);
 
 		output_recording.close();
 
 		delete audio_input;
 		audio_input = NULL;
+		recording = false;
 	}
-	recording = false;
+}
+
+const QString& get_recorded_audio_filename() {
+	return output_recording.fileName();
 }

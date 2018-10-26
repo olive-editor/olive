@@ -293,14 +293,13 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			break;
 		case MEDIA_TYPE_TONE:
 			frame = c->frame;
-			nb_bytes = av_samples_get_buffer_size(NULL, frame->channels, frame->nb_samples, static_cast<AVSampleFormat>(frame->format), 1);
-			if (c->frame_sample_index < 0 || c->frame_sample_index >= nb_bytes) {
+			nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+			while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
 				// create "new frame"
 				memset(c->frame->data[0], 0, nb_bytes);
 				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes);
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
-				qDebug() << "2 >> c->audio_target_frame:" << c->audio_target_frame;
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
 				int offset = audio_ibuffer_read - c->audio_buffer_write;
 				if (offset > 0) {
@@ -546,6 +545,7 @@ void reset_cache(Clip* c, long target_frame) {
 	}
 		break;
 	case MEDIA_TYPE_TONE:
+		c->reached_end = false;
 		c->audio_target_frame = target_frame;
 		c->frame_sample_index = -1;
 		c->frame->pts = 0;

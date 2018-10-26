@@ -51,6 +51,13 @@ public:
 	qint64 start_msecs;
 	QTimer playback_updater;
 
+	void cue_recording(long start, long end, int track);
+	void uncue_recording();
+	bool is_recording_cued();	
+	long recording_start;
+	long recording_end;
+	int recording_track;
+
 	void reset_all_audio();
 	void update_parents();
 
@@ -70,11 +77,15 @@ private slots:
     void on_pushButton_3_clicked();
 	void update_playhead();
 	void timer_update();
+	void recording_flasher_update();
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
 	bool main_sequence;
 	bool created_sequence;
+
+	bool cue_recording_internal;
+	QTimer recording_flasher;
 };
 
 #endif // VIEWER_H

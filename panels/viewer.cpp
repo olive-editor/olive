@@ -3,6 +3,7 @@
 
 #include "playback/audio.h"
 #include "timeline.h"
+#include "panels/project.h"
 #include "project/sequence.h"
 #include "panels/panels.h"
 #include "io/config.h"
@@ -25,13 +26,15 @@ extern "C" {
 #include <QAudioOutput>
 #include <QPainter>
 #include <QStringList>
+#include <QTimer>
 
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
     ui(new Ui::Viewer),
 	seq(NULL),
 	playing(false),
-	created_sequence(false)
+	created_sequence(false),
+	cue_recording_internal(false)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
@@ -49,7 +52,10 @@ Viewer::Viewer(QWidget *parent) :
 	ui->currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);
 	connect(ui->currentTimecode, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
 
+	recording_flasher.setInterval(500);
+
 	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
+	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
 
     update_playhead_timecode(0);
     update_end_timecode();
@@ -231,6 +237,25 @@ void Viewer::go_to_end() {
 	}
 }
 
+void Viewer::cue_recording(long start, long end, int track) {
+	recording_start = start;
+	recording_end = end;
+	recording_track = track;
+	panel_sequence_viewer->seek(recording_start);
+	cue_recording_internal = true;
+	recording_flasher.start();
+}
+
+void Viewer::uncue_recording() {
+	cue_recording_internal = false;
+	recording_flasher.stop();
+	ui->pushButton_3->setStyleSheet(QString());
+}
+
+bool Viewer::is_recording_cued() {
+	return cue_recording_internal;
+}
+
 void Viewer::toggle_play() {
 	if (playing) {
 		pause();
@@ -249,6 +274,10 @@ void Viewer::play() {
 				|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
 			init_audio(seq);
 		}
+		if (is_recording_cued() && !start_recording()) {
+			qDebug() << "[ERROR] Failed to record audio";
+			return;
+		}
 		playhead_start = seq->playhead;
 		start_msecs = QDateTime::currentMSecsSinceEpoch();
 		playing = true;
@@ -263,7 +292,36 @@ void Viewer::pause() {
 	playing = false;
 	set_playpause_icon(true);
 	playback_updater.stop();
-	stop_recording();
+
+	if (is_recording_cued()) {
+		uncue_recording();
+
+		if (recording) {
+			stop_recording();
+
+			// import audio
+			panel_project->process_file_list(false, QStringList(get_recorded_audio_filename()), NULL, NULL);
+
+			// add it to the sequence
+			Clip* c = new Clip(seq);
+			Media* m = panel_project->last_imported_media.at(0);
+			c->media = m; // latest media
+			c->media_type = MEDIA_TYPE_FOOTAGE;
+			c->media_stream = 0;
+			c->timeline_in = recording_start;
+			c->timeline_out = seq->playhead;
+			c->clip_in = 0;
+			c->track = recording_track;
+			c->color_r = 128;
+			c->color_g = 192;
+			c->color_b = 128;
+			c->name = m->name;
+
+			QVector<Clip*> add_clips;
+			add_clips.append(c);
+			undo_stack.push(new AddClipCommand(seq, add_clips)); // add clip
+		}
+	}
 }
 
 void Viewer::update_playhead_timecode(long p) {
@@ -415,6 +473,14 @@ void Viewer::update_playhead() {
 void Viewer::timer_update() {
 	seq->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
 	update_parents();
+}
+
+void Viewer::recording_flasher_update() {
+	if (ui->pushButton_3->styleSheet().isEmpty()) {
+		ui->pushButton_3->setStyleSheet("background: red;");
+	} else {
+		ui->pushButton_3->setStyleSheet(QString());
+	}
 }
 
 void Viewer::clean_created_seq() {
