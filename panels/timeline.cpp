@@ -320,7 +320,10 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
                 }
 			}
 
-            if (can_ripple) ca->append(new RippleCommand(sequence, ripple_point, -ripple_length));
+			if (can_ripple) {
+				ca->append(new RippleCommand(sequence, ripple_point, -ripple_length));
+				panel_sequence_viewer->seek(ripple_point-1);
+			}
 		}
 
 		selections.clear();
