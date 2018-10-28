@@ -2,6 +2,7 @@
 
 #include "project/sequence.h"
 
+#include "io/config.h"
 #include "panels/project.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
@@ -211,9 +212,10 @@ void write_wave_header(QFile& f, const QAudioFormat& format) {
 	f.putChar(1);
 	f.putChar(0);
 
-	// 2 byte channel count (2 for stereo)
-	f.putChar(2);
-	f.putChar(0);
+	// 2 byte channel count
+	int32bit = format.channelCount();
+	int32_to_char_array(int32bit, arr);
+	f.write(arr, 2);
 
 	// 4 byte integer for sample rate
 	int32bit = format.sampleRate();
@@ -287,6 +289,9 @@ bool start_recording() {
 	}
 
 	QAudioFormat audio_format = audio_output->format();
+	if (config.recording_mode != audio_format.channelCount()) {
+		audio_format.setChannelCount(config.recording_mode);
+	}
 	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
 	if (!info.isFormatSupported(audio_format)) {
 		qDebug() << "[WARNING] Default format not supported, using nearest";

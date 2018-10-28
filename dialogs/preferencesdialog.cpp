@@ -23,6 +23,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+	ui->recordingComboBox->setCurrentIndex(config.recording_mode - 1);
     ui->imgSeqFormatEdit->setText(config.img_seq_formats);
 }
 
@@ -75,5 +76,6 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 }
 
 void PreferencesDialog::on_buttonBox_accepted() {
+	config.recording_mode = ui->recordingComboBox->currentIndex() + 1;
     config.img_seq_formats = ui->imgSeqFormatEdit->text();
 }

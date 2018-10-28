@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -33,6 +33,27 @@
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="imgSeqFormatEdit"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Audio Recording:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="recordingComboBox">
+         <item>
+          <property name="text">
+           <string>Mono</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Stereo</string>
+          </property>
+         </item>
+        </widget>
        </item>
       </layout>
      </widget>

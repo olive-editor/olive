@@ -25,6 +25,7 @@
 #include <QPainter>
 #include <QMenu>
 #include <QInputDialog>
+#include <QMessageBox>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
     if (source_frame_rate == target_frame_rate) return framenumber;
@@ -1155,7 +1156,10 @@ void Timeline::setScroll(int s) {
 }
 
 void Timeline::on_recordButton_clicked() {
-	creating = true;
-	creating_object = ADD_OBJ_AUDIO;
-	//qDebug() << "recording is a" << start_recording();
+	if (project_url.isEmpty()) {
+		QMessageBox::critical(this, "Unsaved Project", "You must save this project before you can record audio in it.", QMessageBox::Ok);
+	} else {
+		creating = true;
+		creating_object = ADD_OBJ_AUDIO;
+	}
 }

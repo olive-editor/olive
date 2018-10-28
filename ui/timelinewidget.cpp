@@ -2234,7 +2234,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 			p.setPen(Qt::NoPen);
 
 			if (!panel_sequence_viewer->playing) {
-				int rec_marker_size = 8;
+				int rec_marker_size = 6;
 				int rec_track_midY = rec_track_y + (rec_track_height >> 1);
 				p.setBrush(Qt::white);
 				QPoint cue_marker[3] = {

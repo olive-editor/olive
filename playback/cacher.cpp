@@ -183,7 +183,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 								if ((c->frame->pts >= c->reverse_target) || (ret == AVERROR_EOF)) {
 									/*qDebug() << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
 									qDebug() << "diff:" << (c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target;
-									int cutoff = qRound ((((c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target) * timebase) * c->sequence->audio_frequency);
+									int cutoff = qRound64 ((((c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target) * timebase) * c->sequence->audio_frequency);
 									if (cutoff > 0) {
 										qDebug() << "cut off" << cutoff << "samples (rate:" << c->sequence->audio_frequency << ")";
 										rev_frame->nb_samples -= cutoff;
@@ -192,7 +192,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 #ifdef AUDIOWARNINGS
 									qDebug() << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
 #endif
-									rev_frame->nb_samples = qRound(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * c->sequence->audio_frequency);
+									rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * c->sequence->audio_frequency);
 #ifdef AUDIOWARNINGS
 									qDebug() << "post cutoff deets::" << rev_frame->nb_samples;
 #endif
@@ -250,7 +250,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
                     // get precise sample offset for the elected clip_in from this audio frame
 					double target_sts = playhead_to_clip_seconds(c, c->audio_target_frame);
 					double frame_sts = ((frame->pts - c->stream->start_time) * timebase);
-                    int nb_samples = qRound((target_sts - frame_sts)*c->sequence->audio_frequency);					
+					int nb_samples = qRound64((target_sts - frame_sts)*c->sequence->audio_frequency);
 					c->frame_sample_index = nb_samples * 4;
 #ifdef AUDIOWARNINGS
 					qDebug() << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (c->reverse_target * timebase);
@@ -379,7 +379,7 @@ void cache_video_worker(Clip* c, long playhead) {
 		int64_t eighth_second = av_q2d(av_inv_q(c->stream->time_base))*0.125;
 		int64_t smallest_pts = INT64_MAX;
 		if (c->reverse && c->queue.size() > 0) {
-			int64_t quarter_sec = qRound(av_q2d(av_inv_q(c->stream->time_base))) >> 2;
+			int64_t quarter_sec = qRound64(av_q2d(av_inv_q(c->stream->time_base))) >> 2;
 			for (int i=0;i<c->queue.size();i++) {
 				smallest_pts = qMin(smallest_pts, c->queue.at(i)->pts);
 			}
@@ -489,7 +489,7 @@ void reset_cache(Clip* c, long target_frame) {
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
 				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
 				int64_t seek_ts = target_ts;
-				int64_t timebase_half_second = qRound(av_q2d(av_inv_q(c->stream->time_base)));
+				int64_t timebase_half_second = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
 				if (c->reverse) seek_ts -= timebase_half_second;
 
 				while (true) {
@@ -527,6 +527,7 @@ void reset_cache(Clip* c, long target_frame) {
 				// seek (target_frame represents timeline timecode in frames, not clip timecode)
 
 				int64_t timestamp = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
+
                 if (c->reverse) {
 					c->reverse_target = timestamp;
 					timestamp -= av_q2d(av_inv_q(c->stream->time_base));
@@ -725,7 +726,7 @@ void open_clip_worker(Clip* clip) {
 				avfilter_link(clip->buffersrc_ctx, 0, tempo_filter, 0);
 				avfilter_link(tempo_filter, 0, clip->buffersink_ctx, 0);
 			} else {
-				target_sample_rate = qRound(clip->sequence->audio_frequency / clip->speed);
+				target_sample_rate = qRound64(clip->sequence->audio_frequency / clip->speed);
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 			}
 

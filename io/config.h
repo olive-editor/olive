@@ -9,6 +9,9 @@
 #define TIMECODE_NONDROP 1
 #define TIMECODE_FRAMES 2
 
+#define RECORD_MODE_MONO 1
+#define RECORD_MODE_STEREO 2
+
 struct Config {
     Config();
     bool saved_layout;
@@ -27,6 +30,7 @@ struct Config {
     double custom_title_safe_ratio;
 	bool enable_drag_files_to_timeline;
     bool autoscale_by_default;
+	int recording_mode;
 
     void load(QString path);
     void save(QString path);

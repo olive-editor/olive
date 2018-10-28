@@ -23,7 +23,8 @@ Config::Config()
       use_custom_title_safe_ratio(false),
 	  custom_title_safe_ratio(1),
       enable_drag_files_to_timeline(false),
-      autoscale_by_default(false)
+	  autoscale_by_default(false),
+	  recording_mode(2)
 {}
 
 void Config::load(QString path) {
@@ -81,8 +82,11 @@ void Config::load(QString path) {
 					enable_drag_files_to_timeline = (stream.text() == "1");;
                 } else if (stream.name() == "AutoscaleByDefault") {
                     stream.readNext();
-                    autoscale_by_default = (stream.text() == "1");;
-                }
+					autoscale_by_default = (stream.text() == "1");
+				} else if (stream.name() == "RecordingMode") {
+					stream.readNext();
+					recording_mode = stream.text().toInt();
+				}
             }
         }
         if (stream.hasError()) {
@@ -90,29 +94,7 @@ void Config::load(QString path) {
         }
 
         f.close();
-    }
-	/*if (!custom_scale) {
-		#ifdef _WIN32
-		// Get Windows UI scale - TODO may not be compatible with XP
-		HDC screen = GetDC(0);
-		int dpiX = GetDeviceCaps (screen, LOGPIXELSX);
-		//int dpiY = GetDeviceCaps (screen, LOGPIXELSY);
-
-		scale = (float) dpiX / 96;
-
-		ReleaseDC (0, screen);
-		#endif
-	}*/
-
-//	padding *= scale;
-
-	/*DIR* dir = opendir("conf");
-	if (dir) {
-		closedir(dir);
-	} else if (ENOENT == errno) {
-		// no config directory, assume this is the first time opening Olive
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "INFO", "NOTE: This version of Olive is INCOMPLETE and very likely to crash. It comes with NO WARRANTY or guarantee of functionality.\n\nRegardless, thanks for checking out the project and I hope you enjoy using it!", NULL);
-	}*/
+	}
 }
 
 void Config::save(QString path) {
@@ -144,14 +126,9 @@ void Config::save(QString path) {
     stream.writeTextElement("CustomTitleSafeRatio", QString::number(custom_title_safe_ratio));
 	stream.writeTextElement("EnableDragFilesToTimeline", QString::number(enable_drag_files_to_timeline));
     stream.writeTextElement("AutoscaleByDefault", QString::number(autoscale_by_default));
+	stream.writeTextElement("RecordingMode", QString::number(recording_mode));
 
-    stream.writeEndElement();
+	stream.writeEndElement(); // configuration
     stream.writeEndDocument(); // doc
-    f.close();
-	/*#ifdef _WIN32
-		_mkdir("conf");
-	#else
-		mkdir("conf", 0777);
-	#endif*/
-
+	f.close();
 }
