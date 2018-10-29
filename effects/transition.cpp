@@ -2,8 +2,7 @@
 
 #include "project/clip.h"
 #include "io/config.h"
-
-#include <QDebug>
+#include "debug.h"
 
 QVector<QString> video_transition_names;
 QVector<QString> audio_transition_names;
@@ -38,6 +37,6 @@ Transition* create_transition(int transition_id, Clip* c) {
         case AUDIO_LINEAR_FADE_TRANSITION: return new LinearFadeTransition();
         }
     }
-    qDebug() << "[ERROR] Invalid transition ID";
+	dout << "[ERROR] Invalid transition ID";
     return NULL;
 }

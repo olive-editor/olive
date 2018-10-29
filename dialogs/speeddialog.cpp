@@ -6,7 +6,6 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QDialogButtonBox>
-#include <QDebug>
 
 #include "ui/labelslider.h"
 #include "project/clip.h"

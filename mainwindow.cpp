@@ -28,7 +28,8 @@
 
 #include "ui_timeline.h"
 
-#include <QDebug>
+#include "debug.h"
+
 #include <QStyleFactory>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -69,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
+	setup_debug();
+
 	mainWindow = this;
 
 	// set up style?
@@ -135,7 +138,7 @@ MainWindow::MainWindow(QWidget *parent) :
 					if (QFile(file_name).remove()) deleted_ars++;
 				}
 			}
-			if (deleted_ars > 0) qDebug() << "[INFO] Deleted" << deleted_ars << "autorecovery" << ((deleted_ars == 1) ? "file that was" : "files that were") << "older than 7 days";
+			if (deleted_ars > 0) dout << "[INFO] Deleted" << deleted_ars << "autorecovery" << ((deleted_ars == 1) ? "file that was" : "files that were") << "older than 7 days";
 
 			// delete previews older than 30 days
 			QDir preview_dir = QDir(data_dir + "/previews");
@@ -149,7 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
 						if (QFile(file_name).remove()) deleted_ars++;
 					}
 				}
-				if (deleted_ars > 0) qDebug() << "[INFO] Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
+				if (deleted_ars > 0) dout << "[INFO] Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
 			}
 
             // detect auto-recovery file
@@ -214,6 +217,8 @@ MainWindow::~MainWindow() {
 	delete panel_timeline;
     delete panel_sequence_viewer;
 	delete panel_footage_viewer;
+
+	close_debug();
 }
 
 void MainWindow::on_action_Import_triggered()
@@ -370,7 +375,7 @@ void MainWindow::on_actionSplit_at_Playhead_triggered()
 void MainWindow::autorecover_interval() {
 	if (isWindowModified()) {
         panel_project->save_project(true);
-        qDebug() << "[INFO] Auto-recovery project saved";
+		dout << "[INFO] Auto-recovery project saved";
     }
 }
 

@@ -8,7 +8,6 @@
 #include <QPainter>
 #include <QLinearGradient>
 #include <QtMath>
-#include <QDebug>
 
 #define AUDIO_MONITOR_PEAK_HEIGHT 15
 #define AUDIO_MONITOR_GAP 3

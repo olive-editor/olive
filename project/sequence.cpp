@@ -3,8 +3,6 @@
 #include "project/clip.h"
 #include "effects/transition.h"
 
-#include <QDebug>
-
 Sequence::Sequence() :
 	playhead(0),
     using_workarea(false),

@@ -6,6 +6,7 @@
 
 #include "project/clip.h"
 #include "project/sequence.h"
+#include "debug.h"
 
 ToneEffect::ToneEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_TONE_EFFECT), sinX(INT_MIN) {
 	type_val = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
@@ -54,7 +55,7 @@ void ToneEffect::process_audio(double timecode_start, double timecode_end, quint
 		int presin = sinX;
 		sinX++;
 		if (sinX < presin) {
-			qDebug() << "[WARNING] Tone effect overflowed";
+			dout << "[WARNING] Tone effect overflowed";
 		}
 	}
 }

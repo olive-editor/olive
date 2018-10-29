@@ -15,6 +15,7 @@
 #include "ui_timeline.h"
 #include "mainwindow.h"
 #include "ui/viewerwidget.h"
+#include "debug.h"
 
 #include "effects/effect.h"
 #include "effects/transition.h"
@@ -22,7 +23,6 @@
 
 #include <QPainter>
 #include <QColor>
-#include <QDebug>
 #include <QMouseEvent>
 #include <QObject>
 #include <QVariant>
@@ -231,20 +231,17 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 		}
 	}
 
-	/*if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
-		// TODO for this to work, we need a way to abort PreviewGenerator
-
-
-		qDebug() << "TODO get data for:";
+	if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
+		dout << "TODO get data for:";
 		QList<QUrl> urls = event->mimeData()->urls();
 		if (!urls.isEmpty()) {
 			for (int i=0;i<urls.size();i++) {
-				qDebug() << (urls.at(i).toLocalFile());
+				dout << (urls.at(i).toLocalFile());
 			}
 		}
 
 		import_init = true;
-	}*/
+	}
 
 	if (import_init) {
         event->accept();
@@ -1965,7 +1962,7 @@ void draw_waveform(Clip* clip, MediaStream* ms, long media_length, QPainter *p, 
 					p->drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
 				}
 			}/* else {
-				qDebug() << "[WARNING] Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
+				dout << "[WARNING] Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
 			}*/
 		}
 	}

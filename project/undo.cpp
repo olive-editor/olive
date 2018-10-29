@@ -1,6 +1,5 @@
 ﻿#include "undo.h"
 
-#include <QDebug>
 #include <QTreeWidgetItem>
 #include <QMessageBox>
 #include <QCheckBox>

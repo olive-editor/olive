@@ -9,6 +9,7 @@
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "effects/transition.h"
+#include "debug.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -21,7 +22,6 @@ extern "C" {
 	#include <libavutil/opt.h>
 }
 
-#include <QDebug>
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <math.h>
@@ -103,7 +103,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 						av_seek_frame(c->formatCtx, c->stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
 #ifdef AUDIOWARNINGS
 						if (backtrack_seek == 0) {
-							qDebug() << "backtracked to 0";
+							dout << "backtracked to 0";
 						}
 #endif
 					}
@@ -117,13 +117,13 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 							ret = retrieve_next_frame(c, c->frame);
 							if (ret >= 0) {
 								if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-									qDebug() << "[ERROR] Could not feed filtergraph -" << ret;
+									dout << "[ERROR] Could not feed filtergraph -" << ret;
 									break;
 								}
 							} else {
 								if (ret == AVERROR_EOF) {
 #ifdef AUDIOWARNINGS
-										qDebug() << "reached EOF while reading";
+										dout << "reached EOF while reading";
 #endif
 									// TODO revise usage of reached_end in audio
 									if (!c->reverse) {
@@ -131,7 +131,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 									} else {
 									}
 								} else {
-									qDebug() << "[WARNING] Raw audio frame data could not be retrieved." << ret;
+									dout << "[WARNING] Raw audio frame data could not be retrieved." << ret;
 									c->reached_end = true;
 								}
 								break;
@@ -140,12 +140,12 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 						if (ret < 0) {
 							if (ret != AVERROR_EOF) {
-								qDebug() << "[ERROR] Could not pull from filtergraph";
+								dout << "[ERROR] Could not pull from filtergraph";
 								c->reached_end = true;
 								break;
 							} else {
 #ifdef AUDIOWARNINGS
-								qDebug() << "reached EOF while pulling from filtergraph";
+								dout << "reached EOF while pulling from filtergraph";
 #endif
 								if (!c->reverse) break;
 							}
@@ -157,15 +157,15 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 								if (ret != AVERROR_EOF) {
 									if (loop == 2) {
 #ifdef AUDIOWARNINGS
-										qDebug() << "starting rev_frame";
+										dout << "starting rev_frame";
 #endif
 										rev_frame->nb_samples = 0;
 										rev_frame->pts = c->frame->pkt_pts;
 									}
 									int offset = rev_frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format)) * rev_frame->channels;
 #ifdef AUDIOWARNINGS
-									qDebug() << "offset 1:" << offset;
-									qDebug() << "retrieved samples:" << frame->nb_samples << "size:" << (frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels);
+									dout << "offset 1:" << offset;
+									dout << "retrieved samples:" << frame->nb_samples << "size:" << (frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels);
 #endif
 									memcpy(
 											rev_frame->data[0]+offset,
@@ -173,7 +173,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 											(frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels)
 										);
 #ifdef AUDIOWARNINGS
-									qDebug() << "pts:" << c->frame->pts << "dur:" << c->frame->pkt_duration << "rev_target:" << c->reverse_target << "offset:" << offset << "limit:" << rev_frame->linesize[0];
+									dout << "pts:" << c->frame->pts << "dur:" << c->frame->pkt_duration << "rev_target:" << c->reverse_target << "offset:" << offset << "limit:" << rev_frame->linesize[0];
 #endif
 								}
 
@@ -181,20 +181,20 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 //								if (c->frame->pts == c->rev_target) {
 								if ((c->frame->pts >= c->reverse_target) || (ret == AVERROR_EOF)) {
-									/*qDebug() << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
-									qDebug() << "diff:" << (c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target;
+									/*dout << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
+									dout << "diff:" << (c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target;
 									int cutoff = qRound64 ((((c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target) * timebase) * c->sequence->audio_frequency);
 									if (cutoff > 0) {
-										qDebug() << "cut off" << cutoff << "samples (rate:" << c->sequence->audio_frequency << ")";
+										dout << "cut off" << cutoff << "samples (rate:" << c->sequence->audio_frequency << ")";
 										rev_frame->nb_samples -= cutoff;
 									}*/
 
 #ifdef AUDIOWARNINGS
-									qDebug() << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
+									dout << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
 #endif
 									rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * c->sequence->audio_frequency);
 #ifdef AUDIOWARNINGS
-									qDebug() << "post cutoff deets::" << rev_frame->nb_samples;
+									dout << "post cutoff deets::" << rev_frame->nb_samples;
 #endif
 
 									int frame_size = rev_frame->nb_samples * rev_frame->channels * av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format));
@@ -224,7 +224,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 							loop++;
 
 #ifdef AUDIOWARNINGS
-							qDebug() << "loop" << loop;
+							dout << "loop" << loop;
 #endif
 						} else {
 							frame->pts = c->frame->pts;
@@ -253,15 +253,15 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 					int nb_samples = qRound64((target_sts - frame_sts)*c->sequence->audio_frequency);
 					c->frame_sample_index = nb_samples * 4;
 #ifdef AUDIOWARNINGS
-					qDebug() << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (c->reverse_target * timebase);
-					qDebug() << "fsi-calc:" << c->frame_sample_index;
+					dout << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (c->reverse_target * timebase);
+					dout << "fsi-calc:" << c->frame_sample_index;
 #endif
 					if (c->reverse) c->frame_sample_index = nb_bytes - c->frame_sample_index;
                     c->audio_just_reset = false;
 				}
 
 #ifdef AUDIOWARNINGS
-				qDebug() << "fsi-post-post:" << c->frame_sample_index;
+				dout << "fsi-post-post:" << c->frame_sample_index;
 #endif
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
 
@@ -281,7 +281,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			if (c->reverse) frame = c->queue.at(1);
 
 #ifdef AUDIOWARNINGS
-			qDebug() << "j" << c->frame_sample_index << nb_bytes;
+			dout << "j" << c->frame_sample_index << nb_bytes;
 #endif
 
 			// apply any audio effects to the data
@@ -309,7 +309,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 			}
 			break;
 		default: // shouldn't ever get here
-			qDebug() << "[ERROR] Tried to cache a non-footage/tone clip";
+			dout << "[ERROR] Tried to cache a non-footage/tone clip";
 			return;
 		}
 
@@ -335,7 +335,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				c->frame_sample_index+=2;
 			}
 #ifdef AUDIOWARNINGS
-			if (c->audio_buffer_write >= buffer_timeline_out) qDebug() << "timeline out at fsi" << c->frame_sample_index << "of frame ts" << c->frame->pts;
+			if (c->audio_buffer_write >= buffer_timeline_out) dout << "timeline out at fsi" << c->frame_sample_index << "of frame ts" << c->frame->pts;
 #endif
 			audio_write_lock.unlock();
 
@@ -346,7 +346,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				break;
 			}
 
-//			qDebug() << "ended" << c->frame_sample_index << nb_bytes;
+//			dout << "ended" << c->frame_sample_index << nb_bytes;
 		}
 		if (c->reached_end) {
 			frame->nb_samples = 0;
@@ -408,12 +408,12 @@ void cache_video_worker(Clip* c, long playhead) {
 					} else if (static_cast<Media*>(c->media)->get_stream_from_file_index(true, c->media_stream)->infinite_length) {
 						send_it = true;
 					} else {
-						qDebug() << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
+						dout << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
 					}
 
 					if (send_it) {
 						if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-							qDebug() << "[ERROR] Failed to add frame to buffer source." << send_ret;
+							dout << "[ERROR] Failed to add frame to buffer source." << send_ret;
 							break;
 						}
 					}
@@ -423,7 +423,7 @@ void cache_video_worker(Clip* c, long playhead) {
 					if (read_ret == AVERROR_EOF) {
 						c->reached_end = true;
 					} else {
-						qDebug() << "[ERROR] Failed to read frame." << read_ret;
+						dout << "[ERROR] Failed to read frame." << read_ret;
 					}
 					break;
 				}
@@ -433,7 +433,7 @@ void cache_video_worker(Clip* c, long playhead) {
 				if (retr_ret == AVERROR_EOF) {
 					c->reached_end = true;
 				} else {
-					qDebug() << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
+					dout << "[ERROR] Failed to retrieve frame from buffersink." << retr_ret;
 				}
 				av_frame_free(&frame);
 				break;
@@ -503,7 +503,7 @@ void reset_cache(Clip* c, long target_frame) {
 						av_frame_unref(c->frame);
 						int ret = retrieve_next_frame(c, c->frame);
 						if (ret < 0) {
-							qDebug() << "[WARNING] Seeking terminated prematurely";
+							dout << "[WARNING] Seeking terminated prematurely";
 							break;
 						}
 						if (c->frame->pts <= target_ts) {
@@ -532,9 +532,9 @@ void reset_cache(Clip* c, long target_frame) {
 					c->reverse_target = timestamp;
 					timestamp -= av_q2d(av_inv_q(c->stream->time_base));
 #ifdef AUDIOWARNINGS
-					qDebug() << "seeking to" << timestamp << "(originally" << c->reverse_target << ")";
+					dout << "seeking to" << timestamp << "(originally" << c->reverse_target << ")";
 				} else {
-					qDebug() << "reset called; seeking to" << timestamp;
+					dout << "reset called; seeking to" << timestamp;
 #endif
 				}
                 av_seek_frame(c->formatCtx, ms->file_index, timestamp, AVSEEK_FLAG_BACKWARD);
@@ -577,14 +577,14 @@ void open_clip_worker(Clip* clip) {
 		if (errCode != 0) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
-			qDebug() << "[ERROR] Could not open" << filename << "-" << err;
+			dout << "[ERROR] Could not open" << filename << "-" << err;
 		}
 
 		errCode = avformat_find_stream_info(clip->formatCtx, NULL);
 		if (errCode < 0) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
-			qDebug() << "[ERROR] Could not open" << filename << "-" << err;
+			dout << "[ERROR] Could not open" << filename << "-" << err;
 		}
 
 		av_dump_format(clip->formatCtx, 0, filename, 0);
@@ -613,13 +613,13 @@ void open_clip_worker(Clip* clip) {
 
 		// Open codec
 		if (avcodec_open2(clip->codecCtx, clip->codec, &opts) < 0) {
-			qDebug() << "[ERROR] Could not open codec";
+			dout << "[ERROR] Could not open codec";
 		}
 
 		// allocate filtergraph
 		clip->filter_graph = avfilter_graph_alloc();
 		if (clip->filter_graph == NULL) {
-			qDebug() << "[ERROR] Could not create filtergraph";
+			dout << "[ERROR] Could not create filtergraph";
 		}
 		char filter_args[512];
 
@@ -659,7 +659,7 @@ void open_clip_worker(Clip* clip) {
 
             enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
             if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
-                qDebug() << "[ERROR] Could not set output pixel format";
+				dout << "[ERROR] Could not set output pixel format";
 			}
 
 			if (ms->video_interlacing == VIDEO_PROGRESSIVE) {
@@ -705,12 +705,12 @@ void open_clip_worker(Clip* clip) {
 
 			enum AVSampleFormat sample_fmts[] = { sample_format,  static_cast<AVSampleFormat>(-1) };
 			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_fmts", sample_fmts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
-				qDebug() << "[ERROR] Could not set output sample format";
+				dout << "[ERROR] Could not set output sample format";
 			}
 
 			int64_t channel_layouts[] = { AV_CH_LAYOUT_STEREO, static_cast<AVSampleFormat>(-1) };
 			if (av_opt_set_int_list(clip->buffersink_ctx, "channel_layouts", channel_layouts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
-				qDebug() << "[ERROR] Could not set output sample format";
+				dout << "[ERROR] Could not set output sample format";
 			}
 
 			int target_sample_rate = clip->sequence->audio_frequency;
@@ -732,7 +732,7 @@ void open_clip_worker(Clip* clip) {
 
 			int sample_rates[] = { target_sample_rate, 0 };
 			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_rates", sample_rates, 0, AV_OPT_SEARCH_CHILDREN) < 0) {
-				qDebug() << "[ERROR] Could not set output sample rates";
+				dout << "[ERROR] Could not set output sample rates";
 			}
 
 			avfilter_graph_config(clip->filter_graph, NULL);
@@ -752,7 +752,7 @@ void open_clip_worker(Clip* clip) {
 		clip->frame->nb_samples = 2048;
 		av_frame_make_writable(clip->frame);
 		if (av_frame_get_buffer(clip->frame, 0)) {
-			qDebug() << "[ERROR] Could not allocate buffer for tone clip";
+			dout << "[ERROR] Could not allocate buffer for tone clip";
 		}
 		clip->audio_reset = true;
 		break;
@@ -764,7 +764,7 @@ void open_clip_worker(Clip* clip) {
 
 	clip->finished_opening = true;
 
-    qDebug() << "[INFO] Clip opened on track" << clip->track;
+	dout << "[INFO] Clip opened on track" << clip->track;
 }
 
 void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip* nest) {	
@@ -805,7 +805,7 @@ void close_clip_worker(Clip* clip) {
 
     clip->reset();
 
-	qDebug() << "[INFO] Clip closed on track" << clip->track;
+	dout << "[INFO] Clip closed on track" << clip->track;
 }
 
 void Cacher::run() {

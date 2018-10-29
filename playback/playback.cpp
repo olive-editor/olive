@@ -10,6 +10,7 @@
 #include "panels/viewer.h"
 #include "effects/effect.h"
 #include "panels/effectcontrols.h"
+#include "debug.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -21,7 +22,6 @@ extern "C" {
 #include <QtMath>
 #include <QObject>
 #include <QOpenGLTexture>
-#include <QDebug>
 #include <QOpenGLPixelTransferOptions>
 #include <QOpenGLFramebufferObject>
 
@@ -130,18 +130,18 @@ void get_clip_frame(Clip* c, long playhead) {
 			if (ms->infinite_length) {
 				target_frame = c->queue.at(0);
 #ifdef GCF_DEBUG
-				qDebug() << "GCF ==> USE PRECISE (INFINITE)";
+				dout << "GCF ==> USE PRECISE (INFINITE)";
 #endif
 			} else {
 				// correct frame may be somewhere else in the queue
 				int closest_frame = 0;
 
 				for (int i=1;i<c->queue.size();i++) {
-					//qDebug() << "results for" << i << qAbs(c->queue.at(i)->pts - target_pts) << qAbs(c->queue.at(closest_frame)->pts - target_pts) << c->queue.at(i)->pts << target_pts;
+					//dout << "results for" << i << qAbs(c->queue.at(i)->pts - target_pts) << qAbs(c->queue.at(closest_frame)->pts - target_pts) << c->queue.at(i)->pts << target_pts;
 
 					if (c->queue.at(i)->pts == target_pts) {
 #ifdef GCF_DEBUG
-						qDebug() << "GCF ==> USE PRECISE";
+						dout << "GCF ==> USE PRECISE";
 #endif
 						closest_frame = i;
 						break;
@@ -152,42 +152,51 @@ void get_clip_frame(Clip* c, long playhead) {
 
 				// remove all frames earlier than this one from the queue
 				target_frame = c->queue.at(closest_frame);
+				int64_t next_pts = INT64_MAX;
 				int64_t minimum_ts = target_frame->pts;
-				if (c->reverse) minimum_ts += quarter_pts; else minimum_ts -= quarter_pts;
-				//qDebug() << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
+				/*if (c->reverse) {
+					minimum_ts += quarter_pts;
+				} else {
+					minimum_ts -= quarter_pts;
+				}*/
+				//dout << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
 				for (int i=0;i<c->queue.size();i++) {
+					if (c->queue.at(i)->pts > target_frame->pts && c->queue.at(i)->pts < next_pts) {
+						next_pts = c->queue.at(i)->pts;
+					}
 					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
-						//qDebug() << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
+						//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
 						av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
 						c->queue.removeAt(i);
 						i--;
 					}
 				}
+				if (next_pts == INT64_MAX) next_pts = target_frame->pts + target_frame->pkt_duration;
 
-				// we didn't get the exact frame
+				// we didn't get the exact timestamp
 				if (target_frame->pts != target_pts) {
-					if (target_pts > target_frame->pts && target_pts <= target_frame->pts + target_frame->pkt_duration) {
+					if (target_pts > target_frame->pts && target_pts <= next_pts) {
 #ifdef GCF_DEBUG
-						qDebug() << "GCF ==> USE IMPRECISE";
+						dout << "GCF ==> USE IMPRECISE";
 #endif
 					} else {
 						int64_t pts_diff = qAbs(target_pts - target_frame->pts);
 						if (c->reached_end && target_pts > target_frame->pts) {
 #ifdef GCF_DEBUG
-							qDebug() << "GCF ==> EOF TOLERANT";
+							dout << "GCF ==> EOF TOLERANT";
 #endif
 							c->reached_end = false;
 							cache = false;
 						} else if (target_pts < target_frame->pts || pts_diff > second_pts) {
 
 #ifdef GCF_DEBUG
-							qDebug() << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
+							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
 							target_frame = NULL;
 							reset = true;
 						} else {
 #ifdef GCF_DEBUG
-							qDebug() << "GCF ==> WAIT - target:" << target_pts << "closest frame:" << target_frame->pts;
+							dout << "GCF ==> WAIT - target pts:" << target_pts << "closest frame:" << target_frame->pts;
 #endif
 							//if (c->queue.size() >= c->max_queue_size) c->queue_remove_earliest();
 							target_frame = NULL;
@@ -202,7 +211,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		if (target_frame == NULL || reset) {
 			// reset cache
 			texture_failed = true;
-			qDebug() << "[INFO] Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
+			dout << "[INFO] Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
 		}
 
 		if (target_frame != NULL) {
@@ -260,24 +269,24 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 		if (read_ret >= 0) {
 			int send_ret = avcodec_send_packet(c->codecCtx, c->pkt);
 			if (send_ret < 0) {
-				qDebug() << "[ERROR] Failed to send packet to decoder." << send_ret;
+				dout << "[ERROR] Failed to send packet to decoder." << send_ret;
                 return send_ret;
 			}
         } else {
 			if (read_ret == AVERROR_EOF) {
 				int send_ret = avcodec_send_packet(c->codecCtx, NULL);
 				if (send_ret < 0) {
-					qDebug() << "[ERROR] Failed to send packet to decoder." << send_ret;
+					dout << "[ERROR] Failed to send packet to decoder." << send_ret;
 					return send_ret;
 				}
 			} else {
-				qDebug() << "[ERROR] Could not read frame." << read_ret;
+				dout << "[ERROR] Could not read frame." << read_ret;
 				return read_ret; // skips trying to find a frame at all
 			}
 		}
 	}
 	if (receive_ret < 0) {
-		if (receive_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to receive packet from decoder." << receive_ret;
+		if (receive_ret != AVERROR_EOF) dout << "[ERROR] Failed to receive packet from decoder." << receive_ret;
 		result = receive_ret;
 	}
 

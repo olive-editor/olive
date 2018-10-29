@@ -11,6 +11,7 @@
 #include "project/undo.h"
 #include "ui/audiomonitor.h"
 #include "ui_timeline.h"
+#include "debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
@@ -98,7 +99,7 @@ long timecode_to_frame(const QString& s, int view, double frame_rate) {
 	QList<QString> list = s.split(QRegExp("[:;]"));
 
 	for (int i=0;i<list.size();i++) {
-		qDebug() << "list" << i << list.at(i);
+		dout << "list" << i << list.at(i);
 	}
 
 	if (view == TIMECODE_FRAMES || list.size() == 1) {
@@ -275,7 +276,7 @@ void Viewer::play() {
 			init_audio(seq);
 		}
 		if (is_recording_cued() && !start_recording()) {
-			qDebug() << "[ERROR] Failed to record audio";
+			dout << "[ERROR] Failed to record audio";
 			return;
 		}
 		playhead_start = seq->playhead;

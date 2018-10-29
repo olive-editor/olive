@@ -16,7 +16,6 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QCheckBox>
-#include <QDebug>
 
 ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, SourceTable *table, QTreeWidgetItem *old_media) :
 	QDialog(parent),

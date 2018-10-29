@@ -4,7 +4,6 @@
 #include <QLabel>
 #include <QtMath>
 #include <QOpenGLFunctions>
-#include <QDebug>
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"

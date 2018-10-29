@@ -5,7 +5,6 @@
 
 #include <QMenuBar>
 #include <QAction>
-#include <QDebug>
 
 KeySequenceEditor::KeySequenceEditor(QAction* a)
     : QKeySequenceEdit(0), action(a) {

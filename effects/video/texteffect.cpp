@@ -9,7 +9,6 @@
 #include <QColorDialog>
 #include <QFontDatabase>
 #include <QComboBox>
-#include <QDebug>
 #include <QWidget>
 
 #include "ui/labelslider.h"

@@ -4,10 +4,10 @@
 #include <QOpenGLWidget>
 #include <QFileDialog>
 #include <QThread>
-#include <QDebug>
 #include <QMessageBox>
 #include <QOpenGLContext>
 
+#include "debug.h"
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
@@ -279,7 +279,7 @@ void ExportDialog::on_formatCombobox_currentIndexChanged(int index)
 		default_acodec = 1;
 		break;
 	default:
-		qDebug() << "[ERROR] Invalid format selection - this is a bug, please inform the developers";
+		dout << "[ERROR] Invalid format selection - this is a bug, please inform the developers";
 	}
 
 	AVCodec* codec_info;
@@ -384,7 +384,7 @@ void ExportDialog::on_pushButton_clicked() {
             ext = "tif";
             break;
         default:
-            qDebug() << "[ERROR] Invalid codec selection for an image sequence";
+			dout << "[ERROR] Invalid codec selection for an image sequence";
             QMessageBox::critical(this, "Invalid codec", "Couldn't determine output parameters for the selected codec. This is a bug, please contact the developers.", QMessageBox::Ok);
             return;
         }
@@ -446,7 +446,7 @@ void ExportDialog::on_pushButton_clicked() {
 		}
 		break;
 	default:
-		qDebug() << "[ERROR] Invalid format - this is a bug, please inform the developers";
+		dout << "[ERROR] Invalid format - this is a bug, please inform the developers";
         QMessageBox::critical(this, "Invalid format", "Couldn't determine output format. This is a bug, please contact the developers.", QMessageBox::Ok);
 		return;
 	}

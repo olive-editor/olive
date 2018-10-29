@@ -8,13 +8,13 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "ui_timeline.h"
+#include "debug.h"
 
 #include <QAudioOutput>
 #include <QAudioInput>
 #include <QtMath>
 #include <QFile>
 #include <QDir>
-#include <QDebug>
 
 extern "C" {
 	#include <libavcodec/avcodec.h>
@@ -92,7 +92,7 @@ int get_buffer_offset_from_frame(Sequence* s, long frame) {
 	if (frame >= audio_ibuffer_frame) {
 		return qFloor(av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(s->audio_layout), qRound(((frame-audio_ibuffer_frame)/s->frame_rate)*s->audio_frequency), AV_SAMPLE_FMT_S16, 1)/4)*4;
 	} else {
-		qDebug() << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
+		dout << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
 		return 0;
 	}
 #endif
@@ -264,14 +264,14 @@ void write_wave_trailer(QFile& f) {
 
 bool start_recording() {
 	if (sequence == NULL) {
-		qDebug() << "[ERROR] No active sequence to record into";
+		dout << "[ERROR] No active sequence to record into";
 		return false;
 	}
 
 	QString audio_path = project_url + " Audio";
 	QDir audio_dir(audio_path);
 	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
-		qDebug() << "[ERROR] Failed to create audio directory";
+		dout << "[ERROR] Failed to create audio directory";
 		return false;
 	}
 
@@ -284,7 +284,7 @@ bool start_recording() {
 
 	output_recording.setFileName(audio_filename);
 	if (!output_recording.open(QFile::WriteOnly)) {
-		qDebug() << "[ERROR] Failed to open output file. Does Olive have permission to write to this directory?";
+		dout << "[ERROR] Failed to open output file. Does Olive have permission to write to this directory?";
 		return false;
 	}
 
@@ -294,7 +294,7 @@ bool start_recording() {
 	}
 	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
 	if (!info.isFormatSupported(audio_format)) {
-		qDebug() << "[WARNING] Default format not supported, using nearest";
+		dout << "[WARNING] Default format not supported, using nearest";
 		audio_format = info.nearestFormat(audio_format);
 	}
 	write_wave_header(output_recording, audio_format);

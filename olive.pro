@@ -86,7 +86,8 @@ SOURCES += \
     effects/video/waveeffect.cpp \
     effects/video/temperatureeffect.cpp \
     io/crc32.cpp \
-    dialogs/loaddialog.cpp
+    dialogs/loaddialog.cpp \
+    debug.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -151,7 +152,8 @@ HEADERS += \
     effects/video/waveeffect.h \
     effects/video/temperatureeffect.h \
     io/crc32.h \
-    dialogs/loaddialog.h
+    dialogs/loaddialog.h \
+    debug.h
 
 FORMS += \
         mainwindow.ui \

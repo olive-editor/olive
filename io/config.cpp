@@ -3,7 +3,8 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QDebug>
+
+#include "debug.h"
 
 Config config;
 
@@ -90,7 +91,7 @@ void Config::load(QString path) {
             }
         }
         if (stream.hasError()) {
-            qDebug() << "[ERROR] Error parsing config XML." << stream.errorString();
+			dout << "[ERROR] Error parsing config XML." << stream.errorString();
         }
 
         f.close();
@@ -100,7 +101,7 @@ void Config::load(QString path) {
 void Config::save(QString path) {
     QFile f(path);
     if (!f.open(QIODevice::WriteOnly)) {
-        qDebug() << "[ERROR] Could not save configuration";
+		dout << "[ERROR] Could not save configuration";
         return;
     }
 

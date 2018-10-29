@@ -5,10 +5,10 @@
 #include "panels/project.h"
 #include "io/config.h"
 #include "io/crc32.h"
+#include "debug.h"
 
 #include <QPainter>
 #include <QPixmap>
-#include <QDebug>
 #include <QtMath>
 #include <QTreeWidgetItem>
 #include <QSemaphore>
@@ -52,7 +52,7 @@ void PreviewGenerator::parse_media() {
     for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
         // Find the decoder for the video stream
         if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
-			qDebug() << "[ERROR] Unsupported codec in stream" << i << "of file" << media->name;
+			dout << "[ERROR] Unsupported codec in stream" << i << "of file" << media->name;
         } else {
             MediaStream* ms = media->get_stream_from_file_index(fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, i);
             bool append = false;
@@ -66,11 +66,11 @@ void PreviewGenerator::parse_media() {
 					&& fmt_ctx->streams[i]->codecpar->width > 0
 					&& fmt_ctx->streams[i]->codecpar->height > 0) {
 
-				/*qDebug() << "avg_frame_rate was:" << fmt_ctx->streams[i]->avg_frame_rate.num << "/" << fmt_ctx->streams[i]->avg_frame_rate.den;
-				qDebug() << "r_frame_rate was:" << fmt_ctx->streams[i]->r_frame_rate.num << "/" << fmt_ctx->streams[i]->r_frame_rate.den;
-				qDebug() << "codec_frame_rate was:" << fmt_ctx->streams[i]->codec->framerate.num << "/" << fmt_ctx->streams[i]->codec->framerate.den;
-				qDebug() << "nb_frames was:" << fmt_ctx->streams[i]->nb_frames;
-				qDebug() << "duration was:" << fmt_ctx->streams[i]->duration << "OR fmt_ctx's duration is:" << fmt_ctx->duration;*/
+				/*dout << "avg_frame_rate was:" << fmt_ctx->streams[i]->avg_frame_rate.num << "/" << fmt_ctx->streams[i]->avg_frame_rate.den;
+				dout << "r_frame_rate was:" << fmt_ctx->streams[i]->r_frame_rate.num << "/" << fmt_ctx->streams[i]->r_frame_rate.den;
+				dout << "codec_frame_rate was:" << fmt_ctx->streams[i]->codec->framerate.num << "/" << fmt_ctx->streams[i]->codec->framerate.den;
+				dout << "nb_frames was:" << fmt_ctx->streams[i]->nb_frames;
+				dout << "duration was:" << fmt_ctx->streams[i]->duration << "OR fmt_ctx's duration is:" << fmt_ctx->duration;*/
 
 				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0
 						&& fmt_ctx->streams[i]->duration == AV_NOPTS_VALUE) { // source is LIKELY a still image
@@ -87,8 +87,11 @@ void PreviewGenerator::parse_media() {
 				}
 				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
 				ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+
+				// default value, we get the true value later in generate_waveform()
 				ms->video_auto_interlacing = VIDEO_PROGRESSIVE;
-				ms->video_interlacing = VIDEO_PROGRESSIVE; // default value, we get the true value later in generate_waveform()
+				ms->video_interlacing = VIDEO_PROGRESSIVE;
+
 				if (append) media->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
@@ -122,7 +125,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 		QString thumb_path = get_thumbnail_path(hash, ms);
 		QFile f(thumb_path);
 		if (f.exists()) {
-			qDebug() << "loaded thumb" << ms->file_index << "from" << thumb_path;
+			dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
 			ms->video_preview.load(thumb_path);
 			ms->preview_done = true;
 		} else {
@@ -135,7 +138,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 		QString waveform_path = get_waveform_path(hash, ms);
 		QFile f(waveform_path);
 		if (f.exists()) {
-			qDebug() << "loaded wave" << ms->file_index << "from" << waveform_path;
+			dout << "loaded wave" << ms->file_index << "from" << waveform_path;
 			f.open(QFile::ReadOnly);
 			QByteArray data = f.readAll();
 			ms->audio_preview.resize(data.size());
@@ -213,13 +216,13 @@ void PreviewGenerator::generate_waveform() {
             int read_ret = av_read_frame(fmt_ctx, &packet);
             if (read_ret < 0) {
                 end_of_file = true;
-                if (read_ret != AVERROR_EOF) qDebug() << "[ERROR] Failed to read packet for preview generation" << read_ret;
+				if (read_ret != AVERROR_EOF) dout << "[ERROR] Failed to read packet for preview generation" << read_ret;
                 break;
             }
             if (codec_ctx[packet.stream_index] != NULL) {
                 int send_ret = avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
                 if (send_ret < 0 && send_ret != AVERROR(EAGAIN)) {
-                    qDebug() << "[ERROR] Failed to send packet for preview generation - aborting" << send_ret;
+					dout << "[ERROR] Failed to send packet for preview generation - aborting" << send_ret;
                     end_of_file = true;
                     break;
                 }
@@ -419,7 +422,7 @@ void PreviewGenerator::run() {
 				for (int i=0;i<media->video_tracks.size();i++) {
 					MediaStream* ms = media->video_tracks.at(i);
 					if (ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG")) {
-						qDebug() << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
+						dout << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
 					}
 				}
 				for (int i=0;i<media->audio_tracks.size();i++) {
@@ -428,7 +431,7 @@ void PreviewGenerator::run() {
 					f.open(QFile::WriteOnly);
 					f.write(ms->audio_preview.constData(), ms->audio_preview.size());
 					f.close();
-					qDebug() << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
+					dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
 				}
 			}
 

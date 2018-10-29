@@ -2,7 +2,6 @@
 #include "ui_effectcontrols.h"
 
 #include <QMenu>
-#include <QDebug>
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QScrollBar>
@@ -19,6 +18,7 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
+#include "debug.h"
 
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
@@ -278,7 +278,7 @@ bool EffectControls::is_focused() {
                 }
             }
         } else {
-            qDebug() << "[WARNING] Tried to check focus of a NULL clip";
+			dout << "[WARNING] Tried to check focus of a NULL clip";
         }
     }
     return false;

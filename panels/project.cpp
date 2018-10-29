@@ -21,11 +21,11 @@
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/mediapropertiesdialog.h"
 #include "dialogs/loaddialog.h"
+#include "debug.h"
 
 #include <QFileDialog>
 #include <QString>
 #include <QVariant>
-#include <QDebug>
 #include <QCharRef>
 #include <QMessageBox>
 #include <QDropEvent>
@@ -573,7 +573,7 @@ void* get_media_from_tree(QTreeWidgetItem* item) {
 	switch (type) {
 	case MEDIA_TYPE_FOOTAGE: return get_footage_from_tree(item);
 	case MEDIA_TYPE_SEQUENCE: return get_sequence_from_tree(item);
-	default: qDebug() << "[ERROR] Invalid media type when retrieving media";
+	default: dout << "[ERROR] Invalid media type when retrieving media";
 	}
 	return NULL;*/
 }
@@ -1011,7 +1011,7 @@ void Project::load_project() {
 
     QFile file(project_url);
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "[ERROR] Could not open file";
+		dout << "[ERROR] Could not open file";
         return;
     }
 
@@ -1071,7 +1071,7 @@ void Project::load_project() {
     if (!cont) {
         if (show_err) QMessageBox::critical(this, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
     } else if (stream.hasError()) {
-        qDebug() << "[ERROR] Error parsing XML." << stream.errorString();
+		dout << "[ERROR] Error parsing XML." << stream.errorString();
         QMessageBox::critical(this, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.errorString(), QMessageBox::Ok);
         cont = false;
     }
@@ -1251,7 +1251,7 @@ void Project::save_project(bool autorecovery) {
 
     QFile file(autorecovery ? autorecovery_filename : project_url);
     if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
-        qDebug() << "[ERROR] Could not open file";
+		dout << "[ERROR] Could not open file";
         return;
     }
 
@@ -1304,7 +1304,7 @@ void Project::save_recent_projects() {
         }
         f.close();
     } else {
-        qDebug() << "[WARNING] Could not save recent projects";
+		dout << "[WARNING] Could not save recent projects";
     }
 }
 

@@ -1,6 +1,5 @@
 #include "transformeffect.h"
 
-#include <QDebug>
 #include <QWidget>
 #include <QLabel>
 #include <QGridLayout>
@@ -16,6 +15,7 @@
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"
 #include "panels/project.h"
+#include "debug.h"
 
 #define BLEND_MODE_NORMAL 0
 #define BLEND_MODE_SCREEN 1
@@ -143,7 +143,7 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords) {
         glBlendFunc(GL_DST_COLOR, GL_ZERO);
         break;
     default:
-        qDebug() << "[ERROR] Invalid blend mode. This is a bug - please contact developers";
+		dout << "[ERROR] Invalid blend mode. This is a bug - please contact developers";
     }
 
 	// opacity

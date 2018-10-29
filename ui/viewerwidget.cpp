@@ -13,8 +13,8 @@
 #include "ui_timeline.h"
 #include "playback/cacher.h"
 #include "io/config.h"
+#include "debug.h"
 
-#include <QDebug>
 #include <QPainter>
 #include <QAudioOutput>
 #include <QOpenGLShaderProgram>
@@ -279,7 +279,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 		Clip* c = current_clips.at(i);
 
         if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
-            qDebug() << "[WARNING] Tried to display clip" << i << "but it's closed";
+			dout << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
         } else {
 			if (c->track < 0) {
@@ -306,7 +306,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 				if (!texture_failed) {
 					if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
-						qDebug() << "[WARNING] Texture hasn't been created yet";
+						dout << "[WARNING] Texture hasn't been created yet";
 						texture_failed = true;
 					} else if (playhead >= c->timeline_in) {
 						glPushMatrix();
@@ -514,7 +514,7 @@ void ViewerWidget::paintGL() {
 
 		if (texture_failed) {
 			if (rendering) {
-				qDebug() << "[INFO] Texture failed - looping";
+				dout << "[INFO] Texture failed - looping";
 				loop = true;
 			} else {
 				retry_timer.start();

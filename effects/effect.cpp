@@ -16,6 +16,7 @@
 #include "project/clip.h"
 #include "panels/timeline.h"
 #include "panels/effectcontrols.h"
+#include "debug.h"
 
 #include "effects/video/transformeffect.h"
 #include "effects/video/inverteffect.h"
@@ -92,7 +93,7 @@ Effect* create_effect(int effect_id, Clip* c) {
 		case AUDIO_TONE_EFFECT: return new ToneEffect(c); break;
 		}
 	}
-	qDebug() << "[ERROR] Invalid effect ID";
+	dout << "[ERROR] Invalid effect ID";
 	return NULL;
 }
 
@@ -271,14 +272,14 @@ void Effect::load(QXmlStreamReader& stream) {
 								}
 							}
 						} else {
-							qDebug() << "[ERROR] Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
+							dout << "[ERROR] Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
 						}
 						field_count++;
 					}
 				}
 
 			} else {
-				qDebug() << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
+				dout << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
 			}
 			row_count++;
 		}
@@ -313,11 +314,11 @@ void Effect::save(QXmlStreamWriter& stream) {
 
 void Effect::open() {
 	if (isOpen) {
-		qDebug() << "[WARNING] Tried to open an effect that was already open";
+		dout << "[WARNING] Tried to open an effect that was already open";
 		close();
 	}
 	if (QOpenGLContext::currentContext() == NULL) {
-		qDebug() << "[WARNING] No current context to create a shader program for - will retry next repaint";
+		dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
 	} else {
 		glslProgram = new QOpenGLShaderProgram();
 		if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, vertPath);
@@ -329,7 +330,7 @@ void Effect::open() {
 
 void Effect::close() {
 	if (!isOpen) {
-		qDebug() << "[WARNING] Tried to close an effect that was already closed";
+		dout << "[WARNING] Tried to close an effect that was already closed";
 	} else {
 		delete glslProgram;
 	}
@@ -340,7 +341,7 @@ void Effect::close() {
 void Effect::startEffect() {
 	if (!isOpen) {
 		open();
-		qDebug() << "[WARNING] Tried to start a closed effect - opening";
+		dout << "[WARNING] Tried to start a closed effect - opening";
 	}
 	bound = glslProgram->bind();
 }

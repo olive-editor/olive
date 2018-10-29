@@ -9,7 +9,6 @@
 #include "playback/playback.h"
 
 #include <QVariant>
-#include <QDebug>
 
 extern "C" {
 	#include <libavcodec/avcodec.h>

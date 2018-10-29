@@ -11,8 +11,6 @@
 #include "panels/timeline.h"
 #include "undo.h"
 
-#include <QDebug>
-
 extern "C" {
 	#include <libavformat/avformat.h>
 }
