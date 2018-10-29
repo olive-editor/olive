@@ -4,7 +4,7 @@
 #include "panels/viewer.h"
 #include "panels/project.h"
 #include "io/config.h"
-#include "io/crc32.h"
+#include "io/path.h"
 #include "debug.h"
 
 #include <QPainter>
@@ -14,8 +14,8 @@
 #include <QSemaphore>
 #include <QCryptographicHash>
 #include <QFile>
-#include <QStandardPaths>
 #include <QDir>
+#include <QDateTime>
 
 #define WAVEFORM_RESOLUTION 64
 
@@ -38,7 +38,7 @@ PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
 	replace(r),
 	cancelled(false)
 {
-	data_path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/previews";
+    data_path = get_data_path() + "/previews";
 	QDir data_dir(data_path);
 	if (!data_dir.exists()) {
 		data_dir.mkpath(".");

@@ -114,8 +114,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
 		int64_t target_pts = playhead_to_timestamp(c, playhead);
-		int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
-		int64_t quarter_pts = second_pts >> 2;
+        int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 			target_pts *= 2;
 			second_pts *= 2;

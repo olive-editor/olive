@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "io/config.h"
+#include "io/path.h"
 
 #include "project/sequence.h"
 
@@ -33,7 +34,6 @@
 #include <QStyleFactory>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QStandardPaths>
 #include <QTimer>
 #include <QCloseEvent>
 #include <QMovie>
@@ -120,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->menuEdit, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
     connect(ui->menu_File, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
 
-    QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString data_dir = get_data_path();
     if (!data_dir.isEmpty()) {
         QDir dir(data_dir);
         dir.mkpath(".");
@@ -198,7 +198,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow() {
 	set_sequence(NULL);
 
-    QString data_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString data_dir = get_data_path();
     if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
         if (QFile::exists(autorecovery_filename)) {
             QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));

@@ -263,7 +263,7 @@ void EffectControls::on_add_audio_transition_button_clicked()
 	show_effect_menu(false, true);
 }
 
-void EffectControls::resizeEvent(QResizeEvent *event) {
+void EffectControls::resizeEvent(QResizeEvent*) {
 	ui->verticalScrollBar->setMaximum(qMax(0, ui->effects_area->height() - ui->keyframeView->height() - ui->headers->height()));
 }
 

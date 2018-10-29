@@ -319,6 +319,6 @@ void stop_recording() {
 	}
 }
 
-const QString& get_recorded_audio_filename() {
+QString get_recorded_audio_filename() {
 	return output_recording.fileName();
 }

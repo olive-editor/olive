@@ -48,7 +48,7 @@ int get_buffer_offset_from_frame(Sequence *s, long frame);
 
 bool start_recording();
 void stop_recording();
-const QString& get_recorded_audio_filename();
+QString get_recorded_audio_filename();
 extern bool recording;
 
 #endif // AUDIO_H

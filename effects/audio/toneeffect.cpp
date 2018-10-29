@@ -30,7 +30,7 @@ ToneEffect::ToneEffect(Clip* c) : Effect(c, EFFECT_TYPE_AUDIO, AUDIO_TONE_EFFECT
 	connect(mix_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void ToneEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int channel_count) {
+void ToneEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {
 	double interval = (timecode_end - timecode_start)/nb_bytes;
 	for (int i=0;i<nb_bytes;i+=4) {
 		double timecode = timecode_start+(interval*i);
