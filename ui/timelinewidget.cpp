@@ -623,14 +623,14 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 }
             }
 
-            if (c->track < 0) {
+            /*if (c->track < 0) {
                 // add default video effects
                 c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));
             } else {
                 // add default audio effects
                 c->effects.append(create_effect(AUDIO_VOLUME_EFFECT, c));
                 c->effects.append(create_effect(AUDIO_PAN_EFFECT, c));
-            }
+            }*/
         }
 
 		panel_timeline->ghosts.clear();

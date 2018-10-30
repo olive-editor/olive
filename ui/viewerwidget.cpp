@@ -365,15 +365,15 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 								}
 								if (e->enable_shader || e->enable_superimpose) {
 									e->startEffect();
-									for (int k=0;k<e->getIterations();k++) {
-										e->process_shader(timecode);
-										composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
-										if (e->enable_superimpose) {
-											GLuint superimpose_texture = e->process_superimpose(timecode);
-											if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
-										}
-										fbo_switcher = !fbo_switcher;
-									}
+                                    //for (int k=0;k<e->getIterations();k++) {
+                                        e->process_shader(timecode);
+                                        composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
+                                        if (e->enable_superimpose) {
+                                            GLuint superimpose_texture = e->process_superimpose(timecode);
+                                            if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
+                                        }
+                                        fbo_switcher = !fbo_switcher;
+                                    //}
 								}
 							}
 						}

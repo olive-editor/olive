@@ -53,6 +53,7 @@ struct Media {
     bool ready;
 
 	PreviewGenerator* preview_gen;
+    QMutex ready_lock;
 
     bool using_inout;
     long in;

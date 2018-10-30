@@ -46,8 +46,17 @@ enum AudioEffects {
 	AUDIO_EFFECT_COUNT
 };
 
-extern QVector<QString> video_effect_names;
-extern QVector<QString> audio_effect_names;
+struct EffectMeta {
+    QString name;
+    QString category;
+    QString filename;
+};
+
+extern QVector<EffectMeta> video_effects;
+extern QVector<EffectMeta> audio_effects;
+
+extern QVector<QString> video_effect_names; // deprecated
+extern QVector<QString> audio_effect_names; // deprecated
 void init_effects();
 Effect* create_effect(int effect_id, Clip* c);
 
@@ -184,10 +193,10 @@ private:
 class Effect : public QObject {
 	Q_OBJECT
 public:
-	Effect(Clip* c, int t, int i);
+    Effect(Clip* c, const EffectMeta& em);
 	~Effect();
     Clip* parent_clip;
-	int type;
+    const EffectMeta& meta;
     int id;
 	QString name;
 	CollapsibleWidget* container;
@@ -236,14 +245,13 @@ protected:
 private:
 	QVector<EffectRow*> rows;
 	QGridLayout* ui_layout;
-	QWidget* ui;
-	int iterations;
+    QWidget* ui;
 	bool bound;
 };
 
 class SuperimposeEffect : public Effect {
 public:
-	SuperimposeEffect(Clip* c, int t, int i);
+    SuperimposeEffect(Clip* c, const EffectMeta& e);
 	virtual void open();
 	virtual void close();
     virtual GLuint process_superimpose(double timecode);

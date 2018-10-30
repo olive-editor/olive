@@ -74,7 +74,7 @@ void EffectControls::menu_select(QAction* q) {
                     ca->append(new AddTransitionCommand(c, q->data().toInt(), TA_CLOSING_TRANSITION));
 				}
 			} else {
-                ca->append(new AddEffectCommand(c, q->data().toInt()));
+                ca->append(new AddEffectCommand(c, reinterpret_cast<EffectMeta*>(q->data().value<quintptr>())));
 			}
         }
     }
@@ -84,7 +84,7 @@ void EffectControls::menu_select(QAction* q) {
 	} else {
 		reload_clips();
 		panel_sequence_viewer->viewer_widget->update();
-	}
+    }
 }
 
 void EffectControls::update_keyframes() {
@@ -97,7 +97,7 @@ void EffectControls::delete_selected_keyframes() {
 }
 
 void EffectControls::show_effect_menu(bool video, bool transitions) {
-    video_menu = video;
+    /*video_menu = video;
 	transition_menu = transitions;
 
     int lim;
@@ -142,6 +142,48 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 
     connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
 
+    effects_menu.exec(QCursor::pos());*/
+    video_menu = video;
+    transition_menu = transitions;
+
+    QVector<EffectMeta>& effect_list = (video) ? video_effects : audio_effects;
+    QMenu effects_menu(this);
+    for (int i=0;i<effect_list.size();i++) {
+        const EffectMeta& em = effect_list.at(i);
+        QAction* action = new QAction(&effects_menu);
+        action->setText(em.name);
+        action->setData(reinterpret_cast<quintptr>(&em));
+
+        // TODO alphabetical ordering
+        QMenu* parent = &effects_menu;
+        if (!em.category.isEmpty()) {
+            bool found = false;
+            for (int j=0;j<effects_menu.actions().size();j++) {
+                QAction* action = effects_menu.actions().at(j);
+                if (action->menu() != NULL) {
+                    if (action->menu()->title() == em.category) {
+                        parent = action->menu();
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                parent = new QMenu(&effects_menu);
+                parent->setTitle(em.category);
+                effects_menu.addMenu(parent);
+            }
+        }
+
+        parent->addAction(action);
+    }
+
+    QMenu test_menu(this);
+    test_menu.setTitle("HEY NOW");
+    test_menu.addAction("YOU'RE AN ALL STAR");
+    effects_menu.addMenu(&test_menu);
+
+    connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
     effects_menu.exec(QCursor::pos());
 }
 

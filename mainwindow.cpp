@@ -128,6 +128,8 @@ MainWindow::MainWindow(QWidget *parent) :
 			qint64 a_month_ago = QDateTime::currentMSecsSinceEpoch() - 2592000000;
 			qint64 a_week_ago = QDateTime::currentMSecsSinceEpoch() - 604800000;
 
+            // TODO put delete functions in another thread?
+
 			// delete auto-recoveries older than 7 days
 			QStringList old_autorecoveries = dir.entryList(QStringList("autorecovery.ove.*"), QDir::Files);
 			int deleted_ars = 0;

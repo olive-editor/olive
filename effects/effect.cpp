@@ -17,24 +17,7 @@
 #include "panels/timeline.h"
 #include "panels/effectcontrols.h"
 #include "debug.h"
-
-#include "effects/video/transformeffect.h"
-#include "effects/video/inverteffect.h"
-#include "effects/video/shakeeffect.h"
-#include "effects/video/solideffect.h"
-#include "effects/video/texteffect.h"
-#include "effects/video/chromakeyeffect.h"
-#include "effects/video/gaussianblureffect.h"
-#include "effects/video/cropeffect.h"
-#include "effects/video/flipeffect.h"
-#include "effects/video/boxblureffect.h"
-#include "effects/video/waveeffect.h"
-#include "effects/video/temperatureeffect.h"
-
-#include "effects/audio/paneffect.h"
-#include "effects/audio/volumeeffect.h"
-#include "effects/audio/audionoiseeffect.h"
-#include "effects/audio/toneeffect.h"
+#include "io/path.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -42,58 +25,92 @@
 #include <QXmlStreamWriter>
 #include <QMessageBox>
 #include <QOpenGLContext>
+#include <QDir>
+
+QVector<EffectMeta> video_effects;
+QVector<EffectMeta> audio_effects;
 
 QVector<QString> video_effect_names;
 QVector<QString> audio_effect_names;
 
 void init_effects() {
-	video_effect_names.resize(VIDEO_EFFECT_COUNT);
-	audio_effect_names.resize(AUDIO_EFFECT_COUNT);
+    video_effect_names.resize(VIDEO_EFFECT_COUNT);
+    audio_effect_names.resize(AUDIO_EFFECT_COUNT);
 
-	video_effect_names[VIDEO_TRANSFORM_EFFECT] = "Transform";
-	video_effect_names[VIDEO_SHAKE_EFFECT] = "Shake";
-	video_effect_names[VIDEO_TEXT_EFFECT] = "Text";
-	video_effect_names[VIDEO_SOLID_EFFECT] = "Solid";
-	video_effect_names[VIDEO_INVERT_EFFECT] = "Invert";
-	video_effect_names[VIDEO_CHROMAKEY_EFFECT] = "Chroma Key";
-	video_effect_names[VIDEO_GAUSSIANBLUR_EFFECT] = "Gaussian Blur";
-	video_effect_names[VIDEO_CROP_EFFECT] = "Crop";
-	video_effect_names[VIDEO_FLIP_EFFECT] = "Flip";
+    video_effect_names[VIDEO_TRANSFORM_EFFECT] = "Transform";
+    video_effect_names[VIDEO_SHAKE_EFFECT] = "Shake";
+    video_effect_names[VIDEO_TEXT_EFFECT] = "Text";
+    video_effect_names[VIDEO_SOLID_EFFECT] = "Solid";
+    video_effect_names[VIDEO_INVERT_EFFECT] = "Invert";
+    video_effect_names[VIDEO_CHROMAKEY_EFFECT] = "Chroma Key";
+    video_effect_names[VIDEO_GAUSSIANBLUR_EFFECT] = "Gaussian Blur";
+    video_effect_names[VIDEO_CROP_EFFECT] = "Crop";
+    video_effect_names[VIDEO_FLIP_EFFECT] = "Flip";
     video_effect_names[VIDEO_BOXBLUR_EFFECT] = "Box Blur";
-	video_effect_names[VIDEO_WAVE_EFFECT] = "Wave";
+    video_effect_names[VIDEO_WAVE_EFFECT] = "Wave";
     video_effect_names[VIDEO_TEMPERATURE_EFFECT] = "Temperature";
 
-	audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
-	audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
-	audio_effect_names[AUDIO_NOISE_EFFECT] = "Noise";
-	audio_effect_names[AUDIO_TONE_EFFECT] = "Tone";
+    audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
+    audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
+    audio_effect_names[AUDIO_NOISE_EFFECT] = "Noise";
+    audio_effect_names[AUDIO_TONE_EFFECT] = "Tone";
+
+    dout << "Starting init effect (TODO: multithread this)";
+    QString effects_path = get_effects_dir();
+    QDir effects_dir(effects_path);
+    if (effects_dir.exists()) {
+        QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
+        for (int i=0;i<entries.size();i++) {
+            QFile file(effects_path + "/" + entries.at(i));
+            if (!file.open(QIODevice::ReadOnly)) {
+                dout << "[ERROR] Could not open file";
+                return;
+            }
+
+            QXmlStreamReader reader(&file);
+            while (!reader.atEnd()) {
+                if (reader.name() == "effect") {
+                    QString effect_name = "";
+                    QString effect_cat = "";
+                    int effect_type = EFFECT_TYPE_INVALID;
+                    const QXmlStreamAttributes attr = reader.attributes();
+                    for (int j=0;j<attr.size();j++) {
+                        if (attr.at(j).name() == "name") {
+                            effect_name = attr.at(j).value().toString();
+                        } else if (attr.at(j).name() == "category") {
+                            effect_cat = attr.at(j).value().toString();
+                        } else if (attr.at(j).name() == "type") {
+                            QString compare = attr.at(j).value().toString().toUpper();
+                            if (compare == "VIDEO") {
+                                effect_type = EFFECT_TYPE_VIDEO;
+                            } else if (compare == "AUDIO") {
+                                effect_type = EFFECT_TYPE_AUDIO;
+                            }
+                        }
+                    }
+                    if (effect_type != EFFECT_TYPE_INVALID && !effect_name.isEmpty()) {
+                        EffectMeta em;
+                        em.name = effect_name;
+                        em.category = effect_cat;
+                        em.filename = entries.at(i);
+                        if (effect_type == EFFECT_TYPE_VIDEO) {
+                            video_effects.append(em);
+                        } else {
+                            audio_effects.append(em);
+                        }
+                    } else {
+                        dout << "[ERROR] Invalid effect found in" << entries.at(i);
+                    }
+                    break;
+                }
+                reader.readNext();
+            }
+        }
+    }
+    dout << "Completed init effect (TODO: multithread this)";
 }
 
 Effect* create_effect(int effect_id, Clip* c) {
-	if (c->track < 0) {
-		switch (effect_id) {
-		case VIDEO_TRANSFORM_EFFECT: return new TransformEffect(c); break;
-		case VIDEO_SHAKE_EFFECT: return new ShakeEffect(c); break;
-		case VIDEO_TEXT_EFFECT: return new TextEffect(c); break;
-		case VIDEO_SOLID_EFFECT: return new SolidEffect(c); break;
-		case VIDEO_INVERT_EFFECT: return new InvertEffect(c); break;
-		case VIDEO_CHROMAKEY_EFFECT: return new ChromaKeyEffect(c); break;
-		case VIDEO_GAUSSIANBLUR_EFFECT: return new GaussianBlurEffect(c); break;
-		case VIDEO_CROP_EFFECT: return new CropEffect(c);
-		case VIDEO_FLIP_EFFECT: return new FlipEffect(c);
-        case VIDEO_BOXBLUR_EFFECT: return new BoxBlurEffect(c);
-		case VIDEO_WAVE_EFFECT: return new WaveEffect(c);
-        case VIDEO_TEMPERATURE_EFFECT: return new TemperatureEffect(c);
-		}
-	} else {
-		switch (effect_id) {
-		case AUDIO_VOLUME_EFFECT: return new VolumeEffect(c); break;
-		case AUDIO_PAN_EFFECT: return new PanEffect(c); break;
-		case AUDIO_NOISE_EFFECT: return new AudioNoiseEffect(c); break;
-		case AUDIO_TONE_EFFECT: return new ToneEffect(c); break;
-		}
-	}
-	dout << "[ERROR] Invalid effect ID";
 	return NULL;
 }
 
@@ -101,31 +118,167 @@ double double_lerp(double a, double b, double t) {
     return ((1.0 - t) * a) + (t * b);
 }
 
-Effect::Effect(Clip* c, int t, int i) :
+Effect::Effect(Clip* c, const EffectMeta &em) :
 	parent_clip(c),
-	type(t),
-	id(i),
+    meta(em),
 	enable_shader(false),
 	enable_coords(false),
-	enable_superimpose(false),
-	iterations(1),
+    enable_superimpose(false),
 	isOpen(false),
 	glslProgram(NULL),
 	bound(false)
 {
-    container = new CollapsibleWidget();
-    if (type == EFFECT_TYPE_VIDEO) {
-        container->setText(video_effect_names[i]);
-    } else if (type == EFFECT_TYPE_AUDIO) {
-        container->setText(audio_effect_names[i]);
-	}
+    // set up base UI
+    container = new CollapsibleWidget();    
     connect(container->enabled_check, SIGNAL(clicked(bool)), this, SLOT(field_changed()));
     ui = new QWidget();
-
     ui_layout = new QGridLayout();
 	ui_layout->setSpacing(4);
     ui->setLayout(ui_layout);
 	container->setContents(ui);
+
+    // set up UI from effect file
+    container->setText(em.name);
+    QFile effect_file(get_effects_dir() + "/" + em.filename);
+
+    if (effect_file.open(QFile::ReadOnly)) {
+        QXmlStreamReader reader(&effect_file);
+
+        while (!reader.atEnd()) {
+            if (reader.name() == "row" && reader.isStartElement()) {
+                QString row_name;
+                const QXmlStreamAttributes& attributes = reader.attributes();
+                for (int i=0;i<attributes.size();i++) {
+                    const QXmlStreamAttribute& attr = attributes.at(i);
+                    if (attr.name() == "name") {
+                        row_name = attr.value().toString();
+                    }
+                }
+                if (!row_name.isEmpty()) {
+                    EffectRow* row = add_row(row_name);
+                    while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
+                        reader.readNext();
+                        if (reader.name() == "field" && reader.isStartElement()) {
+                            int type = -1;
+
+                            // get field type
+                            const QXmlStreamAttributes& attributes = reader.attributes();
+                            for (int i=0;i<attributes.size();i++) {
+                                const QXmlStreamAttribute& attr = attributes.at(i);
+                                if (attr.name() == "type") {
+                                    QString comp = attr.value().toString().toUpper();
+                                    if (comp == "DOUBLE") {
+                                        type = EFFECT_FIELD_DOUBLE;
+                                    } else if (comp == "BOOL") {
+                                        type = EFFECT_FIELD_BOOL;
+                                    } else if (comp == "COLOR") {
+                                        type = EFFECT_FIELD_COLOR;
+                                    } else if (comp == "COMBO") {
+                                        type = EFFECT_FIELD_COMBO;
+                                    } else if (comp == "FONT") {
+                                        type = EFFECT_FIELD_FONT;
+                                    } else if (comp == "STRING") {
+                                        type = EFFECT_FIELD_STRING;
+                                    }
+                                }
+                            }
+
+                            qDebug() << "add field" << type;
+                            if (type > -1) {
+                                EffectField* field = row->add_field(type);
+                                switch (type) {
+                                case EFFECT_FIELD_DOUBLE:
+                                    for (int i=0;i<attributes.size();i++) {
+                                        const QXmlStreamAttribute& attr = attributes.at(i);
+                                        if (attr.name() == "default") {
+                                            field->set_double_default_value(attr.value().toDouble());
+                                        } else if (attr.name() == "min") {
+                                            field->set_double_minimum_value(attr.value().toDouble());
+                                        } else if (attr.name() == "max") {
+                                            field->set_double_maximum_value(attr.value().toDouble());
+                                        }
+                                    }
+                                    break;
+                                case EFFECT_FIELD_COLOR:
+                                {
+                                    QColor color;
+                                    for (int i=0;i<attributes.size();i++) {
+                                        const QXmlStreamAttribute& attr = attributes.at(i);
+                                        if (attr.name() == "r") {
+                                            color.setRed(attr.value().toInt());
+                                        } else if (attr.name() == "g") {
+                                            color.setGreen(attr.value().toInt());
+                                        } else if (attr.name() == "b") {
+                                            color.setBlue(attr.value().toInt());
+                                        } else if (attr.name() == "rf") {
+                                            color.setRedF(attr.value().toFloat());
+                                        } else if (attr.name() == "gf") {
+                                            color.setGreenF(attr.value().toFloat());
+                                        } else if (attr.name() == "bf") {
+                                            color.setBlueF(attr.value().toFloat());
+                                        } else if (attr.name() == "hex") {
+                                            color.setNamedColor(attr.value());
+                                        }
+                                    }
+                                }
+                                    break;
+                                case EFFECT_FIELD_STRING:
+                                    for (int i=0;i<attributes.size();i++) {
+                                        const QXmlStreamAttribute& attr = attributes.at(i);
+                                        if (attr.name() == "default") {
+                                            field->set_string_value(attr.value().toString());
+                                        }
+                                    }
+                                    break;
+                                case EFFECT_FIELD_BOOL:
+                                    for (int i=0;i<attributes.size();i++) {
+                                        const QXmlStreamAttribute& attr = attributes.at(i);
+                                        if (attr.name() == "default") {
+                                            field->set_bool_value(attr.value() == "1");
+                                        }
+                                    }
+                                    break;
+                                case EFFECT_FIELD_COMBO:
+                                {
+                                    int combo_index = 0;
+                                    for (int i=0;i<attributes.size();i++) {
+                                        const QXmlStreamAttribute& attr = attributes.at(i);
+                                        if (attr.name() == "default") {
+                                            combo_index = attr.value().toInt();
+                                            break;
+                                        }
+                                    }
+                                    while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
+                                        reader.readNext();
+                                        if (reader.name() == "option" && reader.isStartElement()) {
+                                            reader.readNext();
+                                            field->add_combo_item(reader.text().toString(), 0);
+                                        }
+                                    }
+                                    field->set_combo_index(combo_index);
+                                }
+                                    break;
+                                case EFFECT_FIELD_FONT:
+                                    for (int i=0;i<attributes.size();i++) {
+                                        const QXmlStreamAttribute& attr = attributes.at(i);
+                                        if (attr.name() == "default") {
+                                            field->set_font_name(attr.value().toString());
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            reader.readNext();
+        }
+
+        effect_file.close();
+    } else {
+        dout << "[ERROR] Failed to open effect file" << em.filename;
+    }
 }
 
 Effect::~Effect() {
@@ -351,14 +504,6 @@ void Effect::endEffect() {
 	bound = false;
 }
 
-int Effect::getIterations() {
-	return iterations;
-}
-
-void Effect::setIterations(int i) {
-	iterations = qMax(i, 1);
-}
-
 Effect* Effect::copy(Clip* c) {
     Effect* copy = create_effect(id, c);
 	copy->set_enabled(is_enabled());
@@ -371,7 +516,7 @@ void Effect::process_coords(double, GLTextureCoords&) {}
 GLuint Effect::process_superimpose(double) {return 0;}
 void Effect::process_audio(double, double, quint8*, int, int) {}
 
-SuperimposeEffect::SuperimposeEffect(Clip* c, int t, int i) : Effect(c, t, i), texture(NULL) {
+SuperimposeEffect::SuperimposeEffect(Clip* c, const EffectMeta& e) : Effect(c, e), texture(NULL) {
 	enable_superimpose = true;
 }
 

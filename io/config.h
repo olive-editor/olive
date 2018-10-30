@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#define SAVE_VERSION "180820" // YYMMDD
+#define SAVE_VERSION "181030" // YYMMDD
 
 #define TIMECODE_DROP 0
 #define TIMECODE_NONDROP 1

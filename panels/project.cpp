@@ -56,8 +56,7 @@ Project::Project(QWidget *parent) :
     connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(rename_media(QTreeWidgetItem*,int)));
 }
 
-Project::~Project()
-{
+Project::~Project() {
 	delete ui;
 }
 

@@ -12,6 +12,7 @@ class Transition;
 struct Clip;
 struct Sequence;
 struct Media;
+struct EffectMeta;
 
 #include "project/marker.h"
 #include "project/selection.h"
@@ -90,13 +91,13 @@ private:
 
 class AddEffectCommand : public QUndoCommand {
 public:
-    AddEffectCommand(Clip* c, int ieffect);
+    AddEffectCommand(Clip* c, EffectMeta* e);
     ~AddEffectCommand();
     void undo();
     void redo();
 private:
     Clip* clip;
-    int effect;
+    EffectMeta* meta;
     Effect* ref;
     bool done;
 	bool old_project_changed;

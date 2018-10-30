@@ -168,6 +168,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 }
 
 void PreviewGenerator::finalize_media() {
+    media->ready_lock.unlock();
 	media->ready = true;
 
 	if (media->video_tracks.size() == 0) {

@@ -63,28 +63,12 @@ SOURCES += \
     ui/fontcombobox.cpp \
     ui/checkboxex.cpp \
     effects/effect.cpp \
-    effects/video/transformeffect.cpp \
-    effects/audio/volumeeffect.cpp \
-    effects/audio/paneffect.cpp \
-    effects/video/texteffect.cpp \
-    effects/video/solideffect.cpp \
-    effects/video/shakeeffect.cpp \
-    effects/video/inverteffect.cpp \
     ui/keyframeview.cpp \
     ui/texteditex.cpp \
-    effects/video/chromakeyeffect.cpp \
-    effects/video/gaussianblureffect.cpp \
-    effects/video/cropeffect.cpp \
-    effects/video/flipeffect.cpp \
-    effects/audio/audionoiseeffect.cpp \
-    effects/video/boxblureffect.cpp \
     dialogs/demonotice.cpp \
-    effects/audio/toneeffect.cpp \
     project/marker.cpp \
     dialogs/speeddialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
-    effects/video/waveeffect.cpp \
-    effects/video/temperatureeffect.cpp \
     io/crc32.cpp \
     dialogs/loaddialog.cpp \
     debug.cpp \
@@ -128,30 +112,14 @@ HEADERS += \
     ui/fontcombobox.h \
     ui/checkboxex.h \
     effects/effect.h \
-    effects/video/transformeffect.h \
-    effects/video/solideffect.h \
-    effects/video/shakeeffect.h \
-    effects/video/texteffect.h \
-    effects/video/inverteffect.h \
-    effects/audio/volumeeffect.h \
-    effects/audio/paneffect.h \
     ui/keyframeview.h \
     ui/texteditex.h \
-    effects/video/chromakeyeffect.h \
-    effects/video/gaussianblureffect.h \
-    effects/video/cropeffect.h \
-    effects/video/flipeffect.h \
-    effects/audio/audionoiseeffect.h \
-    effects/video/boxblureffect.h \
     dialogs/demonotice.h \
-    effects/audio/toneeffect.h \
     project/marker.h \
     project/selection.h \
     dialogs/speeddialog.h \
     dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
-    effects/video/waveeffect.h \
-    effects/video/temperatureeffect.h \
     io/crc32.h \
     dialogs/loaddialog.h \
     debug.h \

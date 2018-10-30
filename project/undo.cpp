@@ -193,9 +193,9 @@ void SetTimelineInOutCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, int ieffect) :
+AddEffectCommand::AddEffectCommand(Clip* c, EffectMeta *e) :
     clip(c),
-    effect(ieffect),
+    meta(e),
     ref(NULL),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
@@ -213,7 +213,7 @@ void AddEffectCommand::undo() {
 
 void AddEffectCommand::redo() {
     if (ref == NULL) {
-        ref = create_effect(effect, clip);
+        ref = new Effect(clip, *meta);
     }
     clip->effects.append(ref);
     done = true;
