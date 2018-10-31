@@ -52,7 +52,6 @@ SOURCES += \
     ui/labelslider.cpp \
     dialogs/preferencesdialog.cpp \
     effects/transition.cpp \
-    effects/crossdissolvetransition.cpp \
     ui/audiomonitor.cpp \
     project/undo.cpp \
     ui/scrollarea.cpp \
@@ -80,7 +79,8 @@ SOURCES += \
     effects/internal/audionoiseeffect.cpp \
     effects/internal/paneffect.cpp \
     effects/internal/toneeffect.cpp \
-    effects/internal/volumeeffect.cpp
+    effects/internal/volumeeffect.cpp \
+    effects/internal/crossdissolvetransition.cpp
 
 HEADERS += \
         mainwindow.h \

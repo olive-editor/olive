@@ -1,4 +1,4 @@
-#include "transition.h"
+#include "../transition.h"
 
 LinearFadeTransition::LinearFadeTransition() : Transition(AUDIO_LINEAR_FADE_TRANSITION) {}
 
