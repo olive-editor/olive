@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia opengl
+QT       += core gui multimedia opengl qml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -59,7 +59,6 @@ SOURCES += \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
     dialogs/replaceclipmediadialog.cpp \
-    effects/linearfadetransition.cpp \
     ui/fontcombobox.cpp \
     ui/checkboxex.cpp \
     effects/effect.cpp \
@@ -72,7 +71,16 @@ SOURCES += \
     io/crc32.cpp \
     dialogs/loaddialog.cpp \
     debug.cpp \
-    io/path.cpp
+    io/path.cpp \
+    effects/qpainterwrapper.cpp \
+    effects/internal/linearfadetransition.cpp \
+    effects/internal/transformeffect.cpp \
+    effects/internal/solideffect.cpp \
+    effects/internal/texteffect.cpp \
+    effects/internal/audionoiseeffect.cpp \
+    effects/internal/paneffect.cpp \
+    effects/internal/toneeffect.cpp \
+    effects/internal/volumeeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -123,7 +131,15 @@ HEADERS += \
     io/crc32.h \
     dialogs/loaddialog.h \
     debug.h \
-    io/path.h
+    io/path.h \
+    effects/qpainterwrapper.h \
+    effects/internal/transformeffect.h \
+    effects/internal/solideffect.h \
+    effects/internal/texteffect.h \
+    effects/internal/audionoiseeffect.h \
+    effects/internal/paneffect.h \
+    effects/internal/toneeffect.h \
+    effects/internal/volumeeffect.h
 
 FORMS += \
         mainwindow.ui \
@@ -153,5 +169,4 @@ linux {
 }
 
 RESOURCES += \
-    icons/icons.qrc \
-    effects/video/glsl/shaders.qrc
+    icons/icons.qrc

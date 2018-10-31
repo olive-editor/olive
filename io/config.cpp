@@ -110,7 +110,7 @@ void Config::save(QString path) {
     stream.writeStartDocument(); // doc
     stream.writeStartElement("Configuration"); // configuration
 
-    stream.writeTextElement("Version", SAVE_VERSION);
+	stream.writeTextElement("Version", QString::number(SAVE_VERSION));
     stream.writeTextElement("SavedLayout", QString::number(saved_layout));
     stream.writeTextElement("ShowTrackLines", QString::number(show_track_lines));
     stream.writeTextElement("ScrollZooms", QString::number(scroll_zooms));

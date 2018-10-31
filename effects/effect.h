@@ -8,6 +8,8 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QJSEngine>
+#include <QMutex>
 class QLabel;
 class QWidget;
 class CollapsibleWidget;
@@ -22,43 +24,22 @@ class EffectRow;
 class CheckboxEx;
 class KeyframeDelete;
 
-enum VideoEffects {
-	VIDEO_TRANSFORM_EFFECT,
-	VIDEO_SHAKE_EFFECT,
-	VIDEO_TEXT_EFFECT,
-	VIDEO_SOLID_EFFECT,
-	VIDEO_INVERT_EFFECT,
-	VIDEO_CHROMAKEY_EFFECT,
-	VIDEO_GAUSSIANBLUR_EFFECT,
-	VIDEO_CROP_EFFECT,
-	VIDEO_FLIP_EFFECT,
-    VIDEO_BOXBLUR_EFFECT,
-	VIDEO_WAVE_EFFECT,
-    VIDEO_TEMPERATURE_EFFECT,
-	VIDEO_EFFECT_COUNT
-};
-
-enum AudioEffects {
-	AUDIO_VOLUME_EFFECT,
-	AUDIO_PAN_EFFECT,
-	AUDIO_NOISE_EFFECT,
-	AUDIO_TONE_EFFECT,
-	AUDIO_EFFECT_COUNT
-};
-
 struct EffectMeta {
     QString name;
     QString category;
     QString filename;
+	int internal;
 };
 
 extern QVector<EffectMeta> video_effects;
 extern QVector<EffectMeta> audio_effects;
 
-extern QVector<QString> video_effect_names; // deprecated
-extern QVector<QString> audio_effect_names; // deprecated
+double log_volume(double linear);
 void init_effects();
-Effect* create_effect(int effect_id, Clip* c);
+Effect* create_effect(Clip* c, const EffectMeta *em);
+const EffectMeta* get_internal_meta(int internal_id);
+
+extern QMutex effects_loaded;
 
 #define EFFECT_TYPE_INVALID 0
 #define EFFECT_TYPE_VIDEO 1
@@ -74,6 +55,15 @@ Effect* create_effect(int effect_id, Clip* c);
 #define EFFECT_KEYFRAME_LINEAR 0
 #define EFFECT_KEYFRAME_HOLD 1
 #define EFFECT_KEYFRAME_BEZIER 2
+
+#define EFFECT_INTERNAL_TRANSFORM 0
+#define EFFECT_INTERNAL_TEXT 1
+#define EFFECT_INTERNAL_SOLID 2
+#define EFFECT_INTERNAL_NOISE 3
+#define EFFECT_INTERNAL_VOLUME 4
+#define EFFECT_INTERNAL_PAN 5
+#define EFFECT_INTERNAL_TONE 6
+#define EFFECT_INTERNAL_COUNT 7
 
 struct GLTextureCoords {
 	int vertexTopLeftX;
@@ -103,6 +93,7 @@ public:
     EffectField(EffectRow* parent, int t);
     EffectRow* parent_row;
 	int type;
+	QString id;
 
 	QVariant get_previous_data();
     QVariant get_current_data();
@@ -193,10 +184,10 @@ private:
 class Effect : public QObject {
 	Q_OBJECT
 public:
-    Effect(Clip* c, const EffectMeta& em);
+	Effect(Clip* c, const EffectMeta* em);
 	~Effect();
     Clip* parent_clip;
-    const EffectMeta& meta;
+	const EffectMeta* meta;
     int id;
 	QString name;
 	CollapsibleWidget* container;
@@ -210,15 +201,15 @@ public:
 
 	virtual void refresh();
 
-    Effect* copy(Clip* c);
+	Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
     void load(QXmlStreamReader& stream);
     void save(QXmlStreamWriter& stream);
 
 	// glsl handling
-	virtual void open();
-	virtual void close();
+	void open();
+	void close();
 	virtual void startEffect();
 	virtual void endEffect();
 
@@ -231,38 +222,38 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_shader(double timecode);
+	void process_shader(double timecode);
 	virtual void process_coords(double timecode, GLTextureCoords& coords);
-    virtual GLuint process_superimpose(double timecode);
+	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();
 protected:
+	// glsl effect
 	QOpenGLShaderProgram* glslProgram;
 	QString vertPath;
 	QString fragPath;
-	bool isOpen;
+
+	// superimpose effect
+	QImage img;
+	QOpenGLTexture* texture;
 private:
+	// superimpose effect
+	QJSEngine jsEngine;
+	QJSValue wrapper_obj;
+	QString script;
+
+	bool isOpen;
 	QVector<EffectRow*> rows;
 	QGridLayout* ui_layout;
     QWidget* ui;
 	bool bound;
-};
 
-class SuperimposeEffect : public Effect {
-public:
-    SuperimposeEffect(Clip* c, const EffectMeta& e);
-	virtual void open();
-	virtual void close();
-    virtual GLuint process_superimpose(double timecode);
+	// superimpose functions
 	virtual void redraw(double timecode);
-protected:
-	QImage img;
-	QOpenGLTexture* texture;
-	void deleteTexture();
 	bool valueHasChanged(double timecode);
-private:
 	QVector<QVariant> cachedValues;
+	void delete_texture();
 };
 
 #endif // EFFECT_H

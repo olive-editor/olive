@@ -137,12 +137,15 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
                 break;
             }
         }
-        if (!added) effects_menu.addAction(action);
+		if (!added) effects_menu.addAction(action);
     }
 
     connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
 
     effects_menu.exec(QCursor::pos());*/
+
+	effects_loaded.lock();
+
     video_menu = video;
     transition_menu = transitions;
 
@@ -152,9 +155,8 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
         const EffectMeta& em = effect_list.at(i);
         QAction* action = new QAction(&effects_menu);
         action->setText(em.name);
-        action->setData(reinterpret_cast<quintptr>(&em));
+		action->setData(reinterpret_cast<quintptr>(&em));
 
-        // TODO alphabetical ordering
         QMenu* parent = &effects_menu;
         if (!em.category.isEmpty()) {
             bool found = false;
@@ -171,17 +173,33 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
             if (!found) {
                 parent = new QMenu(&effects_menu);
                 parent->setTitle(em.category);
-                effects_menu.addMenu(parent);
+
+				bool found = false;
+				for (int i=0;i<effects_menu.actions().size();i++) {
+					QAction* comp_action = effects_menu.actions().at(i);
+					if (comp_action->text() > em.category) {
+						effects_menu.insertMenu(comp_action, parent);
+						found = true;
+						break;
+					}
+				}
+				if (!found) effects_menu.addMenu(parent);
             }
         }
 
-        parent->addAction(action);
-    }
+		bool found = false;
+		for (int i=0;i<parent->actions().size();i++) {
+			QAction* comp_action = parent->actions().at(i);
+			if (comp_action->text() > action->text()) {
+				parent->insertAction(comp_action, action);
+				found = true;
+				break;
+			}
+		}
+		if (!found) parent->addAction(action);
+	}
 
-    QMenu test_menu(this);
-    test_menu.setTitle("HEY NOW");
-    test_menu.addAction("YOU'RE AN ALL STAR");
-    effects_menu.addMenu(&test_menu);
+	effects_loaded.unlock();
 
     connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
     effects_menu.exec(QCursor::pos());

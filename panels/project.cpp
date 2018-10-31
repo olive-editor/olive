@@ -726,7 +726,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
         stream.readNextStartElement();
         if (stream.name() == root_search) {
             if (type == LOAD_TYPE_VERSION) {
-                if (stream.readElementText() != SAVE_VERSION) {
+				int proj_version = stream.readElementText().toInt();
+				if (proj_version < MIN_SAVE_VERSION && proj_version > SAVE_VERSION) {
                     if (QMessageBox::warning(this, "Version Mismatch", "This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
                         show_err = false;
                         return false;
@@ -760,7 +761,6 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							QTreeWidgetItem* item = new_item();
                             Media* m = new Media();
 
-                            // TODO make save/load-able
                             m->using_inout = false;
 
                             for (int j=0;j<stream.attributes().size();j++) {
@@ -775,7 +775,13 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     m->url = attr.value().toString();
                                 } else if (attr.name() == "duration") {
                                     m->length = attr.value().toLongLong();
-                                }
+								} else if (attr.name() == "using_inout") {
+									m->using_inout = (attr.value() == "1");
+								} else if (attr.name() == "in") {
+									m->in = attr.value().toLong();
+								} else if (attr.name() == "out") {
+									m->out = attr.value().toLong();
+								}
 							}
 
 							set_footage_of_tree(item, m);
@@ -937,6 +943,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                     stream.readNext();
                                                     if (stream.name() == "effect" && stream.isStartElement()) {
                                                         int effect_id = -1;
+														QString effect_name;
 														bool effect_enabled = true;
                                                         for (int j=0;j<stream.attributes().size();j++) {
                                                             const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -944,15 +951,55 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 																effect_id = attr.value().toInt();
 															} else if (attr.name() == "enabled") {
 																effect_enabled = (attr.value() == "1");
+															} else if (attr.name() == "name") {
+																effect_name = attr.value().toString();
 															}
                                                         }
-                                                        if (effect_id != -1) {
-                                                            Effect* e = create_effect(effect_id, c);
+
+														// backwards compatibility with 180820
+														if (effect_id != -1) {
+															switch (effect_id) {
+															case 0: effect_name = (c->track < 0) ? "Transform" : "Volume"; break;
+															case 1: effect_name = (c->track < 0) ? "Shake" : "Pan"; break;
+															case 2: effect_name = (c->track < 0) ? "Text" : "Noise"; break;
+															case 3: effect_name = (c->track < 0) ? "Solid" : "Tone"; break;
+															case 4: effect_name = "Invert"; break;
+															case 5: effect_name = "Chroma Key"; break;
+															case 6: effect_name = "Gaussian Blur"; break;
+															case 7: effect_name = "Crop"; break;
+															case 8: effect_name = "Flip"; break;
+															case 9: effect_name = "Box Blur"; break;
+															case 10: effect_name = "Wave"; break;
+															case 11: effect_name = "Temperature"; break;
+															}
+														}
+
+														// wait for effects to be loaded
+														effects_loaded.lock();
+
+														const EffectMeta* meta = NULL;
+
+														// find effect with this name
+														if (!effect_name.isEmpty()) {
+															QVector<EffectMeta>& effect_list = (c->track < 0) ? video_effects : audio_effects;
+															for (int j=0;j<effect_list.size();j++) {
+																if (effect_list.at(j).name == effect_name) {
+																	meta = &effect_list.at(j);
+																	break;
+																}
+															}
+														}
+
+														if (meta == NULL) {
+															dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
+														} else {
+															Effect* e = create_effect(c, meta);
 															e->set_enabled(effect_enabled);
-//															stream.writeAttribute("enabled", QString::number(e->is_enabled()));
                                                             e->load(stream);
-                                                            c->effects.append(e);
+															c->effects.append(e);
                                                         }
+
+														effects_loaded.unlock();
                                                     }
                                                 }
                                             }
@@ -1125,6 +1172,9 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                     stream.writeAttribute("name", m->name);
                     stream.writeAttribute("url", m->url);
                     stream.writeAttribute("duration", QString::number(m->length));
+					stream.writeAttribute("using_inout", QString::number(m->using_inout));
+					stream.writeAttribute("in", QString::number(m->in));
+					stream.writeAttribute("out", QString::number(m->out));
                     for (int j=0;j<m->video_tracks.size();j++) {
                         MediaStream* ms = m->video_tracks.at(j);
                         stream.writeStartElement("video");
@@ -1216,7 +1266,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 for (int k=0;k<c->effects.size();k++) {
                                     stream.writeStartElement("effect"); // effect
                                     Effect* e = c->effects.at(k);
-                                    stream.writeAttribute("id", QString::number(e->id));									
+									stream.writeAttribute("name", e->meta->name);
 									stream.writeAttribute("enabled", QString::number(e->is_enabled()));
                                     e->save(stream);
                                     stream.writeEndElement(); // effect
@@ -1260,7 +1310,7 @@ void Project::save_project(bool autorecovery) {
 
     stream.writeStartElement("project"); // project
 
-    stream.writeTextElement("version", SAVE_VERSION);
+	stream.writeTextElement("version", QString::number(SAVE_VERSION));
 
     save_folder(stream, NULL, MEDIA_TYPE_FOLDER, true);
 

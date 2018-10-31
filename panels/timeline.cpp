@@ -27,6 +27,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+#include <QJSEngine>
+
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
     if (source_frame_rate == target_frame_rate) return framenumber;
 	return qFloor(((double)framenumber/source_frame_rate)*target_frame_rate);
@@ -385,7 +387,7 @@ bool Timeline::is_clip_selected(Clip* clip, bool containing) {
 }
 
 void Timeline::on_snappingButton_toggled(bool checked) {
-    snapping = checked;
+	//snapping = checked;
 }
 
 Clip* Timeline::split_clip(ComboAction* ca, int p, long frame) {

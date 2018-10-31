@@ -366,7 +366,9 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 								if (e->enable_shader || e->enable_superimpose) {
 									e->startEffect();
                                     //for (int k=0;k<e->getIterations();k++) {
-                                        e->process_shader(timecode);
+										if (e->enable_shader) {
+											e->process_shader(timecode);
+										}
                                         composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
                                         if (e->enable_superimpose) {
                                             GLuint superimpose_texture = e->process_superimpose(timecode);

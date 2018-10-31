@@ -213,7 +213,7 @@ void AddEffectCommand::undo() {
 
 void AddEffectCommand::redo() {
     if (ref == NULL) {
-        ref = new Effect(clip, *meta);
+		ref = create_effect(clip, meta);
     }
     clip->effects.append(ref);
     done = true;

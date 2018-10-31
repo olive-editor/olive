@@ -19,7 +19,9 @@
 
 #include "effects/effect.h"
 #include "effects/transition.h"
-#include "effects/video/solideffect.h"
+
+#include "effects/internal/solideffect.h"
+#include "effects/internal/texteffect.h"
 
 #include <QPainter>
 #include <QColor>
@@ -623,14 +625,14 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
                 }
             }
 
-            /*if (c->track < 0) {
+			if (c->track < 0) {
                 // add default video effects
-                c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));
+				c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM)));
             } else {
                 // add default audio effects
-                c->effects.append(create_effect(AUDIO_VOLUME_EFFECT, c));
-                c->effects.append(create_effect(AUDIO_PAN_EFFECT, c));
-            }*/
+				c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME)));
+				c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN)));
+			}
         }
 
 		panel_timeline->ghosts.clear();
@@ -874,41 +876,41 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 						if (c->track < 0) {
 							// default video effects (before custom effects)
-                            c->effects.append(create_effect(VIDEO_TRANSFORM_EFFECT, c));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM)));
 							c->media_type = MEDIA_TYPE_SOLID;
 						}
 
 						switch (panel_timeline->creating_object) {
 						case ADD_OBJ_TITLE:
 							c->name = "Title";
-                            c->effects.append(create_effect(VIDEO_TEXT_EFFECT, c));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TEXT)));
 							break;
 						case ADD_OBJ_SOLID:
 							c->name = "Solid Color";
-                            c->effects.append(create_effect(VIDEO_SOLID_EFFECT, c));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID)));
 							break;
 						case ADD_OBJ_BARS:
                         {
 							c->name = "Bars";
-                            Effect* e = create_effect(VIDEO_SOLID_EFFECT, c);
+							Effect* e = create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID));
                             e->row(0)->field(0)->set_combo_index(1);
-                            c->effects.append(e);
+							c->effects.append(e);
                         }
 							break;
 						case ADD_OBJ_TONE:
 							c->name = "Tone";
-							c->effects.append(create_effect(AUDIO_TONE_EFFECT, c));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TONE)));
 							break;
 						case ADD_OBJ_NOISE:
 							c->name = "Noise";
-							c->effects.append(create_effect(AUDIO_NOISE_EFFECT, c));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_NOISE)));
 							break;
 						}
 
 						if (c->track >= 0) {
 							// default audio effects (after custom effects)
-                            c->effects.append(create_effect(AUDIO_VOLUME_EFFECT, c));
-                            c->effects.append(create_effect(AUDIO_PAN_EFFECT, c));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME)));
+							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN)));
 							c->media_type = MEDIA_TYPE_TONE;
 						}
 
@@ -2333,14 +2335,12 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
         }
 
 		// Draw edit cursor
-		if (isLiveEditing()) {
-            if (is_track_visible(panel_timeline->cursor_track)) {
-				int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->cursor_frame);
-				int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
+		if (isLiveEditing() && is_track_visible(panel_timeline->cursor_track)) {
+			int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->cursor_frame);
+			int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
 
-				p.setPen(Qt::gray);
-                p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->cursor_track, -1));
-            }
+			p.setPen(Qt::gray);
+			p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->cursor_track, -1));
 		}
 	}
 }

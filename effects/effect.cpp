@@ -1,5 +1,6 @@
 #include "effect.h"
 
+#include "effects/qpainterwrapper.h"
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
@@ -18,6 +19,15 @@
 #include "panels/effectcontrols.h"
 #include "debug.h"
 #include "io/path.h"
+#include "mainwindow.h"
+
+#include "effects/internal/transformeffect.h"
+#include "effects/internal/texteffect.h"
+#include "effects/internal/solideffect.h"
+#include "effects/internal/audionoiseeffect.h"
+#include "effects/internal/toneeffect.h"
+#include "effects/internal/volumeeffect.h"
+#include "effects/internal/paneffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -26,99 +36,147 @@
 #include <QMessageBox>
 #include <QOpenGLContext>
 #include <QDir>
+#include <QPainter>
+#include <QtMath>
 
 QVector<EffectMeta> video_effects;
 QVector<EffectMeta> audio_effects;
+QMutex effects_loaded;
 
-QVector<QString> video_effect_names;
-QVector<QString> audio_effect_names;
-
-void init_effects() {
-    video_effect_names.resize(VIDEO_EFFECT_COUNT);
-    audio_effect_names.resize(AUDIO_EFFECT_COUNT);
-
-    video_effect_names[VIDEO_TRANSFORM_EFFECT] = "Transform";
-    video_effect_names[VIDEO_SHAKE_EFFECT] = "Shake";
-    video_effect_names[VIDEO_TEXT_EFFECT] = "Text";
-    video_effect_names[VIDEO_SOLID_EFFECT] = "Solid";
-    video_effect_names[VIDEO_INVERT_EFFECT] = "Invert";
-    video_effect_names[VIDEO_CHROMAKEY_EFFECT] = "Chroma Key";
-    video_effect_names[VIDEO_GAUSSIANBLUR_EFFECT] = "Gaussian Blur";
-    video_effect_names[VIDEO_CROP_EFFECT] = "Crop";
-    video_effect_names[VIDEO_FLIP_EFFECT] = "Flip";
-    video_effect_names[VIDEO_BOXBLUR_EFFECT] = "Box Blur";
-    video_effect_names[VIDEO_WAVE_EFFECT] = "Wave";
-    video_effect_names[VIDEO_TEMPERATURE_EFFECT] = "Temperature";
-
-    audio_effect_names[AUDIO_VOLUME_EFFECT] = "Volume";
-    audio_effect_names[AUDIO_PAN_EFFECT] = "Pan";
-    audio_effect_names[AUDIO_NOISE_EFFECT] = "Noise";
-    audio_effect_names[AUDIO_TONE_EFFECT] = "Tone";
-
-    dout << "Starting init effect (TODO: multithread this)";
-    QString effects_path = get_effects_dir();
-    QDir effects_dir(effects_path);
-    if (effects_dir.exists()) {
-        QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
-        for (int i=0;i<entries.size();i++) {
-            QFile file(effects_path + "/" + entries.at(i));
-            if (!file.open(QIODevice::ReadOnly)) {
-                dout << "[ERROR] Could not open file";
-                return;
-            }
-
-            QXmlStreamReader reader(&file);
-            while (!reader.atEnd()) {
-                if (reader.name() == "effect") {
-                    QString effect_name = "";
-                    QString effect_cat = "";
-                    int effect_type = EFFECT_TYPE_INVALID;
-                    const QXmlStreamAttributes attr = reader.attributes();
-                    for (int j=0;j<attr.size();j++) {
-                        if (attr.at(j).name() == "name") {
-                            effect_name = attr.at(j).value().toString();
-                        } else if (attr.at(j).name() == "category") {
-                            effect_cat = attr.at(j).value().toString();
-                        } else if (attr.at(j).name() == "type") {
-                            QString compare = attr.at(j).value().toString().toUpper();
-                            if (compare == "VIDEO") {
-                                effect_type = EFFECT_TYPE_VIDEO;
-                            } else if (compare == "AUDIO") {
-                                effect_type = EFFECT_TYPE_AUDIO;
-                            }
-                        }
-                    }
-                    if (effect_type != EFFECT_TYPE_INVALID && !effect_name.isEmpty()) {
-                        EffectMeta em;
-                        em.name = effect_name;
-                        em.category = effect_cat;
-                        em.filename = entries.at(i);
-                        if (effect_type == EFFECT_TYPE_VIDEO) {
-                            video_effects.append(em);
-                        } else {
-                            audio_effects.append(em);
-                        }
-                    } else {
-                        dout << "[ERROR] Invalid effect found in" << entries.at(i);
-                    }
-                    break;
-                }
-                reader.readNext();
-            }
-        }
-    }
-    dout << "Completed init effect (TODO: multithread this)";
+Effect* create_effect(Clip* c, const EffectMeta* em) {
+	if (!em->filename.isEmpty()) {
+		// load effect from file
+		return new Effect(c, em);
+	} else if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
+		// must be an internal effect
+		switch (em->internal) {
+		case EFFECT_INTERNAL_TRANSFORM: return new TransformEffect(c, em); break;
+		case EFFECT_INTERNAL_TEXT: return new TextEffect(c, em); break;
+		case EFFECT_INTERNAL_SOLID: return new SolidEffect(c, em); break;
+		case EFFECT_INTERNAL_NOISE: return new AudioNoiseEffect(c, em); break;
+		case EFFECT_INTERNAL_VOLUME: return new VolumeEffect(c, em); break;
+		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em); break;
+		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em); break;
+		}
+	} else {
+		dout << "[ERROR] Invalid effect data";
+		QMessageBox::critical(mainWindow, "Invalid effect", "No candidate for effect '" + em->name + "'. This effect may be corrupt. Try reinstalling it or Olive.");
+	}
+	return NULL;
 }
 
-Effect* create_effect(int effect_id, Clip* c) {
-	return NULL;
+const EffectMeta* get_internal_meta(int internal_id) {
+	for (int i=0;i<audio_effects.size();i++) {
+		if (audio_effects.at(i).internal == internal_id) {
+			return &audio_effects.at(i);
+		}
+	}
+	for (int i=0;i<video_effects.size();i++) {
+		if (video_effects.at(i).internal == internal_id) {
+			return &video_effects.at(i);
+		}
+	}
+}
+
+void load_internal_effects() {
+	EffectMeta em;
+
+	em.name = "Volume";
+	em.internal = EFFECT_INTERNAL_VOLUME;
+	audio_effects.append(em);
+
+	em.name = "Pan";
+	em.internal = EFFECT_INTERNAL_PAN;
+	audio_effects.append(em);
+
+	em.name = "Tone";
+	em.internal = EFFECT_INTERNAL_TONE;
+	audio_effects.append(em);
+
+	em.name = "Noise";
+	em.internal = EFFECT_INTERNAL_NOISE;
+	audio_effects.append(em);
+
+	em.name = "Transform";
+	em.category = "Distort";
+	em.internal = EFFECT_INTERNAL_TRANSFORM;
+	video_effects.append(em);
+
+	em.name = "Text";
+	em.category = "Render";
+	em.internal = EFFECT_INTERNAL_TEXT;
+	video_effects.append(em);
+
+	em.name = "Solid";
+	em.category = "Render";
+	em.internal = EFFECT_INTERNAL_SOLID;
+	video_effects.append(em);
+}
+
+void load_shader_effects() {
+	QString effects_path = get_effects_dir();
+	QDir effects_dir(effects_path);
+	if (effects_dir.exists()) {
+		QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
+		for (int i=0;i<entries.size();i++) {
+			QFile file(effects_path + "/" + entries.at(i));
+			if (!file.open(QIODevice::ReadOnly)) {
+				dout << "[ERROR] Could not open" << entries.at(i);
+				return;
+			}
+
+			QXmlStreamReader reader(&file);
+			while (!reader.atEnd()) {
+				if (reader.name() == "effect") {
+					QString effect_name = "";
+					QString effect_cat = "";
+					const QXmlStreamAttributes attr = reader.attributes();
+					for (int j=0;j<attr.size();j++) {
+						if (attr.at(j).name() == "name") {
+							effect_name = attr.at(j).value().toString();
+						} else if (attr.at(j).name() == "category") {
+							effect_cat = attr.at(j).value().toString();
+						}
+					}
+					if (!effect_name.isEmpty()) {
+						EffectMeta em;
+						em.name = effect_name;
+						em.category = effect_cat;
+						em.filename = entries.at(i);
+						em.internal = -1;
+						video_effects.append(em);
+					} else {
+						dout << "[ERROR] Invalid effect found in" << entries.at(i);
+					}
+					break;
+				}
+				reader.readNext();
+			}
+
+			file.close();
+		}
+	}
+}
+
+void load_vst_effects() {
+
+}
+
+void init_effects() {
+    dout << "Starting init effect (TODO: multithread this)";
+	effects_loaded.lock();
+	load_internal_effects();
+	load_shader_effects();
+	load_vst_effects();
+	effects_loaded.unlock();
+    dout << "Completed init effect (TODO: multithread this)";
 }
 
 double double_lerp(double a, double b, double t) {
     return ((1.0 - t) * a) + (t * b);
 }
 
-Effect::Effect(Clip* c, const EffectMeta &em) :
+Effect::Effect(Clip* c, const EffectMeta *em) :
 	parent_clip(c),
     meta(em),
 	enable_shader(false),
@@ -126,6 +184,7 @@ Effect::Effect(Clip* c, const EffectMeta &em) :
     enable_superimpose(false),
 	isOpen(false),
 	glslProgram(NULL),
+	texture(NULL),
 	bound(false)
 {
     // set up base UI
@@ -138,147 +197,184 @@ Effect::Effect(Clip* c, const EffectMeta &em) :
 	container->setContents(ui);
 
     // set up UI from effect file
-    container->setText(em.name);
-    QFile effect_file(get_effects_dir() + "/" + em.filename);
+	container->setText(em->name);
 
-    if (effect_file.open(QFile::ReadOnly)) {
-        QXmlStreamReader reader(&effect_file);
+	if (!em->filename.isEmpty()) {
+		QFile effect_file(get_effects_dir() + "/" + em->filename);
+		if (effect_file.open(QFile::ReadOnly)) {
+			QXmlStreamReader reader(&effect_file);
 
-        while (!reader.atEnd()) {
-            if (reader.name() == "row" && reader.isStartElement()) {
-                QString row_name;
-                const QXmlStreamAttributes& attributes = reader.attributes();
-                for (int i=0;i<attributes.size();i++) {
-                    const QXmlStreamAttribute& attr = attributes.at(i);
-                    if (attr.name() == "name") {
-                        row_name = attr.value().toString();
-                    }
-                }
-                if (!row_name.isEmpty()) {
-                    EffectRow* row = add_row(row_name);
-                    while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
-                        reader.readNext();
-                        if (reader.name() == "field" && reader.isStartElement()) {
-                            int type = -1;
+			while (!reader.atEnd()) {
+				if (reader.name() == "row" && reader.isStartElement()) {
+					QString row_name;
+					const QXmlStreamAttributes& attributes = reader.attributes();
+					for (int i=0;i<attributes.size();i++) {
+						const QXmlStreamAttribute& attr = attributes.at(i);
+						if (attr.name() == "name") {
+							row_name = attr.value().toString();
+						}
+					}
+					if (!row_name.isEmpty()) {
+						EffectRow* row = add_row(row_name + ":");
+						while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
+							reader.readNext();
+							if (reader.name() == "field" && reader.isStartElement()) {
+								int type = EFFECT_TYPE_VIDEO;
+								QString id;
 
-                            // get field type
-                            const QXmlStreamAttributes& attributes = reader.attributes();
-                            for (int i=0;i<attributes.size();i++) {
-                                const QXmlStreamAttribute& attr = attributes.at(i);
-                                if (attr.name() == "type") {
-                                    QString comp = attr.value().toString().toUpper();
-                                    if (comp == "DOUBLE") {
-                                        type = EFFECT_FIELD_DOUBLE;
-                                    } else if (comp == "BOOL") {
-                                        type = EFFECT_FIELD_BOOL;
-                                    } else if (comp == "COLOR") {
-                                        type = EFFECT_FIELD_COLOR;
-                                    } else if (comp == "COMBO") {
-                                        type = EFFECT_FIELD_COMBO;
-                                    } else if (comp == "FONT") {
-                                        type = EFFECT_FIELD_FONT;
-                                    } else if (comp == "STRING") {
-                                        type = EFFECT_FIELD_STRING;
-                                    }
-                                }
-                            }
+								// get field type
+								const QXmlStreamAttributes& attributes = reader.attributes();
+								for (int i=0;i<attributes.size();i++) {
+									const QXmlStreamAttribute& attr = attributes.at(i);
+									if (attr.name() == "type") {
+										QString comp = attr.value().toString().toUpper();
+										if (comp == "DOUBLE") {
+											type = EFFECT_FIELD_DOUBLE;
+										} else if (comp == "BOOL") {
+											type = EFFECT_FIELD_BOOL;
+										} else if (comp == "COLOR") {
+											type = EFFECT_FIELD_COLOR;
+										} else if (comp == "COMBO") {
+											type = EFFECT_FIELD_COMBO;
+										} else if (comp == "FONT") {
+											type = EFFECT_FIELD_FONT;
+										} else if (comp == "STRING") {
+											type = EFFECT_FIELD_STRING;
+										}
+									} else if (attr.name() == "id") {
+										id = attr.value().toString();
+									}
+								}
 
-                            qDebug() << "add field" << type;
-                            if (type > -1) {
-                                EffectField* field = row->add_field(type);
-                                switch (type) {
-                                case EFFECT_FIELD_DOUBLE:
-                                    for (int i=0;i<attributes.size();i++) {
-                                        const QXmlStreamAttribute& attr = attributes.at(i);
-                                        if (attr.name() == "default") {
-                                            field->set_double_default_value(attr.value().toDouble());
-                                        } else if (attr.name() == "min") {
-                                            field->set_double_minimum_value(attr.value().toDouble());
-                                        } else if (attr.name() == "max") {
-                                            field->set_double_maximum_value(attr.value().toDouble());
-                                        }
-                                    }
-                                    break;
-                                case EFFECT_FIELD_COLOR:
-                                {
-                                    QColor color;
-                                    for (int i=0;i<attributes.size();i++) {
-                                        const QXmlStreamAttribute& attr = attributes.at(i);
-                                        if (attr.name() == "r") {
-                                            color.setRed(attr.value().toInt());
-                                        } else if (attr.name() == "g") {
-                                            color.setGreen(attr.value().toInt());
-                                        } else if (attr.name() == "b") {
-                                            color.setBlue(attr.value().toInt());
-                                        } else if (attr.name() == "rf") {
-                                            color.setRedF(attr.value().toFloat());
-                                        } else if (attr.name() == "gf") {
-                                            color.setGreenF(attr.value().toFloat());
-                                        } else if (attr.name() == "bf") {
-                                            color.setBlueF(attr.value().toFloat());
-                                        } else if (attr.name() == "hex") {
-                                            color.setNamedColor(attr.value());
-                                        }
-                                    }
-                                }
-                                    break;
-                                case EFFECT_FIELD_STRING:
-                                    for (int i=0;i<attributes.size();i++) {
-                                        const QXmlStreamAttribute& attr = attributes.at(i);
-                                        if (attr.name() == "default") {
-                                            field->set_string_value(attr.value().toString());
-                                        }
-                                    }
-                                    break;
-                                case EFFECT_FIELD_BOOL:
-                                    for (int i=0;i<attributes.size();i++) {
-                                        const QXmlStreamAttribute& attr = attributes.at(i);
-                                        if (attr.name() == "default") {
-                                            field->set_bool_value(attr.value() == "1");
-                                        }
-                                    }
-                                    break;
-                                case EFFECT_FIELD_COMBO:
-                                {
-                                    int combo_index = 0;
-                                    for (int i=0;i<attributes.size();i++) {
-                                        const QXmlStreamAttribute& attr = attributes.at(i);
-                                        if (attr.name() == "default") {
-                                            combo_index = attr.value().toInt();
-                                            break;
-                                        }
-                                    }
-                                    while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
-                                        reader.readNext();
-                                        if (reader.name() == "option" && reader.isStartElement()) {
-                                            reader.readNext();
-                                            field->add_combo_item(reader.text().toString(), 0);
-                                        }
-                                    }
-                                    field->set_combo_index(combo_index);
-                                }
-                                    break;
-                                case EFFECT_FIELD_FONT:
-                                    for (int i=0;i<attributes.size();i++) {
-                                        const QXmlStreamAttribute& attr = attributes.at(i);
-                                        if (attr.name() == "default") {
-                                            field->set_font_name(attr.value().toString());
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            reader.readNext();
-        }
+								if (id.isEmpty()) {
+									dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
+								} else if (type > -1) {
+									EffectField* field = row->add_field(type);
+									field->id = id;
+									connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
+									switch (type) {
+									case EFFECT_FIELD_DOUBLE:
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "default") {
+												field->set_double_default_value(attr.value().toDouble());
+											} else if (attr.name() == "min") {
+												field->set_double_minimum_value(attr.value().toDouble());
+											} else if (attr.name() == "max") {
+												field->set_double_maximum_value(attr.value().toDouble());
+											}
+										}
+										break;
+									case EFFECT_FIELD_COLOR:
+									{
+										QColor color;
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "r") {
+												color.setRed(attr.value().toInt());
+											} else if (attr.name() == "g") {
+												color.setGreen(attr.value().toInt());
+											} else if (attr.name() == "b") {
+												color.setBlue(attr.value().toInt());
+											} else if (attr.name() == "rf") {
+												color.setRedF(attr.value().toFloat());
+											} else if (attr.name() == "gf") {
+												color.setGreenF(attr.value().toFloat());
+											} else if (attr.name() == "bf") {
+												color.setBlueF(attr.value().toFloat());
+											} else if (attr.name() == "hex") {
+												color.setNamedColor(attr.value());
+											}
+										}
+										field->set_color_value(color);
+									}
+										break;
+									case EFFECT_FIELD_STRING:
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "default") {
+												field->set_string_value(attr.value().toString());
+											}
+										}
+										break;
+									case EFFECT_FIELD_BOOL:
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "default") {
+												field->set_bool_value(attr.value() == "1");
+											}
+										}
+										break;
+									case EFFECT_FIELD_COMBO:
+									{
+										int combo_index = 0;
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "default") {
+												combo_index = attr.value().toInt();
+												break;
+											}
+										}
+										while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
+											reader.readNext();
+											if (reader.name() == "option" && reader.isStartElement()) {
+												reader.readNext();
+												field->add_combo_item(reader.text().toString(), 0);
+											}
+										}
+										field->set_combo_index(combo_index);
+									}
+										break;
+									case EFFECT_FIELD_FONT:
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "default") {
+												field->set_font_name(attr.value().toString());
+											}
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				} else if (reader.name() == "shader" && reader.isStartElement()) {
+					enable_shader = true;
+					const QXmlStreamAttributes& attributes = reader.attributes();
+					for (int i=0;i<attributes.size();i++) {
+						const QXmlStreamAttribute& attr = attributes.at(i);
+						if (attr.name() == "vert") {
+							vertPath = attr.value().toString();
+						} else if (attr.name() == "frag") {
+							fragPath = attr.value().toString();
+						}
+					}
+				} else if (reader.name() == "superimpose" && reader.isStartElement()) {
+					enable_superimpose = true;
+					const QXmlStreamAttributes& attributes = reader.attributes();
+					for (int i=0;i<attributes.size();i++) {
+						const QXmlStreamAttribute& attr = attributes.at(i);
+						if (attr.name() == "script") {
+							QFile script_file = get_effects_dir() + "/" + attr.value().toString();
+							if (script_file.open(QFile::ReadOnly)) {
+								script = script_file.readAll();
+								wrapper_obj = jsEngine.newQObject(&painter_wrapper);
+							} else {
+								dout << "[ERROR] Failed to open superimpose script file for" << em->filename;
+								enable_superimpose = false;
+							}
+							break;
+						}
+					}
+				}
+				reader.readNext();
+			}
 
-        effect_file.close();
-    } else {
-        dout << "[ERROR] Failed to open effect file" << em.filename;
-    }
+			effect_file.close();
+		} else {
+			dout << "[ERROR] Failed to open effect file" << em->filename;
+		}
+	}
 }
 
 Effect::~Effect() {
@@ -294,13 +390,14 @@ Effect::~Effect() {
 void Effect::copy_field_keyframes(Effect* e) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-		e->rows.at(i)->setKeyframing(rows.at(i)->isKeyframing());
-        e->rows.at(i)->keyframe_times = rows.at(i)->keyframe_times;
-        e->rows.at(i)->keyframe_types = rows.at(i)->keyframe_types;
+		EffectRow* copy_row = e->rows.at(i);
+		copy_row->setKeyframing(row->isKeyframing());
+		copy_row->keyframe_times = row->keyframe_times;
+		copy_row->keyframe_types = row->keyframe_types;
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
-            e->rows.at(i)->field(j)->set_current_data(field->get_current_data());
-            e->rows.at(i)->field(j)->keyframe_data = field->keyframe_data;
+			copy_row->field(j)->set_current_data(field->get_current_data());
+			copy_row->field(j)->keyframe_data = field->keyframe_data;
 		}
 	}
 }
@@ -405,8 +502,30 @@ void Effect::load(QXmlStreamReader& stream) {
 					// read field
 					if (stream.name() == "field" && stream.isStartElement()) {
 						if (field_count < row->fieldCount()) {
-							EffectField* field = row->field(field_count);
+							// match field using ID
+							bool found_field_by_id = false;
+							int field_number = field_count;
+							for (int k=0;k<stream.attributes().size();k++) {
+								const QXmlStreamAttribute& attr = stream.attributes().at(k);
+								if (attr.name() == "id") {
+									for (int l=0;l<row->fieldCount();l++) {
+										if (row->field(l)->id == attr.value()) {
+											field_number = l;
+											found_field_by_id = true;
+											dout << "[INFO] Found field by ID";
+											break;
+										}
+									}
+									break;
+								}
+							}
 
+							// TODO DEPRECATED, only used for backwards compatibility with 180820
+							if (!found_field_by_id) dout << "[INFO] Found field by field number";
+
+							EffectField* field = row->field(field_number);
+
+							// get current field value
 							for (int k=0;k<stream.attributes().size();k++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(k);
 								if (attr.name() == "value") {
@@ -455,6 +574,7 @@ void Effect::save(QXmlStreamWriter& stream) {
 		for (int j=0;j<row->fieldCount();j++) {
 			EffectField* field = row->field(j);
             stream.writeStartElement("field"); // field
+			stream.writeAttribute("id", field->id);
 			stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
             for (int k=0;k<field->keyframe_data.size();k++) {
 				stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
@@ -470,24 +590,34 @@ void Effect::open() {
 		dout << "[WARNING] Tried to open an effect that was already open";
 		close();
 	}
-	if (QOpenGLContext::currentContext() == NULL) {
-		dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
+	if (enable_shader) {
+		if (QOpenGLContext::currentContext() == NULL) {
+			dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
+		} else {
+			glslProgram = new QOpenGLShaderProgram();
+			if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, get_effects_dir() + "/" + vertPath);
+			if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, get_effects_dir() + "/" + fragPath);
+			glslProgram->link();
+			isOpen = true;
+		}
 	} else {
-		glslProgram = new QOpenGLShaderProgram();
-		if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, vertPath);
-		if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, fragPath);
-		glslProgram->link();
 		isOpen = true;
+	}
+
+	if (enable_superimpose) {
+		texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 	}
 }
 
 void Effect::close() {
 	if (!isOpen) {
 		dout << "[WARNING] Tried to close an effect that was already closed";
-	} else {
-		delete glslProgram;
 	}
-	glslProgram = NULL;
+	if (glslProgram != NULL) {
+		delete glslProgram;
+		glslProgram = NULL;
+	}
+	delete_texture();
 	isOpen = false;
 }
 
@@ -496,7 +626,7 @@ void Effect::startEffect() {
 		open();
 		dout << "[WARNING] Tried to start a closed effect - opening";
 	}
-	bound = glslProgram->bind();
+	if (enable_shader) bound = glslProgram->bind();
 }
 
 void Effect::endEffect() {
@@ -505,32 +635,44 @@ void Effect::endEffect() {
 }
 
 Effect* Effect::copy(Clip* c) {
-    Effect* copy = create_effect(id, c);
+	Effect* copy = create_effect(c, meta);
 	copy->set_enabled(is_enabled());
     copy_field_keyframes(copy);
     return copy;
 }
 
-void Effect::process_shader(double) {}
+void Effect::process_shader(double timecode) {
+	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
+
+	for (int i=0;i<rows.size();i++) {
+		EffectRow* row = rows.at(i);
+		for (int j=0;j<row->fieldCount();j++) {
+			EffectField* field = row->field(j);
+			if (!field->id.isEmpty()) {
+				switch (field->type) {
+				case EFFECT_FIELD_DOUBLE:
+					glslProgram->setUniformValue(field->id.toLatin1().constData(), (GLfloat) field->get_double_value(timecode));
+					break;
+				case EFFECT_FIELD_COLOR:
+					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_color_value(timecode));
+					break;
+				case EFFECT_FIELD_STRING: break; // can you even send a string to a uniform value?
+				case EFFECT_FIELD_BOOL:
+					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_bool_value(timecode));
+					break;
+				case EFFECT_FIELD_COMBO:
+					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_combo_index(timecode));
+					break;
+				case EFFECT_FIELD_FONT: break; // can you even send a string to a uniform value?
+				}
+			}
+		}
+	}
+}
+
 void Effect::process_coords(double, GLTextureCoords&) {}
-GLuint Effect::process_superimpose(double) {return 0;}
-void Effect::process_audio(double, double, quint8*, int, int) {}
 
-SuperimposeEffect::SuperimposeEffect(Clip* c, const EffectMeta& e) : Effect(c, e), texture(NULL) {
-	enable_superimpose = true;
-}
-
-void SuperimposeEffect::open() {
-	Effect::open();
-	texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-}
-
-void SuperimposeEffect::close() {
-	Effect::close();
-	deleteTexture();
-}
-
-GLuint SuperimposeEffect::process_superimpose(double timecode) {
+GLuint Effect::process_superimpose(double timecode) {
 	bool recreate_texture = false;
 	int width = parent_clip->getWidth();
 	int height = parent_clip->getHeight();
@@ -546,7 +688,7 @@ GLuint SuperimposeEffect::process_superimpose(double timecode) {
 
 	if (texture != NULL) {
 		if (recreate_texture || texture->width() != img.width() || texture->height() != img.height()) {
-			deleteTexture();
+			delete_texture();
 			texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 			texture->setData(img);
 		} else {
@@ -555,17 +697,72 @@ GLuint SuperimposeEffect::process_superimpose(double timecode) {
 		return texture->textureId();
 	}
 	return 0;
-
 }
 
-void SuperimposeEffect::redraw(double) {}
+void Effect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
+	// only volume/pan, hand off to AU and VST for all other cases
 
-void SuperimposeEffect::deleteTexture() {
-	delete texture;
-	texture = NULL;
+	double interval = (timecode_end-timecode_start)/nb_bytes;
+
+	for (int i=0;i<nb_bytes;i+=2) {
+		qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+
+		/*jsEngine.globalObject().setProperty("sample", samp);
+		jsEngine.globalObject().setProperty("volume", row(0)->field(0)->get_double_value(timecode_start+(interval*i), true));
+		QJSValue result = eval.call();
+		samp = result.toInt();*/
+		/*QJSValueList args;
+		args << samples << nb_bytes;*/
+
+
+		samples[i+1] = (quint8) (samp >> 8);
+		samples[i] = (quint8) samp;
+	}
 }
 
-bool SuperimposeEffect::valueHasChanged(double timecode) {
+void Effect::redraw(double timecode) {
+	// run javascript
+	QPainter p(&img);
+	painter_wrapper.img = &img;
+	painter_wrapper.painter = &p;
+
+	jsEngine.globalObject().setProperty("painter", wrapper_obj);
+	jsEngine.globalObject().setProperty("width", parent_clip->getWidth());
+	jsEngine.globalObject().setProperty("height", parent_clip->getHeight());
+
+	for (int i=0;i<rows.size();i++) {
+		EffectRow* row = rows.at(i);
+		for (int j=0;j<row->fieldCount();j++) {
+			EffectField* field = row->field(j);
+			if (!field->id.isEmpty()) {
+				switch (field->type) {
+				case EFFECT_FIELD_DOUBLE:
+					jsEngine.globalObject().setProperty(field->id, field->get_double_value(timecode));
+					break;
+				case EFFECT_FIELD_COLOR:
+					jsEngine.globalObject().setProperty(field->id, field->get_color_value(timecode).name());
+					break;
+				case EFFECT_FIELD_STRING:
+					jsEngine.globalObject().setProperty(field->id, field->get_string_value(timecode));
+					break;
+				case EFFECT_FIELD_BOOL:
+					jsEngine.globalObject().setProperty(field->id, field->get_bool_value(timecode));
+					break;
+				case EFFECT_FIELD_COMBO:
+					jsEngine.globalObject().setProperty(field->id, field->get_combo_index(timecode));
+					break;
+				case EFFECT_FIELD_FONT:
+					jsEngine.globalObject().setProperty(field->id, field->get_font_name(timecode));
+					break;
+				}
+			}
+		}
+	}
+
+	jsEngine.evaluate(script);
+}
+
+bool Effect::valueHasChanged(double timecode) {
 	if (cachedValues.size() == 0) {
 		for (int i=0;i<row_count();i++) {
 			EffectRow* crow = row(i);
@@ -590,6 +787,13 @@ bool SuperimposeEffect::valueHasChanged(double timecode) {
 			}
 		}
 		return changed;
+	}
+}
+
+void Effect::delete_texture() {
+	if (texture != NULL) {
+		delete texture;
+		texture = NULL;
 	}
 }
 
@@ -1117,4 +1321,9 @@ qint16 mix_audio_sample(qint16 a, qint16 b) {
 	qint32 mixed_sample = static_cast<qint32>(a) + static_cast<qint32>(b);
 	mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
 	return static_cast<qint16>(mixed_sample);
+}
+
+double log_volume(double linear) {
+	// expects a value between 0 and 1 (or more if amplifying)
+	return (qExp(linear)-1)/(M_E-1);
 }

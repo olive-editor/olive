@@ -2,6 +2,8 @@
 
 #include <QOpenGLFunctions>
 
+// TODO port to GLSL?
+
 CrossDissolveTransition::CrossDissolveTransition() : Transition(VIDEO_DISSOLVE_TRANSITION) {}
 
 void CrossDissolveTransition::process_transition(double progress) {
