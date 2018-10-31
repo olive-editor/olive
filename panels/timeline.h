@@ -158,6 +158,7 @@ public:
 
 	// importing
     bool importing;
+	bool importing_files;
 
 	// creating variables
 	bool creating;

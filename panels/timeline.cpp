@@ -57,6 +57,7 @@ Timeline::Timeline(QWidget *parent) :
     trim_in_point(false),
     splitting(false),
     importing(false),
+	importing_files(false),
     ui(new Ui::Timeline),
 	last_frame(0),
 	creating(false),

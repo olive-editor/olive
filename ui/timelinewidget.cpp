@@ -207,6 +207,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 
 	QVector<void*> media_list;
 	QVector<int> type_list;
+	panel_timeline->importing_files = false;
 
 	if (event->source() == panel_project->source_table) {
 		QList<QTreeWidgetItem*> items = panel_project->source_table->selectedItems();
@@ -237,12 +238,25 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 		dout << "TODO get data for:";
 		QList<QUrl> urls = event->mimeData()->urls();
 		if (!urls.isEmpty()) {
-			for (int i=0;i<urls.size();i++) {
-				dout << (urls.at(i).toLocalFile());
-			}
-		}
+			QStringList file_list;
 
-		import_init = true;
+			for (int i=0;i<urls.size();i++) {
+				file_list.append(urls.at(i).toLocalFile());
+			}
+
+			panel_project->process_file_list(false, file_list, NULL, false);
+
+			for (int i=0;i<panel_project->last_imported_media.size();i++) {
+				panel_project->last_imported_media.at(i)->ready_lock.lock();
+				panel_project->last_imported_media.at(i)->ready_lock.unlock();
+
+				media_list.append(panel_project->last_imported_media.at(i));
+				type_list.append(MEDIA_TYPE_FOOTAGE);
+			}
+
+			import_init = true;
+			panel_timeline->importing_files = true;
+		}
 	}
 
 	if (import_init) {
@@ -449,9 +463,16 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
-    if (sequence != NULL && panel_timeline->importing) {
+	if (sequence != NULL && panel_timeline->importing) {
+		if (panel_timeline->importing_files) {
+			for (int i=0;i<panel_project->last_imported_media.size();i++) {
+				// hack? but seems to work
+				undo_stack.undo();
+			}
+		}
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
+		panel_timeline->importing_files = false;
 		update_ui(false);
 	}
 }
