@@ -1712,3 +1712,15 @@ void UpdateFootageTooltip::undo() {
 void UpdateFootageTooltip::redo() {
 	update_footage_tooltip(item, media);
 }
+
+MoveEffectCommand::MoveEffectCommand() :
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void MoveEffectCommand::undo() {
+	clip->effects.move(to, from);
+}
+
+void MoveEffectCommand::redo() {
+	clip->effects.move(from, to);
+}

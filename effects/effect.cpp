@@ -38,6 +38,7 @@
 #include <QDir>
 #include <QPainter>
 #include <QtMath>
+#include <QMenu>
 
 QVector<EffectMeta> video_effects;
 QVector<EffectMeta> audio_effects;
@@ -195,6 +196,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	ui_layout->setSpacing(4);
     ui->setLayout(ui_layout);
 	container->setContents(ui);
+
+	connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
 
     // set up UI from effect file
 	container->setText(em->name);
@@ -420,6 +423,66 @@ void Effect::refresh() {}
 
 void Effect::field_changed() {
 	panel_sequence_viewer->viewer_widget->update();
+}
+
+void Effect::show_context_menu(const QPoint& pos) {
+	QMenu menu(mainWindow);
+
+	int index = get_index_in_clip();
+
+	if (index > 0) {
+		QAction* move_up = menu.addAction("Move &Up");
+		connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
+	}
+
+	if (index < parent_clip->effects.size() - 1) {
+		QAction* move_down = menu.addAction("Move &Down");
+		connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
+	}
+
+	menu.addSeparator();
+
+	QAction* del_action = menu.addAction("D&elete");
+	connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
+
+	menu.exec(container->title_bar->mapToGlobal(pos));
+}
+
+void Effect::delete_self() {
+	EffectDeleteCommand* command = new EffectDeleteCommand();
+	command->clips.append(parent_clip);
+	command->fx.append(get_index_in_clip());
+	undo_stack.push(command);
+	update_ui(true);
+}
+
+void Effect::move_up() {
+	MoveEffectCommand* command = new MoveEffectCommand();
+	command->clip = parent_clip;
+	command->from = get_index_in_clip();
+	command->to = command->from - 1;
+	undo_stack.push(command);
+	update_ui(true);
+}
+
+void Effect::move_down() {
+	MoveEffectCommand* command = new MoveEffectCommand();
+	command->clip = parent_clip;
+	command->from = get_index_in_clip();
+	command->to = command->from + 1;
+	undo_stack.push(command);
+	update_ui(true);
+}
+
+int Effect::get_index_in_clip() {
+	if (parent_clip != NULL) {
+		for (int i=0;i<parent_clip->effects.size();i++) {
+			if (parent_clip->effects.at(i) == this) {
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 bool Effect::is_enabled() {

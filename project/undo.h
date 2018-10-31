@@ -545,4 +545,16 @@ private:
 	Media* media;
 };
 
+class MoveEffectCommand : public QUndoCommand {
+public:
+	MoveEffectCommand();
+	void undo();
+	void redo();
+	Clip* clip;
+	int from;
+	int to;
+private:
+	bool old_project_changed;
+};
+
 #endif // UNDO_H

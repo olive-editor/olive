@@ -228,6 +228,11 @@ public:
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:
 	void field_changed();
+private slots:
+	void show_context_menu(const QPoint&);
+	void delete_self();
+	void move_up();
+	void move_down();
 protected:
 	// glsl effect
 	QOpenGLShaderProgram* glslProgram;
@@ -254,6 +259,7 @@ private:
 	bool valueHasChanged(double timecode);
 	QVector<QVariant> cachedValues;
 	void delete_texture();
+	int get_index_in_clip();
 };
 
 #endif // EFFECT_H

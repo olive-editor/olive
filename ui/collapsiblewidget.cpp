@@ -40,6 +40,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 
 	connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
 
+
 	contents = NULL;
 }
 
@@ -89,7 +90,9 @@ void CollapsibleWidget::on_visible_change() {
 	emit visibleChanged();
 }
 
-CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {}
+CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {
+	setContextMenuPolicy(Qt::CustomContextMenu);
+}
 
 void CollapsibleWidgetHeader::mousePressEvent(QMouseEvent* event) {
     if (selected) {
