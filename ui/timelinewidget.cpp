@@ -591,8 +591,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 		}
 
         // add clips
+		long earliest_point = LONG_MAX;
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
             const Ghost& g = panel_timeline->ghosts.at(i);
+
+			earliest_point = qMin(earliest_point, g.in);
 
             Clip* c = new Clip(s);
             c->media = g.media;
@@ -665,6 +668,8 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
         setFocus();
 
 		update_ui(true);
+
+		if (config.enable_seek_to_import) panel_sequence_viewer->seek(earliest_point);
 	}
 }
 

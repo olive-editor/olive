@@ -32,6 +32,7 @@ struct Config {
 	bool enable_drag_files_to_timeline;
     bool autoscale_by_default;
 	int recording_mode;
+	bool enable_seek_to_import;
 
     void load(QString path);
     void save(QString path);

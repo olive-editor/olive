@@ -187,6 +187,8 @@ private slots:
 
 	void on_actionEnable_Disable_Clip_triggered();
 
+	void on_actionEnable_Seek_to_Import_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

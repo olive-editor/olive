@@ -23,9 +23,10 @@ Config::Config()
       show_title_safe_area(false),
       use_custom_title_safe_ratio(false),
 	  custom_title_safe_ratio(1),
-      enable_drag_files_to_timeline(false),
+	  enable_drag_files_to_timeline(true),
 	  autoscale_by_default(false),
-	  recording_mode(2)
+	  recording_mode(2),
+	  enable_seek_to_import(false)
 {}
 
 void Config::load(QString path) {
@@ -87,6 +88,9 @@ void Config::load(QString path) {
 				} else if (stream.name() == "RecordingMode") {
 					stream.readNext();
 					recording_mode = stream.text().toInt();
+				} else if (stream.name() == "EnableSeekToImport") {
+					stream.readNext();
+					enable_seek_to_import = (stream.text() == "1");
 				}
             }
         }
@@ -128,6 +132,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("EnableDragFilesToTimeline", QString::number(enable_drag_files_to_timeline));
     stream.writeTextElement("AutoscaleByDefault", QString::number(autoscale_by_default));
 	stream.writeTextElement("RecordingMode", QString::number(recording_mode));
+	stream.writeTextElement("EnableSeekToImport", QString::number(enable_seek_to_import));
 
 	stream.writeEndElement(); // configuration
     stream.writeEndDocument(); // doc
