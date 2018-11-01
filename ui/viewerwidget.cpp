@@ -92,7 +92,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 			QMimeData* mimeData = new QMimeData;
 			mimeData->setText("h");
 			drag->setMimeData(mimeData);
-			Qt::DropAction dropAction = drag->exec();
+			drag->exec();
 		}
 	}
 }
@@ -248,7 +248,6 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					}
 					break;
 				}
-
 				if (clip_is_active) {
 					bool added = false;
 					for (int j=0;j<current_clips.size();j++) {
@@ -268,7 +267,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 	int half_width = s->width/2;
 	int half_height = s->height/2;
-	if (rendering || nest != NULL) half_height = -half_height;
+	if (rendering || nest != NULL) half_height = -half_height; // invert vertical
 	glPushMatrix();
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -277,7 +276,6 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
     for (int i=0;i<current_clips.size();i++) {
 		Clip* c = current_clips.at(i);
-
         if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
 			dout << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
@@ -297,7 +295,6 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 						c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 					}
-
 					get_clip_frame(c, playhead);
 					textureID = c->texture->textureId();
 				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
@@ -326,19 +323,24 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						glClear(GL_COLOR_BUFFER_BIT);
 						c->fbo[1]->release();
 
-						// for nested sequences
-						if (c->media_type == MEDIA_TYPE_SEQUENCE) textureID = compose_sequence(c, render_audio);
+						bool fbo_switcher = false;
 
 						glViewport(0, 0, video_width, video_height);
 
-						GLuint composite_texture;
-						if (c->media_type == MEDIA_TYPE_SOLID) {
-							composite_texture = c->fbo[0]->texture();
-						} else {
-							composite_texture = draw_clip(c->fbo[0], textureID);
+						// for nested sequences
+						if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+							textureID = compose_sequence(c, render_audio);
+							fbo_switcher = true;
 						}
 
-						bool fbo_switcher = true;
+						GLuint composite_texture;
+						if (c->media_type == MEDIA_TYPE_SOLID) {
+							composite_texture = c->fbo[fbo_switcher]->texture();
+						} else {
+							composite_texture = draw_clip(c->fbo[fbo_switcher], textureID);
+						}
+
+						fbo_switcher = !fbo_switcher;
 
 						GLTextureCoords coords;
 						coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
@@ -365,17 +367,15 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 								}
 								if (e->enable_shader || e->enable_superimpose) {
 									e->startEffect();
-                                    //for (int k=0;k<e->getIterations();k++) {
-										if (e->enable_shader) {
-											e->process_shader(timecode);
-										}
-                                        composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
-                                        if (e->enable_superimpose) {
-                                            GLuint superimpose_texture = e->process_superimpose(timecode);
-                                            if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
-                                        }
-                                        fbo_switcher = !fbo_switcher;
-                                    //}
+									if (e->enable_shader) {
+										e->process_shader(timecode);
+									}
+									composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
+									if (e->enable_superimpose) {
+										GLuint superimpose_texture = e->process_superimpose(timecode);
+										if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
+									}
+									fbo_switcher = !fbo_switcher;
 								}
 							}
 						}
@@ -466,11 +466,16 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				}
 			}
         }
-    }
+	}
 
 	glPopMatrix();
 
-	return (nest != NULL && nest->fbo != NULL) ? nest->fbo[0]->texture() : 0;
+	if (nest != NULL && nest->fbo != NULL) {
+		// returns nested clip's texture
+		return nest->fbo[0]->texture();
+	}
+
+	return 0;
 }
 
 void ViewerWidget::paintGL() {
@@ -479,7 +484,7 @@ void ViewerWidget::paintGL() {
 		loop = false;
 
 		glClearColor(0, 0, 0, 1);
-		glMatrixMode(GL_PROJECTION);
+		glMatrixMode(GL_MODELVIEW);
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 
