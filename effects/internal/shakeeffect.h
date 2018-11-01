@@ -15,23 +15,7 @@ public:
 	EffectField* rotation_val;
 	EffectField* frequency_val;
 private:
-	int evolution;
-
 	double random_vals[RANDOM_VAL_SIZE];
-
-	/*double multiplier_1;
-	double multiplier_2;
-	double multiplier_3;
-	double multiplier_4;
-	double multiplier_5;
-	double multiplier_6;
-
-	double adder_1;
-	double adder_2;
-	double adder_3;
-	double adder_4;
-	double adder_5;
-	double adder_6;*/
 };
 
 #endif // SHAKEEFFECT_H

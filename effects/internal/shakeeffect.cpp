@@ -13,7 +13,7 @@
 
 #include "debug.h"
 
-ShakeEffect::ShakeEffect(Clip *c, const EffectMeta *em) : Effect(c, em), evolution(INT_MIN) {
+ShakeEffect::ShakeEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 	enable_coords = true;
 
 	EffectRow* intensity_row = add_row("Intensity:");
