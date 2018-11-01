@@ -715,13 +715,35 @@ void open_clip_worker(Clip* clip) {
 			if (qFuzzyCompare(clip->speed, 1.0)) {
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 			} else if (clip->maintain_audio_pitch) {
-				char speed_param[10];
-				snprintf(speed_param, sizeof(speed_param), "%f", clip->speed);
+				AVFilterContext* previous_filter = clip->buffersrc_ctx;
+				AVFilterContext* last_filter = clip->buffersrc_ctx;
 
-				AVFilterContext* tempo_filter;
-				avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
-				avfilter_link(clip->buffersrc_ctx, 0, tempo_filter, 0);
-				avfilter_link(tempo_filter, 0, clip->buffersink_ctx, 0);
+				char speed_param[10];
+
+				if (clip->speed != 1.0) {
+					double base = (clip->speed > 1.0) ? 2.0 : 0.5;
+
+					double speedlog = log(clip->speed) / log(base);
+					int whole2 = qFloor(speedlog);
+					speedlog -= whole2;
+
+					if (whole2 > 0) {
+						snprintf(speed_param, sizeof(speed_param), "%f", base);
+						for (int i=0;i<whole2;i++) {
+							AVFilterContext* tempo_filter = NULL;
+							avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+							avfilter_link(previous_filter, 0, tempo_filter, 0);
+							previous_filter = tempo_filter;
+						}
+					}
+
+					snprintf(speed_param, sizeof(speed_param), "%f", qPow(base, speedlog));
+					last_filter = NULL;
+					avfilter_graph_create_filter(&last_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+					avfilter_link(previous_filter, 0, last_filter, 0);
+				}
+
+				avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
 			} else {
 				target_sample_rate = qRound64(clip->sequence->audio_frequency / clip->speed);
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
