@@ -64,7 +64,8 @@ extern QMutex effects_loaded;
 #define EFFECT_INTERNAL_VOLUME 4
 #define EFFECT_INTERNAL_PAN 5
 #define EFFECT_INTERNAL_TONE 6
-#define EFFECT_INTERNAL_COUNT 7
+#define EFFECT_INTERNAL_SHAKE 7
+#define EFFECT_INTERNAL_COUNT 8
 
 struct GLTextureCoords {
 	int vertexTopLeftX;

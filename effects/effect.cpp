@@ -28,6 +28,7 @@
 #include "effects/internal/toneeffect.h"
 #include "effects/internal/volumeeffect.h"
 #include "effects/internal/paneffect.h"
+#include "effects/internal/shakeeffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -58,6 +59,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_VOLUME: return new VolumeEffect(c, em); break;
 		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em); break;
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em); break;
+		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em); break;
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -111,6 +113,11 @@ void load_internal_effects() {
 	em.name = "Solid";
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_SOLID;
+	video_effects.append(em);
+
+	em.name = "Shake";
+	em.category = "Distort";
+	em.internal = EFFECT_INTERNAL_SHAKE;
 	video_effects.append(em);
 }
 

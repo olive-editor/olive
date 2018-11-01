@@ -80,7 +80,8 @@ SOURCES += \
     effects/internal/paneffect.cpp \
     effects/internal/toneeffect.cpp \
     effects/internal/volumeeffect.cpp \
-    effects/internal/crossdissolvetransition.cpp
+    effects/internal/crossdissolvetransition.cpp \
+    effects/internal/shakeeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -139,7 +140,8 @@ HEADERS += \
     effects/internal/audionoiseeffect.h \
     effects/internal/paneffect.h \
     effects/internal/toneeffect.h \
-    effects/internal/volumeeffect.h
+    effects/internal/volumeeffect.h \
+    effects/internal/shakeeffect.h
 
 FORMS += \
         mainwindow.ui \
