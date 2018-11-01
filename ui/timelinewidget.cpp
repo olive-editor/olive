@@ -243,7 +243,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 				file_list.append(urls.at(i).toLocalFile());
 			}
 
-			panel_project->process_file_list(false, file_list, NULL, false);
+			panel_project->process_file_list(false, file_list, NULL, NULL);
 
 			for (int i=0;i<panel_project->last_imported_media.size();i++) {
 				// waits for media to have a duration
