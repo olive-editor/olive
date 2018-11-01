@@ -91,6 +91,7 @@ private:
     Sequence* open_seq;
     QVector<QTreeWidgetItem*> loaded_folders;
     QVector<Media*> loaded_media;
+	QVector<QTreeWidgetItem*> loaded_media_items;
     QVector<Clip*> loaded_clips;
     QVector<Sequence*> loaded_sequences;
     QTreeWidgetItem* find_loaded_folder_by_id(int id);

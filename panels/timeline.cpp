@@ -388,7 +388,7 @@ bool Timeline::is_clip_selected(Clip* clip, bool containing) {
 }
 
 void Timeline::on_snappingButton_toggled(bool checked) {
-	//snapping = checked;
+	snapping = checked;
 }
 
 Clip* Timeline::split_clip(ComboAction* ca, int p, long frame) {

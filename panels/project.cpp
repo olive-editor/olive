@@ -813,9 +813,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             }
 
                             // analyze media to see if it's the same
-							start_preview_generator(item, m, true);
-
                             loaded_media.append(m);
+							loaded_media_items.append(item);
                         }
                             break;
                         case MEDIA_TYPE_SEQUENCE:
@@ -1090,12 +1089,26 @@ void Project::load_project() {
     // temp variables for loading
     loaded_folders.clear();
     loaded_media.clear();
+	loaded_media_items.clear();
     loaded_clips.clear();
     loaded_sequences.clear();
     open_seq = NULL;
 
+	// get "element" count
+	int element_count = 0;
+	while (!stream.atEnd()) {
+		stream.readNextStartElement();
+		if (stream.name() == "folder"
+				|| stream.name() == "footage"
+				|| stream.name() == "sequence"
+				|| stream.name() == "clip"
+				|| stream.name() == "effect") {
+			element_count++;
+		}
+	}
+
     // find project file version
-    cont = load_worker(file, stream, LOAD_TYPE_VERSION);
+	cont = load_worker(file, stream, LOAD_TYPE_VERSION);
 
     // load folders first
     if (cont) {
@@ -1147,6 +1160,10 @@ void Project::load_project() {
 
 		update_ui(false);
 		mainWindow->setWindowModified(false);
+
+		for (int i=0;i<loaded_media_items.size();i++) {
+			start_preview_generator(loaded_media_items.at(i), loaded_media.at(i), true);
+		}
     } else {
         new_project();
     }
