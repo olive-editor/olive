@@ -164,13 +164,22 @@ void load_vst_effects() {
 }
 
 void init_effects() {
-    dout << "Starting init effect (TODO: multithread this)";
+	EffectInit* init_thread = new EffectInit();
+	QObject::connect(init_thread, SIGNAL(finished()), init_thread, SLOT(deleteLater()));
+	init_thread->start();
+}
+
+EffectInit::EffectInit() {
 	effects_loaded.lock();
+}
+
+void EffectInit::run() {
+	dout << "[INFO] Initializing effects...";
 	load_internal_effects();
 	load_shader_effects();
 	load_vst_effects();
 	effects_loaded.unlock();
-    dout << "Completed init effect (TODO: multithread this)";
+	dout << "[INFO] Finished initializing effects";
 }
 
 double double_lerp(double a, double b, double t) {

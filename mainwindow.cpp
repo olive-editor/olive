@@ -327,8 +327,10 @@ void MainWindow::editMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::undo() {
-	undo_stack.undo();
-	update_ui(true);
+	if (!panel_timeline->importing) { // workaround to prevent crash (and also users should never need to do this)
+		undo_stack.undo();
+		update_ui(true);
+	}
 }
 
 void MainWindow::redo() {

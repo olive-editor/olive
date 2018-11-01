@@ -235,7 +235,6 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 	}
 
 	if (config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
-		dout << "TODO get data for:";
 		QList<QUrl> urls = event->mimeData()->urls();
 		if (!urls.isEmpty()) {
 			QStringList file_list;
@@ -247,6 +246,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 			panel_project->process_file_list(false, file_list, NULL, false);
 
 			for (int i=0;i<panel_project->last_imported_media.size();i++) {
+				// waits for media to have a duration
+				// TODO would be much nicer if this was multithreaded
 				panel_project->last_imported_media.at(i)->ready_lock.lock();
 				panel_project->last_imported_media.at(i)->ready_lock.unlock();
 

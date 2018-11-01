@@ -94,6 +94,7 @@ struct Clip
     bool finished_opening;
 	bool replaced;
 	int skip_type;
+	bool ignore_reverse;
 
 	// caching functions
 	bool use_existing_frame;

@@ -245,6 +245,18 @@ void Project::get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTre
     }
 }
 
+bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
+	int delete_count = 0;
+	for (int i=0;i<panel_timeline->clip_clipboard.size();i++) {
+		Clip* c = panel_timeline->clip_clipboard.at(i);
+		if (c->media == m) {
+			ca->append(new RemoveClipsFromClipboard(i-delete_count));
+			delete_count++;
+		}
+	}
+	return (delete_count > 0);
+}
+
 void Project::delete_selected_media() {
     ComboAction* ca = new ComboAction();
     QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
@@ -325,7 +337,11 @@ void Project::delete_selected_media() {
                         }
                     }
                 }
-            }
+			}
+			if (confirm_delete) {
+				delete_clips_in_clipboard_with_media(ca, media);
+			}
+
         }
     }
 
@@ -638,10 +654,10 @@ void Project::delete_clips_using_selected_media() {
 	} else {
         ComboAction* ca = new ComboAction();
 		bool deleted = false;
+		QList<QTreeWidgetItem*> items = source_table->selectedItems();
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
 			if (c != NULL) {
-				QList<QTreeWidgetItem*> items = source_table->selectedItems();
 				for (int j=0;j<items.size();j++) {
 					Media* m = get_footage_from_tree(items.at(j));
 					if (c->media == m) {
@@ -650,6 +666,10 @@ void Project::delete_clips_using_selected_media() {
 					}
 				}
 			}
+		}
+		for (int j=0;j<items.size();j++) {
+			Media* m = get_footage_from_tree(items.at(j));
+			if (delete_clips_in_clipboard_with_media(ca, m)) deleted = true;
 		}
 		if (deleted) {
             undo_stack.push(ca);

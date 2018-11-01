@@ -10,6 +10,7 @@
 #include <QOpenGLTexture>
 #include <QJSEngine>
 #include <QMutex>
+#include <QThread>
 class QLabel;
 class QWidget;
 class CollapsibleWidget;
@@ -260,6 +261,13 @@ private:
 	QVector<QVariant> cachedValues;
 	void delete_texture();
 	int get_index_in_clip();
+};
+
+class EffectInit : public QThread {
+public:
+	EffectInit();
+protected:
+	void run();
 };
 
 #endif // EFFECT_H

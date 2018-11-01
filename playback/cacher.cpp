@@ -179,20 +179,25 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 								rev_frame->nb_samples += frame->nb_samples;
 
-//								if (c->frame->pts == c->rev_target) {
 								if ((c->frame->pts >= c->reverse_target) || (ret == AVERROR_EOF)) {
-									/*dout << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
+/*
+#ifdef AUDIOWARNINGS
+									dout << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
 									dout << "diff:" << (c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target;
-									int cutoff = qRound64 ((((c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target) * timebase) * c->sequence->audio_frequency);
+#endif
+									int cutoff = qRound64((((c->frame->pkt_pts + c->frame->pkt_duration) - c->reverse_target) * timebase) * c->sequence->audio_frequency);
 									if (cutoff > 0) {
+#ifdef AUDIOWARNINGS
 										dout << "cut off" << cutoff << "samples (rate:" << c->sequence->audio_frequency << ")";
+#endif
 										rev_frame->nb_samples -= cutoff;
-									}*/
+									}
+*/
 
 #ifdef AUDIOWARNINGS
 									dout << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
 #endif
-									rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * c->sequence->audio_frequency);
+									rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * (c->sequence->audio_frequency / c->speed));
 #ifdef AUDIOWARNINGS
 									dout << "post cutoff deets::" << rev_frame->nb_samples;
 #endif
@@ -337,6 +342,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 #ifdef AUDIOWARNINGS
 			if (c->audio_buffer_write >= buffer_timeline_out) dout << "timeline out at fsi" << c->frame_sample_index << "of frame ts" << c->frame->pts;
 #endif
+
 			audio_write_lock.unlock();
 
 			if (c->frame_sample_index == nb_bytes) {
@@ -360,25 +366,20 @@ void cache_video_worker(Clip* c, long playhead) {
 	int64_t target_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 
 	int limit = c->max_queue_size;
-	if (c->reverse) limit *= 2;
-	/*if (c->reverse) {
-		bool found = false;
-		for (int i=0;i<c->queue.size();i++) {
-			if (target_pts > c->queue.at(i)->pts && target_pts <= c->queue.at(i)->pts + c->queue.at(i)->pkt_duration) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			// we need like one more frame
-			limit = c->queue.size() + 1;
-		}
-	}*/
+	if (c->ignore_reverse) {
+		// waiting for one frame
+		limit = c->queue.size() + 1;
+	} else if (c->reverse) {
+		limit *= 2;
+	}
 
 	if (c->queue.size() < limit) {
+		bool reverse = (c->reverse && !c->ignore_reverse);
+		c->ignore_reverse = false;
+
 		int64_t eighth_second = av_q2d(av_inv_q(c->stream->time_base))*0.125;
 		int64_t smallest_pts = INT64_MAX;
-		if (c->reverse && c->queue.size() > 0) {
+		if (reverse && c->queue.size() > 0) {
 			int64_t quarter_sec = qRound64(av_q2d(av_inv_q(c->stream->time_base))) >> 2;
 			for (int i=0;i<c->queue.size();i++) {
 				smallest_pts = qMin(smallest_pts, c->queue.at(i)->pts);
@@ -401,7 +402,7 @@ void cache_video_worker(Clip* c, long playhead) {
 				if (read_ret >= 0) {
 					bool send_it = false;
 
-					if (c->reverse) {
+					if (reverse) {
 						send_it = true;
 					} else if (send_frame->pts > target_pts - eighth_second) {
 						send_it = true;
@@ -438,7 +439,7 @@ void cache_video_worker(Clip* c, long playhead) {
 				av_frame_free(&frame);
 				break;
 			} else {
-				if (c->reverse && ((smallest_pts == target_pts && frame->pts >= smallest_pts) || (smallest_pts != target_pts && frame->pts > smallest_pts))) {
+				if (reverse && ((smallest_pts == target_pts && frame->pts >= smallest_pts) || (smallest_pts != target_pts && frame->pts > smallest_pts))) {
 					av_frame_free(&frame);
 					break;
 				} else {
@@ -446,27 +447,23 @@ void cache_video_worker(Clip* c, long playhead) {
 					c->queue_lock.lock();
 					c->queue.append(frame);
 
-					if (!c->reverse && c->queue.size() == limit) {
-//						if (rendering) {
-							// see if we got the frame we needed (used for speed ups primarily)
-							bool found = false;
-							for (int i=0;i<c->queue.size();i++) {
-								// TODO/NOTE: this will not work on clips that are sped up AND reversed
-								if (c->queue.at(i)->pts >= target_pts) {
-									found = true;
-									break;
-								}
-							}
-							if (found) {
-								c->queue_lock.unlock();
+					if (!reverse && c->queue.size() == limit) {
+						// see if we got the frame we needed (used for speed ups primarily)
+						bool found = false;
+						for (int i=0;i<c->queue.size();i++) {
+							// TODO/NOTE: this will not work on clips that are sped up AND reversed
+							if (c->queue.at(i)->pts >= target_pts) {
+								found = true;
 								break;
-							} else {
-								// remove earliest frame and loop to store another
-								c->queue_remove_earliest();
 							}
-//						} else {
-//							break;
-//						}
+						}
+						if (found) {
+							c->queue_lock.unlock();
+							break;
+						} else {
+							// remove earliest frame and loop to store another
+							c->queue_remove_earliest();
+						}
 					}
 					c->queue_lock.unlock();
 				}

@@ -1719,8 +1719,34 @@ MoveEffectCommand::MoveEffectCommand() :
 
 void MoveEffectCommand::undo() {
 	clip->effects.move(to, from);
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MoveEffectCommand::redo() {
 	clip->effects.move(from, to);
+	mainWindow->setWindowModified(true);
+}
+
+RemoveClipsFromClipboard::RemoveClipsFromClipboard(int index) :
+	pos(index),
+	old_project_changed(mainWindow->isWindowModified()),
+	done(false)
+{}
+
+RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
+	if (done) {
+		delete clip;
+	}
+}
+
+void RemoveClipsFromClipboard::undo() {
+	panel_timeline->clip_clipboard.insert(pos, clip);
+	done = false;
+}
+
+void RemoveClipsFromClipboard::redo() {
+	qDebug() << "removed" << pos << "from clipboard";
+	clip = panel_timeline->clip_clipboard.at(pos);
+	panel_timeline->clip_clipboard.removeAt(pos);
+	done = true;
 }

@@ -35,7 +35,8 @@ Clip::Clip(Sequence* s) :
 	autoscale(config.autoscale_by_default),
 	maintain_audio_pitch(false),
 	reverse(false),
-	use_existing_frame(false)
+	use_existing_frame(false),
+	ignore_reverse(false)
 {
     reset();
 }

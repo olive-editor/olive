@@ -557,4 +557,17 @@ private:
 	bool old_project_changed;
 };
 
+class RemoveClipsFromClipboard : public QUndoCommand {
+public:
+	RemoveClipsFromClipboard(int index);
+	~RemoveClipsFromClipboard();
+	void undo();
+	void redo();
+private:
+	int pos;
+	Clip* clip;
+	bool old_project_changed;
+	bool done;
+};
+
 #endif // UNDO_H

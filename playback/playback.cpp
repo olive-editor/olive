@@ -197,7 +197,8 @@ void get_clip_frame(Clip* c, long playhead) {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> WAIT - target pts:" << target_pts << "closest frame:" << target_frame->pts;
 #endif
-							//if (c->queue.size() >= c->max_queue_size) c->queue_remove_earliest();
+							if (c->queue.size() >= c->max_queue_size) c->queue_remove_earliest();
+							c->ignore_reverse = true;
 							target_frame = NULL;
 						}
 					}

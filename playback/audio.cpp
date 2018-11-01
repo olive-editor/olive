@@ -132,6 +132,8 @@ void AudioSenderThread::run() {
 				// got all the bytes, write again
 				written_bytes += send_audio_to_output(0, audio_ibuffer_size);
 			}
+
+			dout << "read to" << audio_ibuffer_read;
 		}
 	}
 	lock.unlock();

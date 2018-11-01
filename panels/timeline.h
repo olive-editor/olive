@@ -164,6 +164,9 @@ public:
 	bool creating;
 	int creating_object;
 
+	// clipboard
+	QVector<Clip*> clip_clipboard;
+
     Ui::Timeline *ui;
 public slots:
 	void repaint_timeline();
@@ -203,7 +206,6 @@ private:
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
 	long last_frame;
-	QVector<Clip*> clip_clipboard;
 	int scroll;
 
 	int default_track_height;
