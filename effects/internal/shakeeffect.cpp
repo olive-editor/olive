@@ -80,6 +80,4 @@ void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords) {
 	coords.vertexBottomRightY += yoff;
 
 	glRotatef(rotoff, 0, 0, 1);
-
-	evolution++;
 }

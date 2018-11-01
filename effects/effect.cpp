@@ -302,7 +302,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 											} else if (attr.name() == "bf") {
 												color.setBlueF(attr.value().toFloat());
 											} else if (attr.name() == "hex") {
-												color.setNamedColor(attr.value());
+												color.setNamedColor(attr.value().toString());
 											}
 										}
 										field->set_color_value(color);
@@ -374,7 +374,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 					for (int i=0;i<attributes.size();i++) {
 						const QXmlStreamAttribute& attr = attributes.at(i);
 						if (attr.name() == "script") {
-							QFile script_file = get_effects_dir() + "/" + attr.value().toString();
+							QFile script_file(get_effects_dir() + "/" + attr.value().toString());
 							if (script_file.open(QFile::ReadOnly)) {
 								script = script_file.readAll();
 								wrapper_obj = jsEngine.newQObject(&painter_wrapper);
