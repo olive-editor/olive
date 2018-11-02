@@ -72,8 +72,9 @@ void PreviewGenerator::parse_media() {
 				dout << "nb_frames was:" << fmt_ctx->streams[i]->nb_frames;
 				dout << "duration was:" << fmt_ctx->streams[i]->duration << "OR fmt_ctx's duration is:" << fmt_ctx->duration;
 
+                // heuristic to determine if video is a still image
 				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0
-						&& fmt_ctx->streams[i]->duration == AV_NOPTS_VALUE) { // source is LIKELY a still image
+                        && fmt_ctx->streams[i]->codecpar->codec_id != AV_CODEC_ID_DNXHD) { // silly hack but this is the only scenario i've seen this
 					ms->infinite_length = true;
 					contains_still_image = true;
 					ms->video_frame_rate = 0;
