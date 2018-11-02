@@ -79,6 +79,7 @@ const EffectMeta* get_internal_meta(int internal_id) {
 			return &video_effects.at(i);
 		}
 	}
+    return NULL;
 }
 
 void load_internal_effects() {
@@ -781,22 +782,22 @@ GLuint Effect::process_superimpose(double timecode) {
 void Effect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
 	// only volume/pan, hand off to AU and VST for all other cases
 
-	double interval = (timecode_end-timecode_start)/nb_bytes;
+    /*double interval = (timecode_end-timecode_start)/nb_bytes;
 
 	for (int i=0;i<nb_bytes;i+=2) {
 		qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
 
-		/*jsEngine.globalObject().setProperty("sample", samp);
+        jsEngine.globalObject().setProperty("sample", samp);
 		jsEngine.globalObject().setProperty("volume", row(0)->field(0)->get_double_value(timecode_start+(interval*i), true));
 		QJSValue result = eval.call();
-		samp = result.toInt();*/
-		/*QJSValueList args;
-		args << samples << nb_bytes;*/
+        samp = result.toInt();
+        QJSValueList args;
+        args << samples << nb_bytes;
 
 
 		samples[i+1] = (quint8) (samp >> 8);
 		samples[i] = (quint8) samp;
-	}
+    }*/
 }
 
 void Effect::redraw(double timecode) {
