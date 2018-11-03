@@ -354,7 +354,6 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 			audio_write_lock.unlock();
 
             if (scrubbing) {
-                force_audio_send = true;
                 audio_thread->notifyReceiver();
             }
 

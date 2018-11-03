@@ -437,7 +437,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					}
 				}
             } else {
-                if (render_audio || config.enable_audio_scrubbing) {
+                if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
 					switch (c->media_type) {
 					case MEDIA_TYPE_FOOTAGE:
 					case MEDIA_TYPE_TONE:

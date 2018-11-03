@@ -213,6 +213,7 @@ void Viewer::seek(long p) {
 	update_parents();
     reset_all_audio();
     assert_audio_device();
+    audio_scrub = true;
 }
 
 void Viewer::go_to_start() {
