@@ -95,16 +95,17 @@ void close_clip(Clip* clip) {
 	}
 }
 
-void cache_clip(Clip* clip, long playhead, bool reset, Clip* nest) {
+void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, Clip* nest) {
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
 			clip->cacher->reset = reset;
 			clip->cacher->nest = nest;
+            clip->cacher->scrubbing = scrubbing;
 
 			clip->can_cache.wakeAll();
 		} else {
-			cache_clip_worker(clip, playhead, reset, nest);
+            cache_clip_worker(clip, playhead, reset, scrubbing, nest);
 		}
 	}
 }
@@ -224,7 +225,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		c->queue_lock.unlock();
 
 		// get more frames
-		if (cache) cache_clip(c, playhead, reset, NULL);
+        if (cache) cache_clip(c, playhead, reset, false, NULL);
 	}
 }
 

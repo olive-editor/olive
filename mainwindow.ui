@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>20</height>
+     <height>16</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -177,6 +177,7 @@
     <addaction name="actionEnable_Drag_Files_to_Timeline"/>
     <addaction name="actionAuto_scale_by_Default"/>
     <addaction name="actionEnable_Seek_to_Import"/>
+    <addaction name="actionAudio_Scrubbing"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionCrash"/>
@@ -804,6 +805,14 @@
    </property>
    <property name="text">
     <string>Enable Seek to Import</string>
+   </property>
+  </action>
+  <action name="actionAudio_Scrubbing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Audio Scrubbing</string>
    </property>
   </action>
  </widget>

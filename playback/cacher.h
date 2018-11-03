@@ -17,6 +17,7 @@ public:
 	// must be set before caching
 	long playhead;
 	bool reset;
+    bool scrubbing;
     Clip* nest;
 
 private:
@@ -24,7 +25,7 @@ private:
 };
 
 void open_clip_worker(Clip* clip);
-void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip *nest);
+void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, Clip *nest);
 void close_clip_worker(Clip* clip);
 
 #endif // CACHER_H

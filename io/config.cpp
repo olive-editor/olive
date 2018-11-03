@@ -26,7 +26,8 @@ Config::Config()
 	  enable_drag_files_to_timeline(true),
 	  autoscale_by_default(false),
 	  recording_mode(2),
-	  enable_seek_to_import(false)
+      enable_seek_to_import(false),
+      enable_audio_scrubbing(true)
 {}
 
 void Config::load(QString path) {
@@ -91,7 +92,10 @@ void Config::load(QString path) {
 				} else if (stream.name() == "EnableSeekToImport") {
 					stream.readNext();
 					enable_seek_to_import = (stream.text() == "1");
-				}
+                } else if (stream.name() == "AudioScrubbing") {
+                    stream.readNext();
+                    enable_audio_scrubbing = (stream.text() == "1");
+                }
             }
         }
         if (stream.hasError()) {
@@ -133,6 +137,7 @@ void Config::save(QString path) {
     stream.writeTextElement("AutoscaleByDefault", QString::number(autoscale_by_default));
 	stream.writeTextElement("RecordingMode", QString::number(recording_mode));
 	stream.writeTextElement("EnableSeekToImport", QString::number(enable_seek_to_import));
+    stream.writeTextElement("AudioScrubbing", QString::number(enable_audio_scrubbing));
 
 	stream.writeEndElement(); // configuration
     stream.writeEndDocument(); // doc

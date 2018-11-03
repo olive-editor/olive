@@ -33,6 +33,7 @@ struct Config {
     bool autoscale_by_default;
 	int recording_mode;
 	bool enable_seek_to_import;
+    bool enable_audio_scrubbing;
 
     void load(QString path);
     void save(QString path);

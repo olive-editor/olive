@@ -13,7 +13,7 @@ extern bool texture_failed;
 extern bool rendering;
 
 void open_clip(Clip* clip, bool multithreaded);
-void cache_clip(Clip* clip, long playhead, bool reset, Clip *nest);
+void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, Clip *nest);
 void close_clip(Clip* clip);
 void cache_audio_worker(Clip* c, bool write_A);
 void cache_video_worker(Clip* c, long playhead);

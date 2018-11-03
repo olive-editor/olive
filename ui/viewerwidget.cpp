@@ -436,14 +436,14 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 						glPopMatrix();
 					}
 				}
-			} else {
-				if (render_audio) {
+            } else {
+                if (render_audio || config.enable_audio_scrubbing) {
 					switch (c->media_type) {
 					case MEDIA_TYPE_FOOTAGE:
 					case MEDIA_TYPE_TONE:
 						if (c->lock.tryLock()) {
-							// clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, nest);
+                            // clip is not caching, start caching audio
+                            cache_clip(c, playhead, c->audio_reset, !render_audio, nest);
 							c->lock.unlock();
 						}
 						break;
@@ -479,6 +479,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 }
 
 void ViewerWidget::paintGL() {
+    bool render_audio = (viewer->playing || rendering);
 	bool loop = false;
 	do {
 		loop = false;
@@ -496,7 +497,7 @@ void ViewerWidget::paintGL() {
 
 		// compose video preview
 		glClearColor(0, 0, 0, 0);
-		compose_sequence(NULL, (viewer->playing || rendering));
+        compose_sequence(NULL, render_audio);
 
 		if (waveform) {
 			double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();

@@ -23,6 +23,7 @@ extern "C" {
 QAudioOutput* audio_output;
 QIODevice* audio_io_device;
 bool audio_device_set = false;
+bool force_audio_send = false;
 QMutex audio_write_lock;
 QAudioInput* audio_input = NULL;
 QFile output_recording;
@@ -33,7 +34,7 @@ int audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
 double audio_ibuffer_timecode = 0;
 
-AudioSenderThread* audio_thread;
+AudioSenderThread* audio_thread = NULL;
 
 void init_audio(Sequence* s) {
 	stop_audio();
@@ -121,7 +122,7 @@ void AudioSenderThread::run() {
 		cond.wait(&lock);
 		if (close) {
 			break;
-		} else if (panel_sequence_viewer->playing || panel_footage_viewer->playing) {
+        } else if (panel_sequence_viewer->playing || panel_footage_viewer->playing || force_audio_send) {
 			int written_bytes = 0;
 
 			int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
@@ -132,6 +133,8 @@ void AudioSenderThread::run() {
 				// got all the bytes, write again
 				written_bytes += send_audio_to_output(0, audio_ibuffer_size);
 			}
+
+            force_audio_send = false;
 		}
 	}
 	lock.unlock();
