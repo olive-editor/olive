@@ -378,7 +378,6 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 							QFile script_file(get_effects_dir() + "/" + attr.value().toString());
 							if (script_file.open(QFile::ReadOnly)) {
 								script = script_file.readAll();
-								wrapper_obj = jsEngine.newQObject(&painter_wrapper);
 							} else {
 								dout << "[ERROR] Failed to open superimpose script file for" << em->filename;
 								enable_superimpose = false;
@@ -801,6 +800,7 @@ void Effect::process_audio(double timecode_start, double timecode_end, quint8* s
 }
 
 void Effect::redraw(double timecode) {
+	/*
 	// run javascript
 	QPainter p(&img);
 	painter_wrapper.img = &img;
@@ -840,6 +840,7 @@ void Effect::redraw(double timecode) {
 	}
 
 	jsEngine.evaluate(script);
+	*/
 }
 
 bool Effect::valueHasChanged(double timecode) {

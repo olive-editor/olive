@@ -8,7 +8,6 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
-#include <QJSEngine>
 #include <QMutex>
 #include <QThread>
 class QLabel;
@@ -246,8 +245,6 @@ protected:
 	QOpenGLTexture* texture;
 private:
 	// superimpose effect
-	QJSEngine jsEngine;
-	QJSValue wrapper_obj;
 	QString script;
 
 	bool isOpen;
