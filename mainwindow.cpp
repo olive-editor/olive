@@ -649,6 +649,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	ui->actionEnable_Drag_Files_to_Timeline->setChecked(config.enable_drag_files_to_timeline);
     ui->actionAuto_scale_by_Default->setChecked(config.autoscale_by_default);
 	ui->actionEnable_Seek_to_Import->setChecked(config.enable_seek_to_import);
+    ui->actionAudio_Scrubbing->setChecked(config.enable_audio_scrubbing);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -870,4 +871,8 @@ void MainWindow::on_actionEnable_Disable_Clip_triggered() {
 
 void MainWindow::on_actionEnable_Seek_to_Import_triggered() {
 	config.enable_seek_to_import = !config.enable_seek_to_import;
+}
+
+void MainWindow::on_actionAudio_Scrubbing_triggered() {
+    config.enable_audio_scrubbing = !config.enable_audio_scrubbing;
 }

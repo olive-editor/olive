@@ -189,6 +189,8 @@ private slots:
 
 	void on_actionEnable_Seek_to_Import_triggered();
 
+    void on_actionAudio_Scrubbing_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

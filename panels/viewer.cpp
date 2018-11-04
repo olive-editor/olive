@@ -92,15 +92,18 @@ void Viewer::reset_all_audio() {
 			if (c != NULL) c->reset_audio();
 		}
 	}
-	clear_audio_ibuffer();
+    clear_audio_ibuffer();
+}
+
+void Viewer::assert_audio_device() {
+    if (audio_output->format().sampleRate() != seq->audio_frequency
+            || audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
+        init_audio(seq);
+    }
 }
 
 long timecode_to_frame(const QString& s, int view, double frame_rate) {
-	QList<QString> list = s.split(QRegExp("[:;]"));
-
-	for (int i=0;i<list.size();i++) {
-		dout << "list" << i << list.at(i);
-	}
+    QList<QString> list = s.split(QRegExp("[:;]"));
 
 	if (view == TIMECODE_FRAMES || list.size() == 1) {
 		return s.toLong();
@@ -208,6 +211,9 @@ void Viewer::seek(long p) {
 	pause();
 	seq->playhead = p;
 	update_parents();
+    reset_all_audio();
+    assert_audio_device();
+    audio_scrub = true;
 }
 
 void Viewer::go_to_start() {
@@ -270,11 +276,8 @@ void Viewer::play() {
 	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
 	if (seq != NULL) {
-		reset_all_audio();
-		if (audio_output->format().sampleRate() != seq->audio_frequency
-				|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
-			init_audio(seq);
-		}
+        reset_all_audio();
+        assert_audio_device();
 		if (is_recording_cued() && !start_recording()) {
 			dout << "[ERROR] Failed to record audio";
 			return;
@@ -285,7 +288,7 @@ void Viewer::play() {
 		set_playpause_icon(false);
 		playback_updater.start();
 		timer_update();
-		audio_thread->notifyReceiver();
+        audio_thread->notifyReceiver();
 	}
 }
 

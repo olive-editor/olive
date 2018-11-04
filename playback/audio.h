@@ -40,6 +40,7 @@ extern qint8 audio_ibuffer[audio_ibuffer_size];
 extern int audio_ibuffer_read;
 extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;
+extern bool audio_scrub;
 void clear_audio_ibuffer();
 
 void init_audio(Sequence *s);

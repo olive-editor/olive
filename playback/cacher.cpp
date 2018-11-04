@@ -70,15 +70,15 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 	}
 }
 
-void cache_audio_worker(Clip* c, Clip* nest) {
+void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
     if (nest != NULL) {
         timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
         timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
-	}
+    }
 
-	while (true) {
+    while (true) {
 		AVFrame* frame;
 		int nb_bytes = INT_MAX;
 
@@ -239,7 +239,7 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 				} else {
 					// if there is no more data in the file, we flush the remainder out of swresample
 					break;
-				}
+                }
 
 				new_frame = true;
 
@@ -316,17 +316,25 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 		default: // shouldn't ever get here
 			dout << "[ERROR] Tried to cache a non-footage/tone clip";
 			return;
-		}
+        }
 
 		// mix audio into internal buffer
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
 			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence, timeline_out);
-			audio_write_lock.lock();
+            audio_write_lock.lock();
 			while (c->frame_sample_index < nb_bytes
                    && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size-512
 				   && c->audio_buffer_write < buffer_timeline_out) {
+
+                /*dout << "F (" <<
+                        c->frame_sample_index << "/" << nb_bytes
+                     << ") (" <<
+                        c->audio_buffer_write << "/" << (audio_ibuffer_read+audio_ibuffer_size-512)
+                     << ") (" <<
+                        c->audio_buffer_write << "/" << buffer_timeline_out << ")";*/
+
 				int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
 				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
 				qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
@@ -345,6 +353,10 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 
 			audio_write_lock.unlock();
 
+            if (scrubbing) {
+                audio_thread->notifyReceiver();
+            }
+
 			if (c->frame_sample_index == nb_bytes) {
 				c->frame_sample_index = -1;
 			} else {
@@ -357,6 +369,9 @@ void cache_audio_worker(Clip* c, Clip* nest) {
 		if (c->reached_end) {
 			frame->nb_samples = 0;
 		}
+        if (scrubbing) {
+            break;
+        }
 	}
 }
 
@@ -786,7 +801,7 @@ void open_clip_worker(Clip* clip) {
 	dout << "[INFO] Clip opened on track" << clip->track;
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip* nest) {	
+void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, Clip* nest) {
 	if (reset) {
 		// note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
 		reset_cache(clip, playhead);
@@ -798,11 +813,11 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, Clip* nest) {
 		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 			cache_video_worker(clip, playhead);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-			cache_audio_worker(clip, nest);
+            cache_audio_worker(clip, scrubbing, nest);
 		}
 		break;
 	case MEDIA_TYPE_TONE:
-		cache_audio_worker(clip, nest);
+        cache_audio_worker(clip, scrubbing, nest);
 		break;
 	}
 }
@@ -841,7 +856,7 @@ void Cacher::run() {
         if (!caching) {
 			break;
 		} else {
-			cache_clip_worker(clip, playhead, reset, nest);
+            cache_clip_worker(clip, playhead, reset, scrubbing, nest);
 		}
 	}
 
