@@ -89,6 +89,7 @@ Timeline::Timeline(QWidget *parent) :
 	tool_buttons.append(ui->toolSlipButton);
 	tool_buttons.append(ui->toolRollingButton);
     tool_buttons.append(ui->toolSlideButton);
+	tool_buttons.append(ui->toolTransitionButton);
 
 	ui->toolArrowButton->click();
 
@@ -1042,7 +1043,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-    long f = qRound((float) x / zoom);
+	long f = qCeil((float) x / zoom);
 	if (f < 0) {
 		return 0;
 	}
@@ -1050,7 +1051,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-    return (int) qRound(frame*zoom);
+	return (int) qFloor(frame*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
@@ -1166,4 +1167,11 @@ void Timeline::on_recordButton_clicked() {
 		creating = true;
 		creating_object = ADD_OBJ_AUDIO;
 	}
+}
+
+void Timeline::on_toolTransitionButton_clicked() {
+	decheck_tool_buttons(sender());
+	ui->timeline_area->setCursor(Qt::CrossCursor);
+	tool = TIMELINE_TOOL_TRANSITION;
+	creating = false;
 }

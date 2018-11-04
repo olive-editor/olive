@@ -876,3 +876,7 @@ void MainWindow::on_actionEnable_Seek_to_Import_triggered() {
 void MainWindow::on_actionAudio_Scrubbing_triggered() {
     config.enable_audio_scrubbing = !config.enable_audio_scrubbing;
 }
+
+void MainWindow::on_actionTransition_Tool_triggered() {
+	if (panel_timeline->focused()) panel_timeline->ui->toolTransitionButton->click();
+}

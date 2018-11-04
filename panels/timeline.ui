@@ -195,6 +195,25 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="toolTransitionButton">
+         <property name="toolTip">
+          <string>Transition Tool (T)</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/transition-tool.png</normalon>
+           <disabledon>:/icons/transition-tool-disabled.png</disabledon>
+          </iconset>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="snappingButton">
          <property name="text">
           <string/>

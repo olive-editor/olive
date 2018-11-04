@@ -45,5 +45,7 @@
         <file>folder.png</file>
         <file>record.png</file>
         <file>record-disabled.png</file>
+        <file>transition-tool.png</file>
+        <file>transition-tool-disabled.png</file>
     </qresource>
 </RCC>

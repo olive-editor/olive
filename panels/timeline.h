@@ -201,6 +201,8 @@ private slots:
 
 	void on_recordButton_clicked();
 
+	void on_toolTransitionButton_clicked();
+
 private:
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);

@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>653</width>
+    <height>394</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>653</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menu_New">
+     <property name="title">
+      <string>&amp;New</string>
+     </property>
+     <addaction name="actionProject"/>
+     <addaction name="separator"/>
+     <addaction name="actionSequence"/>
+     <addaction name="actionFolder"/>
+    </widget>
+    <widget class="QMenu" name="menuOpen_Recent">
+     <property name="title">
+      <string>Open Recent</string>
+     </property>
+    </widget>
+    <addaction name="menu_New"/>
+    <addaction name="action_Open_Project"/>
+    <addaction name="menuOpen_Recent"/>
+    <addaction name="action_Save_Project"/>
+    <addaction name="actionSave_Project_As"/>
+    <addaction name="separator"/>
+    <addaction name="action_Import"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Undo"/>
+    <addaction name="action_Redo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCu_t"/>
+    <addaction name="actionCop_y"/>
+    <addaction name="action_Paste"/>
+    <addaction name="actionDuplicate"/>
+    <addaction name="actionDelete"/>
+    <addaction name="actionRipple_Delete"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelect_All"/>
+    <addaction name="actionDeselect_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdd_Default_Transition"/>
+    <addaction name="actionLink_Unlink"/>
+    <addaction name="actionRipple_To_In_Point"/>
+    <addaction name="actionRipple_to_Out_Point"/>
+    <addaction name="actionSplit_at_Playhead"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_In_Point"/>
+    <addaction name="actionSet_Out_Point"/>
+    <addaction name="actionClear_In_Out"/>
+    <addaction name="actionDelete_In_Out"/>
+    <addaction name="actionRipple_Delete_In_Out"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_Edit_Marker"/>
+    <addaction name="actionEnable_Disable_Clip"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="actionProject_2"/>
+    <addaction name="actionEffect_Controls"/>
+    <addaction name="actionViewer"/>
+    <addaction name="actionTimeline"/>
+    <addaction name="separator"/>
+    <addaction name="actionReset_to_default_layout"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuTitle_Action_Safe_Area">
+     <property name="title">
+      <string>Title/Action Safe Area</string>
+     </property>
+     <addaction name="actionOff"/>
+     <addaction name="actionDefault"/>
+     <addaction name="action4_3"/>
+     <addaction name="action16_9"/>
+     <addaction name="actionCustom"/>
+    </widget>
+    <addaction name="actionTimeline_Track_Lines"/>
+    <addaction name="actionZoom_In"/>
+    <addaction name="actionZoom_out"/>
+    <addaction name="actionIncrease_Track_Height"/>
+    <addaction name="actionDecrease_Track_Height"/>
+    <addaction name="separator"/>
+    <addaction name="actionFrames"/>
+    <addaction name="actionDrop_Frame"/>
+    <addaction name="actionNon_Drop_Frame"/>
+    <addaction name="separator"/>
+    <addaction name="menuTitle_Action_Safe_Area"/>
+   </widget>
+   <widget class="QMenu" name="menuPlayback">
+    <property name="title">
+     <string>&amp;Playback</string>
+    </property>
+    <addaction name="actionGo_to_start"/>
+    <addaction name="actionPrevious_Frame"/>
+    <addaction name="actionPlay_Pause"/>
+    <addaction name="actionNext_Frame"/>
+    <addaction name="actionGo_to_End"/>
+    <addaction name="separator"/>
+    <addaction name="actionGo_to_Previous_Cut"/>
+    <addaction name="actionGo_to_Next_Cut"/>
+   </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionPointer_Tool"/>
+    <addaction name="actionEdit_Tool"/>
+    <addaction name="actionRipple_Tool"/>
+    <addaction name="actionRolling_Tool"/>
+    <addaction name="actionRazor_Tool"/>
+    <addaction name="actionSlip_Tool"/>
+    <addaction name="actionSlide_Tool"/>
+    <addaction name="actionTransition_Tool"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggle_Snapping"/>
+    <addaction name="actionSelecting_Also_Seeks"/>
+    <addaction name="actionEdit_Tool_Also_Seeks"/>
+    <addaction name="actionEdit_Tool_Selects_Links"/>
+    <addaction name="actionSeek_to_the_End_of_Pastes"/>
+    <addaction name="actionScroll_Wheel_Zooms"/>
+    <addaction name="actionRectified_Waveforms"/>
+    <addaction name="actionEnable_Drag_Files_to_Timeline"/>
+    <addaction name="actionAuto_scale_by_Default"/>
+    <addaction name="actionEnable_Seek_to_Import"/>
+    <addaction name="actionAudio_Scrubbing"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+    <addaction name="actionCrash"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menu_View"/>
+   <addaction name="menuPlayback"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menu_Tools"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action_Open_Project">
+   <property name="text">
+    <string>&amp;Open Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Save_Project">
+   <property name="text">
+    <string>&amp;Save Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_Project_As">
+   <property name="text">
+    <string>Save Project &amp;As</string>
+   </property>
+  </action>
+  <action name="action_Import">
+   <property name="text">
+    <string>&amp;Import...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>&amp;Export...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
+   </property>
+  </action>
+  <action name="action_Undo">
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="action_Redo">
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionCu_t">
+   <property name="text">
+    <string>Cu&amp;t</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionCop_y">
+   <property name="text">
+    <string>Cop&amp;y</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="action_Paste">
+   <property name="text">
+    <string>&amp;Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionSelect_All">
+   <property name="text">
+    <string>Select &amp;All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionTimeline_Track_Lines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Track Lines</string>
+   </property>
+  </action>
+  <action name="actionProject">
+   <property name="text">
+    <string>Project...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionSequence">
+   <property name="text">
+    <string>Sequence...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionZoom_In">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="shortcut">
+    <string>=</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionProject_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Project</string>
+   </property>
+  </action>
+  <action name="actionEffect_Controls">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Effect Controls</string>
+   </property>
+  </action>
+  <action name="actionViewer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Viewer</string>
+   </property>
+  </action>
+  <action name="actionTimeline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Timeline</string>
+   </property>
+  </action>
+  <action name="actionRipple_Delete">
+   <property name="text">
+    <string>Ripple Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Del</string>
+   </property>
+  </action>
+  <action name="actionSplit_at_Playhead">
+   <property name="text">
+    <string>Split at Playhead</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionDeselect_All">
+   <property name="text">
+    <string>Deselect All</string>
+   </property>
+  </action>
+  <action name="actionGo_to_start">
+   <property name="text">
+    <string>Go to Start</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="actionReset_to_default_layout">
+   <property name="text">
+    <string>Reset to default layout</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Frame">
+   <property name="text">
+    <string>Previous Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionPlay_Pause">
+   <property name="text">
+    <string>Play/Pause</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="actionNext_Frame">
+   <property name="text">
+    <string>Next Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionGo_to_End">
+   <property name="text">
+    <string>Go to End</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
+   </property>
+  </action>
+  <action name="actionCrash">
+   <property name="text">
+    <string>Crash</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionPointer_Tool">
+   <property name="text">
+    <string>Pointer Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>V</string>
+   </property>
+  </action>
+  <action name="actionEdit_Tool">
+   <property name="text">
+    <string>Edit Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="actionRazor_Tool">
+   <property name="text">
+    <string>Razor Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="actionRipple_Tool">
+   <property name="text">
+    <string>Ripple Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>B</string>
+   </property>
+  </action>
+  <action name="actionRolling_Tool">
+   <property name="text">
+    <string>Rolling Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>N</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+.</string>
+   </property>
+  </action>
+  <action name="actionToggle_Snapping">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Snapping</string>
+   </property>
+   <property name="toolTip">
+    <string>Snapping</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionSlip_Tool">
+   <property name="text">
+    <string>Slip Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>Y</string>
+   </property>
+  </action>
+  <action name="actionGo_to_Previous_Cut">
+   <property name="text">
+    <string>Go to Previous Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionGo_to_Next_Cut">
+   <property name="text">
+    <string>Go to Next Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Down</string>
+   </property>
+  </action>
+  <action name="actionEdit_Tool_Also_Seeks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edit Tool Also Seeks</string>
+   </property>
+  </action>
+  <action name="actionIncrease_Track_Height">
+   <property name="text">
+    <string>Increase Track Height</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+  </action>
+  <action name="actionDecrease_Track_Height">
+   <property name="text">
+    <string>Decrease Track Height</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionFrames">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Frames</string>
+   </property>
+  </action>
+  <action name="actionDrop_Frame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Drop-Frame</string>
+   </property>
+  </action>
+  <action name="actionNon_Drop_Frame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Non-Drop Frame</string>
+   </property>
+  </action>
+  <action name="actionEdit_Tool_Selects_Links">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edit Tool Selects Links</string>
+   </property>
+  </action>
+  <action name="actionDuplicate">
+   <property name="text">
+    <string>Duplicate</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionSelecting_Also_Seeks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Selecting Also Seeks</string>
+   </property>
+  </action>
+  <action name="actionSeek_to_the_End_of_Pastes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seek to the End of Pastes</string>
+   </property>
+  </action>
+  <action name="actionAdd_Default_Transition">
+   <property name="text">
+    <string>Add Default Transition</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionSlide_Tool">
+   <property name="text">
+    <string>Slide Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>U</string>
+   </property>
+  </action>
+  <action name="actionFolder">
+   <property name="text">
+    <string>Folder</string>
+   </property>
+  </action>
+  <action name="actionClear_Recent_List">
+   <property name="text">
+    <string>Clear Recent List</string>
+   </property>
+  </action>
+  <action name="actionScroll_Wheel_Zooms">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Scroll Wheel Zooms</string>
+   </property>
+  </action>
+  <action name="actionLink_Unlink">
+   <property name="text">
+    <string>Link/Unlink</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionRipple_To_In_Point">
+   <property name="text">
+    <string>Ripple to In Point</string>
+   </property>
+   <property name="shortcut">
+    <string>Q</string>
+   </property>
+  </action>
+  <action name="actionRipple_to_Out_Point">
+   <property name="text">
+    <string>Ripple to Out Point</string>
+   </property>
+   <property name="shortcut">
+    <string>W</string>
+   </property>
+  </action>
+  <action name="actionSet_In_Point">
+   <property name="text">
+    <string>Set In Point</string>
+   </property>
+   <property name="shortcut">
+    <string>I</string>
+   </property>
+  </action>
+  <action name="actionSet_Out_Point">
+   <property name="text">
+    <string>Set Out Point</string>
+   </property>
+   <property name="shortcut">
+    <string>O</string>
+   </property>
+  </action>
+  <action name="actionClear_In_Out">
+   <property name="text">
+    <string>Clear In/Out</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
+  </action>
+  <action name="actionDelete_In_Out">
+   <property name="text">
+    <string>Delete In/Out</string>
+   </property>
+   <property name="shortcut">
+    <string>;</string>
+   </property>
+  </action>
+  <action name="actionRipple_Delete_In_Out">
+   <property name="text">
+    <string>Ripple Delete In/Out</string>
+   </property>
+   <property name="shortcut">
+    <string>'</string>
+   </property>
+  </action>
+  <action name="actionRectified_Waveforms">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Rectified Waveforms</string>
+   </property>
+  </action>
+  <action name="actionDefault">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionOff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Off</string>
+   </property>
+  </action>
+  <action name="action4_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>4:3</string>
+   </property>
+  </action>
+  <action name="action16_9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>16:9</string>
+   </property>
+  </action>
+  <action name="actionCustom">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Custom</string>
+   </property>
+  </action>
+  <action name="actionEnable_Drag_Files_to_Timeline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Drag Files to Timeline</string>
+   </property>
+  </action>
+  <action name="actionAuto_scale_by_Default">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto-scale by Default</string>
+   </property>
+  </action>
+  <action name="actionSet_Edit_Marker">
+   <property name="text">
+    <string>Set/Edit Marker</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
+   </property>
+  </action>
+  <action name="actionEnable_Disable_Clip">
+   <property name="text">
+    <string>Enable/Disable Clip</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+E</string>
+   </property>
+  </action>
+  <action name="actionEnable_Seek_to_Import">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Seek to Import</string>
+   </property>
+  </action>
+  <action name="actionAudio_Scrubbing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Audio Scrubbing</string>
+   </property>
+  </action>
+  <action name="actionTransition_Tool">
+   <property name="text">
+    <string>Transition Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
