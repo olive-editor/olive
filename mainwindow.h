@@ -191,6 +191,8 @@ private slots:
 
     void on_actionAudio_Scrubbing_triggered();
 
+	void on_actionTransition_Tool_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>16</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -166,6 +166,7 @@
     <addaction name="actionRazor_Tool"/>
     <addaction name="actionSlip_Tool"/>
     <addaction name="actionSlide_Tool"/>
+    <addaction name="actionTransition_Tool"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Snapping"/>
     <addaction name="actionSelecting_Also_Seeks"/>
@@ -813,6 +814,14 @@
    </property>
    <property name="text">
     <string>Audio Scrubbing</string>
+   </property>
+  </action>
+  <action name="actionTransition_Tool">
+   <property name="text">
+    <string>Transition Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
    </property>
   </action>
  </widget>
