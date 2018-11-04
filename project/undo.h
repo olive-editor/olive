@@ -105,13 +105,14 @@ private:
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-    AddTransitionCommand(Clip* c, int itransition, int itype);
+    AddTransitionCommand(Clip* c, int itransition, int itype, int ilength = 0);
     void undo();
     void redo();
 private:
     Clip* clip;
     int transition;
     int type;
+    int length;
 	bool old_project_changed;
 };
 

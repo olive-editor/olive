@@ -59,7 +59,10 @@ Timeline::Timeline(QWidget *parent) :
     ui(new Ui::Timeline),
 	last_frame(0),
 	creating(false),
-	scroll(0)
+    scroll(0),
+    transition_tool_clip(-1),
+    transition_tool_init(false),
+    transition_tool_proc(false)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
@@ -1170,8 +1173,8 @@ void Timeline::on_recordButton_clicked() {
 }
 
 void Timeline::on_toolTransitionButton_clicked() {
-	decheck_tool_buttons(sender());
+    decheck_tool_buttons(sender());
 	ui->timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
-	creating = false;
+    creating = false;
 }

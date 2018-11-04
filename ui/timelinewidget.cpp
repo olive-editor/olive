@@ -891,6 +891,13 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 				update_ui(false);
 			}
 				break;
+            case TIMELINE_TOOL_TRANSITION:
+            {
+                if (panel_timeline->transition_tool_clip > -1) {
+                    panel_timeline->transition_tool_init = true;
+                }
+            }
+                break;
 			}
 		}
     }
@@ -1153,6 +1160,61 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					 push_undo = true;
 				}
 			} else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
+            } else if (panel_timeline->transition_tool_proc) {
+                const Ghost& g = panel_timeline->ghosts.at(0);
+
+                if (g.in != g.out) {
+                    Clip* c = sequence->clips.at(g.clip);
+
+                    long transition_start = qMin(g.in, g.out);
+                    long transition_end = qMax(g.in, g.out);
+
+                    // make room for transition
+                    if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
+                        if (c->opening_transition != NULL) {
+                            ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                        }
+                        if (c->closing_transition != NULL) {
+                            if (transition_end >= c->timeline_out) {
+                                ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+                            } else if (transition_end > c->timeline_out - c->closing_transition->length) {
+                                ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, c->timeline_out - transition_end));
+                            }
+                        }
+                    } else {
+                        if (c->closing_transition != NULL) {
+                            ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+                        }
+                        if (c->opening_transition != NULL) {
+                            if (transition_start <= c->timeline_in) {
+                                ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                            } else if (transition_start < c->timeline_in + c->opening_transition->length) {
+                                ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, transition_start - c->timeline_in));
+                            }
+                        }
+                    }
+                    if (transition_start < c->timeline_in || transition_end > c->timeline_out) {
+                        // delete shit over there and extend timeline in
+                        QVector<Selection> areas;
+                        Selection s;
+                        if (transition_start < c->timeline_in) {
+                            s.in = transition_start;
+                            s.out = c->timeline_in;
+                        } else if (transition_end > c->timeline_out) {
+                            s.in = c->timeline_out;
+                            s.out = transition_end;
+                        }
+                        s.track = c->track;
+                        areas.append(s);
+
+                        panel_timeline->delete_areas_and_relink(ca, areas);
+                        ca->append(new MoveClipAction(c, qMin(transition_start, c->timeline_in), qMax(transition_end, c->timeline_out), c->clip_in, c->track));
+                    }
+
+                    ca->append(new AddTransitionCommand(c, 0, panel_timeline->transition_tool_type, transition_end - transition_start));
+
+                    push_undo = true;
+                }
             } else if (panel_timeline->splitting) {
                 bool split = false;
                 for (int i=0;i<panel_timeline->split_tracks.size();i++) {
@@ -1196,6 +1258,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             panel_timeline->snapped = false;
             panel_timeline->rect_select_init = false;
             panel_timeline->rect_select_proc = false;
+            panel_timeline->transition_tool_init = false;
+            panel_timeline->transition_tool_proc = false;
             pre_clips.clear();
             post_clips.clear();
 
@@ -1239,7 +1303,7 @@ void TimelineWidget::init_ghosts() {
 	}
 }
 
-void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
+void TimelineWidget::update_ghosts(const QPoint& mouse_pos) {
 	int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
 	long frame_diff = panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
 	int track_diff = ((panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) && !panel_timeline->importing) ? 0 : mouse_track - panel_timeline->drag_track_start;
@@ -1383,6 +1447,38 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
 					}
 				}
 			}
+        } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+            Clip* c = sequence->clips.at(g.clip);
+
+            if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
+                validator = c->timeline_in + frame_diff;
+                if (validator < 0) { // prevent from going below 0 on the timeline
+                    frame_diff -= validator;
+                }
+
+                validator = c->clip_in + frame_diff;
+                if (validator < 0) { // prevent from going below 0 for the media
+                    frame_diff -= validator;
+                }
+
+                if (validator > c->getMaximumLength()) { // prevent transition from exceeding media length
+                    frame_diff -= (validator - c->getMaximumLength());
+                }
+            } else {
+                validator = c->clip_in + c->getLength() + frame_diff; // prevent transition from exceeding media length
+                if (validator > c->getMaximumLength()) {
+                    frame_diff -= (validator - c->getMaximumLength());
+                }
+
+                if (validator < 0) { // prevent from going below 0 for the media
+                    frame_diff -= validator;
+                }
+
+                validator = c->timeline_out + frame_diff; // prevent from going below 0 on the timeline
+                if (validator < 0) {
+                    frame_diff -= validator;
+                }
+            }
         }
     }
     if (temp_frame_diff != frame_diff) panel_timeline->snapped = false;
@@ -1421,6 +1517,12 @@ void TimelineWidget::update_ghosts(QPoint& mouse_pos) {
                 }
 			} else if (same_sign(g.old_track, panel_timeline->drag_track_start)) {
                 g.track += track_diff;
+            }
+        } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+            if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
+                g.out = g.old_out + frame_diff;
+            } else {
+                g.in = g.old_in + frame_diff;
             }
         }
 
@@ -1981,6 +2083,39 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             } else {
                 unsetCursor();
             }
+        } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+            if (panel_timeline->transition_tool_init) {
+                if (panel_timeline->transition_tool_proc) {
+                    update_ghosts(event->pos());
+                } else {
+                    Clip* c = sequence->clips.at(panel_timeline->transition_tool_clip);
+
+                    Ghost g;
+
+                    g.in = g.old_in = g.out = g.old_out = (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) ? c->timeline_in : c->timeline_out;
+                    g.track = c->track;
+                    g.clip = panel_timeline->transition_tool_clip;
+                    g.media_type = panel_timeline->transition_tool_type;
+                    g.trimming = false;
+
+                    panel_timeline->ghosts.append(g);
+
+                    panel_timeline->transition_tool_proc = true;
+                }
+            } else {
+                panel_timeline->transition_tool_clip = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+                if (panel_timeline->transition_tool_clip > -1) {
+                    Clip* c = sequence->clips.at(panel_timeline->transition_tool_clip);
+                    long halfway = c->timeline_in + (c->getLength()/2);
+                    if (panel_timeline->cursor_frame > halfway) {
+                        panel_timeline->transition_tool_type = TA_CLOSING_TRANSITION;
+                    } else {
+                        panel_timeline->transition_tool_type = TA_OPENING_TRANSITION;
+                    }
+                }
+            }
+
+            panel_timeline->repaint_timeline();
         }
     }
 }
@@ -2254,6 +2389,25 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					p.setPen(QColor(0, 0, 0, 128));
 					if (clip_rect.right() >= 0 && clip_rect.right() < width()) p.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
 					if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
+
+                    // draw transition tool
+                    if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && panel_timeline->transition_tool_clip > -1) {
+                        QRect transition_tool_rect = clip_rect;
+                        if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
+                            transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));
+                        } else {
+                            transition_tool_rect.setWidth(transition_tool_rect.width()>>2);
+                        }
+                        if (transition_tool_rect.left() < width() && transition_tool_rect.right() > 0) {
+                            if (transition_tool_rect.left() < 0) {
+                                transition_tool_rect.setLeft(0);
+                            }
+                            if (transition_tool_rect.right() > width()) {
+                                transition_tool_rect.setRight(width());
+                            }
+                            p.fillRect(transition_tool_rect, QColor(0, 0, 0, 128));
+                        }
+                    }
 				}
 			}
 		}

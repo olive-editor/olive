@@ -220,10 +220,11 @@ void AddEffectCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c, int itransition, int itype) :
+AddTransitionCommand::AddTransitionCommand(Clip* c, int itransition, int itype, int ilength) :
     clip(c),
     transition(itransition),
 	type(itype),
+    length(ilength),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
@@ -241,8 +242,10 @@ void AddTransitionCommand::undo() {
 void AddTransitionCommand::redo() {
     if (type == TA_OPENING_TRANSITION) {
         clip->opening_transition = create_transition(transition, clip);
+        if (length > 0) clip->opening_transition->length = length;
     } else {
         clip->closing_transition = create_transition(transition, clip);
+        if (length > 0) clip->closing_transition->length = length;
     }
 	mainWindow->setWindowModified(true);
 }

@@ -164,6 +164,12 @@ public:
 	bool creating;
 	int creating_object;
 
+    // transition variables
+    bool transition_tool_init;
+    bool transition_tool_proc;
+    int transition_tool_clip;
+    int transition_tool_type;
+
 	// clipboard
 	QVector<Clip*> clip_clipboard;
 
