@@ -570,4 +570,16 @@ private:
 	bool done;
 };
 
+class RenameClipCommand : public QUndoCommand {
+public:
+	RenameClipCommand();
+	QVector<Clip*> clips;
+	QString new_name;
+	void undo();
+	void redo();
+private:
+	QVector<QString> old_names;
+	bool old_project_changed;
+};
+
 #endif // UNDO_H

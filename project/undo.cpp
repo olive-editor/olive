@@ -1745,8 +1745,25 @@ void RemoveClipsFromClipboard::undo() {
 }
 
 void RemoveClipsFromClipboard::redo() {
-	qDebug() << "removed" << pos << "from clipboard";
 	clip = panel_timeline->clip_clipboard.at(pos);
 	panel_timeline->clip_clipboard.removeAt(pos);
 	done = true;
+}
+
+RenameClipCommand::RenameClipCommand() :
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void RenameClipCommand::undo() {
+	for (int i=0;i<clips.size();i++) {
+		clips.at(i)->name = old_names.at(i);
+	}
+}
+
+void RenameClipCommand::redo() {
+	old_names.resize(clips.size());
+	for (int i=0;i<clips.size();i++) {
+		old_names[i] = clips.at(i)->name;
+		clips.at(i)->name = new_name;
+	}
 }

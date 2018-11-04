@@ -35,6 +35,7 @@
 #include <QScrollBar>
 #include <QMimeData>
 #include <QToolTip>
+#include <QInputDialog>
 
 #define MAX_TEXT_WIDTH 20
 
@@ -83,7 +84,16 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 	redoAction->setEnabled(undo_stack.canRedo());
 	menu.addSeparator();
 
-	if (sequence->selections.size() == 0) {
+	// collect all the selected clips
+	QVector<Clip*> selected_clips;
+	for (int i=0;i<sequence->clips.size();i++) {
+		Clip* c = sequence->clips.at(i);
+		if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			selected_clips.append(c);
+		}
+	}
+
+	if (selected_clips.size() == 0) {
 		// no clips are selected
 
 		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
@@ -114,14 +124,13 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		}
 
 		if (can_ripple_delete && !at_end_of_sequence) {
-			QAction* ripple_delete_action = menu.addAction("&Ripple Delete");
+			QAction* ripple_delete_action = menu.addAction("R&ipple Delete");
 			connect(ripple_delete_action, SIGNAL(triggered(bool)), this, SLOT(right_click_ripple()));
 		}
 
 		menu.addAction("Sequence settings coming soon...");
 	} else {
 		// clips are selected
-
 		QAction* cutAction = menu.addAction("C&ut");
 		connect(cutAction, SIGNAL(triggered(bool)), mainWindow, SLOT(cut()));
 		QAction* copyAction = menu.addAction("Cop&y");
@@ -134,15 +143,6 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
         QAction* autoscaleAction = menu.addAction("Auto-s&cale");
         autoscaleAction->setCheckable(true);
         connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
-
-		// collect all the selected clips
-		QVector<Clip*> selected_clips;
-        for (int i=0;i<sequence->clips.size();i++) {
-            Clip* c = sequence->clips.at(i);
-            if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
-				selected_clips.append(c);
-            }
-        }
 
 		// set autoscale arbitrarily to the first selected clip
 		autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
@@ -160,8 +160,10 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		if (same_media) {
 			QAction* revealInProjectAction = menu.addAction("&Reveal in Project");
 			connect(revealInProjectAction, SIGNAL(triggered(bool)), this, SLOT(reveal_media()));
-
 		}
+
+		QAction* rename = menu.addAction("R&ename");
+		connect(rename, SIGNAL(triggered(bool)), this, SLOT(rename_clip()));
 	}
 
     menu.exec(mapToGlobal(pos));
@@ -196,6 +198,31 @@ void TimelineWidget::tooltip_timer_timeout() {
 		}
     }
 	tooltip_timer.stop();
+}
+
+void TimelineWidget::rename_clip() {
+	QVector<Clip*> selected_clips;
+	for (int i=0;i<sequence->clips.size();i++) {
+		Clip* c = sequence->clips.at(i);
+		if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			selected_clips.append(c);
+		}
+	}
+	if (selected_clips.size() > 0) {		
+		QString s = QInputDialog::getText(this,
+										  (selected_clips.size() == 1) ? "Rename '" + selected_clips.at(0)->name + "'" : "Rename multiple clips",
+										  "Enter a new name for this clip:",
+										  QLineEdit::Normal,
+										  selected_clips.at(0)->name
+									);
+		if (!s.isEmpty()) {
+			RenameClipCommand* rcc = new RenameClipCommand();
+			rcc->new_name = s;
+			rcc->clips = selected_clips;
+			undo_stack.push(rcc);
+			update_ui(true);
+		}
+	}
 }
 
 bool same_sign(int a, int b) {
