@@ -873,6 +873,7 @@ bool Effect::valueHasChanged(double timecode) {
 
 void Effect::delete_texture() {
 	if (texture != NULL) {
+		texture->destroy();
 		delete texture;
 		texture = NULL;
 	}

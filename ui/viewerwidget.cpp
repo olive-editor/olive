@@ -176,6 +176,8 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 
 	fbo->bind();
 
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); // top left
@@ -301,140 +303,138 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					textureID = -1;
 				}
 
-				if (!texture_failed) {
-					if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
-						dout << "[WARNING] Texture hasn't been created yet";
-						texture_failed = true;
-					} else if (playhead >= c->timeline_in) {
-						glPushMatrix();
+				if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
+					dout << "[WARNING] Texture hasn't been created yet";
+					texture_failed = true;
+				} else if (playhead >= c->timeline_in) {
+					glPushMatrix();
 
-						// start preparing cache
-						if (c->fbo == NULL) {
-							c->fbo = new QOpenGLFramebufferObject* [2];
-							c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
-							c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
-						}
-
-						// clear fbos
-						c->fbo[0]->bind();
-						glClear(GL_COLOR_BUFFER_BIT);
-						c->fbo[0]->release();
-						c->fbo[1]->bind();
-						glClear(GL_COLOR_BUFFER_BIT);
-						c->fbo[1]->release();
-
-						bool fbo_switcher = false;
-
-						glViewport(0, 0, video_width, video_height);
-
-						// for nested sequences
-						if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-							textureID = compose_sequence(c, render_audio);
-							fbo_switcher = true;
-						}
-
-						GLuint composite_texture;
-						if (c->media_type == MEDIA_TYPE_SOLID) {
-							composite_texture = c->fbo[fbo_switcher]->texture();
-						} else {
-							composite_texture = draw_clip(c->fbo[fbo_switcher], textureID);
-						}
-
-						fbo_switcher = !fbo_switcher;
-
-						GLTextureCoords coords;
-						coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
-						coords.vertexTopLeftY = coords.vertexTopRightY = -video_height/2;
-						coords.vertexTopRightX = coords.vertexBottomRightX = video_width/2;
-						coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
-						coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
-						coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
-
-						if (c->autoscale && (video_width != s->width || video_height != s->height)) {
-							double width_multiplier = (double) s->width / (double) video_width;
-							double height_multiplier = (double) s->height / (double) video_height;
-							double scale_multiplier = qMin(width_multiplier, height_multiplier);
-							glScalef(scale_multiplier, scale_multiplier, 1);
-						}
-
-						// EFFECT CODE START
-						for (int j=0;j<c->effects.size();j++) {
-							Effect* e = c->effects.at(j);
-							if (e->is_enabled()) {
-								double timecode = ((double)(playhead-c->timeline_in+c->clip_in)/(double)c->sequence->frame_rate);
-								if (e->enable_coords) {
-									e->process_coords(timecode, coords);
-								}
-								if (e->enable_shader || e->enable_superimpose) {
-									e->startEffect();
-									if (e->enable_shader) {
-										e->process_shader(timecode);
-									}
-									composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
-									if (e->enable_superimpose) {
-										GLuint superimpose_texture = e->process_superimpose(timecode);
-										if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
-									}
-									fbo_switcher = !fbo_switcher;
-								}
-							}
-						}
-
-						if (c->opening_transition != NULL) {
-							int transition_progress = playhead - c->timeline_in;
-							if (transition_progress < c->opening_transition->length) {
-								c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
-							}
-						}
-
-						if (c->closing_transition != NULL) {
-							int transition_progress = c->closing_transition->length - (playhead - c->timeline_in - c->getLength() + c->closing_transition->length);
-							if (transition_progress < c->closing_transition->length) {
-								c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
-							}
-						}
-
-						for (int j=0;j<c->effects.size();j++) {
-							if ((c->effects.at(j)->enable_shader || c->effects.at(j)->enable_superimpose) && c->effects.at(j)->is_enabled()) {
-								c->effects.at(j)->endEffect();
-							}
-						}
-						// EFFECT CODE END
-
-						if (nest != NULL) {
-							nest->fbo[0]->bind();
-							glViewport(0, 0, s->width, s->height);
-						} else if (rendering) {
-							glViewport(0, 0, s->width, s->height);
-						} else {
-							glViewport(0, 0, width(), height());
-						}
-
-						glBindTexture(GL_TEXTURE_2D, composite_texture);
-
-						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-						glBegin(GL_QUADS);
-						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-						glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
-						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-						glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
-						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-						glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
-						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
-						glEnd();
-
-						glBindTexture(GL_TEXTURE_2D, 0);
-
-						if (nest != NULL) {
-							nest->fbo[0]->release();
-							if (default_fbo != NULL) default_fbo->bind();
-						}
-
-						glPopMatrix();
+					// start preparing cache
+					if (c->fbo == NULL) {
+						c->fbo = new QOpenGLFramebufferObject* [2];
+						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
+						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
 					}
+
+					// clear fbos
+					/*c->fbo[0]->bind();
+					glClear(GL_COLOR_BUFFER_BIT);
+					c->fbo[0]->release();
+					c->fbo[1]->bind();
+					glClear(GL_COLOR_BUFFER_BIT);
+					c->fbo[1]->release();*/
+
+					bool fbo_switcher = false;
+
+					glViewport(0, 0, video_width, video_height);
+
+					// for nested sequences
+					if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+						textureID = compose_sequence(c, render_audio);
+						fbo_switcher = true;
+					}
+
+					GLuint composite_texture;
+					if (c->media_type == MEDIA_TYPE_SOLID) {
+						composite_texture = c->fbo[fbo_switcher]->texture();
+					} else {
+						composite_texture = draw_clip(c->fbo[fbo_switcher], textureID);
+					}
+
+					fbo_switcher = !fbo_switcher;
+
+					GLTextureCoords coords;
+					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
+					coords.vertexTopLeftY = coords.vertexTopRightY = -video_height/2;
+					coords.vertexTopRightX = coords.vertexBottomRightX = video_width/2;
+					coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
+					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
+					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
+
+					if (c->autoscale && (video_width != s->width || video_height != s->height)) {
+						double width_multiplier = (double) s->width / (double) video_width;
+						double height_multiplier = (double) s->height / (double) video_height;
+						double scale_multiplier = qMin(width_multiplier, height_multiplier);
+						glScalef(scale_multiplier, scale_multiplier, 1);
+					}
+
+					// EFFECT CODE START
+					for (int j=0;j<c->effects.size();j++) {
+						Effect* e = c->effects.at(j);
+						if (e->is_enabled()) {
+							double timecode = ((double)(playhead-c->timeline_in+c->clip_in)/(double)c->sequence->frame_rate);
+							if (e->enable_coords) {
+								e->process_coords(timecode, coords);
+							}
+							if (e->enable_shader || e->enable_superimpose) {
+								e->startEffect();
+								if (e->enable_shader) {
+									e->process_shader(timecode);
+								}
+								composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
+								if (e->enable_superimpose) {
+									GLuint superimpose_texture = e->process_superimpose(timecode);
+									if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
+								}
+								fbo_switcher = !fbo_switcher;
+							}
+						}
+					}
+
+					if (c->opening_transition != NULL) {
+						int transition_progress = playhead - c->timeline_in;
+						if (transition_progress < c->opening_transition->length) {
+							c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
+						}
+					}
+
+					if (c->closing_transition != NULL) {
+						int transition_progress = c->closing_transition->length - (playhead - c->timeline_in - c->getLength() + c->closing_transition->length);
+						if (transition_progress < c->closing_transition->length) {
+							c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
+						}
+					}
+
+					for (int j=0;j<c->effects.size();j++) {
+						if ((c->effects.at(j)->enable_shader || c->effects.at(j)->enable_superimpose) && c->effects.at(j)->is_enabled()) {
+							c->effects.at(j)->endEffect();
+						}
+					}
+					// EFFECT CODE END
+
+					if (nest != NULL) {
+						nest->fbo[0]->bind();
+						glViewport(0, 0, s->width, s->height);
+					} else if (rendering) {
+						glViewport(0, 0, s->width, s->height);
+					} else {
+						glViewport(0, 0, width(), height());
+					}
+
+					glBindTexture(GL_TEXTURE_2D, composite_texture);
+
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+					glBegin(GL_QUADS);
+					glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
+					glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
+					glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
+					glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
+					glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
+					glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
+					glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+					glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
+					glEnd();
+
+					glBindTexture(GL_TEXTURE_2D, 0);
+
+					if (nest != NULL) {
+						nest->fbo[0]->release();
+						if (default_fbo != NULL) default_fbo->bind();
+					}
+
+					glPopMatrix();
 				}
             } else {
                 if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
