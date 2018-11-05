@@ -359,16 +359,35 @@ void Project::delete_selected_media() {
             }
         }
 
-        for (int i=0;i<items.size();i++) {
+		for (int i=0;i<items.size();i++) {
+
             ca->append(new DeleteMediaCommand(items.at(i)));
 
             if (get_type_from_tree(items.at(i)) == MEDIA_TYPE_SEQUENCE) {
                 redraw = true;
 
-                if (get_sequence_from_tree(items.at(i)) == sequence) {
+				Sequence* s = get_sequence_from_tree(items.at(i));
+
+				if (s == sequence) {
                     ca->append(new ChangeSequenceAction(NULL));
                 }
-            }
+
+				if (s == panel_footage_viewer->seq) {
+					panel_footage_viewer->set_media(MEDIA_TYPE_SEQUENCE, NULL);
+				}
+			} else if (get_type_from_tree(items.at(i)) == MEDIA_TYPE_FOOTAGE) {
+				if (panel_footage_viewer->seq != NULL) {
+					for (int j=0;j<panel_footage_viewer->seq->clips.size();j++) {
+						Clip* c = panel_footage_viewer->seq->clips.at(j);
+						if (c != NULL) {
+							if (c->media == get_media_from_tree(items.at(i))) {
+								panel_footage_viewer->set_media(MEDIA_TYPE_SEQUENCE, NULL);
+							}
+							break;
+						}
+					}
+				}
+			}
         }
         undo_stack.push(ca);
 
