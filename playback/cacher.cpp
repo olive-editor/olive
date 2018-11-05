@@ -404,6 +404,9 @@ void cache_video_worker(Clip* c, long playhead) {
 		while (true) {
 			AVFrame* frame = av_frame_alloc();
 
+			Media* media = static_cast<Media*>(c->media);
+			MediaStream* ms = media->get_stream_from_file_index(true, c->media_stream);
+
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
 				AVFrame* send_frame = c->frame;
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
@@ -415,7 +418,7 @@ void cache_video_worker(Clip* c, long playhead) {
 						send_it = true;
 					} else if (send_frame->pts > target_pts - eighth_second) {
 						send_it = true;
-					} else if (static_cast<Media*>(c->media)->get_stream_from_file_index(true, c->media_stream)->infinite_length) {
+					} else if (media->get_stream_from_file_index(true, c->media_stream)->infinite_length) {
 						send_it = true;
 					} else {
 						dout << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
@@ -456,7 +459,7 @@ void cache_video_worker(Clip* c, long playhead) {
 					c->queue_lock.lock();
 					c->queue.append(frame);
 
-					if (!reverse && c->queue.size() == limit) {
+					if (!ms->infinite_length && !reverse && c->queue.size() == limit) {
 						// see if we got the frame we needed (used for speed ups primarily)
 						bool found = false;
 						for (int i=0;i<c->queue.size();i++) {
@@ -482,12 +485,17 @@ void cache_video_worker(Clip* c, long playhead) {
 }
 
 void reset_cache(Clip* c, long target_frame) {
+	dout << "reset called";
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
 	switch (c->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
-		if (!ms->infinite_length) {
+		if (ms->infinite_length) {
+			/*avcodec_flush_buffers(c->codecCtx);
+			av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);*/
+			c->use_existing_frame = false;
+		} else {
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 				// clear current queue
 				c->queue_clear();
