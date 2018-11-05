@@ -21,6 +21,7 @@
 #include "ui/viewerwidget.h"
 #include "project/marker.h"
 #include "mainwindow.h"
+#include "debug.h"
 
 QUndoStack undo_stack;
 
@@ -350,13 +351,24 @@ AddMediaCommand::AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparen
 AddMediaCommand::~AddMediaCommand() {
     if (!done) {
         panel_project->delete_media(item);
+		if (item->data(0, Qt::UserRole + 5) != NULL) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
         delete item;
     }
 }
 
 void AddMediaCommand::undo() {
 	if (parent == NULL) {
-        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
+		bool found = false;
+		for (int i=0;i<panel_project->source_table->topLevelItemCount();i++) {
+			if (panel_project->source_table->topLevelItem(i) == item) {
+				dout << "item at index is:" << panel_project->source_table->topLevelItem(i)->text(0);
+				QTreeWidgetItem* deleted_item = panel_project->source_table->takeTopLevelItem(i);
+				dout << "wanted to take" << item->text(0) << "took" << deleted_item->text(0);
+				found = true;
+				break;
+			}
+		}
+		dout << "took:" << found;
     } else {
         parent->removeChild(item);
     }
@@ -369,8 +381,25 @@ void AddMediaCommand::redo() {
         panel_project->source_table->addTopLevelItem(item);
     } else {
         parent->addChild(item);
-    }
-    done = true;
+	}
+
+	/* Here we force the source_table to sort itself.
+	 *
+	 * For some reason, sometimes when you add items to the QTreeWidget,
+	 * (usually upon first import) they appear at the bottom, regardless
+	 * of where they should be placed alphabetically. Then when this
+	 * function is "undone", and it tries to remove this item from the
+	 * QTreeWidget, it immediately sorts and then removes THE WRONG ONE.
+	 * If this happens to be a sequence, the sequence data doesn't save
+	 * and is then lost forever (outside of autorecoveries).
+	 *
+	 * The following 2 lines seem to force the source_table to re-sort
+	 * correctly and therefore works around this problem. But holy shit.
+	 */
+	panel_project->source_table->setSortingEnabled(false);
+	panel_project->source_table->setSortingEnabled(true);
+
+	done = true;
 	mainWindow->setWindowModified(true);
 }
 
@@ -382,6 +411,7 @@ DeleteMediaCommand::DeleteMediaCommand(QTreeWidgetItem* i) :
 DeleteMediaCommand::~DeleteMediaCommand() {
 	if (done) {
 		panel_project->delete_media(item);
+		if (item->data(0, Qt::UserRole + 5) != NULL) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
 		delete item;
 	}
 }

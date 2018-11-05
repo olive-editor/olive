@@ -108,7 +108,7 @@ private slots:
 class MediaThrobber : public QObject {
     Q_OBJECT
 public:
-    MediaThrobber(QTreeWidgetItem*);
+	MediaThrobber(QTreeWidgetItem*);
 public slots:
 	void stop(int, bool replace);
 private slots:
@@ -116,7 +116,7 @@ private slots:
 private:
     QPixmap pixmap;
     int animation;
-    QTreeWidgetItem* item;
+	QTreeWidgetItem* item;
     QTimer animator;
 };
 

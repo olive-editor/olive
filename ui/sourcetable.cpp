@@ -19,6 +19,7 @@
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     editing_item = NULL;
+	setSortingEnabled(true);
     sortByColumn(0, Qt::AscendingOrder);
     rename_timer.setInterval(1000);
     setContextMenuPolicy(Qt::CustomContextMenu);

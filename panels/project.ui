@@ -59,9 +59,6 @@
       <property name="itemsExpandable">
        <bool>true</bool>
       </property>
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
       <property name="headerHidden">
        <bool>false</bool>
       </property>

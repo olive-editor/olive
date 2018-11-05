@@ -21,6 +21,7 @@
 struct Sequence;
 struct Clip;
 class PreviewGenerator;
+class MediaThrobber;
 
 struct MediaStream {
 	int file_index;
@@ -53,6 +54,7 @@ struct Media {
     bool ready;
 
 	PreviewGenerator* preview_gen;
+	MediaThrobber* throbber;
     QMutex ready_lock;
 
     bool using_inout;

@@ -198,7 +198,8 @@ void Project::new_sequence(ComboAction *ca, Sequence *s, bool open, QTreeWidgetI
 
 void Project::start_preview_generator(QTreeWidgetItem* item, Media* media, bool replacing) {
     // set up throbber animation
-    MediaThrobber* throbber = new MediaThrobber(item);
+	MediaThrobber* throbber = new MediaThrobber(item);
+	item->setData(0, Qt::UserRole + 5, reinterpret_cast<quintptr>(throbber));
 
 	PreviewGenerator* pg = new PreviewGenerator(item, media, replacing);
 	media->preview_gen = pg;
@@ -212,6 +213,7 @@ QString Project::get_file_name_from_path(const QString& path) {
 
 QTreeWidgetItem* Project::new_item() {
     QTreeWidgetItem* item = new QTreeWidgetItem();
+	item->setData(0, Qt::UserRole + 5, NULL);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     return item;
 }
@@ -425,7 +427,6 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 			// check file extension (assume it's not a
 
 			int lastcharindex = file.lastIndexOf(".");
-			dout << "INFO:" << file << lastcharindex;
 			bool found = true;
 			if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
 				// image_sequence_formats
@@ -440,6 +441,8 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 			} else {
 				lastcharindex = file.length();
 			}
+
+			if (lastcharindex == 0) lastcharindex++;
 
 			if (found && file[lastcharindex-1].isDigit()) {
 				bool is_img_sequence = false;
@@ -696,6 +699,7 @@ void Project::clear() {
     while (ui->treeWidget->topLevelItemCount() > 0) {
         QTreeWidgetItem* item = ui->treeWidget->topLevelItem(0);
         if (get_type_from_tree(item) != MEDIA_TYPE_SEQUENCE) delete_media(item); // already deleted
+		if (item->data(0, Qt::UserRole + 5) != NULL) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
         delete item;
     }
 }
@@ -1440,7 +1444,7 @@ QVector<Sequence*> Project::list_all_project_sequences() {
 #define THROBBER_LIMIT 20
 #define THROBBER_SIZE 50
 
-MediaThrobber::MediaThrobber(QTreeWidgetItem* i) : pixmap(":/icons/throbber.png"), animation(0), item(i) {
+MediaThrobber::MediaThrobber(QTreeWidgetItem *i) : pixmap(":/icons/throbber.png"), animation(0), item(i) {
     // set up throbber
     animation_update();
     animator.setInterval(20);
@@ -1452,17 +1456,17 @@ void MediaThrobber::animation_update() {
     if (animation == THROBBER_LIMIT) {
         animation = 0;
     }
-    item->setIcon(0, QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
-    animation++;
+	item->setIcon(0, QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
+	animation++;
 }
 
 void MediaThrobber::stop(int icon_type, bool replace) {
     animator.stop();
 
     switch (icon_type) {
-    case ICON_TYPE_VIDEO: item->setIcon(0, QIcon(":/icons/videosource.png")); break;
-    case ICON_TYPE_AUDIO: item->setIcon(0, QIcon(":/icons/audiosource.png")); break;
-    case ICON_TYPE_ERROR: item->setIcon(0, QIcon::fromTheme("dialog-error")); break;
+	case ICON_TYPE_VIDEO: item->setIcon(0, QIcon(":/icons/videosource.png")); break;
+	case ICON_TYPE_AUDIO: item->setIcon(0, QIcon(":/icons/audiosource.png")); break;
+	case ICON_TYPE_ERROR: item->setIcon(0, QIcon::fromTheme("dialog-error")); break;
     }
 
 	// refresh all clips
@@ -1481,6 +1485,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 	update_ui(replace);
 
     panel_project->source_table->viewport()->update();
+	item->setData(0, Qt::UserRole + 5, NULL);
     deleteLater();
 }
 

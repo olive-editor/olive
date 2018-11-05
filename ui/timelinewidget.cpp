@@ -491,7 +491,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
-	if (sequence != NULL && panel_timeline->importing) {
+	if (panel_timeline->importing) {
 		if (panel_timeline->importing_files) {
 			undo_stack.undo();
 		}
