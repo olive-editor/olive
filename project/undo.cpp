@@ -351,7 +351,7 @@ AddMediaCommand::AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparen
 AddMediaCommand::~AddMediaCommand() {
     if (!done) {
         panel_project->delete_media(item);
-		if (item->data(0, Qt::UserRole + 5) != NULL) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
+		if (item->data(0, Qt::UserRole + 5) != 0) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
         delete item;
     }
 }
@@ -361,14 +361,11 @@ void AddMediaCommand::undo() {
 		bool found = false;
 		for (int i=0;i<panel_project->source_table->topLevelItemCount();i++) {
 			if (panel_project->source_table->topLevelItem(i) == item) {
-				dout << "item at index is:" << panel_project->source_table->topLevelItem(i)->text(0);
-				QTreeWidgetItem* deleted_item = panel_project->source_table->takeTopLevelItem(i);
-				dout << "wanted to take" << item->text(0) << "took" << deleted_item->text(0);
+				panel_project->source_table->takeTopLevelItem(i);
 				found = true;
 				break;
 			}
 		}
-		dout << "took:" << found;
     } else {
         parent->removeChild(item);
     }
@@ -411,7 +408,7 @@ DeleteMediaCommand::DeleteMediaCommand(QTreeWidgetItem* i) :
 DeleteMediaCommand::~DeleteMediaCommand() {
 	if (done) {
 		panel_project->delete_media(item);
-		if (item->data(0, Qt::UserRole + 5) != NULL) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
+		if (item->data(0, Qt::UserRole + 5) != 0) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
 		delete item;
 	}
 }

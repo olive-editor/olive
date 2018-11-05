@@ -213,7 +213,7 @@ QString Project::get_file_name_from_path(const QString& path) {
 
 QTreeWidgetItem* Project::new_item() {
     QTreeWidgetItem* item = new QTreeWidgetItem();
-	item->setData(0, Qt::UserRole + 5, NULL);
+	item->setData(0, Qt::UserRole + 5, 0);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     return item;
 }
@@ -699,7 +699,7 @@ void Project::clear() {
     while (ui->treeWidget->topLevelItemCount() > 0) {
         QTreeWidgetItem* item = ui->treeWidget->topLevelItem(0);
         if (get_type_from_tree(item) != MEDIA_TYPE_SEQUENCE) delete_media(item); // already deleted
-		if (item->data(0, Qt::UserRole + 5) != NULL) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
+		if (item->data(0, Qt::UserRole + 5) != 0) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
         delete item;
     }
 }
@@ -1485,7 +1485,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 	update_ui(replace);
 
     panel_project->source_table->viewport()->update();
-	item->setData(0, Qt::UserRole + 5, NULL);
+	item->setData(0, Qt::UserRole + 5, 0);
     deleteLater();
 }
 
