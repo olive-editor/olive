@@ -702,7 +702,7 @@ void Timeline::paste() {
     }
 }
 
-void Timeline::ripple_to_in_point(bool in) {
+void Timeline::ripple_to_in_point(bool in, bool ripple) {
     if (sequence != NULL) {
         // get track count
         int track_min = 0;
@@ -736,29 +736,48 @@ void Timeline::ripple_to_in_point(bool in) {
 			}
         }
 
-        if (one_frame_mode) {
+		QVector<Selection> areas;
+		ComboAction* ca = new ComboAction();
 
+        if (one_frame_mode) {
+			// set up deletion areas based on track count
+			if (in) {
+				in_point = sequence->playhead;
+			} else {
+				in_point = sequence->playhead - 1;
+			}
+
+			for (int i=track_min;i<=track_max;i++) {
+				Selection s;
+				s.in = in_point;
+				s.out = in_point + 1;
+				s.track = i;
+				areas.append(s);
+			}
+
+			// trim and move clips around the in point
+			delete_areas_and_relink(ca, areas);
+			if (ripple) ca->append(new RippleCommand(sequence, in_point, -1));
         } else {
-            // set up deletion areas based on track count
-            QVector<Selection> areas;
+			// set up deletion areas based on track count
             for (int i=track_min;i<=track_max;i++) {
                 Selection s;
 				s.in = qMin(in_point, sequence->playhead);
 				s.out = qMax(in_point, sequence->playhead);
                 s.track = i;
                 areas.append(s);
-            }
+			}
 
-            // trim and move clips around the in point
-            ComboAction* ca = new ComboAction();
-            delete_areas_and_relink(ca, areas);
-			ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point)));
-            undo_stack.push(ca);
-
-			update_ui(true);
-
-			if (in) panel_sequence_viewer->seek(in_point);
+			// trim and move clips around the in point
+			delete_areas_and_relink(ca, areas);
+			if (ripple) ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point)));
         }
+
+		undo_stack.push(ca);
+
+		update_ui(true);
+
+		if (in_point < sequence->playhead && ripple) panel_sequence_viewer->seek(in_point);
     }
 }
 

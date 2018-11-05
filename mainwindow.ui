@@ -87,6 +87,8 @@
     <addaction name="actionLink_Unlink"/>
     <addaction name="actionRipple_To_In_Point"/>
     <addaction name="actionRipple_to_Out_Point"/>
+    <addaction name="actionEdit_to_In_Point"/>
+    <addaction name="actionEdit_to_Out_Point"/>
     <addaction name="actionSplit_at_Playhead"/>
     <addaction name="separator"/>
     <addaction name="actionSet_In_Point"/>
@@ -822,6 +824,22 @@
    </property>
    <property name="shortcut">
     <string>T</string>
+   </property>
+  </action>
+  <action name="actionEdit_to_In_Point">
+   <property name="text">
+    <string>Edit to In Point</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+Q</string>
+   </property>
+  </action>
+  <action name="actionEdit_to_Out_Point">
+   <property name="text">
+    <string>Edit to Out Point</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+W</string>
    </property>
   </action>
  </widget>

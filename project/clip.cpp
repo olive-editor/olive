@@ -26,8 +26,7 @@ Clip::Clip(Sequence* s) :
     speed(1.0),
     media(NULL),
     opening_transition(NULL),
-    closing_transition(NULL),
-	pkt(new AVPacket()),
+	closing_transition(NULL),
 	replaced(false),
 	filter_graph(NULL),
 	texture(NULL),
@@ -38,6 +37,7 @@ Clip::Clip(Sequence* s) :
 	use_existing_frame(false),
 	ignore_reverse(false)
 {
+	pkt = av_packet_alloc();
     reset();
 }
 
@@ -160,8 +160,7 @@ Clip::~Clip() {
     for (int i=0;i<effects.size();i++) {
         delete effects.at(i);
     }
-	av_packet_unref(pkt);
-	delete pkt;
+	av_packet_free(&pkt);
 }
 
 long Clip::get_timeline_in_with_transition() {

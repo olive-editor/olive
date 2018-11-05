@@ -416,14 +416,16 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 			}
 
 			imported = true;
-		} else {
+		} else if (!files.at(i).isEmpty()) {
 			QString file(files.at(i));
 			bool skip = false;
 
 			/* Heuristic to determine whether file is part of an image sequence */
 
 			// check file extension (assume it's not a
+
 			int lastcharindex = file.lastIndexOf(".");
+			dout << "INFO:" << file << lastcharindex;
 			bool found = true;
 			if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
 				// image_sequence_formats

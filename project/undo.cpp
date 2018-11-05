@@ -355,7 +355,7 @@ AddMediaCommand::~AddMediaCommand() {
 }
 
 void AddMediaCommand::undo() {
-    if (parent == NULL) {
+	if (parent == NULL) {
         panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
     } else {
         parent->removeChild(item);

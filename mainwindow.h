@@ -193,6 +193,10 @@ private slots:
 
 	void on_actionTransition_Tool_triggered();
 
+	void on_actionEdit_to_In_Point_triggered();
+
+	void on_actionEdit_to_Out_Point_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

@@ -729,13 +729,12 @@ void MainWindow::on_actionLink_Unlink_triggered()
     if (panel_timeline->focused()) panel_timeline->toggle_links();
 }
 
-void MainWindow::on_actionRipple_To_In_Point_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true);
+void MainWindow::on_actionRipple_To_In_Point_triggered() {
+	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true, true);
 }
 
 void MainWindow::on_actionRipple_to_Out_Point_triggered() {
-    if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false);
+	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false, true);
 }
 
 void MainWindow::on_actionSet_In_Point_triggered() {
@@ -879,4 +878,12 @@ void MainWindow::on_actionAudio_Scrubbing_triggered() {
 
 void MainWindow::on_actionTransition_Tool_triggered() {
 	if (panel_timeline->focused()) panel_timeline->ui->toolTransitionButton->click();
+}
+
+void MainWindow::on_actionEdit_to_In_Point_triggered() {
+	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true, false);
+}
+
+void MainWindow::on_actionEdit_to_Out_Point_triggered() {
+	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false, false);
 }

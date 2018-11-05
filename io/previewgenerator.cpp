@@ -203,26 +203,26 @@ void PreviewGenerator::generate_waveform() {
             }
         }
     }
-    AVPacket packet;
+	AVPacket* packet = av_packet_alloc();
     bool done = true;
 
     bool end_of_file = false;
 
     // get the ball rolling
-    av_read_frame(fmt_ctx, &packet);
-    avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
+	av_read_frame(fmt_ctx, packet);
+	avcodec_send_packet(codec_ctx[packet->stream_index], packet);
 
 	while (!end_of_file) {
-		while (codec_ctx[packet.stream_index] == NULL || avcodec_receive_frame(codec_ctx[packet.stream_index], temp_frame) == AVERROR(EAGAIN)) {
-            av_packet_unref(&packet);
-            int read_ret = av_read_frame(fmt_ctx, &packet);
+		while (codec_ctx[packet->stream_index] == NULL || avcodec_receive_frame(codec_ctx[packet->stream_index], temp_frame) == AVERROR(EAGAIN)) {
+			av_packet_unref(packet);
+			int read_ret = av_read_frame(fmt_ctx, packet);
             if (read_ret < 0) {
                 end_of_file = true;
 				if (read_ret != AVERROR_EOF) dout << "[ERROR] Failed to read packet for preview generation" << read_ret;
                 break;
             }
-            if (codec_ctx[packet.stream_index] != NULL) {
-                int send_ret = avcodec_send_packet(codec_ctx[packet.stream_index], &packet);
+			if (codec_ctx[packet->stream_index] != NULL) {
+				int send_ret = avcodec_send_packet(codec_ctx[packet->stream_index], packet);
                 if (send_ret < 0 && send_ret != AVERROR(EAGAIN)) {
 					dout << "[ERROR] Failed to send packet for preview generation - aborting" << send_ret;
                     end_of_file = true;
@@ -231,9 +231,9 @@ void PreviewGenerator::generate_waveform() {
             }
 		}
         if (!end_of_file) {
-            MediaStream* s = media->get_stream_from_file_index(fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet.stream_index);
+			MediaStream* s = media->get_stream_from_file_index(fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet->stream_index);
 			if (s != NULL) {
-				if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+				if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 					if (!s->preview_done) {
 						int dstH = 120;
 						int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
@@ -267,12 +267,12 @@ void PreviewGenerator::generate_waveform() {
 						sws_freeContext(sws_ctx);
 
 						if (!retrieve_duration) {
-							avcodec_close(codec_ctx[packet.stream_index]);
-							codec_ctx[packet.stream_index] = NULL;
+							avcodec_close(codec_ctx[packet->stream_index]);
+							codec_ctx[packet->stream_index] = NULL;
 						}
 					}
-					media_lengths[packet.stream_index]++;
-				} else if (fmt_ctx->streams[packet.stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+					media_lengths[packet->stream_index]++;
+				} else if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 					int interval = qFloor((temp_frame->sample_rate/WAVEFORM_RESOLUTION)/4)*4;
 
 					AVFrame* swr_frame = av_frame_alloc();
@@ -349,13 +349,14 @@ void PreviewGenerator::generate_waveform() {
 					break;
 				}
 			}
-            av_packet_unref(&packet);
+			av_packet_unref(packet);
         }
     }
     for (int i=0;i<media->audio_tracks.size();i++) {
         media->audio_tracks.at(i)->preview_done = true;
     }
     av_frame_free(&temp_frame);
+	av_packet_free(&packet);
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
         if (codec_ctx[i] != NULL) {
             avcodec_close(codec_ctx[i]);

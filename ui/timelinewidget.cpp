@@ -493,10 +493,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
 	if (sequence != NULL && panel_timeline->importing) {
 		if (panel_timeline->importing_files) {
-			for (int i=0;i<panel_project->last_imported_media.size();i++) {
-				// hack? but seems to work
-				undo_stack.undo();
-			}
+			undo_stack.undo();
 		}
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
@@ -2391,7 +2388,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
 
                     // draw transition tool
-                    if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && panel_timeline->transition_tool_clip > -1) {
+					if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && panel_timeline->transition_tool_clip == i) {
                         QRect transition_tool_rect = clip_rect;
                         if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
                             transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));

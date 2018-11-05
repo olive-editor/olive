@@ -70,6 +70,8 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 	}
 }
 
+#define AUDIO_BUFFER_PADDING 2048
+
 void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
@@ -270,7 +272,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 #endif
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
 
-                int offset = (audio_ibuffer_read + 512) - c->audio_buffer_write;
+				int offset = (audio_ibuffer_read + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
 					c->frame_sample_index += offset;
@@ -325,16 +327,8 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence, timeline_out);
             audio_write_lock.lock();
 			while (c->frame_sample_index < nb_bytes
-                   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size-512
+				   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size-AUDIO_BUFFER_PADDING
 				   && c->audio_buffer_write < buffer_timeline_out) {
-
-                /*dout << "F (" <<
-                        c->frame_sample_index << "/" << nb_bytes
-                     << ") (" <<
-                        c->audio_buffer_write << "/" << (audio_ibuffer_read+audio_ibuffer_size-512)
-                     << ") (" <<
-                        c->audio_buffer_write << "/" << buffer_timeline_out << ")";*/
-
 				int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
 				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
 				qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
@@ -590,6 +584,7 @@ void open_clip_worker(Clip* clip) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
 			dout << "[ERROR] Could not open" << filename << "-" << err;
+			return;
 		}
 
 		errCode = avformat_find_stream_info(clip->formatCtx, NULL);
@@ -597,6 +592,7 @@ void open_clip_worker(Clip* clip) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
 			dout << "[ERROR] Could not open" << filename << "-" << err;
+			return;
 		}
 
 		av_dump_format(clip->formatCtx, 0, filename, 0);

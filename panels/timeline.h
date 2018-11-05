@@ -92,7 +92,7 @@ public:
     QVector<int> get_tracks_of_linked_clips(int i);
     bool has_clip_been_split(int c);
     void toggle_links();
-    void ripple_to_in_point(bool in);
+	void ripple_to_in_point(bool in, bool ripple);
     void delete_in_out(bool ripple);
 	void previous_cut();
 	void next_cut();

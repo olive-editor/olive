@@ -311,17 +311,22 @@ void Viewer::pause() {
 			// add it to the sequence
 			Clip* c = new Clip(seq);
 			Media* m = panel_project->last_imported_media.at(0);
+
+			m->ready_lock.lock();
+
 			c->media = m; // latest media
 			c->media_type = MEDIA_TYPE_FOOTAGE;
 			c->media_stream = 0;
 			c->timeline_in = recording_start;
-			c->timeline_out = seq->playhead;
+			c->timeline_out = m->get_length_in_frames(seq->frame_rate);
 			c->clip_in = 0;
 			c->track = recording_track;
 			c->color_r = 128;
 			c->color_g = 192;
 			c->color_b = 128;
 			c->name = m->name;
+
+			m->ready_lock.unlock();
 
 			QVector<Clip*> add_clips;
 			add_clips.append(c);
