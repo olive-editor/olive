@@ -10,7 +10,6 @@
 #include "panels/timeline.h"
 #include "project/sequence.h"
 #include "effects/effect.h"
-#include "effects/transition.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
 #include "mainwindow.h"
@@ -360,7 +359,6 @@ void Project::delete_selected_media() {
         }
 
 		for (int i=0;i<items.size();i++) {
-
             ca->append(new DeleteMediaCommand(items.at(i)));
 
             if (get_type_from_tree(items.at(i)) == MEDIA_TYPE_SEQUENCE) {
@@ -982,70 +980,78 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                         }
                                                     }
                                                 }
-                                            } else if (stream.name() == "effects") {
-                                                while (!(stream.name() == "effects" && stream.isEndElement()) && !stream.atEnd()) {
-                                                    stream.readNext();
-                                                    if (stream.name() == "effect" && stream.isStartElement()) {
-                                                        int effect_id = -1;
-														QString effect_name;
-														bool effect_enabled = true;
-                                                        for (int j=0;j<stream.attributes().size();j++) {
-                                                            const QXmlStreamAttribute& attr = stream.attributes().at(j);
-															if (attr.name() == "id") {
-																effect_id = attr.value().toInt();
-															} else if (attr.name() == "enabled") {
-																effect_enabled = (attr.value() == "1");
-															} else if (attr.name() == "name") {
-																effect_name = attr.value().toString();
-															}
-                                                        }
+											} else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
+												int effect_id = -1;
+												QString effect_name;
+												bool effect_enabled = true;
+												int effect_length = -1;
+												for (int j=0;j<stream.attributes().size();j++) {
+													const QXmlStreamAttribute& attr = stream.attributes().at(j);
+													if (attr.name() == "id") {
+														effect_id = attr.value().toInt();
+													} else if (attr.name() == "enabled") {
+														effect_enabled = (attr.value() == "1");
+													} else if (attr.name() == "name") {
+														effect_name = attr.value().toString();
+													} else if (attr.name() == "length") {
+														effect_length = attr.value().toInt();
+													}
+												}
 
-														// backwards compatibility with 180820
-														if (effect_id != -1) {
-															switch (effect_id) {
-															case 0: effect_name = (c->track < 0) ? "Transform" : "Volume"; break;
-															case 1: effect_name = (c->track < 0) ? "Shake" : "Pan"; break;
-															case 2: effect_name = (c->track < 0) ? "Text" : "Noise"; break;
-															case 3: effect_name = (c->track < 0) ? "Solid" : "Tone"; break;
-															case 4: effect_name = "Invert"; break;
-															case 5: effect_name = "Chroma Key"; break;
-															case 6: effect_name = "Gaussian Blur"; break;
-															case 7: effect_name = "Crop"; break;
-															case 8: effect_name = "Flip"; break;
-															case 9: effect_name = "Box Blur"; break;
-															case 10: effect_name = "Wave"; break;
-															case 11: effect_name = "Temperature"; break;
-															}
+												// backwards compatibility with 180820
+												if (stream.name() == "effect" && effect_id != -1) {
+													switch (effect_id) {
+													case 0: effect_name = (c->track < 0) ? "Transform" : "Volume"; break;
+													case 1: effect_name = (c->track < 0) ? "Shake" : "Pan"; break;
+													case 2: effect_name = (c->track < 0) ? "Text" : "Noise"; break;
+													case 3: effect_name = (c->track < 0) ? "Solid" : "Tone"; break;
+													case 4: effect_name = "Invert"; break;
+													case 5: effect_name = "Chroma Key"; break;
+													case 6: effect_name = "Gaussian Blur"; break;
+													case 7: effect_name = "Crop"; break;
+													case 8: effect_name = "Flip"; break;
+													case 9: effect_name = "Box Blur"; break;
+													case 10: effect_name = "Wave"; break;
+													case 11: effect_name = "Temperature"; break;
+													}
+												}
+
+												// wait for effects to be loaded
+												effects_loaded.lock();
+
+												const EffectMeta* meta = NULL;
+
+												// find effect with this name
+												if (!effect_name.isEmpty()) {
+													QVector<EffectMeta>& effect_list = (c->track < 0) ? video_effects : audio_effects;
+													for (int j=0;j<effect_list.size();j++) {
+														if (effect_list.at(j).name == effect_name) {
+															meta = &effect_list.at(j);
+															break;
 														}
+													}
+												}
 
-														// wait for effects to be loaded
-														effects_loaded.lock();
+												effects_loaded.unlock();
 
-														const EffectMeta* meta = NULL;
+												if (meta == NULL) {
+													dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
+												} else {
+													QString tag = stream.name().toString();
 
-														// find effect with this name
-														if (!effect_name.isEmpty()) {
-															QVector<EffectMeta>& effect_list = (c->track < 0) ? video_effects : audio_effects;
-															for (int j=0;j<effect_list.size();j++) {
-																if (effect_list.at(j).name == effect_name) {
-																	meta = &effect_list.at(j);
-																	break;
-																}
-															}
-														}
+													Effect* e = create_effect(c, meta);
+													if (effect_length > -1) e->length = effect_length;
+													e->set_enabled(effect_enabled);
+													e->load(stream);
 
-														if (meta == NULL) {
-															dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
-														} else {
-															Effect* e = create_effect(c, meta);
-															e->set_enabled(effect_enabled);
-                                                            e->load(stream);
-															c->effects.append(e);
-                                                        }
-
-														effects_loaded.unlock();
-                                                    }
-                                                }
+													if (tag == "opening") {
+														c->opening_transition = e;
+													} else if (tag == "closing") {
+														c->closing_transition = e;
+													} else {
+														c->effects.append(e);
+													}
+												}
                                             }
                                         }
                                     }
@@ -1290,12 +1296,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 stream.writeAttribute("in", QString::number(c->timeline_in));
                                 stream.writeAttribute("out", QString::number(c->timeline_out));
                                 stream.writeAttribute("track", QString::number(c->track));
-                                if (c->opening_transition != NULL) {
-                                    stream.writeAttribute("opening", QString::number(c->opening_transition->id));
-                                }
-                                if (c->closing_transition != NULL) {
-                                    stream.writeAttribute("closing", QString::number(c->closing_transition->id));
-                                }
+
                                 stream.writeAttribute("r", QString::number(c->color_r));
                                 stream.writeAttribute("g", QString::number(c->color_g));
                                 stream.writeAttribute("b", QString::number(c->color_b));
@@ -1324,16 +1325,24 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 }
                                 stream.writeEndElement(); // linked
 
-                                stream.writeStartElement("effects"); // effects
                                 for (int k=0;k<c->effects.size();k++) {
-                                    stream.writeStartElement("effect"); // effect
-                                    Effect* e = c->effects.at(k);
-									stream.writeAttribute("name", e->meta->name);
-									stream.writeAttribute("enabled", QString::number(e->is_enabled()));
-                                    e->save(stream);
-                                    stream.writeEndElement(); // effect
-                                }
-                                stream.writeEndElement(); // effects
+									stream.writeStartElement("effect"); // effect
+									c->effects.at(k)->save(stream);
+									stream.writeEndElement(); // effect
+								}
+
+								if (c->opening_transition != NULL) {
+									stream.writeStartElement("opening");
+									c->opening_transition->save(stream);
+									stream.writeEndElement(); // opening
+								}
+
+								if (c->closing_transition != NULL) {
+									stream.writeStartElement("closing"); // closing
+									c->closing_transition->save(stream);
+									stream.writeEndElement(); // closing
+								}
+
                                 stream.writeEndElement(); // clip
                             }
                         }

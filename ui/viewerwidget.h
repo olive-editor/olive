@@ -13,6 +13,8 @@ class Viewer;
 struct Clip;
 struct MediaStream;
 class QOpenGLFramebufferObject;
+class Effect;
+struct GLTextureCoords;
 
 class ViewerWidget : public QOpenGLWidget
 {
@@ -42,6 +44,7 @@ private:
 	void seek_from_click(int x);
 	GLuint compose_sequence(Clip *nest, bool render_audio);
 	GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture);
+	void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher);
 private slots:
 	void retry();
     void deleteFunction();

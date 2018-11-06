@@ -1,7 +1,6 @@
 #include "sequence.h"
 
 #include "project/clip.h"
-#include "effects/transition.h"
 
 Sequence::Sequence() :
 	playhead(0),

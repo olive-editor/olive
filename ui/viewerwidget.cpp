@@ -6,7 +6,6 @@
 #include "panels/project.h"
 #include "project/sequence.h"
 #include "effects/effect.h"
-#include "effects/transition.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "io/media.h"
@@ -198,6 +197,26 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 	return fbo->texture();
 }
 
+void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher) {
+	if (e->is_enabled()) {
+		if (e->enable_coords) {
+			e->process_coords(timecode, coords);
+		}
+		if (e->enable_shader || e->enable_superimpose) {
+			e->startEffect();
+			if (e->enable_shader) {
+				e->process_shader(timecode);
+			}
+			composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
+			if (e->enable_superimpose) {
+				GLuint superimpose_texture = e->process_superimpose(timecode);
+				if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
+			}
+			fbo_switcher = !fbo_switcher;
+		}
+	}
+}
+
 GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 	Sequence* s = viewer->seq;
 	long playhead = s->playhead;
@@ -359,39 +378,24 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					}
 
 					// EFFECT CODE START
+					double timecode = ((double)(playhead-c->timeline_in+c->clip_in)/(double)c->sequence->frame_rate);
 					for (int j=0;j<c->effects.size();j++) {
-						Effect* e = c->effects.at(j);
-						if (e->is_enabled()) {
-							double timecode = ((double)(playhead-c->timeline_in+c->clip_in)/(double)c->sequence->frame_rate);
-							if (e->enable_coords) {
-								e->process_coords(timecode, coords);
-							}
-							if (e->enable_shader || e->enable_superimpose) {
-								e->startEffect();
-								if (e->enable_shader) {
-									e->process_shader(timecode);
-								}
-								composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
-								if (e->enable_superimpose) {
-									GLuint superimpose_texture = e->process_superimpose(timecode);
-									if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
-								}
-								fbo_switcher = !fbo_switcher;
-							}
-						}
+						process_effect(c, c->effects.at(j), timecode, coords, composite_texture, fbo_switcher);
 					}
 
 					if (c->opening_transition != NULL) {
 						int transition_progress = playhead - c->timeline_in;
 						if (transition_progress < c->opening_transition->length) {
-							c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
+							process_effect(c, c->opening_transition, (double)transition_progress/(double)c->opening_transition->length, coords, composite_texture, fbo_switcher);
+							//c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
 						}
 					}
 
 					if (c->closing_transition != NULL) {
 						int transition_progress = c->closing_transition->length - (playhead - c->timeline_in - c->getLength() + c->closing_transition->length);
 						if (transition_progress < c->closing_transition->length) {
-							c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
+							process_effect(c, c->closing_transition, (double)transition_progress/(double)c->closing_transition->length, coords, composite_texture, fbo_switcher);
+							//c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
 						}
 					}
 

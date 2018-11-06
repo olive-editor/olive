@@ -8,7 +8,6 @@
 
 #include "panels/panels.h"
 #include "effects/effect.h"
-#include "effects/transition.h"
 #include "project/clip.h"
 #include "effects/effect.h"
 #include "ui/collapsiblewidget.h"
@@ -27,8 +26,7 @@ EffectControls::EffectControls(QWidget *parent) :
     ui(new Ui::EffectControls)
 {
 	ui->setupUi(this);
-    init_effects();
-	init_transitions();
+	init_effects();
     clear_effects(false);
 	ui->headers->viewer = panel_sequence_viewer;
 	ui->headers->snapping = false;
@@ -66,15 +64,16 @@ void EffectControls::menu_select(QAction* q) {
     for (int i=0;i<selected_clips.size();i++) {
         Clip* c = sequence->clips.at(selected_clips.at(i));
         if ((c->track < 0) == video_menu) {
+			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
 			if (transition_menu) {
 				if (c->opening_transition == NULL) {
-                    ca->append(new AddTransitionCommand(c, q->data().toInt(), TA_OPENING_TRANSITION));
+					ca->append(new AddTransitionCommand(c, meta, TA_OPENING_TRANSITION, 30));
 				}
 				if (c->closing_transition == NULL) {
-                    ca->append(new AddTransitionCommand(c, q->data().toInt(), TA_CLOSING_TRANSITION));
+					ca->append(new AddTransitionCommand(c, meta, TA_CLOSING_TRANSITION, 30));
 				}
 			} else {
-                ca->append(new AddEffectCommand(c, reinterpret_cast<EffectMeta*>(q->data().value<quintptr>())));
+				ca->append(new AddEffectCommand(c, meta));
 			}
         }
     }
@@ -149,7 +148,7 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 	video_menu = video;
 	transition_menu = transitions;
 
-	if (transition_menu) {
+	/*if (transition_menu) {
 		// TODO old effect/transition code grandfathered in, to be updated
 
 		int lim;
@@ -181,64 +180,67 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 		}
 		connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
 		effects_menu.exec(QCursor::pos());
-	} else {
+	} else {*/
 		effects_loaded.lock();
 
 		QVector<EffectMeta>& effect_list = (video) ? video_effects : audio_effects;
 		QMenu effects_menu(this);
 		for (int i=0;i<effect_list.size();i++) {
 			const EffectMeta& em = effect_list.at(i);
-			QAction* action = new QAction(&effects_menu);
-			action->setText(em.name);
-			action->setData(reinterpret_cast<quintptr>(&em));
 
-			QMenu* parent = &effects_menu;
-			if (!em.category.isEmpty()) {
-				bool found = false;
-				for (int j=0;j<effects_menu.actions().size();j++) {
-					QAction* action = effects_menu.actions().at(j);
-					if (action->menu() != NULL) {
-						if (action->menu()->title() == em.category) {
-							parent = action->menu();
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
-					parent = new QMenu(&effects_menu);
-					parent->setTitle(em.category);
+			if (em.type == EFFECT_TYPE_TRANSITION == transition_menu) {
+				QAction* action = new QAction(&effects_menu);
+				action->setText(em.name);
+				action->setData(reinterpret_cast<quintptr>(&em));
 
+				QMenu* parent = &effects_menu;
+				if (!em.category.isEmpty()) {
 					bool found = false;
-					for (int i=0;i<effects_menu.actions().size();i++) {
-						QAction* comp_action = effects_menu.actions().at(i);
-						if (comp_action->text() > em.category) {
-							effects_menu.insertMenu(comp_action, parent);
-							found = true;
-							break;
+					for (int j=0;j<effects_menu.actions().size();j++) {
+						QAction* action = effects_menu.actions().at(j);
+						if (action->menu() != NULL) {
+							if (action->menu()->title() == em.category) {
+								parent = action->menu();
+								found = true;
+								break;
+							}
 						}
 					}
-					if (!found) effects_menu.addMenu(parent);
-				}
-			}
+					if (!found) {
+						parent = new QMenu(&effects_menu);
+						parent->setTitle(em.category);
 
-			bool found = false;
-			for (int i=0;i<parent->actions().size();i++) {
-				QAction* comp_action = parent->actions().at(i);
-				if (comp_action->text() > action->text()) {
-					parent->insertAction(comp_action, action);
-					found = true;
-					break;
+						bool found = false;
+						for (int i=0;i<effects_menu.actions().size();i++) {
+							QAction* comp_action = effects_menu.actions().at(i);
+							if (comp_action->text() > em.category) {
+								effects_menu.insertMenu(comp_action, parent);
+								found = true;
+								break;
+							}
+						}
+						if (!found) effects_menu.addMenu(parent);
+					}
 				}
+
+				bool found = false;
+				for (int i=0;i<parent->actions().size();i++) {
+					QAction* comp_action = parent->actions().at(i);
+					if (comp_action->text() > action->text()) {
+						parent->insertAction(comp_action, action);
+						found = true;
+						break;
+					}
+				}
+				if (!found) parent->addAction(action);
 			}
-			if (!found) parent->addAction(action);
 		}
 
 		effects_loaded.unlock();
 
 		connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
 		effects_menu.exec(QCursor::pos());
-	}
+	//}
 }
 
 void EffectControls::clear_effects(bool clear_cache) {

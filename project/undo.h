@@ -91,13 +91,13 @@ private:
 
 class AddEffectCommand : public QUndoCommand {
 public:
-    AddEffectCommand(Clip* c, EffectMeta* e);
+	AddEffectCommand(Clip* c, const EffectMeta* e);
     ~AddEffectCommand();
     void undo();
     void redo();
 private:
     Clip* clip;
-    EffectMeta* meta;
+	const EffectMeta* meta;
     Effect* ref;
     bool done;
 	bool old_project_changed;
@@ -105,12 +105,12 @@ private:
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-    AddTransitionCommand(Clip* c, int itransition, int itype, int ilength = 0);
+	AddTransitionCommand(Clip* c, const EffectMeta* itransition, int itype, int ilength);
     void undo();
     void redo();
 private:
     Clip* clip;
-    int transition;
+	const EffectMeta* transition;
     int type;
     int length;
 	bool old_project_changed;
@@ -138,7 +138,7 @@ public:
 private:
     Clip* clip;
     int type;
-    Transition* transition;
+	Effect* transition;
 	bool old_project_changed;
 };
 

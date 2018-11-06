@@ -16,7 +16,6 @@
 #include "effects/effect.h"
 #include "io/media.h"
 #include "playback/cacher.h"
-#include "effects/transition.h"
 #include "ui/labelslider.h"
 #include "ui/viewerwidget.h"
 #include "project/marker.h"
@@ -194,7 +193,7 @@ void SetTimelineInOutCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, EffectMeta *e) :
+AddEffectCommand::AddEffectCommand(Clip* c, const EffectMeta *e) :
     clip(c),
     meta(e),
     ref(NULL),
@@ -221,7 +220,7 @@ void AddEffectCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c, int itransition, int itype, int ilength) :
+AddTransitionCommand::AddTransitionCommand(Clip* c, const EffectMeta *itransition, int itype, int ilength) :
     clip(c),
     transition(itransition),
 	type(itype),
@@ -242,10 +241,10 @@ void AddTransitionCommand::undo() {
 
 void AddTransitionCommand::redo() {
     if (type == TA_OPENING_TRANSITION) {
-        clip->opening_transition = create_transition(transition, clip);
+		clip->opening_transition = create_effect(clip, transition);
         if (length > 0) clip->opening_transition->length = length;
     } else {
-        clip->closing_transition = create_transition(transition, clip);
+		clip->closing_transition = create_effect(clip, transition);
         if (length > 0) clip->closing_transition->length = length;
     }
 	mainWindow->setWindowModified(true);

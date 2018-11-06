@@ -18,7 +18,6 @@
 #include "debug.h"
 
 #include "effects/effect.h"
-#include "effects/transition.h"
 
 #include "effects/internal/solideffect.h"
 #include "effects/internal/texteffect.h"
@@ -1206,9 +1205,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
                         panel_timeline->delete_areas_and_relink(ca, areas);
                         ca->append(new MoveClipAction(c, qMin(transition_start, c->timeline_in), qMax(transition_end, c->timeline_out), c->clip_in, c->track));
-                    }
+					}
 
-                    ca->append(new AddTransitionCommand(c, 0, panel_timeline->transition_tool_type, transition_end - transition_start));
+					ca->append(new AddTransitionCommand(c, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
 
                     push_undo = true;
                 }
@@ -2100,15 +2099,22 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     panel_timeline->transition_tool_proc = true;
                 }
             } else {
-                panel_timeline->transition_tool_clip = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+				int mouse_clip = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+				if (mouse_clip > -1) {
+					Clip* c = sequence->clips.at(mouse_clip);
+					if (same_sign(c->track, panel_timeline->transition_tool_side)) {
+						panel_timeline->transition_tool_clip = mouse_clip;
+						long halfway = c->timeline_in + (c->getLength()/2);
+						if (panel_timeline->cursor_frame > halfway) {
+							panel_timeline->transition_tool_type = TA_CLOSING_TRANSITION;
+						} else {
+							panel_timeline->transition_tool_type = TA_OPENING_TRANSITION;
+						}
+					}
+				}
+
                 if (panel_timeline->transition_tool_clip > -1) {
-                    Clip* c = sequence->clips.at(panel_timeline->transition_tool_clip);
-                    long halfway = c->timeline_in + (c->getLength()/2);
-                    if (panel_timeline->cursor_frame > halfway) {
-                        panel_timeline->transition_tool_type = TA_CLOSING_TRANSITION;
-                    } else {
-                        panel_timeline->transition_tool_type = TA_OPENING_TRANSITION;
-                    }
+
                 }
             }
 
@@ -2323,7 +2329,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
 					// draw clip transitions
 					for (int i=0;i<2;i++) {
-						Transition* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
+						Effect* t = (i == 0) ? clip->opening_transition : clip->closing_transition;
 						if (t != NULL) {
 							int transition_width = getScreenPointFromFrame(panel_timeline->zoom, t->length);
 							int transition_height = clip_rect.height();

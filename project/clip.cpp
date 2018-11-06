@@ -1,7 +1,6 @@
 #include "clip.h"
 
 #include "effects/effect.h"
-#include "effects/transition.h"
 #include "io/media.h"
 #include "io/config.h"
 #include "playback/playback.h"
@@ -65,8 +64,8 @@ Clip* Clip::copy(Sequence* s) {
         copy->effects.append(effects.at(i)->copy(copy));
     }
 
-    if (opening_transition != NULL) copy->opening_transition = opening_transition->copy();
-    if (closing_transition != NULL) copy->closing_transition = closing_transition->copy();
+	if (opening_transition != NULL) copy->opening_transition = opening_transition->copy(copy);
+	if (closing_transition != NULL) copy->closing_transition = closing_transition->copy(copy);
 
 	copy->recalculateMaxLength();
 
@@ -164,16 +163,16 @@ Clip::~Clip() {
 }
 
 long Clip::get_timeline_in_with_transition() {
-    if (opening_transition != NULL && opening_transition->link != NULL) {
-        return timeline_in - opening_transition->link->length;
+	if (opening_transition != NULL && opening_transition->tlink != NULL) {
+		return timeline_in - opening_transition->tlink->length;
     } else {
         return timeline_in;
     }
 }
 
 long Clip::get_timeline_out_with_transition() {
-    if (closing_transition != NULL && closing_transition->link != NULL) {
-        return timeline_out + closing_transition->link->length;
+	if (closing_transition != NULL && closing_transition->tlink != NULL) {
+		return timeline_out + closing_transition->tlink->length;
     } else {
         return timeline_out;
     }

@@ -1,19 +1,13 @@
-#include "../transition.h"
+#include "crossdissolvetransition.h"
 
 #include <QOpenGLFunctions>
 
-// TODO port to GLSL?
+CrossDissolveTransition::CrossDissolveTransition(Clip* c, const EffectMeta* em) : Effect(c, em) {
+	enable_coords = true;
+}
 
-CrossDissolveTransition::CrossDissolveTransition() : Transition(VIDEO_DISSOLVE_TRANSITION) {}
-
-void CrossDissolveTransition::process_transition(double progress) {
+void CrossDissolveTransition::process_coords(double progress, GLTextureCoords&) {
     float color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
 	glColor4f(1.0, 1.0, 1.0, color[3]*progress);
-}
-
-Transition* CrossDissolveTransition::copy() {
-	Transition* t = new CrossDissolveTransition();
-	t->length = length;
-	return t;
 }

@@ -1,8 +1,10 @@
-#include "linearfadetransition.h"
+#include "logarithmicfadetransition.h"
 
-LinearFadeTransition::LinearFadeTransition(Clip* c, const EffectMeta* em) : Effect(c, em) {}
+#include <QtMath>
 
-void LinearFadeTransition::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int type) {
+LogarithmicFadeTransition::LogarithmicFadeTransition(Clip* c, const EffectMeta* em) : Effect(c, em) {}
+
+void LogarithmicFadeTransition::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int type) {
 	double interval = (timecode_end-timecode_start)/nb_bytes;
 
 	for (int i=0;i<nb_bytes;i+=2) {
@@ -11,11 +13,11 @@ void LinearFadeTransition::process_audio(double timecode_start, double timecode_
 		switch (type) {
 		case TRAN_TYPE_OPEN:
 		case TRAN_TYPE_OPENWLINK:
-			samp *= timecode_start + (interval * i);
+			samp *= qSqrt(timecode_start + (interval * i));
 			break;
 		case TRAN_TYPE_CLOSE:
 		case TRAN_TYPE_CLOSEWLINK:
-			samp *= 1 - (timecode_start + (interval * i));
+			samp *= qSqrt(1 - (timecode_start + (interval * i)));
 			break;
 		}
 

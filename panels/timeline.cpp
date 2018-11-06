@@ -12,10 +12,11 @@
 #include "panels/viewer.h"
 #include "playback/cacher.h"
 #include "playback/playback.h"
-#include "effects/transition.h"
 #include "ui_viewer.h"
 #include "project/undo.h"
 #include "io/config.h"
+#include "effects/effect.h"
+#include "debug.h"
 
 #include <QTime>
 #include <QScrollBar>
@@ -159,11 +160,11 @@ void Timeline::add_transition() {
         Clip* c = sequence->clips.at(i);
         if (c != NULL && is_clip_selected(c, true)) {
             if (c->opening_transition == NULL) {
-                ca->append(new AddTransitionCommand(c, 0, TA_OPENING_TRANSITION));
+				ca->append(new AddTransitionCommand(c, get_internal_meta(EFFECT_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
             if (c->closing_transition == NULL) {
-                ca->append(new AddTransitionCommand(c, 0, TA_OPENING_TRANSITION));
+				ca->append(new AddTransitionCommand(c, get_internal_meta(EFFECT_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
         }
@@ -1192,8 +1193,44 @@ void Timeline::on_recordButton_clicked() {
 }
 
 void Timeline::on_toolTransitionButton_clicked() {
-    decheck_tool_buttons(sender());
+	creating = false;
+
+	QMenu transition_menu(this);
+
+	for (int i=0;i<video_effects.size();i++) {
+		const EffectMeta& em = video_effects.at(i);
+		if (em.type == EFFECT_TYPE_TRANSITION) {
+			QAction* a = transition_menu.addAction(em.name);
+			a->setObjectName("v");
+			a->setData(reinterpret_cast<quintptr>(&em));
+		}
+	}
+
+	transition_menu.addSeparator();
+
+	for (int i=0;i<audio_effects.size();i++) {
+		const EffectMeta& em = audio_effects.at(i);
+		if (em.type == EFFECT_TYPE_TRANSITION) {
+			QAction* a = transition_menu.addAction(em.name);
+			a->setObjectName("a");
+			a->setData(reinterpret_cast<quintptr>(&em));
+		}
+	}
+
+	connect(&transition_menu, SIGNAL(triggered(QAction*)), this, SLOT(transition_menu_select(QAction*)));
+	transition_menu.exec(QCursor::pos());
+}
+
+void Timeline::transition_menu_select(QAction* a) {
+	transition_tool_meta = reinterpret_cast<const EffectMeta*>(a->data().value<quintptr>());
+
+	if (a->objectName() == "v") {
+		transition_tool_side = -1;
+	} else {
+		transition_tool_side = 1;
+	}
+
+	decheck_tool_buttons(sender());
 	ui->timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
-    creating = false;
 }

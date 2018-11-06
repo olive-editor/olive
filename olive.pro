@@ -51,7 +51,6 @@ SOURCES += \
     io/previewgenerator.cpp \
     ui/labelslider.cpp \
     dialogs/preferencesdialog.cpp \
-    effects/transition.cpp \
     ui/audiomonitor.cpp \
     project/undo.cpp \
     ui/scrollarea.cpp \
@@ -81,7 +80,9 @@ SOURCES += \
     effects/internal/toneeffect.cpp \
     effects/internal/volumeeffect.cpp \
     effects/internal/crossdissolvetransition.cpp \
-    effects/internal/shakeeffect.cpp
+    effects/internal/shakeeffect.cpp \
+    effects/internal/exponentialfadetransition.cpp \
+    effects/internal/logarithmicfadetransition.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -111,7 +112,6 @@ HEADERS += \
     io/previewgenerator.h \
     ui/labelslider.h \
     dialogs/preferencesdialog.h \
-    effects/transition.h \
     ui/audiomonitor.h \
     project/undo.h \
     ui/scrollarea.h \
@@ -141,7 +141,11 @@ HEADERS += \
     effects/internal/paneffect.h \
     effects/internal/toneeffect.h \
     effects/internal/volumeeffect.h \
-    effects/internal/shakeeffect.h
+    effects/internal/shakeeffect.h \
+    effects/internal/linearfadetransition.h \
+    effects/internal/crossdissolvetransition.h \
+    effects/internal/exponentialfadetransition.h \
+    effects/internal/logarithmicfadetransition.h
 
 FORMS += \
         mainwindow.ui \

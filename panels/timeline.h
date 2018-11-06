@@ -21,7 +21,8 @@ class QPushButton;
 class SourceTable;
 class ViewerWidget;
 class ComboAction;
-class Transition;
+class Effect;
+struct EffectMeta;
 struct Sequence;
 struct Clip;
 struct Media;
@@ -57,7 +58,7 @@ struct Ghost {
     bool trimming;
 
 	// transition trimming
-	Transition* transition;
+	Effect* transition;
 };
 
 namespace Ui {
@@ -169,6 +170,8 @@ public:
     bool transition_tool_proc;
     int transition_tool_clip;
     int transition_tool_type;
+	const EffectMeta* transition_tool_meta;
+	int transition_tool_side;
 
 	// clipboard
 	QVector<Clip*> clip_clipboard;
@@ -208,6 +211,8 @@ private slots:
 	void on_recordButton_clicked();
 
 	void on_toolTransitionButton_clicked();
+
+	void transition_menu_select(QAction*);
 
 private:
 	QVector<QPushButton*> tool_buttons;

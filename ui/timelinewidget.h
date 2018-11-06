@@ -76,10 +76,7 @@ private:
 
 	int scroll;
 
-    SetSelectionsCommand* selection_command;
-
-	/*QVector<QTreeWidgetItem*> file_import_items;
-	QVector<Media*> file_import_media;*/
+	SetSelectionsCommand* selection_command;
 signals:
 
 public slots:

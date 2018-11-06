@@ -8,7 +8,6 @@
 #include "effects/effect.h"
 #include "panels/timeline.h"
 #include "panels/project.h"
-#include "effects/transition.h"
 #include "debug.h"
 
 extern "C" {
@@ -47,24 +46,24 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 	if (c->opening_transition != NULL) {
 		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
 			double transition_start = (c->clip_in / c->sequence->frame_rate);
-			double transition_end = transition_start + (c->opening_transition->length / c->sequence->frame_rate);
+			double transition_end = ((c->clip_in + c->opening_transition->length) / c->sequence->frame_rate);
 			if (timecode_end < transition_end) {
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-				c->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, false);
+				c->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_OPEN);
 			}
 		}
 	}
 	if (c->closing_transition != NULL) {
 		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+			double transition_start = (c->clip_in + c->getLength() - c->closing_transition->length) / c->sequence->frame_rate;
 			double transition_end = (c->clip_in + c->getLength()) / c->sequence->frame_rate;
-			double transition_start = transition_end - (c->closing_transition->length / c->sequence->frame_rate);
 			if (timecode_start > transition_start) {
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-				c->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, true);
+				c->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_CLOSE);
 			}
 		}
 	}
@@ -485,7 +484,6 @@ void cache_video_worker(Clip* c, long playhead) {
 }
 
 void reset_cache(Clip* c, long target_frame) {
-	dout << "reset called";
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
 	switch (c->media_type) {
 	case MEDIA_TYPE_FOOTAGE:

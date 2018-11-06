@@ -10,7 +10,6 @@
 
 class Cacher;
 class Effect;
-class Transition;
 class QOpenGLFramebufferObject;
 class ComboAction;
 struct Sequence;
@@ -73,8 +72,8 @@ struct Clip
 	// other variables (should be deep copied/duplicated in copy())
     QList<Effect*> effects;
     QVector<int> linked;
-    Transition* opening_transition;
-    Transition* closing_transition;
+	Effect* opening_transition;
+	Effect* closing_transition;
 
 	// media handling
     AVFormatContext* formatCtx;

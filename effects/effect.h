@@ -29,6 +29,7 @@ struct EffectMeta {
     QString category;
     QString filename;
 	int internal;
+	int type;
 };
 
 extern QVector<EffectMeta> video_effects;
@@ -44,6 +45,8 @@ extern QMutex effects_loaded;
 #define EFFECT_TYPE_INVALID 0
 #define EFFECT_TYPE_VIDEO 1
 #define EFFECT_TYPE_AUDIO 2
+#define EFFECT_TYPE_EFFECT 3
+#define EFFECT_TYPE_TRANSITION 4
 
 #define EFFECT_FIELD_DOUBLE 0
 #define EFFECT_FIELD_COLOR 1
@@ -64,7 +67,16 @@ extern QMutex effects_loaded;
 #define EFFECT_INTERNAL_PAN 5
 #define EFFECT_INTERNAL_TONE 6
 #define EFFECT_INTERNAL_SHAKE 7
-#define EFFECT_INTERNAL_COUNT 8
+#define EFFECT_INTERNAL_CROSSDISSOLVE 8
+#define EFFECT_INTERNAL_LINEARFADE 9
+#define EFFECT_INTERNAL_EXPONENTIALFADE	10
+#define EFFECT_INTERNAL_LOGARITHMICFADE 11
+#define EFFECT_INTERNAL_COUNT 12
+
+#define TRAN_TYPE_OPEN 1
+#define TRAN_TYPE_CLOSE 2
+#define TRAN_TYPE_OPENWLINK 3
+#define TRAN_TYPE_CLOSEWLINK 4
 
 struct GLTextureCoords {
 	int vertexTopLeftX;
@@ -193,6 +205,9 @@ public:
 	QString name;
 	CollapsibleWidget* container;
 
+	long length; // only used for transitions
+	Effect* tlink;
+
 	EffectRow* add_row(const QString &name);
 	EffectRow* row(int i);
 	int row_count();
@@ -205,7 +220,7 @@ public:
 	Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
-    void load(QXmlStreamReader& stream);
+	void load(QXmlStreamReader& stream);
     void save(QXmlStreamWriter& stream);
 
 	// glsl handling

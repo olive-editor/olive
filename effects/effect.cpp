@@ -29,6 +29,10 @@
 #include "effects/internal/volumeeffect.h"
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
+#include "effects/internal/crossdissolvetransition.h"
+#include "effects/internal/linearfadetransition.h"
+#include "effects/internal/exponentialfadetransition.h"
+#include "effects/internal/logarithmicfadetransition.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -52,14 +56,18 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 	} else if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
 		// must be an internal effect
 		switch (em->internal) {
-		case EFFECT_INTERNAL_TRANSFORM: return new TransformEffect(c, em); break;
-		case EFFECT_INTERNAL_TEXT: return new TextEffect(c, em); break;
-		case EFFECT_INTERNAL_SOLID: return new SolidEffect(c, em); break;
-		case EFFECT_INTERNAL_NOISE: return new AudioNoiseEffect(c, em); break;
-		case EFFECT_INTERNAL_VOLUME: return new VolumeEffect(c, em); break;
-		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em); break;
-		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em); break;
-		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em); break;
+		case EFFECT_INTERNAL_TRANSFORM: return new TransformEffect(c, em);
+		case EFFECT_INTERNAL_TEXT: return new TextEffect(c, em);
+		case EFFECT_INTERNAL_SOLID: return new SolidEffect(c, em);
+		case EFFECT_INTERNAL_NOISE: return new AudioNoiseEffect(c, em);
+		case EFFECT_INTERNAL_VOLUME: return new VolumeEffect(c, em);
+		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em);
+		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
+		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
+		case EFFECT_INTERNAL_CROSSDISSOLVE: return new CrossDissolveTransition(c, em);
+		case EFFECT_INTERNAL_LINEARFADE: return new LinearFadeTransition(c, em);
+		case EFFECT_INTERNAL_EXPONENTIALFADE: return new ExponentialFadeTransition(c, em);
+		case EFFECT_INTERNAL_LOGARITHMICFADE: return new LogarithmicFadeTransition(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -84,6 +92,9 @@ const EffectMeta* get_internal_meta(int internal_id) {
 
 void load_internal_effects() {
 	EffectMeta em;
+
+	// internal effects
+	em.type = EFFECT_TYPE_EFFECT;
 
 	em.name = "Volume";
 	em.internal = EFFECT_INTERNAL_VOLUME;
@@ -120,6 +131,27 @@ void load_internal_effects() {
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_SHAKE;
 	video_effects.append(em);
+
+
+	// internal transitions
+	em.type = EFFECT_TYPE_TRANSITION;
+	em.category = "";
+
+	em.name = "Cross Dissolve";
+	em.internal = EFFECT_INTERNAL_CROSSDISSOLVE;
+	video_effects.append(em);
+
+	em.name = "Linear Fade";
+	em.internal = EFFECT_INTERNAL_LINEARFADE;
+	audio_effects.append(em);
+
+	em.name = "Exponential Fade";
+	em.internal = EFFECT_INTERNAL_EXPONENTIALFADE;
+	audio_effects.append(em);
+
+	em.name = "Logarithmic Fade";
+	em.internal = EFFECT_INTERNAL_LOGARITHMICFADE;
+	audio_effects.append(em);
 }
 
 void load_shader_effects() {
@@ -203,7 +235,9 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	isOpen(false),
 	glslProgram(NULL),
 	texture(NULL),
-	bound(false)
+	bound(false),
+	tlink(NULL),
+	length(30)
 {
     // set up base UI
     container = new CollapsibleWidget();    
@@ -536,7 +570,9 @@ QString save_data_to_string(int type, const QVariant& data) {
 void Effect::load(QXmlStreamReader& stream) {
 	int row_count = 0;
 
-	while (!stream.atEnd() && !(stream.name() == "effect" && stream.isEndElement())) {
+	QString tag = stream.name().toString();
+
+	while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
 		stream.readNext();
 		if (stream.name() == "row" && stream.isStartElement()) {
 			if (row_count < rows.size()) {
@@ -552,7 +588,6 @@ void Effect::load(QXmlStreamReader& stream) {
 							const QXmlStreamAttribute& attr = stream.attributes().at(k);
 							if (attr.name() == "enabled") {
 								row->setKeyframing(attr.value() == "1");
-								break;
 							}
 						}
 						if (row->isKeyframing()) {
@@ -638,6 +673,10 @@ void Effect::load(QXmlStreamReader& stream) {
 }
 
 void Effect::save(QXmlStreamWriter& stream) {
+	stream.writeAttribute("name", meta->name);
+	stream.writeAttribute("enabled", QString::number(is_enabled()));
+	stream.writeAttribute("length", QString::number(length));
+
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
         stream.writeStartElement("row"); // row
@@ -716,6 +755,7 @@ void Effect::endEffect() {
 Effect* Effect::copy(Clip* c) {
 	Effect* copy = create_effect(c, meta);
 	copy->set_enabled(is_enabled());
+	copy->length = length;
     copy_field_keyframes(copy);
     return copy;
 }
