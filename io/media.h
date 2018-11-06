@@ -53,8 +53,7 @@ struct Media {
     int save_id;
     bool ready;
 
-	PreviewGenerator* preview_gen;
-	MediaThrobber* throbber;
+    PreviewGenerator* preview_gen;
     QMutex ready_lock;
 
     bool using_inout;

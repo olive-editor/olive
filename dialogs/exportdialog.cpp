@@ -435,6 +435,9 @@ void ExportDialog::on_pushButton_clicked() {
 	case FORMAT_MOV:
 		ext = "mov";
 		break;
+    case FORMAT_WAV:
+        ext = "wav";
+        break;
 	case FORMAT_WEBM:
 		ext = "webm";
 		break;

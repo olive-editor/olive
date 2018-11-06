@@ -322,9 +322,9 @@ void ExportThread::run() {
 
 	continueEncode = setupContainer();
 
-	if (continueEncode) continueEncode = setupVideo();
+    if (video_enabled && continueEncode) continueEncode = setupVideo();
 
-	if (continueEncode) continueEncode = setupAudio();
+    if (audio_enabled && continueEncode) continueEncode = setupAudio();
 
 	if (continueEncode) {
 		ret = avformat_write_header(fmt_ctx, NULL);
@@ -412,8 +412,8 @@ void ExportThread::run() {
 	if (continueEncode) {
 		// flush remaining packets
 		while (continueVideo && continueAudio) {
-			if (continueVideo) continueVideo = encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream);
-			if (continueAudio) continueAudio = encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream);
+            if (continueVideo && video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream);
+            if (continueAudio && audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream);
 		}
 
 		ret = av_write_trailer(fmt_ctx);

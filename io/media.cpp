@@ -10,7 +10,7 @@ extern "C" {
 
 #include "project/clip.h"
 
-Media::Media() : ready(false), preview_gen(NULL), throbber(NULL) {
+Media::Media() : ready(false), preview_gen(NULL) {
     ready_lock.lock();
 }
 
@@ -22,10 +22,7 @@ void Media::reset() {
 	if (preview_gen != NULL) {
 		preview_gen->cancel();
 		preview_gen->wait();
-	}
-	if (throbber != NULL) {
-		delete throbber;
-	}
+    }
     for (int i=0;i<video_tracks.size();i++) {
         delete video_tracks.at(i);
     }

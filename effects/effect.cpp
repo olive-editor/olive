@@ -253,6 +253,10 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
     // set up UI from effect file
 	container->setText(em->name);
 
+    if (em->type == EFFECT_TYPE_TRANSITION) {
+        add_row("Length:")->add_field(EFFECT_FIELD_DOUBLE);
+    }
+
 	if (!em->filename.isEmpty()) {
 		QFile effect_file(get_effects_dir() + "/" + em->filename);
 		if (effect_file.open(QFile::ReadOnly)) {
