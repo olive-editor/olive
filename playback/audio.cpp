@@ -50,7 +50,8 @@ void init_audio(Sequence* s) {
 
 		QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
 		if (!info.isFormatSupported(audio_format)) {
-			qWarning() << "[WARNING] Couldn't initialize audio. Audio format is not supported by backend";
+			qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
+			audio_format = info.nearestFormat(audio_format);
 		} else {
 			audio_output = new QAudioOutput(audio_format);
 			audio_output->setNotifyInterval(5);

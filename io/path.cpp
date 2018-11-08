@@ -7,7 +7,7 @@
 QString real_app_dir;
 
 QString get_effects_dir() {
-    return get_app_dir() + "/effects";
+	return get_app_dir() + "/effects";
 }
 
 QString get_app_dir() {

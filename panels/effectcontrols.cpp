@@ -188,7 +188,7 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 		for (int i=0;i<effect_list.size();i++) {
 			const EffectMeta& em = effect_list.at(i);
 
-			if (em.type == EFFECT_TYPE_TRANSITION == transition_menu) {
+			if ((em.type == EFFECT_TYPE_TRANSITION) == transition_menu) {
 				QAction* action = new QAction(&effects_menu);
 				action->setText(em.name);
 				action->setData(reinterpret_cast<quintptr>(&em));
