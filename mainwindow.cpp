@@ -63,9 +63,7 @@ void MainWindow::setup_layout() {
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 
 	// workaround for older versions of Qt (but not too old)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0) // adds compatibility with 5.5
-	resizeDocks({panel_project}, {40}, Qt::Horizontal);
-#endif
+	layout()->update();
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -106,6 +104,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	statusBar()->showMessage("Welcome to " + appName);
 
     setDockNestingEnabled(true);
+
+	layout()->invalidate();
 
     // TODO maybe replace these with non-pointers later on?
     panel_sequence_viewer = new Viewer(this);
