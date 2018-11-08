@@ -34,7 +34,7 @@ private:
 	void mouseMoveEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
-    void draw_keyframe(QPainter& p, int x, int y, bool darker);
+    void draw_keyframe(QPainter& p, int type, int x, int y, bool darker);
     bool mousedown;
 	bool dragging;
 	bool keys_selected;
@@ -51,6 +51,9 @@ private:
 
 	int x_scroll;
 	int y_scroll;
+private slots:
+    void show_context_menu(const QPoint& pos);
+    void menu_set_key_type(QAction*);
 };
 
 #endif // KEYFRAMEVIEW_H

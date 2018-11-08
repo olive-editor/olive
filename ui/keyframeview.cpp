@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QtMath>
+#include <QMenu>
 
 #define KEYFRAME_SIZE 6
 #define KEYFRAME_POINT_COUNT 4
@@ -37,6 +38,32 @@ KeyframeView::KeyframeView(QWidget *parent) :
 {
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
+}
+
+void KeyframeView::show_context_menu(const QPoint& pos) {
+    if (selected_rows.size() > 0) {
+        QMenu menu(this);
+        QAction* linear = menu.addAction("Linear");
+        linear->setData(KEYFRAME_TYPE_LINEAR);
+        QAction* smooth = menu.addAction("Smooth");
+        smooth->setData(KEYFRAME_TYPE_SMOOTH);
+        /*QAction* bezier = menu.addAction("Bezier");
+        bezier->setData(KEYFRAME_TYPE_BEZIER);*/
+        connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_set_key_type(QAction*)));
+        menu.exec(mapToGlobal(pos));
+    }
+}
+
+void KeyframeView::menu_set_key_type(QAction* a) {
+    ComboAction* ca = new ComboAction();
+    for (int i=0;i<selected_rows.size();i++) {
+        ca->append(new SetInt(&selected_rows.at(i)->keyframe_types[selected_keyframes.at(i)], a->data().toInt()));
+    }
+    undo_stack.push(ca);
+    update();
 }
 
 void KeyframeView::paintEvent(QPaintEvent*) {
@@ -71,7 +98,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 							bool keyframe_selected = keyframeIsSelected(row, k);
 							long keyframe_frame = adjust_row_keyframe(row, row->keyframe_times.at(k));
 							if (dragging && keyframe_selected) keyframe_frame += frame_diff;
-							draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
+                            draw_keyframe(p, row->keyframe_types.at(k), getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
 						}
 
 						rows.append(row);
@@ -144,12 +171,22 @@ void KeyframeView::set_y_scroll(int s) {
 	update();
 }
 
-void KeyframeView::draw_keyframe(QPainter &p, int x, int y, bool darker) {
-	QPoint points[KEYFRAME_POINT_COUNT] = {QPoint(x-KEYFRAME_SIZE, y), QPoint(x, y-KEYFRAME_SIZE), QPoint(x+KEYFRAME_SIZE, y), QPoint(x, y+KEYFRAME_SIZE)};
+void KeyframeView::draw_keyframe(QPainter &p, int type, int x, int y, bool darker) {
     int color = (darker) ? 100 : 160;
     p.setPen(QColor(0, 0, 0));
     p.setBrush(QColor(color, color, color));
-	p.drawPolygon(points, KEYFRAME_POINT_COUNT);
+
+    switch (type) {
+    case KEYFRAME_TYPE_LINEAR:
+    {
+        QPoint points[KEYFRAME_POINT_COUNT] = {QPoint(x-KEYFRAME_SIZE, y), QPoint(x, y-KEYFRAME_SIZE), QPoint(x+KEYFRAME_SIZE, y), QPoint(x, y+KEYFRAME_SIZE)};
+        p.drawPolygon(points, KEYFRAME_POINT_COUNT);
+    }
+        break;
+    case KEYFRAME_TYPE_SMOOTH:
+        p.drawEllipse(QPoint(x, y), KEYFRAME_SIZE, KEYFRAME_SIZE);
+        break;
+    }
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {
