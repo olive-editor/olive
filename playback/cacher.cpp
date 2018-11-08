@@ -676,19 +676,36 @@ void open_clip_worker(Clip* clip) {
 				dout << "[ERROR] Could not set output pixel format";
 			}
 
-			if (ms->video_interlacing == VIDEO_PROGRESSIVE) {
-                avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
-			} else {
+            AVFilterContext* last_filter = clip->buffersrc_ctx;
+
+            if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 				AVFilterContext* yadif_filter;
 				char yadif_args[100];
 				snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // try mode 1
 				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, NULL, clip->filter_graph);
 
-				avfilter_link(clip->buffersrc_ctx, 0, yadif_filter, 0);
-				avfilter_link(yadif_filter, 0, clip->buffersink_ctx, 0);
+                avfilter_link(last_filter, 0, yadif_filter, 0);
+                last_filter = yadif_filter;
 			}
 
-			avfilter_graph_config(clip->filter_graph, NULL);
+            /* stabilization code one day
+            if (false) {
+                AVFilterContext* stab_filter;
+                int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=C\\:/Users/Matt/Desktop/samples/transforms.trf", NULL, clip->filter_graph);
+                if (stab_ret < 0) {
+                    char err[100];
+                    av_strerror(stab_ret, err, sizeof(err));
+                    dout << "stab ret:" << stab_ret << err;
+                } else {
+                    dout << "link 1:" << avfilter_link(last_filter, 0, stab_filter, 0);
+                    last_filter = stab_filter;
+                }
+            }
+            */
+
+            avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
+
+            avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			if (clip->codecCtx->channel_layout == 0) clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
 
