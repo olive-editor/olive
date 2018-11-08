@@ -99,7 +99,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 
 	updateTitle("");
-	setWindowState(Qt::WindowMaximized);
 
 	statusBar()->showMessage("Welcome to " + appName);
 
