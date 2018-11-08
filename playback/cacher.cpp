@@ -326,7 +326,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence, timeline_out);
             audio_write_lock.lock();
 			while (c->frame_sample_index < nb_bytes
-				   && c->audio_buffer_write < audio_ibuffer_read+audio_ibuffer_size-AUDIO_BUFFER_PADDING
+				   && c->audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
 				   && c->audio_buffer_write < buffer_timeline_out) {
 				int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
 				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;

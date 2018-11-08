@@ -46,7 +46,7 @@ QMainWindow* mainWindow;
 
 QTimer autorecovery_timer;
 QString config_dir;
-QString appName = "Olive (October 2018 | Alpha)";
+QString appName = "Olive (November 2018 | Alpha)";
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout() {
@@ -62,8 +62,10 @@ void MainWindow::setup_layout() {
     addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 
-	// workaround for older versions of Qt
+	// workaround for older versions of Qt (but not too old)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0) // adds compatibility with 5.5
 	resizeDocks({panel_project}, {40}, Qt::Horizontal);
+#endif
 }
 
 MainWindow::MainWindow(QWidget *parent) :
