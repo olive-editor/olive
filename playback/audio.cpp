@@ -52,21 +52,21 @@ void init_audio(Sequence* s) {
 		if (!info.isFormatSupported(audio_format)) {
 			qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
 			audio_format = info.nearestFormat(audio_format);
-		} else {
-			audio_output = new QAudioOutput(audio_format);
-			audio_output->setNotifyInterval(5);
-
-			// connect
-			audio_io_device = audio_output->start();
-			audio_device_set = true;
-
-			// start sender thread
-			audio_thread = new AudioSenderThread();
-			QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
-			audio_thread->start(QThread::TimeCriticalPriority);
-
-            clear_audio_ibuffer();
 		}
+
+		audio_output = new QAudioOutput(audio_format);
+		audio_output->setNotifyInterval(5);
+
+		// connect
+		audio_io_device = audio_output->start();
+		audio_device_set = true;
+
+		// start sender thread
+		audio_thread = new AudioSenderThread();
+		QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
+		audio_thread->start(QThread::TimeCriticalPriority);
+
+		clear_audio_ibuffer();
 	}
 }
 
