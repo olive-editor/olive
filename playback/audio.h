@@ -36,7 +36,7 @@ extern AudioSenderThread* audio_thread;
 extern QMutex audio_write_lock;
 
 #define audio_ibuffer_size 192000
-extern qint8 audio_ibuffer[audio_ibuffer_size];
+extern uint8_t audio_ibuffer[audio_ibuffer_size];
 extern int audio_ibuffer_read;
 extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;

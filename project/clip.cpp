@@ -89,23 +89,17 @@ void Clip::reset() {
 }
 
 void Clip::reset_audio() {
-    switch (media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	case MEDIA_TYPE_TONE:
-        audio_reset = true;
-		frame_sample_index = -1;
-		audio_buffer_write = 0;
-        break;
-	case MEDIA_TYPE_SEQUENCE:
-    {
-        Sequence* nested_sequence = static_cast<Sequence*>(media);
-        for (int i=0;i<nested_sequence->clips.size();i++) {
-            Clip* c = nested_sequence->clips.at(i);
-            if (c != NULL) c->reset_audio();
-        }
-    }
-        break;
-    }
+	audio_reset = true;
+	frame_sample_index = -1;
+	audio_buffer_write = 0;
+
+	if (media_type == MEDIA_TYPE_SEQUENCE) {
+		Sequence* nested_sequence = static_cast<Sequence*>(media);
+		for (int i=0;i<nested_sequence->clips.size();i++) {
+			Clip* c = nested_sequence->clips.at(i);
+			if (c != NULL) c->reset_audio();
+		}
+	}
 }
 
 void Clip::refresh() {

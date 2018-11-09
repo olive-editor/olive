@@ -247,7 +247,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 							// if thread is already working, we don't want to touch this,
 							// but we also don't want to hang the UI thread
 							if (!c->open) {
-								open_clip(c, !rendering);
+								open_clip(c, !rendering, nest);
 							}
 							clip_is_active = true;
 						} else if (c->open) {
@@ -262,7 +262,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				case MEDIA_TYPE_SOLID:
 				case MEDIA_TYPE_TONE:
 					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !rendering);
+						if (!c->open) open_clip(c, !rendering, nest);
 						clip_is_active = true;
 					} else if (c->open) {
 						close_clip(c);
@@ -442,18 +442,13 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				}
             } else {
                 if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
-					switch (c->media_type) {
-					case MEDIA_TYPE_FOOTAGE:
-					case MEDIA_TYPE_TONE:
-						if (c->lock.tryLock()) {
-                            // clip is not caching, start caching audio
-                            cache_clip(c, playhead, c->audio_reset, !render_audio, nest);
-							c->lock.unlock();
-						}
-						break;
-					case MEDIA_TYPE_SEQUENCE:
+					if (c->media_type == MEDIA_TYPE_SEQUENCE) {
 						compose_sequence(c, render_audio);
-						break;
+					}
+					if (c->lock.tryLock()) {
+						// clip is not caching, start caching audio
+						cache_clip(c, playhead, c->audio_reset, !render_audio, nest);
+						c->lock.unlock();
 					}
 				}
 
