@@ -120,6 +120,7 @@ struct Clip
 	int64_t reverse_target;
     int frame_sample_index;
     int audio_buffer_write;
+	double audio_buffer_offset;
     bool audio_reset;
     bool audio_just_reset;
 	long audio_target_frame;

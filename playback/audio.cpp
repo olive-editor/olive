@@ -29,7 +29,7 @@ QAudioInput* audio_input = NULL;
 QFile output_recording;
 bool recording = false;
 
-qint8 audio_ibuffer[audio_ibuffer_size];
+uint8_t audio_ibuffer[audio_ibuffer_size];
 int audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
 double audio_ibuffer_timecode = 0;

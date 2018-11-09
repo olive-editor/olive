@@ -26,17 +26,30 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 #ifdef QT_DEBUG
-#define GCF_DEBUG
+//#define GCF_DEBUG
 #endif
 
 bool texture_failed = false;
 bool rendering = false;
 
-void open_clip(Clip* clip, bool multithreaded) {
-	switch (clip->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	case MEDIA_TYPE_TONE:
+void open_clip(Clip* clip, bool multithreaded, Clip* nest) {
+	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE || (clip->media_type == MEDIA_TYPE_SEQUENCE && clip->track >= 0)) {
 		clip->multithreaded = multithreaded;
+
+		if (clip->media_type == MEDIA_TYPE_SEQUENCE) {
+			clip->frame = av_frame_alloc();
+			clip->frame->format = AV_SAMPLE_FMT_S16;
+			clip->frame->nb_samples = 48000;
+			clip->frame->channel_layout = AV_CH_LAYOUT_STEREO;
+			clip->frame->channels = 2;
+			clip->audio_buffer_offset = ((double) (clip->timeline_in - clip->clip_in) / clip->sequence->frame_rate) - audio_ibuffer_timecode; // may be unnecessary
+			clip->frame->pkt_dts = clip->audio_buffer_offset * sequence->audio_frequency * av_get_bytes_per_sample(static_cast<AVSampleFormat>(clip->frame->format)) * clip->frame->channels;
+			if (nest != NULL) clip->audio_buffer_offset += nest->audio_buffer_offset;
+			av_frame_get_buffer(clip->frame, 0);
+			memset(clip->frame->data[0], 0, clip->frame->nb_samples*av_get_bytes_per_sample(static_cast<AVSampleFormat>(clip->frame->format))*clip->frame->channels);
+			clip->reset_audio();
+		}
+
 		if (multithreaded) {
 			if (clip->open_lock.tryLock()) {
 				// maybe keep cacher instance in memory while clip exists for performance?
@@ -50,11 +63,8 @@ void open_clip(Clip* clip, bool multithreaded) {
 
 			open_clip_worker(clip);
 		}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-	case MEDIA_TYPE_SOLID:
+	} else if (clip->media_type == MEDIA_TYPE_SEQUENCE || clip->media_type == MEDIA_TYPE_SOLID) {
 		clip->open = true;
-		break;
 	}
 }
 
@@ -77,36 +87,32 @@ void close_clip(Clip* clip) {
 		clip->fbo = NULL;
 	}
 
-	switch (clip->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	case MEDIA_TYPE_TONE:
+	if (clip->media_type == MEDIA_TYPE_SEQUENCE) {
+		closeActiveClips(static_cast<Sequence*>(clip->media), false);
+	}
+
+	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE || (clip->media_type == MEDIA_TYPE_SEQUENCE && clip->track >= 0)) {
 		if (clip->multithreaded) {
 			clip->cacher->caching = false;
 			clip->can_cache.wakeAll();
 		} else {
 			close_clip_worker(clip);
 		}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-		closeActiveClips(static_cast<Sequence*>(clip->media), false);
-	case MEDIA_TYPE_SOLID:
+	} else if (clip->media_type == MEDIA_TYPE_SEQUENCE || clip->media_type == MEDIA_TYPE_SOLID) {
 		clip->open = false;
-		break;
 	}
 }
 
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, Clip* nest) {
-	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE) {
-		if (clip->multithreaded) {
-			clip->cacher->playhead = playhead;
-			clip->cacher->reset = reset;
-			clip->cacher->nest = nest;
-            clip->cacher->scrubbing = scrubbing;
+	if (clip->multithreaded) {
+		clip->cacher->playhead = playhead;
+		clip->cacher->reset = reset;
+		clip->cacher->nest = nest;
+		clip->cacher->scrubbing = scrubbing;
 
-			clip->can_cache.wakeAll();
-		} else {
-            cache_clip_worker(clip, playhead, reset, scrubbing, nest);
-		}
+		clip->can_cache.wakeAll();
+	} else {
+		cache_clip_worker(clip, playhead, reset, scrubbing, nest);
 	}
 }
 

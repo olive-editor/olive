@@ -36,8 +36,7 @@ double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
 
 void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes) {
 	// perform all aud io effects
-	double timecode_end;
-	timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
+	double timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
 
     for (int j=0;j<c->effects.size();j++) {
 		Effect* e = c->effects.at(j);
@@ -71,12 +70,16 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 
 #define AUDIO_BUFFER_PADDING 2048
 
+int get_read_buffer_index(Clip* nest) {
+	return (nest == NULL) ? audio_ibuffer_read : nest->frame->pts;
+}
+
 void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
     if (nest != NULL) {
-        timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
-        timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
+		timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, nest->sequence->frame_rate) + nest->timeline_in - nest->clip_in;
+		timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, nest->sequence->frame_rate) + nest->timeline_in - nest->clip_in;
     }
 
     while (true) {
@@ -271,7 +274,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 #endif
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
 
-				int offset = (audio_ibuffer_read + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
+				int offset = get_read_buffer_index(nest) + AUDIO_BUFFER_PADDING - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
 					c->frame_sample_index += offset;
@@ -307,44 +310,97 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
-				int offset = audio_ibuffer_read - c->audio_buffer_write;
+				int offset = (get_read_buffer_index(nest) + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
 					c->frame_sample_index += offset;
 				}
 			}
 			break;
-		default: // shouldn't ever get here
-			dout << "[ERROR] Tried to cache a non-footage/tone clip";
-			return;
+		case MEDIA_TYPE_SEQUENCE:
+			frame = c->frame;
+			nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+
+			if (c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) {
+				c->frame_sample_index = 0;
+
+				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
+
+				int offset = (get_read_buffer_index(nest) + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
+				if (offset > 0) {
+					c->audio_buffer_write += offset;
+					c->frame_sample_index += offset;
+					c->frame->pts += offset;
+				}
+			}
+
+
+
+			//c->audio_buffer_write = 0;
+
+			/*while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
+				// create "new frame"
+				int offset = (get_read_buffer_index(nest) + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
+				if (offset > 0) {
+					c->audio_buffer_write += offset;
+					c->frame_sample_index += offset;
+				}
+			}*/
+			break;
         }
 
-		// mix audio into internal buffer
+		// mix audio into internal buffer		
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
 			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence, timeline_out);
-            audio_write_lock.lock();
+
+			int max_write = (nest == NULL) ? audio_ibuffer_size : nest->frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(nest->frame->format)) * nest->frame->channels;
+			if (nest == NULL) {
+				audio_write_lock.lock();
+			} else {
+				c->queue_lock.lock();
+			}
+			uint8_t* buffer = (nest == NULL) ? audio_ibuffer : nest->frame->data[0];
+
+			dout << c->name << "|" <<
+					c->audio_buffer_write << "<" << get_read_buffer_index(nest)+(max_write>>1) << "|" <<
+					c->audio_buffer_write << "<" << buffer_timeline_out << "|" <<
+					c->frame_sample_index << "<" << nb_bytes << "|";
+
 			while (c->frame_sample_index < nb_bytes
-				   && c->audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
+				   && c->audio_buffer_write < get_read_buffer_index(nest)+(max_write>>1)
 				   && c->audio_buffer_write < buffer_timeline_out) {
-				int upper_byte_index = (c->audio_buffer_write+1)%audio_ibuffer_size;
-				int lower_byte_index = (c->audio_buffer_write)%audio_ibuffer_size;
-				qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
-				qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
+				int upper_byte_index = (c->audio_buffer_write+1)%max_write;
+				int lower_byte_index = (c->audio_buffer_write)%max_write;
+				qint16 old_sample = static_cast<int16_t>((buffer[upper_byte_index] & 0xFF) << 8 | (buffer[lower_byte_index] & 0xFF));
+				qint16 new_sample = static_cast<int16_t>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
 				qint16 mixed_sample = mix_audio_sample(old_sample, new_sample);
 
-				audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
-				audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);
+				buffer[upper_byte_index] = static_cast<uint8_t>((mixed_sample >> 8) & 0xFF);
+				buffer[lower_byte_index] = static_cast<uint8_t>(mixed_sample & 0xFF);
+
+				if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+					frame->data[0][c->frame_sample_index+1] = 0;
+					frame->data[0][c->frame_sample_index] = 0;
+					c->frame->pts += 2;
+				}
 
 				c->audio_buffer_write+=2;
 				c->frame_sample_index+=2;
 			}
+
+			dout << c->name << "|" << c->frame_sample_index << "<" << nb_bytes << "LELELEL";
+
 #ifdef AUDIOWARNINGS
 			if (c->audio_buffer_write >= buffer_timeline_out) dout << "timeline out at fsi" << c->frame_sample_index << "of frame ts" << c->frame->pts;
 #endif
 
-			audio_write_lock.unlock();
+			if (nest == NULL) {
+				audio_write_lock.unlock();
+			} else {
+				c->queue_lock.unlock();
+			}
 
             if (scrubbing) {
                 audio_thread->notifyReceiver();
@@ -354,6 +410,10 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 				c->frame_sample_index = -1;
 			} else {
 				// assume we have no more data to send
+				break;
+			}
+
+			if (c->media_type == MEDIA_TYPE_SEQUENCE) {
 				break;
 			}
 
@@ -556,6 +616,11 @@ void reset_cache(Clip* c, long target_frame) {
 			}
 		}
 	}
+		break;
+	case MEDIA_TYPE_SEQUENCE:
+		c->frame->pts = 0;
+		c->frame_sample_index = -1;
+		c->audio_target_frame = target_frame;
 		break;
 	case MEDIA_TYPE_TONE:
 		c->reached_end = false;
@@ -836,6 +901,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, Cl
 		}
 		break;
 	case MEDIA_TYPE_TONE:
+	case MEDIA_TYPE_SEQUENCE:
         cache_audio_worker(clip, scrubbing, nest);
 		break;
 	}
@@ -866,7 +932,7 @@ void Cacher::run() {
     clip->lock.lock();
     clip->finished_opening = false;
     clip->open = true;
-    caching = true;
+	caching = true;
 
 	open_clip_worker(clip);
 
