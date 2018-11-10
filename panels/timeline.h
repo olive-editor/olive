@@ -146,6 +146,7 @@ public:
     QVector<Ghost> ghosts;
     bool video_ghosts;
     bool audio_ghosts;
+	bool move_insert;
 
 	// trimming
 	int trim_target;

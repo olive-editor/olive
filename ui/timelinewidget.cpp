@@ -466,6 +466,7 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
     if (sequence != NULL && panel_timeline->importing) {
 		QPoint pos = event->pos();
         update_ghosts(pos);
+		panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
 		update_ui(false);
 	}
 }
@@ -903,6 +904,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (sequence != NULL) {
         bool alt = (event->modifiers() & Qt::AltModifier);
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
+		bool ctrl = (event->modifiers() & Qt::ControlModifier);
 
 		if (event->button() == Qt::LeftButton) {
             ComboAction* ca = new ComboAction();
@@ -925,6 +927,18 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						c->color_g = 192;
 						c->color_b = 64;
 						c->track = g.track;
+
+						if (ctrl) {
+							insert_clips(ca);
+						} else {
+							Selection s;
+							s.in = c->timeline_in;
+							s.out = c->timeline_out;
+							s.track = c->track;
+							QVector<Selection> areas;
+							areas.append(s);
+							panel_timeline->delete_areas_and_relink(ca, areas);
+						}
 
 						QVector<Clip*> add;
 						add.append(c);
@@ -970,14 +984,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							c->media_type = MEDIA_TYPE_TONE;
 						}
 
-						Selection s;
-						s.in = c->timeline_in;
-						s.out = c->timeline_out;
-						s.track = c->track;
-						QVector<Selection> areas;
-						areas.append(s);
-                        panel_timeline->delete_areas_and_relink(ca, areas);
-
 						push_undo = true;
 
 						if (!shift) {
@@ -996,8 +1002,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						 // ripple_length becomes the length/number of frames we trimmed
 						 // ripple point becomes the point to ripple (i.e. the point after or before which we move every clip)
 						 if (panel_timeline->trim_in_point) {
-							 ripple_length = first_ghost.old_in - panel_timeline->ghosts.at(0).in;
+							 ripple_length = first_ghost.old_in - first_ghost.in;
 							 ripple_point = first_ghost.old_in;
+
+							 for (int i=0;i<sequence->selections.size();i++) {
+								 sequence->selections[i].in += ripple_length;
+								 sequence->selections[i].out += ripple_length;
+							 }
 						 } else {
 							 // if we're trimming an out-point
 							 ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
@@ -1060,7 +1071,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						 }
 					 } else {
 						 // INSERT if holding ctrl
-						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (event->modifiers() & Qt::ControlModifier)) {
+						 if (panel_timeline->tool == TIMELINE_TOOL_POINTER && ctrl) {
 							 insert_clips(ca);
 						 } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
 							// move clips
@@ -1592,6 +1603,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
 		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
         panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
+
+		panel_timeline->move_insert = ((event->modifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing || panel_timeline->creating));
 
 		if (isLiveEditing()) {
 			panel_timeline->snap_to_timeline(&panel_timeline->cursor_frame, !config.edit_tool_also_seeks || !panel_timeline->selecting, true, true);
@@ -2500,19 +2513,46 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
         }
 
 		// Draw ghosts
-		for (int i=0;i<panel_timeline->ghosts.size();i++) {
-			const Ghost& g = panel_timeline->ghosts.at(i);
-			if (is_track_visible(g.track)) {
-				int ghost_x = panel_timeline->getTimelineScreenPointFromFrame(g.in);
-				int ghost_y = getScreenPointFromTrack(g.track);
-				int ghost_width = panel_timeline->getTimelineScreenPointFromFrame(g.out) - ghost_x - 1;
-                int ghost_height = panel_timeline->calculate_track_height(g.track, -1) - 1;
-				p.setPen(QColor(255, 255, 0));
-				for (int j=0;j<GHOST_THICKNESS;j++) {
-					p.drawRect(ghost_x+j, ghost_y+j, ghost_width-j-j, ghost_height-j-j);
+		if (!panel_timeline->ghosts.isEmpty()) {
+			QVector<int> insert_points;
+			long first_ghost = LONG_MAX;
+			for (int i=0;i<panel_timeline->ghosts.size();i++) {
+				const Ghost& g = panel_timeline->ghosts.at(i);
+				first_ghost = qMin(first_ghost, g.in);
+				if (is_track_visible(g.track)) {
+					int ghost_x = panel_timeline->getTimelineScreenPointFromFrame(g.in);
+					int ghost_y = getScreenPointFromTrack(g.track);
+					int ghost_width = panel_timeline->getTimelineScreenPointFromFrame(g.out) - ghost_x - 1;
+					int ghost_height = panel_timeline->calculate_track_height(g.track, -1) - 1;
+
+					insert_points.append(ghost_y + (ghost_height>>1));
+
+					p.setPen(QColor(255, 255, 0));
+					for (int j=0;j<GHOST_THICKNESS;j++) {
+						p.drawRect(ghost_x+j, ghost_y+j, ghost_width-j-j, ghost_height-j-j);
+					}
+				}
+			}
+
+			// draw insert indicator
+			dout << panel_timeline->move_insert << insert_points.isEmpty();
+			if (panel_timeline->move_insert && !insert_points.isEmpty()) {
+				p.setBrush(Qt::white);
+				p.setPen(Qt::NoPen);
+				int insert_x = panel_timeline->getTimelineScreenPointFromFrame(first_ghost);
+				int tri_size = TRACK_MIN_HEIGHT>>2;
+
+				for (int i=0;i<insert_points.size();i++) {
+					QPoint points[3] = {
+						QPoint(insert_x, insert_points.at(i) - tri_size),
+						QPoint(insert_x + tri_size, insert_points.at(i)),
+						QPoint(insert_x, insert_points.at(i) + tri_size)
+					};
+					p.drawPolygon(points, 3);
 				}
 			}
 		}
+
 
         // Draw splitting cursor
         if (panel_timeline->splitting) {

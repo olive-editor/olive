@@ -63,7 +63,8 @@ Timeline::Timeline(QWidget *parent) :
     scroll(0),
     transition_tool_clip(-1),
     transition_tool_init(false),
-    transition_tool_proc(false)
+	transition_tool_proc(false),
+	move_insert(false)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
