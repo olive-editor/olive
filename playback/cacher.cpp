@@ -36,7 +36,9 @@ double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
 	return ((double) (nb_bytes >> 1) / nb_channels / sample_rate);
 }
 
-void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes) {
+void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
+	dout << c->name << timecode_start;
+
 	// perform all aud io effects
 	double timecode_end;
 	timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
@@ -69,6 +71,12 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 			}
 		}
 	}
+
+	if (!nests.isEmpty()) {
+		Clip* next_nest = nests.last();
+		nests.removeLast();
+		apply_audio_effects(next_nest, timecode_start + (((double)c->timeline_in-c->clip_in)/c->sequence->frame_rate), frame, nb_bytes, nests);
+	}
 }
 
 #define AUDIO_BUFFER_PADDING 2048
@@ -76,12 +84,27 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
+
+	long frame_skip = 0;
 	if (!nests.isEmpty()) {
+		double last_fr = c->sequence->frame_rate;
 		for (int i=nests.size()-1;i>=0;i--) {
-			timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in;
-			timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in;
+			timeline_in = refactor_frame_number(timeline_in, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
+			timeline_out = refactor_frame_number(timeline_out, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
+
+			timeline_out = qMin(timeline_out, nests.at(i)->timeline_out);
+
+			frame_skip = refactor_frame_number(frame_skip, last_fr, nests.at(i)->sequence->frame_rate);
+
+			long validator = nests.at(i)->timeline_in - timeline_in;
+			if (validator > 0) {
+				frame_skip += validator;
+				//timeline_in = nests.at(i)->timeline_in;
+			}
+
+			last_fr = nests.at(i)->sequence->frame_rate;
 		}
-    }
+	}
 
     while (true) {
 		AVFrame* frame;
@@ -273,7 +296,15 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 #ifdef AUDIOWARNINGS
 				dout << "fsi-post-post:" << c->frame_sample_index;
 #endif
-				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
+				if (c->audio_buffer_write == 0) {
+					c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
+
+					if (frame_skip > 0) {
+						int target = get_buffer_offset_from_frame(sequence, qMax(timeline_in + frame_skip, c->audio_target_frame));
+						c->frame_sample_index += (target - c->audio_buffer_write);
+						c->audio_buffer_write = target;
+					}
+				}
 
 				int offset = (audio_ibuffer_read + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
 				if (offset > 0) {
@@ -297,7 +328,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			// apply any audio effects to the data
 			if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 			if (new_frame) {
-				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, c->sequence->audio_frequency) + audio_ibuffer_timecode + ((double) (c->clip_in - c->timeline_in)/c->sequence->frame_rate), frame, nb_bytes);
+				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, c->sequence->audio_frequency) + audio_ibuffer_timecode + ((double)c->clip_in/c->sequence->frame_rate) - ((double)timeline_in/sequence->frame_rate), frame, nb_bytes, nests);
 			}
 		}
 			break;
@@ -307,7 +338,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
 				// create "new frame"
 				memset(c->frame->data[0], 0, nb_bytes);
-				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes);
+				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes, nests);
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
 				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
@@ -330,11 +361,6 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			long buffer_timeline_out = get_buffer_offset_from_frame(sequence, timeline_out);
             audio_write_lock.lock();
 
-			dout << c->name << "says" << c->frame_sample_index << nb_bytes
-				 << c->audio_buffer_write << audio_ibuffer_read+(audio_ibuffer_size>>1)
-				 << c->audio_buffer_write << buffer_timeline_out;
-			dout << c->name << "also says" << timeline_in << c->audio_target_frame;
-			int written = 0;
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
 				   && c->audio_buffer_write < buffer_timeline_out) {
@@ -349,10 +375,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 
 				c->audio_buffer_write+=2;
 				c->frame_sample_index+=2;
-
-				written += 2;
 			}
-			dout << c->name << "wrote" << written;
 
 #ifdef AUDIOWARNINGS
 			if (c->audio_buffer_write >= buffer_timeline_out) dout << "timeline out at fsi" << c->frame_sample_index << "of frame ts" << c->frame->pts;

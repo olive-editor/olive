@@ -470,13 +470,15 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				}
 
 				// visually update all the keyframe values
-                double ts = (playhead - c->timeline_in + c->clip_in)/s->frame_rate;
-				for (int i=0;i<c->effects.size();i++) {
-					Effect* e = c->effects.at(i);
-					for (int j=0;j<e->row_count();j++) {
-						EffectRow* r = e->row(j);
-						for (int k=0;k<r->fieldCount();k++) {
-							r->field(k)->validate_keyframe_data(ts);
+				if (c->sequence == viewer->seq) { // only if you can currently see them
+					double ts = (playhead - c->timeline_in + c->clip_in)/s->frame_rate;
+					for (int i=0;i<c->effects.size();i++) {
+						Effect* e = c->effects.at(i);
+						for (int j=0;j<e->row_count();j++) {
+							EffectRow* r = e->row(j);
+							for (int k=0;k<r->fieldCount();k++) {
+								r->field(k)->validate_keyframe_data(ts);
+							}
 						}
 					}
 				}
