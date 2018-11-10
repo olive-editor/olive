@@ -45,7 +45,7 @@ void clear_audio_ibuffer();
 
 void init_audio(Sequence *s);
 void stop_audio();
-int get_buffer_offset_from_frame(Sequence *s, long frame);
+int get_buffer_offset_from_frame(Sequence* s, long frame);
 
 bool start_recording();
 void stop_recording();

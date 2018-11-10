@@ -8,6 +8,7 @@
 #include "effects/effect.h"
 #include "panels/timeline.h"
 #include "panels/project.h"
+#include "playback/audio.h"
 #include "debug.h"
 
 extern "C" {
@@ -23,6 +24,7 @@ extern "C" {
 
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
+#include <QAudioOutput>
 #include <math.h>
 
 // temp debug shit
@@ -71,12 +73,14 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 
 #define AUDIO_BUFFER_PADDING 2048
 
-void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
+void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
-    if (nest != NULL) {
-        timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
-        timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, sequence->frame_rate) + nest->timeline_in;
+	if (!nests.isEmpty()) {
+		for (int i=nests.size()-1;i>=0;i--) {
+			timeline_in = refactor_frame_number(timeline_in, c->sequence->frame_rate, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in;
+			timeline_out = refactor_frame_number(timeline_out, c->sequence->frame_rate, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in;
+		}
     }
 
     while (true) {
@@ -269,7 +273,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 #ifdef AUDIOWARNINGS
 				dout << "fsi-post-post:" << c->frame_sample_index;
 #endif
-				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
+				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
 
 				int offset = (audio_ibuffer_read + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
 				if (offset > 0) {
@@ -306,7 +310,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes);
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
-				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence, qMax(timeline_in, c->audio_target_frame));
+				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
 				int offset = audio_ibuffer_read - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
@@ -323,8 +327,14 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
-			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence, timeline_out);
+			long buffer_timeline_out = get_buffer_offset_from_frame(sequence, timeline_out);
             audio_write_lock.lock();
+
+			dout << c->name << "says" << c->frame_sample_index << nb_bytes
+				 << c->audio_buffer_write << audio_ibuffer_read+(audio_ibuffer_size>>1)
+				 << c->audio_buffer_write << buffer_timeline_out;
+			dout << c->name << "also says" << timeline_in << c->audio_target_frame;
+			int written = 0;
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
 				   && c->audio_buffer_write < buffer_timeline_out) {
@@ -339,7 +349,11 @@ void cache_audio_worker(Clip* c, bool scrubbing, Clip* nest) {
 
 				c->audio_buffer_write+=2;
 				c->frame_sample_index+=2;
+
+				written += 2;
 			}
+			dout << c->name << "wrote" << written;
+
 #ifdef AUDIOWARNINGS
 			if (c->audio_buffer_write >= buffer_timeline_out) dout << "timeline out at fsi" << c->frame_sample_index << "of frame ts" << c->frame->pts;
 #endif
@@ -744,7 +758,7 @@ void open_clip_worker(Clip* clip) {
 				dout << "[ERROR] Could not set output sample format";
 			}
 
-			int target_sample_rate = clip->sequence->audio_frequency;
+			int target_sample_rate = sequence->audio_frequency;
 
 			if (qFuzzyCompare(clip->speed, 1.0)) {
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
@@ -779,7 +793,7 @@ void open_clip_worker(Clip* clip) {
 
 				avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
 			} else {
-				target_sample_rate = qRound64(clip->sequence->audio_frequency / clip->speed);
+				target_sample_rate = qRound64(target_sample_rate / clip->speed);
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 			}
 
@@ -820,7 +834,7 @@ void open_clip_worker(Clip* clip) {
 	dout << "[INFO] Clip opened on track" << clip->track;
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, Clip* nest) {
+void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests) {
 	if (reset) {
 		// note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
 		reset_cache(clip, playhead);
@@ -832,11 +846,11 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, Cl
 		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 			cache_video_worker(clip, playhead);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-            cache_audio_worker(clip, scrubbing, nest);
+			cache_audio_worker(clip, scrubbing, nests);
 		}
 		break;
 	case MEDIA_TYPE_TONE:
-        cache_audio_worker(clip, scrubbing, nest);
+		cache_audio_worker(clip, scrubbing, nests);
 		break;
 	}
 }
@@ -875,7 +889,7 @@ void Cacher::run() {
         if (!caching) {
 			break;
 		} else {
-            cache_clip_worker(clip, playhead, reset, scrubbing, nest);
+			cache_clip_worker(clip, playhead, reset, scrubbing, nests);
 		}
 	}
 
