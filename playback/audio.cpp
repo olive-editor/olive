@@ -86,18 +86,7 @@ void clear_audio_ibuffer() {
 }
 
 int get_buffer_offset_from_frame(Sequence* s, long frame) {
-	// currently debugging this function. since it has a high potential of failure and isn't actually fatal, we only assert on debug mode
-/*#ifdef QT_DEBUG
-	Q_ASSERT(frame >= audio_ibuffer_frame);
 	return qFloor(av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(s->audio_layout), qRound(((frame-audio_ibuffer_frame)/s->frame_rate)*s->audio_frequency), AV_SAMPLE_FMT_S16, 1)/4)*4;
-#else*/
-	if (frame >= audio_ibuffer_frame) {
-		return qFloor(av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(s->audio_layout), qRound(((frame-audio_ibuffer_frame)/s->frame_rate)*s->audio_frequency), AV_SAMPLE_FMT_S16, 1)/4)*4;
-	} else {
-		dout << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
-		return 0;
-	}
-//#endif
 }
 
 AudioSenderThread::AudioSenderThread() : close(false) {

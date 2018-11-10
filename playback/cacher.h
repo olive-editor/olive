@@ -2,6 +2,7 @@
 #define CACHER_H
 
 #include <QThread>
+#include <QVector>
 
 struct Clip;
 
@@ -18,14 +19,14 @@ public:
 	long playhead;
 	bool reset;
     bool scrubbing;
-    Clip* nest;
+	QVector<Clip*> nests;
 
 private:
 	Clip* clip;
 };
 
 void open_clip_worker(Clip* clip);
-void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, Clip *nest);
+void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> nests);
 void close_clip_worker(Clip* clip);
 
 #endif // CACHER_H

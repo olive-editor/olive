@@ -217,14 +217,14 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 	}
 }
 
-GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
+GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 	Sequence* s = viewer->seq;
 	long playhead = s->playhead;
 
-	if (nest != NULL) {
-		s = static_cast<Sequence*>(nest->media);
-		playhead += nest->clip_in - nest->timeline_in;
-		playhead = refactor_frame_number(playhead, nest->sequence->frame_rate, s->frame_rate);
+	if (nests.size() > 0) {
+		s = static_cast<Sequence*>(nests.last()->media);
+		playhead += nests.last()->clip_in - nests.last()->timeline_in;
+		playhead = refactor_frame_number(playhead, nests.last()->sequence->frame_rate, s->frame_rate);
 	}
 
     QVector<Clip*> current_clips;
@@ -234,7 +234,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
         // if clip starts within one second and/or hasn't finished yet
 		if (c != NULL) {
-			if (!(nest != NULL && !same_sign(c->track, nest->track))) {
+			if (!(nests.size() > 0 && !same_sign(c->track, nests.last()->track))) {
 				bool clip_is_active = false;
 
 				switch (c->media_type) {
@@ -247,7 +247,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 							// if thread is already working, we don't want to touch this,
 							// but we also don't want to hang the UI thread
 							if (!c->open) {
-								open_clip(c, !rendering, nest);
+								open_clip(c, !rendering);
 							}
 							clip_is_active = true;
 						} else if (c->open) {
@@ -262,7 +262,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 				case MEDIA_TYPE_SOLID:
 				case MEDIA_TYPE_TONE:
 					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !rendering, nest);
+						if (!c->open) open_clip(c, !rendering);
 						clip_is_active = true;
 					} else if (c->open) {
 						close_clip(c);
@@ -288,7 +288,7 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 	int half_width = s->width/2;
 	int half_height = s->height/2;
-	if (rendering || nest != NULL) half_height = -half_height; // invert vertical
+	if (rendering || nests.size() > 0) half_height = -half_height; // invert vertical
 	glPushMatrix();
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -349,7 +349,9 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 					// for nested sequences
 					if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-						textureID = compose_sequence(c, render_audio);
+						nests.append(c);
+						textureID = compose_sequence(nests, render_audio);
+						nests.removeLast();
 						fbo_switcher = true;
 					}
 
@@ -406,8 +408,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 					}
 					// EFFECT CODE END
 
-					if (nest != NULL) {
-						nest->fbo[0]->bind();
+					if (nests.size() > 0) {
+						nests.last()->fbo[0]->bind();
 						glViewport(0, 0, s->width, s->height);
 					} else if (rendering) {
 						glViewport(0, 0, s->width, s->height);
@@ -433,8 +435,8 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 					glBindTexture(GL_TEXTURE_2D, 0);
 
-					if (nest != NULL) {
-						nest->fbo[0]->release();
+					if (nests.size() > 0) {
+						nests.last()->fbo[0]->release();
 						if (default_fbo != NULL) default_fbo->bind();
 					}
 
@@ -443,11 +445,13 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
             } else {
                 if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
 					if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-						compose_sequence(c, render_audio);
+						nests.append(c);
+						compose_sequence(nests, render_audio);
+						nests.removeLast();
 					}
 					if (c->lock.tryLock()) {
 						// clip is not caching, start caching audio
-						cache_clip(c, playhead, c->audio_reset, !render_audio, nest);
+						cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
 						c->lock.unlock();
 					}
 				}
@@ -469,9 +473,9 @@ GLuint ViewerWidget::compose_sequence(Clip* nest, bool render_audio) {
 
 	glPopMatrix();
 
-	if (nest != NULL && nest->fbo != NULL) {
+	if (nests.size() > 0 && nests.last()->fbo != NULL) {
 		// returns nested clip's texture
-		return nest->fbo[0]->texture();
+		return nests.last()->fbo[0]->texture();
 	}
 
 	return 0;
@@ -494,9 +498,11 @@ void ViewerWidget::paintGL() {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		QVector<Clip*> nests;
+
 		// compose video preview
 		glClearColor(0, 0, 0, 0);
-        compose_sequence(NULL, render_audio);
+		compose_sequence(nests, render_audio);
 
 		if (waveform) {
 			double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();

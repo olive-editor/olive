@@ -32,7 +32,7 @@ extern "C" {
 bool texture_failed = false;
 bool rendering = false;
 
-void open_clip(Clip* clip, bool multithreaded, Clip* nest) {
+void open_clip(Clip* clip, bool multithreaded) {
 	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE || (clip->media_type == MEDIA_TYPE_SEQUENCE && clip->track >= 0)) {
 		clip->multithreaded = multithreaded;
 
@@ -40,12 +40,13 @@ void open_clip(Clip* clip, bool multithreaded, Clip* nest) {
 			clip->frame = av_frame_alloc();
 			clip->frame->format = AV_SAMPLE_FMT_S16;
 			clip->frame->nb_samples = 48000;
-			clip->frame->channel_layout = AV_CH_LAYOUT_STEREO;
-			clip->frame->channels = 2;
-			clip->audio_buffer_offset = ((double) (clip->timeline_in - clip->clip_in) / clip->sequence->frame_rate) - audio_ibuffer_timecode; // may be unnecessary
-			clip->frame->pkt_dts = clip->audio_buffer_offset * sequence->audio_frequency * av_get_bytes_per_sample(static_cast<AVSampleFormat>(clip->frame->format)) * clip->frame->channels;
-			if (nest != NULL) clip->audio_buffer_offset += nest->audio_buffer_offset;
-			av_frame_get_buffer(clip->frame, 0);
+			clip->frame->channel_layout = clip->sequence->audio_layout;
+			clip->frame->channels = av_get_channel_layout_nb_channels(clip->frame->channel_layout);
+
+			av_frame_make_writable(clip->frame);
+			if (av_frame_get_buffer(clip->frame, 0)) {
+				dout << "[ERROR] Could not allocate buffer for sequence audio clip";
+			}
 			memset(clip->frame->data[0], 0, clip->frame->nb_samples*av_get_bytes_per_sample(static_cast<AVSampleFormat>(clip->frame->format))*clip->frame->channels);
 			clip->reset_audio();
 		}
@@ -103,16 +104,16 @@ void close_clip(Clip* clip) {
 	}
 }
 
-void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, Clip* nest) {
+void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests) {
 	if (clip->multithreaded) {
 		clip->cacher->playhead = playhead;
 		clip->cacher->reset = reset;
-		clip->cacher->nest = nest;
+		clip->cacher->nests = nests;
 		clip->cacher->scrubbing = scrubbing;
 
 		clip->can_cache.wakeAll();
 	} else {
-		cache_clip_worker(clip, playhead, reset, scrubbing, nest);
+		cache_clip_worker(clip, playhead, reset, scrubbing, nests);
 	}
 }
 
@@ -231,7 +232,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		c->queue_lock.unlock();
 
 		// get more frames
-        if (cache) cache_clip(c, playhead, reset, false, NULL);
+		if (cache) cache_clip(c, playhead, reset, false, QVector<Clip*>());
 	}
 }
 
