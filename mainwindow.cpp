@@ -890,7 +890,6 @@ void MainWindow::on_actionEdit_to_Out_Point_triggered() {
 }
 
 void MainWindow::on_actionNest_triggered() {
-	/*
 	if (sequence != NULL) {
 		QVector<Clip*> selected_clips;
 		long earliest_point = LONG_MAX;
@@ -906,7 +905,7 @@ void MainWindow::on_actionNest_triggered() {
 		if (!selected_clips.isEmpty()) {
 			Sequence* s = new Sequence();
 
-			s->name = "NEST";
+			s->name = panel_project->get_next_sequence_name("Nested Sequence");
 			s->width = sequence->width;
 			s->height = sequence->height;
 			s->frame_rate = sequence->frame_rate;
@@ -923,5 +922,4 @@ void MainWindow::on_actionNest_triggered() {
 			undo_stack.push(ca);
 		}
 	}
-	*/
 }

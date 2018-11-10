@@ -59,13 +59,15 @@ Project::~Project() {
 	delete ui;
 }
 
-QString Project::get_next_sequence_name() {
+QString Project::get_next_sequence_name(QString start) {
+	if (start.isEmpty()) start = "Sequence";
+
 	int n = 1;
 	bool found = true;
 	QString name;
 	while (found) {
 		found = false;
-		name = "Sequence ";
+		name = start + " ";
 		if (n < 10) {
 			name += "0";
 		}
@@ -79,6 +81,73 @@ QString Project::get_next_sequence_name() {
 		}
 	}
 	return name;
+}
+
+Sequence* create_sequence_from_media(QVector<void*>& media_list, QVector<int>& type_list) {
+	Sequence* s = new Sequence();
+
+	s->name = panel_project->get_next_sequence_name();
+
+	// shitty hardcoded default values
+	s->width = 1920;
+	s->height = 1080;
+	s->frame_rate = 29.97;
+	s->audio_frequency = 48000;
+	s->audio_layout = 3;
+
+	bool got_video_values = false;
+	bool got_audio_values = false;
+	for (int i=0;i<media_list.size();i++) {
+		switch (type_list.at(i)) {
+		case MEDIA_TYPE_FOOTAGE:
+		{
+			Media* m = static_cast<Media*>(media_list.at(i));
+			if (m->ready) {
+				if (!got_video_values) {
+					for (int j=0;j<m->video_tracks.size();j++) {
+						MediaStream* ms = m->video_tracks.at(j);
+						s->width = ms->video_width;
+						s->height = ms->video_height;
+						if (ms->video_frame_rate != 0) {
+							s->frame_rate = ms->video_frame_rate;
+
+							if (ms->video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
+
+							// only break with a decent frame rate, otherwise there may be a better candidate
+							got_video_values = true;
+							break;
+						}
+					}
+				}
+				if (!got_audio_values) {
+					for (int j=0;j<m->audio_tracks.size();j++) {
+						MediaStream* ms = m->audio_tracks.at(j);
+						s->audio_frequency = ms->audio_frequency;
+						got_audio_values = true;
+						break;
+					}
+				}
+			}
+		}
+			break;
+		case MEDIA_TYPE_SEQUENCE:
+		{
+			Sequence* seq = static_cast<Sequence*>(media_list.at(i));
+			s->width = seq->width;
+			s->height = seq->height;
+			s->frame_rate = seq->frame_rate;
+			s->audio_frequency = seq->audio_frequency;
+			s->audio_layout = seq->audio_layout;
+
+			got_video_values = true;
+			got_audio_values = true;
+		}
+			break;
+		}
+		if (got_video_values && got_audio_values) break;
+	}
+
+	return s;
 }
 
 void Project::rename_media(QTreeWidgetItem* item, int column) {

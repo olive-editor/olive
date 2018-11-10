@@ -37,6 +37,8 @@ void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
 void set_item_to_folder(QTreeWidgetItem* item);
 void update_footage_tooltip(QTreeWidgetItem* item, Media* media, QString error = 0);
 
+Sequence* create_sequence_from_media(QVector<void*>& media_list, QVector<int>& type_list);
+
 QString get_channel_layout_name(int channels, int layout);
 QString get_interlacing_name(int interlacing);
 
@@ -50,7 +52,7 @@ public:
     bool is_focused();
 	void clear();
     void new_sequence(ComboAction *ca, Sequence* s, bool open, QTreeWidgetItem* parent);
-	QString get_next_sequence_name();
+	QString get_next_sequence_name(QString start = 0);
     void delete_media(QTreeWidgetItem* item);
 	void process_file_list(bool recursive, QStringList& files, QTreeWidgetItem *parent, QTreeWidgetItem* replace);
 	void replace_media(QTreeWidgetItem* item, QString filename);

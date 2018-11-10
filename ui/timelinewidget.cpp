@@ -40,6 +40,7 @@
 
 TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
     selection_command = NULL;
+	self_created_sequence = NULL;
 	scroll = 0;
 
 	bottom_align = false;
@@ -292,73 +293,20 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
         panel_timeline->audio_ghosts = false;
 		QPoint pos = event->pos();
         long entry_point;
+
+		double using_fr;
+
         if (sequence == NULL) {
             // if no sequence, we're going to create a new one using the clips as a reference
             entry_point = 0;
 
-            // shitty hardcoded default values
-            predicted_video_width = 1920;
-            predicted_video_height = 1080;
-            predicted_new_frame_rate = 29.97;
-            predicted_audio_freq = 48000;
-            predicted_audio_layout = 3;
-
-            bool got_video_values = false;
-            bool got_audio_values = false;
-			for (int i=0;i<media_list.size();i++) {
-				switch (type_list.at(i)) {
-                case MEDIA_TYPE_FOOTAGE:
-                {
-					Media* m = static_cast<Media*>(media_list.at(i));
-                    if (m->ready) {
-                        if (!got_video_values) {
-                            for (int j=0;j<m->video_tracks.size();j++) {
-                                MediaStream* ms = m->video_tracks.at(j);
-                                predicted_video_width = ms->video_width;
-                                predicted_video_height = ms->video_height;
-                                if (ms->video_frame_rate != 0) {
-                                    predicted_new_frame_rate = ms->video_frame_rate;
-
-									if (ms->video_interlacing != VIDEO_PROGRESSIVE) predicted_new_frame_rate *= 2;
-
-                                    // only break with a decent frame rate, otherwise there may be a better candidate
-                                    got_video_values = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!got_audio_values) {
-                            for (int j=0;j<m->audio_tracks.size();j++) {
-                                MediaStream* ms = m->audio_tracks.at(j);
-                                predicted_audio_freq = ms->audio_frequency;
-                                got_audio_values = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                    break;
-                case MEDIA_TYPE_SEQUENCE:
-                {
-					Sequence* s = static_cast<Sequence*>(media_list.at(i));
-                    predicted_video_width = s->width;
-                    predicted_video_height = s->height;
-                    predicted_new_frame_rate = s->frame_rate;
-                    predicted_audio_freq = s->audio_frequency;
-                    predicted_audio_layout = s->audio_layout;
-
-                    got_video_values = true;
-                    got_audio_values = true;
-                }
-                    break;
-                }
-                if (got_video_values && got_audio_values) break;
-            }
+			self_created_sequence = create_sequence_from_media(media_list, type_list);
+			using_fr = self_created_sequence->frame_rate;
         } else {
 			entry_point = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
 			panel_timeline->drag_frame_start = entry_point + getFrameFromScreenPoint(panel_timeline->zoom, 50);
             panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
-            predicted_new_frame_rate = sequence->frame_rate;
+			using_fr = sequence->frame_rate;
         }
 		for (int i=0;i<media_list.size();i++) {
             bool can_import = true;
@@ -378,19 +326,19 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                 if (m->using_inout) {
                     double source_fr = 30;
                     if (m->video_tracks.size() > 0) source_fr = m->video_tracks.at(0)->video_frame_rate;
-                    default_clip_in = refactor_frame_number(m->in, source_fr, predicted_new_frame_rate);
-                    default_clip_out = refactor_frame_number(m->out, source_fr, predicted_new_frame_rate);
+					default_clip_in = refactor_frame_number(m->in, source_fr, using_fr);
+					default_clip_out = refactor_frame_number(m->out, source_fr, using_fr);
                 }
                 break;
             case MEDIA_TYPE_SEQUENCE:
 				s = static_cast<Sequence*>(media_list.at(i));
                 sequence_length = s->getEndFrame();
-                if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, predicted_new_frame_rate);
+				if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, using_fr);
                 media = s;
                 can_import = (s != sequence && sequence_length != 0);
                 if (s->using_workarea) {
-                    default_clip_in = refactor_frame_number(s->workarea_in, s->frame_rate, predicted_new_frame_rate);
-                    default_clip_out = refactor_frame_number(s->workarea_out, s->frame_rate, predicted_new_frame_rate);
+					default_clip_in = refactor_frame_number(s->workarea_in, s->frame_rate, using_fr);
+					default_clip_out = refactor_frame_number(s->workarea_out, s->frame_rate, using_fr);
                 }
                 break;
             default:
@@ -413,7 +361,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
                     if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
                         g.out = g.in + 100;
                     } else {
-                        long length = m->get_length_in_frames(predicted_new_frame_rate);
+						long length = m->get_length_in_frames(using_fr);
                         g.out = entry_point + length - default_clip_in;
                         if (m->using_inout) {
                             g.out -= (length - default_clip_out);
@@ -498,6 +446,9 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
 		panel_timeline->importing = false;
 		panel_timeline->importing_files = false;
 		update_ui(false);
+	}
+	if (self_created_sequence != NULL) {
+		delete self_created_sequence;
 	}
 }
 
@@ -597,17 +548,9 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
         // if we're dropping into nothing, create a new sequences based on the clip being dragged
         if (s == NULL) {
-            s = new Sequence();
-
-            // dumb hardcoded default values, should be settable somewhere
-            s->name = panel_project->get_next_sequence_name();
-            s->width = predicted_video_width;
-            s->height = predicted_video_height;
-            s->frame_rate = predicted_new_frame_rate;
-            s->audio_frequency = predicted_audio_freq;
-            s->audio_layout = predicted_audio_layout;
-
-            panel_project->new_sequence(ca, s, true, NULL);
+			s = self_created_sequence;
+			panel_project->new_sequence(ca, self_created_sequence, true, NULL);
+			self_created_sequence = NULL;
 		} else if (event->keyboardModifiers() & Qt::ControlModifier) {
 			insert_clips(ca);
 		} else {

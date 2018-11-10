@@ -60,11 +60,7 @@ private:
     QVector<Clip*> pre_clips;
 	QVector<Clip*> post_clips;
 
-    int predicted_video_width;
-    int predicted_video_height;
-    double predicted_new_frame_rate;
-    int predicted_audio_freq;
-	int predicted_audio_layout;
+	Sequence* self_created_sequence;
 
 	// used for "right click ripple"
 	long rc_ripple_min;

@@ -28,6 +28,7 @@ private slots:
     void stop_rename_timer();
     void item_renamed(QTreeWidgetItem *item);
 	void show_context_menu();
+	void create_seq_from_selected();
 };
 
 #endif // SOURCETABLE_H

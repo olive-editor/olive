@@ -64,6 +64,10 @@ void SourceTable::show_context_menu() {
 			}
         }
 
+		// create sequence from
+		QAction* create_seq_from = menu.addAction("Create Sequence With This Media");
+		connect(create_seq_from, SIGNAL(triggered(bool)), this, SLOT(create_seq_from_selected()));
+
 		// ONLY sequences are selected
         if (all_sequences) {
 			// ONLY sequences are selected
@@ -88,6 +92,26 @@ void SourceTable::show_context_menu() {
     }
 
 	menu.exec(QCursor::pos());
+}
+
+void SourceTable::create_seq_from_selected() {
+	if (!selectedItems().isEmpty()) {
+		QVector<void*> media_list;
+		QVector<int> type_list;
+		for (int i=0;i<selectedItems().size();i++) {
+			QTreeWidgetItem* item = selectedItems().at(i);
+			media_list.append(get_media_from_tree(item));
+			type_list.append(get_type_from_tree(item));
+		}
+
+		Sequence* s = create_sequence_from_media(media_list, type_list);
+
+		// add clips to it
+
+		ComboAction* ca = new ComboAction();
+		panel_project->new_sequence(ca, s, true, NULL);
+		undo_stack.push(ca);
+	}
 }
 
 void SourceTable::item_renamed(QTreeWidgetItem* item) {
