@@ -888,3 +888,40 @@ void MainWindow::on_actionEdit_to_In_Point_triggered() {
 void MainWindow::on_actionEdit_to_Out_Point_triggered() {
 	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false, false);
 }
+
+void MainWindow::on_actionNest_triggered() {
+	/*
+	if (sequence != NULL) {
+		QVector<Clip*> selected_clips;
+		long earliest_point = LONG_MAX;
+		for (int i=0;i<sequence->clips.size();i++) {
+			Clip* c = sequence->clips.at(i);
+			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+				selected_clips.append(c);
+				earliest_point = qMin(c->timeline_in, earliest_point);
+
+				sequence->clips[i] = NULL; // make undoable
+			}
+		}
+		if (!selected_clips.isEmpty()) {
+			Sequence* s = new Sequence();
+
+			s->name = "NEST";
+			s->width = sequence->width;
+			s->height = sequence->height;
+			s->frame_rate = sequence->frame_rate;
+			s->audio_frequency = sequence->audio_frequency;
+			s->audio_layout = sequence->audio_layout;
+
+			for (int i=0;i<selected_clips.size();i++) {
+				Clip* c = selected_clips.at(i);
+				s->clips.append(c);
+			}
+
+			ComboAction* ca = new ComboAction();
+			panel_project->new_sequence(ca, s, true, NULL);
+			undo_stack.push(ca);
+		}
+	}
+	*/
+}

@@ -197,6 +197,8 @@ private slots:
 
 	void on_actionEdit_to_Out_Point_triggered();
 
+	void on_actionNest_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

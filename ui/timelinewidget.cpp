@@ -92,9 +92,8 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		}
 	}
 
-	if (selected_clips.size() == 0) {
+	if (selected_clips.isEmpty()) {
 		// no clips are selected
-
 		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
 		panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 

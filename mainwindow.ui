@@ -99,6 +99,7 @@
     <addaction name="separator"/>
     <addaction name="actionSet_Edit_Marker"/>
     <addaction name="actionEnable_Disable_Clip"/>
+    <addaction name="actionNest"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -840,6 +841,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+W</string>
+   </property>
+  </action>
+  <action name="actionNest">
+   <property name="text">
+    <string>Nest</string>
    </property>
   </action>
  </widget>
