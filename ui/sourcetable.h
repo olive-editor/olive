@@ -29,6 +29,7 @@ private slots:
     void item_renamed(QTreeWidgetItem *item);
 	void show_context_menu();
 	void create_seq_from_selected();
+	void reveal_in_browser();
 };
 
 #endif // SOURCETABLE_H

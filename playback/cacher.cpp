@@ -9,6 +9,8 @@
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "playback/audio.h"
+#include "panels/panels.h"
+#include "panels/viewer.h"
 #include "debug.h"
 
 extern "C" {
@@ -37,8 +39,6 @@ double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
 }
 
 void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
-	dout << c->name << timecode_start;
-
 	// perform all aud io effects
 	double timecode_end;
 	timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
@@ -306,8 +306,8 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 					}
 				}
 
-				int offset = (audio_ibuffer_read + AUDIO_BUFFER_PADDING) - c->audio_buffer_write;
-				if (offset > 0) {
+				int offset = audio_ibuffer_read - c->audio_buffer_write;
+				if (offset > 0) {					
 					c->audio_buffer_write += offset;
 					c->frame_sample_index += offset;
 				}
@@ -341,7 +341,9 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes, nests);
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
-				if (c->audio_buffer_write == 0) c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
+				if (c->audio_buffer_write == 0) {
+					c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
+				}
 				int offset = audio_ibuffer_read - c->audio_buffer_write;
 				if (offset > 0) {
 					c->audio_buffer_write += offset;
@@ -360,6 +362,10 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		} else {
 			long buffer_timeline_out = get_buffer_offset_from_frame(sequence, timeline_out);
             audio_write_lock.lock();
+
+			dout << "starting fsi:" << c->frame_sample_index << "abw:" << c->audio_buffer_write;
+
+
 
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
@@ -403,6 +409,9 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
             break;
         }
 	}
+
+	QMetaObject::invokeMethod(panel_footage_viewer, "play_wake", Qt::QueuedConnection);
+	QMetaObject::invokeMethod(panel_sequence_viewer, "play_wake", Qt::QueuedConnection);
 }
 
 void cache_video_worker(Clip* c, long playhead) {

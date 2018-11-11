@@ -35,7 +35,8 @@ Viewer::Viewer(QWidget *parent) :
 	seq(NULL),
 	playing(false),
 	created_sequence(false),
-	cue_recording_internal(false)
+	cue_recording_internal(false),
+	just_played(false)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
@@ -283,17 +284,26 @@ void Viewer::play() {
 			return;
 		}
 		playhead_start = seq->playhead;
-		start_msecs = QDateTime::currentMSecsSinceEpoch();
 		playing = true;
+		just_played = true;
 		set_playpause_icon(false);
-		playback_updater.start();
+		start_msecs = QDateTime::currentMSecsSinceEpoch();
 		timer_update();
-        audio_thread->notifyReceiver();
+	}
+}
+
+void Viewer::play_wake() {
+	if (just_played) {
+		start_msecs = QDateTime::currentMSecsSinceEpoch();
+		playback_updater.start();
+		audio_thread->notifyReceiver();
+		just_played = false;
 	}
 }
 
 void Viewer::pause() {
 	playing = false;
+	just_played = false;
 	set_playpause_icon(true);
 	playback_updater.stop();
 
@@ -394,8 +404,10 @@ void Viewer::set_media(int type, void* media) {
 		seq->name = footage->name;
 
         seq->using_workarea = footage->using_inout;
-        seq->workarea_in = footage->in;
-        seq->workarea_out = footage->out;
+		if (footage->using_inout) {
+			seq->workarea_in = footage->in;
+			seq->workarea_out = footage->out;
+		}
 
 		seq->frame_rate = 30;
 

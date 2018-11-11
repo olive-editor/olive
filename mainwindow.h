@@ -199,6 +199,8 @@ private slots:
 
 	void on_actionNest_triggered();
 
+	void on_actionToggle_Show_All_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

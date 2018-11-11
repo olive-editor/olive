@@ -1488,7 +1488,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos) {
                 } else {
                     s.out = s.old_out + frame_diff;
                 }
-            } else {
+			} else if (clips_are_movable) {
 				for (int i=0;i<sequence->selections.size();i++) {
 					Selection& s = sequence->selections[i];
                     s.in = s.old_in + frame_diff;

@@ -923,3 +923,7 @@ void MainWindow::on_actionNest_triggered() {
 		}
 	}
 }
+
+void MainWindow::on_actionToggle_Show_All_triggered() {
+	if (sequence != NULL) panel_timeline->toggle_show_all();
+}

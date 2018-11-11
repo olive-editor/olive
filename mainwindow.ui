@@ -137,6 +137,7 @@
     <addaction name="actionZoom_out"/>
     <addaction name="actionIncrease_Track_Height"/>
     <addaction name="actionDecrease_Track_Height"/>
+    <addaction name="actionToggle_Show_All"/>
     <addaction name="separator"/>
     <addaction name="actionFrames"/>
     <addaction name="actionDrop_Frame"/>
@@ -846,6 +847,14 @@
   <action name="actionNest">
    <property name="text">
     <string>Nest</string>
+   </property>
+  </action>
+  <action name="actionToggle_Show_All">
+   <property name="text">
+    <string>Toggle Show All</string>
+   </property>
+   <property name="shortcut">
+    <string>\</string>
    </property>
   </action>
  </widget>

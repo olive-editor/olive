@@ -6,10 +6,10 @@
 #include "project/undo.h"
 #include "panels/viewer.h"
 #include "io/config.h"
+#include "debug.h"
 
 #include <QPainter>
 #include <QMouseEvent>
-#include <QDebug>
 #include <QScrollArea>
 #include <QtMath>
 
@@ -82,6 +82,9 @@ void TimelineHeader::set_out_point(long new_out) {
     } else if (new_in > new_out) {
         new_in = 0;
     }
+
+	dout << new_in << new_out;
+
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
 }

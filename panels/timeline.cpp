@@ -64,7 +64,8 @@ Timeline::Timeline(QWidget *parent) :
     transition_tool_clip(-1),
     transition_tool_init(false),
 	transition_tool_proc(false),
-	move_insert(false)
+	move_insert(false),
+	showing_all(false)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
@@ -143,6 +144,16 @@ void Timeline::next_cut() {
         }
     }
 	if (seek_enabled) panel_sequence_viewer->seek(n_cut);
+}
+
+void Timeline::toggle_show_all() {
+	showing_all = !showing_all;
+	if (showing_all) {
+		old_zoom = zoom;
+		set_zoom_value((double) (ui->timeline_area->width() - 200) / (double) sequence->getEndFrame());
+	} else {
+		set_zoom_value(old_zoom);
+	}
 }
 
 int Timeline::get_track_height_size(bool video) {
@@ -345,14 +356,19 @@ int lerp(int a, int b, double t) {
 	return ((1.0 - t) * a) + (t * b);
 }
 
-void Timeline::set_zoom(bool in) {
-    zoom *= (in) ? 2 : 0.5;
+void Timeline::set_zoom_value(double v) {
+	zoom = v;
 	ui->headers->update_zoom(zoom);
 	repaint_timeline();
 
-    // TODO find a way to gradually move towards target_scroll instead of just setting it?
-    int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
-    ui->horizontalScrollBar->setValue(target_scroll);
+	// TODO find a way to gradually move towards target_scroll instead of just setting it?
+	int target_scroll = getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1);
+	ui->horizontalScrollBar->setValue(target_scroll);
+}
+
+void Timeline::set_zoom(bool in) {
+	showing_all = false;
+	set_zoom_value(zoom * ((in) ? 2 : 0.5));
 }
 
 void Timeline::decheck_tool_buttons(QObject* sender) {

@@ -97,6 +97,7 @@ public:
     void delete_in_out(bool ripple);
 	void previous_cut();
 	void next_cut();
+	void toggle_show_all();
 
 	int getTimelineScreenPointFromFrame(long frame);
 	long getTimelineFrameFromScreenPoint(int x);
@@ -116,6 +117,8 @@ public:
 	long drag_frame_start;
 	int drag_track_start;
 	void update_effect_controls();
+	bool showing_all;
+	double old_zoom;
 
     QVector<int> video_track_heights;
     QVector<int> audio_track_heights;
@@ -216,6 +219,7 @@ private slots:
 	void transition_menu_select(QAction*);
 
 private:
+	void set_zoom_value(double v);
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);

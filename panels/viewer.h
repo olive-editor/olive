@@ -50,6 +50,7 @@ public:
 	long playhead_start;
 	qint64 start_msecs;
 	QTimer playback_updater;
+	bool just_played;
 
 	void cue_recording(long start, long end, int track);
 	void uncue_recording();
@@ -69,6 +70,7 @@ public:
     Ui::Viewer *ui;
 
 public slots:
+	void play_wake();
 
 private slots:
 	void on_pushButton_clicked();

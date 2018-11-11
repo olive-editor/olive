@@ -235,6 +235,8 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 		}
 	}
 
+	int audio_track_count = 0;
+
     QVector<Clip*> current_clips;
 
     for (int i=0;i<s->clips.size();i++) {
@@ -258,6 +260,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 								open_clip(c, !rendering);
 							}
 							clip_is_active = true;
+							if (c->track >= 0) audio_track_count++;
 						} else if (c->open) {
 							close_clip(c);
 						}
@@ -484,6 +487,10 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				}
 			}
         }
+	}
+
+	if (audio_track_count == 0) {
+		viewer->play_wake();
 	}
 
 	glPopMatrix();

@@ -16,6 +16,9 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QDebug>
+#include <QDesktopServices>
+#include <QDir>
+#include <QProcess>
 
 SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     editing_item = NULL;
@@ -28,6 +31,8 @@ SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
     connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(item_renamed(QTreeWidgetItem*)));
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 }
+
+
 
 void SourceTable::show_context_menu() {
     QMenu menu(this);
@@ -45,6 +50,15 @@ void SourceTable::show_context_menu() {
 			if (type == MEDIA_TYPE_FOOTAGE) {
 				QAction* replace_action = menu.addAction("Replace/Relink Media");
 				connect(replace_action, SIGNAL(triggered(bool)), panel_project, SLOT(replace_selected_file()));
+
+#if defined(Q_OS_WIN)
+				QAction* reveal_in_explorer = menu.addAction("Reveal in Explorer");
+#elif defined(Q_OS_MAC)
+				QAction* reveal_in_explorer = menu.addAction("Reveal in Finder");
+#else
+				QAction* reveal_in_explorer = menu.addAction("Reveal in File Manager");
+#endif
+				connect(reveal_in_explorer, SIGNAL(triggered(bool)), this, SLOT(reveal_in_browser()));
             }
 			if (type != MEDIA_TYPE_FOLDER) {
 				QAction* replace_clip_media = menu.addAction("Replace Clips Using This Media");
@@ -112,6 +126,29 @@ void SourceTable::create_seq_from_selected() {
 		panel_project->new_sequence(ca, s, true, NULL);
 		undo_stack.push(ca);
 	}
+}
+
+void SourceTable::reveal_in_browser() {
+	Media* m = get_footage_from_tree(selectedItems().at(0));
+
+#if defined(Q_OS_WIN)
+	QStringList args;
+	args << "/select," << QDir::toNativeSeparators(m->url);
+	QProcess::startDetached("explorer", args);
+#elif defined(Q_OS_MAC)
+	QStringList args;
+	args << "-e";
+	args << "tell application \"Finder\"";
+	args << "-e";
+	args << "activate";
+	args << "-e";
+	args << "select POSIX file \""+m->url+"\"";
+	args << "-e";
+	args << "end tell";
+	QProcess::startDetached("osascript", args);
+#else
+	QDesktopServices::openUrl(QUrl::fromLocalFile(m->url.left(m->url.lastIndexOf('/'))));
+#endif
 }
 
 void SourceTable::item_renamed(QTreeWidgetItem* item) {
