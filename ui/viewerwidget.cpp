@@ -188,7 +188,7 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
 	glTexCoord2f(0, 1); // bottom left
 	glVertex2f(0, 1); // bottom left
 	glEnd();
-	glBindTexture(GL_TEXTURE_2D, NULL);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 	fbo->release();
 	if (default_fbo != NULL) default_fbo->bind();

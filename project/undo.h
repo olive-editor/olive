@@ -49,15 +49,15 @@ public:
 private:
     Clip* clip;
 
-    long new_in;
-    long new_out;
-    long new_clip_in;
-    int new_track;
-
     long old_in;
     long old_out;
     long old_clip_in;
     int old_track;
+
+    long new_in;
+    long new_out;
+    long new_clip_in;
+    int new_track;    
 
 	bool old_project_changed;
 };

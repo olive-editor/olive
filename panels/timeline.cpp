@@ -44,6 +44,7 @@ Timeline::Timeline(QWidget *parent) :
     cursor_frame(0),
     cursor_track(0),
     zoom(1.0),
+    showing_all(false),
     snapping(true),
     snapped(false),
     snap_point(0),
@@ -52,20 +53,19 @@ Timeline::Timeline(QWidget *parent) :
     rect_select_proc(false),
     moving_init(false),
     moving_proc(false),
+    move_insert(false),
     trim_target(-1),
     trim_in_point(false),
     splitting(false),
     importing(false),
 	importing_files(false),
-    ui(new Ui::Timeline),
-	last_frame(0),
-	creating(false),
-    scroll(0),
-    transition_tool_clip(-1),
+    creating(false),
     transition_tool_init(false),
-	transition_tool_proc(false),
-	move_insert(false),
-	showing_all(false)
+    transition_tool_proc(false),
+    transition_tool_clip(-1),
+    ui(new Ui::Timeline),
+	last_frame(0),	
+    scroll(0)
 {
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 

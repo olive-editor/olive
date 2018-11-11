@@ -26,9 +26,9 @@ private:
 	bool retrieve_preview(const QString &hash);
     void generate_waveform();
 	void finalize_media();
+    AVFormatContext* fmt_ctx;
     QTreeWidgetItem* item;
     Media* media;
-    AVFormatContext* fmt_ctx;
 	bool retrieve_duration;
 	bool contains_still_image;
 	bool replace;

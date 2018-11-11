@@ -1590,7 +1590,10 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                                     }
                                 }
                                 if (!found) {
-                                    Selection link_sel = {s.in, s.out, linked_tracks.at(k)};
+                                    Selection link_sel;
+                                    link_sel.in = s.in;
+                                    link_sel.out = s.out;
+                                    link_sel.track = linked_tracks.at(k);
 									sequence->selections.append(link_sel);
                                 }
                             }

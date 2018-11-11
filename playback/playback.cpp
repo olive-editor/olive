@@ -225,7 +225,8 @@ void get_clip_frame(Clip* c, long playhead) {
 		c->queue_lock.unlock();
 
 		// get more frames
-		if (cache) cache_clip(c, playhead, reset, false, QVector<Clip*>());
+        QVector<Clip*> empty;
+        if (cache) cache_clip(c, playhead, reset, false, empty);
 	}
 }
 

@@ -6,8 +6,8 @@
 // enforces aspect ratio
 ViewerContainer::ViewerContainer(QWidget *parent) :
 	QWidget(parent),
-	child(NULL),
-	aspect_ratio(1)
+    aspect_ratio(1),
+    child(NULL)
 {}
 
 void ViewerContainer::adjust() {

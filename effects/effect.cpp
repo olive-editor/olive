@@ -229,15 +229,15 @@ double double_lerp(double a, double b, double t) {
 Effect::Effect(Clip* c, const EffectMeta *em) :
 	parent_clip(c),
     meta(em),
+    length(30),
+    tlink(NULL),
 	enable_shader(false),
 	enable_coords(false),
-    enable_superimpose(false),
-	isOpen(false),
+    enable_superimpose(false),    
 	glslProgram(NULL),
-	texture(NULL),
-	bound(false),
-	tlink(NULL),
-	length(30)
+    texture(NULL),
+    isOpen(false),
+    bound(false)
 {
     // set up base UI
     container = new CollapsibleWidget();    
@@ -822,7 +822,8 @@ GLuint Effect::process_superimpose(double timecode) {
 	return 0;
 }
 
-void Effect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
+//void Effect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
+void Effect::process_audio(double, double, quint8*, int, int) {
 	// only volume/pan, hand off to AU and VST for all other cases
 
     /*double interval = (timecode_end-timecode_start)/nb_bytes;
@@ -843,7 +844,7 @@ void Effect::process_audio(double timecode_start, double timecode_end, quint8* s
     }*/
 }
 
-void Effect::redraw(double timecode) {
+void Effect::redraw(double) {
 	/*
 	// run javascript
 	QPainter p(&img);

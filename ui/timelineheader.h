@@ -44,9 +44,9 @@ private:
     long temp_workarea_out;
     long sequence_end;
 
-	long in_visible;
-
 	double zoom;
+
+    long in_visible;
 
 	void set_playhead(int mouse_x);
 

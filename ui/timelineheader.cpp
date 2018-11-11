@@ -21,11 +21,11 @@
 
 TimelineHeader::TimelineHeader(QWidget *parent) :
 	QWidget(parent),
+    snapping(true),
 	dragging(false),
 	resizing_workarea(false),
 	zoom(1),
-	in_visible(0),
-	snapping(true),
+	in_visible(0),	
 	fm(font()),
 	dragging_markers(false),
 	scroll(0)

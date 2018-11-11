@@ -21,20 +21,20 @@ Clip::Clip(Sequence* s) :
     timeline_in(0),
     timeline_out(0),
     track(0),
-    undeletable(0),
-    speed(1.0),
     media(NULL),
+    speed(1.0),
+    reverse(false),
+    maintain_audio_pitch(false),
+    autoscale(config.autoscale_by_default),
     opening_transition(NULL),
-	closing_transition(NULL),
-	replaced(false),
+    closing_transition(NULL),
+    undeletable(false),
+    replaced(false),
+    ignore_reverse(false),
+    use_existing_frame(false),
 	filter_graph(NULL),
-	texture(NULL),
-	fbo(NULL),
-	autoscale(config.autoscale_by_default),
-	maintain_audio_pitch(false),
-	reverse(false),
-	use_existing_frame(false),
-	ignore_reverse(false)
+    fbo(NULL),
+    texture(NULL)
 {
 	pkt = av_packet_alloc();
     reset();

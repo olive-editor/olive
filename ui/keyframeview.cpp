@@ -27,12 +27,12 @@ long KeyframeView::adjust_row_keyframe(EffectRow* row, long time) {
 
 KeyframeView::KeyframeView(QWidget *parent) :
 	QWidget(parent),
+    visible_in(0),
+    visible_out(0),
 	mousedown(false),
 	dragging(false),
 	keys_selected(false),
-	select_rect(false),
-	visible_in(0),
-	visible_out(0),
+	select_rect(false),	
 	x_scroll(0),
 	y_scroll(0)
 {

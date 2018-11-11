@@ -1306,7 +1306,11 @@ void KeyframeMove::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-KeyframeDelete::KeyframeDelete() : old_project_changed(mainWindow->isWindowModified()), disable_keyframes_on_row(NULL), sorted(false) {}
+KeyframeDelete::KeyframeDelete() :
+    disable_keyframes_on_row(NULL),
+    old_project_changed(mainWindow->isWindowModified()),
+    sorted(false)
+{}
 
 void KeyframeDelete::undo() {
 	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(true);
@@ -1481,9 +1485,9 @@ AddMarkerAction::AddMarkerAction(Sequence* s, long t, QString n) :
 
 void AddMarkerAction::undo() {
 	if (index == -1) {
-		sequence->markers.removeLast();
+        seq->markers.removeLast();
 	} else {
-		sequence->markers[index].name = old_name;
+        seq->markers[index].name = old_name;
 	}
 
 	mainWindow->setWindowModified(old_project_changed);
@@ -1491,8 +1495,8 @@ void AddMarkerAction::undo() {
 
 void AddMarkerAction::redo() {
 	index = -1;
-	for (int i=0;i<sequence->markers.size();i++) {
-		if (sequence->markers.at(i).frame == time) {
+    for (int i=0;i<seq->markers.size();i++) {
+        if (seq->markers.at(i).frame == time) {
 			index = i;
 			break;
 		}
@@ -1501,10 +1505,10 @@ void AddMarkerAction::redo() {
 	if (index == -1) {
 		Marker m;
 		m.frame = time;
-		sequence->markers.append(m);
+        seq->markers.append(m);
 	} else {
-		old_name = sequence->markers.at(index).name;
-		sequence->markers[index].name = name;
+        old_name = seq->markers.at(index).name;
+        seq->markers[index].name = name;
 	}
 
 	mainWindow->setWindowModified(true);
@@ -1600,14 +1604,14 @@ SetSelectionsCommand::SetSelectionsCommand(Sequence* s) :
 {}
 
 void SetSelectionsCommand::undo() {
-    sequence->selections = old_data;
+    seq->selections = old_data;
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetSelectionsCommand::redo() {
     if (!done) {
-        sequence->selections = new_data;
+        seq->selections = new_data;
         done = true;
     }
 	mainWindow->setWindowModified(true);

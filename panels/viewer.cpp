@@ -30,13 +30,13 @@ extern "C" {
 #include <QTimer>
 
 Viewer::Viewer(QWidget *parent) :
-	QDockWidget(parent),
-    ui(new Ui::Viewer),
-	seq(NULL),
+    QDockWidget(parent),
 	playing(false),
-	created_sequence(false),
-	cue_recording_internal(false),
-	just_played(false)
+    just_played(false),
+    seq(NULL),
+    ui(new Ui::Viewer),
+    created_sequence(false),
+    cue_recording_internal(false)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
