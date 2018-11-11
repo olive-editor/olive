@@ -361,11 +361,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			break;
 		} else {
 			long buffer_timeline_out = get_buffer_offset_from_frame(sequence, timeline_out);
-            audio_write_lock.lock();
-
-			dout << "starting fsi:" << c->frame_sample_index << "abw:" << c->audio_buffer_write;
-
-
+			audio_write_lock.lock();
 
 			while (c->frame_sample_index < nb_bytes
 				   && c->audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
