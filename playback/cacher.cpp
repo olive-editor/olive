@@ -84,6 +84,7 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
     long timeline_in = c->timeline_in;
     long timeline_out = c->timeline_out;
+	long target_frame = c->audio_target_frame;
 
 	long frame_skip = 0;
     double last_fr = c->sequence->frame_rate;
@@ -91,6 +92,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		for (int i=nests.size()-1;i>=0;i--) {
 			timeline_in = refactor_frame_number(timeline_in, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
 			timeline_out = refactor_frame_number(timeline_out, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
+			target_frame = refactor_frame_number(target_frame, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
 
 			timeline_out = qMin(timeline_out, nests.at(i)->timeline_out);
 
@@ -297,10 +299,10 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 				dout << "fsi-post-post:" << c->frame_sample_index;
 #endif
 				if (c->audio_buffer_write == 0) {
-                    c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence->frame_rate, qMax(timeline_in, c->audio_target_frame));
+					c->audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
 
 					if (frame_skip > 0) {
-                        int target = get_buffer_offset_from_frame(c->sequence->frame_rate, qMax(timeline_in + frame_skip, c->audio_target_frame));
+						int target = get_buffer_offset_from_frame(last_fr, qMax(timeline_in + frame_skip, target_frame));
 						c->frame_sample_index += (target - c->audio_buffer_write);
 						c->audio_buffer_write = target;
 					}
@@ -342,7 +344,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 				c->frame->pts += nb_bytes;
 				c->frame_sample_index = 0;
 				if (c->audio_buffer_write == 0) {
-                    c->audio_buffer_write = get_buffer_offset_from_frame(c->sequence->frame_rate, qMax(timeline_in, c->audio_target_frame));
+					c->audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
 				}
 				int offset = audio_ibuffer_read - c->audio_buffer_write;
 				if (offset > 0) {
