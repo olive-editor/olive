@@ -83,7 +83,8 @@ SOURCES += \
     effects/internal/shakeeffect.cpp \
     effects/internal/exponentialfadetransition.cpp \
     effects/internal/logarithmicfadetransition.cpp \
-    effects/internal/cornerpineffect.cpp
+    effects/internal/cornerpineffect.cpp \
+    io/math.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -147,7 +148,8 @@ HEADERS += \
     effects/internal/crossdissolvetransition.h \
     effects/internal/exponentialfadetransition.h \
     effects/internal/logarithmicfadetransition.h \
-    effects/internal/cornerpineffect.h
+    effects/internal/cornerpineffect.h \
+    io/math.h
 
 FORMS += \
         mainwindow.ui \

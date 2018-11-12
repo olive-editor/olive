@@ -28,7 +28,6 @@ struct Clip;
 struct Media;
 struct MediaStream;
 
-int lerp(int a, int b, double t);
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);

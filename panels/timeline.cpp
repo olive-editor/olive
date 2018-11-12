@@ -352,10 +352,6 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 	}
 }
 
-int lerp(int a, int b, double t) {
-	return ((1.0 - t) * a) + (t * b);
-}
-
 void Timeline::set_zoom_value(double v) {
 	zoom = v;
 	ui->headers->update_zoom(zoom);

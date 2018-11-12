@@ -20,6 +20,7 @@
 #include "debug.h"
 #include "io/path.h"
 #include "mainwindow.h"
+#include "io/math.h"
 
 #include "effects/internal/transformeffect.h"
 #include "effects/internal/texteffect.h"
@@ -226,10 +227,6 @@ void EffectInit::run() {
 	load_vst_effects();
 	effects_loaded.unlock();
 	dout << "[INFO] Finished initializing effects";
-}
-
-double double_lerp(double a, double b, double t) {
-    return ((1.0 - t) * a) + (t * b);
 }
 
 Effect::Effect(Clip* c, const EffectMeta *em) :

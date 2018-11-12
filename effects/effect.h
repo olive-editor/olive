@@ -84,6 +84,8 @@ extern QMutex effects_loaded;
 #define TRAN_TYPE_CLOSEWLINK 4
 
 struct GLTextureCoords {
+    int grid_size;
+
 	int vertexTopLeftX;
 	int vertexTopLeftY;
 	int vertexTopRightX;
