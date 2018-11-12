@@ -38,8 +38,6 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
 }
 
 void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords) {
-    coords.grid_size += 4;
-
     coords.vertexTopLeftX += top_left_x->get_double_value(timecode);
     coords.vertexTopLeftY += top_left_y->get_double_value(timecode);
 

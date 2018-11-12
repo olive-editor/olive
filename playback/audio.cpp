@@ -68,9 +68,7 @@ void init_audio(Sequence* s) {
 		audio_thread->start(QThread::TimeCriticalPriority);
 
 		clear_audio_ibuffer();
-	}
-
-	dout << "h";
+    }
 }
 
 void stop_audio() {
@@ -88,9 +86,9 @@ void clear_audio_ibuffer() {
     audio_ibuffer_read = 0;
 }
 
-int get_buffer_offset_from_frame(Sequence* s, long frame) {
+int get_buffer_offset_from_frame(double framerate, long frame) {
 	if (frame >= audio_ibuffer_frame) {
-		return qFloor(((double) (frame - audio_ibuffer_frame)/s->frame_rate)*s->audio_frequency)*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(s->audio_layout);
+        return qFloor(((double) (frame - audio_ibuffer_frame)/framerate)*audio_output->format().sampleRate())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
 	} else {
 		dout << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
 		return 0;
@@ -160,14 +158,14 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
         int channel_count = av_get_channel_layout_nb_channels(s->audio_layout);
 		long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + (panel_timeline->ui->audio_monitor->sample_cache.size()/channel_count);
 		int next_buffer_offset, buffer_offset_adjusted, i;
-		int buffer_offset = get_buffer_offset_from_frame(s, sample_cache_playhead);
+        int buffer_offset = get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead);
 		if (samples.size() != channel_count) samples.resize(channel_count);
 		samples.fill(0);
 
 		// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
 		while (buffer_offset < audio_ibuffer_limit) {
 			sample_cache_playhead++;
-			next_buffer_offset = qMin(get_buffer_offset_from_frame(s, sample_cache_playhead), audio_ibuffer_limit);
+            next_buffer_offset = qMin(get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead), audio_ibuffer_limit);
 			while (buffer_offset < next_buffer_offset) {
 				for (i=0;i<samples.size();i++) {
 					buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
