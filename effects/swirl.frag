@@ -11,7 +11,7 @@ uniform sampler2D myTexture;
 varying vec2 vTexCoord;
 
 void main(void) {
-	vec2 center = vec2(center_x, center_y);
+	vec2 center = vec2((resolution.x*0.5)+center_x, (resolution.y*0.5)+center_y);
 
 	vec2 uv = vTexCoord.st;
 
@@ -28,6 +28,4 @@ void main(void) {
 	tc += center;
 	vec3 color = texture2D(myTexture, tc / resolution).rgb;
 	gl_FragColor = vec4(color, 1.0);
-
-
 }

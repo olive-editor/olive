@@ -245,7 +245,7 @@ public:
 
 	const char* ffmpeg_filter;
 
-	void process_shader(double timecode);
+	virtual void process_shader(double timecode, GLTextureCoords&);
 	virtual void process_coords(double timecode, GLTextureCoords& coords);
 	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);

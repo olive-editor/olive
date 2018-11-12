@@ -1,7 +1,12 @@
 #include "cornerpineffect.h"
 
+#include "io/path.h"
+#include "project/clip.h"
+#include "debug.h"
+
 CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
     enable_coords = true;
+	enable_shader = true;
 
     EffectRow* top_left = add_row("Top Left:");
     top_left_x = top_left->add_field(EFFECT_FIELD_DOUBLE);
@@ -27,6 +32,9 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
     bottom_right_y = bottom_right->add_field(EFFECT_FIELD_DOUBLE);
     bottom_right_y->id = "bottomrighty";
 
+	perspective = add_row("Perspective:")->add_field(EFFECT_FIELD_BOOL);
+	perspective->set_bool_value(false);
+
 	connect(top_left_x, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(top_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(top_right_x, SIGNAL(changed()), this, SLOT(field_changed()));
@@ -35,6 +43,10 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
 	connect(bottom_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(bottom_right_x, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(bottom_right_y, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(perspective, SIGNAL(changed()), this, SLOT(field_changed()));
+
+	vertPath = "cornerpin.vert";
+	fragPath = "cornerpin.frag";
 }
 
 void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords) {
@@ -48,5 +60,13 @@ void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords) {
     coords.vertexBottomLeftY += bottom_left_y->get_double_value(timecode);
 
     coords.vertexBottomRightX += bottom_right_x->get_double_value(timecode);
-    coords.vertexBottomRightY += bottom_right_y->get_double_value(timecode);
+	coords.vertexBottomRightY += bottom_right_y->get_double_value(timecode);
+}
+
+void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords) {
+	glslProgram->setUniformValue("p0", (GLfloat) coords.vertexBottomLeftX, (GLfloat) coords.vertexBottomLeftY);
+	glslProgram->setUniformValue("p1", (GLfloat) coords.vertexBottomRightX, (GLfloat) coords.vertexBottomRightY);
+	glslProgram->setUniformValue("p2", (GLfloat) coords.vertexTopLeftX, (GLfloat) coords.vertexTopLeftY);
+	glslProgram->setUniformValue("p3", (GLfloat) coords.vertexTopRightX, (GLfloat) coords.vertexTopRightY);
+	glslProgram->setUniformValue("perspective", perspective->get_bool_value(timecode));
 }

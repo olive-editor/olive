@@ -1,7 +1,7 @@
 #ifndef TEXTEFFECT_H
 #define TEXTEFFECT_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 #include <QFont>
 #include <QImage>

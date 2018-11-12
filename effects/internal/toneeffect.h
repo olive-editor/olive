@@ -1,7 +1,7 @@
 #ifndef TONEEFFECT_H
 #define TONEEFFECT_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class ToneEffect : public Effect {
 public:

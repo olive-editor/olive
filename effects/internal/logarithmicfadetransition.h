@@ -1,7 +1,7 @@
 #ifndef LOGARITHMICFADETRANSITION_H
 #define LOGARITHMICFADETRANSITION_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class LogarithmicFadeTransition : public Effect {
 public:

@@ -17,7 +17,7 @@
 #include "ui/viewerwidget.h"
 #include "debug.h"
 
-#include "effects/effect.h"
+#include "project/effect.h"
 
 #include "effects/internal/solideffect.h"
 #include "effects/internal/texteffect.h"

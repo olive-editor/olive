@@ -55,7 +55,6 @@ void init_audio(Sequence* s) {
 		}
 
 		audio_output = new QAudioOutput(audio_format);
-		dout << "made output;";
 		audio_output->setNotifyInterval(5);
 
 		// connect

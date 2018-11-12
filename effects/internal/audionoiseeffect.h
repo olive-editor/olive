@@ -1,7 +1,7 @@
 #ifndef AUDIONOISEEFFECT_H
 #define AUDIONOISEEFFECT_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class AudioNoiseEffect : public Effect {
 public:

@@ -1,6 +1,5 @@
 #include "effect.h"
 
-#include "effects/qpainterwrapper.h"
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
@@ -767,7 +766,7 @@ Effect* Effect::copy(Clip* c) {
     return copy;
 }
 
-void Effect::process_shader(double timecode) {
+void Effect::process_shader(double timecode, GLTextureCoords&) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
 	glslProgram->setUniformValue("time", (GLfloat) timecode);
 

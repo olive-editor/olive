@@ -48,6 +48,8 @@ private:
 private slots:
 	void retry();
     void deleteFunction();
+	void show_context_menu();
+	void save_frame();
 };
 
 #endif // VIEWERWIDGET_H

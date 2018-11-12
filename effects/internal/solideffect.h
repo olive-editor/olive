@@ -1,7 +1,7 @@
 #ifndef SOLIDEFFECT_H
 #define SOLIDEFFECT_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class QOpenGLTexture;
 #include <QImage>

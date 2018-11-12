@@ -1,12 +1,10 @@
 #version 110
 
-// uniform float evolution;
 uniform float frequency;
 uniform float intensity;
 uniform float evolution;
 uniform bool vertical;
 
-uniform mediump float amount_val;
 uniform sampler2D myTexture;
 varying vec2 vTexCoord;
 

@@ -59,7 +59,6 @@ SOURCES += \
     dialogs/replaceclipmediadialog.cpp \
     ui/fontcombobox.cpp \
     ui/checkboxex.cpp \
-    effects/effect.cpp \
     ui/keyframeview.cpp \
     ui/texteditex.cpp \
     dialogs/demonotice.cpp \
@@ -70,7 +69,6 @@ SOURCES += \
     dialogs/loaddialog.cpp \
     debug.cpp \
     io/path.cpp \
-    effects/qpainterwrapper.cpp \
     effects/internal/linearfadetransition.cpp \
     effects/internal/transformeffect.cpp \
     effects/internal/solideffect.cpp \
@@ -84,7 +82,9 @@ SOURCES += \
     effects/internal/exponentialfadetransition.cpp \
     effects/internal/logarithmicfadetransition.cpp \
     effects/internal/cornerpineffect.cpp \
-    io/math.cpp
+    io/math.cpp \
+    io/qpainterwrapper.cpp \
+    project/effect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -122,7 +122,6 @@ HEADERS += \
     dialogs/replaceclipmediadialog.h \
     ui/fontcombobox.h \
     ui/checkboxex.h \
-    effects/effect.h \
     ui/keyframeview.h \
     ui/texteditex.h \
     dialogs/demonotice.h \
@@ -135,7 +134,6 @@ HEADERS += \
     dialogs/loaddialog.h \
     debug.h \
     io/path.h \
-    effects/qpainterwrapper.h \
     effects/internal/transformeffect.h \
     effects/internal/solideffect.h \
     effects/internal/texteffect.h \
@@ -149,7 +147,9 @@ HEADERS += \
     effects/internal/exponentialfadetransition.h \
     effects/internal/logarithmicfadetransition.h \
     effects/internal/cornerpineffect.h \
-    io/math.h
+    io/math.h \
+    io/qpainterwrapper.h \
+    project/effect.h
 
 FORMS += \
         mainwindow.ui \

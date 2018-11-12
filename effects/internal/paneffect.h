@@ -1,7 +1,7 @@
 #ifndef PANEFFECT_H
 #define PANEFFECT_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class PanEffect : public Effect {
 public:

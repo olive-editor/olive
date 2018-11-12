@@ -1,7 +1,7 @@
 #ifndef EXPONENTIALFADETRANSITION_H
 #define EXPONENTIALFADETRANSITION_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class ExponentialFadeTransition : public Effect {
 public:

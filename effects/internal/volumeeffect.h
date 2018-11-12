@@ -1,7 +1,7 @@
 #ifndef VOLUMEEFFECT_H
 #define VOLUMEEFFECT_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class VolumeEffect : public Effect {
 public:

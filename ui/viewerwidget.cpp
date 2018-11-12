@@ -5,7 +5,7 @@
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "project/sequence.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "io/media.h"
@@ -24,6 +24,9 @@
 #include <QMouseEvent>
 #include <QMimeData>
 #include <QDrag>
+#include <QMenu>
+#include <QOffscreenSurface>
+#include <QFileDialog>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -44,6 +47,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	// error handler - retries after 500ms if we couldn't get the entire image
 	retry_timer.setInterval(500);
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 }
 
 void ViewerWidget::deleteFunction() {
@@ -51,6 +57,34 @@ void ViewerWidget::deleteFunction() {
 	makeCurrent();
 	closeActiveClips(viewer->seq, true);
 	doneCurrent();
+}
+
+void ViewerWidget::show_context_menu() {
+	QMenu menu(this);
+
+	QAction* save_frame_as_image = menu.addAction("Save Frame as Image...");
+	connect(save_frame_as_image, SIGNAL(triggered(bool)), this, SLOT(save_frame()));
+
+	menu.exec(QCursor::pos());
+}
+
+void ViewerWidget::save_frame() {
+	QString fn = QFileDialog::getSaveFileName(this, "Save Frame", QString(), "Images (*.png *.jpg *.bmp *.tiff *.gif *.pbm *.pgm *.ppm *.xbm *.xpm)");
+
+	if (!fn.isEmpty()) {
+		rendering = true;
+
+		paintGL();
+		QImage img(viewer->seq->width, viewer->seq->height, QImage::Format_RGBA8888);
+
+		dout << img.width() << img.height();
+
+		img.fill(Qt::magenta);
+		glReadPixels(0, 0, img.width(), img.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+		img.save(fn);
+
+		rendering = false;
+	}
 }
 
 void ViewerWidget::retry() {
@@ -206,7 +240,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 		if (e->enable_shader || e->enable_superimpose) {
 			e->startEffect();
 			if (e->enable_shader) {
-				e->process_shader(timecode);
+				e->process_shader(timecode, coords);
 			}
 			composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
 			if (e->enable_superimpose) {
@@ -437,13 +471,13 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 					glBegin(GL_QUADS);
 
-                    // calculate the Q coordinate
-                    double m1 = ((double)coords.vertexTopRightY - (double)coords.vertexBottomLeftY)/((double)coords.vertexTopRightX - (double)coords.vertexBottomLeftX);
+                    // calculate the Q coordinate					
+					/*double m1 = ((double)coords.vertexTopRightY - (double)coords.vertexBottomLeftY)/((double)coords.vertexTopRightX - (double)coords.vertexBottomLeftX);
                     double c1 = (double)coords.vertexBottomLeftY - m1 * (double)coords.vertexBottomLeftX;
                     double m2 = ((double)coords.vertexBottomRightY - (double)coords.vertexTopLeftY)/((double)coords.vertexBottomRightX - (double)coords.vertexTopLeftX);
                     double c2 = (double)coords.vertexTopLeftY - m2 * (double)coords.vertexTopLeftX;
                     double mid_x = (c2 - c1) / (m1 - m2);
-                    double mid_y = m1 * mid_x + c1;
+					double mid_y = m1 * mid_x + c1;
 
                     double d0 = qSqrt(qPow(mid_x - (double)coords.vertexBottomLeftX, 2) + qPow(mid_y - (double)coords.vertexBottomLeftY, 2));
                     double d1 = qSqrt(qPow((double)coords.vertexBottomRightX - mid_x, 2) + qPow(mid_y - (double)coords.vertexBottomRightY, 2));
@@ -453,18 +487,18 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                     double q0 = (d0 + d2)/d2;
                     double q1 = (d1 + d3)/d3;
                     double q2 = (d2 + d0)/d0;
-                    double q3 = (d3 + d1)/d1;
+					double q3 = (d3 + d1)/d1;*/
 
-                    //if (coords.grid_size <= 1) {
-                        glTexCoord4f(coords.textureTopLeftX*q3, coords.textureTopLeftY*q3, 0, q3); // top left
+					if (coords.grid_size <= 1) {
+						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
                         glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
-                        glTexCoord4f(coords.textureTopRightX*q2, coords.textureTopRightY*q2, 0, q2); // top right
+						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
                         glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
-                        glTexCoord4f(coords.textureBottomRightX*q1, coords.textureBottomRightY*q1, 0, q1); // bottom right
+						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
                         glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
-                        glTexCoord4f(coords.textureBottomLeftX*q0, coords.textureBottomLeftY*q0, 0, q0); // bottom left
-                        glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
-                    /*} else {
+						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
+					} else {
                         double rows = coords.grid_size;
                         double cols = coords.grid_size;
 
@@ -495,7 +529,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                                 glVertex2f(double_lerp(vertexBLX, vertexBRX, col_prog), double_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
                             }
                         }
-                    }*/
+					}
 
 					glEnd();
 

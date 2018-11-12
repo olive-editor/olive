@@ -1,7 +1,7 @@
 #ifndef CROSSDISSOLVETRANSITION_H
 #define CROSSDISSOLVETRANSITION_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class CrossDissolveTransition : public Effect {
 public:

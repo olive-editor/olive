@@ -26,7 +26,7 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-QSemaphore sem(4); // only 4 preview generators can run at one time
+QSemaphore sem(5); // only 5 preview generators can run at one time
 
 PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
 	QThread(0),

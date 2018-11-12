@@ -1,7 +1,7 @@
 #ifndef LINEARFADETRANSITION_H
 #define LINEARFADETRANSITION_H
 
-#include "../effect.h"
+#include "project/effect.h"
 
 class LinearFadeTransition : public Effect {
 public:
