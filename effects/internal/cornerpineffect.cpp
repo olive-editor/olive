@@ -19,9 +19,14 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
     bottom_right_x = bottom_right->add_field(EFFECT_FIELD_DOUBLE);
     bottom_right_y = bottom_right->add_field(EFFECT_FIELD_DOUBLE);
 
-    connect(intensity_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(rotation_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(frequency_val, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(top_left_x, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(top_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(top_right_x, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(top_right_y, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(bottom_left_x, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(bottom_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(bottom_right_x, SIGNAL(changed()), this, SLOT(field_changed()));
+	connect(bottom_right_y, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
 void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords) {

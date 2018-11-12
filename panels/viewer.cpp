@@ -11,6 +11,7 @@
 #include "project/undo.h"
 #include "ui/audiomonitor.h"
 #include "ui_timeline.h"
+#include "playback/playback.h"
 #include "debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
@@ -99,7 +100,8 @@ void Viewer::reset_all_audio() {
 void Viewer::assert_audio_device() {
     if (audio_output->format().sampleRate() != seq->audio_frequency
             || audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
-        init_audio(seq);
+		closeActiveClips(seq, true);
+		init_audio(seq);
     }
 }
 
@@ -529,6 +531,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
     bool null_sequence = (seq == NULL);
 
+	init_audio(seq);
+
 	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
 	ui->openGLWidget->setEnabled(!null_sequence);
@@ -538,8 +542,6 @@ void Viewer::set_sequence(bool main, Sequence *s) {
     ui->pushButton_3->setEnabled(!null_sequence);
     ui->pushButton_4->setEnabled(!null_sequence);
     ui->pushButton_5->setEnabled(!null_sequence);
-
-	init_audio(seq);
 
     if (!null_sequence) {
 		ui->currentTimecode->set_frame_rate(seq->frame_rate);
@@ -562,7 +564,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
 	update_header_zoom();
 
-    viewer_widget->update();
+	viewer_widget->update();
 
     update();
 }

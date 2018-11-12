@@ -297,10 +297,10 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 				dout << "fsi-post-post:" << c->frame_sample_index;
 #endif
 				if (c->audio_buffer_write == 0) {
-					c->audio_buffer_write = get_buffer_offset_from_frame(sequence, qMax(timeline_in, c->audio_target_frame));
+					c->audio_buffer_write = get_buffer_offset_from_frame((sequence == NULL) ? c->sequence : sequence, qMax(timeline_in, c->audio_target_frame));
 
 					if (frame_skip > 0) {
-						int target = get_buffer_offset_from_frame(sequence, qMax(timeline_in + frame_skip, c->audio_target_frame));
+						int target = get_buffer_offset_from_frame((sequence == NULL) ? c->sequence : sequence, qMax(timeline_in + frame_skip, c->audio_target_frame));
 						c->frame_sample_index += (target - c->audio_buffer_write);
 						c->audio_buffer_write = target;
 					}
@@ -328,7 +328,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			// apply any audio effects to the data
 			if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 			if (new_frame) {
-				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, c->sequence->audio_frequency) + audio_ibuffer_timecode + ((double)c->clip_in/c->sequence->frame_rate) - ((double)timeline_in/sequence->frame_rate), frame, nb_bytes, nests);
+				apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, c->sequence->audio_frequency) + audio_ibuffer_timecode + ((double)c->clip_in/c->sequence->frame_rate) - ((double)timeline_in/((sequence == NULL) ? c->sequence->frame_rate : sequence->frame_rate)), frame, nb_bytes, nests);
 			}
 		}
 			break;
@@ -360,7 +360,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
-			long buffer_timeline_out = get_buffer_offset_from_frame(sequence, timeline_out);
+			long buffer_timeline_out = get_buffer_offset_from_frame((sequence == NULL) ? c->sequence : sequence, timeline_out);
 			audio_write_lock.lock();
 
 			while (c->frame_sample_index < nb_bytes
@@ -786,7 +786,7 @@ void open_clip_worker(Clip* clip) {
 				dout << "[ERROR] Could not set output sample format";
 			}
 
-			int target_sample_rate = sequence->audio_frequency;
+			int target_sample_rate = audio_output->format().sampleRate();
 
 			if (qFuzzyCompare(clip->speed, 1.0)) {
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);

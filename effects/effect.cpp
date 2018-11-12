@@ -33,6 +33,7 @@
 #include "effects/internal/linearfadetransition.h"
 #include "effects/internal/exponentialfadetransition.h"
 #include "effects/internal/logarithmicfadetransition.h"
+#include "effects/internal/cornerpineffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -68,6 +69,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_LINEARFADE: return new LinearFadeTransition(c, em);
 		case EFFECT_INTERNAL_EXPONENTIALFADE: return new ExponentialFadeTransition(c, em);
 		case EFFECT_INTERNAL_LOGARITHMICFADE: return new LogarithmicFadeTransition(c, em);
+		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -117,6 +119,11 @@ void load_internal_effects() {
 	em.internal = EFFECT_INTERNAL_TRANSFORM;
 	video_effects.append(em);
 
+	em.name = "Corner Pin";
+	em.category = "Distort";
+	em.internal = EFFECT_INTERNAL_CORNERPIN;
+	video_effects.append(em);
+
 	em.name = "Text";
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_TEXT;
@@ -131,7 +138,6 @@ void load_internal_effects() {
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_SHAKE;
 	video_effects.append(em);
-
 
 	// internal transitions
 	em.type = EFFECT_TYPE_TRANSITION;
@@ -766,6 +772,7 @@ Effect* Effect::copy(Clip* c) {
 
 void Effect::process_shader(double timecode) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
+	glslProgram->setUniformValue("time", (GLfloat) timecode);
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
