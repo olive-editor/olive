@@ -8,7 +8,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "panels/effectcontrols.h"
 #include "debug.h"
 

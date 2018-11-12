@@ -15,7 +15,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "project/undo.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	QVBoxLayout* main_layout = new QVBoxLayout();

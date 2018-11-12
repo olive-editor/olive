@@ -1,6 +1,6 @@
 #include "keyframeview.h"
 
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"

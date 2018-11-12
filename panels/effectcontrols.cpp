@@ -7,9 +7,8 @@
 #include <QScrollBar>
 
 #include "panels/panels.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "project/clip.h"
-#include "effects/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "project/sequence.h"
 #include "project/undo.h"

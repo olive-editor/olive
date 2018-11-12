@@ -1,6 +1,6 @@
 #include "clip.h"
 
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "io/media.h"
 #include "io/config.h"
 #include "playback/playback.h"

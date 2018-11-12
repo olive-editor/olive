@@ -13,7 +13,7 @@
 #include "panels/timeline.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "io/media.h"
 #include "playback/cacher.h"
 #include "ui/labelslider.h"

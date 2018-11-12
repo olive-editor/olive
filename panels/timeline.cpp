@@ -15,7 +15,7 @@
 #include "ui_viewer.h"
 #include "project/undo.h"
 #include "io/config.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "debug.h"
 
 #include <QTime>

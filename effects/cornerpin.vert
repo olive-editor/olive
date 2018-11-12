@@ -31,11 +31,14 @@ void main() {
 
         float q;
 
-        switch (gl_VertexID) {
-        case 0: q = (d1+d3)/d3; break;
-        case 1: q = (d0+d2)/d2; break;
-        case 2: q = (d3+d1)/d1; break;
-        case 3: q = (d2+d0)/d0; break;
+        if (gl_VertexID == 0) {
+            q = (d1+d3)/d3;
+        } else if (gl_VertexID == 1) {
+            q = (d0+d2)/d2;
+        } else if (gl_VertexID == 2) {
+            q = (d3+d1)/d1;
+        } else {
+            q = (d2+d0)/d0;
         }
 
         gl_Position[0] *= q;
@@ -45,11 +48,15 @@ void main() {
         vTexCoord = gl_MultiTexCoord0.xy;
     } else {
         vec2 pos;
-        switch (gl_VertexID) {
-        case 0: pos = p2; break; // top left
-        case 1: pos = p3; break; // top right
-        case 2: pos = p1; break; // bottom right
-        case 3: pos = p0; break; // bottom left
+
+        if (gl_VertexID == 0) { // top left
+            pos = p2;
+        } else if (gl_VertexID == 1) { // top right
+            pos = p3;
+        } else if (gl_VertexID == 2) { // bottom right
+            pos = p1;
+        } else { // bottom left (3)
+            pos = p0;
         }
 
         q = pos - p0;

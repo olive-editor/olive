@@ -5,7 +5,7 @@
 #include "io/media.h"
 #include "playback/audio.h"
 #include "playback/playback.h"
-#include "effects/effect.h"
+#include "project/effect.h"
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "playback/audio.h"
