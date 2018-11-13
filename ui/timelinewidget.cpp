@@ -1073,7 +1073,7 @@ void TimelineWidget::init_ghosts() {
 		}
 
 		// used for trim ops
-		g.media_length = c->getMaximumLength();
+        g.media_length = c->getMaximumLength();
 	}
 	for (int i=0;i<sequence->selections.size();i++) {
 		Selection& s = sequence->selections[i];
@@ -1270,11 +1270,29 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos) {
         if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
             g.clip_in = g.old_clip_in - frame_diff;
         } else if (g.trimming) {
+            long ghost_diff = frame_diff;
+
+            // prevent trimming clips from overlapping each other
+            for (int j=0;j<panel_timeline->ghosts.size();j++) {
+                const Ghost& comp = panel_timeline->ghosts.at(j);
+                if (i != j && g.track == comp.track) {
+                    long validator;
+                    if (g.trim_in && comp.out < g.out) {
+                        validator = (g.old_in + ghost_diff) - comp.out;
+                        if (validator < 0) ghost_diff -= validator;
+                    } else if (comp.in > g.in) {
+                        validator = (g.old_out + ghost_diff) - comp.in;
+                        if (validator > 0) ghost_diff -= validator;
+                    }
+                }
+            }
+
+            // apply changes
             if (g.trim_in) {
-                g.in = g.old_in + frame_diff;
-                g.clip_in = g.old_clip_in + frame_diff;
+                g.in = g.old_in + ghost_diff;
+                g.clip_in = g.old_clip_in + ghost_diff;
             } else {
-                g.out = g.old_out + frame_diff;
+                g.out = g.old_out + ghost_diff;
             }
         } else if (clips_are_movable) {
             g.track = g.old_track;
