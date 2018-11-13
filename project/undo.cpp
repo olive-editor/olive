@@ -1054,7 +1054,7 @@ LinkCommand::LinkCommand() : link(true), old_project_changed(mainWindow->isWindo
 
 void LinkCommand::undo() {
     for (int i=0;i<clips.size();i++) {
-        Clip* c = clips.at(i);
+		Clip* c = s->clips.at(clips.at(i));
         if (link) {
             c->linked.clear();
         } else {
@@ -1067,11 +1067,11 @@ void LinkCommand::undo() {
 void LinkCommand::redo() {
     old_links.clear();
     for (int i=0;i<clips.size();i++) {
-        Clip* c = clips.at(i);
+		Clip* c = s->clips.at(clips.at(i));
         if (link) {
             for (int j=0;j<clips.size();j++) {
                 if (i != j) {
-                    c->linked.append(j);
+					c->linked.append(clips.at(j));
                 }
             }
         } else {

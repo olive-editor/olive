@@ -231,8 +231,9 @@ class LinkCommand : public QUndoCommand {
 public:
     LinkCommand();
     void undo();
-    void redo();
-    QVector<Clip*> clips;
+	void redo();
+	Sequence* s;
+	QVector<int> clips;
     bool link;
 private:
     QVector< QVector<int> > old_links;

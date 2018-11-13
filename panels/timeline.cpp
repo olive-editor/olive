@@ -1201,25 +1201,18 @@ void Timeline::set_marker() {
 
 void Timeline::toggle_links() {
     LinkCommand* command = new LinkCommand();
+	command->s = sequence;
     for (int i=0;i<sequence->clips.size();i++) {
         Clip* c = sequence->clips.at(i);
         if (c != NULL && is_clip_selected(c, true)) {
-            command->clips.append(c);
+			command->clips.append(i);
             if (c->linked.size() > 0) {
                 command->link = false; // prioritize unlinking
 
-                for (int j=0;j<c->linked.size();j++) { // add links to the command
-                    bool found = false;
-                    Clip* link = sequence->clips.at(c->linked.at(j));
-                    for (int k=0;k<command->clips.size();k++) {
-                        if (command->clips.at(k) == link) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        command->clips.append(link);
-                    }
+				for (int j=0;j<c->linked.size();j++) { // add links to the command
+					if (!command->clips.contains(c->linked.at(j))) {
+						command->clips.append(c->linked.at(j));
+					}
                 }
             }
         }
