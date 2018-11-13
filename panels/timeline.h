@@ -98,6 +98,9 @@ public:
 	void next_cut();
 	void toggle_show_all();
 
+	void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<void *> &media_list, QVector<int> &type_list);
+	void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
+
 	int getTimelineScreenPointFromFrame(long frame);
 	long getTimelineFrameFromScreenPoint(int x);
 	int getDisplayScreenPointFromFrame(long frame);

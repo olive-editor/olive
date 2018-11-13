@@ -7,6 +7,7 @@
 #include "panels/panels.h"
 #include "playback/playback.h"
 #include "project/undo.h"
+#include "project/sequence.h"
 #include "mainwindow.h"
 
 #include <QDragEnterEvent>
@@ -118,11 +119,13 @@ void SourceTable::create_seq_from_selected() {
 			type_list.append(get_type_from_tree(item));
 		}
 
+		ComboAction* ca = new ComboAction();
 		Sequence* s = create_sequence_from_media(media_list, type_list);
 
 		// add clips to it
+		panel_timeline->create_ghosts_from_media(s, 0, media_list, type_list);
+		panel_timeline->add_clips_from_ghosts(ca, s);
 
-		ComboAction* ca = new ComboAction();
 		panel_project->new_sequence(ca, s, true, NULL);
 		undo_stack.push(ca);
 	}

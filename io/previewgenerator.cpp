@@ -126,7 +126,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 		QString thumb_path = get_thumbnail_path(hash, ms);
 		QFile f(thumb_path);
 		if (f.exists()) {
-			dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
+			//dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
 			ms->video_preview.load(thumb_path);
 			ms->preview_done = true;
 		} else {
@@ -139,7 +139,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 		QString waveform_path = get_waveform_path(hash, ms);
 		QFile f(waveform_path);
 		if (f.exists()) {
-			dout << "loaded wave" << ms->file_index << "from" << waveform_path;
+			//dout << "loaded wave" << ms->file_index << "from" << waveform_path;
 			f.open(QFile::ReadOnly);
 			QByteArray data = f.readAll();
 			ms->audio_preview.resize(data.size());
@@ -430,7 +430,7 @@ void PreviewGenerator::run() {
 				for (int i=0;i<media->video_tracks.size();i++) {
 					MediaStream* ms = media->video_tracks.at(i);
 					if (ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG")) {
-						dout << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
+						//dout << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
 					}
 				}
 				for (int i=0;i<media->audio_tracks.size();i++) {
@@ -439,7 +439,7 @@ void PreviewGenerator::run() {
 					f.open(QFile::WriteOnly);
 					f.write(ms->audio_preview.constData(), ms->audio_preview.size());
 					f.close();
-					dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
+					//dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
 				}
 			}
 
@@ -451,6 +451,7 @@ void PreviewGenerator::run() {
 	if (error) {
 		update_footage_tooltip(item, media, errorStr);
 		emit set_icon(ICON_TYPE_ERROR, replace);
+		media->ready_lock.unlock();
 	} else {
 		update_footage_tooltip(item, media);
     }

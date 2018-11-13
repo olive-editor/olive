@@ -277,136 +277,42 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 				panel_project->last_imported_media.at(i)->ready_lock.lock();
 				panel_project->last_imported_media.at(i)->ready_lock.unlock();
 
-				media_list.append(panel_project->last_imported_media.at(i));
-				type_list.append(MEDIA_TYPE_FOOTAGE);
+				if (panel_project->last_imported_media.at(i)->ready) {
+					media_list.append(panel_project->last_imported_media.at(i));
+					type_list.append(MEDIA_TYPE_FOOTAGE);
+				}
 			}
 
-			import_init = true;
-			panel_timeline->importing_files = true;
+			if (media_list.isEmpty()) {
+				undo_stack.undo();
+			} else {
+				import_init = true;
+				panel_timeline->importing_files = true;
+			}
 		}
 	}
 
 	if (import_init) {
-        event->accept();
+		event->accept();
 
-        panel_timeline->video_ghosts = false;
-        panel_timeline->audio_ghosts = false;
-		QPoint pos = event->pos();
-        long entry_point;
+		long entry_point;
+		Sequence* seq = sequence;
 
-		double using_fr;
-
-        if (sequence == NULL) {
-            // if no sequence, we're going to create a new one using the clips as a reference
-            entry_point = 0;
+		if (seq == NULL) {
+			// if no sequence, we're going to create a new one using the clips as a reference
+			entry_point = 0;
 
 			self_created_sequence = create_sequence_from_media(media_list, type_list);
-			using_fr = self_created_sequence->frame_rate;
-        } else {
-			entry_point = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
+			seq = self_created_sequence;
+		} else {
+			entry_point = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
 			panel_timeline->drag_frame_start = entry_point + getFrameFromScreenPoint(panel_timeline->zoom, 50);
-            panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
-			using_fr = sequence->frame_rate;
-        }
-		for (int i=0;i<media_list.size();i++) {
-            bool can_import = true;
+			panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
+		}
 
-            Media* m = NULL;
-            Sequence* s = NULL;
-            void* media = NULL;
-            long sequence_length;
-            long default_clip_in = 0;
-            long default_clip_out = 0;
+		panel_timeline->create_ghosts_from_media(seq, entry_point, media_list, type_list);
 
-			switch (type_list.at(i)) {
-            case MEDIA_TYPE_FOOTAGE:
-				m = static_cast<Media*>(media_list.at(i));
-                media = m;
-                can_import = m->ready;
-                if (m->using_inout) {
-                    double source_fr = 30;
-                    if (m->video_tracks.size() > 0) source_fr = m->video_tracks.at(0)->video_frame_rate;
-					default_clip_in = refactor_frame_number(m->in, source_fr, using_fr);
-					default_clip_out = refactor_frame_number(m->out, source_fr, using_fr);
-                }
-                break;
-            case MEDIA_TYPE_SEQUENCE:
-				s = static_cast<Sequence*>(media_list.at(i));
-                sequence_length = s->getEndFrame();
-				if (sequence != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, using_fr);
-                media = s;
-                can_import = (s != sequence && sequence_length != 0);
-                if (s->using_workarea) {
-					default_clip_in = refactor_frame_number(s->workarea_in, s->frame_rate, using_fr);
-					default_clip_out = refactor_frame_number(s->workarea_out, s->frame_rate, using_fr);
-                }
-                break;
-            default:
-                can_import = false;
-            }
-
-            if (can_import) {
-                Ghost g;
-                g.clip = -1;
-				g.media_type = type_list.at(i);
-                g.trimming = false;
-                g.old_clip_in = g.clip_in = default_clip_in;
-                g.media = media;
-                g.in = entry_point;
-				g.transition = NULL;
-
-				switch (type_list.at(i)) {
-                case MEDIA_TYPE_FOOTAGE:
-                    // is video source a still image?
-                    if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
-                        g.out = g.in + 100;
-                    } else {
-						long length = m->get_length_in_frames(using_fr);
-                        g.out = entry_point + length - default_clip_in;
-                        if (m->using_inout) {
-                            g.out -= (length - default_clip_out);
-                        }
-                    }
-
-                    for (int j=0;j<m->audio_tracks.size();j++) {
-                        g.track = j;
-                        g.media_stream = m->audio_tracks.at(j)->file_index;
-                        panel_timeline->ghosts.append(g);
-                        panel_timeline->audio_ghosts = true;
-                    }
-                    for (int j=0;j<m->video_tracks.size();j++) {
-                        g.track = -1-j;
-                        g.media_stream = m->video_tracks.at(j)->file_index;
-                        panel_timeline->ghosts.append(g);
-                        panel_timeline->video_ghosts = true;
-                    }
-                    break;
-                case MEDIA_TYPE_SEQUENCE:
-                    g.out = entry_point + sequence_length - default_clip_in;
-
-                    if (s->using_workarea) {
-                        g.out -= (sequence_length - default_clip_out);
-                    }
-
-                    g.track = -1;
-                    panel_timeline->ghosts.append(g);
-                    g.track = 0;
-                    panel_timeline->ghosts.append(g);
-
-                    panel_timeline->video_ghosts = true;
-                    panel_timeline->audio_ghosts = true;
-                    break;
-                }
-                entry_point = g.out;
-            }
-        }
-        for (int i=0;i<panel_timeline->ghosts.size();i++) {
-            Ghost& g = panel_timeline->ghosts[i];
-            g.old_in = g.in;
-            g.old_out = g.out;
-            g.old_track = g.track;
-        }
-        panel_timeline->importing = true;
+		panel_timeline->importing = true;
 	}
 }
 
@@ -442,9 +348,9 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
 		if (panel_timeline->importing_files) {
 			undo_stack.undo();
 		}
+		panel_timeline->importing_files = false;
 		panel_timeline->ghosts.clear();
 		panel_timeline->importing = false;
-		panel_timeline->importing_files = false;
 		update_ui(false);
 	}
 	if (self_created_sequence != NULL) {
@@ -542,8 +448,6 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
         ComboAction* ca = new ComboAction();
 
-        QVector<Clip*> added_clips;
-
         Sequence* s = sequence;
 
         // if we're dropping into nothing, create a new sequences based on the clip being dragged
@@ -557,86 +461,13 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 			delete_area_under_ghosts(ca);
 		}
 
-        // add clips
-		long earliest_point = LONG_MAX;
-		for (int i=0;i<panel_timeline->ghosts.size();i++) {
-            const Ghost& g = panel_timeline->ghosts.at(i);
-
-			earliest_point = qMin(earliest_point, g.in);
-
-            Clip* c = new Clip(s);
-            c->media = g.media;
-            c->media_type = g.media_type;
-            c->media_stream = g.media_stream;
-            c->timeline_in = g.in;
-            c->timeline_out = g.out;
-            c->clip_in = g.clip_in;
-			c->track = g.track;
-            if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-                Media* m = static_cast<Media*>(c->media);
-                if (m->video_tracks.size() == 0) {
-                    // audio only (greenish)
-                    c->color_r = 128;
-                    c->color_g = 192;
-                    c->color_b = 128;
-                } else if (m->audio_tracks.size() == 0) {
-                    // video only (orangeish)
-                    c->color_r = 192;
-                    c->color_g = 160;
-                    c->color_b = 128;
-                } else {
-                    // video and audio (blueish)
-                    c->color_r = 128;
-                    c->color_g = 128;
-                    c->color_b = 192;
-				}
-                c->name = m->name;
-            } else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-                // sequence (red?ish?)
-                c->color_r = 192;
-                c->color_g = 128;
-                c->color_b = 128;
-
-				Sequence* media = static_cast<Sequence*>(c->media);
-				c->name = media->name;
-            }
-			c->recalculateMaxLength();
-            added_clips.append(c);
-		}
-
-        ca->append(new AddClipCommand(s, added_clips));
-
-        // link clips from the same media
-        for (int i=0;i<added_clips.size();i++) {
-            Clip* c = added_clips.at(i);
-            for (int j=0;j<added_clips.size();j++) {
-                Clip* cc = added_clips.at(j);
-                if (c != cc && c->media == cc->media) {
-                    c->linked.append(j);
-                }
-            }
-
-			if (c->track < 0) {
-                // add default video effects
-				c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM)));
-            } else {
-                // add default audio effects
-				c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME)));
-				c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN)));
-			}
-        }
-
-		panel_timeline->ghosts.clear();
-		panel_timeline->importing = false;
-        panel_timeline->snapped = false;
+		panel_timeline->add_clips_from_ghosts(ca, s);
 
         undo_stack.push(ca);
 
         setFocus();
 
 		update_ui(true);
-
-		if (config.enable_seek_to_import) panel_sequence_viewer->seek(earliest_point);
 	}
 }
 

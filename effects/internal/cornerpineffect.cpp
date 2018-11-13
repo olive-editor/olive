@@ -33,7 +33,7 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
     bottom_right_y->id = "bottomrighty";
 
 	perspective = add_row("Perspective:")->add_field(EFFECT_FIELD_BOOL);
-	perspective->set_bool_value(false);
+	perspective->set_bool_value(true);
 
 	connect(top_left_x, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(top_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
