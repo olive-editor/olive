@@ -1380,6 +1380,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
 		panel_timeline->move_insert = ((event->modifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing || panel_timeline->creating));
 
+        if (!panel_timeline->moving_init) track_resizing = false;
+
 		if (isLiveEditing()) {
 			panel_timeline->snap_to_timeline(&panel_timeline->cursor_frame, !config.edit_tool_also_seeks || !panel_timeline->selecting, true, true);
         }
@@ -1487,7 +1489,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 									}
 								}
 							}
-						}
+                        }
 
 						if (add) {
 							g.clip = i;
@@ -1740,8 +1742,6 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
                    panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
                    panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
-            track_resizing = false;
-
 			QToolTip::hideText();
 
             QPoint pos = event->pos();
