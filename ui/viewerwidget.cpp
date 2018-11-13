@@ -72,17 +72,20 @@ void ViewerWidget::save_frame() {
 	QString fn = QFileDialog::getSaveFileName(this, "Save Frame", QString(), "Images (*.png *.jpg *.bmp *.tiff *.gif *.pbm *.pgm *.ppm *.xbm *.xpm)");
 
 	if (!fn.isEmpty()) {
+		QOpenGLFramebufferObject fbo(viewer->seq->width, viewer->seq->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
+
 		rendering = true;
+		fbo.bind();
+		panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 		paintGL();
+
 		QImage img(viewer->seq->width, viewer->seq->height, QImage::Format_RGBA8888);
-
-		dout << img.width() << img.height();
-
-		img.fill(Qt::magenta);
 		glReadPixels(0, 0, img.width(), img.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
 		img.save(fn);
 
+		fbo.release();
+		panel_sequence_viewer->viewer_widget->default_fbo = NULL;
 		rendering = false;
 	}
 }
