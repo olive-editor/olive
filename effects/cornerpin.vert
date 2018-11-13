@@ -48,14 +48,14 @@ void main() {
         vTexCoord = gl_MultiTexCoord0.xy;
     } else {
         vec2 pos;
-
+        
         if (gl_VertexID == 0) { // top left
             pos = p2;
         } else if (gl_VertexID == 1) { // top right
             pos = p3;
         } else if (gl_VertexID == 2) { // bottom right
             pos = p1;
-        } else { // bottom left (3)
+        } else if (gl_VertexID == 3) { // bottom left
             pos = p0;
         }
 
@@ -63,5 +63,5 @@ void main() {
         b1 = p1 - p0;
         b2 = p2 - p0;
         b3 = p0 - p1 - p2 + p3;
-    }    
+    }
 }
