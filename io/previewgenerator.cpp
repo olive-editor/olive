@@ -182,6 +182,7 @@ void PreviewGenerator::finalize_media() {
 		double frame_rate = 30;
 		if (!contains_still_image && media->video_tracks.size() > 0) frame_rate = media->video_tracks.at(0)->video_frame_rate;
         item->setText(1, frame_to_timecode(media->get_length_in_frames(frame_rate), config.timecode_view, frame_rate));
+	item->setText(2, QString::number(frame_rate));
 	}
 }
 
