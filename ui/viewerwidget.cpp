@@ -69,13 +69,14 @@ void ViewerWidget::show_context_menu() {
 }
 
 void ViewerWidget::save_frame() {
-	QString fn = QFileDialog::getSaveFileName(this, "Save Frame", QString(), "Images (*.png *.jpg *.bmp *.tiff *.gif *.pbm *.pgm *.ppm *.xbm *.xpm)");
+	QString fn = QFileDialog::getSaveFileName(this, "Save Frame", QString(), "Portable Network Graphic (*.png);;JPEG (*.jpg *.jpeg);;Windows Bitmap (*.bmp);;Portable Pixmap (*.ppm);;X11 Bitmap (*.xbm);;X11 Pixmap (*.xpm)");
 
 	if (!fn.isEmpty()) {
 		QOpenGLFramebufferObject fbo(viewer->seq->width, viewer->seq->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 
 		rendering = true;
 		fbo.bind();
+
 		panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 		paintGL();
