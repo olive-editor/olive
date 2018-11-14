@@ -192,7 +192,6 @@ void PreviewGenerator::finalize_media() {
             item->setText(2, QString::number(media->audio_tracks.at(0)->audio_frequency) + " Hz");
         }
     }
-	}
 }
 
 void PreviewGenerator::generate_waveform() {

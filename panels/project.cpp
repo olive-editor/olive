@@ -1644,19 +1644,21 @@ void update_footage_tooltip(QTreeWidgetItem *item, Media *media, QString error) 
 			}
 			tooltip += "\n";
 
-			tooltip += "Frame Rate: ";
-			for (int i=0;i<media->video_tracks.size();i++) {
-				if (i > 0) {
-					tooltip += ", ";
-				}
-                if (media->video_tracks.at(i)->video_interlacing == VIDEO_PROGRESSIVE) {
-					tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
-				} else {
-					tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate * 2);
-					tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate) + " frames)";
-				}
-			}
-			tooltip += "\n";
+            if (!media->video_tracks.at(0)->infinite_length) {
+                tooltip += "Frame Rate: ";
+                for (int i=0;i<media->video_tracks.size();i++) {
+                    if (i > 0) {
+                        tooltip += ", ";
+                    }
+                    if (media->video_tracks.at(i)->video_interlacing == VIDEO_PROGRESSIVE) {
+                        tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
+                    } else {
+                        tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate * 2);
+                        tooltip += " fields (" + QString::number(media->video_tracks.at(i)->video_frame_rate) + " frames)";
+                    }
+                }
+                tooltip += "\n";
+            }
 
 			tooltip += "Interlacing: ";
 			for (int i=0;i<media->video_tracks.size();i++) {
@@ -1664,11 +1666,12 @@ void update_footage_tooltip(QTreeWidgetItem *item, Media *media, QString error) 
 					tooltip += ", ";
 				}
 				tooltip += get_interlacing_name(media->video_tracks.at(i)->video_interlacing);
-			}
-			tooltip += "\n";
+            }
 		}
 
 		if (media->audio_tracks.size() > 0) {
+            tooltip += "\n";
+
 			tooltip += "Audio Frequency: ";
 			for (int i=0;i<media->audio_tracks.size();i++) {
 				if (i > 0) {
