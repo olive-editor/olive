@@ -1648,7 +1648,7 @@ void update_footage_tooltip(QTreeWidgetItem *item, Media *media, QString error) 
 				if (i > 0) {
 					tooltip += ", ";
 				}
-				if (media->video_tracks.at(i)->video_interlacing != VIDEO_PROGRESSIVE) {
+                if (media->video_tracks.at(i)->video_interlacing == VIDEO_PROGRESSIVE) {
 					tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate);
 				} else {
 					tooltip += QString::number(media->video_tracks.at(i)->video_frame_rate * 2);

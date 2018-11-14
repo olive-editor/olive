@@ -34,6 +34,7 @@ struct Config {
 	int recording_mode;
 	bool enable_seek_to_import;
     bool enable_audio_scrubbing;
+    bool drop_on_media_to_replace;
 
     void load(QString path);
     void save(QString path);

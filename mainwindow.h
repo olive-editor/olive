@@ -201,6 +201,8 @@ private slots:
 
 	void on_actionToggle_Show_All_triggered();
 
+    void on_actionEnable_Drop_on_Media_to_Replace_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	void setup_layout();

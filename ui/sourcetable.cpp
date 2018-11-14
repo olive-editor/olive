@@ -9,6 +9,7 @@
 #include "project/undo.h"
 #include "project/sequence.h"
 #include "mainwindow.h"
+#include "io/config.h"
 
 #include <QDragEnterEvent>
 #include <QMimeData>
@@ -237,6 +238,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
 					&& drop_item != NULL
 					&& get_type_from_tree(drop_item) == MEDIA_TYPE_FOOTAGE
 					&& !QFileInfo(paths.at(0)).isDir()
+                    && config.drop_on_media_to_replace
 					&& QMessageBox::question(this, "Replace Media", "You dropped a file onto '" + drop_item->text(0) + "'. Would you like to replace it with the dropped file?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
 				replace = true;
 				panel_project->replace_media(drop_item, paths.at(0));

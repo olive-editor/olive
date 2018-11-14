@@ -27,7 +27,8 @@ Config::Config()
 	  autoscale_by_default(false),
 	  recording_mode(2),
       enable_seek_to_import(false),
-      enable_audio_scrubbing(true)
+      enable_audio_scrubbing(true),
+      drop_on_media_to_replace(true)
 {}
 
 void Config::load(QString path) {
@@ -95,6 +96,9 @@ void Config::load(QString path) {
                 } else if (stream.name() == "AudioScrubbing") {
                     stream.readNext();
                     enable_audio_scrubbing = (stream.text() == "1");
+                } else if (stream.name() == "DropFileOnMediaToReplace") {
+                    stream.readNext();
+                    drop_on_media_to_replace = (stream.text() == "1");
                 }
             }
         }
@@ -138,6 +142,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("RecordingMode", QString::number(recording_mode));
 	stream.writeTextElement("EnableSeekToImport", QString::number(enable_seek_to_import));
     stream.writeTextElement("AudioScrubbing", QString::number(enable_audio_scrubbing));
+    stream.writeTextElement("DropFileOnMediaToReplace", QString::number(drop_on_media_to_replace));
 
 	stream.writeEndElement(); // configuration
     stream.writeEndDocument(); // doc

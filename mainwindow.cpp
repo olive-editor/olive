@@ -655,6 +655,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     ui->actionAuto_scale_by_Default->setChecked(config.autoscale_by_default);
 	ui->actionEnable_Seek_to_Import->setChecked(config.enable_seek_to_import);
     ui->actionAudio_Scrubbing->setChecked(config.enable_audio_scrubbing);
+    ui->actionEnable_Drop_on_Media_to_Replace->setChecked(config.drop_on_media_to_replace);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -930,4 +931,8 @@ void MainWindow::on_actionNest_triggered() {
 
 void MainWindow::on_actionToggle_Show_All_triggered() {
 	if (sequence != NULL) panel_timeline->toggle_show_all();
+}
+
+void MainWindow::on_actionEnable_Drop_on_Media_to_Replace_triggered() {
+    config.drop_on_media_to_replace = !config.drop_on_media_to_replace;
 }

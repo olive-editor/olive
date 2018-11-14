@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -183,6 +183,7 @@
     <addaction name="actionAuto_scale_by_Default"/>
     <addaction name="actionEnable_Seek_to_Import"/>
     <addaction name="actionAudio_Scrubbing"/>
+    <addaction name="actionEnable_Drop_on_Media_to_Replace"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionCrash"/>
@@ -855,6 +856,14 @@
    </property>
    <property name="shortcut">
     <string>\</string>
+   </property>
+  </action>
+  <action name="actionEnable_Drop_on_Media_to_Replace">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Drop File on Media to Replace</string>
    </property>
   </action>
  </widget>
