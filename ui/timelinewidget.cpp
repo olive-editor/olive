@@ -70,102 +70,104 @@ void TimelineWidget::right_click_ripple() {
 }
 
 void TimelineWidget::show_context_menu(const QPoint& pos) {
-	// hack because sometimes right clicking doesn't trigger mouseReleaseEvent
-	panel_timeline->rect_select_init = false;
-	panel_timeline->rect_select_proc = false;
+    if (sequence != NULL) {
+        // hack because sometimes right clicking doesn't trigger mouseReleaseEvent
+        panel_timeline->rect_select_init = false;
+        panel_timeline->rect_select_proc = false;
 
-    QMenu menu(this);
+        QMenu menu(this);
 
-	QAction* undoAction = menu.addAction("&Undo");
-	QAction* redoAction = menu.addAction("&Redo");
-	connect(undoAction, SIGNAL(triggered(bool)), mainWindow, SLOT(undo()));
-	connect(redoAction, SIGNAL(triggered(bool)), mainWindow, SLOT(redo()));
-	undoAction->setEnabled(undo_stack.canUndo());
-	redoAction->setEnabled(undo_stack.canRedo());
-	menu.addSeparator();
+        QAction* undoAction = menu.addAction("&Undo");
+        QAction* redoAction = menu.addAction("&Redo");
+        connect(undoAction, SIGNAL(triggered(bool)), mainWindow, SLOT(undo()));
+        connect(redoAction, SIGNAL(triggered(bool)), mainWindow, SLOT(redo()));
+        undoAction->setEnabled(undo_stack.canUndo());
+        redoAction->setEnabled(undo_stack.canRedo());
+        menu.addSeparator();
 
-	// collect all the selected clips
-	QVector<Clip*> selected_clips;
-	for (int i=0;i<sequence->clips.size();i++) {
-		Clip* c = sequence->clips.at(i);
-		if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
-			selected_clips.append(c);
-		}
-	}
+        // collect all the selected clips
+        QVector<Clip*> selected_clips;
+        for (int i=0;i<sequence->clips.size();i++) {
+            Clip* c = sequence->clips.at(i);
+            if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+                selected_clips.append(c);
+            }
+        }
 
-	if (selected_clips.isEmpty()) {
-		// no clips are selected
-		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
-		panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
+        if (selected_clips.isEmpty()) {
+            // no clips are selected
+            panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
+            panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 
-		bool can_ripple_delete = true;
-		bool at_end_of_sequence = true;
-		rc_ripple_min = 0;
-		rc_ripple_max = LONG_MAX;
+            bool can_ripple_delete = true;
+            bool at_end_of_sequence = true;
+            rc_ripple_min = 0;
+            rc_ripple_max = LONG_MAX;
 
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* c = sequence->clips.at(i);
-			if (c != NULL) {
-				if (c->timeline_in > panel_timeline->cursor_frame || c->timeline_out > panel_timeline->cursor_frame) {
-					at_end_of_sequence = false;
-				}
-				if (c->track == panel_timeline->cursor_track) {
-					if (c->timeline_in <= panel_timeline->cursor_frame && c->timeline_out >= panel_timeline->cursor_frame) {
-						can_ripple_delete = false;
-						break;
-					} else if (c->timeline_out < panel_timeline->cursor_frame) {
-						rc_ripple_min = qMax(rc_ripple_min, c->timeline_out);
-					} else if (c->timeline_in > panel_timeline->cursor_frame) {
-						rc_ripple_max = qMin(rc_ripple_max, c->timeline_in);
-					}
-				}
-			}
-		}
+            for (int i=0;i<sequence->clips.size();i++) {
+                Clip* c = sequence->clips.at(i);
+                if (c != NULL) {
+                    if (c->timeline_in > panel_timeline->cursor_frame || c->timeline_out > panel_timeline->cursor_frame) {
+                        at_end_of_sequence = false;
+                    }
+                    if (c->track == panel_timeline->cursor_track) {
+                        if (c->timeline_in <= panel_timeline->cursor_frame && c->timeline_out >= panel_timeline->cursor_frame) {
+                            can_ripple_delete = false;
+                            break;
+                        } else if (c->timeline_out < panel_timeline->cursor_frame) {
+                            rc_ripple_min = qMax(rc_ripple_min, c->timeline_out);
+                        } else if (c->timeline_in > panel_timeline->cursor_frame) {
+                            rc_ripple_max = qMin(rc_ripple_max, c->timeline_in);
+                        }
+                    }
+                }
+            }
 
-		if (can_ripple_delete && !at_end_of_sequence) {
-			QAction* ripple_delete_action = menu.addAction("R&ipple Delete");
-			connect(ripple_delete_action, SIGNAL(triggered(bool)), this, SLOT(right_click_ripple()));
-		}
+            if (can_ripple_delete && !at_end_of_sequence) {
+                QAction* ripple_delete_action = menu.addAction("R&ipple Delete");
+                connect(ripple_delete_action, SIGNAL(triggered(bool)), this, SLOT(right_click_ripple()));
+            }
 
-		menu.addAction("Sequence settings coming soon...");
-	} else {
-		// clips are selected
-		QAction* cutAction = menu.addAction("C&ut");
-		connect(cutAction, SIGNAL(triggered(bool)), mainWindow, SLOT(cut()));
-		QAction* copyAction = menu.addAction("Cop&y");
-		connect(copyAction, SIGNAL(triggered(bool)), mainWindow, SLOT(copy()));
-		QAction* pasteAction = menu.addAction("&Paste");
-		connect(pasteAction, SIGNAL(triggered(bool)), mainWindow, SLOT(paste()));
-		menu.addSeparator();
-		QAction* speedAction = menu.addAction("&Speed/Duration");
-		connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(openSpeedDialog()));
-        QAction* autoscaleAction = menu.addAction("Auto-s&cale");
-        autoscaleAction->setCheckable(true);
-        connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
+            menu.addAction("Sequence settings coming soon...");
+        } else {
+            // clips are selected
+            QAction* cutAction = menu.addAction("C&ut");
+            connect(cutAction, SIGNAL(triggered(bool)), mainWindow, SLOT(cut()));
+            QAction* copyAction = menu.addAction("Cop&y");
+            connect(copyAction, SIGNAL(triggered(bool)), mainWindow, SLOT(copy()));
+            QAction* pasteAction = menu.addAction("&Paste");
+            connect(pasteAction, SIGNAL(triggered(bool)), mainWindow, SLOT(paste()));
+            menu.addSeparator();
+            QAction* speedAction = menu.addAction("&Speed/Duration");
+            connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(openSpeedDialog()));
+            QAction* autoscaleAction = menu.addAction("Auto-s&cale");
+            autoscaleAction->setCheckable(true);
+            connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
 
-		// set autoscale arbitrarily to the first selected clip
-		autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
+            // set autoscale arbitrarily to the first selected clip
+            autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 
-		// check if all selected clips have the same media for a "Reveal In Project"
-		bool same_media = true;
-		rc_reveal_media = selected_clips.at(0)->media;
-		for (int i=1;i<selected_clips.size();i++) {
-			if (selected_clips.at(i)->media != rc_reveal_media) {
-				same_media = false;
-				break;
-			}
-		}
+            // check if all selected clips have the same media for a "Reveal In Project"
+            bool same_media = true;
+            rc_reveal_media = selected_clips.at(0)->media;
+            for (int i=1;i<selected_clips.size();i++) {
+                if (selected_clips.at(i)->media != rc_reveal_media) {
+                    same_media = false;
+                    break;
+                }
+            }
 
-		if (same_media) {
-			QAction* revealInProjectAction = menu.addAction("&Reveal in Project");
-			connect(revealInProjectAction, SIGNAL(triggered(bool)), this, SLOT(reveal_media()));
-		}
+            if (same_media) {
+                QAction* revealInProjectAction = menu.addAction("&Reveal in Project");
+                connect(revealInProjectAction, SIGNAL(triggered(bool)), this, SLOT(reveal_media()));
+            }
 
-		QAction* rename = menu.addAction("R&ename");
-		connect(rename, SIGNAL(triggered(bool)), this, SLOT(rename_clip()));
-	}
+            QAction* rename = menu.addAction("R&ename");
+            connect(rename, SIGNAL(triggered(bool)), this, SLOT(rename_clip()));
+        }
 
-    menu.exec(mapToGlobal(pos));
+        menu.exec(mapToGlobal(pos));
+    }
 }
 
 void TimelineWidget::toggle_autoscale() {
