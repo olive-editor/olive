@@ -1597,6 +1597,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
     switch (icon_type) {
 	case ICON_TYPE_VIDEO: item->setIcon(0, QIcon(":/icons/videosource.png")); break;
 	case ICON_TYPE_AUDIO: item->setIcon(0, QIcon(":/icons/audiosource.png")); break;
+    case ICON_TYPE_IMAGE: item->setIcon(0, QIcon(":/icons/imagesource.png")); break;
 	case ICON_TYPE_ERROR: item->setIcon(0, QIcon::fromTheme("dialog-error")); break;
     }
 
