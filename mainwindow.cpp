@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	// set up style?
 
 	qApp->setStyle(QStyleFactory::create("Fusion"));
+    setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }");
 
 	QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));
@@ -95,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
 	darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
 	darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-	darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
 	qApp->setPalette(darkPalette);
 

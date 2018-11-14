@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include "debug.h"
 
 QString real_app_dir;
 

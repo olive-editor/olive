@@ -2026,35 +2026,38 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 							draw_checkerboard = true;
 						} else if (ms->preview_done) {
 							// draw top and tail triangles
-							int triangle_size = TRACK_MIN_HEIGHT >> 2;
-							p.setPen(Qt::NoPen);
-							p.setBrush(QColor(80, 80, 80));
-							if (clip->clip_in == 0
-									&& clip_rect.x() + triangle_size > 0
-									&& clip_rect.y() + triangle_size > 0
-									&& clip_rect.x() < width()
-									&& clip_rect.y() < height()) {
-								const QPoint points[3] = {
-									QPoint(clip_rect.x(), clip_rect.y()),
-									QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
-									QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
-								};
-								p.drawPolygon(points, 3);
-								text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
-							}
-							if (clip->timeline_out - clip->timeline_in + clip->clip_in == clip->getMaximumLength()
-									&& clip_rect.right() - triangle_size < width()
-									&& clip_rect.y() + triangle_size > 0
-									&& clip_rect.right() > 0
-									&& clip_rect.y() < height()) {
-								const QPoint points[3] = {
-									QPoint(clip_rect.right(), clip_rect.y()),
-									QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
-									QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
-								};
-								p.drawPolygon(points, 3);
-								text_rect.setRight(text_rect.right() - (triangle_size >> 2));
-							}
+                            int triangle_size = TRACK_MIN_HEIGHT >> 2;
+                            if (!ms->infinite_length && clip_rect.width() > triangle_size) {
+                                p.setPen(Qt::NoPen);
+                                p.setBrush(QColor(80, 80, 80));
+                                if (clip->clip_in == 0
+                                        && clip_rect.x() + triangle_size > 0
+                                        && clip_rect.y() + triangle_size > 0
+                                        && clip_rect.x() < width()
+                                        && clip_rect.y() < height()) {
+                                    const QPoint points[3] = {
+                                        QPoint(clip_rect.x(), clip_rect.y()),
+                                        QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
+                                        QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
+                                    };
+                                    p.drawPolygon(points, 3);
+                                    text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
+                                }
+                                if (clip->timeline_out - clip->timeline_in + clip->clip_in == clip->getMaximumLength()
+                                        && clip_rect.right() - triangle_size < width()
+                                        && clip_rect.y() + triangle_size > 0
+                                        && clip_rect.right() > 0
+                                        && clip_rect.y() < height()) {
+                                    const QPoint points[3] = {
+                                        QPoint(clip_rect.right(), clip_rect.y()),
+                                        QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
+                                        QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
+                                    };
+                                    p.drawPolygon(points, 3);
+                                    text_rect.setRight(text_rect.right() - (triangle_size >> 2));
+                                }
+                            }
+
 							p.setBrush(Qt::NoBrush);
 
 							// draw thumbnail/waveform

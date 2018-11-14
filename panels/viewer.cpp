@@ -492,12 +492,23 @@ void Viewer::on_pushButton_3_clicked() {
 }
 
 void Viewer::update_playhead() {
-	seek(ui->currentTimecode->value());
+    seek(ui->currentTimecode->value());
 }
 
 void Viewer::timer_update() {
-	seq->playhead = round(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
+    long previous_playhead = seq->playhead;
+
+    seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
 	update_parents();
+
+    long end_frame = (seq->using_workarea && previous_playhead < seq->workarea_out) ? seq->workarea_out : seq->getEndFrame();
+    if ((!recording
+            && playing
+            && seq->playhead >= end_frame
+            && previous_playhead < end_frame)
+            || (recording && recording_start != recording_end && seq->playhead >= recording_end)) {
+        pause();
+    }
 }
 
 void Viewer::recording_flasher_update() {

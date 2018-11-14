@@ -1405,6 +1405,9 @@ void Timeline::on_toolTransitionButton_clicked() {
 	}
 
 	connect(&transition_menu, SIGNAL(triggered(QAction*)), this, SLOT(transition_menu_select(QAction*)));
+
+    ui->toolTransitionButton->setChecked(false);
+
 	transition_menu.exec(QCursor::pos());
 }
 
@@ -1420,4 +1423,5 @@ void Timeline::transition_menu_select(QAction* a) {
 	decheck_tool_buttons(sender());
 	ui->timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
+    ui->toolTransitionButton->setChecked(true);
 }

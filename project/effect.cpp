@@ -162,9 +162,9 @@ void load_internal_effects() {
 
 void load_shader_effects() {
 	QString effects_path = get_effects_dir();
-	QDir effects_dir(effects_path);
-	if (effects_dir.exists()) {
-		QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
+    QDir effects_dir(effects_path);
+    if (effects_dir.exists()) {
+        QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
 		for (int i=0;i<entries.size();i++) {
 			QFile file(effects_path + "/" + entries.at(i));
 			if (!file.open(QIODevice::ReadOnly)) {
@@ -187,6 +187,7 @@ void load_shader_effects() {
 					}
 					if (!effect_name.isEmpty()) {
 						EffectMeta em;
+                        em.type = EFFECT_TYPE_EFFECT;
 						em.name = effect_name;
 						em.category = effect_cat;
 						em.filename = entries.at(i);
