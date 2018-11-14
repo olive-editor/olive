@@ -78,6 +78,11 @@
         <string>Duration</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Rate</string>
+       </property>
+      </column>
      </widget>
     </item>
    </layout>
