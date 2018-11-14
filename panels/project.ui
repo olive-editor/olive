@@ -80,7 +80,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Framerate</string>
+        <string>Rate</string>
        </property>
       </column>
      </widget>
