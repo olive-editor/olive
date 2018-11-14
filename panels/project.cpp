@@ -817,6 +817,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
     case LOAD_TYPE_VERSION:
         root_search = "version";
         break;
+    case LOAD_TYPE_URL:
+        root_search = "url";
+        break;
     case MEDIA_TYPE_FOLDER:
         root_search = "folders";
         child_search = "folder";
@@ -844,6 +847,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                         return false;
                     }
                 }
+            } else if (type == LOAD_TYPE_URL) {
+                internal_proj_dir = QFileInfo(stream.readElementText()).absoluteDir();
             } else {
                 while (!(stream.name() == root_search && stream.isEndElement())) {
                     stream.readNext();
@@ -884,6 +889,22 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     m->name = attr.value().toString();
                                 } else if (attr.name() == "url") {
                                     m->url = attr.value().toString();
+
+                                    if (!QFileInfo::exists(m->url)) { // if path is not absolute
+                                        QString proj_dir_test = proj_dir.absoluteFilePath(m->url);
+                                        QString internal_proj_dir_test = internal_proj_dir.absoluteFilePath(m->url);
+                                        if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
+                                            m->url = proj_dir_test;
+                                            dout << "[INFO] Matched" << attr.value().toString() << "relative to project's current directory";
+                                        } else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
+                                            m->url = internal_proj_dir_test;
+                                            dout << "[INFO] Matched" << attr.value().toString() << "relative to project's internal directory";
+                                        } else {
+                                            dout << "[INFO] Failed to match" << attr.value().toString() << "to file";
+                                        }
+                                    } else {
+                                        dout << "[INFO] Matched" << attr.value().toString() << "with absolute path";
+                                    }
                                 } else if (attr.name() == "duration") {
                                     m->length = attr.value().toLongLong();
 								} else if (attr.name() == "using_inout") {
@@ -928,7 +949,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 } else if (attr.name() == "height") {
                                     s->height = attr.value().toInt();
                                 } else if (attr.name() == "framerate") {
-                                    s->frame_rate = attr.value().toFloat();
+                                    s->frame_rate = attr.value().toDouble();
                                 } else if (attr.name() == "afreq") {
                                     s->audio_frequency = attr.value().toInt();
                                 } else if (attr.name() == "alayout") {
@@ -1179,6 +1200,14 @@ void Project::load_project() {
         return;
     }
 
+    /* set up directories to search for media
+     * most of the time, these will be the same but in
+     * case the project file has moved without the footage,
+     * we check both
+     */
+    proj_dir = QFileInfo(project_url).absoluteDir();
+    internal_proj_dir = QFileInfo(project_url).absoluteDir();
+
     QXmlStreamReader stream(&file);
 
     bool cont = false;
@@ -1208,6 +1237,9 @@ void Project::load_project() {
 
     // find project file version
 	cont = load_worker(file, stream, LOAD_TYPE_VERSION);
+
+    // find project's internal URL
+    cont = load_worker(file, stream, LOAD_TYPE_URL);
 
     // load folders first
     if (cont) {
@@ -1306,7 +1338,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                     stream.writeAttribute("id", QString::number(media_id));
                     stream.writeAttribute("folder", QString::number(folder));
                     stream.writeAttribute("name", m->name);
-                    stream.writeAttribute("url", m->url);
+                    stream.writeAttribute("url", proj_dir.relativeFilePath(m->url));
                     stream.writeAttribute("duration", QString::number(m->length));
 					stream.writeAttribute("using_inout", QString::number(m->using_inout));
 					stream.writeAttribute("in", QString::number(m->in));
@@ -1450,6 +1482,9 @@ void Project::save_project(bool autorecovery) {
     stream.writeStartElement("project"); // project
 
 	stream.writeTextElement("version", QString::number(SAVE_VERSION));
+
+    stream.writeTextElement("url", project_url);
+    proj_dir = QFileInfo(project_url).absoluteDir();
 
     save_folder(stream, NULL, MEDIA_TYPE_FOLDER, true);
 

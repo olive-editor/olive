@@ -128,7 +128,6 @@ HEADERS += \
     project/marker.h \
     project/selection.h \
     dialogs/speeddialog.h \
-    dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
     io/crc32.h \
     dialogs/loaddialog.h \

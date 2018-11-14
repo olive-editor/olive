@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include <QVector>
 #include <QTimer>
+#include <QDir>
 
 struct Media;
 struct Sequence;
@@ -18,6 +19,7 @@ class QFile;
 class ComboAction;
 
 #define LOAD_TYPE_VERSION 69
+#define LOAD_TYPE_URL 70
 
 namespace Ui {
 class Project;
@@ -102,6 +104,8 @@ private:
 	void start_preview_generator(QTreeWidgetItem* item, Media* media, bool replacing);
     void list_all_sequences_worker(QVector<Sequence*>* list, QTreeWidgetItem* parent);
 	QString get_file_name_from_path(const QString &path);
+    QDir proj_dir;
+    QDir internal_proj_dir;
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
 	void clear_recent_projects();
