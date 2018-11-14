@@ -5,7 +5,8 @@
 
 #define ICON_TYPE_VIDEO 0
 #define ICON_TYPE_AUDIO 1
-#define ICON_TYPE_ERROR 2
+#define ICON_TYPE_IMAGE 2
+#define ICON_TYPE_ERROR 3
 
 struct Media;
 struct MediaStream;
