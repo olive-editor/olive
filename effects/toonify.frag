@@ -1,6 +1,6 @@
 #version 150
 uniform sampler2D tex0;
-in vec4 vTexCoord;
+in vec2 vTexCoord;
 out vec4 FragColor;
 
 uniform float colors; // 12.0

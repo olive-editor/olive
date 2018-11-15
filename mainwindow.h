@@ -206,7 +206,7 @@ private slots:
 
 private:
 	Ui::MainWindow *ui;
-	void setup_layout();
+    void setup_layout(bool reset);
     bool save_project_as();
     bool save_project();
     bool can_close_project();

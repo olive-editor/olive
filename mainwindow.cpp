@@ -50,20 +50,23 @@ QString config_dir;
 QString appName = "Olive (November 2018 | Alpha)";
 bool demoNoticeShown = false;
 
-void MainWindow::setup_layout() {
+void MainWindow::setup_layout(bool reset) {
     panel_project->show();
     panel_effect_controls->show();
+    panel_footage_viewer->show();
     panel_sequence_viewer->show();
     panel_timeline->show();
 
     bool load_default = true;
 
-    QFile panel_config(get_data_path() + "/layout");
-    if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
-        if (restoreState(panel_config.readAll(), 0)) {
-            load_default = false;
+    if (!reset) {
+        QFile panel_config(get_data_path() + "/layout");
+        if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
+            if (restoreState(panel_config.readAll(), 0)) {
+                load_default = false;
+            }
+            panel_config.close();
         }
-        panel_config.close();
     }
 
     if (load_default) {
@@ -131,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	panel_effect_controls = new EffectControls(this);
     panel_timeline = new Timeline(this);
 
-	setup_layout();
+    setup_layout(false);
 
     connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
     connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
@@ -515,7 +518,7 @@ void MainWindow::on_actionDeselect_All_triggered()
 
 void MainWindow::on_actionReset_to_default_layout_triggered()
 {
-    setup_layout();
+    setup_layout(true);
 }
 
 void MainWindow::on_actionGo_to_start_triggered()
