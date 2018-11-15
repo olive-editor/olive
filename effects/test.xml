@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Test">
+	<row name="value 1">
+		<field type="double" default="10" id="edge_thres"/>
+	</row>
+	<row name="value 2">
+		<field type="double" default="10" id="edge_thres2"/>
+	</row>
+	<row name="value 3">
+		<field type="double" default="10" id="mouse_x_offset"/>
+	</row>
+	<row name="value 4">
+		<field type="double" default="10" id="aperture"/>
+	</row>
+	<row name="value 5">
+		<field type="double" default="10" id="xoff"/>
+	</row>
+	<row name="value 6">
+		<field type="double" default="10" id="yoff"/>
+	</row>
+	<shader vert="common.vert" frag="toonify.frag"/>
+</effect>

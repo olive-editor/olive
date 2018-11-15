@@ -1,31 +1,31 @@
-#version 110
+#version 120
+uniform sampler2D tex0;
+varying vec4 vTexCoord;
+const float PI = 3.1415926535;
 
+uniform vec2 resolution;
 uniform float amount;
+uniform float xoff;
+uniform float yoff;
 
-uniform sampler2D myTexture;
-varying vec2 vTexCoord;
+vec2 distort(vec2 p, vec2 offset) {
+    float theta  = atan(p.y, p.x);
+    float radius = length(p);
+    radius = pow(radius, (1.0+amount*0.01));
+    p.x = radius * cos(theta) + offset.x;
+    p.y = radius * sin(theta) + offset.y;
+    return 0.5 * (p + 1.0);
+}
 
 void main(void) {
-	float x = vTexCoord.x;
-	float y = vTexCoord.y;
-
-	float r = sqrt(pow(x - 0.5, 2.0) + pow(y - 0.5, 2.0));
-	float a = atan(y - 0.5, x - 0.5);
-	float rn = pow(r, (amount*0.1))/0.5;
-	//float a = atan(x - 0.5, y - 0.5);
-
-	x = rn * cos(a) + 0.5;
-	y = rn * sin(a) + 0.5;
-
-	if (y < 0.0 || y > 1.0 || x < 0.0 || x > 1.0) {
-		gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+	vec2 offset = vec2(xoff/resolution.x, yoff/resolution.y);
+	vec2 xy = 2.0 * vTexCoord.xy - 1.0 - offset;
+	vec2 uv;
+	float d = length(xy);
+	uv = distort(xy, offset);
+	if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
+		gl_FragColor = texture2D(tex0, uv);
 	} else {
-		vec4 textureColor = texture2D(myTexture, vec2(x, y));
-		gl_FragColor = vec4(
-			textureColor.r,
-			textureColor.g,
-			textureColor.b,
-			textureColor.a
-		);
+		gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
 	}	
 }

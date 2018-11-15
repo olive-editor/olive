@@ -597,64 +597,66 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 }
 
 void ViewerWidget::paintGL() {
-    bool render_audio = (viewer->playing || rendering);
-	bool loop = false;
-	do {
-		loop = false;
+    if (viewer->seq != NULL) {
+        bool render_audio = (viewer->playing || rendering);
+        bool loop = false;
+        do {
+            loop = false;
 
-		glClearColor(0, 0, 0, 1);
-		glMatrixMode(GL_MODELVIEW);
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
+            glClearColor(0, 0, 0, 1);
+            glMatrixMode(GL_MODELVIEW);
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
 
-		texture_failed = false;
+            texture_failed = false;
 
-		if (!rendering) retry_timer.stop();
+            if (!rendering) retry_timer.stop();
 
-		glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-		// compose video preview
-		glClearColor(0, 0, 0, 0);
+            // compose video preview
+            glClearColor(0, 0, 0, 0);
 
-		QVector<Clip*> nests;
+            QVector<Clip*> nests;
 
-		compose_sequence(nests, render_audio);
+            compose_sequence(nests, render_audio);
 
-		if (waveform) {
-			double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();
-			double timeline_zoom = (double) width() / (double) waveform_clip->timeline_out;
+            if (waveform) {
+                double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();
+                double timeline_zoom = (double) width() / (double) waveform_clip->timeline_out;
 
-			QPainter p(this);
-			if (viewer->seq->using_workarea) {
-				int in_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in);
-				int out_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out);
+                QPainter p(this);
+                if (viewer->seq->using_workarea) {
+                    int in_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in);
+                    int out_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out);
 
-				p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
-				p.setPen(Qt::white);
-				p.drawLine(in_x, 0, in_x, height());
-				p.drawLine(out_x, 0, out_x, height());
-			}
-			p.setPen(Qt::green);
-			draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, rect(), 0, width(), waveform_zoom);
-			p.setPen(Qt::red);
-			int playhead_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->playhead);
-			p.drawLine(playhead_x, 0, playhead_x, height());
-		}
+                    p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
+                    p.setPen(Qt::white);
+                    p.drawLine(in_x, 0, in_x, height());
+                    p.drawLine(out_x, 0, out_x, height());
+                }
+                p.setPen(Qt::green);
+                draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, rect(), 0, width(), waveform_zoom);
+                p.setPen(Qt::red);
+                int playhead_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->playhead);
+                p.drawLine(playhead_x, 0, playhead_x, height());
+            }
 
-		if (texture_failed) {
-			if (rendering) {
-				dout << "[INFO] Texture failed - looping";
-				loop = true;
-			} else {
-				retry_timer.start();
-			}
-		}
+            if (texture_failed) {
+                if (rendering) {
+                    dout << "[INFO] Texture failed - looping";
+                    loop = true;
+                } else {
+                    retry_timer.start();
+                }
+            }
 
-		if (config.show_title_safe_area && !rendering) {
-			drawTitleSafeArea();
-		}
+            if (config.show_title_safe_area && !rendering) {
+                drawTitleSafeArea();
+            }
 
-		glDisable(GL_BLEND);
-		glDisable(GL_TEXTURE_2D);
-    } while (loop);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
+        } while (loop);
+    }
 }

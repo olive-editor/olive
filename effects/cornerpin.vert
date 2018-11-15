@@ -24,10 +24,10 @@ void main() {
         float mid_x = (c2 - c1) / (m1 - m2);
         float mid_y = m1 * mid_x + c1;
 
-        float d0 = sqrt(pow(mid_x - p0.x, 2.0) + pow(mid_y - p0.y, 2.0));
-        float d1 = sqrt(pow(p1.x - mid_x, 2.0) + pow(mid_y - p1.y, 2.0));
-        float d2 = sqrt(pow(p3.x - mid_x, 2.0) + pow(p3.y - mid_y, 2.0));
-        float d3 = sqrt(pow(mid_x - p2.x, 2.0) + pow(p2.y - mid_y, 2.0));
+        float d0 = length(vec2(mid_x - p0.x, mid_y - p0.y));
+        float d1 = length(vec2(p1.x - mid_x, mid_y - p1.y));
+        float d2 = length(vec2(p3.x - mid_x, p3.y - mid_y));
+        float d3 = length(vec2(mid_x - p2.x, p2.y - mid_y));
 
         float q;
 

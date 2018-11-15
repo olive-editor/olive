@@ -4,16 +4,16 @@
 
 uniform sampler2D image;
 
-uniform float angle;
+uniform float angle; // degrees
 uniform float length;
 
 uniform vec2 resolution;
 
 void main(void) {
-	float degrees = (angle*M_PI)/180.0;
+	float radians = (angle*M_PI)/180.0;
 	float divider = 1.0 / ((length*2.0)+1.0);
-	float sin_angle = sin(degrees);
-	float cos_angle = cos(degrees);
+	float sin_angle = sin(radians);
+	float cos_angle = cos(radians);
 
 	gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution)*(divider);
 	for (float i=1.0;i<=length;i++) {

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Fisheye" category="Distort">
+	<row name="Size">
+		<field type="double" min="0" default="100" id="size"/>
+	</row>
+	<shader vert="common.vert" frag="fisheye.frag"/>
+</effect>

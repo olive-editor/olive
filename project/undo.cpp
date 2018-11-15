@@ -360,15 +360,8 @@ AddMediaCommand::~AddMediaCommand() {
 }
 
 void AddMediaCommand::undo() {
-	if (parent == NULL) {
-		bool found = false;
-		for (int i=0;i<panel_project->source_table->topLevelItemCount();i++) {
-			if (panel_project->source_table->topLevelItem(i) == item) {
-				panel_project->source_table->takeTopLevelItem(i);
-				found = true;
-				break;
-			}
-		}
+    if (parent == NULL) {
+        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
     } else {
         parent->removeChild(item);
     }

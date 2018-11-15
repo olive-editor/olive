@@ -2337,8 +2337,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 				}
 			}
 
-			// draw insert indicator
-			dout << panel_timeline->move_insert << insert_points.isEmpty();
+            // draw insert indicator
 			if (panel_timeline->move_insert && !insert_points.isEmpty()) {
 				p.setBrush(Qt::white);
 				p.setPen(Qt::NoPen);
