@@ -144,6 +144,9 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
             autoscaleAction->setCheckable(true);
             connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
 
+            QAction* nestAction = menu.addAction("&Nest");
+            connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionNest_triggered()));
+
             // set autoscale arbitrarily to the first selected clip
             autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 

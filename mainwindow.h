@@ -29,6 +29,7 @@ public slots:
 	void cut();
 	void copy();
 	void paste();
+    void on_actionNest_triggered();
 
 protected:
 	void closeEvent(QCloseEvent *);
@@ -53,13 +54,13 @@ private slots:
 
 	void on_actionExport_triggered();
 
-	void on_actionProject_2_toggled(bool arg1);
+    void on_actionProject_2_triggered();
 
-	void on_actionEffect_Controls_toggled(bool arg1);
+    void on_actionEffect_Controls_triggered();
 
-	void on_actionViewer_toggled(bool arg1);
+    void on_actionViewer_triggered();
 
-	void on_actionTimeline_toggled(bool arg1);
+    void on_actionTimeline_triggered();
 
 	void on_actionRipple_Delete_triggered();
 
@@ -197,11 +198,11 @@ private slots:
 
 	void on_actionEdit_to_Out_Point_triggered();
 
-	void on_actionNest_triggered();
-
 	void on_actionToggle_Show_All_triggered();
 
     void on_actionEnable_Drop_on_Media_to_Replace_triggered();
+
+    void on_actionFootage_Viewer_triggered();
 
 private:
 	Ui::MainWindow *ui;

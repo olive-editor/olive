@@ -3,6 +3,7 @@
 
 #include "io/config.h"
 #include "io/path.h"
+#include "io/media.h"
 
 #include "project/sequence.h"
 
@@ -55,19 +56,31 @@ void MainWindow::setup_layout() {
     panel_sequence_viewer->show();
     panel_timeline->show();
 
-    addDockWidget(Qt::TopDockWidgetArea, panel_project);
-	addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
-	tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
-	panel_footage_viewer->raise();
-    addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
-	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+    bool load_default = true;
+
+    QFile panel_config(get_data_path() + "/layout");
+    if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
+        if (restoreState(panel_config.readAll(), 0)) {
+            load_default = false;
+        }
+        panel_config.close();
+    }
+
+    if (load_default) {
+        addDockWidget(Qt::TopDockWidgetArea, panel_project);
+        addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
+        tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
+        panel_footage_viewer->raise();
+        addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
+        addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+
+// workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+        resizeDocks({panel_project}, {40}, Qt::Horizontal);
+#endif
+    }
 
     layout()->update();
-
-    // workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    resizeDocks({panel_project}, {40}, Qt::Horizontal);
-#endif
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -213,7 +226,17 @@ MainWindow::~MainWindow() {
         }
     }
     if (!config_dir.isEmpty()) {
+        // save settings
         config.save(config_dir);
+
+        // save panel layout
+        QFile panel_config(data_dir + "/layout");
+        if (panel_config.open(QFile::WriteOnly)) {
+            panel_config.write(saveState(0));
+            panel_config.close();
+        } else {
+            dout << "[ERROR] Failed to save layout";
+        }
     }
 
 	stop_audio();
@@ -302,24 +325,20 @@ void MainWindow::on_actionExport_triggered()
     }
 }
 
-void MainWindow::on_actionProject_2_toggled(bool arg1)
-{
-	panel_project->setVisible(arg1);
+void MainWindow::on_actionProject_2_triggered() {
+    panel_project->setVisible(!panel_project->isVisible());
 }
 
-void MainWindow::on_actionEffect_Controls_toggled(bool arg1)
-{
-	panel_effect_controls->setVisible(arg1);
+void MainWindow::on_actionEffect_Controls_triggered() {
+    panel_effect_controls->setVisible(!panel_effect_controls->isVisible());
 }
 
-void MainWindow::on_actionViewer_toggled(bool arg1)
-{
-	panel_sequence_viewer->setVisible(arg1);
+void MainWindow::on_actionViewer_triggered() {
+    panel_sequence_viewer->setVisible(!panel_sequence_viewer->isVisible());
 }
 
-void MainWindow::on_actionTimeline_toggled(bool arg1)
-{
-	panel_timeline->setVisible(arg1);
+void MainWindow::on_actionTimeline_triggered() {
+    panel_timeline->setVisible(!panel_timeline->isVisible());
 }
 
 void MainWindow::on_actionRipple_Delete_triggered()
@@ -611,6 +630,7 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
     ui->actionEffect_Controls->setChecked(panel_effect_controls->isVisible());
     ui->actionTimeline->setChecked(panel_timeline->isVisible());
     ui->actionViewer->setChecked(panel_sequence_viewer->isVisible());
+    ui->actionFootage_Viewer->setChecked(panel_footage_viewer->isVisible());
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
@@ -896,21 +916,26 @@ void MainWindow::on_actionEdit_to_Out_Point_triggered() {
 }
 
 void MainWindow::on_actionNest_triggered() {
-	if (sequence != NULL) {
-		QVector<Clip*> selected_clips;
-		long earliest_point = LONG_MAX;
+    if (sequence != NULL) {
+        QVector<int> selected_clips;
+        long earliest_point = LONG_MAX;
+
+        // get selected clips
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
 			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
-				selected_clips.append(c);
-				earliest_point = qMin(c->timeline_in, earliest_point);
-
-				sequence->clips[i] = NULL; // make undoable
+                selected_clips.append(i);
+                earliest_point = qMin(c->timeline_in, earliest_point);
 			}
 		}
+
+        // nest them
 		if (!selected_clips.isEmpty()) {
+            ComboAction* ca = new ComboAction();
+
 			Sequence* s = new Sequence();
 
+            // create "nest" sequence
 			s->name = panel_project->get_next_sequence_name("Nested Sequence");
 			s->width = sequence->width;
 			s->height = sequence->height;
@@ -918,15 +943,31 @@ void MainWindow::on_actionNest_triggered() {
 			s->audio_frequency = sequence->audio_frequency;
 			s->audio_layout = sequence->audio_layout;
 
+            // copy all selected clips to the nest
 			for (int i=0;i<selected_clips.size();i++) {
-				Clip* c = selected_clips.at(i);
-				s->clips.append(c);
+                // delete clip from old sequence
+                ca->append(new DeleteClipAction(sequence, selected_clips.at(i)));
+
+                // copy to new
+                Clip* copy = sequence->clips.at(selected_clips.at(i))->copy(s);
+                copy->timeline_in -= earliest_point;
+                copy->timeline_out -= earliest_point;
+                s->clips.append(copy);
 			}
 
-			ComboAction* ca = new ComboAction();
-			panel_project->new_sequence(ca, s, true, NULL);
-			undo_stack.push(ca);
-		}
+            // add sequence to project
+            panel_project->new_sequence(ca, s, false, NULL);
+
+            // add nested sequence to active sequence
+            QVector<void*> media_list = {s};
+            QVector<int> type_list = {MEDIA_TYPE_SEQUENCE};
+            panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list, type_list);
+            panel_timeline->add_clips_from_ghosts(ca, sequence);
+
+            undo_stack.push(ca);
+
+            update_ui(true);
+        }
 	}
 }
 
@@ -936,4 +977,8 @@ void MainWindow::on_actionToggle_Show_All_triggered() {
 
 void MainWindow::on_actionEnable_Drop_on_Media_to_Replace_triggered() {
     config.drop_on_media_to_replace = !config.drop_on_media_to_replace;
+}
+
+void MainWindow::on_actionFootage_Viewer_triggered() {
+    panel_footage_viewer->setVisible(!panel_footage_viewer->isVisible());
 }

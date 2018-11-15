@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>25</height>
+     <height>16</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -107,6 +107,7 @@
     </property>
     <addaction name="actionProject_2"/>
     <addaction name="actionEffect_Controls"/>
+    <addaction name="actionFootage_Viewer"/>
     <addaction name="actionViewer"/>
     <addaction name="actionTimeline"/>
     <addaction name="separator"/>
@@ -370,7 +371,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Viewer</string>
+    <string>Sequence Viewer</string>
    </property>
   </action>
   <action name="actionTimeline">
@@ -864,6 +865,14 @@
    </property>
    <property name="text">
     <string>Enable Drop File on Media to Replace</string>
+   </property>
+  </action>
+  <action name="actionFootage_Viewer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Footage Viewer</string>
    </property>
   </action>
  </widget>

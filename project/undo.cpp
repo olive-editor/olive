@@ -115,8 +115,10 @@ void DeleteClipAction::undo() {
 void DeleteClipAction::redo() {
 	// remove ref to clip
     ref = seq->clips.at(index);
-    close_clip(ref);
-    if (ref->multithreaded) ref->cacher->wait();
+    if (ref->open) {
+        close_clip(ref);
+        if (ref->multithreaded) ref->cacher->wait();
+    }
     seq->clips[index] = NULL;
 
 	// delete link to this clip
