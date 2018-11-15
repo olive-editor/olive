@@ -19,7 +19,7 @@ void main(void) {
 	}
 
 	if (y < 0.0 || y > 1.0 || x < 0.0 || x > 1.0) {
-		gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+		discard;
 	} else {
 		vec4 textureColor = texture2D(myTexture, vec2(x, y));
 		gl_FragColor = vec4(

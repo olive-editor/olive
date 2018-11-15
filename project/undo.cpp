@@ -116,8 +116,10 @@ void DeleteClipAction::redo() {
 	// remove ref to clip
     ref = seq->clips.at(index);
     if (ref->open) {
+        dout << "closing clip before deleting";
         close_clip(ref);
         if (ref->multithreaded) ref->cacher->wait();
+        dout << "FINISHED closing clip before deleting";
     }
     seq->clips[index] = NULL;
 

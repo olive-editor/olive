@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Posterize" category="Stylize">
+	<row name="Colors">
+		<field type="double" min="0" default="8" id="numColors"/>
+	</row>
+	<row name="Gamma">
+		<field type="double" min="0" default="60" id="gamma_cent"/>
+	</row>
+	<shader vert="common.vert" frag="posterize.frag"/>
+</effect>
