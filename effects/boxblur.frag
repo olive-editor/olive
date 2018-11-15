@@ -46,6 +46,6 @@ void main(void) {
 					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x, gl_FragCoord.y+i))/resolution)*(divider);
 				}
 			}
-		}		
-	}	
+		}
+	}
 }

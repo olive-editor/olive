@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Directional Blur" category="Blur">
+	<row name="Length">
+		<field type="double" min="0" default="10" id="length"/>
+	</row>
+	<row name="Angle">
+		<field type="double" default="0" id="angle"/>
+	</row>
+	<shader vert="common.vert" frag="directionalblur.frag"/>
+</effect>
