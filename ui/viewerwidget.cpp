@@ -256,6 +256,9 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 	}
 }
 
+int motion_blur_prog = 0;
+int motion_blur_lim = 4;
+
 GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
 	Sequence* s = viewer->seq;
 	long playhead = s->playhead;
@@ -473,25 +476,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-					glBegin(GL_QUADS);
-
-                    // calculate the Q coordinate					
-					/*double m1 = ((double)coords.vertexTopRightY - (double)coords.vertexBottomLeftY)/((double)coords.vertexTopRightX - (double)coords.vertexBottomLeftX);
-                    double c1 = (double)coords.vertexBottomLeftY - m1 * (double)coords.vertexBottomLeftX;
-                    double m2 = ((double)coords.vertexBottomRightY - (double)coords.vertexTopLeftY)/((double)coords.vertexBottomRightX - (double)coords.vertexTopLeftX);
-                    double c2 = (double)coords.vertexTopLeftY - m2 * (double)coords.vertexTopLeftX;
-                    double mid_x = (c2 - c1) / (m1 - m2);
-					double mid_y = m1 * mid_x + c1;
-
-                    double d0 = qSqrt(qPow(mid_x - (double)coords.vertexBottomLeftX, 2) + qPow(mid_y - (double)coords.vertexBottomLeftY, 2));
-                    double d1 = qSqrt(qPow((double)coords.vertexBottomRightX - mid_x, 2) + qPow(mid_y - (double)coords.vertexBottomRightY, 2));
-                    double d2 = qSqrt(qPow((double)coords.vertexTopRightX - mid_x, 2) + qPow((double)coords.vertexTopRightY - mid_y, 2));
-                    double d3 = qSqrt(qPow(mid_x - (double)coords.vertexTopLeftX, 2) + qPow((double)coords.vertexTopLeftY - mid_y, 2));
-
-                    double q0 = (d0 + d2)/d2;
-                    double q1 = (d1 + d3)/d3;
-                    double q2 = (d2 + d0)/d0;
-					double q3 = (d3 + d1)/d1;*/
+                    glBegin(GL_QUADS);
 
 					if (coords.grid_size <= 1) {
 						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
@@ -545,6 +530,14 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					}
 
 					glPopMatrix();
+
+                    /*GLfloat motion_blur_frac = (GLfloat) motion_blur_prog / (GLfloat) motion_blur_lim;
+                    if (motion_blur_prog == 0) {
+                        glAccum(GL_LOAD, motion_blur_frac);
+                    } else {
+                        glAccum(GL_ACCUM, motion_blur_frac);
+                    }
+                    motion_blur_prog++;*/
 				}
             } else {
                 if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {

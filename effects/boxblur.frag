@@ -9,42 +9,22 @@ uniform vec2 resolution;
 uniform bool horiz_blur;
 uniform bool vert_blur;
 
+uniform bool opt;
+
 void main(void) {
+	float rad = floor(radius);
+	float x_rad = (horiz_blur) ? rad : 0.5;
+	float y_rad = (vert_blur) ? rad : 0.5;
+	vec2 texCoord = gl_FragCoord.xy/resolution;
 	if (radius == 0.0 || (!horiz_blur && !vert_blur)) {
-		gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution);
+		gl_FragColor = texture2D(image, texCoord);
 	} else {
-		float divider = 1.0 / ((radius*2.0)+1.0);
-		if (horiz_blur && vert_blur) {
-			divider *= divider;
-
-			gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution)*divider;
-
-			for (float i=1.0;i<=radius;i++) {
-				gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x-i, gl_FragCoord.y))/resolution)*(divider);
-				gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x+i, gl_FragCoord.y))/resolution)*(divider);
-				gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x, gl_FragCoord.y+i))/resolution)*(divider);
-				gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x, gl_FragCoord.y-i))/resolution)*(divider);
-			}
-
-			for (float x=1.0;x<=radius;x++) {
-				for (float y=1.0;y<=radius;y++) {
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x-x, gl_FragCoord.y-y))/resolution)*(divider);
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x+x, gl_FragCoord.y+y))/resolution)*(divider);
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x-x, gl_FragCoord.y+y))/resolution)*(divider);
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x+x, gl_FragCoord.y-y))/resolution)*(divider);
-				}
-			}
-		} else {
-			gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution)*(divider);
-			
-			for (float i=1.0;i<=radius;i++) {
-				if (horiz_blur) {
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x-i, gl_FragCoord.y))/resolution)*(divider);
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x+i, gl_FragCoord.y))/resolution)*(divider);
-				} else {
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x, gl_FragCoord.y-i))/resolution)*(divider);
-					gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x, gl_FragCoord.y+i))/resolution)*(divider);
-				}
+		float divider = 1.0;
+		if (horiz_blur) divider /= rad;
+		if (vert_blur) divider /= rad;
+		for (float x=-x_rad+0.5;x<=x_rad;x+=2.0) {					
+			for (float y=-y_rad+0.5;y<=y_rad;y+=2.0) {
+				gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x+x, gl_FragCoord.y+y))/resolution)*(divider);
 			}
 		}
 	}
