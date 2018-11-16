@@ -218,6 +218,9 @@
    <property name="text">
     <string>Save Project &amp;As</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="action_Import">
    <property name="text">

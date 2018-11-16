@@ -405,14 +405,24 @@ void insert_clips(ComboAction* ca) {
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
 		if (c != NULL) {
-			if (c->timeline_in < earliest_new_point && c->timeline_out > earliest_new_point) {
-				panel_timeline->split_clip_and_relink(ca, i, earliest_new_point, true);
-			}
-			if (ripple_old_point
-					&& !((c->timeline_in < earliest_old_point && c->timeline_out <= earliest_old_point) || (c->timeline_in >= latest_old_point && c->timeline_out > latest_old_point))
-					&& !ignore_clips.contains(c)) {
-				ripple_old_point = false;
-			}
+            // don't split any clips that are moving
+            bool found = false;
+            for (int j=0;j<panel_timeline->ghosts.size();j++) {
+                if (panel_timeline->ghosts.at(j).clip == i) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (c->timeline_in < earliest_new_point && c->timeline_out > earliest_new_point) {
+                    panel_timeline->split_clip_and_relink(ca, i, earliest_new_point, true);
+                }
+                if (ripple_old_point
+                        && !((c->timeline_in < earliest_old_point && c->timeline_out <= earliest_old_point) || (c->timeline_in >= latest_old_point && c->timeline_out > latest_old_point))
+                        && !ignore_clips.contains(c)) {
+                    ripple_old_point = false;
+                }
+            }
 		}
 	}
 
