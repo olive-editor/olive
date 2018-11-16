@@ -72,6 +72,13 @@ void ViewerWidget::save_frame() {
 	QString fn = QFileDialog::getSaveFileName(this, "Save Frame", QString(), "Portable Network Graphic (*.png);;JPEG (*.jpg *.jpeg);;Windows Bitmap (*.bmp);;Portable Pixmap (*.ppm);;X11 Bitmap (*.xbm);;X11 Pixmap (*.xpm)");
 
 	if (!fn.isEmpty()) {
+        if (!(fn.endsWith("png",  Qt::CaseInsensitive)
+            ||fn.endsWith("jpeg", Qt::CaseInsensitive)
+            ||fn.endsWith("jpg", Qt::CaseInsensitive)
+            ||fn.endsWith("bmp", Qt::CaseInsensitive)
+            ||fn.endsWith("ppm", Qt::CaseInsensitive)
+            ||fn.endsWith("xbm", Qt::CaseInsensitive)
+            ||fn.endsWith("xpm", Qt::CaseInsensitive))) fn.append(".png");
 		QOpenGLFramebufferObject fbo(viewer->seq->width, viewer->seq->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 
 		rendering = true;
