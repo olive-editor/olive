@@ -10,26 +10,24 @@ uniform float center_y;
 uniform vec2 resolution;
 
 void main(void) {
-	vec2 distance = vec2((gl_FragCoord.x - (resolution.x/2.0) - center_x), (gl_FragCoord.y - (resolution.y/2.0) - center_y));
+	if (radius > 0.0) {
+		vec2 distance = vec2((gl_FragCoord.x - (resolution.x/2.0) - center_x), (gl_FragCoord.y - (resolution.y/2.0) - center_y));
 
-	float angle = atan(distance.y/distance.x);
-	float sin_angle = sin(angle);
-	float cos_angle = cos(angle);
+		float angle = atan(distance.y/distance.x);
+		float sin_angle = sin(angle);
+		float cos_angle = cos(angle);
 
-	//float multiplier = pow(length((2.0 * (distance / resolution)) - 1.0), 2.0);
-	float multiplier = length(distance/resolution);
+		float multiplier = length(distance/resolution);
 
-	float limit = radius * multiplier;
+		float limit = ceil(radius * multiplier);
 
-	float divider = 1.0 / ((floor(limit)*2.0)+1.0);
-
-	gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution)*(divider);
-
-	for (float i=1.0;i<=limit;i++) {
-		float y = sin_angle * i;
-		float x = cos_angle * i;
-
-		gl_FragColor += texture2D(image, vec2(gl_FragCoord.x-x, gl_FragCoord.y-y)/resolution)*(divider);
-		gl_FragColor += texture2D(image, vec2(gl_FragCoord.x+x, gl_FragCoord.y+y)/resolution)*(divider);
+		float divider = 1.0 / limit;
+		for (float i=-limit+0.5;i<=limit;i+=2.0) {
+			float y = sin_angle * i;
+			float x = cos_angle * i;
+			gl_FragColor += texture2D(image, vec2(gl_FragCoord.x+x, gl_FragCoord.y+y)/resolution)*(divider);
+		}
+	} else {
+		gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution);
 	}
 }

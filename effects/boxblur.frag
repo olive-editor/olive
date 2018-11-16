@@ -9,8 +9,6 @@ uniform vec2 resolution;
 uniform bool horiz_blur;
 uniform bool vert_blur;
 
-uniform bool opt;
-
 void main(void) {
 	float rad = floor(radius);
 	float x_rad = (horiz_blur) ? rad : 0.5;

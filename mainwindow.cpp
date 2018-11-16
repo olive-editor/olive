@@ -59,7 +59,7 @@ void MainWindow::setup_layout(bool reset) {
 
     bool load_default = true;
 
-    if (!reset) {
+    /*if (!reset) {
         QFile panel_config(get_data_path() + "/layout");
         if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
             if (restoreState(panel_config.readAll(), 0)) {
@@ -67,7 +67,7 @@ void MainWindow::setup_layout(bool reset) {
             }
             panel_config.close();
         }
-    }
+    }*/
 
     if (load_default) {
         addDockWidget(Qt::TopDockWidgetArea, panel_project);
