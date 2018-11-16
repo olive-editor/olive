@@ -204,6 +204,8 @@ private slots:
 
     void on_actionFootage_Viewer_triggered();
 
+    void on_actionPasteInsert_triggered();
+
 private:
 	Ui::MainWindow *ui;
     void setup_layout(bool reset);

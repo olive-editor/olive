@@ -74,12 +74,13 @@ public:
     bool focused();
     void set_zoom(bool in);
     void copy(bool del);
-    void paste();
+    void paste(bool insert);
     void deselect();
     Clip* split_clip(ComboAction* ca, int p, long frame);
     Clip* split_clip(ComboAction* ca, int p, long frame, long post_in);
     bool split_selection(ComboAction* ca);
     void split_at_playhead();
+    bool split_all_clips_at_point(ComboAction *ca, long point);
     bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
     void clean_up_selections(QVector<Selection>& areas);
 	void deselect_area(long in, long out, int track);

@@ -398,9 +398,12 @@ void insert_clips(ComboAction* ca) {
 		if (g.clip >= 0) {
 			ignore_clips.append(sequence->clips.at(g.clip));
 		} else {
+            // don't try to close old gap if importing
 			ripple_old_point = false;
 		}
 	}
+
+    panel_timeline->split_cache.clear();
 
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
@@ -417,6 +420,8 @@ void insert_clips(ComboAction* ca) {
                 if (c->timeline_in < earliest_new_point && c->timeline_out > earliest_new_point) {
                     panel_timeline->split_clip_and_relink(ca, i, earliest_new_point, true);
                 }
+
+                // determine if we should close the gap the old clips left behind
                 if (ripple_old_point
                         && !((c->timeline_in < earliest_old_point && c->timeline_out <= earliest_old_point) || (c->timeline_in >= latest_old_point && c->timeline_out > latest_old_point))
                         && !ignore_clips.contains(c)) {
@@ -425,8 +430,6 @@ void insert_clips(ComboAction* ca) {
             }
 		}
 	}
-
-	panel_timeline->split_cache.clear();
 
 	long ripple_length = (latest_new_point - earliest_new_point);
 

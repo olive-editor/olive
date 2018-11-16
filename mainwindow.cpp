@@ -393,7 +393,7 @@ void MainWindow::copy() {
 
 void MainWindow::paste() {
 	if (panel_timeline->focused() && sequence != NULL) {
-		panel_timeline->paste();
+        panel_timeline->paste(false);
 	}
 }
 
@@ -984,4 +984,10 @@ void MainWindow::on_actionEnable_Drop_on_Media_to_Replace_triggered() {
 
 void MainWindow::on_actionFootage_Viewer_triggered() {
     panel_footage_viewer->setVisible(!panel_footage_viewer->isVisible());
+}
+
+void MainWindow::on_actionPasteInsert_triggered() {
+    if (panel_timeline->focused() && sequence != NULL) {
+        panel_timeline->paste(true);
+    }
 }

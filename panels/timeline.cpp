@@ -842,14 +842,15 @@ void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& n
     }
 }
 
-void Timeline::paste() {
+void Timeline::paste(bool insert) {
     if (clip_clipboard.size() > 0) {
         ComboAction* ca = new ComboAction();
 
         // create copies and delete areas that we'll be pasting to
         QVector<Selection> delete_areas;
         QVector<Clip*> pasted_clips;
-        long paste_end = 0;
+        long paste_start = LONG_MAX;
+        long paste_end = LONG_MIN;
         for (int i=0;i<clip_clipboard.size();i++) {
             Clip* c = clip_clipboard.at(i);
 
@@ -858,19 +859,29 @@ void Timeline::paste() {
 			cc->timeline_in += sequence->playhead;
 			cc->timeline_out += sequence->playhead;
             cc->track = c->track;
-            if (cc->timeline_out > paste_end) paste_end = cc->timeline_out;
-            cc->sequence = sequence;
+
+            paste_start = qMin(paste_start, cc->timeline_in);
+            paste_end = qMax(paste_end, cc->timeline_out);
+
             pasted_clips.append(cc);
 
-            Selection s;
-            s.in = cc->timeline_in;
-            s.out = cc->timeline_out;
-            s.track = c->track;
-            delete_areas.append(s);
+            if (!insert) {
+                Selection s;
+                s.in = cc->timeline_in;
+                s.out = cc->timeline_out;
+                s.track = c->track;
+                delete_areas.append(s);
+            }
         }
-        delete_areas_and_relink(ca, delete_areas);
+        if (insert) {
+            split_cache.clear();
+            split_all_clips_at_point(ca, sequence->playhead);
+            ca->append(new RippleCommand(sequence, paste_start, paste_end - paste_start));
+        } else {
+            delete_areas_and_relink(ca, delete_areas);
+        }
 
-        // ADAPT
+        // correct linked clips
         for (int i=0;i<clip_clipboard.size();i++) {
             // these indices should correspond
             Clip* oc = clip_clipboard.at(i);
@@ -883,7 +894,6 @@ void Timeline::paste() {
                 }
             }
         }
-        // ADAPT
 
         ca->append(new AddClipCommand(sequence, pasted_clips));
 
@@ -1056,6 +1066,20 @@ bool Timeline::split_selection(ComboAction* ca) {
     return false;
 }
 
+bool Timeline::split_all_clips_at_point(ComboAction* ca, long point) {
+    bool split = false;
+    for (int j=0;j<sequence->clips.size();j++) {
+        Clip* c = sequence->clips.at(j);
+        if (c != NULL) {
+            // always relinks
+            if (split_clip_and_relink(ca, j, point, true)) {
+                split = true;
+            }
+        }
+    }
+    return split;
+}
+
 void Timeline::split_at_playhead() {
     ComboAction* ca = new ComboAction();
     bool split_selected = false;
@@ -1089,15 +1113,7 @@ void Timeline::split_at_playhead() {
 
     // if nothing was selected or no selections fell within playhead, simply split at playhead
     if (!split_selected) {
-        for (int j=0;j<sequence->clips.size();j++) {
-            Clip* c = sequence->clips.at(j);
-            if (c != NULL) {
-                // always relinks
-				if (split_clip_and_relink(ca, j, sequence->playhead, true)) {
-                    split_selected = true;
-                }
-            }
-        }
+        split_selected = split_all_clips_at_point(ca, sequence->playhead);
     }
 
     if (split_selected) {
