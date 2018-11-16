@@ -271,7 +271,7 @@ void PreviewGenerator::generate_waveform() {
 						linesize[0] = dstW*3;
 						sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
-						s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
+                        s->video_preview.convertFromImage(QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888));
 
 						// is video interlaced?
 						s->video_auto_interlacing = (temp_frame->interlaced_frame) ? ((temp_frame->top_field_first) ? VIDEO_TOP_FIELD_FIRST : VIDEO_BOTTOM_FIELD_FIRST) : VIDEO_PROGRESSIVE;
@@ -439,7 +439,7 @@ void PreviewGenerator::run() {
 				// save preview to file
 				for (int i=0;i<media->video_tracks.size();i++) {
 					MediaStream* ms = media->video_tracks.at(i);
-					if (ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG")) {
+                    if (ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG")) {
 						//dout << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
 					}
 				}
