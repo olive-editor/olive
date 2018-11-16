@@ -2085,7 +2085,8 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 									int thumb_width = (thumb_height*((double)ms->video_preview.width()/(double)ms->video_preview.height()));
 									if (thumb_x + thumb_width >= 0
 											&& thumb_height > thumb_y
-                                            && thumb_y + thumb_height >= 0){
+                                            && thumb_y + thumb_height >= 0
+                                            && space_for_thumb > thumb_width / 4){ //don't show thumbnail if 1/4 is only showing
                                         if (space_for_thumb < thumb_width){
                                             p.setClipping(true);
                                             p.setClipRegion(QRegion(thumb_x, clip_rect.y()+thumb_y, clip_rect.width()-1, thumb_height));
