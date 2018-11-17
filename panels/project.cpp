@@ -1691,7 +1691,7 @@ void update_footage_tooltip(QTreeWidgetItem *item, Media *media, QString error) 
 			// tooltip += "\n";
 		}
 	} else {
-
+        tooltip = error;
 	}
 
 	item->setToolTip(0, tooltip);

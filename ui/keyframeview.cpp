@@ -190,54 +190,56 @@ void KeyframeView::draw_keyframe(QPainter &p, int type, int x, int y, bool darke
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {
-    int row_index = -1;
-    int keyframe_index = -1;
-    long frame_diff = 0;
-	int mouse_x = event->x() + x_scroll;
-	int mouse_y = event->y();
-	long frame_min = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x-KEYFRAME_SIZE);
-	drag_frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x);
-	long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x+KEYFRAME_SIZE);
-    for (int i=0;i<rowY.size();i++) {
-		if (mouse_y > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && mouse_y < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
-            EffectRow* row = rows.at(i);
-            for (int j=0;j<row->keyframe_times.size();j++) {
-                long eval_keyframe_time = row->keyframe_times.at(j)-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
-                if (eval_keyframe_time >= frame_min && eval_keyframe_time <= frame_max) {
-					long eval_frame_diff = qAbs(eval_keyframe_time - drag_frame_start);
-                    if (keyframe_index == -1 || eval_frame_diff < frame_diff) {
-                        row_index = i;
-                        keyframe_index = j;
-                        frame_diff = eval_frame_diff;
+    if (event->button() == Qt::LeftButton) {
+        int row_index = -1;
+        int keyframe_index = -1;
+        long frame_diff = 0;
+        int mouse_x = event->x() + x_scroll;
+        int mouse_y = event->y();
+        long frame_min = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x-KEYFRAME_SIZE);
+        drag_frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x);
+        long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x+KEYFRAME_SIZE);
+        for (int i=0;i<rowY.size();i++) {
+            if (mouse_y > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && mouse_y < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
+                EffectRow* row = rows.at(i);
+                for (int j=0;j<row->keyframe_times.size();j++) {
+                    long eval_keyframe_time = row->keyframe_times.at(j)-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
+                    if (eval_keyframe_time >= frame_min && eval_keyframe_time <= frame_max) {
+                        long eval_frame_diff = qAbs(eval_keyframe_time - drag_frame_start);
+                        if (keyframe_index == -1 || eval_frame_diff < frame_diff) {
+                            row_index = i;
+                            keyframe_index = j;
+                            frame_diff = eval_frame_diff;
+                        }
                     }
                 }
+                break;
             }
-            break;
         }
-    }
-    bool already_selected = false;
-	keys_selected = false;
-	if (keyframe_index > -1) already_selected = keyframeIsSelected(rows.at(row_index), keyframe_index);
-    if (!already_selected) {
-        if (!(event->modifiers() & Qt::ShiftModifier)) {
-            selected_rows.clear();
-            selected_keyframes.clear();
+        bool already_selected = false;
+        keys_selected = false;
+        if (keyframe_index > -1) already_selected = keyframeIsSelected(rows.at(row_index), keyframe_index);
+        if (!already_selected) {
+            if (!(event->modifiers() & Qt::ShiftModifier)) {
+                selected_rows.clear();
+                selected_keyframes.clear();
+            }
+            if (keyframe_index > -1) {
+                selected_rows.append(rows.at(row_index));
+                selected_keyframes.append(keyframe_index);
+            }
         }
-        if (keyframe_index > -1) {
-			selected_rows.append(rows.at(row_index));
-            selected_keyframes.append(keyframe_index);
-        }
-    }
 
-	if (selected_rows.size() > 0) {
-		keys_selected = true;
-	} else {
-		rect_select_x = event->x();
-		rect_select_y = event->y();
-	}
+        if (selected_rows.size() > 0) {
+            keys_selected = true;
+        } else {
+            rect_select_x = event->x();
+            rect_select_y = event->y();
+        }
 
-    update();
-    mousedown = true;
+        update();
+        mousedown = true;
+    }
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
