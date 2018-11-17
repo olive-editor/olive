@@ -2026,7 +2026,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 				QRect clip_rect(panel_timeline->getTimelineScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), getScreenPointFromFrame(panel_timeline->zoom, clip->getLength()), panel_timeline->calculate_track_height(clip->track, -1));
 				QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
 				if (clip_rect.left() < width() && clip_rect.right() >= 0 && clip_rect.top() < height() && clip_rect.bottom() >= 0) {
-					QRect actual_clip_rect = clip_rect;
+                    QRect actual_clip_rect = clip_rect;
 					if (actual_clip_rect.x() < 0) actual_clip_rect.setX(0);
 					if (actual_clip_rect.right() > width()) actual_clip_rect.setRight(width());
 					if (actual_clip_rect.y() < 0) actual_clip_rect.setY(0);
@@ -2098,11 +2098,15 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 									int thumb_width = (thumb_height*((double)ms->video_preview.width()/(double)ms->video_preview.height()));
 									if (thumb_x + thumb_width >= 0
 											&& thumb_height > thumb_y
-											&& thumb_y + thumb_height >= 0
-											&& text_rect.width() + CLIP_TEXT_PADDING > thumb_width
-											&& space_for_thumb >= thumb_width) { // at small clip heights, don't even draw it
-										QRect thumb_rect(thumb_x, clip_rect.y()+thumb_y, thumb_width, thumb_height);
-										p.drawImage(thumb_rect, ms->video_preview);
+                                            && thumb_y + thumb_height >= 0
+                                            && space_for_thumb > thumb_width / 4){ //don't show thumbnail if 1/4 is only showing
+                                        if (space_for_thumb < thumb_width){
+                                            p.setClipping(true);
+                                            p.setClipRegion(QRegion(thumb_x, clip_rect.y()+thumb_y, clip_rect.width()-1, thumb_height));
+                                            p.drawPixmap(thumb_x,clip_rect.y()+thumb_y, ms->video_preview.scaledToHeight(thumb_height));
+                                            p.setClipping(false);
+                                        } else
+                                        p.drawPixmap(thumb_x,clip_rect.y()+thumb_y, ms->video_preview.scaledToHeight(thumb_height));
 									}
 								}
 							} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
