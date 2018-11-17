@@ -352,7 +352,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 	int half_height = s->height/2;
 	if (rendering || !nests.isEmpty()) half_height = -half_height; // invert vertical
 	glPushMatrix();
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glLoadIdentity();
 	glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);

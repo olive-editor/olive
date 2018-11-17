@@ -46,7 +46,7 @@ protected:
 	void wheelEvent(QWheelEvent *event);
 private:
 	void init_ghosts();
-    void update_ghosts(const QPoint &mouse_pos);
+    void update_ghosts(const QPoint& mouse_pos, bool lock_frame);
     bool is_track_visible(int track);
     int getTrackFromScreenPoint(int y);
 	int getScreenPointFromTrack(int track);

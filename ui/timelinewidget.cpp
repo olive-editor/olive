@@ -324,7 +324,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
     if (sequence != NULL && panel_timeline->importing) {
 		QPoint pos = event->pos();
-        update_ghosts(pos);
+        update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
 		panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
 		update_ui(false);
 	}
@@ -1101,9 +1101,9 @@ void TimelineWidget::init_ghosts() {
 	}
 }
 
-void TimelineWidget::update_ghosts(const QPoint& mouse_pos) {
-	int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
-	long frame_diff = panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
+void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
+    int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
+    long frame_diff = (lock_frame) ? 0 : panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
 	int track_diff = ((panel_timeline->tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != TA_NO_TRANSITION) && !panel_timeline->importing) ? 0 : mouse_track - panel_timeline->drag_track_start;
     long validator;
 	long earliest_in_point = LONG_MAX;
@@ -1411,7 +1411,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
     if (sequence != NULL) {
         bool alt = (event->modifiers() & Qt::AltModifier);
 
-		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
+        panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
         panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
 		panel_timeline->move_insert = ((event->modifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing || panel_timeline->creating));
@@ -1491,8 +1491,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 panel_timeline->calculate_track_height(track_target, new_height);
 				update();
             } else if (panel_timeline->moving_proc) {
-                QPoint pos = event->pos();
-                update_ghosts(pos);
+                update_ghosts(event->pos(), event->modifiers() & Qt::ShiftModifier);
             } else {
                 // set up movement
                 // create ghosts
@@ -1907,7 +1906,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
             if (panel_timeline->transition_tool_init) {
                 if (panel_timeline->transition_tool_proc) {
-                    update_ghosts(event->pos());
+                    update_ghosts(event->pos(), event->modifiers() & Qt::ShiftModifier);
                 } else {
                     Clip* c = sequence->clips.at(panel_timeline->transition_tool_pre_clip);
 
