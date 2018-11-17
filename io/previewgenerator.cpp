@@ -439,9 +439,7 @@ void PreviewGenerator::run() {
 				// save preview to file
 				for (int i=0;i<media->video_tracks.size();i++) {
 					MediaStream* ms = media->video_tracks.at(i);
-                    if (ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG")) {
-						//dout << "saved" << ms->file_index << "thumb to" << get_thumbnail_path(hash, ms);
-					}
+                    ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG");
 				}
 				for (int i=0;i<media->audio_tracks.size();i++) {
 					MediaStream* ms = media->audio_tracks.at(i);

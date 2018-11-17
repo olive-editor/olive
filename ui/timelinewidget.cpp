@@ -2085,7 +2085,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 								// draw thumbnail
 								int thumb_y = p.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
 								if (thumb_x < width() && thumb_y < height()) {
-									int space_for_thumb = clip_rect.width();
+                                    int space_for_thumb = clip_rect.width()-1;
 									if (clip->opening_transition != NULL) {
 										int ot_width = getScreenPointFromFrame(panel_timeline->zoom, clip->opening_transition->length);
 										thumb_x += ot_width;
@@ -2099,14 +2099,9 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 									if (thumb_x + thumb_width >= 0
 											&& thumb_height > thumb_y
                                             && thumb_y + thumb_height >= 0
-                                            && space_for_thumb > thumb_width / 4){ //don't show thumbnail if 1/4 is only showing
-                                        if (space_for_thumb < thumb_width){
-                                            p.setClipping(true);
-                                            p.setClipRegion(QRegion(thumb_x, clip_rect.y()+thumb_y, clip_rect.width()-1, thumb_height));
-                                            p.drawPixmap(thumb_x,clip_rect.y()+thumb_y, ms->video_preview.scaledToHeight(thumb_height));
-                                            p.setClipping(false);
-                                        } else
-                                        p.drawPixmap(thumb_x,clip_rect.y()+thumb_y, ms->video_preview.scaledToHeight(thumb_height));
+                                            && space_for_thumb > MAX_TEXT_WIDTH) {
+                                        int thumb_clip_width = qMin(thumb_width, space_for_thumb);
+                                        p.drawPixmap(QRect(thumb_x, clip_rect.y()+thumb_y, thumb_clip_width, thumb_height), ms->video_preview, QRect(0, 0, thumb_clip_width*((double)ms->video_preview.width()/(double)thumb_width), ms->video_preview.height()));
 									}
 								}
 							} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {

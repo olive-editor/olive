@@ -69,16 +69,18 @@ void ViewerWidget::show_context_menu() {
 }
 
 void ViewerWidget::save_frame() {
-	QString fn = QFileDialog::getSaveFileName(this, "Save Frame", QString(), "Portable Network Graphic (*.png);;JPEG (*.jpg *.jpeg);;Windows Bitmap (*.bmp);;Portable Pixmap (*.ppm);;X11 Bitmap (*.xbm);;X11 Pixmap (*.xpm)");
+    QFileDialog fd(this);
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    fd.setFileMode(QFileDialog::AnyFile);
+    fd.setWindowTitle("Save Frame");
+    fd.setNameFilter("Portable Network Graphic (*.png);;JPEG (*.jpg);;Windows Bitmap (*.bmp);;Portable Pixmap (*.ppm);;X11 Bitmap (*.xbm);;X11 Pixmap (*.xpm)");
 
-	if (!fn.isEmpty()) {
-        if (!(fn.endsWith("png",  Qt::CaseInsensitive)
-            ||fn.endsWith("jpeg", Qt::CaseInsensitive)
-            ||fn.endsWith("jpg", Qt::CaseInsensitive)
-            ||fn.endsWith("bmp", Qt::CaseInsensitive)
-            ||fn.endsWith("ppm", Qt::CaseInsensitive)
-            ||fn.endsWith("xbm", Qt::CaseInsensitive)
-            ||fn.endsWith("xpm", Qt::CaseInsensitive))) fn.append(".png");
+    if (fd.exec()) {
+        QString fn = fd.selectedFiles().at(0);
+        QString selected_ext = fd.selectedNameFilter().mid(fd.selectedNameFilter().indexOf(QRegExp("\\*.[a-z][a-z][a-z]")) + 1, 4);
+        if (!fn.endsWith(selected_ext,  Qt::CaseInsensitive)) {
+            fn += selected_ext;
+        }
 		QOpenGLFramebufferObject fbo(viewer->seq->width, viewer->seq->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 
 		rendering = true;
