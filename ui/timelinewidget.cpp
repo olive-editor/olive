@@ -681,7 +681,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 				break;
             case TIMELINE_TOOL_TRANSITION:
             {
-                if (panel_timeline->transition_tool_clip > -1) {
+                if (panel_timeline->transition_tool_pre_clip > -1) {
                     panel_timeline->transition_tool_init = true;
                 }
             }
@@ -1909,13 +1909,13 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                 if (panel_timeline->transition_tool_proc) {
                     update_ghosts(event->pos());
                 } else {
-                    Clip* c = sequence->clips.at(panel_timeline->transition_tool_clip);
+                    Clip* c = sequence->clips.at(panel_timeline->transition_tool_pre_clip);
 
                     Ghost g;
 
                     g.in = g.old_in = g.out = g.old_out = (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) ? c->timeline_in : c->timeline_out;
                     g.track = c->track;
-                    g.clip = panel_timeline->transition_tool_clip;
+                    g.clip = panel_timeline->transition_tool_pre_clip;
                     g.media_type = panel_timeline->transition_tool_type;
                     g.trimming = false;
 
@@ -1928,7 +1928,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 				if (mouse_clip > -1) {
 					Clip* c = sequence->clips.at(mouse_clip);
 					if (same_sign(c->track, panel_timeline->transition_tool_side)) {
-						panel_timeline->transition_tool_clip = mouse_clip;
+                        panel_timeline->transition_tool_pre_clip = mouse_clip;
 						long halfway = c->timeline_in + (c->getLength()/2);
 						if (panel_timeline->cursor_frame > halfway) {
 							panel_timeline->transition_tool_type = TA_CLOSING_TRANSITION;
@@ -1936,10 +1936,6 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 							panel_timeline->transition_tool_type = TA_OPENING_TRANSITION;
 						}
 					}
-				}
-
-                if (panel_timeline->transition_tool_clip > -1) {
-
                 }
             }
 
@@ -2221,7 +2217,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
 
                     // draw transition tool
-					if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && panel_timeline->transition_tool_clip == i) {
+                    if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && panel_timeline->transition_tool_pre_clip == i) {
                         QRect transition_tool_rect = clip_rect;
                         if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
                             transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));

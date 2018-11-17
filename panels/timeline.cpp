@@ -62,7 +62,8 @@ Timeline::Timeline(QWidget *parent) :
     creating(false),
     transition_tool_init(false),
     transition_tool_proc(false),
-    transition_tool_clip(-1),
+    transition_tool_pre_clip(-1),
+    transition_tool_post_clip(-1),
     ui(new Ui::Timeline),
 	last_frame(0),	
     scroll(0)
