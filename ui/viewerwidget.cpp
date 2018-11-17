@@ -86,7 +86,7 @@ void ViewerWidget::save_frame() {
 		rendering = true;
 		fbo.bind();
 
-		panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
+        default_fbo = &fbo;
 
 		paintGL();
 
@@ -95,7 +95,7 @@ void ViewerWidget::save_frame() {
 		img.save(fn);
 
 		fbo.release();
-		panel_sequence_viewer->viewer_widget->default_fbo = NULL;
+        default_fbo = NULL;
 		rendering = false;
 	}
 }
