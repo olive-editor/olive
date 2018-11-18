@@ -13,6 +13,7 @@ public:
 	EffectField* solid_type;
 	EffectField* solid_color_field;
 	EffectField* opacity_field;
+    EffectField* solid_width_field;
 	void redraw(double timecode);
 };
 
