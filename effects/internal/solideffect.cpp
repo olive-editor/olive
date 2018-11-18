@@ -159,16 +159,15 @@ void SolidEffect::redraw(double timecode) {
         int checker_width = qCeil(double(w) / CHECKER_SQUARE_COUNT);
         int checker_height = qCeil(double(h) / CHECKER_SQUARE_COUNT);
         int checker_x, checker_y, count = 0;
-        QColor checker_box_odd(QColor(0,0,0));
-        QColor checker_box_even(QColor(solid_color_field->get_color_value(timecode)));
-        checker_box_odd.setAlpha(alpha);
-        checker_box_even.setAlpha(alpha);
-        QVector<QColor> checker_color{checker_box_odd, checker_box_even};
+        QColor checker_odd(QColor(0,0,0,alpha));
+        QColor checker_even(solid_color_field->get_color_value(timecode));
+        checker_even.setAlpha(alpha);
+        QVector<QColor> checker_color{checker_odd, checker_even};
 
         for(int i = 0; i < CHECKER_SQUARE_COUNT; i++){
             checker_x = checker_width*i;
-            for(int y = 0; y < CHECKER_SQUARE_COUNT; y++){
-                  checker_y = checker_height*y;
+            for(int j = 0; j < CHECKER_SQUARE_COUNT; j++){
+                  checker_y = checker_height*j;
                   p.fillRect(QRect(checker_x, checker_y, checker_width, checker_height), checker_color[count%2]);
                   count++;
             }
