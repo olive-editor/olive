@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <effect name="Chroma Key" category="Keying">
+	<row name="Mode">
+		<field type="combo" default="0" id="mode">
+			<option>Composite</option>
+			<option>Alpha</option>
+			<option>Original</option>
+		</field>
+	</row>
 	<row name="Key Color">
 		<field type="color" r="0" g="255" b="0" id="key_color"/>
 	</row>
