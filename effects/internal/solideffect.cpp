@@ -156,9 +156,10 @@ void SolidEffect::redraw(double timecode) {
         p.setRenderHint(QPainter::Antialiasing);
         img.fill(Qt::transparent);
 
-        int checker_width = qCeil(double(w) / CHECKER_SQUARE_COUNT);
-        int checker_height = qCeil(double(h) / CHECKER_SQUARE_COUNT);
-        int checker_x, checker_y, count = 0;
+        double checker_width = double(w) / CHECKER_SQUARE_COUNT;
+        double checker_height = double(h) / CHECKER_SQUARE_COUNT;
+        double checker_x, checker_y;
+        int count = 0;
         QColor checker_odd(QColor(0,0,0,alpha));
         QColor checker_even(solid_color_field->get_color_value(timecode));
         checker_even.setAlpha(alpha);
@@ -168,7 +169,8 @@ void SolidEffect::redraw(double timecode) {
             checker_x = checker_width*i;
             for(int j = 0; j < CHECKER_SQUARE_COUNT; j++){
                   checker_y = checker_height*j;
-                  p.fillRect(QRect(checker_x, checker_y, checker_width, checker_height), checker_color[count%2]);
+                  QRectF checker(checker_x, checker_y, checker_width, checker_height);
+                  p.fillRect(checker, checker_color[count%2]);
                   count++;
             }
         }
