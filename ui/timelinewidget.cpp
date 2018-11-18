@@ -1346,7 +1346,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
     }
 
     // apply changes to selections
-    if (panel_timeline->tool != TIMELINE_TOOL_SLIP && !panel_timeline->importing) {
+    if (panel_timeline->tool != TIMELINE_TOOL_SLIP && !panel_timeline->importing && !panel_timeline->creating) {
 		for (int i=0;i<sequence->selections.size();i++) {
 			Selection& s = sequence->selections[i];
             if (panel_timeline->trim_target > -1) {
