@@ -848,7 +848,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                     }
                 }
             } else if (type == LOAD_TYPE_URL) {
-                internal_proj_dir = QFileInfo(stream.readElementText()).absoluteDir();
+                internal_proj_url = stream.readElementText();
+                internal_proj_dir = QFileInfo(internal_proj_url).absoluteDir();
             } else {
                 while (!(stream.name() == root_search && stream.isEndElement())) {
                     stream.readNext();
@@ -1188,7 +1189,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
     return true;
 }
 
-void Project::load_project() {
+void Project::load_project(bool autorecovery) {
     new_project();
 
 	/*LoadDialog ld;
@@ -1207,6 +1208,7 @@ void Project::load_project() {
      */
     proj_dir = QFileInfo(project_url).absoluteDir();
     internal_proj_dir = QFileInfo(project_url).absoluteDir();
+    internal_proj_url = project_url;
 
     QXmlStreamReader stream(&file);
 
@@ -1240,6 +1242,22 @@ void Project::load_project() {
 
     // find project's internal URL
     cont = load_worker(file, stream, LOAD_TYPE_URL);
+    if (autorecovery) {
+        QString orig_filename = internal_proj_url;
+        int insert_index = internal_proj_url.lastIndexOf(".ove", -1, Qt::CaseInsensitive);
+        if (insert_index == -1) insert_index = internal_proj_url.length();
+        int counter = 1;
+        while (QFileInfo::exists(orig_filename)) {
+            orig_filename = internal_proj_url;
+            QString recover_text = "recovered";
+            if (counter > 1) {
+                recover_text += " " + QString::number(counter);
+            }
+            orig_filename.insert(insert_index, " (" + recover_text + ")");
+            counter++;
+        }
+        mainWindow->updateTitle(orig_filename);
+    }
 
     // load folders first
     if (cont) {
@@ -1290,7 +1308,7 @@ void Project::load_project() {
         if (open_seq != NULL) set_sequence(open_seq);
 
 		update_ui(false);
-		mainWindow->setWindowModified(false);
+        mainWindow->setWindowModified(autorecovery);
 
 		for (int i=0;i<loaded_media_items.size();i++) {
 			start_preview_generator(loaded_media_items.at(i), loaded_media.at(i), true);

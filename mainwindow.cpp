@@ -41,7 +41,7 @@
 #include <QInputDialog>
 #include <QRegExp>
 
-QMainWindow* mainWindow;
+MainWindow* mainWindow;
 
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
@@ -184,7 +184,7 @@ MainWindow::MainWindow(QWidget *parent) :
             if (QFile::exists(autorecovery_filename)) {
                 if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
 					updateTitle(autorecovery_filename);
-                    panel_project->load_project();
+                    panel_project->load_project(true);
                 }
             }
             autorecovery_timer.setInterval(60000);
@@ -487,7 +487,7 @@ void MainWindow::on_action_Open_Project_triggered()
     QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
 	if (!fn.isEmpty() && can_close_project()) {
 		updateTitle(fn);
-        panel_project->load_project();
+        panel_project->load_project(false);
         undo_stack.clear();
     }
 }
@@ -745,7 +745,7 @@ void MainWindow::load_recent_project() {
         }
 	} else if (can_close_project()) {
 		updateTitle(recent_url);
-        panel_project->load_project();
+        panel_project->load_project(false);
     }
 }
 
