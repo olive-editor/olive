@@ -11,10 +11,13 @@
 
 #define SOLID_TYPE_COLOR 0
 #define SOLID_TYPE_BARS 1
+#define SOLID_TYPE_CHECKERBOARD 2
 
 #define SMPTE_BARS 7
 #define SMPTE_STRIP_COUNT 3
 #define SMPTE_LOWER_BARS 4
+
+#define CHECKER_SQUARE_COUNT 7
 
 SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	enable_superimpose = true;
@@ -22,6 +25,7 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
 	solid_type->add_combo_item("Solid Color", SOLID_TYPE_COLOR);
 	solid_type->add_combo_item("SMPTE Bars", SOLID_TYPE_BARS);
+    solid_type->add_combo_item("Checkerboard", SOLID_TYPE_CHECKERBOARD);
 	solid_type->id = "type";
 
 	solid_color_field = add_row("Color:")->add_field(EFFECT_FIELD_COLOR);
@@ -143,8 +147,34 @@ void SolidEffect::redraw(double timecode) {
 			third_color.setAlpha(alpha);
 			p.fillRect(QRect(bar_x, third_bar_y, third_bar_width, third_bar_height), third_color);
 		}
-	}
-		break;
+    }
+        break;
+    case SOLID_TYPE_CHECKERBOARD:
+    {
+        // draw checkboard
+        QPainter p(&img);
+        p.setRenderHint(QPainter::Antialiasing);
+        img.fill(Qt::transparent);
+
+        int checker_width = qCeil(double(w) / CHECKER_SQUARE_COUNT);
+        int checker_height = qCeil(double(h) / CHECKER_SQUARE_COUNT);
+        int checker_x, checker_y, count = 0;
+        QColor checker_box_odd(QColor(0,0,0));
+        QColor checker_box_even(QColor(solid_color_field->get_color_value(timecode)));
+        checker_box_odd.setAlpha(alpha);
+        checker_box_even.setAlpha(alpha);
+        QVector<QColor> checker_color{checker_box_odd, checker_box_even};
+
+        for(int i = 0; i < CHECKER_SQUARE_COUNT; i++){
+            checker_x = checker_width*i;
+            for(int y = 0; y < CHECKER_SQUARE_COUNT; y++){
+                  checker_y = checker_height*y;
+                  p.fillRect(QRect(checker_x, checker_y, checker_width, checker_height), checker_color[count%2]);
+                  count++;
+            }
+        }
+    }
+        break;
 	}
 }
 
