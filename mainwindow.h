@@ -88,6 +88,8 @@ private slots:
 
 	void on_actionPlay_Pause_triggered();
 
+    void on_actionPlayReverse_Play_triggered();
+
     void on_actionEdit_Tool_triggered();
 
     void on_actionToggle_Snapping_triggered();

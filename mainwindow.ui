@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>16</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -51,7 +51,7 @@
     </widget>
     <widget class="QMenu" name="menuOpen_Recent">
      <property name="title">
-      <string>Open Recent</string>
+      <string>Open &amp;Recent</string>
      </property>
     </widget>
     <addaction name="menu_New"/>
@@ -126,7 +126,7 @@
     </property>
     <widget class="QMenu" name="menuTitle_Action_Safe_Area">
      <property name="title">
-      <string>Title/Action Safe Area</string>
+      <string>Tit&amp;le/Action Safe Area</string>
      </property>
      <addaction name="actionOff"/>
      <addaction name="actionDefault"/>
@@ -154,6 +154,7 @@
     <addaction name="actionGo_to_start"/>
     <addaction name="actionPrevious_Frame"/>
     <addaction name="actionPlay_Pause"/>
+    <addaction name="actionPlayReverse_Play"/>
     <addaction name="actionNext_Frame"/>
     <addaction name="actionGo_to_End"/>
     <addaction name="separator"/>
@@ -246,7 +247,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About...</string>
+    <string>&amp;About...</string>
    </property>
   </action>
   <action name="action_Undo">
@@ -318,12 +319,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Track Lines</string>
+    <string>&amp;Track Lines</string>
    </property>
   </action>
   <action name="actionProject">
    <property name="text">
-    <string>Project...</string>
+    <string>&amp;Project...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -331,7 +332,7 @@
   </action>
   <action name="actionSequence">
    <property name="text">
-    <string>Sequence...</string>
+    <string>&amp;Sequence...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
@@ -339,7 +340,7 @@
   </action>
   <action name="actionZoom_In">
    <property name="text">
-    <string>Zoom In</string>
+    <string>&amp;Zoom In</string>
    </property>
    <property name="shortcut">
     <string>=</string>
@@ -347,7 +348,7 @@
   </action>
   <action name="actionZoom_out">
    <property name="text">
-    <string>Zoom Out</string>
+    <string>Zoom &amp;Out</string>
    </property>
    <property name="shortcut">
     <string>-</string>
@@ -361,7 +362,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Project</string>
+    <string>&amp;Project</string>
    </property>
   </action>
   <action name="actionEffect_Controls">
@@ -372,7 +373,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Effect Controls</string>
+    <string>&amp;Effect Controls</string>
    </property>
   </action>
   <action name="actionViewer">
@@ -383,7 +384,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Sequence Viewer</string>
+    <string>&amp;Sequence Viewer</string>
    </property>
   </action>
   <action name="actionTimeline">
@@ -394,7 +395,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Timeline</string>
+    <string>&amp;Timeline</string>
    </property>
   </action>
   <action name="actionRipple_Delete">
@@ -407,7 +408,7 @@
   </action>
   <action name="actionSplit_at_Playhead">
    <property name="text">
-    <string>Split at Playhead</string>
+    <string>&amp;Split at Playhead</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
@@ -420,7 +421,7 @@
   </action>
   <action name="actionGo_to_start">
    <property name="text">
-    <string>Go to Start</string>
+    <string>&amp;Go to Start</string>
    </property>
    <property name="shortcut">
     <string>Home</string>
@@ -428,12 +429,12 @@
   </action>
   <action name="actionReset_to_default_layout">
    <property name="text">
-    <string>Reset to default layout</string>
+    <string>&amp;Reset to default layout</string>
    </property>
   </action>
   <action name="actionPrevious_Frame">
    <property name="text">
-    <string>Previous Frame</string>
+    <string>&amp;Previous Frame</string>
    </property>
    <property name="shortcut">
     <string>Left</string>
@@ -441,7 +442,7 @@
   </action>
   <action name="actionPlay_Pause">
    <property name="text">
-    <string>Play/Pause</string>
+    <string>P&amp;lay/Pause</string>
    </property>
    <property name="shortcut">
     <string>Space</string>
@@ -449,7 +450,7 @@
   </action>
   <action name="actionNext_Frame">
    <property name="text">
-    <string>Next Frame</string>
+    <string>&amp;Next Frame</string>
    </property>
    <property name="shortcut">
     <string>Right</string>
@@ -457,7 +458,7 @@
   </action>
   <action name="actionGo_to_End">
    <property name="text">
-    <string>Go to End</string>
+    <string>Go to &amp;End</string>
    </property>
    <property name="shortcut">
     <string>End</string>
@@ -465,7 +466,7 @@
   </action>
   <action name="actionCrash">
    <property name="text">
-    <string>Crash</string>
+    <string>&amp;Crash</string>
    </property>
    <property name="visible">
     <bool>false</bool>
@@ -473,7 +474,7 @@
   </action>
   <action name="actionPointer_Tool">
    <property name="text">
-    <string>Pointer Tool</string>
+    <string>&amp;Pointer Tool</string>
    </property>
    <property name="shortcut">
     <string>V</string>
@@ -481,7 +482,7 @@
   </action>
   <action name="actionEdit_Tool">
    <property name="text">
-    <string>Edit Tool</string>
+    <string>&amp;Edit Tool</string>
    </property>
    <property name="shortcut">
     <string>X</string>
@@ -489,7 +490,7 @@
   </action>
   <action name="actionRazor_Tool">
    <property name="text">
-    <string>Razor Tool</string>
+    <string>Ra&amp;zor Tool</string>
    </property>
    <property name="shortcut">
     <string>C</string>
@@ -497,7 +498,7 @@
   </action>
   <action name="actionRipple_Tool">
    <property name="text">
-    <string>Ripple Tool</string>
+    <string>&amp;Ripple Tool</string>
    </property>
    <property name="shortcut">
     <string>B</string>
@@ -505,7 +506,7 @@
   </action>
   <action name="actionRolling_Tool">
    <property name="text">
-    <string>Rolling Tool</string>
+    <string>Rollin&amp;g Tool</string>
    </property>
    <property name="shortcut">
     <string>N</string>
@@ -527,7 +528,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Snapping</string>
+    <string>S&amp;napping</string>
    </property>
    <property name="toolTip">
     <string>Snapping</string>
@@ -538,7 +539,7 @@
   </action>
   <action name="actionSlip_Tool">
    <property name="text">
-    <string>Slip Tool</string>
+    <string>&amp;Slip Tool</string>
    </property>
    <property name="shortcut">
     <string>Y</string>
@@ -546,7 +547,7 @@
   </action>
   <action name="actionGo_to_Previous_Cut">
    <property name="text">
-    <string>Go to Previous Cut</string>
+    <string>G&amp;o to Previous Cut</string>
    </property>
    <property name="shortcut">
     <string>Up</string>
@@ -554,7 +555,7 @@
   </action>
   <action name="actionGo_to_Next_Cut">
    <property name="text">
-    <string>Go to Next Cut</string>
+    <string>Go to Next &amp;Cut</string>
    </property>
    <property name="shortcut">
     <string>Down</string>
@@ -570,7 +571,7 @@
   </action>
   <action name="actionIncrease_Track_Height">
    <property name="text">
-    <string>Increase Track Height</string>
+    <string>&amp;Increase Track Height</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+=</string>
@@ -578,7 +579,7 @@
   </action>
   <action name="actionDecrease_Track_Height">
    <property name="text">
-    <string>Decrease Track Height</string>
+    <string>&amp;Decrease Track Height</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
@@ -589,7 +590,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Frames</string>
+    <string>&amp;Frames</string>
    </property>
   </action>
   <action name="actionDrop_Frame">
@@ -597,7 +598,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Drop-Frame</string>
+    <string>D&amp;rop-Frame</string>
    </property>
   </action>
   <action name="actionNon_Drop_Frame">
@@ -605,7 +606,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Non-Drop Frame</string>
+    <string>&amp;Non-Drop Frame</string>
    </property>
   </action>
   <action name="actionEdit_Tool_Selects_Links">
@@ -613,12 +614,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Edit Tool Selects Links</string>
+    <string>Edit Tool Selects &amp;Links</string>
    </property>
   </action>
   <action name="actionDuplicate">
    <property name="text">
-    <string>Duplicate</string>
+    <string>&amp;Duplicate</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
@@ -629,7 +630,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Selecting Also Seeks</string>
+    <string>Selecting Also See&amp;ks</string>
    </property>
   </action>
   <action name="actionSeek_to_the_End_of_Pastes">
@@ -637,12 +638,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Seek to the End of Pastes</string>
+    <string>Seek to the End &amp;of Pastes</string>
    </property>
   </action>
   <action name="actionAdd_Default_Transition">
    <property name="text">
-    <string>Add Default Transition</string>
+    <string>Add De&amp;fault Transition</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
@@ -658,7 +659,7 @@
   </action>
   <action name="actionFolder">
    <property name="text">
-    <string>Folder</string>
+    <string>&amp;Folder</string>
    </property>
   </action>
   <action name="actionClear_Recent_List">
@@ -671,12 +672,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Scroll Wheel Zooms</string>
+    <string>Scroll &amp;Wheel Zooms</string>
    </property>
   </action>
   <action name="actionLink_Unlink">
    <property name="text">
-    <string>Link/Unlink</string>
+    <string>&amp;Link/Unlink</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -700,7 +701,7 @@
   </action>
   <action name="actionSet_In_Point">
    <property name="text">
-    <string>Set In Point</string>
+    <string>Set &amp;In Point</string>
    </property>
    <property name="shortcut">
     <string>I</string>
@@ -708,7 +709,7 @@
   </action>
   <action name="actionSet_Out_Point">
    <property name="text">
-    <string>Set Out Point</string>
+    <string>Set &amp;Out Point</string>
    </property>
    <property name="shortcut">
     <string>O</string>
@@ -716,7 +717,7 @@
   </action>
   <action name="actionClear_In_Out">
    <property name="text">
-    <string>Clear In/Out</string>
+    <string>&amp;Clear In/Out</string>
    </property>
    <property name="shortcut">
     <string>G</string>
@@ -743,7 +744,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Rectified Waveforms</string>
+    <string>Rectified Wa&amp;veforms</string>
    </property>
   </action>
   <action name="actionDefault">
@@ -751,7 +752,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Default</string>
+    <string>&amp;Default</string>
    </property>
   </action>
   <action name="actionOff">
@@ -759,7 +760,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Off</string>
+    <string>&amp;Off</string>
    </property>
   </action>
   <action name="action4_3">
@@ -767,7 +768,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>4:3</string>
+    <string>&amp;4:3</string>
    </property>
   </action>
   <action name="action16_9">
@@ -775,7 +776,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>16:9</string>
+    <string>&amp;16:9</string>
    </property>
   </action>
   <action name="actionCustom">
@@ -783,7 +784,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Custom</string>
+    <string>&amp;Custom</string>
    </property>
   </action>
   <action name="actionEnable_Drag_Files_to_Timeline">
@@ -791,7 +792,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Enable Drag Files to Timeline</string>
+    <string>Enable &amp;Drag Files to Timeline</string>
    </property>
   </action>
   <action name="actionAuto_scale_by_Default">
@@ -799,12 +800,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Auto-scale by Default</string>
+    <string>&amp;Auto-scale by Default</string>
    </property>
   </action>
   <action name="actionSet_Edit_Marker">
    <property name="text">
-    <string>Set/Edit Marker</string>
+    <string>Set/Edit &amp;Marker</string>
    </property>
    <property name="shortcut">
     <string>M</string>
@@ -812,7 +813,7 @@
   </action>
   <action name="actionEnable_Disable_Clip">
    <property name="text">
-    <string>Enable/Disable Clip</string>
+    <string>Ena&amp;ble/Disable Clip</string>
    </property>
    <property name="shortcut">
     <string>Shift+E</string>
@@ -823,7 +824,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Enable Seek to Import</string>
+    <string>Enable Seek to &amp;Import</string>
    </property>
   </action>
   <action name="actionAudio_Scrubbing">
@@ -831,12 +832,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Audio Scrubbing</string>
+    <string>A&amp;udio Scrubbing</string>
    </property>
   </action>
   <action name="actionTransition_Tool">
    <property name="text">
-    <string>Transition Tool</string>
+    <string>&amp;Transition Tool</string>
    </property>
    <property name="shortcut">
     <string>T</string>
@@ -844,7 +845,7 @@
   </action>
   <action name="actionEdit_to_In_Point">
    <property name="text">
-    <string>Edit to In Point</string>
+    <string>&amp;Edit to In Point</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+Q</string>
@@ -860,12 +861,12 @@
   </action>
   <action name="actionNest">
    <property name="text">
-    <string>Nest</string>
+    <string>&amp;Nest</string>
    </property>
   </action>
   <action name="actionToggle_Show_All">
    <property name="text">
-    <string>Toggle Show All</string>
+    <string>Toggle &amp;Show All</string>
    </property>
    <property name="shortcut">
     <string>\</string>
@@ -876,7 +877,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Enable Drop File on Media to Replace</string>
+    <string>Enable Drop &amp;File on Media to Replace</string>
    </property>
   </action>
   <action name="actionFootage_Viewer">
@@ -884,7 +885,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Footage Viewer</string>
+    <string>&amp;Footage Viewer</string>
+   </property>
+  </action>
+  <action name="actionPlayReverse_Play">
+   <property name="text">
+    <string>&amp;Play Reverse/Play</string>
+   </property>
+   <property name="toolTip">
+    <string>Play Reverse/Play</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Space</string>
    </property>
   </action>
  </widget>

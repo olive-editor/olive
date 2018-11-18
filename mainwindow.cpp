@@ -5,6 +5,8 @@
 #include "io/path.h"
 #include "io/media.h"
 
+#include <iostream>
+
 #include "project/sequence.h"
 
 #include "ui/sourcetable.h"
@@ -560,6 +562,10 @@ void MainWindow::on_actionPlay_Pause_triggered() {
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->toggle_play();
 	}
+}
+
+void MainWindow::on_actionPlayReverse_Play_triggered(){
+    std::cout << "working" << std::endl;
 }
 
 void MainWindow::on_actionEdit_Tool_triggered()
