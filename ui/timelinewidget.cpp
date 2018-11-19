@@ -37,6 +37,7 @@
 #include <QInputDialog>
 
 #define MAX_TEXT_WIDTH 20
+#define TRANSITION_BETWEEN_RANGE 20
 
 TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
     selection_command = NULL;
@@ -1929,12 +1930,24 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 					if (same_sign(c->track, panel_timeline->transition_tool_side)) {
                         panel_timeline->transition_tool_pre_clip = mouse_clip;
 						long halfway = c->timeline_in + (c->getLength()/2);
-						if (panel_timeline->cursor_frame > halfway) {
-							panel_timeline->transition_tool_type = TA_CLOSING_TRANSITION;
-						} else {
-							panel_timeline->transition_tool_type = TA_OPENING_TRANSITION;
-						}
+                        long between_range = getFrameFromScreenPoint(panel_timeline->zoom, TRANSITION_BETWEEN_RANGE) + 1;
+
+                        if (panel_timeline->cursor_frame > halfway) {
+                            panel_timeline->transition_tool_type = TA_CLOSING_TRANSITION;
+                        } else {
+                            panel_timeline->transition_tool_type = TA_OPENING_TRANSITION;
+                        }
+
+                        panel_timeline->transition_tool_post_clip = -1;
+                        if (panel_timeline->cursor_frame < c->timeline_in + between_range) {
+                            panel_timeline->transition_tool_post_clip = getClipIndexFromCoords(c->timeline_in-1, c->track);
+                        } else if (panel_timeline->cursor_frame > c->timeline_out - between_range) {
+                            panel_timeline->transition_tool_post_clip = getClipIndexFromCoords(c->timeline_out+1, c->track);
+                        }
 					}
+                } else {
+                    panel_timeline->transition_tool_pre_clip = -1;
+                    panel_timeline->transition_tool_post_clip = -1;
                 }
             }
 
@@ -2216,12 +2229,25 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
 
                     // draw transition tool
-                    if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && panel_timeline->transition_tool_pre_clip == i) {
+                    if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION && (panel_timeline->transition_tool_pre_clip == i || panel_timeline->transition_tool_post_clip == i)) {
+                        int type = panel_timeline->transition_tool_type;
+                        if (panel_timeline->transition_tool_post_clip == i) {
+                            // invert transition type
+                            type = (type == TA_CLOSING_TRANSITION) ? TA_OPENING_TRANSITION : TA_CLOSING_TRANSITION;
+                        }
                         QRect transition_tool_rect = clip_rect;
-                        if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
-                            transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));
+                        if (type == TA_CLOSING_TRANSITION) {
+                            if (panel_timeline->transition_tool_post_clip > -1) {
+                                transition_tool_rect.setLeft(transition_tool_rect.right() - TRANSITION_BETWEEN_RANGE);
+                            } else {
+                                transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));
+                            }
                         } else {
-                            transition_tool_rect.setWidth(transition_tool_rect.width()>>2);
+                            if (panel_timeline->transition_tool_post_clip > -1) {
+                                transition_tool_rect.setWidth(TRANSITION_BETWEEN_RANGE);
+                            } else {
+                                transition_tool_rect.setWidth(transition_tool_rect.width()>>2);
+                            }
                         }
                         if (transition_tool_rect.left() < width() && transition_tool_rect.right() > 0) {
                             if (transition_tool_rect.left() < 0) {
