@@ -692,6 +692,33 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
     }
 }
 
+void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transition_start, long transition_end) {
+    // make room for transition
+    if (type == TA_OPENING_TRANSITION) {
+        if (c->opening_transition != NULL) {
+            ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+        }
+        if (c->closing_transition != NULL) {
+            if (transition_end >= c->timeline_out) {
+                ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+            } else if (transition_end > c->timeline_out - c->closing_transition->length) {
+                ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, c->timeline_out - transition_end));
+            }
+        }
+    } else {
+        if (c->closing_transition != NULL) {
+            ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+        }
+        if (c->opening_transition != NULL) {
+            if (transition_start <= c->timeline_in) {
+                ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+            } else if (transition_start < c->timeline_in + c->opening_transition->length) {
+                ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, transition_start - c->timeline_in));
+            }
+        }
+    }
+}
+
 void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 	QToolTip::hideText();
     if (sequence != NULL) {
@@ -968,49 +995,48 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     long transition_start = qMin(g.in, g.out);
                     long transition_end = qMax(g.in, g.out);
 
-                    // make room for transition
-                    if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
-                        if (c->opening_transition != NULL) {
-                            ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                    make_room_for_transition(ca, c, panel_timeline->transition_tool_type, transition_start, transition_end);
+
+                    if (panel_timeline->transition_tool_post_clip > -1) {
+                        Clip* pre = c;
+                        Clip* post = sequence->clips.at(panel_timeline->transition_tool_post_clip);
+                        int opposite_type = (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION;
+                        make_room_for_transition(
+                                    ca,
+                                    post,
+                                    opposite_type,
+                                    transition_start,
+                                    transition_end
+                                );
+                        if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
+                            // swap
+                            Clip* temp = pre;
+                            pre = post;
+                            post = temp;
                         }
-                        if (c->closing_transition != NULL) {
-                            if (transition_end >= c->timeline_out) {
-                                ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
-                            } else if (transition_end > c->timeline_out - c->closing_transition->length) {
-                                ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, c->timeline_out - transition_end));
-                            }
-                        }
+                        ca->append(new AddTransitionCommand(pre, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - pre->timeline_in));
+                        ca->append(new AddTransitionCommand(post, panel_timeline->transition_tool_meta, opposite_type, post->timeline_out - transition_start));
                     } else {
-                        if (c->closing_transition != NULL) {
-                            ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
-                        }
-                        if (c->opening_transition != NULL) {
-                            if (transition_start <= c->timeline_in) {
-                                ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
-                            } else if (transition_start < c->timeline_in + c->opening_transition->length) {
-                                ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, transition_start - c->timeline_in));
+                        if (transition_start < c->timeline_in || transition_end > c->timeline_out) {
+                            // delete shit over there and extend timeline in
+                            QVector<Selection> areas;
+                            Selection s;
+                            if (transition_start < c->timeline_in) {
+                                s.in = transition_start;
+                                s.out = c->timeline_in;
+                            } else if (transition_end > c->timeline_out) {
+                                s.in = c->timeline_out;
+                                s.out = transition_end;
                             }
+                            s.track = c->track;
+                            areas.append(s);
+
+                            panel_timeline->delete_areas_and_relink(ca, areas);
+                            ca->append(new MoveClipAction(c, qMin(transition_start, c->timeline_in), qMax(transition_end, c->timeline_out), c->clip_in, c->track));
                         }
+
+                        ca->append(new AddTransitionCommand(c, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
                     }
-                    if (transition_start < c->timeline_in || transition_end > c->timeline_out) {
-                        // delete shit over there and extend timeline in
-                        QVector<Selection> areas;
-                        Selection s;
-                        if (transition_start < c->timeline_in) {
-                            s.in = transition_start;
-                            s.out = c->timeline_in;
-                        } else if (transition_end > c->timeline_out) {
-                            s.in = c->timeline_out;
-                            s.out = transition_end;
-                        }
-                        s.track = c->track;
-                        areas.append(s);
-
-                        panel_timeline->delete_areas_and_relink(ca, areas);
-                        ca->append(new MoveClipAction(c, qMin(transition_start, c->timeline_in), qMax(transition_end, c->timeline_out), c->clip_in, c->track));
-					}
-
-					ca->append(new AddTransitionCommand(c, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
 
                     push_undo = true;
                 }
@@ -1247,7 +1273,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
-            Clip* otc = sequence->clips.at(g.clip); // open transitionn clip
+            Clip* otc = c; // open transition clip
             Clip* ctc = (panel_timeline->transition_tool_post_clip > -1) ? sequence->clips.at(panel_timeline->transition_tool_post_clip) : NULL; // close transition clip
 
             if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
@@ -1258,32 +1284,32 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
             }
 
             if (otc != NULL) {
-                validator = c->timeline_in + frame_diff;
+                validator = otc->timeline_in + frame_diff;
                 if (validator < 0) { // prevent from going below 0 on the timeline
                     frame_diff -= validator;
                 }
 
-                validator = c->clip_in + frame_diff;
+                validator = otc->clip_in + frame_diff;
                 if (validator < 0) { // prevent from going below 0 for the media
                     frame_diff -= validator;
                 }
 
-                if (validator > c->getMaximumLength()) { // prevent transition from exceeding media length
-                    frame_diff -= (validator - c->getMaximumLength());
+                if (validator > otc->getMaximumLength()) { // prevent transition from exceeding media length
+                    frame_diff -= (validator - otc->getMaximumLength());
                 }
             }
 
             if (ctc != NULL) {
-                validator = c->clip_in + c->getLength() + frame_diff; // prevent transition from exceeding media length
-                if (validator > c->getMaximumLength()) {
-                    frame_diff -= (validator - c->getMaximumLength());
+                validator = ctc->clip_in + ctc->getLength() + frame_diff; // prevent transition from exceeding media length
+                if (validator > ctc->getMaximumLength()) {
+                    frame_diff -= (validator - ctc->getMaximumLength());
                 }
 
                 if (validator < 0) { // prevent from going below 0 for the media
                     frame_diff -= validator;
                 }
 
-                validator = c->timeline_out + frame_diff; // prevent from going below 0 on the timeline
+                validator = ctc->timeline_out + frame_diff; // prevent from going below 0 on the timeline
                 if (validator < 0) {
                     frame_diff -= validator;
                 }
