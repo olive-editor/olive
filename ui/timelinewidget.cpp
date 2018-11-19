@@ -37,7 +37,7 @@
 #include <QInputDialog>
 
 #define MAX_TEXT_WIDTH 20
-#define TRANSITION_BETWEEN_RANGE 20
+#define TRANSITION_BETWEEN_RANGE 40
 
 TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
     selection_command = NULL;
@@ -1247,9 +1247,17 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
-            Clip* c = sequence->clips.at(g.clip);
+            Clip* otc = sequence->clips.at(g.clip); // open transitionn clip
+            Clip* ctc = (panel_timeline->transition_tool_post_clip > -1) ? sequence->clips.at(panel_timeline->transition_tool_post_clip) : NULL; // close transition clip
 
-            if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
+            if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
+                // swap
+                Clip* temp = otc;
+                otc = ctc;
+                ctc = temp;
+            }
+
+            if (otc != NULL) {
                 validator = c->timeline_in + frame_diff;
                 if (validator < 0) { // prevent from going below 0 on the timeline
                     frame_diff -= validator;
@@ -1263,7 +1271,9 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                 if (validator > c->getMaximumLength()) { // prevent transition from exceeding media length
                     frame_diff -= (validator - c->getMaximumLength());
                 }
-            } else {
+            }
+
+            if (ctc != NULL) {
                 validator = c->clip_in + c->getLength() + frame_diff; // prevent transition from exceeding media length
                 if (validator > c->getMaximumLength()) {
                     frame_diff -= (validator - c->getMaximumLength());
@@ -1336,7 +1346,10 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                 g.track += track_diff;
             }
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
-            if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
+            if (panel_timeline->transition_tool_post_clip > -1) {
+                g.in = g.old_in - frame_diff;
+                g.out = g.old_out + frame_diff;
+            } else if (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) {
                 g.out = g.old_out + frame_diff;
             } else {
                 g.in = g.old_in + frame_diff;
