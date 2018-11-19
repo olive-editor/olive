@@ -62,7 +62,7 @@ public:
 	bool reveal_media(void* media, QTreeWidgetItem *parent = 0);
 
     void new_project();
-    void load_project();
+    void load_project(bool autorecovery);
     void save_project(bool autorecovery);
 
 	QTreeWidgetItem* new_folder(QString name);
@@ -106,6 +106,7 @@ private:
 	QString get_file_name_from_path(const QString &path);
     QDir proj_dir;
     QDir internal_proj_dir;
+    QString internal_proj_url;
 private slots:
     void rename_media(QTreeWidgetItem* item, int column);
 	void clear_recent_projects();

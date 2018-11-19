@@ -8,8 +8,6 @@ class EffectControls;
 class Viewer;
 class Timeline;
 
-extern QMainWindow* mainWindow;
-
 namespace Ui {
 class MainWindow;
 }
@@ -20,6 +18,7 @@ class MainWindow : public QMainWindow
 
 public:
 	explicit MainWindow(QWidget *parent = 0);
+    void updateTitle(const QString &url);
     ~MainWindow();
 
 public slots:
@@ -212,7 +211,8 @@ private:
     bool save_project_as();
     bool save_project();
     bool can_close_project();
-	void updateTitle(const QString &url);
 };
+
+extern MainWindow* mainWindow;
 
 #endif // MAINWINDOW_H

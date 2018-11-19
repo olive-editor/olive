@@ -115,7 +115,6 @@ void PreviewGenerator::parse_media() {
 
 bool PreviewGenerator::retrieve_preview(const QString& hash) {
 	// returns true if generate_waveform must be run, false if we got all previews from cached files
-
 	if (retrieve_duration) {
 		return true;
 	}
