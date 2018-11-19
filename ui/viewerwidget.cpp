@@ -216,14 +216,14 @@ void ViewerWidget::drawTitleSafeArea() {
     glEnd();
 }
 
-GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture) {
+GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, 1, 0, 1, -1, 1);
 
 	fbo->bind();
 
-	glClear(GL_COLOR_BUFFER_BIT);
+    if (clear) glClear(GL_COLOR_BUFFER_BIT);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
@@ -254,13 +254,13 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 			e->startEffect();
 			if (e->enable_shader) {
 				e->process_shader(timecode, coords);
+                composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
+                fbo_switcher = !fbo_switcher;
 			}
-			composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture);
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
-				if (superimpose_texture != 0) draw_clip(c->fbo[fbo_switcher], superimpose_texture);
+                if (superimpose_texture != 0) composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
 			}
-			fbo_switcher = !fbo_switcher;
 		}
 	}
 }
@@ -424,7 +424,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         c->fbo[fbo_switcher]->release();
 						composite_texture = c->fbo[fbo_switcher]->texture();
 					} else {
-						composite_texture = draw_clip(c->fbo[fbo_switcher], textureID);
+                        composite_texture = draw_clip(c->fbo[fbo_switcher], textureID, true);
 					}
 
 					fbo_switcher = !fbo_switcher;
