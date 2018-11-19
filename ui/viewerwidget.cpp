@@ -419,6 +419,9 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 					GLuint composite_texture;
 					if (c->media_type == MEDIA_TYPE_SOLID) {
+                        c->fbo[fbo_switcher]->bind();
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        c->fbo[fbo_switcher]->release();
 						composite_texture = c->fbo[fbo_switcher]->texture();
 					} else {
 						composite_texture = draw_clip(c->fbo[fbo_switcher], textureID);
