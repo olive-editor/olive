@@ -240,7 +240,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	glslProgram(NULL),
     texture(NULL),
     isOpen(false),
-    bound(false)
+    bound(false),
+    enable_always_update(false)
 {
     // set up base UI
     container = new CollapsibleWidget();    
@@ -809,7 +810,7 @@ GLuint Effect::process_superimpose(double timecode) {
 		recreate_texture = true;
 	}
 
-	if (valueHasChanged(timecode) || recreate_texture) {
+    if (valueHasChanged(timecode) || recreate_texture || enable_always_update) {
 		redraw(timecode);
 	}
 

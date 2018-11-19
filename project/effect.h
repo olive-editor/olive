@@ -274,6 +274,7 @@ private:
 	QGridLayout* ui_layout;
     QWidget* ui;
 	bool bound;
+    bool enable_always_update;
 
 	// superimpose functions
 	virtual void redraw(double timecode);
