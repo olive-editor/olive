@@ -228,6 +228,7 @@ private:
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
+    bool center_scroll_to_playhead();
 	long last_frame;
 	int scroll;
 

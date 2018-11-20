@@ -680,6 +680,10 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	ui->actionEnable_Seek_to_Import->setChecked(config.enable_seek_to_import);
     ui->actionAudio_Scrubbing->setChecked(config.enable_audio_scrubbing);
     ui->actionEnable_Drop_on_Media_to_Replace->setChecked(config.drop_on_media_to_replace);
+
+    ui->actionNo_autoscroll->setChecked(config.autoscroll == AUTOSCROLL_NO_SCROLL);
+    ui->actionPage_Autoscroll->setChecked(config.autoscroll == AUTOSCROLL_PAGE_SCROLL);
+    ui->actionSmooth_Auto_scroll->setChecked(config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL);
 }
 
 void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
@@ -990,4 +994,16 @@ void MainWindow::on_actionPasteInsert_triggered() {
     if (panel_timeline->focused() && sequence != NULL) {
         panel_timeline->paste(true);
     }
+}
+
+void MainWindow::on_actionNo_autoscroll_triggered() {
+    config.autoscroll = AUTOSCROLL_NO_SCROLL;
+}
+
+void MainWindow::on_actionPage_Autoscroll_triggered() {
+    config.autoscroll = AUTOSCROLL_PAGE_SCROLL;
+}
+
+void MainWindow::on_actionSmooth_Auto_scroll_triggered() {
+    config.autoscroll = AUTOSCROLL_SMOOTH_SCROLL;
 }

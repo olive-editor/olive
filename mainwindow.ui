@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>16</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -187,8 +187,13 @@
     <addaction name="actionAudio_Scrubbing"/>
     <addaction name="actionEnable_Drop_on_Media_to_Replace"/>
     <addaction name="separator"/>
+    <addaction name="actionNo_autoscroll"/>
+    <addaction name="actionPage_Autoscroll"/>
+    <addaction name="actionSmooth_Auto_scroll"/>
+    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionCrash"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
@@ -885,6 +890,30 @@
    </property>
    <property name="text">
     <string>Footage Viewer</string>
+   </property>
+  </action>
+  <action name="actionNo_autoscroll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>No Auto-scroll</string>
+   </property>
+  </action>
+  <action name="actionPage_Autoscroll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Page Auto-scroll</string>
+   </property>
+  </action>
+  <action name="actionSmooth_Auto_scroll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Smooth Auto-scroll</string>
    </property>
   </action>
  </widget>

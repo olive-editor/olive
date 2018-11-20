@@ -205,6 +205,12 @@ private slots:
 
     void on_actionPasteInsert_triggered();
 
+    void on_actionNo_autoscroll_triggered();
+
+    void on_actionPage_Autoscroll_triggered();
+
+    void on_actionSmooth_Auto_scroll_triggered();
+
 private:
 	Ui::MainWindow *ui;
     void setup_layout(bool reset);

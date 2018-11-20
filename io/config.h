@@ -13,6 +13,10 @@
 #define RECORD_MODE_MONO 1
 #define RECORD_MODE_STEREO 2
 
+#define AUTOSCROLL_NO_SCROLL 0
+#define AUTOSCROLL_PAGE_SCROLL 1
+#define AUTOSCROLL_SMOOTH_SCROLL 2
+
 struct Config {
     Config();
     bool saved_layout;
@@ -35,6 +39,7 @@ struct Config {
 	bool enable_seek_to_import;
     bool enable_audio_scrubbing;
     bool drop_on_media_to_replace;
+    int autoscroll;
 
     void load(QString path);
     void save(QString path);
