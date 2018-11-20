@@ -47,10 +47,13 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	connect(opacity_field, SIGNAL(changed()), this, SLOT(field_changed()));
     connect(checkerboard_size_field, SIGNAL(changed()), this, SLOT(field_changed()));
 
-    connect(static_cast<QComboBox*>(solid_type->get_ui_element()), SIGNAL(currentIndexChanged(int)), this, SLOT(ui_update(int)));
+    // hacky but eh
+    QComboBox* solid_type_combo = static_cast<QComboBox*>(solid_type->get_ui_element());
+    connect(solid_type_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(ui_update(int)));
+    ui_update(solid_type_combo->currentIndex());
 
-	vertPath = ":/shaders/common.vert";
-	fragPath = ":/shaders/solideffect.frag";
+    /*vertPath = ":/shaders/common.vert";
+    fragPath = ":/shaders/solideffect.frag";*/
 }
 
 void SolidEffect::redraw(double timecode) {
@@ -178,6 +181,6 @@ void SolidEffect::redraw(double timecode) {
 }
 
 void SolidEffect::ui_update(int i) {
-    solid_color_field->set_enabled(i == SOLID_TYPE_COLOR);
+    solid_color_field->set_enabled(i == SOLID_TYPE_COLOR || i == SOLID_TYPE_CHECKERBOARD);
     checkerboard_size_field->set_enabled(i == SOLID_TYPE_CHECKERBOARD);
 }
