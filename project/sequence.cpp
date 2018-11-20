@@ -1,6 +1,9 @@
 #include "sequence.h"
 
-#include "project/clip.h"
+#include "clip.h"
+#include "transition.h"
+
+#include "debug.h"
 
 Sequence::Sequence() :
 	playhead(0),
@@ -49,6 +52,30 @@ long Sequence::getEndFrame() {
         }
     }
     return end;
+}
+
+void Sequence::hard_delete_transition(Clip *c, int type) {
+    int transition_index = (type == TA_OPENING_TRANSITION) ? c->opening_transition : c->closing_transition;
+    if (transition_index > -1) {
+        for (int i=0;i<clips.size();i++) {
+            Clip* cc = clips.at(i);
+            if (cc != NULL
+                    && c != cc
+                    && (cc->opening_transition == transition_index
+                        || cc->closing_transition == transition_index)) {
+                // another clip is using this, don't delete just yet
+                return;
+            }
+        }
+
+        delete transitions.at(transition_index);
+        transitions[transition_index] = NULL;
+        if (type == TA_OPENING_TRANSITION) {
+            c->opening_transition = -1;
+        } else {
+            c->closing_transition = -1;
+        }
+    }
 }
 
 void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {

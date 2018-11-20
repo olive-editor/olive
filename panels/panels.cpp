@@ -4,6 +4,7 @@
 #include "effectcontrols.h"
 #include "viewer.h"
 #include "project/sequence.h"
+#include "project/clip.h"
 
 Project* panel_project = 0;
 EffectControls* panel_effect_controls = 0;

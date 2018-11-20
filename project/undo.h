@@ -22,10 +22,6 @@ struct EffectMeta;
 #include <QVector>
 #include <QVariant>
 
-#define TA_NO_TRANSITION 0
-#define TA_OPENING_TRANSITION 1
-#define TA_CLOSING_TRANSITION 2
-
 extern QUndoStack undo_stack;
 
 class ComboAction : public QUndoCommand {
@@ -105,7 +101,7 @@ private:
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-	AddTransitionCommand(Clip* c, const EffectMeta* itransition, int itype, int ilength);
+    AddTransitionCommand(Clip* c, const EffectMeta* itransition, int itype, int ilength);
     void undo();
     void redo();
 private:
@@ -138,7 +134,8 @@ public:
 private:
     Clip* clip;
     int type;
-	Effect* transition;
+    Transition* transition;
+    int old_index;
 	bool old_project_changed;
 };
 

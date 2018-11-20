@@ -84,7 +84,10 @@ SOURCES += \
     effects/internal/cornerpineffect.cpp \
     io/math.cpp \
     io/qpainterwrapper.cpp \
-    project/effect.cpp
+    project/effect.cpp \
+    project/transition.cpp \
+    project/effectrow.cpp \
+    project/effectfield.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -148,7 +151,10 @@ HEADERS += \
     effects/internal/cornerpineffect.h \
     io/math.h \
     io/qpainterwrapper.h \
-    project/effect.h
+    project/effect.h \
+    project/transition.h \
+    project/effectrow.h \
+    project/effectfield.h
 
 FORMS += \
         mainwindow.ui \

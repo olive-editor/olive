@@ -5,6 +5,7 @@
 #include "panels/project.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "project/clip.h"
 #include "panels/timeline.h"
 #include "playback/playback.h"
 

@@ -6,6 +6,8 @@
 #include "io/media.h"
 
 #include "project/sequence.h"
+#include "project/clip.h"
+#include "project/undo.h"
 
 #include "ui/sourcetable.h"
 #include "ui/viewerwidget.h"
@@ -15,8 +17,6 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
-
-#include "project/undo.h"
 
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"

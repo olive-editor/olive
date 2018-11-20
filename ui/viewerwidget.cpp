@@ -5,7 +5,9 @@
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "project/sequence.h"
+#include "project/clip.h"
 #include "project/effect.h"
+#include "project/transition.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "io/media.h"
@@ -451,18 +453,18 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 						process_effect(c, c->effects.at(j), timecode, coords, composite_texture, fbo_switcher);
 					}
 
-					if (c->opening_transition != NULL) {
+                    if (c->get_opening_transition() != NULL) {
 						int transition_progress = playhead - c->timeline_in;
-						if (transition_progress < c->opening_transition->length) {
-							process_effect(c, c->opening_transition, (double)transition_progress/(double)c->opening_transition->length, coords, composite_texture, fbo_switcher);
+                        if (transition_progress < c->get_opening_transition()->length) {
+                            process_effect(c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->length, coords, composite_texture, fbo_switcher);
 							//c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
 						}
 					}
 
-					if (c->closing_transition != NULL) {
-						int transition_progress = c->closing_transition->length - (playhead - c->timeline_in - c->getLength() + c->closing_transition->length);
-						if (transition_progress < c->closing_transition->length) {
-							process_effect(c, c->closing_transition, (double)transition_progress/(double)c->closing_transition->length, coords, composite_texture, fbo_switcher);
+                    if (c->get_closing_transition() != NULL) {
+                        int transition_progress = c->get_closing_transition()->length - (playhead - c->timeline_in - c->getLength() + c->get_closing_transition()->length);
+                        if (transition_progress < c->get_closing_transition()->length) {
+                            process_effect(c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->length, coords, composite_texture, fbo_switcher);
 							//c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
 						}
 					}

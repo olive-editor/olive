@@ -9,6 +9,7 @@
 #include "panels/panels.h"
 #include "project/effect.h"
 #include "project/clip.h"
+#include "project/transition.h"
 #include "ui/collapsiblewidget.h"
 #include "project/sequence.h"
 #include "project/undo.h"
@@ -65,10 +66,10 @@ void EffectControls::menu_select(QAction* q) {
         if ((c->track < 0) == video_menu) {
 			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
 			if (transition_menu) {
-				if (c->opening_transition == NULL) {
+                if (c->get_opening_transition() == NULL) {
 					ca->append(new AddTransitionCommand(c, meta, TA_OPENING_TRANSITION, 30));
 				}
-				if (c->closing_transition == NULL) {
+                if (c->get_closing_transition() == NULL) {
 					ca->append(new AddTransitionCommand(c, meta, TA_CLOSING_TRANSITION, 30));
 				}
 			} else {

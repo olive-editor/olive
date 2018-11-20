@@ -7,8 +7,10 @@
 #include "panels/viewer.h"
 #include "playback/playback.h"
 #include "project/effect.h"
+#include "project/transition.h"
 #include "panels/timeline.h"
 #include "project/sequence.h"
+#include "project/clip.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
 #include "mainwindow.h"
@@ -1073,8 +1075,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 											} else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
 												int effect_id = -1;
 												QString effect_name;
-												bool effect_enabled = true;
-												int effect_length = -1;
+                                                bool effect_enabled = true;
+                                                long effect_length = -1;
 												for (int j=0;j<stream.attributes().size();j++) {
 													const QXmlStreamAttribute& attr = stream.attributes().at(j);
 													if (attr.name() == "id") {
@@ -1083,9 +1085,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 														effect_enabled = (attr.value() == "1");
 													} else if (attr.name() == "name") {
 														effect_name = attr.value().toString();
-													} else if (attr.name() == "length") {
-														effect_length = attr.value().toInt();
-													}
+                                                    } else if (attr.name() == "length") {
+                                                        effect_length = attr.value().toLong();
+                                                    }
 												}
 
 												// backwards compatibility with 180820
@@ -1127,18 +1129,26 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 												if (meta == NULL) {
 													dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
 												} else {
-													QString tag = stream.name().toString();
+                                                    QString tag = stream.name().toString();
 
-													Effect* e = create_effect(c, meta);
-													if (effect_length > -1) e->length = effect_length;
-													e->set_enabled(effect_enabled);
-													e->load(stream);
+                                                    if (tag == "opening" || tag == "closing") {
+                                                        int transition_index = create_transition(c, meta);
+                                                        Transition* t = c->sequence->transitions.at(transition_index);
+                                                        if (effect_length > -1) t->length = effect_length;
+                                                        t->set_enabled(effect_enabled);
+                                                        t->load(stream);
 
-													if (tag == "opening") {
-														c->opening_transition = e;
-													} else if (tag == "closing") {
-														c->closing_transition = e;
+                                                        if (tag == "opening") {
+                                                            c->opening_transition = transition_index;
+                                                        } else {
+                                                            c->closing_transition = transition_index;
+                                                        }
 													} else {
+                                                        Effect* e = create_effect(c, meta);
+                                                        if (effect_length > -1) e->length = effect_length;
+                                                        e->set_enabled(effect_enabled);
+                                                        e->load(stream);
+
 														c->effects.append(e);
 													}
 												}
@@ -1449,15 +1459,15 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
 									stream.writeEndElement(); // effect
 								}
 
-								if (c->opening_transition != NULL) {
+                                if (c->get_opening_transition() != NULL) {
 									stream.writeStartElement("opening");
-									c->opening_transition->save(stream);
+                                    c->get_opening_transition()->save(stream);
 									stream.writeEndElement(); // opening
 								}
 
-								if (c->closing_transition != NULL) {
+                                if (c->get_closing_transition() != NULL) {
 									stream.writeStartElement("closing"); // closing
-									c->closing_transition->save(stream);
+                                    c->get_closing_transition()->save(stream);
 									stream.writeEndElement(); // closing
 								}
 

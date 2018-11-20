@@ -1,9 +1,9 @@
 #ifndef CROSSDISSOLVETRANSITION_H
 #define CROSSDISSOLVETRANSITION_H
 
-#include "project/effect.h"
+#include "project/transition.h"
 
-class CrossDissolveTransition : public Effect {
+class CrossDissolveTransition : public Transition {
 public:
 	CrossDissolveTransition(Clip* c, const EffectMeta* em);
 	void process_coords(double timecode, GLTextureCoords &);

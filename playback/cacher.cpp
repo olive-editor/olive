@@ -2,6 +2,7 @@
 
 #include "project/clip.h"
 #include "project/sequence.h"
+#include "project/transition.h"
 #include "io/media.h"
 #include "playback/audio.h"
 #include "playback/playback.h"
@@ -47,27 +48,27 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 		Effect* e = c->effects.at(j);
 		if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
     }
-	if (c->opening_transition != NULL) {
-		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+    if (c->get_opening_transition() != NULL) {
+        if (c->media_type == MEDIA_TYPE_FOOTAGE) {
 			double transition_start = (c->clip_in / c->sequence->frame_rate);
-			double transition_end = ((c->clip_in + c->opening_transition->length) / c->sequence->frame_rate);
+            double transition_end = (c->clip_in + c->get_opening_transition()->length) / c->sequence->frame_rate;
 			if (timecode_end < transition_end) {
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-				c->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_OPEN);
+                c->get_opening_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_OPEN);
 			}
 		}
 	}
-	if (c->closing_transition != NULL) {
-		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-			double transition_start = (c->clip_in + c->getLength() - c->closing_transition->length) / c->sequence->frame_rate;
+    if (c->get_closing_transition() != NULL) {
+        if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+            double transition_start = (c->clip_in + c->getLength() - c->get_closing_transition()->length) / c->sequence->frame_rate;
 			double transition_end = (c->clip_in + c->getLength()) / c->sequence->frame_rate;
 			if (timecode_start > transition_start) {
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-				c->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_CLOSE);
+                c->get_closing_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_CLOSE);
 			}
 		}
 	}

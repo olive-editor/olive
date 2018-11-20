@@ -22,6 +22,7 @@ class SourceTable;
 class ViewerWidget;
 class ComboAction;
 class Effect;
+class Transition;
 struct EffectMeta;
 struct Sequence;
 struct Clip;
@@ -57,7 +58,7 @@ struct Ghost {
     bool trimming;
 
 	// transition trimming
-	Effect* transition;
+    Transition* transition;
 };
 
 namespace Ui {

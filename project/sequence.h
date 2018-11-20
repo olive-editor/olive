@@ -3,9 +3,11 @@
 
 #include <QVector>
 
-#include "project/clip.h"
 #include "project/marker.h"
 #include "project/selection.h"
+
+struct Clip;
+class Transition;
 
 struct Sequence {
 	Sequence();
@@ -14,6 +16,7 @@ struct Sequence {
     QString name;
     void getTrackLimits(int* video_tracks, int* audio_tracks);
 	long getEndFrame();
+    void hard_delete_transition(Clip *c, int type);
 	int width;
 	int height;
     double frame_rate;
@@ -33,6 +36,7 @@ struct Sequence {
 
     QVector<Marker> markers;
 	QVector<Clip*> clips;
+    QVector<Transition*> transitions;
 };
 
 // static variable for the currently active sequence

@@ -1,6 +1,6 @@
 #include "linearfadetransition.h"
 
-LinearFadeTransition::LinearFadeTransition(Clip* c, const EffectMeta* em) : Effect(c, em) {}
+LinearFadeTransition::LinearFadeTransition(Clip* c, const EffectMeta* em) : Transition(c, em) {}
 
 void LinearFadeTransition::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int type) {
 	double interval = (timecode_end-timecode_start)/nb_bytes;

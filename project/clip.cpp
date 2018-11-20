@@ -1,6 +1,7 @@
 #include "clip.h"
 
 #include "project/effect.h"
+#include "project/transition.h"
 #include "io/media.h"
 #include "io/config.h"
 #include "playback/playback.h"
@@ -26,8 +27,8 @@ Clip::Clip(Sequence* s) :
     reverse(false),
     maintain_audio_pitch(false),
     autoscale(config.autoscale_by_default),
-    opening_transition(NULL),
-    closing_transition(NULL),
+    opening_transition(-1),
+    closing_transition(-1),
     undeletable(false),
     replaced(false),
     ignore_reverse(false),
@@ -64,8 +65,8 @@ Clip* Clip::copy(Sequence* s) {
         copy->effects.append(effects.at(i)->copy(copy));
     }
 
-	if (opening_transition != NULL) copy->opening_transition = opening_transition->copy(copy);
-	if (closing_transition != NULL) copy->closing_transition = closing_transition->copy(copy);
+    if (opening_transition != -1) copy->opening_transition = this->sequence->transitions.at(opening_transition)->copy(copy);
+    if (closing_transition != -1) copy->closing_transition = this->sequence->transitions.at(closing_transition)->copy(copy);
 
 	copy->recalculateMaxLength();
 
@@ -140,7 +141,21 @@ void Clip::queue_remove_earliest() {
 		}
 	}
 	av_frame_free(&queue[earliest_frame]);
-	queue.removeAt(earliest_frame);
+    queue.removeAt(earliest_frame);
+}
+
+Transition* Clip::get_opening_transition() {
+    if (opening_transition > -1) {
+        return this->sequence->transitions.at(opening_transition);
+    }
+    return NULL;
+}
+
+Transition* Clip::get_closing_transition() {
+    if (closing_transition > -1) {
+        return this->sequence->transitions.at(closing_transition);
+    }
+    return NULL;
 }
 
 Clip::~Clip() {
@@ -153,8 +168,8 @@ Clip::~Clip() {
         }
     }
 
-    if (opening_transition != NULL) delete opening_transition;
-    if (closing_transition != NULL) delete closing_transition;
+    //if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
+    //if (closing_transition != -1) this->sequence->hard_delete_transition(this, TA_CLOSING_TRANSITION);
 
     for (int i=0;i<effects.size();i++) {
         delete effects.at(i);
@@ -163,19 +178,21 @@ Clip::~Clip() {
 }
 
 long Clip::get_timeline_in_with_transition() {
-	if (opening_transition != NULL && opening_transition->tlink != NULL) {
-		return timeline_in - opening_transition->tlink->length;
+    /*if (opening_transition != NULL && opening_transition->tlink != NULL) {
+        return timeline_in - this->sequence->transitions(opening_transition)->tlink->length;
     } else {
         return timeline_in;
-    }
+    }*/
+    return 0;
 }
 
 long Clip::get_timeline_out_with_transition() {
-	if (closing_transition != NULL && closing_transition->tlink != NULL) {
+    /*if (closing_transition != NULL && closing_transition->tlink != NULL) {
 		return timeline_out + closing_transition->tlink->length;
     } else {
         return timeline_out;
-    }
+    }*/
+    return 0;
 }
 
 // timeline functions
