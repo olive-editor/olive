@@ -19,6 +19,7 @@ public:
 	long playhead;
 	bool reset;
     bool scrubbing;
+    bool interrupt;
 	QVector<Clip*> nests;
 
 private:
