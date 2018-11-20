@@ -433,7 +433,8 @@ void Timeline::repaint_timeline() {
             && panel_sequence_viewer->playing) {
         // auto scroll
         if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
-            if (panel_timeline->getTimelineScreenPointFromFrame(sequence->playhead) > (ui->editAreas->width() - ui->videoScrollbar->width())) {
+            int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(sequence->playhead);
+            if (playhead_x < 0 || playhead_x > (ui->editAreas->width() - ui->videoScrollbar->width())) {
                 ui->horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, sequence->playhead));
                 draw = false;
             }
