@@ -464,9 +464,9 @@ void cache_video_worker(Clip* c, long playhead) {
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
 				c->use_existing_frame = false;
 				if (read_ret >= 0) {
-					bool send_it = false;
+                    bool send_it = true;
 
-					if (reverse) {
+                    /*if (reverse) {
 						send_it = true;
 					} else if (send_frame->pts > target_pts - eighth_second) {
 						send_it = true;
@@ -474,7 +474,7 @@ void cache_video_worker(Clip* c, long playhead) {
 						send_it = true;
                     } else {
 						dout << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
-                    }
+                    }*/
 
 					if (send_it) {
 						if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
@@ -540,8 +540,6 @@ void cache_video_worker(Clip* c, long playhead) {
 }
 
 void reset_cache(Clip* c, long target_frame) {
-    dout << "reset cache called";
-
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
 	switch (c->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
@@ -560,9 +558,7 @@ void reset_cache(Clip* c, long target_frame) {
 				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
 				int64_t seek_ts = target_ts;
 				int64_t timebase_half_second = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
-				if (c->reverse) seek_ts -= timebase_half_second;
-
-                dout << "reset ts:" << target_ts;
+                if (c->reverse) seek_ts -= timebase_half_second;
 
 				while (true) {
 					// flush ffmpeg codecs
@@ -938,7 +934,7 @@ void Cacher::run() {
 		} else {
             while (true) {
                 cache_clip_worker(clip, playhead, reset, scrubbing, nests);
-                if (clip->multithreaded && clip->cacher->interrupt) {
+                if (clip->multithreaded && clip->cacher->interrupt && clip->track < 0) {
                     clip->cacher->interrupt = false;
                 } else {
                     break;
