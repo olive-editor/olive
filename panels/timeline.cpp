@@ -355,11 +355,11 @@ void Timeline::add_transition() {
         Clip* c = sequence->clips.at(i);
         if (c != NULL && is_clip_selected(c, true)) {
             if (c->get_opening_transition() == NULL) {
-                ca->append(new AddTransitionCommand(c, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
             if (c->get_closing_transition() == NULL) {
-                ca->append(new AddTransitionCommand(c, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
         }

@@ -1015,8 +1015,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                             pre = post;
                             post = temp;
                         }
-                        ca->append(new AddTransitionCommand(pre, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - pre->timeline_in));
-                        ca->append(new AddTransitionCommand(post, panel_timeline->transition_tool_meta, opposite_type, post->timeline_out - transition_start));
+                        ca->append(new AddTransitionCommand(pre, post, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - pre->timeline_in));
                     } else {
                         if (transition_start < c->timeline_in || transition_end > c->timeline_out) {
                             // delete shit over there and extend timeline in
@@ -1036,7 +1035,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                             ca->append(new MoveClipAction(c, qMin(transition_start, c->timeline_in), qMax(transition_end, c->timeline_out), c->clip_in, c->track));
                         }
 
-                        ca->append(new AddTransitionCommand(c, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
+                        ca->append(new AddTransitionCommand(c, NULL, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
                     }
 
                     push_undo = true;

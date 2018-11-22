@@ -101,11 +101,12 @@ private:
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-    AddTransitionCommand(Clip* c, const EffectMeta* itransition, int itype, int ilength);
+    AddTransitionCommand(Clip* c, Clip* s, const EffectMeta* itransition, int itype, int ilength);
     void undo();
     void redo();
 private:
     Clip* clip;
+    Clip* secondary;
 	const EffectMeta* transition;
     int type;
     int length;

@@ -224,8 +224,9 @@ void AddEffectCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c, const EffectMeta *itransition, int itype, int ilength) :
+AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, const EffectMeta *itransition, int itype, int ilength) :
     clip(c),
+    secondary(s),
     transition(itransition),
 	type(itype),
     length(ilength),
@@ -234,15 +235,18 @@ AddTransitionCommand::AddTransitionCommand(Clip* c, const EffectMeta *itransitio
 
 void AddTransitionCommand::undo() {
     clip->sequence->hard_delete_transition(clip, type);
+    if (secondary != NULL) secondary->sequence->hard_delete_transition(secondary, (type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddTransitionCommand::redo() {
     if (type == TA_OPENING_TRANSITION) {
         clip->opening_transition = create_transition(clip, transition);
+        if (secondary != NULL) secondary->closing_transition = clip->opening_transition;
         if (length > 0) clip->get_opening_transition()->length = length;
     } else {
         clip->closing_transition = create_transition(clip, transition);
+        if (secondary != NULL) secondary->opening_transition = clip->closing_transition;
         if (length > 0) clip->get_closing_transition()->length = length;
     }
 	mainWindow->setWindowModified(true);
