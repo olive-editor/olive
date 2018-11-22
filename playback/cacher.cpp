@@ -445,6 +445,10 @@ void cache_video_worker(Clip* c, long playhead) {
 			smallest_pts = target_pts;
 		}
 
+        if (c->multithreaded && c->cacher->interrupt) { // ignore interrupts for now
+            c->cacher->interrupt = false;
+        }
+
 		while (true) {
 			AVFrame* frame = av_frame_alloc();
 
@@ -452,9 +456,9 @@ void cache_video_worker(Clip* c, long playhead) {
 			MediaStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
-                if (c->multithreaded && c->cacher->interrupt) { // abort
+                /*if (c->multithreaded && c->cacher->interrupt) { // abort
                     return;
-                }
+                }*/
 
 				AVFrame* send_frame = c->frame;
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
@@ -468,9 +472,9 @@ void cache_video_worker(Clip* c, long playhead) {
 						send_it = true;
 					} else if (media->get_stream_from_file_index(true, c->media_stream)->infinite_length) {
 						send_it = true;
-                    }/* else {
+                    } else {
 						dout << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
-                    }*/
+                    }
 
 					if (send_it) {
 						if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
@@ -510,8 +514,7 @@ void cache_video_worker(Clip* c, long playhead) {
 					if (!ms->infinite_length && !reverse && c->queue.size() == limit) {
 						// see if we got the frame we needed (used for speed ups primarily)
 						bool found = false;
-						for (int i=0;i<c->queue.size();i++) {
-							// TODO/NOTE: this will not work on clips that are sped up AND reversed
+                        for (int i=0;i<c->queue.size();i++) {
 							if (c->queue.at(i)->pts >= target_pts) {
 								found = true;
 								break;
@@ -537,6 +540,8 @@ void cache_video_worker(Clip* c, long playhead) {
 }
 
 void reset_cache(Clip* c, long target_frame) {
+    dout << "reset cache called";
+
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
 	switch (c->media_type) {
 	case MEDIA_TYPE_FOOTAGE:
@@ -556,6 +561,8 @@ void reset_cache(Clip* c, long target_frame) {
 				int64_t seek_ts = target_ts;
 				int64_t timebase_half_second = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
 				if (c->reverse) seek_ts -= timebase_half_second;
+
+                dout << "reset ts:" << target_ts;
 
 				while (true) {
 					// flush ffmpeg codecs
@@ -873,31 +880,24 @@ void open_clip_worker(Clip* clip) {
 	dout << "[INFO] Clip opened on track" << clip->track;
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests) {
-    while (true) {
-        if (reset) {
-            // note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
-            reset_cache(clip, playhead);
-            clip->audio_reset = false;
-        }
+void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests) {    
+    if (reset) {
+        // note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
+        reset_cache(clip, playhead);
+        clip->audio_reset = false;
+    }
 
-        switch (clip->media_type) {
-        case MEDIA_TYPE_FOOTAGE:
-            if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-                cache_video_worker(clip, playhead);
-            } else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                cache_audio_worker(clip, scrubbing, nests);
-            }
-            break;
-        case MEDIA_TYPE_TONE:
+    switch (clip->media_type) {
+    case MEDIA_TYPE_FOOTAGE:
+        if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            cache_video_worker(clip, playhead);
+        } else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             cache_audio_worker(clip, scrubbing, nests);
-            break;
         }
-        if (clip->multithreaded && clip->cacher->interrupt) {
-            clip->cacher->interrupt = false;
-        } else {
-            break;
-        }
+        break;
+    case MEDIA_TYPE_TONE:
+        cache_audio_worker(clip, scrubbing, nests);
+        break;
     }
 }
 
@@ -936,7 +936,14 @@ void Cacher::run() {
         if (!caching) {
 			break;
 		} else {
-			cache_clip_worker(clip, playhead, reset, scrubbing, nests);
+            while (true) {
+                cache_clip_worker(clip, playhead, reset, scrubbing, nests);
+                if (clip->multithreaded && clip->cacher->interrupt) {
+                    clip->cacher->interrupt = false;
+                } else {
+                    break;
+                }
+            }
 		}
 	}
 

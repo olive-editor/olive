@@ -65,8 +65,9 @@ Clip* Clip::copy(Sequence* s) {
         copy->effects.append(effects.at(i)->copy(copy));
     }
 
-    if (opening_transition != -1) copy->opening_transition = this->sequence->transitions.at(opening_transition)->copy(copy);
-    if (closing_transition != -1) copy->closing_transition = this->sequence->transitions.at(closing_transition)->copy(copy);
+    // TODO make a replacemennt for this somehow
+    //if (opening_transition != -1) copy->opening_transition = this->sequence->transitions.at(opening_transition)->copy(copy);
+    //if (closing_transition != -1) copy->closing_transition = this->sequence->transitions.at(closing_transition)->copy(copy);
 
 	copy->recalculateMaxLength();
 
@@ -178,21 +179,20 @@ Clip::~Clip() {
 }
 
 long Clip::get_timeline_in_with_transition() {
-    /*if (opening_transition != NULL && opening_transition->tlink != NULL) {
-        return timeline_in - this->sequence->transitions(opening_transition)->tlink->length;
-    } else {
-        return timeline_in;
-    }*/
-    return 0;
+    if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
+        // we must be the secondary clip, so return (timeline in - length)
+        return timeline_in - get_opening_transition()->length;
+    }
+    return timeline_in;
 }
 
 long Clip::get_timeline_out_with_transition() {
-    /*if (closing_transition != NULL && closing_transition->tlink != NULL) {
-		return timeline_out + closing_transition->tlink->length;
+    if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip != NULL) {
+        // we must be the primary clip, so return (timeline out + length2)
+        return timeline_out + get_closing_transition()->length2;
     } else {
         return timeline_out;
-    }*/
-    return 0;
+    }
 }
 
 // timeline functions

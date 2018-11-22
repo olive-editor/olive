@@ -111,6 +111,7 @@ public:
     Clip* parent_clip;
 	const EffectMeta* meta;
     long length; // used only for transitions
+    long length2; // used only for transitions
     int id;
 	QString name;
 	CollapsibleWidget* container;
