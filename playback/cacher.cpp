@@ -445,9 +445,9 @@ void cache_video_worker(Clip* c, long playhead) {
 			smallest_pts = target_pts;
 		}
 
-        if (c->multithreaded && c->cacher->interrupt) { // ignore interrupts for now
+        /*if (c->multithreaded && c->cacher->interrupt) { // ignore interrupts for now
             c->cacher->interrupt = false;
-        }
+        }*/
 
 		while (true) {
 			AVFrame* frame = av_frame_alloc();
@@ -456,9 +456,9 @@ void cache_video_worker(Clip* c, long playhead) {
 			MediaStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
-                /*if (c->multithreaded && c->cacher->interrupt) { // abort
+                if (c->multithreaded && c->cacher->interrupt) { // abort
                     return;
-                }*/
+                }
 
 				AVFrame* send_frame = c->frame;
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
