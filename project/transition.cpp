@@ -12,27 +12,27 @@
 
 #include <QMessageBox>
 
-Transition::Transition(Clip* c, const EffectMeta* em) : Effect(c, em) {
+Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) : Effect(c, em), secondary_clip(s) {
     add_row("Length:")->add_field(EFFECT_FIELD_DOUBLE);
 }
 
-int Transition::copy(Clip *c) {
-    int copy_index = create_transition(c, meta);
+int Transition::copy(Clip *c, Clip* s) {
+    int copy_index = create_transition(c, s, meta);
     c->sequence->transitions.at(copy_index)->length = length;
     return copy_index;
 }
 
-Transition* get_transition_from_meta(Clip* c, const EffectMeta* em) {
+Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
     if (!em->filename.isEmpty()) {
         // load effect from file
-        return new Transition(c, em);
+        return new Transition(c, s, em);
     } else if (em->internal >= 0 && em->internal < TRANSITION_INTERNAL_COUNT) {
         // must be an internal effect
         switch (em->internal) {
-        case TRANSITION_INTERNAL_CROSSDISSOLVE: return new CrossDissolveTransition(c, em);
-        case TRANSITION_INTERNAL_LINEARFADE: return new LinearFadeTransition(c, em);
-        case TRANSITION_INTERNAL_EXPONENTIALFADE: return new ExponentialFadeTransition(c, em);
-        case TRANSITION_INTERNAL_LOGARITHMICFADE: return new LogarithmicFadeTransition(c, em);
+        case TRANSITION_INTERNAL_CROSSDISSOLVE: return new CrossDissolveTransition(c, s, em);
+        case TRANSITION_INTERNAL_LINEARFADE: return new LinearFadeTransition(c, s, em);
+        case TRANSITION_INTERNAL_EXPONENTIALFADE: return new ExponentialFadeTransition(c, s, em);
+        case TRANSITION_INTERNAL_LOGARITHMICFADE: return new LogarithmicFadeTransition(c, s, em);
         }
     } else {
         dout << "[ERROR] Invalid transition data";
@@ -41,8 +41,8 @@ Transition* get_transition_from_meta(Clip* c, const EffectMeta* em) {
     return NULL;
 }
 
-int create_transition(Clip* c, const EffectMeta* em) {
-    Transition* t = get_transition_from_meta(c, em);
+int create_transition(Clip* c, Clip* s, const EffectMeta* em) {
+    Transition* t = get_transition_from_meta(c, s, em);
     if (t != NULL) {
         c->sequence->transitions.append(t);
         return c->sequence->transitions.size() - 1;

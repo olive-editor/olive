@@ -2,7 +2,7 @@
 
 #include <QOpenGLFunctions>
 
-CrossDissolveTransition::CrossDissolveTransition(Clip* c, const EffectMeta* em) : Transition(c, em) {
+CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {
 	enable_coords = true;
 }
 

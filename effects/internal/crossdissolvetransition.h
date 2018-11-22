@@ -5,7 +5,7 @@
 
 class CrossDissolveTransition : public Transition {
 public:
-	CrossDissolveTransition(Clip* c, const EffectMeta* em);
+    CrossDissolveTransition(Clip* c, Clip* s, const EffectMeta* em);
 	void process_coords(double timecode, GLTextureCoords &);
 };
 

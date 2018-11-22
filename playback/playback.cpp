@@ -26,7 +26,7 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 #ifdef QT_DEBUG
-//#define GCF_DEBUG
+#define GCF_DEBUG
 #endif
 
 bool texture_failed = false;
@@ -102,6 +102,7 @@ void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<C
 			clip->cacher->reset = reset;
 			clip->cacher->nests = nests;
             clip->cacher->scrubbing = scrubbing;
+            if (reset && clip->queue.size() > 0) clip->cacher->interrupt = true;
 
 			clip->can_cache.wakeAll();
 		} else {
@@ -120,6 +121,7 @@ void get_clip_frame(Clip* c, long playhead) {
 			target_pts *= 2;
 			second_pts *= 2;
 		}
+
 		AVFrame* target_frame = NULL;
 
 		bool reset = false;

@@ -2,7 +2,7 @@
 
 #include <QtMath>
 
-ExponentialFadeTransition::ExponentialFadeTransition(Clip* c, const EffectMeta* em) : Transition(c, em) {}
+ExponentialFadeTransition::ExponentialFadeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {}
 
 void ExponentialFadeTransition::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int type) {
 	double interval = (timecode_end-timecode_start)/nb_bytes;

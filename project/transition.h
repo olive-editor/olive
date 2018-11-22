@@ -13,12 +13,13 @@
 #define TRANSITION_INTERNAL_LOGARITHMICFADE 3
 #define TRANSITION_INTERNAL_COUNT 4
 
-int create_transition(Clip* c, const EffectMeta* em);
+int create_transition(Clip* c, Clip* s, const EffectMeta* em);
 
 class Transition : public Effect {
 public:
-    Transition(Clip* c, const EffectMeta* em);
-    int copy(Clip* c);
+    Transition(Clip* c, Clip* s, const EffectMeta* em);
+    int copy(Clip* c, Clip* s);
+    Clip* secondary_clip;
 };
 
 #endif // TRANSITION_H

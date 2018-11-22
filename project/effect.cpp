@@ -467,26 +467,28 @@ void Effect::field_changed() {
 }
 
 void Effect::show_context_menu(const QPoint& pos) {
-	QMenu menu(mainWindow);
+    if (meta->type == EFFECT_TYPE_EFFECT) {
+        QMenu menu(mainWindow);
 
-	int index = get_index_in_clip();
+        int index = get_index_in_clip();
 
-	if (index > 0) {
-		QAction* move_up = menu.addAction("Move &Up");
-		connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
-	}
+        if (index > 0) {
+            QAction* move_up = menu.addAction("Move &Up");
+            connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
+        }
 
-	if (index < parent_clip->effects.size() - 1) {
-		QAction* move_down = menu.addAction("Move &Down");
-		connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
-	}
+        if (index < parent_clip->effects.size() - 1) {
+            QAction* move_down = menu.addAction("Move &Down");
+            connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
+        }
 
-	menu.addSeparator();
+        menu.addSeparator();
 
-	QAction* del_action = menu.addAction("D&elete");
-	connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
+        QAction* del_action = menu.addAction("D&elete");
+        connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
 
-	menu.exec(container->title_bar->mapToGlobal(pos));
+        menu.exec(container->title_bar->mapToGlobal(pos));
+    }
 }
 
 void Effect::delete_self() {
