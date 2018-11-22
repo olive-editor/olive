@@ -26,7 +26,7 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 #ifdef QT_DEBUG
-#define GCF_DEBUG
+//#define GCF_DEBUG
 #endif
 
 bool texture_failed = false;
@@ -194,7 +194,7 @@ void get_clip_frame(Clip* c, long playhead) {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
-							target_frame = NULL;
+//							target_frame = NULL;
 							reset = true;
 						} else {
 #ifdef GCF_DEBUG
