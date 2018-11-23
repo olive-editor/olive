@@ -135,6 +135,10 @@ void load_internal_effects() {
     em.internal = TRANSITION_INTERNAL_CROSSDISSOLVE;
 	video_effects.append(em);
 
+    em.name = "Cube";
+    em.internal = TRANSITION_INTERNAL_CUBE;
+    video_effects.append(em);
+
 	em.name = "Linear Fade";
     em.internal = TRANSITION_INTERNAL_LINEARFADE;
 	audio_effects.append(em);

@@ -87,7 +87,8 @@ SOURCES += \
     project/effect.cpp \
     project/transition.cpp \
     project/effectrow.cpp \
-    project/effectfield.cpp
+    project/effectfield.cpp \
+    effects/internal/cubetransition.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -154,7 +155,8 @@ HEADERS += \
     project/effect.h \
     project/transition.h \
     project/effectrow.h \
-    project/effectfield.h
+    project/effectfield.h \
+    effects/internal/cubetransition.h
 
 FORMS += \
         mainwindow.ui \

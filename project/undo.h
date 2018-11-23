@@ -582,4 +582,16 @@ private:
 	bool old_project_changed;
 };
 
+class SetPointer : public QUndoCommand {
+public:
+    SetPointer(void** pointer, void* data);
+    void undo();
+    void redo();
+private:
+    bool old_changed;
+    void** p;
+    void* new_data;
+    void* old_data;
+};
+
 #endif // UNDO_H

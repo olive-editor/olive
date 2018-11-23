@@ -1260,3 +1260,20 @@ void RenameClipCommand::redo() {
 		clips.at(i)->name = new_name;
 	}
 }
+
+SetPointer::SetPointer(void **pointer, void *data) :
+    p(pointer),
+    new_data(data),
+    old_changed(mainWindow->isWindowModified())
+{}
+
+void SetPointer::undo() {
+    *p = old_data;
+    mainWindow->setWindowModified(old_changed);
+}
+
+void SetPointer::redo() {
+    old_data = *p;
+    *p = new_data;
+    mainWindow->setWindowModified(true);
+}

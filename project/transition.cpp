@@ -9,6 +9,7 @@
 #include "effects/internal/linearfadetransition.h"
 #include "effects/internal/exponentialfadetransition.h"
 #include "effects/internal/logarithmicfadetransition.h"
+#include "effects/internal/cubetransition.h"
 
 #include <QMessageBox>
 
@@ -40,6 +41,7 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
         case TRANSITION_INTERNAL_LINEARFADE: return new LinearFadeTransition(c, s, em);
         case TRANSITION_INTERNAL_EXPONENTIALFADE: return new ExponentialFadeTransition(c, s, em);
         case TRANSITION_INTERNAL_LOGARITHMICFADE: return new LogarithmicFadeTransition(c, s, em);
+        case TRANSITION_INTERNAL_CUBE: return new CubeTransition(c, s, em);
         }
     } else {
         dout << "[ERROR] Invalid transition data";
