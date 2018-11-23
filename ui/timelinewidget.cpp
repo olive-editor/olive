@@ -1110,12 +1110,12 @@ void TimelineWidget::init_ghosts() {
         Clip* c = sequence->clips.at(g.clip);
 
 		g.track = g.old_track = c->track;
-		g.clip_in = g.old_clip_in = c->clip_in;
+        g.clip_in = g.old_clip_in = panel_timeline->tool == TIMELINE_TOOL_SLIP ? c->get_clip_in_with_transition() : c->clip_in;
 
 		if (g.transition == NULL) {
 			// this ghost is for a clip
-			g.in = g.old_in = c->timeline_in;
-			g.out = g.old_out = c->timeline_out;
+            g.in = g.old_in = c->timeline_in;
+            g.out = g.old_out = c->timeline_out;
 			g.ghost_length = g.old_out - g.old_in;
         } else if (g.transition == c->get_opening_transition()) {
             g.in = g.old_in = c->get_timeline_in_with_transition();
@@ -1326,9 +1326,9 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                     frame_diff -= validator;
                 }
 
-                validator = otc->clip_in + frame_diff;
+                validator = otc->clip_in - frame_diff;
                 if (validator < 0) { // prevent from going below 0 for the media
-                    frame_diff -= validator;
+                    frame_diff += validator;
                 }
 
                 if (validator > otc->getMaximumLength()) { // prevent transition from exceeding media length
