@@ -40,6 +40,7 @@ public:
 	bool keyframe_focus();
 	void delete_selected_keyframes();
 	bool multiple;
+    QString panel_name;
 
 	QVector<int> selected_clips;
 

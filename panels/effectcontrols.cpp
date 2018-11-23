@@ -19,9 +19,11 @@
 #include "ui/viewerwidget.h"
 #include "debug.h"
 
+
 EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
-	multiple(false),
+    multiple(false),
+    panel_name("Effects: "),
     zoom(1),
     ui(new Ui::EffectControls)
 {
@@ -244,7 +246,8 @@ void EffectControls::show_effect_menu(bool video, bool transitions) {
 }
 
 void EffectControls::clear_effects(bool clear_cache) {
-	// clear existing clips
+    setWindowTitle(panel_name + "(none)");
+    // clear existing clips
     QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
     QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
     QLayoutItem* item;
@@ -287,6 +290,7 @@ void EffectControls::load_effects() {
 				ui->vcontainer->setVisible(true);
 				layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
 			} else {
+                setWindowTitle(panel_name + c->name);
 				ui->acontainer->setVisible(true);
 				layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
 			}
