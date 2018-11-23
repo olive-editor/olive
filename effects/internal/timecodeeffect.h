@@ -1,0 +1,29 @@
+#ifndef TIMECODEEFFECT_H
+#define TIMECODEEFFECT_H
+
+#include "project/effect.h"
+
+#include <QFont>
+#include <QImage>
+class QOpenGLTexture;
+
+class TimecodeEffect : public Effect {
+	Q_OBJECT
+public:
+    TimecodeEffect(Clip* c, const EffectMeta *em);
+    void redraw(double timecode);
+    EffectField * scale_val;
+    EffectField * color_val;
+    EffectField * color_bg_val;
+    EffectField * bg_alpha;
+    EffectField * offset_x_val;
+    EffectField * offset_y_val;
+    EffectField * prepend_text;
+
+
+private:
+    QFont font;
+    QString sequence_timecode;
+};
+
+#endif // TIMECODEEFFECT_H

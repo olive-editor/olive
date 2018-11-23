@@ -19,6 +19,7 @@
 
 #include "effects/internal/transformeffect.h"
 #include "effects/internal/texteffect.h"
+#include "effects/internal/timecodeeffect.h"
 #include "effects/internal/solideffect.h"
 #include "effects/internal/audionoiseeffect.h"
 #include "effects/internal/toneeffect.h"
@@ -51,6 +52,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		switch (em->internal) {
 		case EFFECT_INTERNAL_TRANSFORM: return new TransformEffect(c, em);
 		case EFFECT_INTERNAL_TEXT: return new TextEffect(c, em);
+        case EFFECT_INTERNAL_TIMECODE: return new TimecodeEffect(c, em);
 		case EFFECT_INTERNAL_SOLID: return new SolidEffect(c, em);
 		case EFFECT_INTERNAL_NOISE: return new AudioNoiseEffect(c, em);
 		case EFFECT_INTERNAL_VOLUME: return new VolumeEffect(c, em);
@@ -116,6 +118,11 @@ void load_internal_effects() {
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_TEXT;
 	video_effects.append(em);
+
+    em.name = "Timecode";
+    em.category = "Render";
+    em.internal = EFFECT_INTERNAL_TIMECODE;
+    video_effects.append(em);
 
 	em.name = "Solid";
 	em.category = "Render";
