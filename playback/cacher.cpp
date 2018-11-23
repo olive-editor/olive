@@ -431,7 +431,6 @@ void cache_video_worker(Clip* c, long playhead) {
 		bool reverse = (c->reverse && !c->ignore_reverse);
 		c->ignore_reverse = false;
 
-		int64_t eighth_second = av_q2d(av_inv_q(c->stream->time_base))*0.125;
 		int64_t smallest_pts = INT64_MAX;
 		if (reverse && c->queue.size() > 0) {
 			int64_t quarter_sec = qRound64(av_q2d(av_inv_q(c->stream->time_base))) >> 2;

@@ -73,7 +73,7 @@ void TimelineWidget::right_click_ripple() {
 
 void TimelineWidget::show_context_menu(const QPoint& pos) {
     if (sequence != NULL) {
-        // hack because sometimes right clicking doesn't trigger mouseReleaseEvent
+        // hack because sometimes right clicking doesn't trigger mouse release event
         panel_timeline->rect_select_init = false;
         panel_timeline->rect_select_proc = false;
 
@@ -909,7 +909,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                  sequence->clips.at(g.clip)->undeletable = true;
                                  if (g.transition != NULL) {
                                      g.transition->parent_clip->undeletable = true;
-                                     g.transition->secondary_clip->undeletable = true;
+                                     if (g.transition->secondary_clip != NULL) g.transition->secondary_clip->undeletable = true;
                                  }
 
 								 Selection s;
@@ -924,7 +924,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                  sequence->clips.at(g.clip)->undeletable = false;
                                  if (g.transition != NULL) {
                                      g.transition->parent_clip->undeletable = false;
-                                     g.transition->secondary_clip->undeletable = false;
+                                     if (g.transition->secondary_clip != NULL) g.transition->secondary_clip->undeletable = false;
                                  }
 							 }
 						 }
@@ -1157,7 +1157,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
     if (panel_timeline->tool != TIMELINE_TOOL_SLIP) {
         // slipping doesn't move the clips so we don't bother snapping for it
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
-			Ghost& g = panel_timeline->ghosts[i];
+            const Ghost& g = panel_timeline->ghosts.at(i);
 			if (panel_timeline->trim_target == -1 || g.trim_in) {
 				fm = g.old_in + frame_diff;
 				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1281,19 +1281,28 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
             if (validator < 0) frame_diff -= validator;
 
 			if (g.transition != NULL) {
-				// prevent clip_in from going below 0
-				if (c->media_type == MEDIA_TYPE_SEQUENCE
-						|| (ms != NULL && !ms->infinite_length)) {
-					validator = g.old_clip_in + frame_diff;
-					if (validator < 0) frame_diff -= validator;
-				}
+                if (g.transition->secondary_clip != NULL) {
+                    // prevent dual transitions from going below 0 on the primary or above media length on the secondary
+                    validator = g.transition->parent_clip->get_clip_in_with_transition() + frame_diff;
+                    if (validator < 0) frame_diff -= validator;
 
-				// prevent clip length exceeding media length
-				if (c->media_type == MEDIA_TYPE_SEQUENCE
-						|| (ms != NULL && !ms->infinite_length)) {
-					validator = g.old_clip_in + g.ghost_length + frame_diff;
-					if (validator > g.media_length) frame_diff -= validator - g.media_length;
-				}
+                    validator = g.transition->secondary_clip->get_timeline_out_with_transition() - g.transition->secondary_clip->get_timeline_in_with_transition() + g.transition->secondary_clip->get_clip_in_with_transition() + frame_diff - g.transition->secondary_clip->getMaximumLength();
+                    if (validator > 0) frame_diff -= validator;
+                } else {
+                    // prevent clip_in from going below 0
+                    if (c->media_type == MEDIA_TYPE_SEQUENCE
+                            || (ms != NULL && !ms->infinite_length)) {
+                        validator = g.old_clip_in + frame_diff;
+                        if (validator < 0) frame_diff -= validator;
+                    }
+
+                    // prevent clip length exceeding media length
+                    if (c->media_type == MEDIA_TYPE_SEQUENCE
+                            || (ms != NULL && !ms->infinite_length)) {
+                        validator = g.old_clip_in + g.ghost_length + frame_diff;
+                        if (validator > g.media_length) frame_diff -= validator - g.media_length;
+                    }
+                }
 			}
 
 			// prevent clips from crossing tracks

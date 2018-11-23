@@ -51,14 +51,16 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 }
 
-void ViewerWidget::deleteFunction() {
+void ViewerWidget::delete_function() {
     // destroy all textures as well
-	makeCurrent();
-	closeActiveClips(viewer->seq, true);
-	doneCurrent();
+    if (viewer->seq != NULL) {
+        makeCurrent();
+        closeActiveClips(viewer->seq, true);
+        doneCurrent();
+    }
 }
 
 void ViewerWidget::show_context_menu() {
@@ -107,7 +109,7 @@ void ViewerWidget::retry() {
 }
 
 void ViewerWidget::initializeGL() {
-	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(deleteFunction()), Qt::DirectConnection);
+    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
 
 	retry_timer.start();
 }

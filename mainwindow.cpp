@@ -222,6 +222,9 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
+    panel_sequence_viewer->viewer_widget->delete_function();
+    panel_footage_viewer->viewer_widget->delete_function();
+
 	set_sequence(NULL);
 
     QString data_dir = get_data_path();
@@ -248,11 +251,11 @@ MainWindow::~MainWindow() {
 
 	delete ui;
 
+    delete panel_sequence_viewer;
+    delete panel_footage_viewer;
     delete panel_project;
     delete panel_effect_controls;
 	delete panel_timeline;
-    delete panel_sequence_viewer;
-	delete panel_footage_viewer;
 
 	close_debug();
 }

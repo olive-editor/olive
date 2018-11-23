@@ -39,13 +39,13 @@ SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
 void SourceTable::show_context_menu() {
     QMenu menu(this);
 
-    if (selectedItems().size() == 0) {
-        QAction* import_action = menu.addAction("Import...");
-        connect(import_action, SIGNAL(triggered(bool)), panel_project, SLOT(import_dialog()));
+    QAction* import_action = menu.addAction("Import...");
+    connect(import_action, SIGNAL(triggered(bool)), panel_project, SLOT(import_dialog()));
 
-		QAction* new_folder_action = menu.addAction("New Folder...");
-		connect(new_folder_action, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionFolder_triggered()));
-    } else {
+    QAction* new_folder_action = menu.addAction("New Folder...");
+    connect(new_folder_action, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionFolder_triggered()));
+
+    if (selectedItems().size() > 0) {
         if (selectedItems().size() == 1) {
             // replace footage
 			int type = get_type_from_tree(selectedItems().at(0));

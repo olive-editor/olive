@@ -20,7 +20,7 @@ class ViewerWidget : public QOpenGLWidget
 {
 	Q_OBJECT
 public:
-	ViewerWidget(QWidget *parent = 0);
+    ViewerWidget(QWidget *parent = 0);
 
     void paintGL();
     void initializeGL();
@@ -31,6 +31,8 @@ public:
 	bool waveform;
 	Clip* waveform_clip;
 	MediaStream* waveform_ms;
+public slots:
+    void delete_function();
 protected:
     void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);
@@ -47,7 +49,6 @@ private:
     void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data);
 private slots:
 	void retry();
-    void deleteFunction();
 	void show_context_menu();
 	void save_frame();
 };
