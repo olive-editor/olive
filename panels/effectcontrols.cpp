@@ -26,7 +26,8 @@ EffectControls::EffectControls(QWidget *parent) :
     ui(new Ui::EffectControls),
     panel_name("Effects: ")
 {
-	ui->setupUi(this);
+    ui->setupUi(this);
+
 	init_effects();
     clear_effects(false);
 	ui->headers->viewer = panel_sequence_viewer;

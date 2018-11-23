@@ -109,6 +109,7 @@ struct Clip
 	QMutex queue_lock;
     QMutex lock;
 	QMutex open_lock;
+    int64_t last_invalid_ts;
 
 	// converters/filters
 	AVFilterGraph* filter_graph;

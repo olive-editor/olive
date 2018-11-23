@@ -446,9 +446,9 @@ void cache_video_worker(Clip* c, long playhead) {
 			smallest_pts = target_pts;
 		}
 
-        /*if (c->multithreaded && c->cacher->interrupt) { // ignore interrupts for now
+        if (c->multithreaded && c->cacher->interrupt) { // ignore interrupts for now
             c->cacher->interrupt = false;
-        }*/
+        }
 
 		while (true) {
 			AVFrame* frame = av_frame_alloc();
@@ -556,7 +556,7 @@ void reset_cache(Clip* c, long target_frame) {
 				c->queue_clear();
 
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
-				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
+                int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
 				int64_t seek_ts = target_ts;
 				int64_t timebase_half_second = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
                 if (c->reverse) seek_ts -= timebase_half_second;
@@ -574,7 +574,7 @@ void reset_cache(Clip* c, long target_frame) {
 						if (ret < 0) {
 							dout << "[WARNING] Seeking terminated prematurely";
 							break;
-						}
+                        }
 						if (c->frame->pts <= target_ts) {
 							c->use_existing_frame = true;
 							break;

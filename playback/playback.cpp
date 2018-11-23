@@ -189,13 +189,14 @@ void get_clip_frame(Clip* c, long playhead) {
 #endif
 							c->reached_end = false;
 							cache = false;
-						} else if (target_pts < target_frame->pts || pts_diff > second_pts) {
+                        } else if (target_pts != c->last_invalid_ts && (target_pts < target_frame->pts || pts_diff > second_pts)) {
 
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
 //							target_frame = NULL;
 							reset = true;
+                            c->last_invalid_ts = target_pts;
 						} else {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> WAIT - target pts:" << target_pts << "closest frame:" << target_frame->pts;
