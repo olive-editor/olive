@@ -233,7 +233,7 @@ void get_clip_frame(Clip* c, long playhead) {
 }
 
 long playhead_to_clip_frame(Clip* c, long playhead) {
-	return (qMax(0L, playhead - c->timeline_in) + c->clip_in);
+    return (qMax(0L, playhead - c->get_timeline_in_with_transition()) + c->get_clip_in_with_transition());
 }
 
 double playhead_to_clip_seconds(Clip* c, long playhead) {
@@ -299,9 +299,9 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 
 bool is_clip_active(Clip* c, long playhead) {
     return c->enabled
-			&& c->timeline_in < playhead + ceil(c->sequence->frame_rate*2)
-            && c->timeline_out > playhead
-			&& playhead - c->timeline_in + c->clip_in < c->getMaximumLength();
+            && c->get_timeline_in_with_transition() < playhead + ceil(c->sequence->frame_rate*2)
+            && c->get_timeline_out_with_transition() > playhead
+            && playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition() < c->getMaximumLength();
 }
 
 void set_sequence(Sequence* s) {

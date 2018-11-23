@@ -40,7 +40,7 @@ double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
 }
 
 void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
-	// perform all aud io effects
+    // perform all audio effects
 	double timecode_end;
 	timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
 
@@ -50,25 +50,26 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
     }
     if (c->get_opening_transition() != NULL) {
         if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-			double transition_start = (c->clip_in / c->sequence->frame_rate);
-            double transition_end = (c->clip_in + c->get_opening_transition()->length) / c->sequence->frame_rate;
+            double transition_start = (c->get_clip_in_with_transition() / c->sequence->frame_rate);
+            double transition_end = (c->get_clip_in_with_transition() + c->get_opening_transition()->get_length()) / c->sequence->frame_rate;
 			if (timecode_end < transition_end) {
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-                c->get_opening_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_OPEN);
+                c->get_opening_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TA_OPENING_TRANSITION);
 			}
 		}
 	}
     if (c->get_closing_transition() != NULL) {
         if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-            double transition_start = (c->clip_in + c->getLength() - c->get_closing_transition()->length) / c->sequence->frame_rate;
-			double transition_end = (c->clip_in + c->getLength()) / c->sequence->frame_rate;
-			if (timecode_start > transition_start) {
+            long length_with_transitions = c->get_timeline_out_with_transition() - c->get_timeline_in_with_transition();
+            double transition_start = (c->get_clip_in_with_transition() + length_with_transitions - c->get_closing_transition()->get_length()) / c->sequence->frame_rate;
+            double transition_end = (c->get_clip_in_with_transition() + length_with_transitions) / c->sequence->frame_rate;
+            if (timecode_start > transition_start) {
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-                c->get_closing_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TRAN_TYPE_CLOSE);
+                c->get_closing_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TA_CLOSING_TRANSITION);
 			}
 		}
 	}
@@ -76,33 +77,33 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 	if (!nests.isEmpty()) {
 		Clip* next_nest = nests.last();
 		nests.removeLast();
-		apply_audio_effects(next_nest, timecode_start + (((double)c->timeline_in-c->clip_in)/c->sequence->frame_rate), frame, nb_bytes, nests);
+        apply_audio_effects(next_nest, timecode_start + (((double)c->get_timeline_in_with_transition()-c->get_clip_in_with_transition())/c->sequence->frame_rate), frame, nb_bytes, nests);
 	}
 }
 
 #define AUDIO_BUFFER_PADDING 2048
 
 void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
-    long timeline_in = c->timeline_in;
-    long timeline_out = c->timeline_out;
+    long timeline_in = c->get_timeline_in_with_transition();
+    long timeline_out = c->get_timeline_out_with_transition();
 	long target_frame = c->audio_target_frame;
 
 	long frame_skip = 0;
     double last_fr = c->sequence->frame_rate;
 	if (!nests.isEmpty()) {
 		for (int i=nests.size()-1;i>=0;i--) {
-			timeline_in = refactor_frame_number(timeline_in, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
-			timeline_out = refactor_frame_number(timeline_out, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
-			target_frame = refactor_frame_number(target_frame, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->timeline_in - nests.at(i)->clip_in;
+            timeline_in = refactor_frame_number(timeline_in, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->get_timeline_in_with_transition() - nests.at(i)->get_clip_in_with_transition();
+            timeline_out = refactor_frame_number(timeline_out, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->get_timeline_in_with_transition() - nests.at(i)->get_clip_in_with_transition();
+            target_frame = refactor_frame_number(target_frame, last_fr, nests.at(i)->sequence->frame_rate) + nests.at(i)->get_timeline_in_with_transition() - nests.at(i)->get_clip_in_with_transition();
 
-			timeline_out = qMin(timeline_out, nests.at(i)->timeline_out);
+            timeline_out = qMin(timeline_out, nests.at(i)->get_timeline_out_with_transition());
 
 			frame_skip = refactor_frame_number(frame_skip, last_fr, nests.at(i)->sequence->frame_rate);
 
-			long validator = nests.at(i)->timeline_in - timeline_in;
+            long validator = nests.at(i)->get_timeline_in_with_transition() - timeline_in;
 			if (validator > 0) {
 				frame_skip += validator;
-				//timeline_in = nests.at(i)->timeline_in;
+                //timeline_in = nests.at(i)->get_timeline_in_with_transition();
 			}
 
 			last_fr = nests.at(i)->sequence->frame_rate;
@@ -120,7 +121,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 
 			frame = c->queue.at(0);
 
-			// retrieve frame
+            // retrieve frame
 			bool new_frame = false;
 			while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
 				// no more audio left in frame, get a new one
@@ -331,7 +332,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			// apply any audio effects to the data
 			if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 			if (new_frame) {
-                apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, audio_output->format().sampleRate()) + audio_ibuffer_timecode + ((double)c->clip_in/c->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests);
+                apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, audio_output->format().sampleRate()) + audio_ibuffer_timecode + ((double)c->get_clip_in_with_transition()/c->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests);
 			}
 		}
 			break;

@@ -20,6 +20,7 @@ public:
     Transition(Clip* c, Clip* s, const EffectMeta* em);
     int copy(Clip* c, Clip* s);
     Clip* secondary_clip;
+    long get_length();
 };
 
 #endif // TRANSITION_H

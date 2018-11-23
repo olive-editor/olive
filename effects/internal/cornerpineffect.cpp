@@ -49,7 +49,7 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
 	fragPath = "cornerpin.frag";
 }
 
-void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords) {
+void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, int data) {
     coords.vertexTopLeftX += top_left_x->get_double_value(timecode);
     coords.vertexTopLeftY += top_left_y->get_double_value(timecode);
 

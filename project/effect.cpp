@@ -782,7 +782,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 	}
 }
 
-void Effect::process_coords(double, GLTextureCoords&) {}
+void Effect::process_coords(double, GLTextureCoords&, int data) {}
 
 GLuint Effect::process_superimpose(double timecode) {
 	bool recreate_texture = false;

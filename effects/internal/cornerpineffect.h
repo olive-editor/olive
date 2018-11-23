@@ -7,7 +7,7 @@ class CornerPinEffect : public Effect {
     Q_OBJECT
 public:
     CornerPinEffect(Clip* c, const EffectMeta* em);
-	void process_coords(double timecode, GLTextureCoords& coords);
+    void process_coords(double timecode, GLTextureCoords& coords, int data);
 	void process_shader(double timecode, GLTextureCoords& coords);
 private:
     EffectField* top_left_x;

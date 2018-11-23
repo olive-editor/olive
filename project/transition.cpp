@@ -22,6 +22,13 @@ int Transition::copy(Clip *c, Clip* s) {
     return copy_index;
 }
 
+long Transition::get_length() {
+    if (secondary_clip != NULL) {
+        return length * 2;
+    }
+    return length;
+}
+
 Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
     if (!em->filename.isEmpty()) {
         // load effect from file

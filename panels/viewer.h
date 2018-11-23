@@ -86,6 +86,7 @@ private:
     void set_sequence(bool main, Sequence* s);
 	bool main_sequence;
 	bool created_sequence;
+    QString panel_name;
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;

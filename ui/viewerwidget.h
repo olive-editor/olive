@@ -44,7 +44,7 @@ private:
 	void seek_from_click(int x);
 	GLuint compose_sequence(QVector<Clip *> &nests, bool render_audio);
     GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture, bool clear);
-	void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher);
+    void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data);
 private slots:
 	void retry();
     void deleteFunction();

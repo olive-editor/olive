@@ -6,7 +6,7 @@
 class CrossDissolveTransition : public Transition {
 public:
     CrossDissolveTransition(Clip* c, Clip* s, const EffectMeta* em);
-	void process_coords(double timecode, GLTextureCoords &);
+    void process_coords(double timecode, GLTextureCoords &, int data);
 };
 
 #endif // CROSSDISSOLVETRANSITION_H

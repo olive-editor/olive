@@ -66,18 +66,7 @@ private:
 
 	bool video_menu;
 	bool transition_menu;
+    QString panel_name;
 };
-
-/*class EffectAddCommand : public QUndoCommand {
-public:
-    EffectAddCommand();
-    ~EffectAddCommand();
-    void undo();
-    void redo();
-    QVector<Clip*> clips;
-    QVector<Effect*> effects;
-private:
-    bool done;
-};*/
 
 #endif // EFFECTCONTROLS_H

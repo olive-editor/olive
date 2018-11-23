@@ -114,7 +114,7 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 }
 
-void TransformEffect::process_coords(double timecode, GLTextureCoords& coords) {
+void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {
 	// position
 	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 

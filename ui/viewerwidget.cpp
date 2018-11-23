@@ -247,10 +247,10 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bo
 	return fbo->texture();
 }
 
-void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher) {
+void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data) {
 	if (e->is_enabled()) {
 		if (e->enable_coords) {
-			e->process_coords(timecode, coords);
+            e->process_coords(timecode, coords, data);
 		}
 		if (e->enable_shader || e->enable_superimpose) {
 			e->startEffect();
@@ -264,7 +264,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
                 if (superimpose_texture != 0) composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
 			}
 		}
-	}
+    }
 }
 
 int motion_blur_prog = 0;
@@ -277,7 +277,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 	if (!nests.isEmpty()) {
 		for (int i=0;i<nests.size();i++) {
 			s = static_cast<Sequence*>(nests.at(i)->media);
-			playhead += nests.at(i)->clip_in - nests.at(i)->timeline_in;
+            playhead += nests.at(i)->clip_in - nests.at(i)->get_timeline_in_with_transition();
 			playhead = refactor_frame_number(playhead, nests.at(i)->sequence->frame_rate, s->frame_rate);
 		}
 
@@ -353,14 +353,17 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 	int half_width = s->width/2;
 	int half_height = s->height/2;
 	if (rendering || !nests.isEmpty()) half_height = -half_height; // invert vertical
-	glPushMatrix();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	glLoadIdentity();
-	glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
+
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
 
     for (int i=0;i<current_clips.size();i++) {
-		Clip* c = current_clips.at(i);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(1.0, 1.0, 1.0, 1.0);
+
+        Clip* c = current_clips.at(i);
+
         if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
 			dout << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
@@ -389,7 +392,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
 					dout << "[WARNING] Texture hasn't been created yet";
 					texture_failed = true;
-				} else if (playhead >= c->timeline_in) {
+                } else if (playhead >= c->get_timeline_in_with_transition()) {
 					glPushMatrix();
 
 					// start preparing cache
@@ -441,31 +444,29 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
 
                     if (c->autoscale && (video_width != s->width && video_height != s->height)) {
-						double width_multiplier = (double) s->width / (double) video_width;
-						double height_multiplier = (double) s->height / (double) video_height;
-						double scale_multiplier = qMin(width_multiplier, height_multiplier);
+                        float width_multiplier = (float) s->width / (float) video_width;
+                        float height_multiplier = (float) s->height / (float) video_height;
+                        float scale_multiplier = qMin(width_multiplier, height_multiplier);
 						glScalef(scale_multiplier, scale_multiplier, 1);
 					}
 
 					// EFFECT CODE START
-					double timecode = ((double)(playhead-c->timeline_in+c->clip_in)/(double)c->sequence->frame_rate);
+                    double timecode = ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 					for (int j=0;j<c->effects.size();j++) {
-						process_effect(c, c->effects.at(j), timecode, coords, composite_texture, fbo_switcher);
+                        process_effect(c, c->effects.at(j), timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
 					}
 
                     if (c->get_opening_transition() != NULL) {
-						int transition_progress = playhead - c->timeline_in;
-                        if (transition_progress < c->get_opening_transition()->length) {
-                            process_effect(c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->length, coords, composite_texture, fbo_switcher);
-							//c->opening_transition->process_transition((double)transition_progress/(double)c->opening_transition->length);
+                        int transition_progress = playhead - c->get_timeline_in_with_transition();
+                        if (transition_progress < c->get_opening_transition()->get_length()) {
+                            process_effect(c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_OPENING_TRANSITION);
 						}
-					}
+                    }
 
                     if (c->get_closing_transition() != NULL) {
-                        int transition_progress = c->get_closing_transition()->length - (playhead - c->timeline_in - c->getLength() + c->get_closing_transition()->length);
-                        if (transition_progress < c->get_closing_transition()->length) {
-                            process_effect(c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->length, coords, composite_texture, fbo_switcher);
-							//c->closing_transition->process_transition((double)transition_progress/(double)c->closing_transition->length);
+                        int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
+                        if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
+                            process_effect(c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_CLOSING_TRANSITION);
 						}
 					}
 
@@ -574,7 +575,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 				// visually update all the keyframe values
 				if (c->sequence == viewer->seq) { // only if you can currently see them
-					double ts = (playhead - c->timeline_in + c->clip_in)/s->frame_rate;
+                    double ts = (playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition())/s->frame_rate;
 					for (int i=0;i<c->effects.size();i++) {
 						Effect* e = c->effects.at(i);
 						for (int j=0;j<e->row_count();j++) {

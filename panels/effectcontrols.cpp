@@ -23,7 +23,8 @@ EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
 	multiple(false),
     zoom(1),
-    ui(new Ui::EffectControls)
+    ui(new Ui::EffectControls),
+    panel_name("Effects: ")
 {
 	ui->setupUi(this);
 	init_effects();
@@ -34,7 +35,6 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->effects_area->parent_widget = ui->scrollArea;
 	ui->effects_area->keyframe_area = ui->keyframeView;
 	ui->effects_area->header = ui->headers;
-
 	ui->keyframeView->header = ui->headers;
 
 	ui->label_2->setVisible(false);
@@ -262,6 +262,7 @@ void EffectControls::clear_effects(bool clear_cache) {
 	ui->headers->setVisible(false);
 	ui->keyframeView->setEnabled(false);
     if (clear_cache) selected_clips.clear();
+    setWindowTitle(panel_name + "(none)");
 }
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
@@ -298,6 +299,7 @@ void EffectControls::load_effects() {
 			}
 		}
 		if (selected_clips.size() > 0) {
+            setWindowTitle(panel_name + sequence->clips.at(selected_clips.at(0))->name);
 			ui->verticalScrollBar->setMaximum(qMax(0, ui->effects_area->sizeHint().height() - ui->headers->height() + ui->scrollArea->horizontalScrollBar()->height()/* - ui->keyframeView->height() - ui->headers->height()*/));
 			ui->keyframeView->setEnabled(true);
 			ui->headers->setVisible(true);

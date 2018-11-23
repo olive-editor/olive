@@ -37,6 +37,7 @@ struct Clip
     void reset_audio();
 	void reset();
 	void refresh();
+    long get_clip_in_with_transition();
 	long get_timeline_in_with_transition();
 	long get_timeline_out_with_transition();
 	long getLength();

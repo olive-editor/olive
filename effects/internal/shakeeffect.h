@@ -9,7 +9,7 @@ class ShakeEffect : public Effect {
 	Q_OBJECT
 public:
 	ShakeEffect(Clip* c, const EffectMeta* em);
-	void process_coords(double timecode, GLTextureCoords& coords);
+    void process_coords(double timecode, GLTextureCoords& coords, int data);
 
 	EffectField* intensity_val;
 	EffectField* rotation_val;

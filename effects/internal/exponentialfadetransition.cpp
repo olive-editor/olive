@@ -21,12 +21,10 @@ void ExponentialFadeTransition::process_audio(double timecode_start, double time
 			break;
 		}*/
 		switch (type) {
-		case TRAN_TYPE_OPEN:
-		case TRAN_TYPE_OPENWLINK:
+        case TA_OPENING_TRANSITION:
 			samp *= qPow(timecode_start + (interval * i), 2);
 			break;
-		case TRAN_TYPE_CLOSE:
-		case TRAN_TYPE_CLOSEWLINK:
+        case TA_CLOSING_TRANSITION:
 			samp *= qPow(1 - (timecode_start + (interval * i)), 2);
 			break;
 		}

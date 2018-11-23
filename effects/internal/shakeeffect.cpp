@@ -47,7 +47,7 @@ ShakeEffect::ShakeEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 	connect(frequency_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
-void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords) {
+void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {
 	int lim = RANDOM_VAL_SIZE/6;
 
 	double multiplier = intensity_val->get_double_value(timecode)/lim;

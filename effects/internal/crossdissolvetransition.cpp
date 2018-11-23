@@ -6,8 +6,10 @@ CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectM
 	enable_coords = true;
 }
 
-void CrossDissolveTransition::process_coords(double progress, GLTextureCoords&) {
-    float color[4];
-    glGetFloatv(GL_CURRENT_COLOR, color);
-	glColor4f(1.0, 1.0, 1.0, color[3]*progress);
+void CrossDissolveTransition::process_coords(double progress, GLTextureCoords&, int data) {
+    if (!(data == TA_CLOSING_TRANSITION && secondary_clip != NULL)) {
+        float color[4];
+        glGetFloatv(GL_CURRENT_COLOR, color);
+        glColor4f(1.0, 1.0, 1.0, color[3]*progress);
+    }
 }

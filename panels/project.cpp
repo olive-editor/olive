@@ -1076,8 +1076,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 												int effect_id = -1;
 												QString effect_name;
                                                 bool effect_enabled = true;
-                                                long effect_pre_length = -1;
-                                                long effect_post_length = -1;
+                                                long effect_length = -1;
 												for (int j=0;j<stream.attributes().size();j++) {
 													const QXmlStreamAttribute& attr = stream.attributes().at(j);
 													if (attr.name() == "id") {
@@ -1087,9 +1086,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 													} else if (attr.name() == "name") {
 														effect_name = attr.value().toString();
                                                     } else if (attr.name() == "length") {
-                                                        effect_pre_length = attr.value().toLong();
-                                                    } else if (attr.name() == "postlength") { // backwards compatibility
-                                                        effect_post_length = attr.value().toLong();
+                                                        effect_length = attr.value().toLong();
                                                     }
 												}
 
@@ -1139,8 +1136,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
                                                         int transition_index = create_transition(c, NULL, meta);
                                                         Transition* t = c->sequence->transitions.at(transition_index);
-                                                        if (effect_pre_length > -1) t->length = effect_pre_length;
-                                                        if (effect_post_length > -1) t->length2 = effect_post_length;
+                                                        if (effect_length > -1) t->length = effect_length;
                                                         t->set_enabled(effect_enabled);
                                                         t->load(stream);
 

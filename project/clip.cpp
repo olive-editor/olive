@@ -123,7 +123,7 @@ void Clip::refresh() {
 		effects.at(i)->refresh();
 	}
 
-	recalculateMaxLength();
+    recalculateMaxLength();
 }
 
 void Clip::queue_clear() {
@@ -178,6 +178,14 @@ Clip::~Clip() {
 	av_packet_free(&pkt);
 }
 
+long Clip::get_clip_in_with_transition() {
+    if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
+        // we must be the secondary clip, so return (timeline in - length)
+        return clip_in - get_opening_transition()->length;
+    }
+    return clip_in;
+}
+
 long Clip::get_timeline_in_with_transition() {
     if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
         // we must be the secondary clip, so return (timeline in - length)
@@ -189,7 +197,7 @@ long Clip::get_timeline_in_with_transition() {
 long Clip::get_timeline_out_with_transition() {
     if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip != NULL) {
         // we must be the primary clip, so return (timeline out + length2)
-        return timeline_out + get_closing_transition()->length2;
+        return timeline_out + get_closing_transition()->length;
     } else {
         return timeline_out;
     }

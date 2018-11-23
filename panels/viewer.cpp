@@ -18,8 +18,6 @@
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
 
-QString panel_name = "Viewer: ";
-
 extern "C" {
 	#include <libavformat/avformat.h>
 	#include <libavcodec/avcodec.h>
@@ -38,7 +36,8 @@ Viewer::Viewer(QWidget *parent) :
     seq(NULL),
     ui(new Ui::Viewer),
     created_sequence(false),
-    cue_recording_internal(false)
+    cue_recording_internal(false),
+    panel_name("Viewer: ")
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;

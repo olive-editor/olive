@@ -71,11 +71,6 @@ extern QMutex effects_loaded;
 #define KEYFRAME_TYPE_SMOOTH 1
 #define KEYFRAME_TYPE_BEZIER 2
 
-#define TRAN_TYPE_OPEN 1
-#define TRAN_TYPE_CLOSE 2
-#define TRAN_TYPE_OPENWLINK 3
-#define TRAN_TYPE_CLOSEWLINK 4
-
 struct GLTextureCoords {
     int grid_size;
 
@@ -111,7 +106,6 @@ public:
     Clip* parent_clip;
 	const EffectMeta* meta;
     long length; // used only for transitions
-    long length2; // used only for transitions
     int id;
 	QString name;
 	CollapsibleWidget* container;
@@ -147,7 +141,7 @@ public:
 	const char* ffmpeg_filter;
 
 	virtual void process_shader(double timecode, GLTextureCoords&);
-	virtual void process_coords(double timecode, GLTextureCoords& coords);
+    virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 public slots:

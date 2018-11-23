@@ -119,6 +119,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	// end style
 	ui->setupUi(this);
 
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
+
 	updateTitle("");
 
 	statusBar()->showMessage("Welcome to " + appName);
