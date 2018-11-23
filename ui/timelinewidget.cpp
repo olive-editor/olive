@@ -997,6 +997,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                              }
                                          }
                                      }
+                                 } else if (g.in != g.old_in) {
+                                     long movement = g.in - g.old_in;
+                                     ca->append(new MoveClipAction(g.transition->parent_clip, g.transition->parent_clip->timeline_in + movement, g.transition->parent_clip->timeline_out, g.transition->parent_clip->clip_in + movement, g.transition->parent_clip->track));
+                                     ca->append(new MoveClipAction(g.transition->secondary_clip, g.transition->secondary_clip->timeline_in, g.transition->secondary_clip->timeline_out + movement, g.transition->secondary_clip->clip_in, g.transition->secondary_clip->track));
                                  }
 							 }
 						 }
