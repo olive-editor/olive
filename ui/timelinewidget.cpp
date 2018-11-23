@@ -1310,6 +1310,13 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+            bool flipped = false;
+
+            if (frame_diff < 0) {
+                frame_diff = -frame_diff;
+                flipped = true;
+            }
+
             Clip* otc = c; // open transition clip
             Clip* ctc = (panel_timeline->transition_tool_post_clip > -1) ? sequence->clips.at(panel_timeline->transition_tool_post_clip) : NULL; // close transition clip
 
@@ -1327,6 +1334,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                 }
 
                 validator = otc->clip_in - frame_diff;
+                dout << "validator" << validator;
                 if (validator < 0) { // prevent from going below 0 for the media
                     frame_diff += validator;
                 }
@@ -1350,6 +1358,10 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                 if (validator < 0) {
                     frame_diff -= validator;
                 }
+            }
+
+            if (flipped) {
+                frame_diff = -frame_diff;
             }
         }
     }
