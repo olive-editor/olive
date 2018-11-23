@@ -18,8 +18,6 @@
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
 
-QString panel_name = "Viewer: ";
-
 extern "C" {
 	#include <libavformat/avformat.h>
 	#include <libavcodec/avcodec.h>
@@ -33,6 +31,7 @@ extern "C" {
 
 Viewer::Viewer(QWidget *parent) :
     QDockWidget(parent),
+    panel_name("Viewer: "),
 	playing(false),
     just_played(false),
     seq(NULL),

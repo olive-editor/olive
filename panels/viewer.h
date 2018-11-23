@@ -36,6 +36,7 @@ public:
     void clear_inout_point();
 	void set_in_point();
 	void set_out_point();
+    QString panel_name;
 
 	// playback functions
 	void go_to_start();
