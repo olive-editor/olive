@@ -70,6 +70,8 @@ void MainWindow::setup_layout(bool reset) {
     }*/
 
     if (load_default) {
+        setTabPosition(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea, QTabWidget::North);
+
         addDockWidget(Qt::TopDockWidgetArea, panel_project);
         addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
         tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
