@@ -26,7 +26,7 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 #ifdef QT_DEBUG
-//#define GCF_DEBUG
+#define GCF_DEBUG
 #endif
 
 bool texture_failed = false;
@@ -115,7 +115,7 @@ void get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
 		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
 
-		int64_t target_pts = playhead_to_timestamp(c, playhead);
+        int64_t target_pts = qMax(static_cast<int64_t>(0), playhead_to_timestamp(c, playhead));
         int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 			target_pts *= 2;

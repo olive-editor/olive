@@ -698,10 +698,10 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transition_start, long transition_end) {
+void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transition_start, long transition_end, bool delete_old_transitions) {
     // make room for transition
     if (type == TA_OPENING_TRANSITION) {
-        if (c->get_opening_transition() != NULL) {
+        if (delete_old_transitions && c->get_opening_transition() != NULL) {
             ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
         }
         if (c->get_closing_transition() != NULL) {
@@ -712,7 +712,7 @@ void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transitio
             }
         }
     } else {
-        if (c->get_closing_transition() != NULL) {
+        if (delete_old_transitions && c->get_closing_transition() != NULL) {
             ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
         }
         if (c->get_opening_transition() != NULL) {
@@ -966,41 +966,30 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                  if (g.transition->secondary_clip != NULL) new_transition_length >>= 1;
                                  ca->append(new ModifyTransitionCommand(c, is_opening_transition ? TA_OPENING_TRANSITION : TA_CLOSING_TRANSITION, new_transition_length));
 
-								 long clip_length = c->getLength();
-                                 if (g.transition->secondary_clip == NULL) {
-                                     if (is_opening_transition) {
-                                         if (g.in != g.old_in) {
-                                             // if transition is going to make the clip bigger, make the clip bigger
-                                             ca->append(new MoveClipAction(c, c->timeline_in + (g.in - g.old_in), c->timeline_out, c->clip_in + (g.clip_in - g.old_clip_in), c->track));
-                                             clip_length -= (g.in - g.old_in);
-                                         }
+                                 long clip_length = c->getLength();
 
-                                         if (c->get_closing_transition() != NULL) {
-                                             if (new_transition_length == clip_length) {
-                                                 ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
-                                             } else if (new_transition_length > clip_length - c->get_closing_transition()->length) {
-                                                 ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, clip_length - new_transition_length));
-                                             }
-                                         }
-                                     } else {
-                                         if (g.out != g.old_out) {
-                                             // if transition is going to make the clip bigger, make the clip bigger
-                                             ca->append(new MoveClipAction(c, c->timeline_in, c->timeline_out + (g.out - g.old_out), c->clip_in, c->track));
-                                             clip_length += (g.out - g.old_out);
-                                         }
-
-                                         if (c->get_opening_transition() != NULL) {
-                                             if (new_transition_length == clip_length) {
-                                                 ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
-                                             } else if (new_transition_length > clip_length - c->get_opening_transition()->length) {
-                                                 ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, clip_length - new_transition_length));
-                                             }
-                                         }
+                                 if (g.transition->secondary_clip != NULL) {
+                                     if (g.in != g.old_in && !g.trimming) {
+                                         long movement = g.in - g.old_in;
+                                         ca->append(new MoveClipAction(g.transition->parent_clip, g.transition->parent_clip->timeline_in + movement, g.transition->parent_clip->timeline_out, g.transition->parent_clip->clip_in + movement, g.transition->parent_clip->track));
+                                         ca->append(new MoveClipAction(g.transition->secondary_clip, g.transition->secondary_clip->timeline_in, g.transition->secondary_clip->timeline_out + movement, g.transition->secondary_clip->clip_in, g.transition->secondary_clip->track));
                                      }
-                                 } else if (g.in != g.old_in) {
-                                     long movement = g.in - g.old_in;
-                                     ca->append(new MoveClipAction(g.transition->parent_clip, g.transition->parent_clip->timeline_in + movement, g.transition->parent_clip->timeline_out, g.transition->parent_clip->clip_in + movement, g.transition->parent_clip->track));
-                                     ca->append(new MoveClipAction(g.transition->secondary_clip, g.transition->secondary_clip->timeline_in, g.transition->secondary_clip->timeline_out + movement, g.transition->secondary_clip->clip_in, g.transition->secondary_clip->track));
+                                 } else if (is_opening_transition) {
+                                     if (g.in != g.old_in) {
+                                         // if transition is going to make the clip bigger, make the clip bigger
+                                         ca->append(new MoveClipAction(c, c->timeline_in + (g.in - g.old_in), c->timeline_out, c->clip_in + (g.clip_in - g.old_clip_in), c->track));
+                                         clip_length -= (g.in - g.old_in);
+                                     }
+
+                                     make_room_for_transition(ca, c, TA_OPENING_TRANSITION, g.in, g.out, false);
+                                 } else {
+                                     if (g.out != g.old_out) {
+                                         // if transition is going to make the clip bigger, make the clip bigger
+                                         ca->append(new MoveClipAction(c, c->timeline_in, c->timeline_out + (g.out - g.old_out), c->clip_in, c->track));
+                                         clip_length += (g.out - g.old_out);
+                                     }
+
+                                     make_room_for_transition(ca, c, TA_CLOSING_TRANSITION, g.in, g.out, false);
                                  }
 							 }
 						 }
@@ -1017,7 +1006,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     long transition_start = qMin(g.in, g.out);
                     long transition_end = qMax(g.in, g.out);
 
-                    make_room_for_transition(ca, c, panel_timeline->transition_tool_type, transition_start, transition_end);
+                    make_room_for_transition(ca, c, panel_timeline->transition_tool_type, transition_start, transition_end, true);
 
                     if (panel_timeline->transition_tool_post_clip > -1) {
                         Clip* pre = c;
@@ -1028,7 +1017,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                     post,
                                     opposite_type,
                                     transition_start,
-                                    transition_end
+                                    transition_end,
+                                    true
                                 );
                         if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
                             // swap
@@ -1246,10 +1236,10 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                     if (validator > 0) frame_diff += validator;
                 } else {
                     validator = g.transition->parent_clip->get_clip_in_with_transition() - frame_diff;
-                    if (validator < 0) frame_diff -= validator;
+                    if (validator < 0) frame_diff += validator;
 
                     validator = g.transition->secondary_clip->get_timeline_out_with_transition() - g.transition->secondary_clip->get_timeline_in_with_transition() + g.transition->secondary_clip->get_clip_in_with_transition() + frame_diff - g.transition->secondary_clip->getMaximumLength();
-                    if (validator > 0) frame_diff += validator;
+                    if (validator > 0) frame_diff -= validator;
                 }
             }
 
