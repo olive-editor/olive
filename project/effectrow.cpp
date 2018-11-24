@@ -144,8 +144,8 @@ void EffectRow::goto_next_key() {
     if (key != LONG_MAX) panel_sequence_viewer->seek(key);
 }
 
-EffectField* EffectRow::add_field(int type, int colspan) {
-    EffectField* field = new EffectField(this, type);
+EffectField* EffectRow::add_field(int type, const QString& id, int colspan) {
+    EffectField* field = new EffectField(this, type, id);
     fields.append(field);
     QWidget* element = field->get_ui_element();
     ui->addWidget(element, ui_row, fields.size(), 1, colspan);

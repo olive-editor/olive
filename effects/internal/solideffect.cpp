@@ -21,26 +21,22 @@
 SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	enable_superimpose = true;
 
-	solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
+    solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO, "type");
 	solid_type->add_combo_item("Solid Color", SOLID_TYPE_COLOR);
 	solid_type->add_combo_item("SMPTE Bars", SOLID_TYPE_BARS);
     solid_type->add_combo_item("Checkerboard", SOLID_TYPE_CHECKERBOARD);
-	solid_type->id = "type";
 
-    opacity_field = add_row("Opacity:")->add_field(EFFECT_FIELD_DOUBLE);
+    opacity_field = add_row("Opacity:")->add_field(EFFECT_FIELD_DOUBLE, "opacity");
     opacity_field->set_double_minimum_value(0);
     opacity_field->set_double_maximum_value(100);
     opacity_field->set_double_default_value(100);
-    opacity_field->id = "opacity";
 
-	solid_color_field = add_row("Color:")->add_field(EFFECT_FIELD_COLOR);
-	solid_color_field->set_color_value(Qt::red);
-	solid_color_field->id = "color";
+    solid_color_field = add_row("Color:")->add_field(EFFECT_FIELD_COLOR, "color");
+    solid_color_field->set_color_value(Qt::red);
 
-    checkerboard_size_field = add_row("Checkerboard Size:")->add_field(EFFECT_FIELD_DOUBLE);
+    checkerboard_size_field = add_row("Checkerboard Size:")->add_field(EFFECT_FIELD_DOUBLE, "checker_size");
     checkerboard_size_field->set_double_minimum_value(1);
     checkerboard_size_field->set_double_default_value(10);
-    checkerboard_size_field->id = "checker_size";
 
     connect(solid_type, SIGNAL(changed()), this, SLOT(field_changed()));
 	connect(solid_color_field, SIGNAL(changed()), this, SLOT(field_changed()));

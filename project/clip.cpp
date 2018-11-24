@@ -293,11 +293,11 @@ int Clip::getHeight() {
 
 void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points) {
 	if (change_timeline_points) {
-		ca->append(new MoveClipAction(this,
-									  qRound((double) timeline_in * multiplier),
-									  qRound((double) timeline_out * multiplier),
-									  qRound((double) clip_in * multiplier),
-								track));
+        move_clip(ca, this,
+                  qRound((double) timeline_in * multiplier),
+                  qRound((double) timeline_out * multiplier),
+                  qRound((double) clip_in * multiplier),
+            track);
 	}
 
 	for (int i=0;i<effects.size();i++) {

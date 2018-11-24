@@ -16,7 +16,7 @@ class EffectRow : public QObject {
 public:
     EffectRow(Effect* parent, QGridLayout* uilayout, const QString& n, int row);
     ~EffectRow();
-    EffectField* add_field(int type, int colspan = 1);
+    EffectField* add_field(int type, const QString &id, int colspan = 1);
     EffectField* field(int i);
     int fieldCount();
     void set_keyframe_now(bool undoable);

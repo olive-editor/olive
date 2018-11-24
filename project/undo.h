@@ -101,16 +101,19 @@ private:
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-    AddTransitionCommand(Clip* c, Clip* s, const EffectMeta* itransition, int itype, int ilength);
+    AddTransitionCommand(Clip* c, Clip* s, Transition *copy, const EffectMeta* itransition, int itype, int ilength);
     void undo();
     void redo();
 private:
     Clip* clip;
     Clip* secondary;
+    Transition* transition_to_copy;
 	const EffectMeta* transition;
     int type;
     int length;
 	bool old_project_changed;
+    int old_ptransition;
+    int old_stransition;
 };
 
 class ModifyTransitionCommand : public QUndoCommand {

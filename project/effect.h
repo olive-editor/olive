@@ -63,7 +63,6 @@ extern QMutex effects_loaded;
 
 
 
-
 #define EFFECT_INTERNAL_CORNERPIN 12
 #define EFFECT_INTERNAL_COUNT 13
 
@@ -76,21 +75,29 @@ struct GLTextureCoords {
 
 	int vertexTopLeftX;
 	int vertexTopLeftY;
+    int vertexTopLeftZ;
 	int vertexTopRightX;
 	int vertexTopRightY;
+    int vertexTopRightZ;
 	int vertexBottomLeftX;
 	int vertexBottomLeftY;
+    int vertexBottomLeftZ;
 	int vertexBottomRightX;
 	int vertexBottomRightY;
+    int vertexBottomRightZ;
 
-	double textureTopLeftX;
-	double textureTopLeftY;
-	double textureTopRightX;
-	double textureTopRightY;
-	double textureBottomRightX;
-	double textureBottomRightY;
-	double textureBottomLeftX;
-	double textureBottomLeftY;
+    float textureTopLeftX;
+    float textureTopLeftY;
+    float textureTopLeftQ;
+    float textureTopRightX;
+    float textureTopRightY;
+    float textureTopRightQ;
+    float textureBottomRightX;
+    float textureBottomRightY;
+    float textureBottomRightQ;
+    float textureBottomLeftX;
+    float textureBottomLeftY;
+    float textureBottomLeftQ;
 };
 
 qint16 mix_audio_sample(qint16 a, qint16 b);

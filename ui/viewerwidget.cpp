@@ -441,9 +441,11 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
 					coords.vertexTopLeftY = coords.vertexTopRightY = -video_height/2;
 					coords.vertexTopRightX = coords.vertexBottomRightX = video_width/2;
-					coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
-					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
+                    coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
+                    coords.vertexBottomLeftZ = coords.vertexBottomRightZ = coords.vertexTopLeftZ = coords.vertexTopRightZ = 1;
+                    coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0.0;
 					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
+                    coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
 
                     if (c->autoscale && (video_width != s->width && video_height != s->height)) {
                         float width_multiplier = (float) s->width / (float) video_width;
@@ -496,43 +498,45 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                     glBegin(GL_QUADS);
 
 					if (coords.grid_size <= 1) {
-						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-                        glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
-						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-                        glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
-						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-                        glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
-						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
+                        float z = 0.5f;
+
+                        glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
+                        glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, z); // top left
+                        glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
+                        glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, z); // top right
+                        glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
+                        glVertex3f(coords.vertexBottomRightX, coords.vertexBottomRightY, z); // bottom right
+                        glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+                        glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, z); // bottom left
 					} else {
-                        double rows = coords.grid_size;
-                        double cols = coords.grid_size;
+                        float rows = coords.grid_size;
+                        float cols = coords.grid_size;
 
-                        for (double i=0;i<rows;i++) {
-                            double row_prog = i/rows;
-                            double next_row_prog = (i+1)/rows;
-                            for (double j=0;j<cols;j++) {
-                                double col_prog = j/cols;
-                                double next_col_prog = (j+1)/cols;
+                        for (float i=0;i<rows;i++) {
+                            float row_prog = i/rows;
+                            float next_row_prog = (i+1)/rows;
+                            for (float j=0;j<cols;j++) {
+                                float col_prog = j/cols;
+                                float next_col_prog = (j+1)/cols;
 
-                                double vertexTLX = double_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
-                                double vertexTRX = double_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
-                                double vertexBLX = double_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
-                                double vertexBRX = double_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
+                                float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
+                                float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
+                                float vertexBLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
+                                float vertexBRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
 
-                                double vertexTLY = double_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
-                                double vertexTRY = double_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
-                                double vertexBLY = double_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
-                                double vertexBRY = double_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
+                                float vertexTLY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
+                                float vertexTRY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
+                                float vertexBLY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
+                                float vertexBRY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
 
-                                glTexCoord2f(double_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), double_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
-                                glVertex2f(double_lerp(vertexTLX, vertexTRX, col_prog), double_lerp(vertexTLY, vertexBLY, row_prog)); // top left
-                                glTexCoord2f(double_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), double_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
-                                glVertex2f(double_lerp(vertexTLX, vertexTRX, next_col_prog), double_lerp(vertexTRY, vertexBRY, row_prog)); // top right
-                                glTexCoord2f(double_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), double_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
-                                glVertex2f(double_lerp(vertexBLX, vertexBRX, next_col_prog), double_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
-                                glTexCoord2f(double_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), double_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
-                                glVertex2f(double_lerp(vertexBLX, vertexBRX, col_prog), double_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
+                                glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
+                                glVertex2f(float_lerp(vertexTLX, vertexTRX, col_prog), float_lerp(vertexTLY, vertexBLY, row_prog)); // top left
+                                glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
+                                glVertex2f(float_lerp(vertexTLX, vertexTRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, row_prog)); // top right
+                                glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
+                                glVertex2f(float_lerp(vertexBLX, vertexBRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
+                                glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
+                                glVertex2f(float_lerp(vertexBLX, vertexBRX, col_prog), float_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
                             }
                         }
 					}
@@ -617,6 +621,7 @@ void ViewerWidget::paintGL() {
             glMatrixMode(GL_MODELVIEW);
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
+            glEnable(GL_DEPTH);
 
             texture_failed = false;
 

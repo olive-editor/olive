@@ -314,7 +314,7 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	}
 	ep = qMin(ep, c->timeline_out);
 	lr = qMax(lr, proposed_out - c->timeline_out);
-	ca->append(new MoveClipAction(c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track));	
+    move_clip(ca, c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track);
 
 	c->refactor_frame_rate(ca, multiplier, false);
 
@@ -346,7 +346,7 @@ void SpeedDialog::accept() {
 
 		if (reverse->checkState() != Qt::PartiallyChecked && c->reverse != reverse->isChecked()) {
 			long new_clip_in = (c->getMaximumLength() - (c->getLength() + c->clip_in));
-			ca->append(new MoveClipAction(c, c->timeline_in, c->timeline_out, new_clip_in, c->track));
+            move_clip(ca, c, c->timeline_in, c->timeline_out, new_clip_in, c->track);
 			c->clip_in = new_clip_in;
 			ca->append(new SetBool(&c->reverse, reverse->isChecked()));
 		}

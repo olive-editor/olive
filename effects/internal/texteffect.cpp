@@ -24,56 +24,41 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 {
 	enable_superimpose = true;
 
-	text_val = add_row("Text:")->add_field(EFFECT_FIELD_STRING, 2);
-	text_val->id = "text";
+    text_val = add_row("Text:")->add_field(EFFECT_FIELD_STRING, "text", 2);
 
-	set_font_combobox = add_row("Font:")->add_field(EFFECT_FIELD_FONT, 2);
-	set_font_combobox->id = "font";
+    set_font_combobox = add_row("Font:")->add_field(EFFECT_FIELD_FONT, "font", 2);
 
-	size_val = add_row("Size:")->add_field(EFFECT_FIELD_DOUBLE, 2);
-	size_val->set_double_minimum_value(0);
-	size_val->id = "size";
+    size_val = add_row("Size:")->add_field(EFFECT_FIELD_DOUBLE, "size", 2);
+    size_val->set_double_minimum_value(0);
 
-	set_color_button = add_row("Color:")->add_field(EFFECT_FIELD_COLOR, 2);
-	set_color_button->id = "color";
+    set_color_button = add_row("Color:")->add_field(EFFECT_FIELD_COLOR, "color", 2);
 
 	EffectRow* alignment_row = add_row("Alignment:");
-	halign_field = alignment_row->add_field(EFFECT_FIELD_COMBO);
+    halign_field = alignment_row->add_field(EFFECT_FIELD_COMBO, "halign");
 	halign_field->add_combo_item("Left", Qt::AlignLeft);
 	halign_field->add_combo_item("Center", Qt::AlignHCenter);
 	halign_field->add_combo_item("Right", Qt::AlignRight);
-	halign_field->add_combo_item("Justify", Qt::AlignJustify);
-	halign_field->id = "halign";
+    halign_field->add_combo_item("Justify", Qt::AlignJustify);
 
-	valign_field = alignment_row->add_field(EFFECT_FIELD_COMBO);
+    valign_field = alignment_row->add_field(EFFECT_FIELD_COMBO, "valign");
 	valign_field->add_combo_item("Top", Qt::AlignTop);
 	valign_field->add_combo_item("Center", Qt::AlignVCenter);
-	valign_field->add_combo_item("Bottom", Qt::AlignBottom);
-	valign_field->id = "valign";
+    valign_field->add_combo_item("Bottom", Qt::AlignBottom);
 
-	word_wrap_field = add_row("Word Wrap:")->add_field(EFFECT_FIELD_BOOL, 2);
-	word_wrap_field->id = "wordwrap";
+    word_wrap_field = add_row("Word Wrap:")->add_field(EFFECT_FIELD_BOOL, "wordwrap", 2);
 
-	outline_bool = add_row("Outline:")->add_field(EFFECT_FIELD_BOOL, 2);
-	outline_bool->id = "outline";
-	outline_color = add_row("Outline Color:")->add_field(EFFECT_FIELD_COLOR, 2);
-	outline_color->id = "outlinecolor";
-	outline_width = add_row("Outline Width:")->add_field(EFFECT_FIELD_DOUBLE, 2);
-	outline_width->id = "outlinewidth";
+    outline_bool = add_row("Outline:")->add_field(EFFECT_FIELD_BOOL, "outline", 2);
+    outline_color = add_row("Outline Color:")->add_field(EFFECT_FIELD_COLOR, "outlinecolor", 2);
+    outline_width = add_row("Outline Width:")->add_field(EFFECT_FIELD_DOUBLE, "outlinewidth", 2);
 	outline_width->set_double_minimum_value(0);
 
-	shadow_bool = add_row("Shadow:")->add_field(EFFECT_FIELD_BOOL, 2);
-	shadow_bool->id = "shadow";
-	shadow_color = add_row("Shadow Color:")->add_field(EFFECT_FIELD_COLOR, 2);
-	shadow_color->id = "shadowcolor";
-	shadow_distance = add_row("Shadow Distance:")->add_field(EFFECT_FIELD_DOUBLE, 2);
-	shadow_distance->id = "shadowdistance";
+    shadow_bool = add_row("Shadow:")->add_field(EFFECT_FIELD_BOOL, "shadow", 2);
+    shadow_color = add_row("Shadow Color:")->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
+    shadow_distance = add_row("Shadow Distance:")->add_field(EFFECT_FIELD_DOUBLE, "shadowdistance", 2);
 	shadow_distance->set_double_minimum_value(0);
-	shadow_softness = add_row("Shadow Softness:")->add_field(EFFECT_FIELD_DOUBLE, 2);
-	shadow_softness->id = "shadowsoftness";
+    shadow_softness = add_row("Shadow Softness:")->add_field(EFFECT_FIELD_DOUBLE, "shadowsoftness", 2);
 	shadow_softness->set_double_minimum_value(0);
-	shadow_opacity = add_row("Shadow Opacity:")->add_field(EFFECT_FIELD_DOUBLE, 2);
-	shadow_opacity->id = "shadowopacity";
+    shadow_opacity = add_row("Shadow Opacity:")->add_field(EFFECT_FIELD_DOUBLE, "shadowopacity", 2);
 	shadow_opacity->set_double_minimum_value(0);
 	shadow_opacity->set_double_maximum_value(100);
 

@@ -355,11 +355,11 @@ void Timeline::add_transition() {
         Clip* c = sequence->clips.at(i);
         if (c != NULL && is_clip_selected(c, true)) {
             if (c->get_opening_transition() == NULL) {
-                ca->append(new AddTransitionCommand(c, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, NULL, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
             if (c->get_closing_transition() == NULL) {
-                ca->append(new AddTransitionCommand(c, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, NULL, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
         }
@@ -634,7 +634,7 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
 		post->timeline_in = post_in;
 		post->clip_in = pre->clip_in + (post->timeline_in - pre->timeline_in);
 
-        ca->append(new MoveClipAction(pre, pre->timeline_in, frame, pre->clip_in, pre->track));
+        move_clip(ca, pre, pre->timeline_in, frame, pre->clip_in, pre->track);
 
         if (pre->get_opening_transition() != NULL) {
             /*if (frame < pre->timeline_in + pre->get_opening_transition()->length && pre->get_opening_transition()->secondary_clip != NULL) {
@@ -792,7 +792,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 					post_clips.append(post);
                 } else if (c->timeline_in < s.in && c->timeline_out > s.in) {
                     // only out point is in deletion area
-                    ca->append(new MoveClipAction(c, c->timeline_in, s.in, c->clip_in, c->track));
+                    move_clip(ca, c, c->timeline_in, s.in, c->clip_in, c->track);
 
                     if (c->get_closing_transition() != NULL) {
                         if (s.in < c->timeline_out - c->get_closing_transition()->length) {
@@ -803,7 +803,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 					}
                 } else if (c->timeline_in < s.out && c->timeline_out > s.out) {
                     // only in point is in deletion area
-                    ca->append(new MoveClipAction(c, s.out, c->timeline_out, c->clip_in + (s.out - c->timeline_in), c->track));
+                    move_clip(ca, c, s.out, c->timeline_out, c->clip_in + (s.out - c->timeline_in), c->track);
 
                     if (c->get_opening_transition() != NULL) {
                         if (s.out > c->timeline_in + c->get_opening_transition()->length) {
@@ -1075,7 +1075,7 @@ bool Timeline::split_selection(ComboAction* ca) {
                             split_A->sequence->hard_delete_transition(split_A, TA_CLOSING_TRANSITION);
 						}
 
-                        ca->append(new MoveClipAction(clip, clip->timeline_in, s.in, clip->clip_in, clip->track));
+                        move_clip(ca, clip, clip->timeline_in, s.in, clip->clip_in, clip->track);
                         split = true;
                     } else {
                         Clip* post_a = split_clip(ca, j, s.in);
@@ -1488,4 +1488,22 @@ void Timeline::transition_menu_select(QAction* a) {
 	ui->timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
     ui->toolTransitionButton->setChecked(true);
+}
+
+void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions) {
+    ca->append(new MoveClipAction(c, iin, iout, iclip_in, itrack));
+
+    if (verify_transitions) {
+        if (c->get_opening_transition() != NULL && c->get_opening_transition()->secondary_clip != NULL && c->get_opening_transition()->secondary_clip->timeline_out != iin) {
+            // separate transition
+            ca->append(new SetPointer((void**) &c->get_opening_transition()->secondary_clip, NULL));
+            ca->append(new AddTransitionCommand(c->get_opening_transition()->secondary_clip, NULL, c->get_opening_transition(), NULL, TA_CLOSING_TRANSITION, 0));
+        }
+
+        if (c->get_closing_transition() != NULL && c->get_closing_transition()->secondary_clip != NULL && c->get_closing_transition()->parent_clip->timeline_in != iout) {
+            // separate transition
+            ca->append(new SetPointer((void**) &c->get_closing_transition()->secondary_clip, NULL));
+            ca->append(new AddTransitionCommand(c, NULL, c->get_closing_transition(), NULL, TA_CLOSING_TRANSITION, 0));
+        }
+    }
 }

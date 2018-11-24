@@ -224,9 +224,10 @@ void AddEffectCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, const EffectMeta *itransition, int itype, int ilength) :
+AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, Transition* copy, const EffectMeta *itransition, int itype, int ilength) :
     clip(c),
     secondary(s),
+    transition_to_copy(copy),
     transition(itransition),
 	type(itype),
     length(ilength),
@@ -236,19 +237,36 @@ AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, const EffectMeta *i
 void AddTransitionCommand::undo() {
     clip->sequence->hard_delete_transition(clip, type);
     if (secondary != NULL) secondary->sequence->hard_delete_transition(secondary, (type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION);
+
+    if (type == TA_OPENING_TRANSITION) {
+        clip->opening_transition = old_ptransition;
+        if (secondary != NULL) secondary->closing_transition = old_stransition;
+    } else {
+        clip->closing_transition = old_ptransition;
+        if (secondary != NULL) secondary->opening_transition = old_stransition;
+    }
+
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddTransitionCommand::redo() {
     if (type == TA_OPENING_TRANSITION) {
-        clip->opening_transition = create_transition(clip, secondary, transition);
-        if (secondary != NULL) secondary->closing_transition = clip->opening_transition;
+        old_ptransition = clip->opening_transition;
+        clip->opening_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
+        if (secondary != NULL) {
+            old_stransition = secondary->closing_transition;
+            secondary->closing_transition = clip->opening_transition;
+        }
         if (length > 0) {
             clip->get_opening_transition()->length = length;
         }
     } else {
-        clip->closing_transition = create_transition(clip, secondary, transition);
-        if (secondary != NULL) secondary->opening_transition = clip->closing_transition;
+        old_ptransition = clip->closing_transition;
+        clip->closing_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
+        if (secondary != NULL) {
+            old_stransition = secondary->opening_transition;
+            secondary->opening_transition = clip->closing_transition;
+        }
         if (length > 0) {
             clip->get_closing_transition()->length = length;
         }

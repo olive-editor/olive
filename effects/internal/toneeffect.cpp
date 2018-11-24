@@ -9,24 +9,20 @@
 #include "debug.h"
 
 ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_MIN) {
-	type_val = add_row("Type:")->add_field(EFFECT_FIELD_COMBO);
-	type_val->id = "type";
+    type_val = add_row("Type:")->add_field(EFFECT_FIELD_COMBO, "type");
 	type_val->add_combo_item("Sine", TONE_TYPE_SINE);
 
-	freq_val = add_row("Frequency:")->add_field(EFFECT_FIELD_DOUBLE);
-	freq_val->id = "frequency";
+    freq_val = add_row("Frequency:")->add_field(EFFECT_FIELD_DOUBLE, "frequency");
 	freq_val->set_double_minimum_value(20);
 	freq_val->set_double_maximum_value(20000);
 	freq_val->set_double_default_value(1000);
 
-	amount_val = add_row("Amount:")->add_field(EFFECT_FIELD_DOUBLE);
-	amount_val->id = "amount";
+    amount_val = add_row("Amount:")->add_field(EFFECT_FIELD_DOUBLE, "amount");
 	amount_val->set_double_minimum_value(0);
 	amount_val->set_double_maximum_value(100);
 	amount_val->set_double_default_value(25);
 
-	mix_val = add_row("Mix:")->add_field(EFFECT_FIELD_BOOL);
-	mix_val->id = "mix";
+    mix_val = add_row("Mix:")->add_field(EFFECT_FIELD_BOOL, "mix");
 	mix_val->set_bool_value(true);
 
 	connect(freq_val, SIGNAL(changed()), this, SLOT(field_changed()));

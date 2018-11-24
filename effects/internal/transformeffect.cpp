@@ -26,44 +26,34 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	enable_coords = true;
 
 	EffectRow* position_row = add_row("Position:");
-	position_x = position_row->add_field(EFFECT_FIELD_DOUBLE); // position X
-	position_x->id = "posx";
-	position_y = position_row->add_field(EFFECT_FIELD_DOUBLE); // position Y
-	position_y->id = "posy";
+    position_x = position_row->add_field(EFFECT_FIELD_DOUBLE, "posx"); // position X
+    position_y = position_row->add_field(EFFECT_FIELD_DOUBLE, "posy"); // position Y
 
 	EffectRow* scale_row = add_row("Scale:");
-	scale_x = scale_row->add_field(EFFECT_FIELD_DOUBLE); // scale X (and Y is uniform scale is selected)
-	scale_x->id = "scalex";
+    scale_x = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scalex"); // scale X (and Y is uniform scale is selected)
 	scale_x->set_double_minimum_value(0);
 	scale_x->set_double_maximum_value(3000);
-	scale_y = scale_row->add_field(EFFECT_FIELD_DOUBLE); // scale Y (disabled if uniform scale is selected)
-	scale_y->id = "scaley";
+    scale_y = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scaley"); // scale Y (disabled if uniform scale is selected)
 	scale_y->set_double_minimum_value(0);
 	scale_y->set_double_maximum_value(3000);
 
 	EffectRow* uniform_scale_row = add_row("Uniform Scale:");
-	uniform_scale_field = uniform_scale_row->add_field(EFFECT_FIELD_BOOL); // uniform scale option
-	uniform_scale_field->id = "uniformscale";
+    uniform_scale_field = uniform_scale_row->add_field(EFFECT_FIELD_BOOL, "uniformscale"); // uniform scale option
 
 	EffectRow* rotation_row = add_row("Rotation:");
-	rotation = rotation_row->add_field(EFFECT_FIELD_DOUBLE);
-	rotation->id = "rotation";
+    rotation = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
 
 	EffectRow* anchor_point_row = add_row("Anchor Point:");
-	anchor_x_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE); // anchor point X
-	anchor_x_box->id = "anchorx";
-	anchor_y_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE); // anchor point Y
-	anchor_y_box->id = "anchory";
+    anchor_x_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchorx"); // anchor point X
+    anchor_y_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchory"); // anchor point Y
 
 	EffectRow* opacity_row = add_row("Opacity:");
-	opacity = opacity_row->add_field(EFFECT_FIELD_DOUBLE); // opacity
-	opacity->id = "opacity";
+    opacity = opacity_row->add_field(EFFECT_FIELD_DOUBLE, "opacity"); // opacity
 	opacity->set_double_minimum_value(0);
 	opacity->set_double_maximum_value(100);
 
 	EffectRow* blend_mode_row = add_row("Blend Mode:");
-	blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO); // blend mode
-	blend_mode_box->id = "blendmode";
+    blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO, "blendmode"); // blend mode
 	blend_mode_box->add_combo_item("Normal", BLEND_MODE_NORMAL);
 	blend_mode_box->add_combo_item("Overlay", BLEND_MODE_OVERLAY);
 	blend_mode_box->add_combo_item("Screen", BLEND_MODE_SCREEN);
@@ -131,7 +121,7 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	coords.vertexBottomRightY -= anchor_y_offset;
 
 	// rotation
-	glRotatef(rotation->get_double_value(timecode), 0, 0, 1);
+    glRotatef(rotation->get_double_value(timecode), 0, 0, 1);
 
 	// scale
 	float sx = scale_x->get_double_value(timecode)*0.01;

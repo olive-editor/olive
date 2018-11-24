@@ -105,12 +105,12 @@ void load_internal_effects() {
 	em.name = "Transform";
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_TRANSFORM;
-	video_effects.append(em);
+    video_effects.append(em);
 
-	em.name = "Corner Pin";
-	em.category = "Distort";
-	em.internal = EFFECT_INTERNAL_CORNERPIN;
-	video_effects.append(em);
+    em.name = "Corner Pin";
+    em.category = "Distort";
+    em.internal = EFFECT_INTERNAL_CORNERPIN;
+    video_effects.append(em);
 
 	em.name = "Text";
 	em.category = "Render";
@@ -133,10 +133,6 @@ void load_internal_effects() {
 
 	em.name = "Cross Dissolve";
     em.internal = TRANSITION_INTERNAL_CROSSDISSOLVE;
-	video_effects.append(em);
-
-    em.name = "Cube";
-    em.internal = TRANSITION_INTERNAL_CUBE;
     video_effects.append(em);
 
 	em.name = "Linear Fade";
@@ -298,8 +294,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 								if (id.isEmpty()) {
 									dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
 								} else if (type > -1) {
-									EffectField* field = row->add_field(type);
-									field->id = id;
+                                    EffectField* field = row->add_field(type, id);
 									connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
 									switch (type) {
 									case EFFECT_FIELD_DOUBLE:

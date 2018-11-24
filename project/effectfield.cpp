@@ -17,7 +17,7 @@
 #include "io/math.h"
 #include <QtMath>
 
-EffectField::EffectField(EffectRow *parent, int t) : parent_row(parent), type(t) {
+EffectField::EffectField(EffectRow *parent, int t, const QString &i) : parent_row(parent), type(t), id(i) {
     switch (t) {
     case EFFECT_FIELD_DOUBLE:
     {

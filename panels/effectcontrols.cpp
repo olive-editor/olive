@@ -68,10 +68,10 @@ void EffectControls::menu_select(QAction* q) {
 			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
 			if (transition_menu) {
                 if (c->get_opening_transition() == NULL) {
-                    ca->append(new AddTransitionCommand(c, NULL, meta, TA_OPENING_TRANSITION, 30));
+                    ca->append(new AddTransitionCommand(c, NULL, NULL, meta, TA_OPENING_TRANSITION, 30));
 				}
                 if (c->get_closing_transition() == NULL) {
-                    ca->append(new AddTransitionCommand(c, NULL, meta, TA_CLOSING_TRANSITION, 30));
+                    ca->append(new AddTransitionCommand(c, NULL, NULL, meta, TA_CLOSING_TRANSITION, 30));
 				}
 			} else {
 				ca->append(new AddEffectCommand(c, meta));
