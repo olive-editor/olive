@@ -484,6 +484,7 @@ void AddClipCommand::undo() {
 		Clip* c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 		undone_clips.prepend(c);
+        if (c->open) close_clip(c);
         seq->clips.removeLast();
     }
 	mainWindow->setWindowModified(old_project_changed);
@@ -504,6 +505,8 @@ void AddClipCommand::redo() {
 			for (int j=0;j<original->linked.size();j++) {
 				copy->linked[j] = original->linked.at(j) + linkOffset;
 			}
+            if (original->opening_transition > -1) copy->opening_transition = original->get_opening_transition()->copy(copy, NULL);
+            if (original->closing_transition > -1) copy->closing_transition = original->get_closing_transition()->copy(copy, NULL);
 			seq->clips.append(copy);
 		}
 	}

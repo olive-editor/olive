@@ -66,8 +66,8 @@ Clip* Clip::copy(Sequence* s) {
     }
 
     // TODO make a replacemennt for this somehow
-    //if (opening_transition != -1) copy->opening_transition = this->sequence->transitions.at(opening_transition)->copy(copy);
-    //if (closing_transition != -1) copy->closing_transition = this->sequence->transitions.at(closing_transition)->copy(copy);
+    if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip == NULL) copy->opening_transition = get_opening_transition()->copy(copy, NULL);
+    if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip == NULL) copy->closing_transition = get_closing_transition()->copy(copy, NULL);
 
 	copy->recalculateMaxLength();
 
@@ -169,8 +169,8 @@ Clip::~Clip() {
         }
     }
 
-    //if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
-    //if (closing_transition != -1) this->sequence->hard_delete_transition(this, TA_CLOSING_TRANSITION);
+    if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
+    if (closing_transition != -1) this->sequence->hard_delete_transition(this, TA_CLOSING_TRANSITION);
 
     for (int i=0;i<effects.size();i++) {
         delete effects.at(i);

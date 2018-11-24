@@ -637,6 +637,12 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
         ca->append(new MoveClipAction(pre, pre->timeline_in, frame, pre->clip_in, pre->track));
 
         if (pre->get_opening_transition() != NULL) {
+            /*if (frame < pre->timeline_in + pre->get_opening_transition()->length && pre->get_opening_transition()->secondary_clip != NULL) {
+                // separate shared transition
+                ca->append(new SetPointer((void**) &pre->get_opening_transition()->secondary_clip, NULL));
+                pre->get_opening_transition()->secondary_clip->closing_transition = pre->get_opening_transition()->copy(pre->get_opening_transition()->secondary_clip, NULL);
+            }*/
+
             if (pre->get_opening_transition()->length > new_clip_length) {
                 ca->append(new ModifyTransitionCommand(pre, TA_OPENING_TRANSITION, new_clip_length));
 			}
@@ -645,8 +651,7 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
 		}
         if (pre->get_closing_transition() != NULL) {
             ca->append(new DeleteTransitionCommand(pre, TA_CLOSING_TRANSITION));
-
-            post->get_closing_transition()->length = qMin((long) post->get_closing_transition()->length, post->getLength());
+            if (pre->get_closing_transition()->secondary_clip == NULL) post->get_closing_transition()->length = qMin((long) post->get_closing_transition()->length, post->getLength());
 		}
 
         return post;

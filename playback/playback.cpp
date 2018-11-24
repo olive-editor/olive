@@ -26,7 +26,7 @@ extern "C" {
 #include <QOpenGLFramebufferObject>
 
 #ifdef QT_DEBUG
-#define GCF_DEBUG
+//#define GCF_DEBUG
 #endif
 
 bool texture_failed = false;
