@@ -38,10 +38,6 @@ ShakeEffect::ShakeEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 	for (int i=0;i<RANDOM_VAL_SIZE;i++) {
 		random_vals[i] = (double)rand()/RAND_MAX;
 	}
-
-	connect(intensity_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(rotation_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(frequency_val, SIGNAL(changed()), this, SLOT(field_changed()));
 }
 
 void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {

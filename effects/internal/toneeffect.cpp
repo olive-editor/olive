@@ -23,11 +23,7 @@ ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_
 	amount_val->set_double_default_value(25);
 
     mix_val = add_row("Mix:")->add_field(EFFECT_FIELD_BOOL, "mix");
-	mix_val->set_bool_value(true);
-
-	connect(freq_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(amount_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(mix_val, SIGNAL(changed()), this, SLOT(field_changed()));
+    mix_val->set_bool_value(true);
 }
 
 void ToneEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {

@@ -38,11 +38,6 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
     checkerboard_size_field->set_double_minimum_value(1);
     checkerboard_size_field->set_double_default_value(10);
 
-    connect(solid_type, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(solid_color_field, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(opacity_field, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(checkerboard_size_field, SIGNAL(changed()), this, SLOT(field_changed()));
-
     // hacky but eh
     QComboBox* solid_type_combo = static_cast<QComboBox*>(solid_type->get_ui_element());
     connect(solid_type_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(ui_update(int)));

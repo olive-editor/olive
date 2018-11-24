@@ -149,6 +149,7 @@ EffectField* EffectRow::add_field(int type, const QString& id, int colspan) {
     fields.append(field);
     QWidget* element = field->get_ui_element();
     ui->addWidget(element, ui_row, fields.size(), 1, colspan);
+    connect(field, SIGNAL(changed()), parent_effect, SLOT(field_changed()));
     return field;
 }
 

@@ -25,17 +25,7 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
     bottom_right_y = bottom_right->add_field(EFFECT_FIELD_DOUBLE, "bottomrighty");
 
     perspective = add_row("Perspective:")->add_field(EFFECT_FIELD_BOOL, "perspective");
-	perspective->set_bool_value(true);
-
-	connect(top_left_x, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(top_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(top_right_x, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(top_right_y, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(bottom_left_x, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(bottom_left_y, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(bottom_right_x, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(bottom_right_y, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(perspective, SIGNAL(changed()), this, SLOT(field_changed()));
+    perspective->set_bool_value(true);
 
 	vertPath = "cornerpin.vert";
 	fragPath = "cornerpin.frag";

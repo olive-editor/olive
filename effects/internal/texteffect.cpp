@@ -76,23 +76,7 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	outline_width->set_double_default_value(20);
 
 	outline_enable(false);
-	shadow_enable(false);
-
-	connect(text_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(size_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(set_color_button, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(set_font_combobox, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(halign_field, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(valign_field, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(word_wrap_field, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(outline_bool, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(outline_color, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(outline_width, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(shadow_bool, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(shadow_color, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(shadow_distance, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(shadow_softness, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(shadow_opacity, SIGNAL(changed()), this, SLOT(field_changed()));
+    shadow_enable(false);
 
 	connect(shadow_bool, SIGNAL(toggled(bool)), this, SLOT(shadow_enable(bool)));
 	connect(outline_bool, SIGNAL(toggled(bool)), this, SLOT(outline_enable(bool)));
