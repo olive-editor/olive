@@ -119,11 +119,13 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
     }
 }
 
-void LabelSlider::mouseMoveEvent(QMouseEvent*) {
+void LabelSlider::mouseMoveEvent(QMouseEvent* event) {
     if (drag_start) {
 		drag_proc = true;
-		int diff = (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y());
-		set_value(internal_value + ((display_type == LABELSLIDER_PERCENT) ? (diff*0.01) : diff), true);
+        double diff = (cursor().pos().x()-drag_start_x) + (drag_start_y-cursor().pos().y());
+        if (event->modifiers() & Qt::ControlModifier) diff *= 0.01;
+        if (display_type == LABELSLIDER_PERCENT) diff *= 0.01;
+        set_value(internal_value + diff, true);
         cursor().setPos(drag_start_x, drag_start_y);
     }
 }
