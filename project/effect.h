@@ -38,7 +38,7 @@ extern QVector<EffectMeta> audio_effects;
 double log_volume(double linear);
 void init_effects();
 Effect* create_effect(Clip* c, const EffectMeta *em);
-const EffectMeta* get_internal_meta(int internal_id);
+const EffectMeta* get_internal_meta(int internal_id, int type);
 
 extern QMutex effects_loaded;
 

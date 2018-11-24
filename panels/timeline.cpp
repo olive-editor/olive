@@ -324,11 +324,11 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 
 		if (c->track < 0) {
 			// add default video effects
-			c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM)));
+            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
 		} else {
 			// add default audio effects
-			c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME)));
-			c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN)));
+            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
+            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
 		}
 	}
 	if (config.enable_seek_to_import) {
@@ -355,11 +355,11 @@ void Timeline::add_transition() {
         Clip* c = sequence->clips.at(i);
         if (c != NULL && is_clip_selected(c, true)) {
             if (c->get_opening_transition() == NULL) {
-                ca->append(new AddTransitionCommand(c, NULL, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, NULL, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE, EFFECT_TYPE_TRANSITION), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
             if (c->get_closing_transition() == NULL) {
-                ca->append(new AddTransitionCommand(c, NULL, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, NULL, NULL, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE, EFFECT_TYPE_TRANSITION), TA_OPENING_TRANSITION, 30));
 				adding = true;
             }
         }

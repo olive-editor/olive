@@ -66,14 +66,14 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 	return NULL;
 }
 
-const EffectMeta* get_internal_meta(int internal_id) {
+const EffectMeta* get_internal_meta(int internal_id, int type) {
 	for (int i=0;i<audio_effects.size();i++) {
-		if (audio_effects.at(i).internal == internal_id) {
+        if (audio_effects.at(i).internal == internal_id && audio_effects.at(i).type == type) {
 			return &audio_effects.at(i);
 		}
 	}
 	for (int i=0;i<video_effects.size();i++) {
-		if (video_effects.at(i).internal == internal_id) {
+        if (video_effects.at(i).internal == internal_id && video_effects.at(i).type == type) {
 			return &video_effects.at(i);
 		}
 	}

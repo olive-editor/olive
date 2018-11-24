@@ -772,41 +772,41 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 						if (c->track < 0) {
 							// default video effects (before custom effects)
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
 							c->media_type = MEDIA_TYPE_SOLID;
 						}
 
 						switch (panel_timeline->creating_object) {
 						case ADD_OBJ_TITLE:
 							c->name = "Title";
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TEXT)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TEXT, EFFECT_TYPE_EFFECT)));
 							break;
 						case ADD_OBJ_SOLID:
 							c->name = "Solid Color";
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT)));
 							break;
 						case ADD_OBJ_BARS:
                         {
 							c->name = "Bars";
-							Effect* e = create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID));
+                            Effect* e = create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
                             e->row(0)->field(0)->set_combo_index(1);
 							c->effects.append(e);
                         }
 							break;
 						case ADD_OBJ_TONE:
 							c->name = "Tone";
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TONE)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TONE, EFFECT_TYPE_EFFECT)));
 							break;
 						case ADD_OBJ_NOISE:
 							c->name = "Noise";
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_NOISE)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
 							break;
 						}
 
 						if (c->track >= 0) {
 							// default audio effects (after custom effects)
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME)));
-							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
+                            c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
 							c->media_type = MEDIA_TYPE_TONE;
 						}
 
