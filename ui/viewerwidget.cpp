@@ -139,7 +139,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 	if (dragging) {
 		if (waveform) {
 			seek_from_click(event->x());
-		} else {
+        } else if (gizmos == NULL) {
 			QDrag* drag = new QDrag(this);
 			QMimeData* mimeData = new QMimeData;
             mimeData->setText("h"); // QMimeData will fail without some kind of data
@@ -461,7 +461,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         Effect* e = c->effects.at(j);
                         process_effect(c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
 
-                        if (e->enable_gizmos && e->container->selected) {
+                        if (gizmos == NULL && e->enable_gizmos && (e->container->selected || panel_timeline->is_clip_selected(c, true))) {
                             gizmos = e;
                         }
 					}
