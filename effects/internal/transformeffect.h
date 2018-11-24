@@ -9,6 +9,7 @@ public:
 	TransformEffect(Clip* c, const EffectMeta* em);
 	void refresh();
     void process_coords(double timecode, GLTextureCoords& coords, int data);
+    void process_gizmos();
 
 	EffectField* position_x;
 	EffectField* position_y;

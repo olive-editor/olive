@@ -47,6 +47,7 @@ private:
 	GLuint compose_sequence(QVector<Clip *> &nests, bool render_audio);
     GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture, bool clear);
     void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data);
+    Effect* gizmos;
 private slots:
 	void retry();
 	void show_context_menu();

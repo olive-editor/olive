@@ -24,6 +24,7 @@
 
 TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	enable_coords = true;
+    enable_gizmos = true;
 
 	EffectRow* position_row = add_row("Position:");
     position_x = position_row->add_field(EFFECT_FIELD_DOUBLE, "posx"); // position X
@@ -139,5 +140,9 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	// opacity
     float color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
-	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
+    glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
+}
+
+void TransformEffect::process_gizmos() {
+    // TODO put gizmo code here
 }

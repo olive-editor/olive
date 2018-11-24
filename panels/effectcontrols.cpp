@@ -193,6 +193,7 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
             }
         }
     }
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {

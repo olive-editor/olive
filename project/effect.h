@@ -141,6 +141,7 @@ public:
 	bool enable_shader;
 	bool enable_coords;
 	bool enable_superimpose;
+    bool enable_gizmos;
 
 	int getIterations();
 	void setIterations(int i);
@@ -151,6 +152,7 @@ public:
     virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+    virtual void process_gizmos();
 public slots:
 	void field_changed();
 private slots:

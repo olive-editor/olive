@@ -223,7 +223,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
     length(30),
 	enable_shader(false),
 	enable_coords(false),
-    enable_superimpose(false),    
+    enable_superimpose(false),
+    enable_gizmos(false),
 	glslProgram(NULL),
     texture(NULL),
     isOpen(false),
@@ -831,6 +832,8 @@ void Effect::process_audio(double, double, quint8*, int, int) {
 		samples[i] = (quint8) samp;
     }*/
 }
+
+void Effect::process_gizmos() {}
 
 void Effect::redraw(double) {
 	/*

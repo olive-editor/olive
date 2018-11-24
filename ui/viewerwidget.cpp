@@ -16,6 +16,7 @@
 #include "io/config.h"
 #include "debug.h"
 #include "io/math.h"
+#include "ui/collapsiblewidget.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -457,7 +458,12 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					// EFFECT CODE START
                     double timecode = ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 					for (int j=0;j<c->effects.size();j++) {
-                        process_effect(c, c->effects.at(j), timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
+                        Effect* e = c->effects.at(j);
+                        process_effect(c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
+
+                        if (e->enable_gizmos && e->container->selected) {
+                            gizmos = e;
+                        }
 					}
 
                     if (c->get_opening_transition() != NULL) {
@@ -612,6 +618,8 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 void ViewerWidget::paintGL() {
     if (viewer->seq != NULL) {
+        gizmos = NULL;
+
         bool render_audio = (viewer->playing || rendering);
         bool loop = false;
         do {
@@ -668,6 +676,10 @@ void ViewerWidget::paintGL() {
 
             if (config.show_title_safe_area && !rendering) {
                 drawTitleSafeArea();
+            }
+
+            if (gizmos != NULL && !rendering) {
+                gizmos->process_gizmos();
             }
 
             glDisable(GL_BLEND);
