@@ -17,11 +17,19 @@
 int create_transition(Clip* c, Clip* s, const EffectMeta* em);
 
 class Transition : public Effect {
+    Q_OBJECT
 public:
     Transition(Clip* c, Clip* s, const EffectMeta* em);
     int copy(Clip* c, Clip* s);
     Clip* secondary_clip;
+    void set_length(long l);
+    long get_true_length();
     long get_length();
+private slots:
+    void set_length_from_slider();
+private:
+    long length; // used only for transitions
+    EffectField* length_field;
 };
 
 #endif // TRANSITION_H

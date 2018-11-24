@@ -258,7 +258,7 @@ void AddTransitionCommand::redo() {
             secondary->closing_transition = clip->opening_transition;
         }
         if (length > 0) {
-            clip->get_opening_transition()->length = length;
+            clip->get_opening_transition()->set_length(length);
         }
     } else {
         old_ptransition = clip->closing_transition;
@@ -268,7 +268,7 @@ void AddTransitionCommand::redo() {
             secondary->opening_transition = clip->closing_transition;
         }
         if (length > 0) {
-            clip->get_closing_transition()->length = length;
+            clip->get_closing_transition()->set_length(length);
         }
     }
 	mainWindow->setWindowModified(true);
@@ -283,14 +283,14 @@ ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilengt
 
 void ModifyTransitionCommand::undo() {
     Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-    t->length = old_length;
+    t->set_length(old_length);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void ModifyTransitionCommand::redo() {
     Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-    old_length = t->length;
-    t->length = new_length;
+    old_length = t->get_true_length();
+    t->set_length(new_length);
 	mainWindow->setWindowModified(true);
 }
 

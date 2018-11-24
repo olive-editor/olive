@@ -11,10 +11,25 @@
 #include "effects/internal/logarithmicfadetransition.h"
 #include "effects/internal/cubetransition.h"
 
+#include "ui/labelslider.h"
+
+#include "panels/panels.h"
+#include "panels/timeline.h"
+
 #include <QMessageBox>
 
-Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) : Effect(c, em), secondary_clip(s) {
-//    add_row("Length:", false)->add_field(EFFECT_FIELD_DOUBLE, "length");
+Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) :
+    Effect(c, em), secondary_clip(s),
+    length(30)
+{
+    length_field = add_row("Length:", false)->add_field(EFFECT_FIELD_DOUBLE, "length");
+    connect(length_field, SIGNAL(changed()), this, SLOT(set_length_from_slider()));
+    length_field->set_double_default_value(30);
+    length_field->set_double_minimum_value(0);
+
+    LabelSlider* length_ui_ele = static_cast<LabelSlider*>(length_field->ui_element);
+    length_ui_ele->set_display_type(LABELSLIDER_FRAMENUMBER);
+    length_ui_ele->set_frame_rate(parent_clip->sequence->frame_rate);
 }
 
 int Transition::copy(Clip *c, Clip* s) {
@@ -23,11 +38,25 @@ int Transition::copy(Clip *c, Clip* s) {
     return copy_index;
 }
 
+void Transition::set_length(long l) {
+    length = l;
+    length_field->set_double_value(l);
+}
+
+long Transition::get_true_length() {
+    return length;
+}
+
 long Transition::get_length() {
     if (secondary_clip != NULL) {
         return length * 2;
     }
     return length;
+}
+
+void Transition::set_length_from_slider() {
+    set_length(length_field->get_double_value(0));
+    update_ui(false);
 }
 
 Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {

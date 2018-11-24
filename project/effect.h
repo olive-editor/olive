@@ -113,12 +113,11 @@ public:
 	~Effect();
     Clip* parent_clip;
 	const EffectMeta* meta;
-    long length; // used only for transitions
     int id;
 	QString name;
 	CollapsibleWidget* container;
 
-    EffectRow* add_row(const QString &name);
+    EffectRow* add_row(const QString &name, bool savable = true);
 	EffectRow* row(int i);
 	int row_count();
 

@@ -14,8 +14,9 @@
 #include "effect.h"
 #include "ui/viewerwidget.h"
 
-EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, int row) :
+EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QString &n, int row) :
     parent_effect(parent),
+    savable(save),
     keyframing(false),
     ui(uilayout),
     name(n),

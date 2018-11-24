@@ -220,7 +220,6 @@ void EffectInit::run() {
 Effect::Effect(Clip* c, const EffectMeta *em) :
 	parent_clip(c),
     meta(em),
-    length(30),
 	enable_shader(false),
 	enable_coords(false),
     enable_superimpose(false),
@@ -446,8 +445,8 @@ void Effect::copy_field_keyframes(Effect* e) {
 	}
 }
 
-EffectRow* Effect::add_row(const QString& name) {
-	EffectRow* row = new EffectRow(this, ui_layout, name, rows.size());
+EffectRow* Effect::add_row(const QString& name, bool savable) {
+    EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size());
     rows.append(row);
 	return row;
 }
@@ -668,31 +667,32 @@ void Effect::load(QXmlStreamReader& stream) {
 void Effect::save(QXmlStreamWriter& stream) {
 	stream.writeAttribute("name", meta->name);
     stream.writeAttribute("enabled", QString::number(is_enabled()));
-    stream.writeAttribute("length", QString::number(length));
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-        stream.writeStartElement("row"); // row
-        stream.writeStartElement("keyframes"); // keyframes
-		stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
-        for (int j=0;j<row->keyframe_times.size();j++) {
-            stream.writeStartElement("key"); // key
-            stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
-            stream.writeAttribute("type", QString::number(row->keyframe_types.at(j)));
-            stream.writeEndElement(); // key
+        if (row->savable) {
+            stream.writeStartElement("row"); // row
+            stream.writeStartElement("keyframes"); // keyframes
+            stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
+            for (int j=0;j<row->keyframe_times.size();j++) {
+                stream.writeStartElement("key"); // key
+                stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
+                stream.writeAttribute("type", QString::number(row->keyframe_types.at(j)));
+                stream.writeEndElement(); // key
+            }
+            stream.writeEndElement(); // keyframes
+            for (int j=0;j<row->fieldCount();j++) {
+                EffectField* field = row->field(j);
+                stream.writeStartElement("field"); // field
+                stream.writeAttribute("id", field->id);
+                stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
+                for (int k=0;k<field->keyframe_data.size();k++) {
+                    stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
+                }
+                stream.writeEndElement(); // field
+            }
+            stream.writeEndElement(); // row
         }
-        stream.writeEndElement(); // keyframes
-		for (int j=0;j<row->fieldCount();j++) {
-			EffectField* field = row->field(j);
-            stream.writeStartElement("field"); // field
-			stream.writeAttribute("id", field->id);
-			stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
-            for (int k=0;k<field->keyframe_data.size();k++) {
-				stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
-			}
-            stream.writeEndElement(); // field
-		}
-        stream.writeEndElement(); // row
 	}
 }
 

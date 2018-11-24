@@ -876,7 +876,7 @@ void load_effect(QXmlStreamReader& stream, Clip* c) {
 
             int transition_index = create_transition(c, NULL, meta);
             Transition* t = c->sequence->transitions.at(transition_index);
-            if (effect_length > -1) t->length = effect_length;
+            if (effect_length > -1) t->set_length(effect_length);
             t->set_enabled(effect_enabled);
             t->load(stream);
 
@@ -1255,7 +1255,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     if (td.ctc != NULL) td.ctc->closing_transition = -1;
                                 } else {
                                     int transition_index = create_transition(primary, secondary, meta);
-                                    primary->sequence->transitions.at(transition_index)->length = td.length;
+                                    primary->sequence->transitions.at(transition_index)->set_length(td.length);
                                     if (td.otc != NULL) td.otc->opening_transition = transition_index;
                                     if (td.ctc != NULL) td.ctc->closing_transition = transition_index;
                                 }

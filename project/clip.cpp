@@ -181,7 +181,7 @@ Clip::~Clip() {
 long Clip::get_clip_in_with_transition() {
     if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
         // we must be the secondary clip, so return (timeline in - length)
-        return clip_in - get_opening_transition()->length;
+        return clip_in - get_opening_transition()->get_true_length();
     }
     return clip_in;
 }
@@ -189,7 +189,7 @@ long Clip::get_clip_in_with_transition() {
 long Clip::get_timeline_in_with_transition() {
     if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
         // we must be the secondary clip, so return (timeline in - length)
-        return timeline_in - get_opening_transition()->length;
+        return timeline_in - get_opening_transition()->get_true_length();
     }
     return timeline_in;
 }
@@ -197,7 +197,7 @@ long Clip::get_timeline_in_with_transition() {
 long Clip::get_timeline_out_with_transition() {
     if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip != NULL) {
         // we must be the primary clip, so return (timeline out + length2)
-        return timeline_out + get_closing_transition()->length;
+        return timeline_out + get_closing_transition()->get_true_length();
     } else {
         return timeline_out;
     }
