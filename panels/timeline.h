@@ -33,6 +33,7 @@ long refactor_frame_number(long framenumber, double source_frame_rate, double ta
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 void draw_selection_rectangle(QPainter& painter, const QRect& rect);
+bool selection_contains_transition(const Selection& s, Clip* c, int type);
 
 struct Ghost {
     int clip;

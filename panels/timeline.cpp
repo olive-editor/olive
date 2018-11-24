@@ -743,6 +743,20 @@ void Timeline::clean_up_selections(QVector<Selection>& areas) {
     }
 }
 
+bool selection_contains_transition(const Selection& s, Clip* c, int type) {
+    if (type == TA_OPENING_TRANSITION) {
+        return c->get_opening_transition() != NULL
+                && s.out == c->timeline_in + c->get_opening_transition()->length
+                && ((c->get_opening_transition()->secondary_clip == NULL && s.in == c->timeline_in)
+                || (c->get_opening_transition()->secondary_clip != NULL && s.in == c->timeline_in - c->get_opening_transition()->length));
+    } else {
+        return c->get_closing_transition() != NULL
+                && s.in == c->timeline_out - c->get_closing_transition()->length
+               && ((c->get_closing_transition()->secondary_clip == NULL && s.out == c->timeline_out)
+               || (c->get_closing_transition()->secondary_clip != NULL && s.out == c->timeline_out + c->get_closing_transition()->length));
+    }
+}
+
 void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas) {
     clean_up_selections(areas);
 
@@ -754,14 +768,10 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
         for (int j=0;j<sequence->clips.size();j++) {
             Clip* c = sequence->clips.at(j);
             if (c != NULL && c->track == s.track && !c->undeletable) {
-                if (c->get_opening_transition() != NULL
-                        && s.in == c->timeline_in
-                        && s.out == c->timeline_in + c->get_opening_transition()->length) {
+                if (selection_contains_transition(s, c, TA_OPENING_TRANSITION)) {
 					// delete opening transition
                     ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
-                } else if (c->get_closing_transition() != NULL
-                           && s.out == c->timeline_out
-                           && s.in == c->timeline_out - c->get_closing_transition()->length) {
+                } else if (selection_contains_transition(s, c, TA_CLOSING_TRANSITION)) {
 					// delete closing transition
                     ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
 				} else if (c->timeline_in >= s.in && c->timeline_out <= s.out) {

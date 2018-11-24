@@ -1315,7 +1315,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
             bool flipped = false;
 
-            if (frame_diff < 0) {
+            if (frame_diff < 0 && panel_timeline->transition_tool_post_clip > -1) {
                 frame_diff = -frame_diff;
                 flipped = true;
             }
@@ -1332,17 +1332,19 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
             if (otc != NULL) {
                 validator = otc->timeline_in + frame_diff;
-                if (validator < 0) { // prevent from going below 0 on the timeline
-                    frame_diff -= validator;
-                }
+                if (validator < 0) frame_diff -= validator; // prevent from going below 0 on the timeline
 
-                validator = otc->clip_in - frame_diff;
-                if (validator < 0) { // prevent from going below 0 for the media
-                    frame_diff += validator;
-                }
+                if (panel_timeline->transition_tool_post_clip > -1) {
+                    validator = otc->clip_in - frame_diff;
+                    if (validator < 0) frame_diff += validator; // prevent from going below 0 for the media
 
-                if (validator > otc->getMaximumLength()) { // prevent transition from exceeding media length
-                    frame_diff -= (validator - otc->getMaximumLength());
+                    validator = otc->clip_in + frame_diff - otc->getMaximumLength();
+                    dout << validator << otc->getMaximumLength();
+                    if (validator > 0) frame_diff -= validator; // prevent transition from exceeding media length
+                } else {
+                    validator = otc->clip_in + frame_diff;
+                    if (validator < 0) frame_diff -= validator; // prevent from going below 0 for the media
+                    if (validator > otc->getMaximumLength()) frame_diff -= (validator - otc->getMaximumLength()); // prevent transition from exceeding media length
                 }
             }
 
@@ -1604,17 +1606,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 							for (int j=0;j<sequence->selections.size();j++) {
 								const Selection& s = sequence->selections.at(j);
 								if (s.track == c->track) {
-                                    if (c->get_opening_transition() != NULL
-                                            && s.out == c->timeline_in + c->get_opening_transition()->length
-                                            && ((c->get_opening_transition()->secondary_clip == NULL && s.in == c->timeline_in)
-                                            || (c->get_opening_transition()->secondary_clip != NULL && s.in == c->timeline_in - c->get_opening_transition()->length))) {
+                                    if (selection_contains_transition(s, c, TA_OPENING_TRANSITION)) {
                                         g.transition = c->get_opening_transition();
 										add = true;
 										break;
-                                    } else if (c->get_closing_transition() != NULL
-                                            && s.in == c->timeline_out - c->get_closing_transition()->length
-                                           && ((c->get_closing_transition()->secondary_clip == NULL && s.out == c->timeline_out)
-                                           || (c->get_closing_transition()->secondary_clip != NULL && s.out == c->timeline_out + c->get_closing_transition()->length))) {
+                                    } else if (selection_contains_transition(s, c, TA_CLOSING_TRANSITION)) {
                                         g.transition = c->get_closing_transition();
 										add = true;
 										break;
