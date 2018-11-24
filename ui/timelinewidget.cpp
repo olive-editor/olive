@@ -1229,17 +1229,20 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
             // prevent dual transition from going below 0 on the primary or media length on the secondary
             if (g.transition != NULL && g.transition->secondary_clip != NULL) {
                 if (g.trim_in) {
-                    validator = g.transition->parent_clip->get_clip_in_with_transition() + frame_diff;
-                    if (validator < 0) frame_diff -= validator;
+                    frame_diff = -frame_diff;
+                }
 
-                    validator = g.transition->secondary_clip->get_timeline_out_with_transition() - g.transition->secondary_clip->get_timeline_in_with_transition() + g.transition->secondary_clip->get_clip_in_with_transition() - frame_diff - g.transition->secondary_clip->getMaximumLength();
-                    if (validator > 0) frame_diff += validator;
-                } else {
-                    validator = g.transition->parent_clip->get_clip_in_with_transition() - frame_diff;
-                    if (validator < 0) frame_diff += validator;
+                validator = g.transition->parent_clip->get_clip_in_with_transition() - frame_diff;
+                if (validator < 0) frame_diff += validator;
 
-                    validator = g.transition->secondary_clip->get_timeline_out_with_transition() - g.transition->secondary_clip->get_timeline_in_with_transition() + g.transition->secondary_clip->get_clip_in_with_transition() + frame_diff - g.transition->secondary_clip->getMaximumLength();
-                    if (validator > 0) frame_diff -= validator;
+                validator = g.transition->secondary_clip->get_timeline_out_with_transition() - g.transition->secondary_clip->get_timeline_in_with_transition() + g.transition->secondary_clip->get_clip_in_with_transition() + frame_diff - g.transition->secondary_clip->getMaximumLength();
+                if (validator > 0) frame_diff -= validator;
+
+                validator = g.transition->length + frame_diff - 1;
+                if (validator < 0) frame_diff -= validator;
+
+                if (g.trim_in) {
+                    frame_diff = -frame_diff;
                 }
             }
 
@@ -1334,7 +1337,6 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                 }
 
                 validator = otc->clip_in - frame_diff;
-                dout << "validator" << validator;
                 if (validator < 0) { // prevent from going below 0 for the media
                     frame_diff += validator;
                 }
