@@ -117,7 +117,7 @@ public:
 	QString name;
 	CollapsibleWidget* container;
 
-	EffectRow* add_row(const QString &name);
+    EffectRow* add_row(const QString &name);
 	EffectRow* row(int i);
 	int row_count();
 

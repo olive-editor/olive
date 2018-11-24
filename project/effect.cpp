@@ -447,7 +447,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 
 EffectRow* Effect::add_row(const QString& name) {
 	EffectRow* row = new EffectRow(this, ui_layout, name, rows.size());
-	rows.append(row);
+    rows.append(row);
 	return row;
 }
 

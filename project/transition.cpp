@@ -14,7 +14,7 @@
 #include <QMessageBox>
 
 Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) : Effect(c, em), secondary_clip(s) {
-    //add_row("Length:")->add_field(EFFECT_FIELD_DOUBLE);
+//    add_row("Length:", false)->add_field(EFFECT_FIELD_DOUBLE, "length");
 }
 
 int Transition::copy(Clip *c, Clip* s) {

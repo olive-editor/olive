@@ -5,6 +5,8 @@
 #include "viewer.h"
 #include "project/sequence.h"
 #include "project/clip.h"
+#include "project/transition.h"
+#include "debug.h"
 
 Project* panel_project = 0;
 EffectControls* panel_effect_controls = 0;
@@ -21,24 +23,42 @@ void update_effect_controls() {
 	int vclip = -1;
 	int aclip = -1;
 	QVector<int> selected_clips;
+    int mode = TA_NO_TRANSITION;
 	if (sequence != NULL) {
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* clip = sequence->clips.at(i);
-			if (clip != NULL && panel_timeline->is_clip_selected(clip, true)) {
-				if (clip->track < 0 && vclip == -1) {
-					vclip = i;
-				} else if (clip->track >= 0 && aclip == -1) {
-					aclip = i;
-				} else {
-					vclip = -2;
-					aclip = -2;
-					panel_effect_controls->multiple = true;
-					break;
-				}
+            if (clip != NULL) {
+                for (int j=0;j<sequence->selections.size();j++) {
+                    const Selection& s = sequence->selections.at(j);
+                    bool add = true;
+                    if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
+                        mode = TA_NO_TRANSITION;
+                    } else if (selection_contains_transition(s, clip, TA_OPENING_TRANSITION)) {
+                        mode = TA_OPENING_TRANSITION;
+                    } else if (selection_contains_transition(s, clip, TA_CLOSING_TRANSITION)) {
+                        mode = TA_CLOSING_TRANSITION;
+                    } else {
+                        add = false;
+                    }
+
+                    if (add) {
+                        if (clip->track < 0 && vclip == -1) {
+                            vclip = i;
+                        } else if (clip->track >= 0 && aclip == -1) {
+                            aclip = i;
+                        } else {
+                            vclip = -2;
+                            aclip = -2;
+                            panel_effect_controls->multiple = true;
+                            break;
+                        }
+                    }
+                }
 			}
 		}
-		// check if aclip is linked to vclip
-		if (!panel_effect_controls->multiple) {
+
+        if (!panel_effect_controls->multiple) {
+            // check if aclip is linked to vclip
 			if (vclip >= 0) selected_clips.append(vclip);
 			if (aclip >= 0) selected_clips.append(aclip);
 			if (vclip >= 0 && aclip >= 0) {
@@ -58,7 +78,7 @@ void update_effect_controls() {
 			}
 		}
 	}
-	panel_effect_controls->set_clips(selected_clips);
+    panel_effect_controls->set_clips(selected_clips, mode);
 }
 
 void update_ui(bool modified) {

@@ -24,7 +24,8 @@ EffectControls::EffectControls(QWidget *parent) :
 	multiple(false),
     zoom(1),
     ui(new Ui::EffectControls),
-    panel_name("Effects: ")
+    panel_name("Effects: "),
+    mode(TA_NO_TRANSITION)
 {
     ui->setupUi(this);
 
@@ -97,151 +98,68 @@ void EffectControls::delete_selected_keyframes() {
 }
 
 void EffectControls::show_effect_menu(bool video, bool transitions) {
+	video_menu = video;
+    transition_menu = transitions;
 
+    effects_loaded.lock();
 
-    /*video_menu = video;
-	transition_menu = transitions;
-
-    int lim;
-    QVector<QString>* effect_names;
-	if (transitions) {
-		if (video) {
-			lim = VIDEO_TRANSITION_COUNT;
-			effect_names = &video_transition_names;
-		} else {
-			lim = AUDIO_TRANSITION_COUNT;
-			effect_names = &audio_transition_names;
-		}
-	} else {
-		if (video) {
-			lim = VIDEO_EFFECT_COUNT;
-			effect_names = &video_effect_names;
-		} else {
-			lim = AUDIO_EFFECT_COUNT;
-			effect_names = &audio_effect_names;
-		}
-	}
-
+    QVector<EffectMeta>& effect_list = (video) ? video_effects : audio_effects;
     QMenu effects_menu(this);
+    for (int i=0;i<effect_list.size();i++) {
+        const EffectMeta& em = effect_list.at(i);
 
-    for (int i=0;i<lim;i++) {
-        QAction* action = new QAction(&effects_menu);
-        action->setText(effect_names->at(i));
-        action->setData(i);
+        if ((em.type == EFFECT_TYPE_TRANSITION) == transition_menu) {
+            QAction* action = new QAction(&effects_menu);
+            action->setText(em.name);
+            action->setData(reinterpret_cast<quintptr>(&em));
 
-        // sort alphabetically
-        bool added = false;
-        for (int j=0;j<effects_menu.actions().size();j++) {
-            QAction* comp_action = effects_menu.actions().at(j);
-            if (comp_action->text() > effect_names->at(i)) {
-                effects_menu.insertAction(comp_action, action);
-                added = true;
-                break;
+            QMenu* parent = &effects_menu;
+            if (!em.category.isEmpty()) {
+                bool found = false;
+                for (int j=0;j<effects_menu.actions().size();j++) {
+                    QAction* action = effects_menu.actions().at(j);
+                    if (action->menu() != NULL) {
+                        if (action->menu()->title() == em.category) {
+                            parent = action->menu();
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    parent = new QMenu(&effects_menu);
+                    parent->setTitle(em.category);
+
+                    bool found = false;
+                    for (int i=0;i<effects_menu.actions().size();i++) {
+                        QAction* comp_action = effects_menu.actions().at(i);
+                        if (comp_action->text() > em.category) {
+                            effects_menu.insertMenu(comp_action, parent);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) effects_menu.addMenu(parent);
+                }
             }
+
+            bool found = false;
+            for (int i=0;i<parent->actions().size();i++) {
+                QAction* comp_action = parent->actions().at(i);
+                if (comp_action->text() > action->text()) {
+                    parent->insertAction(comp_action, action);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) parent->addAction(action);
         }
-		if (!added) effects_menu.addAction(action);
     }
 
+    effects_loaded.unlock();
+
     connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
-
-    effects_menu.exec(QCursor::pos());*/
-
-	video_menu = video;
-	transition_menu = transitions;
-
-	/*if (transition_menu) {
-		// TODO old effect/transition code grandfathered in, to be updated
-
-		int lim;
-		QVector<QString>* effect_names;
-		if (video) {
-			lim = VIDEO_TRANSITION_COUNT;
-			effect_names = &video_transition_names;
-		} else {
-			lim = AUDIO_TRANSITION_COUNT;
-			effect_names = &audio_transition_names;
-		}
-		QMenu effects_menu(this);
-		for (int i=0;i<lim;i++) {
-			QAction* action = new QAction(&effects_menu);
-			action->setText(effect_names->at(i));
-			action->setData(i);
-
-			// sort alphabetically
-			bool added = false;
-			for (int j=0;j<effects_menu.actions().size();j++) {
-				QAction* comp_action = effects_menu.actions().at(j);
-				if (comp_action->text() > effect_names->at(i)) {
-					effects_menu.insertAction(comp_action, action);
-					added = true;
-					break;
-				}
-			}
-			if (!added) effects_menu.addAction(action);
-		}
-		connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
-		effects_menu.exec(QCursor::pos());
-	} else {*/
-		effects_loaded.lock();
-
-		QVector<EffectMeta>& effect_list = (video) ? video_effects : audio_effects;
-		QMenu effects_menu(this);
-		for (int i=0;i<effect_list.size();i++) {
-			const EffectMeta& em = effect_list.at(i);
-
-			if ((em.type == EFFECT_TYPE_TRANSITION) == transition_menu) {
-				QAction* action = new QAction(&effects_menu);
-				action->setText(em.name);
-				action->setData(reinterpret_cast<quintptr>(&em));
-
-				QMenu* parent = &effects_menu;
-				if (!em.category.isEmpty()) {
-					bool found = false;
-					for (int j=0;j<effects_menu.actions().size();j++) {
-						QAction* action = effects_menu.actions().at(j);
-						if (action->menu() != NULL) {
-							if (action->menu()->title() == em.category) {
-								parent = action->menu();
-								found = true;
-								break;
-							}
-						}
-					}
-					if (!found) {
-						parent = new QMenu(&effects_menu);
-						parent->setTitle(em.category);
-
-						bool found = false;
-						for (int i=0;i<effects_menu.actions().size();i++) {
-							QAction* comp_action = effects_menu.actions().at(i);
-							if (comp_action->text() > em.category) {
-								effects_menu.insertMenu(comp_action, parent);
-								found = true;
-								break;
-							}
-						}
-						if (!found) effects_menu.addMenu(parent);
-					}
-				}
-
-				bool found = false;
-				for (int i=0;i<parent->actions().size();i++) {
-					QAction* comp_action = parent->actions().at(i);
-					if (comp_action->text() > action->text()) {
-						parent->insertAction(comp_action, action);
-						found = true;
-						break;
-					}
-				}
-				if (!found) parent->addAction(action);
-			}
-		}
-
-		effects_loaded.unlock();
-
-		connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
-		effects_menu.exec(QCursor::pos());
-	//}
+    effects_menu.exec(QCursor::pos());
 }
 
 void EffectControls::clear_effects(bool clear_cache) {
@@ -277,10 +195,16 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
     }
 }
 
+void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
+    CollapsibleWidget* container = e->container;
+    layout->addWidget(container);
+    connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+}
+
 void EffectControls::load_effects() {
 	ui->label_2->setVisible(multiple);
 
-	if (!multiple) {
+	if (!multiple) {        
 		// load in new clips
 		for (int i=0;i<selected_clips.size();i++) {
             Clip* c = sequence->clips.at(selected_clips.at(i));
@@ -292,12 +216,15 @@ void EffectControls::load_effects() {
 				ui->acontainer->setVisible(true);
 				layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());
 			}
-			for (int j=0;j<c->effects.size();j++) {
-				Effect* e = c->effects.at(j);
-				CollapsibleWidget* container = e->container;
-				layout->addWidget(container);
-				connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
-			}
+            if (mode == TA_NO_TRANSITION) {
+                for (int j=0;j<c->effects.size();j++) {
+                    open_effect(layout, c->effects.at(j));
+                }
+            } else if (mode == TA_OPENING_TRANSITION && c->get_opening_transition() != NULL) {
+                open_effect(layout, c->get_opening_transition());
+            } else if (mode == TA_CLOSING_TRANSITION && c->get_closing_transition() != NULL) {
+                open_effect(layout, c->get_closing_transition());
+            }
 		}
 		if (selected_clips.size() > 0) {
             setWindowTitle(panel_name + sequence->clips.at(selected_clips.at(0))->name);
@@ -311,22 +238,24 @@ void EffectControls::load_effects() {
 
 void EffectControls::delete_effects() {
     // load in new clips
-    EffectDeleteCommand* command = new EffectDeleteCommand();
-    for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = sequence->clips.at(selected_clips.at(i));
-        for (int j=0;j<c->effects.size();j++) {
-            Effect* effect = c->effects.at(j);
-            if (effect->container->selected) {
-                command->clips.append(c);
-                command->fx.append(j);
+    if (mode == TA_NO_TRANSITION) {
+        EffectDeleteCommand* command = new EffectDeleteCommand();
+        for (int i=0;i<selected_clips.size();i++) {
+            Clip* c = sequence->clips.at(selected_clips.at(i));
+            for (int j=0;j<c->effects.size();j++) {
+                Effect* effect = c->effects.at(j);
+                if (effect->container->selected) {
+                    command->clips.append(c);
+                    command->fx.append(j);
+                }
             }
         }
-    }
-    if (command->clips.size() > 0) {
-        undo_stack.push(command);
-		panel_sequence_viewer->viewer_widget->update();
-    } else {
-        delete command;
+        if (command->clips.size() > 0) {
+            undo_stack.push(command);
+            panel_sequence_viewer->viewer_widget->update();
+        } else {
+            delete command;
+        }
     }
 }
 
@@ -335,11 +264,12 @@ void EffectControls::reload_clips() {
     load_effects();
 }
 
-void EffectControls::set_clips(QVector<int>& clips) {
+void EffectControls::set_clips(QVector<int>& clips, int m) {
     clear_effects(true);
 
     // replace clip vector
     selected_clips = clips;
+    mode = m;
 
     load_effects();
 }
