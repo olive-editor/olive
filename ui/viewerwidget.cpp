@@ -130,9 +130,14 @@ void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint((double) width() / (double) waveform_clip->timeline_out, x));
 }
 
+double get_timecode(Clip* c, long playhead) {
+    return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+}
+
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 	if (waveform) seek_from_click(event->x());
 	dragging = true;
+    if (gizmos != NULL) gizmos->gizmo_down(event, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
 }
 
 void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
@@ -147,10 +152,12 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 			drag->exec();
 		}
 	}
+    if (gizmos != NULL) gizmos->gizmo_move(event, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
 }
 
-void ViewerWidget::mouseReleaseEvent(QMouseEvent *) {
+void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
 	dragging = false;
+    if (gizmos != NULL) gizmos->gizmo_up(event, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
 }
 
 void ViewerWidget::drawTitleSafeArea() {
@@ -168,7 +175,7 @@ void ViewerWidget::drawTitleSafeArea() {
     }
 
     glLoadIdentity();
-    glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
+    glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0, 1);
 
 	glColor4f(0.66f, 0.66f, 0.66f, 1.0f);
     glBegin(GL_LINES);
@@ -437,6 +444,8 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 					fbo_switcher = !fbo_switcher;
 
+                    bool draw_gizmos = false;
+
                     GLTextureCoords coords;
                     coords.grid_size = 1;
 					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
@@ -456,13 +465,14 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					}
 
 					// EFFECT CODE START
-                    double timecode = ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+                    double timecode = get_timecode(c, playhead);
 					for (int j=0;j<c->effects.size();j++) {
                         Effect* e = c->effects.at(j);
                         process_effect(c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
 
-                        if (gizmos == NULL && e->enable_gizmos && (e->container->selected || panel_timeline->is_clip_selected(c, true))) {
+                        if (!rendering && gizmos == NULL && e->enable_gizmos && (e->container->selected || panel_timeline->is_clip_selected(c, true))) {
                             gizmos = e;
+                            draw_gizmos = true;
                         }
 					}
 
@@ -550,6 +560,10 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					glEnd();
 
                     glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
+
+                    if (draw_gizmos) {
+                        gizmos->gizmo_draw(timecode, coords);
+                    }
 
 					if (!nests.isEmpty()) {
 						nests.last()->fbo[0]->release();
@@ -676,10 +690,6 @@ void ViewerWidget::paintGL() {
 
             if (config.show_title_safe_area && !rendering) {
                 drawTitleSafeArea();
-            }
-
-            if (gizmos != NULL && !rendering) {
-                gizmos->process_gizmos();
             }
 
             glDisable(GL_BLEND);

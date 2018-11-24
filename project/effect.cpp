@@ -833,7 +833,10 @@ void Effect::process_audio(double, double, quint8*, int, int) {
     }*/
 }
 
-void Effect::process_gizmos() {}
+void Effect::gizmo_draw(double, GLTextureCoords &) {}
+void Effect::gizmo_down(QMouseEvent *, double) {}
+void Effect::gizmo_move(QMouseEvent *, double) {}
+void Effect::gizmo_up(QMouseEvent *, double) {}
 
 void Effect::redraw(double) {
 	/*

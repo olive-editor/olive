@@ -9,7 +9,11 @@ public:
 	TransformEffect(Clip* c, const EffectMeta* em);
 	void refresh();
     void process_coords(double timecode, GLTextureCoords& coords, int data);
-    void process_gizmos();
+
+    void gizmo_draw(double timecode, GLTextureCoords& coords);
+    void gizmo_down(QMouseEvent *event, double);
+    void gizmo_move(QMouseEvent *event, double);
+    void gizmo_up(QMouseEvent *event, double);
 
 	EffectField* position_x;
 	EffectField* position_y;
@@ -26,6 +30,10 @@ public slots:
 private:
 	int default_anchor_x;
 	int default_anchor_y;
+
+    bool dragging;
+    int drag_start_x;
+    int drag_start_y;
 };
 
 #endif // TRANSFORMEFFECT_H

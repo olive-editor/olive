@@ -15,6 +15,7 @@ class QWidget;
 class CollapsibleWidget;
 class QGridLayout;
 class QPushButton;
+class QMouseEvent;
 
 struct Clip;
 class QXmlStreamReader;
@@ -152,7 +153,11 @@ public:
     virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
-    virtual void process_gizmos();
+
+    virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
+    virtual void gizmo_down(QMouseEvent* event, double);
+    virtual void gizmo_move(QMouseEvent* event, double);
+    virtual void gizmo_up(QMouseEvent* event, double);
 public slots:
 	void field_changed();
 private slots:

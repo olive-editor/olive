@@ -7,6 +7,7 @@
 #include <QCheckBox>
 #include <QOpenGLFunctions>
 #include <QComboBox>
+#include <QMouseEvent>
 
 #include "ui/collapsiblewidget.h"
 #include "project/clip.h"
@@ -143,6 +144,44 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
     glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
 }
 
-void TransformEffect::process_gizmos() {
-    // TODO put gizmo code here
+void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
+    // proof of concept drawing pattern
+
+    /*float color[4];
+    glGetFloatv(GL_CURRENT_COLOR, color);
+
+    glBegin(GL_TRIANGLES);
+    glColor4f(1.0, 0.0, 0.0, 0.5);
+    glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, 1);
+    glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, 1);
+    glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, 1);
+    glColor4f(0.0, 0.0, 1.0, 0.5);
+    glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, 1);
+    glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, 1);
+    glVertex3f(coords.vertexBottomRightX, coords.vertexBottomRightY, 1);
+    glEnd();
+
+    glColor4f(color[0], color[1], color[2], color[3]);*/
+}
+
+void TransformEffect::gizmo_down(QMouseEvent *event, double) {
+    dragging = true;
+    drag_start_x = event->pos().x();
+    drag_start_y = event->pos().y();
+}
+
+void TransformEffect::gizmo_move(QMouseEvent *event, double timecode) {
+    if (dragging) {
+        position_x->set_double_value(position_x->get_double_value(timecode) + (event->pos().x() - drag_start_x));
+        position_y->set_double_value(position_y->get_double_value(timecode) + (event->pos().y() - drag_start_y));
+
+        drag_start_x = event->pos().x();
+        drag_start_y = event->pos().y();
+
+        field_changed();
+    }
+}
+
+void TransformEffect::gizmo_up(QMouseEvent *event, double) {
+    dragging = false;
 }
