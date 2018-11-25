@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>19</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -144,6 +144,7 @@
     <addaction name="actionFrames"/>
     <addaction name="actionDrop_Frame"/>
     <addaction name="actionNon_Drop_Frame"/>
+    <addaction name="actionMilliseconds"/>
     <addaction name="separator"/>
     <addaction name="menuTitle_Action_Safe_Area"/>
    </widget>
@@ -914,6 +915,14 @@
    </property>
    <property name="text">
     <string>Smooth Auto-scroll</string>
+   </property>
+  </action>
+  <action name="actionMilliseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Milliseconds</string>
    </property>
   </action>
  </widget>

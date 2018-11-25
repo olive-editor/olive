@@ -72,8 +72,10 @@ bool EffectRow::isKeyframing() {
 }
 
 void EffectRow::setKeyframing(bool b) {
-    keyframing = b;
-    keyframe_enable->setChecked(b);
+    if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
+        keyframing = b;
+        keyframe_enable->setChecked(b);
+    }
 }
 
 void EffectRow::set_keyframe_enabled(bool enabled) {

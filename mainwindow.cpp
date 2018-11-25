@@ -646,6 +646,7 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
     ui->actionFrames->setChecked(config.timecode_view == TIMECODE_FRAMES);
     ui->actionDrop_Frame->setChecked(config.timecode_view == TIMECODE_DROP);
     ui->actionNon_Drop_Frame->setChecked(config.timecode_view == TIMECODE_NONDROP);
+    ui->actionMilliseconds->setChecked(config.timecode_view == TIMECODE_MILLISECONDS);
 
     ui->actionOff->setChecked(!config.show_title_safe_area);
     ui->actionDefault->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
@@ -1011,4 +1012,9 @@ void MainWindow::on_actionPage_Autoscroll_triggered() {
 
 void MainWindow::on_actionSmooth_Auto_scroll_triggered() {
     config.autoscroll = AUTOSCROLL_SMOOTH_SCROLL;
+}
+
+void MainWindow::on_actionMilliseconds_triggered() {
+    config.timecode_view = TIMECODE_MILLISECONDS;
+    update_ui(false);
 }

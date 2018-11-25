@@ -211,6 +211,8 @@ private slots:
 
     void on_actionSmooth_Auto_scroll_triggered();
 
+    void on_actionMilliseconds_triggered();
+
 private:
 	Ui::MainWindow *ui;
     void setup_layout(bool reset);
