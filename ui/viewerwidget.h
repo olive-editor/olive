@@ -52,6 +52,7 @@ private:
     int drag_start_x;
     int drag_start_y;
     EffectGizmo* selected_gizmo;
+    EffectGizmo* get_gizmo_from_mouse(int x, int y);
 private slots:
 	void retry();
 	void show_context_menu();

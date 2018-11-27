@@ -74,6 +74,15 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
     left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
 
+    top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
+    top_center_gizmo->set_cursor(Qt::SizeVerCursor);
+    top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
+    bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
+    bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
+    bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
+    left_center_gizmo->set_cursor(Qt::SizeHorCursor);
+    right_center_gizmo->set_cursor(Qt::SizeHorCursor);
+
 	// set defaults
 	scale_y->set_enabled(false);
 	uniform_scale_field->set_bool_value(true);
@@ -169,6 +178,39 @@ void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
 }
 
 void TransformEffect::gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode) {
-    position_x->set_double_value(position_x->get_double_value(timecode) + x_movement);
-    position_y->set_double_value(position_y->get_double_value(timecode) + y_movement);
+    double x_percent = ((double) x_movement / parent_clip->sequence->width)*200;
+    double y_percent = ((double) y_movement / parent_clip->sequence->height)*200;
+
+    if (sender == bottom_right_gizmo) {
+        scale_x->set_double_value(scale_x->get_double_value(timecode) + x_percent);
+        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
+    } else if (sender == top_left_gizmo) {
+        scale_x->set_double_value(scale_x->get_double_value(timecode) - x_percent);
+        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) - y_percent);
+    } else if (sender == bottom_left_gizmo) {
+        scale_x->set_double_value(scale_x->get_double_value(timecode) - x_percent);
+        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
+    } else if (sender == top_right_gizmo) {
+        scale_x->set_double_value(scale_x->get_double_value(timecode) + x_percent);
+        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) - y_percent);
+    } else if (sender == left_center_gizmo) {
+        scale_x->set_double_value(scale_x->get_double_value(timecode) - x_percent);
+    } else if (sender == right_center_gizmo) {
+        scale_x->set_double_value(scale_x->get_double_value(timecode) + x_percent);
+    } else if (sender == top_center_gizmo) {
+        if (uniform_scale_field->get_bool_value(timecode)) {
+            scale_x->set_double_value(scale_x->get_double_value(timecode) - y_percent);
+        } else {
+            scale_y->set_double_value(scale_y->get_double_value(timecode) - y_percent);
+        }
+    } else if (sender == bottom_center_gizmo) {
+        if (uniform_scale_field->get_bool_value(timecode)) {
+            scale_x->set_double_value(scale_x->get_double_value(timecode) + y_percent);
+        } else {
+            scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
+        }
+    } else {
+        position_x->set_double_value(position_x->get_double_value(timecode) + x_movement);
+        position_y->set_double_value(position_y->get_double_value(timecode) + y_movement);
+    }
 }

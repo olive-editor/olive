@@ -39,8 +39,10 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
 	default_fbo(NULL),
 	waveform(false),
-	dragging(false)
+    dragging(false),
+    selected_gizmo(NULL)
 {
+    setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 
 	QSurfaceFormat format;
@@ -134,6 +136,25 @@ double get_timecode(Clip* c, long playhead) {
     return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 }
 
+EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
+    if (gizmos != NULL) {
+        double multiplier = (double) width() / (double) viewer->seq->width;
+        int dot_size = qRound(GIZMO_DOT_SIZE / width() * viewer->seq->width);
+        for (int i=0;i<gizmos->gizmo_count();i++) {
+            EffectGizmo* g = gizmos->gizmo(i);
+
+            if (x > g->get_screen_x()*multiplier - dot_size
+                    && y > g->get_screen_y()*multiplier - dot_size
+                    && x < g->get_screen_x()*multiplier + dot_size
+                    && y < g->get_screen_y()*multiplier + dot_size) {
+                return g;
+                break;
+            }
+        }
+    }
+    return NULL;
+}
+
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     if (waveform) {
         seek_from_click(event->x());
@@ -141,15 +162,7 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
         drag_start_x = event->pos().x();
         drag_start_y = event->pos().y();
 
-        if (gizmos != NULL) {
-            int clicked = -1;
-            for (int i=0;i<gizmos->gizmo_count();i++) {
-                EffectGizmo* g = gizmos->gizmo(i);
-
-                dout << "gizmo" << i << "screen pos was" << g->get_screen_x() << g->get_screen_y() << "compared to" << g->get_x() << g->get_y();
-            }
-            dout << "clicked on" << clicked;
-        }
+        selected_gizmo = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
     }
     dragging = true;
 }
@@ -164,20 +177,28 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
             mimeData->setText("h"); // QMimeData will fail without some kind of data
 			drag->setMimeData(mimeData);
 			drag->exec();
-        } else {
+        } else if (selected_gizmo != NULL) {
             double multiplier = (double) viewer->seq->width / (double) width();
 
             int x_movement = (event->pos().x() - drag_start_x)*multiplier;
             int y_movement = (event->pos().y() - drag_start_y)*multiplier;
 
-//            gizmos->gizmo_move(g, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
+            gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
 
             drag_start_x = event->pos().x();
             drag_start_y = event->pos().y();
 
             gizmos->field_changed();
         }
-	}
+    } else {
+        unsetCursor();
+        EffectGizmo* g = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
+        if (g != NULL) {
+            if (g->get_cursor() > -1) {
+                setCursor(static_cast<enum Qt::CursorShape>(g->get_cursor()));
+            }
+        }
+    }
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
@@ -466,9 +487,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         composite_texture = draw_clip(c->fbo[fbo_switcher], textureID, true);
 					}
 
-					fbo_switcher = !fbo_switcher;
-
-                    bool draw_gizmos = false;
+                    fbo_switcher = !fbo_switcher;
 
                     GLTextureCoords coords;
                     coords.grid_size = 1;
@@ -490,15 +509,27 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 					// EFFECT CODE START
                     double timecode = get_timecode(c, playhead);
+
+                    Effect* first_gizmo_effect = NULL;
+                    Effect* selected_effect = NULL;
+
 					for (int j=0;j<c->effects.size();j++) {
                         Effect* e = c->effects.at(j);
                         process_effect(c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
 
-                        if (!rendering && gizmos == NULL && e->are_gizmos_enabled() && (e->container->selected || panel_timeline->is_clip_selected(c, true))) {
-                            gizmos = e;
-                            draw_gizmos = true;
+                        if (e->are_gizmos_enabled()) {
+                            if (first_gizmo_effect == NULL) first_gizmo_effect = e;
+                            if (e->container->selected) selected_effect = e;
                         }
 					}
+
+                    if (!rendering) {
+                        if (selected_effect != NULL) {
+                            gizmos = selected_effect;
+                        } else if (panel_timeline->is_clip_selected(c, true)) {
+                            gizmos = first_gizmo_effect;
+                        }
+                    }
 
                     if (c->get_opening_transition() != NULL) {
                         int transition_progress = playhead - c->get_timeline_in_with_transition();
@@ -585,29 +616,33 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
                     glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
 
-                    if (draw_gizmos) {
+                    if (gizmos != NULL) {
                         float color[4];
                         glGetFloatv(GL_CURRENT_COLOR, color);
 
-                        float multiplier = (float) width() / (float) viewer->seq->width;
-                        float dot_size = 20 * multiplier;
+                        float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
 
                         gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
                         gizmos->gizmo_world_to_screen();
+
+                        glPushMatrix();
+                        glLoadIdentity();
+                        glOrtho(0, viewer->seq->width, viewer->seq->height, 0, -1, 1);
                         for (int j=0;j<gizmos->gizmo_count();j++) {
                             EffectGizmo* g = gizmos->gizmo(j);
                             switch (g->get_type()) {
                             case GIZMO_TYPE_DOT: // draw dot
                                 glBegin(GL_QUADS);
                                 glColor4f(1.0, 1.0, 1.0, 1.0);
-                                glVertex2f(g->get_x()-dot_size, g->get_y()-dot_size);
-                                glVertex2f(g->get_x()+dot_size, g->get_y()-dot_size);
-                                glVertex2f(g->get_x()+dot_size, g->get_y()+dot_size);
-                                glVertex2f(g->get_x()-dot_size, g->get_y()+dot_size);
+                                glVertex2f(g->get_screen_x()-dot_size, g->get_screen_y()-dot_size);
+                                glVertex2f(g->get_screen_x()+dot_size, g->get_screen_y()-dot_size);
+                                glVertex2f(g->get_screen_x()+dot_size, g->get_screen_y()+dot_size);
+                                glVertex2f(g->get_screen_x()-dot_size, g->get_screen_y()+dot_size);
                                 glEnd();
                                 break;
                             }
                         }
+                        glPopMatrix();
 
                         glColor4f(color[0], color[1], color[2], color[3]);
                     }

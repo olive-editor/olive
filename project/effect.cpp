@@ -855,8 +855,8 @@ void Effect::gizmo_world_to_screen() {
     glGetFloatv(GL_MODELVIEW_MATRIX, view_val);
     glGetFloatv(GL_PROJECTION_MATRIX, projection_val);
 
-    QMatrix4x4 view_matrix(view_val[0], view_val[4], view_val[8], view_val[12], view_val[1], view_val[5], view_val[9], view_val[13], view_val[2], view_val[6], view_val[10], view_val[14], view_val[3], view_val[7], view_val[11], view_val[15]);
-    QMatrix4x4 projection_matrix(projection_val[0], projection_val[4], projection_val[8], projection_val[12], projection_val[1], projection_val[5], projection_val[9], projection_val[13], projection_val[2], projection_val[6], projection_val[10], projection_val[14], projection_val[3], projection_val[7], projection_val[11], projection_val[15]);
+    QMatrix4x4 view_matrix(view_val);
+    QMatrix4x4 projection_matrix(projection_val);
 
     for (int i=0;i<gizmos.size();i++) {
         EffectGizmo* g = gizmos.at(i);
@@ -864,7 +864,10 @@ void Effect::gizmo_world_to_screen() {
         QVector4D world_pos(g->get_x(), g->get_y(), 0, 1.0);
         QVector4D screen_pos = world_pos * (view_matrix * projection_matrix);
 
-        g->set_screen_pos(screen_pos.x(), screen_pos.y());
+        int adjusted_sx = qRound(((screen_pos.x()*0.5)+0.5)*parent_clip->sequence->width);
+        int adjusted_sy = qRound((1.0-((screen_pos.y()*0.5)+0.5))*parent_clip->sequence->height);
+
+        g->set_screen_pos(adjusted_sx, adjusted_sy);
     }
 }
 
