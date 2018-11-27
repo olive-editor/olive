@@ -1496,6 +1496,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                             if (t != NULL) {
                                 stream.writeStartElement("transition");
                                 stream.writeAttribute("id", QString::number(j));
+                                stream.writeAttribute("length", QString::number(t->get_true_length()));
                                 t->save(stream);
                                 stream.writeEndElement(); // transition
                             }

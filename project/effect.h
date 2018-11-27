@@ -1,4 +1,4 @@
-﻿#ifndef EFFECT_H
+#ifndef EFFECT_H
 #define EFFECT_H
 
 #include <QObject>
@@ -105,6 +105,7 @@ qint16 mix_audio_sample(qint16 a, qint16 b);
 
 #include "effectfield.h"
 #include "effectrow.h"
+#include "effectgizmo.h"
 
 class Effect : public QObject {
 	Q_OBJECT
@@ -120,6 +121,10 @@ public:
     EffectRow* add_row(const QString &name, bool savable = true);
 	EffectRow* row(int i);
 	int row_count();
+
+    EffectGizmo* add_gizmo(int type);
+    EffectGizmo* gizmo(int i);
+    int gizmo_count();
 
     bool is_enabled();
 	void set_enabled(bool b);
@@ -140,8 +145,7 @@ public:
 
 	bool enable_shader;
 	bool enable_coords;
-	bool enable_superimpose;
-    bool enable_gizmos;
+    bool enable_superimpose;
 
 	int getIterations();
 	void setIterations(int i);
@@ -154,9 +158,9 @@ public:
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
     virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
-    virtual void gizmo_down(QMouseEvent* event, double);
-    virtual void gizmo_move(QMouseEvent* event, double);
-    virtual void gizmo_up(QMouseEvent* event, double);
+    virtual void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode);
+    void gizmo_world_to_screen();
+    bool are_gizmos_enabled();
 public slots:
 	void field_changed();
 private slots:
@@ -179,6 +183,7 @@ private:
 
 	bool isOpen;
 	QVector<EffectRow*> rows;
+    QVector<EffectGizmo*> gizmos;
 	QGridLayout* ui_layout;
     QWidget* ui;
 	bool bound;

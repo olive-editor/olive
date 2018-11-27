@@ -1,4 +1,4 @@
-#include "transformeffect.h"
+﻿#include "transformeffect.h"
 
 #include <QWidget>
 #include <QLabel>
@@ -13,10 +13,15 @@
 #include "project/clip.h"
 #include "project/sequence.h"
 #include "io/media.h"
+#include "io/math.h"
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"
 #include "panels/project.h"
 #include "debug.h"
+
+#include "panels/panels.h"
+#include "panels/viewer.h"
+#include "ui/viewerwidget.h"
 
 #define BLEND_MODE_NORMAL 0
 #define BLEND_MODE_SCREEN 1
@@ -24,8 +29,7 @@
 #define BLEND_MODE_OVERLAY 3
 
 TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
-	enable_coords = true;
-    enable_gizmos = true;
+    enable_coords = true;
 
 	EffectRow* position_row = add_row("Position:");
     position_x = position_row->add_field(EFFECT_FIELD_DOUBLE, "posx"); // position X
@@ -60,6 +64,15 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	blend_mode_box->add_combo_item("Overlay", BLEND_MODE_OVERLAY);
 	blend_mode_box->add_combo_item("Screen", BLEND_MODE_SCREEN);
 	blend_mode_box->add_combo_item("Multiply", BLEND_MODE_MULTIPLY);
+
+    top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
 
 	// set defaults
 	scale_y->set_enabled(false);
@@ -145,43 +158,17 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 }
 
 void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
-    // proof of concept drawing pattern
-
-    /*float color[4];
-    glGetFloatv(GL_CURRENT_COLOR, color);
-
-    glBegin(GL_TRIANGLES);
-    glColor4f(1.0, 0.0, 0.0, 0.5);
-    glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, 1);
-    glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, 1);
-    glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, 1);
-    glColor4f(0.0, 0.0, 1.0, 0.5);
-    glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, 1);
-    glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, 1);
-    glVertex3f(coords.vertexBottomRightX, coords.vertexBottomRightY, 1);
-    glEnd();
-
-    glColor4f(color[0], color[1], color[2], color[3]);*/
+    top_left_gizmo->set_pos(coords.vertexTopLeftX, coords.vertexTopLeftY);
+    top_center_gizmo->set_pos(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
+    top_right_gizmo->set_pos(coords.vertexTopRightX, coords.vertexTopRightY);
+    right_center_gizmo->set_pos(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
+    bottom_right_gizmo->set_pos(coords.vertexBottomRightX, coords.vertexBottomRightY);
+    bottom_center_gizmo->set_pos(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
+    bottom_left_gizmo->set_pos(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+    left_center_gizmo->set_pos(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
 }
 
-void TransformEffect::gizmo_down(QMouseEvent *event, double) {
-    dragging = true;
-    drag_start_x = event->pos().x();
-    drag_start_y = event->pos().y();
-}
-
-void TransformEffect::gizmo_move(QMouseEvent *event, double timecode) {
-    if (dragging) {
-        position_x->set_double_value(position_x->get_double_value(timecode) + (event->pos().x() - drag_start_x));
-        position_y->set_double_value(position_y->get_double_value(timecode) + (event->pos().y() - drag_start_y));
-
-        drag_start_x = event->pos().x();
-        drag_start_y = event->pos().y();
-
-        field_changed();
-    }
-}
-
-void TransformEffect::gizmo_up(QMouseEvent *event, double) {
-    dragging = false;
+void TransformEffect::gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode) {
+    position_x->set_double_value(position_x->get_double_value(timecode) + x_movement);
+    position_y->set_double_value(position_y->get_double_value(timecode) + y_movement);
 }

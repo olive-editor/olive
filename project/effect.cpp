@@ -223,7 +223,6 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	enable_shader(false),
 	enable_coords(false),
     enable_superimpose(false),
-    enable_gizmos(false),
 	glslProgram(NULL),
     texture(NULL),
     isOpen(false),
@@ -456,7 +455,21 @@ EffectRow* Effect::row(int i) {
 }
 
 int Effect::row_count() {
-	return rows.size();
+    return rows.size();
+}
+
+EffectGizmo *Effect::add_gizmo(int type) {
+    EffectGizmo* gizmo = new EffectGizmo(type);
+    gizmos.append(gizmo);
+    return gizmo;
+}
+
+EffectGizmo *Effect::gizmo(int i) {
+    return gizmos.at(i);
+}
+
+int Effect::gizmo_count(){
+    return gizmos.size();
 }
 
 void Effect::refresh() {}
@@ -834,9 +847,30 @@ void Effect::process_audio(double, double, quint8*, int, int) {
 }
 
 void Effect::gizmo_draw(double, GLTextureCoords &) {}
-void Effect::gizmo_down(QMouseEvent *, double) {}
-void Effect::gizmo_move(QMouseEvent *, double) {}
-void Effect::gizmo_up(QMouseEvent *, double) {}
+void Effect::gizmo_move(EffectGizmo* , int , int , double ) {}
+
+void Effect::gizmo_world_to_screen() {
+    GLfloat view_val[16];
+    GLfloat projection_val[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, view_val);
+    glGetFloatv(GL_PROJECTION_MATRIX, projection_val);
+
+    QMatrix4x4 view_matrix(view_val[0], view_val[4], view_val[8], view_val[12], view_val[1], view_val[5], view_val[9], view_val[13], view_val[2], view_val[6], view_val[10], view_val[14], view_val[3], view_val[7], view_val[11], view_val[15]);
+    QMatrix4x4 projection_matrix(projection_val[0], projection_val[4], projection_val[8], projection_val[12], projection_val[1], projection_val[5], projection_val[9], projection_val[13], projection_val[2], projection_val[6], projection_val[10], projection_val[14], projection_val[3], projection_val[7], projection_val[11], projection_val[15]);
+
+    for (int i=0;i<gizmos.size();i++) {
+        EffectGizmo* g = gizmos.at(i);
+
+        QVector4D world_pos(g->get_x(), g->get_y(), 0, 1.0);
+        QVector4D screen_pos = world_pos * (view_matrix * projection_matrix);
+
+        g->set_screen_pos(screen_pos.x(), screen_pos.y());
+    }
+}
+
+bool Effect::are_gizmos_enabled() {
+    return (gizmos.size() > 0);
+}
 
 void Effect::redraw(double) {
 	/*

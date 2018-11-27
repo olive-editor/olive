@@ -1,4 +1,4 @@
-#ifndef VIEWERWIDGET_H
+﻿#ifndef VIEWERWIDGET_H
 #define VIEWERWIDGET_H
 
 #include <QOpenGLWidget>
@@ -14,6 +14,7 @@ struct Clip;
 struct MediaStream;
 class QOpenGLFramebufferObject;
 class Effect;
+class EffectGizmo;
 struct GLTextureCoords;
 
 class ViewerWidget : public QOpenGLWidget
@@ -48,6 +49,9 @@ private:
     GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture, bool clear);
     void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data);
     Effect* gizmos;
+    int drag_start_x;
+    int drag_start_y;
+    EffectGizmo* selected_gizmo;
 private slots:
 	void retry();
 	void show_context_menu();
