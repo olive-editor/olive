@@ -861,13 +861,14 @@ void Effect::gizmo_world_to_screen() {
     for (int i=0;i<gizmos.size();i++) {
         EffectGizmo* g = gizmos.at(i);
 
-        QVector4D world_pos(g->get_x(), g->get_y(), 0, 1.0);
-        QVector4D screen_pos = world_pos * (view_matrix * projection_matrix);
+        for (int j=0;j<g->get_point_count();j++) {
+            QVector4D screen_pos = QVector4D(g->world_pos[j].x(), g->world_pos[j].y(), 0, 1.0) * (view_matrix * projection_matrix);
 
-        int adjusted_sx = qRound(((screen_pos.x()*0.5)+0.5)*parent_clip->sequence->width);
-        int adjusted_sy = qRound((1.0-((screen_pos.y()*0.5)+0.5))*parent_clip->sequence->height);
+            int adjusted_sx1 = qRound(((screen_pos.x()*0.5f)+0.5f)*parent_clip->sequence->width);
+            int adjusted_sy1 = qRound((1.0f-((screen_pos.y()*0.5f)+0.5f))*parent_clip->sequence->height);
 
-        g->set_screen_pos(adjusted_sx, adjusted_sy);
+            g->screen_pos[j] = QPoint(adjusted_sx1, adjusted_sy1);
+        }
     }
 }
 

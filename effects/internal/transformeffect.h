@@ -34,6 +34,8 @@ private:
     EffectGizmo* bottom_right_gizmo;
     EffectGizmo* left_center_gizmo;
     EffectGizmo* right_center_gizmo;
+    EffectGizmo* rotate_gizmo;
+    EffectGizmo* rect_gizmo;
 
 	int default_anchor_x;
     int default_anchor_y;

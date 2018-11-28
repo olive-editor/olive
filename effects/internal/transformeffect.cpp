@@ -72,7 +72,9 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
     bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);    
+    rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
 
     top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
     top_center_gizmo->set_cursor(Qt::SizeVerCursor);
@@ -82,6 +84,8 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
     bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
     left_center_gizmo->set_cursor(Qt::SizeHorCursor);
     right_center_gizmo->set_cursor(Qt::SizeHorCursor);
+    rotate_gizmo->color = Qt::green;
+    rotate_gizmo->set_cursor(Qt::SizeAllCursor);
 
 	// set defaults
 	scale_y->set_enabled(false);
@@ -167,14 +171,21 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 }
 
 void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
-    top_left_gizmo->set_pos(coords.vertexTopLeftX, coords.vertexTopLeftY);
-    top_center_gizmo->set_pos(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
-    top_right_gizmo->set_pos(coords.vertexTopRightX, coords.vertexTopRightY);
-    right_center_gizmo->set_pos(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
-    bottom_right_gizmo->set_pos(coords.vertexBottomRightX, coords.vertexBottomRightY);
-    bottom_center_gizmo->set_pos(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
-    bottom_left_gizmo->set_pos(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
-    left_center_gizmo->set_pos(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
+    top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
+    top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
+    top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
+    right_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
+    bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
+    bottom_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
+    bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+    left_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
+
+    rotate_gizmo->world_pos[0] = QPoint(lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), -0.1), lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1));
+
+    rect_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
+    rect_gizmo->world_pos[1] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
+    rect_gizmo->world_pos[2] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
+    rect_gizmo->world_pos[3] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
 }
 
 void TransformEffect::gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode) {
@@ -209,6 +220,9 @@ void TransformEffect::gizmo_move(EffectGizmo* sender, int x_movement, int y_move
         } else {
             scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
         }
+    } else if (sender == rotate_gizmo) {
+        // TODO make this perfectly circular
+        rotation->set_double_value(rotation->get_double_value(timecode) + x_percent);
     } else {
         position_x->set_double_value(position_x->get_double_value(timecode) + x_movement);
         position_y->set_double_value(position_y->get_double_value(timecode) + y_movement);

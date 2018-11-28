@@ -59,10 +59,10 @@ void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords) {
 }
 
 void CornerPinEffect::gizmo_draw(double timecode, GLTextureCoords &coords) {
-    top_left_gizmo->set_pos(coords.vertexTopLeftX, coords.vertexTopLeftY);
-    top_right_gizmo->set_pos(coords.vertexTopRightX, coords.vertexTopRightY);
-    bottom_right_gizmo->set_pos(coords.vertexBottomRightX, coords.vertexBottomRightY);
-    bottom_left_gizmo->set_pos(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+    top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
+    top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
+    bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
+    bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
 }
 
 void CornerPinEffect::gizmo_move(EffectGizmo *sender, int x_movement, int y_movement, double timecode) {

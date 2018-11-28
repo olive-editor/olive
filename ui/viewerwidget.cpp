@@ -30,6 +30,7 @@
 #include <QMenu>
 #include <QOffscreenSurface>
 #include <QFileDialog>
+#include <QPolygon>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -137,19 +138,29 @@ double get_timecode(Clip* c, long playhead) {
 }
 
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
-    if (gizmos != NULL) {
-        double multiplier = (double) width() / (double) viewer->seq->width;
-        int dot_size = qRound(GIZMO_DOT_SIZE / width() * viewer->seq->width);
+    if (gizmos != NULL) {        
+        double multiplier = (double) viewer->seq->width / (double) width();
+        QPoint mouse_pos(qRound(x*multiplier), qRound(y*multiplier));
+        int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
         for (int i=0;i<gizmos->gizmo_count();i++) {
             EffectGizmo* g = gizmos->gizmo(i);
 
-            if (x > g->get_screen_x()*multiplier - dot_size
-                    && y > g->get_screen_y()*multiplier - dot_size
-                    && x < g->get_screen_x()*multiplier + dot_size
-                    && y < g->get_screen_y()*multiplier + dot_size) {
-                return g;
+            switch (g->get_type()) {
+            case GIZMO_TYPE_DOT:
+                if (mouse_pos.x() > g->screen_pos[0].x() - dot_size
+                        && mouse_pos.y() > g->screen_pos[0].y() - dot_size
+                        && mouse_pos.x() < g->screen_pos[0].x() + dot_size
+                        && mouse_pos.y() < g->screen_pos[0].y() + dot_size) {
+                    return g;
+                }
+                break;
+            case GIZMO_TYPE_POLY:
+                if (QPolygon(g->screen_pos).containsPoint(mouse_pos, Qt::OddEvenFill)) {
+                    return g;
+                }
                 break;
             }
+
         }
     }
     return NULL;
@@ -630,14 +641,24 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         glOrtho(0, viewer->seq->width, viewer->seq->height, 0, -1, 1);
                         for (int j=0;j<gizmos->gizmo_count();j++) {
                             EffectGizmo* g = gizmos->gizmo(j);
+                            glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
                             switch (g->get_type()) {
                             case GIZMO_TYPE_DOT: // draw dot
                                 glBegin(GL_QUADS);
-                                glColor4f(1.0, 1.0, 1.0, 1.0);
-                                glVertex2f(g->get_screen_x()-dot_size, g->get_screen_y()-dot_size);
-                                glVertex2f(g->get_screen_x()+dot_size, g->get_screen_y()-dot_size);
-                                glVertex2f(g->get_screen_x()+dot_size, g->get_screen_y()+dot_size);
-                                glVertex2f(g->get_screen_x()-dot_size, g->get_screen_y()+dot_size);
+                                glVertex2f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size);
+                                glVertex2f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size);
+                                glVertex2f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size);
+                                glVertex2f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size);
+                                glEnd();
+                                break;
+                            case GIZMO_TYPE_POLY: // draw lines
+                                glBegin(GL_LINES);
+                                for (int k=1;k<g->get_point_count();k++) {
+                                    glVertex2f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y());
+                                    glVertex2f(g->screen_pos[k].x(), g->screen_pos[k].y());
+                                }
+                                glVertex2f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y());
+                                glVertex2f(g->screen_pos[0].x(), g->screen_pos[0].y());
                                 glEnd();
                                 break;
                             }

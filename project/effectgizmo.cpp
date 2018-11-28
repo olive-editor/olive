@@ -3,36 +3,20 @@
 EffectGizmo::EffectGizmo(int type) :
     type(type),
     cursor(-1)
-{}
+{
+    int point_count = (type == GIZMO_TYPE_POLY) ? 4 : 1;
+    world_pos.resize(point_count);
+    screen_pos.resize(point_count);
 
-void EffectGizmo::set_pos(int ix, int iy) {
-    x = ix;
-    y = iy;
+    color = Qt::white;
 }
 
-int EffectGizmo::get_x() {
-    return x;
-}
-
-int EffectGizmo::get_y() {
-    return y;
+int EffectGizmo::get_point_count() {
+    return world_pos.size();
 }
 
 int EffectGizmo::get_type() {
     return type;
-}
-
-void EffectGizmo::set_screen_pos(int isx, int isy) {
-    sx = isx;
-    sy = isy;
-}
-
-int EffectGizmo::get_screen_x() {
-    return sx;
-}
-
-int EffectGizmo::get_screen_y() {
-    return sy;
 }
 
 int EffectGizmo::get_cursor() {
