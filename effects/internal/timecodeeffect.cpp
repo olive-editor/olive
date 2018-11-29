@@ -81,8 +81,7 @@ void TimecodeEffect::redraw(double timecode) {
     if(qvariant_cast<bool>(tc_select->get_combo_data(timecode))){
         display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);}
     else {
-        display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(playhead_to_clip_frame(c, sequence->playhead), config.timecode_view, sequence->frame_rate);}
-
+        display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(qlonglong(playhead_to_clip_seconds(c, sequence->playhead)*c->getMediaFrameRate()), config.timecode_view, c->getMediaFrameRate());}
     img.fill(Qt::transparent);
 
 	QPainter p(&img);
