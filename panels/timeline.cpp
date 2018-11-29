@@ -45,6 +45,7 @@ Timeline::Timeline(QWidget *parent) :
     cursor_frame(0),
     cursor_track(0),
     zoom(1.0),
+    zoom_just_changed(false),
     showing_all(false),
     snapping(true),
     snapped(false),
@@ -430,7 +431,8 @@ void Timeline::repaint_timeline() {
 
     if (sequence != NULL
             && !ui->horizontalScrollBar->isSliderDown()
-            && panel_sequence_viewer->playing) {
+            && panel_sequence_viewer->playing
+            && !zoom_just_changed) {
         // auto scroll
         if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
             int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(sequence->playhead);
@@ -444,6 +446,8 @@ void Timeline::repaint_timeline() {
             }
         }
     }
+
+    zoom_just_changed = false;
 
     if (draw) {
         ui->headers->update();
@@ -568,8 +572,10 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 
 void Timeline::set_zoom_value(double v) {
 	zoom = v;
-	ui->headers->update_zoom(zoom);
-	repaint_timeline();
+    zoom_just_changed = true;
+    ui->headers->update_zoom(zoom);
+
+    repaint_timeline();
 
     // TODO find a way to gradually move towards target_scroll instead of just centering it?
     center_scroll_to_playhead();

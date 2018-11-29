@@ -120,6 +120,7 @@ public:
     long cursor_frame;
     int cursor_track;
     double zoom;
+    bool zoom_just_changed;
 	long drag_frame_start;
 	int drag_track_start;
 	void update_effect_controls();
