@@ -67,6 +67,7 @@ struct Clip
     int media_type;
     int media_stream;	
 	double speed;
+    double cached_fr;
 	bool reverse;
 	bool maintain_audio_pitch;
 	bool autoscale;

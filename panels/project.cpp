@@ -21,6 +21,7 @@
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/mediapropertiesdialog.h"
 #include "dialogs/loaddialog.h"
+#include "io/clipboard.h"
 #include "debug.h"
 
 #include <QFileDialog>
@@ -317,15 +318,17 @@ void Project::get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTre
 }
 
 bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
-	int delete_count = 0;
-	for (int i=0;i<panel_timeline->clip_clipboard.size();i++) {
-		Clip* c = panel_timeline->clip_clipboard.at(i);
-		if (c->media == m) {
-			ca->append(new RemoveClipsFromClipboard(i-delete_count));
-			delete_count++;
-		}
-	}
-	return (delete_count > 0);
+    int delete_count = 0;
+    if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
+        for (int i=0;i<clipboard.size();i++) {
+            Clip* c = static_cast<Clip*>(clipboard.at(i));
+            if (c->media == m) {
+                ca->append(new RemoveClipsFromClipboard(i-delete_count));
+                delete_count++;
+            }
+        }
+    }
+    return (delete_count > 0);
 }
 
 void Project::delete_selected_media() {

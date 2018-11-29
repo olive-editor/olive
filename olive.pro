@@ -89,7 +89,8 @@ SOURCES += \
     project/effectrow.cpp \
     project/effectfield.cpp \
     effects/internal/cubetransition.cpp \
-    project/effectgizmo.cpp
+    project/effectgizmo.cpp \
+    io/clipboard.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -158,7 +159,8 @@ HEADERS += \
     project/effectrow.h \
     project/effectfield.h \
     effects/internal/cubetransition.h \
-    project/effectgizmo.h
+    project/effectgizmo.h \
+    io/clipboard.h
 
 FORMS += \
         mainwindow.ui \

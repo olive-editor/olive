@@ -21,6 +21,7 @@
 #include "ui/viewerwidget.h"
 #include "project/marker.h"
 #include "mainwindow.h"
+#include "io/clipboard.h"
 #include "debug.h"
 
 QUndoStack undo_stack;
@@ -1254,13 +1255,13 @@ RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
 }
 
 void RemoveClipsFromClipboard::undo() {
-	panel_timeline->clip_clipboard.insert(pos, clip);
+    clipboard.insert(pos, clip);
 	done = false;
 }
 
 void RemoveClipsFromClipboard::redo() {
-	clip = panel_timeline->clip_clipboard.at(pos);
-	panel_timeline->clip_clipboard.removeAt(pos);
+    clip = static_cast<Clip*>(clipboard.at(pos));
+    clipboard.removeAt(pos);
 	done = true;
 }
 

@@ -185,9 +185,6 @@ public:
 	const EffectMeta* transition_tool_meta;
 	int transition_tool_side;
 
-	// clipboard
-	QVector<Clip*> clip_clipboard;
-
     Ui::Timeline *ui;
 public slots:
 	void repaint_timeline();

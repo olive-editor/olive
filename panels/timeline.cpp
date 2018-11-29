@@ -18,6 +18,7 @@
 #include "project/effect.h"
 #include "project/transition.h"
 #include "io/media.h"
+#include "io/clipboard.h"
 #include "debug.h"
 
 #include <QTime>
@@ -838,12 +839,16 @@ void Timeline::copy(bool del) {
 			for (int j=0;j<sequence->selections.size();j++) {
 				const Selection& s = sequence->selections.at(j);
                 if (s.track == c->track && !((c->timeline_in <= s.in && c->timeline_out <= s.in) || (c->timeline_in >= s.out && c->timeline_out >= s.out))) {
+                    clipboard_type = CLIPBOARD_TYPE_CLIP;
+
                     if (!cleared) {
-                        clip_clipboard.clear();
+                        clipboard.clear();
                         cleared = true;
                     }
 
                     Clip* copied_clip = c->copy(NULL);
+
+                    copied_clip->cached_fr = sequence->frame_rate;
 
                     // copy linked IDs (we correct these later in paste())
                     copied_clip->linked = c->linked;
@@ -866,16 +871,16 @@ void Timeline::copy(bool del) {
 
                     copied_clip->load_id = i;
 
-                    clip_clipboard.append(copied_clip);
+                    clipboard.append(copied_clip);
                 }
             }
         }
     }
 
-    for (int i=0;i<clip_clipboard.size();i++) {
+    for (int i=0;i<clipboard.size();i++) {
         // initialize all timeline_ins to 0 or offsets of
-        clip_clipboard[i]->timeline_in -= min_in;
-        clip_clipboard[i]->timeline_out -= min_in;
+        static_cast<Clip*>(clipboard.at(i))->timeline_in -= min_in;
+        static_cast<Clip*>(clipboard.at(i))->timeline_out -= min_in;
     }
 
     if (del && copied) {
@@ -899,7 +904,7 @@ void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& n
 }
 
 void Timeline::paste(bool insert) {
-    if (clip_clipboard.size() > 0) {
+    if (clipboard_type == CLIPBOARD_TYPE_CLIP && clipboard.size() > 0) {
         ComboAction* ca = new ComboAction();
 
         // create copies and delete areas that we'll be pasting to
@@ -907,11 +912,17 @@ void Timeline::paste(bool insert) {
         QVector<Clip*> pasted_clips;
         long paste_start = LONG_MAX;
         long paste_end = LONG_MIN;
-        for (int i=0;i<clip_clipboard.size();i++) {
-            Clip* c = clip_clipboard.at(i);
+        for (int i=0;i<clipboard.size();i++) {
+            Clip* c = static_cast<Clip*>(clipboard.at(i));
 
             // create copy of clip and offset by playhead
             Clip* cc = c->copy(sequence);
+
+            // convert frame rates
+            cc->timeline_in = refactor_frame_number(cc->timeline_in, c->cached_fr, sequence->frame_rate);
+            cc->timeline_out = refactor_frame_number(cc->timeline_out, c->cached_fr, sequence->frame_rate);
+            cc->clip_in = refactor_frame_number(cc->clip_in, c->cached_fr, sequence->frame_rate);
+
 			cc->timeline_in += sequence->playhead;
 			cc->timeline_out += sequence->playhead;
             cc->track = c->track;
@@ -938,13 +949,14 @@ void Timeline::paste(bool insert) {
         }
 
         // correct linked clips
-        for (int i=0;i<clip_clipboard.size();i++) {
+        for (int i=0;i<clipboard.size();i++) {
             // these indices should correspond
-            Clip* oc = clip_clipboard.at(i);
+            Clip* oc = static_cast<Clip*>(clipboard.at(i));
 
             for (int j=0;j<oc->linked.size();j++) {
-                for (int k=0;k<clip_clipboard.size();k++) { // find clip with that ID
-                    if (clip_clipboard.at(k)->load_id == oc->linked.at(j)) {
+                for (int k=0;k<clipboard.size();k++) { // find clip with that ID
+                    Clip* comp = static_cast<Clip*>(clipboard.at(k));
+                    if (comp->load_id == oc->linked.at(j)) {
                         pasted_clips.at(i)->linked.append(k);
                     }
                 }
