@@ -24,8 +24,7 @@
 #include "playback/playback.h"
 
 TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
-    Effect(c, em),
-    c(c)
+    Effect(c, em)
 {
     enable_always_update = true;
 	enable_superimpose = true;
@@ -81,7 +80,8 @@ void TimecodeEffect::redraw(double timecode) {
     if(qvariant_cast<bool>(tc_select->get_combo_data(timecode))){
         display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);}
     else {
-        display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(qlonglong(playhead_to_clip_seconds(c, sequence->playhead)*c->getMediaFrameRate()), config.timecode_view, c->getMediaFrameRate());}
+        double media_rate = parent_clip->getMediaFrameRate();
+        display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(timecode * media_rate, config.timecode_view, media_rate);}
     img.fill(Qt::transparent);
 
 	QPainter p(&img);

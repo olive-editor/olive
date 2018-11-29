@@ -24,7 +24,6 @@ public:
 private:
     QFont font;
     QString display_timecode;
-    Clip * c;
 };
 
 #endif // TIMECODEEFFECT_H
