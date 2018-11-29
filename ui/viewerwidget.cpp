@@ -36,6 +36,8 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
+#define GL_DEFAULT_BLEND glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
 	default_fbo(NULL),
@@ -188,6 +190,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
             mimeData->setText("h"); // QMimeData will fail without some kind of data
 			drag->setMimeData(mimeData);
 			drag->exec();
+            dragging = false;
         } else if (selected_gizmo != NULL) {
             double multiplier = (double) viewer->seq->width / (double) width();
 
@@ -330,7 +333,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
                 if (superimpose_texture != 0) {
                     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                     composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    GL_DEFAULT_BLEND
                 }
 			}
 		}
@@ -429,7 +432,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
     glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
 
     for (int i=0;i<current_clips.size();i++) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL_DEFAULT_BLEND
         glColor4f(1.0, 1.0, 1.0, 1.0);
 
         Clip* c = current_clips.at(i);
