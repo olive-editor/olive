@@ -21,12 +21,21 @@
 #include "ui/colorbutton.h"
 #include "ui/fontcombobox.h"
 #include "io/config.h"
+#include "playback/playback.h"
 
 TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
-    Effect(c, em)
+    Effect(c, em),
+    c(c)
 {
     enable_always_update = true;
 	enable_superimpose = true;
+
+    EffectRow* tc_row = add_row("Timecode:");
+    tc_select = tc_row->add_field(EFFECT_FIELD_COMBO);
+    tc_select->add_combo_item("Sequence", true);
+    tc_select->add_combo_item("Media", false);
+    tc_select->set_combo_index(0);
+    tc_select->id = "tc_selector";
 
     scale_val = add_row("Scale:")->add_field(EFFECT_FIELD_DOUBLE, 2);
     scale_val->set_double_minimum_value(1);
@@ -56,6 +65,7 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
     prepend_text = add_row("Prepend:")->add_field(EFFECT_FIELD_STRING, 2);
     prepend_text->id = "prepend";
 
+    connect(tc_select, SIGNAL(changed()), this, SLOT(field_changed()));
     connect(scale_val, SIGNAL(changed()), this, SLOT(field_changed()));
     connect(color_val, SIGNAL(changed()), this, SLOT(field_changed()));
     connect(color_bg_val, SIGNAL(changed()), this, SLOT(field_changed()));
@@ -67,18 +77,23 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
 
 
 void TimecodeEffect::redraw(double timecode) {
-    sequence_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);
+
+    if(qvariant_cast<bool>(tc_select->get_combo_data(timecode))){
+        display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);}
+    else {
+        display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(playhead_to_clip_frame(c, sequence->playhead), config.timecode_view, sequence->frame_rate);}
+
     img.fill(Qt::transparent);
 
 	QPainter p(&img);
-	p.setRenderHint(QPainter::Antialiasing);
+    p.setRenderHint(QPainter::Antialiasing);
 	int width = img.width();
 	int height = img.height();
 
 	// set font
 	font.setStyleHint(QFont::Helvetica, QFont::PreferAntialias);
     font.setFamily("Helvetica");
-    font.setPixelSize(int(scale_val->get_double_value(timecode)*.01*(height/10)));
+    font.setPixelSize(qCeil(scale_val->get_double_value(timecode)*.01*(height/10)));
     p.setFont(font);
 	QFontMetrics fm(font);
 
@@ -86,19 +101,19 @@ void TimecodeEffect::redraw(double timecode) {
 
     int text_x, text_y, rect_y, offset_x, offset_y;
     int text_height = fm.height();
-    int text_width = fm.width(sequence_timecode);
+    int text_width = fm.width(display_timecode);
     QColor background_color = color_bg_val->get_color_value(timecode);
-    int alpha_val = bg_alpha->get_double_value(timecode)*.01*255;
+    int alpha_val = bg_alpha->get_double_value(timecode)*2.55;
     background_color.setAlpha(alpha_val);
 
     offset_x = int(offset_x_val->get_double_value(timecode));
     offset_y = int(offset_y_val->get_double_value(timecode));
 
     text_x = offset_x + (width/2) - (text_width/2);
-    text_y = offset_y + height - height/10;//fm.descent();
+    text_y = offset_y + height - height/10;
     rect_y = text_y + fm.descent()/2 - text_height;
 
-    path.addText(text_x, text_y, font, sequence_timecode);
+    path.addText(text_x, text_y, font, display_timecode);
 
     p.setPen(Qt::NoPen);
     p.setBrush(background_color);

@@ -19,11 +19,12 @@ public:
     EffectField * offset_x_val;
     EffectField * offset_y_val;
     EffectField * prepend_text;
-
+    EffectField * tc_select;
 
 private:
     QFont font;
-    QString sequence_timecode;
+    QString display_timecode;
+    Clip * c;
 };
 
 #endif // TIMECODEEFFECT_H
