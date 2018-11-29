@@ -148,8 +148,10 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 							QLineEdit::Normal,
 							valueToString(internal_value)
 						);
+                if (s.isEmpty()) return;
 				d = timecode_to_frame(s, config.timecode_view, frame_rate); // string to frame number
 			} else {
+                bool ok;
 				d = QInputDialog::getDouble(
 							this,
 							"Set Value",
@@ -157,9 +159,11 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 							(display_type == LABELSLIDER_PERCENT) ? internal_value * 100 : internal_value,
 							(min_enabled) ? min_value : INT_MIN,
 							(max_enabled) ? max_value : INT_MAX,
-							decimal_places
+                            decimal_places,
+                            &ok
 						);
-				if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
+                if (!ok) return;
+                if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
 			}
 			if (d != internal_value) {
 				previous_value = internal_value;
