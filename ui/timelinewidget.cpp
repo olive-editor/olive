@@ -2288,7 +2288,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
                                             && thumb_y + thumb_height >= 0
                                             && space_for_thumb > MAX_TEXT_WIDTH) {
                                         int thumb_clip_width = qMin(thumb_width, space_for_thumb);
-                                        p.drawPixmap(QRect(thumb_x, clip_rect.y()+thumb_y, thumb_clip_width, thumb_height), ms->video_preview, QRect(0, 0, thumb_clip_width*((double)ms->video_preview.width()/(double)thumb_width), ms->video_preview.height()));
+                                        p.drawImage(QRect(thumb_x, clip_rect.y()+thumb_y, thumb_clip_width, thumb_height), ms->video_preview, QRect(0, 0, thumb_clip_width*((double)ms->video_preview.width()/(double)thumb_width), ms->video_preview.height()));
 									}
 								}
 							} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
