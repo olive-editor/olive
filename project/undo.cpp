@@ -1299,3 +1299,27 @@ void SetPointer::redo() {
     *p = new_data;
     mainWindow->setWindowModified(true);
 }
+
+MoveGizmo::MoveGizmo(Effect *e, EffectGizmo *g, int x_movement, int y_movement, double tc) :
+    effect(e),
+    gizmo(g),
+    x(x_movement),
+    y(y_movement),
+    timecode(tc),
+    done(true),
+    old_changed(mainWindow->isWindowModified())
+{}
+
+void MoveGizmo::undo() {
+    effect->gizmo_move(gizmo, -x, -y, timecode);
+    mainWindow->setWindowModified(old_changed);
+    done = false;
+}
+
+void MoveGizmo::redo() {
+    if (!done) {
+        effect->gizmo_move(gizmo, x, y, timecode);
+        mainWindow->setWindowModified(true);
+        done = true;
+    }
+}

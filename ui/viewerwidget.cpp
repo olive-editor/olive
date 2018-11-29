@@ -17,6 +17,7 @@
 #include "debug.h"
 #include "io/math.h"
 #include "ui/collapsiblewidget.h"
+#include "project/undo.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -175,6 +176,9 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
         drag_start_x = event->pos().x();
         drag_start_y = event->pos().y();
 
+        gizmo_x_mvmt = 0;
+        gizmo_y_mvmt = 0;
+
         selected_gizmo = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
     }
     dragging = true;
@@ -199,6 +203,9 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 
             gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
 
+            gizmo_x_mvmt += x_movement;
+            gizmo_y_mvmt += y_movement;
+
             drag_start_x = event->pos().x();
             drag_start_y = event->pos().y();
 
@@ -216,6 +223,15 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (selected_gizmo != NULL) {
+        undo_stack.push(new MoveGizmo(
+                            gizmos,
+                            selected_gizmo,
+                            gizmo_x_mvmt,
+                            gizmo_y_mvmt,
+                            get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead)
+                        ));
+    }
     dragging = false;
 }
 

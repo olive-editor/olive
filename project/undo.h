@@ -9,6 +9,7 @@ class SourceTable;
 class EffectRow;
 class EffectField;
 class Transition;
+class EffectGizmo;
 struct Clip;
 struct Sequence;
 struct Media;
@@ -595,6 +596,21 @@ private:
     void** p;
     void* new_data;
     void* old_data;
+};
+
+class MoveGizmo : public QUndoCommand {
+public:
+    MoveGizmo(Effect* e, EffectGizmo* g, int x_movement, int y_movement, double tc);
+    void undo();
+    void redo();
+private:
+    Effect* effect;
+    EffectGizmo* gizmo;
+    int x;
+    int y;
+    double timecode;
+    bool done;
+    bool old_changed;
 };
 
 #endif // UNDO_H

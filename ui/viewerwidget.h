@@ -51,6 +51,8 @@ private:
     Effect* gizmos;
     int drag_start_x;
     int drag_start_y;
+    int gizmo_x_mvmt;
+    int gizmo_y_mvmt;
     EffectGizmo* selected_gizmo;
     EffectGizmo* get_gizmo_from_mouse(int x, int y);
     bool drawn_gizmos;
