@@ -812,10 +812,9 @@ QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
 }
 
 const EffectMeta* get_meta_from_name(const QString& name, int type) {
-    QVector<EffectMeta>& effect_list = (type == EFFECT_TYPE_VIDEO) ? video_effects : audio_effects;
-    for (int j=0;j<effect_list.size();j++) {
-        if (effect_list.at(j).name == name) {
-            return &effect_list.at(j);
+    for (int j=0;j<effects.size();j++) {
+        if (effects.at(j).name == name) {
+            return &effects.at(j);
         }
     }
     return NULL;

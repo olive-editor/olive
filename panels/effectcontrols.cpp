@@ -17,6 +17,7 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
+#include "io/clipboard.h"
 #include "debug.h"
 
 EffectControls::EffectControls(QWidget *parent) :
@@ -65,9 +66,9 @@ void EffectControls::menu_select(QAction* q) {
     ComboAction* ca = new ComboAction();
     for (int i=0;i<selected_clips.size();i++) {
         Clip* c = sequence->clips.at(selected_clips.at(i));
-        if ((c->track < 0) == video_menu) {
+        if ((c->track < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
 			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
-			if (transition_menu) {
+            if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
                 if (c->get_opening_transition() == NULL) {
                     ca->append(new AddTransitionCommand(c, NULL, NULL, meta, TA_OPENING_TRANSITION, 30));
 				}
@@ -80,7 +81,7 @@ void EffectControls::menu_select(QAction* q) {
         }
     }
     undo_stack.push(ca);
-	if (transition_menu) {
+    if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
 		update_ui(true);
 	} else {
 		reload_clips();
@@ -94,21 +95,57 @@ void EffectControls::update_keyframes() {
 }
 
 void EffectControls::delete_selected_keyframes() {
-	ui->keyframeView->delete_selected_keyframes();
+    ui->keyframeView->delete_selected_keyframes();
 }
 
-void EffectControls::show_effect_menu(bool video, bool transitions) {
-	video_menu = video;
-    transition_menu = transitions;
+void EffectControls::copy(bool del) {
+    if (mode == TA_NO_TRANSITION) {
+        bool cleared = false;
+
+        ComboAction* ca = new ComboAction();
+        EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : NULL;
+        for (int i=0;i<selected_clips.size();i++) {
+            Clip* c = sequence->clips.at(selected_clips.at(i));
+            for (int j=0;j<c->effects.size();j++) {
+                Effect* effect = c->effects.at(j);
+                if (effect->container->selected) {
+                    if (!cleared) {
+                        clipboard_type = CLIPBOARD_TYPE_EFFECT;
+                        clear_clipboard();
+                        cleared = true;
+                    }
+
+                    clipboard.append(effect->copy(NULL));
+
+                    if (del_com != NULL) {
+                        del_com->clips.append(c);
+                        del_com->fx.append(j);
+                    }
+                }
+            }
+        }
+        if (del_com != NULL) {
+            if (del_com->clips.size() > 0) {
+                ca->append(del_com);
+            } else {
+                delete del_com;
+            }
+        }
+        undo_stack.push(ca);
+    }
+}
+
+void EffectControls::show_effect_menu(int type, int subtype) {
+    effect_menu_type = type;
+    effect_menu_subtype = subtype;
 
     effects_loaded.lock();
 
-    QVector<EffectMeta>& effect_list = (video) ? video_effects : audio_effects;
     QMenu effects_menu(this);
-    for (int i=0;i<effect_list.size();i++) {
-        const EffectMeta& em = effect_list.at(i);
+    for (int i=0;i<effects.size();i++) {
+        const EffectMeta& em = effects.at(i);
 
-        if ((em.type == EFFECT_TYPE_TRANSITION) == transition_menu) {
+        if (em.type == type && em.subtype == subtype) {
             QAction* action = new QAction(&effects_menu);
             action->setText(em.name);
             action->setData(reinterpret_cast<quintptr>(&em));
@@ -275,24 +312,20 @@ void EffectControls::set_clips(QVector<int>& clips, int m) {
     load_effects();
 }
 
-void EffectControls::on_add_video_effect_button_clicked()
-{
-	show_effect_menu(true, false);
+void EffectControls::on_add_video_effect_button_clicked() {
+    show_effect_menu(EFFECT_TYPE_EFFECT, EFFECT_TYPE_VIDEO);
 }
 
-void EffectControls::on_add_audio_effect_button_clicked()
-{
-	show_effect_menu(false, false);
+void EffectControls::on_add_audio_effect_button_clicked() {
+    show_effect_menu(EFFECT_TYPE_EFFECT, EFFECT_TYPE_AUDIO);
 }
 
-void EffectControls::on_add_video_transition_button_clicked()
-{
-	show_effect_menu(true, true);
+void EffectControls::on_add_video_transition_button_clicked() {
+    show_effect_menu(EFFECT_TYPE_TRANSITION, EFFECT_TYPE_VIDEO);
 }
 
-void EffectControls::on_add_audio_transition_button_clicked()
-{
-	show_effect_menu(false, true);
+void EffectControls::on_add_audio_transition_button_clicked() {
+    show_effect_menu(EFFECT_TYPE_TRANSITION, EFFECT_TYPE_AUDIO);
 }
 
 void EffectControls::resizeEvent(QResizeEvent*) {

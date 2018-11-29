@@ -31,10 +31,10 @@ struct EffectMeta {
     QString filename;
 	int internal;
 	int type;
+    int subtype;
 };
 
-extern QVector<EffectMeta> video_effects;
-extern QVector<EffectMeta> audio_effects;
+extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
 void init_effects();

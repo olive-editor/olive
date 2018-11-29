@@ -40,6 +40,7 @@ public:
 	void set_zoom(bool in);
 	bool keyframe_focus();
 	void delete_selected_keyframes();
+    void copy(bool del);
 	bool multiple;
 
 	QVector<int> selected_clips;
@@ -60,13 +61,13 @@ private slots:
 protected:
 	void resizeEvent(QResizeEvent *event);
 private:
-	void show_effect_menu(bool video, bool transitions);
+    void show_effect_menu(int type, int subtype);
 	void load_effects();
 	void load_keyframes();
     void open_effect(QVBoxLayout* layout, Effect* e);
 
-	bool video_menu;
-	bool transition_menu;
+    int effect_menu_type;
+    int effect_menu_subtype;
     QString panel_name;
     int mode;
 };

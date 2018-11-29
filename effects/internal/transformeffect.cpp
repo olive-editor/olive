@@ -97,7 +97,7 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 }
 
 void TransformEffect::refresh() {
-	if (parent_clip->sequence != NULL) {
+    if (parent_clip != NULL && parent_clip->sequence != NULL) {
         double default_pos_x = parent_clip->sequence->width/2;
         double default_pos_y = parent_clip->sequence->height/2;
 

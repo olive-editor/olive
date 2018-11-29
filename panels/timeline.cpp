@@ -839,11 +839,10 @@ void Timeline::copy(bool del) {
 			for (int j=0;j<sequence->selections.size();j++) {
 				const Selection& s = sequence->selections.at(j);
                 if (s.track == c->track && !((c->timeline_in <= s.in && c->timeline_out <= s.in) || (c->timeline_in >= s.out && c->timeline_out >= s.out))) {
-                    clipboard_type = CLIPBOARD_TYPE_CLIP;
-
                     if (!cleared) {
-                        clipboard.clear();
+                        clear_clipboard();
                         cleared = true;
+                        clipboard_type = CLIPBOARD_TYPE_CLIP;
                     }
 
                     Clip* copied_clip = c->copy(NULL);
@@ -904,73 +903,88 @@ void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& n
 }
 
 void Timeline::paste(bool insert) {
-    if (clipboard_type == CLIPBOARD_TYPE_CLIP && clipboard.size() > 0) {
-        ComboAction* ca = new ComboAction();
+    if (clipboard.size() > 0) {
+        if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
+            ComboAction* ca = new ComboAction();
 
-        // create copies and delete areas that we'll be pasting to
-        QVector<Selection> delete_areas;
-        QVector<Clip*> pasted_clips;
-        long paste_start = LONG_MAX;
-        long paste_end = LONG_MIN;
-        for (int i=0;i<clipboard.size();i++) {
-            Clip* c = static_cast<Clip*>(clipboard.at(i));
+            // create copies and delete areas that we'll be pasting to
+            QVector<Selection> delete_areas;
+            QVector<Clip*> pasted_clips;
+            long paste_start = LONG_MAX;
+            long paste_end = LONG_MIN;
+            for (int i=0;i<clipboard.size();i++) {
+                Clip* c = static_cast<Clip*>(clipboard.at(i));
 
-            // create copy of clip and offset by playhead
-            Clip* cc = c->copy(sequence);
+                // create copy of clip and offset by playhead
+                Clip* cc = c->copy(sequence);
 
-            // convert frame rates
-            cc->timeline_in = refactor_frame_number(cc->timeline_in, c->cached_fr, sequence->frame_rate);
-            cc->timeline_out = refactor_frame_number(cc->timeline_out, c->cached_fr, sequence->frame_rate);
-            cc->clip_in = refactor_frame_number(cc->clip_in, c->cached_fr, sequence->frame_rate);
+                // convert frame rates
+                cc->timeline_in = refactor_frame_number(cc->timeline_in, c->cached_fr, sequence->frame_rate);
+                cc->timeline_out = refactor_frame_number(cc->timeline_out, c->cached_fr, sequence->frame_rate);
+                cc->clip_in = refactor_frame_number(cc->clip_in, c->cached_fr, sequence->frame_rate);
 
-			cc->timeline_in += sequence->playhead;
-			cc->timeline_out += sequence->playhead;
-            cc->track = c->track;
+                cc->timeline_in += sequence->playhead;
+                cc->timeline_out += sequence->playhead;
+                cc->track = c->track;
 
-            paste_start = qMin(paste_start, cc->timeline_in);
-            paste_end = qMax(paste_end, cc->timeline_out);
+                paste_start = qMin(paste_start, cc->timeline_in);
+                paste_end = qMax(paste_end, cc->timeline_out);
 
-            pasted_clips.append(cc);
+                pasted_clips.append(cc);
 
-            if (!insert) {
-                Selection s;
-                s.in = cc->timeline_in;
-                s.out = cc->timeline_out;
-                s.track = c->track;
-                delete_areas.append(s);
+                if (!insert) {
+                    Selection s;
+                    s.in = cc->timeline_in;
+                    s.out = cc->timeline_out;
+                    s.track = c->track;
+                    delete_areas.append(s);
+                }
             }
-        }
-        if (insert) {
-            split_cache.clear();
-            split_all_clips_at_point(ca, sequence->playhead);
-            ca->append(new RippleCommand(sequence, paste_start, paste_end - paste_start));
-        } else {
-            delete_areas_and_relink(ca, delete_areas);
-        }
+            if (insert) {
+                split_cache.clear();
+                split_all_clips_at_point(ca, sequence->playhead);
+                ca->append(new RippleCommand(sequence, paste_start, paste_end - paste_start));
+            } else {
+                delete_areas_and_relink(ca, delete_areas);
+            }
 
-        // correct linked clips
-        for (int i=0;i<clipboard.size();i++) {
-            // these indices should correspond
-            Clip* oc = static_cast<Clip*>(clipboard.at(i));
+            // correct linked clips
+            for (int i=0;i<clipboard.size();i++) {
+                // these indices should correspond
+                Clip* oc = static_cast<Clip*>(clipboard.at(i));
 
-            for (int j=0;j<oc->linked.size();j++) {
-                for (int k=0;k<clipboard.size();k++) { // find clip with that ID
-                    Clip* comp = static_cast<Clip*>(clipboard.at(k));
-                    if (comp->load_id == oc->linked.at(j)) {
-                        pasted_clips.at(i)->linked.append(k);
+                for (int j=0;j<oc->linked.size();j++) {
+                    for (int k=0;k<clipboard.size();k++) { // find clip with that ID
+                        Clip* comp = static_cast<Clip*>(clipboard.at(k));
+                        if (comp->load_id == oc->linked.at(j)) {
+                            pasted_clips.at(i)->linked.append(k);
+                        }
                     }
                 }
             }
-        }
 
-        ca->append(new AddClipCommand(sequence, pasted_clips));
+            ca->append(new AddClipCommand(sequence, pasted_clips));
 
-        undo_stack.push(ca);
+            undo_stack.push(ca);
 
-		update_ui(true);
+            update_ui(true);
 
-        if (config.paste_seeks) {
-			panel_sequence_viewer->seek(paste_end);
+            if (config.paste_seeks) {
+                panel_sequence_viewer->seek(paste_end);
+            }
+        } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
+            for (int i=0;i<sequence->clips.size();i++) {
+                Clip* c = sequence->clips.at(i);
+                if (c != NULL && is_clip_selected(c, true)) {
+                    for (int j=0;j<clipboard.size();j++) {
+                        Effect* e = static_cast<Effect*>(clipboard.at(j));
+                        if ((c->track < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
+                            c->effects.append(e->copy(c));
+                        }
+                    }
+                }
+            }
+            update_ui(true);
         }
     }
 }
@@ -1466,9 +1480,9 @@ void Timeline::on_toolTransitionButton_clicked() {
 
 	QMenu transition_menu(this);
 
-	for (int i=0;i<video_effects.size();i++) {
-		const EffectMeta& em = video_effects.at(i);
-		if (em.type == EFFECT_TYPE_TRANSITION) {
+    for (int i=0;i<effects.size();i++) {
+        const EffectMeta& em = effects.at(i);
+        if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_VIDEO) {
 			QAction* a = transition_menu.addAction(em.name);
 			a->setObjectName("v");
 			a->setData(reinterpret_cast<quintptr>(&em));
@@ -1477,9 +1491,9 @@ void Timeline::on_toolTransitionButton_clicked() {
 
 	transition_menu.addSeparator();
 
-	for (int i=0;i<audio_effects.size();i++) {
-		const EffectMeta& em = audio_effects.at(i);
-		if (em.type == EFFECT_TYPE_TRANSITION) {
+    for (int i=0;i<effects.size();i++) {
+        const EffectMeta& em = effects.at(i);
+        if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_AUDIO) {
 			QAction* a = transition_menu.addAction(em.name);
 			a->setObjectName("a");
 			a->setData(reinterpret_cast<quintptr>(&em));

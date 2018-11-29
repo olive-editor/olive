@@ -38,8 +38,7 @@
 #include <QtMath>
 #include <QMenu>
 
-QVector<EffectMeta> video_effects;
-QVector<EffectMeta> audio_effects;
+QVector<EffectMeta> effects;
 QMutex effects_loaded;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
@@ -67,16 +66,11 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 }
 
 const EffectMeta* get_internal_meta(int internal_id, int type) {
-	for (int i=0;i<audio_effects.size();i++) {
-        if (audio_effects.at(i).internal == internal_id && audio_effects.at(i).type == type) {
-			return &audio_effects.at(i);
+    for (int i=0;i<effects.size();i++) {
+        if (effects.at(i).internal == internal_id && effects.at(i).type == type) {
+            return &effects.at(i);
 		}
-	}
-	for (int i=0;i<video_effects.size();i++) {
-        if (video_effects.at(i).internal == internal_id && video_effects.at(i).type == type) {
-			return &video_effects.at(i);
-		}
-	}
+    }
     return NULL;
 }
 
@@ -85,47 +79,50 @@ void load_internal_effects() {
 
 	// internal effects
 	em.type = EFFECT_TYPE_EFFECT;
+    em.subtype = EFFECT_TYPE_AUDIO;
 
 	em.name = "Volume";
 	em.internal = EFFECT_INTERNAL_VOLUME;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Pan";
 	em.internal = EFFECT_INTERNAL_PAN;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Tone";
 	em.internal = EFFECT_INTERNAL_TONE;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Noise";
 	em.internal = EFFECT_INTERNAL_NOISE;
-	audio_effects.append(em);
+    effects.append(em);
+
+    em.subtype = EFFECT_TYPE_VIDEO;
 
 	em.name = "Transform";
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_TRANSFORM;
-    video_effects.append(em);
+    effects.append(em);
 
     em.name = "Corner Pin";
     em.category = "Distort";
     em.internal = EFFECT_INTERNAL_CORNERPIN;
-    video_effects.append(em);
+    effects.append(em);
 
 	em.name = "Text";
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_TEXT;
-	video_effects.append(em);
+    effects.append(em);
 
 	em.name = "Solid";
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_SOLID;
-	video_effects.append(em);
+    effects.append(em);
 
 	em.name = "Shake";
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_SHAKE;
-	video_effects.append(em);
+    effects.append(em);
 
 	// internal transitions
 	em.type = EFFECT_TYPE_TRANSITION;
@@ -133,19 +130,21 @@ void load_internal_effects() {
 
 	em.name = "Cross Dissolve";
     em.internal = TRANSITION_INTERNAL_CROSSDISSOLVE;
-    video_effects.append(em);
+    effects.append(em);
+
+    em.subtype = EFFECT_TYPE_AUDIO;
 
 	em.name = "Linear Fade";
     em.internal = TRANSITION_INTERNAL_LINEARFADE;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Exponential Fade";
     em.internal = TRANSITION_INTERNAL_EXPONENTIALFADE;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Logarithmic Fade";
     em.internal = TRANSITION_INTERNAL_LOGARITHMICFADE;
-	audio_effects.append(em);
+    effects.append(em);
 }
 
 void load_shader_effects() {
@@ -176,11 +175,12 @@ void load_shader_effects() {
 					if (!effect_name.isEmpty()) {
 						EffectMeta em;
                         em.type = EFFECT_TYPE_EFFECT;
+                        em.subtype = EFFECT_TYPE_VIDEO;
 						em.name = effect_name;
 						em.category = effect_cat;
 						em.filename = entries.at(i);
 						em.internal = -1;
-						video_effects.append(em);
+                        effects.append(em);
 					} else {
 						dout << "[ERROR] Invalid effect found in" << entries.at(i);
 					}

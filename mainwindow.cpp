@@ -385,19 +385,27 @@ void MainWindow::openSpeedDialog() {
 }
 
 void MainWindow::cut() {
-	if (panel_timeline->focused() && sequence != NULL) {
-		panel_timeline->copy(true);
-	}
+    if (sequence != NULL) {
+        if (panel_timeline->focused()) {
+            panel_timeline->copy(true);
+        } else if (panel_effect_controls->is_focused()) {
+            panel_effect_controls->copy(true);
+        }
+    }
 }
 
 void MainWindow::copy() {
-	if (panel_timeline->focused() && sequence != NULL) {
-		panel_timeline->copy(false);
-	}
+    if (sequence != NULL) {
+        if (panel_timeline->focused()) {
+            panel_timeline->copy(false);
+        } else if (panel_effect_controls->is_focused()) {
+            panel_effect_controls->copy(false);
+        }
+    }
 }
 
 void MainWindow::paste() {
-	if (panel_timeline->focused() && sequence != NULL) {
+    if ((panel_timeline->focused() || panel_effect_controls->is_focused()) && sequence != NULL) {
         panel_timeline->paste(false);
 	}
 }
