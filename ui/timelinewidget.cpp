@@ -1504,7 +1504,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
 	if (panel_timeline->importing) {
 		QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, config.timecode_view, sequence->frame_rate));
-	} else {
+    } else {
 		QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate);
 		if (panel_timeline->trim_target > -1) {
 			// find which clip is being moved

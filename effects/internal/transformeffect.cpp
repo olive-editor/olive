@@ -28,7 +28,7 @@
 #define BLEND_MODE_MULTIPLY 2
 #define BLEND_MODE_OVERLAY 3
 
-TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
+TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {    
     enable_coords = true;
 
 	EffectRow* position_row = add_row("Position:");

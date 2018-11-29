@@ -285,16 +285,16 @@ void ViewerWidget::drawTitleSafeArea() {
 }
 
 GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, 1, 0, 1, -1, 1);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, 1, 0, 1, -1, 1);
 
-	fbo->bind();
+    fbo->bind();
 
     if (clear) glClear(GL_COLOR_BUFFER_BIT);
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glBegin(GL_QUADS);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); // top left
 	glVertex2f(0, 0); // top left
 	glTexCoord2f(1, 0); // top right
@@ -327,7 +327,11 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 			}
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
-                if (superimpose_texture != 0) composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
+                if (superimpose_texture != 0) {
+                    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                    composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                }
 			}
 		}
     }
