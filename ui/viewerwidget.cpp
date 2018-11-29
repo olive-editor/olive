@@ -429,7 +429,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
+    glOrtho(-half_width, half_width, half_height, -half_height, -1, 10);
 
     for (int i=0;i<current_clips.size();i++) {
         GL_DEFAULT_BLEND
@@ -587,7 +587,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                     glBegin(GL_QUADS);
 
 					if (coords.grid_size <= 1) {
-                        float z = 0.5f;
+                        float z = 0.0f;
 
                         glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
                         glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, z); // top left
@@ -634,45 +634,11 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
                     glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
 
-                    if (gizmos != NULL) {
-                        float color[4];
-                        glGetFloatv(GL_CURRENT_COLOR, color);
-
-                        float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
-
+                    if (gizmos != NULL && !drawn_gizmos) {
                         gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
                         gizmos->gizmo_world_to_screen();
 
-                        glPushMatrix();
-                        glLoadIdentity();
-                        glOrtho(0, viewer->seq->width, viewer->seq->height, 0, -1, 1);
-                        for (int j=0;j<gizmos->gizmo_count();j++) {
-                            EffectGizmo* g = gizmos->gizmo(j);
-                            glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
-                            switch (g->get_type()) {
-                            case GIZMO_TYPE_DOT: // draw dot
-                                glBegin(GL_QUADS);
-                                glVertex2f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size);
-                                glVertex2f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size);
-                                glVertex2f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size);
-                                glVertex2f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size);
-                                glEnd();
-                                break;
-                            case GIZMO_TYPE_POLY: // draw lines
-                                glBegin(GL_LINES);
-                                for (int k=1;k<g->get_point_count();k++) {
-                                    glVertex2f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y());
-                                    glVertex2f(g->screen_pos[k].x(), g->screen_pos[k].y());
-                                }
-                                glVertex2f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y());
-                                glVertex2f(g->screen_pos[0].x(), g->screen_pos[0].y());
-                                glEnd();
-                                break;
-                            }
-                        }
-                        glPopMatrix();
-
-                        glColor4f(color[0], color[1], color[2], color[3]);
+                        drawn_gizmos = true;
                     }
 
 					if (!nests.isEmpty()) {
@@ -741,6 +707,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 }
 
 void ViewerWidget::paintGL() {
+    drawn_gizmos = false;
     if (viewer->seq != NULL) {
         gizmos = NULL;
 
@@ -802,6 +769,48 @@ void ViewerWidget::paintGL() {
                 drawTitleSafeArea();
             }
 
+            if (gizmos != NULL && drawn_gizmos) {
+                float color[4];
+                glGetFloatv(GL_CURRENT_COLOR, color);
+
+                float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
+
+                glPushMatrix();
+                glLoadIdentity();
+                glOrtho(0, viewer->seq->width, viewer->seq->height, 0, -1, 10);
+                float gizmo_z = 0.0f;
+                for (int j=0;j<gizmos->gizmo_count();j++) {
+                    EffectGizmo* g = gizmos->gizmo(j);
+                    glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
+                    switch (g->get_type()) {
+                    case GIZMO_TYPE_DOT: // draw dot
+                        glBegin(GL_QUADS);
+                        glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+                        glEnd();
+                        break;
+                    case GIZMO_TYPE_POLY: // draw lines
+                        glBegin(GL_LINES);
+                        for (int k=1;k<g->get_point_count();k++) {
+                            glVertex3f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y(), gizmo_z);
+                            glVertex3f(g->screen_pos[k].x(), g->screen_pos[k].y(), gizmo_z);
+                        }
+                        glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
+                        glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
+                        glEnd();
+                        break;
+                    }
+                }
+                glPopMatrix();
+
+                glColor4f(color[0], color[1], color[2], color[3]);
+
+                drawn_gizmos = true;
+            }
+
+            glDisable(GL_DEPTH);
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
         } while (loop);
