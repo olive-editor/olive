@@ -84,6 +84,7 @@ void update_effect_controls() {
 void update_ui(bool modified) {
 	if (modified) {
 //		panel_sequence_viewer->reset_all_audio();
+        dout << "h";
 		update_effect_controls();
 	}
 	panel_effect_controls->update_keyframes();

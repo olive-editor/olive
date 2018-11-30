@@ -1807,7 +1807,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
                 panel_timeline->moving_proc = true;
             }
-			update_ui(true);
+            update_ui(false);
         } else if (panel_timeline->splitting) {
             int track_start = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
             int track_end = qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start);
@@ -1831,7 +1831,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     }
                 }
             }
-			update_ui(true);
+            update_ui(false);
         } else if (panel_timeline->rect_select_init) {
             if (panel_timeline->rect_select_proc) {
                 panel_timeline->rect_select_w = event->pos().x() - panel_timeline->rect_select_x;
