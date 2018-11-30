@@ -19,7 +19,7 @@ void update_effect_controls() {
 	// find out how many clips are selected
 	// limits to one video clip and one audio clip and only if they're linked
 	// one of these days it might be nice to have multiple clips in the effects panel
-	panel_effect_controls->multiple = false;
+	bool multiple = false;
 	int vclip = -1;
 	int aclip = -1;
 	QVector<int> selected_clips;
@@ -49,7 +49,8 @@ void update_effect_controls() {
                         } else {
                             vclip = -2;
                             aclip = -2;
-                            panel_effect_controls->multiple = true;
+							multiple = true;
+							multiple = true;
                             break;
                         }
                     }
@@ -57,7 +58,7 @@ void update_effect_controls() {
 			}
 		}
 
-        if (!panel_effect_controls->multiple) {
+		if (!multiple) {
             // check if aclip is linked to vclip
 			if (vclip >= 0) selected_clips.append(vclip);
 			if (aclip >= 0) selected_clips.append(aclip);
@@ -73,12 +74,26 @@ void update_effect_controls() {
 				if (!found) {
 					// only display multiple clips if they're linked
 					selected_clips.clear();
-					panel_effect_controls->multiple = true;
+					multiple = true;
 				}
 			}
 		}
 	}
-    panel_effect_controls->set_clips(selected_clips, mode);
+
+	bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size());
+	if (same) {
+		for (int i=0;i<selected_clips.size();i++) {
+			if (selected_clips.at(i) != panel_effect_controls->selected_clips.at(i)) {
+				same = false;
+				break;
+			}
+		}
+	}
+
+	if (panel_effect_controls->multiple != multiple || !same) {
+		panel_effect_controls->multiple = multiple;
+		panel_effect_controls->set_clips(selected_clips, mode);
+	}
 }
 
 void update_ui(bool modified) {
