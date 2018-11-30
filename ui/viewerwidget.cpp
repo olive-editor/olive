@@ -24,7 +24,6 @@
 #include <QOpenGLShaderProgram>
 #include <QtMath>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFunctions>
 #include <QMouseEvent>
 #include <QMimeData>
 #include <QDrag>
@@ -37,7 +36,7 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-#define GL_DEFAULT_BLEND glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
@@ -116,6 +115,8 @@ void ViewerWidget::retry() {
 }
 
 void ViewerWidget::initializeGL() {
+    initializeOpenGLFunctions();
+
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
 
 	retry_timer.start();
@@ -347,9 +348,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
                 if (superimpose_texture != 0) {
-                    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                     composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
-                    GL_DEFAULT_BLEND
                 }
 			}
 		}
@@ -523,6 +522,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
                     fbo_switcher = !fbo_switcher;
 
+                    // set up default coords
                     GLTextureCoords coords;
                     coords.grid_size = 1;
 					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
@@ -534,6 +534,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
                     coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
 
+                    // set up autoscale
                     if (c->autoscale && (video_width != s->width && video_height != s->height)) {
                         float width_multiplier = (float) s->width / (float) video_width;
                         float height_multiplier = (float) s->height / (float) video_height;

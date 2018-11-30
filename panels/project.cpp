@@ -1246,20 +1246,22 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 const TransitionData& td = transition_data.at(i);
                                 Clip* primary = td.otc;
                                 Clip* secondary = td.ctc;
-                                if (primary == NULL) {
-                                    primary = secondary;
-                                    secondary = NULL;
-                                }
-                                const EffectMeta* meta = get_meta_from_name(td.name, (primary->track < 0) ? EFFECT_TYPE_VIDEO : EFFECT_TYPE_AUDIO);
-                                if (meta == NULL) {
-                                    dout << "[WARNING] Failed to link transition with name:" << td.name;
-                                    if (td.otc != NULL) td.otc->opening_transition = -1;
-                                    if (td.ctc != NULL) td.ctc->closing_transition = -1;
-                                } else {
-                                    int transition_index = create_transition(primary, secondary, meta);
-                                    primary->sequence->transitions.at(transition_index)->set_length(td.length);
-                                    if (td.otc != NULL) td.otc->opening_transition = transition_index;
-                                    if (td.ctc != NULL) td.ctc->closing_transition = transition_index;
+                                if (primary != NULL || secondary != NULL) {
+                                    if (primary == NULL) {
+                                        primary = secondary;
+                                        secondary = NULL;
+                                    }
+                                    const EffectMeta* meta = get_meta_from_name(td.name, (primary->track < 0) ? EFFECT_TYPE_VIDEO : EFFECT_TYPE_AUDIO);
+                                    if (meta == NULL) {
+                                        dout << "[WARNING] Failed to link transition with name:" << td.name;
+                                        if (td.otc != NULL) td.otc->opening_transition = -1;
+                                        if (td.ctc != NULL) td.ctc->closing_transition = -1;
+                                    } else {
+                                        int transition_index = create_transition(primary, secondary, meta);
+                                        primary->sequence->transitions.at(transition_index)->set_length(td.length);
+                                        if (td.otc != NULL) td.otc->opening_transition = transition_index;
+                                        if (td.ctc != NULL) td.ctc->closing_transition = transition_index;
+                                    }
                                 }
                             }
 

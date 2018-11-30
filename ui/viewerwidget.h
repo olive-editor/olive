@@ -8,6 +8,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QOpenGLFunctions>
 
 class Viewer;
 struct Clip;
@@ -17,7 +18,7 @@ class Effect;
 class EffectGizmo;
 struct GLTextureCoords;
 
-class ViewerWidget : public QOpenGLWidget
+class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
 {
 	Q_OBJECT
 public:
