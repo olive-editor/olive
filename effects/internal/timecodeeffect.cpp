@@ -30,54 +30,37 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
 	enable_superimpose = true;
 
     EffectRow* tc_row = add_row("Timecode:");
-    tc_select = tc_row->add_field(EFFECT_FIELD_COMBO);
+    tc_select = tc_row->add_field(EFFECT_FIELD_COMBO, "tc_selector");
     tc_select->add_combo_item("Sequence", true);
     tc_select->add_combo_item("Media", false);
     tc_select->set_combo_index(0);
-    tc_select->id = "tc_selector";
 
-    scale_val = add_row("Scale:")->add_field(EFFECT_FIELD_DOUBLE, 2);
+    scale_val = add_row("Scale:")->add_field(EFFECT_FIELD_DOUBLE, "scale", 2);
     scale_val->set_double_minimum_value(1);
     scale_val->set_double_default_value(100);
     scale_val->set_double_maximum_value(1000);
-    scale_val->id = "scale";
 
-    color_val = add_row("Color:")->add_field(EFFECT_FIELD_COLOR, 2);
+    color_val = add_row("Color:")->add_field(EFFECT_FIELD_COLOR, "color", 2);
     color_val->set_color_value(Qt::white);
-    color_val->id = "color";
 
-    color_bg_val = add_row("Background Color:")->add_field(EFFECT_FIELD_COLOR, 2);
+    color_bg_val = add_row("Background Color:")->add_field(EFFECT_FIELD_COLOR, "bgcolor", 2);
     color_bg_val->set_color_value(Qt::black);
-    color_bg_val->id = "bgcolor";
 
-    bg_alpha = add_row("Background Opacity:")->add_field(EFFECT_FIELD_DOUBLE, 2);
+    bg_alpha = add_row("Background Opacity:")->add_field(EFFECT_FIELD_DOUBLE, "bgalpha", 2);
     bg_alpha->set_double_minimum_value(0);
     bg_alpha->set_double_maximum_value(100);
     bg_alpha->set_double_default_value(50);
 
-    EffectRow* offset = add_row("Offset XY:");
-    offset_x_val = offset->add_field(EFFECT_FIELD_DOUBLE);
-    offset_x_val->id = "offsetx";
-    offset_y_val = offset->add_field(EFFECT_FIELD_DOUBLE);
-    offset_y_val->id = "offsety";
+    EffectRow* offset = add_row("Offset:");
+    offset_x_val = offset->add_field(EFFECT_FIELD_DOUBLE, "offsetx");
+    offset_y_val = offset->add_field(EFFECT_FIELD_DOUBLE, "offsety");
 
-    prepend_text = add_row("Prepend:")->add_field(EFFECT_FIELD_STRING, 2);
-    prepend_text->id = "prepend";
-
-    connect(tc_select, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(scale_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(color_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(color_bg_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(bg_alpha, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(offset_x_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(offset_y_val, SIGNAL(changed()), this, SLOT(field_changed()));
-    connect(prepend_text, SIGNAL(changed()), this, SLOT(field_changed()));
+    prepend_text = add_row("Prepend:")->add_field(EFFECT_FIELD_STRING, "prepend", 2);
 }
 
 
 void TimecodeEffect::redraw(double timecode) {
-
-    if(qvariant_cast<bool>(tc_select->get_combo_data(timecode))){
+    if (tc_select->get_combo_data(timecode).toBool()){
         display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);}
     else {
         double media_rate = parent_clip->getMediaFrameRate();

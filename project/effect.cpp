@@ -119,7 +119,7 @@ void load_internal_effects() {
     em.name = "Timecode";
     em.category = "Render";
     em.internal = EFFECT_INTERNAL_TIMECODE;
-    video_effects.append(em);
+    effects.append(em);
 
 	em.name = "Solid";
 	em.category = "Render";
