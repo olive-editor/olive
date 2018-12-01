@@ -36,7 +36,7 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
+#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
@@ -312,6 +312,7 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bo
     fbo->bind();
 
     if (clear) glClear(GL_COLOR_BUFFER_BIT);
+    GL_DEFAULT_BLEND
 
     glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_QUADS);

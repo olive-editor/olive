@@ -50,7 +50,7 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 void SolidEffect::redraw(double timecode) {
 	int w = img.width();
 	int h = img.height();
-	int alpha = (opacity_field->get_double_value(timecode)*2.55);
+    int alpha = qRound(opacity_field->get_double_value(timecode)*2.55);
 	switch (solid_type->get_combo_data(timecode).toInt()) {
 	case SOLID_TYPE_COLOR:
 	{
