@@ -1158,39 +1158,33 @@ void TimelineWidget::init_ghosts() {
 	}
 }
 
-void validate_transitions(Clip* otc, Clip* ctc, long length, long& frame_diff) {
+void validate_transitions(Clip* c, int transition_type, long& frame_diff) {
     long validator;
-    if (otc != NULL) {
-        validator = otc->timeline_in + frame_diff;
-        if (validator < 0) frame_diff -= validator; // prevent from going below 0 on the timeline
 
-        if (panel_timeline->transition_tool_post_clip > -1) {
-            validator = otc->clip_in + length - frame_diff;
-            if (validator < 0) frame_diff += validator; // prevent from going below 0 for the media
-
-            validator = otc->clip_in + length + frame_diff - otc->getMaximumLength();
-            if (validator > 0) frame_diff -= validator; // prevent transition from exceeding media length
-        } else {
-            validator = otc->clip_in + length + frame_diff;
-            if (validator < 0) frame_diff -= validator; // prevent from going below 0 for the media
-            if (validator > otc->getMaximumLength()) frame_diff -= (validator - otc->getMaximumLength()); // prevent transition from exceeding media length
-        }
-    }
-
-    if (ctc != NULL) {
-        // prevent transition from exceeding media length
-        validator = ctc->clip_in + length + ctc->getLength() + frame_diff;
-        if (validator > ctc->getMaximumLength()) frame_diff -= (validator - ctc->getMaximumLength());
+    if (transition_type == TA_OPENING_TRANSITION) {
+        // prevent from going below 0 on the timeline
+        validator = c->timeline_in + frame_diff;
+        if (validator < 0) frame_diff -= validator;
 
         // prevent from going below 0 for the media
-        if (panel_timeline->transition_tool_post_clip > -1) {
-            validator = ctc->clip_in + length - ctc->getLength() + frame_diff;
-            if (validator > 0) frame_diff -= validator;
-        }
-
-        // prevent from going below 0 on the timeline
-        validator = ctc->timeline_out + length + frame_diff;
+        validator = c->clip_in + frame_diff;
         if (validator < 0) frame_diff -= validator;
+
+        // prevent transition from exceeding media length
+        validator -= c->getMaximumLength();
+        if (validator > 0) frame_diff -= validator;
+    } else {
+        // prevent from going below 0 on the timeline
+        validator = c->timeline_out + frame_diff;
+        if (validator < 0) frame_diff -= validator;
+
+        // prevent from going below 0 for the media
+        validator = c->clip_in + c->getLength() + frame_diff;
+        if (validator < 0) frame_diff -= validator;
+
+        // prevent transition from exceeding media length
+        validator -= c->getMaximumLength();
+        if (validator > 0) frame_diff -= validator;
     }
 }
 
@@ -1283,19 +1277,27 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
             // prevent dual transition from going below 0 on the primary or media length on the secondary
             if (g.transition != NULL && g.transition->secondary_clip != NULL) {
-                if (g.trim_in) {
-                    frame_diff = -frame_diff;
-                }
-
-                // TESTING CODE
                 Clip* otc = g.transition->parent_clip;
                 Clip* ctc = g.transition->secondary_clip;
 
-                validate_transitions(otc, ctc, g.transition->get_true_length(), frame_diff);
-                // TESTING CODE END
+                if (g.trim_in) {
+                    frame_diff -= g.transition->get_true_length();
+                } else {
+                    frame_diff += g.transition->get_true_length();
+                }
+
+                validate_transitions(otc, TA_OPENING_TRANSITION, frame_diff);
+                validate_transitions(ctc, TA_CLOSING_TRANSITION, frame_diff);
+
+                frame_diff = -frame_diff;
+                validate_transitions(otc, TA_OPENING_TRANSITION, frame_diff);
+                validate_transitions(ctc, TA_CLOSING_TRANSITION, frame_diff);
+                frame_diff = -frame_diff;
 
                 if (g.trim_in) {
-                    frame_diff = -frame_diff;
+                    frame_diff += g.transition->get_true_length();
+                } else {
+                    frame_diff -= g.transition->get_true_length();
                 }
             }
 
@@ -1373,26 +1375,27 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
         } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
-            bool flipped = false;
+            if (panel_timeline->transition_tool_post_clip == -1) {
+                validate_transitions(c, panel_timeline->transition_tool_type, frame_diff);
+            } else {
+                Clip* otc = c; // open transition clip
+                Clip* ctc = sequence->clips.at(panel_timeline->transition_tool_post_clip); // close transition clip
 
-            if (frame_diff < 0 && panel_timeline->transition_tool_post_clip > -1) {
+                if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
+                    // swap
+                    Clip* temp = otc;
+                    otc = ctc;
+                    ctc = temp;
+                }
+
+                // always gets a positive frame_diff
+                validate_transitions(otc, TA_OPENING_TRANSITION, frame_diff);
+                validate_transitions(ctc, TA_CLOSING_TRANSITION, frame_diff);
+
+                // always gets a negative frame_diff
                 frame_diff = -frame_diff;
-                flipped = true;
-            }
-
-            Clip* otc = c; // open transition clip
-            Clip* ctc = (panel_timeline->transition_tool_post_clip > -1) ? sequence->clips.at(panel_timeline->transition_tool_post_clip) : NULL; // close transition clip
-
-            if (panel_timeline->transition_tool_type == TA_CLOSING_TRANSITION) {
-                // swap
-                Clip* temp = otc;
-                otc = ctc;
-                ctc = temp;
-            }
-
-            validate_transitions(otc, ctc, 0, frame_diff);
-
-            if (flipped) {
+                validate_transitions(otc, TA_OPENING_TRANSITION, frame_diff);
+                validate_transitions(ctc, TA_CLOSING_TRANSITION, frame_diff);
                 frame_diff = -frame_diff;
             }
         }
