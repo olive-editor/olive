@@ -161,10 +161,11 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
 
         int kf_type = (progress < 0.5) ? parent_row->keyframe_types.at(before_keyframe) : parent_row->keyframe_types.at(after_keyframe);
         if (kf_type == KEYFRAME_TYPE_SMOOTH) {
-            double b = 4;
-            double c = 1.313;
-            double x = (b * progress) - (b*0.5);
-            progress = (c*(qPow(M_E, x)/(qPow(M_E, x) + 1)))-((c-1)*0.5);
+            double steepness = 8.0;
+            double x = (steepness * progress) - (steepness * 0.5);
+            progress = 1.0 / (1.0 + qPow(M_E, -x));
+            progress *= 1.0373;
+            progress -= 0.01865;
         }
 
         const QVariant& before_data = keyframe_data.at(before_keyframe);
