@@ -34,8 +34,6 @@ SourceTable::SourceTable(QWidget* parent) : QTreeWidget(parent) {
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 }
 
-
-
 void SourceTable::show_context_menu() {
     QMenu menu(this);
 
@@ -179,8 +177,10 @@ void SourceTable::rename_interval() {
 }
 void SourceTable::item_click(QTreeWidgetItem* item, int column) {
 	if (column == 0 && selectedItems().size() == 1) {
+        if (editing_item == item) {
+            rename_timer.start();
+        }
         editing_item = item;
-        rename_timer.start();
     }
 }
 
@@ -198,6 +198,7 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
 		switch (get_type_from_tree(item)) {
 		case MEDIA_TYPE_FOOTAGE:
 			panel_footage_viewer->set_media(get_type_from_tree(item), get_media_from_tree(item));
+            panel_footage_viewer->setFocus();
 			break;
 		case MEDIA_TYPE_SEQUENCE:
 			undo_stack.push(new ChangeSequenceAction(get_sequence_from_tree(item)));
