@@ -73,7 +73,6 @@ SOURCES += \
     effects/internal/transformeffect.cpp \
     effects/internal/solideffect.cpp \
     effects/internal/texteffect.cpp \
-    effects/internal/timecodeeffect.cpp \
     effects/internal/audionoiseeffect.cpp \
     effects/internal/paneffect.cpp \
     effects/internal/toneeffect.cpp \
@@ -143,7 +142,6 @@ HEADERS += \
     effects/internal/transformeffect.h \
     effects/internal/solideffect.h \
     effects/internal/texteffect.h \
-    effects/internal/timecodeeffect.h \
     effects/internal/audionoiseeffect.h \
     effects/internal/paneffect.h \
     effects/internal/toneeffect.h \

@@ -4,6 +4,8 @@
 
 CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {
 	enable_coords = true;
+
+//    add_row("Smooth")->add_field(EFFECT_FIELD_BOOL, "smooth");
 }
 
 void CrossDissolveTransition::process_coords(double progress, GLTextureCoords&, int data) {

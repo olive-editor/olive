@@ -57,6 +57,7 @@ long Sequence::getEndFrame() {
 void Sequence::hard_delete_transition(Clip *c, int type) {
     int transition_index = (type == TA_OPENING_TRANSITION) ? c->opening_transition : c->closing_transition;
     if (transition_index > -1) {
+        bool del = true;
         for (int i=0;i<clips.size();i++) {
             Clip* cc = clips.at(i);
             if (cc != NULL
@@ -64,12 +65,16 @@ void Sequence::hard_delete_transition(Clip *c, int type) {
                     && (cc->opening_transition == transition_index
                         || cc->closing_transition == transition_index)) {
                 // another clip is using this, don't delete just yet
-                return;
+                del = false;
+                break;
             }
         }
 
-        delete transitions.at(transition_index);
-        transitions[transition_index] = NULL;
+        if (del) {
+            delete transitions.at(transition_index);
+            transitions[transition_index] = NULL;
+        }
+
         if (type == TA_OPENING_TRANSITION) {
             c->opening_transition = -1;
         } else {

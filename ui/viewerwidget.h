@@ -1,4 +1,4 @@
-#ifndef VIEWERWIDGET_H
+﻿#ifndef VIEWERWIDGET_H
 #define VIEWERWIDGET_H
 
 #include <QOpenGLWidget>
@@ -8,15 +8,17 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QOpenGLFunctions>
 
 class Viewer;
 struct Clip;
 struct MediaStream;
 class QOpenGLFramebufferObject;
 class Effect;
+class EffectGizmo;
 struct GLTextureCoords;
 
-class ViewerWidget : public QOpenGLWidget
+class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
 {
 	Q_OBJECT
 public:
@@ -47,6 +49,14 @@ private:
 	GLuint compose_sequence(QVector<Clip *> &nests, bool render_audio);
     GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture, bool clear);
     void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data);
+    Effect* gizmos;
+    int drag_start_x;
+    int drag_start_y;
+    int gizmo_x_mvmt;
+    int gizmo_y_mvmt;
+    EffectGizmo* selected_gizmo;
+    EffectGizmo* get_gizmo_from_mouse(int x, int y);
+    bool drawn_gizmos;
 private slots:
 	void retry();
 	void show_context_menu();

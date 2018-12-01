@@ -66,8 +66,8 @@ Clip* Clip::copy(Sequence* s) {
     }
 
     // TODO make a replacemennt for this somehow
-    //if (opening_transition != -1) copy->opening_transition = this->sequence->transitions.at(opening_transition)->copy(copy);
-    //if (closing_transition != -1) copy->closing_transition = this->sequence->transitions.at(closing_transition)->copy(copy);
+    if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip == NULL) copy->opening_transition = get_opening_transition()->copy(copy, NULL);
+    if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip == NULL) copy->closing_transition = get_closing_transition()->copy(copy, NULL);
 
 	copy->recalculateMaxLength();
 
@@ -169,8 +169,8 @@ Clip::~Clip() {
         }
     }
 
-    //if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
-    //if (closing_transition != -1) this->sequence->hard_delete_transition(this, TA_CLOSING_TRANSITION);
+    if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
+    if (closing_transition != -1) this->sequence->hard_delete_transition(this, TA_CLOSING_TRANSITION);
 
     for (int i=0;i<effects.size();i++) {
         delete effects.at(i);
@@ -181,7 +181,7 @@ Clip::~Clip() {
 long Clip::get_clip_in_with_transition() {
     if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
         // we must be the secondary clip, so return (timeline in - length)
-        return clip_in - get_opening_transition()->length;
+        return clip_in - get_opening_transition()->get_true_length();
     }
     return clip_in;
 }
@@ -189,7 +189,7 @@ long Clip::get_clip_in_with_transition() {
 long Clip::get_timeline_in_with_transition() {
     if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
         // we must be the secondary clip, so return (timeline in - length)
-        return timeline_in - get_opening_transition()->length;
+        return timeline_in - get_opening_transition()->get_true_length();
     }
     return timeline_in;
 }
@@ -197,7 +197,7 @@ long Clip::get_timeline_in_with_transition() {
 long Clip::get_timeline_out_with_transition() {
     if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip != NULL) {
         // we must be the primary clip, so return (timeline out + length2)
-        return timeline_out + get_closing_transition()->length;
+        return timeline_out + get_closing_transition()->get_true_length();
     } else {
         return timeline_out;
     }
@@ -293,11 +293,11 @@ int Clip::getHeight() {
 
 void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points) {
 	if (change_timeline_points) {
-		ca->append(new MoveClipAction(this,
-									  qRound((double) timeline_in * multiplier),
-									  qRound((double) timeline_out * multiplier),
-									  qRound((double) clip_in * multiplier),
-								track));
+        move_clip(ca, this,
+                  qRound((double) timeline_in * multiplier),
+                  qRound((double) timeline_out * multiplier),
+                  qRound((double) clip_in * multiplier),
+            track);
 	}
 
 	for (int i=0;i<effects.size();i++) {

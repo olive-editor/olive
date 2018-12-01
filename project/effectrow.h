@@ -14,9 +14,9 @@ class QPushButton;
 class EffectRow : public QObject {
     Q_OBJECT
 public:
-    EffectRow(Effect* parent, QGridLayout* uilayout, const QString& n, int row);
+    EffectRow(Effect* parent, bool save, QGridLayout* uilayout, const QString& n, int row);
     ~EffectRow();
-    EffectField* add_field(int type, int colspan = 1);
+    EffectField* add_field(int type, const QString &id, int colspan = 1);
     EffectField* field(int i);
     int fieldCount();
     void set_keyframe_now(bool undoable);
@@ -24,6 +24,7 @@ public:
     void delete_keyframe_at_time(KeyframeDelete* kd, long time);
     QLabel* label;
     Effect* parent_effect;
+    bool savable;
 
     bool isKeyframing();
     void setKeyframing(bool);

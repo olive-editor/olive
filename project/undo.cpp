@@ -21,6 +21,7 @@
 #include "ui/viewerwidget.h"
 #include "project/marker.h"
 #include "mainwindow.h"
+#include "io/clipboard.h"
 #include "debug.h"
 
 QUndoStack undo_stack;
@@ -224,9 +225,10 @@ void AddEffectCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, const EffectMeta *itransition, int itype, int ilength) :
+AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, Transition* copy, const EffectMeta *itransition, int itype, int ilength) :
     clip(c),
     secondary(s),
+    transition_to_copy(copy),
     transition(itransition),
 	type(itype),
     length(ilength),
@@ -236,21 +238,38 @@ AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, const EffectMeta *i
 void AddTransitionCommand::undo() {
     clip->sequence->hard_delete_transition(clip, type);
     if (secondary != NULL) secondary->sequence->hard_delete_transition(secondary, (type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION);
+
+    if (type == TA_OPENING_TRANSITION) {
+        clip->opening_transition = old_ptransition;
+        if (secondary != NULL) secondary->closing_transition = old_stransition;
+    } else {
+        clip->closing_transition = old_ptransition;
+        if (secondary != NULL) secondary->opening_transition = old_stransition;
+    }
+
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddTransitionCommand::redo() {
     if (type == TA_OPENING_TRANSITION) {
-        clip->opening_transition = create_transition(clip, secondary, transition);
-        if (secondary != NULL) secondary->closing_transition = clip->opening_transition;
+        old_ptransition = clip->opening_transition;
+        clip->opening_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
+        if (secondary != NULL) {
+            old_stransition = secondary->closing_transition;
+            secondary->closing_transition = clip->opening_transition;
+        }
         if (length > 0) {
-            clip->get_opening_transition()->length = length;
+            clip->get_opening_transition()->set_length(length);
         }
     } else {
-        clip->closing_transition = create_transition(clip, secondary, transition);
-        if (secondary != NULL) secondary->opening_transition = clip->closing_transition;
+        old_ptransition = clip->closing_transition;
+        clip->closing_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
+        if (secondary != NULL) {
+            old_stransition = secondary->opening_transition;
+            secondary->opening_transition = clip->closing_transition;
+        }
         if (length > 0) {
-            clip->get_closing_transition()->length = length;
+            clip->get_closing_transition()->set_length(length);
         }
     }
 	mainWindow->setWindowModified(true);
@@ -265,14 +284,14 @@ ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilengt
 
 void ModifyTransitionCommand::undo() {
     Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-    t->length = old_length;
+    t->set_length(old_length);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void ModifyTransitionCommand::redo() {
     Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-    old_length = t->length;
-    t->length = new_length;
+    old_length = t->get_true_length();
+    t->set_length(new_length);
 	mainWindow->setWindowModified(true);
 }
 
@@ -484,6 +503,7 @@ void AddClipCommand::undo() {
 		Clip* c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 		undone_clips.prepend(c);
+        if (c->open) close_clip(c);
         seq->clips.removeLast();
     }
 	mainWindow->setWindowModified(old_project_changed);
@@ -504,6 +524,8 @@ void AddClipCommand::redo() {
 			for (int j=0;j<original->linked.size();j++) {
 				copy->linked[j] = original->linked.at(j) + linkOffset;
 			}
+            if (original->opening_transition > -1) copy->opening_transition = original->get_opening_transition()->copy(copy, NULL);
+            if (original->closing_transition > -1) copy->closing_transition = original->get_closing_transition()->copy(copy, NULL);
 			seq->clips.append(copy);
 		}
 	}
@@ -1233,13 +1255,13 @@ RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
 }
 
 void RemoveClipsFromClipboard::undo() {
-	panel_timeline->clip_clipboard.insert(pos, clip);
+    clipboard.insert(pos, clip);
 	done = false;
 }
 
 void RemoveClipsFromClipboard::redo() {
-	clip = panel_timeline->clip_clipboard.at(pos);
-	panel_timeline->clip_clipboard.removeAt(pos);
+    clip = static_cast<Clip*>(clipboard.at(pos));
+    clipboard.removeAt(pos);
 	done = true;
 }
 
@@ -1276,4 +1298,28 @@ void SetPointer::redo() {
     old_data = *p;
     *p = new_data;
     mainWindow->setWindowModified(true);
+}
+
+MoveGizmo::MoveGizmo(Effect *e, EffectGizmo *g, int x_movement, int y_movement, double tc) :
+    effect(e),
+    gizmo(g),
+    x(x_movement),
+    y(y_movement),
+    timecode(tc),
+    done(true),
+    old_changed(mainWindow->isWindowModified())
+{}
+
+void MoveGizmo::undo() {
+    effect->gizmo_move(gizmo, -x, -y, timecode);
+    mainWindow->setWindowModified(old_changed);
+    done = false;
+}
+
+void MoveGizmo::redo() {
+    if (!done) {
+        effect->gizmo_move(gizmo, x, y, timecode);
+        mainWindow->setWindowModified(true);
+        done = true;
+    }
 }

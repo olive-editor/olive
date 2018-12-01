@@ -21,6 +21,7 @@
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/mediapropertiesdialog.h"
 #include "dialogs/loaddialog.h"
+#include "io/clipboard.h"
 #include "debug.h"
 
 #include <QFileDialog>
@@ -317,15 +318,17 @@ void Project::get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTre
 }
 
 bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
-	int delete_count = 0;
-	for (int i=0;i<panel_timeline->clip_clipboard.size();i++) {
-		Clip* c = panel_timeline->clip_clipboard.at(i);
-		if (c->media == m) {
-			ca->append(new RemoveClipsFromClipboard(i-delete_count));
-			delete_count++;
-		}
-	}
-	return (delete_count > 0);
+    int delete_count = 0;
+    if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
+        for (int i=0;i<clipboard.size();i++) {
+            Clip* c = static_cast<Clip*>(clipboard.at(i));
+            if (c->media == m) {
+                ca->append(new RemoveClipsFromClipboard(i-delete_count));
+                delete_count++;
+            }
+        }
+    }
+    return (delete_count > 0);
 }
 
 void Project::delete_selected_media() {
@@ -808,6 +811,100 @@ QTreeWidgetItem* Project::find_loaded_folder_by_id(int id) {
     return NULL;
 }
 
+const EffectMeta* get_meta_from_name(const QString& name, int type) {
+    for (int j=0;j<effects.size();j++) {
+        if (effects.at(j).name == name) {
+            return &effects.at(j);
+        }
+    }
+    return NULL;
+}
+
+void load_effect(QXmlStreamReader& stream, Clip* c) {
+    int effect_id = -1;
+    QString effect_name;
+    bool effect_enabled = true;
+    long effect_length = -1;
+    for (int j=0;j<stream.attributes().size();j++) {
+        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+        if (attr.name() == "id") {
+            effect_id = attr.value().toInt();
+        } else if (attr.name() == "enabled") {
+            effect_enabled = (attr.value() == "1");
+        } else if (attr.name() == "name") {
+            effect_name = attr.value().toString();
+        } else if (attr.name() == "length") {
+            effect_length = attr.value().toLong();
+        }
+    }
+
+    // backwards compatibility with 180820
+    if (stream.name() == "effect" && effect_id != -1) {
+        switch (effect_id) {
+        case 0: effect_name = (c->track < 0) ? "Transform" : "Volume"; break;
+        case 1: effect_name = (c->track < 0) ? "Shake" : "Pan"; break;
+        case 2: effect_name = (c->track < 0) ? "Text" : "Noise"; break;
+        case 3: effect_name = (c->track < 0) ? "Solid" : "Tone"; break;
+        case 4: effect_name = "Invert"; break;
+        case 5: effect_name = "Chroma Key"; break;
+        case 6: effect_name = "Gaussian Blur"; break;
+        case 7: effect_name = "Crop"; break;
+        case 8: effect_name = "Flip"; break;
+        case 9: effect_name = "Box Blur"; break;
+        case 10: effect_name = "Wave"; break;
+        case 11: effect_name = "Temperature"; break;
+        }
+    }
+
+    // wait for effects to be loaded
+    effects_loaded.lock();
+
+    const EffectMeta* meta = NULL;
+
+    // find effect with this name
+    if (!effect_name.isEmpty()) {
+        meta = get_meta_from_name(effect_name, (c->track < 0) ? EFFECT_TYPE_VIDEO : EFFECT_TYPE_AUDIO);
+    }
+
+    effects_loaded.unlock();
+
+    if (meta == NULL) {
+        dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
+    } else {
+        QString tag = stream.name().toString();
+
+        if (tag == "opening" || tag == "closing") {
+            // TODO replace NULL/s with something else
+
+            int transition_index = create_transition(c, NULL, meta);
+            Transition* t = c->sequence->transitions.at(transition_index);
+            if (effect_length > -1) t->set_length(effect_length);
+            t->set_enabled(effect_enabled);
+            t->load(stream);
+
+            if (tag == "opening") {
+                c->opening_transition = transition_index;
+            } else {
+                c->closing_transition = transition_index;
+            }
+        } else {
+            Effect* e = create_effect(c, meta);
+            e->set_enabled(effect_enabled);
+            e->load(stream);
+
+            c->effects.append(e);
+        }
+    }
+}
+
+struct TransitionData {
+    int id;
+    QString name;
+    long length;
+    Clip* otc;
+    Clip* ctc;
+};
+
 bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
     f.seek(0);
     stream.setDevice(stream.device());
@@ -968,6 +1065,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 }
                             }
 
+                            QVector<TransitionData> transition_data;
+
                             // load all clips and clip information
                             while (!(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
                                 stream.readNextStartElement();
@@ -982,7 +1081,22 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 										}
 									}
 									s->markers.append(m);
-								} else if (stream.name() == "clip" && stream.isStartElement()) {
+                                } else if (stream.name() == "transition" && stream.isStartElement()) {
+                                    TransitionData td;
+                                    td.otc = NULL;
+                                    td.ctc = NULL;
+                                    for (int j=0;j<stream.attributes().size();j++) {
+                                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                        if (attr.name() == "id") {
+                                            td.id = attr.value().toInt();
+                                        } else if (attr.name() == "name") {
+                                            td.name = attr.value().toString();
+                                        } else if (attr.name() == "length") {
+                                            td.length = attr.value().toLong();
+                                        }
+                                    }
+                                    transition_data.append(td);
+                                } else if (stream.name() == "clip" && stream.isStartElement()) {
                                     int media_id, stream_id;
                                     Clip* c = new Clip(s);
 
@@ -1027,6 +1141,10 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             c->maintain_audio_pitch = (attr.value() == "1");
                                         } else if (attr.name() == "reverse") {
                                             c->reverse = (attr.value() == "1");
+                                        } else if (attr.name() == "opening") {
+                                            c->opening_transition = attr.value().toInt();
+                                        } else if (attr.name() == "closing") {
+                                            c->closing_transition = attr.value().toInt();
                                         } else if (attr.name() == "sequence") {
                                             c->media_type = MEDIA_TYPE_SEQUENCE;
 
@@ -1072,87 +1190,9 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                         }
                                                     }
                                                 }
-											} else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
-												int effect_id = -1;
-												QString effect_name;
-                                                bool effect_enabled = true;
-                                                long effect_length = -1;
-												for (int j=0;j<stream.attributes().size();j++) {
-													const QXmlStreamAttribute& attr = stream.attributes().at(j);
-													if (attr.name() == "id") {
-														effect_id = attr.value().toInt();
-													} else if (attr.name() == "enabled") {
-														effect_enabled = (attr.value() == "1");
-													} else if (attr.name() == "name") {
-														effect_name = attr.value().toString();
-                                                    } else if (attr.name() == "length") {
-                                                        effect_length = attr.value().toLong();
-                                                    }
-												}
-
-												// backwards compatibility with 180820
-												if (stream.name() == "effect" && effect_id != -1) {
-													switch (effect_id) {
-													case 0: effect_name = (c->track < 0) ? "Transform" : "Volume"; break;
-													case 1: effect_name = (c->track < 0) ? "Shake" : "Pan"; break;
-													case 2: effect_name = (c->track < 0) ? "Text" : "Noise"; break;
-													case 3: effect_name = (c->track < 0) ? "Solid" : "Tone"; break;
-													case 4: effect_name = "Invert"; break;
-													case 5: effect_name = "Chroma Key"; break;
-													case 6: effect_name = "Gaussian Blur"; break;
-													case 7: effect_name = "Crop"; break;
-													case 8: effect_name = "Flip"; break;
-													case 9: effect_name = "Box Blur"; break;
-													case 10: effect_name = "Wave"; break;
-													case 11: effect_name = "Temperature"; break;
-													}
-												}
-
-												// wait for effects to be loaded
-												effects_loaded.lock();
-
-												const EffectMeta* meta = NULL;
-
-												// find effect with this name
-												if (!effect_name.isEmpty()) {
-													QVector<EffectMeta>& effect_list = (c->track < 0) ? video_effects : audio_effects;
-													for (int j=0;j<effect_list.size();j++) {
-														if (effect_list.at(j).name == effect_name) {
-															meta = &effect_list.at(j);
-															break;
-														}
-													}
-												}
-
-												effects_loaded.unlock();
-
-												if (meta == NULL) {
-													dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
-												} else {
-                                                    QString tag = stream.name().toString();
-
-                                                    if (tag == "opening" || tag == "closing") {
-                                                        // TODO replace NULL/s with somethingn else
-
-                                                        int transition_index = create_transition(c, NULL, meta);
-                                                        Transition* t = c->sequence->transitions.at(transition_index);
-                                                        if (effect_length > -1) t->length = effect_length;
-                                                        t->set_enabled(effect_enabled);
-                                                        t->load(stream);
-
-                                                        if (tag == "opening") {
-                                                            c->opening_transition = transition_index;
-                                                        } else {
-                                                            c->closing_transition = transition_index;
-                                                        }
-													} else {
-                                                        Effect* e = create_effect(c, meta);
-                                                        e->set_enabled(effect_enabled);
-                                                        e->load(stream);
-
-														c->effects.append(e);
-													}
-												}
+                                            } else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
+                                                // "opening" and "closing" are backwards compatibility code
+                                                load_effect(stream, c);
                                             }
                                         }
                                     }
@@ -1161,8 +1201,8 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                 }
                             }
 
-                            // correct links and clip IDs
-                            for (int i=0;i<s->clips.size();i++) {
+                            // correct links, clip IDs, transitions
+                            for (int i=0;i<s->clips.size();i++) {                                
                                 // correct links
                                 Clip* correct_clip = s->clips.at(i);
                                 for (int j=0;j<correct_clip->linked.size();j++) {
@@ -1181,6 +1221,46 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             delete s;
                                             return false;
                                         }
+                                    }
+                                }
+
+                                // re-link clips to transitions
+                                if (correct_clip->opening_transition > -1) {
+                                    for (int j=0;j<transition_data.size();j++) {
+                                        if (transition_data.at(j).id == correct_clip->opening_transition) {
+                                            transition_data[j].otc = correct_clip;
+                                        }
+                                    }
+                                }
+                                if (correct_clip->closing_transition > -1) {
+                                    for (int j=0;j<transition_data.size();j++) {
+                                        if (transition_data.at(j).id == correct_clip->closing_transition) {
+                                            transition_data[j].ctc = correct_clip;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // create transitions
+                            for (int i=0;i<transition_data.size();i++) {
+                                const TransitionData& td = transition_data.at(i);
+                                Clip* primary = td.otc;
+                                Clip* secondary = td.ctc;
+                                if (primary != NULL || secondary != NULL) {
+                                    if (primary == NULL) {
+                                        primary = secondary;
+                                        secondary = NULL;
+                                    }
+                                    const EffectMeta* meta = get_meta_from_name(td.name, (primary->track < 0) ? EFFECT_TYPE_VIDEO : EFFECT_TYPE_AUDIO);
+                                    if (meta == NULL) {
+                                        dout << "[WARNING] Failed to link transition with name:" << td.name;
+                                        if (td.otc != NULL) td.otc->opening_transition = -1;
+                                        if (td.ctc != NULL) td.ctc->closing_transition = -1;
+                                    } else {
+                                        int transition_index = create_transition(primary, secondary, meta);
+                                        primary->sequence->transitions.at(transition_index)->set_length(td.length);
+                                        if (td.otc != NULL) td.otc->opening_transition = transition_index;
+                                        if (td.ctc != NULL) td.ctc->closing_transition = transition_index;
                                     }
                                 }
                             }
@@ -1414,6 +1494,18 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
 						stream.writeAttribute("workarea", QString::number(s->using_workarea));
 						stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
 						stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
+
+                        for (int j=0;j<s->transitions.size();j++) {
+                            Transition* t = s->transitions.at(j);
+                            if (t != NULL) {
+                                stream.writeStartElement("transition");
+                                stream.writeAttribute("id", QString::number(j));
+                                stream.writeAttribute("length", QString::number(t->get_true_length()));
+                                t->save(stream);
+                                stream.writeEndElement(); // transition
+                            }
+                        }
+
                         for (int j=0;j<s->clips.size();j++) {
                             Clip* c = s->clips.at(j);
                             if (c != NULL) {
@@ -1425,6 +1517,8 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
                                 stream.writeAttribute("in", QString::number(c->timeline_in));
                                 stream.writeAttribute("out", QString::number(c->timeline_out));
                                 stream.writeAttribute("track", QString::number(c->track));
+                                stream.writeAttribute("opening", QString::number(c->opening_transition));
+                                stream.writeAttribute("closing", QString::number(c->closing_transition));
 
                                 stream.writeAttribute("r", QString::number(c->color_r));
                                 stream.writeAttribute("g", QString::number(c->color_g));
@@ -1458,19 +1552,7 @@ void Project::save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int
 									stream.writeStartElement("effect"); // effect
 									c->effects.at(k)->save(stream);
 									stream.writeEndElement(); // effect
-								}
-
-                                if (c->get_opening_transition() != NULL) {
-									stream.writeStartElement("opening");
-                                    c->get_opening_transition()->save(stream);
-									stream.writeEndElement(); // opening
-								}
-
-                                if (c->get_closing_transition() != NULL) {
-									stream.writeStartElement("closing"); // closing
-                                    c->get_closing_transition()->save(stream);
-									stream.writeEndElement(); // closing
-								}
+                                }
 
                                 stream.writeEndElement(); // clip
                             }

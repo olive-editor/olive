@@ -39,8 +39,7 @@
 #include <QtMath>
 #include <QMenu>
 
-QVector<EffectMeta> video_effects;
-QVector<EffectMeta> audio_effects;
+QVector<EffectMeta> effects;
 QMutex effects_loaded;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
@@ -68,17 +67,12 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 	return NULL;
 }
 
-const EffectMeta* get_internal_meta(int internal_id) {
-	for (int i=0;i<audio_effects.size();i++) {
-		if (audio_effects.at(i).internal == internal_id) {
-			return &audio_effects.at(i);
+const EffectMeta* get_internal_meta(int internal_id, int type) {
+    for (int i=0;i<effects.size();i++) {
+        if (effects.at(i).internal == internal_id && effects.at(i).type == type) {
+            return &effects.at(i);
 		}
-	}
-	for (int i=0;i<video_effects.size();i++) {
-		if (video_effects.at(i).internal == internal_id) {
-			return &video_effects.at(i);
-		}
-	}
+    }
     return NULL;
 }
 
@@ -87,37 +81,40 @@ void load_internal_effects() {
 
 	// internal effects
 	em.type = EFFECT_TYPE_EFFECT;
+    em.subtype = EFFECT_TYPE_AUDIO;
 
 	em.name = "Volume";
 	em.internal = EFFECT_INTERNAL_VOLUME;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Pan";
 	em.internal = EFFECT_INTERNAL_PAN;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Tone";
 	em.internal = EFFECT_INTERNAL_TONE;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Noise";
 	em.internal = EFFECT_INTERNAL_NOISE;
-	audio_effects.append(em);
+    effects.append(em);
+
+    em.subtype = EFFECT_TYPE_VIDEO;
 
 	em.name = "Transform";
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_TRANSFORM;
-	video_effects.append(em);
+    effects.append(em);
 
-	em.name = "Corner Pin";
-	em.category = "Distort";
-	em.internal = EFFECT_INTERNAL_CORNERPIN;
-	video_effects.append(em);
+    em.name = "Corner Pin";
+    em.category = "Distort";
+    em.internal = EFFECT_INTERNAL_CORNERPIN;
+    effects.append(em);
 
 	em.name = "Text";
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_TEXT;
-	video_effects.append(em);
+    effects.append(em);
 
     em.name = "Timecode";
     em.category = "Render";
@@ -127,12 +124,12 @@ void load_internal_effects() {
 	em.name = "Solid";
 	em.category = "Render";
 	em.internal = EFFECT_INTERNAL_SOLID;
-	video_effects.append(em);
+    effects.append(em);
 
 	em.name = "Shake";
 	em.category = "Distort";
 	em.internal = EFFECT_INTERNAL_SHAKE;
-	video_effects.append(em);
+    effects.append(em);
 
 	// internal transitions
 	em.type = EFFECT_TYPE_TRANSITION;
@@ -140,23 +137,21 @@ void load_internal_effects() {
 
 	em.name = "Cross Dissolve";
     em.internal = TRANSITION_INTERNAL_CROSSDISSOLVE;
-	video_effects.append(em);
+    effects.append(em);
 
-    em.name = "Cube";
-    em.internal = TRANSITION_INTERNAL_CUBE;
-    video_effects.append(em);
+    em.subtype = EFFECT_TYPE_AUDIO;
 
 	em.name = "Linear Fade";
     em.internal = TRANSITION_INTERNAL_LINEARFADE;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Exponential Fade";
     em.internal = TRANSITION_INTERNAL_EXPONENTIALFADE;
-	audio_effects.append(em);
+    effects.append(em);
 
 	em.name = "Logarithmic Fade";
     em.internal = TRANSITION_INTERNAL_LOGARITHMICFADE;
-	audio_effects.append(em);
+    effects.append(em);
 }
 
 void load_shader_effects() {
@@ -187,11 +182,12 @@ void load_shader_effects() {
 					if (!effect_name.isEmpty()) {
 						EffectMeta em;
                         em.type = EFFECT_TYPE_EFFECT;
+                        em.subtype = EFFECT_TYPE_VIDEO;
 						em.name = effect_name;
 						em.category = effect_cat;
 						em.filename = entries.at(i);
 						em.internal = -1;
-						video_effects.append(em);
+                        effects.append(em);
 					} else {
 						dout << "[ERROR] Invalid effect found in" << entries.at(i);
 					}
@@ -231,10 +227,9 @@ void EffectInit::run() {
 Effect::Effect(Clip* c, const EffectMeta *em) :
 	parent_clip(c),
     meta(em),
-    length(30),
 	enable_shader(false),
 	enable_coords(false),
-    enable_superimpose(false),    
+    enable_superimpose(false),
 	glslProgram(NULL),
     texture(NULL),
     isOpen(false),
@@ -305,8 +300,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 								if (id.isEmpty()) {
 									dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
 								} else if (type > -1) {
-									EffectField* field = row->add_field(type);
-									field->id = id;
+                                    EffectField* field = row->add_field(type, id);
 									connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
 									switch (type) {
 									case EFFECT_FIELD_DOUBLE:
@@ -457,9 +451,9 @@ void Effect::copy_field_keyframes(Effect* e) {
 	}
 }
 
-EffectRow* Effect::add_row(const QString& name) {
-	EffectRow* row = new EffectRow(this, ui_layout, name, rows.size());
-	rows.append(row);
+EffectRow* Effect::add_row(const QString& name, bool savable) {
+    EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size());
+    rows.append(row);
 	return row;
 }
 
@@ -468,7 +462,21 @@ EffectRow* Effect::row(int i) {
 }
 
 int Effect::row_count() {
-	return rows.size();
+    return rows.size();
+}
+
+EffectGizmo *Effect::add_gizmo(int type) {
+    EffectGizmo* gizmo = new EffectGizmo(type);
+    gizmos.append(gizmo);
+    return gizmo;
+}
+
+EffectGizmo *Effect::gizmo(int i) {
+    return gizmos.at(i);
+}
+
+int Effect::gizmo_count(){
+    return gizmos.size();
 }
 
 void Effect::refresh() {}
@@ -679,31 +687,32 @@ void Effect::load(QXmlStreamReader& stream) {
 void Effect::save(QXmlStreamWriter& stream) {
 	stream.writeAttribute("name", meta->name);
     stream.writeAttribute("enabled", QString::number(is_enabled()));
-    stream.writeAttribute("length", QString::number(length));
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
-        stream.writeStartElement("row"); // row
-        stream.writeStartElement("keyframes"); // keyframes
-		stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
-        for (int j=0;j<row->keyframe_times.size();j++) {
-            stream.writeStartElement("key"); // key
-            stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
-            stream.writeAttribute("type", QString::number(row->keyframe_types.at(j)));
-            stream.writeEndElement(); // key
+        if (row->savable) {
+            stream.writeStartElement("row"); // row
+            stream.writeStartElement("keyframes"); // keyframes
+            stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
+            for (int j=0;j<row->keyframe_times.size();j++) {
+                stream.writeStartElement("key"); // key
+                stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
+                stream.writeAttribute("type", QString::number(row->keyframe_types.at(j)));
+                stream.writeEndElement(); // key
+            }
+            stream.writeEndElement(); // keyframes
+            for (int j=0;j<row->fieldCount();j++) {
+                EffectField* field = row->field(j);
+                stream.writeStartElement("field"); // field
+                stream.writeAttribute("id", field->id);
+                stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
+                for (int k=0;k<field->keyframe_data.size();k++) {
+                    stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
+                }
+                stream.writeEndElement(); // field
+            }
+            stream.writeEndElement(); // row
         }
-        stream.writeEndElement(); // keyframes
-		for (int j=0;j<row->fieldCount();j++) {
-			EffectField* field = row->field(j);
-            stream.writeStartElement("field"); // field
-			stream.writeAttribute("id", field->id);
-			stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
-            for (int k=0;k<field->keyframe_data.size();k++) {
-				stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
-			}
-            stream.writeEndElement(); // field
-		}
-        stream.writeEndElement(); // row
 	}
 }
 
@@ -842,6 +851,36 @@ void Effect::process_audio(double, double, quint8*, int, int) {
 		samples[i+1] = (quint8) (samp >> 8);
 		samples[i] = (quint8) samp;
     }*/
+}
+
+void Effect::gizmo_draw(double, GLTextureCoords &) {}
+void Effect::gizmo_move(EffectGizmo* , int , int , double ) {}
+
+void Effect::gizmo_world_to_screen() {
+    GLfloat view_val[16];
+    GLfloat projection_val[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, view_val);
+    glGetFloatv(GL_PROJECTION_MATRIX, projection_val);
+
+    QMatrix4x4 view_matrix(view_val);
+    QMatrix4x4 projection_matrix(projection_val);
+
+    for (int i=0;i<gizmos.size();i++) {
+        EffectGizmo* g = gizmos.at(i);
+
+        for (int j=0;j<g->get_point_count();j++) {
+            QVector4D screen_pos = QVector4D(g->world_pos[j].x(), g->world_pos[j].y(), 0, 1.0) * (view_matrix * projection_matrix);
+
+            int adjusted_sx1 = qRound(((screen_pos.x()*0.5f)+0.5f)*parent_clip->sequence->width);
+            int adjusted_sy1 = qRound((1.0f-((screen_pos.y()*0.5f)+0.5f))*parent_clip->sequence->height);
+
+            g->screen_pos[j] = QPoint(adjusted_sx1, adjusted_sy1);
+        }
+    }
+}
+
+bool Effect::are_gizmos_enabled() {
+    return (gizmos.size() > 0);
 }
 
 void Effect::redraw(double) {

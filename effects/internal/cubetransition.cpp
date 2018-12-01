@@ -6,6 +6,8 @@ CubeTransition::CubeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transit
     enable_coords = true;
 }
 
-void CubeTransition::process_coords(double progress, GLTextureCoords&, int data) {
-    glTranslatef(-progress, 0, -progress);
+void CubeTransition::process_coords(double progress, GLTextureCoords& coords, int data) {
+
+    coords.vertexTopLeftZ = 1;
+    coords.vertexBottomLeftZ = 1;
 }

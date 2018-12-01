@@ -4,20 +4,15 @@
 #include <QtMath>
 
 AudioNoiseEffect::AudioNoiseEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-	amount_val = add_row("Amount:")->add_field(EFFECT_FIELD_DOUBLE);
+    amount_val = add_row("Amount:")->add_field(EFFECT_FIELD_DOUBLE, "amount");
 	amount_val->set_double_minimum_value(0);
 	amount_val->set_double_maximum_value(100);
-	amount_val->set_double_default_value(20);
-	amount_val->id = "amount";
+    amount_val->set_double_default_value(20);
 
-	mix_val = add_row("Mix:")->add_field(EFFECT_FIELD_BOOL);
-	mix_val->id = "mix";
+    mix_val = add_row("Mix:")->add_field(EFFECT_FIELD_BOOL, "mix");
 	mix_val->set_bool_value(true);
 
-	srand(QDateTime::currentMSecsSinceEpoch());
-
-	connect(amount_val, SIGNAL(changed()), this, SLOT(field_changed()));
-	connect(mix_val, SIGNAL(changed()), this, SLOT(field_changed()));
+    srand(QDateTime::currentMSecsSinceEpoch());
 }
 
 void AudioNoiseEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {

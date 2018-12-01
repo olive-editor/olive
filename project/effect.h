@@ -1,4 +1,4 @@
-﻿#ifndef EFFECT_H
+#ifndef EFFECT_H
 #define EFFECT_H
 
 #include <QObject>
@@ -15,6 +15,7 @@ class QWidget;
 class CollapsibleWidget;
 class QGridLayout;
 class QPushButton;
+class QMouseEvent;
 
 struct Clip;
 class QXmlStreamReader;
@@ -30,15 +31,15 @@ struct EffectMeta {
     QString filename;
 	int internal;
 	int type;
+    int subtype;
 };
 
-extern QVector<EffectMeta> video_effects;
-extern QVector<EffectMeta> audio_effects;
+extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
 void init_effects();
 Effect* create_effect(Clip* c, const EffectMeta *em);
-const EffectMeta* get_internal_meta(int internal_id);
+const EffectMeta* get_internal_meta(int internal_id, int type);
 
 extern QMutex effects_loaded;
 
@@ -64,7 +65,6 @@ extern QMutex effects_loaded;
 
 
 
-
 #define EFFECT_INTERNAL_CORNERPIN 12
 #define EFFECT_INTERNAL_COUNT 13
 
@@ -77,27 +77,36 @@ struct GLTextureCoords {
 
 	int vertexTopLeftX;
 	int vertexTopLeftY;
+    int vertexTopLeftZ;
 	int vertexTopRightX;
 	int vertexTopRightY;
+    int vertexTopRightZ;
 	int vertexBottomLeftX;
 	int vertexBottomLeftY;
+    int vertexBottomLeftZ;
 	int vertexBottomRightX;
 	int vertexBottomRightY;
+    int vertexBottomRightZ;
 
-	double textureTopLeftX;
-	double textureTopLeftY;
-	double textureTopRightX;
-	double textureTopRightY;
-	double textureBottomRightX;
-	double textureBottomRightY;
-	double textureBottomLeftX;
-	double textureBottomLeftY;
+    float textureTopLeftX;
+    float textureTopLeftY;
+    float textureTopLeftQ;
+    float textureTopRightX;
+    float textureTopRightY;
+    float textureTopRightQ;
+    float textureBottomRightX;
+    float textureBottomRightY;
+    float textureBottomRightQ;
+    float textureBottomLeftX;
+    float textureBottomLeftY;
+    float textureBottomLeftQ;
 };
 
 qint16 mix_audio_sample(qint16 a, qint16 b);
 
 #include "effectfield.h"
 #include "effectrow.h"
+#include "effectgizmo.h"
 
 class Effect : public QObject {
 	Q_OBJECT
@@ -106,14 +115,17 @@ public:
 	~Effect();
     Clip* parent_clip;
 	const EffectMeta* meta;
-    long length; // used only for transitions
     int id;
 	QString name;
 	CollapsibleWidget* container;
 
-	EffectRow* add_row(const QString &name);
+    EffectRow* add_row(const QString &name, bool savable = true);
 	EffectRow* row(int i);
 	int row_count();
+
+    EffectGizmo* add_gizmo(int type);
+    EffectGizmo* gizmo(int i);
+    int gizmo_count();
 
     bool is_enabled();
 	void set_enabled(bool b);
@@ -134,7 +146,7 @@ public:
 
 	bool enable_shader;
 	bool enable_coords;
-	bool enable_superimpose;
+    bool enable_superimpose;
 
 	int getIterations();
 	void setIterations(int i);
@@ -145,6 +157,11 @@ public:
     virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+
+    virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
+    virtual void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode);
+    void gizmo_world_to_screen();
+    bool are_gizmos_enabled();
 public slots:
 	void field_changed();
 private slots:
@@ -170,6 +187,7 @@ private:
 
 	bool isOpen;
 	QVector<EffectRow*> rows;
+    QVector<EffectGizmo*> gizmos;
 	QGridLayout* ui_layout;
     QWidget* ui;
 	bool bound;

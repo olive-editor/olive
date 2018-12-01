@@ -33,6 +33,8 @@ long refactor_frame_number(long framenumber, double source_frame_rate, double ta
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 void draw_selection_rectangle(QPainter& painter, const QRect& rect);
+bool selection_contains_transition(const Selection& s, Clip* c, int type);
+void move_clip(ComboAction *ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions = true);
 
 struct Ghost {
     int clip;
@@ -118,6 +120,7 @@ public:
     long cursor_frame;
     int cursor_track;
     double zoom;
+    bool zoom_just_changed;
 	long drag_frame_start;
 	int drag_track_start;
 	void update_effect_controls();
@@ -181,9 +184,6 @@ public:
     int transition_tool_type;
 	const EffectMeta* transition_tool_meta;
 	int transition_tool_side;
-
-	// clipboard
-	QVector<Clip*> clip_clipboard;
 
     Ui::Timeline *ui;
 public slots:

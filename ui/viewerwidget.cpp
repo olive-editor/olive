@@ -16,30 +16,36 @@
 #include "io/config.h"
 #include "debug.h"
 #include "io/math.h"
+#include "ui/collapsiblewidget.h"
+#include "project/undo.h"
 
 #include <QPainter>
 #include <QAudioOutput>
 #include <QOpenGLShaderProgram>
 #include <QtMath>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFunctions>
 #include <QMouseEvent>
 #include <QMimeData>
 #include <QDrag>
 #include <QMenu>
 #include <QOffscreenSurface>
 #include <QFileDialog>
+#include <QPolygon>
 
 extern "C" {
 	#include <libavformat/avformat.h>
 }
 
+#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
 	default_fbo(NULL),
 	waveform(false),
-	dragging(false)
+    dragging(false),
+    selected_gizmo(NULL)
 {
+    setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 
 	QSurfaceFormat format;
@@ -109,6 +115,8 @@ void ViewerWidget::retry() {
 }
 
 void ViewerWidget::initializeGL() {
+    initializeOpenGLFunctions();
+
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
 
 	retry_timer.start();
@@ -129,27 +137,103 @@ void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint((double) width() / (double) waveform_clip->timeline_out, x));
 }
 
+double get_timecode(Clip* c, long playhead) {
+    return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+}
+
+EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
+    if (gizmos != NULL) {        
+        double multiplier = (double) viewer->seq->width / (double) width();
+        QPoint mouse_pos(qRound(x*multiplier), qRound(y*multiplier));
+        int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
+        for (int i=0;i<gizmos->gizmo_count();i++) {
+            EffectGizmo* g = gizmos->gizmo(i);
+
+            switch (g->get_type()) {
+            case GIZMO_TYPE_DOT:
+                if (mouse_pos.x() > g->screen_pos[0].x() - dot_size
+                        && mouse_pos.y() > g->screen_pos[0].y() - dot_size
+                        && mouse_pos.x() < g->screen_pos[0].x() + dot_size
+                        && mouse_pos.y() < g->screen_pos[0].y() + dot_size) {
+                    return g;
+                }
+                break;
+            case GIZMO_TYPE_POLY:
+                if (QPolygon(g->screen_pos).containsPoint(mouse_pos, Qt::OddEvenFill)) {
+                    return g;
+                }
+                break;
+            }
+
+        }
+    }
+    return NULL;
+}
+
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
-	if (waveform) seek_from_click(event->x());
-	dragging = true;
+    if (waveform) {
+        seek_from_click(event->x());
+    } else {
+        drag_start_x = event->pos().x();
+        drag_start_y = event->pos().y();
+
+        gizmo_x_mvmt = 0;
+        gizmo_y_mvmt = 0;
+
+        selected_gizmo = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
+    }
+    dragging = true;
 }
 
 void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 	if (dragging) {
 		if (waveform) {
 			seek_from_click(event->x());
-		} else {
+        } else if (gizmos == NULL) {
 			QDrag* drag = new QDrag(this);
 			QMimeData* mimeData = new QMimeData;
             mimeData->setText("h"); // QMimeData will fail without some kind of data
 			drag->setMimeData(mimeData);
 			drag->exec();
-		}
-	}
+            dragging = false;
+        } else if (selected_gizmo != NULL) {
+            double multiplier = (double) viewer->seq->width / (double) width();
+
+            int x_movement = (event->pos().x() - drag_start_x)*multiplier;
+            int y_movement = (event->pos().y() - drag_start_y)*multiplier;
+
+            gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
+
+            gizmo_x_mvmt += x_movement;
+            gizmo_y_mvmt += y_movement;
+
+            drag_start_x = event->pos().x();
+            drag_start_y = event->pos().y();
+
+            gizmos->field_changed();
+        }
+    } else {
+        unsetCursor();
+        EffectGizmo* g = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
+        if (g != NULL) {
+            if (g->get_cursor() > -1) {
+                setCursor(static_cast<enum Qt::CursorShape>(g->get_cursor()));
+            }
+        }
+    }
 }
 
-void ViewerWidget::mouseReleaseEvent(QMouseEvent *) {
-	dragging = false;
+void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (selected_gizmo != NULL) {
+        undo_stack.push(new MoveGizmo(
+                            gizmos,
+                            selected_gizmo,
+                            gizmo_x_mvmt,
+                            gizmo_y_mvmt,
+                            get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead)
+                        ));
+    }
+    dragging = false;
 }
 
 void ViewerWidget::drawTitleSafeArea() {
@@ -167,7 +251,7 @@ void ViewerWidget::drawTitleSafeArea() {
     }
 
     glLoadIdentity();
-    glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
+    glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0, 1);
 
 	glColor4f(0.66f, 0.66f, 0.66f, 1.0f);
     glBegin(GL_LINES);
@@ -221,16 +305,17 @@ void ViewerWidget::drawTitleSafeArea() {
 }
 
 GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, 1, 0, 1, -1, 1);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, 1, 0, 1, -1, 1);
 
-	fbo->bind();
+    fbo->bind();
 
     if (clear) glClear(GL_COLOR_BUFFER_BIT);
+    GL_DEFAULT_BLEND
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glBegin(GL_QUADS);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); // top left
 	glVertex2f(0, 0); // top left
 	glTexCoord2f(1, 0); // top right
@@ -263,7 +348,9 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 			}
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
-                if (superimpose_texture != 0) composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
+                if (superimpose_texture != 0) {
+                    composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
+                }
 			}
 		}
     }
@@ -358,10 +445,10 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(-half_width, half_width, half_height, -half_height, -1, 1);
+    glOrtho(-half_width, half_width, half_height, -half_height, -1, 10);
 
     for (int i=0;i<current_clips.size();i++) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL_DEFAULT_BLEND
         glColor4f(1.0, 1.0, 1.0, 1.0);
 
         Clip* c = current_clips.at(i);
@@ -434,17 +521,21 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         composite_texture = draw_clip(c->fbo[fbo_switcher], textureID, true);
 					}
 
-					fbo_switcher = !fbo_switcher;
+                    fbo_switcher = !fbo_switcher;
 
+                    // set up default coords
                     GLTextureCoords coords;
                     coords.grid_size = 1;
 					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
 					coords.vertexTopLeftY = coords.vertexTopRightY = -video_height/2;
 					coords.vertexTopRightX = coords.vertexBottomRightX = video_width/2;
-					coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
-					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0;
+                    coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
+                    coords.vertexBottomLeftZ = coords.vertexBottomRightZ = coords.vertexTopLeftZ = coords.vertexTopRightZ = 1;
+                    coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0.0;
 					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
+                    coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
 
+                    // set up autoscale
                     if (c->autoscale && (video_width != s->width && video_height != s->height)) {
                         float width_multiplier = (float) s->width / (float) video_width;
                         float height_multiplier = (float) s->height / (float) video_height;
@@ -453,10 +544,28 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					}
 
 					// EFFECT CODE START
-                    double timecode = ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+                    double timecode = get_timecode(c, playhead);
+
+                    Effect* first_gizmo_effect = NULL;
+                    Effect* selected_effect = NULL;
+
 					for (int j=0;j<c->effects.size();j++) {
-                        process_effect(c, c->effects.at(j), timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
+                        Effect* e = c->effects.at(j);
+                        process_effect(c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
+
+                        if (e->are_gizmos_enabled()) {
+                            if (first_gizmo_effect == NULL) first_gizmo_effect = e;
+                            if (e->container->selected) selected_effect = e;
+                        }
 					}
+
+                    if (!rendering) {
+                        if (selected_effect != NULL) {
+                            gizmos = selected_effect;
+                        } else if (panel_timeline->is_clip_selected(c, true)) {
+                            gizmos = first_gizmo_effect;
+                        }
+                    }
 
                     if (c->get_opening_transition() != NULL) {
                         int transition_progress = playhead - c->get_timeline_in_with_transition();
@@ -496,43 +605,45 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                     glBegin(GL_QUADS);
 
 					if (coords.grid_size <= 1) {
-						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-                        glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
-						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-                        glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
-						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-                        glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
-						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
+                        float z = 0.0f;
+
+                        glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
+                        glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, z); // top left
+                        glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
+                        glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, z); // top right
+                        glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
+                        glVertex3f(coords.vertexBottomRightX, coords.vertexBottomRightY, z); // bottom right
+                        glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+                        glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, z); // bottom left
 					} else {
-                        double rows = coords.grid_size;
-                        double cols = coords.grid_size;
+                        float rows = coords.grid_size;
+                        float cols = coords.grid_size;
 
-                        for (double i=0;i<rows;i++) {
-                            double row_prog = i/rows;
-                            double next_row_prog = (i+1)/rows;
-                            for (double j=0;j<cols;j++) {
-                                double col_prog = j/cols;
-                                double next_col_prog = (j+1)/cols;
+                        for (float k=0;k<rows;k++) {
+                            float row_prog = k/rows;
+                            float next_row_prog = (k+1)/rows;
+                            for (float j=0;j<cols;j++) {
+                                float col_prog = j/cols;
+                                float next_col_prog = (j+1)/cols;
 
-                                double vertexTLX = double_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
-                                double vertexTRX = double_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
-                                double vertexBLX = double_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
-                                double vertexBRX = double_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
+                                float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
+                                float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
+                                float vertexBLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
+                                float vertexBRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
 
-                                double vertexTLY = double_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
-                                double vertexTRY = double_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
-                                double vertexBLY = double_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
-                                double vertexBRY = double_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
+                                float vertexTLY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
+                                float vertexTRY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
+                                float vertexBLY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
+                                float vertexBRY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
 
-                                glTexCoord2f(double_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), double_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
-                                glVertex2f(double_lerp(vertexTLX, vertexTRX, col_prog), double_lerp(vertexTLY, vertexBLY, row_prog)); // top left
-                                glTexCoord2f(double_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), double_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
-                                glVertex2f(double_lerp(vertexTLX, vertexTRX, next_col_prog), double_lerp(vertexTRY, vertexBRY, row_prog)); // top right
-                                glTexCoord2f(double_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), double_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
-                                glVertex2f(double_lerp(vertexBLX, vertexBRX, next_col_prog), double_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
-                                glTexCoord2f(double_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), double_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
-                                glVertex2f(double_lerp(vertexBLX, vertexBRX, col_prog), double_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
+                                glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
+                                glVertex2f(float_lerp(vertexTLX, vertexTRX, col_prog), float_lerp(vertexTLY, vertexBLY, row_prog)); // top left
+                                glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
+                                glVertex2f(float_lerp(vertexTLX, vertexTRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, row_prog)); // top right
+                                glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
+                                glVertex2f(float_lerp(vertexBLX, vertexBRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
+                                glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
+                                glVertex2f(float_lerp(vertexBLX, vertexBRX, col_prog), float_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
                             }
                         }
 					}
@@ -540,6 +651,13 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					glEnd();
 
                     glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
+
+                    if (gizmos != NULL && !drawn_gizmos) {
+                        gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
+                        gizmos->gizmo_world_to_screen();
+
+                        drawn_gizmos = true;
+                    }
 
 					if (!nests.isEmpty()) {
 						nests.last()->fbo[0]->release();
@@ -607,7 +725,10 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 }
 
 void ViewerWidget::paintGL() {
+    drawn_gizmos = false;
     if (viewer->seq != NULL) {
+        gizmos = NULL;
+
         bool render_audio = (viewer->playing || rendering);
         bool loop = false;
         do {
@@ -617,6 +738,7 @@ void ViewerWidget::paintGL() {
             glMatrixMode(GL_MODELVIEW);
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
+            glEnable(GL_DEPTH);
 
             texture_failed = false;
 
@@ -665,6 +787,48 @@ void ViewerWidget::paintGL() {
                 drawTitleSafeArea();
             }
 
+            if (gizmos != NULL && drawn_gizmos) {
+                float color[4];
+                glGetFloatv(GL_CURRENT_COLOR, color);
+
+                float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
+
+                glPushMatrix();
+                glLoadIdentity();
+                glOrtho(0, viewer->seq->width, viewer->seq->height, 0, -1, 10);
+                float gizmo_z = 0.0f;
+                for (int j=0;j<gizmos->gizmo_count();j++) {
+                    EffectGizmo* g = gizmos->gizmo(j);
+                    glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
+                    switch (g->get_type()) {
+                    case GIZMO_TYPE_DOT: // draw dot
+                        glBegin(GL_QUADS);
+                        glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+                        glEnd();
+                        break;
+                    case GIZMO_TYPE_POLY: // draw lines
+                        glBegin(GL_LINES);
+                        for (int k=1;k<g->get_point_count();k++) {
+                            glVertex3f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y(), gizmo_z);
+                            glVertex3f(g->screen_pos[k].x(), g->screen_pos[k].y(), gizmo_z);
+                        }
+                        glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
+                        glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
+                        glEnd();
+                        break;
+                    }
+                }
+                glPopMatrix();
+
+                glColor4f(color[0], color[1], color[2], color[3]);
+
+                drawn_gizmos = true;
+            }
+
+            glDisable(GL_DEPTH);
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
         } while (loop);

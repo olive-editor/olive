@@ -9,6 +9,7 @@ class SourceTable;
 class EffectRow;
 class EffectField;
 class Transition;
+class EffectGizmo;
 struct Clip;
 struct Sequence;
 struct Media;
@@ -101,16 +102,19 @@ private:
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-    AddTransitionCommand(Clip* c, Clip* s, const EffectMeta* itransition, int itype, int ilength);
+    AddTransitionCommand(Clip* c, Clip* s, Transition *copy, const EffectMeta* itransition, int itype, int ilength);
     void undo();
     void redo();
 private:
     Clip* clip;
     Clip* secondary;
+    Transition* transition_to_copy;
 	const EffectMeta* transition;
     int type;
     int length;
 	bool old_project_changed;
+    int old_ptransition;
+    int old_stransition;
 };
 
 class ModifyTransitionCommand : public QUndoCommand {
@@ -592,6 +596,21 @@ private:
     void** p;
     void* new_data;
     void* old_data;
+};
+
+class MoveGizmo : public QUndoCommand {
+public:
+    MoveGizmo(Effect* e, EffectGizmo* g, int x_movement, int y_movement, double tc);
+    void undo();
+    void redo();
+private:
+    Effect* effect;
+    EffectGizmo* gizmo;
+    int x;
+    int y;
+    double timecode;
+    bool done;
+    bool old_changed;
 };
 
 #endif // UNDO_H

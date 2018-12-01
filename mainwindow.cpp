@@ -385,19 +385,27 @@ void MainWindow::openSpeedDialog() {
 }
 
 void MainWindow::cut() {
-	if (panel_timeline->focused() && sequence != NULL) {
-		panel_timeline->copy(true);
-	}
+    if (sequence != NULL) {
+        if (panel_timeline->focused()) {
+            panel_timeline->copy(true);
+        } else if (panel_effect_controls->is_focused()) {
+            panel_effect_controls->copy(true);
+        }
+    }
 }
 
 void MainWindow::copy() {
-	if (panel_timeline->focused() && sequence != NULL) {
-		panel_timeline->copy(false);
-	}
+    if (sequence != NULL) {
+        if (panel_timeline->focused()) {
+            panel_timeline->copy(false);
+        } else if (panel_effect_controls->is_focused()) {
+            panel_effect_controls->copy(false);
+        }
+    }
 }
 
 void MainWindow::paste() {
-	if (panel_timeline->focused() && sequence != NULL) {
+    if ((panel_timeline->focused() || panel_effect_controls->is_focused()) && sequence != NULL) {
         panel_timeline->paste(false);
 	}
 }
@@ -646,6 +654,7 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
     ui->actionFrames->setChecked(config.timecode_view == TIMECODE_FRAMES);
     ui->actionDrop_Frame->setChecked(config.timecode_view == TIMECODE_DROP);
     ui->actionNon_Drop_Frame->setChecked(config.timecode_view == TIMECODE_NONDROP);
+    ui->actionMilliseconds->setChecked(config.timecode_view == TIMECODE_MILLISECONDS);
 
     ui->actionOff->setChecked(!config.show_title_safe_area);
     ui->actionDefault->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
@@ -1011,4 +1020,9 @@ void MainWindow::on_actionPage_Autoscroll_triggered() {
 
 void MainWindow::on_actionSmooth_Auto_scroll_triggered() {
     config.autoscroll = AUTOSCROLL_SMOOTH_SCROLL;
+}
+
+void MainWindow::on_actionMilliseconds_triggered() {
+    config.timecode_view = TIMECODE_MILLISECONDS;
+    update_ui(false);
 }

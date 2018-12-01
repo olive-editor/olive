@@ -17,7 +17,7 @@ class EffectRow;
 class EffectField : public QObject {
     Q_OBJECT
 public:
-    EffectField(EffectRow* parent, int t);
+    EffectField(EffectRow* parent, int t, const QString& i);
     EffectRow* parent_row;
     int type;
     QString id;

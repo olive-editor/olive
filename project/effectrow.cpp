@@ -14,8 +14,9 @@
 #include "effect.h"
 #include "ui/viewerwidget.h"
 
-EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, int row) :
+EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QString &n, int row) :
     parent_effect(parent),
+    savable(save),
     keyframing(false),
     ui(uilayout),
     name(n),
@@ -25,43 +26,45 @@ EffectRow::EffectRow(Effect *parent, QGridLayout *uilayout, const QString &n, in
     label = new QLabel(name);
     ui->addWidget(label, row, 0);
 
-    QSize button_size(20, 20);
-    QSize icon_size(12, 12);
+    if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
+        QSize button_size(20, 20);
+        QSize icon_size(12, 12);
 
-    QHBoxLayout* key_controls = new QHBoxLayout();
-    key_controls->setSpacing(0);
-    key_controls->setMargin(0);
-    key_controls->addStretch();
+        QHBoxLayout* key_controls = new QHBoxLayout();
+        key_controls->setSpacing(0);
+        key_controls->setMargin(0);
+        key_controls->addStretch();
 
-    left_key_nav = new QPushButton("<");
-    left_key_nav->setVisible(false);
-    left_key_nav->setMaximumSize(button_size);
-    key_controls->addWidget(left_key_nav);
-    connect(left_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_previous_key()));
+        left_key_nav = new QPushButton("<");
+        left_key_nav->setVisible(false);
+        left_key_nav->setMaximumSize(button_size);
+        key_controls->addWidget(left_key_nav);
+        connect(left_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_previous_key()));
 
-    key_addremove = new QPushButton(".");
-    key_addremove->setVisible(false);
-    key_addremove->setMaximumSize(button_size);
-    key_controls->addWidget(key_addremove);
-    connect(key_addremove, SIGNAL(clicked(bool)), this, SLOT(toggle_key()));
+        key_addremove = new QPushButton(".");
+        key_addremove->setVisible(false);
+        key_addremove->setMaximumSize(button_size);
+        key_controls->addWidget(key_addremove);
+        connect(key_addremove, SIGNAL(clicked(bool)), this, SLOT(toggle_key()));
 
-    right_key_nav = new QPushButton(">");
-    right_key_nav->setVisible(false);
-    right_key_nav->setMaximumSize(button_size);
-    key_controls->addWidget(right_key_nav);
-    connect(right_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_next_key()));
+        right_key_nav = new QPushButton(">");
+        right_key_nav->setVisible(false);
+        right_key_nav->setMaximumSize(button_size);
+        key_controls->addWidget(right_key_nav);
+        connect(right_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_next_key()));
 
-    keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "");
-    keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    keyframe_enable->setMaximumSize(button_size);
-    keyframe_enable->setIconSize(icon_size);
-    keyframe_enable->setCheckable(true);
-    keyframe_enable->setToolTip("Enable Keyframes");
-    connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
-    connect(keyframe_enable, SIGNAL(toggled(bool)), this, SLOT(keyframe_ui_enabled(bool)));
-    key_controls->addWidget(keyframe_enable);
+        keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "");
+        keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+        keyframe_enable->setMaximumSize(button_size);
+        keyframe_enable->setIconSize(icon_size);
+        keyframe_enable->setCheckable(true);
+        keyframe_enable->setToolTip("Enable Keyframes");
+        connect(keyframe_enable, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_enabled(bool)));
+        connect(keyframe_enable, SIGNAL(toggled(bool)), this, SLOT(keyframe_ui_enabled(bool)));
+        key_controls->addWidget(keyframe_enable);
 
-    ui->addLayout(key_controls, row, 6);
+        ui->addLayout(key_controls, row, 6);
+    }
 }
 
 bool EffectRow::isKeyframing() {
@@ -69,8 +72,10 @@ bool EffectRow::isKeyframing() {
 }
 
 void EffectRow::setKeyframing(bool b) {
-    keyframing = b;
-    keyframe_enable->setChecked(b);
+    if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
+        keyframing = b;
+        keyframe_enable->setChecked(b);
+    }
 }
 
 void EffectRow::set_keyframe_enabled(bool enabled) {
@@ -144,11 +149,12 @@ void EffectRow::goto_next_key() {
     if (key != LONG_MAX) panel_sequence_viewer->seek(key);
 }
 
-EffectField* EffectRow::add_field(int type, int colspan) {
-    EffectField* field = new EffectField(this, type);
+EffectField* EffectRow::add_field(int type, const QString& id, int colspan) {
+    EffectField* field = new EffectField(this, type, id);
     fields.append(field);
     QWidget* element = field->get_ui_element();
     ui->addWidget(element, ui_row, fields.size(), 1, colspan);
+    connect(field, SIGNAL(changed()), parent_effect, SLOT(field_changed()));
     return field;
 }
 
