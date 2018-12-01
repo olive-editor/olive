@@ -61,6 +61,7 @@ extern QMutex effects_loaded;
 #define EFFECT_INTERNAL_PAN 5
 #define EFFECT_INTERNAL_TONE 6
 #define EFFECT_INTERNAL_SHAKE 7
+#define EFFECT_INTERNAL_TIMECODE 8
 
 
 
@@ -177,6 +178,9 @@ protected:
 	// superimpose effect
 	QImage img;
 	QOpenGLTexture* texture;
+
+    // enable effect to update constantly
+    bool enable_always_update;
 private:
 	// superimpose effect
 	QString script;
@@ -187,7 +191,6 @@ private:
 	QGridLayout* ui_layout;
     QWidget* ui;
 	bool bound;
-    bool enable_always_update;
 
 	// superimpose functions
 	virtual void redraw(double timecode);
