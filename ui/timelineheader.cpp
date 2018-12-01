@@ -79,7 +79,7 @@ void TimelineHeader::set_out_point(long new_out) {
 	long new_in = viewer->seq->workarea_in;
     if (new_out == new_in) {
         new_out++;
-    } else if (new_in > new_out) {
+    } else if (new_in > new_out || new_in < 0) {
         new_in = 0;
     }
 
