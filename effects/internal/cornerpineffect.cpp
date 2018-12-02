@@ -28,9 +28,20 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
     perspective->set_bool_value(true);
 
     top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    top_left_gizmo->x_field = top_left_x;
+    top_left_gizmo->y_field = top_left_y;
+
     top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    top_right_gizmo->x_field = top_right_x;
+    top_right_gizmo->y_field = top_right_y;
+
     bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    bottom_left_gizmo->x_field = bottom_left_x;
+    bottom_left_gizmo->y_field = bottom_left_y;
+
     bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+    bottom_right_gizmo->x_field = bottom_right_x;
+    bottom_right_gizmo->y_field = bottom_right_y;
 
 	vertPath = "cornerpin.vert";
 	fragPath = "cornerpin.frag";
@@ -63,20 +74,4 @@ void CornerPinEffect::gizmo_draw(double timecode, GLTextureCoords &coords) {
     top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
     bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
     bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
-}
-
-void CornerPinEffect::gizmo_move(EffectGizmo *sender, int x_movement, int y_movement, double timecode) {
-    if (sender == bottom_right_gizmo) {
-        bottom_right_x->set_double_value(bottom_right_x->get_double_value(timecode) + x_movement);
-        bottom_right_y->set_double_value(bottom_right_y->get_double_value(timecode) + y_movement);
-    } else if (sender == top_left_gizmo) {
-        top_left_x->set_double_value(top_left_x->get_double_value(timecode) + x_movement);
-        top_left_y->set_double_value(top_left_y->get_double_value(timecode) + y_movement);
-    } else if (sender == bottom_left_gizmo) {
-        bottom_left_x->set_double_value(bottom_left_x->get_double_value(timecode) + x_movement);
-        bottom_left_y->set_double_value(bottom_left_y->get_double_value(timecode) + y_movement);
-    } else if (sender == top_right_gizmo) {
-        top_right_x->set_double_value(top_right_x->get_double_value(timecode) + x_movement);
-        top_right_y->set_double_value(top_right_y->get_double_value(timecode) + y_movement);
-    }
 }

@@ -159,7 +159,7 @@ public:
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
     virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
-    virtual void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode);
+    void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
     void gizmo_world_to_screen();
     bool are_gizmos_enabled();
 public slots:

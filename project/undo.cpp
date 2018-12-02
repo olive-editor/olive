@@ -868,7 +868,7 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 		EffectField* field = row->field(i);
 		if (index != -1) {
 			if (field->type == EFFECT_FIELD_DOUBLE) {
-				old_values[i] = static_cast<LabelSlider*>(field->ui_element)->get_drag_start_value();
+                old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
 			} else {
 				old_values[i] = field->keyframe_data.at(index);
 			}
@@ -1300,7 +1300,7 @@ void SetPointer::redo() {
     mainWindow->setWindowModified(true);
 }
 
-MoveGizmo::MoveGizmo(Effect *e, EffectGizmo *g, int x_movement, int y_movement, double tc) :
+/*MoveGizmo::MoveGizmo(Effect *e, EffectGizmo *g, int x_movement, int y_movement, double tc) :
     effect(e),
     gizmo(g),
     x(x_movement),
@@ -1322,4 +1322,4 @@ void MoveGizmo::redo() {
         mainWindow->setWindowModified(true);
         done = true;
     }
-}
+}*/

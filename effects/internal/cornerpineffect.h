@@ -10,7 +10,6 @@ public:
     void process_coords(double timecode, GLTextureCoords& coords, int data);
 	void process_shader(double timecode, GLTextureCoords& coords);
     void gizmo_draw(double timecode, GLTextureCoords& coords);
-    void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode);
 private:
     EffectField* top_left_x;
     EffectField* top_left_y;

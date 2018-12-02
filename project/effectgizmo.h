@@ -19,9 +19,16 @@ class EffectGizmo
 public:
     EffectGizmo(int type);
 
-    QVector<EffectField*> fields;
     QVector<QPoint> world_pos;
     QVector<QPoint> screen_pos;
+
+    EffectField* x_field;
+    double x_field_multi;
+    EffectField* y_field;
+    double y_field_multi;
+
+    void set_previous_value();
+
     QColor color;
     int get_point_count();
 

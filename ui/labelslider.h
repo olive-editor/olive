@@ -21,10 +21,10 @@ public:
     void set_maximum_value(double v);
     double value();
     bool is_set();
-	double get_drag_start_value();
 	bool is_dragging();
 	QString valueToString(double v);
 	double getPreviousValue();
+    void set_previous_value();
 	int decimal_places;
 protected:
     void mousePressEvent(QMouseEvent *ev);

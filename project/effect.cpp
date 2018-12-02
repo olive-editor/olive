@@ -854,7 +854,25 @@ void Effect::process_audio(double, double, quint8*, int, int) {
 }
 
 void Effect::gizmo_draw(double, GLTextureCoords &) {}
-void Effect::gizmo_move(EffectGizmo* , int , int , double ) {}
+
+void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
+    for (int i=0;i<gizmos.size();i++) {
+        if (gizmos.at(i) == gizmo) {
+            ComboAction* ca = NULL;
+            if (done) ca = new ComboAction();
+            if (gizmo->x_field != NULL) {
+                gizmo->x_field->set_double_value(gizmo->x_field->get_double_value(timecode) + x_movement*gizmo->x_field_multi);
+                gizmo->x_field->make_key_from_change(ca);
+            }
+            if (gizmo->y_field != NULL) {
+                gizmo->y_field->set_double_value(gizmo->y_field->get_double_value(timecode) + y_movement*gizmo->y_field_multi);
+                gizmo->y_field->make_key_from_change(ca);
+            }
+            if (done) undo_stack.push(ca);
+            break;
+        }
+    }
+}
 
 void Effect::gizmo_world_to_screen() {
     GLfloat view_val[16];

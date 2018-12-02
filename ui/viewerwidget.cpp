@@ -170,6 +170,25 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
     return NULL;
 }
 
+void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
+    if (selected_gizmo != NULL) {
+        double multiplier = (double) viewer->seq->width / (double) width();
+
+        int x_movement = (event->pos().x() - drag_start_x)*multiplier;
+        int y_movement = (event->pos().y() - drag_start_y)*multiplier;
+
+        gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead), done);
+
+        gizmo_x_mvmt += x_movement;
+        gizmo_y_mvmt += y_movement;
+
+        drag_start_x = event->pos().x();
+        drag_start_y = event->pos().y();
+
+        gizmos->field_changed();
+    }
+}
+
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     if (waveform) {
         seek_from_click(event->x());
@@ -181,6 +200,10 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
         gizmo_y_mvmt = 0;
 
         selected_gizmo = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
+
+        if (selected_gizmo != NULL) {
+            selected_gizmo->set_previous_value();
+        }
     }
     dragging = true;
 }
@@ -196,21 +219,8 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 			drag->setMimeData(mimeData);
 			drag->exec();
             dragging = false;
-        } else if (selected_gizmo != NULL) {
-            double multiplier = (double) viewer->seq->width / (double) width();
-
-            int x_movement = (event->pos().x() - drag_start_x)*multiplier;
-            int y_movement = (event->pos().y() - drag_start_y)*multiplier;
-
-            gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead));
-
-            gizmo_x_mvmt += x_movement;
-            gizmo_y_mvmt += y_movement;
-
-            drag_start_x = event->pos().x();
-            drag_start_y = event->pos().y();
-
-            gizmos->field_changed();
+        } else {
+            move_gizmos(event, false);
         }
     } else {
         unsetCursor();
@@ -224,16 +234,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
-    if (selected_gizmo != NULL) {
-        /*undo_stack.push(new MoveGizmo(
-                            gizmos,
-                            selected_gizmo,
-                            gizmo_x_mvmt,
-                            gizmo_y_mvmt,
-                            get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead)
-                        ));*/
-
-    }
+    move_gizmos(event, true);
     dragging = false;
 }
 

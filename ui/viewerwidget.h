@@ -57,6 +57,7 @@ private:
     EffectGizmo* selected_gizmo;
     EffectGizmo* get_gizmo_from_mouse(int x, int y);
     bool drawn_gizmos;
+    void move_gizmos(QMouseEvent *event, bool done);
 private slots:
 	void retry();
 	void show_context_menu();

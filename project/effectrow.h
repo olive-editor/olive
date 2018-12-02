@@ -10,6 +10,7 @@ class EffectField;
 class QLabel;
 class KeyframeDelete;
 class QPushButton;
+class ComboAction;
 
 class EffectRow : public QObject {
     Q_OBJECT
@@ -19,7 +20,7 @@ public:
     EffectField* add_field(int type, const QString &id, int colspan = 1);
     EffectField* field(int i);
     int fieldCount();
-    void set_keyframe_now(bool undoable);
+    void set_keyframe_now(ComboAction *ca);
     void delete_keyframe(KeyframeDelete *kd, int index);
     void delete_keyframe_at_time(KeyframeDelete* kd, long time);
     QLabel* label;

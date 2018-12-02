@@ -13,6 +13,7 @@
 #include <QVector>
 
 class EffectRow;
+class ComboAction;
 
 class EffectField : public QObject {
     Q_OBJECT
@@ -59,10 +60,12 @@ public:
     void set_enabled(bool e);
     QVector<QVariant> keyframe_data;
     QWidget* ui_element;
+
+    void make_key_from_change(ComboAction* ca);
 private:
     bool hasKeyframes();
 private slots:
-    void uiElementChange();
+    void ui_element_change();
 signals:
     void changed();
     void toggled(bool);

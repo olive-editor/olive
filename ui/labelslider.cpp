@@ -3,11 +3,11 @@
 #include "project/undo.h"
 #include "panels/viewer.h"
 #include "io/config.h"
+#include "debug.h"
 
 #include <QMouseEvent>
 #include <QInputDialog>
 #include <QApplication>
-#include <QDebug>
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	frame_rate = 30;
@@ -46,7 +46,7 @@ void LabelSlider::set_value(double v, bool userSet) {
         }
 
 		setText(valueToString(internal_value));
-		if (userSet) emit valueChanged();
+        if (userSet) emit valueChanged();
     }
 }
 
@@ -71,7 +71,11 @@ QString LabelSlider::valueToString(double v) {
 }
 
 double LabelSlider::getPreviousValue() {
-	return previous_value;
+    return previous_value;
+}
+
+void LabelSlider::set_previous_value() {
+    previous_value = internal_value;
 }
 
 double LabelSlider::value() {
@@ -79,8 +83,6 @@ double LabelSlider::value() {
 }
 
 void LabelSlider::set_default_value(double v) {
-	// if (internal_value == default_value) set = false; TODO: CONTROVERSIAL - disabled bc may lead undesirable behaviour
-
     default_value = v;
 	if (!set) {
 		set_value(v, false);
@@ -98,15 +100,11 @@ void LabelSlider::set_maximum_value(double v) {
     max_enabled = true;
 }
 
-double LabelSlider::get_drag_start_value() {
-	return drag_start_value;
-}
-
 void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 	drag_start_value = internal_value;
 	if (ev->modifiers() & Qt::AltModifier) {
 		if (internal_value != default_value && !qIsNaN(default_value)) {
-			previous_value = internal_value;
+            set_previous_value();
 			set_value(default_value, true);
 		}
     } else {
@@ -166,7 +164,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
                 if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
 			}
 			if (d != internal_value) {
-				previous_value = internal_value;
+                set_previous_value();
 				set_value(d, true);
 			}
 		}

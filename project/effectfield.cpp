@@ -17,20 +17,24 @@
 #include "io/math.h"
 #include <QtMath>
 
-EffectField::EffectField(EffectRow *parent, int t, const QString &i) : parent_row(parent), type(t), id(i) {
+EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
+    parent_row(parent),
+    type(t),
+    id(i)
+{
     switch (t) {
     case EFFECT_FIELD_DOUBLE:
     {
         LabelSlider* ls = new LabelSlider();
         ui_element = ls;
-        connect(ls, SIGNAL(valueChanged()), this, SLOT(uiElementChange()));
+        connect(ls, SIGNAL(valueChanged()), this, SLOT(ui_element_change()));
     }
         break;
     case EFFECT_FIELD_COLOR:
     {
         ColorButton* cb = new ColorButton();
         ui_element = cb;
-        connect(cb, SIGNAL(color_changed()), this, SLOT(uiElementChange()));
+        connect(cb, SIGNAL(color_changed()), this, SLOT(ui_element_change()));
     }
         break;
     case EFFECT_FIELD_STRING:
@@ -38,14 +42,14 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) : parent_ro
         TextEditEx* edit = new TextEditEx();
         edit->setUndoRedoEnabled(true);
         ui_element = edit;
-        connect(edit, SIGNAL(textChanged()), this, SLOT(uiElementChange()));
+        connect(edit, SIGNAL(textChanged()), this, SLOT(ui_element_change()));
     }
         break;
     case EFFECT_FIELD_BOOL:
     {
         CheckboxEx* cb = new CheckboxEx();
         ui_element = cb;
-        connect(cb, SIGNAL(clicked(bool)), this, SLOT(uiElementChange()));
+        connect(cb, SIGNAL(clicked(bool)), this, SLOT(ui_element_change()));
         connect(cb, SIGNAL(toggled(bool)), this, SIGNAL(toggled(bool)));
     }
         break;
@@ -53,14 +57,14 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) : parent_ro
     {
         ComboBoxEx* cb = new ComboBoxEx();
         ui_element = cb;
-        connect(cb, SIGNAL(activated(int)), this, SLOT(uiElementChange()));
+        connect(cb, SIGNAL(activated(int)), this, SLOT(ui_element_change()));
     }
         break;
     case EFFECT_FIELD_FONT:
     {
         FontCombobox* fcb = new FontCombobox();
         ui_element = fcb;
-        connect(fcb, SIGNAL(activated(int)), this, SLOT(uiElementChange()));
+        connect(fcb, SIGNAL(activated(int)), this, SLOT(ui_element_change()));
     }
         break;
     }
@@ -231,15 +235,21 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
     return QVariant();
 }
 
-void EffectField::uiElementChange() {
-    bool enableKeyframes = !(type == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging());
+void EffectField::ui_element_change() {
+    bool dragging_double = (type == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging());
+    ComboAction* ca = NULL;
+    if (!dragging_double) ca = new ComboAction();
+    make_key_from_change(ca);
+    if (!dragging_double) undo_stack.push(ca);
+}
+
+void EffectField::make_key_from_change(ComboAction* ca) {
     if (parent_row->isKeyframing()) {
-        parent_row->set_keyframe_now(enableKeyframes);
-    } else if (enableKeyframes) {
+        parent_row->set_keyframe_now(ca);
+    } else if (ca != NULL) {
         // set undo
-        undo_stack.push(new EffectFieldUndo(this));
+        ca->append(new EffectFieldUndo(this));
     }
-    emit changed();
 }
 
 QWidget* EffectField::get_ui_element() {

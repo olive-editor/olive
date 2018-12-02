@@ -80,7 +80,9 @@ void EffectRow::setKeyframing(bool b) {
 
 void EffectRow::set_keyframe_enabled(bool enabled) {
     if (enabled) {
-        set_keyframe_now(true);
+        ComboAction* ca = new ComboAction();
+        set_keyframe_now(ca);
+        undo_stack.push(ca);
     } else {
         if (QMessageBox::question(panel_effect_controls, "Disable Keyframes", "Disabling keyframes will delete all current keyframes. Are you sure you want to do this?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
             // clear
@@ -127,7 +129,9 @@ void EffectRow::toggle_key() {
     }
     if (index < 0) {
         // keyframe doesn't exist, set one
-        set_keyframe_now(true);
+        ComboAction* ca = new ComboAction();
+        set_keyframe_now(ca);
+        undo_stack.push(ca);
     } else {
         KeyframeDelete* kd = new KeyframeDelete();
         delete_keyframe(kd, index);
@@ -164,7 +168,7 @@ EffectRow::~EffectRow() {
     }
 }
 
-void EffectRow::set_keyframe_now(bool undoable) {
+void EffectRow::set_keyframe_now(ComboAction* ca) {
     int index = -1;
     long time = sequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
     for (int i=0;i<keyframe_times.size();i++) {
@@ -176,9 +180,9 @@ void EffectRow::set_keyframe_now(bool undoable) {
 
     KeyframeSet* ks = new KeyframeSet(this, index, time, just_made_unsafe_keyframe);
 
-    if (undoable) {
+    if (ca != NULL) {
         just_made_unsafe_keyframe = false;
-        undo_stack.push(ks);
+        ca->append(ks);
     } else {
         if (index == -1) just_made_unsafe_keyframe = true;
         ks->redo();

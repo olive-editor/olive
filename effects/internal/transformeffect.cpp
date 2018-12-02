@@ -65,35 +65,54 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	blend_mode_box->add_combo_item("Screen", BLEND_MODE_SCREEN);
 	blend_mode_box->add_combo_item("Multiply", BLEND_MODE_MULTIPLY);
 
+    // set up gizmos
     top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);    
-    rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
-
     top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
+    top_left_gizmo->x_field = scale_x;
+
+    top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     top_center_gizmo->set_cursor(Qt::SizeVerCursor);
+    top_center_gizmo->y_field = scale_x;
+
+    top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
+    top_right_gizmo->x_field = scale_x;
+
+    bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
+    bottom_left_gizmo->x_field = scale_x;
+
+    bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
+    bottom_center_gizmo->y_field = scale_x;
+
+    bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
+    bottom_right_gizmo->x_field = scale_x;
+
+    left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     left_center_gizmo->set_cursor(Qt::SizeHorCursor);
+    left_center_gizmo->x_field = scale_x;
+
+    right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     right_center_gizmo->set_cursor(Qt::SizeHorCursor);
+    right_center_gizmo->x_field = scale_x;
+
+    rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     rotate_gizmo->color = Qt::green;
     rotate_gizmo->set_cursor(Qt::SizeAllCursor);
+    rotate_gizmo->x_field = rotation;
 
-	// set defaults
-	scale_y->set_enabled(false);
+    rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
+    rect_gizmo->x_field = position_x;
+    rect_gizmo->y_field = position_y;
+
+    connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
+
+    // set defaults
 	uniform_scale_field->set_bool_value(true);
 	blend_mode_box->set_combo_index(0);
 	refresh();
-
-	connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 }
 
 void TransformEffect::refresh() {
@@ -114,12 +133,35 @@ void TransformEffect::refresh() {
 
 		anchor_x_box->set_double_default_value(default_anchor_x);
 		anchor_y_box->set_double_default_value(default_anchor_y);
-		opacity->set_double_default_value(100);
+        opacity->set_double_default_value(100);
+
+        double x_percent_multipler = 200.0 / parent_clip->sequence->width;
+        double y_percent_multipler = 200.0 / parent_clip->sequence->height;
+        top_left_gizmo->x_field_multi = -x_percent_multipler;
+        top_left_gizmo->y_field_multi = -y_percent_multipler;
+        top_center_gizmo->y_field_multi = -y_percent_multipler;
+        top_right_gizmo->x_field_multi = x_percent_multipler;
+        top_right_gizmo->y_field_multi = -y_percent_multipler;
+        bottom_left_gizmo->x_field_multi = -x_percent_multipler;
+        bottom_left_gizmo->y_field_multi = y_percent_multipler;
+        bottom_center_gizmo->y_field_multi = y_percent_multipler;
+        bottom_right_gizmo->x_field_multi = x_percent_multipler;
+        bottom_right_gizmo->y_field_multi = y_percent_multipler;
+        left_center_gizmo->x_field_multi = -x_percent_multipler;
+        right_center_gizmo->x_field_multi = x_percent_multipler;
+        rotate_gizmo->x_field_multi = x_percent_multipler;
 	}
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
+
+    top_center_gizmo->y_field = enabled ? scale_x : scale_y;
+    bottom_center_gizmo->y_field = enabled ? scale_x : scale_y;
+    top_left_gizmo->y_field = enabled ? NULL : scale_y;
+    top_right_gizmo->y_field = enabled ? NULL : scale_y;
+    bottom_left_gizmo->y_field = enabled ? NULL : scale_y;
+    bottom_right_gizmo->y_field = enabled ? NULL : scale_y;
 }
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {
@@ -186,45 +228,4 @@ void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
     rect_gizmo->world_pos[1] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
     rect_gizmo->world_pos[2] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
     rect_gizmo->world_pos[3] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
-}
-
-void TransformEffect::gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode) {
-    double x_percent = ((double) x_movement / parent_clip->sequence->width)*200;
-    double y_percent = ((double) y_movement / parent_clip->sequence->height)*200;
-
-    if (sender == bottom_right_gizmo) {
-        scale_x->set_double_value(scale_x->get_double_value(timecode) + x_percent);
-        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
-    } else if (sender == top_left_gizmo) {
-        scale_x->set_double_value(scale_x->get_double_value(timecode) - x_percent);
-        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) - y_percent);
-    } else if (sender == bottom_left_gizmo) {
-        scale_x->set_double_value(scale_x->get_double_value(timecode) - x_percent);
-        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
-    } else if (sender == top_right_gizmo) {
-        scale_x->set_double_value(scale_x->get_double_value(timecode) + x_percent);
-        if (!uniform_scale_field->get_bool_value(timecode)) scale_y->set_double_value(scale_y->get_double_value(timecode) - y_percent);
-    } else if (sender == left_center_gizmo) {
-        scale_x->set_double_value(scale_x->get_double_value(timecode) - x_percent);
-    } else if (sender == right_center_gizmo) {
-        scale_x->set_double_value(scale_x->get_double_value(timecode) + x_percent);
-    } else if (sender == top_center_gizmo) {
-        if (uniform_scale_field->get_bool_value(timecode)) {
-            scale_x->set_double_value(scale_x->get_double_value(timecode) - y_percent);
-        } else {
-            scale_y->set_double_value(scale_y->get_double_value(timecode) - y_percent);
-        }
-    } else if (sender == bottom_center_gizmo) {
-        if (uniform_scale_field->get_bool_value(timecode)) {
-            scale_x->set_double_value(scale_x->get_double_value(timecode) + y_percent);
-        } else {
-            scale_y->set_double_value(scale_y->get_double_value(timecode) + y_percent);
-        }
-    } else if (sender == rotate_gizmo) {
-        // TODO make this perfectly circular
-        rotation->set_double_value(rotation->get_double_value(timecode) + x_percent);
-    } else {
-        position_x->set_double_value(position_x->get_double_value(timecode) + x_movement);
-        position_y->set_double_value(position_y->get_double_value(timecode) + y_movement);
-    }
 }

@@ -598,7 +598,7 @@ private:
     void* old_data;
 };
 
-class MoveGizmo : public QUndoCommand {
+/*class MoveGizmo : public QUndoCommand {
 public:
     MoveGizmo(Effect* e, EffectGizmo* g, int x_movement, int y_movement, double tc);
     void undo();
@@ -611,6 +611,6 @@ private:
     double timecode;
     bool done;
     bool old_changed;
-};
+};*/
 
 #endif // UNDO_H
