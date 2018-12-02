@@ -198,10 +198,10 @@ void SetTimelineInOutCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, const EffectMeta *e) :
+AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m) :
     clip(c),
-    meta(e),
-    ref(NULL),
+    meta(m),
+    ref(e),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
@@ -211,6 +211,7 @@ AddEffectCommand::~AddEffectCommand() {
 }
 
 void AddEffectCommand::undo() {
+    clip->effects.last()->close();
     clip->effects.removeLast();
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
@@ -703,7 +704,9 @@ void EffectDeleteCommand::redo() {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		int fx_id = fx.at(i) - i;
-		deleted_objects.append(c->effects.at(fx_id));
+        Effect* e = c->effects.at(fx_id);
+        e->close();
+        deleted_objects.append(e);
 		c->effects.removeAt(fx_id);
 	}
 	panel_effect_controls->reload_clips();
@@ -1300,26 +1303,10 @@ void SetPointer::redo() {
     mainWindow->setWindowModified(true);
 }
 
-/*MoveGizmo::MoveGizmo(Effect *e, EffectGizmo *g, int x_movement, int y_movement, double tc) :
-    effect(e),
-    gizmo(g),
-    x(x_movement),
-    y(y_movement),
-    timecode(tc),
-    done(true),
-    old_changed(mainWindow->isWindowModified())
-{}
-
-void MoveGizmo::undo() {
-    effect->gizmo_move(gizmo, -x, -y, timecode);
-    mainWindow->setWindowModified(old_changed);
-    done = false;
+void ReloadEffectsCommand::undo() {
+    redo();
 }
 
-void MoveGizmo::redo() {
-    if (!done) {
-        effect->gizmo_move(gizmo, x, y, timecode);
-        mainWindow->setWindowModified(true);
-        done = true;
-    }
-}*/
+void ReloadEffectsCommand::redo() {
+    panel_effect_controls->reload_clips();
+}

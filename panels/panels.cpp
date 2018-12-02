@@ -80,7 +80,7 @@ void update_effect_controls() {
 		}
 	}
 
-	bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size());
+    bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size());
 	if (same) {
 		for (int i=0;i<selected_clips.size();i++) {
 			if (selected_clips.at(i) != panel_effect_controls->selected_clips.at(i)) {
@@ -97,9 +97,8 @@ void update_effect_controls() {
 }
 
 void update_ui(bool modified) {
-	if (modified) {
-//		panel_sequence_viewer->reset_all_audio();
-		update_effect_controls();
+    if (modified) {
+        update_effect_controls();
 	}
 	panel_effect_controls->update_keyframes();
 	panel_timeline->repaint_timeline();

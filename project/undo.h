@@ -88,7 +88,7 @@ private:
 
 class AddEffectCommand : public QUndoCommand {
 public:
-	AddEffectCommand(Clip* c, const EffectMeta* e);
+    AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m);
     ~AddEffectCommand();
     void undo();
     void redo();
@@ -598,19 +598,10 @@ private:
     void* old_data;
 };
 
-/*class MoveGizmo : public QUndoCommand {
+class ReloadEffectsCommand : public QUndoCommand {
 public:
-    MoveGizmo(Effect* e, EffectGizmo* g, int x_movement, int y_movement, double tc);
     void undo();
     void redo();
-private:
-    Effect* effect;
-    EffectGizmo* gizmo;
-    int x;
-    int y;
-    double timecode;
-    bool done;
-    bool old_changed;
-};*/
+};
 
 #endif // UNDO_H

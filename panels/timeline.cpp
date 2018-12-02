@@ -973,16 +973,25 @@ void Timeline::paste(bool insert) {
                 panel_sequence_viewer->seek(paste_end);
             }
         } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
+            ComboAction* ca = new ComboAction();
+            bool push = false;
             for (int i=0;i<sequence->clips.size();i++) {
                 Clip* c = sequence->clips.at(i);
                 if (c != NULL && is_clip_selected(c, true)) {
                     for (int j=0;j<clipboard.size();j++) {
                         Effect* e = static_cast<Effect*>(clipboard.at(j));
                         if ((c->track < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
-                            c->effects.append(e->copy(c));
+                            ca->append(new AddEffectCommand(c, e->copy(c), NULL));
+                            push = true;
                         }
                     }
                 }
+            }
+            if (push) {
+                ca->appendPost(new ReloadEffectsCommand());
+                undo_stack.push(ca);
+            } else {
+                delete ca;
             }
             update_ui(true);
         }

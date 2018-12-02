@@ -76,7 +76,7 @@ void EffectControls::menu_select(QAction* q) {
                     ca->append(new AddTransitionCommand(c, NULL, NULL, meta, TA_CLOSING_TRANSITION, 30));
 				}
 			} else {
-				ca->append(new AddEffectCommand(c, meta));
+                ca->append(new AddEffectCommand(c, NULL, meta));
 			}
         }
     }
