@@ -52,6 +52,7 @@ struct Media {
     QVector<MediaStream*> audio_tracks;
     int save_id;
     bool ready;
+    bool invalid;
 
     PreviewGenerator* preview_gen;
     QMutex ready_lock;

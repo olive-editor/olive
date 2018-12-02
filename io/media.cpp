@@ -10,7 +10,7 @@ extern "C" {
 
 #include "project/clip.h"
 
-Media::Media() : ready(false), preview_gen(NULL) {
+Media::Media() : ready(false), preview_gen(NULL), invalid(false) {
     ready_lock.lock();
 }
 

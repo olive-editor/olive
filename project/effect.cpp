@@ -482,7 +482,7 @@ int Effect::gizmo_count(){
 void Effect::refresh() {}
 
 void Effect::field_changed() {
-	panel_sequence_viewer->viewer_widget->update();
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void Effect::show_context_menu(const QPoint& pos) {
@@ -557,24 +557,24 @@ void Effect::set_enabled(bool b) {
 
 QVariant load_data_from_string(int type, const QString& string) {
 	switch (type) {
-	case EFFECT_FIELD_DOUBLE: return string.toDouble(); break;
-	case EFFECT_FIELD_COLOR: return QColor(string); break;
-	case EFFECT_FIELD_STRING: return string; break;
-	case EFFECT_FIELD_BOOL: return (string == "1"); break;
-	case EFFECT_FIELD_COMBO: return string.toInt(); break;
-	case EFFECT_FIELD_FONT: return string; break;
+    case EFFECT_FIELD_DOUBLE: return string.toDouble();
+    case EFFECT_FIELD_COLOR: return QColor(string);
+    case EFFECT_FIELD_STRING: return string;
+    case EFFECT_FIELD_BOOL: return (string == "1");
+    case EFFECT_FIELD_COMBO: return string.toInt();
+    case EFFECT_FIELD_FONT: return string;
 	}
 	return QVariant();
 }
 
 QString save_data_to_string(int type, const QVariant& data) {
 	switch (type) {
-	case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble()); break;
-	case EFFECT_FIELD_COLOR: return data.value<QColor>().name(); break;
-	case EFFECT_FIELD_STRING: return data.toString(); break;
-	case EFFECT_FIELD_BOOL: return QString::number(data.toBool()); break;
-	case EFFECT_FIELD_COMBO: return QString::number(data.toInt()); break;
-	case EFFECT_FIELD_FONT: return data.toString(); break;
+    case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble());
+    case EFFECT_FIELD_COLOR: return data.value<QColor>().name();
+    case EFFECT_FIELD_STRING: return data.toString();
+    case EFFECT_FIELD_BOOL: return QString::number(data.toBool());
+    case EFFECT_FIELD_COMBO: return QString::number(data.toInt());
+    case EFFECT_FIELD_FONT: return data.toString();
 	}
 	return QString();
 }

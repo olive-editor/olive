@@ -72,12 +72,12 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 
 QVariant EffectField::get_previous_data() {
     switch (type) {
-    case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->getPreviousValue(); break;
-    case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->getPreviousValue(); break;
-    case EFFECT_FIELD_STRING: return static_cast<TextEditEx*>(ui_element)->getPreviousValue(); break;
-    case EFFECT_FIELD_BOOL: return !static_cast<QCheckBox*>(ui_element)->isChecked(); break;
-    case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->getPreviousIndex(); break;
-    case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->getPreviousValue(); break;
+    case EFFECT_FIELD_DOUBLE: return static_cast<LabelSlider*>(ui_element)->getPreviousValue();
+    case EFFECT_FIELD_COLOR: return static_cast<ColorButton*>(ui_element)->getPreviousValue();
+    case EFFECT_FIELD_STRING: return static_cast<TextEditEx*>(ui_element)->getPreviousValue();
+    case EFFECT_FIELD_BOOL: return !static_cast<QCheckBox*>(ui_element)->isChecked();
+    case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->getPreviousIndex();
+    case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->getPreviousValue();
     }
     return QVariant();
 }
@@ -141,8 +141,6 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
         after = after_keyframe_index;
 
         progress = (timecode-frameToTimecode(before_keyframe_time))/(frameToTimecode(after_keyframe_time)-frameToTimecode(before_keyframe_time));
-
-        // TODO routines for bezier - currently this is purely linear
     } else if (before_keyframe_index > -1) {
         before = before_keyframe_index;
         after = before_keyframe_index;
@@ -165,8 +163,7 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
 
         int kf_type = (progress < 0.5) ? parent_row->keyframe_types.at(before_keyframe) : parent_row->keyframe_types.at(after_keyframe);
         if (kf_type == KEYFRAME_TYPE_SMOOTH) {
-            double steepness = 8.0;
-            double x = (steepness * progress) - (steepness * 0.5);
+            double x = (8.0 * progress) - 4.0;
             progress = 1.0 / (1.0 + qPow(M_E, -x));
             progress *= 1.0373;
             progress -= 0.01865;
@@ -241,6 +238,7 @@ void EffectField::ui_element_change() {
     if (!dragging_double) ca = new ComboAction();
     make_key_from_change(ca);
     if (!dragging_double) undo_stack.push(ca);
+    emit changed();
 }
 
 void EffectField::make_key_from_change(ComboAction* ca) {

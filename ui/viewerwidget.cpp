@@ -1,4 +1,4 @@
-#include "viewerwidget.h"
+﻿#include "viewerwidget.h"
 
 #include "panels/panels.h"
 #include "panels/viewer.h"
@@ -351,6 +351,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
             if (e->enable_superimpose) {
                 GLuint superimpose_texture = e->process_superimpose(timecode);
                 if (superimpose_texture == 0) {
+                    dout << "[WARNING] Superimpose texture was NULL, retrying...";
                     texture_failed = true;
                 } else {
                     composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
@@ -398,22 +399,25 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				case MEDIA_TYPE_FOOTAGE:
 				{
 					Media* m = static_cast<Media*>(c->media);
-					if (m->ready) {
-						MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
-						if (ms != NULL && is_clip_active(c, playhead)) {
-							// if thread is already working, we don't want to touch this,
-							// but we also don't want to hang the UI thread
-							if (!c->open) {
-								open_clip(c, !rendering);
-							}
-							clip_is_active = true;
-							if (c->track >= 0) audio_track_count++;
-						} else if (c->open) {
-							close_clip(c);
-						}
-					} else {
-						texture_failed = true;
-					}
+                    if (!m->invalid) {
+                        if (m->ready) {
+                            MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
+                            if (ms != NULL && is_clip_active(c, playhead)) {
+                                // if thread is already working, we don't want to touch this,
+                                // but we also don't want to hang the UI thread
+                                if (!c->open) {
+                                    open_clip(c, !rendering);
+                                }
+                                clip_is_active = true;
+                                if (c->track >= 0) audio_track_count++;
+                            } else if (c->open) {
+                                close_clip(c);
+                            }
+                        } else {
+                            dout << "[WARNING] Media was not ready, retrying...";
+                            texture_failed = true;
+                        }
+                    }
 				}
 					break;
 				case MEDIA_TYPE_SEQUENCE:

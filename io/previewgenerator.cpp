@@ -400,7 +400,7 @@ QString PreviewGenerator::get_waveform_path(const QString& hash, MediaStream* ms
 
 void PreviewGenerator::run() {	
     Q_ASSERT(media != NULL);
-	Q_ASSERT(item != NULL);
+    Q_ASSERT(item != NULL);
 
     QByteArray ba = media->url.toLatin1();
     char* filename = new char[ba.size()+1];
@@ -457,6 +457,7 @@ void PreviewGenerator::run() {
 	if (error) {
 		update_footage_tooltip(item, media, errorStr);
 		emit set_icon(ICON_TYPE_ERROR, replace);
+        media->invalid = true;
 		media->ready_lock.unlock();
 	} else {
 		update_footage_tooltip(item, media);

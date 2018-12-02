@@ -135,7 +135,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
         if (drag_proc) {
 			drag_proc = false;
 			previous_value = drag_start_value;
-			emit valueChanged();
+            emit valueChanged();
 		} else {
 			double d = internal_value;
 			if (display_type == LABELSLIDER_FRAMENUMBER) {
