@@ -34,8 +34,7 @@ private slots:
 	void outline_enable(bool);
 	void shadow_enable(bool);
 private:
-	QFont font;
-    QImage shadow;
+    QFont font;
 };
 
 #endif // TEXTEFFECT_H
