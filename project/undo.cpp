@@ -296,10 +296,12 @@ void ModifyTransitionCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-DeleteTransitionCommand::DeleteTransitionCommand(Clip* c, int itype) :
-    clip(c),
-    type(itype),
+DeleteTransitionCommand::DeleteTransitionCommand(Sequence* s, int transition_index) :
+    seq(s),
+    index(transition_index),
 	transition(NULL),
+    otc(NULL),
+    ctc(NULL),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
@@ -308,20 +310,33 @@ DeleteTransitionCommand::~DeleteTransitionCommand() {
 }
 
 void DeleteTransitionCommand::undo() {
-    if (type == TA_OPENING_TRANSITION) {
-        clip->opening_transition = old_index;
-    } else {
-        clip->closing_transition = old_index;
-    }
-    clip->sequence->transitions[old_index] = transition;
+    seq->transitions[index] = transition;
+
+    if (otc != NULL) otc->opening_transition = index;
+    if (ctc != NULL) ctc->closing_transition = index;
+
     transition = NULL;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void DeleteTransitionCommand::redo() {
-    old_index = (type == TA_OPENING_TRANSITION) ? clip->opening_transition : clip->closing_transition;
-    transition = clip->sequence->transitions.at(old_index);
-    clip->sequence->transitions[old_index] = NULL;
+    for (int i=0;i<seq->clips.size();i++) {
+        Clip* c = seq->clips.at(i);
+        if (c != NULL) {
+            if (c->opening_transition == index) {
+                otc = c;
+                c->opening_transition = -1;
+            }
+            if (c->closing_transition == index) {
+                ctc = c;
+                c->closing_transition = -1;
+            }
+        }
+    }
+
+    transition = seq->transitions.at(index);
+    seq->transitions[index] = NULL;
+
 	mainWindow->setWindowModified(true);
 }
 

@@ -132,15 +132,16 @@ private:
 
 class DeleteTransitionCommand : public QUndoCommand {
 public:
-    DeleteTransitionCommand(Clip* c, int itype);
+    DeleteTransitionCommand(Sequence* s, int transition_index);
     ~DeleteTransitionCommand();
     void undo();
     void redo();
 private:
-    Clip* clip;
-    int type;
+    Sequence* seq;
+    int index;
     Transition* transition;
-    int old_index;
+    Clip* otc;
+    Clip* ctc;
 	bool old_project_changed;
 };
 

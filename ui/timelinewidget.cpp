@@ -702,22 +702,22 @@ void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transitio
     // make room for transition
     if (type == TA_OPENING_TRANSITION) {
         if (delete_old_transitions && c->get_opening_transition() != NULL) {
-            ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+            ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
         }
         if (c->get_closing_transition() != NULL) {
             if (transition_end >= c->timeline_out) {
-                ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+                ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
             } else if (transition_end > c->timeline_out - c->get_closing_transition()->get_true_length()) {
                 ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, c->timeline_out - transition_end));
             }
         }
     } else {
         if (delete_old_transitions && c->get_closing_transition() != NULL) {
-            ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+            ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
         }
         if (c->get_opening_transition() != NULL) {
             if (transition_start <= c->timeline_in) {
-                ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
             } else if (transition_start < c->timeline_in + c->get_opening_transition()->get_true_length()) {
                 ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, transition_start - c->timeline_in));
             }
@@ -944,7 +944,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                          max_open_length -= c->get_closing_transition()->get_true_length();
 									 }
 									 if (max_open_length <= 0) {
-                                         ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                                         ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
                                      } else if (c->get_opening_transition()->get_true_length() > max_open_length) {
                                          ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, max_open_length));
 									 }
@@ -955,7 +955,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                                          max_open_length -= c->get_opening_transition()->get_true_length();
 									 }
 									 if (max_open_length <= 0) {
-                                         ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+                                         ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
                                      } else if (c->get_closing_transition()->get_true_length() > max_open_length) {
                                          ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, max_open_length));
 									 }

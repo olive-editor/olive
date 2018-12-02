@@ -657,7 +657,7 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
             post->sequence->hard_delete_transition(post, TA_OPENING_TRANSITION);
 		}
         if (pre->get_closing_transition() != NULL) {
-            ca->append(new DeleteTransitionCommand(pre, TA_CLOSING_TRANSITION));
+            ca->append(new DeleteTransitionCommand(pre->sequence, pre->closing_transition));
             if (pre->get_closing_transition()->secondary_clip == NULL) post->get_closing_transition()->set_length(qMin((long) post->get_closing_transition()->get_true_length(), post->getLength()));
 		}
 
@@ -782,10 +782,10 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
             if (c != NULL && c->track == s.track && !c->undeletable) {
                 if (selection_contains_transition(s, c, TA_OPENING_TRANSITION)) {
 					// delete opening transition
-                    ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                    ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
                 } else if (selection_contains_transition(s, c, TA_CLOSING_TRANSITION)) {
 					// delete closing transition
-                    ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+                    ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
 				} else if (c->timeline_in >= s.in && c->timeline_out <= s.out) {
                     // clips falls entirely within deletion area
                     ca->append(new DeleteClipAction(sequence, j));
@@ -803,7 +803,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 
                     if (c->get_closing_transition() != NULL) {
                         if (s.in < c->timeline_out - c->get_closing_transition()->get_true_length()) {
-                            ca->append(new DeleteTransitionCommand(c, TA_CLOSING_TRANSITION));
+                            ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
 						} else {
                             ca->append(new ModifyTransitionCommand(c, TA_CLOSING_TRANSITION, c->get_closing_transition()->get_true_length() - (c->timeline_out - s.in)));
 						}
@@ -814,7 +814,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 
                     if (c->get_opening_transition() != NULL) {
                         if (s.out > c->timeline_in + c->get_opening_transition()->get_true_length()) {
-                            ca->append(new DeleteTransitionCommand(c, TA_OPENING_TRANSITION));
+                            ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
 						} else {
                             ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, c->get_opening_transition()->get_true_length() - (s.out - c->timeline_in)));
 						}
@@ -1111,7 +1111,7 @@ bool Timeline::split_selection(ComboAction* ca) {
 						}
 
                         if (clip->get_closing_transition() != NULL) {
-                            ca->append(new DeleteTransitionCommand(clip, TA_CLOSING_TRANSITION));
+                            ca->append(new DeleteTransitionCommand(clip->sequence, clip->closing_transition));
 
                             split_A->sequence->hard_delete_transition(split_A, TA_CLOSING_TRANSITION);
 						}
