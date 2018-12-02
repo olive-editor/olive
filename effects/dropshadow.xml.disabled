@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Drop Shadow" category="Stylize">
+	<row name="Color">
+		<field type="color" r="0" g="0" b="0" id="shadowcolor"/>
+	</row>
+	<row name="Softness">
+		<field type="double" min="0" default="20" id="shadowsoftness"/>
+	</row>
+	<row name="Opacity">
+		<field type="double" min="0" default="100" max="100" id="shadowopacity"/>
+	</row>
+	<row name="Distance">
+		<field type="double" min="0" default="20" id="shadowdistance"/>
+	</row>
+	<shader vert="common.vert" frag="dropshadow.frag"/>
+</effect>

@@ -225,13 +225,14 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (selected_gizmo != NULL) {
-        undo_stack.push(new MoveGizmo(
+        /*undo_stack.push(new MoveGizmo(
                             gizmos,
                             selected_gizmo,
                             gizmo_x_mvmt,
                             gizmo_y_mvmt,
                             get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead)
-                        ));
+                        ));*/
+
     }
     dragging = false;
 }
@@ -340,18 +341,21 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
             e->process_coords(timecode, coords, data);
 		}
 		if (e->enable_shader || e->enable_superimpose) {
-			e->startEffect();
-			if (e->enable_shader) {
-				e->process_shader(timecode, coords);
+            e->startEffect();
+            if (e->enable_shader) {
+                e->process_shader(timecode, coords);
                 composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
                 fbo_switcher = !fbo_switcher;
-			}
-			if (e->enable_superimpose) {
-				GLuint superimpose_texture = e->process_superimpose(timecode);
-                if (superimpose_texture != 0) {
+            }
+            if (e->enable_superimpose) {
+                GLuint superimpose_texture = e->process_superimpose(timecode);
+                if (superimpose_texture == 0) {
+                    texture_failed = true;
+                } else {
                     composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
                 }
-			}
+            }
+            e->endEffect();
 		}
     }
 }
@@ -579,13 +583,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
                             process_effect(c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_CLOSING_TRANSITION);
 						}
-					}
-
-					for (int j=0;j<c->effects.size();j++) {
-						if ((c->effects.at(j)->enable_shader || c->effects.at(j)->enable_superimpose) && c->effects.at(j)->is_enabled()) {
-							c->effects.at(j)->endEffect();
-						}
-					}
+                    }
 					// EFFECT CODE END
 
 					if (!nests.isEmpty()) {

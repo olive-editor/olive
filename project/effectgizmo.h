@@ -12,11 +12,14 @@
 #include <QVector>
 #include <QColor>
 
+class EffectField;
+
 class EffectGizmo
 {
 public:
     EffectGizmo(int type);
 
+    QVector<EffectField*> fields;
     QVector<QPoint> world_pos;
     QVector<QPoint> screen_pos;
     QColor color;
