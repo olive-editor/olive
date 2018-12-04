@@ -62,6 +62,7 @@ private slots:
 	void retry();
 	void show_context_menu();
 	void save_frame();
+    void show_fullscreen();
 };
 
 #endif // VIEWERWIDGET_H

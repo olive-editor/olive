@@ -75,6 +75,9 @@ void ViewerWidget::show_context_menu() {
 	QAction* save_frame_as_image = menu.addAction("Save Frame as Image...");
 	connect(save_frame_as_image, SIGNAL(triggered(bool)), this, SLOT(save_frame()));
 
+    QAction* show_fullscreen_action = menu.addAction("Show Fullscreen");
+    connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));
+
 	menu.exec(QCursor::pos());
 }
 
@@ -107,7 +110,11 @@ void ViewerWidget::save_frame() {
 		fbo.release();
         default_fbo = NULL;
 		rendering = false;
-	}
+    }
+}
+
+void ViewerWidget::show_fullscreen() {
+    showFullScreen();
 }
 
 void ViewerWidget::retry() {
