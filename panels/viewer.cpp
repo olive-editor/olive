@@ -98,8 +98,9 @@ void Viewer::reset_all_audio() {
 }
 
 void Viewer::assert_audio_device() {
-    if (audio_output->format().sampleRate() != seq->audio_frequency
-            || audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout)) {
+    if (is_audio_device_set() &&
+    		(audio_output->format().sampleRate() != seq->audio_frequency
+    			|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout))) {
 		closeActiveClips(seq, true);
 		init_audio(seq);
     }

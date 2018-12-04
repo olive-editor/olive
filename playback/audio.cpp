@@ -36,6 +36,10 @@ double audio_ibuffer_timecode = 0;
 
 AudioSenderThread* audio_thread = NULL;
 
+bool is_audio_device_set() {
+	return audio_device_set;
+}
+
 void init_audio(Sequence* s) {
 	stop_audio();
 
@@ -59,14 +63,18 @@ void init_audio(Sequence* s) {
 
 		// connect
 		audio_io_device = audio_output->start();
-		audio_device_set = true;
+		if (audio_io_device == NULL) {
+			dout << "[WARNING] Received NULL audio device. No compatible audio output was found.";
+		} else {
+			audio_device_set = true;
 
-		// start sender thread
-        audio_thread = new AudioSenderThread();
-        QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
-        audio_thread->start(QThread::TimeCriticalPriority);
+			// start sender thread
+			audio_thread = new AudioSenderThread();
+			QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
+			audio_thread->start(QThread::TimeCriticalPriority);
 
-		clear_audio_ibuffer();
+			clear_audio_ibuffer();
+		}		
     }
 }
 

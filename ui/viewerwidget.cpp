@@ -399,7 +399,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				case MEDIA_TYPE_FOOTAGE:
 				{
 					Media* m = static_cast<Media*>(c->media);
-                    if (!m->invalid) {
+                    if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
                         if (m->ready) {
                             MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
                             if (ms != NULL && is_clip_active(c, playhead)) {

@@ -43,6 +43,8 @@ extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
 void clear_audio_ibuffer();
 
+bool is_audio_device_set();
+
 void init_audio(Sequence *s);
 void stop_audio();
 int get_buffer_offset_from_frame(double framerate, long frame);
