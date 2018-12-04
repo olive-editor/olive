@@ -418,7 +418,7 @@ void MainWindow::on_actionSplit_at_Playhead_triggered()
 }
 
 void MainWindow::autorecover_interval() {
-	if (isWindowModified()) {
+    if (!rendering && isWindowModified()) {
         panel_project->save_project(true);
 		dout << "[INFO] Auto-recovery project saved";
     }

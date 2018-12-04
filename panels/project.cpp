@@ -337,6 +337,10 @@ void Project::delete_selected_media() {
     bool remove = true;
     bool redraw = false;
 
+    // correctly sort (fixes qt bug - see AddMediaCommand::redo() for info)
+    source_table->setSortingEnabled(false);
+    source_table->setSortingEnabled(true);
+
     // check if media is in use
     QVector<QTreeWidgetItem*> parents;
     QList<QTreeWidgetItem*> sequence_items;
@@ -993,6 +997,7 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     if (!QFileInfo::exists(m->url)) { // if path is not absolute
                                         QString proj_dir_test = proj_dir.absoluteFilePath(m->url);
                                         QString internal_proj_dir_test = internal_proj_dir.absoluteFilePath(m->url);
+
                                         if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
                                             m->url = proj_dir_test;
                                             dout << "[INFO] Matched" << attr.value().toString() << "relative to project's current directory";

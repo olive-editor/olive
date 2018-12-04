@@ -415,6 +415,10 @@ void AddMediaCommand::redo() {
 	 *
 	 * The following 2 lines seem to force the source_table to re-sort
 	 * correctly and therefore works around this problem. But holy shit.
+     *
+     * I guess I'm "supposed" to use a Model–view–viewmodel instead,
+     * which I'll probably have to switch to soon anyway. So perhaps
+     * this will be a non-issue soon.
 	 */
 	panel_project->source_table->setSortingEnabled(false);
 	panel_project->source_table->setSortingEnabled(true);

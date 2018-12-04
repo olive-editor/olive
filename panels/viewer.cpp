@@ -319,7 +319,7 @@ void Viewer::play_wake() {
 	if (just_played) {
 		start_msecs = QDateTime::currentMSecsSinceEpoch();
 		playback_updater.start();
-		audio_thread->notifyReceiver();
+        if (audio_thread != NULL) audio_thread->notifyReceiver();
 		just_played = false;
 	}
 }

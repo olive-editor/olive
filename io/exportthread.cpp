@@ -124,7 +124,7 @@ bool ExportThread::setupVideo() {
 		/*char buffer[50];
 		itoa(vcodec_ctx, buffer, 10);*/
 
-		av_opt_set(vcodec_ctx->priv_data, "preset", "slow", AV_OPT_SEARCH_CHILDREN);
+//        av_opt_set(vcodec_ctx->priv_data, "preset", "slow", AV_OPT_SEARCH_CHILDREN);
 
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
@@ -358,7 +358,9 @@ void ExportThread::run() {
 			sws_frame->pts = round(timecode_secs/av_q2d(video_stream->time_base));
 
 			// send to encoder
+//            dout << "starting encode of video frame" << sequence->playhead;
 			if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream)) continueEncode = false;
+//            dout << "completed encode of video frame" << sequence->playhead;
 		}
 		if (audio_enabled) {
 			// do we need to encode more audio samples?
@@ -381,8 +383,8 @@ void ExportThread::run() {
 				swr_convert_frame(swr_ctx, swr_frame, audio_frame);
 				swr_frame->pts = file_audio_samples;
 
-				// send to encoder
-				if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) continueEncode = false;
+                // send to encoder
+                if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) continueEncode = false;
 
 				file_audio_samples += swr_frame->nb_samples;
 			}

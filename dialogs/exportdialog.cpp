@@ -15,6 +15,7 @@
 #include "project/sequence.h"
 #include "io/exportthread.h"
 #include "playback/playback.h"
+#include "mainwindow.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -476,6 +477,8 @@ void ExportDialog::on_pushButton_clicked() {
 		connect(et, SIGNAL(progress_changed(int)), this, SLOT(update_progress_bar(int)));
 
 		closeActiveClips(sequence, true);
+
+        mainWindow->autorecover_interval();
 
 		rendering = true;
 		panel_sequence_viewer->viewer_widget->context()->doneCurrent();

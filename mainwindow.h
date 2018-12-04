@@ -28,6 +28,7 @@ public slots:
 	void cut();
 	void copy();
 	void paste();
+    void autorecover_interval();
     void on_actionNest_triggered();
 
 protected:
@@ -104,8 +105,6 @@ private slots:
     void on_actionGo_to_Previous_Cut_triggered();
 
     void on_actionGo_to_Next_Cut_triggered();
-
-    void autorecover_interval();
 
     void on_actionPreferences_triggered();
 

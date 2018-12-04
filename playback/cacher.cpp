@@ -390,7 +390,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			audio_write_lock.unlock();
 
             if (scrubbing) {
-                audio_thread->notifyReceiver();
+                if (audio_thread != NULL) audio_thread->notifyReceiver();
             }
 
 			if (c->frame_sample_index == nb_bytes) {
