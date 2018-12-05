@@ -53,6 +53,17 @@ void init_audio(Sequence* s) {
 		audio_format.setSampleType(QAudioFormat::SignedInt);
 
 		QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+		QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+		dout << "[INFO] Found the following audio devices:";
+		for (int i=0;i<devs.size();i++) {
+			dout << "    " << devs.at(i).deviceName();
+		}
+		if (info.isNull() && devs.size() > 0) {
+			dout << "[WARNING] Default audio returned NULL, attempting to use first device found...";
+			info = devs.at(0);
+		}
+		dout << "[INFO] Using audio device" << info.deviceName();
+
 		if (!info.isFormatSupported(audio_format)) {
 			qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
 			audio_format = info.nearestFormat(audio_format);
