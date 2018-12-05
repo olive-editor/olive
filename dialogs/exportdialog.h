@@ -25,7 +25,7 @@ private slots:
 
 	void on_pushButton_clicked();
 
-	void update_progress_bar(int value);
+    void update_progress_bar(int value, qint64 remaining_ms);
 
     void on_renderCancel_clicked();
 

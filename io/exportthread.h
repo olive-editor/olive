@@ -44,7 +44,7 @@ public:
 
 	bool continueEncode;
 signals:
-    void progress_changed(int value);
+    void progress_changed(int value, qint64 remaining_ms);
 private:
 	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream);
 	bool setupVideo();

@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QMessageBox>
 #include <QOpenGLContext>
+#include <QtMath>
 
 #include "debug.h"
 #include "panels/panels.h"
@@ -474,7 +475,7 @@ void ExportDialog::on_pushButton_clicked() {
 
 		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
         connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
-		connect(et, SIGNAL(progress_changed(int)), this, SLOT(update_progress_bar(int)));
+        connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
 		closeActiveClips(sequence, true);
 
@@ -517,8 +518,14 @@ void ExportDialog::on_pushButton_clicked() {
 	}
 }
 
-void ExportDialog::update_progress_bar(int value) {
-	ui->progressBar->setValue(value);
+void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
+    // convert ms to H:MM:SS
+    int seconds = qFloor(remaining_ms*0.001)%60;
+    int minutes = qFloor(remaining_ms/60000)%60;
+    int hours = qFloor(remaining_ms/3600000);
+    ui->progressBar->setFormat("%p% (ETA: " + QString::number(hours) + ":" + QString::number(minutes).rightJustified(2, '0') + ":" + QString::number(seconds).rightJustified(2, '0') + ")");
+
+    ui->progressBar->setValue(value);
 }
 
 void ExportDialog::on_renderCancel_clicked() {

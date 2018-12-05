@@ -125,6 +125,7 @@ bool ExportThread::setupVideo() {
         itoa(vcodec_ctx, buffer, 10);*/
 
         //av_opt_set(vcodec_ctx->priv_data, "preset", "fast", AV_OPT_SEARCH_CHILDREN);
+        av_opt_set(vcodec_ctx->priv_data, "x264opts", "opencl", AV_OPT_SEARCH_CHILDREN);
 
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
@@ -344,8 +345,12 @@ void ExportThread::run() {
 	panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 	long file_audio_samples = 0;
+    qint64 start_time, frame_time, avg_time, eta, total_time = 0;
+    long remaining_frames, frame_count = 1;
 
 	while (sequence->playhead < end_frame && continueEncode) {
+        start_time = QDateTime::currentMSecsSinceEpoch();
+
 		panel_sequence_viewer->viewer_widget->paintGL();
 
 		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
@@ -357,10 +362,8 @@ void ExportThread::run() {
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
 			sws_frame->pts = round(timecode_secs/av_q2d(video_stream->time_base));
 
-			// send to encoder
-//            dout << "starting encode of video frame" << sequence->playhead;
-			if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream)) continueEncode = false;
-//            dout << "completed encode of video frame" << sequence->playhead;
+            // send to encoder
+            if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream)) continueEncode = false;
 		}
 		if (audio_enabled) {
 			// do we need to encode more audio samples?
@@ -389,8 +392,19 @@ void ExportThread::run() {
 				file_audio_samples += swr_frame->nb_samples;
 			}
 		}
-		emit progress_changed(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100);
+
+        // encoding stats
+        frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
+        total_time += frame_time;
+        remaining_frames = (end_frame-sequence->playhead);
+        avg_time = (total_time/frame_count);
+        eta = (remaining_frames*avg_time);
+
+//        dout << "[INFO] Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
+
+        emit progress_changed(qRound(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100), eta);
 		sequence->playhead++;
+        frame_count++;
 	}
 
 	panel_sequence_viewer->viewer_widget->default_fbo = NULL;
@@ -425,7 +439,7 @@ void ExportThread::run() {
 			continueEncode = false;
 		}
 
-		emit progress_changed(100);
+        emit progress_changed(100, 0);
 	}
 
 	avio_closep(&fmt_ctx->pb);
