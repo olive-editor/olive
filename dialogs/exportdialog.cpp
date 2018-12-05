@@ -552,9 +552,9 @@ void ExportDialog::on_compressionTypeCombobox_currentIndexChanged(int) {
 		break;
 	case COMPRESSION_TYPE_CFR:
 		ui->videoBitrateLabel->setText("Quality (CRF):");
-		ui->videobitrateSpinbox->setValue(23);
+        ui->videobitrateSpinbox->setValue(36);
 		ui->videobitrateSpinbox->setMaximum(51);
-		ui->videobitrateSpinbox->setToolTip("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = default, high quality\n51 = lowest quality possible");
+        ui->videobitrateSpinbox->setToolTip("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = high quality\n51 = lowest quality possible");
 		break;
 	case COMPRESSION_TYPE_TARGETSIZE:
 		ui->videoBitrateLabel->setText("Target File Size (MB):");

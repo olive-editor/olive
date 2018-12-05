@@ -122,9 +122,9 @@ bool ExportThread::setupVideo() {
 
 	if (vcodec_ctx->codec_id == AV_CODEC_ID_H264) {
 		/*char buffer[50];
-		itoa(vcodec_ctx, buffer, 10);*/
+        itoa(vcodec_ctx, buffer, 10);*/
 
-//        av_opt_set(vcodec_ctx->priv_data, "preset", "slow", AV_OPT_SEARCH_CHILDREN);
+        //av_opt_set(vcodec_ctx->priv_data, "preset", "fast", AV_OPT_SEARCH_CHILDREN);
 
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
