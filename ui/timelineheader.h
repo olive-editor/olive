@@ -20,6 +20,7 @@ public:
 
 	void show_text(bool enable);
 	void update_zoom(double z);
+    double get_zoom();
 	void delete_markers();
 
 public slots:

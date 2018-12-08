@@ -65,6 +65,13 @@
        <widget class="TimelineHeader" name="headers" native="true"/>
       </item>
       <item>
+       <widget class="QScrollBar" name="horizontalScrollBar">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QWidget" name="playbackControls" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">

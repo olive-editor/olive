@@ -255,7 +255,11 @@ void TimelineHeader::update_parents() {
 
 void TimelineHeader::update_zoom(double z) {
 	zoom = z;
-	update();
+    update();
+}
+
+double TimelineHeader::get_zoom() {
+    return zoom;
 }
 
 void TimelineHeader::delete_markers() {
