@@ -417,16 +417,6 @@ bool Timeline::focused() {
 	return (sequence != NULL && (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus()));
 }
 
-bool Timeline::center_scroll_to_playhead() {
-    // returns true is the scroll was changed, false if not
-    int target_scroll = qMin(ui->horizontalScrollBar->maximum(), qMax(0, getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1)));
-    if (target_scroll == ui->horizontalScrollBar->value()) {
-        return false;
-    }
-    ui->horizontalScrollBar->setValue(target_scroll);
-    return true;
-}
-
 void Timeline::repaint_timeline() {
     bool draw = true;
 
@@ -442,7 +432,7 @@ void Timeline::repaint_timeline() {
                 draw = false;
             }
         } else if (config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
-            if (center_scroll_to_playhead()) {
+            if (center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead)) {
                 draw = false;
             }
         }
@@ -458,7 +448,7 @@ void Timeline::repaint_timeline() {
         if (sequence != NULL) {
             long sequenceEndFrame = sequence->getEndFrame();
 
-            ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequenceEndFrame) - (ui->editAreas->width()/2)));
+            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, (ui->editAreas->width()/2));
 
             if (last_frame != sequence->playhead) {
                 ui->audio_monitor->update();
@@ -579,7 +569,7 @@ void Timeline::set_zoom_value(double v) {
     repaint_timeline();
 
     // TODO find a way to gradually move towards target_scroll instead of just centering it?
-    center_scroll_to_playhead();
+    center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
 }
 
 void Timeline::set_zoom(bool in) {

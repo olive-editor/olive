@@ -385,6 +385,7 @@ void Viewer::update_header_zoom() {
         if (cached_end_frame != sequenceEndFrame) {
             minimum_zoom = (sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1;
             ui->headers->update_zoom(qMax(ui->headers->get_zoom(), minimum_zoom));
+            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->headers->width());
         } else {
             ui->headers->update();
         }
@@ -427,6 +428,8 @@ void Viewer::set_zoom(bool in) {
     } else {
         ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
     }
+    ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
+    center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
 }
 
 void Viewer::set_media(int type, void* media) {
