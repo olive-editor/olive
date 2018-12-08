@@ -24,7 +24,7 @@ void main(void) {
 	if (radius == 0.0 || sigma == 0.0 || (!horiz_blur && !vert_blur)) {
 		gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution);
 	} else {
-		float rad = floor(radius);
+		float rad = ceil(radius);
 		float x_rad = horiz_blur ? rad : 0.5;
 		float y_rad = vert_blur ? rad : 0.5;
 

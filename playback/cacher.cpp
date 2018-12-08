@@ -456,9 +456,7 @@ void cache_video_worker(Clip* c, long playhead) {
 			MediaStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
-                if (c->multithreaded && c->cacher->interrupt) { // abort
-                    return;
-                }
+                if (c->multithreaded && c->cacher->interrupt) return; // abort
 
 				AVFrame* send_frame = c->frame;
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
@@ -476,11 +474,11 @@ void cache_video_worker(Clip* c, long playhead) {
 						dout << "skipped adding a frame to the queue - fpts:" << send_frame->pts << "target:" << target_pts;
                     }*/
 
-					if (send_it) {
+                    if (send_it) {
 						if ((send_ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, send_frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
 							dout << "[ERROR] Failed to add frame to buffer source." << send_ret;
 							break;
-						}
+                        }
 					}
 
 					av_frame_unref(c->frame);
@@ -693,27 +691,7 @@ void open_clip_worker(Clip* clip) {
 		}
 		char filter_args[512];
 
-		if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-			/* SKIP_TYPE_SEEK is used if a video is playing at a speed so fast
-			 * that it is quicker to seek to the next frame than to just play
-			 * up to it (e.g. 2000% speed would require playing and skipping
-			 * 20 frames per frame and it many cases it would be quicker to
-			 * seek to it and cache in memory instead.
-			 *
-			 * TODO there could probably be a better heuristic than
-			 * (speed >= 5) for using seek mode. Experiment with the value
-			 * but also in the future perhaps we could implement a system
-			 * of testing how long it takes to seek vs how long it takes to
-			 * decode a frame and compare them to choose with method.
-			 */
-			clip->skip_type = (clip->speed < 5) ? SKIP_TYPE_DISCARD : SKIP_TYPE_SEEK;
-
-			// create memory cache for video (deprecated)
-			// clip->cache_size = (ms->infinite_length) ? 1 : ceil(av_q2d(clip->stream->avg_frame_rate)/4); // cache is half a second in total
-
-			// if (clip->skip_type == SKIP_TYPE_SEEK) clip->cache_size *= 2;
-			// if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->cache_size *= 2;
-
+        if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 			snprintf(filter_args, sizeof(filter_args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
 						clip->stream->codecpar->width,
 						clip->stream->codecpar->height,
@@ -727,39 +705,42 @@ void open_clip_worker(Clip* clip) {
 			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
 			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
 
-            enum AVPixelFormat pix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
-            if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
-				dout << "[ERROR] Could not set output pixel format";
-			}
+            /*enum AVPixelFormat sinkpix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
+            if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", sinkpix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
+                dout << "[ERROR] Could not set output pixel format";
+            }*/
 
             AVFilterContext* last_filter = clip->buffersrc_ctx;
 
             if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 				AVFilterContext* yadif_filter;
 				char yadif_args[100];
-				snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // try mode 1
+                snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
 				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, NULL, clip->filter_graph);
 
                 avfilter_link(last_filter, 0, yadif_filter, 0);
                 last_filter = yadif_filter;
 			}
 
-            /* stabilization code one day
-            if (false) {
+            /* stabilization code one day */
+            bool stabilize = false;
+            if (stabilize) {
                 AVFilterContext* stab_filter;
-                int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=C\\:/Users/Matt/Desktop/samples/transforms.trf", NULL, clip->filter_graph);
+                int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=/media/matt/Home/samples/transforms.trf", NULL, clip->filter_graph);
                 if (stab_ret < 0) {
                     char err[100];
                     av_strerror(stab_ret, err, sizeof(err));
-                    dout << "stab ret:" << stab_ret << err;
                 } else {
-                    dout << "link 1:" << avfilter_link(last_filter, 0, stab_filter, 0);
+                    avfilter_link(last_filter, 0, stab_filter, 0);
                     last_filter = stab_filter;
                 }
             }
-            */
 
-            avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
+            AVFilterContext* format_conv;
+            avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", "pix_fmts=rgba", NULL, clip->filter_graph);
+            avfilter_link(last_filter, 0, format_conv, 0);
+
+            avfilter_link(format_conv, 0, clip->buffersink_ctx, 0);
 
             avfilter_graph_config(clip->filter_graph, NULL);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {

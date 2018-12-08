@@ -8,7 +8,7 @@ uniform bool horiz_blur;
 uniform bool vert_blur;
 
 void main(void) {
-	float rad = floor(radius);
+	float rad = ceil(radius);
 	float x_rad = (horiz_blur) ? rad : 0.5;
 	float y_rad = (vert_blur) ? rad : 0.5;
 	vec2 texCoord = gl_FragCoord.xy/resolution;

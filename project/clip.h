@@ -96,8 +96,7 @@ struct Clip
 	bool pkt_written;
     bool open;
     bool finished_opening;
-	bool replaced;
-	int skip_type;
+    bool replaced;
 	bool ignore_reverse;
 
 	// caching functions
