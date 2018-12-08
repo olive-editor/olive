@@ -665,22 +665,22 @@ void open_clip_worker(Clip* clip) {
 		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.5);
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
-		AVDictionary* opts = NULL;
+        clip->opts = NULL;
 
 		// optimized decoding settings
-		if (clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
+        if (clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
 			clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
 			clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
 			clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD) {
-			av_dict_set(&opts, "threads", "auto", 0);
+            av_dict_set(&clip->opts, "threads", "auto", 0);
 		}
 		if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {
-            av_dict_set(&opts, "tune", "fastdecode", 0);
-            av_dict_set(&opts, "tune", "zerolatency", 0);
-		}
+            av_dict_set(&clip->opts, "tune", "fastdecode", 0);
+            av_dict_set(&clip->opts, "tune", "zerolatency", 0);
+        }
 
 		// Open codec
-		if (avcodec_open2(clip->codecCtx, clip->codec, &opts) < 0) {
+        if (avcodec_open2(clip->codecCtx, clip->codec, &clip->opts) < 0) {
 			dout << "[ERROR] Could not open codec";
 		}
 
@@ -888,6 +888,9 @@ void close_clip_worker(Clip* clip) {
 
 		avcodec_close(clip->codecCtx);
 		avcodec_free_context(&clip->codecCtx);
+
+        av_dict_free(&clip->opts);
+
 		avformat_close_input(&clip->formatCtx);
 	}
 

@@ -431,9 +431,14 @@ Effect::~Effect() {
 		close();
 	}
 
+    delete container;
+
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
 	}
+    for (int i=0;i<gizmos.size();i++) {
+        delete gizmos.at(i);
+    }
 }
 
 void Effect::copy_field_keyframes(Effect* e) {

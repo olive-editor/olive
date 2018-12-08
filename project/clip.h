@@ -27,6 +27,7 @@ struct SwsContext;
 struct SwrContext;
 struct AVFilterGraph;
 struct AVFilterContext;
+struct AVDictionary;
 class QOpenGLTexture;
 
 struct Clip
@@ -87,6 +88,7 @@ struct Clip
     AVCodecContext* codecCtx;
     AVPacket* pkt;
 	AVFrame* frame;
+    AVDictionary* opts;
 	long calculated_length;
 
 	// temporary variables

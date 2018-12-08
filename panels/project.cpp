@@ -602,7 +602,7 @@ void Project::process_file_list(bool recursive, QStringList& files, QTreeWidgetI
 				}
 
                 m->using_inout = false;
-				m->url = file;
+                m->url = file;
 				m->name = get_file_name_from_path(files.at(i));
 
 				// generate waveform/thumbnail in another thread
@@ -1004,6 +1004,10 @@ bool Project::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         } else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
                                             m->url = internal_proj_dir_test;
                                             dout << "[INFO] Matched" << attr.value().toString() << "relative to project's internal directory";
+                                        } else if (m->url.contains('%')) {
+                                            // hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
+                                            m->url = proj_dir_test;
+                                            dout << "[INFO] Guess image sequence" << attr.value().toString() << "path to project's current directory";
                                         } else {
                                             dout << "[INFO] Failed to match" << attr.value().toString() << "to file";
                                         }

@@ -45,7 +45,7 @@ struct Media {
     Media();
 	~Media();
 
-	QString url;
+    QString url;
     QString name;
 	int64_t length;
     QVector<MediaStream*> video_tracks;

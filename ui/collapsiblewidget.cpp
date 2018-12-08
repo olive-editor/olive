@@ -22,7 +22,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 	title_bar = new CollapsibleWidgetHeader();
 	title_bar->setFocusPolicy(Qt::ClickFocus);
 	title_bar->setAutoFillBackground(true);
-    QHBoxLayout* title_bar_layout = new QHBoxLayout();
+    title_bar_layout = new QHBoxLayout();
 	title_bar_layout->setMargin(5);
 	title_bar->setLayout(title_bar_layout);
 	enabled_check = new CheckboxEx();

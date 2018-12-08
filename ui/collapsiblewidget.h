@@ -41,6 +41,7 @@ private:
 	QVBoxLayout* layout;
 	QPushButton* collapse_button;
 	QFrame* line;
+    QHBoxLayout* title_bar_layout;
 
 signals:
     void deselect_others(QWidget*);

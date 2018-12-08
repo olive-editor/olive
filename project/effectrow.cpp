@@ -30,7 +30,7 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
         QSize button_size(20, 20);
         QSize icon_size(12, 12);
 
-        QHBoxLayout* key_controls = new QHBoxLayout();
+        key_controls = new QHBoxLayout();
         key_controls->setSpacing(0);
         key_controls->setMargin(0);
         key_controls->addStretch();

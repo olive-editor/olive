@@ -35,7 +35,8 @@ Clip::Clip(Sequence* s) :
     use_existing_frame(false),
 	filter_graph(NULL),
     fbo(NULL),
-    texture(NULL)
+    texture(NULL),
+    opts(NULL)
 {
 	pkt = av_packet_alloc();
     reset();
@@ -88,6 +89,7 @@ void Clip::reset() {
 	codec = NULL;
 	codecCtx = NULL;
 	texture = NULL;
+    last_invalid_ts = -1;
 }
 
 void Clip::reset_audio() {
