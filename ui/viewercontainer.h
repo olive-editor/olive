@@ -2,6 +2,7 @@
 #define VIEWERCONTAINER_H
 
 #include <QWidget>
+class ViewerWidget;
 
 class ViewerContainer : public QWidget
 {
@@ -9,7 +10,7 @@ class ViewerContainer : public QWidget
 public:
     explicit ViewerContainer(QWidget *parent = 0);
 	float aspect_ratio;
-	QWidget* child;
+    ViewerWidget* child;
 	void adjust();
 
 protected:

@@ -43,7 +43,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	default_fbo(NULL),
 	waveform(false),
     dragging(false),
-    selected_gizmo(NULL)
+    selected_gizmo(NULL),
+    waveform_zoom(1.0),
+    waveform_scroll(0)
 {
     setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -66,6 +68,13 @@ void ViewerWidget::delete_function() {
         makeCurrent();
         closeActiveClips(viewer->seq, true);
         doneCurrent();
+    }
+}
+
+void ViewerWidget::set_waveform_scroll(int s) {
+    if (waveform) {
+        waveform_scroll = s;
+        update();
     }
 }
 
@@ -141,7 +150,7 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
 }
 
 void ViewerWidget::seek_from_click(int x) {
-	viewer->seek(getFrameFromScreenPoint((double) width() / (double) waveform_clip->timeline_out, x));
+    viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
 }
 
 double get_timecode(Clip* c, long playhead) {
@@ -765,23 +774,23 @@ void ViewerWidget::paintGL() {
             compose_sequence(nests, render_audio);
 
             if (waveform) {
-                double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();
-                double timeline_zoom = (double) width() / (double) waveform_clip->timeline_out;
-
                 QPainter p(this);
                 if (viewer->seq->using_workarea) {
-                    int in_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in);
-                    int out_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out);
+                    int in_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_in) - waveform_scroll;
+                    int out_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_out) - waveform_scroll;
 
                     p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
                     p.setPen(Qt::white);
                     p.drawLine(in_x, 0, in_x, height());
                     p.drawLine(out_x, 0, out_x, height());
                 }
+                QRect wr = rect();
+                wr.setX(wr.x() - waveform_scroll);
+
                 p.setPen(Qt::green);
-                draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, rect(), 0, width(), waveform_zoom);
+                draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
                 p.setPen(Qt::red);
-                int playhead_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->playhead);
+                int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
                 p.drawLine(playhead_x, 0, playhead_x, height());
             }
 
