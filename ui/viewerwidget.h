@@ -33,6 +33,8 @@ public:
 	bool waveform;
 	Clip* waveform_clip;
 	MediaStream* waveform_ms;
+
+    bool force_quit;
 public slots:
     void delete_function();
 protected:

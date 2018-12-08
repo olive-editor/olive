@@ -736,6 +736,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 void ViewerWidget::paintGL() {
     drawn_gizmos = false;
+    force_quit = false;
     if (viewer->seq != NULL) {
         gizmos = NULL;
 
@@ -784,6 +785,7 @@ void ViewerWidget::paintGL() {
                 p.drawLine(playhead_x, 0, playhead_x, height());
             }
 
+            if (force_quit) break;
             if (texture_failed) {
                 if (rendering) {
                     dout << "[INFO] Texture failed - looping";

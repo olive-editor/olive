@@ -57,7 +57,7 @@ public:
 	bool is_recording_cued();	
 	long recording_start;
 	long recording_end;
-	int recording_track;
+    int recording_track;
 
 	void reset_all_audio();
     void assert_audio_device();

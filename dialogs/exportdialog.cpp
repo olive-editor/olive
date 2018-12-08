@@ -529,6 +529,7 @@ void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
 }
 
 void ExportDialog::on_renderCancel_clicked() {
+    panel_sequence_viewer->viewer_widget->force_quit = true;
 	et->continueEncode = false;
     cancelled = true;
 }
