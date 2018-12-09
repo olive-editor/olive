@@ -846,12 +846,25 @@ void ViewerWidget::paintGL() {
                         glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
                         glEnd();
                         break;
-                    case GIZMO_TYPE_DOT: // draw target
-                        glBegin(GL_QUADS);
+                    case GIZMO_TYPE_TARGET: // draw target
+                        glBegin(GL_LINES);
                         glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
                         glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
                         glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
                         glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y(), gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y(), gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()+target_size, gizmo_z);
                         glEnd();
                         break;
                     }

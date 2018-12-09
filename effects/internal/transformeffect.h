@@ -33,6 +33,7 @@ private:
     EffectGizmo* bottom_right_gizmo;
     EffectGizmo* left_center_gizmo;
     EffectGizmo* right_center_gizmo;
+    EffectGizmo* anchor_gizmo;
     EffectGizmo* rotate_gizmo;
     EffectGizmo* rect_gizmo;
 
