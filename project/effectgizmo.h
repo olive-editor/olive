@@ -3,8 +3,10 @@
 
 #define GIZMO_TYPE_DOT 0
 #define GIZMO_TYPE_POLY 1
+#define GIZMO_TYPE_TARGET 2
 
 #define GIZMO_DOT_SIZE 2.5F
+#define GIZMO_TARGET_SIZE 5.0F
 
 #include <QString>
 #include <QRect>

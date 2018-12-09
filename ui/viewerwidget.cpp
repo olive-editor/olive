@@ -153,15 +153,12 @@ void ViewerWidget::seek_from_click(int x) {
     viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
 }
 
-double get_timecode(Clip* c, long playhead) {
-    return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
-}
-
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
     if (gizmos != NULL) {        
         double multiplier = (double) viewer->seq->width / (double) width();
         QPoint mouse_pos(qRound(x*multiplier), qRound(y*multiplier));
         int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
+        int target_size = 2 * qRound(GIZMO_TARGET_SIZE * multiplier);
         for (int i=0;i<gizmos->gizmo_count();i++) {
             EffectGizmo* g = gizmos->gizmo(i);
 
@@ -176,6 +173,14 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
                 break;
             case GIZMO_TYPE_POLY:
                 if (QPolygon(g->screen_pos).containsPoint(mouse_pos, Qt::OddEvenFill)) {
+                    return g;
+                }
+                break;
+            case GIZMO_TYPE_TARGET:
+                if (mouse_pos.x() > g->screen_pos[0].x() - target_size
+                        && mouse_pos.y() > g->screen_pos[0].y() - target_size
+                        && mouse_pos.x() < g->screen_pos[0].x() + target_size
+                        && mouse_pos.y() < g->screen_pos[0].y() + target_size) {
                     return g;
                 }
                 break;
@@ -813,6 +818,7 @@ void ViewerWidget::paintGL() {
                 glGetFloatv(GL_CURRENT_COLOR, color);
 
                 float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
+                float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
 
                 glPushMatrix();
                 glLoadIdentity();
@@ -838,6 +844,14 @@ void ViewerWidget::paintGL() {
                         }
                         glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
                         glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
+                        glEnd();
+                        break;
+                    case GIZMO_TYPE_DOT: // draw target
+                        glBegin(GL_QUADS);
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
                         glEnd();
                         break;
                     }

@@ -91,7 +91,8 @@ SOURCES += \
     project/effectfield.cpp \
     effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
-    io/clipboard.cpp
+    io/clipboard.cpp \
+    effects/internal/maskeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -162,7 +163,8 @@ HEADERS += \
     project/effectfield.h \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
-    io/clipboard.h
+    io/clipboard.h \
+    effects/internal/maskeffect.h
 
 FORMS += \
         mainwindow.ui \
