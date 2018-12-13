@@ -27,7 +27,6 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
-#include "effects/internal/maskeffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -59,8 +58,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em);
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
         case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
-		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
-        case EFFECT_INTERNAL_MASK: return new MaskEffect(c, em);
+        case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";

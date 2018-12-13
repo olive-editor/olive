@@ -18,14 +18,19 @@ void ProjectModel::destroy_root() {
     if (panel_sequence_viewer != NULL) panel_sequence_viewer->viewer_widget->delete_function();
     if (panel_footage_viewer != NULL) panel_footage_viewer->viewer_widget->delete_function();
 
-    if (root_item != NULL) delete root_item;
+    if (root_item != NULL) {
+        beginRemoveRows(QModelIndex(), 0, root_item->childCount());
+        delete root_item;
+        endRemoveRows();
+    }
 }
 
 void ProjectModel::clear() {
     destroy_root();
+    beginResetModel();
     root_item = new Media(0);
     root_item->root = true;
-    update_data();
+    endResetModel();
 }
 
 Media *ProjectModel::get_root() {

@@ -250,10 +250,15 @@ MainWindow::~MainWindow() {
 	delete ui;
 
     delete panel_sequence_viewer;
+    panel_sequence_viewer = NULL;
     delete panel_footage_viewer;
+    panel_footage_viewer = NULL;
     delete panel_project;
+    panel_project = NULL;
     delete panel_effect_controls;
+    panel_effect_controls = NULL;
 	delete panel_timeline;
+    panel_timeline = NULL;
 
 	close_debug();
 }

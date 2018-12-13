@@ -59,7 +59,6 @@ Project::Project(QWidget *parent) :
     source_table = ui->treeView;
 
     source_table->setModel(&project_model);
-    connect(source_table, SIGNAL(itemChanged(Media*,int)), this, SLOT(rename_media(Media*,int)));
 
     /*Media* m = new Media(project_model.get_root());
     project_model.get_root()->appendChild(m);*/
@@ -159,14 +158,6 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 	}
 
 	return s;
-}
-
-void Project::rename_media(Media* item, int column) {
-    QString n = "rename function";
-    switch (item->get_type()) {
-    case MEDIA_TYPE_FOOTAGE: item->to_footage()->name = n; break;
-    case MEDIA_TYPE_SEQUENCE: item->to_sequence()->name = n; break;
-    }
 }
 
 void Project::duplicate_selected() {
@@ -739,6 +730,7 @@ void Project::clear() {
 void Project::new_project() {
 	// clear existing project
     set_sequence(NULL);
+    panel_footage_viewer->set_media(NULL);
     clear();
 	mainWindow->setWindowModified(false);
 }

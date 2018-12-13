@@ -34,6 +34,8 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 
 	layout->addLayout(hboxLayout);
 
+    update();
+
     LoadThread* lt = new LoadThread(this, autorecovery);
     QObject::connect(lt, SIGNAL(success()), this, SLOT(thread_done()));
     lt->start();

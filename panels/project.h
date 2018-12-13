@@ -102,7 +102,6 @@ private:
 	QString get_file_name_from_path(const QString &path);
     QDir proj_dir;
 private slots:
-    void rename_media(Media* item, int column);
 	void clear_recent_projects();
 };
 
