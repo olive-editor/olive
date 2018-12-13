@@ -291,8 +291,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 		}
 	}
 
-	if (import_init) {
-		event->accept();
+    if (import_init) {
+        event->acceptProposedAction();
 
 		long entry_point;
 		Sequence* seq = sequence;
@@ -312,11 +312,12 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
         panel_timeline->create_ghosts_from_media(seq, entry_point, media_list);
 
 		panel_timeline->importing = true;
-	}
+    }
 }
 
 void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
     if (sequence != NULL && panel_timeline->importing) {
+        event->acceptProposedAction();
 		QPoint pos = event->pos();
         update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
 		panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
@@ -456,7 +457,7 @@ void insert_clips(ComboAction* ca) {
 
 void TimelineWidget::dropEvent(QDropEvent* event) {
     if (panel_timeline->importing && panel_timeline->ghosts.size() > 0) {
-        event->accept();
+        event->acceptProposedAction();
 
         ComboAction* ca = new ComboAction();
 
