@@ -34,15 +34,12 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="SourceTable" name="treeWidget">
+     <widget class="SourceTable" name="treeView">
       <property name="acceptDrops">
        <bool>true</bool>
       </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="dragEnabled">
-       <bool>false</bool>
       </property>
       <property name="dragDropMode">
        <enum>QAbstractItemView::DragDrop</enum>
@@ -50,39 +47,6 @@
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-      <property name="rootIsDecorated">
-       <bool>true</bool>
-      </property>
-      <property name="itemsExpandable">
-       <bool>true</bool>
-      </property>
-      <property name="headerHidden">
-       <bool>false</bool>
-      </property>
-      <property name="expandsOnDoubleClick">
-       <bool>false</bool>
-      </property>
-      <attribute name="headerStretchLastSection">
-       <bool>true</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Duration</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Rate</string>
-       </property>
-      </column>
      </widget>
     </item>
    </layout>
@@ -91,7 +55,7 @@
  <customwidgets>
   <customwidget>
    <class>SourceTable</class>
-   <extends>QTreeWidget</extends>
+   <extends>QTreeView</extends>
    <header>ui/sourcetable.h</header>
   </customwidget>
  </customwidgets>

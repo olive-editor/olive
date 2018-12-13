@@ -12,7 +12,7 @@
 #include "ui/collapsiblewidget.h"
 #include "project/clip.h"
 #include "project/sequence.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "io/math.h"
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"

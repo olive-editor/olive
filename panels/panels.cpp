@@ -3,6 +3,7 @@
 #include "timeline.h"
 #include "effectcontrols.h"
 #include "viewer.h"
+#include "project.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "project/transition.h"
@@ -100,6 +101,7 @@ void update_ui(bool modified) {
     if (modified) {
         update_effect_controls();
 	}
+    project_model.update_data();
 	panel_effect_controls->update_keyframes();
 	panel_timeline->repaint_timeline();
 	panel_sequence_viewer->update_viewer();

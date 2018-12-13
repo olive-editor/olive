@@ -8,7 +8,8 @@
 #include "project/clip.h"
 #include "panels/panels.h"
 #include "io/config.h"
-#include "io/media.h"
+#include "project/footage.h"
+#include "project/media.h"
 #include "project/undo.h"
 #include "ui/audiomonitor.h"
 #include "ui_timeline.h"
@@ -33,6 +34,7 @@ Viewer::Viewer(QWidget *parent) :
     QDockWidget(parent),
 	playing(false),
     just_played(false),
+    media(NULL),
     seq(NULL),
     ui(new Ui::Viewer),
     created_sequence(false),
@@ -46,7 +48,7 @@ Viewer::Viewer(QWidget *parent) :
 	ui->glViewerPane->child = ui->openGLWidget;
 	ui->openGLWidget->viewer = this;
     viewer_widget = ui->openGLWidget;
-    set_media(MEDIA_TYPE_SEQUENCE, NULL);
+    set_media(NULL);
 
     ui->currentTimecode->setEnabled(false);
     ui->currentTimecode->set_minimum_value(0);
@@ -344,23 +346,23 @@ void Viewer::pause() {
 
 			// add it to the sequence
 			Clip* c = new Clip(seq);
-			Media* m = panel_project->last_imported_media.at(0);
+            Media* m = panel_project->last_imported_media.at(0);
+            Footage* f = m->to_footage();
 
-			m->ready_lock.lock();
+            f->ready_lock.lock();
 
-			c->media = m; // latest media
-			c->media_type = MEDIA_TYPE_FOOTAGE;
+            c->media = m; // latest media
 			c->media_stream = 0;
 			c->timeline_in = recording_start;
-			c->timeline_out = m->get_length_in_frames(seq->frame_rate);
+            c->timeline_out = f->get_length_in_frames(seq->frame_rate);
 			c->clip_in = 0;
 			c->track = recording_track;
 			c->color_r = 128;
 			c->color_g = 192;
 			c->color_b = 128;
-			c->name = m->name;
+            c->name = m->get_name();
 
-			m->ready_lock.unlock();
+            f->ready_lock.unlock();
 
 			QVector<Clip*> add_clips;
 			add_clips.append(c);
@@ -414,83 +416,83 @@ void Viewer::set_out_point() {
 	ui->headers->set_out_point(seq->playhead);
 }
 
-void Viewer::set_media(int type, void* media) {
+void Viewer::set_media(Media* m) {
 	main_sequence = false;
-	clean_created_seq();
-	switch (type) {
-	case MEDIA_TYPE_FOOTAGE:
-	{
-		Media* footage = static_cast<Media*>(media);
+    media = m;
+    clean_created_seq();
+    if (media != NULL) {
+        switch (media->get_type()) {
+        case MEDIA_TYPE_FOOTAGE:
+        {
+            Footage* footage = media->to_footage();
 
-		seq = new Sequence();
-		created_sequence = true;
-        seq->wrapper_sequence = true;
-		seq->name = footage->name;
+            seq = new Sequence();
+            created_sequence = true;
+            seq->wrapper_sequence = true;
+            seq->name = footage->name;
 
-        seq->using_workarea = footage->using_inout;
-		if (footage->using_inout) {
-			seq->workarea_in = footage->in;
-			seq->workarea_out = footage->out;
-		}
+            seq->using_workarea = footage->using_inout;
+            if (footage->using_inout) {
+                seq->workarea_in = footage->in;
+                seq->workarea_out = footage->out;
+            }
 
-		seq->frame_rate = 30;
+            seq->frame_rate = 30;
 
-		if (footage->video_tracks.size() > 0) {
-			MediaStream* video_stream = footage->video_tracks.at(0);
-			seq->width = video_stream->video_width;
-			seq->height = video_stream->video_height;
-			if (video_stream->video_frame_rate > 0 && !video_stream->infinite_length) seq->frame_rate = video_stream->video_frame_rate;
+            if (footage->video_tracks.size() > 0) {
+                FootageStream* video_stream = footage->video_tracks.at(0);
+                seq->width = video_stream->video_width;
+                seq->height = video_stream->video_height;
+                if (video_stream->video_frame_rate > 0 && !video_stream->infinite_length) seq->frame_rate = video_stream->video_frame_rate;
 
-			Clip* c = new Clip(seq);
-			c->media = footage;
-			c->media_type = type;
-			c->media_stream = video_stream->file_index;
-			c->timeline_in = 0;
-			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
-			if (c->timeline_out <= 0) c->timeline_out = 150;
-			c->track = -1;
-			c->clip_in = 0;
-			c->recalculateMaxLength();
-			seq->clips.append(c);
-		} else {
-			seq->width = 1920;
-			seq->height = 1080;
-		}
+                Clip* c = new Clip(seq);
+                c->media = media;
+                c->media_stream = video_stream->file_index;
+                c->timeline_in = 0;
+                c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+                if (c->timeline_out <= 0) c->timeline_out = 150;
+                c->track = -1;
+                c->clip_in = 0;
+                c->recalculateMaxLength();
+                seq->clips.append(c);
+            } else {
+                seq->width = 1920;
+                seq->height = 1080;
+            }
 
-		if (footage->audio_tracks.size() > 0) {
-			MediaStream* audio_stream = footage->audio_tracks.at(0);
-			seq->audio_frequency = audio_stream->audio_frequency;
+            if (footage->audio_tracks.size() > 0) {
+                FootageStream* audio_stream = footage->audio_tracks.at(0);
+                seq->audio_frequency = audio_stream->audio_frequency;
 
-			Clip* c = new Clip(seq);
-			c->media = footage;
-			c->media_type = type;
-			c->media_stream = audio_stream->file_index;
-			c->timeline_in = 0;
-			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
-			c->track = 0;
-			c->clip_in = 0;
-			c->recalculateMaxLength();
-			seq->clips.append(c);
+                Clip* c = new Clip(seq);
+                c->media = media;
+                c->media_stream = audio_stream->file_index;
+                c->timeline_in = 0;
+                c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+                c->track = 0;
+                c->clip_in = 0;
+                c->recalculateMaxLength();
+                seq->clips.append(c);
 
-			if (footage->video_tracks.size() == 0) {
-				viewer_widget->waveform = true;
-				viewer_widget->waveform_clip = c;
-				viewer_widget->waveform_ms = audio_stream;
-				viewer_widget->update();
-			}
-		} else {
-			seq->audio_frequency = 48000;
-		}
+                if (footage->video_tracks.size() == 0) {
+                    viewer_widget->waveform = true;
+                    viewer_widget->waveform_clip = c;
+                    viewer_widget->waveform_ms = audio_stream;
+                    viewer_widget->update();
+                }
+            } else {
+                seq->audio_frequency = 48000;
+            }
 
-		seq->audio_layout = AV_CH_LAYOUT_STEREO;
-
-		set_sequence(false, seq);
-	}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-        set_sequence(false, static_cast<Sequence*>(media));
-		break;
-	}
+            seq->audio_layout = AV_CH_LAYOUT_STEREO;
+        }
+            break;
+        case MEDIA_TYPE_SEQUENCE:
+            seq = media->to_sequence();
+            break;
+        }
+    }
+    set_sequence(false, seq);
 }
 
 void Viewer::on_pushButton_clicked() {

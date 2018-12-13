@@ -2,7 +2,7 @@
 
 #include "project/clip.h"
 #include "project/sequence.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "playback/audio.h"
 #include "playback/cacher.h"
 #include "panels/panels.h"
@@ -10,6 +10,7 @@
 #include "panels/viewer.h"
 #include "project/effect.h"
 #include "panels/effectcontrols.h"
+#include "project/media.h"
 #include "debug.h"
 
 extern "C" {
@@ -32,36 +33,34 @@ extern "C" {
 bool texture_failed = false;
 bool rendering = false;
 
-void open_clip(Clip* clip, bool multithreaded) {
-	switch (clip->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	case MEDIA_TYPE_TONE:
-		clip->multithreaded = multithreaded;
-		if (multithreaded) {
-			if (clip->open_lock.tryLock()) {
-				// maybe keep cacher instance in memory while clip exists for performance?
-				clip->cacher = new Cacher(clip);
-				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
-				clip->cacher->start((clip->track < 0) ? QThread::NormalPriority : QThread::TimeCriticalPriority);
-			}
-		} else {
-			clip->finished_opening = false;
-			clip->open = true;
+bool clip_uses_cacher(Clip* clip) {
+    return (clip->media == NULL && clip->track >= 0) || (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
+}
 
-			open_clip_worker(clip);
-		}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-	case MEDIA_TYPE_SOLID:
-		clip->open = true;
-		break;
-	}
+void open_clip(Clip* clip, bool multithreaded) {
+    if (clip_uses_cacher(clip)) {
+        clip->multithreaded = multithreaded;
+        if (multithreaded) {
+            if (clip->open_lock.tryLock()) {
+                // maybe keep cacher instance in memory while clip exists for performance?
+                clip->cacher = new Cacher(clip);
+                QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
+                clip->cacher->start((clip->track < 0) ? QThread::NormalPriority : QThread::TimeCriticalPriority);
+            }
+        } else {
+            clip->finished_opening = false;
+            clip->open = true;
+
+            open_clip_worker(clip);
+        }
+    } else {
+        clip->open = true;
+    }
 }
 
 void close_clip(Clip* clip) {
 	// destroy opengl texture in main thread
-	if (clip->texture != NULL) {
-		clip->texture->destroy();
+    if (clip->texture != NULL) {
 		delete clip->texture;
 		clip->texture = NULL;
 	}
@@ -77,26 +76,22 @@ void close_clip(Clip* clip) {
 		clip->fbo = NULL;
 	}
 
-	switch (clip->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	case MEDIA_TYPE_TONE:
-		if (clip->multithreaded) {
-			clip->cacher->caching = false;
-			clip->can_cache.wakeAll();
-		} else {
-			close_clip_worker(clip);
-		}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-		closeActiveClips(static_cast<Sequence*>(clip->media), false);
-	case MEDIA_TYPE_SOLID:
-		clip->open = false;
-		break;
-	}
+    if (clip_uses_cacher(clip)) {
+        if (clip->multithreaded) {
+            clip->cacher->caching = false;
+            clip->can_cache.wakeAll();
+        } else {
+            close_clip_worker(clip);
+        }
+    } else {
+        if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
+            closeActiveClips(clip->media->to_sequence(), false);
+        clip->open = false;
+    }
 }
 
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*>& nests) {
-	if (clip->media_type == MEDIA_TYPE_FOOTAGE || clip->media_type == MEDIA_TYPE_TONE) {
+    if (clip_uses_cacher(clip)) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
 			clip->cacher->reset = reset;
@@ -113,7 +108,7 @@ void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<C
 
 void get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
-		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
+        FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 
         int64_t target_pts = qMax(static_cast<int64_t>(0), playhead_to_timestamp(c, playhead));
         int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
@@ -318,11 +313,11 @@ void closeActiveClips(Sequence *s, bool wait) {
 	if (s != NULL) {
         for (int i=0;i<s->clips.size();i++) {
             Clip* c = s->clips.at(i);
-			if (c != NULL) {
-				if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-					closeActiveClips(static_cast<Sequence*>(c->media), wait);
+            if (c != NULL) {
+                if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+                    closeActiveClips(c->media->to_sequence(), wait);
 					close_clip(c);
-				} else if (c->media_type == MEDIA_TYPE_FOOTAGE && c->open) {
+                } else if (clip_uses_cacher(c) && c->open) {
 					close_clip(c);
 					if (c->multithreaded && wait) c->cacher->wait();
 				}

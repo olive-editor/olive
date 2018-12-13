@@ -8,7 +8,7 @@
 #include "project/clip.h"
 #include "panels/project.h"
 #include "panels/timeline.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "ui/sourcetable.h"
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
@@ -16,6 +16,7 @@
 #include "ui_timeline.h"
 #include "mainwindow.h"
 #include "ui/viewerwidget.h"
+#include "project/media.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -238,17 +239,14 @@ bool same_sign(int a, int b) {
 void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 	bool import_init = false;
 
-	QVector<void*> media_list;
-	QVector<int> type_list;
+    QVector<Media*> media_list;
 	panel_timeline->importing_files = false;
 
 	if (event->source() == panel_project->source_table) {
-		QList<QTreeWidgetItem*> items = panel_project->source_table->selectedItems();
-		media_list.resize(items.size());
-		type_list.resize(items.size());
-		for (int i=0;i<items.size();i++) {
-			type_list[i] = get_type_from_tree(items.at(i));
-			media_list[i] = get_media_from_tree(items.at(i));
+        QModelIndexList items = panel_project->source_table->selectionModel()->selectedRows();
+        media_list.resize(items.size());
+        for (int i=0;i<items.size();i++) {
+            media_list[i] = static_cast<Media*>(items.at(i).internalPointer());
 		}
 		import_init = true;
 	}
@@ -256,13 +254,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 	if (event->source() == panel_footage_viewer->viewer_widget) {
 		Sequence* proposed_seq = panel_footage_viewer->seq;
 		if (proposed_seq != sequence) { // don't allow nesting the same sequence
-			if (proposed_seq->wrapper_sequence) {
-				type_list.append(MEDIA_TYPE_FOOTAGE);
-				media_list.append(proposed_seq->clips.at(0)->media);
-			} else {
-				type_list.append(MEDIA_TYPE_SEQUENCE);
-				media_list.append(proposed_seq);
-			}
+            media_list.append(panel_footage_viewer->media);
 			import_init = true;
 		}
 	}
@@ -281,12 +273,12 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 			for (int i=0;i<panel_project->last_imported_media.size();i++) {
 				// waits for media to have a duration
 				// TODO would be much nicer if this was multithreaded
-				panel_project->last_imported_media.at(i)->ready_lock.lock();
-				panel_project->last_imported_media.at(i)->ready_lock.unlock();
+                Footage* f = panel_project->last_imported_media.at(i)->to_footage();
+                f->ready_lock.lock();
+                f->ready_lock.unlock();
 
-				if (panel_project->last_imported_media.at(i)->ready) {
-					media_list.append(panel_project->last_imported_media.at(i));
-					type_list.append(MEDIA_TYPE_FOOTAGE);
+                if (f->ready) {
+                    media_list.append(panel_project->last_imported_media.at(i));
 				}
 			}
 
@@ -309,7 +301,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 			// if no sequence, we're going to create a new one using the clips as a reference
 			entry_point = 0;
 
-			self_created_sequence = create_sequence_from_media(media_list, type_list);
+            self_created_sequence = create_sequence_from_media(media_list);
 			seq = self_created_sequence;
 		} else {
 			entry_point = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
@@ -317,7 +309,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 			panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
 		}
 
-		panel_timeline->create_ghosts_from_media(seq, entry_point, media_list, type_list);
+        panel_timeline->create_ghosts_from_media(seq, entry_point, media_list);
 
 		panel_timeline->importing = true;
 	}
@@ -773,7 +765,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						if (c->track < 0) {
 							// default video effects (before custom effects)
                             c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
-							c->media_type = MEDIA_TYPE_SOLID;
+                            //c->media_type = MEDIA_TYPE_SOLID;
 						}
 
 						switch (panel_timeline->creating_object) {
@@ -807,7 +799,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							// default audio effects (after custom effects)
                             c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
                             c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
-							c->media_type = MEDIA_TYPE_TONE;
+                            //c->media_type = MEDIA_TYPE_TONE;
 						}
 
 						push_undo = true;
@@ -1227,17 +1219,17 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         Clip* c = NULL;
         if (g.clip != -1) c = sequence->clips.at(g.clip);
 
-		MediaStream* ms = NULL;
-		if (g.clip != -1 && c->media_type == MEDIA_TYPE_FOOTAGE) {
-            ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
+		FootageStream* ms = NULL;
+        if (g.clip != -1 && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+            ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		}
 
         // validate ghosts for trimming
 		if (panel_timeline->creating) {
 			// i feel like we might need something here but we haven't so far?
 		} else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
-            if (c->media_type == MEDIA_TYPE_SEQUENCE
-                    || (c->media_type == MEDIA_TYPE_FOOTAGE && !static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream)->infinite_length)) {
+            if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
+                    || (ms != NULL && !ms->infinite_length)) {
                 // prevent slip moving a clip below 0 clip_in
                 validator = g.old_clip_in - frame_diff;
                 if (validator < 0) frame_diff += validator;
@@ -1257,7 +1249,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				if (validator < 0) frame_diff -= validator;
 
 				// prevent clip_in from going below 0
-				if (c->media_type == MEDIA_TYPE_SEQUENCE
+                if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
 						|| (ms != NULL && !ms->infinite_length)) {
 					validator = g.old_clip_in + frame_diff;
 					if (validator < 0) frame_diff -= validator;
@@ -1268,7 +1260,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				if (validator < 1) frame_diff += (1 - validator);
 
 				// prevent clip length exceeding media length
-				if (c->media_type == MEDIA_TYPE_SEQUENCE
+                if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
 						|| (ms != NULL && !ms->infinite_length)) {
 					validator = g.old_clip_in + g.ghost_length + frame_diff;
 					if (validator > g.media_length) frame_diff -= validator - g.media_length;
@@ -1349,14 +1341,14 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
                     if (validator > 0) frame_diff -= validator;
                 } else {
                     // prevent clip_in from going below 0
-                    if (c->media_type == MEDIA_TYPE_SEQUENCE
+                    if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
                             || (ms != NULL && !ms->infinite_length)) {
                         validator = g.old_clip_in + frame_diff;
                         if (validator < 0) frame_diff -= validator;
                     }
 
                     // prevent clip length exceeding media length
-                    if (c->media_type == MEDIA_TYPE_SEQUENCE
+                    if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
                             || (ms != NULL && !ms->infinite_length)) {
                         validator = g.old_clip_in + g.ghost_length + frame_diff;
                         if (validator > g.media_length) frame_diff -= validator - g.media_length;
@@ -2049,7 +2041,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                     g.in = g.old_in = g.out = g.old_out = (panel_timeline->transition_tool_type == TA_OPENING_TRANSITION) ? c->timeline_in : c->timeline_out;
                     g.track = c->track;
                     g.clip = panel_timeline->transition_tool_pre_clip;
-                    g.media_type = panel_timeline->transition_tool_type;
+                    g.media_stream = panel_timeline->transition_tool_type;
                     g.trimming = false;
 
                     panel_timeline->ghosts.append(g);
@@ -2097,7 +2089,7 @@ int color_brightness(int r, int g, int b) {
 	return (0.2126*r + 0.7152*g + 0.0722*b);
 }
 
-void draw_waveform(Clip* clip, MediaStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
+void draw_waveform(Clip* clip, FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
 	int divider = ms->audio_channels*2;
 	int channel_height = clip_rect.height()/ms->audio_channels;
 
@@ -2225,11 +2217,11 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
 					int thumb_x = clip_rect.x() + 1;
 
-					if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+                    if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 						bool draw_checkerboard = false;
 						QRect checkerboard_rect(clip_rect);
-						Media* m = static_cast<Media*>(clip->media);
-						MediaStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
+                        Footage* m = clip->media->to_footage();
+						FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 						if (ms == NULL) {
 							draw_checkerboard = true;
 						} else if (ms->preview_done) {
@@ -2641,5 +2633,5 @@ void TimelineWidget::setScroll(int s) {
 }
 
 void TimelineWidget::reveal_media() {
-	panel_project->reveal_media(rc_reveal_media);
+    panel_project->reveal_media(rc_reveal_media);
 }

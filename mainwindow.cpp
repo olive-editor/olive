@@ -3,11 +3,12 @@
 
 #include "io/config.h"
 #include "io/path.h"
-#include "io/media.h"
 
+#include "project/footage.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "project/undo.h"
+#include "project/media.h"
 
 #include "ui/sourcetable.h"
 #include "ui/viewerwidget.h"
@@ -222,9 +223,6 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
-    panel_sequence_viewer->viewer_widget->delete_function();
-    panel_footage_viewer->viewer_widget->delete_function();
-
 	set_sequence(NULL);
 
     QString data_dir = get_data_path();
@@ -977,12 +975,11 @@ void MainWindow::on_actionNest_triggered() {
 			}
 
             // add sequence to project
-            panel_project->new_sequence(ca, s, false, NULL);
+            Media* m = panel_project->new_sequence(ca, s, false, NULL);
 
             // add nested sequence to active sequence
-            QVector<void*> media_list = {s};
-            QVector<int> type_list = {MEDIA_TYPE_SEQUENCE};
-            panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list, type_list);
+            QVector<Media*> media_list = {m};
+            panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
             panel_timeline->add_clips_from_ghosts(ca, sequence);
 
             undo_stack.push(ca);

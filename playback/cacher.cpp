@@ -3,7 +3,7 @@
 #include "project/clip.h"
 #include "project/sequence.h"
 #include "project/transition.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "playback/audio.h"
 #include "playback/playback.h"
 #include "project/effect.h"
@@ -12,6 +12,7 @@
 #include "playback/audio.h"
 #include "panels/panels.h"
 #include "panels/viewer.h"
+#include "project/media.h"
 #include "debug.h"
 
 extern "C" {
@@ -49,7 +50,7 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 		if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
     }
     if (c->get_opening_transition() != NULL) {
-        if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+        if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
             double transition_start = (c->get_clip_in_with_transition() / c->sequence->frame_rate);
             double transition_end = (c->get_clip_in_with_transition() + c->get_opening_transition()->get_length()) / c->sequence->frame_rate;
 			if (timecode_end < transition_end) {
@@ -61,7 +62,7 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 		}
 	}
     if (c->get_closing_transition() != NULL) {
-        if (c->media_type == MEDIA_TYPE_FOOTAGE) {
+        if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
             long length_with_transitions = c->get_timeline_out_with_transition() - c->get_timeline_in_with_transition();
             double transition_start = (c->get_clip_in_with_transition() + length_with_transitions - c->get_closing_transition()->get_length()) / c->sequence->frame_rate;
             double transition_end = (c->get_clip_in_with_transition() + length_with_transitions) / c->sequence->frame_rate;
@@ -114,250 +115,246 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		AVFrame* frame;
 		int nb_bytes = INT_MAX;
 
-		switch (c->media_type) {
-		case MEDIA_TYPE_FOOTAGE:
-		{
-			double timebase = av_q2d(c->stream->time_base);
+        if (c->media == NULL) {
+            frame = c->frame;
+            nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+            while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
+                // create "new frame"
+                memset(c->frame->data[0], 0, nb_bytes);
+                apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes, nests);
+                c->frame->pts += nb_bytes;
+                c->frame_sample_index = 0;
+                if (c->audio_buffer_write == 0) {
+                    c->audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
+                }
+                int offset = audio_ibuffer_read - c->audio_buffer_write;
+                if (offset > 0) {
+                    c->audio_buffer_write += offset;
+                    c->frame_sample_index += offset;
+                }
+            }
+        } else if (c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+            double timebase = av_q2d(c->stream->time_base);
 
-			frame = c->queue.at(0);
+            frame = c->queue.at(0);
 
             // retrieve frame
-			bool new_frame = false;
-			while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
-				// no more audio left in frame, get a new one
-				if (!c->reached_end) {
-					int loop = 0;
+            bool new_frame = false;
+            while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
+                // no more audio left in frame, get a new one
+                if (!c->reached_end) {
+                    int loop = 0;
 
-					if (c->reverse && !c->audio_just_reset) {
-						avcodec_flush_buffers(c->codecCtx);
-						c->reached_end = false;
-						int64_t backtrack_seek = qMax(c->reverse_target - static_cast<int64_t>(av_q2d(av_inv_q(c->stream->time_base))), static_cast<int64_t>(0));
-						av_seek_frame(c->formatCtx, c->stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
+                    if (c->reverse && !c->audio_just_reset) {
+                        avcodec_flush_buffers(c->codecCtx);
+                        c->reached_end = false;
+                        int64_t backtrack_seek = qMax(c->reverse_target - static_cast<int64_t>(av_q2d(av_inv_q(c->stream->time_base))), static_cast<int64_t>(0));
+                        av_seek_frame(c->formatCtx, c->stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
 #ifdef AUDIOWARNINGS
-						if (backtrack_seek == 0) {
-							dout << "backtracked to 0";
-						}
+                        if (backtrack_seek == 0) {
+                            dout << "backtracked to 0";
+                        }
 #endif
-					}
+                    }
 
-					do {
-						av_frame_unref(frame);
+                    do {
+                        av_frame_unref(frame);
 
-						int ret;
+                        int ret;
 
-						while ((ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
-							ret = retrieve_next_frame(c, c->frame);
-							if (ret >= 0) {
-								if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
-									dout << "[ERROR] Could not feed filtergraph -" << ret;
-									break;
-								}
-							} else {
-								if (ret == AVERROR_EOF) {
+                        while ((ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
+                            ret = retrieve_next_frame(c, c->frame);
+                            if (ret >= 0) {
+                                if ((ret = av_buffersrc_add_frame_flags(c->buffersrc_ctx, c->frame, AV_BUFFERSRC_FLAG_KEEP_REF)) < 0) {
+                                    dout << "[ERROR] Could not feed filtergraph -" << ret;
+                                    break;
+                                }
+                            } else {
+                                if (ret == AVERROR_EOF) {
 #ifdef AUDIOWARNINGS
-										dout << "reached EOF while reading";
+                                        dout << "reached EOF while reading";
 #endif
-									// TODO revise usage of reached_end in audio
-									if (!c->reverse) {
-										c->reached_end = true;
-									} else {
-									}
-								} else {
-									dout << "[WARNING] Raw audio frame data could not be retrieved." << ret;
-									c->reached_end = true;
-								}
-								break;
-							}
-						}
+                                    // TODO revise usage of reached_end in audio
+                                    if (!c->reverse) {
+                                        c->reached_end = true;
+                                    } else {
+                                    }
+                                } else {
+                                    dout << "[WARNING] Raw audio frame data could not be retrieved." << ret;
+                                    c->reached_end = true;
+                                }
+                                break;
+                            }
+                        }
 
-						if (ret < 0) {
-							if (ret != AVERROR_EOF) {
-								dout << "[ERROR] Could not pull from filtergraph";
-								c->reached_end = true;
-								break;
-							} else {
+                        if (ret < 0) {
+                            if (ret != AVERROR_EOF) {
+                                dout << "[ERROR] Could not pull from filtergraph";
+                                c->reached_end = true;
+                                break;
+                            } else {
 #ifdef AUDIOWARNINGS
-								dout << "reached EOF while pulling from filtergraph";
+                                dout << "reached EOF while pulling from filtergraph";
 #endif
-								if (!c->reverse) break;
-							}
-						}
+                                if (!c->reverse) break;
+                            }
+                        }
 
-						if (c->reverse) {
-							if (loop > 1) {
-								AVFrame* rev_frame = c->queue.at(1);
-								if (ret != AVERROR_EOF) {
-									if (loop == 2) {
+                        if (c->reverse) {
+                            if (loop > 1) {
+                                AVFrame* rev_frame = c->queue.at(1);
+                                if (ret != AVERROR_EOF) {
+                                    if (loop == 2) {
 #ifdef AUDIOWARNINGS
-										dout << "starting rev_frame";
+                                        dout << "starting rev_frame";
 #endif
-										rev_frame->nb_samples = 0;
-										rev_frame->pts = c->frame->pkt_pts;
-									}
-									int offset = rev_frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format)) * rev_frame->channels;
+                                        rev_frame->nb_samples = 0;
+                                        rev_frame->pts = c->frame->pkt_pts;
+                                    }
+                                    int offset = rev_frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format)) * rev_frame->channels;
 #ifdef AUDIOWARNINGS
-									dout << "offset 1:" << offset;
-									dout << "retrieved samples:" << frame->nb_samples << "size:" << (frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels);
+                                    dout << "offset 1:" << offset;
+                                    dout << "retrieved samples:" << frame->nb_samples << "size:" << (frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels);
 #endif
-									memcpy(
-											rev_frame->data[0]+offset,
-											frame->data[0],
-											(frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels)
-										);
+                                    memcpy(
+                                            rev_frame->data[0]+offset,
+                                            frame->data[0],
+                                            (frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels)
+                                        );
 #ifdef AUDIOWARNINGS
-									dout << "pts:" << c->frame->pts << "dur:" << c->frame->pkt_duration << "rev_target:" << c->reverse_target << "offset:" << offset << "limit:" << rev_frame->linesize[0];
+                                    dout << "pts:" << c->frame->pts << "dur:" << c->frame->pkt_duration << "rev_target:" << c->reverse_target << "offset:" << offset << "limit:" << rev_frame->linesize[0];
 #endif
-								}
+                                }
 
-								rev_frame->nb_samples += frame->nb_samples;
+                                rev_frame->nb_samples += frame->nb_samples;
 
-								if ((c->frame->pts >= c->reverse_target) || (ret == AVERROR_EOF)) {
+                                if ((c->frame->pts >= c->reverse_target) || (ret == AVERROR_EOF)) {
 /*
 #ifdef AUDIOWARNINGS
-									dout << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
-									dout << "diff:" << (c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target;
+                                    dout << "time for the end of rev cache" << rev_frame->nb_samples << c->rev_target << c->frame->pts << c->frame->pkt_duration << c->frame->nb_samples;
+                                    dout << "diff:" << (c->frame->pkt_pts + c->frame->pkt_duration) - c->rev_target;
 #endif
                                     int cutoff = qRound64((((c->frame->pkt_pts + c->frame->pkt_duration) - c->reverse_target) * timebase) * audio_output->format().sampleRate());
-									if (cutoff > 0) {
+                                    if (cutoff > 0) {
 #ifdef AUDIOWARNINGS
                                         dout << "cut off" << cutoff << "samples (rate:" << audio_output->format().sampleRate() << ")";
 #endif
-										rev_frame->nb_samples -= cutoff;
-									}
+                                        rev_frame->nb_samples -= cutoff;
+                                    }
 */
 
 #ifdef AUDIOWARNINGS
-									dout << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
+                                    dout << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
 #endif
                                     rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * (audio_output->format().sampleRate() / c->speed));
 #ifdef AUDIOWARNINGS
-									dout << "post cutoff deets::" << rev_frame->nb_samples;
+                                    dout << "post cutoff deets::" << rev_frame->nb_samples;
 #endif
 
-									int frame_size = rev_frame->nb_samples * rev_frame->channels * av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format));
-									int half_frame_size = frame_size >> 1;
+                                    int frame_size = rev_frame->nb_samples * rev_frame->channels * av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format));
+                                    int half_frame_size = frame_size >> 1;
 
-									int sample_size = rev_frame->channels*av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format));
-									char* temp_chars = new char[sample_size];
-									for (int i=0;i<half_frame_size;i+=sample_size) {
-										for (int j=0;j<sample_size;j++) {
-											temp_chars[j] = rev_frame->data[0][i+j];
-										}
-										for (int j=0;j<sample_size;j++) {
-											rev_frame->data[0][i+j] = rev_frame->data[0][frame_size-i-sample_size+j];
-										}
-										for (int j=0;j<sample_size;j++) {
-											rev_frame->data[0][frame_size-i-sample_size+j] = temp_chars[j];
-										}
-									}
-									delete [] temp_chars;
+                                    int sample_size = rev_frame->channels*av_get_bytes_per_sample(static_cast<AVSampleFormat>(rev_frame->format));
+                                    char* temp_chars = new char[sample_size];
+                                    for (int i=0;i<half_frame_size;i+=sample_size) {
+                                        for (int j=0;j<sample_size;j++) {
+                                            temp_chars[j] = rev_frame->data[0][i+j];
+                                        }
+                                        for (int j=0;j<sample_size;j++) {
+                                            rev_frame->data[0][i+j] = rev_frame->data[0][frame_size-i-sample_size+j];
+                                        }
+                                        for (int j=0;j<sample_size;j++) {
+                                            rev_frame->data[0][frame_size-i-sample_size+j] = temp_chars[j];
+                                        }
+                                    }
+                                    delete [] temp_chars;
 
-									c->reverse_target = rev_frame->pts;
-									frame = rev_frame;
-									break;
-								}
-							}
+                                    c->reverse_target = rev_frame->pts;
+                                    frame = rev_frame;
+                                    break;
+                                }
+                            }
 
-							loop++;
+                            loop++;
 
 #ifdef AUDIOWARNINGS
-							dout << "loop" << loop;
+                            dout << "loop" << loop;
 #endif
-						} else {
-							frame->pts = c->frame->pts;
-							break;
-						}
-					} while (true);
-				} else {
-					// if there is no more data in the file, we flush the remainder out of swresample
-					break;
+                        } else {
+                            frame->pts = c->frame->pts;
+                            break;
+                        }
+                    } while (true);
+                } else {
+                    // if there is no more data in the file, we flush the remainder out of swresample
+                    break;
                 }
 
-				new_frame = true;
+                new_frame = true;
 
-				if (c->frame_sample_index < 0) {
-					c->frame_sample_index = 0;
-				} else {
-					c->frame_sample_index -= nb_bytes;
-				}
+                if (c->frame_sample_index < 0) {
+                    c->frame_sample_index = 0;
+                } else {
+                    c->frame_sample_index -= nb_bytes;
+                }
 
-				nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+                nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 
                 if (c->audio_just_reset) {
                     // get precise sample offset for the elected clip_in from this audio frame
-					double target_sts = playhead_to_clip_seconds(c, c->audio_target_frame);
-					double frame_sts = ((frame->pts - c->stream->start_time) * timebase);
+                    double target_sts = playhead_to_clip_seconds(c, c->audio_target_frame);
+                    double frame_sts = ((frame->pts - c->stream->start_time) * timebase);
                     int nb_samples = qRound64((target_sts - frame_sts)*audio_output->format().sampleRate());
-					c->frame_sample_index = nb_samples * 4;
+                    c->frame_sample_index = nb_samples * 4;
 #ifdef AUDIOWARNINGS
-					dout << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (c->reverse_target * timebase);
-					dout << "fsi-calc:" << c->frame_sample_index;
+                    dout << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (c->reverse_target * timebase);
+                    dout << "fsi-calc:" << c->frame_sample_index;
 #endif
-					if (c->reverse) c->frame_sample_index = nb_bytes - c->frame_sample_index;
+                    if (c->reverse) c->frame_sample_index = nb_bytes - c->frame_sample_index;
                     c->audio_just_reset = false;
-				}
+                }
 
 #ifdef AUDIOWARNINGS
-				dout << "fsi-post-post:" << c->frame_sample_index;
+                dout << "fsi-post-post:" << c->frame_sample_index;
 #endif
-				if (c->audio_buffer_write == 0) {
-					c->audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
+                if (c->audio_buffer_write == 0) {
+                    c->audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
 
-					if (frame_skip > 0) {
-						int target = get_buffer_offset_from_frame(last_fr, qMax(timeline_in + frame_skip, target_frame));
-						c->frame_sample_index += (target - c->audio_buffer_write);
-						c->audio_buffer_write = target;
-					}
-				}
+                    if (frame_skip > 0) {
+                        int target = get_buffer_offset_from_frame(last_fr, qMax(timeline_in + frame_skip, target_frame));
+                        c->frame_sample_index += (target - c->audio_buffer_write);
+                        c->audio_buffer_write = target;
+                    }
+                }
 
-				int offset = audio_ibuffer_read - c->audio_buffer_write;
-				if (offset > 0) {					
-					c->audio_buffer_write += offset;
-					c->frame_sample_index += offset;
-				}
+                int offset = audio_ibuffer_read - c->audio_buffer_write;
+                if (offset > 0) {
+                    c->audio_buffer_write += offset;
+                    c->frame_sample_index += offset;
+                }
 
-				// try to correct negative fsi
-				if (c->frame_sample_index < 0) {
-					c->audio_buffer_write -= c->frame_sample_index;
-					c->frame_sample_index = 0;
-				}
-			}
+                // try to correct negative fsi
+                if (c->frame_sample_index < 0) {
+                    c->audio_buffer_write -= c->frame_sample_index;
+                    c->frame_sample_index = 0;
+                }
+            }
 
-			if (c->reverse) frame = c->queue.at(1);
+            if (c->reverse) frame = c->queue.at(1);
 
 #ifdef AUDIOWARNINGS
-			dout << "j" << c->frame_sample_index << nb_bytes;
+            dout << "j" << c->frame_sample_index << nb_bytes;
 #endif
 
-			// apply any audio effects to the data
-			if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
-			if (new_frame) {
+            // apply any audio effects to the data
+            if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+            if (new_frame) {
                 apply_audio_effects(c, bytes_to_seconds(c->audio_buffer_write, 2, audio_output->format().sampleRate()) + audio_ibuffer_timecode + ((double)c->get_clip_in_with_transition()/c->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests);
-			}
-		}
-			break;
-		case MEDIA_TYPE_TONE:
-			frame = c->frame;
-			nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
-			while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
-				// create "new frame"
-				memset(c->frame->data[0], 0, nb_bytes);
-				apply_audio_effects(c, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes, nests);
-				c->frame->pts += nb_bytes;
-				c->frame_sample_index = 0;
-				if (c->audio_buffer_write == 0) {
-					c->audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
-				}
-				int offset = audio_ibuffer_read - c->audio_buffer_write;
-				if (offset > 0) {
-					c->audio_buffer_write += offset;
-					c->frame_sample_index += offset;
-				}
-			}
-			break;
-		default: // shouldn't ever get here
-			dout << "[ERROR] Tried to cache a non-footage/tone clip";
-			return;
+            }
+        } else {
+            // shouldn't ever get here
+            dout << "[ERROR] Tried to cache a non-footage/tone clip";
+            return;
         }
 
 		// mix audio into internal buffer
@@ -452,8 +449,8 @@ void cache_video_worker(Clip* c, long playhead) {
 		while (true) {
 			AVFrame* frame = av_frame_alloc();
 
-			Media* media = static_cast<Media*>(c->media);
-			MediaStream* ms = media->get_stream_from_file_index(true, c->media_stream);
+            Footage* media = c->media->to_footage();
+			FootageStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
                 if (c->multithreaded && c->cacher->interrupt) return; // abort
@@ -539,85 +536,83 @@ void cache_video_worker(Clip* c, long playhead) {
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values	
-	switch (c->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	{
-		MediaStream* ms = static_cast<Media*>(c->media)->get_stream_from_file_index(c->track < 0, c->media_stream);
-		if (ms->infinite_length) {
-			/*avcodec_flush_buffers(c->codecCtx);
-			av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);*/
-			c->use_existing_frame = false;
-		} else {
-			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-				// clear current queue
-				c->queue_clear();
+    if (c->media == NULL) {
+        if (c->track >= 0) {
+            // tone clip
+            c->reached_end = false;
+            c->audio_target_frame = target_frame;
+            c->frame_sample_index = -1;
+            c->frame->pts = 0;
+        }
+    } else {
+        FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+        if (ms->infinite_length) {
+            /*avcodec_flush_buffers(c->codecCtx);
+            av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);*/
+            c->use_existing_frame = false;
+        } else {
+            if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                // clear current queue
+                c->queue_clear();
 
-				// seeks to nearest keyframe (target_frame represents internal clip frame)
+                // seeks to nearest keyframe (target_frame represents internal clip frame)
                 int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
-				int64_t seek_ts = target_ts;
-				int64_t timebase_half_second = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
+                int64_t seek_ts = target_ts;
+                int64_t timebase_half_second = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
                 if (c->reverse) seek_ts -= timebase_half_second;
 
-				while (true) {
-					// flush ffmpeg codecs
-					avcodec_flush_buffers(c->codecCtx);
-					c->reached_end = false;
+                while (true) {
+                    // flush ffmpeg codecs
+                    avcodec_flush_buffers(c->codecCtx);
+                    c->reached_end = false;
 
-					if (seek_ts > 0) {
-						av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
+                    if (seek_ts > 0) {
+                        av_seek_frame(c->formatCtx, ms->file_index, seek_ts, AVSEEK_FLAG_BACKWARD);
 
-						av_frame_unref(c->frame);
-						int ret = retrieve_next_frame(c, c->frame);
-						if (ret < 0) {
-							dout << "[WARNING] Seeking terminated prematurely";
-							break;
+                        av_frame_unref(c->frame);
+                        int ret = retrieve_next_frame(c, c->frame);
+                        if (ret < 0) {
+                            dout << "[WARNING] Seeking terminated prematurely";
+                            break;
                         }
-						if (c->frame->pts <= target_ts) {
-							c->use_existing_frame = true;
-							break;
-						} else {
-							seek_ts -= timebase_half_second;
-						}
-					} else {
-						av_frame_unref(c->frame);
-						av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);
-						c->use_existing_frame = false;
-						break;
-					}
-				}
-			} else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-				// flush ffmpeg codecs
-				avcodec_flush_buffers(c->codecCtx);
-				c->reached_end = false;
+                        if (c->frame->pts <= target_ts) {
+                            c->use_existing_frame = true;
+                            break;
+                        } else {
+                            seek_ts -= timebase_half_second;
+                        }
+                    } else {
+                        av_frame_unref(c->frame);
+                        av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);
+                        c->use_existing_frame = false;
+                        break;
+                    }
+                }
+            } else if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+                // flush ffmpeg codecs
+                avcodec_flush_buffers(c->codecCtx);
+                c->reached_end = false;
 
-				// seek (target_frame represents timeline timecode in frames, not clip timecode)
+                // seek (target_frame represents timeline timecode in frames, not clip timecode)
 
-				int64_t timestamp = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
+                int64_t timestamp = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));
 
                 if (c->reverse) {
-					c->reverse_target = timestamp;
-					timestamp -= av_q2d(av_inv_q(c->stream->time_base));
+                    c->reverse_target = timestamp;
+                    timestamp -= av_q2d(av_inv_q(c->stream->time_base));
 #ifdef AUDIOWARNINGS
-					dout << "seeking to" << timestamp << "(originally" << c->reverse_target << ")";
-				} else {
-					dout << "reset called; seeking to" << timestamp;
+                    dout << "seeking to" << timestamp << "(originally" << c->reverse_target << ")";
+                } else {
+                    dout << "reset called; seeking to" << timestamp;
 #endif
-				}
+                }
                 av_seek_frame(c->formatCtx, ms->file_index, timestamp, AVSEEK_FLAG_BACKWARD);
-				c->audio_target_frame = target_frame;
-				c->frame_sample_index = -1;
-				c->audio_just_reset = true;
-			}
-		}
-	}
-		break;
-	case MEDIA_TYPE_TONE:
-		c->reached_end = false;
-		c->audio_target_frame = target_frame;
-		c->frame_sample_index = -1;
-		c->frame->pts = 0;
-		break;
-	}
+                c->audio_target_frame = target_frame;
+                c->frame_sample_index = -1;
+                c->audio_just_reset = true;
+            }
+        }
+    }
 }
 
 Cacher::Cacher(Clip* c) : clip(c) {}
@@ -625,85 +620,97 @@ Cacher::Cacher(Clip* c) : clip(c) {}
 AVSampleFormat sample_format = AV_SAMPLE_FMT_S16;
 
 void open_clip_worker(Clip* clip) {
-	switch (clip->media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	{
-		// opens file resource for FFmpeg and prepares Clip struct for playback
-		Media* m = static_cast<Media*>(clip->media);
-		QByteArray ba = m->url.toUtf8();
-		const char* filename = ba.constData();
-		MediaStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
+    if (clip->media == NULL) {
+        if (clip->track >= 0) {
+            clip->frame = av_frame_alloc();
+            clip->frame->format = sample_format;
+            clip->frame->channel_layout = clip->sequence->audio_layout;
+            clip->frame->channels = av_get_channel_layout_nb_channels(clip->frame->channel_layout);
+            clip->frame->sample_rate = audio_output->format().sampleRate();
+            clip->frame->nb_samples = 2048;
+            av_frame_make_writable(clip->frame);
+            if (av_frame_get_buffer(clip->frame, 0)) {
+                dout << "[ERROR] Could not allocate buffer for tone clip";
+            }
+            clip->audio_reset = true;
+        }
+    } else if (clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+        // opens file resource for FFmpeg and prepares Clip struct for playback
+        Footage* m = clip->media->to_footage();
+        QByteArray ba = m->url.toUtf8();
+        const char* filename = ba.constData();
+        FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 
-		int errCode = avformat_open_input(
-				&clip->formatCtx,
-				filename,
-				NULL,
-				NULL
-			);
-		if (errCode != 0) {
-			char err[1024];
-			av_strerror(errCode, err, 1024);
-			dout << "[ERROR] Could not open" << filename << "-" << err;
-			return;
-		}
+        int errCode = avformat_open_input(
+                &clip->formatCtx,
+                filename,
+                NULL,
+                NULL
+            );
+        if (errCode != 0) {
+            char err[1024];
+            av_strerror(errCode, err, 1024);
+            dout << "[ERROR] Could not open" << filename << "-" << err;
+            return;
+        }
 
-		errCode = avformat_find_stream_info(clip->formatCtx, NULL);
-		if (errCode < 0) {
-			char err[1024];
-			av_strerror(errCode, err, 1024);
-			dout << "[ERROR] Could not open" << filename << "-" << err;
-			return;
-		}
+        errCode = avformat_find_stream_info(clip->formatCtx, NULL);
+        if (errCode < 0) {
+            char err[1024];
+            av_strerror(errCode, err, 1024);
+            dout << "[ERROR] Could not open" << filename << "-" << err;
+            return;
+        }
 
-		av_dump_format(clip->formatCtx, 0, filename, 0);
+        av_dump_format(clip->formatCtx, 0, filename, 0);
 
-		clip->stream = clip->formatCtx->streams[ms->file_index];
-		clip->codec = avcodec_find_decoder(clip->stream->codecpar->codec_id);
-		clip->codecCtx = avcodec_alloc_context3(clip->codec);
-		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
+        clip->stream = clip->formatCtx->streams[ms->file_index];
+        clip->codec = avcodec_find_decoder(clip->stream->codecpar->codec_id);
+        clip->codecCtx = avcodec_alloc_context3(clip->codec);
+        avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
-		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.5);
-		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
+        clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.5);
+        if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
         clip->opts = NULL;
 
-		// optimized decoding settings
+        // optimized decoding settings
         if (clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
-			clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
-			clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
-			clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD) {
+            clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
+            clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
+            clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD) {
             av_dict_set(&clip->opts, "threads", "auto", 0);
-		}
-		if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {
+        }
+        if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {
             av_dict_set(&clip->opts, "tune", "fastdecode", 0);
             av_dict_set(&clip->opts, "tune", "zerolatency", 0);
         }
 
-		// Open codec
+        // Open codec
         if (avcodec_open2(clip->codecCtx, clip->codec, &clip->opts) < 0) {
-			dout << "[ERROR] Could not open codec";
-		}
+            dout << "[ERROR] Could not open codec";
+        }
 
-		// allocate filtergraph
-		clip->filter_graph = avfilter_graph_alloc();
-		if (clip->filter_graph == NULL) {
-			dout << "[ERROR] Could not create filtergraph";
-		}
-		char filter_args[512];
+        // allocate filtergraph
+        clip->filter_graph = avfilter_graph_alloc();
+        if (clip->filter_graph == NULL) {
+            dout << "[ERROR] Could not create filtergraph";
+        }
+        char filter_args[512];
 
         if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-			snprintf(filter_args, sizeof(filter_args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-						clip->stream->codecpar->width,
-						clip->stream->codecpar->height,
-						clip->stream->codecpar->format,
-						clip->stream->time_base.num,
-						clip->stream->time_base.den,
-						clip->stream->codecpar->sample_aspect_ratio.num,
-						clip->stream->codecpar->sample_aspect_ratio.den
-					 );
+            snprintf(filter_args, sizeof(filter_args), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+                        clip->stream->codecpar->width,
+                        clip->stream->codecpar->height,
+                        clip->stream->codecpar->format,
+                        clip->stream->time_base.num,
+                        clip->stream->time_base.den,
+                        clip->stream->codecpar->sample_aspect_ratio.num,
+                        clip->stream->codecpar->sample_aspect_ratio.den
+                     );
 
-			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
-			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
+            avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
+            avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
 
             /*enum AVPixelFormat sinkpix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
             if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", sinkpix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
@@ -713,14 +720,14 @@ void open_clip_worker(Clip* clip) {
             AVFilterContext* last_filter = clip->buffersrc_ctx;
 
             if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
-				AVFilterContext* yadif_filter;
-				char yadif_args[100];
+                AVFilterContext* yadif_filter;
+                char yadif_args[100];
                 snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
-				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, NULL, clip->filter_graph);
+                avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, NULL, clip->filter_graph);
 
                 avfilter_link(last_filter, 0, yadif_filter, 0);
                 last_filter = yadif_filter;
-			}
+            }
 
             /* stabilization code one day */
             bool stabilize = false;
@@ -743,110 +750,95 @@ void open_clip_worker(Clip* clip) {
             avfilter_link(format_conv, 0, clip->buffersink_ctx, 0);
 
             avfilter_graph_config(clip->filter_graph, NULL);
-		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-			if (clip->codecCtx->channel_layout == 0) clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
+        } else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            if (clip->codecCtx->channel_layout == 0) clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
 
-			// set up cache
-			clip->queue.append(av_frame_alloc());
-			if (clip->reverse) {
-				AVFrame* reverse_frame = av_frame_alloc();
+            // set up cache
+            clip->queue.append(av_frame_alloc());
+            if (clip->reverse) {
+                AVFrame* reverse_frame = av_frame_alloc();
 
-				reverse_frame->format = sample_format;
+                reverse_frame->format = sample_format;
                 reverse_frame->nb_samples = audio_output->format().sampleRate()*2;
-				reverse_frame->channel_layout = clip->sequence->audio_layout;
-				reverse_frame->channels = av_get_channel_layout_nb_channels(clip->sequence->audio_layout);
-				av_frame_get_buffer(reverse_frame, 0);
+                reverse_frame->channel_layout = clip->sequence->audio_layout;
+                reverse_frame->channels = av_get_channel_layout_nb_channels(clip->sequence->audio_layout);
+                av_frame_get_buffer(reverse_frame, 0);
 
-				clip->queue.append(reverse_frame);
-			}
+                clip->queue.append(reverse_frame);
+            }
 
-			snprintf(filter_args, sizeof(filter_args), "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
-						clip->stream->time_base.num,
-						clip->stream->time_base.den,
-						clip->stream->codecpar->sample_rate,
-						av_get_sample_fmt_name(clip->codecCtx->sample_fmt),
-						clip->codecCtx->channel_layout
-					 );
+            snprintf(filter_args, sizeof(filter_args), "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
+                        clip->stream->time_base.num,
+                        clip->stream->time_base.den,
+                        clip->stream->codecpar->sample_rate,
+                        av_get_sample_fmt_name(clip->codecCtx->sample_fmt),
+                        clip->codecCtx->channel_layout
+                     );
 
-			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("abuffer"), "in", filter_args, NULL, clip->filter_graph);
-			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, clip->filter_graph);
+            avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("abuffer"), "in", filter_args, NULL, clip->filter_graph);
+            avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, clip->filter_graph);
 
-			enum AVSampleFormat sample_fmts[] = { sample_format,  static_cast<AVSampleFormat>(-1) };
-			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_fmts", sample_fmts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
-				dout << "[ERROR] Could not set output sample format";
-			}
+            enum AVSampleFormat sample_fmts[] = { sample_format,  static_cast<AVSampleFormat>(-1) };
+            if (av_opt_set_int_list(clip->buffersink_ctx, "sample_fmts", sample_fmts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
+                dout << "[ERROR] Could not set output sample format";
+            }
 
-			int64_t channel_layouts[] = { AV_CH_LAYOUT_STEREO, static_cast<AVSampleFormat>(-1) };
-			if (av_opt_set_int_list(clip->buffersink_ctx, "channel_layouts", channel_layouts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
-				dout << "[ERROR] Could not set output sample format";
-			}
+            int64_t channel_layouts[] = { AV_CH_LAYOUT_STEREO, static_cast<AVSampleFormat>(-1) };
+            if (av_opt_set_int_list(clip->buffersink_ctx, "channel_layouts", channel_layouts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
+                dout << "[ERROR] Could not set output sample format";
+            }
 
-			int target_sample_rate = audio_output->format().sampleRate();
+            int target_sample_rate = audio_output->format().sampleRate();
 
-			if (qFuzzyCompare(clip->speed, 1.0)) {
-				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
-			} else if (clip->maintain_audio_pitch) {
-				AVFilterContext* previous_filter = clip->buffersrc_ctx;
-				AVFilterContext* last_filter = clip->buffersrc_ctx;
+            if (qFuzzyCompare(clip->speed, 1.0)) {
+                avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+            } else if (clip->maintain_audio_pitch) {
+                AVFilterContext* previous_filter = clip->buffersrc_ctx;
+                AVFilterContext* last_filter = clip->buffersrc_ctx;
 
-				char speed_param[10];
+                char speed_param[10];
 
-				if (clip->speed != 1.0) {
-					double base = (clip->speed > 1.0) ? 2.0 : 0.5;
+                if (clip->speed != 1.0) {
+                    double base = (clip->speed > 1.0) ? 2.0 : 0.5;
 
-					double speedlog = log(clip->speed) / log(base);
-					int whole2 = qFloor(speedlog);
-					speedlog -= whole2;
+                    double speedlog = log(clip->speed) / log(base);
+                    int whole2 = qFloor(speedlog);
+                    speedlog -= whole2;
 
-					if (whole2 > 0) {
-						snprintf(speed_param, sizeof(speed_param), "%f", base);
-						for (int i=0;i<whole2;i++) {
-							AVFilterContext* tempo_filter = NULL;
-							avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
-							avfilter_link(previous_filter, 0, tempo_filter, 0);
-							previous_filter = tempo_filter;
-						}
-					}
+                    if (whole2 > 0) {
+                        snprintf(speed_param, sizeof(speed_param), "%f", base);
+                        for (int i=0;i<whole2;i++) {
+                            AVFilterContext* tempo_filter = NULL;
+                            avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+                            avfilter_link(previous_filter, 0, tempo_filter, 0);
+                            previous_filter = tempo_filter;
+                        }
+                    }
 
-					snprintf(speed_param, sizeof(speed_param), "%f", qPow(base, speedlog));
-					last_filter = NULL;
-					avfilter_graph_create_filter(&last_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
-					avfilter_link(previous_filter, 0, last_filter, 0);
-				}
+                    snprintf(speed_param, sizeof(speed_param), "%f", qPow(base, speedlog));
+                    last_filter = NULL;
+                    avfilter_graph_create_filter(&last_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+                    avfilter_link(previous_filter, 0, last_filter, 0);
+                }
 
-				avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
-			} else {
-				target_sample_rate = qRound64(target_sample_rate / clip->speed);
-				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
-			}
+                avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
+            } else {
+                target_sample_rate = qRound64(target_sample_rate / clip->speed);
+                avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
+            }
 
-			int sample_rates[] = { target_sample_rate, 0 };
-			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_rates", sample_rates, 0, AV_OPT_SEARCH_CHILDREN) < 0) {
-				dout << "[ERROR] Could not set output sample rates";
-			}
+            int sample_rates[] = { target_sample_rate, 0 };
+            if (av_opt_set_int_list(clip->buffersink_ctx, "sample_rates", sample_rates, 0, AV_OPT_SEARCH_CHILDREN) < 0) {
+                dout << "[ERROR] Could not set output sample rates";
+            }
 
-			avfilter_graph_config(clip->filter_graph, NULL);
+            avfilter_graph_config(clip->filter_graph, NULL);
 
-			clip->audio_reset = true;
-		}
+            clip->audio_reset = true;
+        }
 
-		clip->frame = av_frame_alloc();
-	}
-		break;
-	case MEDIA_TYPE_TONE:
-		clip->frame = av_frame_alloc();
-		clip->frame->format = sample_format;
-		clip->frame->channel_layout = clip->sequence->audio_layout;
-		clip->frame->channels = av_get_channel_layout_nb_channels(clip->frame->channel_layout);
-        clip->frame->sample_rate = audio_output->format().sampleRate();
-		clip->frame->nb_samples = 2048;
-		av_frame_make_writable(clip->frame);
-		if (av_frame_get_buffer(clip->frame, 0)) {
-			dout << "[ERROR] Could not allocate buffer for tone clip";
-		}
-		clip->audio_reset = true;
-		break;
-	}
+        clip->frame = av_frame_alloc();
+    }
 
 	for (int i=0;i<clip->effects.size();i++) {
 		clip->effects.at(i)->open();
@@ -864,24 +856,23 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QV
         clip->audio_reset = false;
     }
 
-    switch (clip->media_type) {
-    case MEDIA_TYPE_FOOTAGE:
+    if (clip->media == NULL) {
+        if (clip->track >= 0) {
+            cache_audio_worker(clip, scrubbing, nests);
+        }
+    } else if (clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
         if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             cache_video_worker(clip, playhead);
         } else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             cache_audio_worker(clip, scrubbing, nests);
         }
-        break;
-    case MEDIA_TYPE_TONE:
-        cache_audio_worker(clip, scrubbing, nests);
-        break;
     }
 }
 
 void close_clip_worker(Clip* clip) {
 	clip->finished_opening = false;
 
-	if (clip->media_type == MEDIA_TYPE_FOOTAGE) {
+    if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		clip->queue_clear();
 
 		avfilter_graph_free(&clip->filter_graph);

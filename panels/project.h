@@ -6,13 +6,15 @@
 #include <QTimer>
 #include <QDir>
 
-struct Media;
+#include "project/projectmodel.h"
+
+struct Footage;
 struct Sequence;
 struct Clip;
 class Timeline;
 class Viewer;
 class SourceTable;
-class QTreeWidgetItem;
+class Media;
 class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
@@ -30,18 +32,20 @@ extern QString project_url;
 extern QStringList recent_projects;
 extern QString recent_proj_file;
 
-int get_type_from_tree(QTreeWidgetItem* item);
+extern ProjectModel project_model;
+
+/*int get_type_from_tree(Media *item);
 void* get_media_from_tree(QTreeWidgetItem* item);
-Media* get_footage_from_tree(QTreeWidgetItem* item);
-void set_footage_of_tree(QTreeWidgetItem* item, Media* media);
+Footage* get_footage_from_tree(QTreeWidgetItem* item);
+void set_footage_of_tree(QTreeWidgetItem* item, Footage* media);
 Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
 void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
-void set_item_to_folder(QTreeWidgetItem* item);
-void update_footage_tooltip(QTreeWidgetItem* item, Media* media, QString error = 0);
+void set_item_to_folder(QTreeWidgetItem* item);*/
+//void update_footage_tooltip(Media* item, Footage* media, QString error = 0);
 
-Sequence* create_sequence_from_media(QVector<void*>& media_list, QVector<int>& type_list);
+Sequence* create_sequence_from_media(QVector<Media *> &media_list);
 
-QString get_channel_layout_name(int channels, int layout);
+QString get_channel_layout_name(int channels, uint64_t layout);
 QString get_interlacing_name(int interlacing);
 
 class Project : public QDockWidget
@@ -53,27 +57,33 @@ public:
 	~Project();
     bool is_focused();
 	void clear();
-    void new_sequence(ComboAction *ca, Sequence* s, bool open, QTreeWidgetItem* parent);
-	QString get_next_sequence_name(QString start = 0);
-    void delete_media(QTreeWidgetItem* item);
-	void process_file_list(bool recursive, QStringList& files, QTreeWidgetItem *parent, QTreeWidgetItem* replace);
-	void replace_media(QTreeWidgetItem* item, QString filename);
-	QTreeWidgetItem* get_selected_folder();
-	bool reveal_media(void* media, QTreeWidgetItem *parent = 0);
+    Media* new_sequence(ComboAction *ca, Sequence* s, bool open, Media* parent);
+    QString get_next_sequence_name(QString start = 0);
+    void process_file_list(bool recursive, QStringList& files, Media *parent, Media* replace);
+    void replace_media(Media* item, QString filename);
+    Media* get_selected_folder();
+    bool reveal_media(void* media, QModelIndex parent = QModelIndex());
+    void add_recent_project(QString url);
 
     void new_project();
     void load_project(bool autorecovery);
     void save_project(bool autorecovery);
 
-	QTreeWidgetItem* new_folder(QString name);
+    Media* new_folder(QString name);
 
     void save_recent_projects();
 
-    QVector<Sequence*> list_all_project_sequences();
+    QVector<Media*> list_all_project_sequences();
 
 	SourceTable* source_table;
 
-	QVector<Media*> last_imported_media;
+    QVector<Media*> last_imported_media;
+
+    //Media *new_item();
+
+    void start_preview_generator(Media* item, bool replacing);
+
+    Ui::Project *ui;
 public slots:
 	void import_dialog();
     void delete_selected_media();
@@ -83,48 +93,33 @@ public slots:
 	void replace_clip_media();
 	void open_properties();
 private:
-	Ui::Project *ui;
-    QTreeWidgetItem* new_item();
-    bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
-    void save_folder(QXmlStreamWriter& stream, QTreeWidgetItem* parent, int type, bool set_ids_only);
-    bool show_err;
-    QString error_str;
+    void save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex &parent = QModelIndex());
     int folder_id;
     int media_id;
     int sequence_id;
-    Sequence* open_seq;
-    QVector<QTreeWidgetItem*> loaded_folders;
-    QVector<Media*> loaded_media;
-	QVector<QTreeWidgetItem*> loaded_media_items;
-    QVector<Clip*> loaded_clips;
-    QVector<Sequence*> loaded_sequences;
-    QTreeWidgetItem* find_loaded_folder_by_id(int id);
-    void add_recent_project(QString url);
-	void get_all_media_from_table(QList<QTreeWidgetItem*> items, QList<QTreeWidgetItem*>& list, int type);
-	void start_preview_generator(QTreeWidgetItem* item, Media* media, bool replacing);
-    void list_all_sequences_worker(QVector<Sequence*>* list, QTreeWidgetItem* parent);
+    void get_all_media_from_table(QList<Media *> items, QList<Media *> &list, int type);
+    void list_all_sequences_worker(QVector<Media *> *list, Media* parent);
 	QString get_file_name_from_path(const QString &path);
     QDir proj_dir;
-    QDir internal_proj_dir;
-    QString internal_proj_url;
 private slots:
-    void rename_media(QTreeWidgetItem* item, int column);
+    void rename_media(Media* item, int column);
 	void clear_recent_projects();
 };
 
 class MediaThrobber : public QObject {
     Q_OBJECT
 public:
-	MediaThrobber(QTreeWidgetItem*);
+    MediaThrobber(Media*);
 public slots:
+    void start();
 	void stop(int, bool replace);
 private slots:
     void animation_update();
 private:
     QPixmap pixmap;
     int animation;
-	QTreeWidgetItem* item;
-    QTimer animator;
+    Media* item;
+    QTimer* animator;
 };
 
 #endif // PROJECT_H

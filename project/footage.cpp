@@ -1,4 +1,4 @@
-#include "media.h"
+#include "footage.h"
 
 #include <QDebug>
 #include <QtMath>
@@ -10,15 +10,15 @@ extern "C" {
 
 #include "project/clip.h"
 
-Media::Media() : ready(false), preview_gen(NULL), invalid(false), in(0), out(0) {
+Footage::Footage() : ready(false), preview_gen(NULL), invalid(false), in(0), out(0) {
     ready_lock.lock();
 }
 
-Media::~Media() {
+Footage::~Footage() {
     reset();
 }
 
-void Media::reset() {
+void Footage::reset() {
 	if (preview_gen != NULL) {
 		preview_gen->cancel();
 		preview_gen->wait();
@@ -34,11 +34,12 @@ void Media::reset() {
     ready = false;
 }
 
-long Media::get_length_in_frames(double frame_rate) {
-	return qFloor(((double) length / (double) AV_TIME_BASE) * frame_rate);
+long Footage::get_length_in_frames(double frame_rate) {
+    if (length >= 0) return qFloor(((double) length / (double) AV_TIME_BASE) * frame_rate);
+    return 0;
 }
 
-MediaStream* Media::get_stream_from_file_index(bool video, int index) {
+FootageStream* Footage::get_stream_from_file_index(bool video, int index) {
     if (video) {
         for (int i=0;i<video_tracks.size();i++) {
             if (video_tracks.at(i)->file_index == index) {

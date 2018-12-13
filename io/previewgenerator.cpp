@@ -1,6 +1,7 @@
 ﻿#include "previewgenerator.h"
 
-#include "media.h"
+#include "project/media.h"
+#include "project/footage.h"
 #include "panels/viewer.h"
 #include "panels/project.h"
 #include "io/config.h"
@@ -28,11 +29,11 @@ extern "C" {
 
 QSemaphore sem(5); // only 5 preview generators can run at one time
 
-PreviewGenerator::PreviewGenerator(QTreeWidgetItem* i, Media* m, bool r) :
+PreviewGenerator::PreviewGenerator(Media* i, Footage* m, bool r) :
 	QThread(0),
 	fmt_ctx(NULL),
-	item(i),
-	media(m),
+    media(i),
+    footage(m),
 	retrieve_duration(false),
 	contains_still_image(false),
 	replace(r),
@@ -52,12 +53,12 @@ void PreviewGenerator::parse_media() {
     for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
         // Find the decoder for the video stream
         if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
-			dout << "[ERROR] Unsupported codec in stream" << i << "of file" << media->name;
+            dout << "[ERROR] Unsupported codec in stream" << i << "of file" << footage->name;
         } else {
-            MediaStream* ms = media->get_stream_from_file_index(fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, i);
+            FootageStream* ms = footage->get_stream_from_file_index(fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, i);
             bool append = false;
             if (ms == NULL) {
-                ms = new MediaStream();
+                ms = new FootageStream();
                 ms->preview_done = false;
                 ms->file_index = i;
                 append = true;
@@ -93,18 +94,18 @@ void PreviewGenerator::parse_media() {
 				ms->video_auto_interlacing = VIDEO_PROGRESSIVE;
 				ms->video_interlacing = VIDEO_PROGRESSIVE;
 
-				if (append) media->video_tracks.append(ms);
+                if (append) footage->video_tracks.append(ms);
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
                 ms->audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
                 ms->audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
-                if (append) media->audio_tracks.append(ms);
+                if (append) footage->audio_tracks.append(ms);
 			} else if (append) {
 				delete ms;
 			}
         }
     }
-	media->length = fmt_ctx->duration;
+    footage->length = fmt_ctx->duration;
 
 	if (fmt_ctx->duration == INT64_MIN) {
 		retrieve_duration = true;
@@ -116,28 +117,29 @@ void PreviewGenerator::parse_media() {
 bool PreviewGenerator::retrieve_preview(const QString& hash) {
 	// returns true if generate_waveform must be run, false if we got all previews from cached files
 	if (retrieve_duration) {
+        //dout << "[NOTE] " << media->name << "needs to retrieve duration";
 		return true;
 	}
 
 	bool found = true;
-	for (int i=0;i<media->video_tracks.size();i++) {
-		MediaStream* ms = media->video_tracks.at(i);
+    for (int i=0;i<footage->video_tracks.size();i++) {
+        FootageStream* ms = footage->video_tracks.at(i);
 		QString thumb_path = get_thumbnail_path(hash, ms);
 		QFile f(thumb_path);
         if (f.exists() && ms->video_preview.load(thumb_path)) {
-			//dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
+            dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
             ms->preview_done = true;
 		} else {
 			found = false;
 			break;
 		}
 	}
-	for (int i=0;i<media->audio_tracks.size();i++) {
-		MediaStream* ms = media->audio_tracks.at(i);
+    for (int i=0;i<footage->audio_tracks.size();i++) {
+        FootageStream* ms = footage->audio_tracks.at(i);
 		QString waveform_path = get_waveform_path(hash, ms);
 		QFile f(waveform_path);
 		if (f.exists()) {
-			//dout << "loaded wave" << ms->file_index << "from" << waveform_path;
+            dout << "loaded wave" << ms->file_index << "from" << waveform_path;
 			f.open(QFile::ReadOnly);
 			QByteArray data = f.readAll();
 			ms->audio_preview.resize(data.size());
@@ -153,12 +155,12 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 		}
 	}
 	if (!found) {
-		for (int i=0;i<media->video_tracks.size();i++) {
-			MediaStream* ms = media->video_tracks.at(i);
+        for (int i=0;i<footage->video_tracks.size();i++) {
+            FootageStream* ms = footage->video_tracks.at(i);
 			ms->preview_done = false;
 		}
-		for (int i=0;i<media->audio_tracks.size();i++) {
-			MediaStream* ms = media->audio_tracks.at(i);
+        for (int i=0;i<footage->audio_tracks.size();i++) {
+            FootageStream* ms = footage->audio_tracks.at(i);
 			ms->audio_preview.clear();
 			ms->preview_done = false;
 		}
@@ -167,11 +169,11 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 }
 
 void PreviewGenerator::finalize_media() {
-    media->ready_lock.unlock();
-	media->ready = true;
+    footage->ready_lock.unlock();
+    footage->ready = true;
 
     if (!cancelled) {
-        if (media->video_tracks.size() == 0) {
+        if (footage->video_tracks.size() == 0) {
             emit set_icon(ICON_TYPE_AUDIO, replace);
         } else if (contains_still_image) {
             emit set_icon(ICON_TYPE_IMAGE, replace);
@@ -179,7 +181,7 @@ void PreviewGenerator::finalize_media() {
             emit set_icon(ICON_TYPE_VIDEO, replace);
         }
 
-        if (!contains_still_image || media->audio_tracks.size() > 0) {
+        /*if (!contains_still_image || media->audio_tracks.size() > 0) {
             double frame_rate = 30;
             if (!contains_still_image && media->video_tracks.size() > 0) frame_rate = media->video_tracks.at(0)->video_frame_rate;
             item->setText(1, frame_to_timecode(media->get_length_in_frames(frame_rate), config.timecode_view, frame_rate));
@@ -189,7 +191,7 @@ void PreviewGenerator::finalize_media() {
             } else {
                 item->setText(2, QString::number(media->audio_tracks.at(0)->audio_frequency) + " Hz");
             }
-        }
+        }*/
     }
 }
 
@@ -229,6 +231,9 @@ void PreviewGenerator::generate_waveform() {
 		while (codec_ctx[packet->stream_index] == NULL || avcodec_receive_frame(codec_ctx[packet->stream_index], temp_frame) == AVERROR(EAGAIN)) {
 			av_packet_unref(packet);
 			int read_ret = av_read_frame(fmt_ctx, packet);
+
+            //dout << "read frame for" << footage->name << footage->url << read_ret << "retrieve_duration:" << retrieve_duration << "eof:" << end_of_file << "packet pts:" << packet->pts;
+
             if (read_ret < 0) {
                 end_of_file = true;
 				if (read_ret != AVERROR_EOF) dout << "[ERROR] Failed to read packet for preview generation" << read_ret;
@@ -244,7 +249,7 @@ void PreviewGenerator::generate_waveform() {
             }
 		}
         if (!end_of_file) {
-			MediaStream* s = media->get_stream_from_file_index(fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet->stream_index);
+            FootageStream* s = footage->get_stream_from_file_index(fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet->stream_index);
 			if (s != NULL) {
 				if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 					if (!s->preview_done) {
@@ -349,10 +354,10 @@ void PreviewGenerator::generate_waveform() {
 			// check if we've got all our previews
 			if (retrieve_duration) {
 				done = false;
-			} else if (media->audio_tracks.size() == 0) {
+            } else if (footage->audio_tracks.size() == 0) {
 				done = true;
-				for (int i=0;i<media->video_tracks.size();i++) {
-					if (!media->video_tracks.at(i)->preview_done) {
+                for (int i=0;i<footage->video_tracks.size();i++) {
+                    if (!footage->video_tracks.at(i)->preview_done) {
 						done = false;
 						break;
 					}
@@ -365,8 +370,8 @@ void PreviewGenerator::generate_waveform() {
 			av_packet_unref(packet);
         }
     }
-    for (int i=0;i<media->audio_tracks.size();i++) {
-        media->audio_tracks.at(i)->preview_done = true;
+    for (int i=0;i<footage->audio_tracks.size();i++) {
+        footage->audio_tracks.at(i)->preview_done = true;
     }
     av_frame_free(&temp_frame);
 	av_packet_free(&packet);
@@ -376,33 +381,33 @@ void PreviewGenerator::generate_waveform() {
         }
 	}
 	if (retrieve_duration) {
-		media->length = 0;
+        footage->length = 0;
 		int maximum_stream = 0;
 		for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 			if (media_lengths[i] > media_lengths[maximum_stream]) {
 				maximum_stream = i;
 			}
 		}
-		media->length = (double) media_lengths[maximum_stream] / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE; // TODO redo with PTS
+        footage->length = (double) media_lengths[maximum_stream] / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE; // TODO redo with PTS
 		finalize_media();
 	}
 	delete [] media_lengths;
 	delete [] codec_ctx;
 }
 
-QString PreviewGenerator::get_thumbnail_path(const QString& hash, MediaStream* ms) {
+QString PreviewGenerator::get_thumbnail_path(const QString& hash, FootageStream* ms) {
 	return data_path + "/" + hash + "t" + QString::number(ms->file_index);
 }
 
-QString PreviewGenerator::get_waveform_path(const QString& hash, MediaStream* ms) {
+QString PreviewGenerator::get_waveform_path(const QString& hash, FootageStream* ms) {
 	return data_path + "/" + hash + "w" + QString::number(ms->file_index);
 }
 
 void PreviewGenerator::run() {	
+    Q_ASSERT(footage != NULL);
     Q_ASSERT(media != NULL);
-    Q_ASSERT(item != NULL);
 
-    QByteArray ba = media->url.toLatin1();
+    QByteArray ba = footage->url.toLatin1();
     char* filename = new char[ba.size()+1];
 	strcpy(filename, ba.data());
 
@@ -423,48 +428,51 @@ void PreviewGenerator::run() {
             error = true;
         } else {
             av_dump_format(fmt_ctx, 0, filename, 0);
-			parse_media();
-			sem.acquire();
+            parse_media();
 
 			// see if we already have data for this
-			QFileInfo file_info(media->url);
-			QString cache_file = media->url + QString::number(file_info.lastModified().toMSecsSinceEpoch());
+            QFileInfo file_info(footage->url);
+            QString cache_file = footage->url.mid(footage->url.lastIndexOf('/')+1) + QString::number(file_info.size()) + QString::number(file_info.lastModified().toMSecsSinceEpoch());
+            dout << "using hash" << cache_file;
 			QString hash = QCryptographicHash::hash(cache_file.toLatin1(), QCryptographicHash::Md5).toHex();
 
 			if (retrieve_preview(hash)) {
+                sem.acquire();
+
 				generate_waveform();
 
 				// save preview to file
-				for (int i=0;i<media->video_tracks.size();i++) {
-					MediaStream* ms = media->video_tracks.at(i);
+                for (int i=0;i<footage->video_tracks.size();i++) {
+                    FootageStream* ms = footage->video_tracks.at(i);
                     ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG");
+                    dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
 				}
-				for (int i=0;i<media->audio_tracks.size();i++) {
-					MediaStream* ms = media->audio_tracks.at(i);
+                for (int i=0;i<footage->audio_tracks.size();i++) {
+                    FootageStream* ms = footage->audio_tracks.at(i);
 					QFile f(get_waveform_path(hash, ms));
 					f.open(QFile::WriteOnly);
 					f.write(ms->audio_preview.constData(), ms->audio_preview.size());
 					f.close();
-					//dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
+                    dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
 				}
-			}
 
-			sem.release();
+                sem.release();
+			}
         }
         avformat_close_input(&fmt_ctx);
 	}
 
-	if (error) {
-		update_footage_tooltip(item, media, errorStr);
+    if (error) {
+        media->update_tooltip(errorStr);
 		emit set_icon(ICON_TYPE_ERROR, replace);
-        media->invalid = true;
-		media->ready_lock.unlock();
+        footage->invalid = true;
+        footage->ready_lock.unlock();
 	} else {
-		update_footage_tooltip(item, media);
+        media->update_tooltip();
     }
 
     delete [] filename;
-	media->preview_gen = NULL;
+    footage->preview_gen = NULL;
 }
 
 void PreviewGenerator::cancel() {

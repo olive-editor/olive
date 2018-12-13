@@ -14,10 +14,11 @@
 #include "playback/playback.h"
 #include "ui_viewer.h"
 #include "project/undo.h"
+#include "project/media.h"
 #include "io/config.h"
 #include "project/effect.h"
 #include "project/transition.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "io/clipboard.h"
 #include "debug.h"
 
@@ -160,23 +161,24 @@ void Timeline::toggle_show_all() {
 	}
 }
 
-void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<void*>& media_list, QVector<int>& type_list) {
+void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<Media*>& media_list) {
 	video_ghosts = false;
 	audio_ghosts = false;
 
 	for (int i=0;i<media_list.size();i++) {
 		bool can_import = true;
 
-		Media* m = NULL;
-		Sequence* s = NULL;
-		void* media = NULL;
+        Media* medium = media_list.at(i);
+		Footage* m = NULL;
+        Sequence* s = NULL;
+        void* media = NULL;
 		long sequence_length;
 		long default_clip_in = 0;
 		long default_clip_out = 0;
 
-		switch (type_list.at(i)) {
+        switch (medium->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
-			m = static_cast<Media*>(media_list.at(i));
+            m = medium->to_footage();
 			media = m;
 			can_import = m->ready;
 			if (m->using_inout) {
@@ -187,7 +189,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			}
 			break;
 		case MEDIA_TYPE_SEQUENCE:
-			s = static_cast<Sequence*>(media_list.at(i));
+            s = medium->to_sequence();
 			sequence_length = s->getEndFrame();
 			if (seq != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, seq->frame_rate);
 			media = s;
@@ -203,15 +205,14 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 
 		if (can_import) {
 			Ghost g;
-			g.clip = -1;
-			g.media_type = type_list.at(i);
+            g.clip = -1;
 			g.trimming = false;
 			g.old_clip_in = g.clip_in = default_clip_in;
-			g.media = media;
+            g.media = medium;
 			g.in = entry_point;
 			g.transition = NULL;
 
-			switch (type_list.at(i)) {
+            switch (medium->get_type()) {
 			case MEDIA_TYPE_FOOTAGE:
 				// is video source a still image?
 				if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
@@ -274,15 +275,14 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 		earliest_point = qMin(earliest_point, g.in);
 
 		Clip* c = new Clip(s);
-		c->media = g.media;
-		c->media_type = g.media_type;
+        c->media = g.media;
 		c->media_stream = g.media_stream;
 		c->timeline_in = g.in;
 		c->timeline_out = g.out;
 		c->clip_in = g.clip_in;
 		c->track = g.track;
-		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-			Media* m = static_cast<Media*>(c->media);
+        if (c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+            Footage* m = c->media->to_footage();
 			if (m->video_tracks.size() == 0) {
 				// audio only (greenish)
 				c->color_r = 128;
@@ -300,13 +300,13 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 				c->color_b = 192;
 			}
 			c->name = m->name;
-		} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+        } else if (c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 			// sequence (red?ish?)
 			c->color_r = 192;
 			c->color_g = 128;
 			c->color_b = 128;
 
-			Sequence* media = static_cast<Sequence*>(c->media);
+            Sequence* media = c->media->to_sequence();
 			c->name = media->name;
 		}
 		c->recalculateMaxLength();

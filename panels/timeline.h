@@ -22,12 +22,13 @@ class SourceTable;
 class ViewerWidget;
 class ComboAction;
 class Effect;
+class Media;
 class Transition;
 struct EffectMeta;
 struct Sequence;
 struct Clip;
-struct Media;
-struct MediaStream;
+struct Footage;
+struct FootageStream;
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
 int getScreenPointFromFrame(double zoom, long frame);
@@ -49,8 +50,7 @@ struct Ghost {
 	long old_clip_in;
 
 	// importing variables
-    void* media;
-    int media_type;
+    Media* media;
     int media_stream;
 
 	// other variables
@@ -102,7 +102,7 @@ public:
 	void next_cut();
 	void toggle_show_all();
 
-	void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<void *> &media_list, QVector<int> &type_list);
+    void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
 	void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
 
 	int getTimelineScreenPointFromFrame(long frame);

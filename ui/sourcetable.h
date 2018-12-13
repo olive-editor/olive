@@ -1,13 +1,14 @@
 #ifndef SOURCETABLE_H
 #define SOURCETABLE_H
 
-#include <QTreeWidget>
+#include <QTreeView>
 #include <QTimer>
 #include <QUndoCommand>
 
 class Project;
+class Media;
 
-class SourceTable : public QTreeWidget
+class SourceTable : public QTreeView
 {
     Q_OBJECT
 public:
@@ -20,13 +21,13 @@ protected:
     void dropEvent(QDropEvent *event);
 private:
     QTimer rename_timer;
-    QTreeWidgetItem* editing_item;
-    QString editing_item_name;
+    Media* editing_item;
+    QModelIndex editing_index;
 private slots:
     void rename_interval();
-    void item_click(QTreeWidgetItem* item, int column);
+    void item_click(const QModelIndex& index);
     void stop_rename_timer();
-    void item_renamed(QTreeWidgetItem *item);
+    void item_renamed(Media *item);
 	void show_context_menu();
 	void create_seq_from_selected();
 	void reveal_in_browser();

@@ -12,6 +12,7 @@ struct AVFrame;
 extern bool texture_failed;
 extern bool rendering;
 
+bool clip_uses_cacher(Clip* clip);
 void open_clip(Clip* clip, bool multithreaded);
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> &nests);
 void close_clip(Clip* clip);

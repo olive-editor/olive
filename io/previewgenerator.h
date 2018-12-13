@@ -2,22 +2,23 @@
 #define PREVIEWGENERATOR_H
 
 #include <QThread>
+#include <QSemaphore>
 
 #define ICON_TYPE_VIDEO 0
 #define ICON_TYPE_AUDIO 1
 #define ICON_TYPE_IMAGE 2
 #define ICON_TYPE_ERROR 3
 
-struct Media;
-struct MediaStream;
+struct Footage;
+struct FootageStream;
 struct AVFormatContext;
-class QTreeWidgetItem;
+class Media;
 
 class PreviewGenerator : public QThread
 {
     Q_OBJECT
 public:
-	PreviewGenerator(QTreeWidgetItem*, Media*, bool);
+	PreviewGenerator(Media*, Footage*, bool);
     void run();
 	void cancel();
 signals:
@@ -28,15 +29,15 @@ private:
     void generate_waveform();
 	void finalize_media();
     AVFormatContext* fmt_ctx;
-    QTreeWidgetItem* item;
     Media* media;
+    Footage* footage;
 	bool retrieve_duration;
 	bool contains_still_image;
 	bool replace;
 	bool cancelled;
 	QString data_path;
-	QString get_thumbnail_path(const QString &hash, MediaStream* ms);
-	QString get_waveform_path(const QString& hash, MediaStream* ms);
+	QString get_thumbnail_path(const QString &hash, FootageStream* ms);
+	QString get_waveform_path(const QString& hash, FootageStream* ms);
 };
 
 #endif // PREVIEWGENERATOR_H

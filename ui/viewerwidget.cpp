@@ -10,7 +10,7 @@
 #include "project/transition.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "ui_timeline.h"
 #include "playback/cacher.h"
 #include "io/config.h"
@@ -18,6 +18,7 @@
 #include "io/math.h"
 #include "ui/collapsiblewidget.h"
 #include "project/undo.h"
+#include "project/media.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -126,7 +127,7 @@ void ViewerWidget::initializeGL() {
 
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
 
-	retry_timer.start();
+    retry_timer.start();
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
@@ -378,7 +379,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 	if (!nests.isEmpty()) {
 		for (int i=0;i<nests.size();i++) {
-			s = static_cast<Sequence*>(nests.at(i)->media);
+            s = nests.at(i)->media->to_sequence();
             playhead += nests.at(i)->clip_in - nests.at(i)->get_timeline_in_with_transition();
 			playhead = refactor_frame_number(playhead, nests.at(i)->sequence->frame_rate, s->frame_rate);
 		}
@@ -402,13 +403,11 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 			if (!(!nests.isEmpty() && !same_sign(c->track, nests.last()->track))) {
 				bool clip_is_active = false;
 
-				switch (c->media_type) {
-				case MEDIA_TYPE_FOOTAGE:
-				{
-					Media* m = static_cast<Media*>(c->media);
+                if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+                    Footage* m = c->media->to_footage();
                     if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
                         if (m->ready) {
-                            MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
+                            FootageStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
                             if (ms != NULL && is_clip_active(c, playhead)) {
                                 // if thread is already working, we don't want to touch this,
                                 // but we also don't want to hang the UI thread
@@ -421,23 +420,18 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                                 close_clip(c);
                             }
                         } else {
-                            dout << "[WARNING] Media was not ready, retrying...";
+                            //dout << "[WARNING] Media '" + m->name + "' was not ready, retrying...";
                             texture_failed = true;
                         }
                     }
-				}
-					break;
-				case MEDIA_TYPE_SEQUENCE:
-				case MEDIA_TYPE_SOLID:
-				case MEDIA_TYPE_TONE:
-					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !rendering);
-						clip_is_active = true;
-					} else if (c->open) {
-						close_clip(c);
-					}
-					break;
-				}
+                } else {
+                    if (is_clip_active(c, playhead)) {
+                        if (!c->open) open_clip(c, !rendering);
+                        clip_is_active = true;
+                    } else if (c->open) {
+                        close_clip(c);
+                    }
+                }
 				if (clip_is_active) {
 					bool added = false;
 					for (int j=0;j<current_clips.size();j++) {
@@ -469,7 +463,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
         Clip* c = current_clips.at(i);
 
-        if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
+        if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
 			dout << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
         } else {
@@ -478,23 +472,28 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				int video_width = c->getWidth();
 				int video_height = c->getHeight();
 
-				if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-					// set up opengl texture
-					if (c->texture == NULL) {
-						c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-						c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
-						c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-						c->texture->setMipLevels(c->texture->maximumMipLevels());
-						c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-						c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
-					}
-					get_clip_frame(c, playhead);
-					textureID = c->texture->textureId();
-				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-					textureID = -1;
-				}
+                if (c->media != NULL) {
+                    switch (c->media->get_type()) {
+                    case MEDIA_TYPE_FOOTAGE:
+                        // set up opengl texture
+                        if (c->texture == NULL) {
+                            c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+                            c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
+                            c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+                            c->texture->setMipLevels(c->texture->maximumMipLevels());
+                            c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+                            c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+                        }
+                        get_clip_frame(c, playhead);
+                        textureID = c->texture->textureId();
+                        break;
+                    case MEDIA_TYPE_SEQUENCE:
+                        textureID = -1;
+                        break;
+                    }
+                }
 
-				if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
+                if (textureID == 0 && c->media != NULL) {
 					dout << "[WARNING] Texture hasn't been created yet";
 					texture_failed = true;
                 } else if (playhead >= c->get_timeline_in_with_transition()) {
@@ -519,21 +518,22 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 					glViewport(0, 0, video_width, video_height);
 
-					// for nested sequences
-					if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-						nests.append(c);
-						textureID = compose_sequence(nests, render_audio);
-						nests.removeLast();
-						fbo_switcher = true;
-					}
+                    GLuint composite_texture;
 
-					GLuint composite_texture;
-					if (c->media_type == MEDIA_TYPE_SOLID) {
+                    if (c->media == NULL) {
                         c->fbo[fbo_switcher]->bind();
                         glClear(GL_COLOR_BUFFER_BIT);
                         c->fbo[fbo_switcher]->release();
 						composite_texture = c->fbo[fbo_switcher]->texture();
 					} else {
+                        // for nested sequences
+                        if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
+                            nests.append(c);
+                            textureID = compose_sequence(nests, render_audio);
+                            nests.removeLast();
+                            fbo_switcher = true;
+                        }
+
                         composite_texture = draw_clip(c->fbo[fbo_switcher], textureID, true);
 					}
 
@@ -686,21 +686,17 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				}
             } else {
                 if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
-					switch (c->media_type) {
-					case MEDIA_TYPE_FOOTAGE:
-					case MEDIA_TYPE_TONE:
-						if (c->lock.tryLock()) {
+                    if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+                        nests.append(c);
+                        compose_sequence(nests, render_audio);
+                        nests.removeLast();
+                    } else {
+                        if (c->lock.tryLock()) {
                             // clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
-							c->lock.unlock();
-						}
-						break;
-					case MEDIA_TYPE_SEQUENCE:
-						nests.append(c);
-						compose_sequence(nests, render_audio);
-						nests.removeLast();
-						break;
-					}
+                            cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
+                            c->lock.unlock();
+                        }
+                    }
 				}
 
 				// visually update all the keyframe values

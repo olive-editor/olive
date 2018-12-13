@@ -3,20 +3,19 @@
 
 #include <QDialog>
 
-struct Media;
+struct Footage;
 class QComboBox;
 class QLineEdit;
-class QTreeWidgetItem;
+class Media;
 
 class MediaPropertiesDialog : public QDialog {
 	Q_OBJECT
 public:
-    MediaPropertiesDialog(QWidget *parent, QTreeWidgetItem* i, Media *m);
+    MediaPropertiesDialog(QWidget *parent, Media* i);
 private:
 	QComboBox* interlacing_box;
     QLineEdit* name_box;
-    QTreeWidgetItem* item;
-    Media* media;
+    Media* item;
 private slots:
     void accept();
 };

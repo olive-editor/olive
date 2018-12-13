@@ -6,6 +6,7 @@
 
 class Timeline;
 class ViewerWidget;
+class Media;
 struct Sequence;
 
 namespace Ui {
@@ -26,7 +27,7 @@ public:
 
 	bool is_focused();
     void set_main_sequence();
-    void set_media(int type, void* media);
+    void set_media(Media *m);
 	void compose();
     void set_playpause_icon(bool play);
     void update_playhead_timecode(long p);
@@ -65,6 +66,7 @@ public:
 
 	ViewerWidget* viewer_widget;
 
+    Media* media;
 	Sequence* seq;
 
     Ui::Viewer *ui;

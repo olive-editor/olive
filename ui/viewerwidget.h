@@ -12,7 +12,7 @@
 
 class Viewer;
 struct Clip;
-struct MediaStream;
+struct FootageStream;
 class QOpenGLFramebufferObject;
 class Effect;
 class EffectGizmo;
@@ -32,7 +32,7 @@ public:
 
 	bool waveform;
 	Clip* waveform_clip;
-	MediaStream* waveform_ms;
+	FootageStream* waveform_ms;
 
     bool force_quit;
 public slots:
