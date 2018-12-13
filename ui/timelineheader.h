@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include <QFontMetrics>
-class QScrollArea;
 class Viewer;
+class QScrollBar;
+
+bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead);
 
 class TimelineHeader : public QWidget
 {
@@ -20,7 +22,9 @@ public:
 
 	void show_text(bool enable);
 	void update_zoom(double z);
+    double get_zoom();
 	void delete_markers();
+    void set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset);
 
 public slots:
 	void set_scroll(int);

@@ -27,6 +27,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
+#include "effects/internal/maskeffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -59,6 +60,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
         case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
+        case EFFECT_INTERNAL_MASK: return new MaskEffect(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -107,8 +109,15 @@ void load_internal_effects() {
     effects.append(em);
 
     em.name = "Corner Pin";
-    em.category = "Distort";
     em.internal = EFFECT_INTERNAL_CORNERPIN;
+    effects.append(em);
+
+    em.name = "Mask";
+    em.internal = EFFECT_INTERNAL_MASK;
+    effects.append(em);
+
+    em.name = "Shake";
+    em.internal = EFFECT_INTERNAL_SHAKE;
     effects.append(em);
 
 	em.name = "Text";
@@ -117,18 +126,11 @@ void load_internal_effects() {
     effects.append(em);
 
     em.name = "Timecode";
-    em.category = "Render";
     em.internal = EFFECT_INTERNAL_TIMECODE;
     effects.append(em);
 
-	em.name = "Solid";
-	em.category = "Render";
+    em.name = "Solid";
 	em.internal = EFFECT_INTERNAL_SOLID;
-    effects.append(em);
-
-	em.name = "Shake";
-	em.category = "Distort";
-	em.internal = EFFECT_INTERNAL_SHAKE;
     effects.append(em);
 
 	// internal transitions
@@ -230,6 +232,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	enable_shader(false),
 	enable_coords(false),
     enable_superimpose(false),
+    enable_image(false),
 	glslProgram(NULL),
     texture(NULL),
     isOpen(false),
@@ -767,8 +770,10 @@ void Effect::startEffect() {
 
 void Effect::endEffect() {
 	if (bound) glslProgram->release();
-	bound = false;
+    bound = false;
 }
+
+void Effect::process_image(double, uint8_t *, int) {}
 
 Effect* Effect::copy(Clip* c) {
 	Effect* copy = create_effect(c, meta);

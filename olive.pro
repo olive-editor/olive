@@ -33,6 +33,7 @@ SOURCES += \
     ui/sourcetable.cpp \
     dialogs/aboutdialog.cpp \
     ui/timelinewidget.cpp \
+    io/media.cpp \
     project/sequence.cpp \
     project/clip.cpp \
     playback/playback.cpp \
@@ -91,10 +92,7 @@ SOURCES += \
     effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
     io/clipboard.cpp \
-    io/loadthread.cpp \
-    project/footage.cpp \
-    project/media.cpp \
-    project/projectmodel.cpp
+    effects/internal/maskeffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -105,6 +103,7 @@ HEADERS += \
     ui/sourcetable.h \
     dialogs/aboutdialog.h \
     ui/timelinewidget.h \
+    io/media.h \
     project/sequence.h \
     project/clip.h \
     playback/playback.h \
@@ -165,10 +164,7 @@ HEADERS += \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
     io/clipboard.h \
-    io/loadthread.h \
-    project/footage.h \
-    project/media.h \
-    project/projectmodel.h
+    effects/internal/maskeffect.h
 
 FORMS += \
         mainwindow.ui \

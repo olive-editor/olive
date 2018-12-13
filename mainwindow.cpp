@@ -309,7 +309,11 @@ void MainWindow::on_actionZoom_In_triggered()
         panel_timeline->set_zoom(true);
 	} else if (panel_effect_controls->keyframe_focus()) {
 		panel_effect_controls->set_zoom(true);
-	}
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->set_zoom(true);
+    } else if (panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->set_zoom(true);
+    }
 }
 
 void MainWindow::on_actionZoom_out_triggered()
@@ -318,7 +322,11 @@ void MainWindow::on_actionZoom_out_triggered()
         panel_timeline->set_zoom(false);
 	} else if (panel_effect_controls->keyframe_focus()) {
 		panel_effect_controls->set_zoom(false);
-	}
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->set_zoom(false);
+    } else if (panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->set_zoom(false);
+    }
 }
 
 void MainWindow::on_actionExport_triggered()
@@ -580,7 +588,7 @@ void MainWindow::on_actionEdit_Tool_triggered()
 
 void MainWindow::on_actionToggle_Snapping_triggered()
 {
-    if (panel_timeline->focused()) panel_timeline->ui->snappingButton->click();
+    if (panel_timeline->focused() || panel_effect_controls->keyframe_focus()) panel_timeline->ui->snappingButton->click();
 }
 
 void MainWindow::on_actionPointer_Tool_triggered()

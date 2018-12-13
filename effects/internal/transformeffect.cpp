@@ -98,6 +98,11 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
     right_center_gizmo->set_cursor(Qt::SizeHorCursor);
     right_center_gizmo->x_field = scale_x;
 
+    anchor_gizmo = add_gizmo(GIZMO_TYPE_TARGET);
+    anchor_gizmo->set_cursor(Qt::SizeAllCursor);
+    anchor_gizmo->x_field = anchor_x_box;
+    anchor_gizmo->y_field = anchor_y_box;
+
     rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     rotate_gizmo->color = Qt::green;
     rotate_gizmo->set_cursor(Qt::SizeAllCursor);

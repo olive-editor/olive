@@ -21,6 +21,7 @@ void cache_video_worker(Clip* c, long playhead);
 void handle_media(Sequence* sequence, long playhead, bool multithreaded);
 void reset_cache(Clip* c, long target_frame);
 void get_clip_frame(Clip* c, long playhead);
+double get_timecode(Clip* c, long playhead);
 
 long playhead_to_clip_frame(Clip* c, long playhead);
 double playhead_to_clip_seconds(Clip* c, long playhead);

@@ -10,7 +10,7 @@
 
 #include <QPainter>
 #include <QMouseEvent>
-#include <QScrollArea>
+#include <QScrollBar>
 #include <QtMath>
 
 #define CLICK_RANGE 5
@@ -18,6 +18,16 @@
 #define LINE_MIN_PADDING 50
 #define SUBLINE_MIN_PADDING 50 // TODO play with this
 #define MARKER_SIZE 4
+
+bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead) {
+    // returns true is the scroll was changed, false if not
+    int target_scroll = qMin(bar->maximum(), qMax(0, getScreenPointFromFrame(zoom, playhead)-(bar->width()>>1)));
+    if (target_scroll == bar->value()) {
+        return false;
+    }
+    bar->setValue(target_scroll);
+    return true;
+}
 
 TimelineHeader::TimelineHeader(QWidget *parent) :
 	QWidget(parent),
@@ -85,6 +95,10 @@ void TimelineHeader::set_out_point(long new_out) {
 
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
+}
+
+void TimelineHeader::set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset) {
+    bar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequence_end_frame) - offset));
 }
 
 void TimelineHeader::show_text(bool enable) {
@@ -255,7 +269,11 @@ void TimelineHeader::update_parents() {
 
 void TimelineHeader::update_zoom(double z) {
 	zoom = z;
-	update();
+    update();
+}
+
+double TimelineHeader::get_zoom() {
+    return zoom;
 }
 
 void TimelineHeader::delete_markers() {

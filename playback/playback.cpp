@@ -106,6 +106,10 @@ void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<C
 	}
 }
 
+double get_timecode(Clip* c, long playhead) {
+    return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+}
+
 void get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
         FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
@@ -215,8 +219,29 @@ void get_clip_frame(Clip* c, long playhead) {
 
 		if (target_frame != NULL) {
 			// add gate if this is the same frame
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/4);
-			c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, target_frame->data[0]);
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/4);
+
+            bool copied = false;
+            uint8_t* data = target_frame->data[0];
+            int frame_size;
+
+            for (int i=0;i<c->effects.size();i++) {
+                Effect* e = c->effects.at(i);
+                if (e->enable_image) {
+                    if (!copied) {
+                        frame_size = target_frame->linesize[0]*target_frame->height;
+                        data = new uint8_t[frame_size];
+                        memcpy(data, target_frame->data[0], frame_size);
+                        copied = true;
+                    }
+                    e->process_image(get_timecode(c, playhead), data, frame_size);
+                }
+            }
+
+            c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
+
+            if (copied) delete [] data;
+
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		}
 

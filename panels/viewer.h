@@ -37,6 +37,7 @@ public:
     void clear_inout_point();
 	void set_in_point();
 	void set_out_point();
+    void set_zoom(bool in);
 
 	// playback functions
 	void go_to_start();
@@ -88,7 +89,9 @@ private:
     void set_sequence(bool main, Sequence* s);
 	bool main_sequence;
 	bool created_sequence;
+    long cached_end_frame;
     QString panel_name;
+    double minimum_zoom;
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;

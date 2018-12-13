@@ -227,8 +227,7 @@ private:
 	void set_zoom_value(double v);
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
-	void set_tool(int tool);
-    bool center_scroll_to_playhead();
+    void set_tool(int tool);
 	long last_frame;
 	int scroll;
 
