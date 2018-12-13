@@ -732,6 +732,7 @@ void Project::new_project() {
     set_sequence(NULL);
     panel_footage_viewer->set_media(NULL);
     clear();
+    panel_project->source_table->update();
 	mainWindow->setWindowModified(false);
 }
 
