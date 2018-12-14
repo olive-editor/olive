@@ -32,7 +32,6 @@ SourceTable::SourceTable(QWidget* parent) : QTreeView(parent) {
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
     connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(item_click(const QModelIndex&)));
-    //connect(this, SIGNAL(itemChanged(Media*,int)), this, SLOT(item_renamed(Media*)));
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 }
 
@@ -40,7 +39,7 @@ void SourceTable::show_context_menu() {
     QMenu menu(this);
 
     QAction* import_action = menu.addAction("Import...");
-    connect(import_action, SIGNAL(triggered(bool)), panel_project, SLOT(import_dialog()));
+    connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
 
     QAction* new_folder_action = menu.addAction("New Folder...");
     connect(new_folder_action, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionFolder_triggered()));
@@ -48,14 +47,14 @@ void SourceTable::show_context_menu() {
     QModelIndexList selected_items = selectionModel()->selectedRows();
 
     if (selected_items.size() > 0) {
-        Media* m = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* m = project_parent->item_to_media(selected_items.at(0));
 
         if (selected_items.size() == 1) {
             // replace footage
             int type = m->get_type();
 			if (type == MEDIA_TYPE_FOOTAGE) {
 				QAction* replace_action = menu.addAction("Replace/Relink Media");
-				connect(replace_action, SIGNAL(triggered(bool)), panel_project, SLOT(replace_selected_file()));
+                connect(replace_action, SIGNAL(triggered(bool)), project_parent, SLOT(replace_selected_file()));
 
 #if defined(Q_OS_WIN)
 				QAction* reveal_in_explorer = menu.addAction("Reveal in Explorer");
@@ -68,7 +67,7 @@ void SourceTable::show_context_menu() {
             }
 			if (type != MEDIA_TYPE_FOLDER) {
 				QAction* replace_clip_media = menu.addAction("Replace Clips Using This Media");
-				connect(replace_clip_media, SIGNAL(triggered(bool)), panel_project, SLOT(replace_clip_media()));
+                connect(replace_clip_media, SIGNAL(triggered(bool)), project_parent, SLOT(replace_clip_media()));
 			}
         }
 
@@ -92,22 +91,22 @@ void SourceTable::show_context_menu() {
         if (all_sequences) {
 			// ONLY sequences are selected
             QAction* duplicate_action = menu.addAction("Duplicate");
-            connect(duplicate_action, SIGNAL(triggered(bool)), panel_project, SLOT(duplicate_selected()));
+            connect(duplicate_action, SIGNAL(triggered(bool)), project_parent, SLOT(duplicate_selected()));
 		}
 
 		// ONLY footage is selected
 		if (all_footage) {
 			QAction* delete_footage_from_sequences = menu.addAction("Delete All Clips Using This Media");
-			connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), panel_project, SLOT(delete_clips_using_selected_media()));
+            connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), project_parent, SLOT(delete_clips_using_selected_media()));
 		}
 
         // delete media
         QAction* delete_action = menu.addAction("Delete");
-        connect(delete_action, SIGNAL(triggered(bool)), panel_project, SLOT(delete_selected_media()));
+        connect(delete_action, SIGNAL(triggered(bool)), project_parent, SLOT(delete_selected_media()));
 
         if (selected_items.size() == 1) {
 			QAction* properties_action = menu.addAction("Properties...");
-			connect(properties_action, SIGNAL(triggered(bool)), panel_project, SLOT(open_properties()));
+            connect(properties_action, SIGNAL(triggered(bool)), project_parent, SLOT(open_properties()));
 		}
     }
 
@@ -120,7 +119,7 @@ void SourceTable::create_seq_from_selected() {
     if (!selected_items.isEmpty()) {
         QVector<Media*> media_list;
         for (int i=0;i<selected_items.size();i++) {
-            media_list.append(static_cast<Media*>(selected_items.at(i).internalPointer()));
+            media_list.append(project_parent->item_to_media(selected_items.at(i)));
 		}
 
 		ComboAction* ca = new ComboAction();
@@ -130,14 +129,15 @@ void SourceTable::create_seq_from_selected() {
         panel_timeline->create_ghosts_from_media(s, 0, media_list);
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
-		panel_project->new_sequence(ca, s, true, NULL);
+        project_parent->new_sequence(ca, s, true, NULL);
 		undo_stack.push(ca);
 	}
 }
 
 void SourceTable::reveal_in_browser() {
     QModelIndexList selected_items = selectionModel()->selectedRows();
-    Footage* m = static_cast<Footage*>(selected_items.at(0).internalPointer());
+    Media* media = project_parent->item_to_media(selected_items.at(0));
+    Footage* m = media->to_footage();
 
 #if defined(Q_OS_WIN)
 	QStringList args;
@@ -180,7 +180,7 @@ void SourceTable::rename_interval() {
 }
 void SourceTable::item_click(const QModelIndex& index) {
     if (selectionModel()->selectedRows().size() == 1 && index.column() == 0) {
-        Media* m = static_cast<Media*>(index.internalPointer());
+        Media* m = project_parent->item_to_media(index);
         if (editing_item == m) {
             rename_timer.start();
         } else {
@@ -199,9 +199,9 @@ void SourceTable::mouseDoubleClickEvent(QMouseEvent* e) {
     stop_rename_timer();
     QModelIndexList selected_items = selectionModel()->selectedRows();
     if (selected_items.size() == 0) {
-		panel_project->import_dialog();
+        project_parent->import_dialog();
     } else if (selected_items.size() == 1) {
-        Media* item = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* item = project_parent->item_to_media(selected_items.at(0));
         switch (item->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
             panel_footage_viewer->set_media(item);
@@ -233,7 +233,7 @@ void SourceTable::dragMoveEvent(QDragMoveEvent *event) {
 void SourceTable::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
     const QModelIndex& drop_item = indexAt(event->pos());
-    Media* m = static_cast<Media*>(drop_item.internalPointer());
+    Media* m = project_parent->item_to_media(drop_item);
     if (mimeData->hasUrls()) {
         // drag files in from outside
         QList<QUrl> urls = mimeData->urls();
@@ -250,7 +250,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
                     && config.drop_on_media_to_replace
                     && QMessageBox::question(this, "Replace Media", "You dropped a file onto '" + m->get_name() + "'. Would you like to replace it with the dropped file?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
 				replace = true;
-                panel_project->replace_media(m, paths.at(0));
+                project_parent->replace_media(m, paths.at(0));
 			}
 			if (!replace) {
                 QModelIndex parent;
@@ -262,7 +262,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
 					}
 				}
                 if (parent.isValid()) setExpanded(parent, true);
-                panel_project->process_file_list(false, paths, static_cast<Media*>(parent.internalPointer()), NULL);
+                project_parent->process_file_list(paths, false, NULL, panel_project->item_to_media(parent));
 			}
         }
         event->acceptProposedAction();
@@ -277,7 +277,7 @@ void SourceTable::dropEvent(QDropEvent* event) {
             for (int i=0;i<selected_items.size();i++) {
                 const QModelIndex& item = selected_items.at(i);
                 const QModelIndex& parent = item.parent();
-                Media* s = static_cast<Media*>(item.internalPointer());
+                Media* s = project_parent->item_to_media(item);
                 if (parent != drop_item && item != drop_item) {
 					bool ignore = false;
                     if (parent.isValid()) {

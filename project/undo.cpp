@@ -346,40 +346,34 @@ NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) :
     parent(iparent),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
-{}
+{
+    if (parent == NULL) parent = project_model.get_root();
+}
 
 NewSequenceCommand::~NewSequenceCommand() {
     if (!done) delete seq;
 }
 
 void NewSequenceCommand::undo() {
-    if (parent == NULL) {
-        project_model.removeTopLevelItem(seq);
-    } else {
-        parent->removeChild(seq);
-    }
+    project_model.removeChild(parent, seq);
+
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void NewSequenceCommand::redo() {
-    if (parent == NULL) {
-        project_model.addTopLevelItem(seq);
-    } else {
-        parent->appendChild(seq);
-    }
+    project_model.appendChild(parent, seq);
+
     done = true;
 	mainWindow->setWindowModified(true);
 }
 
-AddMediaCommand::AddMediaCommand(Media* iitem, Media* iparent) :
+AddMediaCommand::AddMediaCommand(Media* iitem, Media *iparent) :
     item(iitem),
     parent(iparent),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
-{
-    if (parent == NULL) parent = project_model.get_root();
-}
+{}
 
 AddMediaCommand::~AddMediaCommand() {
     if (!done) {
@@ -388,73 +382,40 @@ AddMediaCommand::~AddMediaCommand() {
 }
 
 void AddMediaCommand::undo() {
-    parent->removeChild(item);
+    project_model.removeChild(parent, item);
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddMediaCommand::redo() {
-    parent->appendChild(item);
-    project_model.update_data();
-
-	/* Here we force the source_table to sort itself.
-	 *
-	 * For some reason, sometimes when you add items to the QTreeWidget,
-	 * (usually upon first import) they appear at the bottom, regardless
-	 * of where they should be placed alphabetically. Then when this
-	 * function is "undone", and it tries to remove this item from the
-	 * QTreeWidget, it immediately sorts and then removes THE WRONG ONE.
-	 * If this happens to be a sequence, the sequence data doesn't save
-	 * and is then lost forever (outside of autorecoveries).
-	 *
-	 * The following 2 lines seem to force the source_table to re-sort
-	 * correctly and therefore works around this problem. But holy shit.
-     *
-     * I guess I'm "supposed" to use a Model–view–viewmodel instead,
-     * which I'll probably have to switch to soon anyway. So perhaps
-     * this will be a non-issue soon.
-
-	panel_project->source_table->setSortingEnabled(false);
-    panel_project->source_table->setSortingEnabled(true);*/
+    project_model.appendChild(parent, item);
 
 	done = true;
 	mainWindow->setWindowModified(true);
 }
 
-DeleteMediaCommand::DeleteMediaCommand(const QModelIndex& i) :
+DeleteMediaCommand::DeleteMediaCommand(Media* i) :
 	item(i),
-    parent(i.parent()),
+    parent(i->parentItem()),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 DeleteMediaCommand::~DeleteMediaCommand() {
-	if (done) {
-        Media* m = static_cast<Media*>(item.internalPointer());
-        delete m;
+    if (done) {
+        delete item;
 	}
 }
 
 void DeleteMediaCommand::undo() {
-    Media* m = static_cast<Media*>(item.internalPointer());
-    if (!parent.isValid()) {
-        project_model.addTopLevelItem(m);
-    } else {
-        static_cast<Media*>(parent.internalPointer())->appendChild(m);
-    }
+    project_model.appendChild(parent, item);
 
 	mainWindow->setWindowModified(old_project_changed);
 	done = false;
 }
 
 void DeleteMediaCommand::redo() {
-    Media* m = static_cast<Media*>(item.internalPointer());
-    if (!parent.isValid()) {
-        project_model.removeTopLevelItem(m);
-    } else {
-        static_cast<Media*>(parent.internalPointer())->removeChild(m);
-    }	
+    project_model.removeChild(parent, item);
 
-    project_model.update_data();
 	mainWindow->setWindowModified(true);
 	done = true;
 }
@@ -622,7 +583,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
 	// replace media
 	QStringList files;
 	files.append(filename);
-	panel_project->process_file_list(false, files, NULL, item);
+    panel_project->process_file_list(files, false, item, NULL);
 }
 
 void ReplaceMediaCommand::undo() {
@@ -728,8 +689,7 @@ MediaMove::MediaMove(SourceTable *s) : table(s), old_project_changed(mainWindow-
 
 void MediaMove::undo() {
 	for (int i=0;i<items.size();i++) {
-        to->removeChild(items.at(i));
-        froms.at(i)->appendChild(items.at(i));
+        project_model.moveChild(items.at(i), froms.at(i));
     }
 	mainWindow->setWindowModified(old_project_changed);
 }
@@ -740,10 +700,8 @@ void MediaMove::redo() {
 	for (int i=0;i<items.size();i++) {
         Media* parent = items.at(i)->parentItem();
 		froms[i] = parent;
-        parent->removeChild(items.at(i));
-        to->appendChild(items.at(i));
+        project_model.moveChild(items.at(i), to);
     }
-    project_model.update_data();
 	mainWindow->setWindowModified(true);
 }
 

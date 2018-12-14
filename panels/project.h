@@ -18,6 +18,7 @@ class Media;
 class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
+class QSortFilterProxyModel;
 class ComboAction;
 
 #define LOAD_TYPE_VERSION 69
@@ -33,15 +34,6 @@ extern QStringList recent_projects;
 extern QString recent_proj_file;
 
 extern ProjectModel project_model;
-
-/*int get_type_from_tree(Media *item);
-void* get_media_from_tree(QTreeWidgetItem* item);
-Footage* get_footage_from_tree(QTreeWidgetItem* item);
-void set_footage_of_tree(QTreeWidgetItem* item, Footage* media);
-Sequence* get_sequence_from_tree(QTreeWidgetItem* item);
-void set_sequence_of_tree(QTreeWidgetItem* item, Sequence* sequence);
-void set_item_to_folder(QTreeWidgetItem* item);*/
-//void update_footage_tooltip(Media* item, Footage* media, QString error = 0);
 
 Sequence* create_sequence_from_media(QVector<Media *> &media_list);
 
@@ -59,9 +51,9 @@ public:
 	void clear();
     Media* new_sequence(ComboAction *ca, Sequence* s, bool open, Media* parent);
     QString get_next_sequence_name(QString start = 0);
-    void process_file_list(bool recursive, QStringList& files, Media *parent, Media* replace);
+    void process_file_list(QStringList& files, bool recursive = false, Media* replace = NULL, Media *parent = NULL);
     void replace_media(Media* item, QString filename);
-    Media* get_selected_folder();
+    Media *get_selected_folder();
     bool reveal_media(void* media, QModelIndex parent = QModelIndex());
     void add_recent_project(QString url);
 
@@ -70,12 +62,14 @@ public:
     void save_project(bool autorecovery);
 
     Media* new_folder(QString name);
+    Media* item_to_media(const QModelIndex& index);
 
     void save_recent_projects();
 
     QVector<Media*> list_all_project_sequences();
 
 	SourceTable* source_table;
+    QSortFilterProxyModel* sorter;
 
     QVector<Media*> last_imported_media;
 

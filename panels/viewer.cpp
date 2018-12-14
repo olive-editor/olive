@@ -345,7 +345,7 @@ void Viewer::pause() {
 			// import audio
 			QStringList file_list;
 			file_list.append(get_recorded_audio_filename());
-			panel_project->process_file_list(false, file_list, NULL, NULL);
+            panel_project->process_file_list(file_list);
 
 			// add it to the sequence
 			Clip* c = new Clip(seq);

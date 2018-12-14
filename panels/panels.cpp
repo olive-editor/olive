@@ -100,8 +100,7 @@ void update_effect_controls() {
 void update_ui(bool modified) {
     if (modified) {
         update_effect_controls();
-	}
-    project_model.update_data();
+    }
 	panel_effect_controls->update_keyframes();
 	panel_timeline->repaint_timeline();
 	panel_sequence_viewer->update_viewer();

@@ -22,6 +22,7 @@ struct EffectMeta;
 #include <QUndoCommand>
 #include <QVector>
 #include <QVariant>
+#include <QModelIndex>
 
 extern QUndoStack undo_stack;
 
@@ -192,13 +193,13 @@ private:
 
 class DeleteMediaCommand : public QUndoCommand {
 public:
-    DeleteMediaCommand(const QModelIndex& i);
+    DeleteMediaCommand(Media *i);
     ~DeleteMediaCommand();
     void undo();
     void redo();
 private:
-    const QModelIndex& item;
-    const QModelIndex& parent;
+    Media* item;
+    Media* parent;
 	bool old_project_changed;
 	bool done;
 };

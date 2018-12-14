@@ -5,6 +5,8 @@
 #include "undo.h"
 #include "io/config.h"
 #include "panels/viewer.h"
+#include "panels/project.h"
+#include "projectmodel.h"
 
 #include "debug.h"
 
@@ -296,17 +298,6 @@ Media *Media::parentItem() {
     return parent;
 }
 
-Media *Media::takeChild(int i) {
-    Media* ref = children.at(i);
+void Media::removeChild(int i) {
     children.removeAt(i);
-    return ref;
-}
-
-void Media::removeChild(Media* m) {
-    for (int i=0;i<children.size();i++) {
-        if (children.at(i) == m) {
-            children.removeAt(i);
-            return;
-        }
-    }
 }

@@ -46,8 +46,7 @@ public:
     QVariant data(int column, int role);
     int row() const;
     Media *parentItem();
-    Media* takeChild(int i);
-    void removeChild(Media* m);
+    void removeChild(int i);
 
     bool root;
     int temp_id;

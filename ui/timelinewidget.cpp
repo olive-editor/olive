@@ -246,7 +246,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
         QModelIndexList items = panel_project->source_table->selectionModel()->selectedRows();
         media_list.resize(items.size());
         for (int i=0;i<items.size();i++) {
-            media_list[i] = static_cast<Media*>(items.at(i).internalPointer());
+            media_list[i] = panel_project->item_to_media(items.at(i));
 		}
 		import_init = true;
 	}
@@ -268,7 +268,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 				file_list.append(urls.at(i).toLocalFile());
 			}
 
-			panel_project->process_file_list(false, file_list, NULL, NULL);
+            panel_project->process_file_list(file_list);
 
 			for (int i=0;i<panel_project->last_imported_media.size();i++) {
 				// waits for media to have a duration
@@ -316,12 +316,15 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 }
 
 void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
-    if (sequence != NULL && panel_timeline->importing) {
+    if (panel_timeline->importing) {
         event->acceptProposedAction();
-		QPoint pos = event->pos();
-        update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
-		panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
-		update_ui(false);
+
+        if (sequence != NULL) {
+            QPoint pos = event->pos();
+            update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
+            panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
+            update_ui(false);
+        }
 	}
 }
 
@@ -343,7 +346,8 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 	}
 }
 
-void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
+void TimelineWidget::dragLeaveEvent(QDragLeaveEvent* event) {
+    event->accept();
 	if (panel_timeline->importing) {
 		if (panel_timeline->importing_files) {
 			undo_stack.undo();
@@ -355,6 +359,7 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent*) {
 	}
 	if (self_created_sequence != NULL) {
 		delete self_created_sequence;
+        self_created_sequence = NULL;
 	}
 }
 

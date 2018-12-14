@@ -34,6 +34,7 @@
 #include <QMimeData>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QSortFilterProxyModel>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -57,8 +58,12 @@ Project::Project(QWidget *parent) :
 {
     ui->setupUi(this);
     source_table = ui->treeView;
+    source_table->project_parent = this;
 
-    source_table->setModel(&project_model);
+    sorter = new QSortFilterProxyModel(this);
+    sorter->setSourceModel(&project_model);
+
+    source_table->setModel(sorter);
 
     /*Media* m = new Media(project_model.get_root());
     project_model.get_root()->appendChild(m);*/
@@ -81,8 +86,8 @@ QString Project::get_next_sequence_name(QString start) {
 			name += "0";
 		}
 		name += QString::number(n);
-        for (int i=0;i<project_model.topLevelItemCount();i++) {
-            if (QString::compare(project_model.topLevelItem(i)->get_name(), name, Qt::CaseInsensitive) == 0) {
+        for (int i=0;i<project_model.childCount();i++) {
+            if (QString::compare(project_model.child(i)->get_name(), name, Qt::CaseInsensitive) == 0) {
 				found = true;
 				n++;
 				break;
@@ -165,9 +170,9 @@ void Project::duplicate_selected() {
     bool duped = false;
     ComboAction* ca = new ComboAction();
     for (int j=0;j<items.size();j++) {
-        Media* i = static_cast<Media*>(items.at(j).internalPointer());
+        Media* i = item_to_media(items.at(j));
         if (i->get_type() == MEDIA_TYPE_SEQUENCE) {
-            new_sequence(ca, i->to_sequence()->copy(), false, static_cast<Media*>(items.at(j).parent().internalPointer()));
+            new_sequence(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
             duped = true;
         }
     }
@@ -181,7 +186,7 @@ void Project::duplicate_selected() {
 void Project::replace_selected_file() {
     QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
 	if (selected_items.size() == 1) {
-        Media* item = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* item = item_to_media(selected_items.at(0));
         if (item->get_type() == MEDIA_TYPE_FOOTAGE) {
 			replace_media(item, 0);
 		}
@@ -204,7 +209,7 @@ void Project::replace_clip_media() {
     } else {
         QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
         if (selected_items.size() == 1) {
-            Media* item = static_cast<Media*>(selected_items.at(0).internalPointer());
+            Media* item = item_to_media(selected_items.at(0));
             if (item->get_type() == MEDIA_TYPE_SEQUENCE && sequence == item->to_sequence()) {
                 QMessageBox::critical(this, "Active sequence selected", "You cannot insert a sequence into itself, so no clips of this media would be in this sequence.", QMessageBox::Ok);
             } else {
@@ -218,7 +223,7 @@ void Project::replace_clip_media() {
 void Project::open_properties() {
     QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
     if (selected_items.size() == 1) {
-        Media* item = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* item = item_to_media(selected_items.at(0));
         switch (item->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
@@ -257,11 +262,7 @@ Media* Project::new_sequence(ComboAction *ca, Sequence *s, bool open, Media* par
         ca->append(new NewSequenceCommand(item, parent));
         if (open) ca->append(new ChangeSequenceAction(s));
     } else {
-        if (parent == NULL) {
-            project_model.addTopLevelItem(item);
-        } else {
-            parent->appendChild(item);
-        }
+        project_model.appendChild(NULL, item);
         if (open) set_sequence(s);
 	}
     return item;
@@ -285,6 +286,11 @@ Media* Project::new_folder(QString name) {
     Media* item = new Media(0);
     item->set_folder();
     return item;
+}
+
+Media *Project::item_to_media(const QModelIndex &index) {
+    return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
+//    return static_cast<Media*>(index.internalPointer());
 }
 
 void Project::get_all_media_from_table(QList<Media*> items, QList<Media*>& list, int search_type) {
@@ -321,7 +327,7 @@ void Project::delete_selected_media() {
     QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
     QList<Media*> items;
     for (int i=0;i<selected_items.size();i++) {
-        items.append(static_cast<Media*>(selected_items.at(i).internalPointer()));
+        items.append(item_to_media(selected_items.at(i)));
     }
     bool remove = true;
     bool redraw = false;
@@ -334,8 +340,8 @@ void Project::delete_selected_media() {
     QVector<Media*> parents;
     QList<Media*> sequence_items;
     QList<Media*> all_top_level_items;
-    for (int i=0;i<project_model.topLevelItemCount();i++) {
-        all_top_level_items.append(project_model.topLevelItem(i));
+    for (int i=0;i<project_model.childCount();i++) {
+        all_top_level_items.append(project_model.child(i));
     }
 	get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
     if (sequence_items.size() > 0) {
@@ -425,7 +431,7 @@ void Project::delete_selected_media() {
         }
 
 		for (int i=0;i<items.size();i++) {
-            ca->append(new DeleteMediaCommand(selected_items.at(i)));
+            ca->append(new DeleteMediaCommand(items.at(i)));
 
             if (items.at(i)->get_type() == MEDIA_TYPE_SEQUENCE) {
                 redraw = true;
@@ -477,7 +483,7 @@ void Project::start_preview_generator(Media* item, bool replacing) {
     pg->start(QThread::LowPriority);
 }
 
-void Project::process_file_list(bool recursive, QStringList& files, Media* parent, Media* replace) {
+void Project::process_file_list(QStringList& files, bool recursive, Media* replace, Media* parent) {
     bool imported = false;
 
     QVector<QString> image_sequence_urls;
@@ -505,12 +511,12 @@ void Project::process_file_list(bool recursive, QStringList& files, Media* paren
 				subdir_filenames.append(subdir_files.at(j).filePath());
 			}
 
-			process_file_list(true, subdir_filenames, folder, NULL);
+            process_file_list(subdir_filenames, true, NULL, folder);
 
-			if (create_undo_action) {
+            if (create_undo_action) {
                 ca->append(new AddMediaCommand(folder, parent));
-			} else {
-                parent->appendChild(folder);
+            } else {
+                project_model.appendChild(parent, folder);
 			}
 
 			imported = true;
@@ -618,7 +624,7 @@ void Project::process_file_list(bool recursive, QStringList& files, Media* paren
 					if (create_undo_action) {
                         ca->append(new AddMediaCommand(item, parent));
 					} else {
-                        parent->appendChild(item);
+                        project_model.appendChild(parent, item);
 					}
 				}
 
@@ -639,16 +645,16 @@ Media* Project::get_selected_folder() {
 	// if one item is selected and it's a folder, return it
     QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
     if (selected_items.size() == 1) {
-        Media* m = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* m = item_to_media(selected_items.at(0));
         if (m->get_type() == MEDIA_TYPE_FOLDER) return m;
 	}
-	return NULL;
+    return NULL;
 }
 
 bool Project::reveal_media(void *media, QModelIndex parent) {
     for (int i=0;i<project_model.rowCount(parent);i++) {
         const QModelIndex& item = project_model.index(i, 0, parent);
-        Media* m = static_cast<Media*>(item.internalPointer());
+        Media* m = project_model.getItem(item);
 
         if (m->get_type() == MEDIA_TYPE_FOLDER) {
 			if (reveal_media(media, item)) return true;
@@ -676,7 +682,7 @@ void Project::import_dialog() {
 
 	if (fd.exec()) {
 		QStringList files = fd.selectedFiles();
-		process_file_list(false, files, get_selected_folder(), NULL);
+        process_file_list(files, false, NULL, get_selected_folder());
 	}
 }
 
@@ -691,7 +697,7 @@ void Project::delete_clips_using_selected_media() {
             Clip* c = sequence->clips.at(i);
 			if (c != NULL) {
 				for (int j=0;j<items.size();j++) {
-                    Media* m = static_cast<Media*>(items.at(j).internalPointer());
+                    Media* m = item_to_media(items.at(j));
 					if (c->media == m) {
                         ca->append(new DeleteClipAction(sequence, i));
 						deleted = true;
@@ -700,7 +706,7 @@ void Project::delete_clips_using_selected_media() {
 			}
 		}
 		for (int j=0;j<items.size();j++) {
-            Media* m = static_cast<Media*>(items.at(j).internalPointer());
+            Media* m = item_to_media(items.at(j));
 			if (delete_clips_in_clipboard_with_media(ca, m)) deleted = true;
 		}
 		if (deleted) {
@@ -747,7 +753,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
     bool root = (!parent.parent().isValid());
     for (int i=0;i<project_model.rowCount(parent);i++) {
         const QModelIndex& item = project_model.index(i, 0, parent);
-        Media* m = static_cast<Media*>(item.internalPointer());
+        Media* m = project_model.getItem(item);
 
         if (type == m->get_type()) {
             if (m->get_type() == MEDIA_TYPE_FOLDER) {
@@ -762,13 +768,13 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
                     if (!item.parent().isValid()) {
                         stream.writeAttribute("parent", "0");
                     } else {
-                        stream.writeAttribute("parent", QString::number(static_cast<Media*>(item.parent().internalPointer())->temp_id));
+                        stream.writeAttribute("parent", QString::number(project_model.getItem(item.parent())->temp_id));
                     }
                     stream.writeEndElement();
                 }
 				// save_folder(stream, item, type, set_ids_only);
             } else {
-                int folder = root ? 0 : static_cast<Media*>(parent.internalPointer())->temp_id;
+                int folder = root ? 0 : project_model.getItem(parent)->temp_id;
                 if (type == MEDIA_TYPE_FOOTAGE) {
                     Footage* f = m->to_footage();
                     f->save_id = media_id;
@@ -995,9 +1001,8 @@ void Project::add_recent_project(QString url) {
 }
 
 void Project::list_all_sequences_worker(QVector<Media*>* list, Media* parent) {
-    int len = (parent == NULL) ? project_model.topLevelItemCount() : parent->childCount();
-    for (int i=0;i<len;i++) {
-        Media* item = (parent == NULL) ? project_model.topLevelItem(i) : parent->child(i);
+    for (int i=0;i<project_model.childCount(parent);i++) {
+        Media* item = project_model.child(i, parent);
         switch (item->get_type()) {
         case MEDIA_TYPE_SEQUENCE:
             list->append(item);
@@ -1034,7 +1039,6 @@ void MediaThrobber::animation_update() {
         animation = 0;
     }
     item->set_icon(QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
-    project_model.update_data();
 	animation++;
 }
 

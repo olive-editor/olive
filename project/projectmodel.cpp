@@ -1,4 +1,4 @@
-#include "projectmodel.h"
+﻿#include "projectmodel.h"
 
 #include "panels/panels.h"
 #include "panels/viewer.h"
@@ -123,29 +123,50 @@ int ProjectModel::columnCount(const QModelIndex &parent) const {
         return root_item->columnCount();
 }
 
-int ProjectModel::topLevelItemCount() {
-    return root_item->childCount();
+Media *ProjectModel::getItem(const QModelIndex &index) const {
+    if (index.isValid()) {
+        Media *item = static_cast<Media*>(index.internalPointer());
+        if (item)
+            return item;
+    }
+    return root_item;
 }
 
-Media *ProjectModel::topLevelItem(int i) {
-    return root_item->child(i);
+void ProjectModel::appendChild(Media *parent, Media *child) {
+    if (parent == NULL) parent = root_item;
+    beginInsertRows(parent == root_item ? QModelIndex() : createIndex(parent->row(), 0, parent), parent->childCount(), parent->childCount());
+    parent->appendChild(child);
+    endInsertRows();
 }
 
-void ProjectModel::addTopLevelItem(Media *m) {
-    root_item->appendChild(m);
+void ProjectModel::moveChild(Media *child, Media *to) {
+    if (to == NULL) to = root_item;
+    Media* from = child->parentItem();
+    beginMoveRows(
+                from == root_item ? QModelIndex() : createIndex(from->row(), 0, from),
+                child->row(),
+                child->row(),
+                to == root_item ? QModelIndex() : createIndex(to->row(), 0, to),
+                to->childCount()
+            );
+    from->removeChild(child->row());
+    to->appendChild(child);
+    endMoveRows();
 }
 
-Media *ProjectModel::takeTopLevelItem(int i) {
-    Media* ref = root_item->child(i);
-    root_item->takeChild(i);
-    return ref;
+void ProjectModel::removeChild(Media* parent, Media* m) {
+    if (parent == NULL) parent = root_item;
+    beginRemoveRows(parent == root_item ? QModelIndex() : createIndex(parent->row(), 0, parent), m->row(), m->row());
+    parent->removeChild(m->row());
+    endRemoveRows();
 }
 
-void ProjectModel::removeTopLevelItem(Media *m) {
-    root_item->removeChild(m);
+Media* ProjectModel::child(int i, Media* parent) {
+    if (parent == NULL) parent = root_item;
+    return parent->child(i);
 }
 
-void ProjectModel::update_data() {
-//    emit dataChanged();
-    emit layoutChanged();
+int ProjectModel::childCount(Media *parent) {
+    if (parent == NULL) parent = root_item;
+    return parent->childCount();
 }

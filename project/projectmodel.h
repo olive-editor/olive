@@ -1,4 +1,4 @@
-#ifndef PROJECTMODEL_H
+﻿#ifndef PROJECTMODEL_H
 #define PROJECTMODEL_H
 
 #include <QAbstractItemModel>
@@ -25,12 +25,13 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    int topLevelItemCount();
-    Media* topLevelItem(int i);
-    void addTopLevelItem(Media*);
-    Media* takeTopLevelItem(int i);
-    void removeTopLevelItem(Media* m);
-    void update_data();
+    Media *getItem(const QModelIndex &index) const;
+
+    void appendChild(Media* parent, Media* child);
+    void moveChild(Media *child, Media *to);
+    void removeChild(Media *parent, Media* m);
+    Media *child(int i, Media* parent = NULL);
+    int childCount(Media* parent = NULL);
 
 private:
     Media* root_item;

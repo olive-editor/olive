@@ -238,11 +238,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
                             item->set_footage(m);
 
-                            if (folder == 0) {
-                                project_model.addTopLevelItem(item);
-                            } else {
-                                find_loaded_folder_by_id(folder)->appendChild(item);
-                            }
+                            project_model.appendChild(find_loaded_folder_by_id(folder), item);
 
                             // analyze media to see if it's the same
                             loaded_media_items.append(item);
@@ -498,6 +494,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 }
 
 Media* LoadThread::find_loaded_folder_by_id(int id) {
+    if (id == 0) return NULL;
     for (int j=0;j<loaded_folders.size();j++) {
         Media* parent_item = loaded_folders.at(j);
         if (parent_item->temp_id == id) {
@@ -582,11 +579,7 @@ void LoadThread::run() {
         for (int i=0;i<loaded_folders.size();i++) {
             Media* folder = loaded_folders.at(i);
             int parent = folder->temp_id2;
-            if (parent > 0) {
-                find_loaded_folder_by_id(parent)->appendChild(folder);
-            } else {
-                project_model.addTopLevelItem(folder);
-            }
+            project_model.appendChild(find_loaded_folder_by_id(parent), folder);
         }
 
         cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);
