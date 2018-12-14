@@ -313,8 +313,7 @@ void ExportDialog::on_formatCombobox_currentIndexChanged(int index)
 	ui->audioGroupbox->setEnabled(audio_enabled);
 }
 
-void ExportDialog::on_pushButton_2_clicked()
-{
+void ExportDialog::on_pushButton_2_clicked() {
 	close();
 }
 
@@ -325,6 +324,7 @@ void ExportDialog::render_thread_finished() {
     prep_ui_for_render(false);
     panel_sequence_viewer->viewer_widget->makeCurrent();
     panel_sequence_viewer->viewer_widget->initializeGL();
+    update_ui(false);
     if (ui->progressBar->value() == 100) close();
 }
 

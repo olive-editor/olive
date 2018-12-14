@@ -113,6 +113,7 @@ class Effect : public QObject {
 public:
 	Effect(Clip* c, const EffectMeta* em);
 	~Effect();
+    void init_ui();
     Clip* parent_clip;
 	const EffectMeta* meta;
     int id;

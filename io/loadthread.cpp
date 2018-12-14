@@ -1,4 +1,4 @@
-﻿#include "loadthread.h"
+#include "loadthread.h"
 
 #include "mainwindow.h"
 #include "panels/panels.h"
@@ -113,6 +113,8 @@ void load_effect(QXmlStreamReader& stream, Clip* c) {
             Effect* e = create_effect(c, meta);
             e->set_enabled(effect_enabled);
             e->load(stream);
+
+            e->moveToThread(QApplication::instance()->thread());
 
             c->effects.append(e);
         }
