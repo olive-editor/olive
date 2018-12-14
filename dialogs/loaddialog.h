@@ -8,6 +8,7 @@ class Sequence;
 class Media;
 class Footage;
 class QHBoxLayout;
+class LoadThread;
 
 class LoadDialog : public QDialog
 {
@@ -15,11 +16,13 @@ class LoadDialog : public QDialog
 public:
     LoadDialog(QWidget* parent, bool autorecovery);
 private slots:
+    void cancel();
     void thread_done();
 private:
 	QProgressBar* bar;
     QPushButton* cancel_button;
     QHBoxLayout* hboxLayout;
+    LoadThread* lt;
 };
 
 #endif // LOADDIALOG_H

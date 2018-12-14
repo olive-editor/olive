@@ -11,6 +11,7 @@
 #include "io/loadthread.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
+#include "mainwindow.h"
 
 LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -21,11 +22,11 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
     layout->addWidget(new QLabel("Loading '" + project_url.mid(project_url.lastIndexOf('/')+1) + "'..."));
 
 	bar = new QProgressBar();
-	bar->setValue(50);
+    bar->setValue(0);
 	layout->addWidget(bar);
 
     cancel_button = new QPushButton("Cancel");
-	connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(reject()));
+    connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(cancel()));
 
     hboxLayout = new QHBoxLayout();
 	hboxLayout->addStretch();
@@ -36,12 +37,19 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 
     update();
 
-    LoadThread* lt = new LoadThread(this, autorecovery);
+    lt = new LoadThread(this, autorecovery);
     QObject::connect(lt, SIGNAL(success()), this, SLOT(thread_done()));
+    QObject::connect(lt, SIGNAL(report_progress(int)), bar, SLOT(setValue(int)));
     lt->start();
 }
 
+void LoadDialog::cancel() {
+    lt->cancel();
+    lt->wait();
+    mainWindow->new_project();
+    reject();
+}
+
 void LoadDialog::thread_done() {
-//    project_model.update_data();
-    close();
+    accept();
 }

@@ -28,6 +28,7 @@ public slots:
 	void cut();
 	void copy();
 	void paste();
+    void new_project();
     void autorecover_interval();
     void on_actionNest_triggered();
 
@@ -69,8 +70,6 @@ private slots:
     void on_action_Save_Project_triggered();
 
     void on_action_Open_Project_triggered();
-
-    void on_actionProject_triggered();
 
     void on_actionSave_Project_As_triggered();
 

@@ -19,15 +19,13 @@ void ProjectModel::destroy_root() {
     if (panel_footage_viewer != NULL) panel_footage_viewer->viewer_widget->delete_function();
 
     if (root_item != NULL) {
-        beginRemoveRows(QModelIndex(), 0, root_item->childCount());
         delete root_item;
-        endRemoveRows();
     }
 }
 
 void ProjectModel::clear() {
-    destroy_root();
     beginResetModel();
+    destroy_root();
     root_item = new Media(0);
     root_item->root = true;
     endResetModel();
@@ -130,6 +128,13 @@ Media *ProjectModel::getItem(const QModelIndex &index) const {
             return item;
     }
     return root_item;
+}
+
+void ProjectModel::set_icon(Media* m, const QIcon &ico) {
+    QModelIndex index = createIndex(m->row(), 0, m);
+    m->set_icon(ico);
+    emit dataChanged(index, index);
+
 }
 
 void ProjectModel::appendChild(Media *parent, Media *child) {

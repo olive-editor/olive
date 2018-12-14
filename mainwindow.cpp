@@ -220,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionCu_t, SIGNAL(triggered(bool)), this, SLOT(cut()));
 	connect(ui->actionCop_y, SIGNAL(triggered(bool)), this, SLOT(copy()));
 	connect(ui->action_Paste, SIGNAL(triggered(bool)), this, SLOT(paste()));
+    connect(ui->actionProject, SIGNAL(triggered(bool)), this, SLOT(new_project()));
 }
 
 MainWindow::~MainWindow() {
@@ -418,7 +419,19 @@ void MainWindow::copy() {
 void MainWindow::paste() {
     if ((panel_timeline->focused() || panel_effect_controls->is_focused()) && sequence != NULL) {
         panel_timeline->paste(false);
-	}
+    }
+}
+
+void MainWindow::new_project() {
+    if (can_close_project()) {
+        panel_effect_controls->clear_effects(true);
+        undo_stack.clear();
+        project_url.clear();
+        panel_project->new_project();
+        updateTitle("");
+        update_ui(false);
+        panel_project->source_table->update();
+    }
 }
 
 void MainWindow::on_actionSplit_at_Playhead_triggered()
@@ -513,18 +526,6 @@ void MainWindow::on_action_Open_Project_triggered()
 		updateTitle(fn);
         panel_project->load_project(false);
         undo_stack.clear();
-    }
-}
-
-void MainWindow::on_actionProject_triggered()
-{
-    if (can_close_project()) {
-		panel_effect_controls->clear_effects(true);
-        undo_stack.clear();
-        project_url.clear();
-        panel_project->new_project();
-		updateTitle("");
-		update_ui(false);
     }
 }
 

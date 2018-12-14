@@ -1,4 +1,4 @@
-﻿#include "loadthread.h"
+#include "loadthread.h"
 
 #include "mainwindow.h"
 #include "panels/panels.h"
@@ -28,9 +28,10 @@ struct TransitionData {
     Clip* ctc;
 };
 
-LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a) {
+LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelled(false) {
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
     connect(this, SIGNAL(success()), this, SLOT(success_func()));
+    connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)));
 }
 
 const EffectMeta* get_meta_from_name(const QString& name, int type) {
@@ -42,7 +43,7 @@ const EffectMeta* get_meta_from_name(const QString& name, int type) {
     return NULL;
 }
 
-void load_effect(QXmlStreamReader& stream, Clip* c) {
+void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
     int effect_id = -1;
     QString effect_name;
     bool effect_enabled = true;
@@ -95,28 +96,45 @@ void load_effect(QXmlStreamReader& stream, Clip* c) {
     } else {
         QString tag = stream.name().toString();
 
-        if (tag == "opening" || tag == "closing") {
-            // TODO replace NULL/s with something else
-
-            int transition_index = create_transition(c, NULL, meta);
-            Transition* t = c->sequence->transitions.at(transition_index);
-            if (effect_length > -1) t->set_length(effect_length);
-            t->set_enabled(effect_enabled);
-            t->load(stream);
-
-            if (tag == "opening") {
-                c->opening_transition = transition_index;
-            } else {
-                c->closing_transition = transition_index;
-            }
+        int type;
+        if (tag == "opening") {
+            type = TA_OPENING_TRANSITION;
+        } else if (tag == "closing") {
+            type = TA_CLOSING_TRANSITION;
         } else {
-            Effect* e = create_effect(c, meta);
-            e->set_enabled(effect_enabled);
-            e->load(stream);
-
-            c->effects.append(e);
+            type = TA_NO_TRANSITION;
         }
+
+        emit start_create_effect_ui(&stream, c, type, meta, effect_length, effect_enabled);
+
+        waitCond.wait(&mutex);
     }
+}
+
+void LoadThread::read_next(QXmlStreamReader &stream) {
+    stream.readNext();
+    update_current_element_count(stream);
+}
+
+void LoadThread::read_next_start_element(QXmlStreamReader &stream) {
+    stream.readNextStartElement();
+    update_current_element_count(stream);
+}
+
+void LoadThread::update_current_element_count(QXmlStreamReader &stream) {
+    if (is_element(stream)) {
+        current_element_count++;
+        report_progress((current_element_count * 100) / total_element_count);
+    }
+}
+
+bool LoadThread::is_element(QXmlStreamReader &stream) {
+    return stream.isStartElement()
+            && (stream.name() == "folder"
+            || stream.name() == "footage"
+            || stream.name() == "sequence"
+            || stream.name() == "clip"
+            || stream.name() == "effect");
 }
 
 bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
@@ -149,8 +167,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
     show_err = true;
 
-    while (!stream.atEnd()) {
-        stream.readNextStartElement();
+    while (!stream.atEnd() && !cancelled) {
+        read_next_start_element(stream);
         if (stream.name() == root_search) {
             if (type == LOAD_TYPE_VERSION) {
                 int proj_version = stream.readElementText().toInt();
@@ -164,8 +182,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 internal_proj_url = stream.readElementText();
                 internal_proj_dir = QFileInfo(internal_proj_url).absoluteDir();
             } else {
-                while (!(stream.name() == root_search && stream.isEndElement())) {
-                    stream.readNext();
+                while (!cancelled && !(stream.name() == root_search && stream.isEndElement())) {
+                    read_next(stream);
                     if (stream.name() == child_search && stream.isStartElement()) {
                         switch (type) {
                         case MEDIA_TYPE_FOLDER:
@@ -283,8 +301,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             QVector<TransitionData> transition_data;
 
                             // load all clips and clip information
-                            while (!(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
-                                stream.readNextStartElement();
+                            while (!cancelled && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
+                                read_next_start_element(stream);
                                 if (stream.name() == "marker" && stream.isStartElement()) {
                                     Marker m;
                                     for (int j=0;j<stream.attributes().size();j++) {
@@ -387,12 +405,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                     }
 
                                     // load links and effects
-                                    while (!(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {
-                                        stream.readNext();
+                                    while (!cancelled && !(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {
+                                        read_next(stream);
                                         if (stream.isStartElement()) {
                                             if (stream.name() == "linked") {
-                                                while (!(stream.name() == "linked" && stream.isEndElement()) && !stream.atEnd()) {
-                                                    stream.readNext();
+                                                while (!cancelled && !(stream.name() == "linked" && stream.isEndElement()) && !stream.atEnd()) {
+                                                    read_next(stream);
                                                     if (stream.name() == "link" && stream.isStartElement()) {
                                                         for (int k=0;k<stream.attributes().size();k++) {
                                                             const QXmlStreamAttribute& link_attr = stream.attributes().at(k);
@@ -403,16 +421,19 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                         }
                                                     }
                                                 }
+                                                if (cancelled) return false;
                                             } else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
                                                 // "opening" and "closing" are backwards compatibility code
                                                 load_effect(stream, c);
                                             }
                                         }
                                     }
+                                    if (cancelled) return false;
 
                                     s->clips.append(c);
                                 }
                             }
+                            if (cancelled) return false;
 
                             // correct links, clip IDs, transitions
                             for (int i=0;i<s->clips.size();i++) {
@@ -486,11 +507,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                         }
                     }
                 }
+                if (cancelled) return false;
             }
             break;
         }
     }
-    return true;
+    return !cancelled;
 }
 
 Media* LoadThread::find_loaded_folder_by_id(int id) {
@@ -505,6 +527,8 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
 }
 
 void LoadThread::run() {
+    mutex.lock();
+
     QFile file(project_url);
     if (!file.open(QIODevice::ReadOnly)) {
         dout << "[ERROR] Could not open file";
@@ -534,17 +558,15 @@ void LoadThread::run() {
     loaded_sequences.clear();
 
     // get "element" count
-    int element_count = 0;
-    while (!stream.atEnd()) {
+    current_element_count = 0;
+    total_element_count = 0;
+    while (!cancelled && !stream.atEnd()) {
         stream.readNextStartElement();
-        if (stream.name() == "folder"
-                || stream.name() == "footage"
-                || stream.name() == "sequence"
-                || stream.name() == "clip"
-                || stream.name() == "effect") {
-            element_count++;
+        if (is_element(stream)) {
+            total_element_count++;
         }
     }
+    cont = !cancelled;
 
     // find project file version
     cont = load_worker(file, stream, LOAD_TYPE_VERSION);
@@ -590,27 +612,31 @@ void LoadThread::run() {
         cont = load_worker(file, stream, MEDIA_TYPE_SEQUENCE);
     }
 
-    // attach nested sequence clips to their sequences
-    for (int i=0;i<loaded_clips.size();i++) {
-        for (int j=0;j<loaded_sequences.size();j++) {
-            if (loaded_clips.at(i)->media == NULL && loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->to_sequence()->save_id) {
-                loaded_clips.at(i)->media = loaded_sequences.at(j);
-                loaded_clips.at(i)->refresh();
-                break;
+    if (!cancelled) {
+        if (!cont) {
+            if (show_err) QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+        } else if (stream.hasError()) {
+            dout << "[ERROR] Error parsing XML." << stream.errorString();
+            QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.errorString(), QMessageBox::Ok);
+            cont = false;
+        } else {
+            // attach nested sequence clips to their sequences
+            for (int i=0;i<loaded_clips.size();i++) {
+                for (int j=0;j<loaded_sequences.size();j++) {
+                    if (loaded_clips.at(i)->media == NULL && loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->to_sequence()->save_id) {
+                        loaded_clips.at(i)->media = loaded_sequences.at(j);
+                        loaded_clips.at(i)->refresh();
+                        break;
+                    }
+                }
             }
         }
     }
 
-    if (!cont) {
-        if (show_err) QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
-    } else if (stream.hasError()) {
-        dout << "[ERROR] Error parsing XML." << stream.errorString();
-        QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.errorString(), QMessageBox::Ok);
-        cont = false;
-    }
-
     if (cont) {
         mainWindow->setWindowModified(autorecovery);
+
+        panel_project->add_recent_project(project_url);
 
         emit success(); // run in main thread
 
@@ -618,15 +644,73 @@ void LoadThread::run() {
             panel_project->start_preview_generator(loaded_media_items.at(i), true);
         }
     } else {
-        panel_project->new_project();
+        mainWindow->new_project();
     }
 
-    panel_project->add_recent_project(project_url);
-
     file.close();
+
+    mutex.unlock();
+}
+
+void LoadThread::cancel() {
+    waitCond.wakeAll();
+    cancelled = true;
 }
 
 void LoadThread::success_func() {
     if (open_seq != NULL) set_sequence(open_seq);    
     update_ui(false);
+}
+
+void LoadThread::create_effect_ui(
+        QXmlStreamReader* stream,
+        Clip* c,
+        int type,
+        const EffectMeta* meta,
+        long effect_length,
+        bool effect_enabled)
+{
+    /* This is extremely hacky - prepare yourself.
+     *
+     * When moving project loading to a separate thread, it was soon discovered
+     * that effects wouldn't load correctly anymore. They were actually still
+     * "functional", but there were no controls appearing in EffectControls.
+     *
+     * Turns out since Effect creates its UI in its constructor, the UI was
+     * created in this thread rather than the main GUI thread, which is a big
+     * no-no. Unfortunately the design of Effect does not separate UI and data,
+     * so having the UI set up was integral to creating annd loading the effect.
+     *
+     * Therefore, rather than rewrite the class (I just rewrote QTreeWidget to
+     * QTreeView with a custom model/item so I'm exhausted), for
+     * quick-n-dirty-ness, I made LoadThread offload the effect creation to the
+     * main thread (and since the effect loads data from the same XML stream,
+     * the LoadThread has to wait for the effect to finish before it can
+     * continue.
+     *
+     * Sorry. I'll fix it one day.
+     */
+
+    if (cancelled) return;
+    if (type == TA_NO_TRANSITION) {
+        Effect* e = create_effect(c, meta);
+        e->set_enabled(effect_enabled);
+        e->load(*stream);
+
+        c->effects.append(e);
+    } else {
+        int transition_index = create_transition(c, NULL, meta);
+        Transition* t = c->sequence->transitions.at(transition_index);
+        if (effect_length > -1) t->set_length(effect_length);
+        t->set_enabled(effect_enabled);
+        t->load(*stream);
+
+        if (type == TA_OPENING_TRANSITION) {
+            c->opening_transition = transition_index;
+        } else {
+            c->closing_transition = transition_index;
+        }
+    }
+    waitCond.wakeAll();
+
 }

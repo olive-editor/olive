@@ -32,6 +32,7 @@ public:
     void removeChild(Media *parent, Media* m);
     Media *child(int i, Media* parent = NULL);
     int childCount(Media* parent = NULL);
+    void set_icon(Media* m, const QIcon &ico);
 
 private:
     Media* root_item;

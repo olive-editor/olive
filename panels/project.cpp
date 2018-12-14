@@ -62,11 +62,7 @@ Project::Project(QWidget *parent) :
 
     sorter = new QSortFilterProxyModel(this);
     sorter->setSourceModel(&project_model);
-
     source_table->setModel(sorter);
-
-    /*Media* m = new Media(project_model.get_root());
-    project_model.get_root()->appendChild(m);*/
 }
 
 Project::~Project() {
@@ -738,7 +734,6 @@ void Project::new_project() {
     set_sequence(NULL);
     panel_footage_viewer->set_media(NULL);
     clear();
-    panel_project->source_table->update();
 	mainWindow->setWindowModified(false);
 }
 
@@ -1038,7 +1033,7 @@ void MediaThrobber::animation_update() {
     if (animation == THROBBER_LIMIT) {
         animation = 0;
     }
-    item->set_icon(QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
+    project_model.set_icon(item, QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
 	animation++;
 }
 
@@ -1049,10 +1044,10 @@ void MediaThrobber::stop(int icon_type, bool replace) {
     }
 
     switch (icon_type) {
-    case ICON_TYPE_VIDEO: item->set_icon(QIcon(":/icons/videosource.png")); break;
-    case ICON_TYPE_AUDIO: item->set_icon(QIcon(":/icons/audiosource.png")); break;
-    case ICON_TYPE_IMAGE: item->set_icon(QIcon(":/icons/imagesource.png")); break;
-    case ICON_TYPE_ERROR: item->set_icon(QIcon(":/icons/error.png")); break;
+    case ICON_TYPE_VIDEO: project_model.set_icon(item, QIcon(":/icons/videosource.png")); break;
+    case ICON_TYPE_AUDIO: project_model.set_icon(item, QIcon(":/icons/audiosource.png")); break;
+    case ICON_TYPE_IMAGE: project_model.set_icon(item, QIcon(":/icons/imagesource.png")); break;
+    case ICON_TYPE_ERROR: project_model.set_icon(item, QIcon(":/icons/error.png")); break;
     }
 
 	// refresh all clips

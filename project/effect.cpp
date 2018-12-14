@@ -868,13 +868,21 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
         if (gizmos.at(i) == gizmo) {
             ComboAction* ca = NULL;
             if (done) ca = new ComboAction();
-            if (gizmo->x_field != NULL) {
-                gizmo->x_field->set_double_value(gizmo->x_field->get_double_value(timecode) + x_movement*gizmo->x_field_multi);
-                gizmo->x_field->make_key_from_change(ca);
+            if (gizmo->x_field1 != NULL) {
+                gizmo->x_field1->set_double_value(gizmo->x_field1->get_double_value(timecode) + x_movement*gizmo->x_field_multi1);
+                gizmo->x_field1->make_key_from_change(ca);
             }
-            if (gizmo->y_field != NULL) {
-                gizmo->y_field->set_double_value(gizmo->y_field->get_double_value(timecode) + y_movement*gizmo->y_field_multi);
-                gizmo->y_field->make_key_from_change(ca);
+            if (gizmo->y_field1 != NULL) {
+                gizmo->y_field1->set_double_value(gizmo->y_field1->get_double_value(timecode) + y_movement*gizmo->y_field_multi1);
+                gizmo->y_field1->make_key_from_change(ca);
+            }
+            if (gizmo->x_field2 != NULL) {
+                gizmo->x_field2->set_double_value(gizmo->x_field2->get_double_value(timecode) + x_movement*gizmo->x_field_multi2);
+                gizmo->x_field2->make_key_from_change(ca);
+            }
+            if (gizmo->y_field2 != NULL) {
+                gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
+                gizmo->y_field2->make_key_from_change(ca);
             }
             if (done) undo_stack.push(ca);
             break;
