@@ -316,7 +316,9 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 }
 
 void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
-    if (sequence != NULL && panel_timeline->importing) {
+    if (sequence == NULL){
+        event->acceptProposedAction();
+    } else if (sequence != NULL && panel_timeline->importing) {
         event->acceptProposedAction();
 		QPoint pos = event->pos();
         update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
