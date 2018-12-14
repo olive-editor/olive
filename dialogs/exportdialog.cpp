@@ -325,6 +325,7 @@ void ExportDialog::render_thread_finished() {
     prep_ui_for_render(false);
     panel_sequence_viewer->viewer_widget->makeCurrent();
     panel_sequence_viewer->viewer_widget->initializeGL();
+    if (ui->progressBar->value() == 100) close();
 }
 
 void ExportDialog::prep_ui_for_render(bool r) {
