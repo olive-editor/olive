@@ -43,6 +43,7 @@ struct Config {
     int autoscroll;
     int audio_rate;
     bool fast_seeking;
+    bool hover_focus;
 
     void load(QString path);
     void save(QString path);

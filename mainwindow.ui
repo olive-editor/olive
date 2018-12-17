@@ -187,6 +187,7 @@
     <addaction name="actionEnable_Seek_to_Import"/>
     <addaction name="actionAudio_Scrubbing"/>
     <addaction name="actionEnable_Drop_on_Media_to_Replace"/>
+    <addaction name="actionEnable_Hover_Focus"/>
     <addaction name="separator"/>
     <addaction name="actionNo_autoscroll"/>
     <addaction name="actionPage_Autoscroll"/>
@@ -923,6 +924,14 @@
    </property>
    <property name="text">
     <string>Milliseconds</string>
+   </property>
+  </action>
+  <action name="actionEnable_Hover_Focus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Hover Focus for Zooming</string>
    </property>
   </action>
  </widget>

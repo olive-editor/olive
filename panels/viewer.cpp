@@ -416,17 +416,19 @@ void Viewer::set_out_point() {
 }
 
 void Viewer::set_zoom(bool in) {
-    if (in) {
-        ui->headers->update_zoom(ui->headers->get_zoom()*2);
-    } else {
-        ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
+    if (seq != NULL) {
+        if (in) {
+            ui->headers->update_zoom(ui->headers->get_zoom()*2);
+        } else {
+            ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
+        }
+        if (ui->openGLWidget->waveform) {
+            ui->openGLWidget->waveform_zoom = ui->headers->get_zoom();
+            ui->openGLWidget->update();
+        }
+        ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
+        center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
     }
-    if (ui->openGLWidget->waveform) {
-        ui->openGLWidget->waveform_zoom = ui->headers->get_zoom();
-        ui->openGLWidget->update();
-    }
-    ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
-    center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
 }
 
 void Viewer::set_media(Media* m) {

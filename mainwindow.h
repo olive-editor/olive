@@ -211,6 +211,8 @@ private slots:
 
     void on_actionMilliseconds_triggered();
 
+    void on_actionEnable_Hover_Focus_triggered();
+
 private:
 	Ui::MainWindow *ui;
     void setup_layout(bool reset);

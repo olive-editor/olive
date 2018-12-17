@@ -311,34 +311,33 @@ void MainWindow::on_actionSequence_triggered()
 	nsd.exec();
 }
 
-void MainWindow::on_actionZoom_In_triggered()
-{
-	if (panel_timeline->focused()) {
+void MainWindow::on_actionZoom_In_triggered() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_timeline) {
         panel_timeline->set_zoom(true);
-	} else if (panel_effect_controls->keyframe_focus()) {
+    } else if (focused_panel == panel_effect_controls) {
 		panel_effect_controls->set_zoom(true);
-    } else if (panel_footage_viewer->is_focused()) {
+    } else if (focused_panel == panel_footage_viewer) {
         panel_footage_viewer->set_zoom(true);
-    } else if (panel_sequence_viewer->is_focused()) {
+    } else if (focused_panel == panel_sequence_viewer) {
         panel_sequence_viewer->set_zoom(true);
     }
 }
 
-void MainWindow::on_actionZoom_out_triggered()
-{
-	if (panel_timeline->focused()) {
+void MainWindow::on_actionZoom_out_triggered() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_timeline) {
         panel_timeline->set_zoom(false);
-	} else if (panel_effect_controls->keyframe_focus()) {
+    } else if (focused_panel == panel_effect_controls) {
 		panel_effect_controls->set_zoom(false);
-    } else if (panel_footage_viewer->is_focused()) {
+    } else if (focused_panel == panel_footage_viewer) {
         panel_footage_viewer->set_zoom(false);
-    } else if (panel_sequence_viewer->is_focused()) {
+    } else if (focused_panel == panel_sequence_viewer) {
         panel_sequence_viewer->set_zoom(false);
     }
 }
 
-void MainWindow::on_actionExport_triggered()
-{
+void MainWindow::on_actionExport_triggered() {
     if (sequence == NULL) {
         QMessageBox::information(this, "No active sequence", "Please open the sequence you wish to export.", QMessageBox::Ok);
     } else {
@@ -400,9 +399,10 @@ void MainWindow::openSpeedDialog() {
 
 void MainWindow::cut() {
     if (sequence != NULL) {
-        if (panel_timeline->focused()) {
+        QDockWidget* focused_panel = get_focused_panel();
+        if (panel_timeline == focused_panel) {
             panel_timeline->copy(true);
-        } else if (panel_effect_controls->is_focused()) {
+        } else if (panel_effect_controls == focused_panel) {
             panel_effect_controls->copy(true);
         }
     }
@@ -410,16 +410,18 @@ void MainWindow::cut() {
 
 void MainWindow::copy() {
     if (sequence != NULL) {
-        if (panel_timeline->focused()) {
+        QDockWidget* focused_panel = get_focused_panel();
+        if (panel_timeline == focused_panel) {
             panel_timeline->copy(false);
-        } else if (panel_effect_controls->is_focused()) {
+        } else if (panel_effect_controls == focused_panel) {
             panel_effect_controls->copy(false);
         }
     }
 }
 
 void MainWindow::paste() {
-    if ((panel_timeline->focused() || panel_effect_controls->is_focused()) && sequence != NULL) {
+    QDockWidget* focused_panel = get_focused_panel();
+    if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != NULL) {
         panel_timeline->paste(false);
     }
 }
@@ -708,6 +710,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	ui->actionEnable_Seek_to_Import->setChecked(config.enable_seek_to_import);
     ui->actionAudio_Scrubbing->setChecked(config.enable_audio_scrubbing);
     ui->actionEnable_Drop_on_Media_to_Replace->setChecked(config.drop_on_media_to_replace);
+    ui->actionEnable_Hover_Focus->setChecked(config.hover_focus);
 
     ui->actionNo_autoscroll->setChecked(config.autoscroll == AUTOSCROLL_NO_SCROLL);
     ui->actionPage_Autoscroll->setChecked(config.autoscroll == AUTOSCROLL_PAGE_SCROLL);
@@ -1038,4 +1041,8 @@ void MainWindow::on_actionSmooth_Auto_scroll_triggered() {
 void MainWindow::on_actionMilliseconds_triggered() {
     config.timecode_view = TIMECODE_MILLISECONDS;
     update_ui(false);
+}
+
+void MainWindow::on_actionEnable_Hover_Focus_triggered() {
+    config.hover_focus = !config.hover_focus;
 }
