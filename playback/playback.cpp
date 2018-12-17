@@ -11,6 +11,7 @@
 #include "project/effect.h"
 #include "panels/effectcontrols.h"
 #include "project/media.h"
+#include "io/config.h"
 #include "debug.h"
 
 extern "C" {
@@ -193,7 +194,7 @@ void get_clip_frame(Clip* c, long playhead) {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
-                            target_frame = NULL;
+                            if (!config.fast_seeking) target_frame = NULL;
 							reset = true;
                             c->last_invalid_ts = target_pts;
 						} else {
