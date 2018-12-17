@@ -32,6 +32,7 @@
 #include <QOffscreenSurface>
 #include <QFileDialog>
 #include <QPolygon>
+#include <QDesktopWidget>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -618,7 +619,17 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					} else if (rendering) {
 						glViewport(0, 0, s->width, s->height);
 					} else {
-						glViewport(0, 0, width(), height());
+                        int widget_width = width();
+                        int widget_height = height();
+
+                        QString qt_scale_factor = QString(qgetenv("QT_SCALE_FACTOR"));
+                        if (!qt_scale_factor.isEmpty()) {
+                            double scale = qt_scale_factor.toDouble();
+                            widget_width *= scale;
+                            widget_height *= scale;
+                        }
+
+                        glViewport(0, 0, widget_width, widget_height);
 					}
 
 					glBindTexture(GL_TEXTURE_2D, composite_texture);

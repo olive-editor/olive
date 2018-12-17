@@ -29,7 +29,8 @@ Config::Config()
       enable_seek_to_import(false),
       enable_audio_scrubbing(true),
       drop_on_media_to_replace(true),
-      autoscroll(AUTOSCROLL_PAGE_SCROLL)
+      autoscroll(AUTOSCROLL_PAGE_SCROLL),
+      audio_rate(48000)
 {}
 
 void Config::load(QString path) {
@@ -103,6 +104,9 @@ void Config::load(QString path) {
                 } else if (stream.name() == "Autoscroll") {
                     stream.readNext();
                     autoscroll = stream.text().toInt();
+                } else if (stream.name() == "AudioRate") {
+                    stream.readNext();
+                    audio_rate = stream.text().toInt();
                 }
             }
         }
@@ -148,6 +152,7 @@ void Config::save(QString path) {
     stream.writeTextElement("AudioScrubbing", QString::number(enable_audio_scrubbing));
     stream.writeTextElement("DropFileOnMediaToReplace", QString::number(drop_on_media_to_replace));
     stream.writeTextElement("Autoscroll", QString::number(autoscroll));
+    stream.writeTextElement("AudioRate", QString::number(audio_rate));
 
 	stream.writeEndElement(); // configuration
     stream.writeEndDocument(); // doc

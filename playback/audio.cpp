@@ -40,52 +40,51 @@ bool is_audio_device_set() {
 	return audio_device_set;
 }
 
-void init_audio(Sequence* s) {
+void init_audio() {
 	stop_audio();
 
-	if (s != NULL) {
-		QAudioFormat audio_format;
-		audio_format.setSampleRate(s->audio_frequency);
-		audio_format.setChannelCount(av_get_channel_layout_nb_channels(s->audio_layout));
-		audio_format.setSampleSize(16);
-		audio_format.setCodec("audio/pcm");
-		audio_format.setByteOrder(QAudioFormat::LittleEndian);
-		audio_format.setSampleType(QAudioFormat::SignedInt);
+    QAudioFormat audio_format;
+    audio_format.setSampleRate(config.audio_rate);
+    audio_format.setChannelCount(2);
+    audio_format.setSampleSize(16);
+    audio_format.setCodec("audio/pcm");
+    audio_format.setByteOrder(QAudioFormat::LittleEndian);
+    audio_format.setSampleType(QAudioFormat::SignedInt);
 
-		QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-		QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-		dout << "[INFO] Found the following audio devices:";
-		for (int i=0;i<devs.size();i++) {
-			dout << "    " << devs.at(i).deviceName();
-		}
-		if (info.isNull() && devs.size() > 0) {
-			dout << "[WARNING] Default audio returned NULL, attempting to use first device found...";
-			info = devs.at(0);
-		}
-		dout << "[INFO] Using audio device" << info.deviceName();
+    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+    QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+    dout << "[INFO] Found the following audio devices:";
+    for (int i=0;i<devs.size();i++) {
+        dout << "    " << devs.at(i).deviceName();
+    }
+    if (info.isNull() && devs.size() > 0) {
+        dout << "[WARNING] Default audio returned NULL, attempting to use first device found...";
+        info = devs.at(0);
+    }
+    dout << "[INFO] Using audio device" << info.deviceName();
 
-		if (!info.isFormatSupported(audio_format)) {
-			qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
-			audio_format = info.nearestFormat(audio_format);
-		}
+    if (!info.isFormatSupported(audio_format)) {
+        qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
+        audio_format = info.nearestFormat(audio_format);
+    }
 
-        audio_output = new QAudioOutput(info, audio_format);
-		audio_output->setNotifyInterval(5);
+    audio_output = new QAudioOutput(info, audio_format);
+    audio_output->moveToThread(QApplication::instance()->thread());
+    audio_output->setNotifyInterval(5);
 
-		// connect
-		audio_io_device = audio_output->start();
-		if (audio_io_device == NULL) {
-			dout << "[WARNING] Received NULL audio device. No compatible audio output was found.";
-		} else {
-			audio_device_set = true;
+    // connect
+    audio_io_device = audio_output->start();
+    if (audio_io_device == NULL) {
+        dout << "[WARNING] Received NULL audio device. No compatible audio output was found.";
+    } else {
+        audio_device_set = true;
 
-			// start sender thread
-			audio_thread = new AudioSenderThread();
-			QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
-			audio_thread->start(QThread::TimeCriticalPriority);
+        // start sender thread
+        audio_thread = new AudioSenderThread();
+        QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
+        audio_thread->start(QThread::TimeCriticalPriority);
 
-			clear_audio_ibuffer();
-		}		
+        clear_audio_ibuffer();
     }
 }
 

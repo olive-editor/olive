@@ -16,6 +16,7 @@
 #include "ui_timeline.h"
 #include "mainwindow.h"
 #include "ui/viewerwidget.h"
+#include "dialogs/stabilizerdialog.h"
 #include "project/media.h"
 #include "debug.h"
 
@@ -150,6 +151,11 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
             QAction* nestAction = menu.addAction("&Nest");
             connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionNest_triggered()));
 
+            if (selected_clips.size() == 1 && selected_clips.at(0)->media != NULL && selected_clips.at(0)->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+                QAction* stabilizerAction = menu.addAction("S&tabilizer");
+                connect(stabilizerAction, SIGNAL(triggered(bool)), this, SLOT(show_stabilizer_diag()));
+            }
+
             // set autoscale arbitrarily to the first selected clip
             autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 
@@ -229,7 +235,12 @@ void TimelineWidget::rename_clip() {
 			undo_stack.push(rcc);
 			update_ui(true);
 		}
-	}
+    }
+}
+
+void TimelineWidget::show_stabilizer_diag() {
+    StabilizerDialog sd;
+    sd.exec();
 }
 
 bool same_sign(int a, int b) {

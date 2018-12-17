@@ -61,8 +61,7 @@ public:
 	long recording_end;
     int recording_track;
 
-	void reset_all_audio();
-    void assert_audio_device();
+    void reset_all_audio();
 	void update_parents();
 
 	ViewerWidget* viewer_widget;

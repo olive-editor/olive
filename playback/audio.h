@@ -45,7 +45,7 @@ void clear_audio_ibuffer();
 
 bool is_audio_device_set();
 
-void init_audio(Sequence *s);
+void init_audio();
 void stop_audio();
 int get_buffer_offset_from_frame(double framerate, long frame);
 

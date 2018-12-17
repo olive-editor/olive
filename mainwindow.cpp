@@ -213,7 +213,9 @@ MainWindow::MainWindow(QWidget *parent) :
             config_dir = data_dir + "/config.xml";
             config.load(config_dir);
         }
-	}
+    }
+
+    init_audio();
 
 	connect(ui->action_Undo, SIGNAL(triggered(bool)), this, SLOT(undo()));
 	connect(ui->action_Redo, SIGNAL(triggered(bool)), this, SLOT(redo()));

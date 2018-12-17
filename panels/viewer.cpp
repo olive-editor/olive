@@ -102,15 +102,6 @@ void Viewer::reset_all_audio() {
     clear_audio_ibuffer();
 }
 
-void Viewer::assert_audio_device() {
-    if (is_audio_device_set() &&
-    		(audio_output->format().sampleRate() != seq->audio_frequency
-    			|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout))) {
-		closeActiveClips(seq, true);
-		init_audio(seq);
-    }
-}
-
 long timecode_to_frame(const QString& s, int view, double frame_rate) {
     QList<QString> list = s.split(QRegExp("[:;]"));
 
@@ -242,7 +233,6 @@ void Viewer::seek(long p) {
 	seq->playhead = p;
 	update_parents();
     reset_all_audio();
-    assert_audio_device();
     audio_scrub = true;
 }
 
@@ -307,7 +297,6 @@ void Viewer::play() {
 
 	if (seq != NULL) {
         reset_all_audio();
-        assert_audio_device();
 		if (is_recording_cued() && !start_recording()) {
 			dout << "[ERROR] Failed to record audio";
 			return;
@@ -589,8 +578,6 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	seq = (main) ? sequence : s;
 
     bool null_sequence = (seq == NULL);
-
-	init_audio(seq);
 
 	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
