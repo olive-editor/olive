@@ -7,7 +7,8 @@
 #include "debug.h"
 
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent), root_item(NULL) {
-    clear();
+    root_item = new Media(0);
+    root_item->root = true;
 }
 
 ProjectModel::~ProjectModel() {    

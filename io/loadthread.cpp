@@ -634,8 +634,6 @@ void LoadThread::run() {
     }
 
     if (cont) {
-        mainWindow->setWindowModified(autorecovery);
-
         panel_project->add_recent_project(project_url);
 
         emit success(); // run in main thread
@@ -658,6 +656,7 @@ void LoadThread::cancel() {
 }
 
 void LoadThread::success_func() {
+    mainWindow->setWindowModified(autorecovery);
     if (open_seq != NULL) set_sequence(open_seq);    
     update_ui(false);
 }

@@ -4,9 +4,9 @@
 #include <QDialog>
 
 class QProgressBar;
-class Sequence;
+struct Sequence;
 class Media;
-class Footage;
+struct Footage;
 class QHBoxLayout;
 class LoadThread;
 

@@ -8,9 +8,9 @@
 #include <QWaitCondition>
 
 class Media;
-class Footage;
-class Clip;
-class Sequence;
+struct Footage;
+struct Clip;
+struct Sequence;
 class LoadDialog;
 class EffectMeta;
 
