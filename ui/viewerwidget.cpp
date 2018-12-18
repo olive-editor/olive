@@ -19,6 +19,7 @@
 #include "ui/collapsiblewidget.h"
 #include "project/undo.h"
 #include "project/media.h"
+#include "ui/viewercontainer.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -215,6 +216,8 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     if (waveform) {
         seek_from_click(event->x());
+    } else if (event->buttons() & Qt::MiddleButton) {
+        container->dragScrollPress(event->pos());
     } else {
         drag_start_x = event->pos().x();
         drag_start_y = event->pos().y();
@@ -232,9 +235,11 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
-	if (dragging) {
+    if (dragging) {
 		if (waveform) {
 			seek_from_click(event->x());
+        } else if (event->buttons() & Qt::MiddleButton) {
+            container->dragScrollMove(event->pos());
         } else if (gizmos == NULL) {
 			QDrag* drag = new QDrag(this);
 			QMimeData* mimeData = new QMimeData;

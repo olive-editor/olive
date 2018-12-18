@@ -24,10 +24,29 @@ ViewerContainer::ViewerContainer(QWidget *parent) :
     setWidget(area);
 
     child = new ViewerWidget(area);
+    child->container = this;
 }
 
 ViewerContainer::~ViewerContainer() {
     delete area;
+}
+
+void ViewerContainer::dragScrollPress(const QPoint &p) {
+    drag_start_x = p.x();
+    drag_start_y = p.y();
+    horiz_start = horizontalScrollBar()->value();
+    vert_start = verticalScrollBar()->value();
+}
+
+void ViewerContainer::dragScrollMove(const QPoint &p) {
+    int true_x = p.x() + (horiz_start - horizontalScrollBar()->value());
+    int true_y = p.y() + (vert_start - verticalScrollBar()->value());
+
+    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + (drag_start_x - true_x));
+    verticalScrollBar()->setValue(verticalScrollBar()->value() + (drag_start_y - true_y));
+
+    drag_start_x = true_x;
+    drag_start_y = true_y;
 }
 
 void ViewerContainer::adjust() {

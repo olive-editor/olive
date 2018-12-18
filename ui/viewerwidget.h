@@ -16,6 +16,7 @@ struct FootageStream;
 class QOpenGLFramebufferObject;
 class Effect;
 class EffectGizmo;
+class ViewerContainer;
 struct GLTextureCoords;
 
 class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
@@ -27,6 +28,7 @@ public:
     void paintGL();
     void initializeGL();
 	Viewer* viewer;
+    ViewerContainer* container;
 
     QOpenGLFramebufferObject* default_fbo;
 
