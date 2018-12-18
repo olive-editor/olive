@@ -12,6 +12,8 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QtMath>
+#include <QMenu>
+#include <QAction>
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
@@ -45,6 +47,9 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
     setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 	show_text(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(show_context_menu(const QPoint &)));
 }
 
 void TimelineHeader::set_scroll(int s) {
@@ -393,4 +398,20 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         path.lineTo(start);
         p.fillPath(path, Qt::red);
 	}
+}
+
+void TimelineHeader::show_context_menu(const QPoint &pos)
+{
+    QMenu contextMenu(tr("Context menu"), this);
+
+    QAction delete_in_out("Delete In/Out Points", this);
+    connect(&delete_in_out, SIGNAL(triggered()), this, SLOT(disable_using_work_area()));
+    contextMenu.addAction(&delete_in_out);
+    contextMenu.exec(mapToGlobal(pos));
+}
+
+void TimelineHeader::disable_using_work_area()
+{
+    viewer->seq->using_workarea = false;
+    update_parents();
 }

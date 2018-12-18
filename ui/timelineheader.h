@@ -29,6 +29,8 @@ public:
 public slots:
 	void set_scroll(int);
 	void set_visible_in(long i);
+    void disable_using_work_area();
+    void show_context_menu(const QPoint &pos);
 
 protected:
 	void paintEvent(QPaintEvent*);
