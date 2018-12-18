@@ -49,16 +49,6 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <widget class="ViewerWidget" name="openGLWidget">
-         <property name="geometry">
-          <rect>
-           <x>110</x>
-           <y>50</y>
-           <width>300</width>
-           <height>200</height>
-          </rect>
-         </property>
-        </widget>
        </widget>
       </item>
       <item>
@@ -109,7 +99,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="zoomComboBox">
            <item>
             <property name="text">
              <string>Fit</string>
@@ -332,11 +322,6 @@
   </widget>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>ViewerWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header>ui/viewerwidget.h</header>
-  </customwidget>
   <customwidget>
    <class>ViewerContainer</class>
    <extends>QWidget</extends>

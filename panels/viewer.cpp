@@ -14,6 +14,7 @@
 #include "ui/audiomonitor.h"
 #include "ui_timeline.h"
 #include "playback/playback.h"
+#include "ui/viewerwidget.h"
 #include "debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
@@ -46,9 +47,9 @@ Viewer::Viewer(QWidget *parent) :
 	ui->headers->viewer = this;
 	ui->headers->snapping = false;
 	ui->headers->show_text(false);
-	ui->glViewerPane->child = ui->openGLWidget;
-	ui->openGLWidget->viewer = this;
-    viewer_widget = ui->openGLWidget;
+    ui->glViewerPane->viewer = this;
+    viewer_widget = ui->glViewerPane->child;
+    viewer_widget->viewer = this;
     set_media(NULL);
 
     ui->currentTimecode->setEnabled(false);
@@ -63,7 +64,8 @@ Viewer::Viewer(QWidget *parent) :
 	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
 	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
-    connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->openGLWidget, SLOT(set_waveform_scroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+    connect(ui->zoomComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(zoom_update(int)));
 
     update_playhead_timecode(0);
     update_end_timecode();
@@ -75,7 +77,7 @@ Viewer::~Viewer() {
 
 bool Viewer::is_focused() {
     return ui->headers->hasFocus()
-            || ui->openGLWidget->hasFocus()
+            || viewer_widget->hasFocus()
             || ui->pushButton->hasFocus()
             || ui->pushButton_2->hasFocus()
             || ui->pushButton_3->hasFocus()
@@ -378,7 +380,7 @@ void Viewer::update_header_zoom() {
             minimum_zoom = (sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1;
             ui->headers->update_zoom(qMax(ui->headers->get_zoom(), minimum_zoom));
             ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->headers->width());
-            ui->openGLWidget->waveform_zoom = ui->headers->get_zoom();
+            viewer_widget->waveform_zoom = ui->headers->get_zoom();
         } else {
             ui->headers->update();
         }
@@ -422,9 +424,9 @@ void Viewer::set_zoom(bool in) {
         } else {
             ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
         }
-        if (ui->openGLWidget->waveform) {
-            ui->openGLWidget->waveform_zoom = ui->headers->get_zoom();
-            ui->openGLWidget->update();
+        if (viewer_widget->waveform) {
+            viewer_widget->waveform_zoom = ui->headers->get_zoom();
+            viewer_widget->update();
         }
         ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
         center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
@@ -555,7 +557,19 @@ void Viewer::recording_flasher_update() {
 		ui->pushButton_3->setStyleSheet("background: red;");
 	} else {
 		ui->pushButton_3->setStyleSheet(QString());
-	}
+    }
+}
+
+void Viewer::zoom_update(int i) {
+    if (i == 0) {
+        ui->glViewerPane->fit = true;
+    } else {
+        ui->glViewerPane->fit = false;
+        QString pc = ui->zoomComboBox->itemText(i);
+        pc = pc.left(pc.length() - 1);
+        ui->glViewerPane->zoom = pc.toDouble()*0.01;
+    }
+    ui->glViewerPane->adjust();
 }
 
 void Viewer::clean_created_seq() {
@@ -583,8 +597,8 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
 	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
-	ui->openGLWidget->setEnabled(!null_sequence);
-	ui->openGLWidget->setVisible(!null_sequence);
+    viewer_widget->setEnabled(!null_sequence);
+    viewer_widget->setVisible(!null_sequence);
     ui->pushButton->setEnabled(!null_sequence);
     ui->pushButton_2->setEnabled(!null_sequence);
     ui->pushButton_3->setEnabled(!null_sequence);
@@ -599,7 +613,6 @@ void Viewer::set_sequence(bool main, Sequence *s) {
         update_playhead_timecode(seq->playhead);
         update_end_timecode();
 
-        ui->glViewerPane->aspect_ratio = (float) seq->width / (float) seq->height;
         ui->glViewerPane->adjust();
 
         setWindowTitle(panel_name + seq->name);

@@ -83,6 +83,7 @@ private slots:
 	void update_playhead();
 	void timer_update();
 	void recording_flasher_update();
+    void zoom_update(int i);
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);

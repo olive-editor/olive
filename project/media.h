@@ -8,7 +8,7 @@
 #define MEDIA_TYPE_SEQUENCE 1
 #define MEDIA_TYPE_FOLDER 2
 
-class Footage;
+struct Footage;
 class MediaThrobber;
 struct Sequence;
 #include <QIcon>

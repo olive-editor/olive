@@ -1,15 +1,21 @@
 #ifndef VIEWERCONTAINER_H
 #define VIEWERCONTAINER_H
 
-#include <QWidget>
+#include <QScrollArea>
+class Viewer;
 class ViewerWidget;
 
-class ViewerContainer : public QWidget
+class ViewerContainer : public QScrollArea
 {
 	Q_OBJECT
 public:
     explicit ViewerContainer(QWidget *parent = 0);
-	float aspect_ratio;
+    ~ViewerContainer();
+
+    bool fit;
+    double zoom;
+
+    Viewer* viewer;
     ViewerWidget* child;
 	void adjust();
 
@@ -19,6 +25,9 @@ protected:
 signals:
 
 public slots:
+
+private:
+    QWidget* area;
 };
 
 #endif // VIEWERCONTAINER_H
