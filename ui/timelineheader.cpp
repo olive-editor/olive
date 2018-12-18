@@ -1,5 +1,6 @@
 #include "timelineheader.h"
 
+#include "mainwindow.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "project/sequence.h"
@@ -418,6 +419,5 @@ void TimelineHeader::show_context_menu(const QPoint &pos)
 
 void TimelineHeader::disable_using_work_area()
 {
-    reset_in_out_points();
-    viewer->seq->using_workarea = false;
+    mainWindow->on_actionClear_In_Out_triggered();
 }
