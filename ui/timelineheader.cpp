@@ -102,6 +102,12 @@ void TimelineHeader::set_out_point(long new_out) {
 	update_parents();
 }
 
+void TimelineHeader::reset_in_out_points(){
+    long new_out = viewer->seq->getEndFrame();
+    undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, 0, new_out));
+    update_parents();
+}
+
 void TimelineHeader::set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset) {
     bar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequence_end_frame) - offset));
 }
@@ -412,6 +418,6 @@ void TimelineHeader::show_context_menu(const QPoint &pos)
 
 void TimelineHeader::disable_using_work_area()
 {
+    reset_in_out_points();
     viewer->seq->using_workarea = false;
-    update_parents();
 }

@@ -15,6 +15,7 @@ public:
 	explicit TimelineHeader(QWidget *parent = 0);
     void set_in_point(long p);
     void set_out_point(long p);
+    void reset_in_out_points();
 
 	Viewer* viewer;
 
