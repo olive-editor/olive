@@ -407,7 +407,7 @@ void PreviewGenerator::run() {
     Q_ASSERT(footage != NULL);
     Q_ASSERT(media != NULL);
 
-    QByteArray ba = footage->url.toLatin1();
+	QByteArray ba = footage->url.toUtf8();
     char* filename = new char[ba.size()+1];
 	strcpy(filename, ba.data());
 
@@ -434,7 +434,7 @@ void PreviewGenerator::run() {
             QFileInfo file_info(footage->url);
             QString cache_file = footage->url.mid(footage->url.lastIndexOf('/')+1) + QString::number(file_info.size()) + QString::number(file_info.lastModified().toMSecsSinceEpoch());
             //dout << "using hash" << cache_file;
-			QString hash = QCryptographicHash::hash(cache_file.toLatin1(), QCryptographicHash::Md5).toHex();
+			QString hash = QCryptographicHash::hash(cache_file.toUtf8(), QCryptographicHash::Md5).toHex();
 
 			if (retrieve_preview(hash)) {
                 sem.acquire();

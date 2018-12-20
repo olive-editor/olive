@@ -129,7 +129,7 @@ bool ExportThread::setupVideo() {
 
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
-			av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(video_bitrate)).toLatin1(), AV_OPT_SEARCH_CHILDREN);
+			av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(video_bitrate)).toUtf8(), AV_OPT_SEARCH_CHILDREN);
 			break;
 		}
 	}
@@ -317,7 +317,7 @@ void ExportThread::run() {
 	}
 
 	// copy filename
-	QByteArray ba = filename.toLatin1();
+	QByteArray ba = filename.toUtf8();
 	c_filename = new char[ba.size()+1];
 	strcpy(c_filename, ba.data());
 

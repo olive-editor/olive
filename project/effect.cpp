@@ -791,17 +791,17 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 			if (!field->id.isEmpty()) {
 				switch (field->type) {
 				case EFFECT_FIELD_DOUBLE:
-					glslProgram->setUniformValue(field->id.toLatin1().constData(), (GLfloat) field->get_double_value(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), (GLfloat) field->get_double_value(timecode));
 					break;
 				case EFFECT_FIELD_COLOR:
-                    glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_color_value(timecode).redF(), field->get_color_value(timecode).greenF(), field->get_color_value(timecode).blueF());
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_color_value(timecode).redF(), field->get_color_value(timecode).greenF(), field->get_color_value(timecode).blueF());
 					break;
 				case EFFECT_FIELD_STRING: break; // can you even send a string to a uniform value?
 				case EFFECT_FIELD_BOOL:
-					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_bool_value(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_bool_value(timecode));
 					break;
 				case EFFECT_FIELD_COMBO:
-					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_combo_index(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_combo_index(timecode));
 					break;
 				case EFFECT_FIELD_FONT: break; // can you even send a string to a uniform value?
 				}
