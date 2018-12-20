@@ -67,7 +67,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
 void ViewerWidget::delete_function() {
     // destroy all textures as well
-    if (viewer->seq != NULL) {
+	if (viewer->seq != NULL) {
         makeCurrent();
         closeActiveClips(viewer->seq, true);
         doneCurrent();

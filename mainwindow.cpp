@@ -227,6 +227,9 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
+	panel_sequence_viewer->viewer_widget->delete_function();
+	panel_footage_viewer->viewer_widget->delete_function();
+
 	set_sequence(NULL);
 
     QString data_dir = get_data_path();
@@ -439,8 +442,7 @@ void MainWindow::new_project() {
     }
 }
 
-void MainWindow::on_actionSplit_at_Playhead_triggered()
-{
+void MainWindow::on_actionSplit_at_Playhead_triggered() {
     if (panel_timeline->focused()) {
         panel_timeline->split_at_playhead();
     }

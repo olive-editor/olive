@@ -210,6 +210,7 @@ double Clip::getMediaFrameRate() {
         if (!qIsNaN(rate)) return rate;
     }
     if (sequence != NULL) return sequence->frame_rate;
+	return qSNaN();
 }
 
 void Clip::recalculateMaxLength() {

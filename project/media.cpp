@@ -183,8 +183,8 @@ const QString &Media::get_name() {
     switch (type) {
     case MEDIA_TYPE_FOOTAGE: return to_footage()->name;
     case MEDIA_TYPE_SEQUENCE: return to_sequence()->name;
-    case MEDIA_TYPE_FOLDER: return folder_name;
-    }
+	default: return folder_name;
+	}
 }
 
 void Media::set_name(const QString &n) {

@@ -125,7 +125,7 @@ QDockWidget *get_focused_panel() {
     if (w == NULL) {
         if (panel_project->is_focused()) {
             w = panel_project;
-        } else if (panel_effect_controls->keyframe_focus()) {
+		} else if (panel_effect_controls->keyframe_focus() || panel_effect_controls->is_focused()) {
             w = panel_effect_controls;
         } else if (panel_sequence_viewer->is_focused()) {
             w = panel_sequence_viewer;

@@ -1237,7 +1237,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         if (g.clip != -1) c = sequence->clips.at(g.clip);
 
 		FootageStream* ms = NULL;
-        if (g.clip != -1 && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+		if (g.clip != -1 && c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
             ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		}
 
@@ -1277,7 +1277,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				if (validator < 1) frame_diff += (1 - validator);
 
 				// prevent clip length exceeding media length
-                if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
+				if ((c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
 						|| (ms != NULL && !ms->infinite_length)) {
 					validator = g.old_clip_in + g.ghost_length + frame_diff;
 					if (validator > g.media_length) frame_diff -= validator - g.media_length;

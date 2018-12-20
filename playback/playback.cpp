@@ -87,7 +87,8 @@ void close_clip(Clip* clip) {
     } else {
         if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
             closeActiveClips(clip->media->to_sequence(), false);
-        clip->open = false;
+
+		clip->open = false;
     }
 }
 
@@ -342,7 +343,7 @@ void closeActiveClips(Sequence *s, bool wait) {
             if (c != NULL) {
                 if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
                     closeActiveClips(c->media->to_sequence(), wait);
-					close_clip(c);
+					if (c->open) close_clip(c);
                 } else if (clip_uses_cacher(c) && c->open) {
 					close_clip(c);
 					if (c->multithreaded && wait) c->cacher->wait();

@@ -12,6 +12,8 @@
 #include <QWidget>
 #include <QPainter>
 
+#include "debug.h"
+
 CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
     selected = false;
 
@@ -48,7 +50,7 @@ void CollapsibleWidget::header_click(bool s, bool deselect) {
     selected = s;
     title_bar->selected = s;
     if (s) {
-		QPalette p = palette();
+		QPalette p = title_bar->palette();
         p.setColor(QPalette::Background, QColor(255, 255, 255, 64));
 		title_bar->setPalette(p);
 	} else {

@@ -859,16 +859,18 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
                                 stream.writeAttribute("maintainpitch", QString::number(c->maintain_audio_pitch));
                                 stream.writeAttribute("reverse", QString::number(c->reverse));
 
-                                stream.writeAttribute("type", QString::number(c->media->get_type()));
-                                switch (c->media->get_type()) {
-                                case MEDIA_TYPE_FOOTAGE:
-                                    stream.writeAttribute("media", QString::number(c->media->to_footage()->save_id));
-                                    stream.writeAttribute("stream", QString::number(c->media_stream));
-                                    break;
-                                case MEDIA_TYPE_SEQUENCE:
-                                    stream.writeAttribute("sequence", QString::number(c->media->to_sequence()->save_id));
-                                    break;
-                                }
+								if (c->media != NULL) {
+									stream.writeAttribute("type", QString::number(c->media->get_type()));
+									switch (c->media->get_type()) {
+									case MEDIA_TYPE_FOOTAGE:
+										stream.writeAttribute("media", QString::number(c->media->to_footage()->save_id));
+										stream.writeAttribute("stream", QString::number(c->media_stream));
+										break;
+									case MEDIA_TYPE_SEQUENCE:
+										stream.writeAttribute("sequence", QString::number(c->media->to_sequence()->save_id));
+										break;
+									}
+								}
 
                                 stream.writeStartElement("linked"); // linked
                                 for (int k=0;k<c->linked.size();k++) {

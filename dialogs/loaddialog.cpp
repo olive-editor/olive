@@ -39,6 +39,7 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 
     lt = new LoadThread(this, autorecovery);
     QObject::connect(lt, SIGNAL(success()), this, SLOT(thread_done()));
+	QObject::connect(lt, SIGNAL(error()), this, SLOT(die()));
     QObject::connect(lt, SIGNAL(report_progress(int)), bar, SLOT(setValue(int)));
     lt->start();
 }
@@ -46,8 +47,12 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 void LoadDialog::cancel() {
     lt->cancel();
     lt->wait();
-    mainWindow->new_project();
-    reject();
+	die();
+}
+
+void LoadDialog::die() {
+	mainWindow->new_project();
+	reject();
 }
 
 void LoadDialog::thread_done() {

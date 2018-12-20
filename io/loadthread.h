@@ -12,7 +12,7 @@ struct Footage;
 struct Clip;
 struct Sequence;
 class LoadDialog;
-class EffectMeta;
+struct EffectMeta;
 
 class LoadThread : public QThread
 {
@@ -23,9 +23,11 @@ public:
     void cancel();
 signals:
     void success();
+	void error();
     void start_create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const EffectMeta* meta, long effect_length, bool effect_enabled);
     void report_progress(int p);
 private slots:
+	void error_func();
     void success_func();
     void create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const EffectMeta* meta, long effect_length, bool effect_enabled);
 private:
@@ -61,6 +63,7 @@ private:
     QWaitCondition waitCond;
 
     bool cancelled;
+	bool xml_error;
 };
 
 #endif // LOADTHREAD_H

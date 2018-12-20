@@ -17,6 +17,7 @@ public:
     LoadDialog(QWidget* parent, bool autorecovery);
 private slots:
     void cancel();
+	void die();
     void thread_done();
 private:
 	QProgressBar* bar;

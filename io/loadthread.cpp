@@ -31,6 +31,7 @@ struct TransitionData {
 LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelled(false) {
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
     connect(this, SIGNAL(success()), this, SLOT(success_func()));
+	connect(this, SIGNAL(error()), this, SLOT(error_func()));
     connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)));
 }
 
@@ -572,23 +573,7 @@ void LoadThread::run() {
     cont = load_worker(file, stream, LOAD_TYPE_VERSION);
 
     // find project's internal URL
-    cont = load_worker(file, stream, LOAD_TYPE_URL);
-    if (autorecovery) {
-        QString orig_filename = internal_proj_url;
-        int insert_index = internal_proj_url.lastIndexOf(".ove", -1, Qt::CaseInsensitive);
-        if (insert_index == -1) insert_index = internal_proj_url.length();
-        int counter = 1;
-        while (QFileInfo::exists(orig_filename)) {
-            orig_filename = internal_proj_url;
-            QString recover_text = "recovered";
-            if (counter > 1) {
-                recover_text += " " + QString::number(counter);
-            }
-            orig_filename.insert(insert_index, " (" + recover_text + ")");
-            counter++;
-        }
-        mainWindow->updateTitle(orig_filename);
-    }
+	cont = load_worker(file, stream, LOAD_TYPE_URL);
 
     // load folders first
     if (cont) {
@@ -614,11 +599,14 @@ void LoadThread::run() {
 
     if (!cancelled) {
         if (!cont) {
-            if (show_err) QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+			xml_error = false;
+			if (show_err) emit error();
         } else if (stream.hasError()) {
-            dout << "[ERROR] Error parsing XML." << stream.errorString();
-            QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + stream.errorString(), QMessageBox::Ok);
+			error_str = stream.errorString();
+			xml_error = true;
+			emit error();
             cont = false;
+
         } else {
             // attach nested sequence clips to their sequences
             for (int i=0;i<loaded_clips.size();i++) {
@@ -641,9 +629,7 @@ void LoadThread::run() {
         for (int i=0;i<loaded_media_items.size();i++) {
             panel_project->start_preview_generator(loaded_media_items.at(i), true);
         }
-    } else {
-        mainWindow->new_project();
-    }
+	}
 
     file.close();
 
@@ -652,10 +638,36 @@ void LoadThread::run() {
 
 void LoadThread::cancel() {
     waitCond.wakeAll();
-    cancelled = true;
+	cancelled = true;
+}
+
+void LoadThread::error_func() {
+	if (xml_error) {
+		dout << "[ERROR] Error parsing XML." << error_str;
+		QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + error_str, QMessageBox::Ok);
+	} else {
+		QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+	}
 }
 
 void LoadThread::success_func() {
+	if (autorecovery) {
+		QString orig_filename = internal_proj_url;
+		int insert_index = internal_proj_url.lastIndexOf(".ove", -1, Qt::CaseInsensitive);
+		if (insert_index == -1) insert_index = internal_proj_url.length();
+		int counter = 1;
+		while (QFileInfo::exists(orig_filename)) {
+			orig_filename = internal_proj_url;
+			QString recover_text = "recovered";
+			if (counter > 1) {
+				recover_text += " " + QString::number(counter);
+			}
+			orig_filename.insert(insert_index, " (" + recover_text + ")");
+			counter++;
+		}
+		mainWindow->updateTitle(orig_filename);
+	}
+
     mainWindow->setWindowModified(autorecovery);
     if (open_seq != NULL) set_sequence(open_seq);    
     update_ui(false);

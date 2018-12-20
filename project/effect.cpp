@@ -432,7 +432,7 @@ Effect::~Effect() {
 		close();
 	}
 
-    delete container;
+	delete container;
 
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
@@ -750,11 +750,11 @@ void Effect::close() {
 	if (!isOpen) {
 		dout << "[WARNING] Tried to close an effect that was already closed";
 	}
+	delete_texture();
 	if (glslProgram != NULL) {
 		delete glslProgram;
 		glslProgram = NULL;
 	}
-	delete_texture();
 	isOpen = false;
 }
 
@@ -991,7 +991,6 @@ bool Effect::valueHasChanged(double timecode) {
 
 void Effect::delete_texture() {
 	if (texture != NULL) {
-		texture->destroy();
 		delete texture;
 		texture = NULL;
 	}
