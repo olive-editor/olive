@@ -223,6 +223,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionCop_y, SIGNAL(triggered(bool)), this, SLOT(copy()));
 	connect(ui->action_Paste, SIGNAL(triggered(bool)), this, SLOT(paste()));
     connect(ui->actionProject, SIGNAL(triggered(bool)), this, SLOT(new_project()));
+    connect(ui->actionFull_Screen, SIGNAL(triggered(bool)), this, SLOT(toggle_full_screen()));
 }
 
 MainWindow::~MainWindow() {
@@ -677,6 +678,8 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
     ui->action4_3->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 4.0/3.0);
     ui->action16_9->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 16.0/9.0);
     ui->actionCustom->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && !ui->action4_3->isChecked() && !ui->action16_9->isChecked());
+
+    ui->actionFull_Screen->setChecked(windowState() == Qt::WindowFullScreen);
 }
 
 void MainWindow::on_actionFrames_triggered()
@@ -823,6 +826,14 @@ void MainWindow::on_actionClear_In_Out_triggered() {
         panel_sequence_viewer->clear_inout_point();
     } else if (panel_footage_viewer->is_focused()) {
         panel_footage_viewer->clear_inout_point();
+    }
+}
+
+void MainWindow::toggle_full_screen() {
+    if (windowState() == Qt::WindowFullScreen) {
+        setWindowState(Qt::WindowMaximized);
+    } else {
+        setWindowState(Qt::WindowFullScreen);
     }
 }
 

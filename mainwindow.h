@@ -32,6 +32,7 @@ public slots:
     void autorecover_interval();
     void on_actionNest_triggered();
     void on_actionClear_In_Out_triggered();
+    void toggle_full_screen();
 
 protected:
 	void closeEvent(QCloseEvent *);
