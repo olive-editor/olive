@@ -75,9 +75,7 @@ public:
 
     //Media *new_item();
 
-    void start_preview_generator(Media* item, bool replacing);
-
-    Ui::Project *ui;
+	void start_preview_generator(Media* item, bool replacing);
 public slots:
 	void import_dialog();
     void delete_selected_media();

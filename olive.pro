@@ -174,7 +174,6 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui \
-    panels/project.ui \
     panels/effectcontrols.ui \
     panels/viewer.ui \
     panels/timeline.ui \

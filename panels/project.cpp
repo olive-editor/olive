@@ -37,6 +37,8 @@
 #include <QSortFilterProxyModel>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QListView>
+#include <QSizePolicy>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -53,20 +55,43 @@ QStringList recent_projects;
 QString recent_proj_file;
 
 Project::Project(QWidget *parent) :
-	QDockWidget(parent),
-	ui(new Ui::Project)
+	QDockWidget(parent)
 {
-    ui->setupUi(this);
-    source_table = ui->treeView;
+	setObjectName("Project");
+	resize(504, 371);
+	QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	sizePolicy.setHorizontalStretch(0);
+	sizePolicy.setVerticalStretch(0);
+	sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
+	setSizePolicy(sizePolicy);
+
+	QWidget* dockWidgetContents = new QWidget();
+	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
+	verticalLayout->setContentsMargins(0, 0, 0, 0);
+
+	setWidget(dockWidgetContents);
+
+	source_table = new SourceTable(dockWidgetContents);
     source_table->project_parent = this;
+	source_table->setAcceptDrops(true);
+	source_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	source_table->setDragDropMode(QAbstractItemView::DragDrop);
+	source_table->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	verticalLayout->addWidget(source_table);
+	//setWidget(source_table);
+
+	//layout->addWidget(source_table);
 
     sorter = new QSortFilterProxyModel(this);
     sorter->setSourceModel(&project_model);
     source_table->setModel(sorter);
+
+	//retranslateUi(Project);
+	setWindowTitle(QApplication::translate("Project", "Project", nullptr));
 }
 
 Project::~Project() {
-	delete ui;
+	delete sorter;
 }
 
 QString Project::get_next_sequence_name(QString start) {

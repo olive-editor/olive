@@ -32,8 +32,8 @@ public:
     void set_name(const QString& n);
     MediaThrobber* throbber;
 
-    double get_frame_rate(int stream = 0);
-    int get_sampling_rate(int stream = 0);
+	double get_frame_rate(int stream = -1);
+	int get_sampling_rate(int stream = -1);
 
     // item functions
     void appendChild(Media *child);

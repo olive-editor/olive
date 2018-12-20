@@ -401,12 +401,11 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 	}
 }
 
-void TimelineHeader::show_context_menu(const QPoint &pos)
-{
+void TimelineHeader::show_context_menu(const QPoint &pos) {
     QMenu contextMenu(tr("Context menu"), this);
 
     QAction clear_in_out("Clear In/Out Points", this);
-    if (!viewer->seq->using_workarea) clear_in_out.setVisible(false);
+	if (!viewer->seq->using_workarea) clear_in_out.setEnabled(false);
     connect(&clear_in_out, SIGNAL(triggered()), mainWindow, SLOT(on_actionClear_In_Out_triggered()));
     contextMenu.addAction(&clear_in_out);
     contextMenu.exec(mapToGlobal(pos));

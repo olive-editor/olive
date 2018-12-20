@@ -197,15 +197,25 @@ void Media::set_name(const QString &n) {
 
 double Media::get_frame_rate(int stream) {
     switch (get_type()) {
-    case MEDIA_TYPE_FOOTAGE: return to_footage()->get_stream_from_file_index(true, stream)->video_frame_rate;
+	case MEDIA_TYPE_FOOTAGE:
+	{
+		Footage* f = to_footage();
+		if (stream < 0) return f->video_tracks.at(0)->video_frame_rate;
+		return f->get_stream_from_file_index(true, stream)->video_frame_rate;
+	}
     case MEDIA_TYPE_SEQUENCE: return to_sequence()->frame_rate;
     }
-    return qSNaN();
+	return NULL;
 }
 
 int Media::get_sampling_rate(int stream) {
     switch (get_type()) {
-    case MEDIA_TYPE_FOOTAGE: return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency;
+	case MEDIA_TYPE_FOOTAGE:
+	{
+		Footage* f = to_footage();
+		if (stream < 0) return f->audio_tracks.at(0)->audio_frequency;
+		return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency;
+	}
     case MEDIA_TYPE_SEQUENCE: return to_sequence()->audio_frequency;
     }
     return 0;
@@ -259,11 +269,11 @@ QVariant Media::data(int column, int role) {
                 Footage* f = to_footage();
                 double r = 30;
 
-                if (f->video_tracks.size() > 0) r = f->video_tracks.at(0)->video_frame_rate;
-                if (!qIsNull(r)) {
+				if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0)->video_frame_rate)) r = f->video_tracks.at(0)->video_frame_rate;
+				//if (!qIsNull(r)) {
                     long len = f->get_length_in_frames(r);
                     if (len > 0) return frame_to_timecode(len, config.timecode_view, r);
-                }
+				//}
             }
             break;
         case 2:
@@ -271,9 +281,9 @@ QVariant Media::data(int column, int role) {
             if (get_type() == MEDIA_TYPE_SEQUENCE) return QString::number(get_frame_rate()) + " FPS";
             if (get_type() == MEDIA_TYPE_FOOTAGE) {
                 Footage* f = to_footage();
-                if (f->video_tracks.size() > 0) {
-                    double r = get_frame_rate();
-                    if (!qIsNull(r)) return QString::number(get_frame_rate()) + " FPS";
+				double r;
+				if (f->video_tracks.size() > 0 && !qIsNull(r = get_frame_rate())) {
+					return QString::number(get_frame_rate()) + " FPS";
                 } else if (f->audio_tracks.size() > 0) {
                     return QString::number(get_sampling_rate()) + " Hz";
                 }
