@@ -31,6 +31,7 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QCheckBox>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
 	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
@@ -965,14 +966,65 @@ void Timeline::paste(bool insert) {
         } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
             ComboAction* ca = new ComboAction();
             bool push = false;
+
+            bool replace = false;
+            bool skip = false;
+            bool ask_conflict = true;
+
             for (int i=0;i<sequence->clips.size();i++) {
                 Clip* c = sequence->clips.at(i);
                 if (c != NULL && is_clip_selected(c, true)) {
                     for (int j=0;j<clipboard.size();j++) {
                         Effect* e = static_cast<Effect*>(clipboard.at(j));
                         if ((c->track < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
-                            ca->append(new AddEffectCommand(c, e->copy(c), NULL));
-                            push = true;
+                            int found = -1;
+                            if (ask_conflict) {
+                                replace = false;
+                                skip = false;
+                            }
+                            for (int k=0;k<c->effects.size();k++) {
+                                if (c->effects.at(k)->meta == e->meta) {
+                                    found = k;
+                                    break;
+                                }
+                            }
+                            if (found >= 0 && ask_conflict) {
+                                QMessageBox box(this);
+                                box.setWindowTitle("Effect already exists");
+                                box.setText("Clip '" + c->name + "' already contains a '" + e->meta->name + "' effect. Would you like to replace it with the pasted one or add it as a separate effect?");
+                                box.setIcon(QMessageBox::Icon::Question);
+
+                                box.addButton("Add", QMessageBox::YesRole);
+                                QPushButton* replace_button = box.addButton("Replace", QMessageBox::NoRole);
+                                QPushButton* skip_button = box.addButton("Skip", QMessageBox::RejectRole);
+
+                                QCheckBox* future_box = new QCheckBox("Do this for all conflicts found");
+                                box.setCheckBox(future_box);
+
+                                box.exec();
+
+                                if (box.clickedButton() == replace_button) {
+                                    replace = true;
+                                } else if (box.clickedButton() == skip_button) {
+                                    skip = true;
+                                }
+                                ask_conflict = !future_box->isChecked();
+                            }
+
+                            if (found >= 0 && skip) {
+                                // do nothing
+                            } else if (found >= 0 && replace) {
+                                EffectDeleteCommand* delcom = new EffectDeleteCommand();
+                                delcom->clips.append(c);
+                                delcom->fx.append(found);
+                                ca->append(delcom);
+
+                                ca->append(new AddEffectCommand(c, e->copy(c), NULL, found));
+                                push = true;
+                            } else {
+                                ca->append(new AddEffectCommand(c, e->copy(c), NULL));
+                                push = true;
+                            }
                         }
                     }
                 }

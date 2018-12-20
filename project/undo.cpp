@@ -199,10 +199,11 @@ void SetTimelineInOutCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m) :
+AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m, int insert_pos) :
     clip(c),
     meta(m),
     ref(e),
+    pos(insert_pos),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
@@ -213,7 +214,11 @@ AddEffectCommand::~AddEffectCommand() {
 
 void AddEffectCommand::undo() {
     clip->effects.last()->close();
-    clip->effects.removeLast();
+    if (pos < 0) {
+        clip->effects.removeLast();
+    } else {
+        clip->effects.removeAt(pos);
+    }
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
@@ -222,7 +227,11 @@ void AddEffectCommand::redo() {
     if (ref == NULL) {
 		ref = create_effect(clip, meta);
     }
-    clip->effects.append(ref);
+    if (pos < 0) {
+        clip->effects.append(ref);
+    } else {
+        clip->effects.insert(pos, ref);
+    }
     done = true;
 	mainWindow->setWindowModified(true);
 }

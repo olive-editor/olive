@@ -89,7 +89,7 @@ private:
 
 class AddEffectCommand : public QUndoCommand {
 public:
-    AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m);
+    AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m, int insert_pos = -1);
     ~AddEffectCommand();
     void undo();
     void redo();
@@ -97,6 +97,7 @@ private:
     Clip* clip;
 	const EffectMeta* meta;
     Effect* ref;
+    int pos;
     bool done;
 	bool old_project_changed;
 };
