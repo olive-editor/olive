@@ -1,5 +1,6 @@
 #include "timelineheader.h"
 
+#include "mainwindow.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "project/sequence.h"
@@ -12,6 +13,8 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QtMath>
+#include <QMenu>
+#include <QAction>
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
@@ -45,6 +48,9 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
     setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 	show_text(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(show_context_menu(const QPoint &)));
 }
 
 void TimelineHeader::set_scroll(int s) {
@@ -393,4 +399,15 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         path.lineTo(start);
         p.fillPath(path, Qt::red);
 	}
+}
+
+void TimelineHeader::show_context_menu(const QPoint &pos)
+{
+    QMenu contextMenu(tr("Context menu"), this);
+
+    QAction clear_in_out("Clear In/Out Points", this);
+    if (!viewer->seq->using_workarea) clear_in_out.setVisible(false);
+    connect(&clear_in_out, SIGNAL(triggered()), mainWindow, SLOT(on_actionClear_In_Out_triggered()));
+    contextMenu.addAction(&clear_in_out);
+    contextMenu.exec(mapToGlobal(pos));
 }
