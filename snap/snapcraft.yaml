@@ -1,4 +1,4 @@
-name: olive
+name: olive-editor
 base: core18 # the base snap is the execution environment for this snap
 adopt-info: olive
 summary: Professional open-source NLE video editor
@@ -9,7 +9,7 @@ grade: stable
 confinement: strict
 
 apps:
-  olive:
+  olive-editor:
     environment:
       "LD_LIBRARY_PATH": "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
     command: desktop-launch $SNAP/bin/Olive
