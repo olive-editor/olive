@@ -833,6 +833,7 @@ void MainWindow::on_actionClear_In_Out_triggered() {
 
 void MainWindow::toggle_full_screen() {
     if (windowState() == Qt::WindowFullScreen) {
+        setWindowState(Qt::WindowNoState); // seems to be necessary for it to return to Maximized correctly on Linux
         setWindowState(Qt::WindowMaximized);
     } else {
         setWindowState(Qt::WindowFullScreen);
