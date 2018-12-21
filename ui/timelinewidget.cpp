@@ -151,7 +151,19 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
             QAction* nestAction = menu.addAction("&Nest");
             connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionNest_triggered()));
 
-            if (selected_clips.size() == 1 && selected_clips.at(0)->media != NULL && selected_clips.at(0)->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+            // stabilizer option
+            int video_clip_count = 0;
+            bool all_video_is_footage = true;
+            for (int i=0;i<selected_clips.size();i++) {
+                if (selected_clips.at(i)->track < 0) {
+                    video_clip_count++;
+                    if (selected_clips.at(i)->media == NULL
+                            || selected_clips.at(i)->media->get_type() != MEDIA_TYPE_FOOTAGE) {
+                        all_video_is_footage = false;
+                    }
+                }
+            }
+            if (video_clip_count == 1 && all_video_is_footage) {
                 QAction* stabilizerAction = menu.addAction("S&tabilizer");
                 connect(stabilizerAction, SIGNAL(triggered(bool)), this, SLOT(show_stabilizer_diag()));
             }
