@@ -1,0 +1,74 @@
+name: olive
+base: core18 # the base snap is the execution environment for this snap
+adopt-info: olive
+summary: Professional open-source NLE video editor
+description: |
+  Olive is a non-linear video editor for Windows, macOS, and Linux.
+
+grade: stable
+confinement: strict
+
+apps:
+  olive:
+    environment:
+      "LD_LIBRARY_PATH": "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
+    command: desktop-launch $SNAP/bin/Olive
+    plugs:
+      - opengl
+      - desktop
+      - desktop-legacy
+      - x11
+      - network
+      - pulseaudio
+      - home
+      - removable-media
+
+parts:
+  olive:
+    plugin: qmake
+    source: .
+    build-packages:
+      - qt5-default
+      - qtmultimedia5-dev 
+      - libavformat-dev
+      - libavfilter-dev
+    stage-packages:
+      - ffmpeg
+      - libqt5multimedia5
+      - libqt5multimedia5-plugins
+      - libpulse0
+      - libslang2
+      - libglu1-mesa
+    override-build: |
+      qmake olive.pro
+      make
+      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      cp Olive $SNAPCRAFT_PART_INSTALL/bin
+      snapcraftctl set-version $(git describe --tags)
+  desktop-qt5:
+    build-packages:
+    - build-essential
+    - qtbase5-dev
+    - dpkg-dev
+    make-parameters:
+    - FLAVOR=qt5
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    stage-packages:
+    - libxkbcommon0
+    - ttf-ubuntu-font-family
+    - dmz-cursor-theme
+    - light-themes
+    - adwaita-icon-theme
+    - gnome-themes-standard
+    - shared-mime-info
+    - libqt5gui5
+    - libgdk-pixbuf2.0-0
+    - libqt5svg5
+    - try:
+      - appmenu-qt5
+    - locales-all
+    - xdg-user-dirs
+    - fcitx-frontend-qt5
+
