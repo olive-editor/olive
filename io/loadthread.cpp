@@ -621,8 +621,6 @@ void LoadThread::run() {
     }
 
     if (cont) {
-        panel_project->add_recent_project(project_url);
-
         emit success(); // run in main thread
 
         for (int i=0;i<loaded_media_items.size();i++) {
@@ -665,7 +663,9 @@ void LoadThread::success_func() {
 			counter++;
 		}
 		mainWindow->updateTitle(orig_filename);
-	}
+    } else {
+        panel_project->add_recent_project(project_url);
+    }
 
     mainWindow->setWindowModified(autorecovery);
     if (open_seq != NULL) set_sequence(open_seq);    
