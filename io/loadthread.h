@@ -12,6 +12,7 @@ struct Footage;
 struct Clip;
 struct Sequence;
 class LoadDialog;
+class TransitionData;
 struct EffectMeta;
 
 class LoadThread : public QThread
@@ -25,11 +26,13 @@ signals:
     void success();
 	void error();
     void start_create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const EffectMeta* meta, long effect_length, bool effect_enabled);
+	void start_create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
     void report_progress(int p);
 private slots:
 	void error_func();
     void success_func();
     void create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const EffectMeta* meta, long effect_length, bool effect_enabled);
+	void create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
 private:
     LoadDialog* ld;
     bool autorecovery;

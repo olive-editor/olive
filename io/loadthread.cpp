@@ -10,7 +10,6 @@
 #include "project/transition.h"
 #include "project/effect.h"
 #include "playback/playback.h"
-#include "ui_project.h"
 #include "io/previewgenerator.h"
 #include "dialogs/loaddialog.h"
 #include "project/media.h"
@@ -32,6 +31,7 @@ LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelle
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
     connect(this, SIGNAL(success()), this, SLOT(success_func()));
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));
+	connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)));
     connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)));
 }
 
@@ -491,11 +491,10 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         dout << "[WARNING] Failed to link transition with name:" << td.name;
                                         if (td.otc != NULL) td.otc->opening_transition = -1;
                                         if (td.ctc != NULL) td.ctc->closing_transition = -1;
-                                    } else {
-                                        int transition_index = create_transition(primary, secondary, meta);
-                                        primary->sequence->transitions.at(transition_index)->set_length(td.length);
-                                        if (td.otc != NULL) td.otc->opening_transition = transition_index;
-                                        if (td.ctc != NULL) td.ctc->closing_transition = transition_index;
+									} else {
+										emit start_create_dual_transition(&td, primary, secondary, meta);
+
+										waitCond.wait(&mutex);
                                     }
                                 }
                             }
@@ -722,6 +721,14 @@ void LoadThread::create_effect_ui(
             c->closing_transition = transition_index;
         }
     }
-    waitCond.wakeAll();
 
+	waitCond.wakeAll();
+}
+
+void LoadThread::create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta) {
+	int transition_index = create_transition(primary, secondary, meta);
+	primary->sequence->transitions.at(transition_index)->set_length(td->length);
+	if (td->otc != NULL) td->otc->opening_transition = transition_index;
+	if (td->ctc != NULL) td->ctc->closing_transition = transition_index;
+	waitCond.wakeAll();
 }

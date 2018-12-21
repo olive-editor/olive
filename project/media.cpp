@@ -270,10 +270,9 @@ QVariant Media::data(int column, int role) {
                 double r = 30;
 
 				if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0)->video_frame_rate)) r = f->video_tracks.at(0)->video_frame_rate;
-				//if (!qIsNull(r)) {
-                    long len = f->get_length_in_frames(r);
-                    if (len > 0) return frame_to_timecode(len, config.timecode_view, r);
-				//}
+
+				long len = f->get_length_in_frames(r);
+				if (len > 0) return frame_to_timecode(len, config.timecode_view, r);
             }
             break;
         case 2:

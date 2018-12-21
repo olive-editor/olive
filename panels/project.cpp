@@ -1,5 +1,4 @@
 ﻿#include "project.h"
-#include "ui_project.h"
 #include "project/footage.h"
 
 #include "panels/panels.h"
@@ -23,8 +22,10 @@
 #include "dialogs/loaddialog.h"
 #include "io/clipboard.h"
 #include "project/media.h"
+#include "ui/sourcetable.h"
 #include "debug.h"
 
+#include <QApplication>
 #include <QFileDialog>
 #include <QString>
 #include <QVariant>
@@ -39,6 +40,7 @@
 #include <QXmlStreamWriter>
 #include <QListView>
 #include <QSizePolicy>
+#include <QVBoxLayout>
 
 extern "C" {
 	#include <libavformat/avformat.h>
