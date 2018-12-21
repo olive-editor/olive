@@ -36,11 +36,13 @@ void main(void) {
 			}
 		}
 
+		vec4 color = vec4(0.0);
 		for (float x=-x_rad+0.5;x<=x_rad;x+=2.0) {
 			for (float y=-y_rad+0.5;y<=y_rad;y+=2.0) {
 				float weight = (gaussian2(x, y, sigma)/sum);
-				gl_FragColor += texture2D(image, (vec2(gl_FragCoord.x+x, gl_FragCoord.y+y))/resolution)*(weight);
+				color += texture2D(image, (vec2(gl_FragCoord.x+x, gl_FragCoord.y+y))/resolution)*(weight);
 			}
 		}
+		gl_FragColor = color;
 	}	
 }
