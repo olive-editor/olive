@@ -342,6 +342,14 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bo
     fbo->bind();
 
     if (clear) glClear(GL_COLOR_BUFFER_BIT);
+
+    // get current blend mode
+    GLint src_rgb, src_alpha, dst_rgb, dst_alpha;
+    glGetIntegerv(GL_BLEND_SRC_RGB, &src_rgb);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, &src_alpha);
+    glGetIntegerv(GL_BLEND_DST_RGB, &dst_rgb);
+    glGetIntegerv(GL_BLEND_DST_ALPHA, &dst_alpha);
+
     GL_DEFAULT_BLEND
 
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -358,7 +366,11 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bo
     glBindTexture(GL_TEXTURE_2D, 0);
 
 	fbo->release();
-	if (default_fbo != NULL) default_fbo->bind();
+
+    // restore previous blendFunc
+    glBlendFuncSeparate(src_rgb, dst_rgb, src_alpha, dst_alpha);
+
+    if (default_fbo != NULL) default_fbo->bind();
 
 	glPopMatrix();
 	return fbo->texture();
