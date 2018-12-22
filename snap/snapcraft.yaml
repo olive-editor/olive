@@ -42,9 +42,9 @@ parts:
     override-build: |
       qmake olive.pro
       make
-      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp Olive $SNAPCRAFT_PART_INSTALL/bin
-      snapcraftctl set-version $(git describe --tags)
+      snapcraftctl set-version $(git rev-parse --short HEAD)
   desktop-qt5:
     build-packages:
     - build-essential
