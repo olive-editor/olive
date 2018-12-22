@@ -17,11 +17,13 @@ void main(void) {
 		float sin_angle = sin(radians);
 		float cos_angle = cos(radians);
 
+		vec4 color = vec4(0.0);
 		for (float i=-ceillen+0.5;i<=ceillen;i+=2.0) {
 			float y = sin_angle * i;
 			float x = cos_angle * i;
-			gl_FragColor += texture2D(image, vec2(gl_FragCoord.x+x, gl_FragCoord.y+y)/resolution)*(divider);
+			color += texture2D(image, vec2(gl_FragCoord.x+x, gl_FragCoord.y+y)/resolution)*(divider);
 		}
+		gl_FragColor = color;
 	} else {
 		gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution);
 	}
