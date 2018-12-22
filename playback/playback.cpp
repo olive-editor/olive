@@ -12,10 +12,12 @@
 #include "panels/effectcontrols.h"
 #include "project/media.h"
 #include "io/config.h"
+#include "io/avtogl.h"
 #include "debug.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
+	#include <libavutil/pixdesc.h>
 	#include <libavcodec/avcodec.h>
 	#include <libswscale/swscale.h>
 	#include <libswresample/swresample.h>
@@ -220,8 +222,8 @@ void get_clip_frame(Clip* c, long playhead) {
 		}
 
 		if (target_frame != NULL) {
-			// add gate if this is the same frame
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/4);
+			int nb_components = av_pix_fmt_desc_get(static_cast<enum AVPixelFormat>(c->pix_fmt))->nb_components;
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/nb_components);
 
             bool copied = false;
             uint8_t* data = target_frame->data[0];
@@ -240,7 +242,7 @@ void get_clip_frame(Clip* c, long playhead) {
                 }
             }
 
-            c->texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
+			c->texture->setData(0, get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, data);
 
             if (copied) delete [] data;
 

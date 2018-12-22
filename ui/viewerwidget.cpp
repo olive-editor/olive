@@ -20,6 +20,7 @@
 #include "project/undo.h"
 #include "project/media.h"
 #include "ui/viewercontainer.h"
+#include "io/avtogl.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -511,10 +512,10 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                         if (c->texture == NULL) {
                             c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
                             c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
-                            c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+							c->texture->setFormat(get_gl_tex_fmt_from_av(c->pix_fmt));
                             c->texture->setMipLevels(c->texture->maximumMipLevels());
                             c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-                            c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
                         }
                         get_clip_frame(c, playhead);
                         textureID = c->texture->textureId();

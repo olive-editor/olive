@@ -24,6 +24,7 @@ extern "C" {
 	#include <libavfilter/buffersrc.h>
 	#include <libavfilter/buffersink.h>
 	#include <libavutil/opt.h>
+	#include <libavutil/pixdesc.h>
 }
 
 #include <QOpenGLFramebufferObject>
@@ -34,7 +35,7 @@ extern "C" {
 // temp debug shit
 //#define AUDIOWARNINGS
 
-int dest_format = AV_PIX_FMT_RGBA;
+//int dest_format = AV_PIX_FMT_RGBA;
 
 double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
 	return ((double) (nb_bytes >> 1) / nb_channels / sample_rate);
@@ -712,11 +713,6 @@ void open_clip_worker(Clip* clip) {
             avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
             avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
 
-            /*enum AVPixelFormat sinkpix_fmts[] = { static_cast<AVPixelFormat>(dest_format), AV_PIX_FMT_NONE };
-            if (av_opt_set_int_list(clip->buffersink_ctx, "pix_fmts", sinkpix_fmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN) < 0) {
-                dout << "[ERROR] Could not set output pixel format";
-            }*/
-
             AVFilterContext* last_filter = clip->buffersrc_ctx;
 
             if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
@@ -729,7 +725,7 @@ void open_clip_worker(Clip* clip) {
                 last_filter = yadif_filter;
             }
 
-            /* stabilization code one day */
+			/* stabilization code */
             bool stabilize = false;
             if (stabilize) {
                 AVFilterContext* stab_filter;
@@ -741,10 +737,21 @@ void open_clip_worker(Clip* clip) {
                     avfilter_link(last_filter, 0, stab_filter, 0);
                     last_filter = stab_filter;
                 }
-            }
+			}
+
+			enum AVPixelFormat valid_pix_fmts[] = {
+				AV_PIX_FMT_RGB24,
+				AV_PIX_FMT_RGBA,
+				AV_PIX_FMT_NONE
+			};
+
+			clip->pix_fmt = avcodec_find_best_pix_fmt_of_list(valid_pix_fmts, static_cast<enum AVPixelFormat>(clip->stream->codecpar->format), 1, NULL);
+			const char* chosen_format = av_get_pix_fmt_name(static_cast<enum AVPixelFormat>(clip->pix_fmt));
+			char format_args[100];
+			snprintf(format_args, sizeof(format_args), "pix_fmts=%s", chosen_format);
 
             AVFilterContext* format_conv;
-            avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", "pix_fmts=rgba", NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", format_args, NULL, clip->filter_graph);
             avfilter_link(last_filter, 0, format_conv, 0);
 
             avfilter_link(format_conv, 0, clip->buffersink_ctx, 0);

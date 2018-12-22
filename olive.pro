@@ -95,7 +95,8 @@ SOURCES += \
     effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
     io/clipboard.cpp \
-    dialogs/stabilizerdialog.cpp
+    dialogs/stabilizerdialog.cpp \
+    io/avtogl.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -170,7 +171,8 @@ HEADERS += \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
     io/clipboard.h \
-    dialogs/stabilizerdialog.h
+    dialogs/stabilizerdialog.h \
+    io/avtogl.h
 
 FORMS += \
         mainwindow.ui \

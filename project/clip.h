@@ -100,6 +100,7 @@ struct Clip
     bool finished_opening;
     bool replaced;
 	bool ignore_reverse;
+	int pix_fmt;
 
 	// caching functions
 	bool use_existing_frame;

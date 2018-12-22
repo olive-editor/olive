@@ -227,6 +227,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
+	panel_effect_controls->clear_effects(true);
 	panel_sequence_viewer->viewer_widget->delete_function();
 	panel_footage_viewer->viewer_widget->delete_function();
 
