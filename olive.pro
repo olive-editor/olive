@@ -197,7 +197,8 @@ mac {
 }
 
 linux {
-    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
 }
 
 RESOURCES += \
