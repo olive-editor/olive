@@ -147,6 +147,8 @@
     <addaction name="actionMilliseconds"/>
     <addaction name="separator"/>
     <addaction name="menuTitle_Action_Safe_Area"/>
+    <addaction name="separator"/>
+    <addaction name="actionFull_Screen"/>
    </widget>
    <widget class="QMenu" name="menuPlayback">
     <property name="title">
@@ -187,6 +189,7 @@
     <addaction name="actionEnable_Seek_to_Import"/>
     <addaction name="actionAudio_Scrubbing"/>
     <addaction name="actionEnable_Drop_on_Media_to_Replace"/>
+    <addaction name="actionEnable_Hover_Focus"/>
     <addaction name="separator"/>
     <addaction name="actionNo_autoscroll"/>
     <addaction name="actionPage_Autoscroll"/>
@@ -923,6 +926,25 @@
    </property>
    <property name="text">
     <string>Milliseconds</string>
+   </property>
+  </action>
+  <action name="actionEnable_Hover_Focus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Hover Focus for Zooming</string>
+   </property>
+  </action>
+  <action name="actionFull_Screen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Full Screen</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
    </property>
   </action>
  </widget>

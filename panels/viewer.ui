@@ -49,20 +49,119 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <widget class="ViewerWidget" name="openGLWidget">
-         <property name="geometry">
-          <rect>
-           <x>110</x>
-           <y>50</y>
-           <width>300</width>
-           <height>200</height>
-          </rect>
-         </property>
-        </widget>
        </widget>
       </item>
       <item>
        <widget class="TimelineHeader" name="headers" native="true"/>
+      </item>
+      <item>
+       <widget class="QScrollBar" name="horizontalScrollBar">
+        <property name="maximum">
+         <number>0</number>
+        </property>
+        <property name="singleStep">
+         <number>20</number>
+        </property>
+        <property name="pageStep">
+         <number>1826</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="zoomControlBar" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>260</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="zoomComboBox">
+           <item>
+            <property name="text">
+             <string>Fit</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>10%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>25%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>50%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>75%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>100%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>150%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>200%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>400%</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>259</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <widget class="QWidget" name="playbackControls" native="true">
@@ -223,11 +322,6 @@
   </widget>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>ViewerWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header>ui/viewerwidget.h</header>
-  </customwidget>
   <customwidget>
    <class>ViewerContainer</class>
    <extends>QWidget</extends>

@@ -10,12 +10,13 @@
 #include "ui/labelslider.h"
 #include "project/clip.h"
 #include "project/sequence.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "playback/playback.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "project/undo.h"
 #include "project/effect.h"
+#include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -83,14 +84,12 @@ void SpeedDialog::run() {
 		clip_percent = c->speed;
 		if (c->track < 0) {
 			bool process_video = true;
-			if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-				Media* m = static_cast<Media*>(c->media);
-				if (m != NULL) {
-					MediaStream* ms = m->get_stream_from_file_index(true, c->media_stream);
-					if (ms != NULL && ms->infinite_length) {
-						process_video = false;
-					}
-				}
+            if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+                Footage* m = c->media->to_footage();
+                FootageStream* ms = m->get_stream_from_file_index(true, c->media_stream);
+                if (ms != NULL && ms->infinite_length) {
+                    process_video = false;
+                }
 			}
 
 			if (process_video) {

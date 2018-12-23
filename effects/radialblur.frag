@@ -22,11 +22,15 @@ void main(void) {
 		float limit = ceil(radius * multiplier);
 
 		float divider = 1.0 / limit;
+
+		vec4 color = vec4(0.0);
+
 		for (float i=-limit+0.5;i<=limit;i+=2.0) {
 			float y = sin_angle * i;
 			float x = cos_angle * i;
-			gl_FragColor += texture2D(image, vec2(gl_FragCoord.x+x, gl_FragCoord.y+y)/resolution)*(divider);
+			color += texture2D(image, vec2(gl_FragCoord.x+x, gl_FragCoord.y+y)/resolution)*(divider);
 		}
+		gl_FragColor = color;
 	} else {
 		gl_FragColor = texture2D(image, gl_FragCoord.xy/resolution);
 	}

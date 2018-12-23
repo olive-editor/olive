@@ -11,6 +11,7 @@ class QLabel;
 class KeyframeDelete;
 class QPushButton;
 class ComboAction;
+class QHBoxLayout;
 
 class EffectRow : public QObject {
     Q_OBJECT
@@ -45,6 +46,7 @@ private:
     int ui_row;
     QVector<EffectField*> fields;
 
+    QHBoxLayout* key_controls;
     QPushButton* keyframe_enable;
     QPushButton* left_key_nav;
     QPushButton* key_addremove;

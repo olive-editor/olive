@@ -3,9 +3,11 @@
 #include "timeline.h"
 #include "effectcontrols.h"
 #include "viewer.h"
+#include "project.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "project/transition.h"
+#include "io/config.h"
 #include "debug.h"
 
 Project* panel_project = 0;
@@ -99,8 +101,39 @@ void update_effect_controls() {
 void update_ui(bool modified) {
     if (modified) {
         update_effect_controls();
-	}
+    }
 	panel_effect_controls->update_keyframes();
 	panel_timeline->repaint_timeline();
 	panel_sequence_viewer->update_viewer();
+}
+
+QDockWidget *get_focused_panel() {
+    QDockWidget* w = NULL;
+    if (config.hover_focus) {
+        if (panel_project->rect().contains(panel_project->mapFromGlobal(QCursor::pos()))) {
+            w = panel_project;
+        } else if (panel_effect_controls->rect().contains(panel_effect_controls->mapFromGlobal(QCursor::pos()))) {
+            w = panel_effect_controls;
+        } else if (panel_sequence_viewer->rect().contains(panel_sequence_viewer->mapFromGlobal(QCursor::pos()))) {
+            w = panel_sequence_viewer;
+        } else if (panel_footage_viewer->rect().contains(panel_footage_viewer->mapFromGlobal(QCursor::pos()))) {
+            w = panel_footage_viewer;
+        } else if (panel_timeline->rect().contains(panel_timeline->mapFromGlobal(QCursor::pos()))) {
+            w = panel_timeline;
+        }
+    }
+    if (w == NULL) {
+        if (panel_project->is_focused()) {
+            w = panel_project;
+		} else if (panel_effect_controls->keyframe_focus() || panel_effect_controls->is_focused()) {
+            w = panel_effect_controls;
+        } else if (panel_sequence_viewer->is_focused()) {
+            w = panel_sequence_viewer;
+        } else if (panel_footage_viewer->is_focused()) {
+            w = panel_footage_viewer;
+        } else if (panel_timeline->focused()) {
+            w = panel_timeline;
+        }
+    }
+    return w;
 }

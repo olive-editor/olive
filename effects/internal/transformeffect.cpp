@@ -12,7 +12,7 @@
 #include "ui/collapsiblewidget.h"
 #include "project/clip.h"
 #include "project/sequence.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "io/math.h"
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"
@@ -68,44 +68,51 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
     // set up gizmos
     top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
-    top_left_gizmo->x_field = scale_x;
+    top_left_gizmo->x_field1 = scale_x;
 
     top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     top_center_gizmo->set_cursor(Qt::SizeVerCursor);
-    top_center_gizmo->y_field = scale_x;
+    top_center_gizmo->y_field1 = scale_x;
 
     top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
-    top_right_gizmo->x_field = scale_x;
+    top_right_gizmo->x_field1 = scale_x;
 
     bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
-    bottom_left_gizmo->x_field = scale_x;
+    bottom_left_gizmo->x_field1 = scale_x;
 
     bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
-    bottom_center_gizmo->y_field = scale_x;
+    bottom_center_gizmo->y_field1 = scale_x;
 
     bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
-    bottom_right_gizmo->x_field = scale_x;
+    bottom_right_gizmo->x_field1 = scale_x;
 
     left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     left_center_gizmo->set_cursor(Qt::SizeHorCursor);
-    left_center_gizmo->x_field = scale_x;
+    left_center_gizmo->x_field1 = scale_x;
 
     right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     right_center_gizmo->set_cursor(Qt::SizeHorCursor);
-    right_center_gizmo->x_field = scale_x;
+    right_center_gizmo->x_field1 = scale_x;
+
+    anchor_gizmo = add_gizmo(GIZMO_TYPE_TARGET);
+    anchor_gizmo->set_cursor(Qt::SizeAllCursor);
+    anchor_gizmo->x_field1 = anchor_x_box;
+    anchor_gizmo->y_field1 = anchor_y_box;
+    anchor_gizmo->x_field2 = position_x;
+    anchor_gizmo->y_field2 = position_y;
 
     rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
     rotate_gizmo->color = Qt::green;
     rotate_gizmo->set_cursor(Qt::SizeAllCursor);
-    rotate_gizmo->x_field = rotation;
+    rotate_gizmo->x_field1 = rotation;
 
     rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
-    rect_gizmo->x_field = position_x;
-    rect_gizmo->y_field = position_y;
+    rect_gizmo->x_field1 = position_x;
+    rect_gizmo->y_field1 = position_y;
 
     connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 
@@ -137,31 +144,31 @@ void TransformEffect::refresh() {
 
         double x_percent_multipler = 200.0 / parent_clip->sequence->width;
         double y_percent_multipler = 200.0 / parent_clip->sequence->height;
-        top_left_gizmo->x_field_multi = -x_percent_multipler;
-        top_left_gizmo->y_field_multi = -y_percent_multipler;
-        top_center_gizmo->y_field_multi = -y_percent_multipler;
-        top_right_gizmo->x_field_multi = x_percent_multipler;
-        top_right_gizmo->y_field_multi = -y_percent_multipler;
-        bottom_left_gizmo->x_field_multi = -x_percent_multipler;
-        bottom_left_gizmo->y_field_multi = y_percent_multipler;
-        bottom_center_gizmo->y_field_multi = y_percent_multipler;
-        bottom_right_gizmo->x_field_multi = x_percent_multipler;
-        bottom_right_gizmo->y_field_multi = y_percent_multipler;
-        left_center_gizmo->x_field_multi = -x_percent_multipler;
-        right_center_gizmo->x_field_multi = x_percent_multipler;
-        rotate_gizmo->x_field_multi = x_percent_multipler;
+        top_left_gizmo->x_field_multi1 = -x_percent_multipler;
+        top_left_gizmo->y_field_multi1 = -y_percent_multipler;
+        top_center_gizmo->y_field_multi1 = -y_percent_multipler;
+        top_right_gizmo->x_field_multi1 = x_percent_multipler;
+        top_right_gizmo->y_field_multi1 = -y_percent_multipler;
+        bottom_left_gizmo->x_field_multi1 = -x_percent_multipler;
+        bottom_left_gizmo->y_field_multi1 = y_percent_multipler;
+        bottom_center_gizmo->y_field_multi1 = y_percent_multipler;
+        bottom_right_gizmo->x_field_multi1 = x_percent_multipler;
+        bottom_right_gizmo->y_field_multi1 = y_percent_multipler;
+        left_center_gizmo->x_field_multi1 = -x_percent_multipler;
+        right_center_gizmo->x_field_multi1 = x_percent_multipler;
+        rotate_gizmo->x_field_multi1 = x_percent_multipler;
 	}
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 
-    top_center_gizmo->y_field = enabled ? scale_x : scale_y;
-    bottom_center_gizmo->y_field = enabled ? scale_x : scale_y;
-    top_left_gizmo->y_field = enabled ? NULL : scale_y;
-    top_right_gizmo->y_field = enabled ? NULL : scale_y;
-    bottom_left_gizmo->y_field = enabled ? NULL : scale_y;
-    bottom_right_gizmo->y_field = enabled ? NULL : scale_y;
+    top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
+    bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
+    top_left_gizmo->y_field1 = enabled ? NULL : scale_y;
+    top_right_gizmo->y_field1 = enabled ? NULL : scale_y;
+    bottom_left_gizmo->y_field1 = enabled ? NULL : scale_y;
+    bottom_right_gizmo->y_field1 = enabled ? NULL : scale_y;
 }
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {

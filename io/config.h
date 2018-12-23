@@ -41,6 +41,9 @@ struct Config {
     bool enable_audio_scrubbing;
     bool drop_on_media_to_replace;
     int autoscroll;
+    int audio_rate;
+    bool fast_seeking;
+    bool hover_focus;
 
     void load(QString path);
     void save(QString path);

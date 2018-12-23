@@ -12,10 +12,11 @@
 
 class Viewer;
 struct Clip;
-struct MediaStream;
+struct FootageStream;
 class QOpenGLFramebufferObject;
 class Effect;
 class EffectGizmo;
+class ViewerContainer;
 struct GLTextureCoords;
 
 class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
@@ -27,14 +28,20 @@ public:
     void paintGL();
     void initializeGL();
 	Viewer* viewer;
+    ViewerContainer* container;
 
     QOpenGLFramebufferObject* default_fbo;
 
 	bool waveform;
 	Clip* waveform_clip;
-	MediaStream* waveform_ms;
+	FootageStream* waveform_ms;
+    double waveform_zoom;
+    int waveform_scroll;
+
+    bool force_quit;
 public slots:
     void delete_function();
+    void set_waveform_scroll(int s);
 protected:
     void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);

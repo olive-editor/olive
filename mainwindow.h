@@ -28,8 +28,11 @@ public slots:
 	void cut();
 	void copy();
 	void paste();
+    void new_project();
     void autorecover_interval();
     void on_actionNest_triggered();
+    void on_actionClear_In_Out_triggered();
+    void toggle_full_screen();
 
 protected:
 	void closeEvent(QCloseEvent *);
@@ -69,8 +72,6 @@ private slots:
     void on_action_Save_Project_triggered();
 
     void on_action_Open_Project_triggered();
-
-    void on_actionProject_triggered();
 
     void on_actionSave_Project_As_triggered();
 
@@ -158,8 +159,6 @@ private slots:
 
     void on_actionSet_Out_Point_triggered();
 
-    void on_actionClear_In_Out_triggered();
-
     void on_actionDelete_In_Out_triggered();
 
     void on_actionRipple_Delete_In_Out_triggered();
@@ -211,6 +210,8 @@ private slots:
     void on_actionSmooth_Auto_scroll_triggered();
 
     void on_actionMilliseconds_triggered();
+
+    void on_actionEnable_Hover_Focus_triggered();
 
 private:
 	Ui::MainWindow *ui;

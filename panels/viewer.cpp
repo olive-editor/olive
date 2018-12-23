@@ -8,11 +8,13 @@
 #include "project/clip.h"
 #include "panels/panels.h"
 #include "io/config.h"
-#include "io/media.h"
+#include "project/footage.h"
+#include "project/media.h"
 #include "project/undo.h"
 #include "ui/audiomonitor.h"
 #include "ui_timeline.h"
 #include "playback/playback.h"
+#include "ui/viewerwidget.h"
 #include "debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
@@ -33,20 +35,22 @@ Viewer::Viewer(QWidget *parent) :
     QDockWidget(parent),
 	playing(false),
     just_played(false),
+    media(NULL),
     seq(NULL),
     ui(new Ui::Viewer),
     created_sequence(false),
     cue_recording_internal(false),
-    panel_name("Viewer: ")
+    panel_name("Viewer: "),
+    minimum_zoom(1.0)
 {
 	ui->setupUi(this);
 	ui->headers->viewer = this;
 	ui->headers->snapping = false;
 	ui->headers->show_text(false);
-	ui->glViewerPane->child = ui->openGLWidget;
-	ui->openGLWidget->viewer = this;
-    viewer_widget = ui->openGLWidget;
-    set_media(MEDIA_TYPE_SEQUENCE, NULL);
+    ui->glViewerPane->viewer = this;
+    viewer_widget = ui->glViewerPane->child;
+    viewer_widget->viewer = this;
+    set_media(NULL);
 
     ui->currentTimecode->setEnabled(false);
     ui->currentTimecode->set_minimum_value(0);
@@ -59,6 +63,9 @@ Viewer::Viewer(QWidget *parent) :
 
 	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
 	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
+    connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+    connect(ui->zoomComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(zoom_update(int)));
 
     update_playhead_timecode(0);
     update_end_timecode();
@@ -70,7 +77,7 @@ Viewer::~Viewer() {
 
 bool Viewer::is_focused() {
     return ui->headers->hasFocus()
-            || ui->openGLWidget->hasFocus()
+            || viewer_widget->hasFocus()
             || ui->pushButton->hasFocus()
             || ui->pushButton_2->hasFocus()
             || ui->pushButton_3->hasFocus()
@@ -95,15 +102,6 @@ void Viewer::reset_all_audio() {
 		}
 	}
     clear_audio_ibuffer();
-}
-
-void Viewer::assert_audio_device() {
-    if (is_audio_device_set() &&
-    		(audio_output->format().sampleRate() != seq->audio_frequency
-    			|| audio_output->format().channelCount() != av_get_channel_layout_nb_channels(seq->audio_layout))) {
-		closeActiveClips(seq, true);
-		init_audio(seq);
-    }
 }
 
 long timecode_to_frame(const QString& s, int view, double frame_rate) {
@@ -237,7 +235,6 @@ void Viewer::seek(long p) {
 	seq->playhead = p;
 	update_parents();
     reset_all_audio();
-    assert_audio_device();
     audio_scrub = true;
 }
 
@@ -302,7 +299,6 @@ void Viewer::play() {
 
 	if (seq != NULL) {
         reset_all_audio();
-        assert_audio_device();
 		if (is_recording_cued() && !start_recording()) {
 			dout << "[ERROR] Failed to record audio";
 			return;
@@ -340,27 +336,27 @@ void Viewer::pause() {
 			// import audio
 			QStringList file_list;
 			file_list.append(get_recorded_audio_filename());
-			panel_project->process_file_list(false, file_list, NULL, NULL);
+            panel_project->process_file_list(file_list);
 
 			// add it to the sequence
 			Clip* c = new Clip(seq);
-			Media* m = panel_project->last_imported_media.at(0);
+            Media* m = panel_project->last_imported_media.at(0);
+            Footage* f = m->to_footage();
 
-			m->ready_lock.lock();
+            f->ready_lock.lock();
 
-			c->media = m; // latest media
-			c->media_type = MEDIA_TYPE_FOOTAGE;
+            c->media = m; // latest media
 			c->media_stream = 0;
 			c->timeline_in = recording_start;
-			c->timeline_out = m->get_length_in_frames(seq->frame_rate);
+            c->timeline_out = f->get_length_in_frames(seq->frame_rate);
 			c->clip_in = 0;
 			c->track = recording_track;
 			c->color_r = 128;
 			c->color_g = 192;
 			c->color_b = 128;
-			c->name = m->name;
+            c->name = m->get_name();
 
-			m->ready_lock.unlock();
+            f->ready_lock.unlock();
 
 			QVector<Clip*> add_clips;
 			add_clips.append(c);
@@ -380,7 +376,14 @@ void Viewer::update_end_timecode() {
 void Viewer::update_header_zoom() {
 	if (seq != NULL) {
 		long sequenceEndFrame = seq->getEndFrame();
-		ui->headers->update_zoom((sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1);
+        if (cached_end_frame != sequenceEndFrame) {
+            minimum_zoom = (sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1;
+            ui->headers->update_zoom(qMax(ui->headers->get_zoom(), minimum_zoom));
+            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->headers->width());
+            viewer_widget->waveform_zoom = ui->headers->get_zoom();
+        } else {
+            ui->headers->update();
+        }
 	}
 }
 
@@ -393,8 +396,8 @@ void Viewer::update_parents() {
 }
 
 void Viewer::update_viewer() {
+    update_header_zoom();
 	viewer_widget->update();
-	update_header_zoom();
 	if (seq != NULL) update_playhead_timecode(seq->playhead);
     update_end_timecode();
 }
@@ -411,86 +414,102 @@ void Viewer::set_in_point() {
 }
 
 void Viewer::set_out_point() {
-	ui->headers->set_out_point(seq->playhead);
+    ui->headers->set_out_point(seq->playhead);
 }
 
-void Viewer::set_media(int type, void* media) {
+void Viewer::set_zoom(bool in) {
+    if (seq != NULL) {
+        if (in) {
+            ui->headers->update_zoom(ui->headers->get_zoom()*2);
+        } else {
+            ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
+        }
+        if (viewer_widget->waveform) {
+            viewer_widget->waveform_zoom = ui->headers->get_zoom();
+            viewer_widget->update();
+        }
+        ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
+        center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
+    }
+}
+
+void Viewer::set_media(Media* m) {
 	main_sequence = false;
-	clean_created_seq();
-	switch (type) {
-	case MEDIA_TYPE_FOOTAGE:
-	{
-		Media* footage = static_cast<Media*>(media);
+    media = m;
+    clean_created_seq();
+    if (media != NULL) {
+        switch (media->get_type()) {
+        case MEDIA_TYPE_FOOTAGE:
+        {
+            Footage* footage = media->to_footage();
 
-		seq = new Sequence();
-		created_sequence = true;
-        seq->wrapper_sequence = true;
-		seq->name = footage->name;
+            seq = new Sequence();
+            created_sequence = true;
+            seq->wrapper_sequence = true;
+            seq->name = footage->name;
 
-        seq->using_workarea = footage->using_inout;
-		if (footage->using_inout) {
-			seq->workarea_in = footage->in;
-			seq->workarea_out = footage->out;
-		}
+            seq->using_workarea = footage->using_inout;
+            if (footage->using_inout) {
+                seq->workarea_in = footage->in;
+                seq->workarea_out = footage->out;
+            }
 
-		seq->frame_rate = 30;
+            seq->frame_rate = 30;
 
-		if (footage->video_tracks.size() > 0) {
-			MediaStream* video_stream = footage->video_tracks.at(0);
-			seq->width = video_stream->video_width;
-			seq->height = video_stream->video_height;
-			if (video_stream->video_frame_rate > 0 && !video_stream->infinite_length) seq->frame_rate = video_stream->video_frame_rate;
+            if (footage->video_tracks.size() > 0) {
+                FootageStream* video_stream = footage->video_tracks.at(0);
+                seq->width = video_stream->video_width;
+                seq->height = video_stream->video_height;
+                if (video_stream->video_frame_rate > 0 && !video_stream->infinite_length) seq->frame_rate = video_stream->video_frame_rate;
 
-			Clip* c = new Clip(seq);
-			c->media = footage;
-			c->media_type = type;
-			c->media_stream = video_stream->file_index;
-			c->timeline_in = 0;
-			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
-			if (c->timeline_out <= 0) c->timeline_out = 150;
-			c->track = -1;
-			c->clip_in = 0;
-			c->recalculateMaxLength();
-			seq->clips.append(c);
-		} else {
-			seq->width = 1920;
-			seq->height = 1080;
-		}
+                Clip* c = new Clip(seq);
+                c->media = media;
+                c->media_stream = video_stream->file_index;
+                c->timeline_in = 0;
+                c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+                if (c->timeline_out <= 0) c->timeline_out = 150;
+                c->track = -1;
+                c->clip_in = 0;
+                c->recalculateMaxLength();
+                seq->clips.append(c);
+            } else {
+                seq->width = 1920;
+                seq->height = 1080;
+            }
 
-		if (footage->audio_tracks.size() > 0) {
-			MediaStream* audio_stream = footage->audio_tracks.at(0);
-			seq->audio_frequency = audio_stream->audio_frequency;
+            if (footage->audio_tracks.size() > 0) {
+                FootageStream* audio_stream = footage->audio_tracks.at(0);
+                seq->audio_frequency = audio_stream->audio_frequency;
 
-			Clip* c = new Clip(seq);
-			c->media = footage;
-			c->media_type = type;
-			c->media_stream = audio_stream->file_index;
-			c->timeline_in = 0;
-			c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
-			c->track = 0;
-			c->clip_in = 0;
-			c->recalculateMaxLength();
-			seq->clips.append(c);
+                Clip* c = new Clip(seq);
+                c->media = media;
+                c->media_stream = audio_stream->file_index;
+                c->timeline_in = 0;
+                c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
+                c->track = 0;
+                c->clip_in = 0;
+                c->recalculateMaxLength();
+                seq->clips.append(c);
 
-			if (footage->video_tracks.size() == 0) {
-				viewer_widget->waveform = true;
-				viewer_widget->waveform_clip = c;
-				viewer_widget->waveform_ms = audio_stream;
-				viewer_widget->update();
-			}
-		} else {
-			seq->audio_frequency = 48000;
-		}
+                if (footage->video_tracks.size() == 0) {
+                    viewer_widget->waveform = true;
+                    viewer_widget->waveform_clip = c;
+                    viewer_widget->waveform_ms = audio_stream;
+                    viewer_widget->update();
+                }
+            } else {
+                seq->audio_frequency = 48000;
+            }
 
-		seq->audio_layout = AV_CH_LAYOUT_STEREO;
-
-		set_sequence(false, seq);
-	}
-		break;
-	case MEDIA_TYPE_SEQUENCE:
-        set_sequence(false, static_cast<Sequence*>(media));
-		break;
-	}
+            seq->audio_layout = AV_CH_LAYOUT_STEREO;
+        }
+            break;
+        case MEDIA_TYPE_SEQUENCE:
+            seq = media->to_sequence();
+            break;
+        }
+    }
+    set_sequence(false, seq);
 }
 
 void Viewer::on_pushButton_clicked() {
@@ -538,7 +557,19 @@ void Viewer::recording_flasher_update() {
 		ui->pushButton_3->setStyleSheet("background: red;");
 	} else {
 		ui->pushButton_3->setStyleSheet(QString());
-	}
+    }
+}
+
+void Viewer::zoom_update(int i) {
+    if (i == 0) {
+        ui->glViewerPane->fit = true;
+    } else {
+        ui->glViewerPane->fit = false;
+        QString pc = ui->zoomComboBox->itemText(i);
+        pc = pc.left(pc.length() - 1);
+        ui->glViewerPane->zoom = pc.toDouble()*0.01;
+    }
+    ui->glViewerPane->adjust();
 }
 
 void Viewer::clean_created_seq() {
@@ -564,12 +595,10 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
     bool null_sequence = (seq == NULL);
 
-	init_audio(seq);
-
 	ui->headers->setEnabled(!null_sequence);
     ui->currentTimecode->setEnabled(!null_sequence);
-	ui->openGLWidget->setEnabled(!null_sequence);
-	ui->openGLWidget->setVisible(!null_sequence);
+    viewer_widget->setEnabled(!null_sequence);
+    viewer_widget->setVisible(!null_sequence);
     ui->pushButton->setEnabled(!null_sequence);
     ui->pushButton_2->setEnabled(!null_sequence);
     ui->pushButton_3->setEnabled(!null_sequence);
@@ -584,7 +613,6 @@ void Viewer::set_sequence(bool main, Sequence *s) {
         update_playhead_timecode(seq->playhead);
         update_end_timecode();
 
-        ui->glViewerPane->aspect_ratio = (float) seq->width / (float) seq->height;
         ui->glViewerPane->adjust();
 
         setWindowTitle(panel_name + seq->name);

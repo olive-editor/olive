@@ -7,34 +7,35 @@
 #include <QDialogButtonBox>
 #include <QTreeWidgetItem>
 
-#include "io/media.h"
+#include "project/footage.h"
+#include "project/media.h"
 #include "panels/project.h"
 #include "project/undo.h"
 
-MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, QTreeWidgetItem *i, Media *m) :
+MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
     QDialog(parent),
-    item(i),
-    media(m)
+    item(i)
 {
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	QGridLayout* grid = new QGridLayout();
 	setLayout(grid);
 
-    if (m->video_tracks.size() > 0) {
+    Footage* f = item->to_footage();
+    if (f->video_tracks.size() > 0) {
         interlacing_box = new QComboBox();
-		interlacing_box->addItem("Auto (" + get_interlacing_name(media->video_tracks.at(0)->video_auto_interlacing) + ")");
+        interlacing_box->addItem("Auto (" + get_interlacing_name(f->video_tracks.at(0)->video_auto_interlacing) + ")");
         interlacing_box->addItem(get_interlacing_name(VIDEO_PROGRESSIVE));
         interlacing_box->addItem(get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
         interlacing_box->addItem(get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
 
-		interlacing_box->setCurrentIndex((media->video_tracks.at(0)->video_auto_interlacing == media->video_tracks.at(0)->video_interlacing) ? 0 : media->video_tracks.at(0)->video_interlacing + 1);
+        interlacing_box->setCurrentIndex((f->video_tracks.at(0)->video_auto_interlacing == f->video_tracks.at(0)->video_interlacing) ? 0 : f->video_tracks.at(0)->video_interlacing + 1);
 
         grid->addWidget(new QLabel("Interlacing:"), 0, 0);
         grid->addWidget(interlacing_box, 0, 1);
     }
 
-    name_box = new QLineEdit(m->name);
+    name_box = new QLineEdit(item->get_name());
 	grid->addWidget(new QLabel("Name:"), 1, 0);
     grid->addWidget(name_box, 1, 1);
 
@@ -50,22 +51,19 @@ void MediaPropertiesDialog::accept() {
 	ComboAction* ca = new ComboAction();
 
 	//set interlacing
+    Footage* f = item->to_footage();
 	if (interlacing_box->currentIndex() > 0) {
-		ca->append(new SetInt(&media->video_tracks.at(0)->video_interlacing, interlacing_box->currentIndex() - 1));
+        ca->append(new SetInt(&f->video_tracks.at(0)->video_interlacing, interlacing_box->currentIndex() - 1));
 	} else {
-		ca->append(new SetInt(&media->video_tracks.at(0)->video_interlacing, media->video_tracks.at(0)->video_auto_interlacing));
+        ca->append(new SetInt(&f->video_tracks.at(0)->video_interlacing, f->video_tracks.at(0)->video_auto_interlacing));
 	}
 
 	//set name
-	MediaRename* mr = new MediaRename();
-	mr->from = media->name;
-	mr->item = item;
-	mr->to = name_box->text();
-	item->setText(0, name_box->text());
+    MediaRename* mr = new MediaRename(item, name_box->text());
 
 	ca->append(mr);
 	ca->appendPost(new CloseAllClipsCommand());
-	ca->appendPost(new UpdateFootageTooltip(item, media));
+    ca->appendPost(new UpdateFootageTooltip(item));
 
 	undo_stack.push(ca);
 

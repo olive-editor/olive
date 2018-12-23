@@ -58,7 +58,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em);
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
         case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
-		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
+        case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -107,8 +107,15 @@ void load_internal_effects() {
     effects.append(em);
 
     em.name = "Corner Pin";
-    em.category = "Distort";
     em.internal = EFFECT_INTERNAL_CORNERPIN;
+    effects.append(em);
+
+    em.name = "Mask";
+    em.internal = EFFECT_INTERNAL_MASK;
+    effects.append(em);
+
+    em.name = "Shake";
+    em.internal = EFFECT_INTERNAL_SHAKE;
     effects.append(em);
 
 	em.name = "Text";
@@ -117,18 +124,11 @@ void load_internal_effects() {
     effects.append(em);
 
     em.name = "Timecode";
-    em.category = "Render";
     em.internal = EFFECT_INTERNAL_TIMECODE;
     effects.append(em);
 
-	em.name = "Solid";
-	em.category = "Render";
+    em.name = "Solid";
 	em.internal = EFFECT_INTERNAL_SOLID;
-    effects.append(em);
-
-	em.name = "Shake";
-	em.category = "Distort";
-	em.internal = EFFECT_INTERNAL_SHAKE;
     effects.append(em);
 
 	// internal transitions
@@ -230,6 +230,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	enable_shader(false),
 	enable_coords(false),
     enable_superimpose(false),
+    enable_image(false),
 	glslProgram(NULL),
     texture(NULL),
     isOpen(false),
@@ -431,9 +432,14 @@ Effect::~Effect() {
 		close();
 	}
 
+	delete container;
+
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
 	}
+    for (int i=0;i<gizmos.size();i++) {
+        delete gizmos.at(i);
+    }
 }
 
 void Effect::copy_field_keyframes(Effect* e) {
@@ -744,11 +750,11 @@ void Effect::close() {
 	if (!isOpen) {
 		dout << "[WARNING] Tried to close an effect that was already closed";
 	}
+	delete_texture();
 	if (glslProgram != NULL) {
 		delete glslProgram;
 		glslProgram = NULL;
 	}
-	delete_texture();
 	isOpen = false;
 }
 
@@ -762,8 +768,10 @@ void Effect::startEffect() {
 
 void Effect::endEffect() {
 	if (bound) glslProgram->release();
-	bound = false;
+    bound = false;
 }
+
+void Effect::process_image(double, uint8_t *, int) {}
 
 Effect* Effect::copy(Clip* c) {
 	Effect* copy = create_effect(c, meta);
@@ -783,17 +791,17 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 			if (!field->id.isEmpty()) {
 				switch (field->type) {
 				case EFFECT_FIELD_DOUBLE:
-					glslProgram->setUniformValue(field->id.toLatin1().constData(), (GLfloat) field->get_double_value(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), (GLfloat) field->get_double_value(timecode));
 					break;
 				case EFFECT_FIELD_COLOR:
-                    glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_color_value(timecode).redF(), field->get_color_value(timecode).greenF(), field->get_color_value(timecode).blueF());
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_color_value(timecode).redF(), field->get_color_value(timecode).greenF(), field->get_color_value(timecode).blueF());
 					break;
 				case EFFECT_FIELD_STRING: break; // can you even send a string to a uniform value?
 				case EFFECT_FIELD_BOOL:
-					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_bool_value(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_bool_value(timecode));
 					break;
 				case EFFECT_FIELD_COMBO:
-					glslProgram->setUniformValue(field->id.toLatin1().constData(), field->get_combo_index(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_combo_index(timecode));
 					break;
 				case EFFECT_FIELD_FONT: break; // can you even send a string to a uniform value?
 				}
@@ -860,13 +868,21 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
         if (gizmos.at(i) == gizmo) {
             ComboAction* ca = NULL;
             if (done) ca = new ComboAction();
-            if (gizmo->x_field != NULL) {
-                gizmo->x_field->set_double_value(gizmo->x_field->get_double_value(timecode) + x_movement*gizmo->x_field_multi);
-                gizmo->x_field->make_key_from_change(ca);
+            if (gizmo->x_field1 != NULL) {
+                gizmo->x_field1->set_double_value(gizmo->x_field1->get_double_value(timecode) + x_movement*gizmo->x_field_multi1);
+                gizmo->x_field1->make_key_from_change(ca);
             }
-            if (gizmo->y_field != NULL) {
-                gizmo->y_field->set_double_value(gizmo->y_field->get_double_value(timecode) + y_movement*gizmo->y_field_multi);
-                gizmo->y_field->make_key_from_change(ca);
+            if (gizmo->y_field1 != NULL) {
+                gizmo->y_field1->set_double_value(gizmo->y_field1->get_double_value(timecode) + y_movement*gizmo->y_field_multi1);
+                gizmo->y_field1->make_key_from_change(ca);
+            }
+            if (gizmo->x_field2 != NULL) {
+                gizmo->x_field2->set_double_value(gizmo->x_field2->get_double_value(timecode) + x_movement*gizmo->x_field_multi2);
+                gizmo->x_field2->make_key_from_change(ca);
+            }
+            if (gizmo->y_field2 != NULL) {
+                gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
+                gizmo->y_field2->make_key_from_change(ca);
             }
             if (done) undo_stack.push(ca);
             break;
@@ -975,7 +991,6 @@ bool Effect::valueHasChanged(double timecode) {
 
 void Effect::delete_texture() {
 	if (texture != NULL) {
-		texture->destroy();
 		delete texture;
 		texture = NULL;
 	}

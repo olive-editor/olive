@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class Project;
-class QTreeWidgetItem;
+class Media;
 struct Sequence;
 
 namespace Ui {
@@ -19,7 +19,7 @@ public:
 	explicit NewSequenceDialog(QWidget *parent = 0);
 	~NewSequenceDialog();
 	Sequence* existing_sequence;
-	QTreeWidgetItem* existing_item;
+    Media* existing_item;
 	void set_sequence_name(const QString& s);
 
 protected:

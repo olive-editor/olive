@@ -13,9 +13,10 @@ class Effect;
 class Transition;
 class QOpenGLFramebufferObject;
 class ComboAction;
+class Media;
 struct Sequence;
-struct Media;
-struct MediaStream;
+struct Footage;
+struct FootageStream;
 
 struct AVFormatContext;
 struct AVStream;
@@ -27,6 +28,7 @@ struct SwsContext;
 struct SwrContext;
 struct AVFilterGraph;
 struct AVFilterContext;
+struct AVDictionary;
 class QOpenGLTexture;
 
 struct Clip
@@ -41,9 +43,9 @@ struct Clip
 	long get_timeline_in_with_transition();
 	long get_timeline_out_with_transition();
 	long getLength();
+    double getMediaFrameRate();
 	long getMaximumLength();
 	void recalculateMaxLength();
-	double getMediaFrameRate();
 	int getWidth();
 	int getHeight();
 	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
@@ -63,8 +65,7 @@ struct Clip
     quint8 color_r;
     quint8 color_g;
     quint8 color_b;    
-    void* media; // attached media
-    int media_type;
+    Media* media;
     int media_stream;	
 	double speed;
     double cached_fr;
@@ -87,6 +88,7 @@ struct Clip
     AVCodecContext* codecCtx;
     AVPacket* pkt;
 	AVFrame* frame;
+    AVDictionary* opts;
 	long calculated_length;
 
 	// temporary variables
@@ -96,9 +98,9 @@ struct Clip
 	bool pkt_written;
     bool open;
     bool finished_opening;
-	bool replaced;
-	int skip_type;
+    bool replaced;
 	bool ignore_reverse;
+	int pix_fmt;
 
 	// caching functions
 	bool use_existing_frame;

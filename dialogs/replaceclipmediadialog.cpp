@@ -8,17 +8,18 @@
 #include "project/clip.h"
 #include "playback/playback.h"
 #include "playback/cacher.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "project/undo.h"
+#include "project/media.h"
 
 #include <QVBoxLayout>
-#include <QTreeWidget>
+#include <QTreeView>
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QCheckBox>
 
-ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, SourceTable *table, QTreeWidgetItem *old_media) :
+ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, SourceTable *table, Media *old_media) :
 	QDialog(parent),
 	source_table(table),
 	media(old_media)
@@ -29,12 +30,11 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, SourceTable *tab
 
 	layout->addWidget(new QLabel("Select which media you want to replace this media's clips with:"));
 
-	tree = new QTreeWidget();
-	tree->setHeaderHidden(true);
+    tree = new QTreeView();
 
 	layout->addWidget(tree);
 
-	use_same_media_in_points = new QCheckBox("Keep the same media in points");
+    use_same_media_in_points = new QCheckBox("Keep the same media in-points");
 	use_same_media_in_points->setChecked(true);
 	layout->addWidget(use_same_media_in_points);
 
@@ -56,36 +56,34 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, SourceTable *tab
 
 	setLayout(layout);
 
-	copy_tree(NULL, NULL);
+    tree->setModel(&project_model);
+
+    //copy_tree(NULL, NULL);
 }
 
 void ReplaceClipMediaDialog::replace() {
-	if (tree->selectedItems().size() != 1) {
+    QModelIndexList selected_items = tree->selectionModel()->selectedRows();
+    if (selected_items.size() != 1) {
 		QMessageBox::critical(this, "No media selected", "Please select a media to replace with or click 'Cancel'.", QMessageBox::Ok);
 	} else {
-		QTreeWidgetItem* selected_item = tree->selectedItems().at(0);
-		QTreeWidgetItem* new_item = reinterpret_cast<QTreeWidgetItem*>(selected_item->data(0, Qt::UserRole + 1).value<quintptr>());
+        Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
 		if (media == new_item) {
 			QMessageBox::critical(this, "Same media selected", "You selected the same media that you're replacing. Please select a different one or click 'Cancel'.", QMessageBox::Ok);
-		} else if (get_type_from_tree(new_item) == MEDIA_TYPE_FOLDER) {
+        } else if (new_item->get_type() == MEDIA_TYPE_FOLDER) {
 			QMessageBox::critical(this, "Folder selected", "You cannot replace footage with a folder.", QMessageBox::Ok);
 		} else {
-			if (get_type_from_tree(new_item) == MEDIA_TYPE_SEQUENCE && sequence == get_sequence_from_tree(new_item)) {
+            if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && sequence == new_item->to_sequence()) {
 				QMessageBox::critical(this, "Active sequence selected", "You cannot insert a sequence into itself.", QMessageBox::Ok);
-			} else {
-				void* old_media = get_media_from_tree(media);
-
+            } else {
 				ReplaceClipMediaCommand* rcmc = new ReplaceClipMediaCommand(
-							old_media,
-							get_media_from_tree(new_item),
-							get_type_from_tree(media),
-							get_type_from_tree(new_item),
+                            media,
+                            new_item,
 							use_same_media_in_points->isChecked()
 						);
 
                 for (int i=0;i<sequence->clips.size();i++) {
                     Clip* c = sequence->clips.at(i);
-					if (c != NULL && c->media == old_media) {
+                    if (c != NULL && c->media == media) {
 						rcmc->clips.append(c);
 					}
 				}
@@ -95,37 +93,6 @@ void ReplaceClipMediaDialog::replace() {
 				close();
 			}
 
-		}
-	}
-}
-
-void ReplaceClipMediaDialog::copy_tree(QTreeWidgetItem* parent, QTreeWidgetItem* target) {
-	QVector<QTreeWidgetItem*> items;
-
-	if (parent == NULL) {
-		for (int i=0;i<source_table->topLevelItemCount();i++) {
-			items.append(source_table->topLevelItem(i));
-		}
-	} else {
-		for (int i=0;i<parent->childCount();i++) {
-			items.append(parent->child(i));
-		}
-	}
-
-	for (int i=0;i<items.size();i++) {
-		QTreeWidgetItem* original = items.at(i);
-		QTreeWidgetItem* item = new QTreeWidgetItem();
-		item->setText(0, original->text(0));
-		item->setData(0, Qt::UserRole + 1, reinterpret_cast<quintptr>(original));
-
-		if (target == NULL) {
-			tree->addTopLevelItem(item);
-		} else {
-			target->addChild(item);
-		}
-
-		if (original->childCount() > 0) {
-			copy_tree(original, item);
 		}
 	}
 }

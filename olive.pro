@@ -33,7 +33,8 @@ SOURCES += \
     ui/sourcetable.cpp \
     dialogs/aboutdialog.cpp \
     ui/timelinewidget.cpp \
-    io/media.cpp \
+    project/media.cpp \
+    project/footage.cpp \
     project/sequence.cpp \
     project/clip.cpp \
     playback/playback.cpp \
@@ -66,6 +67,8 @@ SOURCES += \
     dialogs/speeddialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
     io/crc32.cpp \
+    project/projectmodel.cpp \
+    io/loadthread.cpp \
     dialogs/loaddialog.cpp \
     debug.cpp \
     io/path.cpp \
@@ -91,7 +94,9 @@ SOURCES += \
     project/effectfield.cpp \
     effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
-    io/clipboard.cpp
+    io/clipboard.cpp \
+    dialogs/stabilizerdialog.cpp \
+    io/avtogl.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -102,7 +107,8 @@ HEADERS += \
     ui/sourcetable.h \
     dialogs/aboutdialog.h \
     ui/timelinewidget.h \
-    io/media.h \
+    project/media.h \
+    project/footage.h \
     project/sequence.h \
     project/clip.h \
     playback/playback.h \
@@ -137,6 +143,8 @@ HEADERS += \
     dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
     io/crc32.h \
+    project/projectmodel.h \
+    io/loadthread.h \
     dialogs/loaddialog.h \
     debug.h \
     io/path.h \
@@ -162,11 +170,12 @@ HEADERS += \
     project/effectfield.h \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
-    io/clipboard.h
+    io/clipboard.h \
+    dialogs/stabilizerdialog.h \
+    io/avtogl.h
 
 FORMS += \
         mainwindow.ui \
-    panels/project.ui \
     panels/effectcontrols.ui \
     panels/viewer.ui \
     panels/timeline.ui \

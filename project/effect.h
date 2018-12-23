@@ -62,7 +62,7 @@ extern QMutex effects_loaded;
 #define EFFECT_INTERNAL_TONE 6
 #define EFFECT_INTERNAL_SHAKE 7
 #define EFFECT_INTERNAL_TIMECODE 8
-
+#define EFFECT_INTERNAL_MASK 9
 
 
 #define EFFECT_INTERNAL_CORNERPIN 12
@@ -147,12 +147,14 @@ public:
 	bool enable_shader;
 	bool enable_coords;
     bool enable_superimpose;
+    bool enable_image;
 
 	int getIterations();
 	void setIterations(int i);
 
 	const char* ffmpeg_filter;
 
+    virtual void process_image(double timecode, uint8_t* data, int size);
 	virtual void process_shader(double timecode, GLTextureCoords&);
     virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);

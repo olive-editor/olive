@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QMessageBox>
 #include <QOpenGLContext>
+#include <QtMath>
 
 #include "debug.h"
 #include "panels/panels.h"
@@ -312,8 +313,7 @@ void ExportDialog::on_formatCombobox_currentIndexChanged(int index)
 	ui->audioGroupbox->setEnabled(audio_enabled);
 }
 
-void ExportDialog::on_pushButton_2_clicked()
-{
+void ExportDialog::on_pushButton_2_clicked() {
 	close();
 }
 
@@ -324,6 +324,8 @@ void ExportDialog::render_thread_finished() {
     prep_ui_for_render(false);
     panel_sequence_viewer->viewer_widget->makeCurrent();
     panel_sequence_viewer->viewer_widget->initializeGL();
+    update_ui(false);
+    if (ui->progressBar->value() == 100) close();
 }
 
 void ExportDialog::prep_ui_for_render(bool r) {
@@ -474,7 +476,7 @@ void ExportDialog::on_pushButton_clicked() {
 
 		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
         connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
-		connect(et, SIGNAL(progress_changed(int)), this, SLOT(update_progress_bar(int)));
+        connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
 		closeActiveClips(sequence, true);
 
@@ -517,11 +519,18 @@ void ExportDialog::on_pushButton_clicked() {
 	}
 }
 
-void ExportDialog::update_progress_bar(int value) {
-	ui->progressBar->setValue(value);
+void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
+    // convert ms to H:MM:SS
+    int seconds = qFloor(remaining_ms*0.001)%60;
+    int minutes = qFloor(remaining_ms/60000)%60;
+    int hours = qFloor(remaining_ms/3600000);
+    ui->progressBar->setFormat("%p% (ETA: " + QString::number(hours) + ":" + QString::number(minutes).rightJustified(2, '0') + ":" + QString::number(seconds).rightJustified(2, '0') + ")");
+
+    ui->progressBar->setValue(value);
 }
 
 void ExportDialog::on_renderCancel_clicked() {
+    panel_sequence_viewer->viewer_widget->force_quit = true;
 	et->continueEncode = false;
     cancelled = true;
 }
@@ -552,9 +561,9 @@ void ExportDialog::on_compressionTypeCombobox_currentIndexChanged(int) {
 		break;
 	case COMPRESSION_TYPE_CFR:
 		ui->videoBitrateLabel->setText("Quality (CRF):");
-		ui->videobitrateSpinbox->setValue(23);
+        ui->videobitrateSpinbox->setValue(36);
 		ui->videobitrateSpinbox->setMaximum(51);
-		ui->videobitrateSpinbox->setToolTip("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = default, high quality\n51 = lowest quality possible");
+        ui->videobitrateSpinbox->setToolTip("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = high quality\n51 = lowest quality possible");
 		break;
 	case COMPRESSION_TYPE_TARGETSIZE:
 		ui->videoBitrateLabel->setText("Target File Size (MB):");

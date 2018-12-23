@@ -1,7 +1,7 @@
 #ifndef UNDO_H
 #define UNDO_H
 
-class QTreeWidgetItem;
+class Media;
 class QCheckBox;
 class LabelSlider;
 class Effect;
@@ -12,7 +12,7 @@ class Transition;
 class EffectGizmo;
 struct Clip;
 struct Sequence;
-struct Media;
+struct Footage;
 struct EffectMeta;
 
 #include "project/marker.h"
@@ -22,6 +22,7 @@ struct EffectMeta;
 #include <QUndoCommand>
 #include <QVector>
 #include <QVariant>
+#include <QModelIndex>
 
 extern QUndoStack undo_stack;
 
@@ -88,7 +89,7 @@ private:
 
 class AddEffectCommand : public QUndoCommand {
 public:
-    AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m);
+    AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m, int insert_pos = -1);
     ~AddEffectCommand();
     void undo();
     void redo();
@@ -96,6 +97,7 @@ private:
     Clip* clip;
 	const EffectMeta* meta;
     Effect* ref;
+    int pos;
     bool done;
 	bool old_project_changed;
 };
@@ -166,39 +168,39 @@ private:
 
 class NewSequenceCommand : public QUndoCommand {
 public:
-    NewSequenceCommand(QTreeWidgetItem *s, QTreeWidgetItem* iparent);
+    NewSequenceCommand(Media *s, Media* iparent);
     ~NewSequenceCommand();
     void undo();
     void redo();
 private:
-    QTreeWidgetItem* seq;
-    QTreeWidgetItem* parent;
+    Media* seq;
+    Media* parent;
     bool done;
 	bool old_project_changed;
 };
 
 class AddMediaCommand : public QUndoCommand {
 public:
-    AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparent);
+    AddMediaCommand(Media* iitem, Media* iparent);
     ~AddMediaCommand();
     void undo();
     void redo();
 private:
-    QTreeWidgetItem* item;
-    QTreeWidgetItem* parent;
+    Media* item;
+    Media* parent;
     bool done;
 	bool old_project_changed;
 };
 
 class DeleteMediaCommand : public QUndoCommand {
 public:
-    DeleteMediaCommand(QTreeWidgetItem* i);
+    DeleteMediaCommand(Media *i);
     ~DeleteMediaCommand();
     void undo();
     void redo();
 private:
-    QTreeWidgetItem* item;
-    QTreeWidgetItem* parent;
+    Media* item;
+    Media* parent;
 	bool old_project_changed;
 	bool done;
 };
@@ -258,29 +260,26 @@ private:
 
 class ReplaceMediaCommand : public QUndoCommand {
 public:
-	ReplaceMediaCommand(QTreeWidgetItem*, QString);
+    ReplaceMediaCommand(Media*, QString);
 	void undo();
 	void redo();
 private:
-	QTreeWidgetItem *item;
+    Media *item;
 	QString old_filename;
 	QString new_filename;
-	bool old_project_changed;
-	Media* media;
+    bool old_project_changed;
 	void replace(QString& filename);
 };
 
 class ReplaceClipMediaCommand : public QUndoCommand {
 public:
-	ReplaceClipMediaCommand(void*, void*, int, int, bool);
+    ReplaceClipMediaCommand(Media *, Media *, bool);
 	void undo();
 	void redo();
 	QVector<Clip*> clips;
 private:
-	void* old_media;
-	void* new_media;
-	int old_type;
-	int new_type;
+    Media* old_media;
+    Media* new_media;
 	bool preserve_clip_ins;
 	bool old_project_changed;
 	QVector<int> old_clip_ins;
@@ -304,27 +303,26 @@ private:
 class MediaMove : public QUndoCommand {
 public:
 	MediaMove(SourceTable* s);
-	QVector<QTreeWidgetItem*> items;
-	QTreeWidgetItem* to;
+    QVector<Media*> items;
+    Media* to;
 	void undo();
 	void redo();
 private:
-	QVector<QTreeWidgetItem*> froms;
+    QVector<Media*> froms;
 	SourceTable* table;
 	bool old_project_changed;
 };
 
 class MediaRename : public QUndoCommand {
 public:
-	MediaRename();
-	QTreeWidgetItem* item;
-	QString from;
-	QString to;
-	void undo();
-	void redo();
+    MediaRename(Media* iitem, QString to);
+    void undo();
+    void redo();
 private:
-	bool done;
-	bool old_project_changed;
+    bool old_project_changed;
+    Media* item;
+    QString from;
+    QString to;
 };
 
 class KeyframeMove : public QUndoCommand {
@@ -486,7 +484,7 @@ private:
 
 class EditSequenceCommand : public QUndoCommand {
 public:
-	EditSequenceCommand(QTreeWidgetItem *i, Sequence* s);
+    EditSequenceCommand(Media *i, Sequence* s);
 	void undo();
 	void redo();
 	void update();
@@ -498,7 +496,7 @@ public:
 	int audio_frequency;
 	int audio_layout;
 private:
-	QTreeWidgetItem* item;
+    Media* item;
 	Sequence* seq;
 	bool old_project_changed;
 
@@ -542,12 +540,11 @@ public:
 
 class UpdateFootageTooltip : public QUndoCommand {
 public:
-	UpdateFootageTooltip(QTreeWidgetItem* i, Media* m);
+    UpdateFootageTooltip(Media* i);
 	void undo();
 	void redo();
 private:
-	QTreeWidgetItem* item;
-	Media* media;
+    Media* item;
 };
 
 class MoveEffectCommand : public QUndoCommand {

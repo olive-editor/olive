@@ -2,13 +2,14 @@
 
 #include "project/effect.h"
 #include "project/transition.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "io/config.h"
 #include "playback/playback.h"
 #include "playback/cacher.h"
 #include "panels/project.h"
 #include "project/sequence.h"
 #include "panels/timeline.h"
+#include "project/media.h"
 #include "undo.h"
 
 extern "C" {
@@ -35,7 +36,7 @@ Clip::Clip(Sequence* s) :
     use_existing_frame(false),
 	filter_graph(NULL),
     fbo(NULL),
-    texture(NULL)
+    opts(NULL)
 {
 	pkt = av_packet_alloc();
     reset();
@@ -54,7 +55,6 @@ Clip* Clip::copy(Sequence* s) {
     copy->color_g = color_g;
 	copy->color_b = color_b;
     copy->media = media;
-    copy->media_type = media_type;
     copy->media_stream = media_stream;
     copy->autoscale = autoscale;
 	copy->speed = speed;
@@ -88,32 +88,27 @@ void Clip::reset() {
 	codec = NULL;
 	codecCtx = NULL;
 	texture = NULL;
+    last_invalid_ts = -1;
 }
 
 void Clip::reset_audio() {
-    switch (media_type) {
-	case MEDIA_TYPE_FOOTAGE:
-	case MEDIA_TYPE_TONE:
+    if (media == NULL || media->get_type() == MEDIA_TYPE_FOOTAGE) {
         audio_reset = true;
-		frame_sample_index = -1;
-		audio_buffer_write = 0;
-        break;
-	case MEDIA_TYPE_SEQUENCE:
-    {
-        Sequence* nested_sequence = static_cast<Sequence*>(media);
+        frame_sample_index = -1;
+        audio_buffer_write = 0;
+    } else if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
+        Sequence* nested_sequence = media->to_sequence();
         for (int i=0;i<nested_sequence->clips.size();i++) {
             Clip* c = nested_sequence->clips.at(i);
             if (c != NULL) c->reset_audio();
         }
     }
-        break;
-    }
 }
 
 void Clip::refresh() {
 	// validates media if it was replaced
-	if (replaced && media_type == MEDIA_TYPE_FOOTAGE) {
-		Media* m = static_cast<Media*>(media);
+    if (replaced && media != NULL && media->get_type() == MEDIA_TYPE_FOOTAGE) {
+        Footage* m = media->to_footage();
 		media_stream = (track < 0) ? m->video_tracks.at(0)->file_index : m->audio_tracks.at(0)->file_index;
 	}
 	replaced = false;
@@ -164,7 +159,7 @@ Clip::~Clip() {
 		close_clip(this);
 
         // make sure clip has closed before clip is destroyed
-		if (multithreaded && media_type == MEDIA_TYPE_FOOTAGE) {
+        if (multithreaded && media != NULL && media->get_type() == MEDIA_TYPE_FOOTAGE) {
             cacher->wait();
         }
     }
@@ -208,36 +203,45 @@ long Clip::getLength() {
     return timeline_out - timeline_in;
 }
 
+double Clip::getMediaFrameRate() {
+    Q_ASSERT(track < 0);
+    if (media != NULL) {
+        double rate = media->get_frame_rate(media_stream);
+        if (!qIsNaN(rate)) return rate;
+    }
+    if (sequence != NULL) return sequence->frame_rate;
+	return qSNaN();
+}
+
 void Clip::recalculateMaxLength() {
 	if (sequence != NULL) {
 		double fr = this->sequence->frame_rate;
 
 		fr /= speed;
 
-		switch (media_type) {
-		case MEDIA_TYPE_FOOTAGE:
-		{
-			Media* m = static_cast<Media*>(media);
-			MediaStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
-			if (ms != NULL && ms->infinite_length) {
-				calculated_length = LONG_MAX;
-			} else {
-				calculated_length = m->get_length_in_frames(fr);
-			}
-		}
-			break;
-		case MEDIA_TYPE_SEQUENCE:
-		{
-			Sequence* s = static_cast<Sequence*>(media);
-			calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
-		}
-			break;
-		/*case MEDIA_TYPE_SOLID:
-		case MEDIA_TYPE_TONE:*/
-		default:
-			calculated_length = LONG_MAX;
-			break;
-		}
+        calculated_length = LONG_MAX;
+
+        if (media != NULL) {
+            switch (media->get_type()) {
+            case MEDIA_TYPE_FOOTAGE:
+            {
+                Footage* m = media->to_footage();
+                FootageStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
+                if (ms != NULL && ms->infinite_length) {
+                    calculated_length = LONG_MAX;
+                } else {
+                    calculated_length = m->get_length_in_frames(fr);
+                }
+            }
+                break;
+            case MEDIA_TYPE_SEQUENCE:
+            {
+                Sequence* s = media->to_sequence();
+                calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
+            }
+                break;
+            }
+        }
 	}
 }
 
@@ -245,28 +249,18 @@ long Clip::getMaximumLength() {
 	return calculated_length;
 }
 
-double Clip::getMediaFrameRate() {
-	Q_ASSERT(track < 0);
-	switch (media_type) {
-	case MEDIA_TYPE_FOOTAGE: return static_cast<Media*>(media)->get_stream_from_file_index(track < 0, media_stream)->video_frame_rate;
-	case MEDIA_TYPE_SEQUENCE: return static_cast<Sequence*>(media)->frame_rate;
-	}
-	if (sequence != NULL) return sequence->frame_rate;
-	return qSNaN();
-}
-
 int Clip::getWidth() {
 	if (media == NULL && sequence != NULL) return sequence->width;
-	switch (media_type) {
+    switch (media->get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-		MediaStream* ms = static_cast<Media*>(media)->get_stream_from_file_index(track < 0, media_stream);
+        FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
 		if (ms != NULL) return ms->video_width;
         if (sequence != NULL) return sequence->width;
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
-		Sequence* s = static_cast<Sequence*>(media);
+        Sequence* s = media->to_sequence();
 		return s->width;
 	}
 	}
@@ -275,16 +269,16 @@ int Clip::getWidth() {
 
 int Clip::getHeight() {
 	if (media == NULL && sequence != NULL) return sequence->height;
-	switch (media_type) {
+    switch (media->get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-		MediaStream* ms = static_cast<Media*>(media)->get_stream_from_file_index(track < 0, media_stream);
+        FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
 		if (ms != NULL) return ms->video_height;
         if (sequence != NULL) return sequence->height;
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
-		Sequence* s = static_cast<Sequence*>(media);
+        Sequence* s = media->to_sequence();
 		return s->height;
 	}
 	}

@@ -15,13 +15,14 @@
 #include "ui/sourcetable.h"
 #include "project/effect.h"
 #include "project/transition.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "playback/cacher.h"
 #include "ui/labelslider.h"
 #include "ui/viewerwidget.h"
 #include "project/marker.h"
 #include "mainwindow.h"
 #include "io/clipboard.h"
+#include "project/media.h"
 #include "debug.h"
 
 QUndoStack undo_stack;
@@ -169,7 +170,7 @@ void SetTimelineInOutCommand::undo() {
 
     // footage viewer functions
     if (seq->wrapper_sequence) {
-        Media* m = static_cast<Media*>(seq->clips.at(0)->media);
+        Footage* m = seq->clips.at(0)->media->to_footage();
         m->using_inout = old_enabled;
         m->in = old_in;
         m->out = old_out;
@@ -189,7 +190,7 @@ void SetTimelineInOutCommand::redo() {
 
     // footage viewer functions
     if (seq->wrapper_sequence) {
-        Media* m = static_cast<Media*>(seq->clips.at(0)->media);
+        Footage* m = seq->clips.at(0)->media->to_footage();
         m->using_inout = new_enabled;
         m->in = new_in;
         m->out = new_out;
@@ -198,10 +199,11 @@ void SetTimelineInOutCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m) :
+AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m, int insert_pos) :
     clip(c),
     meta(m),
     ref(e),
+    pos(insert_pos),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
@@ -212,7 +214,11 @@ AddEffectCommand::~AddEffectCommand() {
 
 void AddEffectCommand::undo() {
     clip->effects.last()->close();
-    clip->effects.removeLast();
+    if (pos < 0) {
+        clip->effects.removeLast();
+    } else {
+        clip->effects.removeAt(pos);
+    }
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
@@ -221,7 +227,11 @@ void AddEffectCommand::redo() {
     if (ref == NULL) {
 		ref = create_effect(clip, meta);
     }
-    clip->effects.append(ref);
+    if (pos < 0) {
+        clip->effects.append(ref);
+    } else {
+        clip->effects.insert(pos, ref);
+    }
     done = true;
 	mainWindow->setWindowModified(true);
 }
@@ -340,38 +350,34 @@ void DeleteTransitionCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-NewSequenceCommand::NewSequenceCommand(QTreeWidgetItem *s, QTreeWidgetItem* iparent) :
+NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) :
     seq(s),
     parent(iparent),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
-{}
+{
+    if (parent == NULL) parent = project_model.get_root();
+}
 
 NewSequenceCommand::~NewSequenceCommand() {
     if (!done) delete seq;
 }
 
 void NewSequenceCommand::undo() {
-    if (parent == NULL) {
-        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(seq));
-    } else {
-        parent->removeChild(seq);
-    }
+    project_model.removeChild(parent, seq);
+
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void NewSequenceCommand::redo() {
-    if (parent == NULL) {
-        panel_project->source_table->addTopLevelItem(seq);
-    } else {
-        parent->addChild(seq);
-    }
+    project_model.appendChild(parent, seq);
+
     done = true;
 	mainWindow->setWindowModified(true);
 }
 
-AddMediaCommand::AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparent) :
+AddMediaCommand::AddMediaCommand(Media* iitem, Media *iparent) :
     item(iitem),
     parent(iparent),
 	done(false),
@@ -380,85 +386,44 @@ AddMediaCommand::AddMediaCommand(QTreeWidgetItem* iitem, QTreeWidgetItem* iparen
 
 AddMediaCommand::~AddMediaCommand() {
     if (!done) {
-        panel_project->delete_media(item);
-		if (item->data(0, Qt::UserRole + 5) != 0) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
         delete item;
     }
 }
 
 void AddMediaCommand::undo() {
-    if (parent == NULL) {
-        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
-    } else {
-        parent->removeChild(item);
-    }
+    project_model.removeChild(parent, item);
     done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddMediaCommand::redo() {
-    if (parent == NULL) {
-        panel_project->source_table->addTopLevelItem(item);
-    } else {
-        parent->addChild(item);
-	}
-
-	/* Here we force the source_table to sort itself.
-	 *
-	 * For some reason, sometimes when you add items to the QTreeWidget,
-	 * (usually upon first import) they appear at the bottom, regardless
-	 * of where they should be placed alphabetically. Then when this
-	 * function is "undone", and it tries to remove this item from the
-	 * QTreeWidget, it immediately sorts and then removes THE WRONG ONE.
-	 * If this happens to be a sequence, the sequence data doesn't save
-	 * and is then lost forever (outside of autorecoveries).
-	 *
-	 * The following 2 lines seem to force the source_table to re-sort
-	 * correctly and therefore works around this problem. But holy shit.
-     *
-     * I guess I'm "supposed" to use a Model–view–viewmodel instead,
-     * which I'll probably have to switch to soon anyway. So perhaps
-     * this will be a non-issue soon.
-	 */
-	panel_project->source_table->setSortingEnabled(false);
-	panel_project->source_table->setSortingEnabled(true);
+    project_model.appendChild(parent, item);
 
 	done = true;
 	mainWindow->setWindowModified(true);
 }
 
-DeleteMediaCommand::DeleteMediaCommand(QTreeWidgetItem* i) :
+DeleteMediaCommand::DeleteMediaCommand(Media* i) :
 	item(i),
+    parent(i->parentItem()),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 DeleteMediaCommand::~DeleteMediaCommand() {
-	if (done) {
-		panel_project->delete_media(item);
-		if (item->data(0, Qt::UserRole + 5) != 0) delete reinterpret_cast<MediaThrobber*>(item->data(0, Qt::UserRole + 5).value<quintptr>());
-		delete item;
+    if (done) {
+        delete item;
 	}
 }
 
 void DeleteMediaCommand::undo() {
-    if (parent == NULL) {
-        panel_project->source_table->addTopLevelItem(item);
-    } else {
-        parent->addChild(item);
-    }
+    project_model.appendChild(parent, item);
 
 	mainWindow->setWindowModified(old_project_changed);
 	done = false;
 }
 
 void DeleteMediaCommand::redo() {
-    parent = item->parent();
-
-    if (parent == NULL) {
-        panel_project->source_table->takeTopLevelItem(panel_project->source_table->indexOfTopLevelItem(item));
-    } else {
-        parent->removeChild(item);
-    }	
+    project_model.removeChild(parent, item);
 
 	mainWindow->setWindowModified(true);
 	done = true;
@@ -601,25 +566,24 @@ void CheckboxCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-ReplaceMediaCommand::ReplaceMediaCommand(QTreeWidgetItem* i, QString s) :
+ReplaceMediaCommand::ReplaceMediaCommand(Media* i, QString s) :
 	item(i),
 	new_filename(s),
 	old_project_changed(mainWindow->isWindowModified())
 {
-	media = get_footage_from_tree(item);
-	old_filename = media->url;
+    old_filename = item->to_footage()->url;
 }
 
 void ReplaceMediaCommand::replace(QString& filename) {
 	// close any clips currently using this media
-	QVector<Sequence*> all_sequences = panel_project->list_all_project_sequences();
+    QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<all_sequences.size();i++) {
-		Sequence* s = all_sequences.at(i);
+        Sequence* s = all_sequences.at(i)->to_sequence();
         for (int j=0;j<s->clips.size();j++) {
             Clip* c = s->clips.at(j);
-			if (c != NULL && c->media == media && c->open) {
+            if (c != NULL && c->media == item && c->open) {
 				close_clip(c);
-				if (c->media_type == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+                if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
 				c->replaced = true;
 			}
 		}
@@ -628,7 +592,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
 	// replace media
 	QStringList files;
 	files.append(filename);
-	panel_project->process_file_list(false, files, NULL, item);
+    panel_project->process_file_list(files, false, item, NULL);
 }
 
 void ReplaceMediaCommand::undo() {
@@ -643,11 +607,9 @@ void ReplaceMediaCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-ReplaceClipMediaCommand::ReplaceClipMediaCommand(void *a, void *b, int c, int d, bool e) :
+ReplaceClipMediaCommand::ReplaceClipMediaCommand(Media *a, Media *b, bool e) :
 	old_media(a),
-	new_media(b),
-	old_type(c),
-	new_type(d),
+    new_media(b),
 	preserve_clip_ins(e),
 	old_project_changed(mainWindow->isWindowModified())
 {}
@@ -661,7 +623,7 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 		Clip* c = clips.at(i);
 		if (c->open) {
 			close_clip(c);
-			if (c->media_type == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+            if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
 		}
 
 		if (undo) {
@@ -669,16 +631,14 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 				c->clip_in = old_clip_ins.at(i);
 			}
 
-			c->media = old_media;
-			c->media_type = old_type;
+            c->media = old_media;
 		} else {
 			if (!preserve_clip_ins) {
 				old_clip_ins.append(c->clip_in);
 				c->clip_in = 0;
 			}
 
-			c->media = new_media;
-			c->media_type = new_type;
+            c->media = new_media;
 		}
 
 		c->replaced = true;
@@ -695,6 +655,7 @@ void ReplaceClipMediaCommand::undo() {
 void ReplaceClipMediaCommand::redo() {
 	replace(false);
 
+    update_ui(true);
 	mainWindow->setWindowModified(true);
 }
 
@@ -737,61 +698,37 @@ MediaMove::MediaMove(SourceTable *s) : table(s), old_project_changed(mainWindow-
 
 void MediaMove::undo() {
 	for (int i=0;i<items.size();i++) {
-		if (to == NULL) {
-			table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
-		} else {
-			to->removeChild(items.at(i));
-		}
-	}
-	for (int i=0;i<items.size();i++) {
-		if (froms.at(i) == NULL) {
-			table->addTopLevelItem(items.at(i));
-		} else {
-			froms.at(i)->addChild(items.at(i));
-		}
-	}
+        project_model.moveChild(items.at(i), froms.at(i));
+    }
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MediaMove::redo() {
+    if (to == NULL) to = project_model.get_root();
 	froms.resize(items.size());
 	for (int i=0;i<items.size();i++) {
-		QTreeWidgetItem* parent = items.at(i)->parent();
+        Media* parent = items.at(i)->parentItem();
 		froms[i] = parent;
-		if (parent == NULL) {
-			table->takeTopLevelItem(table->indexOfTopLevelItem(items.at(i)));
-		} else {
-			parent->removeChild(items.at(i));
-		}
-		if (to == NULL) {
-			table->addTopLevelItem(items.at(i));
-		} else {
-			to->addChild(items.at(i));
-		}
-	}	
-	for (int i=0;i<items.size();i++) {
-		if (to == NULL) {
-			table->addTopLevelItem(items.at(i));
-		} else {
-			to->addChild(items.at(i));
-		}
-	}
+        project_model.moveChild(items.at(i), to);
+    }
 	mainWindow->setWindowModified(true);
 }
 
-MediaRename::MediaRename() : done(true), old_project_changed(mainWindow->isWindowModified()) {}
+MediaRename::MediaRename(Media* iitem, QString ito) :
+    item(iitem),
+    from(iitem->get_name()),
+    to(ito),
+    old_project_changed(mainWindow->isWindowModified())
+{}
 
 void MediaRename::undo() {
-	item->setText(0, from);
-	done = false;
-	mainWindow->setWindowModified(old_project_changed);
+    item->set_name(from);
+    mainWindow->setWindowModified(old_project_changed);
 }
 
 void MediaRename::redo() {
-	if (!done) {
-		item->setText(0, to);
-	}
-	mainWindow->setWindowModified(true);
+    item->set_name(to);
+    mainWindow->setWindowModified(true);
 }
 
 KeyframeMove::KeyframeMove() : old_project_changed(mainWindow->isWindowModified()) {}
@@ -1138,7 +1075,7 @@ void SetEnableCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-EditSequenceCommand::EditSequenceCommand(QTreeWidgetItem* i, Sequence *s) :
+EditSequenceCommand::EditSequenceCommand(Media* i, Sequence *s) :
 	item(i),
 	seq(s),
 	old_project_changed(mainWindow->isWindowModified()),
@@ -1175,11 +1112,8 @@ void EditSequenceCommand::redo() {
 }
 
 void EditSequenceCommand::update() {
-	// update name
-	item->setText(0, seq->name);
-
 	// update tooltip
-	set_sequence_of_tree(item, seq);
+    item->set_sequence(seq);
 
 	for (int i=0;i<seq->clips.size();i++) {
 		// TODO shift in/out/clipin points to match new frame rate
@@ -1237,9 +1171,8 @@ void CloseAllClipsCommand::redo() {
 	closeActiveClips(sequence, true);
 }
 
-UpdateFootageTooltip::UpdateFootageTooltip(QTreeWidgetItem *i, Media *m) :
-	item(i),
-	media(m)
+UpdateFootageTooltip::UpdateFootageTooltip(Media *i) :
+    item(i)
 {}
 
 void UpdateFootageTooltip::undo() {
@@ -1247,7 +1180,7 @@ void UpdateFootageTooltip::undo() {
 }
 
 void UpdateFootageTooltip::redo() {
-	update_footage_tooltip(item, media);
+    item->update_tooltip();
 }
 
 MoveEffectCommand::MoveEffectCommand() :

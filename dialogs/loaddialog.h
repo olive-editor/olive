@@ -4,13 +4,26 @@
 #include <QDialog>
 
 class QProgressBar;
+struct Sequence;
+class Media;
+struct Footage;
+class QHBoxLayout;
+class LoadThread;
 
 class LoadDialog : public QDialog
 {
+    Q_OBJECT
 public:
-	LoadDialog(QWidget* parent = 0);
+    LoadDialog(QWidget* parent, bool autorecovery);
+private slots:
+    void cancel();
+	void die();
+    void thread_done();
 private:
 	QProgressBar* bar;
+    QPushButton* cancel_button;
+    QHBoxLayout* hboxLayout;
+    LoadThread* lt;
 };
 
 #endif // LOADDIALOG_H

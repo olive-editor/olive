@@ -48,5 +48,6 @@
         <file>record-disabled.png</file>
         <file>transition-tool.png</file>
         <file>transition-tool-disabled.png</file>
+        <file>error.png</file>
     </qresource>
 </RCC>

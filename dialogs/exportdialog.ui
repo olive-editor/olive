@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>358</width>
-    <height>470</height>
+    <width>443</width>
+    <height>562</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -226,6 +226,9 @@
        </property>
        <property name="value">
         <number>0</number>
+       </property>
+       <property name="format">
+        <string>%p% (ETA: 0:00:00)</string>
        </property>
       </widget>
      </item>

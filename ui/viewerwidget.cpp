@@ -10,7 +10,7 @@
 #include "project/transition.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "ui_timeline.h"
 #include "playback/cacher.h"
 #include "io/config.h"
@@ -18,6 +18,9 @@
 #include "io/math.h"
 #include "ui/collapsiblewidget.h"
 #include "project/undo.h"
+#include "project/media.h"
+#include "ui/viewercontainer.h"
+#include "io/avtogl.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -31,6 +34,7 @@
 #include <QOffscreenSurface>
 #include <QFileDialog>
 #include <QPolygon>
+#include <QDesktopWidget>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -43,7 +47,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	default_fbo(NULL),
 	waveform(false),
     dragging(false),
-    selected_gizmo(NULL)
+    selected_gizmo(NULL),
+    waveform_zoom(1.0),
+    waveform_scroll(0)
 {
     setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -52,7 +58,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	format.setDepthBufferSize(24);
 	setFormat(format);
 
-    // error handler - retries after 500ms if we couldn't get the entire image
+    // error handler - retries after 50ms if we couldn't get the entire image
     retry_timer.setInterval(50);
 	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
 
@@ -62,10 +68,17 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
 void ViewerWidget::delete_function() {
     // destroy all textures as well
-    if (viewer->seq != NULL) {
+	if (viewer->seq != NULL) {
         makeCurrent();
         closeActiveClips(viewer->seq, true);
         doneCurrent();
+    }
+}
+
+void ViewerWidget::set_waveform_scroll(int s) {
+    if (waveform) {
+        waveform_scroll = s;
+        update();
     }
 }
 
@@ -126,7 +139,7 @@ void ViewerWidget::initializeGL() {
 
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
 
-	retry_timer.start();
+    retry_timer.start();
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
@@ -141,11 +154,7 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
 }
 
 void ViewerWidget::seek_from_click(int x) {
-	viewer->seek(getFrameFromScreenPoint((double) width() / (double) waveform_clip->timeline_out, x));
-}
-
-double get_timecode(Clip* c, long playhead) {
-    return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+    viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
 }
 
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
@@ -153,6 +162,7 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
         double multiplier = (double) viewer->seq->width / (double) width();
         QPoint mouse_pos(qRound(x*multiplier), qRound(y*multiplier));
         int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
+        int target_size = 2 * qRound(GIZMO_TARGET_SIZE * multiplier);
         for (int i=0;i<gizmos->gizmo_count();i++) {
             EffectGizmo* g = gizmos->gizmo(i);
 
@@ -167,6 +177,14 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
                 break;
             case GIZMO_TYPE_POLY:
                 if (QPolygon(g->screen_pos).containsPoint(mouse_pos, Qt::OddEvenFill)) {
+                    return g;
+                }
+                break;
+            case GIZMO_TYPE_TARGET:
+                if (mouse_pos.x() > g->screen_pos[0].x() - target_size
+                        && mouse_pos.y() > g->screen_pos[0].y() - target_size
+                        && mouse_pos.x() < g->screen_pos[0].x() + target_size
+                        && mouse_pos.y() < g->screen_pos[0].y() + target_size) {
                     return g;
                 }
                 break;
@@ -199,6 +217,8 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     if (waveform) {
         seek_from_click(event->x());
+    } else if (event->buttons() & Qt::MiddleButton) {
+        container->dragScrollPress(event->pos());
     } else {
         drag_start_x = event->pos().x();
         drag_start_y = event->pos().y();
@@ -216,9 +236,11 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
-	if (dragging) {
+    if (dragging) {
 		if (waveform) {
 			seek_from_click(event->x());
+        } else if (event->buttons() & Qt::MiddleButton) {
+            container->dragScrollMove(event->pos());
         } else if (gizmos == NULL) {
 			QDrag* drag = new QDrag(this);
 			QMimeData* mimeData = new QMimeData;
@@ -321,6 +343,14 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bo
     fbo->bind();
 
     if (clear) glClear(GL_COLOR_BUFFER_BIT);
+
+    // get current blend mode
+    GLint src_rgb, src_alpha, dst_rgb, dst_alpha;
+    glGetIntegerv(GL_BLEND_SRC_RGB, &src_rgb);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, &src_alpha);
+    glGetIntegerv(GL_BLEND_DST_RGB, &dst_rgb);
+    glGetIntegerv(GL_BLEND_DST_ALPHA, &dst_alpha);
+
     GL_DEFAULT_BLEND
 
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -337,7 +367,11 @@ GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bo
     glBindTexture(GL_TEXTURE_2D, 0);
 
 	fbo->release();
-	if (default_fbo != NULL) default_fbo->bind();
+
+    // restore previous blendFunc
+    glBlendFuncSeparate(src_rgb, dst_rgb, src_alpha, dst_alpha);
+
+    if (default_fbo != NULL) default_fbo->bind();
 
 	glPopMatrix();
 	return fbo->texture();
@@ -378,7 +412,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 	if (!nests.isEmpty()) {
 		for (int i=0;i<nests.size();i++) {
-			s = static_cast<Sequence*>(nests.at(i)->media);
+            s = nests.at(i)->media->to_sequence();
             playhead += nests.at(i)->clip_in - nests.at(i)->get_timeline_in_with_transition();
 			playhead = refactor_frame_number(playhead, nests.at(i)->sequence->frame_rate, s->frame_rate);
 		}
@@ -402,13 +436,11 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 			if (!(!nests.isEmpty() && !same_sign(c->track, nests.last()->track))) {
 				bool clip_is_active = false;
 
-				switch (c->media_type) {
-				case MEDIA_TYPE_FOOTAGE:
-				{
-					Media* m = static_cast<Media*>(c->media);
+                if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+                    Footage* m = c->media->to_footage();
                     if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
                         if (m->ready) {
-                            MediaStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
+                            FootageStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
                             if (ms != NULL && is_clip_active(c, playhead)) {
                                 // if thread is already working, we don't want to touch this,
                                 // but we also don't want to hang the UI thread
@@ -421,23 +453,18 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                                 close_clip(c);
                             }
                         } else {
-                            dout << "[WARNING] Media was not ready, retrying...";
+                            //dout << "[WARNING] Media '" + m->name + "' was not ready, retrying...";
                             texture_failed = true;
                         }
                     }
-				}
-					break;
-				case MEDIA_TYPE_SEQUENCE:
-				case MEDIA_TYPE_SOLID:
-				case MEDIA_TYPE_TONE:
-					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !rendering);
-						clip_is_active = true;
-					} else if (c->open) {
-						close_clip(c);
-					}
-					break;
-				}
+                } else {
+                    if (is_clip_active(c, playhead)) {
+                        if (!c->open) open_clip(c, !rendering);
+                        clip_is_active = true;
+                    } else if (c->open) {
+                        close_clip(c);
+                    }
+                }
 				if (clip_is_active) {
 					bool added = false;
 					for (int j=0;j<current_clips.size();j++) {
@@ -469,7 +496,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
         Clip* c = current_clips.at(i);
 
-        if (c->media_type == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
+        if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
 			dout << "[WARNING] Tried to display clip" << i << "but it's closed";
             texture_failed = true;
         } else {
@@ -478,23 +505,28 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				int video_width = c->getWidth();
 				int video_height = c->getHeight();
 
-				if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-					// set up opengl texture
-					if (c->texture == NULL) {
-						c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-						c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
-						c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-						c->texture->setMipLevels(c->texture->maximumMipLevels());
-						c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-						c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
-					}
-					get_clip_frame(c, playhead);
-					textureID = c->texture->textureId();
-				} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-					textureID = -1;
-				}
+                if (c->media != NULL) {
+                    switch (c->media->get_type()) {
+                    case MEDIA_TYPE_FOOTAGE:
+                        // set up opengl texture
+                        if (c->texture == NULL) {
+                            c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+                            c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
+							c->texture->setFormat(get_gl_tex_fmt_from_av(c->pix_fmt));
+                            c->texture->setMipLevels(c->texture->maximumMipLevels());
+                            c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
+                        }
+                        get_clip_frame(c, playhead);
+                        textureID = c->texture->textureId();
+                        break;
+                    case MEDIA_TYPE_SEQUENCE:
+                        textureID = -1;
+                        break;
+                    }
+                }
 
-				if (textureID == 0 && c->media_type != MEDIA_TYPE_SOLID) {
+                if (textureID == 0 && c->media != NULL) {
 					dout << "[WARNING] Texture hasn't been created yet";
 					texture_failed = true;
                 } else if (playhead >= c->get_timeline_in_with_transition()) {
@@ -519,21 +551,22 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 					glViewport(0, 0, video_width, video_height);
 
-					// for nested sequences
-					if (c->media_type == MEDIA_TYPE_SEQUENCE) {
-						nests.append(c);
-						textureID = compose_sequence(nests, render_audio);
-						nests.removeLast();
-						fbo_switcher = true;
-					}
+                    GLuint composite_texture;
 
-					GLuint composite_texture;
-					if (c->media_type == MEDIA_TYPE_SOLID) {
+                    if (c->media == NULL) {
                         c->fbo[fbo_switcher]->bind();
                         glClear(GL_COLOR_BUFFER_BIT);
                         c->fbo[fbo_switcher]->release();
 						composite_texture = c->fbo[fbo_switcher]->texture();
 					} else {
+                        // for nested sequences
+                        if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
+                            nests.append(c);
+                            textureID = compose_sequence(nests, render_audio);
+                            nests.removeLast();
+                            fbo_switcher = true;
+                        }
+
                         composite_texture = draw_clip(c->fbo[fbo_switcher], textureID, true);
 					}
 
@@ -604,7 +637,17 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					} else if (rendering) {
 						glViewport(0, 0, s->width, s->height);
 					} else {
-						glViewport(0, 0, width(), height());
+                        int widget_width = width();
+                        int widget_height = height();
+
+                        QString qt_scale_factor = QString(qgetenv("QT_SCALE_FACTOR"));
+                        if (!qt_scale_factor.isEmpty()) {
+                            double scale = qt_scale_factor.toDouble();
+                            widget_width *= scale;
+                            widget_height *= scale;
+                        }
+
+                        glViewport(0, 0, widget_width, widget_height);
 					}
 
 					glBindTexture(GL_TEXTURE_2D, composite_texture);
@@ -686,21 +729,17 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				}
             } else {
                 if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
-					switch (c->media_type) {
-					case MEDIA_TYPE_FOOTAGE:
-					case MEDIA_TYPE_TONE:
-						if (c->lock.tryLock()) {
+                    if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+                        nests.append(c);
+                        compose_sequence(nests, render_audio);
+                        nests.removeLast();
+                    } else {
+                        if (c->lock.tryLock()) {
                             // clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
-							c->lock.unlock();
-						}
-						break;
-					case MEDIA_TYPE_SEQUENCE:
-						nests.append(c);
-						compose_sequence(nests, render_audio);
-						nests.removeLast();
-						break;
-					}
+                            cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
+                            c->lock.unlock();
+                        }
+                    }
 				}
 
 				// visually update all the keyframe values
@@ -736,6 +775,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 
 void ViewerWidget::paintGL() {
     drawn_gizmos = false;
+    force_quit = false;
     if (viewer->seq != NULL) {
         gizmos = NULL;
 
@@ -764,26 +804,27 @@ void ViewerWidget::paintGL() {
             compose_sequence(nests, render_audio);
 
             if (waveform) {
-                double waveform_zoom = (double) waveform_ms->audio_preview.size() / (double) width();
-                double timeline_zoom = (double) width() / (double) waveform_clip->timeline_out;
-
                 QPainter p(this);
                 if (viewer->seq->using_workarea) {
-                    int in_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_in);
-                    int out_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->workarea_out);
+                    int in_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_in) - waveform_scroll;
+                    int out_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_out) - waveform_scroll;
 
                     p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
                     p.setPen(Qt::white);
                     p.drawLine(in_x, 0, in_x, height());
                     p.drawLine(out_x, 0, out_x, height());
                 }
+                QRect wr = rect();
+                wr.setX(wr.x() - waveform_scroll);
+
                 p.setPen(Qt::green);
-                draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, rect(), 0, width(), waveform_zoom);
+                draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
                 p.setPen(Qt::red);
-                int playhead_x = getScreenPointFromFrame(timeline_zoom, viewer->seq->playhead);
+                int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
                 p.drawLine(playhead_x, 0, playhead_x, height());
             }
 
+            if (force_quit) break;
             if (texture_failed) {
                 if (rendering) {
                     dout << "[INFO] Texture failed - looping";
@@ -802,6 +843,7 @@ void ViewerWidget::paintGL() {
                 glGetFloatv(GL_CURRENT_COLOR, color);
 
                 float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
+                float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
 
                 glPushMatrix();
                 glLoadIdentity();
@@ -827,6 +869,27 @@ void ViewerWidget::paintGL() {
                         }
                         glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
                         glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
+                        glEnd();
+                        break;
+                    case GIZMO_TYPE_TARGET: // draw target
+                        glBegin(GL_LINES);
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y(), gizmo_z);
+                        glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y(), gizmo_z);
+
+                        glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()-target_size, gizmo_z);
+                        glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()+target_size, gizmo_z);
                         glEnd();
                         break;
                     }

@@ -13,7 +13,7 @@
 
 struct Sequence;
 struct Clip;
-struct MediaStream;
+struct FootageStream;
 class Timeline;
 class TimelineAction;
 class QScrollBar;
@@ -21,7 +21,7 @@ class SetSelectionsCommand;
 class QPainter;
 
 bool same_sign(int a, int b);
-void draw_waveform(Clip* clip, MediaStream* ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
+void draw_waveform(Clip* clip, FootageStream* ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
 
 class TimelineWidget : public QWidget {
 	Q_OBJECT
@@ -85,6 +85,7 @@ private slots:
     void toggle_autoscale();
     void tooltip_timer_timeout();
 	void rename_clip();
+    void show_stabilizer_diag();
 };
 
 #endif // TIMELINEWIDGET_H

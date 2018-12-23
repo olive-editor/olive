@@ -6,6 +6,7 @@
 
 class Timeline;
 class ViewerWidget;
+class Media;
 struct Sequence;
 
 namespace Ui {
@@ -26,7 +27,7 @@ public:
 
 	bool is_focused();
     void set_main_sequence();
-    void set_media(int type, void* media);
+    void set_media(Media *m);
 	void compose();
     void set_playpause_icon(bool play);
     void update_playhead_timecode(long p);
@@ -36,6 +37,7 @@ public:
     void clear_inout_point();
 	void set_in_point();
 	void set_out_point();
+    void set_zoom(bool in);
 
 	// playback functions
 	void go_to_start();
@@ -57,14 +59,14 @@ public:
 	bool is_recording_cued();	
 	long recording_start;
 	long recording_end;
-	int recording_track;
+    int recording_track;
 
-	void reset_all_audio();
-    void assert_audio_device();
+    void reset_all_audio();
 	void update_parents();
 
 	ViewerWidget* viewer_widget;
 
+    Media* media;
 	Sequence* seq;
 
     Ui::Viewer *ui;
@@ -81,12 +83,15 @@ private slots:
 	void update_playhead();
 	void timer_update();
 	void recording_flasher_update();
+    void zoom_update(int i);
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
 	bool main_sequence;
 	bool created_sequence;
+    long cached_end_frame;
     QString panel_name;
+    double minimum_zoom;
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;

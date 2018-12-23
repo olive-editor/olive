@@ -19,10 +19,10 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
     setStyleSheet("QLabel{color:#ffc000;text-decoration:underline;}QLabel:disabled{color:#808080;}");
     setCursor(Qt::SizeHorCursor);
     internal_value = -1;
+    set = false;
+    display_type = LABELSLIDER_NORMAL;
+
     set_default_value(0);
-	set_value(0, false);
-	set = false;
-	display_type = LABELSLIDER_NORMAL;
 }
 
 void LabelSlider::set_frame_rate(double d) {

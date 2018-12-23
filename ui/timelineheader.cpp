@@ -1,5 +1,6 @@
 #include "timelineheader.h"
 
+#include "mainwindow.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "project/sequence.h"
@@ -10,14 +11,26 @@
 
 #include <QPainter>
 #include <QMouseEvent>
-#include <QScrollArea>
+#include <QScrollBar>
 #include <QtMath>
+#include <QMenu>
+#include <QAction>
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
 #define LINE_MIN_PADDING 50
 #define SUBLINE_MIN_PADDING 50 // TODO play with this
 #define MARKER_SIZE 4
+
+bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead) {
+    // returns true is the scroll was changed, false if not
+    int target_scroll = qMin(bar->maximum(), qMax(0, getScreenPointFromFrame(zoom, playhead)-(bar->width()>>1)));
+    if (target_scroll == bar->value()) {
+        return false;
+    }
+    bar->setValue(target_scroll);
+    return true;
+}
 
 TimelineHeader::TimelineHeader(QWidget *parent) :
 	QWidget(parent),
@@ -35,6 +48,9 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
     setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 	show_text(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(show_context_menu(const QPoint &)));
 }
 
 void TimelineHeader::set_scroll(int s) {
@@ -85,6 +101,10 @@ void TimelineHeader::set_out_point(long new_out) {
 
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
+}
+
+void TimelineHeader::set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset) {
+    bar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequence_end_frame) - offset));
 }
 
 void TimelineHeader::show_text(bool enable) {
@@ -255,7 +275,11 @@ void TimelineHeader::update_parents() {
 
 void TimelineHeader::update_zoom(double z) {
 	zoom = z;
-	update();
+    update();
+}
+
+double TimelineHeader::get_zoom() {
+    return zoom;
 }
 
 void TimelineHeader::delete_markers() {
@@ -375,4 +399,14 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         path.lineTo(start);
         p.fillPath(path, Qt::red);
 	}
+}
+
+void TimelineHeader::show_context_menu(const QPoint &pos) {
+    QMenu contextMenu(tr("Context menu"), this);
+
+    QAction clear_in_out("Clear In/Out Points", this);
+	if (!viewer->seq->using_workarea) clear_in_out.setEnabled(false);
+    connect(&clear_in_out, SIGNAL(triggered()), mainWindow, SLOT(on_actionClear_In_Out_triggered()));
+    contextMenu.addAction(&clear_in_out);
+    contextMenu.exec(mapToGlobal(pos));
 }

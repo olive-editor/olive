@@ -3,11 +3,12 @@
 
 #include "io/config.h"
 #include "io/path.h"
-#include "io/media.h"
 
+#include "project/footage.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "project/undo.h"
+#include "project/media.h"
 
 #include "ui/sourcetable.h"
 #include "ui/viewerwidget.h"
@@ -212,18 +213,23 @@ MainWindow::MainWindow(QWidget *parent) :
             config_dir = data_dir + "/config.xml";
             config.load(config_dir);
         }
-	}
+    }
+
+    init_audio();
 
 	connect(ui->action_Undo, SIGNAL(triggered(bool)), this, SLOT(undo()));
 	connect(ui->action_Redo, SIGNAL(triggered(bool)), this, SLOT(redo()));
 	connect(ui->actionCu_t, SIGNAL(triggered(bool)), this, SLOT(cut()));
 	connect(ui->actionCop_y, SIGNAL(triggered(bool)), this, SLOT(copy()));
 	connect(ui->action_Paste, SIGNAL(triggered(bool)), this, SLOT(paste()));
+    connect(ui->actionProject, SIGNAL(triggered(bool)), this, SLOT(new_project()));
+    connect(ui->actionFull_Screen, SIGNAL(triggered(bool)), this, SLOT(toggle_full_screen()));
 }
 
 MainWindow::~MainWindow() {
-    panel_sequence_viewer->viewer_widget->delete_function();
-    panel_footage_viewer->viewer_widget->delete_function();
+	panel_effect_controls->clear_effects(true);
+	panel_sequence_viewer->viewer_widget->delete_function();
+	panel_footage_viewer->viewer_widget->delete_function();
 
 	set_sequence(NULL);
 
@@ -252,10 +258,15 @@ MainWindow::~MainWindow() {
 	delete ui;
 
     delete panel_sequence_viewer;
+    panel_sequence_viewer = NULL;
     delete panel_footage_viewer;
+    panel_footage_viewer = NULL;
     delete panel_project;
+    panel_project = NULL;
     delete panel_effect_controls;
+    panel_effect_controls = NULL;
 	delete panel_timeline;
+    panel_timeline = NULL;
 
 	close_debug();
 }
@@ -305,26 +316,33 @@ void MainWindow::on_actionSequence_triggered()
 	nsd.exec();
 }
 
-void MainWindow::on_actionZoom_In_triggered()
-{
-	if (panel_timeline->focused()) {
+void MainWindow::on_actionZoom_In_triggered() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_timeline) {
         panel_timeline->set_zoom(true);
-	} else if (panel_effect_controls->keyframe_focus()) {
+    } else if (focused_panel == panel_effect_controls) {
 		panel_effect_controls->set_zoom(true);
-	}
+    } else if (focused_panel == panel_footage_viewer) {
+        panel_footage_viewer->set_zoom(true);
+    } else if (focused_panel == panel_sequence_viewer) {
+        panel_sequence_viewer->set_zoom(true);
+    }
 }
 
-void MainWindow::on_actionZoom_out_triggered()
-{
-	if (panel_timeline->focused()) {
+void MainWindow::on_actionZoom_out_triggered() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_timeline) {
         panel_timeline->set_zoom(false);
-	} else if (panel_effect_controls->keyframe_focus()) {
+    } else if (focused_panel == panel_effect_controls) {
 		panel_effect_controls->set_zoom(false);
-	}
+    } else if (focused_panel == panel_footage_viewer) {
+        panel_footage_viewer->set_zoom(false);
+    } else if (focused_panel == panel_sequence_viewer) {
+        panel_sequence_viewer->set_zoom(false);
+    }
 }
 
-void MainWindow::on_actionExport_triggered()
-{
+void MainWindow::on_actionExport_triggered() {
     if (sequence == NULL) {
         QMessageBox::information(this, "No active sequence", "Please open the sequence you wish to export.", QMessageBox::Ok);
     } else {
@@ -386,9 +404,10 @@ void MainWindow::openSpeedDialog() {
 
 void MainWindow::cut() {
     if (sequence != NULL) {
-        if (panel_timeline->focused()) {
+        QDockWidget* focused_panel = get_focused_panel();
+        if (panel_timeline == focused_panel) {
             panel_timeline->copy(true);
-        } else if (panel_effect_controls->is_focused()) {
+        } else if (panel_effect_controls == focused_panel) {
             panel_effect_controls->copy(true);
         }
     }
@@ -396,22 +415,35 @@ void MainWindow::cut() {
 
 void MainWindow::copy() {
     if (sequence != NULL) {
-        if (panel_timeline->focused()) {
+        QDockWidget* focused_panel = get_focused_panel();
+        if (panel_timeline == focused_panel) {
             panel_timeline->copy(false);
-        } else if (panel_effect_controls->is_focused()) {
+        } else if (panel_effect_controls == focused_panel) {
             panel_effect_controls->copy(false);
         }
     }
 }
 
 void MainWindow::paste() {
-    if ((panel_timeline->focused() || panel_effect_controls->is_focused()) && sequence != NULL) {
+    QDockWidget* focused_panel = get_focused_panel();
+    if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != NULL) {
         panel_timeline->paste(false);
-	}
+    }
 }
 
-void MainWindow::on_actionSplit_at_Playhead_triggered()
-{
+void MainWindow::new_project() {
+    if (can_close_project()) {
+        panel_effect_controls->clear_effects(true);
+        undo_stack.clear();
+        project_url.clear();
+        panel_project->new_project();
+        updateTitle("");
+        update_ui(false);
+        panel_project->source_table->update();
+    }
+}
+
+void MainWindow::on_actionSplit_at_Playhead_triggered() {
     if (panel_timeline->focused()) {
         panel_timeline->split_at_playhead();
     }
@@ -505,18 +537,6 @@ void MainWindow::on_action_Open_Project_triggered()
     }
 }
 
-void MainWindow::on_actionProject_triggered()
-{
-    if (can_close_project()) {
-		panel_effect_controls->clear_effects(true);
-        undo_stack.clear();
-        project_url.clear();
-        panel_project->new_project();
-		updateTitle("");
-		update_ui(false);
-    }
-}
-
 void MainWindow::on_actionSave_Project_As_triggered()
 {
     save_project_as();
@@ -582,7 +602,7 @@ void MainWindow::on_actionEdit_Tool_triggered()
 
 void MainWindow::on_actionToggle_Snapping_triggered()
 {
-    if (panel_timeline->focused()) panel_timeline->ui->snappingButton->click();
+    if (panel_timeline->focused() || panel_effect_controls->keyframe_focus()) panel_timeline->ui->snappingButton->click();
 }
 
 void MainWindow::on_actionPointer_Tool_triggered()
@@ -661,6 +681,8 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
     ui->action4_3->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 4.0/3.0);
     ui->action16_9->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 16.0/9.0);
     ui->actionCustom->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && !ui->action4_3->isChecked() && !ui->action16_9->isChecked());
+
+    ui->actionFull_Screen->setChecked(windowState() == Qt::WindowFullScreen);
 }
 
 void MainWindow::on_actionFrames_triggered()
@@ -694,6 +716,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	ui->actionEnable_Seek_to_Import->setChecked(config.enable_seek_to_import);
     ui->actionAudio_Scrubbing->setChecked(config.enable_audio_scrubbing);
     ui->actionEnable_Drop_on_Media_to_Replace->setChecked(config.drop_on_media_to_replace);
+    ui->actionEnable_Hover_Focus->setChecked(config.hover_focus);
 
     ui->actionNo_autoscroll->setChecked(config.autoscroll == AUTOSCROLL_NO_SCROLL);
     ui->actionPage_Autoscroll->setChecked(config.autoscroll == AUTOSCROLL_PAGE_SCROLL);
@@ -806,6 +829,15 @@ void MainWindow::on_actionClear_In_Out_triggered() {
         panel_sequence_viewer->clear_inout_point();
     } else if (panel_footage_viewer->is_focused()) {
         panel_footage_viewer->clear_inout_point();
+    }
+}
+
+void MainWindow::toggle_full_screen() {
+    if (windowState() == Qt::WindowFullScreen) {
+        setWindowState(Qt::WindowNoState); // seems to be necessary for it to return to Maximized correctly on Linux
+        setWindowState(Qt::WindowMaximized);
+    } else {
+        setWindowState(Qt::WindowFullScreen);
     }
 }
 
@@ -977,12 +1009,11 @@ void MainWindow::on_actionNest_triggered() {
 			}
 
             // add sequence to project
-            panel_project->new_sequence(ca, s, false, NULL);
+            Media* m = panel_project->new_sequence(ca, s, false, NULL);
 
             // add nested sequence to active sequence
-            QVector<void*> media_list = {s};
-            QVector<int> type_list = {MEDIA_TYPE_SEQUENCE};
-            panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list, type_list);
+            QVector<Media*> media_list = {m};
+            panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
             panel_timeline->add_clips_from_ghosts(ca, sequence);
 
             undo_stack.push(ca);
@@ -1025,4 +1056,8 @@ void MainWindow::on_actionSmooth_Auto_scroll_triggered() {
 void MainWindow::on_actionMilliseconds_triggered() {
     config.timecode_view = TIMECODE_MILLISECONDS;
     update_ui(false);
+}
+
+void MainWindow::on_actionEnable_Hover_Focus_triggered() {
+    config.hover_focus = !config.hover_focus;
 }

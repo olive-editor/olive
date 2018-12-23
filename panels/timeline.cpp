@@ -14,10 +14,11 @@
 #include "playback/playback.h"
 #include "ui_viewer.h"
 #include "project/undo.h"
+#include "project/media.h"
 #include "io/config.h"
 #include "project/effect.h"
 #include "project/transition.h"
-#include "io/media.h"
+#include "project/footage.h"
 #include "io/clipboard.h"
 #include "debug.h"
 
@@ -30,6 +31,7 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QCheckBox>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
 	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
@@ -160,23 +162,24 @@ void Timeline::toggle_show_all() {
 	}
 }
 
-void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<void*>& media_list, QVector<int>& type_list) {
+void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<Media*>& media_list) {
 	video_ghosts = false;
 	audio_ghosts = false;
 
 	for (int i=0;i<media_list.size();i++) {
 		bool can_import = true;
 
-		Media* m = NULL;
-		Sequence* s = NULL;
-		void* media = NULL;
+        Media* medium = media_list.at(i);
+		Footage* m = NULL;
+        Sequence* s = NULL;
+        void* media = NULL;
 		long sequence_length;
 		long default_clip_in = 0;
 		long default_clip_out = 0;
 
-		switch (type_list.at(i)) {
+        switch (medium->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
-			m = static_cast<Media*>(media_list.at(i));
+            m = medium->to_footage();
 			media = m;
 			can_import = m->ready;
 			if (m->using_inout) {
@@ -187,7 +190,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			}
 			break;
 		case MEDIA_TYPE_SEQUENCE:
-			s = static_cast<Sequence*>(media_list.at(i));
+            s = medium->to_sequence();
 			sequence_length = s->getEndFrame();
 			if (seq != NULL) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, seq->frame_rate);
 			media = s;
@@ -203,15 +206,14 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 
 		if (can_import) {
 			Ghost g;
-			g.clip = -1;
-			g.media_type = type_list.at(i);
+            g.clip = -1;
 			g.trimming = false;
 			g.old_clip_in = g.clip_in = default_clip_in;
-			g.media = media;
+            g.media = medium;
 			g.in = entry_point;
 			g.transition = NULL;
 
-			switch (type_list.at(i)) {
+            switch (medium->get_type()) {
 			case MEDIA_TYPE_FOOTAGE:
 				// is video source a still image?
 				if (m->video_tracks.size() > 0 && m->video_tracks[0]->infinite_length && m->audio_tracks.size() == 0) {
@@ -274,15 +276,14 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 		earliest_point = qMin(earliest_point, g.in);
 
 		Clip* c = new Clip(s);
-		c->media = g.media;
-		c->media_type = g.media_type;
+        c->media = g.media;
 		c->media_stream = g.media_stream;
 		c->timeline_in = g.in;
 		c->timeline_out = g.out;
 		c->clip_in = g.clip_in;
 		c->track = g.track;
-		if (c->media_type == MEDIA_TYPE_FOOTAGE) {
-			Media* m = static_cast<Media*>(c->media);
+        if (c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+            Footage* m = c->media->to_footage();
 			if (m->video_tracks.size() == 0) {
 				// audio only (greenish)
 				c->color_r = 128;
@@ -300,13 +301,13 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 				c->color_b = 192;
 			}
 			c->name = m->name;
-		} else if (c->media_type == MEDIA_TYPE_SEQUENCE) {
+        } else if (c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 			// sequence (red?ish?)
 			c->color_r = 192;
 			c->color_g = 128;
 			c->color_b = 128;
 
-			Sequence* media = static_cast<Sequence*>(c->media);
+            Sequence* media = c->media->to_sequence();
 			c->name = media->name;
 		}
 		c->recalculateMaxLength();
@@ -417,16 +418,6 @@ bool Timeline::focused() {
 	return (sequence != NULL && (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus()));
 }
 
-bool Timeline::center_scroll_to_playhead() {
-    // returns true is the scroll was changed, false if not
-    int target_scroll = qMin(ui->horizontalScrollBar->maximum(), qMax(0, getScreenPointFromFrame(zoom, sequence->playhead)-(ui->editAreas->width()>>1)));
-    if (target_scroll == ui->horizontalScrollBar->value()) {
-        return false;
-    }
-    ui->horizontalScrollBar->setValue(target_scroll);
-    return true;
-}
-
 void Timeline::repaint_timeline() {
     bool draw = true;
 
@@ -442,7 +433,7 @@ void Timeline::repaint_timeline() {
                 draw = false;
             }
         } else if (config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
-            if (center_scroll_to_playhead()) {
+            if (center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead)) {
                 draw = false;
             }
         }
@@ -458,7 +449,7 @@ void Timeline::repaint_timeline() {
         if (sequence != NULL) {
             long sequenceEndFrame = sequence->getEndFrame();
 
-            ui->horizontalScrollBar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequenceEndFrame) - (ui->editAreas->width()/2)));
+            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, (ui->editAreas->width()/2));
 
             if (last_frame != sequence->playhead) {
                 ui->audio_monitor->update();
@@ -579,7 +570,7 @@ void Timeline::set_zoom_value(double v) {
     repaint_timeline();
 
     // TODO find a way to gradually move towards target_scroll instead of just centering it?
-    center_scroll_to_playhead();
+    center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
 }
 
 void Timeline::set_zoom(bool in) {
@@ -975,14 +966,65 @@ void Timeline::paste(bool insert) {
         } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
             ComboAction* ca = new ComboAction();
             bool push = false;
+
+            bool replace = false;
+            bool skip = false;
+            bool ask_conflict = true;
+
             for (int i=0;i<sequence->clips.size();i++) {
                 Clip* c = sequence->clips.at(i);
                 if (c != NULL && is_clip_selected(c, true)) {
                     for (int j=0;j<clipboard.size();j++) {
                         Effect* e = static_cast<Effect*>(clipboard.at(j));
                         if ((c->track < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
-                            ca->append(new AddEffectCommand(c, e->copy(c), NULL));
-                            push = true;
+                            int found = -1;
+                            if (ask_conflict) {
+                                replace = false;
+                                skip = false;
+                            }
+                            for (int k=0;k<c->effects.size();k++) {
+                                if (c->effects.at(k)->meta == e->meta) {
+                                    found = k;
+                                    break;
+                                }
+                            }
+                            if (found >= 0 && ask_conflict) {
+                                QMessageBox box(this);
+                                box.setWindowTitle("Effect already exists");
+                                box.setText("Clip '" + c->name + "' already contains a '" + e->meta->name + "' effect. Would you like to replace it with the pasted one or add it as a separate effect?");
+                                box.setIcon(QMessageBox::Icon::Question);
+
+                                box.addButton("Add", QMessageBox::YesRole);
+                                QPushButton* replace_button = box.addButton("Replace", QMessageBox::NoRole);
+                                QPushButton* skip_button = box.addButton("Skip", QMessageBox::RejectRole);
+
+                                QCheckBox* future_box = new QCheckBox("Do this for all conflicts found");
+                                box.setCheckBox(future_box);
+
+                                box.exec();
+
+                                if (box.clickedButton() == replace_button) {
+                                    replace = true;
+                                } else if (box.clickedButton() == skip_button) {
+                                    skip = true;
+                                }
+                                ask_conflict = !future_box->isChecked();
+                            }
+
+                            if (found >= 0 && skip) {
+                                // do nothing
+                            } else if (found >= 0 && replace) {
+                                EffectDeleteCommand* delcom = new EffectDeleteCommand();
+                                delcom->clips.append(c);
+                                delcom->fx.append(found);
+                                ca->append(delcom);
+
+                                ca->append(new AddEffectCommand(c, e->copy(c), NULL, found));
+                                push = true;
+                            } else {
+                                ca->append(new AddEffectCommand(c, e->copy(c), NULL));
+                                push = true;
+                            }
                         }
                     }
                 }
