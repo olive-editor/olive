@@ -647,6 +647,9 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
                             widget_height *= scale;
                         }
 
+                        widget_width *= QApplication::desktop()->devicePixelRatio();
+                        widget_height *= QApplication::desktop()->devicePixelRatio();
+
                         glViewport(0, 0, widget_width, widget_height);
 					}
 
