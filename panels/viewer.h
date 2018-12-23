@@ -84,6 +84,7 @@ private slots:
 	void timer_update();
 	void recording_flasher_update();
     void zoom_update(int i);
+    void resized_scroll_listener(double d);
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
@@ -92,6 +93,7 @@ private:
     long cached_end_frame;
     QString panel_name;
     double minimum_zoom;
+    void set_zoom_value(double d);
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;

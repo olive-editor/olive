@@ -223,6 +223,8 @@ private slots:
 
 	void transition_menu_select(QAction*);
 
+    void resized_scroll_listener(double z);
+
 private:
 	void set_zoom_value(double v);
 	QVector<QPushButton*> tool_buttons;

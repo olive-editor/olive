@@ -1003,7 +1003,7 @@ void Project::save_recent_projects() {
 
 void Project::clear_recent_projects() {
     recent_projects.clear();
-	save_recent_projects();
+    save_recent_projects();
 }
 
 void Project::add_recent_project(QString url) {

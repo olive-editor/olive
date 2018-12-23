@@ -30,6 +30,7 @@ public slots:
 	void set_scroll(int);
 	void set_visible_in(long i);
     void show_context_menu(const QPoint &pos);
+    void resized_scroll_listener(double d);
 
 protected:
 	void paintEvent(QPaintEvent*);

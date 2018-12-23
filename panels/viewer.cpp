@@ -65,6 +65,7 @@ Viewer::Viewer(QWidget *parent) :
 	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(resized_scroll(double)), this, SLOT(resized_scroll_listener(double)));
     connect(ui->zoomComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(zoom_update(int)));
 
     update_playhead_timecode(0);
@@ -419,18 +420,18 @@ void Viewer::set_out_point() {
 
 void Viewer::set_zoom(bool in) {
     if (seq != NULL) {
-        if (in) {
-            ui->headers->update_zoom(ui->headers->get_zoom()*2);
-        } else {
-            ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
-        }
-        if (viewer_widget->waveform) {
-            viewer_widget->waveform_zoom = ui->headers->get_zoom();
-            viewer_widget->update();
-        }
-        ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
-        center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
+        set_zoom_value(in ? ui->headers->get_zoom()*2 : qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
     }
+}
+
+void Viewer::set_zoom_value(double d) {
+    ui->headers->update_zoom(d);
+    if (viewer_widget->waveform) {
+        viewer_widget->waveform_zoom = d;
+        viewer_widget->update();
+    }
+    ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
+    center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
 }
 
 void Viewer::set_media(Media* m) {
@@ -570,6 +571,10 @@ void Viewer::zoom_update(int i) {
         ui->glViewerPane->zoom = pc.toDouble()*0.01;
     }
     ui->glViewerPane->adjust();
+}
+
+void Viewer::resized_scroll_listener(double d) {
+    set_zoom_value(ui->headers->get_zoom()*d);
 }
 
 void Viewer::clean_created_seq() {

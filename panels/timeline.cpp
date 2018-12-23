@@ -108,6 +108,7 @@ Timeline::Timeline(QWidget *parent) :
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
 	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(resized_scroll(double)), this, SLOT(resized_scroll_listener(double)));
 
 	update_sequence();
 }
@@ -423,6 +424,7 @@ void Timeline::repaint_timeline() {
 
     if (sequence != NULL
             && !ui->horizontalScrollBar->isSliderDown()
+            && !ui->horizontalScrollBar->is_resizing()
             && panel_sequence_viewer->playing
             && !zoom_just_changed) {
         // auto scroll
@@ -570,7 +572,8 @@ void Timeline::set_zoom_value(double v) {
     repaint_timeline();
 
     // TODO find a way to gradually move towards target_scroll instead of just centering it?
-    center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
+    if (!ui->horizontalScrollBar->is_resizing())
+        center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
 }
 
 void Timeline::set_zoom(bool in) {
@@ -1571,6 +1574,10 @@ void Timeline::transition_menu_select(QAction* a) {
 	ui->timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
     ui->toolTransitionButton->setChecked(true);
+}
+
+void Timeline::resized_scroll_listener(double z) {
+    set_zoom_value(zoom * z);
 }
 
 void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions) {
