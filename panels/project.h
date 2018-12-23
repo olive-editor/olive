@@ -20,6 +20,7 @@ class QXmlStreamReader;
 class QFile;
 class QSortFilterProxyModel;
 class ComboAction;
+class QListView;
 
 #define LOAD_TYPE_VERSION 69
 #define LOAD_TYPE_URL 70
@@ -40,10 +41,8 @@ Sequence* create_sequence_from_media(QVector<Media *> &media_list);
 QString get_channel_layout_name(int channels, uint64_t layout);
 QString get_interlacing_name(int interlacing);
 
-class Project : public QDockWidget
-{
+class Project : public QDockWidget {
 	Q_OBJECT
-
 public:
 	explicit Project(QWidget *parent = 0);
 	~Project();
@@ -68,7 +67,9 @@ public:
 
     QVector<Media*> list_all_project_sequences();
 
-	SourceTable* source_table;
+    SourceTable* tree_view;
+    QListView* icon_view;
+
     QSortFilterProxyModel* sorter;
 
     QVector<Media*> last_imported_media;
@@ -94,6 +95,9 @@ private:
 	QString get_file_name_from_path(const QString &path);
     QDir proj_dir;
 private slots:
+    void update_view_type();
+    void set_icon_view();
+    void set_tree_view();
 	void clear_recent_projects();
 };
 

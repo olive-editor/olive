@@ -439,7 +439,7 @@ void MainWindow::new_project() {
         panel_project->new_project();
         updateTitle("");
         update_ui(false);
-        panel_project->source_table->update();
+        panel_project->tree_view->update();
     }
 }
 

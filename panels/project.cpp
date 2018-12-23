@@ -70,26 +70,40 @@ Project::Project(QWidget *parent) :
 	QWidget* dockWidgetContents = new QWidget();
 	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
 	verticalLayout->setContentsMargins(0, 0, 0, 0);
+    verticalLayout->setSpacing(0);
 
 	setWidget(dockWidgetContents);
 
-	source_table = new SourceTable(dockWidgetContents);
-    source_table->project_parent = this;
-	source_table->setAcceptDrops(true);
-	source_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	source_table->setDragDropMode(QAbstractItemView::DragDrop);
-	source_table->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	verticalLayout->addWidget(source_table);
-	//setWidget(source_table);
-
-	//layout->addWidget(source_table);
-
     sorter = new QSortFilterProxyModel(this);
     sorter->setSourceModel(&project_model);
-    source_table->setModel(sorter);
+
+    tree_view = new SourceTable(dockWidgetContents);
+    tree_view->project_parent = this;
+    tree_view->setAcceptDrops(true);
+    tree_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tree_view->setDragDropMode(QAbstractItemView::DragDrop);
+    tree_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tree_view->setModel(sorter);
+    verticalLayout->addWidget(tree_view);
+
+    icon_view = new QListView(dockWidgetContents);
+    icon_view->setModel(sorter);
+    icon_view->setIconSize(QSize(100, 100));
+    icon_view->setViewMode(QListView::IconMode);
+    icon_view->setUniformItemSizes(true);
+    verticalLayout->addWidget(icon_view);
+
+    QPushButton* tree_view_button = new QPushButton("Tree View");
+    verticalLayout->addWidget(tree_view_button);
+    connect(tree_view_button, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
+    QPushButton* icon_view_button = new QPushButton("Icon View");
+    verticalLayout->addWidget(icon_view_button);
+    connect(icon_view_button, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
 
 	//retranslateUi(Project);
 	setWindowTitle(QApplication::translate("Project", "Project", nullptr));
+
+    update_view_type();
 }
 
 Project::~Project() {
@@ -189,7 +203,7 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 }
 
 void Project::duplicate_selected() {
-    QModelIndexList items = source_table->selectionModel()->selectedRows();
+    QModelIndexList items = tree_view->selectionModel()->selectedRows();
     bool duped = false;
     ComboAction* ca = new ComboAction();
     for (int j=0;j<items.size();j++) {
@@ -207,7 +221,7 @@ void Project::duplicate_selected() {
 }
 
 void Project::replace_selected_file() {
-    QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
+    QModelIndexList selected_items = tree_view->selectionModel()->selectedRows();
 	if (selected_items.size() == 1) {
         Media* item = item_to_media(selected_items.at(0));
         if (item->get_type() == MEDIA_TYPE_FOOTAGE) {
@@ -230,13 +244,13 @@ void Project::replace_clip_media() {
 	if (sequence == NULL) {
 		QMessageBox::critical(this, "No active sequence", "No sequence is active, please open the sequence you want to replace clips from.", QMessageBox::Ok);
     } else {
-        QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
+        QModelIndexList selected_items = tree_view->selectionModel()->selectedRows();
         if (selected_items.size() == 1) {
             Media* item = item_to_media(selected_items.at(0));
             if (item->get_type() == MEDIA_TYPE_SEQUENCE && sequence == item->to_sequence()) {
                 QMessageBox::critical(this, "Active sequence selected", "You cannot insert a sequence into itself, so no clips of this media would be in this sequence.", QMessageBox::Ok);
             } else {
-                ReplaceClipMediaDialog dialog(this, source_table, item);
+                ReplaceClipMediaDialog dialog(this, tree_view, item);
                 dialog.exec();
             }
         }
@@ -244,7 +258,7 @@ void Project::replace_clip_media() {
 }
 
 void Project::open_properties() {
-    QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
+    QModelIndexList selected_items = tree_view->selectionModel()->selectedRows();
     if (selected_items.size() == 1) {
         Media* item = item_to_media(selected_items.at(0));
         switch (item->get_type()) {
@@ -302,7 +316,7 @@ QString Project::get_file_name_from_path(const QString& path) {
 }*/
 
 bool Project::is_focused() {
-    return source_table->hasFocus();
+    return tree_view->hasFocus();
 }
 
 Media* Project::new_folder(QString name) {
@@ -347,7 +361,7 @@ bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
 
 void Project::delete_selected_media() {
     ComboAction* ca = new ComboAction();
-    QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
+    QModelIndexList selected_items = tree_view->selectionModel()->selectedRows();
     QList<Media*> items;
     for (int i=0;i<selected_items.size();i++) {
         items.append(item_to_media(selected_items.at(i)));
@@ -356,8 +370,8 @@ void Project::delete_selected_media() {
     bool redraw = false;
 
     // correctly sort (fixes qt bug - see AddMediaCommand::redo() for info)
-    source_table->setSortingEnabled(false);
-    source_table->setSortingEnabled(true);
+    tree_view->setSortingEnabled(false);
+    tree_view->setSortingEnabled(true);
 
     // check if media is in use
     QVector<Media*> parents;
@@ -666,7 +680,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
 Media* Project::get_selected_folder() {
 	// if one item is selected and it's a folder, return it
-    QModelIndexList selected_items = source_table->selectionModel()->selectedRows();
+    QModelIndexList selected_items = tree_view->selectionModel()->selectedRows();
     if (selected_items.size() == 1) {
         Media* m = item_to_media(selected_items.at(0));
         if (m->get_type() == MEDIA_TYPE_FOLDER) return m;
@@ -685,12 +699,12 @@ bool Project::reveal_media(void *media, QModelIndex parent) {
 			// expand all folders leading to this media
             QModelIndex hierarchy = item.parent();
             while (hierarchy.isValid()) {
-                source_table->setExpanded(hierarchy, true);
+                tree_view->setExpanded(hierarchy, true);
                 hierarchy = hierarchy.parent();
 			}
 
             // select item
-            source_table->selectionModel()->select(item, QItemSelectionModel::Select);
+            tree_view->selectionModel()->select(item, QItemSelectionModel::Select);
 
 			return true;
 		}
@@ -715,7 +729,7 @@ void Project::delete_clips_using_selected_media() {
 	} else {
         ComboAction* ca = new ComboAction();
 		bool deleted = false;
-        QModelIndexList items = source_table->selectionModel()->selectedRows();
+        QModelIndexList items = tree_view->selectionModel()->selectedRows();
         for (int i=0;i<sequence->clips.size();i++) {
             Clip* c = sequence->clips.at(i);
 			if (c != NULL) {
@@ -984,6 +998,21 @@ void Project::save_project(bool autorecovery) {
     }
 }
 
+void Project::update_view_type() {
+    tree_view->setVisible(config.project_view_type == PROJECT_VIEW_TREE);
+    icon_view->setVisible(config.project_view_type == PROJECT_VIEW_ICON);
+}
+
+void Project::set_icon_view() {
+    config.project_view_type = PROJECT_VIEW_ICON;
+    update_view_type();
+}
+
+void Project::set_tree_view() {
+    config.project_view_type = PROJECT_VIEW_TREE;
+    update_view_type();
+}
+
 void Project::save_recent_projects() {
     // save to file
     QFile f(recent_proj_file);
@@ -1094,7 +1123,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
     // redraw clips
 	update_ui(replace);
 
-    panel_project->source_table->viewport()->update();
+    panel_project->tree_view->viewport()->update();
     item->throbber = NULL;
     deleteLater();
 }

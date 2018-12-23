@@ -265,8 +265,8 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     QVector<Media*> media_list;
 	panel_timeline->importing_files = false;
 
-	if (event->source() == panel_project->source_table) {
-        QModelIndexList items = panel_project->source_table->selectionModel()->selectedRows();
+    if (event->source() == panel_project->tree_view) {
+        QModelIndexList items = panel_project->tree_view->selectionModel()->selectedRows();
         media_list.resize(items.size());
         for (int i=0;i<items.size();i++) {
             media_list[i] = panel_project->item_to_media(items.at(i));

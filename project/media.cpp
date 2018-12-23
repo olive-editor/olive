@@ -253,6 +253,15 @@ QVariant Media::data(int column, int role) {
     switch (role) {
     case Qt::DecorationRole:
         if (column == 0) {
+            if (config.project_view_type == PROJECT_VIEW_ICON
+                    && get_type() == MEDIA_TYPE_FOOTAGE) {
+                Footage* f = to_footage();
+                if (f->video_tracks.size() > 0
+                        && f->video_tracks.at(0)->preview_done) {
+                    return QIcon(QPixmap::fromImage(f->video_tracks.at(0)->video_preview));
+                }
+            }
+
             return icon;
         }
         break;

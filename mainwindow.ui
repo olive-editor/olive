@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>653</width>
-     <height>25</height>
+     <height>16</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -147,6 +147,7 @@
     <addaction name="actionMilliseconds"/>
     <addaction name="separator"/>
     <addaction name="menuTitle_Action_Safe_Area"/>
+    <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionFull_Screen"/>
    </widget>

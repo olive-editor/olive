@@ -12,7 +12,7 @@ class SourceTable : public QTreeView
 {
     Q_OBJECT
 public:
-	SourceTable(QWidget* parent = 0);
+    SourceTable(QWidget* parent = 0);
     Project* project_parent;
 protected:
     void mousePressEvent(QMouseEvent*);
