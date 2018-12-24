@@ -10,6 +10,7 @@
 #include "panels/timeline.h"
 #include "project/footage.h"
 #include "ui/sourcetable.h"
+#include "ui/sourceiconview.h"
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "project/undo.h"
@@ -265,8 +266,10 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     QVector<Media*> media_list;
 	panel_timeline->importing_files = false;
 
-    if (event->source() == panel_project->tree_view) {
-        QModelIndexList items = panel_project->tree_view->selectionModel()->selectedRows();
+    if (event->source() == panel_project->tree_view || event->source() == panel_project->icon_view) {
+        QModelIndexList items = (event->source() == panel_project->tree_view)
+                ? panel_project->tree_view->selectionModel()->selectedRows()
+                : panel_project->icon_view->selectionModel()->selectedIndexes();
         media_list.resize(items.size());
         for (int i=0;i<items.size();i++) {
             media_list[i] = panel_project->item_to_media(items.at(i));
