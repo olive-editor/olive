@@ -726,23 +726,25 @@ Media* Project::get_selected_folder() {
     return NULL;
 }
 
-bool Project::reveal_media(void *media, QModelIndex parent) {
+bool Project::reveal_media(Media *media, QModelIndex parent) {
     for (int i=0;i<project_model.rowCount(parent);i++) {
         const QModelIndex& item = project_model.index(i, 0, parent);
         Media* m = project_model.getItem(item);
 
         if (m->get_type() == MEDIA_TYPE_FOLDER) {
 			if (reveal_media(media, item)) return true;
-        } else if (m->to_object() == media) {
+        } else if (m == media) {
 			// expand all folders leading to this media
-            QModelIndex hierarchy = item.parent();
+            QModelIndex sorted_index = sorter->mapFromSource(item);
+
+            QModelIndex hierarchy = sorted_index.parent();
             while (hierarchy.isValid()) {
                 tree_view->setExpanded(hierarchy, true);
                 hierarchy = hierarchy.parent();
 			}
 
             // select item
-            tree_view->selectionModel()->select(item, QItemSelectionModel::Select);
+            tree_view->selectionModel()->select(sorted_index, QItemSelectionModel::Select);
 
 			return true;
 		}
@@ -1075,11 +1077,9 @@ void Project::clear_recent_projects() {
 
 void Project::set_icon_view_size(int s) {
     icon_view->setIconSize(QSize(s, s));
-    //    icon_view->setGridSize(QSize(s, s));
 }
 
 void Project::set_up_dir_enabled() {
-    dout << icon_view->rootIndex().isValid();
     directory_up->setEnabled(icon_view->rootIndex().isValid());
 }
 

@@ -54,7 +54,7 @@ public:
     void process_file_list(QStringList& files, bool recursive = false, Media* replace = NULL, Media *parent = NULL);
     void replace_media(Media* item, QString filename);
     Media *get_selected_folder();
-    bool reveal_media(void* media, QModelIndex parent = QModelIndex());
+    bool reveal_media(Media *media, QModelIndex parent = QModelIndex());
     void add_recent_project(QString url);
 
     void new_project();
