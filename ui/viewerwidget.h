@@ -70,6 +70,10 @@ private slots:
 	void show_context_menu();
 	void save_frame();
     void show_fullscreen();
+
+    void set_fit_zoom();
+    void set_custom_zoom();
+    void set_menu_zoom(QAction *action);
 };
 
 #endif // VIEWERWIDGET_H

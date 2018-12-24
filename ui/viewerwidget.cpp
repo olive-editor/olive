@@ -35,6 +35,7 @@
 #include <QFileDialog>
 #include <QPolygon>
 #include <QDesktopWidget>
+#include <QInputDialog>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -91,6 +92,22 @@ void ViewerWidget::show_context_menu() {
     QAction* show_fullscreen_action = menu.addAction("Show Fullscreen");
     connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));
 
+    QMenu zoom_menu("Zoom");
+    QAction* fit_zoom = zoom_menu.addAction("Fit");
+    connect(fit_zoom, SIGNAL(triggered(bool)), this, SLOT(set_fit_zoom()));
+    zoom_menu.addAction("10%")->setData(0.1);
+    zoom_menu.addAction("25%")->setData(0.25);
+    zoom_menu.addAction("50%")->setData(0.5);
+    zoom_menu.addAction("75%")->setData(0.75);
+    zoom_menu.addAction("100%")->setData(1.0);
+    zoom_menu.addAction("150%")->setData(1.5);
+    zoom_menu.addAction("200%")->setData(2.0);
+    zoom_menu.addAction("400%")->setData(4.0);
+    QAction* custom_zoom = zoom_menu.addAction("Custom");
+    connect(custom_zoom, SIGNAL(triggered(bool)), this, SLOT(set_custom_zoom()));
+    connect(&zoom_menu, SIGNAL(triggered(QAction*)), this, SLOT(set_menu_zoom(QAction*)));
+    menu.addMenu(&zoom_menu);
+
 	menu.exec(QCursor::pos());
 }
 
@@ -128,6 +145,30 @@ void ViewerWidget::save_frame() {
 
 void ViewerWidget::show_fullscreen() {
     showFullScreen();
+}
+
+void ViewerWidget::set_fit_zoom() {
+    container->fit = true;
+    container->adjust();
+}
+
+void ViewerWidget::set_custom_zoom() {
+    bool ok;
+    double d = QInputDialog::getDouble(this, "Viewer Zoom", "Set Custom Zoom Value:", container->zoom*100, 0, 2147483647, 2, &ok);
+    if (ok) {
+        container->fit = false;
+        container->zoom = d*0.01;
+        container->adjust();
+    }
+}
+
+void ViewerWidget::set_menu_zoom(QAction* action) {
+    const QVariant& data = action->data();
+    if (!data.isNull()) {
+        container->fit = false;
+        container->zoom = data.toDouble();
+        container->adjust();
+    }
 }
 
 void ViewerWidget::retry() {
