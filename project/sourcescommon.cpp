@@ -15,6 +15,7 @@
 #include <QAbstractItemView>
 #include <QMimeData>
 #include <QMessageBox>
+#include <QDesktopServices>
 
 SourcesCommon::SourcesCommon(Project* parent) :
     project_parent(parent),
