@@ -24,6 +24,7 @@
 #include "project/media.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
+#include "project/sourcescommon.h"
 #include "debug.h"
 
 #include <QApplication>
@@ -73,6 +74,8 @@ Project::Project(QWidget *parent) :
     verticalLayout->setSpacing(0);
 
 	setWidget(dockWidgetContents);
+
+    sources_common = new SourcesCommon(this);
 
     sorter = new QSortFilterProxyModel(this);
     sorter->setSourceModel(&project_model);
@@ -127,13 +130,6 @@ Project::Project(QWidget *parent) :
     icon_size_slider->setValue(icon_view->iconSize().height());
 
     verticalLayout->addWidget(icon_view_container);
-
-    QPushButton* tree_view_button = new QPushButton("Tree View");
-    verticalLayout->addWidget(tree_view_button);
-    connect(tree_view_button, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
-    QPushButton* icon_view_button = new QPushButton("Icon View");
-    verticalLayout->addWidget(icon_view_button);
-    connect(icon_view_button, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
 
     connect(directory_up, SIGNAL(clicked(bool)), this, SLOT(go_up_dir()));
     connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
@@ -1041,6 +1037,15 @@ void Project::save_project(bool autorecovery) {
 void Project::update_view_type() {
     tree_view->setVisible(config.project_view_type == PROJECT_VIEW_TREE);
     icon_view_container->setVisible(config.project_view_type == PROJECT_VIEW_ICON);
+
+    switch (config.project_view_type) {
+    case PROJECT_VIEW_TREE:
+        sources_common->view = tree_view;
+        break;
+    case PROJECT_VIEW_ICON:
+        sources_common->view = icon_view;
+        break;
+    }
 }
 
 void Project::set_icon_view() {

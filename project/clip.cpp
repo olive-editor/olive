@@ -109,7 +109,12 @@ void Clip::refresh() {
 	// validates media if it was replaced
     if (replaced && media != NULL && media->get_type() == MEDIA_TYPE_FOOTAGE) {
         Footage* m = media->to_footage();
-		media_stream = (track < 0) ? m->video_tracks.at(0)->file_index : m->audio_tracks.at(0)->file_index;
+
+        if (track < 0 && m->video_tracks.size() > 0)  {
+            media_stream = m->video_tracks.at(0)->file_index;
+        } else if (track >= 0 && m->audio_tracks.size() > 0) {
+            media_stream = m->audio_tracks.at(0)->file_index;
+        }
 	}
 	replaced = false;
 

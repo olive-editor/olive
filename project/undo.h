@@ -302,14 +302,13 @@ private:
 
 class MediaMove : public QUndoCommand {
 public:
-	MediaMove(SourceTable* s);
+    MediaMove();
     QVector<Media*> items;
     Media* to;
 	void undo();
 	void redo();
 private:
     QVector<Media*> froms;
-	SourceTable* table;
 	bool old_project_changed;
 };
 

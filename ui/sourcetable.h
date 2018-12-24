@@ -16,22 +16,13 @@ public:
     Project* project_parent;
 protected:
     void mousePressEvent(QMouseEvent*);
-    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *);
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dropEvent(QDropEvent *event);
-private:
-    QTimer rename_timer;
-    Media* editing_item;
-    QModelIndex editing_index;
 private slots:
-    void rename_interval();
     void item_click(const QModelIndex& index);
-    void stop_rename_timer();
-    void item_renamed(Media *item);
-	void show_context_menu();
-	void create_seq_from_selected();
-	void reveal_in_browser();
+    void show_context_menu();
 };
 
 #endif // SOURCETABLE_H

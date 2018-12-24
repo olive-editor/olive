@@ -22,6 +22,7 @@ class QSortFilterProxyModel;
 class ComboAction;
 class SourceIconView;
 class QPushButton;
+class SourcesCommon;
 
 #define LOAD_TYPE_VERSION 69
 #define LOAD_TYPE_URL 70
@@ -70,6 +71,7 @@ public:
 
     SourceTable* tree_view;
     SourceIconView* icon_view;
+    SourcesCommon* sources_common;
 
     QSortFilterProxyModel* sorter;
 

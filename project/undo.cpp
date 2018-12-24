@@ -592,6 +592,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
 	// replace media
 	QStringList files;
 	files.append(filename);
+    item->to_footage()->ready_lock.lock();
     panel_project->process_file_list(files, false, item, NULL);
 }
 
@@ -694,7 +695,7 @@ void EffectDeleteCommand::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-MediaMove::MediaMove(SourceTable *s) : table(s), old_project_changed(mainWindow->isWindowModified()) {}
+MediaMove::MediaMove() : old_project_changed(mainWindow->isWindowModified()) {}
 
 void MediaMove::undo() {
 	for (int i=0;i<items.size();i++) {
