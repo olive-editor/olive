@@ -256,7 +256,7 @@ void PreviewGenerator::generate_waveform() {
 					if (!s->preview_done) {
 						int dstH = 120;
 						int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
-						uint8_t* data = new uint8_t[dstW*dstH*3];
+                        uint8_t* data = new uint8_t[dstW*dstH*4];
 
 						sws_ctx = sws_getContext(
 								temp_frame->width,
@@ -272,7 +272,7 @@ void PreviewGenerator::generate_waveform() {
 							);
 
 						int linesize[AV_NUM_DATA_POINTERS];
-						linesize[0] = dstW*3;
+                        linesize[0] = dstW*4;
 						sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
                         s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGBA8888);
