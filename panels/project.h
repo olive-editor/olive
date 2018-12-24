@@ -20,7 +20,8 @@ class QXmlStreamReader;
 class QFile;
 class QSortFilterProxyModel;
 class ComboAction;
-class QListView;
+class SourceIconView;
+class QPushButton;
 
 #define LOAD_TYPE_VERSION 69
 #define LOAD_TYPE_URL 70
@@ -68,7 +69,7 @@ public:
     QVector<Media*> list_all_project_sequences();
 
     SourceTable* tree_view;
-    QListView* icon_view;
+    SourceIconView* icon_view;
 
     QSortFilterProxyModel* sorter;
 
@@ -94,11 +95,16 @@ private:
     void list_all_sequences_worker(QVector<Media *> *list, Media* parent);
 	QString get_file_name_from_path(const QString &path);
     QDir proj_dir;
+    QWidget* icon_view_container;
+    QPushButton* directory_up;
 private slots:
     void update_view_type();
     void set_icon_view();
     void set_tree_view();
 	void clear_recent_projects();
+    void set_icon_view_size(int);
+    void set_up_dir_enabled();
+    void go_up_dir();
 };
 
 class MediaThrobber : public QObject {

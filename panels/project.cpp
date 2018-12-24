@@ -23,6 +23,7 @@
 #include "io/clipboard.h"
 #include "project/media.h"
 #include "ui/sourcetable.h"
+#include "ui/sourceiconview.h"
 #include "debug.h"
 
 #include <QApplication>
@@ -38,7 +39,6 @@
 #include <QSortFilterProxyModel>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QListView>
 #include <QSizePolicy>
 #include <QVBoxLayout>
 
@@ -86,12 +86,47 @@ Project::Project(QWidget *parent) :
     tree_view->setModel(sorter);
     verticalLayout->addWidget(tree_view);
 
-    icon_view = new QListView(dockWidgetContents);
+    icon_view_container = new QWidget();
+
+    QVBoxLayout* icon_view_container_layout = new QVBoxLayout();
+    icon_view_container_layout->setMargin(0);
+    icon_view_container_layout->setSpacing(0);
+    icon_view_container->setLayout(icon_view_container_layout);
+
+    QHBoxLayout* icon_view_controls = new QHBoxLayout();
+    icon_view_controls->setMargin(0);
+    icon_view_controls->setSpacing(0);
+
+    QIcon directory_up_button;
+    directory_up_button.addFile(":/icons/dirup.png", QSize(), QIcon::Normal);
+    directory_up_button.addFile(":/icons/dirup-disabled.png", QSize(), QIcon::Disabled);
+
+    directory_up = new QPushButton();
+    directory_up->setIcon(directory_up_button);
+    directory_up->setEnabled(false);
+    icon_view_controls->addWidget(directory_up);
+
+    icon_view_controls->addStretch();
+
+    QSlider* icon_size_slider = new QSlider(Qt::Horizontal);
+    icon_size_slider->setMinimum(16);
+    icon_size_slider->setMaximum(120);
+    icon_view_controls->addWidget(icon_size_slider);
+    connect(icon_size_slider, SIGNAL(valueChanged(int)), this, SLOT(set_icon_view_size(int)));
+
+    icon_view_container_layout->addLayout(icon_view_controls);
+
+    icon_view = new SourceIconView(dockWidgetContents);
+    icon_view->project_parent = this;
     icon_view->setModel(sorter);
     icon_view->setIconSize(QSize(100, 100));
     icon_view->setViewMode(QListView::IconMode);
     icon_view->setUniformItemSizes(true);
-    verticalLayout->addWidget(icon_view);
+    icon_view_container_layout->addWidget(icon_view);
+
+    icon_size_slider->setValue(icon_view->iconSize().height());
+
+    verticalLayout->addWidget(icon_view_container);
 
     QPushButton* tree_view_button = new QPushButton("Tree View");
     verticalLayout->addWidget(tree_view_button);
@@ -99,6 +134,9 @@ Project::Project(QWidget *parent) :
     QPushButton* icon_view_button = new QPushButton("Icon View");
     verticalLayout->addWidget(icon_view_button);
     connect(icon_view_button, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
+
+    connect(directory_up, SIGNAL(clicked(bool)), this, SLOT(go_up_dir()));
+    connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
 
 	//retranslateUi(Project);
 	setWindowTitle(QApplication::translate("Project", "Project", nullptr));
@@ -1000,7 +1038,7 @@ void Project::save_project(bool autorecovery) {
 
 void Project::update_view_type() {
     tree_view->setVisible(config.project_view_type == PROJECT_VIEW_TREE);
-    icon_view->setVisible(config.project_view_type == PROJECT_VIEW_ICON);
+    icon_view_container->setVisible(config.project_view_type == PROJECT_VIEW_ICON);
 }
 
 void Project::set_icon_view() {
@@ -1032,7 +1070,22 @@ void Project::save_recent_projects() {
 
 void Project::clear_recent_projects() {
     recent_projects.clear();
-	save_recent_projects();
+    save_recent_projects();
+}
+
+void Project::set_icon_view_size(int s) {
+    icon_view->setIconSize(QSize(s, s));
+    //    icon_view->setGridSize(QSize(s, s));
+}
+
+void Project::set_up_dir_enabled() {
+    dout << icon_view->rootIndex().isValid();
+    directory_up->setEnabled(icon_view->rootIndex().isValid());
+}
+
+void Project::go_up_dir() {
+    icon_view->setRootIndex(icon_view->rootIndex().parent());
+    set_up_dir_enabled();
 }
 
 void Project::add_recent_project(QString url) {
