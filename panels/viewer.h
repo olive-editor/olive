@@ -82,8 +82,7 @@ private slots:
     void on_pushButton_3_clicked();
 	void update_playhead();
 	void timer_update();
-	void recording_flasher_update();
-    void zoom_update(int i);
+    void recording_flasher_update();
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);

@@ -75,6 +75,8 @@ void ViewerContainer::adjust() {
 
             child->move(widget_x, widget_y);
             child->resize(widget_width, widget_height);
+
+            zoom = double(widget_width) / double(viewer->seq->width);
         } else {
             int zoomed_width = double(viewer->seq->width)*zoom;
             int zoomed_height = double(viewer->seq->height)*zoom;
