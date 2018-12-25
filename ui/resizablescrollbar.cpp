@@ -4,6 +4,8 @@
 #include <QStyle>
 #include <QStyleOptionSlider>
 
+#include "debug.h"
+
 #define RESIZE_HANDLE_SIZE 10
 
 ResizableScrollBar::ResizableScrollBar(QWidget *parent) :
@@ -20,6 +22,12 @@ bool ResizableScrollBar::is_resizing() {
 
 void ResizableScrollBar::mousePressEvent(QMouseEvent *e) {
     if (resize_init) {
+        QStyleOptionSlider opt;
+        initStyleOption(&opt);
+
+        QRect sr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
+                                               QStyle::SC_ScrollBarSlider, this);
+
         resize_proc = true;
         resize_start = e->pos().x();
     } else {
@@ -33,16 +41,26 @@ void ResizableScrollBar::mouseMoveEvent(QMouseEvent *e) {
 
     QRect sr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                            QStyle::SC_ScrollBarSlider, this);
+    QRect gr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
+                                           QStyle::SC_ScrollBarGroove, this);
 
     if (resize_proc) {
-        int diff = e->pos().x() - resize_start;
-        if (resize_top) {
-            setValue(value() + diff);
-            diff = -diff;
+        int diff = (e->pos().x() - resize_start);
+        if (resize_top) diff = -diff;
+        double scale = double(sr.width())/double(sr.width()+diff);
+        if (!qIsInf(scale) && !qIsNull(scale)) {
+            emit resize_move(scale);
+            resize_start = e->pos().x();
+
+            if (resize_top) {
+                int slider_min = gr.x();
+                int slider_max = gr.right() - (sr.width()+diff) + 1;
+                int val = QStyle::sliderValueFromPosition(minimum(), maximum(), e->pos().x() - slider_min, slider_max - slider_min, opt.upsideDown);
+                setValue(val);
+            } else {
+                setValue(qRound(value() * scale));
+            }
         }
-        int w = sr.width() + diff;
-        emit resized_scroll(double(sr.width())/double(w));
-        resize_start = e->pos().x();
     } else {
         bool new_resize_init = false;
 

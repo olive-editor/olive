@@ -108,7 +108,7 @@ Timeline::Timeline(QWidget *parent) :
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
 	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
-    connect(ui->horizontalScrollBar, SIGNAL(resized_scroll(double)), this, SLOT(resized_scroll_listener(double)));
+    connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
 	update_sequence();
 }
@@ -451,7 +451,7 @@ void Timeline::repaint_timeline() {
         if (sequence != NULL) {
             long sequenceEndFrame = sequence->getEndFrame();
 
-            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, (ui->editAreas->width()/2));
+            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->editAreas->width() - getScreenPointFromFrame(zoom, 200));
 
             if (last_frame != sequence->playhead) {
                 ui->audio_monitor->update();
@@ -1403,7 +1403,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-	long f = qCeil((float) x / zoom);
+    long f = qCeil((float) x / zoom);
 	if (f < 0) {
 		return 0;
 	}
@@ -1411,7 +1411,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-	return (int) qFloor(frame*zoom);
+    return (int) qFloor(frame*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
@@ -1576,7 +1576,7 @@ void Timeline::transition_menu_select(QAction* a) {
     ui->toolTransitionButton->setChecked(true);
 }
 
-void Timeline::resized_scroll_listener(double z) {
+void Timeline::resize_move(double z) {
     set_zoom_value(zoom * z);
 }
 

@@ -10,7 +10,7 @@ public:
     ResizableScrollBar(QWidget * parent = 0);
     bool is_resizing();
 signals:
-    void resized_scroll(double d);
+    void resize_move(double i);
 protected:
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;

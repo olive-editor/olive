@@ -84,7 +84,7 @@ private slots:
 	void timer_update();
 	void recording_flasher_update();
     void zoom_update(int i);
-    void resized_scroll_listener(double d);
+    void resize_move(double d);
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
