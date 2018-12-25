@@ -97,8 +97,8 @@ bool ExportThread::setupVideo() {
 	}
 
 	// allocate context
-	vcodec_ctx = video_stream->codec;
-//	vcodec_ctx = avcodec_alloc_context3(vcodec);
+//	vcodec_ctx = video_stream->codec;
+    vcodec_ctx = avcodec_alloc_context3(vcodec);
 	if (!vcodec_ctx) {
 		dout << "[ERROR] Could not allocate video encoding context";
 		ed->export_error = "could not allocate video encoding context";
@@ -125,7 +125,7 @@ bool ExportThread::setupVideo() {
         itoa(vcodec_ctx, buffer, 10);*/
 
         //av_opt_set(vcodec_ctx->priv_data, "preset", "fast", AV_OPT_SEARCH_CHILDREN);
-        av_opt_set(vcodec_ctx->priv_data, "x264opts", "opencl", AV_OPT_SEARCH_CHILDREN);
+        //av_opt_set(vcodec_ctx->priv_data, "x264opts", "opencl", AV_OPT_SEARCH_CHILDREN);
 
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
@@ -203,8 +203,8 @@ bool ExportThread::setupAudio() {
 	}
 
 	// allocate context
-	acodec_ctx = audio_stream->codec;
-//	acodec_ctx = avcodec_alloc_context3(acodec);
+//	acodec_ctx = audio_stream->codec;
+    acodec_ctx = avcodec_alloc_context3(acodec);
 	if (!acodec_ctx) {
 		dout << "[ERROR] Could not find allocate audio encoding context";
 		ed->export_error = "could not allocate audio encoding context";
@@ -448,14 +448,14 @@ void ExportThread::run() {
 		avcodec_close(vcodec_ctx);
 		av_packet_unref(&video_pkt);
 		av_frame_free(&video_frame);
-//		avcodec_free_context(&vcodec_ctx);
+        avcodec_free_context(&vcodec_ctx);
 	}
 
 	if (audio_enabled) {
 		avcodec_close(acodec_ctx);
 		av_packet_unref(&audio_pkt);
 		av_frame_free(&audio_frame);
-//		avcodec_free_context(&acodec_ctx);
+        avcodec_free_context(&acodec_ctx);
 	}
 
 	avformat_free_context(fmt_ctx);

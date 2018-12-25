@@ -96,7 +96,9 @@ SOURCES += \
     project/effectgizmo.cpp \
     io/clipboard.cpp \
     dialogs/stabilizerdialog.cpp \
-    io/avtogl.cpp
+    io/avtogl.cpp \
+    ui/sourceiconview.cpp \
+    project/sourcescommon.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -172,7 +174,9 @@ HEADERS += \
     project/effectgizmo.h \
     io/clipboard.h \
     dialogs/stabilizerdialog.h \
-    io/avtogl.h
+    io/avtogl.h \
+    ui/sourceiconview.h \
+    project/sourcescommon.h
 
 FORMS += \
         mainwindow.ui \

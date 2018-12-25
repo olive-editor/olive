@@ -8,6 +8,8 @@
 #include "panels/project.h"
 #include "projectmodel.h"
 
+#include <QPainter>
+
 #include "debug.h"
 
 extern "C" {
@@ -253,6 +255,14 @@ QVariant Media::data(int column, int role) {
     switch (role) {
     case Qt::DecorationRole:
         if (column == 0) {
+            if (get_type() == MEDIA_TYPE_FOOTAGE) {
+                Footage* f = to_footage();
+                if (f->video_tracks.size() > 0
+                        && f->video_tracks.at(0)->preview_done) {
+                    return f->video_tracks.at(0)->video_preview_square;
+                }
+            }
+
             return icon;
         }
         break;

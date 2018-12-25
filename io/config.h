@@ -18,6 +18,9 @@
 #define AUTOSCROLL_PAGE_SCROLL 1
 #define AUTOSCROLL_SMOOTH_SCROLL 2
 
+#define PROJECT_VIEW_TREE 0
+#define PROJECT_VIEW_ICON 1
+
 struct Config {
     Config();
     bool saved_layout;
@@ -44,6 +47,7 @@ struct Config {
     int audio_rate;
     bool fast_seeking;
     bool hover_focus;
+    int project_view_type;
 
     void load(QString path);
     void save(QString path);

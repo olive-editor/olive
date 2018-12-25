@@ -32,7 +32,8 @@ Config::Config()
       autoscroll(AUTOSCROLL_PAGE_SCROLL),
       audio_rate(48000),
       fast_seeking(false),
-      hover_focus(false)
+      hover_focus(false),
+      project_view_type(PROJECT_VIEW_TREE)
 {}
 
 void Config::load(QString path) {
@@ -115,6 +116,9 @@ void Config::load(QString path) {
                 } else if (stream.name() == "HoverFocus") {
                     stream.readNext();
                     hover_focus = (stream.text() == "1");
+                } else if (stream.name() == "ProjectViewType") {
+                    stream.readNext();
+                    project_view_type = stream.text().toInt();
                 }
             }
         }
@@ -163,6 +167,7 @@ void Config::save(QString path) {
     stream.writeTextElement("AudioRate", QString::number(audio_rate));
     stream.writeTextElement("FastSeeking", QString::number(fast_seeking));
     stream.writeTextElement("HoverFocus", QString::number(hover_focus));
+    stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
 
 	stream.writeEndElement(); // configuration
     stream.writeEndDocument(); // doc
