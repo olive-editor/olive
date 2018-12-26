@@ -296,6 +296,7 @@ void TimelineHeader::delete_markers() {
 void TimelineHeader::paintEvent(QPaintEvent*) {
 	if (viewer->seq != NULL && zoom > 0) {
         QPainter p(this);
+        p.setRenderHint(QPainter::NonCosmeticDefaultPen);
 		int yoff = (text_enabled) ? height()/2 : 0;
 
 		double interval = viewer->seq->frame_rate;
@@ -390,12 +391,15 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		}
 
         // draw playhead triangle
-		in_x = getHeaderScreenPointFromFrame(viewer->seq->playhead);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setRenderHint(QPainter::HighQualityAntialiasing);
+
+        in_x = getHeaderScreenPointFromFrame(viewer->seq->playhead);
         QPoint start(in_x, height()+2);
         QPainterPath path;
-        path.moveTo(start);
+        path.moveTo(start + QPoint(1,0));
         path.lineTo(in_x-PLAYHEAD_SIZE, yoff);
-        path.lineTo(in_x+PLAYHEAD_SIZE, yoff);
+        path.lineTo(in_x+PLAYHEAD_SIZE+1, yoff);
         path.lineTo(start);
         p.fillPath(path, Qt::red);
 	}
