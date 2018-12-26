@@ -30,9 +30,9 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 	enabled_check = new CheckboxEx();
 	enabled_check->setChecked(true);
 	header = new QLabel();
-	collapse_button = new QPushButton("[-]");
-	collapse_button->setStyleSheet("QPushButton { border: none; } QPushButton:hover { text-decoration: underline; }");
-	collapse_button->setMaximumWidth(25);
+    collapse_button = new QPushButton();
+    collapse_button->setIconSize(QSize(8, 8));
+    collapse_button->setStyleSheet("QPushButton { border: none; }");
 	setText("<untitled>");
     title_bar_layout->addWidget(collapse_button);
     title_bar_layout->addWidget(enabled_check);
@@ -42,6 +42,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 
 	connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
 
+    set_button_icon(true);
 
 	contents = NULL;
 }
@@ -65,7 +66,11 @@ bool CollapsibleWidget::is_focused() {
 }
 
 bool CollapsibleWidget::is_expanded() {
-	return contents->isVisible();
+    return contents->isVisible();
+}
+
+void CollapsibleWidget::set_button_icon(bool open) {
+    collapse_button->setIcon(open ? QIcon(":/icons/tri-down.png") : QIcon(":/icons/tri-right.png"));
 }
 
 void CollapsibleWidget::setContents(QWidget* c) {
@@ -88,7 +93,7 @@ void CollapsibleWidget::on_enabled_change(bool b) {
 
 void CollapsibleWidget::on_visible_change() {
 	contents->setVisible(!contents->isVisible());
-	collapse_button->setText(contents->isVisible() ? "[-]" : "[+]");
+    set_button_icon(contents->isVisible());
 	emit visibleChanged();
 }
 

@@ -27,29 +27,35 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
     ui->addWidget(label, row, 0);
 
     if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
-        QSize button_size(20, 20);
         QSize icon_size(12, 12);
+        QSize button_size(20, 20);
 
         key_controls = new QHBoxLayout();
         key_controls->setSpacing(0);
         key_controls->setMargin(0);
         key_controls->addStretch();
 
-        left_key_nav = new QPushButton("<");
-        left_key_nav->setVisible(false);
+        left_key_nav = new QPushButton();
+        left_key_nav->setIcon(QIcon(":/icons/tri-left.png"));
         left_key_nav->setMaximumSize(button_size);
+        left_key_nav->setIconSize(icon_size);
+        left_key_nav->setVisible(false);
         key_controls->addWidget(left_key_nav);
         connect(left_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_previous_key()));
 
-        key_addremove = new QPushButton(".");
-        key_addremove->setVisible(false);
+        key_addremove = new QPushButton();
+        key_addremove->setIcon(QIcon(":/icons/diamond.png"));
         key_addremove->setMaximumSize(button_size);
+        key_addremove->setIconSize(QSize(8, 8));
+        key_addremove->setVisible(false);
         key_controls->addWidget(key_addremove);
         connect(key_addremove, SIGNAL(clicked(bool)), this, SLOT(toggle_key()));
 
-        right_key_nav = new QPushButton(">");
-        right_key_nav->setVisible(false);
+        right_key_nav = new QPushButton();
+        right_key_nav->setIcon(QIcon(":/icons/tri-right.png"));
         right_key_nav->setMaximumSize(button_size);
+        right_key_nav->setIconSize(icon_size);
+        right_key_nav->setVisible(false);
         key_controls->addWidget(right_key_nav);
         connect(right_key_nav, SIGNAL(clicked(bool)), this, SLOT(goto_next_key()));
 

@@ -51,5 +51,10 @@
         <file>error.png</file>
         <file>dirup.png</file>
         <file>dirup-disabled.png</file>
+        <file>diamond.png</file>
+        <file>tri-down.png</file>
+        <file>tri-left.png</file>
+        <file>tri-right.png</file>
+        <file>tri-up.png</file>
     </qresource>
 </RCC>

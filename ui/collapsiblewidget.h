@@ -42,6 +42,7 @@ private:
 	QPushButton* collapse_button;
 	QFrame* line;
     QHBoxLayout* title_bar_layout;
+    void set_button_icon(bool open);
 
 signals:
     void deselect_others(QWidget*);
