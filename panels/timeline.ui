@@ -195,6 +195,22 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="toolHandButton">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/hand.png</normalon>
+           <disabledon>:/icons/hand-disabled.png</disabledon>
+          </iconset>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="toolTransitionButton">
          <property name="toolTip">
           <string>Transition Tool (T)</string>

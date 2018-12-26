@@ -39,7 +39,8 @@ private:
     bool mousedown;
 	bool dragging;
 	bool keys_selected;
-	bool select_rect;    
+    bool select_rect;
+    bool scroll_drag;
 
 	bool keyframeIsSelected(EffectRow* row, int keyframe);
 

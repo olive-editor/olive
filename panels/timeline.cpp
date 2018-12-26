@@ -69,6 +69,8 @@ Timeline::Timeline(QWidget *parent) :
     transition_tool_proc(false),
     transition_tool_pre_clip(-1),
     transition_tool_post_clip(-1),
+    hand_moving(false),
+    block_repaints(false),
     ui(new Ui::Timeline),
 	last_frame(0),	
     scroll(0)
@@ -102,6 +104,7 @@ Timeline::Timeline(QWidget *parent) :
 	tool_buttons.append(ui->toolRollingButton);
     tool_buttons.append(ui->toolSlideButton);
 	tool_buttons.append(ui->toolTransitionButton);
+    tool_buttons.append(ui->toolHandButton);
 
 	ui->toolArrowButton->click();
 
@@ -420,42 +423,44 @@ bool Timeline::focused() {
 }
 
 void Timeline::repaint_timeline() {
-    bool draw = true;
+    if (!block_repaints) {
+        bool draw = true;
 
-    if (sequence != NULL
-            && !ui->horizontalScrollBar->isSliderDown()
-            && !ui->horizontalScrollBar->is_resizing()
-            && panel_sequence_viewer->playing
-            && !zoom_just_changed) {
-        // auto scroll
-        if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
-            int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(sequence->playhead);
-            if (playhead_x < 0 || playhead_x > (ui->editAreas->width() - ui->videoScrollbar->width())) {
-                ui->horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, sequence->playhead));
-                draw = false;
-            }
-        } else if (config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
-            if (center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead)) {
-                draw = false;
+        if (sequence != NULL
+                && !ui->horizontalScrollBar->isSliderDown()
+                && !ui->horizontalScrollBar->is_resizing()
+                && panel_sequence_viewer->playing
+                && !zoom_just_changed) {
+            // auto scroll
+            if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
+                int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(sequence->playhead);
+                if (playhead_x < 0 || playhead_x > (ui->editAreas->width() - ui->videoScrollbar->width())) {
+                    ui->horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, sequence->playhead));
+                    draw = false;
+                }
+            } else if (config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
+                if (center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead)) {
+                    draw = false;
+                }
             }
         }
-    }
 
-    zoom_just_changed = false;
+        zoom_just_changed = false;
 
-    if (draw) {
-        ui->headers->update();
-        ui->video_area->update();
-        ui->audio_area->update();
+        if (draw) {
+            ui->headers->update();
+            ui->video_area->update();
+            ui->audio_area->update();
 
-        if (sequence != NULL) {
-            long sequenceEndFrame = sequence->getEndFrame();
+            if (sequence != NULL) {
+                long sequenceEndFrame = sequence->getEndFrame();
 
-            set_sb_max();
+                set_sb_max();
 
-            if (last_frame != sequence->playhead) {
-                ui->audio_monitor->update();
-                last_frame = sequence->playhead;
+                if (last_frame != sequence->playhead) {
+                    ui->audio_monitor->update();
+                    last_frame = sequence->playhead;
+                }
             }
         }
     }
@@ -1604,4 +1609,11 @@ void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int
             ca->append(new AddTransitionCommand(c, NULL, c->get_closing_transition(), NULL, TA_CLOSING_TRANSITION, 0));
         }
     }
+}
+
+void Timeline::on_toolHandButton_clicked() {
+    decheck_tool_buttons(sender());
+    ui->timeline_area->setCursor(Qt::OpenHandCursor);
+    tool = TIMELINE_TOOL_HAND;
+    creating = false;
 }

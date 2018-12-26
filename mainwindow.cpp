@@ -607,7 +607,11 @@ void MainWindow::on_actionToggle_Snapping_triggered()
 
 void MainWindow::on_actionPointer_Tool_triggered()
 {
-    if (panel_timeline->focused()) panel_timeline->ui->toolArrowButton->click();
+    if (panel_timeline->focused()
+            || panel_effect_controls->keyframe_focus()
+            || panel_footage_viewer->is_focused()
+            || panel_sequence_viewer->is_focused())
+        panel_timeline->ui->toolArrowButton->click();
 }
 
 void MainWindow::on_actionRazor_Tool_triggered()
@@ -1060,4 +1064,12 @@ void MainWindow::on_actionMilliseconds_triggered() {
 
 void MainWindow::on_actionEnable_Hover_Focus_triggered() {
     config.hover_focus = !config.hover_focus;
+}
+
+void MainWindow::on_actionHand_Tool_triggered() {
+    if (panel_timeline->focused()
+            || panel_effect_controls->keyframe_focus()
+            || panel_footage_viewer->is_focused()
+            || panel_sequence_viewer->is_focused())
+        panel_timeline->ui->toolHandButton->click();
 }

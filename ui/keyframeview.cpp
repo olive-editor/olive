@@ -34,7 +34,8 @@ KeyframeView::KeyframeView(QWidget *parent) :
 	keys_selected(false),
 	select_rect(false),	
 	x_scroll(0),
-	y_scroll(0)
+    y_scroll(0),
+    scroll_drag(false)
 {
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
@@ -193,12 +194,20 @@ void KeyframeView::resize_move(double d) {
     header->update_zoom(header->get_zoom()*d);
 }
 
-void KeyframeView::mousePressEvent(QMouseEvent *event) {    
+void KeyframeView::mousePressEvent(QMouseEvent *event) {
+    rect_select_x = event->x();
+    rect_select_y = event->y();
+
+    if (panel_timeline->tool == TIMELINE_TOOL_HAND || event->buttons() & Qt::MiddleButton) {
+        scroll_drag = true;
+        return;
+    }
+
+    int mouse_x = event->x() + x_scroll;
+    int mouse_y = event->y();
     int row_index = -1;
     int keyframe_index = -1;
     long frame_diff = 0;
-    int mouse_x = event->x() + x_scroll;
-    int mouse_y = event->y();
     long frame_min = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x-KEYFRAME_SIZE);
     drag_frame_start = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x);
     long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x+KEYFRAME_SIZE);
@@ -235,9 +244,6 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 
     if (selected_rows.size() > 0) {
         keys_selected = true;
-    } else {
-        rect_select_x = event->x();
-        rect_select_y = event->y();
     }
 
     update();
@@ -248,7 +254,17 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
-	if (mousedown) {
+    if (panel_timeline->tool == TIMELINE_TOOL_HAND) {
+        setCursor(Qt::OpenHandCursor);
+    } else {
+        unsetCursor();
+    }
+    if (scroll_drag) {
+        panel_effect_controls->ui->horizontalScrollBar->setValue(panel_effect_controls->ui->horizontalScrollBar->value() + rect_select_x - event->pos().x());
+        panel_effect_controls->ui->verticalScrollBar->setValue(panel_effect_controls->ui->verticalScrollBar->value() + rect_select_y - event->pos().y());
+        rect_select_x = event->pos().x();
+        rect_select_y = event->pos().y();
+    } else if (mousedown) {
 		int mouse_x = event->x() + x_scroll;
 		if (keys_selected) {
 			// move keyframes
@@ -332,6 +348,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
 	select_rect = false;
 	dragging = false;
     mousedown = false;
+    scroll_drag = false;
 	panel_timeline->snapped = false;
 	update();
 }

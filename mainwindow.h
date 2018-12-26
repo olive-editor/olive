@@ -213,6 +213,8 @@ private slots:
 
     void on_actionEnable_Hover_Focus_triggered();
 
+    void on_actionHand_Tool_triggered();
+
 private:
 	Ui::MainWindow *ui;
     void setup_layout(bool reset);
