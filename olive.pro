@@ -205,7 +205,7 @@ mac {
     INCLUDEPATH = /usr/local/include
 }
 
-linux {
+unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
 }
