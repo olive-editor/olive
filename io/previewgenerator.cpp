@@ -128,6 +128,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 		QFile f(thumb_path);
         if (f.exists() && ms->video_preview.load(thumb_path)) {
             //dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
+            ms->make_square_thumb();
             ms->preview_done = true;
 		} else {
 			found = false;
@@ -255,7 +256,7 @@ void PreviewGenerator::generate_waveform() {
 					if (!s->preview_done) {
 						int dstH = 120;
 						int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
-						uint8_t* data = new uint8_t[dstW*dstH*3];
+                        uint8_t* data = new uint8_t[dstW*dstH*4];
 
 						sws_ctx = sws_getContext(
 								temp_frame->width,
@@ -263,7 +264,7 @@ void PreviewGenerator::generate_waveform() {
 								static_cast<AVPixelFormat>(temp_frame->format),
 								dstW,
 								dstH,
-								static_cast<AVPixelFormat>(AV_PIX_FMT_RGB24),
+                                static_cast<AVPixelFormat>(AV_PIX_FMT_RGBA),
 								SWS_FAST_BILINEAR,
 								NULL,
 								NULL,
@@ -271,10 +272,11 @@ void PreviewGenerator::generate_waveform() {
 							);
 
 						int linesize[AV_NUM_DATA_POINTERS];
-						linesize[0] = dstW*3;
+                        linesize[0] = dstW*4;
 						sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
-                        s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGB888);
+                        s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGBA8888);
+                        s->make_square_thumb();
 
 						// is video interlaced?
 						s->video_auto_interlacing = (temp_frame->interlaced_frame) ? ((temp_frame->top_field_first) ? VIDEO_TOP_FIELD_FIRST : VIDEO_BOTTOM_FIELD_FIRST) : VIDEO_PROGRESSIVE;

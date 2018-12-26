@@ -130,15 +130,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	layout()->invalidate();
 
-    // TODO maybe replace these with non-pointers later on?
-    panel_sequence_viewer = new Viewer(this);
-	panel_footage_viewer = new Viewer(this);
-	panel_project = new Project(this);
-	panel_effect_controls = new EffectControls(this);
-    panel_timeline = new Timeline(this);
-
-    setup_layout(false);
-
     connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
     connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
     connect(ui->menu_Tools, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
@@ -214,6 +205,15 @@ MainWindow::MainWindow(QWidget *parent) :
             config.load(config_dir);
         }
     }
+
+    // TODO maybe replace these with non-pointers later on?
+    panel_sequence_viewer = new Viewer(this);
+    panel_footage_viewer = new Viewer(this);
+    panel_project = new Project(this);
+    panel_effect_controls = new EffectControls(this);
+    panel_timeline = new Timeline(this);
+
+    setup_layout(false);
 
     init_audio();
 
@@ -439,7 +439,7 @@ void MainWindow::new_project() {
         panel_project->new_project();
         updateTitle("");
         update_ui(false);
-        panel_project->source_table->update();
+        panel_project->tree_view->update();
     }
 }
 

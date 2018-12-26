@@ -20,6 +20,9 @@ class QXmlStreamReader;
 class QFile;
 class QSortFilterProxyModel;
 class ComboAction;
+class SourceIconView;
+class QPushButton;
+class SourcesCommon;
 
 #define LOAD_TYPE_VERSION 69
 #define LOAD_TYPE_URL 70
@@ -40,10 +43,8 @@ Sequence* create_sequence_from_media(QVector<Media *> &media_list);
 QString get_channel_layout_name(int channels, uint64_t layout);
 QString get_interlacing_name(int interlacing);
 
-class Project : public QDockWidget
-{
+class Project : public QDockWidget {
 	Q_OBJECT
-
 public:
 	explicit Project(QWidget *parent = 0);
 	~Project();
@@ -54,7 +55,7 @@ public:
     void process_file_list(QStringList& files, bool recursive = false, Media* replace = NULL, Media *parent = NULL);
     void replace_media(Media* item, QString filename);
     Media *get_selected_folder();
-    bool reveal_media(void* media, QModelIndex parent = QModelIndex());
+    bool reveal_media(Media *media, QModelIndex parent = QModelIndex());
     void add_recent_project(QString url);
 
     void new_project();
@@ -68,7 +69,10 @@ public:
 
     QVector<Media*> list_all_project_sequences();
 
-	SourceTable* source_table;
+    SourceTable* tree_view;
+    SourceIconView* icon_view;
+    SourcesCommon* sources_common;
+
     QSortFilterProxyModel* sorter;
 
     QVector<Media*> last_imported_media;
@@ -93,8 +97,16 @@ private:
     void list_all_sequences_worker(QVector<Media *> *list, Media* parent);
 	QString get_file_name_from_path(const QString &path);
     QDir proj_dir;
+    QWidget* icon_view_container;
+    QPushButton* directory_up;
 private slots:
+    void update_view_type();
+    void set_icon_view();
+    void set_tree_view();
 	void clear_recent_projects();
+    void set_icon_view_size(int);
+    void set_up_dir_enabled();
+    void go_up_dir();
 };
 
 class MediaThrobber : public QObject {

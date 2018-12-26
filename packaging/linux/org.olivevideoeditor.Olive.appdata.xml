@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>org.olivevideoeditor.Olive</id>
+  <name>Olive</name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPLv3</project_license>
+  <developer_name>Olive Team</developer_name>
+  <summary>NLE video editor</summary>
+  <description>
+    <p>
+      Olive is a professional open-source NLE video editor.
+    </p>
+  </description>
+  <url type="homepage">https://www.olivevideoeditor.org</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>http://images.libregraphicsworld.org/video/2018/12/introducing-olive/olive-alpha-main-window.jpg</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="20181223" date="2018-12-23"></release>
+    <release version="20181130" date="2018-11-30"></release>
+  </releases>
+</component>

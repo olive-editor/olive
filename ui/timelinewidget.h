@@ -19,6 +19,7 @@ class TimelineAction;
 class QScrollBar;
 class SetSelectionsCommand;
 class QPainter;
+class Media;
 
 bool same_sign(int a, int b);
 void draw_waveform(Clip* clip, FootageStream* ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
@@ -65,7 +66,7 @@ private:
 	// used for "right click ripple"
 	long rc_ripple_min;
 	long rc_ripple_max;
-	void* rc_reveal_media;
+    Media* rc_reveal_media;
 
     QTimer tooltip_timer;
     int tooltip_clip;

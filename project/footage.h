@@ -7,6 +7,7 @@
 #include <QVariant>
 #include <QMutex>
 #include <QPixmap>
+#include <QIcon>
 
 #define VIDEO_PROGRESSIVE 0
 #define VIDEO_TOP_FIELD_FIRST 1
@@ -32,7 +33,9 @@ struct FootageStream {
     // preview thumbnail/waveform
     bool preview_done;
     QImage video_preview;
+    QIcon video_preview_square;
 	QVector<char> audio_preview;
+    void make_square_thumb();
 };
 
 struct Footage {

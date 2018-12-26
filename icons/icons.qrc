@@ -49,5 +49,7 @@
         <file>transition-tool.png</file>
         <file>transition-tool-disabled.png</file>
         <file>error.png</file>
+        <file>dirup.png</file>
+        <file>dirup-disabled.png</file>
     </qresource>
 </RCC>

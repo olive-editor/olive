@@ -587,7 +587,6 @@ void Viewer::zoom_update(int i) {
 }
 
 void Viewer::resize_move(double d) {
-    dout << "RM";
     set_zoom_value(ui->headers->get_zoom()*d);
 }
 

@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QtMath>
+#include <QPainter>
 #include "io/previewgenerator.h"
 
 extern "C" {
@@ -54,4 +55,17 @@ FootageStream* Footage::get_stream_from_file_index(bool video, int index) {
         }
     }
     return NULL;
+}
+
+void FootageStream::make_square_thumb() {
+    // generate square version for QListView?
+    int square_size = qMax(video_preview.width(), video_preview.height());
+    QPixmap pixmap(square_size, square_size);
+    pixmap.fill(Qt::transparent);
+    QPainter p(&pixmap);
+    int diff = (video_preview.width() - video_preview.height())>>1;
+    int sqx = (diff < 0) ? -diff : 0;
+    int sqy = (diff > 0) ? diff : 0;
+    p.drawImage(sqx, sqy, video_preview);
+    video_preview_square = QIcon(pixmap);
 }
