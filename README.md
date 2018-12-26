@@ -9,5 +9,5 @@ For compilation information, check the [wiki](https://github.com/olive-editor/ol
 If you like Olive, please consider helping keep it alive by supporting it on [Patreon](https://www.patreon.com/olivevideoeditor).
 
 Pre-Built versions:
-Ubuntu/Debian package available at http://phd-sid.ethz.ch/debian/olive
+Ubuntu/Debian package available at https://packages.debian.org/olive
 others available at https://repology.org/metapackage/olive/versions (only for Void, the others is another software with the same name)
