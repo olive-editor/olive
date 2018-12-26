@@ -330,7 +330,7 @@ bool is_clip_active(Clip* c, long playhead) {
 }
 
 void set_sequence(Sequence* s) {
-	closeActiveClips(sequence, true);
+    closeActiveClips(sequence, true);
 	panel_effect_controls->clear_effects(true);
     sequence = s;
 	panel_sequence_viewer->set_main_sequence();

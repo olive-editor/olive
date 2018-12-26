@@ -171,19 +171,7 @@ MainWindow::MainWindow(QWidget *parent) :
 					}
 				}
 				if (deleted_ars > 0) dout << "[INFO] Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
-			}
-
-            // detect auto-recovery file
-            autorecovery_filename = data_dir + "/autorecovery.ove";
-            if (QFile::exists(autorecovery_filename)) {
-                if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-					updateTitle(autorecovery_filename);
-                    panel_project->load_project(true);
-                }
             }
-            autorecovery_timer.setInterval(60000);
-            QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
-            autorecovery_timer.start();
 
             // search for open recents list
             recent_proj_file = data_dir + "/recents";
@@ -212,6 +200,20 @@ MainWindow::MainWindow(QWidget *parent) :
     panel_project = new Project(this);
     panel_effect_controls = new EffectControls(this);
     panel_timeline = new Timeline(this);
+
+    if (!data_dir.isEmpty()) {
+        // detect auto-recovery file
+        autorecovery_filename = data_dir + "/autorecovery.ove";
+        if (QFile::exists(autorecovery_filename)) {
+            if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                updateTitle(autorecovery_filename);
+                panel_project->load_project(true);
+            }
+        }
+        autorecovery_timer.setInterval(60000);
+        QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
+        autorecovery_timer.start();
+    }
 
     setup_layout(false);
 

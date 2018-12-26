@@ -35,7 +35,7 @@ LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelle
     connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)));
 }
 
-const EffectMeta* get_meta_from_name(const QString& name, int type) {
+const EffectMeta* get_meta_from_name(const QString& name) {
     for (int j=0;j<effects.size();j++) {
         if (effects.at(j).name == name) {
             return &effects.at(j);
@@ -87,7 +87,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
     // find effect with this name
     if (!effect_name.isEmpty()) {
-        meta = get_meta_from_name(effect_name, (c->track < 0) ? EFFECT_TYPE_VIDEO : EFFECT_TYPE_AUDIO);
+        meta = get_meta_from_name(effect_name);
     }
 
     effects_loaded.unlock();
@@ -236,7 +236,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                             dout << "[INFO] Matched" << attr.value().toString() << "relative to project's internal directory";
                                         } else if (m->url.contains('%')) {
                                             // hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
-                                            m->url = proj_dir_test;
+                                            m->url = internal_proj_dir_test;
                                             dout << "[INFO] Guess image sequence" << attr.value().toString() << "path to project's current directory";
                                         } else {
                                             dout << "[INFO] Failed to match" << attr.value().toString() << "to file";
@@ -486,7 +486,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         primary = secondary;
                                         secondary = NULL;
                                     }
-                                    const EffectMeta* meta = get_meta_from_name(td.name, (primary->track < 0) ? EFFECT_TYPE_VIDEO : EFFECT_TYPE_AUDIO);
+                                    const EffectMeta* meta = get_meta_from_name(td.name);
                                     if (meta == NULL) {
                                         dout << "[WARNING] Failed to link transition with name:" << td.name;
                                         if (td.otc != NULL) td.otc->opening_transition = -1;
