@@ -43,6 +43,7 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->label_2->setVisible(false);
 
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), ui->keyframeView, SLOT(resize_move(double)));
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->keyframeView, SLOT(set_x_scroll(int)));
 	connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), ui->keyframeView, SLOT(set_y_scroll(int)));
 	connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), ui->scrollArea->verticalScrollBar(), SLOT(setValue(int)));

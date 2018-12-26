@@ -108,6 +108,7 @@ Timeline::Timeline(QWidget *parent) :
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
 	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
 	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
 	update_sequence();
 }
@@ -423,6 +424,7 @@ void Timeline::repaint_timeline() {
 
     if (sequence != NULL
             && !ui->horizontalScrollBar->isSliderDown()
+            && !ui->horizontalScrollBar->is_resizing()
             && panel_sequence_viewer->playing
             && !zoom_just_changed) {
         // auto scroll
@@ -449,7 +451,7 @@ void Timeline::repaint_timeline() {
         if (sequence != NULL) {
             long sequenceEndFrame = sequence->getEndFrame();
 
-            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, (ui->editAreas->width()/2));
+            set_sb_max();
 
             if (last_frame != sequence->playhead) {
                 ui->audio_monitor->update();
@@ -473,7 +475,11 @@ void Timeline::select_all() {
 			}
 		}
 		repaint_timeline();
-	}
+    }
+}
+
+void Timeline::resizeEvent(QResizeEvent *event) {
+    if (sequence != NULL) set_sb_max();
 }
 
 void Timeline::delete_in_out(bool ripple) {
@@ -570,7 +576,8 @@ void Timeline::set_zoom_value(double v) {
     repaint_timeline();
 
     // TODO find a way to gradually move towards target_scroll instead of just centering it?
-    center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
+    if (!ui->horizontalScrollBar->is_resizing())
+        center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
 }
 
 void Timeline::set_zoom(bool in) {
@@ -1400,7 +1407,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-	long f = qCeil((float) x / zoom);
+    long f = qCeil((float) x / zoom);
 	if (f < 0) {
 		return 0;
 	}
@@ -1408,7 +1415,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-	return (int) qFloor(frame*zoom);
+    return (int) qFloor(frame*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
@@ -1571,6 +1578,14 @@ void Timeline::transition_menu_select(QAction* a) {
 	ui->timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
     ui->toolTransitionButton->setChecked(true);
+}
+
+void Timeline::resize_move(double z) {
+    set_zoom_value(zoom * z);
+}
+
+void Timeline::set_sb_max() {
+    ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequence->getEndFrame(), ui->editAreas->width() - getScreenPointFromFrame(zoom, 200));
 }
 
 void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions) {

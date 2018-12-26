@@ -55,7 +55,7 @@
        <widget class="TimelineHeader" name="headers" native="true"/>
       </item>
       <item>
-       <widget class="QScrollBar" name="horizontalScrollBar">
+       <widget class="ResizableScrollBar" name="horizontalScrollBar">
         <property name="maximum">
          <number>0</number>
         </property>
@@ -230,6 +230,17 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>TimelineHeader</class>
+   <extends>QWidget</extends>
+   <header>ui/timelineheader.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ResizableScrollBar</class>
+   <extends>QScrollBar</extends>
+   <header>ui/resizablescrollbar.h</header>
+  </customwidget>
+  <customwidget>
    <class>ViewerContainer</class>
    <extends>QWidget</extends>
    <header>ui/viewercontainer.h</header>
@@ -239,12 +250,6 @@
    <class>LabelSlider</class>
    <extends>QLabel</extends>
    <header>ui/labelslider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TimelineHeader</class>
-   <extends>QWidget</extends>
-   <header>ui/timelineheader.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

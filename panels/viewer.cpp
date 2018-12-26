@@ -65,6 +65,8 @@ Viewer::Viewer(QWidget *parent) :
 	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+    connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
+    connect(ui->zoomComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(zoom_update(int)));
 
     update_playhead_timecode(0);
     update_end_timecode();
@@ -378,7 +380,7 @@ void Viewer::update_header_zoom() {
         if (cached_end_frame != sequenceEndFrame) {
             minimum_zoom = (sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1;
             ui->headers->update_zoom(qMax(ui->headers->get_zoom(), minimum_zoom));
-            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->headers->width());
+            set_sb_max();
             viewer_widget->waveform_zoom = ui->headers->get_zoom();
         } else {
             ui->headers->update();
@@ -391,7 +393,13 @@ void Viewer::update_parents() {
 		update_ui(false);
 	} else {
 		update_viewer();
-	}
+    }
+}
+
+void Viewer::resizeEvent(QResizeEvent *event) {
+    if (seq != NULL) {
+        set_sb_max();
+    }
 }
 
 void Viewer::update_viewer() {
@@ -418,18 +426,25 @@ void Viewer::set_out_point() {
 
 void Viewer::set_zoom(bool in) {
     if (seq != NULL) {
-        if (in) {
-            ui->headers->update_zoom(ui->headers->get_zoom()*2);
-        } else {
-            ui->headers->update_zoom(qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
-        }
-        if (viewer_widget->waveform) {
-            viewer_widget->waveform_zoom = ui->headers->get_zoom();
-            viewer_widget->update();
-        }
-        ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
-        center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
+        set_zoom_value(in ? ui->headers->get_zoom()*2 : qMax(minimum_zoom, ui->headers->get_zoom()*0.5));
     }
+}
+
+void Viewer::set_zoom_value(double d) {
+    ui->headers->update_zoom(d);
+    if (viewer_widget->waveform) {
+        viewer_widget->waveform_zoom = d;
+        viewer_widget->update();
+    }
+    if (seq != NULL) {
+        set_sb_max();
+        if (!ui->horizontalScrollBar->is_resizing())
+            center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
+    }
+}
+
+void Viewer::set_sb_max() {
+    ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
 }
 
 void Viewer::set_media(Media* m) {
@@ -557,6 +572,22 @@ void Viewer::recording_flasher_update() {
 	} else {
 		ui->pushButton_3->setStyleSheet(QString());
     }
+}
+
+void Viewer::zoom_update(int i) {
+    if (i == 0) {
+        ui->glViewerPane->fit = true;
+    } else {
+        ui->glViewerPane->fit = false;
+        QString pc = ui->zoomComboBox->itemText(i);
+        pc = pc.left(pc.length() - 1);
+        ui->glViewerPane->zoom = pc.toDouble()*0.01;
+    }
+    ui->glViewerPane->adjust();
+}
+
+void Viewer::resize_move(double d) {
+    set_zoom_value(ui->headers->get_zoom()*d);
 }
 
 void Viewer::clean_created_seq() {

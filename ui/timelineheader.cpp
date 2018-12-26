@@ -410,3 +410,7 @@ void TimelineHeader::show_context_menu(const QPoint &pos) {
     contextMenu.addAction(&clear_in_out);
     contextMenu.exec(mapToGlobal(pos));
 }
+
+void TimelineHeader::resized_scroll_listener(double d) {
+    update_zoom(zoom * d);
+}

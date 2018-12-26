@@ -71,6 +71,8 @@ public:
 
     Ui::Viewer *ui;
 
+    void resizeEvent(QResizeEvent *event);
+
 public slots:
 	void play_wake();
 
@@ -82,7 +84,9 @@ private slots:
     void on_pushButton_3_clicked();
 	void update_playhead();
 	void timer_update();
-    void recording_flasher_update();
+	void recording_flasher_update();
+    void zoom_update(int i);
+    void resize_move(double d);
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
@@ -91,9 +95,11 @@ private:
     long cached_end_frame;
     QString panel_name;
     double minimum_zoom;
+    void set_zoom_value(double d);
+    void set_sb_max();
 
 	bool cue_recording_internal;
-	QTimer recording_flasher;
+    QTimer recording_flasher;
 };
 
 #endif // VIEWER_H

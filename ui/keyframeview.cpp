@@ -189,6 +189,10 @@ void KeyframeView::draw_keyframe(QPainter &p, int type, int x, int y, bool darke
     }
 }
 
+void KeyframeView::resize_move(double d) {
+    header->update_zoom(header->get_zoom()*d);
+}
+
 void KeyframeView::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         int row_index = -1;

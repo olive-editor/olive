@@ -102,6 +102,7 @@ SOURCES += \
     io/clipboard.cpp \
     dialogs/stabilizerdialog.cpp \
     io/avtogl.cpp \
+    ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp
 
@@ -180,6 +181,7 @@ HEADERS += \
     io/clipboard.h \
     dialogs/stabilizerdialog.h \
     io/avtogl.h \
+    ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h
 

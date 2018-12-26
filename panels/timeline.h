@@ -186,6 +186,8 @@ public:
 	int transition_tool_side;
 
     Ui::Timeline *ui;
+
+    void resizeEvent(QResizeEvent *event);
 public slots:
 	void repaint_timeline();
 
@@ -223,13 +225,16 @@ private slots:
 
 	void transition_menu_select(QAction*);
 
+    void resize_move(double d);
+
 private:
 	void set_zoom_value(double v);
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
     void set_tool(int tool);
 	long last_frame;
-	int scroll;
+    int scroll;
+    void set_sb_max();
 
 	int default_track_height;
 };

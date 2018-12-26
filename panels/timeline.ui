@@ -456,7 +456,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QScrollBar" name="horizontalScrollBar">
+        <widget class="ResizableScrollBar" name="horizontalScrollBar">
          <property name="maximum">
           <number>0</number>
          </property>
@@ -505,6 +505,11 @@
    <extends>QWidget</extends>
    <header>ui/audiomonitor.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ResizableScrollBar</class>
+   <extends>QScrollBar</extends>
+   <header>ui/resizablescrollbar.h</header>
   </customwidget>
  </customwidgets>
  <resources>

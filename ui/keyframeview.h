@@ -23,6 +23,7 @@ public:
 public slots:
 	void set_x_scroll(int);
 	void set_y_scroll(int);
+    void resize_move(double d);
 private:
 	long adjust_row_keyframe(EffectRow* row, long time);
 	QVector<EffectRow*> selected_rows;
@@ -38,7 +39,7 @@ private:
     bool mousedown;
 	bool dragging;
 	bool keys_selected;
-	bool select_rect;
+	bool select_rect;    
 
 	bool keyframeIsSelected(EffectRow* row, int keyframe);
 
