@@ -104,7 +104,8 @@ SOURCES += \
     io/avtogl.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
-    project/sourcescommon.cpp
+    project/sourcescommon.cpp \
+    ui/keyframenavigator.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -183,7 +184,8 @@ HEADERS += \
     io/avtogl.h \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
-    project/sourcescommon.h
+    project/sourcescommon.h \
+    ui/keyframenavigator.h
 
 FORMS += \
         mainwindow.ui \

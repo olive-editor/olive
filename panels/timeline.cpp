@@ -453,8 +453,6 @@ void Timeline::repaint_timeline() {
             ui->audio_area->update();
 
             if (sequence != NULL) {
-                long sequenceEndFrame = sequence->getEndFrame();
-
                 set_sb_max();
 
                 if (last_frame != sequence->playhead) {
