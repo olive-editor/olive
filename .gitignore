@@ -1,3 +1,4 @@
 *.pro.user*
 Makefile
 .qmake.stash
+vcpkg
