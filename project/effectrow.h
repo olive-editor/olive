@@ -12,6 +12,7 @@ class KeyframeDelete;
 class QPushButton;
 class ComboAction;
 class QHBoxLayout;
+class KeyframeNavigator;
 
 class EffectRow : public QObject {
     Q_OBJECT
@@ -35,7 +36,6 @@ public:
     QVector<int> keyframe_types;
 private slots:
     void set_keyframe_enabled(bool);
-    void keyframe_ui_enabled(bool);
     void goto_previous_key();
     void toggle_key();
     void goto_next_key();
@@ -46,11 +46,7 @@ private:
     int ui_row;
     QVector<EffectField*> fields;
 
-    QHBoxLayout* key_controls;
-    QPushButton* keyframe_enable;
-    QPushButton* left_key_nav;
-    QPushButton* key_addremove;
-    QPushButton* right_key_nav;
+    KeyframeNavigator* keyframe_nav;
 
     bool just_made_unsafe_keyframe;
 };
