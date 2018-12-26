@@ -66,7 +66,6 @@ Viewer::Viewer(QWidget *parent) :
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
     connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
-    connect(ui->zoomComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(zoom_update(int)));
 
     update_playhead_timecode(0);
     update_end_timecode();
@@ -572,18 +571,6 @@ void Viewer::recording_flasher_update() {
 	} else {
 		ui->pushButton_3->setStyleSheet(QString());
     }
-}
-
-void Viewer::zoom_update(int i) {
-    if (i == 0) {
-        ui->glViewerPane->fit = true;
-    } else {
-        ui->glViewerPane->fit = false;
-        QString pc = ui->zoomComboBox->itemText(i);
-        pc = pc.left(pc.length() - 1);
-        ui->glViewerPane->zoom = pc.toDouble()*0.01;
-    }
-    ui->glViewerPane->adjust();
 }
 
 void Viewer::resize_move(double d) {
