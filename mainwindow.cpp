@@ -18,6 +18,7 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
+#include "panels/grapheditor.h"
 
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"
@@ -57,6 +58,7 @@ void MainWindow::setup_layout(bool reset) {
     panel_footage_viewer->show();
     panel_sequence_viewer->show();
     panel_timeline->show();
+    panel_graph_editor->hide();
 
     bool load_default = true;
 
@@ -77,6 +79,7 @@ void MainWindow::setup_layout(bool reset) {
         panel_footage_viewer->raise();
         addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
         addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+        panel_graph_editor->setFloating(true);
 
 // workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
@@ -194,12 +197,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
-    // TODO maybe replace these with non-pointers later on?
-    panel_sequence_viewer = new Viewer(this);
-    panel_footage_viewer = new Viewer(this);
-    panel_project = new Project(this);
-    panel_effect_controls = new EffectControls(this);
-    panel_timeline = new Timeline(this);
+    alloc_panels(this);
 
     if (!data_dir.isEmpty()) {
         // detect auto-recovery file
@@ -259,16 +257,7 @@ MainWindow::~MainWindow() {
 
 	delete ui;
 
-    delete panel_sequence_viewer;
-    panel_sequence_viewer = NULL;
-    delete panel_footage_viewer;
-    panel_footage_viewer = NULL;
-    delete panel_project;
-    panel_project = NULL;
-    delete panel_effect_controls;
-    panel_effect_controls = NULL;
-	delete panel_timeline;
-    panel_timeline = NULL;
+    free_panels();
 
 	close_debug();
 }

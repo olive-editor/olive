@@ -8,6 +8,7 @@
 #include "project/clip.h"
 #include "project/transition.h"
 #include "io/config.h"
+#include "grapheditor.h"
 #include "debug.h"
 
 Project* panel_project = 0;
@@ -15,6 +16,7 @@ EffectControls* panel_effect_controls = 0;
 Viewer* panel_sequence_viewer = 0;
 Viewer* panel_footage_viewer = 0;
 Timeline* panel_timeline = 0;
+GraphEditor* panel_graph_editor = 0;
 
 void update_effect_controls() {
 	// SEND CLIPS TO EFFECT CONTROLS
@@ -110,15 +112,15 @@ void update_ui(bool modified) {
 QDockWidget *get_focused_panel() {
     QDockWidget* w = NULL;
     if (config.hover_focus) {
-        if (panel_project->rect().contains(panel_project->mapFromGlobal(QCursor::pos()))) {
+        if (panel_project->underMouse()) {
             w = panel_project;
-        } else if (panel_effect_controls->rect().contains(panel_effect_controls->mapFromGlobal(QCursor::pos()))) {
+        } else if (panel_effect_controls->underMouse()) {
             w = panel_effect_controls;
-        } else if (panel_sequence_viewer->rect().contains(panel_sequence_viewer->mapFromGlobal(QCursor::pos()))) {
+        } else if (panel_sequence_viewer->underMouse()) {
             w = panel_sequence_viewer;
-        } else if (panel_footage_viewer->rect().contains(panel_footage_viewer->mapFromGlobal(QCursor::pos()))) {
+        } else if (panel_footage_viewer->underMouse()) {
             w = panel_footage_viewer;
-        } else if (panel_timeline->rect().contains(panel_timeline->mapFromGlobal(QCursor::pos()))) {
+        } else if (panel_timeline->underMouse()) {
             w = panel_timeline;
         }
     }
@@ -136,4 +138,27 @@ QDockWidget *get_focused_panel() {
         }
     }
     return w;
+}
+
+void alloc_panels(QWidget* parent) {
+    // TODO maybe replace these with non-pointers later on?
+    panel_sequence_viewer = new Viewer(parent);
+    panel_footage_viewer = new Viewer(parent);
+    panel_project = new Project(parent);
+    panel_effect_controls = new EffectControls(parent);
+    panel_timeline = new Timeline(parent);
+    panel_graph_editor = new GraphEditor(parent);
+}
+
+void free_panels() {
+    delete panel_sequence_viewer;
+    panel_sequence_viewer = NULL;
+    delete panel_footage_viewer;
+    panel_footage_viewer = NULL;
+    delete panel_project;
+    panel_project = NULL;
+    delete panel_effect_controls;
+    panel_effect_controls = NULL;
+    delete panel_timeline;
+    panel_timeline = NULL;
 }

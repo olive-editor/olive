@@ -11,6 +11,7 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 #include "project/sequence.h"
+#include "panels/grapheditor.h"
 #include "ui_effectcontrols.h"
 
 #include <QLabel>
@@ -47,24 +48,33 @@ KeyframeView::KeyframeView(QWidget *parent) :
 void KeyframeView::show_context_menu(const QPoint& pos) {
     if (selected_rows.size() > 0) {
         QMenu menu(this);
+
         QAction* linear = menu.addAction("Linear");
         linear->setData(KEYFRAME_TYPE_LINEAR);
         QAction* smooth = menu.addAction("Smooth");
-        smooth->setData(KEYFRAME_TYPE_SMOOTH);
-        /*QAction* bezier = menu.addAction("Bezier");
-        bezier->setData(KEYFRAME_TYPE_BEZIER);*/
+        smooth->setData(KEYFRAME_TYPE_BEZIER);
+        QAction* hold = menu.addAction("Hold");
+        hold->setData(KEYFRAME_TYPE_HOLD);
+        menu.addSeparator();
+        menu.addAction("Graph Editor");
+
         connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_set_key_type(QAction*)));
         menu.exec(mapToGlobal(pos));
     }
 }
 
 void KeyframeView::menu_set_key_type(QAction* a) {
-    ComboAction* ca = new ComboAction();
-    for (int i=0;i<selected_rows.size();i++) {
-        ca->append(new SetInt(&selected_rows.at(i)->keyframe_types[selected_keyframes.at(i)], a->data().toInt()));
+    if (a->data().isNull()) {
+        // load graph editor
+        panel_graph_editor->show();
+    } else {
+        ComboAction* ca = new ComboAction();
+        for (int i=0;i<selected_rows.size();i++) {
+            ca->append(new SetInt(&selected_rows.at(i)->keyframe_types[selected_keyframes.at(i)], a->data().toInt()));
+        }
+        undo_stack.push(ca);
+        update();
     }
-    undo_stack.push(ca);
-    update();
 }
 
 void KeyframeView::paintEvent(QPaintEvent*) {
@@ -184,8 +194,11 @@ void KeyframeView::draw_keyframe(QPainter &p, int type, int x, int y, bool darke
         p.drawPolygon(points, KEYFRAME_POINT_COUNT);
     }
         break;
-    case KEYFRAME_TYPE_SMOOTH:
+    case KEYFRAME_TYPE_BEZIER:
         p.drawEllipse(QPoint(x, y), KEYFRAME_SIZE, KEYFRAME_SIZE);
+        break;
+    case KEYFRAME_TYPE_HOLD:
+        p.drawRect(QRect(x - KEYFRAME_SIZE, y - KEYFRAME_SIZE, KEYFRAME_SIZE*2, KEYFRAME_SIZE*2));
         break;
     }
 }

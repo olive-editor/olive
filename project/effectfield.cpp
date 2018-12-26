@@ -140,7 +140,12 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
         before = before_keyframe_index;
         after = after_keyframe_index;
 
-        progress = (timecode-frameToTimecode(before_keyframe_time))/(frameToTimecode(after_keyframe_time)-frameToTimecode(before_keyframe_time));
+        if (parent_row->keyframe_types.at(before) == KEYFRAME_TYPE_HOLD) {
+            progress = 0;
+        } else {
+            // TODO replace with bezier function
+            progress = (timecode-frameToTimecode(before_keyframe_time))/(frameToTimecode(after_keyframe_time)-frameToTimecode(before_keyframe_time));
+        }
     } else if (before_keyframe_index > -1) {
         before = before_keyframe_index;
         after = before_keyframe_index;
@@ -161,13 +166,13 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
         double progress;
         get_keyframe_data(timecode, before_keyframe, after_keyframe, progress);
 
-        int kf_type = (progress < 0.5) ? parent_row->keyframe_types.at(before_keyframe) : parent_row->keyframe_types.at(after_keyframe);
-        if (kf_type == KEYFRAME_TYPE_SMOOTH) {
+        /*int kf_type = (progress < 0.5) ? parent_row->keyframe_types.at(before_keyframe) : parent_row->keyframe_types.at(after_keyframe);
+        if (kf_type == KEYFRAME_TYPE_BEZIER) {
             double x = (8.0 * progress) - 4.0;
             progress = 1.0 / (1.0 + qPow(M_E, -x));
             progress *= 1.0373;
             progress -= 0.01865;
-        }
+        }*/
 
         const QVariant& before_data = keyframe_data.at(before_keyframe);
         switch (type) {

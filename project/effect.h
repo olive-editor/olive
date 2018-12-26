@@ -69,8 +69,8 @@ extern QMutex effects_loaded;
 #define EFFECT_INTERNAL_COUNT 13
 
 #define KEYFRAME_TYPE_LINEAR 0
-#define KEYFRAME_TYPE_SMOOTH 1
-#define KEYFRAME_TYPE_BEZIER 2
+#define KEYFRAME_TYPE_BEZIER 1
+#define KEYFRAME_TYPE_HOLD 2
 
 struct GLTextureCoords {
     int grid_size;
