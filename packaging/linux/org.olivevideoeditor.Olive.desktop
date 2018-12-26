@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Olive
+Comment=Professional open-source NLE video editor
+Exec=Olive
+Icon=org.olivevideoeditor.Olive
+Terminal=false
+Type=Application
+Categories=AudioVideo;Recorder;
+MimeType=application/vnd.olive-project;
+StartupNotify=true
