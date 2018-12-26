@@ -71,8 +71,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>225</width>
-          <height>477</height>
+          <width>189</width>
+          <height>483</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -502,7 +502,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollBar" name="horizontalScrollBar">
+         <widget class="ResizableScrollBar" name="horizontalScrollBar">
           <property name="maximum">
            <number>0</number>
           </property>
@@ -542,6 +542,11 @@
    <extends>QWidget</extends>
    <header>panels/effectcontrols.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ResizableScrollBar</class>
+   <extends>QScrollBar</extends>
+   <header>ui/resizablescrollbar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
