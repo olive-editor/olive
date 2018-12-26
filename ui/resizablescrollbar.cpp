@@ -20,6 +20,10 @@ bool ResizableScrollBar::is_resizing() {
     return resize_proc;
 }
 
+void ResizableScrollBar::resizeEvent(QResizeEvent *event) {
+    setPageStep(event->size().width());
+}
+
 void ResizableScrollBar::mousePressEvent(QMouseEvent *e) {
     if (resize_init) {
         QStyleOptionSlider opt;
@@ -30,6 +34,9 @@ void ResizableScrollBar::mousePressEvent(QMouseEvent *e) {
 
         resize_proc = true;
         resize_start = e->pos().x();
+
+        resize_start_max = maximum();
+        resize_start_width = sr.width();
     } else {
         QScrollBar::mousePressEvent(e);
     }
@@ -54,8 +61,9 @@ void ResizableScrollBar::mouseMoveEvent(QMouseEvent *e) {
 
             if (resize_top) {
                 int slider_min = gr.x();
-                int slider_max = gr.right() - (sr.width()+diff) + 1;
+                int slider_max = gr.right() - (sr.width()+diff);
                 int val = QStyle::sliderValueFromPosition(minimum(), maximum(), e->pos().x() - slider_min, slider_max - slider_min, opt.upsideDown);
+
                 setValue(val);
             } else {
                 setValue(qRound(value() * scale));

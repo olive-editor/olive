@@ -186,6 +186,8 @@ public:
 	int transition_tool_side;
 
     Ui::Timeline *ui;
+
+    void resizeEvent(QResizeEvent *event);
 public slots:
 	void repaint_timeline();
 
@@ -232,6 +234,7 @@ private:
     void set_tool(int tool);
 	long last_frame;
     int scroll;
+    void set_sb_max();
 
 	int default_track_height;
 };

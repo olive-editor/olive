@@ -451,7 +451,7 @@ void Timeline::repaint_timeline() {
         if (sequence != NULL) {
             long sequenceEndFrame = sequence->getEndFrame();
 
-            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->editAreas->width() - getScreenPointFromFrame(zoom, 200));
+            set_sb_max();
 
             if (last_frame != sequence->playhead) {
                 ui->audio_monitor->update();
@@ -475,7 +475,11 @@ void Timeline::select_all() {
 			}
 		}
 		repaint_timeline();
-	}
+    }
+}
+
+void Timeline::resizeEvent(QResizeEvent *event) {
+    if (sequence != NULL) set_sb_max();
 }
 
 void Timeline::delete_in_out(bool ripple) {
@@ -1578,6 +1582,10 @@ void Timeline::transition_menu_select(QAction* a) {
 
 void Timeline::resize_move(double z) {
     set_zoom_value(zoom * z);
+}
+
+void Timeline::set_sb_max() {
+    ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequence->getEndFrame(), ui->editAreas->width() - getScreenPointFromFrame(zoom, 200));
 }
 
 void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions) {

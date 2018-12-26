@@ -380,7 +380,7 @@ void Viewer::update_header_zoom() {
         if (cached_end_frame != sequenceEndFrame) {
             minimum_zoom = (sequenceEndFrame > 0) ? ((double) ui->headers->width() / (double) sequenceEndFrame) : 1;
             ui->headers->update_zoom(qMax(ui->headers->get_zoom(), minimum_zoom));
-            ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequenceEndFrame, ui->headers->width());
+            set_sb_max();
             viewer_widget->waveform_zoom = ui->headers->get_zoom();
         } else {
             ui->headers->update();
@@ -393,7 +393,13 @@ void Viewer::update_parents() {
 		update_ui(false);
 	} else {
 		update_viewer();
-	}
+    }
+}
+
+void Viewer::resizeEvent(QResizeEvent *event) {
+    if (seq != NULL) {
+        set_sb_max();
+    }
 }
 
 void Viewer::update_viewer() {
@@ -430,9 +436,15 @@ void Viewer::set_zoom_value(double d) {
         viewer_widget->waveform_zoom = d;
         viewer_widget->update();
     }
+    if (seq != NULL) {
+        set_sb_max();
+        if (!ui->horizontalScrollBar->is_resizing())
+            center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
+    }
+}
+
+void Viewer::set_sb_max() {
     ui->headers->set_scrollbar_max(ui->horizontalScrollBar, seq->getEndFrame(), ui->headers->width());
-    if (!ui->horizontalScrollBar->is_resizing())
-        center_scroll_to_playhead(ui->horizontalScrollBar, ui->headers->get_zoom(), seq->playhead);
 }
 
 void Viewer::set_media(Media* m) {
@@ -575,6 +587,7 @@ void Viewer::zoom_update(int i) {
 }
 
 void Viewer::resize_move(double d) {
+    dout << "RM";
     set_zoom_value(ui->headers->get_zoom()*d);
 }
 
