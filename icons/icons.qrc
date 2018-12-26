@@ -56,5 +56,7 @@
         <file>tri-left.png</file>
         <file>tri-right.png</file>
         <file>tri-up.png</file>
+        <file>hand.png</file>
+        <file>hand-disabled.png</file>
     </qresource>
 </RCC>

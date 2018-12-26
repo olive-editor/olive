@@ -698,7 +698,12 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 					update_ui(false);
 				}
 			}
-				break;
+                break;
+            case TIMELINE_TOOL_HAND:
+                panel_timeline->hand_moving = true;
+                panel_timeline->drag_x_start = pos.x();
+                panel_timeline->drag_y_start = pos.y();
+                break;
 			case TIMELINE_TOOL_EDIT:
 				if (config.edit_tool_also_seeks) panel_sequence_viewer->seek(panel_timeline->drag_frame_start);
 				panel_timeline->selecting = true;
@@ -1134,6 +1139,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             panel_timeline->rect_select_proc = false;
             panel_timeline->transition_tool_init = false;
             panel_timeline->transition_tool_proc = false;
+            panel_timeline->hand_moving = false;
             pre_clips.clear();
             post_clips.clear();
 
@@ -1630,6 +1636,16 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			} else {
 				panel_timeline->repaint_timeline();
             }
+        } else if (panel_timeline->hand_moving) {
+            panel_timeline->block_repaints = true;
+            panel_timeline->ui->horizontalScrollBar->setValue(panel_timeline->ui->horizontalScrollBar->value() + panel_timeline->drag_x_start - event->pos().x());
+            scrollBar->setValue(scrollBar->value() + panel_timeline->drag_y_start - event->pos().y());
+            panel_timeline->block_repaints = false;
+
+            panel_timeline->repaint_timeline();
+
+            panel_timeline->drag_x_start = event->pos().x();
+            panel_timeline->drag_y_start = event->pos().y();
         } else if (panel_timeline->moving_init) {
             if (track_resizing) {
                 int diff = track_resize_mouse_cache - event->pos().y();
@@ -2603,7 +2619,11 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 			p.setPen(Qt::gray);
 			p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->calculate_track_height(panel_timeline->cursor_track, -1));
 		}
-	}
+    }
+}
+
+void TimelineWidget::resizeEvent(QResizeEvent *event) {
+    scrollBar->setPageStep(height());
 }
 
 bool TimelineWidget::is_track_visible(int track) {

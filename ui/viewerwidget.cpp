@@ -258,7 +258,7 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     if (waveform) {
         seek_from_click(event->x());
-    } else if (event->buttons() & Qt::MiddleButton) {
+    } else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
         container->dragScrollPress(event->pos());
     } else {
         drag_start_x = event->pos().x();
@@ -277,10 +277,14 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
+    unsetCursor();
+    if (panel_timeline->tool == TIMELINE_TOOL_HAND) {
+        setCursor(Qt::OpenHandCursor);
+    }
     if (dragging) {
 		if (waveform) {
 			seek_from_click(event->x());
-        } else if (event->buttons() & Qt::MiddleButton) {
+        } else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
             container->dragScrollMove(event->pos());
         } else if (gizmos == NULL) {
 			QDrag* drag = new QDrag(this);
@@ -293,7 +297,6 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
             move_gizmos(event, false);
         }
     } else {
-        unsetCursor();
         EffectGizmo* g = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
         if (g != NULL) {
             if (g->get_cursor() > -1) {
@@ -304,7 +307,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
-    move_gizmos(event, true);
+    if (dragging) move_gizmos(event, true);
     dragging = false;
 }
 

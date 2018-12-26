@@ -33,6 +33,8 @@ public:
 protected:
 	void paintEvent(QPaintEvent*);
 
+    void resizeEvent(QResizeEvent *event);
+
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);

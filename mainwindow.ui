@@ -176,6 +176,7 @@
     <addaction name="actionRazor_Tool"/>
     <addaction name="actionSlip_Tool"/>
     <addaction name="actionSlide_Tool"/>
+    <addaction name="actionHand_Tool"/>
     <addaction name="actionTransition_Tool"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Snapping"/>
@@ -946,6 +947,14 @@
    </property>
    <property name="shortcut">
     <string>F11</string>
+   </property>
+  </action>
+  <action name="actionHand_Tool">
+   <property name="text">
+    <string>Hand Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>H</string>
    </property>
   </action>
  </widget>

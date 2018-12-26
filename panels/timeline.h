@@ -185,6 +185,13 @@ public:
 	const EffectMeta* transition_tool_meta;
 	int transition_tool_side;
 
+    // hand tool variables
+    bool hand_moving;
+    int drag_x_start;
+    int drag_y_start;
+
+    bool block_repaints;
+
     Ui::Timeline *ui;
 
     void resizeEvent(QResizeEvent *event);
@@ -226,6 +233,8 @@ private slots:
 	void transition_menu_select(QAction*);
 
     void resize_move(double d);
+
+    void on_toolHandButton_clicked();
 
 private:
 	void set_zoom_value(double v);
