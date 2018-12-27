@@ -9,5 +9,8 @@ void GraphView::paintEvent(QPaintEvent *event) {
 
     p.setPen(Qt::white);
 
-    p.drawRect(rect());
+    QRect border = rect();
+    border.setWidth(border.width()-1);
+    border.setHeight(border.height()-1);
+    p.drawRect(border);
 }

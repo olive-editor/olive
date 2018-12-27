@@ -111,6 +111,7 @@
     <addaction name="actionFootage_Viewer"/>
     <addaction name="actionViewer"/>
     <addaction name="actionTimeline"/>
+    <addaction name="actionGraph_Editor"/>
     <addaction name="separator"/>
     <addaction name="actionReset_to_default_layout"/>
    </widget>
@@ -955,6 +956,14 @@
    </property>
    <property name="shortcut">
     <string>H</string>
+   </property>
+  </action>
+  <action name="actionGraph_Editor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Graph Editor</string>
    </property>
   </action>
  </widget>
