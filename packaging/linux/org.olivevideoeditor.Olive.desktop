@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Olive
-Comment=Professional open-source NLE video editor
+Comment=Professional open-source non-linear video editor
 Exec=olive-editor
 Icon=org.olivevideoeditor.Olive
 Terminal=false

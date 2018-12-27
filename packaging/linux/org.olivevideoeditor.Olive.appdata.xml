@@ -5,9 +5,9 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPLv3</project_license>
   <developer_name>Olive Team</developer_name>
-  <summary>NLE video editor</summary>
-  <summary xml:lang="pt_BR">Editor de vídeo NLE</summary>
-  <summary xml:lang="es">Editor de video NLE</summary>
+  <summary>Non-linear video editor</summary>
+  <summary xml:lang="pt_BR">Editor de vídeo não-linear</summary>
+  <summary xml:lang="es">Editor de video no lineal</summary>
   <description><p>Olive is a free non-linear video editor aiming to provide a fully-featured alternative to high-end professional video editing software.</p></description>
   <description xml:lang="pt_BR">Olive é um editor de vídeo não-linear com o objetivo de fornecer uma alternativa completa para softwares profissionais de edição de vídeo.<p></p></description>
   <description xml:lang="es"><p>Olive es un editor de video no lineal gratuito que apunta a brindar una alternativa completa al software de edición de video profesional.</p></description>
