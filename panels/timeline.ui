@@ -196,6 +196,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="toolHandButton">
+         <property name="toolTip">
+          <string>Hand Tool (H)</string>
+         </property>
          <property name="text">
           <string/>
          </property>
