@@ -27,11 +27,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-include(dependencies.pri)
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
+        main.cpp \
+        mainwindow.cpp \
     panels/project.cpp \
     panels/effectcontrols.cpp \
     panels/viewer.cpp \
@@ -109,7 +108,7 @@ SOURCES += \
     ui/keyframenavigator.cpp
 
 HEADERS += \
-    mainwindow.h \
+        mainwindow.h \
     panels/project.h \
     panels/effectcontrols.h \
     panels/viewer.h \
@@ -189,7 +188,7 @@ HEADERS += \
     ui/keyframenavigator.h
 
 FORMS += \
-    mainwindow.ui \
+        mainwindow.ui \
     panels/effectcontrols.ui \
     panels/viewer.ui \
     panels/timeline.ui \
@@ -199,6 +198,21 @@ FORMS += \
     dialogs/preferencesdialog.ui \
     dialogs/demonotice.ui
 
+win32 {
+    RC_FILE = icons/resources.rc
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
+}
+
+mac {
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
+    ICON = icons/olive.icns
+    INCLUDEPATH = /usr/local/include
+}
+
+unix:!mac {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
+}
 
 RESOURCES += \
     icons/icons.qrc
