@@ -237,7 +237,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         } else if (m->url.contains('%')) {
                                             // hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
                                             m->url = internal_proj_dir_test;
-                                            dout << "[INFO] Guess image sequence" << attr.value().toString() << "path to project's current directory";
+                                            dout << "[INFO] Guess image sequence" << attr.value().toString() << "path to project's internal directory";
                                         } else {
                                             dout << "[INFO] Failed to match" << attr.value().toString() << "to file";
                                         }

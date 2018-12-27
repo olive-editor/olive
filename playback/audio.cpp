@@ -99,8 +99,10 @@ void stop_audio() {
 }
 
 void clear_audio_ibuffer() {
+    if (audio_thread != NULL) audio_thread->lock.lock();
 	memset(audio_ibuffer, 0, audio_ibuffer_size);
     audio_ibuffer_read = 0;
+    if (audio_thread != NULL) audio_thread->lock.unlock();
 }
 
 int get_buffer_offset_from_frame(double framerate, long frame) {
@@ -130,7 +132,7 @@ void AudioSenderThread::run() {
 	// start data loop
 	send_audio_to_output(0, audio_ibuffer_size);
 
-	lock.lock();
+    lock.lock();
 	while (true) {
 		cond.wait(&lock);
 		if (close) {
@@ -149,7 +151,7 @@ void AudioSenderThread::run() {
 
             audio_scrub = false;
 		}
-	}
+    }
 	lock.unlock();
 }
 

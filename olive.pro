@@ -105,7 +105,9 @@ SOURCES += \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp \
-    ui/keyframenavigator.cpp
+    ui/keyframenavigator.cpp \
+    panels/grapheditor.cpp \
+    ui/graphview.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -185,7 +187,9 @@ HEADERS += \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h \
-    ui/keyframenavigator.h
+    ui/keyframenavigator.h \
+    panels/grapheditor.h \
+    ui/graphview.h
 
 FORMS += \
         mainwindow.ui \

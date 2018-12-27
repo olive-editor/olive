@@ -18,6 +18,7 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
+#include "panels/grapheditor.h"
 
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"
@@ -57,31 +58,28 @@ void MainWindow::setup_layout(bool reset) {
     panel_footage_viewer->show();
     panel_sequence_viewer->show();
     panel_timeline->show();
+    panel_graph_editor->hide();
 
-    bool load_default = true;
-
-    /*if (!reset) {
-        QFile panel_config(get_data_path() + "/layout");
-        if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
-            if (restoreState(panel_config.readAll(), 0)) {
-                load_default = false;
-            }
-            panel_config.close();
-        }
-    }*/
-
-    if (load_default) {
-        addDockWidget(Qt::TopDockWidgetArea, panel_project);
-        addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
-        tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
-        panel_footage_viewer->raise();
-        addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
-        addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+    addDockWidget(Qt::TopDockWidgetArea, panel_project);
+    addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
+    tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
+    panel_footage_viewer->raise();
+    addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
+    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+    panel_graph_editor->setFloating(true);
 
 // workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-        resizeDocks({panel_project}, {40}, Qt::Horizontal);
+    resizeDocks({panel_project}, {40}, Qt::Horizontal);
 #endif
+
+    // load panels from file
+    if (!reset) {
+        QFile panel_config(get_data_path() + "/layout");
+        if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
+            restoreState(panel_config.readAll(), 0);
+            panel_config.close();
+        }
     }
 
     layout()->update();
@@ -194,12 +192,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
-    // TODO maybe replace these with non-pointers later on?
-    panel_sequence_viewer = new Viewer(this);
-    panel_footage_viewer = new Viewer(this);
-    panel_project = new Project(this);
-    panel_effect_controls = new EffectControls(this);
-    panel_timeline = new Timeline(this);
+    alloc_panels(this);
 
     if (!data_dir.isEmpty()) {
         // detect auto-recovery file
@@ -259,16 +252,7 @@ MainWindow::~MainWindow() {
 
 	delete ui;
 
-    delete panel_sequence_viewer;
-    panel_sequence_viewer = NULL;
-    delete panel_footage_viewer;
-    panel_footage_viewer = NULL;
-    delete panel_project;
-    panel_project = NULL;
-    delete panel_effect_controls;
-    panel_effect_controls = NULL;
-	delete panel_timeline;
-    panel_timeline = NULL;
+    free_panels();
 
 	close_debug();
 }
@@ -673,6 +657,7 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
     ui->actionTimeline->setChecked(panel_timeline->isVisible());
     ui->actionViewer->setChecked(panel_sequence_viewer->isVisible());
     ui->actionFootage_Viewer->setChecked(panel_footage_viewer->isVisible());
+    ui->actionGraph_Editor->setChecked(panel_graph_editor->isVisible());
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
@@ -1074,4 +1059,8 @@ void MainWindow::on_actionHand_Tool_triggered() {
             || panel_footage_viewer->is_focused()
             || panel_sequence_viewer->is_focused())
         panel_timeline->ui->toolHandButton->click();
+}
+
+void MainWindow::on_actionGraph_Editor_triggered() {
+    panel_graph_editor->setVisible(!panel_graph_editor->isVisible());
 }
