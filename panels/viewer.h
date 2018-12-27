@@ -77,15 +77,17 @@ public slots:
 	void play_wake();
 
 private slots:
-	void on_pushButton_clicked();
-    void on_pushButton_5_clicked();
-	void on_pushButton_2_clicked();
-	void on_pushButton_4_clicked();
-    void on_pushButton_3_clicked();
+    void on_btnSkipToStart_clicked();
+    void on_btnRewind_clicked();
+    void on_btnPlay_clicked();
+    void on_btnFastForward_clicked();
+    void on_btnSkipToEnd_clicked();
+
 	void update_playhead();
 	void timer_update();
 	void recording_flasher_update();
     void resize_move(double d);
+
 private:
 	void clean_created_seq();
     void set_sequence(bool main, Sequence* s);
