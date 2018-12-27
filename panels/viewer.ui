@@ -138,7 +138,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="btnSkipToStart">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -150,7 +150,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="btnRewind">
               <property name="icon">
                <iconset resource="../icons/icons.qrc">
                 <normaloff>:/icons/rew.png</normaloff>
@@ -159,7 +159,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QPushButton" name="btnPlay">
               <property name="icon">
                <iconset resource="../icons/icons.qrc">
                 <normaloff>:/icons/play.png</normaloff>
@@ -168,7 +168,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="btnFastForward">
               <property name="icon">
                <iconset>
                 <normalon>:/icons/ff.png</normalon>
@@ -178,7 +178,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="btnSkipToEnd">
               <property name="icon">
                <iconset resource="../icons/icons.qrc">
                 <normaloff>:/icons/next.png</normaloff>

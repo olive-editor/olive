@@ -78,11 +78,11 @@ Viewer::~Viewer() {
 bool Viewer::is_focused() {
     return ui->headers->hasFocus()
             || viewer_widget->hasFocus()
-            || ui->pushButton->hasFocus()
-            || ui->pushButton_2->hasFocus()
-            || ui->pushButton_3->hasFocus()
-            || ui->pushButton_4->hasFocus()
-            || ui->pushButton_5->hasFocus();
+            || ui->btnSkipToStart->hasFocus()
+            || ui->btnRewind->hasFocus()
+            || ui->btnPlay->hasFocus()
+            || ui->btnFastForward->hasFocus()
+            || ui->btnSkipToEnd->hasFocus();
 }
 
 void Viewer::set_main_sequence() {
@@ -278,7 +278,7 @@ void Viewer::cue_recording(long start, long end, int track) {
 void Viewer::uncue_recording() {
 	cue_recording_internal = false;
 	recording_flasher.stop();
-	ui->pushButton_3->setStyleSheet(QString());
+    ui->btnPlay->setStyleSheet(QString());
 }
 
 bool Viewer::is_recording_cued() {
@@ -525,23 +525,23 @@ void Viewer::set_media(Media* m) {
     set_sequence(false, seq);
 }
 
-void Viewer::on_pushButton_clicked() {
+void Viewer::on_btnSkipToStart_clicked() {
 	go_to_start();
 }
 
-void Viewer::on_pushButton_5_clicked() {
+void Viewer::on_btnSkipToEnd_clicked() {
 	go_to_end();
 }
 
-void Viewer::on_pushButton_2_clicked() {
+void Viewer::on_btnRewind_clicked() {
 	previous_frame();
 }
 
-void Viewer::on_pushButton_4_clicked() {
+void Viewer::on_btnFastForward_clicked() {
 	next_frame();
 }
 
-void Viewer::on_pushButton_3_clicked() {
+void Viewer::on_btnPlay_clicked() {
 	toggle_play();
 }
 
@@ -566,10 +566,10 @@ void Viewer::timer_update() {
 }
 
 void Viewer::recording_flasher_update() {
-	if (ui->pushButton_3->styleSheet().isEmpty()) {
-		ui->pushButton_3->setStyleSheet("background: red;");
+    if (ui->btnPlay->styleSheet().isEmpty()) {
+        ui->btnPlay->setStyleSheet("background: red;");
 	} else {
-		ui->pushButton_3->setStyleSheet(QString());
+        ui->btnPlay->setStyleSheet(QString());
     }
 }
 
@@ -604,11 +604,11 @@ void Viewer::set_sequence(bool main, Sequence *s) {
     ui->currentTimecode->setEnabled(!null_sequence);
     viewer_widget->setEnabled(!null_sequence);
     viewer_widget->setVisible(!null_sequence);
-    ui->pushButton->setEnabled(!null_sequence);
-    ui->pushButton_2->setEnabled(!null_sequence);
-    ui->pushButton_3->setEnabled(!null_sequence);
-    ui->pushButton_4->setEnabled(!null_sequence);
-    ui->pushButton_5->setEnabled(!null_sequence);
+    ui->btnSkipToStart->setEnabled(!null_sequence);
+    ui->btnRewind->setEnabled(!null_sequence);
+    ui->btnPlay->setEnabled(!null_sequence);
+    ui->btnFastForward->setEnabled(!null_sequence);
+    ui->btnSkipToEnd->setEnabled(!null_sequence);
 
     if (!null_sequence) {
 		ui->currentTimecode->set_frame_rate(seq->frame_rate);
@@ -636,5 +636,5 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 }
 
 void Viewer::set_playpause_icon(bool play) {
-	ui->pushButton_3->setIcon(QIcon((play) ? ":/icons/play.png" : ":/icons/pause.png"));
+    ui->btnPlay->setIcon(QIcon((play) ? ":/icons/play.png" : ":/icons/pause.png"));
 }
