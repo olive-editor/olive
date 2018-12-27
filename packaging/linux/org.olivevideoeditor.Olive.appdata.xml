@@ -13,6 +13,7 @@
   <description xml:lang="es"><p>Olive es un editor de video no lineal gratuito que apunta a brindar una alternativa completa al software de edición de video profesional.</p></description>
   <url type="homepage">https://www.olivevideoeditor.org</url>
   <url type="donation">https://www.patreon.com/olivevideoeditor</url>
+  <url type="help">https://github.com/olive-editor/olive/issues</url>
   <screenshots>
     <screenshot type="default"><image>http://images.libregraphicsworld.org/video/2018/12/introducing-olive/olive-alpha-main-window.jpg</image></screenshot>
   </screenshots>
