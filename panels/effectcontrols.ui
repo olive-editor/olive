@@ -151,7 +151,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QPushButton" name="add_video_effect_button">
+                   <widget class="QPushButton" name="btnAddVideoEffect">
                     <property name="toolTip">
                      <string>Add Video Effect</string>
                     </property>
@@ -166,7 +166,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer">
+                   <spacer name="hsLeftVideoEffects">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -179,7 +179,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label">
+                   <widget class="QLabel" name="lblVideoEffects">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                       <horstretch>0</horstretch>
@@ -200,7 +200,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_2">
+                   <spacer name="hsRightVideoEffects">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -213,7 +213,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="add_video_transition_button">
+                   <widget class="QPushButton" name="btnAddVideoTransition">
                     <property name="toolTip">
                      <string>Add Video Transition</string>
                     </property>
@@ -296,7 +296,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QPushButton" name="add_audio_effect_button">
+                   <widget class="QPushButton" name="btnAddAudioEffect">
                     <property name="toolTip">
                      <string>Add Audio Effect</string>
                     </property>
@@ -311,7 +311,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_3">
+                   <spacer name="hsLeftAudioEffects">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -324,7 +324,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_3">
+                   <widget class="QLabel" name="lblAudioEffects">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                       <horstretch>0</horstretch>
@@ -345,7 +345,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_4">
+                   <spacer name="hsRightAudioEffects">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -358,7 +358,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="add_audio_transition_button">
+                   <widget class="QPushButton" name="btnAddAudioTransition">
                     <property name="toolTip">
                      <string>Add Audio Transition</string>
                     </property>
@@ -400,7 +400,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_2">
+             <widget class="QLabel" name="lblMultipleClipsSelected">
               <property name="text">
                <string>(Multiple clips selected)</string>
               </property>
