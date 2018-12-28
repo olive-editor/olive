@@ -107,6 +107,7 @@ void update_ui(bool modified) {
 	panel_effect_controls->update_keyframes();
 	panel_timeline->repaint_timeline();
 	panel_sequence_viewer->update_viewer();
+	panel_graph_editor->update_panel();
 }
 
 QDockWidget *get_focused_panel() {

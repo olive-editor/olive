@@ -107,7 +107,10 @@ SOURCES += \
     project/sourcescommon.cpp \
     ui/keyframenavigator.cpp \
     panels/grapheditor.cpp \
-    ui/graphview.cpp
+    ui/graphview.cpp \
+    ui/keyframedrawing.cpp \
+    ui/clickablelabel.cpp \
+    project/keyframe.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -189,7 +192,10 @@ HEADERS += \
     project/sourcescommon.h \
     ui/keyframenavigator.h \
     panels/grapheditor.h \
-    ui/graphview.h
+    ui/graphview.h \
+    ui/keyframedrawing.h \
+    ui/clickablelabel.h \
+    project/keyframe.h
 
 FORMS += \
         mainwindow.ui \

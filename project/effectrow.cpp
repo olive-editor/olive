@@ -1,6 +1,5 @@
 #include "effectrow.h"
 
-#include <QLabel>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMessageBox>
@@ -11,9 +10,11 @@
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
+#include "panels/grapheditor.h"
 #include "effect.h"
 #include "ui/viewerwidget.h"
 #include "ui/keyframenavigator.h"
+#include "ui/clickablelabel.h"
 
 EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QString &n, int row) :
     parent_effect(parent),
@@ -24,15 +25,19 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
     ui_row(row),
     just_made_unsafe_keyframe(false)
 {
-    label = new QLabel(name);
+	label = new ClickableLabel(name);
+
     ui->addWidget(label, row, 0);
 
     if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
+		connect(label, SIGNAL(clicked()), this, SLOT(focus_row()));
+
         keyframe_nav = new KeyframeNavigator();
         connect(keyframe_nav, SIGNAL(goto_previous_key()), this, SLOT(goto_previous_key()));
         connect(keyframe_nav, SIGNAL(toggle_key()), this, SLOT(toggle_key()));
         connect(keyframe_nav, SIGNAL(goto_next_key()), this, SLOT(goto_next_key()));
-        connect(keyframe_nav, SIGNAL(set_keyframe_enabled(bool)), this, SLOT(set_keyframe_enabled(bool)));
+		connect(keyframe_nav, SIGNAL(keyframe_enabled_changed(bool)), this, SLOT(set_keyframe_enabled(bool)));
+		connect(keyframe_nav, SIGNAL(clicked()), this, SLOT(focus_row()));
         ui->addWidget(keyframe_nav, row, 6);
     }
 }
@@ -114,11 +119,16 @@ void EffectRow::goto_next_key() {
             key = qMin(comp, key);
         }
     }
-    if (key != LONG_MAX) panel_sequence_viewer->seek(key);
+	if (key != LONG_MAX) panel_sequence_viewer->seek(key);
+}
+
+void EffectRow::focus_row() {
+	panel_graph_editor->set_row(this);
 }
 
 EffectField* EffectRow::add_field(int type, const QString& id, int colspan) {
     EffectField* field = new EffectField(this, type, id);
+	if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) connect(field, SIGNAL(clicked()), this, SLOT(focus_row()));
     fields.append(field);
     QWidget* element = field->get_ui_element();
     ui->addWidget(element, ui_row, fields.size(), 1, colspan);
@@ -162,7 +172,11 @@ void EffectRow::delete_keyframe_at_time(KeyframeDelete* kd, long time) {
             delete_keyframe(kd, i);
             break;
         }
-    }
+	}
+}
+
+const QString &EffectRow::get_name() {
+	return name;
 }
 
 void EffectRow::delete_keyframe(KeyframeDelete* kd, int index) {

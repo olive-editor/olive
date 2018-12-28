@@ -10,6 +10,7 @@
 #include "project/clip.h"
 #include "panels/timeline.h"
 #include "panels/effectcontrols.h"
+#include "panels/grapheditor.h"
 #include "ui/checkboxex.h"
 #include "debug.h"
 #include "io/path.h"
@@ -489,6 +490,7 @@ void Effect::refresh() {}
 
 void Effect::field_changed() {
     panel_sequence_viewer->viewer_widget->update();
+	panel_graph_editor->update_panel();
 }
 
 void Effect::show_context_menu(const QPoint& pos) {

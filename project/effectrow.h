@@ -13,6 +13,7 @@ class QPushButton;
 class ComboAction;
 class QHBoxLayout;
 class KeyframeNavigator;
+class ClickableLabel;
 
 class EffectRow : public QObject {
     Q_OBJECT
@@ -25,20 +26,23 @@ public:
     void set_keyframe_now(ComboAction *ca);
     void delete_keyframe(KeyframeDelete *kd, int index);
     void delete_keyframe_at_time(KeyframeDelete* kd, long time);
-    QLabel* label;
+	ClickableLabel* label;
     Effect* parent_effect;
     bool savable;
+	const QString& get_name();
 
     bool isKeyframing();
     void setKeyframing(bool);
 
     QVector<long> keyframe_times;
     QVector<int> keyframe_types;
+public slots:
+	void goto_previous_key();
+	void toggle_key();
+	void goto_next_key();
+	void focus_row();
 private slots:
-    void set_keyframe_enabled(bool);
-    void goto_previous_key();
-    void toggle_key();
-    void goto_next_key();
+	void set_keyframe_enabled(bool);
 private:
     bool keyframing;
     QGridLayout* ui;

@@ -69,6 +69,7 @@ private slots:
 signals:
     void changed();
     void toggled(bool);
+	void clicked();
 };
 
 #endif // EFFECTFIELD_H

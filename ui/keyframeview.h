@@ -23,7 +23,7 @@ public:
 public slots:
 	void set_x_scroll(int);
 	void set_y_scroll(int);
-    void resize_move(double d);
+	void resize_move(double d);
 private:
 	long adjust_row_keyframe(EffectRow* row, long time);
 	QVector<EffectRow*> selected_rows;
@@ -35,7 +35,6 @@ private:
 	void mouseMoveEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
-    void draw_keyframe(QPainter& p, int type, int x, int y, bool darker);
     bool mousedown;
 	bool dragging;
 	bool keys_selected;
@@ -53,6 +52,8 @@ private:
 
 	int x_scroll;
 	int y_scroll;
+
+	void update_keys();
 private slots:
     void show_context_menu(const QPoint& pos);
     void menu_set_key_type(QAction*);

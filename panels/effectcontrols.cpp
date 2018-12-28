@@ -16,6 +16,7 @@
 #include "panels/project.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
+#include "panels/grapheditor.h"
 #include "ui/viewerwidget.h"
 #include "io/clipboard.h"
 #include "debug.h"
@@ -203,6 +204,9 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 void EffectControls::clear_effects(bool clear_cache) {
 	// clear existing clips
 	deselect_all_effects(NULL);
+
+	// clear graph editor
+	if (panel_graph_editor != NULL) panel_graph_editor->set_row(NULL);
 
     QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(ui->video_effect_area->layout());
     QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(ui->audio_effect_area->layout());

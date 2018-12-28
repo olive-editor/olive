@@ -12,15 +12,13 @@
 #include "ui/viewerwidget.h"
 #include "project/sequence.h"
 #include "panels/grapheditor.h"
+#include "ui/keyframedrawing.h"
 #include "ui_effectcontrols.h"
+#include "ui/clickablelabel.h"
 
-#include <QLabel>
 #include <QMouseEvent>
 #include <QtMath>
 #include <QMenu>
-
-#define KEYFRAME_SIZE 6
-#define KEYFRAME_POINT_COUNT 4
 
 long KeyframeView::adjust_row_keyframe(EffectRow* row, long time) {
 	return time-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
@@ -36,7 +34,7 @@ KeyframeView::KeyframeView(QWidget *parent) :
 	select_rect(false),	
 	x_scroll(0),
     y_scroll(0),
-    scroll_drag(false)
+	scroll_drag(false)
 {
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
@@ -73,7 +71,7 @@ void KeyframeView::menu_set_key_type(QAction* a) {
             ca->append(new SetInt(&selected_rows.at(i)->keyframe_types[selected_keyframes.at(i)], a->data().toInt()));
         }
         undo_stack.push(ca);
-        update();
+		update_keys();
     }
 }
 
@@ -101,7 +99,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 					for (int j=0;j<e->row_count();j++) {
 						EffectRow* row = e->row(j);
 
-						QLabel* label = row->label;
+						ClickableLabel* label = row->label;
 						QWidget* contents = e->container->contents;
 
 						int keyframe_y = label->y() + (label->height()>>1) + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y() - e->container->title_bar->height()/* - y_scroll*/;
@@ -153,6 +151,11 @@ bool KeyframeView::keyframeIsSelected(EffectRow *row, int keyframe) {
 	return false;
 }
 
+void KeyframeView::update_keys() {
+//	panel_graph_editor->update_panel();
+	update();
+}
+
 void KeyframeView::delete_selected_keyframes() {
 	KeyframeDelete* kd = new KeyframeDelete();
 	bool del = false;
@@ -165,7 +168,7 @@ void KeyframeView::delete_selected_keyframes() {
 
 		selected_keyframes.clear();
 		selected_rows.clear();
-		update();
+		update_keys();
 		panel_sequence_viewer->viewer_widget->update();
 	} else {
 		delete kd;
@@ -174,33 +177,12 @@ void KeyframeView::delete_selected_keyframes() {
 
 void KeyframeView::set_x_scroll(int s) {
 	x_scroll = s;
-	update();
+	update_keys();
 }
 
 void KeyframeView::set_y_scroll(int s) {
 	y_scroll = s;
-	update();
-}
-
-void KeyframeView::draw_keyframe(QPainter &p, int type, int x, int y, bool darker) {
-    int color = (darker) ? 100 : 160;
-    p.setPen(QColor(0, 0, 0));
-    p.setBrush(QColor(color, color, color));
-
-    switch (type) {
-    case KEYFRAME_TYPE_LINEAR:
-    {
-        QPoint points[KEYFRAME_POINT_COUNT] = {QPoint(x-KEYFRAME_SIZE, y), QPoint(x, y-KEYFRAME_SIZE), QPoint(x+KEYFRAME_SIZE, y), QPoint(x, y+KEYFRAME_SIZE)};
-        p.drawPolygon(points, KEYFRAME_POINT_COUNT);
-    }
-        break;
-    case KEYFRAME_TYPE_BEZIER:
-        p.drawEllipse(QPoint(x, y), KEYFRAME_SIZE, KEYFRAME_SIZE);
-        break;
-    case KEYFRAME_TYPE_HOLD:
-        p.drawRect(QRect(x - KEYFRAME_SIZE, y - KEYFRAME_SIZE, KEYFRAME_SIZE*2, KEYFRAME_SIZE*2));
-        break;
-    }
+	update_keys();
 }
 
 void KeyframeView::resize_move(double d) {
@@ -227,6 +209,9 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
     for (int i=0;i<rowY.size();i++) {
         if (mouse_y > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && mouse_y < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
             EffectRow* row = rows.at(i);
+
+			row->focus_row();
+
             for (int j=0;j<row->keyframe_times.size();j++) {
                 long eval_keyframe_time = row->keyframe_times.at(j)-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
                 if (eval_keyframe_time >= frame_min && eval_keyframe_time <= frame_max) {
@@ -259,7 +244,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
         keys_selected = true;
     }
 
-    update();
+	update_keys();
 
     if (event->button() == Qt::LeftButton) {
         mousedown = true;
@@ -345,7 +330,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 
 			select_rect = true;
 		}
-		update();
+		update_keys();
     }
 }
 
@@ -363,5 +348,5 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
     mousedown = false;
     scroll_drag = false;
 	panel_timeline->snapped = false;
-	update();
+	update_ui(false);
 }

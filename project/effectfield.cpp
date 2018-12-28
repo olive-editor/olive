@@ -28,6 +28,7 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
         LabelSlider* ls = new LabelSlider();
         ui_element = ls;
         connect(ls, SIGNAL(valueChanged()), this, SLOT(ui_element_change()));
+		connect(ls, SIGNAL(clicked()), this, SIGNAL(clicked()));
     }
         break;
     case EFFECT_FIELD_COLOR:

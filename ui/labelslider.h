@@ -25,6 +25,7 @@ public:
 	QString valueToString(double v);
 	double getPreviousValue();
     void set_previous_value();
+	void set_color(QString c = 0);
 	int decimal_places;
 protected:
     void mousePressEvent(QMouseEvent *ev);
@@ -53,6 +54,7 @@ private:
 	double frame_rate;
 signals:
 	void valueChanged();
+	void clicked();
 };
 
 #endif // LABELSLIDER_H
