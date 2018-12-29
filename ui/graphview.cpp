@@ -18,7 +18,7 @@
 
 QColor get_curve_color(int index, int length) {
 	QColor c;
-	int hue = (double(index)/double(length))*255;
+	int hue = qRound((double(index)/double(length))*255);
 	c.setHsv(hue, 255, 255);
 	return c;
 }
