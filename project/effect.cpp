@@ -155,48 +155,55 @@ void load_internal_effects() {
 }
 
 void load_shader_effects() {
-	QString effects_path = get_effects_dir();
-    QDir effects_dir(effects_path);
-    if (effects_dir.exists()) {
-        QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
-		for (int i=0;i<entries.size();i++) {
-			QFile file(effects_path + "/" + entries.at(i));
-			if (!file.open(QIODevice::ReadOnly)) {
-				dout << "[ERROR] Could not open" << entries.at(i);
-				return;
-			}
+	QList<QString> effects_paths;
+	effects_paths.append(get_app_dir() + "/effects");
+	effects_paths.append(get_app_dir() + "/../share/olive-editor/effects");
 
-			QXmlStreamReader reader(&file);
-			while (!reader.atEnd()) {
-				if (reader.name() == "effect") {
-					QString effect_name = "";
-					QString effect_cat = "";
-					const QXmlStreamAttributes attr = reader.attributes();
-					for (int j=0;j<attr.size();j++) {
-						if (attr.at(j).name() == "name") {
-							effect_name = attr.at(j).value().toString();
-						} else if (attr.at(j).name() == "category") {
-							effect_cat = attr.at(j).value().toString();
-						}
-					}
-					if (!effect_name.isEmpty()) {
-						EffectMeta em;
-                        em.type = EFFECT_TYPE_EFFECT;
-                        em.subtype = EFFECT_TYPE_VIDEO;
-						em.name = effect_name;
-						em.category = effect_cat;
-						em.filename = entries.at(i);
-						em.internal = -1;
-                        effects.append(em);
-					} else {
-						dout << "[ERROR] Invalid effect found in" << entries.at(i);
-					}
-					break;
+	for (int h=0;h<effects_paths.size();h++) {
+		const QString& effects_path = effects_paths.at(h);
+		QDir effects_dir(effects_path);
+		if (effects_dir.exists()) {
+			QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
+			for (int i=0;i<entries.size();i++) {
+				QFile file(effects_path + "/" + entries.at(i));
+				if (!file.open(QIODevice::ReadOnly)) {
+					dout << "[ERROR] Could not open" << entries.at(i);
+					return;
 				}
-				reader.readNext();
-			}
 
-			file.close();
+				QXmlStreamReader reader(&file);
+				while (!reader.atEnd()) {
+					if (reader.name() == "effect") {
+						QString effect_name = "";
+						QString effect_cat = "";
+						const QXmlStreamAttributes attr = reader.attributes();
+						for (int j=0;j<attr.size();j++) {
+							if (attr.at(j).name() == "name") {
+								effect_name = attr.at(j).value().toString();
+							} else if (attr.at(j).name() == "category") {
+								effect_cat = attr.at(j).value().toString();
+							}
+						}
+						if (!effect_name.isEmpty()) {
+							EffectMeta em;
+							em.type = EFFECT_TYPE_EFFECT;
+							em.subtype = EFFECT_TYPE_VIDEO;
+							em.name = effect_name;
+							em.category = effect_cat;
+							em.filename = file.fileName();
+							em.path = effects_path;
+							em.internal = -1;
+							effects.append(em);
+						} else {
+							dout << "[ERROR] Invalid effect found in" << entries.at(i);
+						}
+						break;
+					}
+					reader.readNext();
+				}
+
+				file.close();
+			}
 		}
 	}
 }
@@ -252,7 +259,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	container->setText(em->name);
 
 	if (!em->filename.isEmpty()) {
-		QFile effect_file(get_effects_dir() + "/" + em->filename);
+		QFile effect_file(em->filename);
 		if (effect_file.open(QFile::ReadOnly)) {
 			QXmlStreamReader reader(&effect_file);
 
@@ -400,7 +407,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 							fragPath = attr.value().toString();
 						}
 					}
-				} else if (reader.name() == "superimpose" && reader.isStartElement()) {
+				}/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
 					enable_superimpose = true;
 					const QXmlStreamAttributes& attributes = reader.attributes();
 					for (int i=0;i<attributes.size();i++) {
@@ -416,7 +423,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 							break;
 						}
 					}
-				}
+				}*/
 				reader.readNext();
 			}
 
@@ -732,8 +739,8 @@ void Effect::open() {
 			dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
 		} else {
 			glslProgram = new QOpenGLShaderProgram();
-			if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, get_effects_dir() + "/" + vertPath);
-			if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, get_effects_dir() + "/" + fragPath);
+			if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath);
+			if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath);
 			glslProgram->link();
 			isOpen = true;
 		}
