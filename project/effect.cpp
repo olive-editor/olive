@@ -158,6 +158,8 @@ void load_shader_effects() {
 	QList<QString> effects_paths;
 	effects_paths.append(get_app_dir() + "/effects");
 	effects_paths.append(get_app_dir() + "/../share/olive-editor/effects");
+	QString env_path(qgetenv("OLIVE_EFFECTS_PATH"));
+	if (!env_path.isEmpty()) effects_paths.append(env_path);
 
 	for (int h=0;h<effects_paths.size();h++) {
 		const QString& effects_path = effects_paths.at(h);
