@@ -217,6 +217,17 @@ unix:!mac {
 RESOURCES += \
     icons/icons.qrc
 
+unix:!mac:isEmpty(PREFIX) {
+    PREFIX = /usr/local
+}
+
+unix:!mac:target.path = $$PREFIX/bin
+
+effects.files = $$PWD/effects/*.frag $$PWD/effects/*.xml $$PWD/effects/*.vert
+unix:!mac:effects.path = $$PREFIX/share/olive-editor/effects
+
+INSTALLS += target effects
+
 unix:!mac {
     metainfo.files = $$PWD/packaging/linux/org.olivevideoeditor.Olive.appdata.xml
     metainfo.path = $$PREFIX/share/metainfo
