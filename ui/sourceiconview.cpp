@@ -8,6 +8,7 @@
 #include "debug.h"
 
 SourceIconView::SourceIconView(QWidget *parent) : QListView(parent) {
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(item_click(const QModelIndex&)));
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
