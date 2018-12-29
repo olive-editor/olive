@@ -52,12 +52,13 @@ public slots:
     void update_keyframes();
 private slots:
     void menu_select(QAction* q);
-    void on_add_video_effect_button_clicked();
-    void on_add_audio_effect_button_clicked();
-	void deselect_all_effects(QWidget*);
 
-	void on_add_video_transition_button_clicked();
-	void on_add_audio_transition_button_clicked();
+    void on_btnAddVideoEffect_clicked();
+    void on_btnAddAudioEffect_clicked();
+    void on_btnAddVideoTransition_clicked();
+    void on_btnAddAudioTransition_clicked();
+
+    void deselect_all_effects(QWidget*);
 protected:
 	void resizeEvent(QResizeEvent *event);
 private:

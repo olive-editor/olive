@@ -40,7 +40,7 @@ EffectControls::EffectControls(QWidget *parent) :
 	ui->effects_area->header = ui->headers;
 	ui->keyframeView->header = ui->headers;
 
-	ui->label_2->setVisible(false);
+    ui->lblMultipleClipsSelected->setVisible(false);
 
 	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), ui->headers, SLOT(set_scroll(int)));
     connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), ui->keyframeView, SLOT(resize_move(double)));
@@ -215,7 +215,7 @@ void EffectControls::clear_effects(bool clear_cache) {
         item->widget()->setParent(NULL);
         disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
     }
-    ui->label_2->setVisible(false);
+    ui->lblMultipleClipsSelected->setVisible(false);
     ui->vcontainer->setVisible(false);
     ui->acontainer->setVisible(false);
 	ui->headers->setVisible(false);
@@ -243,7 +243,7 @@ void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
 }
 
 void EffectControls::load_effects() {
-	ui->label_2->setVisible(multiple);
+    ui->lblMultipleClipsSelected->setVisible(multiple);
 
 	if (!multiple) {        
 		// load in new clips
@@ -315,19 +315,19 @@ void EffectControls::set_clips(QVector<int>& clips, int m) {
     load_effects();
 }
 
-void EffectControls::on_add_video_effect_button_clicked() {
+void EffectControls::on_btnAddVideoEffect_clicked() {
     show_effect_menu(EFFECT_TYPE_EFFECT, EFFECT_TYPE_VIDEO);
 }
 
-void EffectControls::on_add_audio_effect_button_clicked() {
+void EffectControls::on_btnAddAudioEffect_clicked() {
     show_effect_menu(EFFECT_TYPE_EFFECT, EFFECT_TYPE_AUDIO);
 }
 
-void EffectControls::on_add_video_transition_button_clicked() {
+void EffectControls::on_btnAddVideoTransition_clicked() {
     show_effect_menu(EFFECT_TYPE_TRANSITION, EFFECT_TYPE_VIDEO);
 }
 
-void EffectControls::on_add_audio_transition_button_clicked() {
+void EffectControls::on_btnAddAudioTransition_clicked() {
     show_effect_menu(EFFECT_TYPE_TRANSITION, EFFECT_TYPE_AUDIO);
 }
 
