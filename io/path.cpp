@@ -7,14 +7,8 @@
 
 QString real_app_dir;
 
-QString get_effects_dir() {
-    QString env_path(qgetenv("OLIVE_EFFECTS_PATH"));
-    if (!env_path.isEmpty()) return env_path;
-	return get_app_dir() + "/effects";
-}
-
 QString get_app_dir() {
-    if (real_app_dir.isEmpty()) {
+	if (real_app_dir.isEmpty()) {
         QString app_path = QCoreApplication::applicationFilePath();
         real_app_dir = app_path.left(app_path.lastIndexOf('/'));
     }
