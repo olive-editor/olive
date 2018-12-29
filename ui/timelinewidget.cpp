@@ -1283,8 +1283,10 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				if (validator < 1) frame_diff -= (1 - validator);
 
 				// prevent timeline in from going below 0
-				validator = g.old_in + frame_diff;
-				if (validator < 0) frame_diff -= validator;
+				if (panel_timeline->tool != TIMELINE_TOOL_RIPPLE) {
+					validator = g.old_in + frame_diff;
+					if (validator < 0) frame_diff -= validator;
+				}
 
 				// prevent clip_in from going below 0
                 if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
