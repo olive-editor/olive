@@ -316,38 +316,49 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		}
 		sublineCount = qMin(sublineCount, qRound(interval));
 
+		int text_x, fullTextWidth;
+		QString timecode;
+
 		while (true) {
 			long frame = qRound(interval*i);
 			int lineX = qRound(frame*zoom) - scroll;
 			int next_lineX = qRound(qRound(interval*(i+1))*zoom) - scroll;
 
 			if (lineX > width()) break;
-			if (next_lineX > 0 && lineX > lastLineX+LINE_MIN_PADDING) {
-				// draw text
-				if (text_enabled && lineX-textWidth > lastTextBoundary) {
+
+			// draw text
+			bool draw_text = false;
+			if (text_enabled && lineX-textWidth > lastTextBoundary) {
+				timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
+				fullTextWidth = fm.width(timecode);
+				textWidth = fullTextWidth>>1;
+				text_x = lineX-textWidth;
+				lastTextBoundary = lineX+textWidth;
+				if (lastTextBoundary >= 0) {
+					draw_text = true;
+				}
+			}
+
+			if (lineX > lastLineX+LINE_MIN_PADDING) {
+				if (draw_text) {
 					p.setPen(Qt::white);
-					QString timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
-					int fullTextWidth = fm.width(timecode);
-					textWidth = fullTextWidth>>1;
-					int text_x = lineX-textWidth;
-					lastTextBoundary = lineX+textWidth;
-					if (lastTextBoundary >= 0) {
-						p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
-					}
+					p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
 				}
 
 				// draw line markers
 				p.setPen(Qt::gray);
 				p.drawLine(lineX, yoff, lineX, height());
 
-				lastLineX = lineX;
-
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
 					int sublineX = lineX+(qRound(j*interval/sublineCount)*zoom);
 					p.drawLine(sublineX, yoff, sublineX, yoff+(height()/4));
 				}
+
+				lastLineX = lineX;
 			}
+
+			// TODO wastes cycles here, could just bring it up to 0
 			i++;
 		}
 
