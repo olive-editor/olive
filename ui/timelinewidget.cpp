@@ -1834,8 +1834,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 							for (int j=0;j<clip_list.size();j++) {
 								Clip* compare = clip_list.at(j);
 								if (compare->track == c->track) {
-									if ((panel_timeline->trim_in_point && compare->timeline_out < c->timeline_out)
-											|| (!panel_timeline->trim_in_point && compare->timeline_in > c->timeline_in)) {
+									if ((!clip_is_post && compare->timeline_out < c->timeline_out)
+											|| (clip_is_post && compare->timeline_in > c->timeline_in)) {
 										clip_list[j] = c;
 									}
 									found = true;

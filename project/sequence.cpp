@@ -58,16 +58,16 @@ void Sequence::hard_delete_transition(Clip *c, int type) {
 	int transition_index = (type == TA_OPENING_TRANSITION) ? c->opening_transition : c->closing_transition;
 	if (transition_index > -1) {
 		bool del = true;
-		for (int i=0;i<clips.size();i++) {
-			Clip* cc = clips.at(i);
-			if (cc != NULL
-					&& c != cc
-					&& (cc->opening_transition == transition_index
-						|| cc->closing_transition == transition_index)) {
-				// another clip is using this, don't delete just yet
-				del = false;
-				break;
+
+		Transition* t = transitions.at(transition_index);
+		if (t->secondary_clip != NULL) {
+			if (type == TA_OPENING_TRANSITION) {
+				// convert to closing transition
+				t->parent_clip = t->secondary_clip;
 			}
+
+			del = false;
+			t->secondary_clip = NULL;
 		}
 
 		if (del) {
