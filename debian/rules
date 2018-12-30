@@ -1,5 +1,8 @@
 #!/usr/bin/make -f
 export QT_SELECT := qt5
 
+override_dh_auto_configure:
+	qmake olive.pro
+
 %:
 	dh $@
