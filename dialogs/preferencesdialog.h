@@ -4,36 +4,48 @@
 #include <QDialog>
 #include <QKeySequenceEdit>
 class QMenuBar;
+class QLineEdit;
+class QComboBox;
+class QRadioButton;
+class QTreeWidget;
+class QTreeWidgetItem;
+class QMenu;
 
-namespace Ui {
-class PreferencesDialog;
-}
+class KeySequenceEditor : public QKeySequenceEdit {
+	Q_OBJECT
+public:
+	KeySequenceEditor(QWidget *parent, QAction* a);
+	void set_action_shortcut();
+private:
+	QAction* action;
+};
 
 class PreferencesDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit PreferencesDialog(QWidget *parent = 0);
-    ~PreferencesDialog();
+	explicit PreferencesDialog(QWidget *parent = 0);
+	~PreferencesDialog();
 
-    void setup_kbd_shortcuts(QMenuBar* menu);
+	void setup_kbd_shortcuts(QMenuBar* menu);
 
 private slots:
-    void on_buttonBox_accepted();
+	void save();
 
 private:
-    Ui::PreferencesDialog *ui;
-};
+	void setup_ui();
+	void setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent);
 
-class KeySequenceEditor : public QKeySequenceEdit {
-    Q_OBJECT
-public:
-    KeySequenceEditor(QAction* a);
-private slots:
-    void set_action_shortcut();
-private:
-    QAction* action;
+	QLineEdit* imgSeqFormatEdit;
+	QComboBox* recordingComboBox;
+	QRadioButton* accurateSeekButton;
+	QRadioButton* fastSeekButton;
+	QTreeWidget* keyboard_tree;
+
+	QVector<QAction*> key_shortcut_actions;
+	QVector<QTreeWidgetItem*> key_shortcut_items;
+	QVector<KeySequenceEditor*> key_shortcut_fields;
 };
 
 #endif // PREFERENCESDIALOG_H

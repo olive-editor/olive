@@ -84,12 +84,12 @@ void SpeedDialog::run() {
 		clip_percent = c->speed;
 		if (c->track < 0) {
 			bool process_video = true;
-            if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
-                Footage* m = c->media->to_footage();
-                FootageStream* ms = m->get_stream_from_file_index(true, c->media_stream);
-                if (ms != NULL && ms->infinite_length) {
-                    process_video = false;
-                }
+			if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+				Footage* m = c->media->to_footage();
+				FootageStream* ms = m->get_stream_from_file_index(true, c->media_stream);
+				if (ms != NULL && ms->infinite_length) {
+					process_video = false;
+				}
 			}
 
 			if (process_video) {
@@ -313,7 +313,7 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	}
 	ep = qMin(ep, c->timeline_out);
 	lr = qMax(lr, proposed_out - c->timeline_out);
-    move_clip(ca, c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track);
+	move_clip(ca, c, c->timeline_in, proposed_out, c->clip_in * multiplier, c->track);
 
 	c->refactor_frame_rate(ca, multiplier, false);
 
@@ -345,7 +345,7 @@ void SpeedDialog::accept() {
 
 		if (reverse->checkState() != Qt::PartiallyChecked && c->reverse != reverse->isChecked()) {
 			long new_clip_in = (c->getMaximumLength() - (c->getLength() + c->clip_in));
-            move_clip(ca, c, c->timeline_in, c->timeline_out, new_clip_in, c->track);
+			move_clip(ca, c, c->timeline_in, c->timeline_out, new_clip_in, c->track);
 			c->clip_in = new_clip_in;
 			ca->append(new SetBool(&c->reverse, reverse->isChecked()));
 		}
@@ -398,7 +398,7 @@ void SpeedDialog::accept() {
 	}
 
 	if (ripple->isChecked()) {
-		ca->append(new RippleCommand(clips.at(0)->sequence, earliest_point, longest_ripple));
+		ripple_clips(ca, clips.at(0)->sequence, earliest_point, longest_ripple);
 	}
 
 	sel_command->new_data = sequence->selections;

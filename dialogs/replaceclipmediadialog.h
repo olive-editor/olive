@@ -11,14 +11,13 @@ class QCheckBox;
 class ReplaceClipMediaDialog : public QDialog {
 	Q_OBJECT
 public:
-    ReplaceClipMediaDialog(QWidget* parent, SourceTable* table, Media *old_media);
+	ReplaceClipMediaDialog(QWidget* parent, Media *old_media);
 private slots:
 	void replace();
 private:
-	SourceTable* source_table;
-    QTreeView* tree;
-    Media* media;
-    QCheckBox* use_same_media_in_points;
+	Media* media;
+	QTreeView* tree;
+	QCheckBox* use_same_media_in_points;
 };
 
 #endif // REPLACECLIPMEDIADIALOG_H

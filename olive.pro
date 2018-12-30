@@ -187,16 +187,7 @@ HEADERS += \
     project/sourcescommon.h \
     ui/keyframenavigator.h
 
-FORMS += \
-        mainwindow.ui \
-    panels/effectcontrols.ui \
-    panels/viewer.ui \
-    panels/timeline.ui \
-    dialogs/aboutdialog.ui \
-    dialogs/newsequencedialog.ui \
-    dialogs/exportdialog.ui \
-    dialogs/preferencesdialog.ui \
-    dialogs/demonotice.ui
+FORMS +=
 
 win32 {
     RC_FILE = icons/resources.rc
@@ -226,8 +217,6 @@ unix:!mac:target.path = $$PREFIX/bin
 effects.files = $$PWD/effects/*.frag $$PWD/effects/*.xml $$PWD/effects/*.vert
 unix:!mac:effects.path = $$PREFIX/share/olive-editor/effects
 
-INSTALLS += target effects
-
 unix:!mac {
     metainfo.files = $$PWD/packaging/linux/org.olivevideoeditor.Olive.appdata.xml
     metainfo.path = $$PREFIX/share/metainfo
@@ -251,5 +240,5 @@ unix:!mac {
     icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
     icon1024.files = $$PWD/packaging/linux/icons/1024x1024/org.olivevideoeditor.Olive.png
     icon1024.path = $$PREFIX/share/icons/hicolor/1024x1024/apps
-    INSTALLS += metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512 icon1024
+    INSTALLS += target effects metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512 icon1024
 }

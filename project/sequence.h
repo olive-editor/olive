@@ -8,35 +8,36 @@
 
 struct Clip;
 class Transition;
+class Media;
 
 struct Sequence {
 	Sequence();
 	~Sequence();
-    Sequence* copy();
-    QString name;
-    void getTrackLimits(int* video_tracks, int* audio_tracks);
+	Sequence* copy();
+	QString name;
+	void getTrackLimits(int* video_tracks, int* audio_tracks);
 	long getEndFrame();
-    void hard_delete_transition(Clip *c, int type);
+	void hard_delete_transition(Clip *c, int type);
 	int width;
 	int height;
-    double frame_rate;
+	double frame_rate;
 	int audio_frequency;
-    int audio_layout;
+	int audio_layout;
 
 	QVector<Selection> selections;
 	long playhead;
 
-    bool using_workarea;
-    long workarea_in;
-    long workarea_out;
+	bool using_workarea;
+	long workarea_in;
+	long workarea_out;
 
-    bool wrapper_sequence;
+	bool wrapper_sequence;
 
-    int save_id;
+	int save_id;
 
-    QVector<Marker> markers;
+	QVector<Marker> markers;
 	QVector<Clip*> clips;
-    QVector<Transition*> transitions;
+	QVector<Transition*> transitions;
 };
 
 // static variable for the currently active sequence

@@ -23,34 +23,34 @@
 #define MARKER_SIZE 4
 
 bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead) {
-    // returns true is the scroll was changed, false if not
-    int target_scroll = qMin(bar->maximum(), qMax(0, getScreenPointFromFrame(zoom, playhead)-(bar->width()>>1)));
-    if (target_scroll == bar->value()) {
-        return false;
-    }
-    bar->setValue(target_scroll);
-    return true;
+	// returns true is the scroll was changed, false if not
+	int target_scroll = qMin(bar->maximum(), qMax(0, getScreenPointFromFrame(zoom, playhead)-(bar->width()>>1)));
+	if (target_scroll == bar->value()) {
+		return false;
+	}
+	bar->setValue(target_scroll);
+	return true;
 }
 
 TimelineHeader::TimelineHeader(QWidget *parent) :
 	QWidget(parent),
-    snapping(true),
+	snapping(true),
 	dragging(false),
 	resizing_workarea(false),
 	zoom(1),
-	in_visible(0),	
+	in_visible(0),
 	fm(font()),
 	dragging_markers(false),
 	scroll(0)
 {
 	height_actual = fm.height();
-    setCursor(Qt::ArrowCursor);
-    setMouseTracking(true);
+	setCursor(Qt::ArrowCursor);
+	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 	show_text(true);
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(show_context_menu(const QPoint &)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(show_context_menu(const QPoint &)));
 }
 
 void TimelineHeader::set_scroll(int s) {
@@ -81,11 +81,11 @@ void TimelineHeader::set_visible_in(long i) {
 
 void TimelineHeader::set_in_point(long new_in) {
 	long new_out = viewer->seq->workarea_out;
-    if (new_out == new_in) {
-        new_in--;
-    } else if (new_out < new_in) {
+	if (new_out == new_in) {
+		new_in--;
+	} else if (new_out < new_in) {
 		new_out = viewer->seq->getEndFrame();
-    }
+	}
 
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
@@ -93,18 +93,18 @@ void TimelineHeader::set_in_point(long new_in) {
 
 void TimelineHeader::set_out_point(long new_out) {
 	long new_in = viewer->seq->workarea_in;
-    if (new_out == new_in) {
-        new_out++;
-    } else if (new_in > new_out || new_in < 0) {
-        new_in = 0;
-    }
+	if (new_out == new_in) {
+		new_out++;
+	} else if (new_in > new_out || new_in < 0) {
+		new_in = 0;
+	}
 
 	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
 }
 
 void TimelineHeader::set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset) {
-    bar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequence_end_frame) - offset));
+	bar->setMaximum(qMax(0, getScreenPointFromFrame(zoom, sequence_end_frame) - offset));
 }
 
 void TimelineHeader::show_text(bool enable) {
@@ -118,7 +118,7 @@ void TimelineHeader::show_text(bool enable) {
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
-	if (viewer->seq != NULL) {
+	if (viewer->seq != NULL && event->buttons() & Qt::LeftButton) {
 		if (resizing_workarea) {
 			sequence_end = viewer->seq->getEndFrame();
 		} else {
@@ -275,11 +275,11 @@ void TimelineHeader::update_parents() {
 
 void TimelineHeader::update_zoom(double z) {
 	zoom = z;
-    update();
+	update();
 }
 
 double TimelineHeader::get_zoom() {
-    return zoom;
+	return zoom;
 }
 
 void TimelineHeader::delete_markers() {
@@ -295,72 +295,83 @@ void TimelineHeader::delete_markers() {
 
 void TimelineHeader::paintEvent(QPaintEvent*) {
 	if (viewer->seq != NULL && zoom > 0) {
-        QPainter p(this);
+		QPainter p(this);
 		int yoff = (text_enabled) ? height()/2 : 0;
 
 		double interval = viewer->seq->frame_rate;
-        int textWidth = 0;
+		int textWidth = 0;
 		int lastTextBoundary = INT_MIN;
 
-        int i = 0;
+		int i = 0;
 		int lastLineX = INT_MIN;
 
-        int sublineCount = 1;
-        int sublineTest = qRound(interval*zoom);
-        int sublineInterval = 1;
+		int sublineCount = 1;
+		int sublineTest = qRound(interval*zoom);
+		int sublineInterval = 1;
 		while (sublineTest > SUBLINE_MIN_PADDING
-               && sublineInterval >= 1) {
-            sublineCount *= 2;
-            sublineInterval = (interval/sublineCount);
-            sublineTest = qRound(sublineInterval*zoom);
-        }
-        sublineCount = qMin(sublineCount, qRound(interval));
+			   && sublineInterval >= 1) {
+			sublineCount *= 2;
+			sublineInterval = (interval/sublineCount);
+			sublineTest = qRound(sublineInterval*zoom);
+		}
+		sublineCount = qMin(sublineCount, qRound(interval));
 
-        while (true) {
-            long frame = qRound(interval*i);
+		int text_x, fullTextWidth;
+		QString timecode;
+
+		while (true) {
+			long frame = qRound(interval*i);
 			int lineX = qRound(frame*zoom) - scroll;
 			int next_lineX = qRound(qRound(interval*(i+1))*zoom) - scroll;
 
-            if (lineX > width()) break;
-			if (next_lineX > 0 && lineX > lastLineX+LINE_MIN_PADDING) {
-				// draw text
-				if (text_enabled && lineX-textWidth > lastTextBoundary) {
+			if (lineX > width()) break;
+
+			// draw text
+			bool draw_text = false;
+			if (text_enabled && lineX-textWidth > lastTextBoundary) {
+				timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
+				fullTextWidth = fm.width(timecode);
+				textWidth = fullTextWidth>>1;
+				text_x = lineX-textWidth;
+				lastTextBoundary = lineX+textWidth;
+				if (lastTextBoundary >= 0) {
+					draw_text = true;
+				}
+			}
+
+			if (lineX > lastLineX+LINE_MIN_PADDING) {
+				if (draw_text) {
 					p.setPen(Qt::white);
-					QString timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
-					int fullTextWidth = fm.width(timecode);
-					textWidth = fullTextWidth>>1;
-					int text_x = lineX-textWidth;
-					lastTextBoundary = lineX+textWidth;
-					if (lastTextBoundary >= 0) {
-						p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
-					}
+					p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
 				}
 
 				// draw line markers
 				p.setPen(Qt::gray);
 				p.drawLine(lineX, yoff, lineX, height());
 
-				lastLineX = lineX;
-
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
 					int sublineX = lineX+(qRound(j*interval/sublineCount)*zoom);
 					p.drawLine(sublineX, yoff, sublineX, yoff+(height()/4));
 				}
-			}
-            i++;
-        }
 
-        // draw in/out selection
-        int in_x;
+				lastLineX = lineX;
+			}
+
+			// TODO wastes cycles here, could just bring it up to 0
+			i++;
+		}
+
+		// draw in/out selection
+		int in_x;
 		if (viewer->seq->using_workarea) {
 			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
 			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
-            p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
-            p.setPen(Qt::white);
-            p.drawLine(in_x, 0, in_x, height());
-            p.drawLine(out_x, 0, out_x, height());
-        }
+			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
+			p.setPen(Qt::white);
+			p.drawLine(in_x, 0, in_x, height());
+			p.drawLine(out_x, 0, out_x, height());
+		}
 
 		// draw markers
 		for (int i=0;i<viewer->seq->markers.size();i++) {
@@ -389,30 +400,28 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 			p.drawPolygon(points, 5);
 		}
 
-        // draw playhead triangle
-        p.setRenderHint(QPainter::Antialiasing);
+		// draw playhead triangle
+		p.setRenderHint(QPainter::Antialiasing);
 
-        in_x = getHeaderScreenPointFromFrame(viewer->seq->playhead);
-        QPoint start(in_x, height()+2);
-        QPainterPath path;
-        path.moveTo(start + QPoint(1,0));
-        path.lineTo(in_x-PLAYHEAD_SIZE, yoff);
-        path.lineTo(in_x+PLAYHEAD_SIZE+1, yoff);
-        path.lineTo(start);
-        p.fillPath(path, Qt::red);
+		in_x = getHeaderScreenPointFromFrame(viewer->seq->playhead);
+		QPoint start(in_x, height()+2);
+		QPainterPath path;
+		path.moveTo(start + QPoint(1,0));
+		path.lineTo(in_x-PLAYHEAD_SIZE, yoff);
+		path.lineTo(in_x+PLAYHEAD_SIZE+1, yoff);
+		path.lineTo(start);
+		p.fillPath(path, Qt::red);
 	}
 }
 
 void TimelineHeader::show_context_menu(const QPoint &pos) {
-    QMenu contextMenu(tr("Context menu"), this);
+	QMenu menu(this);
 
-    QAction clear_in_out("Clear In/Out Points", this);
-	if (!viewer->seq->using_workarea) clear_in_out.setEnabled(false);
-    connect(&clear_in_out, SIGNAL(triggered()), mainWindow, SLOT(on_actionClear_In_Out_triggered()));
-    contextMenu.addAction(&clear_in_out);
-    contextMenu.exec(mapToGlobal(pos));
+	mainWindow->make_inout_menu(&menu);
+
+	menu.exec(mapToGlobal(pos));
 }
 
 void TimelineHeader::resized_scroll_listener(double d) {
-    update_zoom(zoom * d);
+	update_zoom(zoom * d);
 }

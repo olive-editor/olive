@@ -33,13 +33,13 @@ public:
 protected:
 	void paintEvent(QPaintEvent*);
 
-    void resizeEvent(QResizeEvent *event);
+	void resizeEvent(QResizeEvent *event);
 
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void leaveEvent(QEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void leaveEvent(QEvent *event);
 
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dragLeaveEvent(QDragLeaveEvent *event);
@@ -49,18 +49,18 @@ protected:
 	void wheelEvent(QWheelEvent *event);
 private:
 	void init_ghosts();
-    void update_ghosts(const QPoint& mouse_pos, bool lock_frame);
-    bool is_track_visible(int track);
-    int getTrackFromScreenPoint(int y);
+	void update_ghosts(const QPoint& mouse_pos, bool lock_frame);
+	bool is_track_visible(int track);
+	int getTrackFromScreenPoint(int y);
 	int getScreenPointFromTrack(int track);
 	int getClipIndexFromCoords(long frame, int track);
 
-    int track_resize_mouse_cache;
-    int track_resize_old_value;
-    bool track_resizing;
-    int track_target;
+	int track_resize_mouse_cache;
+	int track_resize_old_value;
+	bool track_resizing;
+	int track_target;
 
-    QVector<Clip*> pre_clips;
+	QVector<Clip*> pre_clips;
 	QVector<Clip*> post_clips;
 
 	Sequence* self_created_sequence;
@@ -68,10 +68,10 @@ private:
 	// used for "right click ripple"
 	long rc_ripple_min;
 	long rc_ripple_max;
-    Media* rc_reveal_media;
+	Media* rc_reveal_media;
 
-    QTimer tooltip_timer;
-    int tooltip_clip;
+	QTimer tooltip_timer;
+	int tooltip_clip;
 
 	int scroll;
 
@@ -84,11 +84,12 @@ public slots:
 private slots:
 	void reveal_media();
 	void right_click_ripple();
-    void show_context_menu(const QPoint& pos);
-    void toggle_autoscale();
-    void tooltip_timer_timeout();
+	void show_context_menu(const QPoint& pos);
+	void toggle_autoscale();
+	void tooltip_timer_timeout();
 	void rename_clip();
-    void show_stabilizer_diag();
+	void show_stabilizer_diag();
+	void open_sequence_properties();
 };
 
 #endif // TIMELINEWIDGET_H
