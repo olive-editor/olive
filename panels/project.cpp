@@ -352,7 +352,7 @@ Media *Project::item_to_media(const QModelIndex &index) {
 //    return static_cast<Media*>(index.internalPointer());
 }
 
-void Project::get_all_media_from_table(QList<Media*> items, QList<Media*>& list, int search_type) {
+void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list, int search_type) {
 	for (int i=0;i<items.size();i++) {
 		Media* item = items.at(i);
 		if (item->get_type() == MEDIA_TYPE_FOLDER) {

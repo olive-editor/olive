@@ -76,6 +76,7 @@ public:
 	QModelIndexList get_current_selected();
 
 	void start_preview_generator(Media* item, bool replacing);
+	void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
 public slots:
 	void import_dialog();
 	void delete_selected_media();
@@ -89,7 +90,6 @@ private:
 	int folder_id;
 	int media_id;
 	int sequence_id;
-	void get_all_media_from_table(QList<Media *> items, QList<Media *> &list, int type);
 	void list_all_sequences_worker(QVector<Media *> *list, Media* parent);
 	QString get_file_name_from_path(const QString &path);
 	QDir proj_dir;

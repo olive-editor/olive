@@ -15,10 +15,12 @@ public:
 	void updateTitle(const QString &url);
 	~MainWindow();
 
+	void make_new_menu(QMenu* parent);
+
 public slots:
 	void undo();
 	void redo();
-	void openSpeedDialog();
+	void open_speed_dialog();
 	void cut();
 	void copy();
 	void paste();
@@ -87,11 +89,12 @@ private slots:
 	void delete_inout();
 	void ripple_delete_inout();
 
-	void on_actionDefault_triggered();
-	void on_actionOff_triggered();
-	void on_action4_3_triggered();
-	void on_action16_9_triggered();
-	void on_actionCustom_triggered();
+	// title safe area functions
+	void set_tsa_disable();
+	void set_tsa_default();
+	void set_tsa_43();
+	void set_tsa_169();
+	void set_tsa_custom();
 
 	void set_marker();
 

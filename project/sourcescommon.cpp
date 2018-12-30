@@ -52,8 +52,8 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	QAction* import_action = menu.addAction("Import...");
 	QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
 
-	QAction* new_folder_action = menu.addAction("New Folder...");
-	QObject::connect(new_folder_action, SIGNAL(triggered(bool)), mainWindow, SLOT(new_folder()));
+	QMenu* new_menu = menu.addMenu("New");
+	mainWindow->make_new_menu(new_menu);
 
 	if (items.size() > 0) {
 		Media* m = project_parent->item_to_media(items.at(0));

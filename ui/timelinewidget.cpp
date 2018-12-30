@@ -19,6 +19,7 @@
 #include "dialogs/stabilizerdialog.h"
 #include "project/media.h"
 #include "ui/resizablescrollbar.h"
+#include "dialogs/newsequencedialog.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -133,7 +134,8 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 				connect(ripple_delete_action, SIGNAL(triggered(bool)), this, SLOT(right_click_ripple()));
 			}
 
-			menu.addAction("Sequence settings coming soon...");
+			QAction* seq_settings = menu.addAction("Sequence Settings");
+			connect(seq_settings, SIGNAL(triggered(bool)), this, SLOT(open_sequence_properties()));
 		} else {
 			// clips are selected
 			QAction* cutAction = menu.addAction("C&ut");
@@ -254,6 +256,23 @@ void TimelineWidget::rename_clip() {
 void TimelineWidget::show_stabilizer_diag() {
 	StabilizerDialog sd;
 	sd.exec();
+}
+
+void TimelineWidget::open_sequence_properties() {
+	QList<Media*> sequence_items;
+	QList<Media*> all_top_level_items;
+	for (int i=0;i<project_model.childCount();i++) {
+		all_top_level_items.append(project_model.child(i));
+	}
+	panel_project->get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
+	for (int i=0;i<sequence_items.size();i++) {
+		if (sequence_items.at(i)->to_sequence() == sequence) {
+			NewSequenceDialog nsd(this, sequence_items.at(i));
+			nsd.exec();
+			return;
+		}
+	}
+	QMessageBox::critical(this, "Error", "Couldn't locate media wrapper for sequence.");
 }
 
 bool same_sign(int a, int b) {

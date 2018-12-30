@@ -268,6 +268,13 @@ MainWindow::~MainWindow() {
 	close_debug();
 }
 
+void MainWindow::make_new_menu(QMenu *parent) {
+	parent->addAction("&Project", this, SLOT(new_project()), QKeySequence("Ctrl+N"));
+	parent->addSeparator();
+	parent->addAction("&Sequence", this, SLOT(new_sequence()), QKeySequence("Ctrl+Shift+N"));
+	parent->addAction("&Folder", this, SLOT(new_folder()));
+}
+
 void MainWindow::show_about() {
 	AboutDialog a(this);
 	a.exec();
@@ -356,7 +363,7 @@ void MainWindow::redo() {
 	update_ui(true);
 }
 
-void MainWindow::openSpeedDialog() {
+void MainWindow::open_speed_dialog() {
 	if (sequence != NULL) {
 		SpeedDialog s(this);
 		for (int i=0;i<sequence->clips.size();i++) {
@@ -469,10 +476,7 @@ void MainWindow::setup_menus() {
 	connect(file_menu, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
 
 	QMenu* new_menu = file_menu->addMenu("&New");
-	new_menu->addAction("&Project", this, SLOT(new_project()), QKeySequence("Ctrl+N"));
-	new_menu->addSeparator();
-	new_menu->addAction("&Sequence", this, SLOT(new_sequence()), QKeySequence("Ctrl+Shift+N"));
-	new_menu->addAction("&Folder", this, SLOT(new_folder()));
+	make_new_menu(new_menu);
 
 	file_menu->addAction("&Open Project", this, SLOT(open_project()), QKeySequence("Ctrl+O"));
 
@@ -563,6 +567,10 @@ void MainWindow::setup_menus() {
 	track_lines->setCheckable(true);
 	track_lines->setData(reinterpret_cast<quintptr>(&config.show_track_lines));
 
+	rectified_waveforms = view_menu->addAction("Rectified Waveforms", this, SLOT(toggle_bool_action()));
+	rectified_waveforms->setCheckable(true);
+	rectified_waveforms->setData(reinterpret_cast<quintptr>(&config.rectified_waveforms));
+
 	view_menu->addSeparator();
 
 	frames_action = view_menu->addAction("Frames", this, SLOT(set_timecode_view()));
@@ -584,18 +592,23 @@ void MainWindow::setup_menus() {
 
 	title_safe_off = title_safe_area_menu->addAction("Off");
 	title_safe_off->setCheckable(true);
+	connect(title_safe_off, SIGNAL(triggered(bool)), this, SLOT(set_tsa_disable()));
 
 	title_safe_default = title_safe_area_menu->addAction("Default");
 	title_safe_default->setCheckable(true);
+	connect(title_safe_default, SIGNAL(triggered(bool)), this, SLOT(set_tsa_default()));
 
 	title_safe_43 = title_safe_area_menu->addAction("4:3");
 	title_safe_43->setCheckable(true);
+	connect(title_safe_43, SIGNAL(triggered(bool)), this, SLOT(set_tsa_43()));
 
 	title_safe_169 = title_safe_area_menu->addAction("16:9");
 	title_safe_169->setCheckable(true);
+	connect(title_safe_169, SIGNAL(triggered(bool)), this, SLOT(set_tsa_169()));
 
 	title_safe_custom = title_safe_area_menu->addAction("Custom");
 	title_safe_custom->setCheckable(true);
+	connect(title_safe_custom, SIGNAL(triggered(bool)), this, SLOT(set_tsa_custom()));
 
 	view_menu->addSeparator();
 
@@ -708,10 +721,6 @@ void MainWindow::setup_menus() {
 	scroll_wheel_zooms = tools_menu->addAction("Scroll Wheel Zooms", this, SLOT(toggle_bool_action()));
 	scroll_wheel_zooms->setCheckable(true);
 	scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&config.scroll_zooms));
-
-	rectified_waveforms = tools_menu->addAction("Rectified Waveforms", this, SLOT(toggle_bool_action()));
-	rectified_waveforms->setCheckable(true);
-	rectified_waveforms->setData(reinterpret_cast<quintptr>(&config.rectified_waveforms));
 
 	enable_drag_files_to_timeline = tools_menu->addAction("Enable Drag Files to Timeline", this, SLOT(toggle_bool_action()));
 	enable_drag_files_to_timeline->setCheckable(true);
@@ -1051,32 +1060,32 @@ void MainWindow::ripple_delete_inout()
 	}
 }
 
-void MainWindow::on_actionDefault_triggered() {
+void MainWindow::set_tsa_default() {
 	config.show_title_safe_area = true;
 	config.use_custom_title_safe_ratio = false;
 	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_actionOff_triggered() {
+void MainWindow::set_tsa_disable() {
 	config.show_title_safe_area = false;
 	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_action4_3_triggered() {
+void MainWindow::set_tsa_43() {
 	config.show_title_safe_area = true;
 	config.use_custom_title_safe_ratio = true;
 	config.custom_title_safe_ratio = 4.0/3.0;
 	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_action16_9_triggered() {
+void MainWindow::set_tsa_169() {
 	config.show_title_safe_area = true;
 	config.use_custom_title_safe_ratio = true;
 	config.custom_title_safe_ratio = 16.0/9.0;
 	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_actionCustom_triggered() {
+void MainWindow::set_tsa_custom() {
 	QString input;
 	bool invalid = false;
 	QRegExp arTest("[0-9.]+:[0-9.]+");
