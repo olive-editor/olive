@@ -95,6 +95,8 @@ void MoveClipAction::redo() {
 DeleteClipAction::DeleteClipAction(Sequence* s, int clip) :
 	seq(s),
 	index(clip),
+	opening_transition(-1),
+	closing_transition(-1),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
@@ -105,12 +107,26 @@ DeleteClipAction::~DeleteClipAction() {
 void DeleteClipAction::undo() {
 	// restore ref to clip
 	seq->clips[index] = ref;
-	ref = NULL;
+
+	// restore shared transitions
+	if (opening_transition > -1) {
+		seq->transitions.at(opening_transition)->secondary_clip = seq->transitions.at(opening_transition)->parent_clip;
+		seq->transitions.at(opening_transition)->parent_clip = ref;
+		ref->opening_transition = opening_transition;
+		opening_transition = -1;
+	}
+	if (closing_transition > -1) {
+		seq->transitions.at(closing_transition)->secondary_clip = ref;
+		ref->closing_transition = closing_transition;
+		closing_transition = -1;
+	}
 
 	// restore links to this clip
 	for (int i=linkClipIndex.size()-1;i>=0;i--) {
 		seq->clips.at(linkClipIndex.at(i))->linked.insert(linkLinkIndex.at(i), index);
 	}
+
+	ref = NULL;
 
 	mainWindow->setWindowModified(old_project_changed);
 }
@@ -122,6 +138,19 @@ void DeleteClipAction::redo() {
 		close_clip(ref);
 	}
 	seq->clips[index] = NULL;
+
+	// save shared transitions
+	if (ref->opening_transition > -1 && ref->get_opening_transition()->secondary_clip != NULL) {
+		opening_transition = ref->opening_transition;
+		ref->get_opening_transition()->parent_clip = ref->get_opening_transition()->secondary_clip;
+		ref->get_opening_transition()->secondary_clip = NULL;
+		ref->opening_transition = -1;
+	}
+	if (ref->closing_transition > -1 && ref->get_closing_transition()->secondary_clip != NULL) {
+		closing_transition = ref->closing_transition;
+		ref->get_closing_transition()->secondary_clip = NULL;
+		ref->closing_transition = -1;
+	}
 
 	// delete link to this clip
 	linkClipIndex.clear();

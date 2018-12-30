@@ -35,6 +35,8 @@ protected:
 	void paintEvent(QPaintEvent *event);
 
 private slots:
+	void clear_undo_stack();
+
 	void show_about();
 	void delete_slot();
 	void select_all();

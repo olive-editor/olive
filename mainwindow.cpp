@@ -767,6 +767,10 @@ void MainWindow::setup_menus() {
 
 	tools_menu->addAction("Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+."));
 
+#ifdef QT_DEBUG
+	tools_menu->addAction("Clear Undo", this, SLOT(clear_undo_stack()), QKeySequence("Ctrl+."));
+#endif
+
 	// INITIALIZE HELP MENU
 
 	QMenu* help_menu = menuBar->addMenu("&Help");
@@ -813,6 +817,10 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 		demoNoticeShown = true;
 	}
 #endif
+}
+
+void MainWindow::clear_undo_stack() {
+	undo_stack.clear();
 }
 
 void MainWindow::open_project() {

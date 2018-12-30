@@ -71,6 +71,9 @@ private:
 	Clip* ref;
 	int index;
 
+	int opening_transition;
+	int closing_transition;
+
 	QVector<int> linkClipIndex;
 	QVector<int> linkLinkIndex;
 
