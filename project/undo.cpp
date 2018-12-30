@@ -30,31 +30,31 @@ QUndoStack undo_stack;
 ComboAction::ComboAction() {}
 
 ComboAction::~ComboAction() {
-    for (int i=0;i<commands.size();i++) {
-        delete commands.at(i);
-    }
+	for (int i=0;i<commands.size();i++) {
+		delete commands.at(i);
+	}
 }
 
 void ComboAction::undo() {
-    for (int i=commands.size()-1;i>=0;i--) {
-        commands.at(i)->undo();
-    }
+	for (int i=commands.size()-1;i>=0;i--) {
+		commands.at(i)->undo();
+	}
 	for (int i=0;i<post_commands.size();i++) {
 		post_commands.at(i)->undo();
 	}
 }
 
 void ComboAction::redo() {
-    for (int i=0;i<commands.size();i++) {
-        commands.at(i)->redo();
-    }
+	for (int i=0;i<commands.size();i++) {
+		commands.at(i)->redo();
+	}
 	for (int i=0;i<post_commands.size();i++) {
 		post_commands.at(i)->redo();
 	}
 }
 
 void ComboAction::append(QUndoCommand* u) {
-    commands.append(u);
+	commands.append(u);
 }
 
 void ComboAction::appendPost(QUndoCommand* u) {
@@ -62,50 +62,50 @@ void ComboAction::appendPost(QUndoCommand* u) {
 }
 
 MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack) :
-    clip(c),
+	clip(c),
 	old_in(c->timeline_in),
 	old_out(c->timeline_out),
 	old_clip_in(c->clip_in),
 	old_track(c->track),
-    new_in(iin),
-    new_out(iout),
-    new_clip_in(iclip_in),
+	new_in(iin),
+	new_out(iout),
+	new_clip_in(iclip_in),
 	new_track(itrack),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void MoveClipAction::undo() {
-    clip->timeline_in = old_in;
-    clip->timeline_out = old_out;
-    clip->clip_in = old_clip_in;
-    clip->track = old_track;
+	clip->timeline_in = old_in;
+	clip->timeline_out = old_out;
+	clip->clip_in = old_clip_in;
+	clip->track = old_track;
 
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MoveClipAction::redo() {
-    clip->timeline_in = new_in;
-    clip->timeline_out = new_out;
-    clip->clip_in = new_clip_in;
-    clip->track = new_track;
+	clip->timeline_in = new_in;
+	clip->timeline_out = new_out;
+	clip->clip_in = new_clip_in;
+	clip->track = new_track;
 
 	mainWindow->setWindowModified(true);
 }
 
 DeleteClipAction::DeleteClipAction(Sequence* s, int clip) :
-    seq(s),
+	seq(s),
 	index(clip),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 DeleteClipAction::~DeleteClipAction() {
-    if (ref != NULL) delete ref;
+	if (ref != NULL) delete ref;
 }
 
 void DeleteClipAction::undo() {
 	// restore ref to clip
-    seq->clips[index] = ref;
-    ref = NULL;
+	seq->clips[index] = ref;
+	ref = NULL;
 
 	// restore links to this clip
 	for (int i=linkClipIndex.size()-1;i>=0;i--) {
@@ -117,11 +117,11 @@ void DeleteClipAction::undo() {
 
 void DeleteClipAction::redo() {
 	// remove ref to clip
-    ref = seq->clips.at(index);
-    if (ref->open) {
-        close_clip(ref);
-    }
-    seq->clips[index] = NULL;
+	ref = seq->clips.at(index);
+	if (ref->open) {
+		close_clip(ref);
+	}
+	seq->clips[index] = NULL;
 
 	// delete link to this clip
 	linkClipIndex.clear();
@@ -143,261 +143,261 @@ void DeleteClipAction::redo() {
 }
 
 ChangeSequenceAction::ChangeSequenceAction(Sequence* s) :
-    new_sequence(s)
+	new_sequence(s)
 {}
 
 void ChangeSequenceAction::undo() {
-    set_sequence(old_sequence);
+	set_sequence(old_sequence);
 }
 
 void ChangeSequenceAction::redo() {
-    old_sequence = sequence;
-    set_sequence(new_sequence);
+	old_sequence = sequence;
+	set_sequence(new_sequence);
 }
 
 SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long in, long out) :
-    seq(s),
-    new_enabled(enabled),
-    new_in(in),
+	seq(s),
+	new_enabled(enabled),
+	new_in(in),
 	new_out(out),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetTimelineInOutCommand::undo() {
-    seq->using_workarea = old_enabled;
-    seq->workarea_in = old_in;
-    seq->workarea_out = old_out;
+	seq->using_workarea = old_enabled;
+	seq->workarea_in = old_in;
+	seq->workarea_out = old_out;
 
-    // footage viewer functions
-    if (seq->wrapper_sequence) {
-        Footage* m = seq->clips.at(0)->media->to_footage();
-        m->using_inout = old_enabled;
-        m->in = old_in;
-        m->out = old_out;
-    }
+	// footage viewer functions
+	if (seq->wrapper_sequence) {
+		Footage* m = seq->clips.at(0)->media->to_footage();
+		m->using_inout = old_enabled;
+		m->in = old_in;
+		m->out = old_out;
+	}
 
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetTimelineInOutCommand::redo() {
-    old_enabled = seq->using_workarea;
-    old_in = seq->workarea_in;
-    old_out = seq->workarea_out;
+	old_enabled = seq->using_workarea;
+	old_in = seq->workarea_in;
+	old_out = seq->workarea_out;
 
-    seq->using_workarea = new_enabled;
-    seq->workarea_in = new_in;
-    seq->workarea_out = new_out;
+	seq->using_workarea = new_enabled;
+	seq->workarea_in = new_in;
+	seq->workarea_out = new_out;
 
-    // footage viewer functions
-    if (seq->wrapper_sequence) {
-        Footage* m = seq->clips.at(0)->media->to_footage();
-        m->using_inout = new_enabled;
-        m->in = new_in;
-        m->out = new_out;
-    }
+	// footage viewer functions
+	if (seq->wrapper_sequence) {
+		Footage* m = seq->clips.at(0)->media->to_footage();
+		m->using_inout = new_enabled;
+		m->in = new_in;
+		m->out = new_out;
+	}
 
 	mainWindow->setWindowModified(true);
 }
 
 AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m, int insert_pos) :
-    clip(c),
-    meta(m),
-    ref(e),
-    pos(insert_pos),
+	clip(c),
+	meta(m),
+	ref(e),
+	pos(insert_pos),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 AddEffectCommand::~AddEffectCommand() {
-    if (!done && ref != NULL) delete ref;
+	if (!done && ref != NULL) delete ref;
 }
 
 void AddEffectCommand::undo() {
-    clip->effects.last()->close();
-    if (pos < 0) {
-        clip->effects.removeLast();
-    } else {
-        clip->effects.removeAt(pos);
-    }
-    done = false;
+	clip->effects.last()->close();
+	if (pos < 0) {
+		clip->effects.removeLast();
+	} else {
+		clip->effects.removeAt(pos);
+	}
+	done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddEffectCommand::redo() {
-    if (ref == NULL) {
+	if (ref == NULL) {
 		ref = create_effect(clip, meta);
-    }
-    if (pos < 0) {
-        clip->effects.append(ref);
-    } else {
-        clip->effects.insert(pos, ref);
-    }
-    done = true;
+	}
+	if (pos < 0) {
+		clip->effects.append(ref);
+	} else {
+		clip->effects.insert(pos, ref);
+	}
+	done = true;
 	mainWindow->setWindowModified(true);
 }
 
 AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, Transition* copy, const EffectMeta *itransition, int itype, int ilength) :
-    clip(c),
-    secondary(s),
-    transition_to_copy(copy),
-    transition(itransition),
+	clip(c),
+	secondary(s),
+	transition_to_copy(copy),
+	transition(itransition),
 	type(itype),
-    length(ilength),
+	length(ilength),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void AddTransitionCommand::undo() {
-    clip->sequence->hard_delete_transition(clip, type);
-    if (secondary != NULL) secondary->sequence->hard_delete_transition(secondary, (type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION);
+	clip->sequence->hard_delete_transition(clip, type);
+	if (secondary != NULL) secondary->sequence->hard_delete_transition(secondary, (type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION);
 
-    if (type == TA_OPENING_TRANSITION) {
-        clip->opening_transition = old_ptransition;
-        if (secondary != NULL) secondary->closing_transition = old_stransition;
-    } else {
-        clip->closing_transition = old_ptransition;
-        if (secondary != NULL) secondary->opening_transition = old_stransition;
-    }
+	if (type == TA_OPENING_TRANSITION) {
+		clip->opening_transition = old_ptransition;
+		if (secondary != NULL) secondary->closing_transition = old_stransition;
+	} else {
+		clip->closing_transition = old_ptransition;
+		if (secondary != NULL) secondary->opening_transition = old_stransition;
+	}
 
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddTransitionCommand::redo() {
-    if (type == TA_OPENING_TRANSITION) {
-        old_ptransition = clip->opening_transition;
-        clip->opening_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
-        if (secondary != NULL) {
-            old_stransition = secondary->closing_transition;
-            secondary->closing_transition = clip->opening_transition;
-        }
-        if (length > 0) {
-            clip->get_opening_transition()->set_length(length);
-        }
-    } else {
-        old_ptransition = clip->closing_transition;
-        clip->closing_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
-        if (secondary != NULL) {
-            old_stransition = secondary->opening_transition;
-            secondary->opening_transition = clip->closing_transition;
-        }
-        if (length > 0) {
-            clip->get_closing_transition()->set_length(length);
-        }
-    }
+	if (type == TA_OPENING_TRANSITION) {
+		old_ptransition = clip->opening_transition;
+		clip->opening_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
+		if (secondary != NULL) {
+			old_stransition = secondary->closing_transition;
+			secondary->closing_transition = clip->opening_transition;
+		}
+		if (length > 0) {
+			clip->get_opening_transition()->set_length(length);
+		}
+	} else {
+		old_ptransition = clip->closing_transition;
+		clip->closing_transition = (transition_to_copy == NULL) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, NULL);
+		if (secondary != NULL) {
+			old_stransition = secondary->opening_transition;
+			secondary->opening_transition = clip->closing_transition;
+		}
+		if (length > 0) {
+			clip->get_closing_transition()->set_length(length);
+		}
+	}
 	mainWindow->setWindowModified(true);
 }
 
 ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilength) :
-    clip(c),
-    type(itype),
+	clip(c),
+	type(itype),
 	new_length(ilength),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void ModifyTransitionCommand::undo() {
-    Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-    t->set_length(old_length);
+	Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
+	t->set_length(old_length);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void ModifyTransitionCommand::redo() {
-    Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-    old_length = t->get_true_length();
-    t->set_length(new_length);
+	Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
+	old_length = t->get_true_length();
+	t->set_length(new_length);
 	mainWindow->setWindowModified(true);
 }
 
 DeleteTransitionCommand::DeleteTransitionCommand(Sequence* s, int transition_index) :
-    seq(s),
-    index(transition_index),
+	seq(s),
+	index(transition_index),
 	transition(NULL),
-    otc(NULL),
-    ctc(NULL),
+	otc(NULL),
+	ctc(NULL),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 DeleteTransitionCommand::~DeleteTransitionCommand() {
-    if (transition != NULL) delete transition;
+	if (transition != NULL) delete transition;
 }
 
 void DeleteTransitionCommand::undo() {
-    seq->transitions[index] = transition;
+	seq->transitions[index] = transition;
 
-    if (otc != NULL) otc->opening_transition = index;
-    if (ctc != NULL) ctc->closing_transition = index;
+	if (otc != NULL) otc->opening_transition = index;
+	if (ctc != NULL) ctc->closing_transition = index;
 
-    transition = NULL;
+	transition = NULL;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void DeleteTransitionCommand::redo() {
-    for (int i=0;i<seq->clips.size();i++) {
-        Clip* c = seq->clips.at(i);
-        if (c != NULL) {
-            if (c->opening_transition == index) {
-                otc = c;
-                c->opening_transition = -1;
-            }
-            if (c->closing_transition == index) {
-                ctc = c;
-                c->closing_transition = -1;
-            }
-        }
-    }
+	for (int i=0;i<seq->clips.size();i++) {
+		Clip* c = seq->clips.at(i);
+		if (c != NULL) {
+			if (c->opening_transition == index) {
+				otc = c;
+				c->opening_transition = -1;
+			}
+			if (c->closing_transition == index) {
+				ctc = c;
+				c->closing_transition = -1;
+			}
+		}
+	}
 
-    transition = seq->transitions.at(index);
-    seq->transitions[index] = NULL;
+	transition = seq->transitions.at(index);
+	seq->transitions[index] = NULL;
 
 	mainWindow->setWindowModified(true);
 }
 
 NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) :
-    seq(s),
-    parent(iparent),
+	seq(s),
+	parent(iparent),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
 {
-    if (parent == NULL) parent = project_model.get_root();
+	if (parent == NULL) parent = project_model.get_root();
 }
 
 NewSequenceCommand::~NewSequenceCommand() {
-    if (!done) delete seq;
+	if (!done) delete seq;
 }
 
 void NewSequenceCommand::undo() {
-    project_model.removeChild(parent, seq);
+	project_model.removeChild(parent, seq);
 
-    done = false;
+	done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void NewSequenceCommand::redo() {
-    project_model.appendChild(parent, seq);
+	project_model.appendChild(parent, seq);
 
-    done = true;
+	done = true;
 	mainWindow->setWindowModified(true);
 }
 
 AddMediaCommand::AddMediaCommand(Media* iitem, Media *iparent) :
-    item(iitem),
-    parent(iparent),
+	item(iitem),
+	parent(iparent),
 	done(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 AddMediaCommand::~AddMediaCommand() {
-    if (!done) {
-        delete item;
-    }
+	if (!done) {
+		delete item;
+	}
 }
 
 void AddMediaCommand::undo() {
-    project_model.removeChild(parent, item);
-    done = false;
+	project_model.removeChild(parent, item);
+	done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void AddMediaCommand::redo() {
-    project_model.appendChild(parent, item);
+	project_model.appendChild(parent, item);
 
 	done = true;
 	mainWindow->setWindowModified(true);
@@ -405,92 +405,53 @@ void AddMediaCommand::redo() {
 
 DeleteMediaCommand::DeleteMediaCommand(Media* i) :
 	item(i),
-    parent(i->parentItem()),
+	parent(i->parentItem()),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 DeleteMediaCommand::~DeleteMediaCommand() {
-    if (done) {
-        delete item;
+	if (done) {
+		delete item;
 	}
 }
 
 void DeleteMediaCommand::undo() {
-    project_model.appendChild(parent, item);
+	project_model.appendChild(parent, item);
 
 	mainWindow->setWindowModified(old_project_changed);
 	done = false;
 }
 
 void DeleteMediaCommand::redo() {
-    project_model.removeChild(parent, item);
+	project_model.removeChild(parent, item);
 
 	mainWindow->setWindowModified(true);
 	done = true;
 }
 
-RippleCommand::RippleCommand(Sequence *s, long ipoint, long ilength) :
-    seq(s),
-    point(ipoint),
-	length(ilength),
-	old_project_changed(mainWindow->isWindowModified())
-{}
-
-void RippleCommand::undo() {
-    for (int i=0;i<rippled.size();i++) {
-        Clip* c = rippled.at(i);
-        c->timeline_in -= length;
-        c->timeline_out -= length;
-    }
-	mainWindow->setWindowModified(old_project_changed);
-}
-
-void RippleCommand::redo() {
-    rippled.clear();
-    for (int j=0;j<seq->clips.size();j++) {
-        Clip* c = seq->clips.at(j);
-        bool found = false;
-        for (int i=0;i<ignore.size();i++) {
-            if (ignore.at(i) == c) {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            if (c != NULL && c->timeline_in >= point) {
-                c->timeline_in += length;
-                c->timeline_out += length;
-                rippled.append(c);
-            }
-        }
-    }
-	mainWindow->setWindowModified(true);
-}
-
 AddClipCommand::AddClipCommand(Sequence* s, QVector<Clip*>& add) :
-    seq(s),
+	seq(s),
 	clips(add),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 AddClipCommand::~AddClipCommand() {
-    for (int i=0;i<clips.size();i++) {
-        delete clips.at(i);
-    }
+	for (int i=0;i<clips.size();i++) {
+		delete clips.at(i);
+	}
 	for (int i=0;i<undone_clips.size();i++) {
 		delete undone_clips.at(i);
 	}
 }
 
 void AddClipCommand::undo() {
-    for (int i=0;i<clips.size();i++) {
+	for (int i=0;i<clips.size();i++) {
 		Clip* c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 		undone_clips.prepend(c);
-        if (c->open) close_clip(c);
-        seq->clips.removeLast();
-    }
+		if (c->open) close_clip(c);
+		seq->clips.removeLast();
+	}
 	mainWindow->setWindowModified(old_project_changed);
 }
 
@@ -509,8 +470,8 @@ void AddClipCommand::redo() {
 			for (int j=0;j<original->linked.size();j++) {
 				copy->linked[j] = original->linked.at(j) + linkOffset;
 			}
-            if (original->opening_transition > -1) copy->opening_transition = original->get_opening_transition()->copy(copy, NULL);
-            if (original->closing_transition > -1) copy->closing_transition = original->get_closing_transition()->copy(copy, NULL);
+			if (original->opening_transition > -1) copy->opening_transition = original->get_opening_transition()->copy(copy, NULL);
+			if (original->closing_transition > -1) copy->closing_transition = original->get_closing_transition()->copy(copy, NULL);
 			seq->clips.append(copy);
 		}
 	}
@@ -520,32 +481,32 @@ void AddClipCommand::redo() {
 LinkCommand::LinkCommand() : link(true), old_project_changed(mainWindow->isWindowModified()) {}
 
 void LinkCommand::undo() {
-    for (int i=0;i<clips.size();i++) {
+	for (int i=0;i<clips.size();i++) {
 		Clip* c = s->clips.at(clips.at(i));
-        if (link) {
-            c->linked.clear();
-        } else {
-            c->linked = old_links.at(i);
-        }
-    }
+		if (link) {
+			c->linked.clear();
+		} else {
+			c->linked = old_links.at(i);
+		}
+	}
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void LinkCommand::redo() {
-    old_links.clear();
-    for (int i=0;i<clips.size();i++) {
+	old_links.clear();
+	for (int i=0;i<clips.size();i++) {
 		Clip* c = s->clips.at(clips.at(i));
-        if (link) {
-            for (int j=0;j<clips.size();j++) {
-                if (i != j) {
+		if (link) {
+			for (int j=0;j<clips.size();j++) {
+				if (i != j) {
 					c->linked.append(clips.at(j));
-                }
-            }
-        } else {
-            old_links.append(c->linked);
-            c->linked.clear();
-        }
-    }
+				}
+			}
+		} else {
+			old_links.append(c->linked);
+			c->linked.clear();
+		}
+	}
 	mainWindow->setWindowModified(true);
 }
 
@@ -554,15 +515,15 @@ CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), checked(box->isChecked(
 CheckboxCommand::~CheckboxCommand() {}
 
 void CheckboxCommand::undo() {
-    box->setChecked(!checked);
-    done = false;
+	box->setChecked(!checked);
+	done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void CheckboxCommand::redo() {
-    if (!done) {
-        box->setChecked(checked);
-    }
+	if (!done) {
+		box->setChecked(checked);
+	}
 	mainWindow->setWindowModified(true);
 }
 
@@ -571,19 +532,19 @@ ReplaceMediaCommand::ReplaceMediaCommand(Media* i, QString s) :
 	new_filename(s),
 	old_project_changed(mainWindow->isWindowModified())
 {
-    old_filename = item->to_footage()->url;
+	old_filename = item->to_footage()->url;
 }
 
 void ReplaceMediaCommand::replace(QString& filename) {
 	// close any clips currently using this media
-    QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
+	QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<all_sequences.size();i++) {
-        Sequence* s = all_sequences.at(i)->to_sequence();
-        for (int j=0;j<s->clips.size();j++) {
-            Clip* c = s->clips.at(j);
-            if (c != NULL && c->media == item && c->open) {
+		Sequence* s = all_sequences.at(i)->to_sequence();
+		for (int j=0;j<s->clips.size();j++) {
+			Clip* c = s->clips.at(j);
+			if (c != NULL && c->media == item && c->open) {
 				close_clip(c);
-                if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+				if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
 				c->replaced = true;
 			}
 		}
@@ -592,8 +553,8 @@ void ReplaceMediaCommand::replace(QString& filename) {
 	// replace media
 	QStringList files;
 	files.append(filename);
-    item->to_footage()->ready_lock.lock();
-    panel_project->process_file_list(files, false, item, NULL);
+	item->to_footage()->ready_lock.lock();
+	panel_project->process_file_list(files, false, item, NULL);
 }
 
 void ReplaceMediaCommand::undo() {
@@ -610,7 +571,7 @@ void ReplaceMediaCommand::redo() {
 
 ReplaceClipMediaCommand::ReplaceClipMediaCommand(Media *a, Media *b, bool e) :
 	old_media(a),
-    new_media(b),
+	new_media(b),
 	preserve_clip_ins(e),
 	old_project_changed(mainWindow->isWindowModified())
 {}
@@ -624,7 +585,7 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 		Clip* c = clips.at(i);
 		if (c->open) {
 			close_clip(c);
-            if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+			if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
 		}
 
 		if (undo) {
@@ -632,14 +593,14 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 				c->clip_in = old_clip_ins.at(i);
 			}
 
-            c->media = old_media;
+			c->media = old_media;
 		} else {
 			if (!preserve_clip_ins) {
 				old_clip_ins.append(c->clip_in);
 				c->clip_in = 0;
 			}
 
-            c->media = new_media;
+			c->media = new_media;
 		}
 
 		c->replaced = true;
@@ -656,7 +617,7 @@ void ReplaceClipMediaCommand::undo() {
 void ReplaceClipMediaCommand::redo() {
 	replace(false);
 
-    update_ui(true);
+	update_ui(true);
 	mainWindow->setWindowModified(true);
 }
 
@@ -685,9 +646,9 @@ void EffectDeleteCommand::redo() {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		int fx_id = fx.at(i) - i;
-        Effect* e = c->effects.at(fx_id);
-        e->close();
-        deleted_objects.append(e);
+		Effect* e = c->effects.at(fx_id);
+		e->close();
+		deleted_objects.append(e);
 		c->effects.removeAt(fx_id);
 	}
 	panel_effect_controls->reload_clips();
@@ -699,37 +660,37 @@ MediaMove::MediaMove() : old_project_changed(mainWindow->isWindowModified()) {}
 
 void MediaMove::undo() {
 	for (int i=0;i<items.size();i++) {
-        project_model.moveChild(items.at(i), froms.at(i));
-    }
+		project_model.moveChild(items.at(i), froms.at(i));
+	}
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MediaMove::redo() {
-    if (to == NULL) to = project_model.get_root();
+	if (to == NULL) to = project_model.get_root();
 	froms.resize(items.size());
 	for (int i=0;i<items.size();i++) {
-        Media* parent = items.at(i)->parentItem();
+		Media* parent = items.at(i)->parentItem();
 		froms[i] = parent;
-        project_model.moveChild(items.at(i), to);
-    }
+		project_model.moveChild(items.at(i), to);
+	}
 	mainWindow->setWindowModified(true);
 }
 
 MediaRename::MediaRename(Media* iitem, QString ito) :
-    item(iitem),
-    from(iitem->get_name()),
-    to(ito),
-    old_project_changed(mainWindow->isWindowModified())
+	item(iitem),
+	from(iitem->get_name()),
+	to(ito),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void MediaRename::undo() {
-    item->set_name(from);
-    mainWindow->setWindowModified(old_project_changed);
+	item->set_name(from);
+	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MediaRename::redo() {
-    item->set_name(to);
-    mainWindow->setWindowModified(true);
+	item->set_name(to);
+	mainWindow->setWindowModified(true);
 }
 
 KeyframeMove::KeyframeMove() : old_project_changed(mainWindow->isWindowModified()) {}
@@ -749,9 +710,9 @@ void KeyframeMove::redo() {
 }
 
 KeyframeDelete::KeyframeDelete() :
-    disable_keyframes_on_row(NULL),
-    old_project_changed(mainWindow->isWindowModified()),
-    sorted(false)
+	disable_keyframes_on_row(NULL),
+	old_project_changed(mainWindow->isWindowModified()),
+	sorted(false)
 {}
 
 void KeyframeDelete::undo() {
@@ -828,7 +789,7 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 		EffectField* field = row->field(i);
 		if (index != -1) {
 			if (field->type == EFFECT_FIELD_DOUBLE) {
-                old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
+				old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
 			} else {
 				old_values[i] = field->keyframe_data.at(index);
 			}
@@ -903,17 +864,17 @@ SetAutoscaleAction::SetAutoscaleAction() :
 {}
 
 void SetAutoscaleAction::undo() {
-    for (int i=0;i<clips.size();i++) {
-        clips.at(i)->autoscale = !clips.at(i)->autoscale;
-    }
+	for (int i=0;i<clips.size();i++) {
+		clips.at(i)->autoscale = !clips.at(i)->autoscale;
+	}
 	panel_sequence_viewer->viewer_widget->update();
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetAutoscaleAction::redo() {
-    for (int i=0;i<clips.size();i++) {
-        clips.at(i)->autoscale = !clips.at(i)->autoscale;
-    }
+	for (int i=0;i<clips.size();i++) {
+		clips.at(i)->autoscale = !clips.at(i)->autoscale;
+	}
 	panel_sequence_viewer->viewer_widget->update();
 	mainWindow->setWindowModified(true);
 }
@@ -927,9 +888,9 @@ AddMarkerAction::AddMarkerAction(Sequence* s, long t, QString n) :
 
 void AddMarkerAction::undo() {
 	if (index == -1) {
-        seq->markers.removeLast();
+		seq->markers.removeLast();
 	} else {
-        seq->markers[index].name = old_name;
+		seq->markers[index].name = old_name;
 	}
 
 	mainWindow->setWindowModified(old_project_changed);
@@ -937,8 +898,8 @@ void AddMarkerAction::undo() {
 
 void AddMarkerAction::redo() {
 	index = -1;
-    for (int i=0;i<seq->markers.size();i++) {
-        if (seq->markers.at(i).frame == time) {
+	for (int i=0;i<seq->markers.size();i++) {
+		if (seq->markers.at(i).frame == time) {
 			index = i;
 			break;
 		}
@@ -947,10 +908,10 @@ void AddMarkerAction::redo() {
 	if (index == -1) {
 		Marker m;
 		m.frame = time;
-        seq->markers.append(m);
+		seq->markers.append(m);
 	} else {
-        old_name = seq->markers.at(index).name;
-        seq->markers[index].name = name;
+		old_name = seq->markers.at(index).name;
+		seq->markers[index].name = name;
 	}
 
 	mainWindow->setWindowModified(true);
@@ -1040,22 +1001,22 @@ void SetBool::redo() {
 }
 
 SetSelectionsCommand::SetSelectionsCommand(Sequence* s) :
-    seq(s),
+	seq(s),
 	done(true),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetSelectionsCommand::undo() {
-    seq->selections = old_data;
-    done = false;
+	seq->selections = old_data;
+	done = false;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetSelectionsCommand::redo() {
-    if (!done) {
-        seq->selections = new_data;
-        done = true;
-    }
+	if (!done) {
+		seq->selections = new_data;
+		done = true;
+	}
 	mainWindow->setWindowModified(true);
 }
 
@@ -1114,7 +1075,7 @@ void EditSequenceCommand::redo() {
 
 void EditSequenceCommand::update() {
 	// update tooltip
-    item->set_sequence(seq);
+	item->set_sequence(seq);
 
 	for (int i=0;i<seq->clips.size();i++) {
 		// TODO shift in/out/clipin points to match new frame rate
@@ -1131,36 +1092,36 @@ void EditSequenceCommand::update() {
 }
 
 SetInt::SetInt(int* pointer, int new_value) :
-    p(pointer),
-    oldval(*pointer),
+	p(pointer),
+	oldval(*pointer),
 	newval(new_value),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetInt::undo() {
-    *p = oldval;
+	*p = oldval;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetInt::redo() {
-    *p = newval;
+	*p = newval;
 	mainWindow->setWindowModified(true);
 }
 
 SetString::SetString(QString* pointer, QString new_value) :
-    p(pointer),
-    oldval(*pointer),
+	p(pointer),
+	oldval(*pointer),
 	newval(new_value),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void SetString::undo() {
-    *p = oldval;
+	*p = oldval;
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void SetString::redo() {
-    *p = newval;
+	*p = newval;
 	mainWindow->setWindowModified(true);
 }
 
@@ -1173,7 +1134,7 @@ void CloseAllClipsCommand::redo() {
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) :
-    item(i)
+	item(i)
 {}
 
 void UpdateFootageTooltip::undo() {
@@ -1181,7 +1142,7 @@ void UpdateFootageTooltip::undo() {
 }
 
 void UpdateFootageTooltip::redo() {
-    item->update_tooltip();
+	item->update_tooltip();
 }
 
 MoveEffectCommand::MoveEffectCommand() :
@@ -1211,13 +1172,13 @@ RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
 }
 
 void RemoveClipsFromClipboard::undo() {
-    clipboard.insert(pos, clip);
+	clipboard.insert(pos, clip);
 	done = false;
 }
 
 void RemoveClipsFromClipboard::redo() {
-    clip = static_cast<Clip*>(clipboard.at(pos));
-    clipboard.removeAt(pos);
+	clip = static_cast<Clip*>(clipboard.at(pos));
+	clipboard.removeAt(pos);
 	done = true;
 }
 
@@ -1240,26 +1201,26 @@ void RenameClipCommand::redo() {
 }
 
 SetPointer::SetPointer(void **pointer, void *data) :
-    p(pointer),
-    new_data(data),
-    old_changed(mainWindow->isWindowModified())
+	p(pointer),
+	new_data(data),
+	old_changed(mainWindow->isWindowModified())
 {}
 
 void SetPointer::undo() {
-    *p = old_data;
-    mainWindow->setWindowModified(old_changed);
+	*p = old_data;
+	mainWindow->setWindowModified(old_changed);
 }
 
 void SetPointer::redo() {
-    old_data = *p;
-    *p = new_data;
-    mainWindow->setWindowModified(true);
+	old_data = *p;
+	*p = new_data;
+	mainWindow->setWindowModified(true);
 }
 
 void ReloadEffectsCommand::undo() {
-    redo();
+	redo();
 }
 
 void ReloadEffectsCommand::redo() {
-    panel_effect_controls->reload_clips();
+	panel_effect_controls->reload_clips();
 }

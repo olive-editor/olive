@@ -144,6 +144,19 @@ void Timeline::next_cut() {
 	if (seek_enabled) panel_sequence_viewer->seek(n_cut);
 }
 
+void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const QVector<int>& ignore) {
+	for (int i=0;i<s->clips.size();i++) {
+		if (!ignore.contains(i)) {
+			Clip* c = s->clips.at(i);
+			if (c != NULL) {
+				if (c->timeline_in >= point) {
+					move_clip(ca, c, c->timeline_in + length, c->timeline_out + length, c->clip_in, c->track, true);
+				}
+			}
+		}
+	}
+}
+
 void Timeline::toggle_show_all() {
 	showing_all = !showing_all;
 	if (showing_all) {
@@ -487,7 +500,7 @@ void Timeline::delete_in_out(bool ripple) {
 		}
 		ComboAction* ca = new ComboAction();
 		delete_areas_and_relink(ca, areas);
-		if (ripple) ca->append(new RippleCommand(sequence, sequence->workarea_in, sequence->workarea_in - sequence->workarea_out));
+		if (ripple) ripple_clips(ca, sequence, sequence->workarea_in, sequence->workarea_in - sequence->workarea_out);
 		ca->append(new SetTimelineInOutCommand(sequence, false, 0, 0));
 		undo_stack.push(ca);
 		update_ui(true);
@@ -546,7 +559,7 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 			}
 
 			if (can_ripple) {
-				ca->append(new RippleCommand(sequence, ripple_point, -ripple_length));
+				ripple_clips(ca, sequence, ripple_point, -ripple_length);
 				panel_sequence_viewer->seek(ripple_point-1);
 			}
 		}
@@ -930,7 +943,7 @@ void Timeline::paste(bool insert) {
 			if (insert) {
 				split_cache.clear();
 				split_all_clips_at_point(ca, sequence->playhead);
-				ca->append(new RippleCommand(sequence, paste_start, paste_end - paste_start));
+				ripple_clips(ca, sequence, paste_start, paste_end - paste_start);
 			} else {
 				delete_areas_and_relink(ca, delete_areas);
 			}
@@ -1095,7 +1108,7 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 
 						// trim and move clips around the in point
 						delete_areas_and_relink(ca, areas);
-						if (ripple) ca->append(new RippleCommand(sequence, in_point+1, -1));
+						if (ripple) ripple_clips(ca, sequence, in_point+1, -1);
 					} else {
 						push_undo = false;
 					}
@@ -1114,7 +1127,7 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 
 				// trim and move clips around the in point
 				delete_areas_and_relink(ca, areas);
-				if (ripple) ca->append(new RippleCommand(sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point)));
+				if (ripple) ripple_clips(ca, sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point));
 			}
 
 			if (push_undo) {

@@ -429,7 +429,7 @@ void insert_clips(ComboAction* ca) {
 	long earliest_new_point = LONG_MAX;
 	long latest_new_point = LONG_MIN;
 
-	QVector<Clip*> ignore_clips;
+	QVector<int> ignore_clips;
 	for (int i=0;i<panel_timeline->ghosts.size();i++) {
 		const Ghost& g = panel_timeline->ghosts.at(i);
 
@@ -439,7 +439,7 @@ void insert_clips(ComboAction* ca) {
 		latest_new_point = qMax(latest_new_point, g.out);
 
 		if (g.clip >= 0) {
-			ignore_clips.append(sequence->clips.at(g.clip));
+			ignore_clips.append(g.clip);
 		} else {
 			// don't try to close old gap if importing
 			ripple_old_point = false;
@@ -467,7 +467,7 @@ void insert_clips(ComboAction* ca) {
 				// determine if we should close the gap the old clips left behind
 				if (ripple_old_point
 						&& !((c->timeline_in < earliest_old_point && c->timeline_out <= earliest_old_point) || (c->timeline_in >= latest_old_point && c->timeline_out > latest_old_point))
-						&& !ignore_clips.contains(c)) {
+						&& !ignore_clips.contains(i)) {
 					ripple_old_point = false;
 				}
 			}
@@ -476,17 +476,13 @@ void insert_clips(ComboAction* ca) {
 
 	long ripple_length = (latest_new_point - earliest_new_point);
 
-	RippleCommand* rc = new RippleCommand(sequence, earliest_new_point, ripple_length);
-	rc->ignore = ignore_clips;
-	ca->append(rc);
+	ripple_clips(ca, sequence, earliest_new_point, ripple_length, ignore_clips);
 
 	if (ripple_old_point) {
 		// works for moving later clips earlier but not earlier to later
 		long second_ripple_length = (earliest_old_point - latest_old_point);
 
-		RippleCommand* rc2 = new RippleCommand(sequence, latest_old_point, second_ripple_length);
-		rc2->ignore = ignore_clips;
-		ca->append(rc2);
+		ripple_clips(ca, sequence, latest_old_point, second_ripple_length, ignore_clips);
 
 		if (earliest_old_point < earliest_new_point) {
 			for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -886,13 +882,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
 							 ripple_point = first_ghost.old_out;
 						 }
-						 QVector<Clip*> ignore_clips;
+						 QVector<int> ignore_clips;
 						 for (int i=0;i<panel_timeline->ghosts.size();i++) {
 							 const Ghost& g = panel_timeline->ghosts.at(i);
 
 							 // push rippled clips forward if necessary
 							 if (panel_timeline->trim_in_point) {
-								 ignore_clips.append(sequence->clips.at(g.clip));
+								 ignore_clips.append(g.clip);
 								 panel_timeline->ghosts[i].in += ripple_length;
 								 panel_timeline->ghosts[i].out += ripple_length;
 							 }
@@ -901,9 +897,8 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 ripple_point = qMin(ripple_point, comp_point);
 						 }
 						 if (!panel_timeline->trim_in_point) ripple_length = -ripple_length;
-						 RippleCommand* rc = new RippleCommand(sequence, ripple_point, ripple_length);
-						 rc->ignore = ignore_clips;
-						 ca->append(rc);
+
+						 ripple_clips(ca, sequence, ripple_point, ripple_length, ignore_clips);
 					 }
 
 					 if (panel_timeline->tool == TIMELINE_TOOL_POINTER

@@ -41,6 +41,7 @@ long getFrameFromScreenPoint(double zoom, int x);
 void draw_selection_rectangle(QPainter& painter, const QRect& rect);
 bool selection_contains_transition(const Selection& s, Clip* c, int type);
 void move_clip(ComboAction *ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions = true);
+void ripple_clips(ComboAction *ca, Sequence* s, long point, long length, const QVector<int>& ignore = QVector<int>());
 
 struct Ghost {
 	int clip;

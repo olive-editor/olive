@@ -28,48 +28,48 @@ extern QUndoStack undo_stack;
 
 class ComboAction : public QUndoCommand {
 public:
-    ComboAction();
-    ~ComboAction();
-    void undo();
-    void redo();
-    void append(QUndoCommand* u);
+	ComboAction();
+	~ComboAction();
+	void undo();
+	void redo();
+	void append(QUndoCommand* u);
 	void appendPost(QUndoCommand* u);
 private:
-    QVector<QUndoCommand*> commands;
+	QVector<QUndoCommand*> commands;
 	QVector<QUndoCommand*> post_commands;
 };
 
 class MoveClipAction : public QUndoCommand {
 public:
-    MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack);
-    void undo();
-    void redo();
+	MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack);
+	void undo();
+	void redo();
 private:
-    Clip* clip;
+	Clip* clip;
 
-    long old_in;
-    long old_out;
-    long old_clip_in;
-    int old_track;
+	long old_in;
+	long old_out;
+	long old_clip_in;
+	int old_track;
 
-    long new_in;
-    long new_out;
-    long new_clip_in;
-    int new_track;    
+	long new_in;
+	long new_out;
+	long new_clip_in;
+	int new_track;
 
 	bool old_project_changed;
 };
 
 class DeleteClipAction : public QUndoCommand {
 public:
-    DeleteClipAction(Sequence* s, int clip);
-    ~DeleteClipAction();
-    void undo();
-    void redo();
+	DeleteClipAction(Sequence* s, int clip);
+	~DeleteClipAction();
+	void undo();
+	void redo();
 private:
-    Sequence* seq;
-    Clip* ref;
-    int index;
+	Sequence* seq;
+	Clip* ref;
+	int index;
 
 	QVector<int> linkClipIndex;
 	QVector<int> linkLinkIndex;
@@ -79,207 +79,193 @@ private:
 
 class ChangeSequenceAction : public QUndoCommand {
 public:
-    ChangeSequenceAction(Sequence* s);
-    void undo();
-    void redo();
+	ChangeSequenceAction(Sequence* s);
+	void undo();
+	void redo();
 private:
-    Sequence* old_sequence;
-    Sequence* new_sequence;
+	Sequence* old_sequence;
+	Sequence* new_sequence;
 };
 
 class AddEffectCommand : public QUndoCommand {
 public:
-    AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m, int insert_pos = -1);
-    ~AddEffectCommand();
-    void undo();
-    void redo();
+	AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m, int insert_pos = -1);
+	~AddEffectCommand();
+	void undo();
+	void redo();
 private:
-    Clip* clip;
+	Clip* clip;
 	const EffectMeta* meta;
-    Effect* ref;
-    int pos;
-    bool done;
+	Effect* ref;
+	int pos;
+	bool done;
 	bool old_project_changed;
 };
 
 class AddTransitionCommand : public QUndoCommand {
 public:
-    AddTransitionCommand(Clip* c, Clip* s, Transition *copy, const EffectMeta* itransition, int itype, int ilength);
-    void undo();
-    void redo();
+	AddTransitionCommand(Clip* c, Clip* s, Transition *copy, const EffectMeta* itransition, int itype, int ilength);
+	void undo();
+	void redo();
 private:
-    Clip* clip;
-    Clip* secondary;
-    Transition* transition_to_copy;
+	Clip* clip;
+	Clip* secondary;
+	Transition* transition_to_copy;
 	const EffectMeta* transition;
-    int type;
-    int length;
+	int type;
+	int length;
 	bool old_project_changed;
-    int old_ptransition;
-    int old_stransition;
+	int old_ptransition;
+	int old_stransition;
 };
 
 class ModifyTransitionCommand : public QUndoCommand {
 public:
-    ModifyTransitionCommand(Clip* c, int itype, long ilength);
-    void undo();
-    void redo();
+	ModifyTransitionCommand(Clip* c, int itype, long ilength);
+	void undo();
+	void redo();
 private:
-    Clip* clip;
-    int type;
-    long new_length;
-    long old_length;
+	Clip* clip;
+	int type;
+	long new_length;
+	long old_length;
 	bool old_project_changed;
 };
 
 class DeleteTransitionCommand : public QUndoCommand {
 public:
-    DeleteTransitionCommand(Sequence* s, int transition_index);
-    ~DeleteTransitionCommand();
-    void undo();
-    void redo();
+	DeleteTransitionCommand(Sequence* s, int transition_index);
+	~DeleteTransitionCommand();
+	void undo();
+	void redo();
 private:
-    Sequence* seq;
-    int index;
-    Transition* transition;
-    Clip* otc;
-    Clip* ctc;
+	Sequence* seq;
+	int index;
+	Transition* transition;
+	Clip* otc;
+	Clip* ctc;
 	bool old_project_changed;
 };
 
 class SetTimelineInOutCommand : public QUndoCommand {
 public:
-    SetTimelineInOutCommand(Sequence* s, bool enabled, long in, long out);
-    void undo();
-    void redo();
+	SetTimelineInOutCommand(Sequence* s, bool enabled, long in, long out);
+	void undo();
+	void redo();
 private:
-    Sequence* seq;
+	Sequence* seq;
 
-    bool old_enabled;
-    long old_in;
-    long old_out;
+	bool old_enabled;
+	long old_in;
+	long old_out;
 
-    bool new_enabled;
-    long new_in;
-    long new_out;
+	bool new_enabled;
+	long new_in;
+	long new_out;
 
 	bool old_project_changed;
 };
 
 class NewSequenceCommand : public QUndoCommand {
 public:
-    NewSequenceCommand(Media *s, Media* iparent);
-    ~NewSequenceCommand();
-    void undo();
-    void redo();
+	NewSequenceCommand(Media *s, Media* iparent);
+	~NewSequenceCommand();
+	void undo();
+	void redo();
 private:
-    Media* seq;
-    Media* parent;
-    bool done;
+	Media* seq;
+	Media* parent;
+	bool done;
 	bool old_project_changed;
 };
 
 class AddMediaCommand : public QUndoCommand {
 public:
-    AddMediaCommand(Media* iitem, Media* iparent);
-    ~AddMediaCommand();
-    void undo();
-    void redo();
+	AddMediaCommand(Media* iitem, Media* iparent);
+	~AddMediaCommand();
+	void undo();
+	void redo();
 private:
-    Media* item;
-    Media* parent;
-    bool done;
+	Media* item;
+	Media* parent;
+	bool done;
 	bool old_project_changed;
 };
 
 class DeleteMediaCommand : public QUndoCommand {
 public:
-    DeleteMediaCommand(Media *i);
-    ~DeleteMediaCommand();
-    void undo();
-    void redo();
+	DeleteMediaCommand(Media *i);
+	~DeleteMediaCommand();
+	void undo();
+	void redo();
 private:
-    Media* item;
-    Media* parent;
+	Media* item;
+	Media* parent;
 	bool old_project_changed;
 	bool done;
 };
 
-class RippleCommand : public QUndoCommand {
-public:
-    RippleCommand(Sequence* s, long ipoint, long ilength);
-    QVector<Clip*> ignore;
-    void undo();
-    void redo();
-private:
-    Sequence* seq;
-    long point;
-    long length;
-    QVector<Clip*> rippled;
-	bool old_project_changed;
-};
-
 class AddClipCommand : public QUndoCommand {
 public:
-    AddClipCommand(Sequence* s, QVector<Clip*>& add);
-    ~AddClipCommand();
-    void undo();
-    void redo();
+	AddClipCommand(Sequence* s, QVector<Clip*>& add);
+	~AddClipCommand();
+	void undo();
+	void redo();
 private:
-    Sequence* seq;
-    QVector<Clip*> clips;
+	Sequence* seq;
+	QVector<Clip*> clips;
 	QVector<Clip*> undone_clips;
 	bool old_project_changed;
 };
 
 class LinkCommand : public QUndoCommand {
 public:
-    LinkCommand();
-    void undo();
+	LinkCommand();
+	void undo();
 	void redo();
 	Sequence* s;
 	QVector<int> clips;
-    bool link;
+	bool link;
 private:
-    QVector< QVector<int> > old_links;
+	QVector< QVector<int> > old_links;
 	bool old_project_changed;
 };
 
 class CheckboxCommand : public QUndoCommand {
 public:
-    CheckboxCommand(QCheckBox* b);
-    ~CheckboxCommand();
-    void undo();
-    void redo();
+	CheckboxCommand(QCheckBox* b);
+	~CheckboxCommand();
+	void undo();
+	void redo();
 private:
-    QCheckBox* box;
-    bool checked;
-    bool done;
+	QCheckBox* box;
+	bool checked;
+	bool done;
 	bool old_project_changed;
 };
 
 class ReplaceMediaCommand : public QUndoCommand {
 public:
-    ReplaceMediaCommand(Media*, QString);
+	ReplaceMediaCommand(Media*, QString);
 	void undo();
 	void redo();
 private:
-    Media *item;
+	Media *item;
 	QString old_filename;
 	QString new_filename;
-    bool old_project_changed;
+	bool old_project_changed;
 	void replace(QString& filename);
 };
 
 class ReplaceClipMediaCommand : public QUndoCommand {
 public:
-    ReplaceClipMediaCommand(Media *, Media *, bool);
+	ReplaceClipMediaCommand(Media *, Media *, bool);
 	void undo();
 	void redo();
 	QVector<Clip*> clips;
 private:
-    Media* old_media;
-    Media* new_media;
+	Media* old_media;
+	Media* new_media;
 	bool preserve_clip_ins;
 	bool old_project_changed;
 	QVector<int> old_clip_ins;
@@ -302,26 +288,26 @@ private:
 
 class MediaMove : public QUndoCommand {
 public:
-    MediaMove();
-    QVector<Media*> items;
-    Media* to;
+	MediaMove();
+	QVector<Media*> items;
+	Media* to;
 	void undo();
 	void redo();
 private:
-    QVector<Media*> froms;
+	QVector<Media*> froms;
 	bool old_project_changed;
 };
 
 class MediaRename : public QUndoCommand {
 public:
-    MediaRename(Media* iitem, QString to);
-    void undo();
-    void redo();
+	MediaRename(Media* iitem, QString to);
+	void undo();
+	void redo();
 private:
-    bool old_project_changed;
-    Media* item;
-    QString from;
-    QString to;
+	bool old_project_changed;
+	Media* item;
+	QString from;
+	QString to;
 };
 
 class KeyframeMove : public QUndoCommand {
@@ -386,9 +372,9 @@ private:
 class SetAutoscaleAction : public QUndoCommand {
 public:
 	SetAutoscaleAction();
-    void undo();
-    void redo();
-    QVector<Clip*> clips;
+	void undo();
+	void redo();
+	QVector<Clip*> clips;
 private:
 	bool old_project_changed;
 };
@@ -458,14 +444,14 @@ private:
 
 class SetSelectionsCommand : public QUndoCommand {
 public:
-    SetSelectionsCommand(Sequence *s);
-    void undo();
-    void redo();
-    QVector<Selection> old_data;
-    QVector<Selection> new_data;
+	SetSelectionsCommand(Sequence *s);
+	void undo();
+	void redo();
+	QVector<Selection> old_data;
+	QVector<Selection> new_data;
 private:
-    Sequence* seq;
-    bool done;
+	Sequence* seq;
+	bool done;
 	bool old_project_changed;
 };
 
@@ -483,7 +469,7 @@ private:
 
 class EditSequenceCommand : public QUndoCommand {
 public:
-    EditSequenceCommand(Media *i, Sequence* s);
+	EditSequenceCommand(Media *i, Sequence* s);
 	void undo();
 	void redo();
 	void update();
@@ -495,7 +481,7 @@ public:
 	int audio_frequency;
 	int audio_layout;
 private:
-    Media* item;
+	Media* item;
 	Sequence* seq;
 	bool old_project_changed;
 
@@ -509,25 +495,25 @@ private:
 
 class SetInt : public QUndoCommand {
 public:
-    SetInt(int* pointer, int new_value);
-    void undo();
-    void redo();
+	SetInt(int* pointer, int new_value);
+	void undo();
+	void redo();
 private:
-    int* p;
-    int oldval;
-    int newval;
+	int* p;
+	int oldval;
+	int newval;
 	bool old_project_changed;
 };
 
 class SetString : public QUndoCommand {
 public:
-    SetString(QString* pointer, QString new_value);
-    void undo();
-    void redo();
+	SetString(QString* pointer, QString new_value);
+	void undo();
+	void redo();
 private:
-    QString* p;
-    QString oldval;
-    QString newval;
+	QString* p;
+	QString oldval;
+	QString newval;
 	bool old_project_changed;
 };
 
@@ -539,11 +525,11 @@ public:
 
 class UpdateFootageTooltip : public QUndoCommand {
 public:
-    UpdateFootageTooltip(Media* i);
+	UpdateFootageTooltip(Media* i);
 	void undo();
 	void redo();
 private:
-    Media* item;
+	Media* item;
 };
 
 class MoveEffectCommand : public QUndoCommand {
@@ -585,20 +571,20 @@ private:
 
 class SetPointer : public QUndoCommand {
 public:
-    SetPointer(void** pointer, void* data);
-    void undo();
-    void redo();
+	SetPointer(void** pointer, void* data);
+	void undo();
+	void redo();
 private:
-    bool old_changed;
-    void** p;
-    void* new_data;
-    void* old_data;
+	bool old_changed;
+	void** p;
+	void* new_data;
+	void* old_data;
 };
 
 class ReloadEffectsCommand : public QUndoCommand {
 public:
-    void undo();
-    void redo();
+	void undo();
+	void redo();
 };
 
 #endif // UNDO_H
