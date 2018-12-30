@@ -838,8 +838,6 @@ void Timeline::copy(bool del) {
 
 					Clip* copied_clip = c->copy(NULL);
 
-					copied_clip->cached_fr = sequence->frame_rate;
-
 					// copy linked IDs (we correct these later in paste())
 					copied_clip->linked = c->linked;
 
