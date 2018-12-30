@@ -24,6 +24,11 @@ class ComboAction;
 class Effect;
 class Media;
 class Transition;
+class TimelineHeader;
+class TimelineWidget;
+class ResizableScrollBar;
+class AudioMonitor;
+class QScrollBar;
 struct EffectMeta;
 struct Sequence;
 struct Clip;
@@ -62,10 +67,6 @@ struct Ghost {
 	// transition trimming
 	Transition* transition;
 };
-
-namespace Ui {
-class Timeline;
-}
 
 class Timeline : public QDockWidget
 {
@@ -188,7 +189,19 @@ public:
 
 	bool block_repaints;
 
-	Ui::Timeline *ui;
+	TimelineHeader* headers;
+	AudioMonitor* audio_monitor;
+	ResizableScrollBar* horizontalScrollBar;
+
+	QPushButton* toolArrowButton;
+	QPushButton* toolEditButton;
+	QPushButton* toolRippleButton;
+	QPushButton* toolRazorButton;
+	QPushButton* toolSlipButton;
+	QPushButton* toolSlideButton;
+	QPushButton* toolHandButton;
+	QPushButton* toolTransitionButton;
+	QPushButton* snappingButton;
 
 	void resizeEvent(QResizeEvent *event);
 public slots:
@@ -199,42 +212,17 @@ public slots:
 	void split_at_playhead();
 
 private slots:
-
-	void on_pushButton_4_clicked();
-
-	void on_pushButton_5_clicked();
-
-	void on_snappingButton_toggled(bool checked);
-
-	void on_toolSlideButton_clicked();
-
-	void on_toolArrowButton_clicked();
-
-	void on_toolEditButton_clicked();
-
-	void on_toolRippleButton_clicked();
-
-	void on_toolRollingButton_clicked();
-
-	void on_toolRazorButton_clicked();
-
-	void on_toolSlipButton_clicked();
-
-	void on_addButton_clicked();
-
-	void addMenuItem(QAction*);
-
+	void zoom_in();
+	void zoom_out();
+	void snapping_clicked(bool checked);
+	void add_btn_click();
+	void add_menu_item(QAction*);
 	void setScroll(int);
-
-	void on_recordButton_clicked();
-
-	void on_toolTransitionButton_clicked();
-
+	void record_btn_click();
+	void transition_tool_click();
 	void transition_menu_select(QAction*);
-
 	void resize_move(double d);
-
-	void on_toolHandButton_clicked();
+	void set_tool();
 
 private:
 	void set_zoom_value(double v);
@@ -245,7 +233,20 @@ private:
 	int scroll;
 	void set_sb_max();
 
+	void setup_ui();
+
 	int default_track_height;
+
+	QWidget* timeline_area;
+	TimelineWidget* video_area;
+	TimelineWidget* audio_area;
+	QWidget* editAreas;
+	QScrollBar* videoScrollbar;
+	QScrollBar* audioScrollbar;
+	QPushButton* zoomInButton;
+	QPushButton* zoomOutButton;
+	QPushButton* recordButton;
+	QPushButton* addButton;
 };
 
 #endif // TIMELINE_H

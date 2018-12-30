@@ -42,14 +42,9 @@ public:
 	void set_zoom(bool in);
 
 	// playback functions
-	void go_to_start();
-	void previous_frame();
-	void next_frame();
 	void seek(long p);
-	void toggle_play();
 	void play();
 	void pause();
-	void go_to_end();
 	bool playing;
 	long playhead_start;
 	qint64 start_msecs;
@@ -75,6 +70,11 @@ public:
 
 public slots:
 	void play_wake();
+	void go_to_start();
+	void previous_frame();
+	void toggle_play();
+	void next_frame();
+	void go_to_end();
 
 private slots:
 	void on_btnSkipToStart_clicked();

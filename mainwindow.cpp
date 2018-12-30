@@ -12,6 +12,7 @@
 #include "ui/sourcetable.h"
 #include "ui/viewerwidget.h"
 #include "ui/sourceiconview.h"
+#include "ui/timelineheader.h"
 
 #include "panels/panels.h"
 #include "panels/project.h"
@@ -29,8 +30,6 @@
 #include "playback/audio.h"
 #include "playback/playback.h"
 
-#include "ui_timeline.h"
-
 #include "debug.h"
 
 #include <QStyleFactory>
@@ -45,6 +44,9 @@
 #include <QStatusBar>
 #include <QMenu>
 #include <QMenuBar>
+#include <QLayout>
+#include <QApplication>
+#include <QPushButton>
 
 MainWindow* mainWindow;
 
@@ -273,8 +275,8 @@ void MainWindow::show_about() {
 
 void MainWindow::delete_slot()
 {
-	if (panel_timeline->ui->headers->hasFocus()) {
-		panel_timeline->ui->headers->delete_markers();
+	if (panel_timeline->headers->hasFocus()) {
+		panel_timeline->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(sequence->selections, false);
 	} else if (panel_effect_controls->is_focused()) {
@@ -649,41 +651,41 @@ void MainWindow::setup_menus() {
 
 	pointer_tool_action = tools_menu->addAction("Pointer Tool", this, SLOT(menu_click_button()), QKeySequence("V"));
 	pointer_tool_action->setCheckable(true);
-	pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolArrowButton));
+	pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolArrowButton));
 
 	edit_tool_action = tools_menu->addAction("Edit Tool", this, SLOT(menu_click_button()), QKeySequence("X"));
 	edit_tool_action->setCheckable(true);
-	edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolEditButton));
+	edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolEditButton));
 
 	ripple_tool_action = tools_menu->addAction("Ripple Tool", this, SLOT(menu_click_button()), QKeySequence("B"));
 	ripple_tool_action->setCheckable(true);
-	ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolRippleButton));
+	ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRippleButton));
 
 	razor_tool_action = tools_menu->addAction("Razor Tool", this, SLOT(menu_click_button()), QKeySequence("C"));
 	razor_tool_action->setCheckable(true);
-	razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolRazorButton));
+	razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRazorButton));
 
 	slip_tool_action = tools_menu->addAction("Slip Tool", this, SLOT(menu_click_button()), QKeySequence("Y"));
 	slip_tool_action->setCheckable(true);
-	slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolSlipButton));
+	slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlipButton));
 
 	slide_tool_action = tools_menu->addAction("Slide Tool", this, SLOT(menu_click_button()), QKeySequence("U"));
 	slide_tool_action->setCheckable(true);
-	slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolSlideButton));
+	slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlideButton));
 
 	hand_tool_action = tools_menu->addAction("Hand Tool", this, SLOT(menu_click_button()), QKeySequence("H"));
 	hand_tool_action->setCheckable(true);
-	hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolHandButton));
+	hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolHandButton));
 
 	transition_tool_action = tools_menu->addAction("Transition Tool", this, SLOT(menu_click_button()), QKeySequence("T"));
 	transition_tool_action->setCheckable(true);
-	transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->ui->toolTransitionButton));
+	transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolTransitionButton));
 
 	tools_menu->addSeparator();
 
 	snap_toggle = tools_menu->addAction("Enable Snapping", this, SLOT(menu_click_button()), QKeySequence("S"));
 	snap_toggle->setCheckable(true);
-	snap_toggle->setData(reinterpret_cast<quintptr>(panel_timeline->ui->snappingButton));
+	snap_toggle->setData(reinterpret_cast<quintptr>(panel_timeline->snappingButton));
 
 	tools_menu->addSeparator();
 

@@ -7,9 +7,10 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-#include "ui_timeline.h"
+#include "ui/audiomonitor.h"
 #include "debug.h"
 
+#include <QApplication>
 #include <QAudioOutput>
 #include <QAudioInput>
 #include <QtMath>
@@ -43,49 +44,49 @@ bool is_audio_device_set() {
 void init_audio() {
 	stop_audio();
 
-    QAudioFormat audio_format;
-    audio_format.setSampleRate(config.audio_rate);
-    audio_format.setChannelCount(2);
-    audio_format.setSampleSize(16);
-    audio_format.setCodec("audio/pcm");
-    audio_format.setByteOrder(QAudioFormat::LittleEndian);
-    audio_format.setSampleType(QAudioFormat::SignedInt);
+	QAudioFormat audio_format;
+	audio_format.setSampleRate(config.audio_rate);
+	audio_format.setChannelCount(2);
+	audio_format.setSampleSize(16);
+	audio_format.setCodec("audio/pcm");
+	audio_format.setByteOrder(QAudioFormat::LittleEndian);
+	audio_format.setSampleType(QAudioFormat::SignedInt);
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-    dout << "[INFO] Found the following audio devices:";
-    for (int i=0;i<devs.size();i++) {
-        dout << "    " << devs.at(i).deviceName();
-    }
-    if (info.isNull() && devs.size() > 0) {
-        dout << "[WARNING] Default audio returned NULL, attempting to use first device found...";
-        info = devs.at(0);
-    }
-    dout << "[INFO] Using audio device" << info.deviceName();
+	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+	dout << "[INFO] Found the following audio devices:";
+	for (int i=0;i<devs.size();i++) {
+		dout << "    " << devs.at(i).deviceName();
+	}
+	if (info.isNull() && devs.size() > 0) {
+		dout << "[WARNING] Default audio returned NULL, attempting to use first device found...";
+		info = devs.at(0);
+	}
+	dout << "[INFO] Using audio device" << info.deviceName();
 
-    if (!info.isFormatSupported(audio_format)) {
-        qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
-        audio_format = info.nearestFormat(audio_format);
-    }
+	if (!info.isFormatSupported(audio_format)) {
+		qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
+		audio_format = info.nearestFormat(audio_format);
+	}
 
-    audio_output = new QAudioOutput(info, audio_format);
-    audio_output->moveToThread(QApplication::instance()->thread());
-    audio_output->setNotifyInterval(5);
+	audio_output = new QAudioOutput(info, audio_format);
+	audio_output->moveToThread(QApplication::instance()->thread());
+	audio_output->setNotifyInterval(5);
 
-    // connect
-    audio_io_device = audio_output->start();
-    if (audio_io_device == NULL) {
-        dout << "[WARNING] Received NULL audio device. No compatible audio output was found.";
-    } else {
-        audio_device_set = true;
+	// connect
+	audio_io_device = audio_output->start();
+	if (audio_io_device == NULL) {
+		dout << "[WARNING] Received NULL audio device. No compatible audio output was found.";
+	} else {
+		audio_device_set = true;
 
-        // start sender thread
-        audio_thread = new AudioSenderThread();
-        QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
-        audio_thread->start(QThread::TimeCriticalPriority);
+		// start sender thread
+		audio_thread = new AudioSenderThread();
+		QObject::connect(audio_output, SIGNAL(notify()), audio_thread, SLOT(notifyReceiver()));
+		audio_thread->start(QThread::TimeCriticalPriority);
 
-        clear_audio_ibuffer();
-    }
+		clear_audio_ibuffer();
+	}
 }
 
 void stop_audio() {
@@ -100,12 +101,12 @@ void stop_audio() {
 
 void clear_audio_ibuffer() {
 	memset(audio_ibuffer, 0, audio_ibuffer_size);
-    audio_ibuffer_read = 0;
+	audio_ibuffer_read = 0;
 }
 
 int get_buffer_offset_from_frame(double framerate, long frame) {
 	if (frame >= audio_ibuffer_frame) {
-        return qFloor(((double) (frame - audio_ibuffer_frame)/framerate)*audio_output->format().sampleRate())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+		return qFloor(((double) (frame - audio_ibuffer_frame)/framerate)*audio_output->format().sampleRate())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
 	} else {
 		dout << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
 		return 0;
@@ -135,7 +136,7 @@ void AudioSenderThread::run() {
 		cond.wait(&lock);
 		if (close) {
 			break;
-        } else if (panel_sequence_viewer->playing || panel_footage_viewer->playing || audio_scrub) {
+		} else if (panel_sequence_viewer->playing || panel_footage_viewer->playing || audio_scrub) {
 			int written_bytes = 0;
 
 			int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
@@ -147,7 +148,7 @@ void AudioSenderThread::run() {
 				written_bytes += send_audio_to_output(0, audio_ibuffer_size);
 			}
 
-            audio_scrub = false;
+			audio_scrub = false;
 		}
 	}
 	lock.unlock();
@@ -163,26 +164,26 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	// TODO make this work for the footage viewer - currently, enabling it causes crash due to an ASSERT
 	Sequence* s = NULL;
 	/*if (panel_footage_viewer->playing) {
-        s = panel_footage_viewer->seq;
+		s = panel_footage_viewer->seq;
 	}*/
-    if (panel_sequence_viewer->playing) {
-        s = panel_sequence_viewer->seq;
-    }
-    if (s != NULL) {
-		if (panel_timeline->ui->audio_monitor->sample_cache_offset == -1) {
-            panel_timeline->ui->audio_monitor->sample_cache_offset = s->playhead;
+	if (panel_sequence_viewer->playing) {
+		s = panel_sequence_viewer->seq;
+	}
+	if (s != NULL) {
+		if (panel_timeline->audio_monitor->sample_cache_offset == -1) {
+			panel_timeline->audio_monitor->sample_cache_offset = s->playhead;
 		}
-        int channel_count = av_get_channel_layout_nb_channels(s->audio_layout);
-		long sample_cache_playhead = panel_timeline->ui->audio_monitor->sample_cache_offset + (panel_timeline->ui->audio_monitor->sample_cache.size()/channel_count);
+		int channel_count = av_get_channel_layout_nb_channels(s->audio_layout);
+		long sample_cache_playhead = panel_timeline->audio_monitor->sample_cache_offset + (panel_timeline->audio_monitor->sample_cache.size()/channel_count);
 		int next_buffer_offset, buffer_offset_adjusted, i;
-        int buffer_offset = get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead);
+		int buffer_offset = get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead);
 		if (samples.size() != channel_count) samples.resize(channel_count);
 		samples.fill(0);
 
 		// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
 		while (buffer_offset < audio_ibuffer_limit) {
 			sample_cache_playhead++;
-            next_buffer_offset = qMin(get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead), audio_ibuffer_limit);
+			next_buffer_offset = qMin(get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead), audio_ibuffer_limit);
 			while (buffer_offset < next_buffer_offset) {
 				for (i=0;i<samples.size();i++) {
 					buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
@@ -190,7 +191,7 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 					buffer_offset += 2;
 				}
 			}
-			panel_timeline->ui->audio_monitor->sample_cache.append(samples);
+			panel_timeline->audio_monitor->sample_cache.append(samples);
 			buffer_offset = next_buffer_offset;
 		}
 	}

@@ -14,11 +14,11 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "project/undo.h"
-#include "ui_timeline.h"
 #include "mainwindow.h"
 #include "ui/viewerwidget.h"
 #include "dialogs/stabilizerdialog.h"
 #include "project/media.h"
+#include "ui/resizablescrollbar.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -361,7 +361,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 		if (config.scroll_zooms != shift) {
 			panel_timeline->set_zoom(in);
 		} else {
-			QScrollBar* bar = alt ? scrollBar : panel_timeline->ui->horizontalScrollBar;
+			QScrollBar* bar = alt ? scrollBar : panel_timeline->horizontalScrollBar;
 
 			int step = bar->singleStep();
 			if (in) step = -step;
@@ -1638,7 +1638,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			}
 		} else if (panel_timeline->hand_moving) {
 			panel_timeline->block_repaints = true;
-			panel_timeline->ui->horizontalScrollBar->setValue(panel_timeline->ui->horizontalScrollBar->value() + panel_timeline->drag_x_start - event->pos().x());
+			panel_timeline->horizontalScrollBar->setValue(panel_timeline->horizontalScrollBar->value() + panel_timeline->drag_x_start - event->pos().x());
 			scrollBar->setValue(scrollBar->value() + panel_timeline->drag_y_start - event->pos().y());
 			panel_timeline->block_repaints = false;
 

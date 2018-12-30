@@ -295,10 +295,7 @@ void Project::open_properties() {
 			break;
 		case MEDIA_TYPE_SEQUENCE:
 		{
-			NewSequenceDialog nsd(this);
-			Sequence* s = item->to_sequence();
-			nsd.existing_sequence = s;
-			nsd.existing_item = item;
+			NewSequenceDialog nsd(this, item);
 			nsd.exec();
 		}
 			break;

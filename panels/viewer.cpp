@@ -11,11 +11,12 @@
 #include "project/media.h"
 #include "project/undo.h"
 #include "ui/audiomonitor.h"
-#include "ui_timeline.h"
 #include "playback/playback.h"
 #include "ui/viewerwidget.h"
 #include "ui/viewercontainer.h"
 #include "ui/labelslider.h"
+#include "ui/timelineheader.h"
+#include "ui/resizablescrollbar.h"
 #include "debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
@@ -31,6 +32,8 @@ extern "C" {
 #include <QPainter>
 #include <QStringList>
 #include <QTimer>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 Viewer::Viewer(QWidget *parent) :
 	QDockWidget(parent),
@@ -466,7 +469,6 @@ void Viewer::setup_ui() {
 	horizontalScrollBar->setOrientation(Qt::Horizontal);
 	layout->addWidget(horizontalScrollBar);
 
-
 	QWidget* lower_controls = new QWidget(contents);
 
 	QHBoxLayout* lower_control_layout = new QHBoxLayout(lower_controls);
@@ -492,6 +494,7 @@ void Viewer::setup_ui() {
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev.png"), QSize(), QIcon::Normal, QIcon::Off);
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnSkipToStart->setIcon(goToStartIcon);
+	connect(btnSkipToStart, SIGNAL(clicked(bool)), this, SLOT(go_to_start()));
 	playback_control_layout->addWidget(btnSkipToStart);
 
 	btnRewind = new QPushButton(playback_controls);
@@ -499,6 +502,7 @@ void Viewer::setup_ui() {
 	rewindIcon.addFile(QStringLiteral(":/icons/rew.png"), QSize(), QIcon::Normal, QIcon::Off);
 	rewindIcon.addFile(QStringLiteral(":/icons/rew-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnRewind->setIcon(rewindIcon);
+	connect(btnRewind, SIGNAL(clicked(bool)), this, SLOT(previous_frame()));
 	playback_control_layout->addWidget(btnRewind);
 
 	btnPlay = new QPushButton(playback_controls);
@@ -506,6 +510,7 @@ void Viewer::setup_ui() {
 	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::Off);
 	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnPlay->setIcon(playIcon);
+	connect(btnPlay, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
 	playback_control_layout->addWidget(btnPlay);
 
 	btnFastForward = new QPushButton(playback_controls);
@@ -513,6 +518,7 @@ void Viewer::setup_ui() {
 	ffIcon.addFile(QStringLiteral(":/icons/ff.png"), QSize(), QIcon::Normal, QIcon::On);
 	ffIcon.addFile(QStringLiteral(":/icons/ff-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnFastForward->setIcon(ffIcon);
+	connect(btnFastForward, SIGNAL(clicked(bool)), this, SLOT(next_frame()));
 	playback_control_layout->addWidget(btnFastForward);
 
 	btnSkipToEnd = new QPushButton(playback_controls);
@@ -520,6 +526,7 @@ void Viewer::setup_ui() {
 	nextIcon.addFile(QStringLiteral(":/icons/next.png"), QSize(), QIcon::Normal, QIcon::Off);
 	nextIcon.addFile(QStringLiteral(":/icons/next-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnSkipToEnd->setIcon(nextIcon);
+	connect(btnSkipToEnd, SIGNAL(clicked(bool)), this, SLOT(go_to_end()));
 	playback_control_layout->addWidget(btnSkipToEnd);
 
 	lower_control_layout->addWidget(playback_controls);

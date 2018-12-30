@@ -1,5 +1,4 @@
 #include "timeline.h"
-#include "ui_timeline.h"
 
 #include "panels/panels.h"
 #include "panels/project.h"
@@ -19,6 +18,9 @@
 #include "project/transition.h"
 #include "project/footage.h"
 #include "io/clipboard.h"
+#include "ui/timelineheader.h"
+#include "ui/resizablescrollbar.h"
+#include "ui/audiomonitor.h"
 #include "debug.h"
 
 #include <QTime>
@@ -31,6 +33,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QSplitter>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
 	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
@@ -70,55 +75,39 @@ Timeline::Timeline(QWidget *parent) :
 	transition_tool_post_clip(-1),
 	hand_moving(false),
 	block_repaints(false),
-	ui(new Ui::Timeline),
 	last_frame(0),
 	scroll(0)
 {
+	setup_ui();
+
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
 
-	ui->setupUi(this);
+	headers->viewer = panel_sequence_viewer;
 
-	ui->headers->viewer = panel_sequence_viewer;
+	video_area->bottom_align = true;
+	video_area->scrollBar = videoScrollbar;
+	audio_area->scrollBar = audioScrollbar;
 
-	/* --- TEMPORARY ---
-	 * I feel like the rolling edit tool is unnecessary, but just
-	 * in case I change my mind, I'm leaving all the functionality
-	 * intact and only hiding the UI to get to it. Still deciding
-	 * on this one but the pointer tool literally does the same
-	 * functionality.
-	 */
-	ui->toolRollingButton->setVisible(false);
-	ui->toolRollingButton->setEnabled(false);
-	/* --- */
+	tool_buttons.append(toolArrowButton);
+	tool_buttons.append(toolEditButton);
+	tool_buttons.append(toolRippleButton);
+	tool_buttons.append(toolRazorButton);
+	tool_buttons.append(toolSlipButton);
+	tool_buttons.append(toolSlideButton);
+	tool_buttons.append(toolTransitionButton);
+	tool_buttons.append(toolHandButton);
 
-	ui->video_area->bottom_align = true;
-	ui->video_area->scrollBar = ui->videoScrollbar;
-	ui->audio_area->scrollBar = ui->audioScrollbar;
+	toolArrowButton->click();
 
-	tool_buttons.append(ui->toolArrowButton);
-	tool_buttons.append(ui->toolEditButton);
-	tool_buttons.append(ui->toolRippleButton);
-	tool_buttons.append(ui->toolRazorButton);
-	tool_buttons.append(ui->toolSlipButton);
-	tool_buttons.append(ui->toolRollingButton);
-	tool_buttons.append(ui->toolSlideButton);
-	tool_buttons.append(ui->toolTransitionButton);
-	tool_buttons.append(ui->toolHandButton);
-
-	ui->toolArrowButton->click();
-
-	connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
-	connect(ui->videoScrollbar, SIGNAL(valueChanged(int)), ui->video_area, SLOT(setScroll(int)));
-	connect(ui->audioScrollbar, SIGNAL(valueChanged(int)), ui->audio_area, SLOT(setScroll(int)));
-	connect(ui->horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
+	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
+	connect(videoScrollbar, SIGNAL(valueChanged(int)), video_area, SLOT(setScroll(int)));
+	connect(audioScrollbar, SIGNAL(valueChanged(int)), audio_area, SLOT(setScroll(int)));
+	connect(horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
 	update_sequence();
 }
 
-Timeline::~Timeline()
-{
-	delete ui;
-}
+Timeline::~Timeline() {}
 
 void Timeline::previous_cut() {
 	if (sequence->playhead > 0) {
@@ -159,7 +148,7 @@ void Timeline::toggle_show_all() {
 	showing_all = !showing_all;
 	if (showing_all) {
 		old_zoom = zoom;
-		set_zoom_value((double) (ui->timeline_area->width() - 200) / (double) sequence->getEndFrame());
+		set_zoom_value((double) (timeline_area->width() - 200) / (double) sequence->getEndFrame());
 	} else {
 		set_zoom_value(old_zoom);
 	}
@@ -398,12 +387,12 @@ void Timeline::update_sequence() {
 	for (int i=0;i<tool_buttons.count();i++) {
 		tool_buttons[i]->setEnabled(!null_sequence);
 	}
-	ui->snappingButton->setEnabled(!null_sequence);
-	ui->pushButton_4->setEnabled(!null_sequence);
-	ui->pushButton_5->setEnabled(!null_sequence);
-	ui->recordButton->setEnabled(!null_sequence);
-	ui->addButton->setEnabled(!null_sequence);
-	ui->headers->setEnabled(!null_sequence);
+	snappingButton->setEnabled(!null_sequence);
+	zoomInButton->setEnabled(!null_sequence);
+	zoomOutButton->setEnabled(!null_sequence);
+	recordButton->setEnabled(!null_sequence);
+	addButton->setEnabled(!null_sequence);
+	headers->setEnabled(!null_sequence);
 
 	if (null_sequence) {
 		setWindowTitle("Timeline: <none>");
@@ -418,7 +407,7 @@ int Timeline::get_snap_range() {
 }
 
 bool Timeline::focused() {
-	return (sequence != NULL && (ui->headers->hasFocus() || ui->video_area->hasFocus() || ui->audio_area->hasFocus()));
+	return (sequence != NULL && (headers->hasFocus() || video_area->hasFocus() || audio_area->hasFocus()));
 }
 
 void Timeline::repaint_timeline() {
@@ -426,19 +415,19 @@ void Timeline::repaint_timeline() {
 		bool draw = true;
 
 		if (sequence != NULL
-				&& !ui->horizontalScrollBar->isSliderDown()
-				&& !ui->horizontalScrollBar->is_resizing()
+				&& !horizontalScrollBar->isSliderDown()
+				&& !horizontalScrollBar->is_resizing()
 				&& panel_sequence_viewer->playing
 				&& !zoom_just_changed) {
 			// auto scroll
 			if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
 				int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(sequence->playhead);
-				if (playhead_x < 0 || playhead_x > (ui->editAreas->width() - ui->videoScrollbar->width())) {
-					ui->horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, sequence->playhead));
+				if (playhead_x < 0 || playhead_x > (editAreas->width() - videoScrollbar->width())) {
+					horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, sequence->playhead));
 					draw = false;
 				}
 			} else if (config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
-				if (center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead)) {
+				if (center_scroll_to_playhead(horizontalScrollBar, zoom, sequence->playhead)) {
 					draw = false;
 				}
 			}
@@ -447,15 +436,15 @@ void Timeline::repaint_timeline() {
 		zoom_just_changed = false;
 
 		if (draw) {
-			ui->headers->update();
-			ui->video_area->update();
-			ui->audio_area->update();
+			headers->update();
+			video_area->update();
+			audio_area->update();
 
 			if (sequence != NULL) {
 				set_sb_max();
 
 				if (last_frame != sequence->playhead) {
-					ui->audio_monitor->update();
+					audio_monitor->update();
 					last_frame = sequence->playhead;
 				}
 			}
@@ -573,13 +562,13 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 void Timeline::set_zoom_value(double v) {
 	zoom = v;
 	zoom_just_changed = true;
-	ui->headers->update_zoom(zoom);
+	headers->update_zoom(zoom);
 
 	repaint_timeline();
 
 	// TODO find a way to gradually move towards target_scroll instead of just centering it?
-	if (!ui->horizontalScrollBar->is_resizing())
-		center_scroll_to_playhead(ui->horizontalScrollBar, zoom, sequence->playhead);
+	if (!horizontalScrollBar->is_resizing())
+		center_scroll_to_playhead(horizontalScrollBar, zoom, sequence->playhead);
 }
 
 void Timeline::set_zoom(bool in) {
@@ -602,13 +591,11 @@ QVector<int> Timeline::get_tracks_of_linked_clips(int i) {
 	return tracks;
 }
 
-void Timeline::on_pushButton_4_clicked()
-{
+void Timeline::zoom_in() {
 	set_zoom(true);
 }
 
-void Timeline::on_pushButton_5_clicked()
-{
+void Timeline::zoom_out() {
 	set_zoom(false);
 }
 
@@ -623,7 +610,7 @@ bool Timeline::is_clip_selected(Clip* clip, bool containing) {
 	return false;
 }
 
-void Timeline::on_snappingButton_toggled(bool checked) {
+void Timeline::snapping_clicked(bool checked) {
 	snapping = checked;
 }
 
@@ -1445,59 +1432,7 @@ int Timeline::getTimelineScreenPointFromFrame(long frame) {
 	return getScreenPointFromFrame(zoom, frame) - scroll;
 }
 
-void Timeline::on_toolArrowButton_clicked() {
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::ArrowCursor);
-	tool = TIMELINE_TOOL_POINTER;
-	creating = false;
-}
-
-void Timeline::on_toolEditButton_clicked() {
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::IBeamCursor);
-	tool = TIMELINE_TOOL_EDIT;
-	creating = false;
-}
-
-void Timeline::on_toolRippleButton_clicked() {
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::ArrowCursor);
-	tool = TIMELINE_TOOL_RIPPLE;
-	creating = false;
-}
-
-void Timeline::on_toolRollingButton_clicked() {
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::ArrowCursor);
-	tool = TIMELINE_TOOL_ROLLING;
-	creating = false;
-}
-
-void Timeline::on_toolRazorButton_clicked()
-{
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::IBeamCursor);
-	tool = TIMELINE_TOOL_RAZOR;
-	creating = false;
-}
-
-void Timeline::on_toolSlipButton_clicked()
-{
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::ArrowCursor);
-	tool = TIMELINE_TOOL_SLIP;
-	creating = false;
-}
-
-void Timeline::on_toolSlideButton_clicked()
-{
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::ArrowCursor);
-	tool = TIMELINE_TOOL_SLIDE;
-	creating = false;
-}
-
-void Timeline::on_addButton_clicked() {
+void Timeline::add_btn_click() {
 	QMenu add_menu(this);
 
 	QAction* titleMenuItem = new QAction(&add_menu);
@@ -1527,23 +1462,23 @@ void Timeline::on_addButton_clicked() {
 	noiseMenuItem->setData(ADD_OBJ_NOISE);
 	add_menu.addAction(noiseMenuItem);
 
-	connect(&add_menu, SIGNAL(triggered(QAction*)), this, SLOT(addMenuItem(QAction*)));
+	connect(&add_menu, SIGNAL(triggered(QAction*)), this, SLOT(add_menu_item(QAction*)));
 
 	add_menu.exec(QCursor::pos());
 }
 
-void Timeline::addMenuItem(QAction* action) {
+void Timeline::add_menu_item(QAction* action) {
 	creating = true;
 	creating_object = action->data().toInt();
 }
 
 void Timeline::setScroll(int s) {
 	scroll = s;
-	ui->headers->set_scroll(s);
+	headers->set_scroll(s);
 	repaint_timeline();
 }
 
-void Timeline::on_recordButton_clicked() {
+void Timeline::record_btn_click() {
 	if (project_url.isEmpty()) {
 		QMessageBox::critical(this, "Unsaved Project", "You must save this project before you can record audio in it.", QMessageBox::Ok);
 	} else {
@@ -1552,7 +1487,7 @@ void Timeline::on_recordButton_clicked() {
 	}
 }
 
-void Timeline::on_toolTransitionButton_clicked() {
+void Timeline::transition_tool_click() {
 	creating = false;
 
 	QMenu transition_menu(this);
@@ -1579,7 +1514,7 @@ void Timeline::on_toolTransitionButton_clicked() {
 
 	connect(&transition_menu, SIGNAL(triggered(QAction*)), this, SLOT(transition_menu_select(QAction*)));
 
-	ui->toolTransitionButton->setChecked(false);
+	toolTransitionButton->setChecked(false);
 
 	transition_menu.exec(QCursor::pos());
 }
@@ -1594,9 +1529,9 @@ void Timeline::transition_menu_select(QAction* a) {
 	}
 
 	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::CrossCursor);
+	timeline_area->setCursor(Qt::CrossCursor);
 	tool = TIMELINE_TOOL_TRANSITION;
-	ui->toolTransitionButton->setChecked(true);
+	toolTransitionButton->setChecked(true);
 }
 
 void Timeline::resize_move(double z) {
@@ -1604,7 +1539,242 @@ void Timeline::resize_move(double z) {
 }
 
 void Timeline::set_sb_max() {
-	ui->headers->set_scrollbar_max(ui->horizontalScrollBar, sequence->getEndFrame(), ui->editAreas->width() - getScreenPointFromFrame(zoom, 200));
+	headers->set_scrollbar_max(horizontalScrollBar, sequence->getEndFrame(), editAreas->width() - getScreenPointFromFrame(zoom, 200));
+}
+
+void Timeline::setup_ui() {
+	QWidget* dockWidgetContents = new QWidget();
+
+	QHBoxLayout* horizontalLayout = new QHBoxLayout(dockWidgetContents);
+	horizontalLayout->setSpacing(0);
+	horizontalLayout->setContentsMargins(0, 0, 0, 0);
+
+	QWidget* tool_buttons = new QWidget(dockWidgetContents);
+	tool_buttons->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
+
+	QVBoxLayout* tool_buttons_layout = new QVBoxLayout(tool_buttons);
+	tool_buttons_layout->setSpacing(4);
+	tool_buttons_layout->setContentsMargins(0, 0, 0, 0);
+
+	toolArrowButton = new QPushButton(tool_buttons);
+	QIcon arrow_icon;
+	arrow_icon.addFile(QStringLiteral(":/icons/arrow.png"), QSize(), QIcon::Normal, QIcon::Off);
+	arrow_icon.addFile(QStringLiteral(":/icons/arrow-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+	toolArrowButton->setIcon(arrow_icon);
+	toolArrowButton->setCheckable(true);
+	toolArrowButton->setToolTip("Pointer Tool (V)");
+	toolArrowButton->setProperty("tool", TIMELINE_TOOL_POINTER);
+	connect(toolArrowButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolArrowButton);
+
+	toolEditButton = new QPushButton(tool_buttons);
+	QIcon icon1;
+	icon1.addFile(QStringLiteral(":/icons/beam.png"), QSize(), QIcon::Normal, QIcon::Off);
+	icon1.addFile(QStringLiteral(":/icons/beam-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+	toolEditButton->setIcon(icon1);
+	toolEditButton->setCheckable(true);
+	toolEditButton->setToolTip("Edit Tool (X)");
+	toolEditButton->setProperty("tool", TIMELINE_TOOL_EDIT);
+	connect(toolEditButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolEditButton);
+
+	toolRippleButton = new QPushButton(tool_buttons);
+	QIcon icon2;
+	icon2.addFile(QStringLiteral(":/icons/ripple.png"), QSize(), QIcon::Normal, QIcon::Off);
+	icon2.addFile(QStringLiteral(":/icons/ripple-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+	toolRippleButton->setIcon(icon2);
+	toolRippleButton->setCheckable(true);
+	toolRippleButton->setToolTip("Ripple Tool (B)");
+	toolRippleButton->setProperty("tool", TIMELINE_TOOL_RIPPLE);
+	connect(toolRippleButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolRippleButton);
+
+	toolRazorButton = new QPushButton(tool_buttons);
+	QIcon icon4;
+	icon4.addFile(QStringLiteral(":/icons/razor.png"), QSize(), QIcon::Normal, QIcon::Off);
+	icon4.addFile(QStringLiteral(":/icons/razor-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+	toolRazorButton->setIcon(icon4);
+	toolRazorButton->setCheckable(true);
+	toolRazorButton->setToolTip("Razor Tool (C)");
+	toolRazorButton->setProperty("tool", TIMELINE_TOOL_RAZOR);
+	connect(toolRazorButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolRazorButton);
+
+	toolSlipButton = new QPushButton(tool_buttons);
+	QIcon icon5;
+	icon5.addFile(QStringLiteral(":/icons/slip.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon5.addFile(QStringLiteral(":/icons/slip-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolSlipButton->setIcon(icon5);
+	toolSlipButton->setCheckable(true);
+	toolSlipButton->setToolTip("Slip Tool (Y)");
+	toolSlipButton->setProperty("tool", TIMELINE_TOOL_SLIP);
+	connect(toolSlipButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolSlipButton);
+
+	toolSlideButton = new QPushButton(tool_buttons);
+	QIcon icon6;
+	icon6.addFile(QStringLiteral(":/icons/slide.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon6.addFile(QStringLiteral(":/icons/slide-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolSlideButton->setIcon(icon6);
+	toolSlideButton->setCheckable(true);
+	toolSlideButton->setToolTip("Slide Tool (U)");
+	toolSlideButton->setProperty("tool", TIMELINE_TOOL_SLIDE);
+	connect(toolSlideButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolSlideButton);
+
+	toolHandButton = new QPushButton(tool_buttons);
+	QIcon icon7;
+	icon7.addFile(QStringLiteral(":/icons/hand.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon7.addFile(QStringLiteral(":/icons/hand-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolHandButton->setIcon(icon7);
+	toolHandButton->setCheckable(true);
+	toolHandButton->setToolTip("Hand Tool (H)");
+	toolHandButton->setProperty("tool", TIMELINE_TOOL_HAND);
+	connect(toolHandButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
+	tool_buttons_layout->addWidget(toolHandButton);
+
+	toolTransitionButton = new QPushButton(tool_buttons);
+	QIcon icon8;
+	icon8.addFile(QStringLiteral(":/icons/transition-tool.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon8.addFile(QStringLiteral(":/icons/transition-tool-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolTransitionButton->setIcon(icon8);
+	toolTransitionButton->setCheckable(true);
+	toolTransitionButton->setToolTip("Transition Tool (T)");
+	connect(toolTransitionButton, SIGNAL(clicked(bool)), this, SLOT(transition_tool_click()));
+	tool_buttons_layout->addWidget(toolTransitionButton);
+
+	snappingButton = new QPushButton(tool_buttons);
+	QIcon icon9;
+	icon9.addFile(QStringLiteral(":/icons/magnet.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon9.addFile(QStringLiteral(":/icons/magnet-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	snappingButton->setIcon(icon9);
+	snappingButton->setCheckable(true);
+	snappingButton->setChecked(true);
+	snappingButton->setToolTip("Snapping (S)");
+	connect(snappingButton, SIGNAL(toggled(bool)), this, SLOT(snapping_clicked(bool)));
+	tool_buttons_layout->addWidget(snappingButton);
+
+	zoomInButton = new QPushButton(tool_buttons);
+	QIcon icon10;
+	icon10.addFile(QStringLiteral(":/icons/zoomin.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon10.addFile(QStringLiteral(":/icons/zoomin-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	zoomInButton->setIcon(icon10);
+	zoomInButton->setToolTip("Zoom In (=)");
+	connect(zoomInButton, SIGNAL(clicked(bool)), this, SLOT(zoom_in()));
+	tool_buttons_layout->addWidget(zoomInButton);
+
+	zoomOutButton = new QPushButton(tool_buttons);
+	QIcon icon11;
+	icon11.addFile(QStringLiteral(":/icons/zoomout.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon11.addFile(QStringLiteral(":/icons/zoomout-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	zoomOutButton->setIcon(icon11);
+	zoomOutButton->setToolTip("Zoom Out (-)");
+	connect(zoomOutButton, SIGNAL(clicked(bool)), this, SLOT(zoom_out()));
+	tool_buttons_layout->addWidget(zoomOutButton);
+
+	recordButton = new QPushButton(tool_buttons);
+	QIcon icon12;
+	icon12.addFile(QStringLiteral(":/icons/record.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon12.addFile(QStringLiteral(":/icons/record-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	recordButton->setIcon(icon12);
+	recordButton->setToolTip("Record audio");
+	connect(recordButton, SIGNAL(clicked(bool)), this, SLOT(record_btn_click()));
+
+	tool_buttons_layout->addWidget(recordButton);
+
+	addButton = new QPushButton(tool_buttons);
+	QIcon icon13;
+	icon13.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon13.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	addButton->setIcon(icon13);
+	addButton->setToolTip("Add title, solid, bars, etc.");
+	connect(addButton, SIGNAL(clicked()), this, SLOT(add_btn_click()));
+	tool_buttons_layout->addWidget(addButton);
+
+	tool_buttons_layout->addStretch();
+
+	horizontalLayout->addWidget(tool_buttons);
+
+	timeline_area = new QWidget(dockWidgetContents);
+	QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	sizePolicy2.setHorizontalStretch(1);
+	sizePolicy2.setVerticalStretch(0);
+	sizePolicy2.setHeightForWidth(timeline_area->sizePolicy().hasHeightForWidth());
+	timeline_area->setSizePolicy(sizePolicy2);
+	QVBoxLayout* timeline_area_layout = new QVBoxLayout(timeline_area);
+	timeline_area_layout->setSpacing(0);
+	timeline_area_layout->setContentsMargins(0, 0, 0, 0);
+	headers = new TimelineHeader(timeline_area);
+
+	timeline_area_layout->addWidget(headers);
+
+	editAreas = new QWidget(timeline_area);
+	QHBoxLayout* editAreaLayout = new QHBoxLayout(editAreas);
+	editAreaLayout->setSpacing(0);
+	editAreaLayout->setContentsMargins(0, 0, 0, 0);
+	QSplitter* splitter = new QSplitter(editAreas);
+	splitter->setOrientation(Qt::Vertical);
+	QWidget* videoContainer = new QWidget(splitter);
+	QHBoxLayout* videoContainerLayout = new QHBoxLayout(videoContainer);
+	videoContainerLayout->setSpacing(0);
+	videoContainerLayout->setObjectName(QStringLiteral("horizontalLayout_2"));
+	videoContainerLayout->setContentsMargins(0, 0, 0, 0);
+	video_area = new TimelineWidget(videoContainer);
+	video_area->setObjectName(QStringLiteral("video_area"));
+	video_area->setFocusPolicy(Qt::ClickFocus);
+
+	videoContainerLayout->addWidget(video_area);
+
+	videoScrollbar = new QScrollBar(videoContainer);
+	videoScrollbar->setObjectName(QStringLiteral("videoScrollbar"));
+	videoScrollbar->setMaximum(0);
+	videoScrollbar->setSingleStep(20);
+	videoScrollbar->setPageStep(1826);
+	videoScrollbar->setOrientation(Qt::Vertical);
+
+	videoContainerLayout->addWidget(videoScrollbar);
+
+	splitter->addWidget(videoContainer);
+
+	QWidget* audioContainer = new QWidget(splitter);
+	QHBoxLayout* audioContainerLayout = new QHBoxLayout(audioContainer);
+	audioContainerLayout->setSpacing(0);
+	audioContainerLayout->setContentsMargins(0, 0, 0, 0);
+	audio_area = new TimelineWidget(audioContainer);
+	audio_area->setObjectName(QStringLiteral("audio_area"));
+	audio_area->setFocusPolicy(Qt::ClickFocus);
+
+	audioContainerLayout->addWidget(audio_area);
+
+	audioScrollbar = new QScrollBar(audioContainer);
+	audioScrollbar->setMaximum(0);
+	audioScrollbar->setOrientation(Qt::Vertical);
+
+	audioContainerLayout->addWidget(audioScrollbar);
+
+	splitter->addWidget(audioContainer);
+
+	editAreaLayout->addWidget(splitter);
+
+	timeline_area_layout->addWidget(editAreas);
+
+	horizontalScrollBar = new ResizableScrollBar(timeline_area);
+	horizontalScrollBar->setObjectName(QStringLiteral("horizontalScrollBar"));
+	horizontalScrollBar->setMaximum(0);
+	horizontalScrollBar->setSingleStep(20);
+	horizontalScrollBar->setPageStep(1826);
+	horizontalScrollBar->setOrientation(Qt::Horizontal);
+
+	timeline_area_layout->addWidget(horizontalScrollBar);
+
+	horizontalLayout->addWidget(timeline_area);
+
+	audio_monitor = new AudioMonitor(dockWidgetContents);
+	audio_monitor->setMinimumSize(QSize(50, 0));
+
+	horizontalLayout->addWidget(audio_monitor);
+
+	setWidget(dockWidgetContents);
 }
 
 void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions) {
@@ -1625,9 +1795,20 @@ void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int
 	}
 }
 
-void Timeline::on_toolHandButton_clicked() {
-	decheck_tool_buttons(sender());
-	ui->timeline_area->setCursor(Qt::OpenHandCursor);
-	tool = TIMELINE_TOOL_HAND;
+void Timeline::set_tool() {
+	QPushButton* button = static_cast<QPushButton*>(sender());
+	decheck_tool_buttons(button);
+	tool = button->property("tool").toInt();
 	creating = false;
+	switch (tool) {
+	case TIMELINE_TOOL_EDIT:
+	case TIMELINE_TOOL_RAZOR:
+		timeline_area->setCursor(Qt::IBeamCursor);
+		break;
+	case TIMELINE_TOOL_HAND:
+		timeline_area->setCursor(Qt::OpenHandCursor);
+		break;
+	default:
+		timeline_area->setCursor(Qt::ArrowCursor);
+	}
 }

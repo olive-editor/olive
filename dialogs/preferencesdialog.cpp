@@ -1,83 +1,174 @@
 #include "preferencesdialog.h"
-#include "ui_preferencesdialog.h"
 
 #include "io/config.h"
 
 #include <QMenuBar>
 #include <QAction>
+#include <QVBoxLayout>
+#include <QTabWidget>
+#include <QLineEdit>
+#include <QLabel>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QRadioButton>
+#include <QDialogButtonBox>
+#include <QTreeWidget>
+#include <QVector>
 
-KeySequenceEditor::KeySequenceEditor(QAction* a)
-    : QKeySequenceEdit(0), action(a) {
-    setKeySequence(action->shortcut());
-    connect(this, SIGNAL(editingFinished()), this, SLOT(set_action_shortcut()));
+KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
+	: QKeySequenceEdit(parent), action(a) {
+	setKeySequence(action->shortcut());
+	//connect(this, SIGNAL(editingFinished()), this, SLOT(set_action_shortcut()));
 }
 
 void KeySequenceEditor::set_action_shortcut() {
-    action->setShortcut(keySequence());
+	action->setShortcut(keySequence());
 }
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::PreferencesDialog)
+	QDialog(parent)
 {
-    ui->setupUi(this);
+	setWindowTitle("Preferences");
+	setup_ui();
 
-    ui->accurateSeekButton->setChecked(!config.fast_seeking);
-    ui->fastSeekButton->setChecked(config.fast_seeking);
-	ui->recordingComboBox->setCurrentIndex(config.recording_mode - 1);
-    ui->imgSeqFormatEdit->setText(config.img_seq_formats);
+	accurateSeekButton->setChecked(!config.fast_seeking);
+	fastSeekButton->setChecked(config.fast_seeking);
+	recordingComboBox->setCurrentIndex(config.recording_mode - 1);
+	imgSeqFormatEdit->setText(config.img_seq_formats);
 }
 
-PreferencesDialog::~PreferencesDialog() {
-    delete ui;
+PreferencesDialog::~PreferencesDialog() {}
+
+void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent) {
+	QList<QAction*> actions = menu->actions();
+	for (int i=0;i<actions.size();i++) {
+		QAction* a = actions.at(i);
+
+		if (!a->isSeparator()) {
+			QTreeWidgetItem* item = new QTreeWidgetItem();
+			item->setText(0, a->text().replace("&", ""));
+
+			parent->addChild(item);
+
+			if (a->menu() != NULL) {
+				setup_kbd_shortcut_worker(a->menu(), item);
+			} else {
+				key_shortcut_items.append(item);
+				key_shortcut_actions.append(a);
+			}
+		}
+	}
 }
 
 void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
-    ui->treeWidget->clear();
-    QList<QMenu*> menus = menubar->findChildren<QMenu*>();
+	QList<QAction*> menus = menubar->actions();
 
-    // caching for parent-child pairing
-    QVector<QTreeWidgetItem*> added_action_items;
-    QVector<QAction*> added_actions;
+	for (int i=0;i<menus.size();i++) {
+		QMenu* menu = menus.at(i)->menu();
 
-    for (int i=0;i<menus.size();i++) {
-        QMenu* menu = menus.at(i);
-        QTreeWidgetItem* item = NULL;
-        if (menu->parent() != menubar) {
-            for (int j=0;j<added_actions.size();j++) {
-                if (added_actions.at(j)->menu() == menu) {
-                    item = added_action_items.at(j);
-                    break;
-                }
-            }
-        }
-        if (menu->parent() == menubar || item == NULL) {
-            item = new QTreeWidgetItem();
-            item->setText(0, menu->title().replace("&", ""));
-            ui->treeWidget->addTopLevelItem(item);
-        }
-        for (int j=0;j<menu->actions().size();j++) {
-            QAction* action = menu->actions().at(j);
-            if (!action->isSeparator()) {
-                QTreeWidgetItem* child = new QTreeWidgetItem();
-                child->setText(0, action->text().replace("&", ""));
-                item->addChild(child);
+		QTreeWidgetItem* item = new QTreeWidgetItem();
+		item->setText(0, menu->title().replace("&", ""));
 
-                added_actions.append(action);
-                added_action_items.append(child);
-            }
-        }
-    }
-    for (int i=0;i<added_action_items.size();i++) {
-        if (added_actions.at(i)->menu() == NULL) {
-            KeySequenceEditor* editor = new KeySequenceEditor(added_actions.at(i));
-            ui->treeWidget->setItemWidget(added_action_items.at(i), 1, editor);
-        }
-    }
+		keyboard_tree->addTopLevelItem(item);
+
+		setup_kbd_shortcut_worker(menu, item);
+	}
+
+	for (int i=0;i<key_shortcut_items.size();i++) {
+		KeySequenceEditor* editor = new KeySequenceEditor(keyboard_tree, key_shortcut_actions.at(i));
+		keyboard_tree->setItemWidget(key_shortcut_items.at(i), 1, editor);
+		key_shortcut_fields.append(editor);
+	}
 }
 
-void PreferencesDialog::on_buttonBox_accepted() {
-	config.recording_mode = ui->recordingComboBox->currentIndex() + 1;
-    config.img_seq_formats = ui->imgSeqFormatEdit->text();
-    config.fast_seeking = ui->fastSeekButton->isChecked();
+void PreferencesDialog::save() {
+	config.recording_mode = recordingComboBox->currentIndex() + 1;
+	config.img_seq_formats = imgSeqFormatEdit->text();
+	config.fast_seeking = fastSeekButton->isChecked();
+
+	// save keyboard shortcuts
+	for (int i=0;i<key_shortcut_fields.size();i++) {
+		key_shortcut_fields.at(i)->set_action_shortcut();
+	}
+
+	accept();
+}
+
+void PreferencesDialog::setup_ui() {
+	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
+	verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+	QTabWidget* tabWidget = new QTabWidget(this);
+	tabWidget->setObjectName(QStringLiteral("tabWidget"));
+
+	QTabWidget* tab = new QTabWidget();
+	QGridLayout* gridLayout_2 = new QGridLayout(tab);
+
+	gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
+
+	gridLayout_2->addWidget(new QLabel("Image sequence formats:"), 0, 0, 1, 1);
+
+	imgSeqFormatEdit = new QLineEdit(tab);
+
+	gridLayout_2->addWidget(imgSeqFormatEdit, 0, 1, 1, 1);
+
+	gridLayout_2->addWidget(new QLabel("Audio Recording:"), 1, 0, 1, 1);
+
+	recordingComboBox = new QComboBox(tab);
+	recordingComboBox->addItem("Mono");
+	recordingComboBox->addItem("Stereo");
+	recordingComboBox->setObjectName(QStringLiteral("recordingComboBox"));
+
+	gridLayout_2->addWidget(recordingComboBox, 1, 1, 1, 1);
+
+	tabWidget->addTab(tab, "General");
+	QWidget* tab_2 = new QWidget();
+	tabWidget->addTab(tab_2, "Behavior");
+	QWidget* tab_4 = new QWidget();
+	QVBoxLayout* verticalLayout_2 = new QVBoxLayout(tab_4);
+	verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+	QGroupBox* groupBox = new QGroupBox(tab_4);
+	groupBox->setTitle("Seeking");
+	groupBox->setObjectName(QStringLiteral("groupBox"));
+	QVBoxLayout* verticalLayout_3 = new QVBoxLayout(groupBox);
+	verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
+	accurateSeekButton = new QRadioButton(groupBox);
+	accurateSeekButton->setText("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)");
+	accurateSeekButton->setObjectName(QStringLiteral("accurateSeekButton"));
+
+	verticalLayout_3->addWidget(accurateSeekButton);
+
+	fastSeekButton = new QRadioButton(groupBox);
+	fastSeekButton->setText("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)");
+	fastSeekButton->setObjectName(QStringLiteral("fastSeekButton"));
+
+	verticalLayout_3->addWidget(fastSeekButton);
+
+	verticalLayout_2->addWidget(groupBox);
+
+	tabWidget->addTab(tab_4, "Playback");
+	QWidget* tab_3 = new QWidget();
+	QHBoxLayout* horizontalLayout = new QHBoxLayout(tab_3);
+	horizontalLayout->setContentsMargins(0, 0, 0, 0);
+
+	keyboard_tree = new QTreeWidget();
+	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
+	tree_header->setText(0, "Action");
+	tree_header->setText(1, "Shortcut");
+	horizontalLayout->addWidget(keyboard_tree);
+
+	tabWidget->addTab(tab_3, "Keyboard");
+
+	verticalLayout->addWidget(tabWidget);
+
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
+	buttonBox->setObjectName(QStringLiteral("buttonBox"));
+	buttonBox->setOrientation(Qt::Horizontal);
+	buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+	verticalLayout->addWidget(buttonBox);
+
+	connect(buttonBox, SIGNAL(accepted()), this, SLOT(save()));
+	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+	tabWidget->setCurrentIndex(2);
 }

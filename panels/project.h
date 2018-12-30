@@ -27,10 +27,6 @@ class SourcesCommon;
 #define LOAD_TYPE_VERSION 69
 #define LOAD_TYPE_URL 70
 
-namespace Ui {
-class Project;
-}
-
 extern QString autorecovery_filename;
 extern QString project_url;
 extern QStringList recent_projects;
