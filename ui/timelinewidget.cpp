@@ -1817,47 +1817,38 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
 				// ripple edit prep
 				if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-					QVector<Clip*> axis_ghosts;
+					long axis = LONG_MAX;
+
 					for (int i=0;i<panel_timeline->ghosts.size();i++) {
 						Clip* c = sequence->clips.at(panel_timeline->ghosts.at(i).clip);
-						bool found = false;
-						for (int j=0;j<axis_ghosts.size();j++) {
-							Clip* cc = axis_ghosts.at(j);
-							if (c->track == cc->track &&
-									((panel_timeline->trim_in_point && c->timeline_in < cc->timeline_in) ||
-									 (!panel_timeline->trim_in_point && c->timeline_out > cc->timeline_out))) {
-								axis_ghosts[j] = c;
-								found = true;
-								break;
-							}
-						}
-						if (!found) {
-							axis_ghosts.append(c);
+						if (panel_timeline->trim_in_point) {
+							axis = qMin(axis, c->timeline_in);
+						} else {
+							axis = qMin(axis, c->timeline_out);
 						}
 					}
 
 					for (int i=0;i<sequence->clips.size();i++) {
 						Clip* c = sequence->clips.at(i);
 						if (c != NULL && !panel_timeline->is_clip_selected(c, true)) {
-							for (int j=0;j<axis_ghosts.size();j++) {
-								Clip* axis = axis_ghosts.at(j);
-								long comp_point = (panel_timeline->trim_in_point) ? axis->timeline_in : axis->timeline_out;
-								bool clip_is_pre = (c->timeline_in < comp_point);
-								QVector<Clip*>& clip_list = clip_is_pre ? pre_clips : post_clips;
-								bool found = false;
-								for (int k=0;k<clip_list.size();k++) {
-									Clip* cached = clip_list.at(k);
-									if (cached->track == c->track) {
-										if (clip_is_pre == (c->timeline_in > cached->timeline_in)) {
-											clip_list[k] = c;
-										}
-										found = true;
-										break;
+							bool clip_is_post = (c->timeline_in >= axis);
+
+							// see if this a clip on this track is already in the list, and if it's closer
+							bool found = false;
+							QVector<Clip*>& clip_list = clip_is_post ? post_clips : pre_clips;
+							for (int j=0;j<clip_list.size();j++) {
+								Clip* compare = clip_list.at(j);
+								if (compare->track == c->track) {
+									if ((panel_timeline->trim_in_point && compare->timeline_out < c->timeline_out)
+											|| (!panel_timeline->trim_in_point && compare->timeline_in > c->timeline_in)) {
+										clip_list[j] = c;
 									}
+									found = true;
+									break;
 								}
-								if (!found) {
-									clip_list.append(c);
-								}
+							}
+							if (!found) {
+								clip_list.append(c);
 							}
 						}
 					}
