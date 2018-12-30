@@ -111,9 +111,9 @@ void EffectControls::copy(bool del) {
                 Effect* effect = c->effects.at(j);
                 if (effect->container->selected) {
                     if (!cleared) {
-                        clipboard_type = CLIPBOARD_TYPE_EFFECT;
                         clear_clipboard();
                         cleared = true;
+						clipboard_type = CLIPBOARD_TYPE_EFFECT;
                     }
 
                     clipboard.append(effect->copy(NULL));
