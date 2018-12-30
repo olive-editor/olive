@@ -196,7 +196,7 @@ win32 {
 
 mac {
     LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
-    ICON = icons/olive.icns
+    ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
 }
 
