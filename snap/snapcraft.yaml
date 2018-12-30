@@ -12,7 +12,7 @@ apps:
   olive-editor:
     environment:
       "LD_LIBRARY_PATH": "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
-    command: desktop-launch $SNAP/bin/Olive
+    command: desktop-launch $SNAP/bin/olive-editor
     plugs:
       - opengl
       - desktop
@@ -42,8 +42,7 @@ parts:
     override-build: |
       qmake olive.pro
       make
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      cp Olive $SNAPCRAFT_PART_INSTALL/bin
+      make install
       snapcraftctl set-version $(git rev-parse --short HEAD)
   desktop-qt5:
     build-packages:

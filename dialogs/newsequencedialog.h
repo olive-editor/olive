@@ -5,32 +5,39 @@
 
 class Project;
 class Media;
+class QComboBox;
+class QSpinBox;
+class QLineEdit;
 struct Sequence;
-
-namespace Ui {
-class NewSequenceDialog;
-}
 
 class NewSequenceDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit NewSequenceDialog(QWidget *parent = 0);
+	explicit NewSequenceDialog(QWidget *parent = 0, Media* existing = 0);
 	~NewSequenceDialog();
-	Sequence* existing_sequence;
-    Media* existing_item;
+
 	void set_sequence_name(const QString& s);
 
-protected:
-	void showEvent(QShowEvent *);
-
 private slots:
-	void on_buttonBox_accepted();
-	void on_comboBox_currentIndexChanged(int index);
+	void create();
+	void preset_changed(int index);
 
 private:
-	Ui::NewSequenceDialog *ui;
+	Sequence* existing_sequence;
+	Media* existing_item;
+
+	void setup_ui();
+
+	QComboBox* preset_combobox;
+	QSpinBox* height_numeric;
+	QSpinBox* width_numeric;
+	QComboBox* par_combobox;
+	QComboBox* interlacing_combobox;
+	QComboBox* frame_rate_combobox;
+	QComboBox* audio_frequency_combobox;
+	QLineEdit* lineEdit;
 };
 
 #endif // NEWSEQUENCEDIALOG_H

@@ -8,221 +8,169 @@ class EffectControls;
 class Viewer;
 class Timeline;
 
-namespace Ui {
-class MainWindow;
-}
-
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
 	Q_OBJECT
-
 public:
 	explicit MainWindow(QWidget *parent = 0);
-    void updateTitle(const QString &url);
-    ~MainWindow();
+	void updateTitle(const QString &url);
+	~MainWindow();
+
+	void make_new_menu(QMenu* parent);
+	void make_inout_menu(QMenu* parent);
 
 public slots:
 	void undo();
 	void redo();
-	void openSpeedDialog();
+	void open_speed_dialog();
 	void cut();
 	void copy();
 	void paste();
-    void new_project();
-    void autorecover_interval();
-    void on_actionNest_triggered();
-    void on_actionClear_In_Out_triggered();
-    void toggle_full_screen();
+	void new_project();
+	void autorecover_interval();
+	void nest();
+	void toggle_full_screen();
 
 protected:
 	void closeEvent(QCloseEvent *);
 	void paintEvent(QPaintEvent *event);
 
 private slots:
-	void on_action_Import_triggered();
+	void clear_undo_stack();
 
-	void on_actionExit_triggered();
+	void show_about();
+	void delete_slot();
+	void select_all();
 
-	void on_actionAbout_triggered();
+	void new_sequence();
 
-	void on_actionDelete_triggered();
+	void zoom_in();
+	void zoom_out();
+	void export_dialog();
+	void ripple_delete();
 
-	void on_actionSelect_All_triggered();
+	void open_project();
+	bool save_project_as();
+	bool save_project();
 
-	void on_actionSequence_triggered();
+	void go_to_start();
+	void prev_frame();
+	void playpause();
+	void next_frame();
+	void go_to_end();
+	void prev_cut();
+	void next_cut();
 
-	void on_actionZoom_In_triggered();
+	void reset_layout();
 
-    void on_actionZoom_out_triggered();
+	void preferences();
 
-	void on_actionExport_triggered();
+	void zoom_in_tracks();
 
-    void on_actionProject_2_triggered();
+	void zoom_out_tracks();
 
-    void on_actionEffect_Controls_triggered();
+	void fileMenu_About_To_Be_Shown();
+	void editMenu_About_To_Be_Shown();
+	void windowMenu_About_To_Be_Shown();
+	void viewMenu_About_To_Be_Shown();
+	void toolMenu_About_To_Be_Shown();
 
-    void on_actionViewer_triggered();
+	void duplicate();
 
-    void on_actionTimeline_triggered();
+	void add_default_transition();
 
-	void on_actionRipple_Delete_triggered();
+	void new_folder();
 
-	void on_actionSplit_at_Playhead_triggered();
+	void load_recent_project();
 
-    void on_action_Save_Project_triggered();
+	void ripple_to_in_point();
+	void ripple_to_out_point();
 
-    void on_action_Open_Project_triggered();
+	void set_in_point();
+	void set_out_point();
 
-    void on_actionSave_Project_As_triggered();
+	void clear_inout();
+	void delete_inout();
+	void ripple_delete_inout();
 
-    void on_actionDeselect_All_triggered();
+	// title safe area functions
+	void set_tsa_disable();
+	void set_tsa_default();
+	void set_tsa_43();
+	void set_tsa_169();
+	void set_tsa_custom();
 
-    void on_actionGo_to_start_triggered();
+	void set_marker();
 
-    void on_actionReset_to_default_layout_triggered();
-
-    void on_actionPrevious_Frame_triggered();
-
-    void on_actionNext_Frame_triggered();
-
-    void on_actionGo_to_End_triggered();
-
-	void on_actionPlay_Pause_triggered();
-
-    void on_actionEdit_Tool_triggered();
-
-    void on_actionToggle_Snapping_triggered();
-
-    void on_actionPointer_Tool_triggered();
-
-    void on_actionRazor_Tool_triggered();
-
-    void on_actionRipple_Tool_triggered();
-
-    void on_actionRolling_Tool_triggered();
-
-    void on_actionSlip_Tool_triggered();
-
-    void on_actionGo_to_Previous_Cut_triggered();
-
-    void on_actionGo_to_Next_Cut_triggered();
-
-    void on_actionPreferences_triggered();
-
-    void on_actionIncrease_Track_Height_triggered();
-
-    void on_actionDecrease_Track_Height_triggered();
-
-    void windowMenu_About_To_Be_Shown();
-
-    void on_actionFrames_triggered();
-
-    void on_actionDrop_Frame_triggered();
-
-    void on_actionNon_Drop_Frame_triggered();
-
-    void viewMenu_About_To_Be_Shown();
-
-    void on_actionEdit_Tool_Selects_Links_triggered();
-
-    void on_actionEdit_Tool_Also_Seeks_triggered();
-
-    void toolMenu_About_To_Be_Shown();
-
-    void on_actionDuplicate_triggered();
-
-    void on_actionSelecting_Also_Seeks_triggered();
-
-    void on_actionSeek_to_the_End_of_Pastes_triggered();
-
-    void on_actionAdd_Default_Transition_triggered();
-
-    void on_actionSlide_Tool_triggered();
-
-    void on_actionFolder_triggered();
-
-    void editMenu_About_To_Be_Shown();
-
-    void fileMenu_About_To_Be_Shown();
-
-    void load_recent_project();
-
-    void on_actionScroll_Wheel_Zooms_triggered();
-
-    void on_actionLink_Unlink_triggered();
-
-    void on_actionRipple_To_In_Point_triggered();
-
-    void on_actionRipple_to_Out_Point_triggered();
-
-    void on_actionSet_In_Point_triggered();
-
-    void on_actionSet_Out_Point_triggered();
-
-    void on_actionDelete_In_Out_triggered();
-
-    void on_actionRipple_Delete_In_Out_triggered();
-
-    void on_actionTimeline_Track_Lines_triggered();
-
-    void on_actionRectified_Waveforms_triggered();
-
-    void on_actionDefault_triggered();
-
-    void on_actionOff_triggered();
-
-    void on_action4_3_triggered();
-
-    void on_action16_9_triggered();
-
-    void on_actionCustom_triggered();
-
-	void on_actionEnable_Drag_Files_to_Timeline_triggered();
-
-    void on_actionAuto_scale_by_Default_triggered();
-
-	void on_actionSet_Edit_Marker_triggered();
-
-	void on_actionEnable_Disable_Clip_triggered();
-
-	void on_actionEnable_Seek_to_Import_triggered();
-
-    void on_actionAudio_Scrubbing_triggered();
-
-	void on_actionTransition_Tool_triggered();
-
-	void on_actionEdit_to_In_Point_triggered();
-
-	void on_actionEdit_to_Out_Point_triggered();
-
-	void on_actionToggle_Show_All_triggered();
-
-    void on_actionEnable_Drop_on_Media_to_Replace_triggered();
-
-    void on_actionFootage_Viewer_triggered();
-
-    void on_actionPasteInsert_triggered();
-
-    void on_actionNo_autoscroll_triggered();
-
-    void on_actionPage_Autoscroll_triggered();
-
-    void on_actionSmooth_Auto_scroll_triggered();
-
-    void on_actionMilliseconds_triggered();
-
-    void on_actionEnable_Hover_Focus_triggered();
-
-    void on_actionHand_Tool_triggered();
+	void toggle_enable_clips();
+	void edit_to_in_point();
+	void edit_to_out_point();
+	void paste_insert();
+	void toggle_bool_action();
+	void set_autoscroll();
+	void menu_click_button();
+	void toggle_panel_visibility();
+	void set_timecode_view();
 
     void on_actionGraph_Editor_triggered();
 
 private:
-	Ui::MainWindow *ui;
-    void setup_layout(bool reset);
-    bool save_project_as();
-    bool save_project();
-    bool can_close_project();
+	void setup_layout(bool reset);
+	bool can_close_project();
+	void setup_menus();
+
+	// menu bar menus
+	QMenu* window_menu;
+
+	// file menu actions
+	QMenu* open_recent;
+
+	// view menu actions
+	QAction* track_lines;
+	QAction* frames_action;
+	QAction* drop_frame_action;
+	QAction* nondrop_frame_action;
+	QAction* milliseconds_action;
+	QAction* no_autoscroll;
+	QAction* page_autoscroll;
+	QAction* smooth_autoscroll;
+	QAction* title_safe_off;
+	QAction* title_safe_default;
+	QAction* title_safe_43;
+	QAction* title_safe_169;
+	QAction* title_safe_custom;
+	QAction* full_screen;
+	QAction* show_all;
+
+	// tool menu actions
+	QAction* pointer_tool_action;
+	QAction* edit_tool_action;
+	QAction* ripple_tool_action;
+	QAction* razor_tool_action;
+	QAction* slip_tool_action;
+	QAction* slide_tool_action;
+	QAction* hand_tool_action;
+	QAction* transition_tool_action;
+	QAction* snap_toggle;
+	QAction* selecting_also_seeks;
+	QAction* edit_tool_also_seeks;
+	QAction* edit_tool_selects_links;
+	QAction* seek_to_end_of_pastes;
+	QAction* scroll_wheel_zooms;
+	QAction* rectified_waveforms;
+	QAction* enable_drag_files_to_timeline;
+	QAction* autoscale_by_default;
+	QAction* enable_seek_to_import;
+	QAction* enable_audio_scrubbing;
+	QAction* enable_drop_on_media_to_replace;
+	QAction* enable_hover_focus;
+
+	// edit menu actions
+	QAction* undo_action;
+	QAction* redo_action;
+
+	void set_bool_action_checked(QAction* a);
+	void set_int_action_checked(QAction* a, const int& i);
+	void set_button_action_checked(QAction* a);
 };
 
 extern MainWindow* mainWindow;

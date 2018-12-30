@@ -14,22 +14,22 @@
 #define TRANSITION_INTERNAL_CUBE 4
 #define TRANSITION_INTERNAL_COUNT 5
 
-int create_transition(Clip* c, Clip* s, const EffectMeta* em);
+int create_transition(Clip* c, Clip* s, const EffectMeta* em, long length = -1);
 
 class Transition : public Effect {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    Transition(Clip* c, Clip* s, const EffectMeta* em);
-    int copy(Clip* c, Clip* s);
-    Clip* secondary_clip;
-    void set_length(long l);
-    long get_true_length();
-    long get_length();
+	Transition(Clip* c, Clip* s, const EffectMeta* em);
+	int copy(Clip* c, Clip* s);
+	Clip* secondary_clip;
+	void set_length(long l);
+	long get_true_length();
+	long get_length();
 private slots:
-    void set_length_from_slider();
+	void set_length_from_slider();
 private:
-    long length; // used only for transitions
-    EffectField* length_field;
+	long length; // used only for transitions
+	EffectField* length_field;
 };
 
 #endif // TRANSITION_H

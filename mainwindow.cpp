@@ -1,5 +1,4 @@
 ﻿#include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include "io/config.h"
 #include "io/path.h"
@@ -12,6 +11,8 @@
 
 #include "ui/sourcetable.h"
 #include "ui/viewerwidget.h"
+#include "ui/sourceiconview.h"
+#include "ui/timelineheader.h"
 
 #include "panels/panels.h"
 #include "panels/project.h"
@@ -30,8 +31,6 @@
 #include "playback/audio.h"
 #include "playback/playback.h"
 
-#include "ui_timeline.h"
-
 #include "debug.h"
 
 #include <QStyleFactory>
@@ -42,6 +41,13 @@
 #include <QMovie>
 #include <QInputDialog>
 #include <QRegExp>
+#include <QSortFilterProxyModel>
+#include <QStatusBar>
+#include <QMenu>
+#include <QMenuBar>
+#include <QLayout>
+#include <QApplication>
+#include <QPushButton>
 
 MainWindow* mainWindow;
 
@@ -53,41 +59,40 @@ QString appName = "Olive (December 2018 | Alpha)";
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout(bool reset) {
-    panel_project->show();
-    panel_effect_controls->show();
-    panel_footage_viewer->show();
-    panel_sequence_viewer->show();
-    panel_timeline->show();
-    panel_graph_editor->hide();
+	panel_project->show();
+	panel_effect_controls->show();
+	panel_footage_viewer->show();
+	panel_sequence_viewer->show();
+	panel_timeline->show();
+	panel_graph_editor->hide();
 
-    addDockWidget(Qt::TopDockWidgetArea, panel_project);
-    addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
-    tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
-    panel_footage_viewer->raise();
-    addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
-    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
-    panel_graph_editor->setFloating(true);
+	addDockWidget(Qt::TopDockWidgetArea, panel_project);
+	addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
+	tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
+	panel_footage_viewer->raise();
+	addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
+	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+	panel_graph_editor->setFloating(true);
 
 // workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    resizeDocks({panel_project}, {40}, Qt::Horizontal);
+	resizeDocks({panel_project}, {40}, Qt::Horizontal);
 #endif
 
-    // load panels from file
-    if (!reset) {
-        QFile panel_config(get_data_path() + "/layout");
-        if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
-            restoreState(panel_config.readAll(), 0);
-            panel_config.close();
-        }
-    }
+	// load panels from file
+	if (!reset) {
+		QFile panel_config(get_data_path() + "/layout");
+		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
+			restoreState(panel_config.readAll(), 0);
+			panel_config.close();
+		}
+	}
 
-    layout()->update();
+	layout()->update();
 }
 
 MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+	QMainWindow(parent)
 {
 	setup_debug();
 
@@ -96,14 +101,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	// set up style?
 
 	qApp->setStyle(QStyleFactory::create("Fusion"));
-    setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }");
+	setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }");
 
 	QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+	darkPalette.setColor(QPalette::Window, QColor(53,53,53));
 	darkPalette.setColor(QPalette::WindowText, Qt::white);
 	darkPalette.setColor(QPalette::Base, QColor(25,25,25));
 	darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-    darkPalette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
+	darkPalette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
 	darkPalette.setColor(QPalette::ToolTipText, Qt::white);
 	darkPalette.setColor(QPalette::Text, Qt::white);
 	darkPalette.setColor(QPalette::Button, QColor(53,53,53));
@@ -111,38 +116,32 @@ MainWindow::MainWindow(QWidget *parent) :
 	darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
 	darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
 	darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+	darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
 	qApp->setPalette(darkPalette);
 
 	// end style
-	ui->setupUi(this);
+	QWidget* centralWidget = new QWidget(this);
+	centralWidget->setMaximumSize(QSize(0, 0));
+	setCentralWidget(centralWidget);
 
-    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
+	setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
 
 	updateTitle("");
 
-	statusBar()->showMessage("Welcome to " + appName);
-
-    setDockNestingEnabled(true);
+	setDockNestingEnabled(true);
 
 	layout()->invalidate();
 
-    connect(ui->menuWindow, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
-    connect(ui->menu_View, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
-    connect(ui->menu_Tools, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
-    connect(ui->menuEdit, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
-    connect(ui->menu_File, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
-
-    QString data_dir = get_data_path();
-    if (!data_dir.isEmpty()) {
-        QDir dir(data_dir);
-        dir.mkpath(".");
-        if (dir.exists()) {
+	QString data_dir = get_data_path();
+	if (!data_dir.isEmpty()) {
+		QDir dir(data_dir);
+		dir.mkpath(".");
+		if (dir.exists()) {
 			qint64 a_month_ago = QDateTime::currentMSecsSinceEpoch() - 2592000000;
 			qint64 a_week_ago = QDateTime::currentMSecsSinceEpoch() - 604800000;
 
-            // TODO put delete functions in another thread?
+			// TODO put delete functions in another thread?
 
 			// delete auto-recoveries older than 7 days
 			QStringList old_autorecoveries = dir.entryList(QStringList("autorecovery.ove.*"), QDir::Files);
@@ -169,56 +168,54 @@ MainWindow::MainWindow(QWidget *parent) :
 					}
 				}
 				if (deleted_ars > 0) dout << "[INFO] Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
-            }
+			}
 
-            // search for open recents list
-            recent_proj_file = data_dir + "/recents";
-            QFile f(recent_proj_file);
-            if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
-                QTextStream text_stream(&f);
-                while (true) {
-                    QString line = text_stream.readLine();
-                    if (line.isNull()) {
-                        break;
-                    } else {
-                        recent_projects.append(line);
-                    }
-                }
-                f.close();
-            }
+			// search for open recents list
+			recent_proj_file = data_dir + "/recents";
+			QFile f(recent_proj_file);
+			if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
+				QTextStream text_stream(&f);
+				while (true) {
+					QString line = text_stream.readLine();
+					if (line.isNull()) {
+						break;
+					} else {
+						recent_projects.append(line);
+					}
+				}
+				f.close();
+			}
 
-            config_dir = data_dir + "/config.xml";
-            config.load(config_dir);
-        }
-    }
+			config_dir = data_dir + "/config.xml";
+			config.load(config_dir);
+		}
+	}
 
-    alloc_panels(this);
+	alloc_panels(this);
 
-    if (!data_dir.isEmpty()) {
-        // detect auto-recovery file
-        autorecovery_filename = data_dir + "/autorecovery.ove";
-        if (QFile::exists(autorecovery_filename)) {
-            if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-                updateTitle(autorecovery_filename);
-                panel_project->load_project(true);
-            }
-        }
-        autorecovery_timer.setInterval(60000);
-        QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
-        autorecovery_timer.start();
-    }
+	QStatusBar* statusBar = new QStatusBar(this);
+	statusBar->showMessage("Welcome to " + appName);
+	setStatusBar(statusBar);
 
-    setup_layout(false);
+	setup_menus();
 
-    init_audio();
+	if (!data_dir.isEmpty()) {
+		// detect auto-recovery file
+		autorecovery_filename = data_dir + "/autorecovery.ove";
+		if (QFile::exists(autorecovery_filename)) {
+			if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+				updateTitle(autorecovery_filename);
+				panel_project->load_project(true);
+			}
+		}
+		autorecovery_timer.setInterval(60000);
+		QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
+		autorecovery_timer.start();
+	}
 
-	connect(ui->action_Undo, SIGNAL(triggered(bool)), this, SLOT(undo()));
-	connect(ui->action_Redo, SIGNAL(triggered(bool)), this, SLOT(redo()));
-	connect(ui->actionCu_t, SIGNAL(triggered(bool)), this, SLOT(cut()));
-	connect(ui->actionCop_y, SIGNAL(triggered(bool)), this, SLOT(copy()));
-	connect(ui->action_Paste, SIGNAL(triggered(bool)), this, SLOT(paste()));
-    connect(ui->actionProject, SIGNAL(triggered(bool)), this, SLOT(new_project()));
-    connect(ui->actionFull_Screen, SIGNAL(triggered(bool)), this, SLOT(toggle_full_screen()));
+	setup_layout(false);
+
+	init_audio();
 }
 
 MainWindow::~MainWindow() {
@@ -228,139 +225,119 @@ MainWindow::~MainWindow() {
 
 	set_sequence(NULL);
 
-    QString data_dir = get_data_path();
-    if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
-        if (QFile::exists(autorecovery_filename)) {
-            QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
-        }
-    }
-    if (!config_dir.isEmpty()) {
-        // save settings
-        config.save(config_dir);
+	QString data_dir = get_data_path();
+	if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
+		if (QFile::exists(autorecovery_filename)) {
+			QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
+		}
+	}
+	if (!config_dir.isEmpty()) {
+		// save settings
+		config.save(config_dir);
 
-        // save panel layout
-        QFile panel_config(data_dir + "/layout");
-        if (panel_config.open(QFile::WriteOnly)) {
-            panel_config.write(saveState(0));
-            panel_config.close();
-        } else {
-            dout << "[ERROR] Failed to save layout";
-        }
-    }
+		// save panel layout
+		QFile panel_config(data_dir + "/layout");
+		if (panel_config.open(QFile::WriteOnly)) {
+			panel_config.write(saveState(0));
+			panel_config.close();
+		} else {
+			dout << "[ERROR] Failed to save layout";
+		}
+	}
 
 	stop_audio();
 
-	delete ui;
-
-    free_panels();
+	free_panels();
 
 	close_debug();
 }
 
-void MainWindow::on_action_Import_triggered()
-{
-	panel_project->import_dialog();
+void MainWindow::make_new_menu(QMenu *parent) {
+	parent->addAction("&Project", this, SLOT(new_project()), QKeySequence("Ctrl+N"));
+	parent->addSeparator();
+	parent->addAction("&Sequence", this, SLOT(new_sequence()), QKeySequence("Ctrl+Shift+N"));
+	parent->addAction("&Folder", this, SLOT(new_folder()));
 }
 
-void MainWindow::on_actionExit_triggered()
-{
-    close();
+void MainWindow::make_inout_menu(QMenu *parent) {
+	parent->addAction("Set In Point", this, SLOT(set_in_point()), QKeySequence("I"));
+	parent->addAction("Set Out Point", this, SLOT(set_out_point()), QKeySequence("O"));
+	parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
 }
 
-void MainWindow::on_actionAbout_triggered()
-{
+void MainWindow::show_about() {
 	AboutDialog a(this);
 	a.exec();
 }
 
-void MainWindow::on_actionDelete_triggered()
-{
-	if (panel_timeline->ui->headers->hasFocus()) {
-		panel_timeline->ui->headers->delete_markers();
+void MainWindow::delete_slot() {
+	if (panel_timeline->headers->hasFocus()) {
+		panel_timeline->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(sequence->selections, false);
-    } else if (panel_effect_controls->is_focused()) {
-        panel_effect_controls->delete_effects();
-    } else if (panel_project->is_focused()) {
-        panel_project->delete_selected_media();
+	} else if (panel_effect_controls->is_focused()) {
+		panel_effect_controls->delete_effects();
+	} else if (panel_project->is_focused()) {
+		panel_project->delete_selected_media();
 	} else if (panel_effect_controls->keyframe_focus()) {
 		panel_effect_controls->delete_selected_keyframes();
 	}
 }
 
-void MainWindow::on_actionSelect_All_triggered()
-{
+void MainWindow::select_all() {
 	if (panel_timeline->focused()) {
 		panel_timeline->select_all();
 	}
 }
 
-void MainWindow::on_actionSequence_triggered()
-{
-    NewSequenceDialog nsd(this);
+void MainWindow::new_sequence() {
+	NewSequenceDialog nsd(this);
 	nsd.set_sequence_name(panel_project->get_next_sequence_name());
 	nsd.exec();
 }
 
-void MainWindow::on_actionZoom_In_triggered() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline) {
-        panel_timeline->set_zoom(true);
-    } else if (focused_panel == panel_effect_controls) {
+void MainWindow::zoom_in() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline) {
+		panel_timeline->set_zoom(true);
+	} else if (focused_panel == panel_effect_controls) {
 		panel_effect_controls->set_zoom(true);
-    } else if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->set_zoom(true);
-    } else if (focused_panel == panel_sequence_viewer) {
-        panel_sequence_viewer->set_zoom(true);
-    }
+	} else if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->set_zoom(true);
+	} else if (focused_panel == panel_sequence_viewer) {
+		panel_sequence_viewer->set_zoom(true);
+	}
 }
 
-void MainWindow::on_actionZoom_out_triggered() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline) {
-        panel_timeline->set_zoom(false);
-    } else if (focused_panel == panel_effect_controls) {
+void MainWindow::zoom_out() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline) {
+		panel_timeline->set_zoom(false);
+	} else if (focused_panel == panel_effect_controls) {
 		panel_effect_controls->set_zoom(false);
-    } else if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->set_zoom(false);
-    } else if (focused_panel == panel_sequence_viewer) {
-        panel_sequence_viewer->set_zoom(false);
-    }
+	} else if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->set_zoom(false);
+	} else if (focused_panel == panel_sequence_viewer) {
+		panel_sequence_viewer->set_zoom(false);
+	}
 }
 
-void MainWindow::on_actionExport_triggered() {
-    if (sequence == NULL) {
-        QMessageBox::information(this, "No active sequence", "Please open the sequence you wish to export.", QMessageBox::Ok);
-    } else {
-        ExportDialog e(this);
-        e.exec();
-    }
+void MainWindow::export_dialog() {
+	if (sequence == NULL) {
+		QMessageBox::information(this, "No active sequence", "Please open the sequence you wish to export.", QMessageBox::Ok);
+	} else {
+		ExportDialog e(this);
+		e.exec();
+	}
 }
 
-void MainWindow::on_actionProject_2_triggered() {
-    panel_project->setVisible(!panel_project->isVisible());
-}
-
-void MainWindow::on_actionEffect_Controls_triggered() {
-    panel_effect_controls->setVisible(!panel_effect_controls->isVisible());
-}
-
-void MainWindow::on_actionViewer_triggered() {
-    panel_sequence_viewer->setVisible(!panel_sequence_viewer->isVisible());
-}
-
-void MainWindow::on_actionTimeline_triggered() {
-    panel_timeline->setVisible(!panel_timeline->isVisible());
-}
-
-void MainWindow::on_actionRipple_Delete_triggered()
-{
+void MainWindow::ripple_delete() {
 	panel_timeline->delete_selection(sequence->selections, true);
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {
-    ui->action_Undo->setEnabled(undo_stack.canUndo());
-    ui->action_Redo->setEnabled(undo_stack.canRedo());
+	undo_action->setEnabled(undo_stack.canUndo());
+	redo_action->setEnabled(undo_stack.canRedo());
 }
 
 void MainWindow::undo() {
@@ -375,12 +352,12 @@ void MainWindow::redo() {
 	update_ui(true);
 }
 
-void MainWindow::openSpeedDialog() {
+void MainWindow::open_speed_dialog() {
 	if (sequence != NULL) {
 		SpeedDialog s(this);
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-            if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
 				s.clips.append(c);
 			}
 		}
@@ -389,99 +366,421 @@ void MainWindow::openSpeedDialog() {
 }
 
 void MainWindow::cut() {
-    if (sequence != NULL) {
-        QDockWidget* focused_panel = get_focused_panel();
-        if (panel_timeline == focused_panel) {
-            panel_timeline->copy(true);
-        } else if (panel_effect_controls == focused_panel) {
-            panel_effect_controls->copy(true);
-        }
-    }
+	if (sequence != NULL) {
+		QDockWidget* focused_panel = get_focused_panel();
+		if (panel_timeline == focused_panel) {
+			panel_timeline->copy(true);
+		} else if (panel_effect_controls == focused_panel) {
+			panel_effect_controls->copy(true);
+		}
+	}
 }
 
 void MainWindow::copy() {
-    if (sequence != NULL) {
-        QDockWidget* focused_panel = get_focused_panel();
-        if (panel_timeline == focused_panel) {
-            panel_timeline->copy(false);
-        } else if (panel_effect_controls == focused_panel) {
-            panel_effect_controls->copy(false);
-        }
-    }
+	if (sequence != NULL) {
+		QDockWidget* focused_panel = get_focused_panel();
+		if (panel_timeline == focused_panel) {
+			panel_timeline->copy(false);
+		} else if (panel_effect_controls == focused_panel) {
+			panel_effect_controls->copy(false);
+		}
+	}
 }
 
 void MainWindow::paste() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != NULL) {
-        panel_timeline->paste(false);
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != NULL) {
+		panel_timeline->paste(false);
+	}
 }
 
 void MainWindow::new_project() {
-    if (can_close_project()) {
-        panel_effect_controls->clear_effects(true);
-        undo_stack.clear();
-        project_url.clear();
-        panel_project->new_project();
-        updateTitle("");
-        update_ui(false);
-        panel_project->tree_view->update();
-    }
-}
-
-void MainWindow::on_actionSplit_at_Playhead_triggered() {
-    if (panel_timeline->focused()) {
-        panel_timeline->split_at_playhead();
-    }
+	if (can_close_project()) {
+		panel_effect_controls->clear_effects(true);
+		undo_stack.clear();
+		project_url.clear();
+		panel_project->new_project();
+		updateTitle("");
+		update_ui(false);
+		panel_project->tree_view->update();
+	}
 }
 
 void MainWindow::autorecover_interval() {
-    if (!rendering && isWindowModified()) {
-        panel_project->save_project(true);
+	if (!rendering && isWindowModified()) {
+		panel_project->save_project(true);
 		dout << "[INFO] Auto-recovery project saved";
-    }
+	}
 }
 
 bool MainWindow::save_project_as() {
-    QString fn = QFileDialog::getSaveFileName(this, "Save Project As...", "", OLIVE_FILE_FILTER);
-    if (!fn.isEmpty()) {
-        if (!fn.endsWith(".ove", Qt::CaseInsensitive)) {
-            fn += ".ove";
-        }
+	QString fn = QFileDialog::getSaveFileName(this, "Save Project As...", "", OLIVE_FILE_FILTER);
+	if (!fn.isEmpty()) {
+		if (!fn.endsWith(".ove", Qt::CaseInsensitive)) {
+			fn += ".ove";
+		}
 		updateTitle(fn);
-        panel_project->save_project(false);
-        return true;
-    }
-    return false;
+		panel_project->save_project(false);
+		return true;
+	}
+	return false;
 }
 
 bool MainWindow::save_project() {
-    if (project_url.isEmpty()) {
-        return save_project_as();
-    } else {
-        panel_project->save_project(false);
-        return true;
-    }
+	if (project_url.isEmpty()) {
+		return save_project_as();
+	} else {
+		panel_project->save_project(false);
+		return true;
+	}
 }
 
 bool MainWindow::can_close_project() {
 	if (isWindowModified()) {
-        QMessageBox* m = new QMessageBox(
-                    QMessageBox::Question,
-                    "Unsaved Project",
-                    "This project has changed since it was last saved. Would you like to save it before closing?",
-                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
-                    this
-                );
-        m->setWindowModality(Qt::WindowModal);
-        int r = m->exec();
-        if (r == QMessageBox::Yes) {
-            return save_project();
-        } else if (r == QMessageBox::Cancel) {
-            return false;
-        }
-    }
+		QMessageBox* m = new QMessageBox(
+					QMessageBox::Question,
+					"Unsaved Project",
+					"This project has changed since it was last saved. Would you like to save it before closing?",
+					QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+					this
+				);
+		m->setWindowModality(Qt::WindowModal);
+		int r = m->exec();
+		if (r == QMessageBox::Yes) {
+			return save_project();
+		} else if (r == QMessageBox::Cancel) {
+			return false;
+		}
+	}
 	return true;
+}
+
+void MainWindow::setup_menus() {
+	QMenuBar* menuBar = new QMenuBar(this);
+	setMenuBar(menuBar);
+
+	// INITIALIZE FILE MENU
+
+	QMenu* file_menu = menuBar->addMenu("&File");
+	connect(file_menu, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
+
+	QMenu* new_menu = file_menu->addMenu("&New");
+	make_new_menu(new_menu);
+
+	file_menu->addAction("&Open Project", this, SLOT(open_project()), QKeySequence("Ctrl+O"));
+
+	open_recent = file_menu->addMenu("Open Recent");
+
+	file_menu->addAction("&Save Project", this, SLOT(save_project()), QKeySequence("Ctrl+S"));
+	file_menu->addAction("Save Project &As", this, SLOT(save_project_as()), QKeySequence("Ctrl+Shift+S"));
+
+	file_menu->addSeparator();
+
+	file_menu->addAction("&Import...", panel_project, SLOT(import_dialog()), QKeySequence("Ctrl+I"));
+
+	file_menu->addSeparator();
+
+	file_menu->addAction("&Export...", this, SLOT(export_dialog()), QKeySequence("Ctrl+M"));
+
+	file_menu->addSeparator();
+
+	file_menu->addAction("E&xit", this, SLOT(close()));
+
+	// INITIALIZE EDIT MENU
+
+	QMenu* edit_menu = menuBar->addMenu("&Edit");
+	connect(edit_menu, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
+
+	undo_action = edit_menu->addAction("&Undo", this, SLOT(undo()), QKeySequence("Ctrl+Z"));
+	redo_action = edit_menu->addAction("Redo", this, SLOT(redo()), QKeySequence("Ctrl+Shift+Z"));
+
+	edit_menu->addSeparator();
+
+	edit_menu->addAction("Cu&t", this, SLOT(cut()), QKeySequence("Ctrl+X"));
+	edit_menu->addAction("Cop&y", this, SLOT(copy()), QKeySequence("Ctrl+C"));
+	edit_menu->addAction("&Paste", this, SLOT(paste()), QKeySequence("Ctrl+V"));
+	edit_menu->addAction("Paste Insert", this, SLOT(paste_insert()), QKeySequence("Ctrl+Shift+V"));
+	edit_menu->addAction("Duplicate", this, SLOT(duplicate()), QKeySequence("Ctrl+D"));
+	edit_menu->addAction("Delete", this, SLOT(delete_slot()), QKeySequence("Del"));
+	edit_menu->addAction("Ripple Delete", this, SLOT(ripple_delete()), QKeySequence("Shift+Del"));
+	edit_menu->addAction("Split", panel_timeline, SLOT(split_at_playhead()), QKeySequence("Ctrl+K"));
+
+	edit_menu->addSeparator();
+
+	edit_menu->addAction("Select &All", this, SLOT(select_all()), QKeySequence("Ctrl+A"));
+
+	edit_menu->addAction("Deselect All", panel_timeline, SLOT(deselect()), QKeySequence("Ctrl+Shift+A"));
+
+	edit_menu->addSeparator();
+
+	edit_menu->addAction("Add Default Transition", this, SLOT(add_default_transition()), QKeySequence("Ctrl+Shift+D"));
+	edit_menu->addAction("Link/Unlink", panel_timeline, SLOT(toggle_links()), QKeySequence("Ctrl+L"));
+	edit_menu->addAction("Enable/Disable", this, SLOT(toggle_enable_clips()), QKeySequence("Shift+E"));
+	edit_menu->addAction("Nest", this, SLOT(nest()));
+
+	edit_menu->addSeparator();
+
+	edit_menu->addAction("Ripple to In Point", this, SLOT(ripple_to_in_point()), QKeySequence("Q"));
+	edit_menu->addAction("Ripple to Out Point", this, SLOT(ripple_to_out_point()), QKeySequence("W"));
+	edit_menu->addAction("Edit to In Point", this, SLOT(edit_to_in_point()), QKeySequence("Ctrl+Alt+Q"));
+	edit_menu->addAction("Edit to Out Point", this, SLOT(edit_to_out_point()), QKeySequence("Ctrl+Alt+W"));
+
+	edit_menu->addSeparator();
+
+	make_inout_menu(edit_menu);
+	edit_menu->addAction("Delete In/Out Point", this, SLOT(delete_inout()), QKeySequence(";"));
+	edit_menu->addAction("Ripple Delete In/Out Point", this, SLOT(ripple_delete_inout()), QKeySequence("'"));
+
+	edit_menu->addSeparator();
+
+	edit_menu->addAction("Set/Edit Marker", this, SLOT(set_marker()), QKeySequence("M"));
+
+	// INITIALIZE VIEW MENU
+
+	QMenu* view_menu = menuBar->addMenu("&View");
+	connect(view_menu, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
+
+	view_menu->addAction("Zoom In", this, SLOT(zoom_in()), QKeySequence("="));
+	view_menu->addAction("Zoom Out", this, SLOT(zoom_out()), QKeySequence("-"));
+	view_menu->addAction("Increase Track Height", this, SLOT(zoom_in_tracks()), QKeySequence("Ctrl+="));
+	view_menu->addAction("Decrease Track Height", this, SLOT(zoom_out_tracks()), QKeySequence("Ctrl+-"));
+
+	show_all = view_menu->addAction("Toggle Show All", panel_timeline, SLOT(toggle_show_all()), QKeySequence("\\"));
+	show_all->setCheckable(true);
+
+	view_menu->addSeparator();
+
+	track_lines = view_menu->addAction("Track Lines", this, SLOT(toggle_bool_action()));
+	track_lines->setCheckable(true);
+	track_lines->setData(reinterpret_cast<quintptr>(&config.show_track_lines));
+
+	rectified_waveforms = view_menu->addAction("Rectified Waveforms", this, SLOT(toggle_bool_action()));
+	rectified_waveforms->setCheckable(true);
+	rectified_waveforms->setData(reinterpret_cast<quintptr>(&config.rectified_waveforms));
+
+	view_menu->addSeparator();
+
+	frames_action = view_menu->addAction("Frames", this, SLOT(set_timecode_view()));
+	frames_action->setData(TIMECODE_FRAMES);
+	frames_action->setCheckable(true);
+	drop_frame_action = view_menu->addAction("Drop Frame", this, SLOT(set_timecode_view()));
+	drop_frame_action->setData(TIMECODE_DROP);
+	drop_frame_action->setCheckable(true);
+	nondrop_frame_action = view_menu->addAction("Non-Drop Frame", this, SLOT(set_timecode_view()));
+	nondrop_frame_action->setData(TIMECODE_NONDROP);
+	nondrop_frame_action->setCheckable(true);
+	milliseconds_action = view_menu->addAction("Milliseconds", this, SLOT(set_timecode_view()));
+	milliseconds_action->setData(TIMECODE_MILLISECONDS);
+	milliseconds_action->setCheckable(true);
+
+	view_menu->addSeparator();
+
+	QMenu* title_safe_area_menu = view_menu->addMenu("Title/Action Safe Area");
+
+	title_safe_off = title_safe_area_menu->addAction("Off");
+	title_safe_off->setCheckable(true);
+	connect(title_safe_off, SIGNAL(triggered(bool)), this, SLOT(set_tsa_disable()));
+
+	title_safe_default = title_safe_area_menu->addAction("Default");
+	title_safe_default->setCheckable(true);
+	connect(title_safe_default, SIGNAL(triggered(bool)), this, SLOT(set_tsa_default()));
+
+	title_safe_43 = title_safe_area_menu->addAction("4:3");
+	title_safe_43->setCheckable(true);
+	connect(title_safe_43, SIGNAL(triggered(bool)), this, SLOT(set_tsa_43()));
+
+	title_safe_169 = title_safe_area_menu->addAction("16:9");
+	title_safe_169->setCheckable(true);
+	connect(title_safe_169, SIGNAL(triggered(bool)), this, SLOT(set_tsa_169()));
+
+	title_safe_custom = title_safe_area_menu->addAction("Custom");
+	title_safe_custom->setCheckable(true);
+	connect(title_safe_custom, SIGNAL(triggered(bool)), this, SLOT(set_tsa_custom()));
+
+	view_menu->addSeparator();
+
+	full_screen = view_menu->addAction("Full Screen", this, SLOT(toggle_full_screen()), QKeySequence("F11"));
+	full_screen->setCheckable(true);
+
+	// INITIALIZE PLAYBACK MENU
+
+	QMenu* playback_menu = menuBar->addMenu("&Playback");
+
+	playback_menu->addAction("Go to Start", this, SLOT(go_to_start()), QKeySequence("Home"));
+	playback_menu->addAction("Previous Frame", this, SLOT(prev_frame()), QKeySequence("Left"));
+	playback_menu->addAction("Play/Pause", this, SLOT(playpause()), QKeySequence("Space"));
+	playback_menu->addAction("Next Frame", this, SLOT(next_frame()), QKeySequence("Right"));
+	playback_menu->addAction("Go to End", this, SLOT(go_to_end()), QKeySequence("End"));
+	playback_menu->addSeparator();
+	playback_menu->addAction("Go to Previous Cut", this, SLOT(prev_cut()), QKeySequence("Up"));
+	playback_menu->addAction("Go to Next Cut", this, SLOT(next_cut()), QKeySequence("Down"));
+
+	// INITIALIZE WINDOW MENU
+
+	window_menu = menuBar->addMenu("&Window");
+	connect(window_menu, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
+
+	QAction* window_project_action = window_menu->addAction("Project", this, SLOT(toggle_panel_visibility()));
+	window_project_action->setCheckable(true);
+	window_project_action->setData(reinterpret_cast<quintptr>(panel_project));
+
+	QAction* window_effectcontrols_action = window_menu->addAction("Effect Controls", this, SLOT(toggle_panel_visibility()));
+	window_effectcontrols_action->setCheckable(true);
+	window_effectcontrols_action->setData(reinterpret_cast<quintptr>(panel_effect_controls));
+
+	QAction* window_timeline_action = window_menu->addAction("Timeline", this, SLOT(toggle_panel_visibility()));
+	window_timeline_action->setCheckable(true);
+	window_timeline_action->setData(reinterpret_cast<quintptr>(panel_timeline));
+
+	QAction* window_graph_editor_action = window_menu->addAction("Graph Editor", this, SLOT(toggle_panel_visibility()));
+	window_graph_editor_action->setCheckable(true);
+	window_graph_editor_action->setData(reinterpret_cast<quintptr>(panel_graph_editor));
+
+	QAction* window_footageviewer_action = window_menu->addAction("Footage Viewer", this, SLOT(toggle_panel_visibility()));
+	window_footageviewer_action->setCheckable(true);
+	window_footageviewer_action->setData(reinterpret_cast<quintptr>(panel_footage_viewer));
+
+	QAction* window_sequenceviewer_action = window_menu->addAction("Sequence Viewer", this, SLOT(toggle_panel_visibility()));
+	window_sequenceviewer_action->setCheckable(true);
+	window_sequenceviewer_action->setData(reinterpret_cast<quintptr>(panel_sequence_viewer));
+
+	window_menu->addSeparator();
+
+	window_menu->addAction("Reset to Default Layout", this, SLOT(reset_layout()));
+
+	// INITIALIZE TOOLS MENU
+
+	QMenu* tools_menu = menuBar->addMenu("&Tools");
+	connect(tools_menu, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
+
+	pointer_tool_action = tools_menu->addAction("Pointer Tool", this, SLOT(menu_click_button()), QKeySequence("V"));
+	pointer_tool_action->setCheckable(true);
+	pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolArrowButton));
+
+	edit_tool_action = tools_menu->addAction("Edit Tool", this, SLOT(menu_click_button()), QKeySequence("X"));
+	edit_tool_action->setCheckable(true);
+	edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolEditButton));
+
+	ripple_tool_action = tools_menu->addAction("Ripple Tool", this, SLOT(menu_click_button()), QKeySequence("B"));
+	ripple_tool_action->setCheckable(true);
+	ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRippleButton));
+
+	razor_tool_action = tools_menu->addAction("Razor Tool", this, SLOT(menu_click_button()), QKeySequence("C"));
+	razor_tool_action->setCheckable(true);
+	razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRazorButton));
+
+	slip_tool_action = tools_menu->addAction("Slip Tool", this, SLOT(menu_click_button()), QKeySequence("Y"));
+	slip_tool_action->setCheckable(true);
+	slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlipButton));
+
+	slide_tool_action = tools_menu->addAction("Slide Tool", this, SLOT(menu_click_button()), QKeySequence("U"));
+	slide_tool_action->setCheckable(true);
+	slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlideButton));
+
+	hand_tool_action = tools_menu->addAction("Hand Tool", this, SLOT(menu_click_button()), QKeySequence("H"));
+	hand_tool_action->setCheckable(true);
+	hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolHandButton));
+
+	transition_tool_action = tools_menu->addAction("Transition Tool", this, SLOT(menu_click_button()), QKeySequence("T"));
+	transition_tool_action->setCheckable(true);
+	transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolTransitionButton));
+
+	tools_menu->addSeparator();
+
+	snap_toggle = tools_menu->addAction("Enable Snapping", this, SLOT(menu_click_button()), QKeySequence("S"));
+	snap_toggle->setCheckable(true);
+	snap_toggle->setData(reinterpret_cast<quintptr>(panel_timeline->snappingButton));
+
+	tools_menu->addSeparator();
+
+	selecting_also_seeks = tools_menu->addAction("Selecting Also Seeks", this, SLOT(toggle_bool_action()));
+	selecting_also_seeks->setCheckable(true);
+	selecting_also_seeks->setData(reinterpret_cast<quintptr>(&config.select_also_seeks));
+
+	edit_tool_also_seeks = tools_menu->addAction("Edit Tool Also Seeks", this, SLOT(toggle_bool_action()));
+	edit_tool_also_seeks->setCheckable(true);
+	edit_tool_also_seeks->setData(reinterpret_cast<quintptr>(&config.edit_tool_also_seeks));
+
+	edit_tool_selects_links = tools_menu->addAction("Edit Tool Selects Links", this, SLOT(toggle_bool_action()));
+	edit_tool_selects_links->setCheckable(true);
+	edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&config.edit_tool_selects_links));
+
+	seek_to_end_of_pastes = tools_menu->addAction("Seek to the End of Pastes", this, SLOT(toggle_bool_action()));
+	seek_to_end_of_pastes->setCheckable(true);
+	seek_to_end_of_pastes->setData(reinterpret_cast<quintptr>(&config.paste_seeks));
+
+	scroll_wheel_zooms = tools_menu->addAction("Scroll Wheel Zooms", this, SLOT(toggle_bool_action()));
+	scroll_wheel_zooms->setCheckable(true);
+	scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&config.scroll_zooms));
+
+	enable_drag_files_to_timeline = tools_menu->addAction("Enable Drag Files to Timeline", this, SLOT(toggle_bool_action()));
+	enable_drag_files_to_timeline->setCheckable(true);
+	enable_drag_files_to_timeline->setData(reinterpret_cast<quintptr>(&config.enable_drag_files_to_timeline));
+
+	autoscale_by_default = tools_menu->addAction("Auto-Scale By Default", this, SLOT(toggle_bool_action()));
+	autoscale_by_default->setCheckable(true);
+	autoscale_by_default->setData(reinterpret_cast<quintptr>(&config.autoscale_by_default));
+
+	enable_seek_to_import = tools_menu->addAction("Enable Seek to Import", this, SLOT(toggle_bool_action()));
+	enable_seek_to_import->setCheckable(true);
+	enable_seek_to_import->setData(reinterpret_cast<quintptr>(&config.enable_seek_to_import));
+
+	enable_audio_scrubbing = tools_menu->addAction("Audio Scrubbing", this, SLOT(toggle_bool_action()));
+	enable_audio_scrubbing->setCheckable(true);
+	enable_audio_scrubbing->setData(reinterpret_cast<quintptr>(&config.enable_audio_scrubbing));
+
+	enable_drop_on_media_to_replace = tools_menu->addAction("Enable Drop on Media to Replace", this, SLOT(toggle_bool_action()));
+	enable_drop_on_media_to_replace->setCheckable(true);
+	enable_drop_on_media_to_replace->setData(reinterpret_cast<quintptr>(&config.drop_on_media_to_replace));
+
+	enable_hover_focus = tools_menu->addAction("Enable Hover Focus", this, SLOT(toggle_bool_action()));
+	enable_hover_focus->setCheckable(true);
+	enable_hover_focus->setData(reinterpret_cast<quintptr>(&config.hover_focus));
+
+	tools_menu->addSeparator();
+
+	no_autoscroll = tools_menu->addAction("No Auto-Scroll", this, SLOT(set_autoscroll()));
+	no_autoscroll->setData(AUTOSCROLL_NO_SCROLL);
+	no_autoscroll->setCheckable(true);
+
+	page_autoscroll = tools_menu->addAction("Page Auto-Scroll", this, SLOT(set_autoscroll()));
+	page_autoscroll->setData(AUTOSCROLL_PAGE_SCROLL);
+	page_autoscroll->setCheckable(true);
+
+	smooth_autoscroll = tools_menu->addAction("Smooth Auto-Scroll", this, SLOT(set_autoscroll()));
+	smooth_autoscroll->setData(AUTOSCROLL_SMOOTH_SCROLL);
+	smooth_autoscroll->setCheckable(true);
+
+	tools_menu->addSeparator();
+
+	tools_menu->addAction("Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+."));
+
+#ifdef QT_DEBUG
+	tools_menu->addAction("Clear Undo", this, SLOT(clear_undo_stack()), QKeySequence("Ctrl+."));
+#endif
+
+	// INITIALIZE HELP MENU
+
+	QMenu* help_menu = menuBar->addMenu("&Help");
+
+	help_menu->addAction("&About...", this, SLOT(show_about()));
+}
+
+void MainWindow::set_bool_action_checked(QAction *a) {
+	if (!a->data().isNull()) {
+		bool* variable = reinterpret_cast<bool*>(a->data().value<quintptr>());
+		a->setChecked(*variable);
+	}
+}
+
+void MainWindow::set_int_action_checked(QAction *a, const int& i) {
+	if (!a->data().isNull()) {
+		a->setChecked(a->data() == i);
+	}
+}
+
+void MainWindow::set_button_action_checked(QAction *a) {
+	a->setChecked(reinterpret_cast<QPushButton*>(a->data().value<quintptr>())->isChecked());
 }
 
 void MainWindow::updateTitle(const QString& url) {
@@ -490,10 +789,10 @@ void MainWindow::updateTitle(const QString& url) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *e) {
-    if (can_close_project()) {
-        e->accept();
-    } else {
-        e->ignore();
+	if (can_close_project()) {
+		e->accept();
+	} else {
+		e->ignore();
 	}
 }
 
@@ -508,40 +807,24 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 #endif
 }
 
-void MainWindow::on_action_Save_Project_triggered()
-{
-    save_project();
+void MainWindow::clear_undo_stack() {
+	undo_stack.clear();
 }
 
-void MainWindow::on_action_Open_Project_triggered()
-{
-    QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
+void MainWindow::open_project() {
+	QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
 	if (!fn.isEmpty() && can_close_project()) {
 		updateTitle(fn);
-        panel_project->load_project(false);
-        undo_stack.clear();
-    }
+		panel_project->load_project(false);
+		undo_stack.clear();
+	}
 }
 
-void MainWindow::on_actionSave_Project_As_triggered()
-{
-    save_project_as();
+void MainWindow::reset_layout() {
+	setup_layout(true);
 }
 
-void MainWindow::on_actionDeselect_All_triggered()
-{
-    if (panel_timeline->focused()) {
-        panel_timeline->deselect();
-    }
-}
-
-void MainWindow::on_actionReset_to_default_layout_triggered()
-{
-    setup_layout(true);
-}
-
-void MainWindow::on_actionGo_to_start_triggered()
-{
+void MainWindow::go_to_start() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->go_to_start();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -549,7 +832,7 @@ void MainWindow::on_actionGo_to_start_triggered()
 	}
 }
 
-void MainWindow::on_actionPrevious_Frame_triggered() {
+void MainWindow::prev_frame() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->previous_frame();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -557,7 +840,7 @@ void MainWindow::on_actionPrevious_Frame_triggered() {
 	}
 }
 
-void MainWindow::on_actionNext_Frame_triggered() {
+void MainWindow::next_frame() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->next_frame();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -565,7 +848,7 @@ void MainWindow::on_actionNext_Frame_triggered() {
 	}
 }
 
-void MainWindow::on_actionGo_to_End_triggered() {
+void MainWindow::go_to_end() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->go_to_end();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -573,7 +856,7 @@ void MainWindow::on_actionGo_to_End_triggered() {
 	}
 }
 
-void MainWindow::on_actionPlay_Pause_triggered() {
+void MainWindow::playpause() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
 		panel_sequence_viewer->toggle_play();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -581,225 +864,156 @@ void MainWindow::on_actionPlay_Pause_triggered() {
 	}
 }
 
-void MainWindow::on_actionEdit_Tool_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ui->toolEditButton->click();
-}
-
-void MainWindow::on_actionToggle_Snapping_triggered()
-{
-    if (panel_timeline->focused() || panel_effect_controls->keyframe_focus()) panel_timeline->ui->snappingButton->click();
-}
-
-void MainWindow::on_actionPointer_Tool_triggered()
-{
-    if (panel_timeline->focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_footage_viewer->is_focused()
-            || panel_sequence_viewer->is_focused())
-        panel_timeline->ui->toolArrowButton->click();
-}
-
-void MainWindow::on_actionRazor_Tool_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ui->toolRazorButton->click();
-}
-
-void MainWindow::on_actionRipple_Tool_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ui->toolRippleButton->click();
-}
-
-void MainWindow::on_actionRolling_Tool_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ui->toolRollingButton->click();
-}
-
-void MainWindow::on_actionSlip_Tool_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ui->toolSlipButton->click();
-}
-
-void MainWindow::on_actionGo_to_Previous_Cut_triggered()
-{
+void MainWindow::prev_cut() {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
-        panel_timeline->previous_cut();
-    }
+		panel_timeline->previous_cut();
+	}
 }
 
-void MainWindow::on_actionGo_to_Next_Cut_triggered()
-{
+void MainWindow::next_cut() {
 	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
-        panel_timeline->next_cut();
-    }
+		panel_timeline->next_cut();
+	}
 }
 
-void MainWindow::on_actionPreferences_triggered()
+void MainWindow::preferences()
 {
-    PreferencesDialog pd(this);
-    pd.setup_kbd_shortcuts(menuBar());
-    pd.exec();
+	PreferencesDialog pd(this);
+	pd.setup_kbd_shortcuts(menuBar());
+	pd.exec();
 }
 
-void MainWindow::on_actionIncrease_Track_Height_triggered()
-{
-    panel_timeline->increase_track_height();
+void MainWindow::zoom_in_tracks() {
+	panel_timeline->increase_track_height();
 }
 
-void MainWindow::on_actionDecrease_Track_Height_triggered()
-{
-    panel_timeline->decrease_track_height();
+void MainWindow::zoom_out_tracks() {
+	panel_timeline->decrease_track_height();
 }
 
 void MainWindow::windowMenu_About_To_Be_Shown() {
-    ui->actionProject_2->setChecked(panel_project->isVisible());
-    ui->actionEffect_Controls->setChecked(panel_effect_controls->isVisible());
-    ui->actionTimeline->setChecked(panel_timeline->isVisible());
-    ui->actionViewer->setChecked(panel_sequence_viewer->isVisible());
-    ui->actionFootage_Viewer->setChecked(panel_footage_viewer->isVisible());
-    ui->actionGraph_Editor->setChecked(panel_graph_editor->isVisible());
+	QList<QAction*> window_actions = window_menu->actions();
+	for (int i=0;i<window_actions.size();i++) {
+		QAction* a = window_actions.at(i);
+		if (!a->data().isNull()) {
+			a->setChecked(reinterpret_cast<QDockWidget*>(a->data().value<quintptr>())->isVisible());
+		}
+	}
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
-    ui->actionTimeline_Track_Lines->setChecked(config.show_track_lines);
-    ui->actionFrames->setChecked(config.timecode_view == TIMECODE_FRAMES);
-    ui->actionDrop_Frame->setChecked(config.timecode_view == TIMECODE_DROP);
-    ui->actionNon_Drop_Frame->setChecked(config.timecode_view == TIMECODE_NONDROP);
-    ui->actionMilliseconds->setChecked(config.timecode_view == TIMECODE_MILLISECONDS);
+	set_bool_action_checked(track_lines);
 
-    ui->actionOff->setChecked(!config.show_title_safe_area);
-    ui->actionDefault->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
-    ui->action4_3->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 4.0/3.0);
-    ui->action16_9->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 16.0/9.0);
-    ui->actionCustom->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && !ui->action4_3->isChecked() && !ui->action16_9->isChecked());
+	set_int_action_checked(frames_action, config.timecode_view);
+	set_int_action_checked(drop_frame_action, config.timecode_view);
+	set_int_action_checked(nondrop_frame_action, config.timecode_view);
+	set_int_action_checked(milliseconds_action, config.timecode_view);
 
-    ui->actionFull_Screen->setChecked(windowState() == Qt::WindowFullScreen);
-}
+	title_safe_off->setChecked(!config.show_title_safe_area);
+	title_safe_default->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
+	title_safe_43->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 4.0/3.0);
+	title_safe_169->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && config.custom_title_safe_ratio == 16.0/9.0);
+	title_safe_custom->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && !title_safe_43->isChecked() && !title_safe_169->isChecked());
 
-void MainWindow::on_actionFrames_triggered()
-{
-    config.timecode_view = TIMECODE_FRAMES;
-	update_ui(false);
-}
+	full_screen->setChecked(windowState() == Qt::WindowFullScreen);
 
-void MainWindow::on_actionDrop_Frame_triggered()
-{
-    config.timecode_view = TIMECODE_DROP;
-	update_ui(false);
-}
-
-void MainWindow::on_actionNon_Drop_Frame_triggered()
-{
-    config.timecode_view = TIMECODE_NONDROP;
-	update_ui(false);
+	show_all->setChecked(panel_timeline->showing_all);
 }
 
 void MainWindow::toolMenu_About_To_Be_Shown() {
-    ui->actionEdit_Tool_Also_Seeks->setChecked(config.edit_tool_also_seeks);
-    ui->actionEdit_Tool_Selects_Links->setChecked(config.edit_tool_selects_links);
-    ui->actionSelecting_Also_Seeks->setChecked(config.select_also_seeks);
-    ui->actionSeek_to_the_End_of_Pastes->setChecked(config.paste_seeks);
-    ui->actionToggle_Snapping->setChecked(panel_timeline->snapping);
-    ui->actionScroll_Wheel_Zooms->setChecked(config.scroll_zooms);
-	ui->actionRectified_Waveforms->setChecked(config.rectified_waveforms);
-	ui->actionEnable_Drag_Files_to_Timeline->setChecked(config.enable_drag_files_to_timeline);
-    ui->actionAuto_scale_by_Default->setChecked(config.autoscale_by_default);
-	ui->actionEnable_Seek_to_Import->setChecked(config.enable_seek_to_import);
-    ui->actionAudio_Scrubbing->setChecked(config.enable_audio_scrubbing);
-    ui->actionEnable_Drop_on_Media_to_Replace->setChecked(config.drop_on_media_to_replace);
-    ui->actionEnable_Hover_Focus->setChecked(config.hover_focus);
+	set_button_action_checked(pointer_tool_action);
+	set_button_action_checked(edit_tool_action);
+	set_button_action_checked(ripple_tool_action);
+	set_button_action_checked(razor_tool_action);
+	set_button_action_checked(slip_tool_action);
+	set_button_action_checked(slide_tool_action);
+	set_button_action_checked(hand_tool_action);
+	set_button_action_checked(transition_tool_action);
+	set_button_action_checked(snap_toggle);
 
-    ui->actionNo_autoscroll->setChecked(config.autoscroll == AUTOSCROLL_NO_SCROLL);
-    ui->actionPage_Autoscroll->setChecked(config.autoscroll == AUTOSCROLL_PAGE_SCROLL);
-    ui->actionSmooth_Auto_scroll->setChecked(config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL);
+	set_bool_action_checked(selecting_also_seeks);
+	set_bool_action_checked(edit_tool_also_seeks);
+	set_bool_action_checked(edit_tool_selects_links);
+	set_bool_action_checked(seek_to_end_of_pastes);
+	set_bool_action_checked(scroll_wheel_zooms);
+	set_bool_action_checked(rectified_waveforms);
+	set_bool_action_checked(enable_drag_files_to_timeline);
+	set_bool_action_checked(autoscale_by_default);
+	set_bool_action_checked(enable_seek_to_import);
+	set_bool_action_checked(enable_audio_scrubbing);
+	set_bool_action_checked(enable_drop_on_media_to_replace);
+	set_bool_action_checked(enable_hover_focus);
+
+	set_int_action_checked(no_autoscroll, config.autoscroll);
+	set_int_action_checked(page_autoscroll, config.autoscroll);
+	set_int_action_checked(smooth_autoscroll, config.autoscroll);
 }
 
-void MainWindow::on_actionEdit_Tool_Selects_Links_triggered() {
-    config.edit_tool_selects_links = !config.edit_tool_selects_links;
+void MainWindow::duplicate() {
+	if (panel_project->is_focused()) {
+		panel_project->duplicate_selected();
+	}
 }
 
-void MainWindow::on_actionEdit_Tool_Also_Seeks_triggered() {
-    config.edit_tool_also_seeks = !config.edit_tool_also_seeks;
+void MainWindow::add_default_transition() {
+	if (panel_timeline->focused()) panel_timeline->add_transition();
 }
 
-void MainWindow::on_actionDuplicate_triggered() {
-    if (panel_project->is_focused()) {
-        panel_project->duplicate_selected();
-    }
-}
+void MainWindow::new_folder() {
+	Media* m = panel_project->new_folder(0);
+	undo_stack.push(new AddMediaCommand(m, panel_project->get_selected_folder()));
 
-void MainWindow::on_actionSelecting_Also_Seeks_triggered() {
-    config.select_also_seeks = !config.select_also_seeks;
-}
-
-void MainWindow::on_actionSeek_to_the_End_of_Pastes_triggered()
-{
-    config.paste_seeks = !config.paste_seeks;
-}
-
-void MainWindow::on_actionAdd_Default_Transition_triggered() {
-    if (panel_timeline->focused()) panel_timeline->add_transition();
-}
-
-void MainWindow::on_actionSlide_Tool_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->ui->toolSlideButton->click();
-}
-
-void MainWindow::on_actionFolder_triggered() {
-    undo_stack.push(new AddMediaCommand(panel_project->new_folder(0), panel_project->get_selected_folder()));
+	QModelIndex index = project_model.create_index(m->row(), 0, m);
+	switch (config.project_view_type) {
+	case PROJECT_VIEW_TREE:
+		panel_project->tree_view->edit(panel_project->sorter->mapFromSource(index));
+		break;
+	case PROJECT_VIEW_ICON:
+		panel_project->icon_view->edit(panel_project->sorter->mapFromSource(index));
+		break;
+	}
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {
-    if (recent_projects.size() > 0) {
-        ui->menuOpen_Recent->clear();
-        ui->menuOpen_Recent->setEnabled(true);
-        for (int i=0;i<recent_projects.size();i++) {
-            QAction* action = ui->menuOpen_Recent->addAction(recent_projects.at(i));
-            action->setData(i);
-            connect(action, SIGNAL(triggered()), this, SLOT(load_recent_project()));
-        }
-        ui->menuOpen_Recent->addSeparator();
-        QAction* clear_action = ui->menuOpen_Recent->addAction("Clear Recent List");
-        connect(clear_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
-    } else {
-        ui->menuOpen_Recent->setEnabled(false);
-    }
+	if (recent_projects.size() > 0) {
+		open_recent->clear();
+		open_recent->setEnabled(true);
+		for (int i=0;i<recent_projects.size();i++) {
+			QAction* action = open_recent->addAction(recent_projects.at(i));
+			action->setData(i);
+			connect(action, SIGNAL(triggered()), this, SLOT(load_recent_project()));
+		}
+		open_recent->addSeparator();
+		QAction* clear_action = open_recent->addAction("Clear Recent List");
+		connect(clear_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
+	} else {
+		open_recent->setEnabled(false);
+	}
 }
 
 void MainWindow::load_recent_project() {
-    int index = static_cast<QAction*>(sender())->data().toInt();
-    QString recent_url = recent_projects.at(index);
-    if (!QFile::exists(recent_url)) {
-        if (QMessageBox::question(this, "Missing recent project", "The project '" + recent_url + "' no longer exists. Would you like to remove it from the recent projects list?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-            recent_projects.removeAt(index);
-            panel_project->save_recent_projects();
-        }
+	int index = static_cast<QAction*>(sender())->data().toInt();
+	QString recent_url = recent_projects.at(index);
+	if (!QFile::exists(recent_url)) {
+		if (QMessageBox::question(this, "Missing recent project", "The project '" + recent_url + "' no longer exists. Would you like to remove it from the recent projects list?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+			recent_projects.removeAt(index);
+			panel_project->save_recent_projects();
+		}
 	} else if (can_close_project()) {
 		updateTitle(recent_url);
-        panel_project->load_project(false);
-    }
+		panel_project->load_project(false);
+	}
 }
 
-void MainWindow::on_actionScroll_Wheel_Zooms_triggered()
-{
-    config.scroll_zooms = !config.scroll_zooms;
-}
-
-void MainWindow::on_actionLink_Unlink_triggered()
-{
-    if (panel_timeline->focused()) panel_timeline->toggle_links();
-}
-
-void MainWindow::on_actionRipple_To_In_Point_triggered() {
+void MainWindow::ripple_to_in_point() {
 	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true, true);
 }
 
-void MainWindow::on_actionRipple_to_Out_Point_triggered() {
+void MainWindow::ripple_to_out_point() {
 	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false, true);
 }
 
-void MainWindow::on_actionSet_In_Point_triggered() {
+void MainWindow::set_in_point() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
 		panel_sequence_viewer->set_in_point();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -807,7 +1021,7 @@ void MainWindow::on_actionSet_In_Point_triggered() {
 	}
 }
 
-void MainWindow::on_actionSet_Out_Point_triggered() {
+void MainWindow::set_out_point() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
 		panel_sequence_viewer->set_out_point();
 	} else if (panel_footage_viewer->is_focused()) {
@@ -815,111 +1029,90 @@ void MainWindow::on_actionSet_Out_Point_triggered() {
 	}
 }
 
-void MainWindow::on_actionClear_In_Out_triggered() {
-    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
-        panel_sequence_viewer->clear_inout_point();
-    } else if (panel_footage_viewer->is_focused()) {
-        panel_footage_viewer->clear_inout_point();
-    }
+void MainWindow::clear_inout() {
+	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+		panel_sequence_viewer->clear_inout_point();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->clear_inout_point();
+	}
 }
 
 void MainWindow::toggle_full_screen() {
-    if (windowState() == Qt::WindowFullScreen) {
-        setWindowState(Qt::WindowNoState); // seems to be necessary for it to return to Maximized correctly on Linux
-        setWindowState(Qt::WindowMaximized);
-    } else {
-        setWindowState(Qt::WindowFullScreen);
-    }
+	if (windowState() == Qt::WindowFullScreen) {
+		setWindowState(Qt::WindowNoState); // seems to be necessary for it to return to Maximized correctly on Linux
+		setWindowState(Qt::WindowMaximized);
+	} else {
+		setWindowState(Qt::WindowFullScreen);
+	}
 }
 
-void MainWindow::on_actionDelete_In_Out_triggered()
+void MainWindow::delete_inout() {
+	if (panel_timeline->focused()) {
+		panel_timeline->delete_in_out(false);
+	}
+}
+
+void MainWindow::ripple_delete_inout()
 {
-    if (panel_timeline->focused()) {
-        panel_timeline->delete_in_out(false);
-    }
+	if (panel_timeline->focused()) {
+		panel_timeline->delete_in_out(true);
+	}
 }
 
-void MainWindow::on_actionRipple_Delete_In_Out_triggered()
-{
-    if (panel_timeline->focused()) {
-        panel_timeline->delete_in_out(true);
-    }
+void MainWindow::set_tsa_default() {
+	config.show_title_safe_area = true;
+	config.use_custom_title_safe_ratio = false;
+	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_actionTimeline_Track_Lines_triggered()
-{
-    config.show_track_lines = !config.show_track_lines;
-	panel_timeline->repaint_timeline();
+void MainWindow::set_tsa_disable() {
+	config.show_title_safe_area = false;
+	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_actionRectified_Waveforms_triggered()
-{
-	config.rectified_waveforms = !config.rectified_waveforms;
-	panel_timeline->repaint_timeline();
+void MainWindow::set_tsa_43() {
+	config.show_title_safe_area = true;
+	config.use_custom_title_safe_ratio = true;
+	config.custom_title_safe_ratio = 4.0/3.0;
+	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_actionDefault_triggered() {
-    config.show_title_safe_area = true;
-    config.use_custom_title_safe_ratio = false;
-    panel_sequence_viewer->viewer_widget->update();
+void MainWindow::set_tsa_169() {
+	config.show_title_safe_area = true;
+	config.use_custom_title_safe_ratio = true;
+	config.custom_title_safe_ratio = 16.0/9.0;
+	panel_sequence_viewer->viewer_widget->update();
 }
 
-void MainWindow::on_actionOff_triggered() {
-    config.show_title_safe_area = false;
-    panel_sequence_viewer->viewer_widget->update();
+void MainWindow::set_tsa_custom() {
+	QString input;
+	bool invalid = false;
+	QRegExp arTest("[0-9.]+:[0-9.]+");
+
+	do {
+		if (invalid) {
+			QMessageBox::critical(this, "Invalid aspect ratio", "The aspect ratio '" + input + "' is invalid. Please try again.");
+		}
+
+		input = QInputDialog::getText(this, "Enter custom aspect ratio", "Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):");
+		invalid = !arTest.exactMatch(input) && !input.isEmpty();
+	} while (invalid);
+
+	if (!input.isEmpty()) {
+		QStringList inputList = input.split(':');
+
+		config.show_title_safe_area = true;
+		config.use_custom_title_safe_ratio = true;
+		config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
+		panel_sequence_viewer->viewer_widget->update();
+	}
 }
 
-void MainWindow::on_action4_3_triggered() {
-    config.show_title_safe_area = true;
-    config.use_custom_title_safe_ratio = true;
-    config.custom_title_safe_ratio = 4.0/3.0;
-    panel_sequence_viewer->viewer_widget->update();
-}
-
-void MainWindow::on_action16_9_triggered() {
-    config.show_title_safe_area = true;
-    config.use_custom_title_safe_ratio = true;
-    config.custom_title_safe_ratio = 16.0/9.0;
-    panel_sequence_viewer->viewer_widget->update();
-}
-
-void MainWindow::on_actionCustom_triggered() {
-    QString input;
-    bool invalid = false;
-    QRegExp arTest("[0-9.]+:[0-9.]+");
-
-    do {
-        if (invalid) {
-            QMessageBox::critical(this, "Invalid aspect ratio", "The aspect ratio '" + input + "' is invalid. Please try again.");
-        }
-
-        input = QInputDialog::getText(this, "Enter custom aspect ratio", "Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):");
-        invalid = !arTest.exactMatch(input) && !input.isEmpty();
-    } while (invalid);
-
-    if (!input.isEmpty()) {
-        QStringList inputList = input.split(':');
-
-        config.show_title_safe_area = true;
-        config.use_custom_title_safe_ratio = true;
-        config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
-        panel_sequence_viewer->viewer_widget->update();
-    }
-}
-
-void MainWindow::on_actionEnable_Drag_Files_to_Timeline_triggered() {
-	config.enable_drag_files_to_timeline = !config.enable_drag_files_to_timeline;
-}
-
-void MainWindow::on_actionAuto_scale_by_Default_triggered() {
-    config.autoscale_by_default = !config.autoscale_by_default;
-}
-
-void MainWindow::on_actionSet_Edit_Marker_triggered() {
+void MainWindow::set_marker() {
 	if (sequence != NULL) panel_timeline->set_marker();
 }
 
-void MainWindow::on_actionEnable_Disable_Clip_triggered() {
+void MainWindow::toggle_enable_clips() {
 	if (sequence != NULL) {
 		ComboAction* ca = new ComboAction();
 		bool push_undo = false;
@@ -939,47 +1132,35 @@ void MainWindow::on_actionEnable_Disable_Clip_triggered() {
 	}
 }
 
-void MainWindow::on_actionEnable_Seek_to_Import_triggered() {
-	config.enable_seek_to_import = !config.enable_seek_to_import;
-}
-
-void MainWindow::on_actionAudio_Scrubbing_triggered() {
-    config.enable_audio_scrubbing = !config.enable_audio_scrubbing;
-}
-
-void MainWindow::on_actionTransition_Tool_triggered() {
-	if (panel_timeline->focused()) panel_timeline->ui->toolTransitionButton->click();
-}
-
-void MainWindow::on_actionEdit_to_In_Point_triggered() {
+void MainWindow::edit_to_in_point() {
 	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true, false);
 }
 
-void MainWindow::on_actionEdit_to_Out_Point_triggered() {
+void MainWindow::edit_to_out_point() {
 	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false, false);
 }
 
-void MainWindow::on_actionNest_triggered() {
-    if (sequence != NULL) {
-        QVector<int> selected_clips;
-        long earliest_point = LONG_MAX;
+void MainWindow::nest() {
+	if (sequence != NULL) {
+		QVector<int> selected_clips;
+		long earliest_point = LONG_MAX;
 
-        // get selected clips
+		// get selected clips
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
 			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
-                selected_clips.append(i);
-                earliest_point = qMin(c->timeline_in, earliest_point);
+				selected_clips.append(i);
+				earliest_point = qMin(c->timeline_in, earliest_point);
 			}
 		}
 
-        // nest them
+		// nest them
 		if (!selected_clips.isEmpty()) {
-            ComboAction* ca = new ComboAction();
+			ComboAction* ca = new ComboAction();
 
 			Sequence* s = new Sequence();
 
-            // create "nest" sequence
+			// create "nest" sequence
 			s->name = panel_project->get_next_sequence_name("Nested Sequence");
 			s->width = sequence->width;
 			s->height = sequence->height;
@@ -987,80 +1168,74 @@ void MainWindow::on_actionNest_triggered() {
 			s->audio_frequency = sequence->audio_frequency;
 			s->audio_layout = sequence->audio_layout;
 
-            // copy all selected clips to the nest
+			// copy all selected clips to the nest
 			for (int i=0;i<selected_clips.size();i++) {
-                // delete clip from old sequence
-                ca->append(new DeleteClipAction(sequence, selected_clips.at(i)));
+				// delete clip from old sequence
+				ca->append(new DeleteClipAction(sequence, selected_clips.at(i)));
 
-                // copy to new
-                Clip* copy = sequence->clips.at(selected_clips.at(i))->copy(s);
-                copy->timeline_in -= earliest_point;
-                copy->timeline_out -= earliest_point;
-                s->clips.append(copy);
+				// copy to new
+				Clip* copy = sequence->clips.at(selected_clips.at(i))->copy(s);
+				copy->timeline_in -= earliest_point;
+				copy->timeline_out -= earliest_point;
+				s->clips.append(copy);
 			}
 
-            // add sequence to project
-            Media* m = panel_project->new_sequence(ca, s, false, NULL);
+			// add sequence to project
+			Media* m = panel_project->new_sequence(ca, s, false, NULL);
 
-            // add nested sequence to active sequence
-            QVector<Media*> media_list = {m};
-            panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
-            panel_timeline->add_clips_from_ghosts(ca, sequence);
+			// add nested sequence to active sequence
+			QVector<Media*> media_list = {m};
+			panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
+			panel_timeline->add_clips_from_ghosts(ca, sequence);
 
-            undo_stack.push(ca);
+			panel_effect_controls->clear_effects(true);
+			sequence->selections.clear();
 
-            update_ui(true);
-        }
+			undo_stack.push(ca);
+
+			update_ui(true);
+		}
 	}
 }
 
-void MainWindow::on_actionToggle_Show_All_triggered() {
-	if (sequence != NULL) panel_timeline->toggle_show_all();
+void MainWindow::paste_insert() {
+	if (panel_timeline->focused() && sequence != NULL) {
+		panel_timeline->paste(true);
+	}
 }
 
-void MainWindow::on_actionEnable_Drop_on_Media_to_Replace_triggered() {
-    config.drop_on_media_to_replace = !config.drop_on_media_to_replace;
+void MainWindow::toggle_bool_action() {
+	QAction* action = static_cast<QAction*>(sender());
+	bool* variable = reinterpret_cast<bool*>(action->data().value<quintptr>());
+	*variable = !(*variable);
+	update_ui(false);
 }
 
-void MainWindow::on_actionFootage_Viewer_triggered() {
-    panel_footage_viewer->setVisible(!panel_footage_viewer->isVisible());
+void MainWindow::set_autoscroll() {
+	QAction* action = static_cast<QAction*>(sender());
+	config.autoscroll = action->data().toInt();
 }
 
-void MainWindow::on_actionPasteInsert_triggered() {
-    if (panel_timeline->focused() && sequence != NULL) {
-        panel_timeline->paste(true);
-    }
+void MainWindow::menu_click_button() {
+	if (panel_timeline->focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_footage_viewer->is_focused()
+			|| panel_sequence_viewer->is_focused())
+		reinterpret_cast<QPushButton*>(static_cast<QAction*>(sender())->data().value<quintptr>())->click();
 }
 
-void MainWindow::on_actionNo_autoscroll_triggered() {
-    config.autoscroll = AUTOSCROLL_NO_SCROLL;
+void MainWindow::toggle_panel_visibility() {
+	QAction* action = static_cast<QAction*>(sender());
+	QDockWidget* w = reinterpret_cast<QDockWidget*>(action->data().value<quintptr>());
+	w->setVisible(!w->isVisible());
 }
 
-void MainWindow::on_actionPage_Autoscroll_triggered() {
-    config.autoscroll = AUTOSCROLL_PAGE_SCROLL;
-}
-
-void MainWindow::on_actionSmooth_Auto_scroll_triggered() {
-    config.autoscroll = AUTOSCROLL_SMOOTH_SCROLL;
-}
-
-void MainWindow::on_actionMilliseconds_triggered() {
-    config.timecode_view = TIMECODE_MILLISECONDS;
-    update_ui(false);
-}
-
-void MainWindow::on_actionEnable_Hover_Focus_triggered() {
-    config.hover_focus = !config.hover_focus;
-}
-
-void MainWindow::on_actionHand_Tool_triggered() {
-    if (panel_timeline->focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_footage_viewer->is_focused()
-            || panel_sequence_viewer->is_focused())
-        panel_timeline->ui->toolHandButton->click();
+void MainWindow::set_timecode_view() {
+	QAction* action = static_cast<QAction*>(sender());
+	config.timecode_view = action->data().toInt();
+	update_ui(false);
 }
 
 void MainWindow::on_actionGraph_Editor_triggered() {
-    panel_graph_editor->setVisible(!panel_graph_editor->isVisible());
+	panel_graph_editor->setVisible(!panel_graph_editor->isVisible());
 }
