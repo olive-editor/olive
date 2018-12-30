@@ -1,0 +1,9 @@
+olive-editor (18.11.13bionic1-1) bionic; urgency=low
+
+  * Initial Release
+  * Included missing dep
+  * Included another missing dep
+  * Updated source to dd55b97
+  * Updated source to 6a38cd0
+
+ -- Olive Team <itsmattkc@gmail.com>  Fri, 13 Nov 2018 10:04:05 +1100
