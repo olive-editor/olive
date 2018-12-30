@@ -1268,3 +1268,30 @@ void ReloadEffectsCommand::undo() {
 void ReloadEffectsCommand::redo() {
 	panel_effect_controls->reload_clips();
 }
+
+RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) :
+	s(is),
+	point(ipoint),
+	length(ilength),
+	ignore(iignore)
+{}
+
+void RippleAction::undo() {
+	ca->undo();
+	delete ca;
+}
+
+void RippleAction::redo() {
+	ca = new ComboAction();
+	for (int i=0;i<s->clips.size();i++) {
+		if (!ignore.contains(i)) {
+			Clip* c = s->clips.at(i);
+			if (c != NULL) {
+				if (c->timeline_in >= point) {
+					move_clip(ca, c, length, length, 0, 0, true, true);
+				}
+			}
+		}
+	}
+	ca->redo();
+}

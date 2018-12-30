@@ -146,13 +146,13 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			connect(pasteAction, SIGNAL(triggered(bool)), mainWindow, SLOT(paste()));
 			menu.addSeparator();
 			QAction* speedAction = menu.addAction("&Speed/Duration");
-			connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(openSpeedDialog()));
+			connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(open_speed_dialog()));
 			QAction* autoscaleAction = menu.addAction("Auto-s&cale");
 			autoscaleAction->setCheckable(true);
 			connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
 
 			QAction* nestAction = menu.addAction("&Nest");
-			connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(on_actionNest_triggered()));
+			connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(nest()));
 
 			// stabilizer option
 			int video_clip_count = 0;

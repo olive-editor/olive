@@ -145,16 +145,7 @@ void Timeline::next_cut() {
 }
 
 void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const QVector<int>& ignore) {
-	for (int i=0;i<s->clips.size();i++) {
-		if (!ignore.contains(i)) {
-			Clip* c = s->clips.at(i);
-			if (c != NULL) {
-				if (c->timeline_in >= point) {
-					move_clip(ca, c, length, length, 0, 0, true, true);
-				}
-			}
-		}
-	}
+	ca->append(new RippleAction(s, point, length, ignore));
 }
 
 void Timeline::toggle_show_all() {

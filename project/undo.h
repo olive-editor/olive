@@ -62,6 +62,19 @@ private:
 	bool old_project_changed;
 };
 
+class RippleAction : public QUndoCommand {
+public:
+	RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int>& iignore);
+	void undo();
+	void redo();
+private:
+	Sequence *s;
+	long point;
+	long length;
+	QVector<int> ignore;
+	ComboAction* ca;
+};
+
 class DeleteClipAction : public QUndoCommand {
 public:
 	DeleteClipAction(Sequence* s, int clip);
