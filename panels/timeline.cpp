@@ -21,6 +21,7 @@
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
+#include "mainwindow.h"
 #include "debug.h"
 
 #include <QTime>
@@ -36,6 +37,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QSplitter>
+#include <QStatusBar>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
 	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
@@ -1487,6 +1489,7 @@ void Timeline::record_btn_click() {
 	} else {
 		creating = true;
 		creating_object = ADD_OBJ_AUDIO;
+		mainWindow->statusBar()->showMessage("Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)", 10000);
 	}
 }
 

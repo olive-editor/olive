@@ -20,6 +20,7 @@
 #include "project/media.h"
 #include "ui/resizablescrollbar.h"
 #include "dialogs/newsequencedialog.h"
+#include "mainwindow.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -40,6 +41,7 @@
 #include <QMimeData>
 #include <QToolTip>
 #include <QInputDialog>
+#include <QStatusBar>
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
@@ -783,6 +785,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					const Ghost& g = panel_timeline->ghosts.at(0);
 
 					if (panel_timeline->creating_object == ADD_OBJ_AUDIO) {
+						mainWindow->statusBar()->clearMessage();
 						panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
 						panel_timeline->creating = false;
 					} else if (g.in != g.out) {
