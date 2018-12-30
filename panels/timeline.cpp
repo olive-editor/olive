@@ -1717,16 +1717,13 @@ void Timeline::setup_ui() {
 	QWidget* videoContainer = new QWidget(splitter);
 	QHBoxLayout* videoContainerLayout = new QHBoxLayout(videoContainer);
 	videoContainerLayout->setSpacing(0);
-	videoContainerLayout->setObjectName(QStringLiteral("horizontalLayout_2"));
 	videoContainerLayout->setContentsMargins(0, 0, 0, 0);
 	video_area = new TimelineWidget(videoContainer);
-	video_area->setObjectName(QStringLiteral("video_area"));
 	video_area->setFocusPolicy(Qt::ClickFocus);
 
 	videoContainerLayout->addWidget(video_area);
 
 	videoScrollbar = new QScrollBar(videoContainer);
-	videoScrollbar->setObjectName(QStringLiteral("videoScrollbar"));
 	videoScrollbar->setMaximum(0);
 	videoScrollbar->setSingleStep(20);
 	videoScrollbar->setPageStep(1826);
@@ -1741,7 +1738,6 @@ void Timeline::setup_ui() {
 	audioContainerLayout->setSpacing(0);
 	audioContainerLayout->setContentsMargins(0, 0, 0, 0);
 	audio_area = new TimelineWidget(audioContainer);
-	audio_area->setObjectName(QStringLiteral("audio_area"));
 	audio_area->setFocusPolicy(Qt::ClickFocus);
 
 	audioContainerLayout->addWidget(audio_area);
@@ -1759,7 +1755,6 @@ void Timeline::setup_ui() {
 	timeline_area_layout->addWidget(editAreas);
 
 	horizontalScrollBar = new ResizableScrollBar(timeline_area);
-	horizontalScrollBar->setObjectName(QStringLiteral("horizontalScrollBar"));
 	horizontalScrollBar->setMaximum(0);
 	horizontalScrollBar->setSingleStep(20);
 	horizontalScrollBar->setPageStep(1826);

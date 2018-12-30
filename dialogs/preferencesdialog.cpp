@@ -96,14 +96,10 @@ void PreferencesDialog::save() {
 
 void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
-	verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
 	QTabWidget* tabWidget = new QTabWidget(this);
-	tabWidget->setObjectName(QStringLiteral("tabWidget"));
 
 	QTabWidget* tab = new QTabWidget();
 	QGridLayout* gridLayout_2 = new QGridLayout(tab);
-
-	gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
 
 	gridLayout_2->addWidget(new QLabel("Image sequence formats:"), 0, 0, 1, 1);
 
@@ -116,7 +112,6 @@ void PreferencesDialog::setup_ui() {
 	recordingComboBox = new QComboBox(tab);
 	recordingComboBox->addItem("Mono");
 	recordingComboBox->addItem("Stereo");
-	recordingComboBox->setObjectName(QStringLiteral("recordingComboBox"));
 
 	gridLayout_2->addWidget(recordingComboBox, 1, 1, 1, 1);
 
@@ -125,21 +120,16 @@ void PreferencesDialog::setup_ui() {
 	tabWidget->addTab(tab_2, "Behavior");
 	QWidget* tab_4 = new QWidget();
 	QVBoxLayout* verticalLayout_2 = new QVBoxLayout(tab_4);
-	verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
 	QGroupBox* groupBox = new QGroupBox(tab_4);
 	groupBox->setTitle("Seeking");
-	groupBox->setObjectName(QStringLiteral("groupBox"));
 	QVBoxLayout* verticalLayout_3 = new QVBoxLayout(groupBox);
-	verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
 	accurateSeekButton = new QRadioButton(groupBox);
 	accurateSeekButton->setText("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)");
-	accurateSeekButton->setObjectName(QStringLiteral("accurateSeekButton"));
 
 	verticalLayout_3->addWidget(accurateSeekButton);
 
 	fastSeekButton = new QRadioButton(groupBox);
 	fastSeekButton->setText("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)");
-	fastSeekButton->setObjectName(QStringLiteral("fastSeekButton"));
 
 	verticalLayout_3->addWidget(fastSeekButton);
 
@@ -161,7 +151,6 @@ void PreferencesDialog::setup_ui() {
 	verticalLayout->addWidget(tabWidget);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
-	buttonBox->setObjectName(QStringLiteral("buttonBox"));
 	buttonBox->setOrientation(Qt::Horizontal);
 	buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 

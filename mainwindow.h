@@ -16,6 +16,7 @@ public:
 	~MainWindow();
 
 	void make_new_menu(QMenu* parent);
+	void make_inout_menu(QMenu* parent);
 
 public slots:
 	void undo();

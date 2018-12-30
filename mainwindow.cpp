@@ -275,13 +275,18 @@ void MainWindow::make_new_menu(QMenu *parent) {
 	parent->addAction("&Folder", this, SLOT(new_folder()));
 }
 
+void MainWindow::make_inout_menu(QMenu *parent) {
+	parent->addAction("Set In Point", this, SLOT(set_in_point()), QKeySequence("I"));
+	parent->addAction("Set Out Point", this, SLOT(set_out_point()), QKeySequence("O"));
+	parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
+}
+
 void MainWindow::show_about() {
 	AboutDialog a(this);
 	a.exec();
 }
 
-void MainWindow::delete_slot()
-{
+void MainWindow::delete_slot() {
 	if (panel_timeline->headers->hasFocus()) {
 		panel_timeline->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
@@ -538,9 +543,7 @@ void MainWindow::setup_menus() {
 
 	edit_menu->addSeparator();
 
-	edit_menu->addAction("Set In Point", this, SLOT(set_in_point()), QKeySequence("I"));
-	edit_menu->addAction("Set Out Point", this, SLOT(set_out_point()), QKeySequence("O"));
-	edit_menu->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
+	make_inout_menu(edit_menu);
 	edit_menu->addAction("Delete In/Out Point", this, SLOT(delete_inout()), QKeySequence(";"));
 	edit_menu->addAction("Ripple Delete In/Out Point", this, SLOT(ripple_delete_inout()), QKeySequence("'"));
 
