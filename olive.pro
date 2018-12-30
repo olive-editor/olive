@@ -188,7 +188,6 @@ HEADERS += \
     ui/keyframenavigator.h
 
 FORMS += \
-        mainwindow.ui \
     panels/effectcontrols.ui \
     panels/viewer.ui \
     panels/timeline.ui \
