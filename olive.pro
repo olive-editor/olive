@@ -190,7 +190,7 @@ HEADERS += \
 FORMS +=
 
 win32 {
-    RC_FILE = icons/resources.rc
+    RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
 }
 
