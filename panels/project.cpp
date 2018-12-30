@@ -729,6 +729,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 				tree_view->selectionModel()->select(sorted_index, QItemSelectionModel::Select);
 			} else if (config.project_view_type == PROJECT_VIEW_ICON) {
 				icon_view->setRootIndex(hierarchy);
+				icon_view->selectionModel()->select(sorted_index, QItemSelectionModel::Select);
 				set_up_dir_enabled();
 			}
 

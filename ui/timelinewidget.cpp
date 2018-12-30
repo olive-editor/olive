@@ -155,7 +155,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(nest()));
 
 			// stabilizer option
-			int video_clip_count = 0;
+			/*int video_clip_count = 0;
 			bool all_video_is_footage = true;
 			for (int i=0;i<selected_clips.size();i++) {
 				if (selected_clips.at(i)->track < 0) {
@@ -169,7 +169,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			if (video_clip_count == 1 && all_video_is_footage) {
 				QAction* stabilizerAction = menu.addAction("S&tabilizer");
 				connect(stabilizerAction, SIGNAL(triggered(bool)), this, SLOT(show_stabilizer_diag()));
-			}
+			}*/
 
 			// set autoscale arbitrarily to the first selected clip
 			autoscaleAction->setChecked(selected_clips.at(0)->autoscale);

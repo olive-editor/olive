@@ -1200,6 +1200,9 @@ void MainWindow::nest() {
 			panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
 			panel_timeline->add_clips_from_ghosts(ca, sequence);
 
+			panel_effect_controls->clear_effects(true);
+			sequence->selections.clear();
+
 			undo_stack.push(ca);
 
 			update_ui(true);
