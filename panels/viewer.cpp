@@ -350,7 +350,7 @@ void Viewer::pause() {
 			c->media = m; // latest media
 			c->media_stream = 0;
 			c->timeline_in = recording_start;
-			c->timeline_out = f->get_length_in_frames(seq->frame_rate);
+			c->timeline_out = recording_start + f->get_length_in_frames(seq->frame_rate);
 			c->clip_in = 0;
 			c->track = recording_track;
 			c->color_r = 128;
