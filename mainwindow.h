@@ -8,10 +8,8 @@ class EffectControls;
 class Viewer;
 class Timeline;
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
 	Q_OBJECT
-
 public:
 	explicit MainWindow(QWidget *parent = 0);
 	void updateTitle(const QString &url);

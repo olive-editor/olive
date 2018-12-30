@@ -188,8 +188,6 @@ HEADERS += \
     ui/keyframenavigator.h
 
 FORMS += \
-    panels/effectcontrols.ui \
-    panels/viewer.ui \
     panels/timeline.ui \
     dialogs/aboutdialog.ui \
     dialogs/newsequencedialog.ui \

@@ -1,5 +1,4 @@
 ﻿#include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include "io/config.h"
 #include "io/path.h"
@@ -43,6 +42,9 @@
 #include <QInputDialog>
 #include <QRegExp>
 #include <QSortFilterProxyModel>
+#include <QStatusBar>
+#include <QMenu>
+#include <QMenuBar>
 
 MainWindow* mainWindow;
 
@@ -127,8 +129,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	updateTitle("");
 
-	statusBar()->showMessage("Welcome to " + appName);
-
 	setDockNestingEnabled(true);
 
 	layout()->invalidate();
@@ -199,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	panel_timeline = new Timeline(this);
 
 	QStatusBar* statusBar = new QStatusBar(this);
+	statusBar->showMessage("Welcome to " + appName);
 	setStatusBar(statusBar);
 
 	setup_menus();
@@ -220,8 +221,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setup_layout(false);
 
 	init_audio();
-
-
 }
 
 MainWindow::~MainWindow() {
