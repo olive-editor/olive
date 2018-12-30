@@ -975,7 +975,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 // step 3 - move clips
 							 Clip* c = sequence->clips.at(g.clip);
 							 if (g.transition == NULL) {
-								 move_clip(ca, c, c->timeline_in + (g.in - g.old_in), c->timeline_out + (g.out - g.old_out), c->clip_in + (g.clip_in - g.old_clip_in), c->track + (g.track - g.old_track));
+								 move_clip(ca, c, (g.in - g.old_in), (g.out - g.old_out), (g.clip_in - g.old_clip_in), (g.track - g.old_track), true, true);
 
 								 // adjust transitions if we need to
 								 long new_clip_length = (g.out - g.in);
@@ -1012,13 +1012,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 								 if (g.transition->secondary_clip != NULL) {
 									 if (g.in != g.old_in && !g.trimming) {
 										 long movement = g.in - g.old_in;
-										 move_clip(ca, g.transition->parent_clip, g.transition->parent_clip->timeline_in + movement, g.transition->parent_clip->timeline_out, g.transition->parent_clip->clip_in + movement, g.transition->parent_clip->track, false);
-										 move_clip(ca, g.transition->secondary_clip, g.transition->secondary_clip->timeline_in, g.transition->secondary_clip->timeline_out + movement, g.transition->secondary_clip->clip_in, g.transition->secondary_clip->track, false);
+										 move_clip(ca, g.transition->parent_clip, movement, 0, movement, 0, false, true);
+										 move_clip(ca, g.transition->secondary_clip, 0, movement, 0, 0, false, true);
 									 }
 								 } else if (is_opening_transition) {
 									 if (g.in != g.old_in) {
 										 // if transition is going to make the clip bigger, make the clip bigger
-										 move_clip(ca, c, c->timeline_in + (g.in - g.old_in), c->timeline_out, c->clip_in + (g.clip_in - g.old_clip_in), c->track);
+										 move_clip(ca, c, (g.in - g.old_in), 0, (g.clip_in - g.old_clip_in), 0, true, true);
 										 clip_length -= (g.in - g.old_in);
 									 }
 
@@ -1026,7 +1026,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 								 } else {
 									 if (g.out != g.old_out) {
 										 // if transition is going to make the clip bigger, make the clip bigger
-										 move_clip(ca, c, c->timeline_in, c->timeline_out + (g.out - g.old_out), c->clip_in, c->track);
+										 move_clip(ca, c, 0, (g.out - g.old_out), 0, 0, true, true);
 										 clip_length += (g.out - g.old_out);
 									 }
 

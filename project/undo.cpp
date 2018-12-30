@@ -61,7 +61,7 @@ void ComboAction::appendPost(QUndoCommand* u) {
 	post_commands.append(u);
 }
 
-MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack) :
+MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) :
 	clip(c),
 	old_in(c->timeline_in),
 	old_out(c->timeline_out),
@@ -71,23 +71,38 @@ MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int 
 	new_out(iout),
 	new_clip_in(iclip_in),
 	new_track(itrack),
+	relative(irelative),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void MoveClipAction::undo() {
-	clip->timeline_in = old_in;
-	clip->timeline_out = old_out;
-	clip->clip_in = old_clip_in;
-	clip->track = old_track;
+	if (relative) {
+		clip->timeline_in -= new_in;
+		clip->timeline_out -= new_out;
+		clip->clip_in -= new_clip_in;
+		clip->track -= new_track;
+	} else {
+		clip->timeline_in = old_in;
+		clip->timeline_out = old_out;
+		clip->clip_in = old_clip_in;
+		clip->track = old_track;
+	}
 
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void MoveClipAction::redo() {
-	clip->timeline_in = new_in;
-	clip->timeline_out = new_out;
-	clip->clip_in = new_clip_in;
-	clip->track = new_track;
+	if (relative) {
+		clip->timeline_in += new_in;
+		clip->timeline_out += new_out;
+		clip->clip_in += new_clip_in;
+		clip->track += new_track;
+	} else {
+		clip->timeline_in = new_in;
+		clip->timeline_out = new_out;
+		clip->clip_in = new_clip_in;
+		clip->track = new_track;
+	}
 
 	mainWindow->setWindowModified(true);
 }

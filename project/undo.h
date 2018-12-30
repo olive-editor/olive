@@ -41,7 +41,7 @@ private:
 
 class MoveClipAction : public QUndoCommand {
 public:
-	MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack);
+	MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack, bool irelative);
 	void undo();
 	void redo();
 private:
@@ -56,6 +56,8 @@ private:
 	long new_out;
 	long new_clip_in;
 	int new_track;
+
+	bool relative;
 
 	bool old_project_changed;
 };

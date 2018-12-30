@@ -150,7 +150,7 @@ void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const Q
 			Clip* c = s->clips.at(i);
 			if (c != NULL) {
 				if (c->timeline_in >= point) {
-					move_clip(ca, c, c->timeline_in + length, c->timeline_out + length, c->clip_in, c->track, true);
+					move_clip(ca, c, length, length, 0, 0, true, true);
 				}
 			}
 		}
@@ -1108,7 +1108,8 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 
 						// trim and move clips around the in point
 						delete_areas_and_relink(ca, areas);
-						if (ripple) ripple_clips(ca, sequence, in_point+1, -1);
+
+						if (ripple) ripple_clips(ca, sequence, in_point, -1);
 					} else {
 						push_undo = false;
 					}
@@ -1785,8 +1786,8 @@ void Timeline::setup_ui() {
 	setWidget(dockWidgetContents);
 }
 
-void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions) {
-	ca->append(new MoveClipAction(c, iin, iout, iclip_in, itrack));
+void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions, bool relative) {
+	ca->append(new MoveClipAction(c, iin, iout, iclip_in, itrack, relative));
 
 	if (verify_transitions) {
 		if (c->get_opening_transition() != NULL && c->get_opening_transition()->secondary_clip != NULL && c->get_opening_transition()->secondary_clip->timeline_out != iin) {
