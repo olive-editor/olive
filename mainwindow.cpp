@@ -54,7 +54,7 @@ MainWindow* mainWindow;
 
 QTimer autorecovery_timer;
 QString config_dir;
-QString appName = "Olive (December 2018 | Alpha)";
+QString appName;
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout(bool reset) {
@@ -96,6 +96,13 @@ void MainWindow::setup_layout(bool reset) {
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 {
+	appName = "Olive (December 2018 | Alpha";
+#ifdef GITHASH
+	appName += " | ";
+	appName += GITHASH;
+#endif
+	appName += ")";
+
 	setup_debug();
 
 	mainWindow = this;
