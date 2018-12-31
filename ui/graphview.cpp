@@ -10,6 +10,7 @@
 #include "project/effectrow.h"
 #include "project/effectfield.h"
 #include "ui/keyframedrawing.h"
+#include "project/undo.h"
 
 #include "debug.h"
 
@@ -29,7 +30,8 @@ GraphView::GraphView(QWidget* parent) :
 	y_scroll(0),
 	mousedown(false),
 	zoom(1.0),
-	row(NULL)
+	row(NULL),
+	moved_keys(false)
 {
 	setMouseTracking(true);
 }
@@ -115,7 +117,7 @@ void GraphView::paintEvent(QPaintEvent *event) {
 						int key_x = get_screen_x(row->keyframe_times.at(key_index));
 						int key_y = get_screen_y(field->keyframe_data.at(key_index).toDouble());
 
-						draw_keyframe(p, row->keyframe_types.at(key_index), key_x, key_y, false);
+						draw_keyframe(p, row->keyframe_types.at(key_index), key_x, key_y, (selected_keys.contains(key_index) && selected_keys_fields.contains(i)));
 					}
 					p.setBrush(Qt::NoBrush);
 				}
@@ -140,6 +142,42 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 	mousedown = true;
 	start_x = event->pos().x();
 	start_y = event->pos().y();
+
+	// selecting
+	int sel_key = -1;
+	int sel_key_field = -1;
+	if (!(event->modifiers() & Qt::ShiftModifier)) {
+		selected_keys.clear();
+		selected_keys_fields.clear();
+	}
+	for (int i=0;i<row->fieldCount();i++) {
+		EffectField* field = row->field(i);
+		if (field->type == EFFECT_FIELD_DOUBLE) {
+			for (int j=0;j<row->keyframe_times.size();j++) {
+				int key_x = get_screen_x(row->keyframe_times.at(j));
+				int key_y = get_screen_y(field->keyframe_data.at(j).toDouble());
+				if (event->pos().x() > key_x-KEYFRAME_SIZE
+						&& event->pos().x() < key_x+KEYFRAME_SIZE
+						&& event->pos().y() > key_y-KEYFRAME_SIZE
+						&& event->pos().y() < key_y+KEYFRAME_SIZE) {
+					sel_key = j;
+					sel_key_field = i;
+					break;
+				}
+			}
+		}
+	}
+	if (sel_key > -1) {
+		selected_keys.append(sel_key);
+		selected_keys_fields.append(sel_key_field);
+	}
+
+	selected_keys_old_vals.clear();
+	for (int i=0;i<selected_keys.size();i++) {
+		selected_keys_old_vals.append(row->keyframe_times.at(selected_keys.at(i)));
+	}
+
+	update();
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent *event) {
@@ -150,11 +188,28 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 			start_x = event->pos().x();
 			start_y = event->pos().y();
 			update();
+		} else {
+			for (int i=0;i<selected_keys.size();i++) {
+				row->keyframe_times[selected_keys.at(i)] = selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/zoom);
+			}
+			moved_keys = true;
+			update_ui(false);
 		}
 	}
 }
 
 void GraphView::mouseReleaseEvent(QMouseEvent *event) {
+	if (moved_keys) {
+		QVector<EffectRow*> rows;
+		QVector<long> new_vals;
+		for (int i=0;i<selected_keys.size();i++) {
+			rows.append(row);
+			new_vals.append(row->keyframe_times.at(selected_keys.at(i)));
+		}
+
+		undo_stack.push(new KeyframeMove(rows, selected_keys, selected_keys_old_vals, new_vals));
+	}
+	moved_keys = false;
 	mousedown = false;
 }
 

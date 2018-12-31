@@ -106,7 +106,6 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 						for (int k=0;k<row->keyframe_times.size();k++) {
 							bool keyframe_selected = keyframeIsSelected(row, k);
 							long keyframe_frame = adjust_row_keyframe(row, row->keyframe_times.at(k));
-							if (dragging && keyframe_selected) keyframe_frame += frame_diff;
 							draw_keyframe(p, row->keyframe_types.at(k), getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
 						}
 
@@ -198,6 +197,8 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 		return;
 	}
 
+	old_key_vals.clear();
+
 	int mouse_x = event->x() + x_scroll;
 	int mouse_y = event->y();
 	int row_index = -1;
@@ -241,6 +242,10 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 	}
 
 	if (selected_rows.size() > 0) {
+		for (int i=0;i<selected_rows.size();i++) {
+			old_key_vals.append(selected_rows.at(i)->keyframe_times.at(selected_keyframes.at(i)));
+		}
+
 		keys_selected = true;
 	}
 
@@ -266,14 +271,15 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 		int mouse_x = event->x() + x_scroll;
 		if (keys_selected) {
 			// move keyframes
-			frame_diff = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x) - drag_frame_start;
+			long frame_diff = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x) - drag_frame_start;
 
 			// snapping to playhead
+			panel_timeline->snapped = false;
 			if (panel_timeline->snapping) {
 				for (int i=0;i<selected_keyframes.size();i++) {
 					EffectRow* row = selected_rows.at(i);
 					Clip* c = row->parent_effect->parent_clip;
-					long key_time = row->keyframe_times.at(selected_keyframes.at(i)) + frame_diff - c->clip_in + c->timeline_in;
+					long key_time = old_key_vals.at(i) + frame_diff - c->clip_in + c->timeline_in;
 					long key_eval = key_time;
 					if (panel_timeline->snap_to_point(sequence->playhead, &key_eval)) {
 						frame_diff += (key_eval - key_time);
@@ -283,9 +289,9 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 			}
 
 			// validate frame_diff (make sure no keyframes overlap each other)
-			for (int i=0;i<selected_keyframes.size();i++) {
+			for (int i=0;i<selected_rows.size();i++) {
 				EffectRow* row = selected_rows.at(i);
-				long eval_key = row->keyframe_times.at(selected_keyframes.at(i));
+				long eval_key = old_key_vals.at(i);
 				for (int j=0;j<row->keyframe_times.size();j++) {
 					while (!keyframeIsSelected(row, j) && row->keyframe_times.at(j) == eval_key + frame_diff) {
 						if (last_frame_diff > frame_diff) {
@@ -299,9 +305,17 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 				}
 			}
 
+			// apply frame_diffs
+			for (int i=0;i<selected_keyframes.size();i++) {
+				EffectRow* row = selected_rows.at(i);
+				row->keyframe_times[selected_keyframes.at(i)] = old_key_vals.at(i) + frame_diff;
+			}
+
 			last_frame_diff = frame_diff;
 
 			dragging = true;
+
+			update_ui(false);
 		} else {
 			// do a rect select
 			rect_select_w = event->x() - rect_select_x;
@@ -329,18 +343,20 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 			}
 
 			select_rect = true;
+
+			update_keys();
 		}
-		update_keys();
 	}
 }
 
 void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
-	if (dragging && frame_diff != 0) {
-		KeyframeMove* ka = new KeyframeMove();
-		ka->movement = frame_diff;
-		ka->keyframes = selected_keyframes;
-		ka->rows = selected_rows;
-		undo_stack.push(ka);
+	if (dragging) {
+		QVector<long> new_key_vals;
+		for (int i=0;i<selected_rows.size();i++) {
+			new_key_vals.append(selected_rows.at(i)->keyframe_times.at(selected_keyframes.at(i)));
+		}
+
+		undo_stack.push(new KeyframeMove(selected_rows, selected_keyframes, old_key_vals, new_key_vals));
 	}
 
 	select_rect = false;

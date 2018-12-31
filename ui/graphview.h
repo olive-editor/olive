@@ -2,6 +2,7 @@
 #define GRAPHVIEW_H
 
 #include <QWidget>
+#include <QVector>
 
 class EffectRow;
 
@@ -10,9 +11,9 @@ QColor get_curve_color(int index, int length);
 class GraphView : public QWidget {
 	Q_OBJECT
 public:
-    GraphView(QWidget* parent = 0);
+	GraphView(QWidget* parent = 0);
 
-    void paintEvent(QPaintEvent *event);
+	void paintEvent(QPaintEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
@@ -36,6 +37,12 @@ private:
 
 	int get_screen_x(double);
 	int get_screen_y(double);
+
+	QVector<int> selected_keys;
+	QVector<int> selected_keys_fields;
+	QVector<long> selected_keys_old_vals;
+
+	bool moved_keys;
 
 	EffectRow* row;
 };

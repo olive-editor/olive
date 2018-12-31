@@ -27,19 +27,19 @@ public slots:
 private:
 	long adjust_row_keyframe(EffectRow* row, long time);
 	QVector<EffectRow*> selected_rows;
-    QVector<int> selected_keyframes;
+	QVector<int> selected_keyframes;
 	QVector<int> rowY;
-	long frame_diff;
 	QVector<EffectRow*> rows;
+	QVector<long> old_key_vals;
 	void mousePressEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
-    bool mousedown;
+	bool mousedown;
 	bool dragging;
 	bool keys_selected;
-    bool select_rect;
-    bool scroll_drag;
+	bool select_rect;
+	bool scroll_drag;
 
 	bool keyframeIsSelected(EffectRow* row, int keyframe);
 
@@ -55,8 +55,8 @@ private:
 
 	void update_keys();
 private slots:
-    void show_context_menu(const QPoint& pos);
-    void menu_set_key_type(QAction*);
+	void show_context_menu(const QPoint& pos);
+	void menu_set_key_type(QAction*);
 };
 
 #endif // KEYFRAMEVIEW_H

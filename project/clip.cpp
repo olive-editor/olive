@@ -309,18 +309,25 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
 			track);
 	}
 
+	QVector<EffectRow*> key_rows;
+	QVector<int> key_indices;
+	QVector<long> key_old;
+	QVector<long> key_new;
+
 	for (int i=0;i<effects.size();i++) {
 		Effect* e = effects.at(i);
 		for (int j=0;j<e->row_count();j++) {
 			EffectRow* r = e->row(j);
 			for (int k=0;k<r->keyframe_times.size();k++) {
-				long new_pos = r->keyframe_times.at(k) * multiplier;
-				KeyframeMove* km = new KeyframeMove();
-				km->movement = new_pos - r->keyframe_times.at(k);
-				km->rows.append(r);
-				km->keyframes.append(k);
-				ca->append(km);
+				key_rows.append(r);
+				key_indices.at(k);
+				key_old.append(r->keyframe_times.at(k));
+				key_new.append(r->keyframe_times.at(k) * multiplier);
 			}
 		}
+	}
+
+	if (key_rows.size() > 0) {
+		ca->append(new KeyframeMove(key_rows, key_indices, key_old, key_new));
 	}
 }

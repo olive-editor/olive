@@ -330,13 +330,14 @@ private:
 
 class KeyframeMove : public QUndoCommand {
 public:
-	KeyframeMove();
-	QVector<EffectRow*> rows;
-	QVector<int> keyframes;
-	long movement;
+	KeyframeMove(const QVector<EffectRow*>& rows, const QVector<int>& keyframes, const QVector<long>& old_values, const QVector<long>& new_values);
 	void undo();
 	void redo();
 private:
+	QVector<EffectRow*> rows;
+	QVector<int> keyframes;
+	QVector<long> old_values;
+	QVector<long> new_values;
 	bool old_project_changed;
 };
 
