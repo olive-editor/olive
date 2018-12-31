@@ -524,6 +524,18 @@ private:
 	bool old_project_changed;
 };
 
+class SetDouble : public QUndoCommand {
+public:
+	SetDouble(double* pointer, double new_value);
+	void undo();
+	void redo();
+private:
+	double* p;
+	double oldval;
+	double newval;
+	bool old_project_changed;
+};
+
 class SetString : public QUndoCommand {
 public:
 	SetString(QString* pointer, QString new_value);
@@ -604,6 +616,17 @@ class ReloadEffectsCommand : public QUndoCommand {
 public:
 	void undo();
 	void redo();
+};
+
+class SetQVariant : public QUndoCommand {
+public:
+	SetQVariant(QVariant* itarget, const QVariant& iold, const QVariant& inew);
+	void undo();
+	void redo();
+private:
+	QVariant* target;
+	QVariant old_val;
+	QVariant new_val;
 };
 
 #endif // UNDO_H

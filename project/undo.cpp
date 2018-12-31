@@ -1301,3 +1301,34 @@ void RippleAction::redo() {
 	}
 	ca->redo();
 }
+
+SetDouble::SetDouble(double* pointer, double new_value) :
+	p(pointer),
+	oldval(*pointer),
+	newval(new_value),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void SetDouble::undo() {
+	*p = oldval;
+	mainWindow->setWindowModified(old_project_changed);
+}
+
+void SetDouble::redo() {
+	*p = newval;
+	mainWindow->setWindowModified(true);
+}
+
+SetQVariant::SetQVariant(QVariant *itarget, const QVariant &iold, const QVariant &inew) :
+	target(itarget),
+	old_val(iold),
+	new_val(inew)
+{}
+
+void SetQVariant::undo() {
+	*target = old_val;
+}
+
+void SetQVariant::redo() {
+	*target = new_val;
+}

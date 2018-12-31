@@ -41,6 +41,7 @@ private:
 	QVector<int> selected_keys;
 	QVector<int> selected_keys_fields;
 	QVector<long> selected_keys_old_vals;
+	QVector<double> selected_keys_old_doubles;
 
 	bool moved_keys;
 

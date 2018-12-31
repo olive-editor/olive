@@ -173,8 +173,13 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 	}
 
 	selected_keys_old_vals.clear();
+	selected_keys_old_doubles.clear();
 	for (int i=0;i<selected_keys.size();i++) {
 		selected_keys_old_vals.append(row->keyframe_times.at(selected_keys.at(i)));
+
+		for (int j=0;j<selected_keys_fields.size();j++) {
+			selected_keys_old_doubles.append(row->field(selected_keys_fields.at(j))->keyframe_data.at(selected_keys.at(i)).toDouble());
+		}
 	}
 
 	update();
@@ -191,6 +196,10 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 		} else {
 			for (int i=0;i<selected_keys.size();i++) {
 				row->keyframe_times[selected_keys.at(i)] = selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/zoom);
+
+				for (int j=0;j<selected_keys_fields.size();j++) {
+					row->field(selected_keys_fields.at(j))->keyframe_data[selected_keys.at(i)] = selected_keys_old_doubles.at((i*selected_keys_fields.size())+j) + (double(start_y - event->pos().y())/zoom);
+				}
 			}
 			moved_keys = true;
 			update_ui(false);
@@ -199,15 +208,25 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void GraphView::mouseReleaseEvent(QMouseEvent *event) {
-	if (moved_keys) {
+	if (moved_keys && selected_keys.size() > 0) {
+		ComboAction* ca = new ComboAction();
 		QVector<EffectRow*> rows;
 		QVector<long> new_vals;
+
 		for (int i=0;i<selected_keys.size();i++) {
 			rows.append(row);
 			new_vals.append(row->keyframe_times.at(selected_keys.at(i)));
+
+			for (int j=0;j<selected_keys_fields.size();j++) {
+				ca->append(new SetQVariant(&row->field(selected_keys_fields.at(j))->keyframe_data[selected_keys.at(i)],
+						   selected_keys_old_doubles.at((i*selected_keys_fields.size())+j),
+						   row->field(selected_keys_fields.at(j))->keyframe_data.at(selected_keys.at(i))));
+			}
+			//ca->append(new KeyframeSet(row, selected_keys.at(i), 0, false));
 		}
 
-		undo_stack.push(new KeyframeMove(rows, selected_keys, selected_keys_old_vals, new_vals));
+		ca->append(new KeyframeMove(rows, selected_keys, selected_keys_old_vals, new_vals));
+		undo_stack.push(ca);
 	}
 	moved_keys = false;
 	mousedown = false;
