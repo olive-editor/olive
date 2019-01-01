@@ -58,38 +58,17 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 	left_tool_layout->addWidget(keyframe_nav);
 	left_tool_layout->addStretch();
 
-	QPushButton* linear_button = new QPushButton("Linear");
+	linear_button = new QPushButton("Linear");
 	linear_button->setCheckable(true);
-	QPushButton* bezier_button = new QPushButton("Bezier");
+	bezier_button = new QPushButton("Bezier");
 	bezier_button->setCheckable(true);
-	QPushButton* hold_button = new QPushButton("Hold");
+	hold_button = new QPushButton("Hold");
 	hold_button->setCheckable(true);
 
 	center_tool_layout->addStretch();
 	center_tool_layout->addWidget(linear_button);
 	center_tool_layout->addWidget(bezier_button);
 	center_tool_layout->addWidget(hold_button);
-
-	/*QPushButton* tool_arrow_button = new QPushButton();
-	tool_arrow_button->setCheckable(true);
-	tool_arrow_button->setIcon(QIcon(":/icons/arrow.png"));
-	tool_arrow_button->setProperty("tool", TIMELINE_TOOL_POINTER);
-	tool_buttons.append(tool_arrow_button);
-	QPushButton* tool_hand_button = new QPushButton();
-	tool_hand_button->setCheckable(true);
-	tool_hand_button->setIcon(QIcon(":/icons/hand.png"));
-	tool_hand_button->setProperty("tool", TIMELINE_TOOL_HAND);
-	tool_buttons.append(tool_hand_button);
-	QPushButton* tool_zoom_button = new QPushButton();
-	tool_zoom_button->setCheckable(true);
-	tool_zoom_button->setIcon(QIcon(":/icons/zoomin.png"));
-	tool_zoom_button->setProperty("tool", TIMELINE_TOOL_ZOOM);
-	tool_buttons.append(tool_zoom_button);
-
-	right_tool_layout->addStretch();
-	for (int i=0;i<tool_buttons.size();i++) {
-		right_tool_layout->addWidget(tool_buttons.at(i));
-	}*/
 
 	layout->addWidget(tool_widget);
 
@@ -114,7 +93,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 
 	current_row_desc = new QLabel();
 	values->addWidget(current_row_desc);
-
+1
 	QWidget* central_value_widget = new QWidget();
 	value_layout = new QHBoxLayout();
 	value_layout->setMargin(0);
@@ -126,6 +105,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 
 	connect(view, SIGNAL(zoom_changed(double)), header, SLOT(update_zoom(double)));
 	connect(view, SIGNAL(x_scroll_changed(int)), header, SLOT(set_scroll(int)));
+	connect(view, SIGNAL(selection_changed(bool)), this, SLOT(set_key_button_enabled(bool)));
 }
 
 void GraphEditor::update_panel() {
@@ -193,6 +173,12 @@ void GraphEditor::set_row(EffectRow *r) {
 	}
 	view->set_row(row);
 	update_panel();
+}
+
+void GraphEditor::set_key_button_enabled(bool e) {
+	linear_button->setEnabled(e);
+	bezier_button->setEnabled(e);
+	hold_button->setEnabled(e);
 }
 
 void GraphEditor::passthrough_slider_value() {

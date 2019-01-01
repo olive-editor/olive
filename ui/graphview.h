@@ -24,6 +24,7 @@ signals:
 	void x_scroll_changed(int);
 	void y_scroll_changed(int);
 	void zoom_changed(double);
+	void selection_changed(bool);
 private:
 	int x_scroll;
 	int y_scroll;

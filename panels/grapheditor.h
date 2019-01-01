@@ -13,9 +13,9 @@ class QLabel;
 class KeyframeNavigator;
 
 class GraphEditor : public QDockWidget {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    GraphEditor(QWidget* parent = 0);
+	GraphEditor(QWidget* parent = 0);
 	void update_panel();
 	void set_row(EffectRow* r);
 private:
@@ -27,7 +27,11 @@ private:
 	QLabel* current_row_desc;
 	EffectRow* row;
 	KeyframeNavigator* keyframe_nav;
+	QPushButton* linear_button;
+	QPushButton* bezier_button;
+	QPushButton* hold_button;
 private slots:
+	void set_key_button_enabled(bool e);
 	void passthrough_slider_value();
 };
 

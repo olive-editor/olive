@@ -185,6 +185,8 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 	}
 
 	update();
+
+	emit selection_changed(selected_keys.size() > 0);
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent *event) {
@@ -261,6 +263,11 @@ void GraphView::wheelEvent(QWheelEvent *event) {
 }
 
 void GraphView::set_row(EffectRow *r) {
+	selected_keys.clear();
+	selected_keys_fields.clear();
+	selected_keys_old_vals.clear();
+	selected_keys_old_doubles.clear();
+	emit selection_changed(false);
 	row = r;
 	update();
 }
