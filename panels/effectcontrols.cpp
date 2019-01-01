@@ -37,6 +37,8 @@ EffectControls::EffectControls(QWidget *parent) :
 	panel_name("Effects: "),
 	mode(TA_NO_TRANSITION)
 {
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	setup_ui();
 
 	init_effects();
@@ -253,8 +255,6 @@ void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
 }
 
 void EffectControls::setup_ui() {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
 	QWidget* contents = new QWidget();
 
 	QHBoxLayout* layout = new QHBoxLayout(contents);

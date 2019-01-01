@@ -60,7 +60,7 @@ QString recent_proj_file;
 Project::Project(QWidget *parent) :
 	QDockWidget(parent)
 {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	QWidget* dockWidgetContents = new QWidget();
 	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);

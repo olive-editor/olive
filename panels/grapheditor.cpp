@@ -18,18 +18,20 @@
 #include "debug.h"
 
 GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
-    setWindowTitle("Graph Editor");
-    resize(720, 480);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+	setWindowTitle("Graph Editor");
+	resize(720, 480);
 
 	QWidget* main_widget = new QWidget();
 	setWidget(main_widget);
-    QVBoxLayout* layout = new QVBoxLayout();
+	QVBoxLayout* layout = new QVBoxLayout();
 	main_widget->setLayout(layout);
 
-    QWidget* tool_widget = new QWidget();
-    tool_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    QHBoxLayout* tools = new QHBoxLayout();
-    tool_widget->setLayout(tools);
+	QWidget* tool_widget = new QWidget();
+	tool_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	QHBoxLayout* tools = new QHBoxLayout();
+	tool_widget->setLayout(tools);
 
 	QWidget* left_tool_widget = new QWidget();
 	QHBoxLayout* left_tool_layout = new QHBoxLayout();
@@ -89,7 +91,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 		right_tool_layout->addWidget(tool_buttons.at(i));
 	}*/
 
-    layout->addWidget(tool_widget);
+	layout->addWidget(tool_widget);
 
 	QWidget* central_widget = new QWidget();
 	QVBoxLayout* central_layout = new QVBoxLayout();
@@ -104,11 +106,11 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 
 	layout->addWidget(central_widget);
 
-    QWidget* value_widget = new QWidget();
-    value_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	QWidget* value_widget = new QWidget();
+	value_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 	QHBoxLayout* values = new QHBoxLayout();
-    value_widget->setLayout(values);
-    values->addStretch();
+	value_widget->setLayout(values);
+	values->addStretch();
 
 	current_row_desc = new QLabel();
 	values->addWidget(current_row_desc);
@@ -119,7 +121,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 	central_value_widget->setLayout(value_layout);
 	values->addWidget(central_value_widget);
 
-    values->addStretch();
+	values->addStretch();
 	layout->addWidget(value_widget);
 
 	connect(view, SIGNAL(zoom_changed(double)), header, SLOT(update_zoom(double)));

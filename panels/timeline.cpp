@@ -80,6 +80,8 @@ Timeline::Timeline(QWidget *parent) :
 	last_frame(0),
 	scroll(0)
 {
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	setup_ui();
 
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;

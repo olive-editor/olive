@@ -219,36 +219,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
-	panel_effect_controls->clear_effects(true);
-	panel_sequence_viewer->viewer_widget->delete_function();
-	panel_footage_viewer->viewer_widget->delete_function();
-
-	set_sequence(NULL);
-
-	QString data_dir = get_data_path();
-	if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
-		if (QFile::exists(autorecovery_filename)) {
-			QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
-		}
-	}
-	if (!config_dir.isEmpty()) {
-		// save settings
-		config.save(config_dir);
-
-		// save panel layout
-		QFile panel_config(data_dir + "/layout");
-		if (panel_config.open(QFile::WriteOnly)) {
-			panel_config.write(saveState(0));
-			panel_config.close();
-		} else {
-			dout << "[ERROR] Failed to save layout";
-		}
-	}
-
-	stop_audio();
-
 	free_panels();
-
 	close_debug();
 }
 
@@ -790,6 +761,34 @@ void MainWindow::updateTitle(const QString& url) {
 
 void MainWindow::closeEvent(QCloseEvent *e) {
 	if (can_close_project()) {
+		panel_effect_controls->clear_effects(true);
+		panel_sequence_viewer->viewer_widget->delete_function();
+		panel_footage_viewer->viewer_widget->delete_function();
+
+		set_sequence(NULL);
+
+		QString data_dir = get_data_path();
+		if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
+			if (QFile::exists(autorecovery_filename)) {
+				QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
+			}
+		}
+		if (!config_dir.isEmpty()) {
+			// save settings
+			config.save(config_dir);
+
+			// save panel layout
+			QFile panel_config(data_dir + "/layout");
+			if (panel_config.open(QFile::WriteOnly)) {
+				panel_config.write(saveState(0));
+				panel_config.close();
+			} else {
+				dout << "[ERROR] Failed to save layout";
+			}
+		}
+
+		stop_audio();
+
 		e->accept();
 	} else {
 		e->ignore();

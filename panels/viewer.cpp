@@ -46,6 +46,8 @@ Viewer::Viewer(QWidget *parent) :
 	panel_name("Viewer: "),
 	minimum_zoom(1.0)
 {
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	setup_ui();
 
 	headers->viewer = this;
@@ -449,8 +451,6 @@ void Viewer::set_sb_max() {
 }
 
 void Viewer::setup_ui() {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
 	QWidget* contents = new QWidget();
 
 	QVBoxLayout* layout = new QVBoxLayout(contents);
