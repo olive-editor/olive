@@ -150,19 +150,21 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 		selected_keys.clear();
 		selected_keys_fields.clear();
 	}
-	for (int i=0;i<row->fieldCount();i++) {
-		EffectField* field = row->field(i);
-		if (field->type == EFFECT_FIELD_DOUBLE) {
-			for (int j=0;j<row->keyframe_times.size();j++) {
-				int key_x = get_screen_x(row->keyframe_times.at(j));
-				int key_y = get_screen_y(field->keyframe_data.at(j).toDouble());
-				if (event->pos().x() > key_x-KEYFRAME_SIZE
-						&& event->pos().x() < key_x+KEYFRAME_SIZE
-						&& event->pos().y() > key_y-KEYFRAME_SIZE
-						&& event->pos().y() < key_y+KEYFRAME_SIZE) {
-					sel_key = j;
-					sel_key_field = i;
-					break;
+	if (row != NULL) {
+		for (int i=0;i<row->fieldCount();i++) {
+			EffectField* field = row->field(i);
+			if (field->type == EFFECT_FIELD_DOUBLE) {
+				for (int j=0;j<row->keyframe_times.size();j++) {
+					int key_x = get_screen_x(row->keyframe_times.at(j));
+					int key_y = get_screen_y(field->keyframe_data.at(j).toDouble());
+					if (event->pos().x() > key_x-KEYFRAME_SIZE
+							&& event->pos().x() < key_x+KEYFRAME_SIZE
+							&& event->pos().y() > key_y-KEYFRAME_SIZE
+							&& event->pos().y() < key_y+KEYFRAME_SIZE) {
+						sel_key = j;
+						sel_key_field = i;
+						break;
+					}
 				}
 			}
 		}
