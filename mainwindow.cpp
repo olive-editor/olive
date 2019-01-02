@@ -80,13 +80,13 @@ void MainWindow::setup_layout(bool reset) {
 #endif
 
 	// load panels from file
-	if (!reset) {
+    if (!reset) {
 		QFile panel_config(get_data_path() + "/layout");
 		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
 			restoreState(panel_config.readAll(), 0);
 			panel_config.close();
 		}
-	}
+    }
 
 	layout()->update();
 }

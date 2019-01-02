@@ -610,7 +610,7 @@ void Effect::load(QXmlStreamReader& stream) {
 					stream.readNext();
 
 					// read keyframes
-					if (stream.name() == "keyframes" && stream.isStartElement()) {
+                    /*if (stream.name() == "keyframes" && stream.isStartElement()) {
 						for (int k=0;k<stream.attributes().size();k++) {
 							const QXmlStreamAttribute& attr = stream.attributes().at(k);
 							if (attr.name() == "enabled") {
@@ -643,7 +643,7 @@ void Effect::load(QXmlStreamReader& stream) {
 							}
 						}
 						stream.readNext();
-					}
+                    }*/
 
 					// read field
 					if (stream.name() == "field" && stream.isStartElement()) {
@@ -680,15 +680,25 @@ void Effect::load(QXmlStreamReader& stream) {
 								}
 							}
 
-                            int field_index = 0;
 							while (!stream.atEnd() && !(stream.name() == "field" && stream.isEndElement())) {
 								stream.readNext();
 
-								// read all keyframes
+                                // read keyframes
 								if (stream.name() == "key" && stream.isStartElement()) {
-									stream.readNext();
-                                    field->keyframes[field_index].data = load_data_from_string(field->type, stream.text().toString());
-                                    field_index++;
+                                    row->setKeyframing(true);
+
+                                    EffectKeyframe key;
+                                    for (int k=0;k<stream.attributes().size();k++) {
+                                        const QXmlStreamAttribute& attr = stream.attributes().at(k);
+                                        if (attr.name() == "value") {
+                                            key.data = load_data_from_string(field->type, attr.value().toString());
+                                        } else if (attr.name() == "frame") {
+                                            key.time = attr.value().toLong();
+                                        } else if (attr.name() == "type") {
+                                            key.type = attr.value().toInt();
+                                        }
+                                    }
+                                    field->keyframes.append(key);
 								}
 							}
 						} else {
@@ -714,9 +724,6 @@ void Effect::save(QXmlStreamWriter& stream) {
 		EffectRow* row = rows.at(i);
         if (row->savable) {
             stream.writeStartElement("row"); // row
-            stream.writeStartElement("keyframes"); // keyframes
-            stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
-            stream.writeEndElement(); // keyframes
             for (int j=0;j<row->fieldCount();j++) {
                 EffectField* field = row->field(j);
                 stream.writeStartElement("field"); // field

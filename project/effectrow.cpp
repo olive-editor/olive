@@ -129,7 +129,7 @@ void EffectRow::goto_next_key() {
         for (int j=0;j<f->keyframes.size();j++) {
             long comp = f->keyframes.at(i).time - c->clip_in + c->timeline_in;
             if (comp > sequence->playhead) {
-                key = qMax(comp, key);
+                key = qMin(comp, key);
             }
         }
     }
