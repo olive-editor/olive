@@ -37,7 +37,7 @@ private:
 	QComboBox* interlacing_combobox;
 	QComboBox* frame_rate_combobox;
 	QComboBox* audio_frequency_combobox;
-	QLineEdit* lineEdit;
+    QLineEdit* sequence_name_edit;
 };
 
 #endif // NEWSEQUENCEDIALOG_H
