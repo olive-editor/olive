@@ -1127,7 +1127,7 @@ void EditSequenceCommand::update() {
 		//		See if one exists or if you have to make one, make it
 		//		re-usable
 
-		seq->clips.at(i)->refresh();
+		if (seq->clips.at(i) != NULL) seq->clips.at(i)->refresh();
 	}
 
 	if (sequence == seq) {
