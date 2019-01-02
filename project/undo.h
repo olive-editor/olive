@@ -17,6 +17,7 @@ struct EffectMeta;
 
 #include "project/marker.h"
 #include "project/selection.h"
+#include "project/effectfield.h"
 
 #include <QUndoStack>
 #include <QUndoCommand>
@@ -328,19 +329,6 @@ private:
 	QString to;
 };
 
-class KeyframeMove : public QUndoCommand {
-public:
-	KeyframeMove(const QVector<EffectRow*>& rows, const QVector<int>& keyframes, const QVector<long>& old_values, const QVector<long>& new_values);
-	void undo();
-	void redo();
-private:
-	QVector<EffectRow*> rows;
-	QVector<int> keyframes;
-	QVector<long> old_values;
-	QVector<long> new_values;
-	bool old_project_changed;
-};
-
 class KeyframeDelete : public QUndoCommand {
 public:
 	KeyframeDelete();
@@ -351,9 +339,7 @@ public:
 	void redo();
 private:
 	bool old_project_changed;
-	QVector<long> deleted_keyframe_times;
-	QVector<int> deleted_keyframe_types;
-	QVector<QVariant> deleted_keyframe_data;
+	QVector<EffectKeyframe> deleted_keyframe_times;
 	bool sorted;
 };
 
@@ -521,6 +507,18 @@ private:
 	int* p;
 	int oldval;
 	int newval;
+	bool old_project_changed;
+};
+
+class SetLong : public QUndoCommand {
+public:
+	SetLong(long* pointer, long old_value, long new_value);
+	void undo();
+	void redo();
+private:
+	long* p;
+	long oldval;
+	long newval;
 	bool old_project_changed;
 };
 

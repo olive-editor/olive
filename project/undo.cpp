@@ -737,28 +737,6 @@ void MediaRename::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-KeyframeMove::KeyframeMove(const QVector<EffectRow*>& irows, const QVector<int>& ikeyframes, const QVector<long>& iold_values, const QVector<long>& inew_values) :
-	rows(irows),
-	keyframes(ikeyframes),
-	old_values(iold_values),
-	new_values(inew_values),
-	old_project_changed(mainWindow->isWindowModified())
-{}
-
-void KeyframeMove::undo() {
-	for (int i=0;i<rows.size();i++) {
-		rows.at(i)->keyframe_times[keyframes.at(i)] = old_values.at(i);
-	}
-	mainWindow->setWindowModified(old_project_changed);
-}
-
-void KeyframeMove::redo() {
-	for (int i=0;i<rows.size();i++) {
-		rows.at(i)->keyframe_times[keyframes.at(i)] = new_values.at(i);
-	}
-	mainWindow->setWindowModified(true);
-}
-
 KeyframeDelete::KeyframeDelete() :
 	disable_keyframes_on_row(NULL),
 	old_project_changed(mainWindow->isWindowModified()),
@@ -1331,4 +1309,21 @@ void SetQVariant::undo() {
 
 void SetQVariant::redo() {
 	*target = new_val;
+}
+
+SetLong::SetLong(long *pointer, long old_value, long new_value) :
+	p(pointer),
+	oldval(old_value),
+	newval(new_value),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void SetLong::undo() {
+	*p = oldval;
+	mainWindow->setWindowModified(old_project_changed);
+}
+
+void SetLong::redo() {
+	*p = newval;
+	mainWindow->setWindowModified(true);
 }
