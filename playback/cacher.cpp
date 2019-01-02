@@ -451,7 +451,7 @@ void cache_video_worker(Clip* c, long playhead) {
 			AVFrame* frame = av_frame_alloc();
 
 			Footage* media = c->media->to_footage();
-			FootageStream* ms = media->get_stream_from_file_index(true, c->media_stream);
+            const FootageStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
 				if (c->multithreaded && c->cacher->interrupt) return; // abort
@@ -546,7 +546,7 @@ void reset_cache(Clip* c, long target_frame) {
 			c->frame->pts = 0;
 		}
 	} else {
-		FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+        const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		if (ms->infinite_length) {
 			/*avcodec_flush_buffers(c->codecCtx);
 			av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);*/
@@ -640,7 +640,7 @@ void open_clip_worker(Clip* clip) {
 		Footage* m = clip->media->to_footage();
 		QByteArray ba = m->url.toUtf8();
 		const char* filename = ba.constData();
-		FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
+        const FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 
 		int errCode = avformat_open_input(
 				&clip->formatCtx,

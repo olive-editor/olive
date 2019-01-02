@@ -34,7 +34,7 @@ public:
 
 	bool waveform;
 	Clip* waveform_clip;
-	FootageStream* waveform_ms;
+    const FootageStream* waveform_ms;
     double waveform_zoom;
     int waveform_scroll;
 

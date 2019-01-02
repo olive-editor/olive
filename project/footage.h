@@ -29,6 +29,7 @@ struct FootageStream {
     int audio_channels;
     int audio_layout;
     int audio_frequency;
+    bool enabled;
 
     // preview thumbnail/waveform
     bool preview_done;
@@ -45,8 +46,8 @@ struct Footage {
     QString url;
     QString name;
 	int64_t length;
-    QVector<FootageStream*> video_tracks;
-    QVector<FootageStream*> audio_tracks;
+    QVector<FootageStream> video_tracks;
+    QVector<FootageStream> audio_tracks;
     int save_id;
     bool ready;
     bool invalid;
@@ -59,7 +60,7 @@ struct Footage {
     long out;
 
     long get_length_in_frames(double frame_rate);
-    FootageStream* get_stream_from_file_index(bool video, int index);
+    FootageStream *get_stream_from_file_index(bool video, int index);
     void reset();
 };
 
