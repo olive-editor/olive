@@ -93,7 +93,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 
 	current_row_desc = new QLabel();
 	values->addWidget(current_row_desc);
-1
+
 	QWidget* central_value_widget = new QWidget();
 	value_layout = new QHBoxLayout();
 	value_layout->setMargin(0);
