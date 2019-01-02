@@ -456,13 +456,11 @@ void Effect::copy_field_keyframes(Effect* e) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
 		EffectRow* copy_row = e->rows.at(i);
-		copy_row->setKeyframing(row->isKeyframing());
-		copy_row->keyframe_times = row->keyframe_times;
-		copy_row->keyframe_types = row->keyframe_types;
+        copy_row->setKeyframing(row->isKeyframing());
 		for (int j=0;j<row->fieldCount();j++) {
-			EffectField* field = row->field(j);
-			copy_row->field(j)->set_current_data(field->get_current_data());
-			copy_row->field(j)->keyframe_data = field->keyframe_data;
+            EffectField* field = row->field(j);
+            EffectField* copy_field = copy_row->field(j);
+            copy_field->keyframes = field->keyframes;
 		}
 	}
 }
@@ -633,8 +631,13 @@ void Effect::load(QXmlStreamReader& stream) {
 											keyframe_type = attr.value().toInt();
 										}
 									}
-									row->keyframe_times.append(keyframe_frame);
-									row->keyframe_types.append(keyframe_type);
+                                    for (int k=0;k<row->fieldCount();k++) {
+                                        EffectField* field = row->field(k);
+                                        EffectKeyframe key;
+                                        key.time = keyframe_frame;
+                                        key.type = keyframe_type;
+                                        field->keyframes.append(key);
+                                    }
 								}
 								stream.readNext();
 							}
@@ -677,13 +680,15 @@ void Effect::load(QXmlStreamReader& stream) {
 								}
 							}
 
+                            int field_index = 0;
 							while (!stream.atEnd() && !(stream.name() == "field" && stream.isEndElement())) {
 								stream.readNext();
 
 								// read all keyframes
 								if (stream.name() == "key" && stream.isStartElement()) {
 									stream.readNext();
-									field->keyframe_data.append(load_data_from_string(field->type, stream.text().toString()));
+                                    field->keyframes[field_index].data = load_data_from_string(field->type, stream.text().toString());
+                                    field_index++;
 								}
 							}
 						} else {
@@ -711,20 +716,19 @@ void Effect::save(QXmlStreamWriter& stream) {
             stream.writeStartElement("row"); // row
             stream.writeStartElement("keyframes"); // keyframes
             stream.writeAttribute("enabled", QString::number(row->isKeyframing()));
-            for (int j=0;j<row->keyframe_times.size();j++) {
-                stream.writeStartElement("key"); // key
-                stream.writeAttribute("frame", QString::number(row->keyframe_times.at(j)));
-                stream.writeAttribute("type", QString::number(row->keyframe_types.at(j)));
-                stream.writeEndElement(); // key
-            }
             stream.writeEndElement(); // keyframes
             for (int j=0;j<row->fieldCount();j++) {
                 EffectField* field = row->field(j);
                 stream.writeStartElement("field"); // field
                 stream.writeAttribute("id", field->id);
                 stream.writeAttribute("value", save_data_to_string(field->type, field->get_current_data()));
-                for (int k=0;k<field->keyframe_data.size();k++) {
-                    stream.writeTextElement("key", save_data_to_string(field->type, field->keyframe_data.at(k)));
+                for (int k=0;k<field->keyframes.size();k++) {
+                    const EffectKeyframe& key = field->keyframes.at(k);
+                    stream.writeStartElement("key");
+                    stream.writeAttribute("value", save_data_to_string(field->type, key.data));
+                    stream.writeAttribute("frame", QString::number(key.time));
+                    stream.writeAttribute("type", QString::number(key.type));
+                    stream.writeEndElement(); // key
                 }
                 stream.writeEndElement(); // field
             }

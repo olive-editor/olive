@@ -61,12 +61,14 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
     } else {
         if (QMessageBox::question(panel_effect_controls, "Disable Keyframes", "Disabling keyframes will delete all current keyframes. Are you sure you want to do this?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
             // clear
-            KeyframeDelete* kd = new KeyframeDelete();
-            for (int i=keyframe_times.size()-1;i>=0;i--) {
-                delete_keyframe(kd, i);
+            ComboAction* ca = new ComboAction();
+            for (int i=0;i<fieldCount();i++) {
+                EffectField* f = field(i);
+                for (int j=0;j<f->keyframes.size();j++) {
+                    ca->append(new KeyframeDelete(f, 0));
+                }
             }
-            kd->disable_keyframes_on_row = this;
-            undo_stack.push(kd);
+            undo_stack.push(ca);
             panel_effect_controls->update_keyframes();
         } else {
             setKeyframing(true);
@@ -77,49 +79,61 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 void EffectRow::goto_previous_key() {
     long key = LONG_MIN;
     Clip* c = parent_effect->parent_clip;
-    for (int i=0;i<keyframe_times.size();i++) {
-        long comp = keyframe_times.at(i) - c->clip_in + c->timeline_in;
-        if (comp < sequence->playhead) {
-            key = qMax(comp, key);
+    for (int i=0;i<fieldCount();i++) {
+        EffectField* f = field(i);
+        for (int j=0;j<f->keyframes.size();j++) {
+            long comp = f->keyframes.at(i).time - c->clip_in + c->timeline_in;
+            if (comp < sequence->playhead) {
+                key = qMax(comp, key);
+            }
         }
     }
     if (key != LONG_MIN) panel_sequence_viewer->seek(key);
 }
 
 void EffectRow::toggle_key() {
-    int index = -1;
+    QVector<EffectField*> key_fields;
+    QVector<int> key_field_index;
     Clip* c = parent_effect->parent_clip;
-    for (int i=0;i<keyframe_times.size();i++) {
-        long comp = c->timeline_in - c->clip_in + keyframe_times.at(i);
-        if (comp == sequence->playhead) {
-            index = i;
-            break;
+    for (int j=0;j<fieldCount();j++) {
+        EffectField* f = field(j);
+        for (int i=0;i<f->keyframes.size();i++) {
+            long comp = c->timeline_in - c->clip_in + f->keyframes.at(i).time;
+            if (comp == sequence->playhead) {
+                key_fields.append(f);
+                key_field_index.append(i);
+            }
         }
     }
-    if (index < 0) {
+
+    ComboAction* ca = new ComboAction();
+    if (key_fields.size() == 0) {
         // keyframe doesn't exist, set one
-        ComboAction* ca = new ComboAction();
         set_keyframe_now(ca);
-        undo_stack.push(ca);
     } else {
-        KeyframeDelete* kd = new KeyframeDelete();
-        delete_keyframe(kd, index);
-        undo_stack.push(kd);
-        panel_effect_controls->update_keyframes();
-        panel_sequence_viewer->viewer_widget->update();
+        for (int i=0;i<key_fields.size();i++) {
+            // TODO: these values must be sorted to work correctly
+            ca->append(new KeyframeDelete(key_fields.at(i), key_field_index.at(i)));
+        }
     }
+    undo_stack.push(ca);
+    panel_effect_controls->update_keyframes();
+    panel_sequence_viewer->viewer_widget->update();
 }
 
 void EffectRow::goto_next_key() {
     long key = LONG_MAX;
     Clip* c = parent_effect->parent_clip;
-    for (int i=0;i<keyframe_times.size();i++) {
-        long comp = c->timeline_in - c->clip_in + keyframe_times.at(i);
-        if (comp > sequence->playhead) {
-            key = qMin(comp, key);
+    for (int i=0;i<fieldCount();i++) {
+        EffectField* f = field(i);
+        for (int j=0;j<f->keyframes.size();j++) {
+            long comp = f->keyframes.at(i).time - c->clip_in + c->timeline_in;
+            if (comp > sequence->playhead) {
+                key = qMax(comp, key);
+            }
         }
     }
-	if (key != LONG_MAX) panel_sequence_viewer->seek(key);
+    if (key != LONG_MAX) panel_sequence_viewer->seek(key);
 }
 
 void EffectRow::focus_row() {
@@ -145,10 +159,13 @@ EffectRow::~EffectRow() {
 void EffectRow::set_keyframe_now(ComboAction* ca) {
     int index = -1;
     long time = sequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
-    for (int i=0;i<keyframe_times.size();i++) {
-        if (keyframe_times.at(i) == time) {
-            index = i;
-            break;
+    for (int j=0;j<fieldCount();j++) {
+        EffectField* f = field(j);
+        for (int i=0;i<f->keyframes.size();i++) {
+            if (f->keyframes.at(i).time == time) {
+                index = i;
+                break;
+            }
         }
     }
 
@@ -166,22 +183,20 @@ void EffectRow::set_keyframe_now(ComboAction* ca) {
     panel_effect_controls->update_keyframes();
 }
 
-void EffectRow::delete_keyframe_at_time(KeyframeDelete* kd, long time) {
-    for (int i=0;i<keyframe_times.size();i++) {
-        if (keyframe_times.at(i) == time) {
-            delete_keyframe(kd, i);
-            break;
+void EffectRow::delete_keyframe_at_time(ComboAction* ca, long time) {
+    for (int j=0;j<fieldCount();j++) {
+        EffectField* f = field(j);
+        for (int i=0;i<f->keyframes.size();i++) {
+            if (f->keyframes.at(i).time == time) {
+                ca->append(new KeyframeDelete(f, i));
+                break;
+            }
         }
-	}
+    }
 }
 
 const QString &EffectRow::get_name() {
 	return name;
-}
-
-void EffectRow::delete_keyframe(KeyframeDelete* kd, int index) {
-    kd->rows.append(this);
-    kd->keyframes.append(index);
 }
 
 EffectField* EffectRow::field(int i) {

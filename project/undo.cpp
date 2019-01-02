@@ -737,69 +737,21 @@ void MediaRename::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-KeyframeDelete::KeyframeDelete() :
-	disable_keyframes_on_row(NULL),
-	old_project_changed(mainWindow->isWindowModified()),
-	sorted(false)
+KeyframeDelete::KeyframeDelete(EffectField *ifield, int iindex) :
+    field(ifield),
+    index(iindex),
+    old_project_changed(mainWindow->isWindowModified())
 {}
 
 void KeyframeDelete::undo() {
-	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(true);
-
-	int data_index = deleted_keyframe_data.size()-1;
-	for (int i=rows.size()-1;i>=0;i--) {
-		EffectRow* row = rows.at(i);
-		int keyframe_index = keyframes.at(i);
-
-		row->keyframe_times.insert(keyframe_index, deleted_keyframe_times.at(i));
-		row->keyframe_types.insert(keyframe_index, deleted_keyframe_types.at(i));
-
-		for (int j=row->fieldCount()-1;j>=0;j--) {
-			row->field(j)->keyframe_data.insert(keyframe_index, deleted_keyframe_data.at(data_index));
-			data_index--;
-		}
-	}
-
+    field->keyframes.insert(index, deleted_key);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void KeyframeDelete::redo() {
-	if (!sorted) {
-		deleted_keyframe_times.resize(rows.size());
-		deleted_keyframe_types.resize(rows.size());
-		deleted_keyframe_data.clear();
-	}
-
-	for (int i=0;i<keyframes.size();i++) {
-		EffectRow* row = rows.at(i);
-		int keyframe_index = keyframes.at(i);
-
-		if (!sorted) {
-			deleted_keyframe_times[i] = (row->keyframe_times.at(keyframe_index));
-			deleted_keyframe_types[i] = (row->keyframe_types.at(keyframe_index));
-		}
-
-		row->keyframe_times.removeAt(keyframe_index);
-		row->keyframe_types.removeAt(keyframe_index);
-
-		for (int j=0;j<row->fieldCount();j++) {
-			if (!sorted) deleted_keyframe_data.append(row->field(j)->keyframe_data.at(keyframe_index));
-			row->field(j)->keyframe_data.removeAt(keyframe_index);
-		}
-
-		// correct following indices
-		if (!sorted) {
-			for (int j=i+1;j<keyframes.size();j++) {
-				if (rows.at(j) == row && keyframes.at(j) > keyframe_index) {
-					keyframes[j]--;
-				}
-			}
-		}
-	}
-
-	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(false);
-	mainWindow->setWindowModified(true);
-	sorted = true;
+    deleted_key = field->keyframes.at(index);
+    field->keyframes.removeAt(index);
+    mainWindow->setWindowModified(true);
 }
 
 KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
@@ -819,7 +771,7 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 			if (field->type == EFFECT_FIELD_DOUBLE) {
 				old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
 			} else {
-				old_values[i] = field->keyframe_data.at(index);
+                old_values[i] = field->keyframes.at(index).data;
 			}
 		}
 		new_values[i] = field->get_current_data();
@@ -829,16 +781,12 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 void KeyframeSet::undo() {
 	if (enable_keyframes) row->setKeyframing(false);
 
-	bool append = (index == -1 || just_made_keyframe);
-	if (append) {
-		row->keyframe_times.removeLast();
-		row->keyframe_types.removeLast();
-	}
+    bool append = (index == -1 || just_made_keyframe);
 	for (int i=0;i<row->fieldCount();i++) {
 		if (append) {
-			row->field(i)->keyframe_data.removeLast();
+            row->field(i)->keyframes.removeLast();
 		} else {
-			row->field(i)->keyframe_data[index] = old_values.at(i);
+            row->field(i)->keyframes[index].data = old_values.at(i);
 		}
 	}
 
@@ -848,15 +796,16 @@ void KeyframeSet::undo() {
 
 void KeyframeSet::redo() {
 	bool append = (index == -1 || (just_made_keyframe && !done));
-	if (append) {
-		row->keyframe_times.append(time);
-		row->keyframe_types.append((row->keyframe_types.size() > 0) ? row->keyframe_types.last() : EFFECT_KEYFRAME_LINEAR);
-	}
 	for (int i=0;i<row->fieldCount();i++) {
+        EffectField* f = row->field(i);
 		if (append) {
-			row->field(i)->keyframe_data.append(new_values.at(i));
+            EffectKeyframe k;
+            k.data = new_values.at(i);
+            k.time = time;
+            k.type = (f->keyframes.size() > 0) ? f->keyframes.last().type : EFFECT_KEYFRAME_LINEAR;
+            f->keyframes.append(k);
 		} else {
-			row->field(i)->keyframe_data[index] = new_values.at(i);
+            f->keyframes[index].data = new_values.at(i);
 		}
 	}
 	row->setKeyframing(true);

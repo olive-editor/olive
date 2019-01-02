@@ -7,6 +7,7 @@
 struct Clip;
 class Effect;
 class EffectRow;
+class EffectField;
 class TimelineHeader;
 
 class KeyframeView : public QWidget {
@@ -26,7 +27,7 @@ public slots:
 	void resize_move(double d);
 private:
 	long adjust_row_keyframe(EffectRow* row, long time);
-	QVector<EffectRow*> selected_rows;
+    QVector<EffectField*> selected_fields;
 	QVector<int> selected_keyframes;
 	QVector<int> rowY;
 	QVector<EffectRow*> rows;
@@ -41,7 +42,7 @@ private:
 	bool select_rect;
 	bool scroll_drag;
 
-	bool keyframeIsSelected(EffectRow* row, int keyframe);
+    bool keyframeIsSelected(EffectField *field, int keyframe);
 
 	long drag_frame_start;
 	long last_frame_diff;

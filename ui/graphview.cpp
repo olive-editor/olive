@@ -75,31 +75,34 @@ void GraphView::paintEvent(QPaintEvent *event) {
 			QPen line_pen;
 			line_pen.setWidth(2);
 
-			// sort keyframes by time
-			QVector<int> sorted_keys;
-			for (int i=0;i<row->keyframe_times.size();i++) {
-				bool inserted = false;
-				for (int j=0;j<sorted_keys.size();j++) {
-					if (row->keyframe_times.at(sorted_keys.at(j)) > row->keyframe_times.at(i)) {
-						sorted_keys.insert(j, i);
-						inserted = true;
-						break;
-					}
-				}
-				if (!inserted) {
-					sorted_keys.append(i);
-				}
-			}
+            for (int i=0;i<row->fieldCount();i++) {
+                EffectField* field = row->field(i);
 
-			int last_key_x, last_key_y;
-			for (int i=0;i<row->fieldCount();i++) {
-				EffectField* field = row->field(i);
-				if (field->type == EFFECT_FIELD_DOUBLE) {
+                if (field->type == EFFECT_FIELD_DOUBLE) {
+                    // sort keyframes by time
+                    QVector<int> sorted_keys;
+                    for (int k=0;k<field->keyframes.size();k++) {
+                        bool inserted = false;
+                        for (int j=0;j<sorted_keys.size();j++) {
+                            if (field->keyframes.at(sorted_keys.at(j)).time > field->keyframes.at(k).time) {
+                                sorted_keys.insert(j, k);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        if (!inserted) {
+                            sorted_keys.append(i);
+                        }
+                    }
+
+                    int last_key_x, last_key_y;
+
 					for (int j=0;j<sorted_keys.size();j++) {
+                        // draw lines
 						int key_index = sorted_keys.at(j);
 
-						int key_x = get_screen_x(row->keyframe_times.at(key_index));
-						int key_y = get_screen_y(field->keyframe_data.at(key_index).toDouble());
+                        int key_x = get_screen_x(field->keyframes.at(key_index).time);
+                        int key_y = get_screen_y(field->keyframes.at(key_index).data.toDouble());
 
 						line_pen.setColor(get_curve_color(i, row->fieldCount()));
 						p.setPen(line_pen);
@@ -112,14 +115,14 @@ void GraphView::paintEvent(QPaintEvent *event) {
 						last_key_y = key_y;
 					}
 					for (int j=0;j<sorted_keys.size();j++) {
+                        // draw keys
 						int key_index = sorted_keys.at(j);
 
-						int key_x = get_screen_x(row->keyframe_times.at(key_index));
-						int key_y = get_screen_y(field->keyframe_data.at(key_index).toDouble());
+                        int key_x = get_screen_x(field->keyframes.at(key_index).time);
+                        int key_y = get_screen_y(field->keyframes.at(key_index).data.toDouble());
 
-						draw_keyframe(p, row->keyframe_types.at(key_index), key_x, key_y, (selected_keys.contains(key_index) && selected_keys_fields.contains(i)));
+                        draw_keyframe(p, field->keyframes.at(key_index).type, key_x, key_y, (selected_keys.contains(key_index) && selected_keys_fields.contains(i)));
 					}
-					p.setBrush(Qt::NoBrush);
 				}
 			}
 		}
@@ -154,9 +157,9 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 		for (int i=0;i<row->fieldCount();i++) {
 			EffectField* field = row->field(i);
 			if (field->type == EFFECT_FIELD_DOUBLE) {
-				for (int j=0;j<row->keyframe_times.size();j++) {
-					int key_x = get_screen_x(row->keyframe_times.at(j));
-					int key_y = get_screen_y(field->keyframe_data.at(j).toDouble());
+                for (int j=0;j<field->keyframes.size();j++) {
+                    int key_x = get_screen_x(field->keyframes.at(j).time);
+                    int key_y = get_screen_y(field->keyframes.at(j).data.toDouble());
 					if (event->pos().x() > key_x-KEYFRAME_SIZE
 							&& event->pos().x() < key_x+KEYFRAME_SIZE
 							&& event->pos().y() > key_y-KEYFRAME_SIZE
@@ -177,10 +180,9 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 	selected_keys_old_vals.clear();
 	selected_keys_old_doubles.clear();
 	for (int i=0;i<selected_keys.size();i++) {
-		selected_keys_old_vals.append(row->keyframe_times.at(selected_keys.at(i)));
-
 		for (int j=0;j<selected_keys_fields.size();j++) {
-			selected_keys_old_doubles.append(row->field(selected_keys_fields.at(j))->keyframe_data.at(selected_keys.at(i)).toDouble());
+            selected_keys_old_vals.append(row->field(selected_keys_fields.at(j))->keyframes.at(selected_keys.at(i)).time);
+            selected_keys_old_doubles.append(row->field(selected_keys_fields.at(j))->keyframes.at(selected_keys.at(i)).data.toDouble());
 		}
 	}
 
@@ -199,10 +201,10 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 			update();
 		} else {
 			for (int i=0;i<selected_keys.size();i++) {
-				row->keyframe_times[selected_keys.at(i)] = selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/zoom);
-
 				for (int j=0;j<selected_keys_fields.size();j++) {
-					row->field(selected_keys_fields.at(j))->keyframe_data[selected_keys.at(i)] = selected_keys_old_doubles.at((i*selected_keys_fields.size())+j) + (double(start_y - event->pos().y())/zoom);
+                    int index = (i*selected_keys_fields.size())+j;
+                    row->field(selected_keys_fields.at(j))->keyframes[selected_keys.at(i)].time = selected_keys_old_vals.at(index) + (double(event->pos().x() - start_x)/zoom);
+                    row->field(selected_keys_fields.at(j))->keyframes[selected_keys.at(i)].data = selected_keys_old_doubles.at(index) + (double(start_y - event->pos().y())/zoom);
 				}
 			}
 			moved_keys = true;
@@ -213,11 +215,11 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *event) {
 	if (moved_keys && selected_keys.size() > 0) {
-		ComboAction* ca = new ComboAction();
+        /*ComboAction* ca = new ComboAction();
 		QVector<EffectRow*> rows;
 		QVector<long> new_vals;
 
-		for (int i=0;i<selected_keys.size();i++) {
+        for (int i=0;i<selected_keys.size();i++) {
 			rows.append(row);
 			new_vals.append(row->keyframe_times.at(selected_keys.at(i)));
 
@@ -227,10 +229,10 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event) {
 						   row->field(selected_keys_fields.at(j))->keyframe_data.at(selected_keys.at(i))));
 			}
 			//ca->append(new KeyframeSet(row, selected_keys.at(i), 0, false));
-		}
+        }
 
 		ca->append(new KeyframeMove(rows, selected_keys, selected_keys_old_vals, new_vals));
-		undo_stack.push(ca);
+        undo_stack.push(ca);*/
 	}
 	moved_keys = false;
 	mousedown = false;

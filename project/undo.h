@@ -331,22 +331,21 @@ private:
 
 class KeyframeDelete : public QUndoCommand {
 public:
-	KeyframeDelete();
-	QVector<EffectRow*> rows;
-	EffectRow* disable_keyframes_on_row;
-	QVector<int> keyframes;
+    KeyframeDelete(EffectField* ifield, int iindex);
 	void undo();
 	void redo();
 private:
-	bool old_project_changed;
-	QVector<EffectKeyframe> deleted_keyframe_times;
-	bool sorted;
+    EffectField* field;
+    int index;
+    bool done;
+    EffectKeyframe deleted_key;
+    bool old_project_changed;
 };
 
 
 class KeyframeSet : public QUndoCommand {
 public:
-	KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
+    KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
 	void undo();
 	void redo();
 	QVector<QVariant> old_values;

@@ -121,8 +121,8 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
     long after_keyframe_time = LONG_MAX;
     long frame = timecodeToFrame(timecode);
 
-    for (int i=0;i<parent_row->keyframe_times.size();i++) {
-        long eval_keyframe_time = parent_row->keyframe_times.at(i);
+    for (int i=0;i<keyframes.size();i++) {
+        long eval_keyframe_time = keyframes.at(i).time;
         if (eval_keyframe_time == frame) {
             before = i;
             after = i;
@@ -141,7 +141,7 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
         before = before_keyframe_index;
         after = after_keyframe_index;
 
-        if (parent_row->keyframe_types.at(before) == KEYFRAME_TYPE_HOLD) {
+        if (keyframes.at(before).type == KEYFRAME_TYPE_HOLD) {
             progress = 0;
         } else {
             // TODO replace with bezier function
@@ -157,7 +157,7 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
 }
 
 bool EffectField::hasKeyframes() {
-    return (parent_row->isKeyframing() && keyframe_data.size() > 0);
+    return (parent_row->isKeyframing() && keyframes.size() > 0);
 }
 
 QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
@@ -175,16 +175,16 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
             progress -= 0.01865;
         }*/
 
-        const QVariant& before_data = keyframe_data.at(before_keyframe);
+        const QVariant& before_data = keyframes.at(before_keyframe).data;
         switch (type) {
         case EFFECT_FIELD_DOUBLE:
         {
             double value;
             if (before_keyframe == after_keyframe) {
-                value = keyframe_data.at(before_keyframe).toDouble();
+                value = keyframes.at(before_keyframe).data.toDouble();
             } else {
-                double before_dbl = keyframe_data.at(before_keyframe).toDouble();
-                double after_dbl = keyframe_data.at(after_keyframe).toDouble();
+                double before_dbl = keyframes.at(before_keyframe).data.toDouble();
+                double after_dbl = keyframes.at(after_keyframe).data.toDouble();
                 value = double_lerp(before_dbl, after_dbl, progress);
             }
             if (async) {
@@ -197,10 +197,10 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
         {
             QColor value;
             if (before_keyframe == after_keyframe) {
-                value = keyframe_data.at(before_keyframe).value<QColor>();
+                value = keyframes.at(before_keyframe).data.value<QColor>();
             } else {
-                QColor before_data = keyframe_data.at(before_keyframe).value<QColor>();
-                QColor after_data = keyframe_data.at(after_keyframe).value<QColor>();
+                QColor before_data = keyframes.at(before_keyframe).data.value<QColor>();
+                QColor after_data = keyframes.at(after_keyframe).data.value<QColor>();
                 value = QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
             }
             if (async) {

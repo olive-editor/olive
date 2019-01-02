@@ -23,4 +23,6 @@ void draw_keyframe(QPainter &p, int type, int x, int y, bool darker) {
 		p.drawRect(QRect(x - KEYFRAME_SIZE, y - KEYFRAME_SIZE, KEYFRAME_SIZE*2, KEYFRAME_SIZE*2));
 		break;
 	}
+
+    p.setBrush(Qt::NoBrush);
 }
