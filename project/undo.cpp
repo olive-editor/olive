@@ -1122,11 +1122,6 @@ void EditSequenceCommand::update() {
 	item->set_sequence(seq);
 
 	for (int i=0;i<seq->clips.size();i++) {
-		// TODO shift in/out/clipin points to match new frame rate
-		//		BUT ALSO copy/paste must need a similar routine, no?
-		//		See if one exists or if you have to make one, make it
-		//		re-usable
-
 		if (seq->clips.at(i) != NULL) seq->clips.at(i)->refresh();
 	}
 
