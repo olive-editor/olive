@@ -155,12 +155,17 @@ void load_internal_effects() {
 	effects.append(em);
 }
 
-void load_shader_effects() {
+QList<QString> get_effects_paths() {
 	QList<QString> effects_paths;
 	effects_paths.append(get_app_dir() + "/effects");
 	effects_paths.append(get_app_dir() + "/../share/olive-editor/effects");
 	QString env_path(qgetenv("OLIVE_EFFECTS_PATH"));
 	if (!env_path.isEmpty()) effects_paths.append(env_path);
+	return effects_paths;
+}
+
+void load_shader_effects() {
+	QList<QString> effects_paths = get_effects_paths();
 
 	for (int h=0;h<effects_paths.size();h++) {
 		const QString& effects_path = effects_paths.at(h);
@@ -744,6 +749,23 @@ void Effect::save(QXmlStreamWriter& stream) {
 	}
 }
 
+void Effect::validate_meta_path() {
+	if (!meta->path.isEmpty() || (vertPath.isEmpty() && fragPath.isEmpty())) return;
+	QList<QString> effects_paths = get_effects_paths();
+	const QString& test_fn = vertPath.isEmpty() ? fragPath : vertPath;
+	for (int i=0;i<effects_paths.size();i++) {
+		if (QFileInfo::exists(effects_paths.at(i) + "/" + test_fn)) {
+			for (int j=0;j<effects.size();j++) {
+				if (&effects.at(j) == meta) {
+					effects[j].path = effects_paths.at(i);
+					return;
+				}
+			}
+			return;
+		}
+	}
+}
+
 void Effect::open() {
 	if (isOpen) {
 		dout << "[WARNING] Tried to open an effect that was already open";
@@ -754,6 +776,7 @@ void Effect::open() {
 			dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
 		} else {
 			glslProgram = new QOpenGLShaderProgram();
+			validate_meta_path();
 			if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath);
 			if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath);
 			glslProgram->link();
