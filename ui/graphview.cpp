@@ -41,6 +41,7 @@ GraphView::GraphView(QWidget* parent) :
 	current_handle(BEZIER_HANDLE_NONE)
 {
 	setMouseTracking(true);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 void GraphView::paintEvent(QPaintEvent *event) {

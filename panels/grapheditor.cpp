@@ -193,7 +193,11 @@ void GraphEditor::set_row(EffectRow *r) {
 		current_row_desc->setText(0);
 	}
 	view->set_row(row);
-	update_panel();
+    update_panel();
+}
+
+bool GraphEditor::view_is_focused() {
+    return view->hasFocus() || header->hasFocus();
 }
 
 void GraphEditor::set_key_button_enabled(bool e, int type) {

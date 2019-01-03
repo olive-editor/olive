@@ -18,6 +18,7 @@ public:
 	GraphEditor(QWidget* parent = 0);
 	void update_panel();
 	void set_row(EffectRow* r);
+    bool view_is_focused();
 private:
 	GraphView* view;
 	TimelineHeader* header;
