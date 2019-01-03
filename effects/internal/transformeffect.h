@@ -39,6 +39,9 @@ private:
 
 	int default_anchor_x;
     int default_anchor_y;
+    double default_pos_x;
+    double default_pos_y;
+    bool set;
 };
 
 #endif // TRANSFORMEFFECT_H
