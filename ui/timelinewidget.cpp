@@ -1272,9 +1272,9 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 		Clip* c = NULL;
 		if (g.clip != -1) c = sequence->clips.at(g.clip);
 
-        const FootageStream* ms = NULL;
+		const FootageStream* ms = NULL;
 		if (g.clip != -1 && c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
-            ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+			ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		}
 
 		// validate ghosts for trimming
@@ -1304,7 +1304,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 
 				// prevent clip_in from going below 0
-				if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
+				if ((c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
 						|| (ms != NULL && !ms->infinite_length)) {
 					validator = g.old_clip_in + frame_diff;
 					if (validator < 0) frame_diff -= validator;
