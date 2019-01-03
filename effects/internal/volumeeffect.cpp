@@ -9,12 +9,12 @@
 #include "ui/collapsiblewidget.h"
 
 VolumeEffect::VolumeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-    EffectRow* volume_row = add_row("Volume:");
-    volume_val = volume_row->add_field(EFFECT_FIELD_DOUBLE, "volume");
+	EffectRow* volume_row = add_row("Volume");
+	volume_val = volume_row->add_field(EFFECT_FIELD_DOUBLE, "volume");
 	volume_val->set_double_minimum_value(0);
 
 	// set defaults
-    volume_val->set_double_default_value(100);
+	volume_val->set_double_default_value(100);
 }
 
 void VolumeEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {

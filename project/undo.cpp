@@ -738,20 +738,20 @@ void MediaRename::redo() {
 }
 
 KeyframeDelete::KeyframeDelete(EffectField *ifield, int iindex) :
-    field(ifield),
-    index(iindex),
-    old_project_changed(mainWindow->isWindowModified())
+	field(ifield),
+	index(iindex),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void KeyframeDelete::undo() {
-    field->keyframes.insert(index, deleted_key);
+	field->keyframes.insert(index, deleted_key);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void KeyframeDelete::redo() {
-    deleted_key = field->keyframes.at(index);
-    field->keyframes.removeAt(index);
-    mainWindow->setWindowModified(true);
+	deleted_key = field->keyframes.at(index);
+	field->keyframes.removeAt(index);
+	mainWindow->setWindowModified(true);
 }
 
 KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
@@ -771,7 +771,7 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 			if (field->type == EFFECT_FIELD_DOUBLE) {
 				old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
 			} else {
-                old_values[i] = field->keyframes.at(index).data;
+				old_values[i] = field->keyframes.at(index).data;
 			}
 		}
 		new_values[i] = field->get_current_data();
@@ -781,12 +781,12 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 void KeyframeSet::undo() {
 	if (enable_keyframes) row->setKeyframing(false);
 
-    bool append = (index == -1 || just_made_keyframe);
+	bool append = (index == -1 || just_made_keyframe);
 	for (int i=0;i<row->fieldCount();i++) {
 		if (append) {
-            row->field(i)->keyframes.removeLast();
+			row->field(i)->keyframes.removeLast();
 		} else {
-            row->field(i)->keyframes[index].data = old_values.at(i);
+			row->field(i)->keyframes[index].data = old_values.at(i);
 		}
 	}
 
@@ -797,15 +797,15 @@ void KeyframeSet::undo() {
 void KeyframeSet::redo() {
 	bool append = (index == -1 || (just_made_keyframe && !done));
 	for (int i=0;i<row->fieldCount();i++) {
-        EffectField* f = row->field(i);
+		EffectField* f = row->field(i);
 		if (append) {
-            EffectKeyframe k;
-            k.data = new_values.at(i);
-            k.time = time;
-            k.type = (f->keyframes.size() > 0) ? f->keyframes.last().type : EFFECT_KEYFRAME_LINEAR;
-            f->keyframes.append(k);
+			EffectKeyframe k;
+			k.data = new_values.at(i);
+			k.time = time;
+			k.type = (f->keyframes.size() > 0) ? f->keyframes.last().type : EFFECT_KEYFRAME_LINEAR;
+			f->keyframes.append(k);
 		} else {
-            f->keyframes[index].data = new_values.at(i);
+			f->keyframes[index].data = new_values.at(i);
 		}
 	}
 	row->setKeyframing(true);
@@ -1229,9 +1229,9 @@ void RippleAction::redo() {
 	ca->redo();
 }
 
-SetDouble::SetDouble(double* pointer, double new_value) :
+SetDouble::SetDouble(double* pointer, double old_value, double new_value) :
 	p(pointer),
-	oldval(*pointer),
+	oldval(old_value),
 	newval(new_value),
 	old_project_changed(mainWindow->isWindowModified())
 {}

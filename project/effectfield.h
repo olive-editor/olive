@@ -12,19 +12,10 @@
 #include <QVariant>
 #include <QVector>
 
+#include "keyframe.h"
+
 class EffectRow;
 class ComboAction;
-
-class EffectKeyframe {
-public:
-	long time;
-	int type;
-	QVariant data;
-
-	// only for bezier type
-	QPointF pre_handle;
-	QPointF post_handle;
-};
 
 class EffectField : public QObject {
 	Q_OBJECT

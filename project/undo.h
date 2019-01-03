@@ -331,21 +331,21 @@ private:
 
 class KeyframeDelete : public QUndoCommand {
 public:
-    KeyframeDelete(EffectField* ifield, int iindex);
+	KeyframeDelete(EffectField* ifield, int iindex);
 	void undo();
 	void redo();
 private:
-    EffectField* field;
-    int index;
-    bool done;
-    EffectKeyframe deleted_key;
-    bool old_project_changed;
+	EffectField* field;
+	int index;
+	bool done;
+	EffectKeyframe deleted_key;
+	bool old_project_changed;
 };
 
 
 class KeyframeSet : public QUndoCommand {
 public:
-    KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
+	KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
 	void undo();
 	void redo();
 	QVector<QVariant> old_values;
@@ -523,7 +523,7 @@ private:
 
 class SetDouble : public QUndoCommand {
 public:
-	SetDouble(double* pointer, double new_value);
+	SetDouble(double* pointer, double old_value, double new_value);
 	void undo();
 	void redo();
 private:

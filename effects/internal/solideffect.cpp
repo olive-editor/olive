@@ -21,36 +21,36 @@
 SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	enable_superimpose = true;
 
-    solid_type = add_row("Type:")->add_field(EFFECT_FIELD_COMBO, "type");
+	solid_type = add_row("Type")->add_field(EFFECT_FIELD_COMBO, "type");
 	solid_type->add_combo_item("Solid Color", SOLID_TYPE_COLOR);
 	solid_type->add_combo_item("SMPTE Bars", SOLID_TYPE_BARS);
-    solid_type->add_combo_item("Checkerboard", SOLID_TYPE_CHECKERBOARD);
+	solid_type->add_combo_item("Checkerboard", SOLID_TYPE_CHECKERBOARD);
 
-    opacity_field = add_row("Opacity:")->add_field(EFFECT_FIELD_DOUBLE, "opacity");
-    opacity_field->set_double_minimum_value(0);
-    opacity_field->set_double_maximum_value(100);
-    opacity_field->set_double_default_value(100);
+	opacity_field = add_row("Opacity")->add_field(EFFECT_FIELD_DOUBLE, "opacity");
+	opacity_field->set_double_minimum_value(0);
+	opacity_field->set_double_maximum_value(100);
+	opacity_field->set_double_default_value(100);
 
-    solid_color_field = add_row("Color:")->add_field(EFFECT_FIELD_COLOR, "color");
-    solid_color_field->set_color_value(Qt::red);
+	solid_color_field = add_row("Color")->add_field(EFFECT_FIELD_COLOR, "color");
+	solid_color_field->set_color_value(Qt::red);
 
-    checkerboard_size_field = add_row("Checkerboard Size:")->add_field(EFFECT_FIELD_DOUBLE, "checker_size");
-    checkerboard_size_field->set_double_minimum_value(1);
-    checkerboard_size_field->set_double_default_value(10);
+	checkerboard_size_field = add_row("Checkerboard Size")->add_field(EFFECT_FIELD_DOUBLE, "checker_size");
+	checkerboard_size_field->set_double_minimum_value(1);
+	checkerboard_size_field->set_double_default_value(10);
 
-    // hacky but eh
-    QComboBox* solid_type_combo = static_cast<QComboBox*>(solid_type->get_ui_element());
-    connect(solid_type_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(ui_update(int)));
-    ui_update(solid_type_combo->currentIndex());
+	// hacky but eh
+	QComboBox* solid_type_combo = static_cast<QComboBox*>(solid_type->get_ui_element());
+	connect(solid_type_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(ui_update(int)));
+	ui_update(solid_type_combo->currentIndex());
 
-    /*vertPath = ":/shaders/common.vert";
-    fragPath = ":/shaders/solideffect.frag";*/
+	/*vertPath = ":/shaders/common.vert";
+	fragPath = ":/shaders/solideffect.frag";*/
 }
 
 void SolidEffect::redraw(double timecode) {
 	int w = img.width();
 	int h = img.height();
-    int alpha = qRound(opacity_field->get_double_value(timecode)*2.55);
+	int alpha = qRound(opacity_field->get_double_value(timecode)*2.55);
 	switch (solid_type->get_combo_data(timecode).toInt()) {
 	case SOLID_TYPE_COLOR:
 	{
@@ -141,37 +141,37 @@ void SolidEffect::redraw(double timecode) {
 			third_color.setAlpha(alpha);
 			p.fillRect(QRect(bar_x, third_bar_y, third_bar_width, third_bar_height), third_color);
 		}
-    }
-        break;
-    case SOLID_TYPE_CHECKERBOARD:
-    {
-        // draw checkboard
-        QPainter p(&img);
-        img.fill(Qt::transparent);
+	}
+		break;
+	case SOLID_TYPE_CHECKERBOARD:
+	{
+		// draw checkboard
+		QPainter p(&img);
+		img.fill(Qt::transparent);
 
-        int checker_width = qCeil(checkerboard_size_field->get_double_value(timecode));
-        int checker_x, checker_y;
-        int checkerboard_size_w = qCeil(double(w)/checker_width);
-        int checkerboard_size_h = qCeil(double(h)/checker_width);
+		int checker_width = qCeil(checkerboard_size_field->get_double_value(timecode));
+		int checker_x, checker_y;
+		int checkerboard_size_w = qCeil(double(w)/checker_width);
+		int checkerboard_size_h = qCeil(double(h)/checker_width);
 
-        QColor checker_odd(QColor(0, 0, 0, alpha));
-        QColor checker_even(solid_color_field->get_color_value(timecode));
-        checker_even.setAlpha(alpha);
-        QVector<QColor> checker_color{checker_odd, checker_even};
+		QColor checker_odd(QColor(0, 0, 0, alpha));
+		QColor checker_even(solid_color_field->get_color_value(timecode));
+		checker_even.setAlpha(alpha);
+		QVector<QColor> checker_color{checker_odd, checker_even};
 
-        for(int i = 0; i < checkerboard_size_w; i++){
-            checker_x = checker_width*i;
-            for(int j = 0; j < checkerboard_size_h; j++){
-                checker_y = checker_width*j;
-                p.fillRect(QRect(checker_x, checker_y, checker_width, checker_width), checker_color[(i + j)%2]);
-            }
-        }
-    }
-        break;
-    }
+		for(int i = 0; i < checkerboard_size_w; i++){
+			checker_x = checker_width*i;
+			for(int j = 0; j < checkerboard_size_h; j++){
+				checker_y = checker_width*j;
+				p.fillRect(QRect(checker_x, checker_y, checker_width, checker_width), checker_color[(i + j)%2]);
+			}
+		}
+	}
+		break;
+	}
 }
 
 void SolidEffect::ui_update(int i) {
-    solid_color_field->set_enabled(i == SOLID_TYPE_COLOR || i == SOLID_TYPE_CHECKERBOARD);
-    checkerboard_size_field->set_enabled(i == SOLID_TYPE_CHECKERBOARD);
+	solid_color_field->set_enabled(i == SOLID_TYPE_COLOR || i == SOLID_TYPE_CHECKERBOARD);
+	checkerboard_size_field->set_enabled(i == SOLID_TYPE_CHECKERBOARD);
 }

@@ -23,6 +23,7 @@ private:
 	TimelineHeader* header;
 	QHBoxLayout* value_layout;
 	QVector<LabelSlider*> slider_proxies;
+	QVector<QPushButton*> slider_proxy_buttons;
 	QVector<LabelSlider*> slider_proxy_sources;
 	QLabel* current_row_desc;
 	EffectRow* row;
@@ -31,8 +32,10 @@ private:
 	QPushButton* bezier_button;
 	QPushButton* hold_button;
 private slots:
-	void set_key_button_enabled(bool e);
+	void set_key_button_enabled(bool e, int type);
 	void passthrough_slider_value();
+	void set_keyframe_type();
+	void set_field_visibility(bool b);
 };
 
 #endif // GRAPHEDITOR_H

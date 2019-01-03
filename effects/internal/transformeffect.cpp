@@ -28,104 +28,104 @@
 #define BLEND_MODE_MULTIPLY 2
 #define BLEND_MODE_OVERLAY 3
 
-TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {    
-    enable_coords = true;
+TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
+	enable_coords = true;
 
-	EffectRow* position_row = add_row("Position:");
-    position_x = position_row->add_field(EFFECT_FIELD_DOUBLE, "posx"); // position X
-    position_y = position_row->add_field(EFFECT_FIELD_DOUBLE, "posy"); // position Y
+	EffectRow* position_row = add_row("Position");
+	position_x = position_row->add_field(EFFECT_FIELD_DOUBLE, "posx"); // position X
+	position_y = position_row->add_field(EFFECT_FIELD_DOUBLE, "posy"); // position Y
 
-	EffectRow* scale_row = add_row("Scale:");
-    scale_x = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scalex"); // scale X (and Y is uniform scale is selected)
+	EffectRow* scale_row = add_row("Scale");
+	scale_x = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scalex"); // scale X (and Y is uniform scale is selected)
 	scale_x->set_double_minimum_value(0);
 	scale_x->set_double_maximum_value(3000);
-    scale_y = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scaley"); // scale Y (disabled if uniform scale is selected)
+	scale_y = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scaley"); // scale Y (disabled if uniform scale is selected)
 	scale_y->set_double_minimum_value(0);
 	scale_y->set_double_maximum_value(3000);
 
-	EffectRow* uniform_scale_row = add_row("Uniform Scale:");
-    uniform_scale_field = uniform_scale_row->add_field(EFFECT_FIELD_BOOL, "uniformscale"); // uniform scale option
+	EffectRow* uniform_scale_row = add_row("Uniform Scale");
+	uniform_scale_field = uniform_scale_row->add_field(EFFECT_FIELD_BOOL, "uniformscale"); // uniform scale option
 
-	EffectRow* rotation_row = add_row("Rotation:");
-    rotation = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
+	EffectRow* rotation_row = add_row("Rotation");
+	rotation = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
 
-	EffectRow* anchor_point_row = add_row("Anchor Point:");
-    anchor_x_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchorx"); // anchor point X
-    anchor_y_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchory"); // anchor point Y
+	EffectRow* anchor_point_row = add_row("Anchor Point");
+	anchor_x_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchorx"); // anchor point X
+	anchor_y_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchory"); // anchor point Y
 
-	EffectRow* opacity_row = add_row("Opacity:");
-    opacity = opacity_row->add_field(EFFECT_FIELD_DOUBLE, "opacity"); // opacity
+	EffectRow* opacity_row = add_row("Opacity");
+	opacity = opacity_row->add_field(EFFECT_FIELD_DOUBLE, "opacity"); // opacity
 	opacity->set_double_minimum_value(0);
 	opacity->set_double_maximum_value(100);
 
-	EffectRow* blend_mode_row = add_row("Blend Mode:");
-    blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO, "blendmode"); // blend mode
+	EffectRow* blend_mode_row = add_row("Blend Mode");
+	blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO, "blendmode"); // blend mode
 	blend_mode_box->add_combo_item("Normal", BLEND_MODE_NORMAL);
 	blend_mode_box->add_combo_item("Overlay", BLEND_MODE_OVERLAY);
 	blend_mode_box->add_combo_item("Screen", BLEND_MODE_SCREEN);
 	blend_mode_box->add_combo_item("Multiply", BLEND_MODE_MULTIPLY);
 
-    // set up gizmos
-    top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
-    top_left_gizmo->x_field1 = scale_x;
+	// set up gizmos
+	top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
+	top_left_gizmo->x_field1 = scale_x;
 
-    top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    top_center_gizmo->set_cursor(Qt::SizeVerCursor);
-    top_center_gizmo->y_field1 = scale_x;
+	top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	top_center_gizmo->set_cursor(Qt::SizeVerCursor);
+	top_center_gizmo->y_field1 = scale_x;
 
-    top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
-    top_right_gizmo->x_field1 = scale_x;
+	top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
+	top_right_gizmo->x_field1 = scale_x;
 
-    bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
-    bottom_left_gizmo->x_field1 = scale_x;
+	bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
+	bottom_left_gizmo->x_field1 = scale_x;
 
-    bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
-    bottom_center_gizmo->y_field1 = scale_x;
+	bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
+	bottom_center_gizmo->y_field1 = scale_x;
 
-    bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
-    bottom_right_gizmo->x_field1 = scale_x;
+	bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
+	bottom_right_gizmo->x_field1 = scale_x;
 
-    left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    left_center_gizmo->set_cursor(Qt::SizeHorCursor);
-    left_center_gizmo->x_field1 = scale_x;
+	left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	left_center_gizmo->set_cursor(Qt::SizeHorCursor);
+	left_center_gizmo->x_field1 = scale_x;
 
-    right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    right_center_gizmo->set_cursor(Qt::SizeHorCursor);
-    right_center_gizmo->x_field1 = scale_x;
+	right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	right_center_gizmo->set_cursor(Qt::SizeHorCursor);
+	right_center_gizmo->x_field1 = scale_x;
 
-    anchor_gizmo = add_gizmo(GIZMO_TYPE_TARGET);
-    anchor_gizmo->set_cursor(Qt::SizeAllCursor);
-    anchor_gizmo->x_field1 = anchor_x_box;
-    anchor_gizmo->y_field1 = anchor_y_box;
-    anchor_gizmo->x_field2 = position_x;
-    anchor_gizmo->y_field2 = position_y;
+	anchor_gizmo = add_gizmo(GIZMO_TYPE_TARGET);
+	anchor_gizmo->set_cursor(Qt::SizeAllCursor);
+	anchor_gizmo->x_field1 = anchor_x_box;
+	anchor_gizmo->y_field1 = anchor_y_box;
+	anchor_gizmo->x_field2 = position_x;
+	anchor_gizmo->y_field2 = position_y;
 
-    rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
-    rotate_gizmo->color = Qt::green;
-    rotate_gizmo->set_cursor(Qt::SizeAllCursor);
-    rotate_gizmo->x_field1 = rotation;
+	rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
+	rotate_gizmo->color = Qt::green;
+	rotate_gizmo->set_cursor(Qt::SizeAllCursor);
+	rotate_gizmo->x_field1 = rotation;
 
-    rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
-    rect_gizmo->x_field1 = position_x;
-    rect_gizmo->y_field1 = position_y;
+	rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
+	rect_gizmo->x_field1 = position_x;
+	rect_gizmo->y_field1 = position_y;
 
-    connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
+	connect(uniform_scale_field, SIGNAL(toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 
-    // set defaults
+	// set defaults
 	uniform_scale_field->set_bool_value(true);
 	blend_mode_box->set_combo_index(0);
 	refresh();
 }
 
 void TransformEffect::refresh() {
-    if (parent_clip != NULL && parent_clip->sequence != NULL) {
-        double default_pos_x = parent_clip->sequence->width/2;
-        double default_pos_y = parent_clip->sequence->height/2;
+	if (parent_clip != NULL && parent_clip->sequence != NULL) {
+		double default_pos_x = parent_clip->sequence->width/2;
+		double default_pos_y = parent_clip->sequence->height/2;
 
 		position_x->set_double_default_value(default_pos_x);
 		position_y->set_double_default_value(default_pos_y);
@@ -140,35 +140,35 @@ void TransformEffect::refresh() {
 
 		anchor_x_box->set_double_default_value(default_anchor_x);
 		anchor_y_box->set_double_default_value(default_anchor_y);
-        opacity->set_double_default_value(100);
+		opacity->set_double_default_value(100);
 
-        double x_percent_multipler = 200.0 / parent_clip->sequence->width;
-        double y_percent_multipler = 200.0 / parent_clip->sequence->height;
-        top_left_gizmo->x_field_multi1 = -x_percent_multipler;
-        top_left_gizmo->y_field_multi1 = -y_percent_multipler;
-        top_center_gizmo->y_field_multi1 = -y_percent_multipler;
-        top_right_gizmo->x_field_multi1 = x_percent_multipler;
-        top_right_gizmo->y_field_multi1 = -y_percent_multipler;
-        bottom_left_gizmo->x_field_multi1 = -x_percent_multipler;
-        bottom_left_gizmo->y_field_multi1 = y_percent_multipler;
-        bottom_center_gizmo->y_field_multi1 = y_percent_multipler;
-        bottom_right_gizmo->x_field_multi1 = x_percent_multipler;
-        bottom_right_gizmo->y_field_multi1 = y_percent_multipler;
-        left_center_gizmo->x_field_multi1 = -x_percent_multipler;
-        right_center_gizmo->x_field_multi1 = x_percent_multipler;
-        rotate_gizmo->x_field_multi1 = x_percent_multipler;
+		double x_percent_multipler = 200.0 / parent_clip->sequence->width;
+		double y_percent_multipler = 200.0 / parent_clip->sequence->height;
+		top_left_gizmo->x_field_multi1 = -x_percent_multipler;
+		top_left_gizmo->y_field_multi1 = -y_percent_multipler;
+		top_center_gizmo->y_field_multi1 = -y_percent_multipler;
+		top_right_gizmo->x_field_multi1 = x_percent_multipler;
+		top_right_gizmo->y_field_multi1 = -y_percent_multipler;
+		bottom_left_gizmo->x_field_multi1 = -x_percent_multipler;
+		bottom_left_gizmo->y_field_multi1 = y_percent_multipler;
+		bottom_center_gizmo->y_field_multi1 = y_percent_multipler;
+		bottom_right_gizmo->x_field_multi1 = x_percent_multipler;
+		bottom_right_gizmo->y_field_multi1 = y_percent_multipler;
+		left_center_gizmo->x_field_multi1 = -x_percent_multipler;
+		right_center_gizmo->x_field_multi1 = x_percent_multipler;
+		rotate_gizmo->x_field_multi1 = x_percent_multipler;
 	}
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {
 	scale_y->set_enabled(!enabled);
 
-    top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
-    bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
-    top_left_gizmo->y_field1 = enabled ? NULL : scale_y;
-    top_right_gizmo->y_field1 = enabled ? NULL : scale_y;
-    bottom_left_gizmo->y_field1 = enabled ? NULL : scale_y;
-    bottom_right_gizmo->y_field1 = enabled ? NULL : scale_y;
+	top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
+	bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
+	top_left_gizmo->y_field1 = enabled ? NULL : scale_y;
+	top_right_gizmo->y_field1 = enabled ? NULL : scale_y;
+	bottom_left_gizmo->y_field1 = enabled ? NULL : scale_y;
+	bottom_right_gizmo->y_field1 = enabled ? NULL : scale_y;
 }
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {
@@ -188,51 +188,51 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	coords.vertexBottomRightY -= anchor_y_offset;
 
 	// rotation
-    glRotatef(rotation->get_double_value(timecode), 0, 0, 1);
+	glRotatef(rotation->get_double_value(timecode), 0, 0, 1);
 
 	// scale
 	float sx = scale_x->get_double_value(timecode)*0.01;
 	float sy = (uniform_scale_field->get_bool_value(timecode)) ? sx : scale_y->get_double_value(timecode)*0.01;
-    glScalef(sx, sy, 1);
+	glScalef(sx, sy, 1);
 
-    // blend mode
+	// blend mode
 	switch (blend_mode_box->get_combo_data(timecode).toInt()) {
-    case BLEND_MODE_NORMAL:
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        break;
-    case BLEND_MODE_OVERLAY:
+	case BLEND_MODE_NORMAL:
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	case BLEND_MODE_OVERLAY:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        break;
-    case BLEND_MODE_SCREEN:
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-        break;
-    case BLEND_MODE_MULTIPLY:
+		break;
+	case BLEND_MODE_SCREEN:
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+		break;
+	case BLEND_MODE_MULTIPLY:
 		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-        break;
-    default:
+		break;
+	default:
 		dout << "[ERROR] Invalid blend mode. This is a bug - please contact developers";
-    }
+	}
 
 	// opacity
-    float color[4];
-    glGetFloatv(GL_CURRENT_COLOR, color);
-    glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
+	float color[4];
+	glGetFloatv(GL_CURRENT_COLOR, color);
+	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
 }
 
 void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
-    top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-    top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
-    top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-    right_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
-    bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-    bottom_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
-    bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
-    left_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
+	top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
+	top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
+	top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
+	right_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
+	bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
+	bottom_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
+	bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+	left_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
 
-    rotate_gizmo->world_pos[0] = QPoint(lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), -0.1), lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1));
+	rotate_gizmo->world_pos[0] = QPoint(lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), -0.1), lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1));
 
-    rect_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-    rect_gizmo->world_pos[1] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-    rect_gizmo->world_pos[2] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-    rect_gizmo->world_pos[3] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+	rect_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
+	rect_gizmo->world_pos[1] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
+	rect_gizmo->world_pos[2] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
+	rect_gizmo->world_pos[3] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
 }

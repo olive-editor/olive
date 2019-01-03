@@ -59,10 +59,13 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 	left_tool_layout->addStretch();
 
 	linear_button = new QPushButton("Linear");
+	linear_button->setProperty("type", KEYFRAME_TYPE_LINEAR);
 	linear_button->setCheckable(true);
 	bezier_button = new QPushButton("Bezier");
+	bezier_button->setProperty("type", KEYFRAME_TYPE_BEZIER);
 	bezier_button->setCheckable(true);
 	hold_button = new QPushButton("Hold");
+	hold_button->setProperty("type", KEYFRAME_TYPE_HOLD);
 	hold_button->setCheckable(true);
 
 	center_tool_layout->addStretch();
@@ -91,9 +94,6 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 	value_widget->setLayout(values);
 	values->addStretch();
 
-	current_row_desc = new QLabel();
-	values->addWidget(current_row_desc);
-
 	QWidget* central_value_widget = new QWidget();
 	value_layout = new QHBoxLayout();
 	value_layout->setMargin(0);
@@ -103,9 +103,18 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 	values->addStretch();
 	layout->addWidget(value_widget);
 
+	current_row_desc = new QLabel();
+	current_row_desc->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	current_row_desc->setAlignment(Qt::AlignCenter);
+	layout->addWidget(current_row_desc);
+
 	connect(view, SIGNAL(zoom_changed(double)), header, SLOT(update_zoom(double)));
 	connect(view, SIGNAL(x_scroll_changed(int)), header, SLOT(set_scroll(int)));
-	connect(view, SIGNAL(selection_changed(bool)), this, SLOT(set_key_button_enabled(bool)));
+	connect(view, SIGNAL(selection_changed(bool, int)), this, SLOT(set_key_button_enabled(bool, int)));
+
+	connect(linear_button, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_type()));
+	connect(bezier_button, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_type()));
+	connect(hold_button, SIGNAL(clicked(bool)), this, SLOT(set_keyframe_type()));
 }
 
 void GraphEditor::update_panel() {
@@ -129,8 +138,10 @@ void GraphEditor::update_panel() {
 void GraphEditor::set_row(EffectRow *r) {
 	for (int i=0;i<slider_proxies.size();i++) {
 		delete slider_proxies.at(i);
+		delete slider_proxy_buttons.at(i);
 	}
 	slider_proxies.clear();
+	slider_proxy_buttons.clear();
 	slider_proxy_sources.clear();
 
 	if (row != NULL) {
@@ -146,10 +157,20 @@ void GraphEditor::set_row(EffectRow *r) {
 		for (int i=0;i<r->fieldCount();i++) {
 			EffectField* field = r->field(i);
 			if (field->type == EFFECT_FIELD_DOUBLE) {
+				QPushButton* slider_button = new QPushButton();
+				slider_button->setCheckable(true);
+				slider_button->setChecked(true);
+				slider_button->setIcon(QIcon(":/icons/record.png"));
+				slider_button->setProperty("field", i);
+				slider_button->setIconSize(QSize(8, 8));
+				slider_button->setMaximumSize(QSize(12, 12));
+				connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));
+				slider_proxy_buttons.append(slider_button);
+				value_layout->addWidget(slider_button);
+
 				LabelSlider* slider = new LabelSlider();
 				slider->set_color(get_curve_color(i, r->fieldCount()).name());
 				connect(slider, SIGNAL(valueChanged()), this, SLOT(passthrough_slider_value()));
-
 				slider_proxies.append(slider);
 				value_layout->addWidget(slider);
 
@@ -175,10 +196,13 @@ void GraphEditor::set_row(EffectRow *r) {
 	update_panel();
 }
 
-void GraphEditor::set_key_button_enabled(bool e) {
+void GraphEditor::set_key_button_enabled(bool e, int type) {
 	linear_button->setEnabled(e);
+	linear_button->setChecked(type == KEYFRAME_TYPE_LINEAR);
 	bezier_button->setEnabled(e);
+	bezier_button->setChecked(type == KEYFRAME_TYPE_BEZIER);
 	hold_button->setEnabled(e);
+	hold_button->setChecked(type == KEYFRAME_TYPE_HOLD);
 }
 
 void GraphEditor::passthrough_slider_value() {
@@ -187,4 +211,15 @@ void GraphEditor::passthrough_slider_value() {
 			slider_proxy_sources.at(i)->set_value(slider_proxies.at(i)->value(), true);
 		}
 	}
+}
+
+void GraphEditor::set_keyframe_type() {
+	linear_button->setChecked(linear_button == sender());
+	bezier_button->setChecked(bezier_button == sender());
+	hold_button->setChecked(hold_button == sender());
+	view->set_selected_keyframe_type(sender()->property("type").toInt());
+}
+
+void GraphEditor::set_field_visibility(bool b) {
+	view->set_field_visibility(sender()->property("field").toInt(), b);
 }
