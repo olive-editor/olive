@@ -116,11 +116,11 @@ double get_timecode(Clip* c, long playhead) {
 
 void get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
-        FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+        const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 
         int64_t target_pts = qMax(static_cast<int64_t>(0), playhead_to_timestamp(c, playhead));
         int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
-		if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
+        if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 			target_pts *= 2;
 			second_pts *= 2;
 		}
@@ -132,7 +132,7 @@ void get_clip_frame(Clip* c, long playhead) {
 
 		c->queue_lock.lock();
 		if (c->queue.size() > 0) {
-			if (ms->infinite_length) {
+            if (ms->infinite_length) {
 				target_frame = c->queue.at(0);
 #ifdef GCF_DEBUG
 				dout << "GCF ==> USE PRECISE (INFINITE)";

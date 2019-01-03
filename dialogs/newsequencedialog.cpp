@@ -42,7 +42,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
 				break;
 			}
 		}
-		lineEdit->setText(existing_sequence->name);
+        sequence_name_edit->setText(existing_sequence->name);
 		for (int i=0;i<audio_frequency_combobox->count();i++) {
 			if (audio_frequency_combobox->itemData(i) == existing_sequence->audio_frequency) {
 				audio_frequency_combobox->setCurrentIndex(i);
@@ -59,14 +59,14 @@ NewSequenceDialog::~NewSequenceDialog()
 {}
 
 void NewSequenceDialog::set_sequence_name(const QString& s) {
-	lineEdit->setText(s);
+    sequence_name_edit->setText(s);
 }
 
 void NewSequenceDialog::create() {
 	if (existing_sequence == NULL) {
 		Sequence* s = new Sequence();
 
-		s->name = lineEdit->text();
+        s->name = sequence_name_edit->text();
 		s->width = width_numeric->value();
 		s->height = height_numeric->value();
 		s->frame_rate = frame_rate_combobox->currentData().toDouble();
@@ -82,7 +82,7 @@ void NewSequenceDialog::create() {
 		double multiplier = frame_rate_combobox->currentData().toDouble() / existing_sequence->frame_rate;
 
 		EditSequenceCommand* esc = new EditSequenceCommand(existing_item, existing_sequence);
-		esc->name = lineEdit->text();
+        esc->name = sequence_name_edit->text();
 		esc->width = width_numeric->value();
 		esc->height = height_numeric->value();
 		esc->frame_rate = frame_rate_combobox->currentData().toDouble();
@@ -154,10 +154,10 @@ void NewSequenceDialog::setup_ui() {
 
 	QWidget* widget = new QWidget(this);
 
-	QHBoxLayout* horizontalLayout_2 = new QHBoxLayout(widget);
-	horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+    QHBoxLayout* preset_layout = new QHBoxLayout(widget);
+    preset_layout->setContentsMargins(0, 0, 0, 0);
 
-	horizontalLayout_2->addWidget(new QLabel("Preset:"));
+    preset_layout->addWidget(new QLabel("Preset:"));
 
 	preset_combobox = new QComboBox(widget);
 
@@ -174,75 +174,65 @@ void NewSequenceDialog::setup_ui() {
 	preset_combobox->addItem("Custom");
 	preset_combobox->setCurrentIndex(2);
 
-	horizontalLayout_2->addWidget(preset_combobox);
+    preset_layout->addWidget(preset_combobox);
 
 	verticalLayout->addWidget(widget);
 
-	QGroupBox* groupBox = new QGroupBox(this);
-	groupBox->setTitle("Video");
+    QGroupBox* videoGroupBox = new QGroupBox(this);
+    videoGroupBox->setTitle("Video");
 
-	QGridLayout* gridLayout = new QGridLayout(groupBox);
+    QGridLayout* videoLayout = new QGridLayout(videoGroupBox);
 
-	height_numeric = new QSpinBox(groupBox);
+    videoLayout->addWidget(new QLabel("Width:"), 0, 0, 1, 1);
+    width_numeric = new QSpinBox(videoGroupBox);
+    width_numeric->setMaximum(9999);
+    width_numeric->setValue(1920);
+    videoLayout->addWidget(width_numeric, 0, 2, 1, 2);
+
+    videoLayout->addWidget(new QLabel("Height:"), 1, 0, 1, 2);
+    height_numeric = new QSpinBox(videoGroupBox);
 	height_numeric->setMaximum(9999);
 	height_numeric->setValue(1080);
+    videoLayout->addWidget(height_numeric, 1, 2, 1, 2);
 
-	gridLayout->addWidget(height_numeric, 1, 2, 1, 2);
+    videoLayout->addWidget(new QLabel("Frame Rate:"), 2, 0, 1, 1);
+    frame_rate_combobox = new QComboBox(videoGroupBox);
+    frame_rate_combobox->addItem("10 FPS", 10.0);
+    frame_rate_combobox->addItem("12.5 FPS", 12.5);
+    frame_rate_combobox->addItem("15 FPS", 15.0);
+    frame_rate_combobox->addItem("23.976 FPS", 23.976);
+    frame_rate_combobox->addItem("24 FPS", 24.0);
+    frame_rate_combobox->addItem("25 FPS", 25.0);
+    frame_rate_combobox->addItem("29.97 FPS", 29.97);
+    frame_rate_combobox->addItem("30 FPS", 30.0);
+    frame_rate_combobox->addItem("50 FPS", 50.0);
+    frame_rate_combobox->addItem("59.94 FPS", 59.94);
+    frame_rate_combobox->addItem("60 FPS", 60.0);
+    frame_rate_combobox->setCurrentIndex(6);
+    videoLayout->addWidget(frame_rate_combobox, 2, 2, 1, 2);
 
-	width_numeric = new QSpinBox(groupBox);
-	width_numeric->setMaximum(9999);
-	width_numeric->setValue(1920);
+    videoLayout->addWidget(new QLabel("Pixel Aspect Ratio:"), 4, 0, 1, 1);
+    par_combobox = new QComboBox(videoGroupBox);
+    par_combobox->addItem("Square Pixels (1.0)");
+    videoLayout->addWidget(par_combobox, 4, 2, 1, 2);
 
-	gridLayout->addWidget(width_numeric, 0, 2, 1, 2);
-
-	gridLayout->addWidget(new QLabel("Width:"), 0, 0, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Pixel Aspect Ratio:"), 4, 0, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Interlacing:"), 6, 0, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Height:"), 1, 0, 1, 2);
-
-	par_combobox = new QComboBox(groupBox);
-	par_combobox->addItem("Square Pixels (1.0)");
-
-	gridLayout->addWidget(par_combobox, 4, 2, 1, 2);
-
-	interlacing_combobox = new QComboBox(groupBox);
+    videoLayout->addWidget(new QLabel("Interlacing:"), 6, 0, 1, 1);
+    interlacing_combobox = new QComboBox(videoGroupBox);
 	interlacing_combobox->addItem("None (Progressive)");
-	interlacing_combobox->addItem("Upper Field First");
-	interlacing_combobox->addItem("Lower Field First");
+//	interlacing_combobox->addItem("Upper Field First");
+//	interlacing_combobox->addItem("Lower Field First");
+    videoLayout->addWidget(interlacing_combobox, 6, 2, 1, 2);
 
-	gridLayout->addWidget(interlacing_combobox, 6, 2, 1, 2);
+    verticalLayout->addWidget(videoGroupBox);
 
-	frame_rate_combobox = new QComboBox(groupBox);
-	frame_rate_combobox->addItem("10 FPS", 10.0);
-	frame_rate_combobox->addItem("12.5 FPS", 12.5);
-	frame_rate_combobox->addItem("15 FPS", 15.0);
-	frame_rate_combobox->addItem("23.976 FPS", 23.976);
-	frame_rate_combobox->addItem("24 FPS", 24.0);
-	frame_rate_combobox->addItem("25 FPS", 25.0);
-	frame_rate_combobox->addItem("29.97 FPS", 29.97);
-	frame_rate_combobox->addItem("30 FPS", 30.0);
-	frame_rate_combobox->addItem("50 FPS", 50.0);
-	frame_rate_combobox->addItem("59.94 FPS", 59.94);
-	frame_rate_combobox->addItem("60 FPS", 60.0);
-	frame_rate_combobox->setCurrentIndex(6);
+    QGroupBox* audioGroupBox = new QGroupBox(this);
+    audioGroupBox->setTitle("Audio");
 
-	gridLayout->addWidget(frame_rate_combobox, 2, 2, 1, 2);
+    QGridLayout* audioLayout = new QGridLayout(audioGroupBox);
 
-	gridLayout->addWidget(new QLabel("Frame Rate:"), 2, 0, 1, 1);
+    audioLayout->addWidget(new QLabel("Sample Rate: "), 0, 0, 1, 1);
 
-	verticalLayout->addWidget(groupBox);
-
-	QGroupBox* groupBox_2 = new QGroupBox(this);
-	groupBox_2->setTitle("Audio");
-
-	QGridLayout* gridLayout_2 = new QGridLayout(groupBox_2);
-
-	gridLayout_2->addWidget(new QLabel("Sample Rate: "), 0, 0, 1, 1);
-
-	audio_frequency_combobox = new QComboBox(groupBox_2);
+    audio_frequency_combobox = new QComboBox(audioGroupBox);
 	audio_frequency_combobox->addItem("22050 Hz", 22050);
 	audio_frequency_combobox->addItem("24000 Hz", 24000);
 	audio_frequency_combobox->addItem("32000 Hz", 32000);
@@ -252,21 +242,21 @@ void NewSequenceDialog::setup_ui() {
 	audio_frequency_combobox->addItem("96000 Hz", 96000);
 	audio_frequency_combobox->setCurrentIndex(4);
 
-	gridLayout_2->addWidget(audio_frequency_combobox, 0, 1, 1, 1);
+    audioLayout->addWidget(audio_frequency_combobox, 0, 1, 1, 1);
 
-	verticalLayout->addWidget(groupBox_2);
+    verticalLayout->addWidget(audioGroupBox);
 
-	QWidget* widget_2 = new QWidget(this);
-	QHBoxLayout* horizontalLayout = new QHBoxLayout(widget_2);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
+    QWidget* nameWidget = new QWidget(this);
+    QHBoxLayout* nameLayout = new QHBoxLayout(nameWidget);
+    nameLayout->setContentsMargins(0, 0, 0, 0);
 
-	horizontalLayout->addWidget(new QLabel("Name:"));
+    nameLayout->addWidget(new QLabel("Name:"));
 
-	lineEdit = new QLineEdit(widget_2);
+    sequence_name_edit = new QLineEdit(nameWidget);
 
-	horizontalLayout->addWidget(lineEdit);
+    nameLayout->addWidget(sequence_name_edit);
 
-	verticalLayout->addWidget(widget_2);
+    verticalLayout->addWidget(nameWidget);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
 	buttonBox->setOrientation(Qt::Horizontal);

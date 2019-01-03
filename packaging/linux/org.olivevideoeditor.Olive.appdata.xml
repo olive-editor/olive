@@ -3,7 +3,7 @@
   <id>org.olivevideoeditor.Olive</id>
   <name>Olive</name>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPLv3</project_license>
+  <project_license>GPL-3.0</project_license>
   <developer_name>Olive Team</developer_name>
   <summary>Non-linear video editor</summary>
   <summary xml:lang="pt_BR">Editor de vídeo não-linear</summary>
@@ -15,9 +15,9 @@
   <description xml:lang="ru"><p>Olive — свободный нелинейный видеоредактор, задуманный как полноценная замена закрытым коммерческим продуктам.</p></description>
   <url type="homepage">https://www.olivevideoeditor.org</url>
   <url type="donation">https://www.patreon.com/olivevideoeditor</url>
-  <url type="help">https://github.com/olive-editor/olive/issues</url>
+  <url type="bugtracker">https://github.com/olive-editor/olive/issues</url>
   <screenshots>
-    <screenshot type="default"><image>http://images.libregraphicsworld.org/video/2018/12/introducing-olive/olive-alpha-main-window.jpg</image></screenshot>
+    <screenshot type="default"><image>https://olivevideoeditor.org/img/screenshot.jpg</image></screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>

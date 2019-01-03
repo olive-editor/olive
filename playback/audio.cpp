@@ -8,6 +8,7 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "ui/audiomonitor.h"
+#include "playback/playback.h"
 #include "debug.h"
 
 #include <QApplication>
@@ -106,9 +107,13 @@ void clear_audio_ibuffer() {
 	if (audio_thread != NULL) audio_thread->lock.unlock();
 }
 
+int current_audio_freq() {
+	return rendering ? sequence->audio_frequency : audio_output->format().sampleRate();
+}
+
 int get_buffer_offset_from_frame(double framerate, long frame) {
 	if (frame >= audio_ibuffer_frame) {
-		return qFloor(((double) (frame - audio_ibuffer_frame)/framerate)*audio_output->format().sampleRate())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+		return qFloor(((double) (frame - audio_ibuffer_frame)/framerate)*current_audio_freq())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
 	} else {
 		dout << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
 		return 0;

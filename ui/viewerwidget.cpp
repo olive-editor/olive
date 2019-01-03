@@ -485,7 +485,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 					Footage* m = c->media->to_footage();
 					if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
 						if (m->ready) {
-							FootageStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
+                            const FootageStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
 							if (ms != NULL && is_clip_active(c, playhead)) {
 								// if thread is already working, we don't want to touch this,
 								// but we also don't want to hang the UI thread

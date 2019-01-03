@@ -36,8 +36,8 @@ private:
 	bool replace;
 	bool cancelled;
 	QString data_path;
-	QString get_thumbnail_path(const QString &hash, FootageStream* ms);
-	QString get_waveform_path(const QString& hash, FootageStream* ms);
+    QString get_thumbnail_path(const QString &hash, const FootageStream &ms);
+    QString get_waveform_path(const QString& hash, const FootageStream &ms);
 };
 
 #endif // PREVIEWGENERATOR_H

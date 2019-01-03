@@ -1272,9 +1272,9 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 		Clip* c = NULL;
 		if (g.clip != -1) c = sequence->clips.at(g.clip);
 
-		FootageStream* ms = NULL;
+        const FootageStream* ms = NULL;
 		if (g.clip != -1 && c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
-			ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+            ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		}
 
 		// validate ghosts for trimming
@@ -2145,7 +2145,7 @@ int color_brightness(int r, int g, int b) {
 	return (0.2126*r + 0.7152*g + 0.0722*b);
 }
 
-void draw_waveform(Clip* clip, FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
+void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
 	int divider = ms->audio_channels*2;
 	int channel_height = clip_rect.height()/ms->audio_channels;
 

@@ -181,13 +181,13 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 			if (m->ready) {
 				if (!got_video_values) {
 					for (int j=0;j<m->video_tracks.size();j++) {
-						FootageStream* ms = m->video_tracks.at(j);
-						s->width = ms->video_width;
-						s->height = ms->video_height;
-						if (ms->video_frame_rate != 0) {
-							s->frame_rate = ms->video_frame_rate;
+                        const FootageStream& ms = m->video_tracks.at(j);
+                        s->width = ms.video_width;
+                        s->height = ms.video_height;
+                        if (ms.video_frame_rate != 0) {
+                            s->frame_rate = ms.video_frame_rate;
 
-							if (ms->video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
+                            if (ms.video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
 
 							// only break with a decent frame rate, otherwise there may be a better candidate
 							got_video_values = true;
@@ -197,8 +197,8 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 				}
 				if (!got_audio_values) {
 					for (int j=0;j<m->audio_tracks.size();j++) {
-						FootageStream* ms = m->audio_tracks.at(j);
-						s->audio_frequency = ms->audio_frequency;
+                        const FootageStream& ms = m->audio_tracks.at(j);
+                        s->audio_frequency = ms.audio_frequency;
 						got_audio_values = true;
 						break;
 					}
@@ -853,22 +853,22 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					stream.writeAttribute("in", QString::number(f->in));
 					stream.writeAttribute("out", QString::number(f->out));
 					for (int j=0;j<f->video_tracks.size();j++) {
-						FootageStream* ms = f->video_tracks.at(j);
+                        const FootageStream& ms = f->video_tracks.at(j);
 						stream.writeStartElement("video");
-						stream.writeAttribute("id", QString::number(ms->file_index));
-						stream.writeAttribute("width", QString::number(ms->video_width));
-						stream.writeAttribute("height", QString::number(ms->video_height));
-						stream.writeAttribute("framerate", QString::number(ms->video_frame_rate, 'f', 10));
-						stream.writeAttribute("infinite", QString::number(ms->infinite_length));
+                        stream.writeAttribute("id", QString::number(ms.file_index));
+                        stream.writeAttribute("width", QString::number(ms.video_width));
+                        stream.writeAttribute("height", QString::number(ms.video_height));
+                        stream.writeAttribute("framerate", QString::number(ms.video_frame_rate, 'f', 10));
+                        stream.writeAttribute("infinite", QString::number(ms.infinite_length));
 						stream.writeEndElement();
 					}
 					for (int j=0;j<f->audio_tracks.size();j++) {
-						FootageStream* ms = f->audio_tracks.at(j);
+                        const FootageStream& ms = f->audio_tracks.at(j);
 						stream.writeStartElement("audio");
-						stream.writeAttribute("id", QString::number(ms->file_index));
-						stream.writeAttribute("channels", QString::number(ms->audio_channels));
-						stream.writeAttribute("layout", QString::number(ms->audio_layout));
-						stream.writeAttribute("frequency", QString::number(ms->audio_frequency));
+                        stream.writeAttribute("id", QString::number(ms.file_index));
+                        stream.writeAttribute("channels", QString::number(ms.audio_channels));
+                        stream.writeAttribute("layout", QString::number(ms.audio_layout));
+                        stream.writeAttribute("frequency", QString::number(ms.audio_frequency));
 						stream.writeEndElement();
 					}
 					stream.writeEndElement();

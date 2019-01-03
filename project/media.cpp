@@ -104,21 +104,21 @@ void Media::update_tooltip(const QString& error) {
                     if (i > 0) {
                         tooltip += ", ";
                     }
-                    tooltip += QString::number(f->video_tracks.at(i)->video_width) + "x" + QString::number(f->video_tracks.at(i)->video_height);
+                    tooltip += QString::number(f->video_tracks.at(i).video_width) + "x" + QString::number(f->video_tracks.at(i).video_height);
                 }
                 tooltip += "\n";
 
-                if (!f->video_tracks.at(0)->infinite_length) {
+                if (!f->video_tracks.at(0).infinite_length) {
                     tooltip += "Frame Rate: ";
                     for (int i=0;i<f->video_tracks.size();i++) {
                         if (i > 0) {
                             tooltip += ", ";
                         }
-                        if (f->video_tracks.at(i)->video_interlacing == VIDEO_PROGRESSIVE) {
-                            tooltip += QString::number(f->video_tracks.at(i)->video_frame_rate);
+                        if (f->video_tracks.at(i).video_interlacing == VIDEO_PROGRESSIVE) {
+                            tooltip += QString::number(f->video_tracks.at(i).video_frame_rate);
                         } else {
-                            tooltip += QString::number(f->video_tracks.at(i)->video_frame_rate * 2);
-                            tooltip += " fields (" + QString::number(f->video_tracks.at(i)->video_frame_rate) + " frames)";
+                            tooltip += QString::number(f->video_tracks.at(i).video_frame_rate * 2);
+                            tooltip += " fields (" + QString::number(f->video_tracks.at(i).video_frame_rate) + " frames)";
                         }
                     }
                     tooltip += "\n";
@@ -129,7 +129,7 @@ void Media::update_tooltip(const QString& error) {
                     if (i > 0) {
                         tooltip += ", ";
                     }
-                    tooltip += get_interlacing_name(f->video_tracks.at(i)->video_interlacing);
+                    tooltip += get_interlacing_name(f->video_tracks.at(i).video_interlacing);
                 }
             }
 
@@ -141,7 +141,7 @@ void Media::update_tooltip(const QString& error) {
                     if (i > 0) {
                         tooltip += ", ";
                     }
-                    tooltip += QString::number(f->audio_tracks.at(i)->audio_frequency);
+                    tooltip += QString::number(f->audio_tracks.at(i).audio_frequency);
                 }
                 tooltip += "\n";
 
@@ -150,7 +150,7 @@ void Media::update_tooltip(const QString& error) {
                     if (i > 0) {
                         tooltip += ", ";
                     }
-                    tooltip += get_channel_layout_name(f->audio_tracks.at(i)->audio_channels, f->audio_tracks.at(i)->audio_layout);
+                    tooltip += get_channel_layout_name(f->audio_tracks.at(i).audio_channels, f->audio_tracks.at(i).audio_layout);
                 }
                 // tooltip += "\n";
             }
@@ -202,8 +202,8 @@ double Media::get_frame_rate(int stream) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
 		Footage* f = to_footage();
-		if (stream < 0) return f->video_tracks.at(0)->video_frame_rate;
-		return f->get_stream_from_file_index(true, stream)->video_frame_rate;
+        if (stream < 0) return f->video_tracks.at(0).video_frame_rate;
+        return f->get_stream_from_file_index(true, stream)->video_frame_rate;
 	}
     case MEDIA_TYPE_SEQUENCE: return to_sequence()->frame_rate;
     }
@@ -215,8 +215,8 @@ int Media::get_sampling_rate(int stream) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
 		Footage* f = to_footage();
-		if (stream < 0) return f->audio_tracks.at(0)->audio_frequency;
-		return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency;
+        if (stream < 0) return f->audio_tracks.at(0).audio_frequency;
+        return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency;
 	}
     case MEDIA_TYPE_SEQUENCE: return to_sequence()->audio_frequency;
     }
@@ -258,8 +258,8 @@ QVariant Media::data(int column, int role) {
             if (get_type() == MEDIA_TYPE_FOOTAGE) {
                 Footage* f = to_footage();
                 if (f->video_tracks.size() > 0
-                        && f->video_tracks.at(0)->preview_done) {
-                    return f->video_tracks.at(0)->video_preview_square;
+                        && f->video_tracks.at(0).preview_done) {
+                    return f->video_tracks.at(0).video_preview_square;
                 }
             }
 
@@ -279,7 +279,8 @@ QVariant Media::data(int column, int role) {
                 Footage* f = to_footage();
                 double r = 30;
 
-				if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0)->video_frame_rate)) r = f->video_tracks.at(0)->video_frame_rate;
+                if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0).video_frame_rate))
+                    r = f->video_tracks.at(0).video_frame_rate;
 
 				long len = f->get_length_in_frames(r);
 				if (len > 0) return frame_to_timecode(len, config.timecode_view, r);
