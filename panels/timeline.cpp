@@ -1355,12 +1355,21 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 }
 
 void Timeline::set_marker() {
-	QInputDialog d(this);
-	d.setWindowTitle("Set Marker");
-	d.setLabelText("Set marker name:");
-	d.setInputMode(QInputDialog::TextInput);
-	if (d.exec() == QDialog::Accepted) {
-		undo_stack.push(new AddMarkerAction(sequence, sequence->playhead, d.textValue()));
+	bool add_marker = !config.set_name_with_marker;
+	QString marker_name;
+
+	if (!add_marker) {
+		QInputDialog d(this);
+		d.setWindowTitle("Set Marker");
+		d.setLabelText("Set marker name:");
+		d.setInputMode(QInputDialog::TextInput);
+		add_marker = (d.exec() == QDialog::Accepted);
+		marker_name = d.textValue();
+	}
+
+
+	if (add_marker) {
+		undo_stack.push(new AddMarkerAction(sequence, sequence->playhead, marker_name));
 	}
 }
 

@@ -94,6 +94,8 @@ void MainWindow::setup_layout(bool reset) {
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 {
+	enable_launch_with_project = false;
+
 	setup_debug();
 
 	mainWindow = this;
@@ -204,8 +206,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		autorecovery_filename = data_dir + "/autorecovery.ove";
 		if (QFile::exists(autorecovery_filename)) {
 			if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-				updateTitle(autorecovery_filename);
-				panel_project->load_project(true);
+				open_project_worker(autorecovery_filename, true);
 			}
 		}
 		autorecovery_timer.setInterval(60000);
@@ -221,6 +222,11 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow() {
 	free_panels();
 	close_debug();
+}
+
+void MainWindow::launch_with_project(const char* s) {
+	project_url = s;
+	enable_launch_with_project = true;
 }
 
 void MainWindow::make_new_menu(QMenu *parent) {
@@ -708,6 +714,10 @@ void MainWindow::setup_menus() {
 	enable_hover_focus->setCheckable(true);
 	enable_hover_focus->setData(reinterpret_cast<quintptr>(&config.hover_focus));
 
+	set_name_and_marker = tools_menu->addAction("Ask For Name When Setting Marker", this, SLOT(toggle_bool_action()));
+	set_name_and_marker->setCheckable(true);
+	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
+
 	tools_menu->addSeparator();
 
 	no_autoscroll = tools_menu->addAction("No Auto-Scroll", this, SLOT(set_autoscroll()));
@@ -797,6 +807,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 void MainWindow::paintEvent(QPaintEvent *event) {
 	QMainWindow::paintEvent(event);
+	if (enable_launch_with_project) {
+		QTimer::singleShot(10, this, SLOT(load_with_launch()));
+		enable_launch_with_project = false;
+	}
 #ifndef QT_DEBUG
 	if (!demoNoticeShown) {
 		DemoNotice* d = new DemoNotice(this);
@@ -813,10 +827,18 @@ void MainWindow::clear_undo_stack() {
 void MainWindow::open_project() {
 	QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
 	if (!fn.isEmpty() && can_close_project()) {
-		updateTitle(fn);
-		panel_project->load_project(false);
-		undo_stack.clear();
+		open_project_worker(fn, false);
 	}
+}
+
+void MainWindow::open_project_worker(const QString& fn, bool autorecovery) {
+	updateTitle(fn);
+	panel_project->load_project(autorecovery);
+	undo_stack.clear();
+}
+
+void MainWindow::load_with_launch() {
+	open_project_worker(project_url, false);
 }
 
 void MainWindow::reset_layout() {
@@ -957,6 +979,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_audio_scrubbing);
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
+	set_bool_action_checked(set_name_and_marker);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);
@@ -1014,8 +1037,7 @@ void MainWindow::load_recent_project() {
 			panel_project->save_recent_projects();
 		}
 	} else if (can_close_project()) {
-		updateTitle(recent_url);
-		panel_project->load_project(false);
+		open_project_worker(recent_url, false);
 	}
 }
 
@@ -1248,8 +1270,4 @@ void MainWindow::set_timecode_view() {
 	QAction* action = static_cast<QAction*>(sender());
 	config.timecode_view = action->data().toInt();
 	update_ui(false);
-}
-
-void MainWindow::on_actionGraph_Editor_triggered() {
-	panel_graph_editor->setVisible(!panel_graph_editor->isVisible());
 }
