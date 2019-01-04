@@ -18,7 +18,9 @@ public:
 	GraphEditor(QWidget* parent = 0);
 	void update_panel();
 	void set_row(EffectRow* r);
-    bool view_is_focused();
+	bool view_is_focused();
+	void delete_selected_keys();
+	void select_all();
 private:
 	GraphView* view;
 	TimelineHeader* header;

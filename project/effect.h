@@ -23,7 +23,6 @@ class QXmlStreamWriter;
 class Effect;
 class EffectRow;
 class CheckboxEx;
-class KeyframeDelete;
 
 struct EffectMeta {
 	QString name;

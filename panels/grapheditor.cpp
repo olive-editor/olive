@@ -202,6 +202,14 @@ bool GraphEditor::view_is_focused() {
 	return view->hasFocus() || header->hasFocus();
 }
 
+void GraphEditor::delete_selected_keys() {
+	view->delete_selected_keys();
+}
+
+void GraphEditor::select_all() {
+	view->select_all();
+}
+
 void GraphEditor::set_key_button_enabled(bool e, int type) {
 	linear_button->setEnabled(e);
 	linear_button->setChecked(type == KEYFRAME_TYPE_LINEAR);

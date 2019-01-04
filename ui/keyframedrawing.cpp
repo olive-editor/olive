@@ -4,10 +4,14 @@
 
 #define KEYFRAME_POINT_COUNT 4
 
-void draw_keyframe(QPainter &p, int type, int x, int y, bool darker) {
-	int color = (darker) ? 100 : 160;
+void draw_keyframe(QPainter &p, int type, int x, int y, bool darker, int r, int g, int b) {
+	if (darker) {
+		r *= 0.625;
+		g *= 0.625;
+		b *= 0.625;
+	}
 	p.setPen(QColor(0, 0, 0));
-	p.setBrush(QColor(color, color, color));
+	p.setBrush(QColor(r, g, b));
 
 	switch (type) {
 	case KEYFRAME_TYPE_LINEAR:
@@ -24,5 +28,5 @@ void draw_keyframe(QPainter &p, int type, int x, int y, bool darker) {
 		break;
 	}
 
-    p.setBrush(Qt::NoBrush);
+	p.setBrush(Qt::NoBrush);
 }

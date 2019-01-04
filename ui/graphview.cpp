@@ -56,6 +56,18 @@ GraphView::GraphView(QWidget* parent) :
 void GraphView::show_context_menu(const QPoint& pos) {
 	QMenu menu(this);
 
+	QAction* zoom_to_selection = menu.addAction("Zoom to Selection");
+	if (selected_keys.size() == 0) {
+		zoom_to_selection->setEnabled(false);
+	} else {
+		connect(zoom_to_selection, SIGNAL(triggered(bool)), this, SLOT(set_view_to_selection()));
+	}
+
+	QAction* zoom_to_all = menu.addAction("Zoom to Show All");
+	connect(zoom_to_all, SIGNAL(triggered(bool)), this, SLOT(set_view_to_all()));
+
+	menu.addSeparator();
+
 	QAction* reset_action = menu.addAction("Reset View");
 	connect(reset_action, SIGNAL(triggered(bool)), this, SLOT(reset_view()));
 
@@ -68,6 +80,61 @@ void GraphView::reset_view() {
 	set_scroll_y(0);
 	emit zoom_changed(zoom);
 	update();
+}
+
+void GraphView::set_view_to_selection() {
+	if (selected_keys.size() > 0) {
+		long min_time = LONG_MAX;
+		long max_time = LONG_MIN;
+		double min_dbl = DBL_MAX;
+		double max_dbl = DBL_MIN;
+		for (int i=0;i<selected_keys.size();i++) {
+			const EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes.at(selected_keys.at(i));
+			min_time = qMin(key.time, min_time);
+			max_time = qMax(key.time, max_time);
+			min_dbl = qMin(key.data.toDouble(), min_dbl);
+			max_dbl = qMax(key.data.toDouble(), max_dbl);
+		}
+		set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
+	}
+}
+
+void GraphView::set_view_to_all() {
+	bool can_set = false;
+
+	long min_time = LONG_MAX;
+	long max_time = LONG_MIN;
+	double min_dbl = DBL_MAX;
+	double max_dbl = DBL_MIN;
+	for (int i=0;i<row->fieldCount();i++) {
+		for (int j=0;j<row->field(i)->keyframes.size();j++) {
+			const EffectKeyframe& key = row->field(i)->keyframes.at(j);
+			min_time = qMin(key.time, min_time);
+			max_time = qMax(key.time, max_time);
+			min_dbl = qMin(key.data.toDouble(), min_dbl);
+			max_dbl = qMax(key.data.toDouble(), max_dbl);
+			can_set = true;
+		}
+	}
+	if (can_set) {
+		set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
+	}
+}
+
+void GraphView::set_view_to_rect(int x1, double y1, int x2, double y2) {
+	double padding = 1.5;
+	double inverse_padding = 1.0/padding;
+	double x_diff = double(x2 - x1);
+	double y_diff = (y2 - y1);
+	double x_diff_padded = x_diff*padding;
+	double y_diff_padded = y_diff*padding;
+	set_zoom(qMin(double(width()) / x_diff_padded, double(height()) / y_diff_padded));
+
+	set_scroll_x(qRound((double(x1) - ((x_diff_padded-x_diff)/2))*zoom));
+	set_scroll_y(qRound((double(y1) - ((y_diff_padded-y_diff)/2))*zoom));
+
+	//set_scroll_y(height() - y1);
+
 }
 
 void GraphView::draw_line_text(QPainter &p, bool vert, int line_no, int line_pos, int next_line_pos) {
@@ -520,12 +587,39 @@ void GraphView::set_field_visibility(int field, bool b) {
 	update();
 }
 
+void GraphView::delete_selected_keys() {
+	if (row != NULL) {
+		QVector<EffectField*> fields;
+		for (int i=0;i<selected_keys_fields.size();i++) {
+			fields.append(row->field(selected_keys_fields.at(i)));
+		}
+		delete_keyframes(fields, selected_keys);
+	}
+}
+
+void GraphView::select_all() {
+	if (row != NULL) {
+		selected_keys.clear();
+		selected_keys_fields.clear();
+		for (int i=0;i<row->fieldCount();i++) {
+			EffectField* field = row->field(i);
+			for (int j=0;j<field->keyframes.size();j++) {
+				selected_keys.append(j);
+				selected_keys_fields.append(i);
+			}
+		}
+		selection_update();
+	}
+}
+
 void GraphView::set_scroll_x(int s) {
 	x_scroll = s;
 	emit x_scroll_changed(x_scroll);
 }
 
 void GraphView::set_scroll_y(int s) {
+	dout << s << height() << zoom;
+
 	y_scroll = s;
 	emit y_scroll_changed(y_scroll);
 }

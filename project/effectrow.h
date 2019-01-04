@@ -8,7 +8,6 @@ class Effect;
 class QGridLayout;
 class EffectField;
 class QLabel;
-class KeyframeDelete;
 class QPushButton;
 class ComboAction;
 class QHBoxLayout;
@@ -23,8 +22,8 @@ public:
 	EffectField* add_field(int type, const QString &id, int colspan = 1);
 	EffectField* field(int i);
 	int fieldCount();
-    void set_keyframe_now(ComboAction *ca);
-    void delete_keyframe_at_time(ComboAction *ca, long time);
+	void set_keyframe_now(ComboAction *ca);
+	void delete_keyframe_at_time(ComboAction *ca, long time);
 	ClickableLabel* label;
 	Effect* parent_effect;
 	bool savable;

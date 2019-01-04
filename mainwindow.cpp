@@ -206,6 +206,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		autorecovery_filename = data_dir + "/autorecovery.ove";
 		if (QFile::exists(autorecovery_filename)) {
 			if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+				enable_launch_with_project = false;
 				open_project_worker(autorecovery_filename, true);
 			}
 		}
@@ -258,12 +259,16 @@ void MainWindow::delete_slot() {
 		panel_project->delete_selected_media();
 	} else if (panel_effect_controls->keyframe_focus()) {
 		panel_effect_controls->delete_selected_keyframes();
+	} else if (panel_graph_editor->view_is_focused()) {
+		panel_graph_editor->delete_selected_keys();
 	}
 }
 
 void MainWindow::select_all() {
 	if (panel_timeline->focused()) {
 		panel_timeline->select_all();
+	} else if (panel_graph_editor->view_is_focused()) {
+		panel_graph_editor->select_all();
 	}
 }
 

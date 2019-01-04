@@ -23,6 +23,9 @@ public:
 
 	void set_selected_keyframe_type(int type);
 	void set_field_visibility(int field, bool b);
+
+	void delete_selected_keys();
+	void select_all();
 signals:
 	void x_scroll_changed(int);
 	void y_scroll_changed(int);
@@ -75,6 +78,9 @@ private:
 private slots:
 	void show_context_menu(const QPoint& pos);
 	void reset_view();
+	void set_view_to_selection();
+	void set_view_to_all();
+	void set_view_to_rect(int x1, double y1, int x2, double y2);
 };
 
 #endif // GRAPHVIEW_H
