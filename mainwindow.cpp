@@ -96,6 +96,8 @@ void MainWindow::setup_layout(bool reset) {
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 {
+	enable_launch_with_project = false;
+
 	setup_debug();
 
 	mainWindow = this;
@@ -211,8 +213,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		autorecovery_filename = data_dir + "/autorecovery.ove";
 		if (QFile::exists(autorecovery_filename)) {
 			if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-				updateTitle(autorecovery_filename);
-				panel_project->load_project(true);
+				open_project_worker(autorecovery_filename, true);
 			}
 		}
 		autorecovery_timer.setInterval(60000);
@@ -266,6 +267,11 @@ MainWindow::~MainWindow() {
 	panel_timeline = NULL;
 
 	close_debug();
+}
+
+void MainWindow::launch_with_project(const char* s) {
+	project_url = s;
+	enable_launch_with_project = true;
 }
 
 void MainWindow::make_new_menu(QMenu *parent) {
@@ -810,6 +816,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 void MainWindow::paintEvent(QPaintEvent *event) {
 	QMainWindow::paintEvent(event);
+	if (enable_launch_with_project) {
+		QTimer::singleShot(10, this, SLOT(load_with_launch()));
+		enable_launch_with_project = false;
+	}
 #ifndef QT_DEBUG
 	if (!demoNoticeShown) {
 		DemoNotice* d = new DemoNotice(this);
@@ -826,10 +836,18 @@ void MainWindow::clear_undo_stack() {
 void MainWindow::open_project() {
 	QString fn = QFileDialog::getOpenFileName(this, "Open Project...", "", OLIVE_FILE_FILTER);
 	if (!fn.isEmpty() && can_close_project()) {
-		updateTitle(fn);
-		panel_project->load_project(false);
-		undo_stack.clear();
+		open_project_worker(fn, false);
 	}
+}
+
+void MainWindow::open_project_worker(const QString& fn, bool autorecovery) {
+	updateTitle(fn);
+	panel_project->load_project(autorecovery);
+	undo_stack.clear();
+}
+
+void MainWindow::load_with_launch() {
+	open_project_worker(project_url, false);
 }
 
 void MainWindow::reset_layout() {
@@ -1012,8 +1030,7 @@ void MainWindow::load_recent_project() {
 			panel_project->save_recent_projects();
 		}
 	} else if (can_close_project()) {
-		updateTitle(recent_url);
-		panel_project->load_project(false);
+		open_project_worker(recent_url, false);
 	}
 }
 
