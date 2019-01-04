@@ -55,7 +55,7 @@ MainWindow* mainWindow;
 
 QTimer autorecovery_timer;
 QString config_dir;
-QString appName = "Olive (December 2018 | Alpha)";
+QString appName = "Olive (January 2019 | Alpha)";
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout(bool reset) {
