@@ -3,8 +3,8 @@
 
 #include <QString>
 
-#define SAVE_VERSION 181124 // YYMMDD
-#define MIN_SAVE_VERSION 181114 // lowest compatible project version
+#define SAVE_VERSION 190104 // YYMMDD
+#define MIN_SAVE_VERSION 190104 // lowest compatible project version
 
 #define TIMECODE_DROP 0
 #define TIMECODE_NONDROP 1
