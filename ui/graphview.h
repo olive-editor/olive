@@ -55,8 +55,10 @@ private:
 	QVector<long> selected_keys_old_vals;
 	QVector<double> selected_keys_old_doubles;
 
-	double old_handle_x;
-	double old_handle_y;
+	double old_pre_handle_x;
+	double old_pre_handle_y;
+	double old_post_handle_x;
+	double old_post_handle_y;
 
 	bool moved_keys;
 

@@ -17,6 +17,7 @@
 #include "ui/resizablescrollbar.h"
 #include "ui/rectangleselect.h"
 #include "project/keyframe.h"
+#include "ui/graphview.h"
 
 #include <QMouseEvent>
 #include <QtMath>
@@ -113,7 +114,27 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 								if (!key_times.contains(f->keyframes.at(k).time)) {
 									bool keyframe_selected = keyframeIsSelected(f, k);
 									long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time);
-									draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
+
+									// see if any other keyframes have this time
+									bool solo = true;
+									for (int m=0;m<row->fieldCount();m++) {
+										EffectField* compf = row->field(m);
+										for (int n=0;n<compf->keyframes.size();n++) {
+											if (f->keyframes.at(k).time == compf->keyframes.at(n).time
+													&& !(m == l && k == n)) {
+												solo = false;
+												break;
+											}
+										}
+									}
+
+									if (solo) {
+										QColor cc = get_curve_color(l, row->fieldCount());
+										draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected, cc.red(), cc.green(), cc.blue());
+									} else {
+										draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
+									}
+
 									key_times.append(f->keyframes.at(k).time);
 								}
 							}

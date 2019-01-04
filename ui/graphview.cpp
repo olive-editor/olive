@@ -123,11 +123,10 @@ void GraphView::set_view_to_all() {
 
 void GraphView::set_view_to_rect(int x1, double y1, int x2, double y2) {
 	double padding = 1.5;
-	double inverse_padding = 1.0/padding;
 	double x_diff = double(x2 - x1);
 	double y_diff = (y2 - y1);
-	double x_diff_padded = x_diff*padding;
-	double y_diff_padded = y_diff*padding;
+	double x_diff_padded = (x_diff+10)*padding;
+	double y_diff_padded = (y_diff+10)*padding;
 	set_zoom(qMin(double(width()) / x_diff_padded, double(height()) / y_diff_padded));
 
 	set_scroll_x(qRound((double(x1) - ((x_diff_padded-x_diff)/2))*zoom));
@@ -342,29 +341,27 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 					} else {
 						// selecting a handle
 						QPointF pre_point(key_x + key.pre_handle_x*zoom, key_y - key.pre_handle_y*zoom);
+						QPointF post_point(key_x + key.post_handle_x*zoom, key_y - key.post_handle_y*zoom);
 						if (event->pos().x() > pre_point.x()-BEZIER_HANDLE_SIZE
 								&& event->pos().x() < pre_point.x()+BEZIER_HANDLE_SIZE
 								&& event->pos().y() > pre_point.y()-BEZIER_HANDLE_SIZE
 								&& event->pos().y() < pre_point.y()+BEZIER_HANDLE_SIZE) {
+							current_handle = BEZIER_HANDLE_PRE;
+						} else if (event->pos().x() > post_point.x()-BEZIER_HANDLE_SIZE
+								   && event->pos().x() < post_point.x()+BEZIER_HANDLE_SIZE
+								   && event->pos().y() > post_point.y()-BEZIER_HANDLE_SIZE
+								   && event->pos().y() < post_point.y()+BEZIER_HANDLE_SIZE) {
+							current_handle = BEZIER_HANDLE_POST;
+						}
+
+						if (current_handle != BEZIER_HANDLE_NONE) {
 							sel_key = j;
 							sel_key_field = i;
-							old_handle_x = key.pre_handle_x;
-							old_handle_y = key.pre_handle_y;
-							current_handle = BEZIER_HANDLE_PRE;
+							old_pre_handle_x = key.pre_handle_x;
+							old_pre_handle_y = key.pre_handle_y;
+							old_post_handle_x = key.post_handle_x;
+							old_post_handle_y = key.post_handle_y;
 							break;
-						} else {
-							QPointF post_point(key_x + key.post_handle_x*zoom, key_y - key.post_handle_y*zoom);
-							if (event->pos().x() > post_point.x()-BEZIER_HANDLE_SIZE
-									&& event->pos().x() < post_point.x()+BEZIER_HANDLE_SIZE
-									&& event->pos().y() > post_point.y()-BEZIER_HANDLE_SIZE
-									&& event->pos().y() < post_point.y()+BEZIER_HANDLE_SIZE) {
-								sel_key = j;
-								sel_key_field = i;
-								old_handle_x = key.post_handle_x;
-								old_handle_y = key.post_handle_y;
-								current_handle = BEZIER_HANDLE_POST;
-								break;
-							}
 						}
 					}
 				}
@@ -446,12 +443,11 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 			}
 			update();
 		} else {
-			bool shift = (event->modifiers() & Qt::ShiftModifier);
 			switch (current_handle) {
 			case BEZIER_HANDLE_NONE:
 				for (int i=0;i<selected_keys.size();i++) {
 					row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].time = qRound(selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/zoom));
-					if (shift) {
+					if (event->modifiers() & Qt::ShiftModifier) {
 						row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = selected_keys_old_doubles.at(i);
 					} else {
 						row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = qRound(selected_keys_old_doubles.at(i) + (double(start_y - event->pos().y())/zoom));
@@ -461,27 +457,43 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				update_ui(false);
 				break;
 			case BEZIER_HANDLE_PRE:
-				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].pre_handle_x = old_handle_x + double(event->pos().x() - start_x)/zoom;
-				if (shift) {
-					row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].pre_handle_y = old_handle_y;
-				} else {
-					row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].pre_handle_y = old_handle_y + double(start_y - event->pos().y())/zoom;
-				}
-				moved_keys = true;
-				update_ui(false);
-				break;
 			case BEZIER_HANDLE_POST:
-				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].post_handle_x = old_handle_x + double(event->pos().x() - start_x)/zoom;
-				if (shift) {
-					row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].post_handle_y = old_handle_y;
+			{
+				double new_pre_handle_x = old_pre_handle_x;
+				double new_pre_handle_y = old_pre_handle_y;
+				double new_post_handle_x = old_post_handle_x;
+				double new_post_handle_y = old_post_handle_y;
+
+				double x_diff = double(event->pos().x() - start_x)/zoom;
+				double y_diff = double(start_y - event->pos().y())/zoom;
+
+				if (current_handle == BEZIER_HANDLE_PRE) {
+					new_pre_handle_x += x_diff;
+					if (!(event->modifiers() & Qt::ShiftModifier)) new_pre_handle_y += y_diff;
+					if (!(event->modifiers() & Qt::ControlModifier)) {
+						new_post_handle_x = -new_pre_handle_x;
+						new_post_handle_y = -new_pre_handle_y;
+					}
 				} else {
-					row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].post_handle_y = old_handle_y + double(start_y - event->pos().y())/zoom;
+					new_post_handle_x += x_diff;
+					if (!(event->modifiers() & Qt::ShiftModifier)) new_post_handle_y += y_diff;
+					if (!(event->modifiers() & Qt::ControlModifier)) {
+						new_pre_handle_x = -new_post_handle_x;
+						new_pre_handle_y = -new_post_handle_y;
+					}
 				}
+
+				EffectKeyframe& key = row->field(selected_keys_fields.last())->keyframes[selected_keys.last()];
+				key.pre_handle_x = new_pre_handle_x;
+				key.pre_handle_y = new_pre_handle_y;
+				key.post_handle_x = new_post_handle_x;
+				key.post_handle_y = new_post_handle_y;
+
 				moved_keys = true;
 				update_ui(false);
+			}
 				break;
 			}
-
 		}
 	}
 }
@@ -498,17 +510,13 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event) {
 			}
 			break;
 		case BEZIER_HANDLE_PRE:
-		{
-			EffectKeyframe& key = row->field(selected_keys_fields.last())->keyframes[selected_keys.last()];
-			ca->append(new SetDouble(&key.pre_handle_x, old_handle_x, key.pre_handle_x));
-			ca->append(new SetDouble(&key.pre_handle_y, old_handle_y, key.pre_handle_y));
-		}
-			break;
 		case BEZIER_HANDLE_POST:
 		{
 			EffectKeyframe& key = row->field(selected_keys_fields.last())->keyframes[selected_keys.last()];
-			ca->append(new SetDouble(&key.post_handle_x, old_handle_x, key.post_handle_x));
-			ca->append(new SetDouble(&key.post_handle_y, old_handle_y, key.post_handle_y));
+			ca->append(new SetDouble(&key.pre_handle_x, old_pre_handle_x, key.pre_handle_x));
+			ca->append(new SetDouble(&key.pre_handle_y, old_pre_handle_y, key.pre_handle_y));
+			ca->append(new SetDouble(&key.post_handle_x, old_post_handle_x, key.post_handle_x));
+			ca->append(new SetDouble(&key.post_handle_y, old_post_handle_y, key.post_handle_y));
 		}
 			break;
 		}
@@ -618,8 +626,6 @@ void GraphView::set_scroll_x(int s) {
 }
 
 void GraphView::set_scroll_y(int s) {
-	dout << s << height() << zoom;
-
 	y_scroll = s;
 	emit y_scroll_changed(y_scroll);
 }
