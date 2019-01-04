@@ -12,11 +12,13 @@ class KeyframeNavigator : public QWidget
 public:
     KeyframeNavigator(QWidget* parent = 0);
     void enable_keyframes(bool);
+	void enable_keyframe_toggle(bool);
 signals:
     void goto_previous_key();
     void toggle_key();
     void goto_next_key();
-    void set_keyframe_enabled(bool);
+	void keyframe_enabled_changed(bool);
+	void clicked();
 private slots:
     void keyframe_ui_enabled(bool);
 private:

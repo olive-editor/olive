@@ -60,7 +60,7 @@ QString recent_proj_file;
 Project::Project(QWidget *parent) :
 	QDockWidget(parent)
 {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	QWidget* dockWidgetContents = new QWidget();
 	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
@@ -469,12 +469,14 @@ void Project::delete_selected_media() {
 			if (confirm_delete) {
 				delete_clips_in_clipboard_with_media(ca, item);
 			}
-
 		}
 	}
 
 	// remove
 	if (remove) {
+		panel_effect_controls->clear_effects(true);
+		sequence->selections.clear();
+
 		// remove media and parents
 		for (int m=0;m<parents.size();m++) {
 			for (int l=0;l<items.size();l++) {

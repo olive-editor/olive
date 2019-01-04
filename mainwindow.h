@@ -112,7 +112,6 @@ private slots:
 	void menu_click_button();
 	void toggle_panel_visibility();
 	void set_timecode_view();
-
 	void open_project_worker(const QString &fn, bool autorecovery);
 
 	void load_with_launch();

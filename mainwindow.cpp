@@ -19,6 +19,7 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
+#include "panels/grapheditor.h"
 
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"
@@ -63,31 +64,28 @@ void MainWindow::setup_layout(bool reset) {
 	panel_footage_viewer->show();
 	panel_sequence_viewer->show();
 	panel_timeline->show();
+	panel_graph_editor->hide();
 
-	bool load_default = true;
-
-	/*if (!reset) {
-		QFile panel_config(get_data_path() + "/layout");
-		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
-			if (restoreState(panel_config.readAll(), 0)) {
-				load_default = false;
-			}
-			panel_config.close();
-		}
-	}*/
-
-	if (load_default) {
-		addDockWidget(Qt::TopDockWidgetArea, panel_project);
-		addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
-		tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
-		panel_footage_viewer->raise();
-		addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
-		addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+	addDockWidget(Qt::TopDockWidgetArea, panel_project);
+	addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
+	tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
+	panel_footage_viewer->raise();
+	addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
+	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+	panel_graph_editor->setFloating(true);
 
 // workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-		resizeDocks({panel_project}, {40}, Qt::Horizontal);
+	resizeDocks({panel_project}, {40}, Qt::Horizontal);
 #endif
+
+	// load panels from file
+	if (!reset) {
+		QFile panel_config(get_data_path() + "/layout");
+		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
+			restoreState(panel_config.readAll(), 0);
+			panel_config.close();
+		}
 	}
 
 	layout()->update();
@@ -195,12 +193,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		}
 	}
 
-	// TODO maybe replace these with non-pointers later on?
-	panel_sequence_viewer = new Viewer(this);
-	panel_footage_viewer = new Viewer(this);
-	panel_project = new Project(this);
-	panel_effect_controls = new EffectControls(this);
-	panel_timeline = new Timeline(this);
+	alloc_panels(this);
 
 	QStatusBar* statusBar = new QStatusBar(this);
 	statusBar->showMessage("Welcome to " + appName);
@@ -213,6 +206,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		autorecovery_filename = data_dir + "/autorecovery.ove";
 		if (QFile::exists(autorecovery_filename)) {
 			if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+				enable_launch_with_project = false;
 				open_project_worker(autorecovery_filename, true);
 			}
 		}
@@ -227,45 +221,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
-	panel_effect_controls->clear_effects(true);
-	panel_sequence_viewer->viewer_widget->delete_function();
-	panel_footage_viewer->viewer_widget->delete_function();
-
-	set_sequence(NULL);
-
-	QString data_dir = get_data_path();
-	if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
-		if (QFile::exists(autorecovery_filename)) {
-			QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
-		}
-	}
-	if (!config_dir.isEmpty()) {
-		// save settings
-		config.save(config_dir);
-
-		// save panel layout
-		QFile panel_config(data_dir + "/layout");
-		if (panel_config.open(QFile::WriteOnly)) {
-			panel_config.write(saveState(0));
-			panel_config.close();
-		} else {
-			dout << "[ERROR] Failed to save layout";
-		}
-	}
-
-	stop_audio();
-
-	delete panel_sequence_viewer;
-	panel_sequence_viewer = NULL;
-	delete panel_footage_viewer;
-	panel_footage_viewer = NULL;
-	delete panel_project;
-	panel_project = NULL;
-	delete panel_effect_controls;
-	panel_effect_controls = NULL;
-	delete panel_timeline;
-	panel_timeline = NULL;
-
+	free_panels();
 	close_debug();
 }
 
@@ -303,12 +259,16 @@ void MainWindow::delete_slot() {
 		panel_project->delete_selected_media();
 	} else if (panel_effect_controls->keyframe_focus()) {
 		panel_effect_controls->delete_selected_keyframes();
+	} else if (panel_graph_editor->view_is_focused()) {
+		panel_graph_editor->delete_selected_keys();
 	}
 }
 
 void MainWindow::select_all() {
 	if (panel_timeline->focused()) {
 		panel_timeline->select_all();
+	} else if (panel_graph_editor->view_is_focused()) {
+		panel_graph_editor->select_all();
 	}
 }
 
@@ -654,6 +614,10 @@ void MainWindow::setup_menus() {
 	window_timeline_action->setCheckable(true);
 	window_timeline_action->setData(reinterpret_cast<quintptr>(panel_timeline));
 
+	QAction* window_graph_editor_action = window_menu->addAction("Graph Editor", this, SLOT(toggle_panel_visibility()));
+	window_graph_editor_action->setCheckable(true);
+	window_graph_editor_action->setData(reinterpret_cast<quintptr>(panel_graph_editor));
+
 	QAction* window_footageviewer_action = window_menu->addAction("Footage Viewer", this, SLOT(toggle_panel_visibility()));
 	window_footageviewer_action->setCheckable(true);
 	window_footageviewer_action->setData(reinterpret_cast<quintptr>(panel_footage_viewer));
@@ -778,7 +742,7 @@ void MainWindow::setup_menus() {
 	tools_menu->addAction("Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+."));
 
 #ifdef QT_DEBUG
-	tools_menu->addAction("Clear Undo", this, SLOT(clear_undo_stack()), QKeySequence("Ctrl+."));
+	tools_menu->addAction("Clear Undo", this, SLOT(clear_undo_stack()));
 #endif
 
 	// INITIALIZE HELP MENU
@@ -812,6 +776,34 @@ void MainWindow::updateTitle(const QString& url) {
 
 void MainWindow::closeEvent(QCloseEvent *e) {
 	if (can_close_project()) {
+		panel_effect_controls->clear_effects(true);
+
+		set_sequence(NULL);
+
+		panel_footage_viewer->set_main_sequence();
+
+		QString data_dir = get_data_path();
+		if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
+			if (QFile::exists(autorecovery_filename)) {
+				QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
+			}
+		}
+		if (!config_dir.isEmpty()) {
+			// save settings
+			config.save(config_dir);
+
+			// save panel layout
+			QFile panel_config(data_dir + "/layout");
+			if (panel_config.open(QFile::WriteOnly)) {
+				panel_config.write(saveState(0));
+				panel_config.close();
+			} else {
+				dout << "[ERROR] Failed to save layout";
+			}
+		}
+
+		stop_audio();
+
 		e->accept();
 	} else {
 		e->ignore();
@@ -859,7 +851,10 @@ void MainWindow::reset_layout() {
 }
 
 void MainWindow::go_to_start() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->go_to_start();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->go_to_start();
@@ -867,7 +862,10 @@ void MainWindow::go_to_start() {
 }
 
 void MainWindow::prev_frame() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->previous_frame();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->previous_frame();
@@ -875,7 +873,10 @@ void MainWindow::prev_frame() {
 }
 
 void MainWindow::next_frame() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->next_frame();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->next_frame();
@@ -883,7 +884,10 @@ void MainWindow::next_frame() {
 }
 
 void MainWindow::go_to_end() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->go_to_end();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->go_to_end();
@@ -891,7 +895,10 @@ void MainWindow::go_to_end() {
 }
 
 void MainWindow::playpause() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused() || panel_effect_controls->keyframe_focus()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->toggle_play();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->toggle_play();

@@ -22,6 +22,7 @@
 #include "panels/project.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
+#include "panels/grapheditor.h"
 #include "ui/viewerwidget.h"
 #include "io/clipboard.h"
 #include "ui/timelineheader.h"
@@ -36,6 +37,8 @@ EffectControls::EffectControls(QWidget *parent) :
 	panel_name("Effects: "),
 	mode(TA_NO_TRANSITION)
 {
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	setup_ui();
 
 	init_effects();
@@ -210,6 +213,9 @@ void EffectControls::clear_effects(bool clear_cache) {
 	// clear existing clips
 	deselect_all_effects(NULL);
 
+	// clear graph editor
+	if (panel_graph_editor != NULL) panel_graph_editor->set_row(NULL);
+
 	QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(video_effect_area->layout());
 	QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(audio_effect_area->layout());
 	QLayoutItem* item;
@@ -249,8 +255,6 @@ void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
 }
 
 void EffectControls::setup_ui() {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
 	QWidget* contents = new QWidget();
 
 	QHBoxLayout* layout = new QHBoxLayout(contents);

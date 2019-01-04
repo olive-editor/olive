@@ -101,8 +101,10 @@ void stop_audio() {
 }
 
 void clear_audio_ibuffer() {
+	if (audio_thread != NULL) audio_thread->lock.lock();
 	memset(audio_ibuffer, 0, audio_ibuffer_size);
 	audio_ibuffer_read = 0;
+	if (audio_thread != NULL) audio_thread->lock.unlock();
 }
 
 int current_audio_freq() {

@@ -9,13 +9,13 @@
 #include "ui/collapsiblewidget.h"
 
 PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-    EffectRow* pan_row = add_row("Pan:");
-    pan_val = pan_row->add_field(EFFECT_FIELD_DOUBLE, "pan");
+	EffectRow* pan_row = add_row("Pan");
+	pan_val = pan_row->add_field(EFFECT_FIELD_DOUBLE, "pan");
 	pan_val->set_double_minimum_value(-100);
-    pan_val->set_double_maximum_value(100);
+	pan_val->set_double_maximum_value(100);
 
 	// set defaults
-    pan_val->set_double_default_value(0);
+	pan_val->set_double_default_value(0);
 }
 
 void PanEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {

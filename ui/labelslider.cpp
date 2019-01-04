@@ -16,7 +16,7 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	drag_proc = false;
     min_enabled = false;
     max_enabled = false;
-    setStyleSheet("QLabel{color:#ffc000;text-decoration:underline;}QLabel:disabled{color:#808080;}");
+	set_color();
     setCursor(Qt::SizeHorCursor);
     internal_value = -1;
     set = false;
@@ -75,7 +75,12 @@ double LabelSlider::getPreviousValue() {
 }
 
 void LabelSlider::set_previous_value() {
-    previous_value = internal_value;
+	previous_value = internal_value;
+}
+
+void LabelSlider::set_color(QString c) {
+	if (c.isEmpty()) c = "#ffc000";
+	setStyleSheet("QLabel{color:" + c + ";text-decoration:underline;}QLabel:disabled{color:#808080;}");
 }
 
 double LabelSlider::value() {
@@ -115,6 +120,7 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
         drag_start_x = cursor().pos().x();
         drag_start_y = cursor().pos().y();
     }
+	emit clicked();
 }
 
 void LabelSlider::mouseMoveEvent(QMouseEvent* event) {

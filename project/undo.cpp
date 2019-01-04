@@ -150,7 +150,7 @@ void DeleteClipAction::redo() {
 	// remove ref to clip
 	ref = seq->clips.at(index);
 	if (ref->open) {
-		close_clip(ref);
+		close_clip(ref, true);
 	}
 	seq->clips[index] = NULL;
 
@@ -493,7 +493,7 @@ void AddClipCommand::undo() {
 		Clip* c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 		undone_clips.prepend(c);
-		if (c->open) close_clip(c);
+		if (c->open) close_clip(c, true);
 		seq->clips.removeLast();
 	}
 	mainWindow->setWindowModified(old_project_changed);
@@ -587,8 +587,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
 		for (int j=0;j<s->clips.size();j++) {
 			Clip* c = s->clips.at(j);
 			if (c != NULL && c->media == item && c->open) {
-				close_clip(c);
-				if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+				close_clip(c, true);
 				c->replaced = true;
 			}
 		}
@@ -628,8 +627,7 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		if (c->open) {
-			close_clip(c);
-			if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+			close_clip(c, true);
 		}
 
 		if (undo) {
@@ -737,85 +735,21 @@ void MediaRename::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-KeyframeMove::KeyframeMove() : old_project_changed(mainWindow->isWindowModified()) {}
-
-void KeyframeMove::undo() {
-	for (int i=0;i<rows.size();i++) {
-		rows.at(i)->keyframe_times[keyframes.at(i)] -= movement;
-	}
-	mainWindow->setWindowModified(old_project_changed);
-}
-
-void KeyframeMove::redo() {
-	for (int i=0;i<rows.size();i++) {
-		rows.at(i)->keyframe_times[keyframes.at(i)] += movement;
-	}
-	mainWindow->setWindowModified(true);
-}
-
-KeyframeDelete::KeyframeDelete() :
-	disable_keyframes_on_row(NULL),
-	old_project_changed(mainWindow->isWindowModified()),
-	sorted(false)
+KeyframeDelete::KeyframeDelete(EffectField *ifield, int iindex) :
+	field(ifield),
+	index(iindex),
+	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void KeyframeDelete::undo() {
-	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(true);
-
-	int data_index = deleted_keyframe_data.size()-1;
-	for (int i=rows.size()-1;i>=0;i--) {
-		EffectRow* row = rows.at(i);
-		int keyframe_index = keyframes.at(i);
-
-		row->keyframe_times.insert(keyframe_index, deleted_keyframe_times.at(i));
-		row->keyframe_types.insert(keyframe_index, deleted_keyframe_types.at(i));
-
-		for (int j=row->fieldCount()-1;j>=0;j--) {
-			row->field(j)->keyframe_data.insert(keyframe_index, deleted_keyframe_data.at(data_index));
-			data_index--;
-		}
-	}
-
+	field->keyframes.insert(index, deleted_key);
 	mainWindow->setWindowModified(old_project_changed);
 }
 
 void KeyframeDelete::redo() {
-	if (!sorted) {
-		deleted_keyframe_times.resize(rows.size());
-		deleted_keyframe_types.resize(rows.size());
-		deleted_keyframe_data.clear();
-	}
-
-	for (int i=0;i<keyframes.size();i++) {
-		EffectRow* row = rows.at(i);
-		int keyframe_index = keyframes.at(i);
-
-		if (!sorted) {
-			deleted_keyframe_times[i] = (row->keyframe_times.at(keyframe_index));
-			deleted_keyframe_types[i] = (row->keyframe_types.at(keyframe_index));
-		}
-
-		row->keyframe_times.removeAt(keyframe_index);
-		row->keyframe_types.removeAt(keyframe_index);
-
-		for (int j=0;j<row->fieldCount();j++) {
-			if (!sorted) deleted_keyframe_data.append(row->field(j)->keyframe_data.at(keyframe_index));
-			row->field(j)->keyframe_data.removeAt(keyframe_index);
-		}
-
-		// correct following indices
-		if (!sorted) {
-			for (int j=i+1;j<keyframes.size();j++) {
-				if (rows.at(j) == row && keyframes.at(j) > keyframe_index) {
-					keyframes[j]--;
-				}
-			}
-		}
-	}
-
-	if (disable_keyframes_on_row != NULL) disable_keyframes_on_row->setKeyframing(false);
+	deleted_key = field->keyframes.at(index);
+	field->keyframes.removeAt(index);
 	mainWindow->setWindowModified(true);
-	sorted = true;
 }
 
 KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
@@ -835,7 +769,7 @@ KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
 			if (field->type == EFFECT_FIELD_DOUBLE) {
 				old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
 			} else {
-				old_values[i] = field->keyframe_data.at(index);
+				old_values[i] = field->keyframes.at(index).data;
 			}
 		}
 		new_values[i] = field->get_current_data();
@@ -846,15 +780,11 @@ void KeyframeSet::undo() {
 	if (enable_keyframes) row->setKeyframing(false);
 
 	bool append = (index == -1 || just_made_keyframe);
-	if (append) {
-		row->keyframe_times.removeLast();
-		row->keyframe_types.removeLast();
-	}
 	for (int i=0;i<row->fieldCount();i++) {
 		if (append) {
-			row->field(i)->keyframe_data.removeLast();
+			row->field(i)->keyframes.removeLast();
 		} else {
-			row->field(i)->keyframe_data[index] = old_values.at(i);
+			row->field(i)->keyframes[index].data = old_values.at(i);
 		}
 	}
 
@@ -864,15 +794,16 @@ void KeyframeSet::undo() {
 
 void KeyframeSet::redo() {
 	bool append = (index == -1 || (just_made_keyframe && !done));
-	if (append) {
-		row->keyframe_times.append(time);
-		row->keyframe_types.append((row->keyframe_types.size() > 0) ? row->keyframe_types.last() : EFFECT_KEYFRAME_LINEAR);
-	}
 	for (int i=0;i<row->fieldCount();i++) {
+		EffectField* f = row->field(i);
 		if (append) {
-			row->field(i)->keyframe_data.append(new_values.at(i));
+			EffectKeyframe k;
+			k.data = new_values.at(i);
+			k.time = time;
+			k.type = (f->keyframes.size() > 0) ? f->keyframes.last().type : EFFECT_KEYFRAME_LINEAR;
+			f->keyframes.append(k);
 		} else {
-			row->field(i)->keyframe_data[index] = new_values.at(i);
+			f->keyframes[index].data = new_values.at(i);
 		}
 	}
 	row->setKeyframing(true);
@@ -1169,7 +1100,7 @@ void CloseAllClipsCommand::undo() {
 }
 
 void CloseAllClipsCommand::redo() {
-	closeActiveClips(sequence, true);
+	closeActiveClips(sequence);
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) :
@@ -1289,4 +1220,74 @@ void RippleAction::redo() {
 		}
 	}
 	ca->redo();
+}
+
+SetDouble::SetDouble(double* pointer, double old_value, double new_value) :
+	p(pointer),
+	oldval(old_value),
+	newval(new_value),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void SetDouble::undo() {
+	*p = oldval;
+	mainWindow->setWindowModified(old_project_changed);
+}
+
+void SetDouble::redo() {
+	*p = newval;
+	mainWindow->setWindowModified(true);
+}
+
+SetQVariant::SetQVariant(QVariant *itarget, const QVariant &iold, const QVariant &inew) :
+	target(itarget),
+	old_val(iold),
+	new_val(inew)
+{}
+
+void SetQVariant::undo() {
+	*target = old_val;
+}
+
+void SetQVariant::redo() {
+	*target = new_val;
+}
+
+SetLong::SetLong(long *pointer, long old_value, long new_value) :
+	p(pointer),
+	oldval(old_value),
+	newval(new_value),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void SetLong::undo() {
+	*p = oldval;
+	mainWindow->setWindowModified(old_project_changed);
+}
+
+void SetLong::redo() {
+	*p = newval;
+	mainWindow->setWindowModified(true);
+}
+
+KeyframeFieldSet::KeyframeFieldSet(EffectField *ifield, int ii) :
+	field(ifield),
+	index(ii),
+	key(ifield->keyframes.at(ii)),
+	done(true),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void KeyframeFieldSet::undo() {
+	field->keyframes.removeAt(index);
+	mainWindow->setWindowModified(old_project_changed);
+	done = false;
+}
+
+void KeyframeFieldSet::redo() {
+	if (!done) {
+		field->keyframes.insert(index, key);
+		mainWindow->setWindowModified(true);
+	}
+	done = true;
 }

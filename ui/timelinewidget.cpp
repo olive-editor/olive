@@ -21,6 +21,7 @@
 #include "ui/resizablescrollbar.h"
 #include "dialogs/newsequencedialog.h"
 #include "mainwindow.h"
+#include "ui/rectangleselect.h"
 #include "debug.h"
 
 #include "project/effect.h"

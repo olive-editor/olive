@@ -43,12 +43,6 @@ long refactor_frame_number(long framenumber, double source_frame_rate, double ta
 	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
 }
 
-void draw_selection_rectangle(QPainter& painter, const QRect& rect) {
-	painter.setPen(QColor(204, 204, 204));
-	painter.setBrush(QColor(0, 0, 0, 32));
-	painter.drawRect(rect);
-}
-
 Timeline::Timeline(QWidget *parent) :
 	QDockWidget(parent),
 	cursor_frame(0),
@@ -80,6 +74,8 @@ Timeline::Timeline(QWidget *parent) :
 	last_frame(0),
 	scroll(0)
 {
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	setup_ui();
 
 	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
