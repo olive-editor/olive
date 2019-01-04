@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QtMath>
 #include <QMenu>
+#include <cfloat>
 
 #include "panels/panels.h"
 #include "panels/timeline.h"
