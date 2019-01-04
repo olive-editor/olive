@@ -112,13 +112,11 @@ void EffectRow::toggle_key() {
 		set_keyframe_now(ca);
 	} else {
 		for (int i=0;i<key_fields.size();i++) {
-			// TODO: these values must be sorted to work correctly
 			ca->append(new KeyframeDelete(key_fields.at(i), key_field_index.at(i)));
 		}
 	}
 	undo_stack.push(ca);
-	panel_effect_controls->update_keyframes();
-	panel_sequence_viewer->viewer_widget->update();
+	update_ui(false);
 }
 
 void EffectRow::goto_next_key() {

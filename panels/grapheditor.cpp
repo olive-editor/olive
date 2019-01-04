@@ -97,6 +97,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 	QWidget* central_value_widget = new QWidget();
 	value_layout = new QHBoxLayout();
 	value_layout->setMargin(0);
+	value_layout->addWidget(new QLabel("")); // a spacer so the layout doesn't jump
 	central_value_widget->setLayout(value_layout);
 	values->addWidget(central_value_widget);
 
@@ -193,11 +194,11 @@ void GraphEditor::set_row(EffectRow *r) {
 		current_row_desc->setText(0);
 	}
 	view->set_row(row);
-    update_panel();
+	update_panel();
 }
 
 bool GraphEditor::view_is_focused() {
-    return view->hasFocus() || header->hasFocus();
+	return view->hasFocus() || header->hasFocus();
 }
 
 void GraphEditor::set_key_button_enabled(bool e, int type) {

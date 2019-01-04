@@ -252,6 +252,20 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 		if (keyframe_index > -1) {
 			selected_fields.append(rows.at(row_index)->field(field_index));
 			selected_keyframes.append(keyframe_index);
+
+			// find other field with keyframes at the same time
+			long comp_time = rows.at(row_index)->field(field_index)->keyframes.at(keyframe_index).time;
+			for (int i=0;i<rows.at(row_index)->fieldCount();i++) {
+				if (i != field_index) {
+					EffectField* f = rows.at(row_index)->field(i);
+					for (int j=0;j<f->keyframes.size();j++) {
+						if (f->keyframes.at(j).time == comp_time) {
+							selected_fields.append(f);
+							selected_keyframes.append(j);
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -38,6 +38,7 @@ private:
 
 	void set_scroll_x(int s);
 	void set_scroll_y(int s);
+	void set_zoom(double z);
 
 	int get_screen_x(double);
 	int get_screen_y(double);
@@ -56,7 +57,13 @@ private:
 
 	int current_handle;
 
+	void draw_lines(QPainter &p, bool vert);
+	void draw_line_text(QPainter &p, bool vert, int line_no, int line_pos, int next_line_pos);
+
 	EffectRow* row;
+private slots:
+	void show_context_menu(const QPoint& pos);
+	void reset_view();
 };
 
 #endif // GRAPHVIEW_H
