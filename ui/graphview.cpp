@@ -375,6 +375,8 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 							if (current_handle != BEZIER_HANDLE_NONE) {
 								sel_key = j;
 								sel_key_field = i;
+								handle_index = j;
+								handle_field = i;
 								old_pre_handle_x = key.pre_handle_x;
 								old_pre_handle_y = key.pre_handle_y;
 								old_post_handle_x = key.post_handle_x;
@@ -506,7 +508,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 					}
 				}
 
-				EffectKeyframe& key = row->field(selected_keys_fields.last())->keyframes[selected_keys.last()];
+				EffectKeyframe& key = row->field(handle_field)->keyframes[handle_index];
 				key.pre_handle_x = new_pre_handle_x;
 				key.pre_handle_y = new_pre_handle_y;
 				key.post_handle_x = new_post_handle_x;
@@ -669,7 +671,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
 		case BEZIER_HANDLE_PRE:
 		case BEZIER_HANDLE_POST:
 		{
-			EffectKeyframe& key = row->field(selected_keys_fields.last())->keyframes[selected_keys.last()];
+			EffectKeyframe& key = row->field(handle_field)->keyframes[handle_index];
 			ca->append(new SetDouble(&key.pre_handle_x, old_pre_handle_x, key.pre_handle_x));
 			ca->append(new SetDouble(&key.pre_handle_y, old_pre_handle_y, key.pre_handle_y));
 			ca->append(new SetDouble(&key.post_handle_x, old_post_handle_x, key.post_handle_x));

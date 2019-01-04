@@ -63,6 +63,9 @@ private:
 	double old_post_handle_x;
 	double old_post_handle_y;
 
+	int handle_field;
+	int handle_index;
+
 	bool moved_keys;
 
 	int current_handle;
