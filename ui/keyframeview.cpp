@@ -15,6 +15,7 @@
 #include "ui/keyframedrawing.h"
 #include "ui/clickablelabel.h"
 #include "ui/resizablescrollbar.h"
+#include "ui/rectangleselect.h"
 
 #include <QMouseEvent>
 #include <QtMath>

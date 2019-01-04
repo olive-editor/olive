@@ -43,6 +43,8 @@ private:
 	int get_screen_x(double);
 	int get_screen_y(double);
 
+	void selection_update();
+
 	QVector<bool> field_visibility;
 
 	QVector<int> selected_keys;
@@ -61,6 +63,13 @@ private:
 	void draw_line_text(QPainter &p, bool vert, int line_no, int line_pos, int next_line_pos);
 
 	EffectRow* row;
+
+	bool rect_select;
+	int rect_select_x;
+	int rect_select_y;
+	int rect_select_w;
+	int rect_select_h;
+	int rect_select_offset;
 private slots:
 	void show_context_menu(const QPoint& pos);
 	void reset_view();

@@ -110,7 +110,8 @@ SOURCES += \
     ui/graphview.cpp \
     ui/keyframedrawing.cpp \
     ui/clickablelabel.cpp \
-    project/keyframe.cpp
+    project/keyframe.cpp \
+    ui/rectangleselect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -195,7 +196,8 @@ HEADERS += \
     ui/graphview.h \
     ui/keyframedrawing.h \
     ui/clickablelabel.h \
-    project/keyframe.h
+    project/keyframe.h \
+    ui/rectangleselect.h
 
 FORMS +=
 

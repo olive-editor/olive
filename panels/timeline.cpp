@@ -43,12 +43,6 @@ long refactor_frame_number(long framenumber, double source_frame_rate, double ta
 	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
 }
 
-void draw_selection_rectangle(QPainter& painter, const QRect& rect) {
-	painter.setPen(QColor(204, 204, 204));
-	painter.setBrush(QColor(0, 0, 0, 32));
-	painter.drawRect(rect);
-}
-
 Timeline::Timeline(QWidget *parent) :
 	QDockWidget(parent),
 	cursor_frame(0),
@@ -184,7 +178,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			can_import = m->ready;
 			if (m->using_inout) {
 				double source_fr = 30;
-                if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate;
+				if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate;
 				default_clip_in = refactor_frame_number(m->in, source_fr, seq->frame_rate);
 				default_clip_out = refactor_frame_number(m->out, source_fr, seq->frame_rate);
 			}
@@ -216,7 +210,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			switch (medium->get_type()) {
 			case MEDIA_TYPE_FOOTAGE:
 				// is video source a still image?
-                if (m->video_tracks.size() > 0 && m->video_tracks.at(0).infinite_length && m->audio_tracks.size() == 0) {
+				if (m->video_tracks.size() > 0 && m->video_tracks.at(0).infinite_length && m->audio_tracks.size() == 0) {
 					g.out = g.in + 100;
 				} else {
 					long length = m->get_length_in_frames(seq->frame_rate);
@@ -227,20 +221,20 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 				}
 
 				for (int j=0;j<m->audio_tracks.size();j++) {
-                    if (m->audio_tracks.at(j).enabled) {
-                        g.track = j;
-                        g.media_stream = m->audio_tracks.at(j).file_index;
-                        ghosts.append(g);
-                        audio_ghosts = true;
-                    }
+					if (m->audio_tracks.at(j).enabled) {
+						g.track = j;
+						g.media_stream = m->audio_tracks.at(j).file_index;
+						ghosts.append(g);
+						audio_ghosts = true;
+					}
 				}
 				for (int j=0;j<m->video_tracks.size();j++) {
-                    if (m->video_tracks.at(j).enabled) {
-                        g.track = -1-j;
-                        g.media_stream = m->video_tracks.at(j).file_index;
-                        ghosts.append(g);
-                        video_ghosts = true;
-                    }
+					if (m->video_tracks.at(j).enabled) {
+						g.track = -1-j;
+						g.media_stream = m->video_tracks.at(j).file_index;
+						ghosts.append(g);
+						video_ghosts = true;
+					}
 				}
 				break;
 			case MEDIA_TYPE_SEQUENCE:
