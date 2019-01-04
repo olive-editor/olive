@@ -41,7 +41,7 @@ GraphView::GraphView(QWidget* parent) :
 	current_handle(BEZIER_HANDLE_NONE)
 {
 	setMouseTracking(true);
-    setFocusPolicy(Qt::ClickFocus);
+	setFocusPolicy(Qt::ClickFocus);
 }
 
 void GraphView::paintEvent(QPaintEvent *event) {
@@ -129,20 +129,20 @@ void GraphView::paintEvent(QPaintEvent *event) {
 								if (last_key.type == KEYFRAME_TYPE_BEZIER && key.type == KEYFRAME_TYPE_BEZIER) {
 									// cubic bezier
 									bezier_path.cubicTo(
-												QPointF(last_key_x+last_key.post_handle_x, last_key_y+last_key.post_handle_y),
-												QPointF(key_x+key.pre_handle_x, key_y+key.pre_handle_y),
+												QPointF(last_key_x+last_key.post_handle_x*zoom, last_key_y+last_key.post_handle_y*zoom),
+												QPointF(key_x+key.pre_handle_x*zoom, key_y-key.pre_handle_y*zoom),
 												QPointF(key_x, key_y)
 											);
 								} else if (key.type == KEYFRAME_TYPE_LINEAR) { // quadratic bezier
 									// last keyframe is the bezier one
 									bezier_path.quadTo(
-												QPointF(last_key_x+last_key.post_handle_x, last_key_y+last_key.post_handle_y),
+												QPointF(last_key_x+last_key.post_handle_x*zoom, last_key_y+last_key.post_handle_y*zoom),
 												QPointF(key_x, key_y)
 											);
 								} else {
 									// this keyframe is the bezier one
 									bezier_path.quadTo(
-												QPointF(key_x+key.pre_handle_x, key_y+key.pre_handle_y),
+												QPointF(key_x+key.pre_handle_x*zoom, key_y-key.pre_handle_y*zoom),
 												QPointF(key_x, key_y)
 											);
 								}
@@ -167,12 +167,12 @@ void GraphView::paintEvent(QPaintEvent *event) {
 							p.setPen(Qt::gray);
 
 							// pre handle line
-							QPointF pre_point(key_x + key.pre_handle_x*zoom, key_y + key.pre_handle_y*zoom);
+							QPointF pre_point(key_x + key.pre_handle_x*zoom, key_y - key.pre_handle_y*zoom);
 							p.drawLine(pre_point, QPointF(key_x, key_y));
 							p.drawEllipse(pre_point, BEZIER_HANDLE_SIZE, BEZIER_HANDLE_SIZE);
 
 							// post handle line
-							QPointF post_point(key_x + key.post_handle_x*zoom, key_y + key.post_handle_y*zoom);
+							QPointF post_point(key_x + key.post_handle_x*zoom, key_y - key.post_handle_y*zoom);
 							p.drawLine(post_point, QPointF(key_x, key_y));
 							p.drawEllipse(post_point, BEZIER_HANDLE_SIZE, BEZIER_HANDLE_SIZE);
 						}
@@ -304,13 +304,13 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				break;
 			case BEZIER_HANDLE_PRE:
 				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].pre_handle_x = old_handle_x + double(event->pos().x() - start_x)/zoom;
-				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].pre_handle_y = old_handle_y + double(event->pos().y() - start_y)/zoom;
+				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].pre_handle_y = old_handle_y + double(start_y - event->pos().y())/zoom;
 				moved_keys = true;
 				update_ui(false);
 				break;
 			case BEZIER_HANDLE_POST:
 				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].post_handle_x = old_handle_x + double(event->pos().x() - start_x)/zoom;
-				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].post_handle_y = old_handle_y + double(event->pos().y() - start_y)/zoom;
+				row->field(selected_keys_fields.last())->keyframes[selected_keys.last()].post_handle_y = old_handle_y + double(start_y - event->pos().y())/zoom;
 				moved_keys = true;
 				update_ui(false);
 				break;
