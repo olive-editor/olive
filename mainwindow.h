@@ -167,6 +167,7 @@ private:
 	QAction* enable_audio_scrubbing;
 	QAction* enable_drop_on_media_to_replace;
 	QAction* enable_hover_focus;
+	QAction* set_name_and_marker;
 
 	// edit menu actions
 	QAction* undo_action;

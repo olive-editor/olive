@@ -182,7 +182,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			can_import = m->ready;
 			if (m->using_inout) {
 				double source_fr = 30;
-                if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate;
+				if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate;
 				default_clip_in = refactor_frame_number(m->in, source_fr, seq->frame_rate);
 				default_clip_out = refactor_frame_number(m->out, source_fr, seq->frame_rate);
 			}
@@ -214,7 +214,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			switch (medium->get_type()) {
 			case MEDIA_TYPE_FOOTAGE:
 				// is video source a still image?
-                if (m->video_tracks.size() > 0 && m->video_tracks.at(0).infinite_length && m->audio_tracks.size() == 0) {
+				if (m->video_tracks.size() > 0 && m->video_tracks.at(0).infinite_length && m->audio_tracks.size() == 0) {
 					g.out = g.in + 100;
 				} else {
 					long length = m->get_length_in_frames(seq->frame_rate);
@@ -225,20 +225,20 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 				}
 
 				for (int j=0;j<m->audio_tracks.size();j++) {
-                    if (m->audio_tracks.at(j).enabled) {
-                        g.track = j;
-                        g.media_stream = m->audio_tracks.at(j).file_index;
-                        ghosts.append(g);
-                        audio_ghosts = true;
-                    }
+					if (m->audio_tracks.at(j).enabled) {
+						g.track = j;
+						g.media_stream = m->audio_tracks.at(j).file_index;
+						ghosts.append(g);
+						audio_ghosts = true;
+					}
 				}
 				for (int j=0;j<m->video_tracks.size();j++) {
-                    if (m->video_tracks.at(j).enabled) {
-                        g.track = -1-j;
-                        g.media_stream = m->video_tracks.at(j).file_index;
-                        ghosts.append(g);
-                        video_ghosts = true;
-                    }
+					if (m->video_tracks.at(j).enabled) {
+						g.track = -1-j;
+						g.media_stream = m->video_tracks.at(j).file_index;
+						ghosts.append(g);
+						video_ghosts = true;
+					}
 				}
 				break;
 			case MEDIA_TYPE_SEQUENCE:
@@ -1359,12 +1359,21 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 }
 
 void Timeline::set_marker() {
-	QInputDialog d(this);
-	d.setWindowTitle("Set Marker");
-	d.setLabelText("Set marker name:");
-	d.setInputMode(QInputDialog::TextInput);
-	if (d.exec() == QDialog::Accepted) {
-		undo_stack.push(new AddMarkerAction(sequence, sequence->playhead, d.textValue()));
+	bool add_marker = !config.set_name_with_marker;
+	QString marker_name;
+
+	if (!add_marker) {
+		QInputDialog d(this);
+		d.setWindowTitle("Set Marker");
+		d.setLabelText("Set marker name:");
+		d.setInputMode(QInputDialog::TextInput);
+		add_marker = (d.exec() == QDialog::Accepted);
+		marker_name = d.textValue();
+	}
+
+
+	if (add_marker) {
+		undo_stack.push(new AddMarkerAction(sequence, sequence->playhead, marker_name));
 	}
 }
 

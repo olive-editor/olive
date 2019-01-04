@@ -755,6 +755,10 @@ void MainWindow::setup_menus() {
 	enable_hover_focus->setCheckable(true);
 	enable_hover_focus->setData(reinterpret_cast<quintptr>(&config.hover_focus));
 
+	set_name_and_marker = tools_menu->addAction("Ask For Name When Setting Marker", this, SLOT(toggle_bool_action()));
+	set_name_and_marker->setCheckable(true);
+	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
+
 	tools_menu->addSeparator();
 
 	no_autoscroll = tools_menu->addAction("No Auto-Scroll", this, SLOT(set_autoscroll()));
@@ -973,6 +977,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_audio_scrubbing);
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
+	set_bool_action_checked(set_name_and_marker);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);
