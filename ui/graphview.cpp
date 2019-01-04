@@ -16,7 +16,6 @@
 #include "project/effect.h"
 #include "project/clip.h"
 #include "ui/rectangleselect.h"
-#include "Ui/labelslider.h"
 
 #include "debug.h"
 
@@ -190,7 +189,7 @@ QVector<int> sort_keys_from_field(EffectField* field) {
 	return sorted_keys;
 }
 
-void GraphView::paintEvent(QPaintEvent *event) {
+void GraphView::paintEvent(QPaintEvent *) {
 	QPainter p(this);
 
 	if (panel_sequence_viewer->seq != NULL) {
@@ -537,14 +536,14 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 							KEYFRAME_SIZE+KEYFRAME_SIZE
 						);
 				QRect pre_rect(
-							key_x + key.pre_handle_x*zoom - BEZIER_HANDLE_SIZE,
-							key_y + key.pre_handle_y*zoom - BEZIER_HANDLE_SIZE,
+							qRound(key_x + key.pre_handle_x*zoom - BEZIER_HANDLE_SIZE),
+							qRound(key_y + key.pre_handle_y*zoom - BEZIER_HANDLE_SIZE),
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE,
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE
 						);
 				QRect post_rect(
-							key_x + key.post_handle_x*zoom - BEZIER_HANDLE_SIZE,
-							key_y + key.post_handle_y*zoom - BEZIER_HANDLE_SIZE,
+							qRound(key_x + key.post_handle_x*zoom - BEZIER_HANDLE_SIZE),
+							qRound(key_y + key.post_handle_y*zoom - BEZIER_HANDLE_SIZE),
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE,
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE
 						);
@@ -654,7 +653,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 	}
 }
 
-void GraphView::mouseReleaseEvent(QMouseEvent *event) {
+void GraphView::mouseReleaseEvent(QMouseEvent *) {
 	if (click_add) {
 		undo_stack.push(new KeyframeFieldSet(click_add_field, click_add_key));
 	} else if (moved_keys && selected_keys.size() > 0) {
@@ -693,7 +692,6 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event) {
 void GraphView::wheelEvent(QWheelEvent *event) {
 	bool redraw = false;
 	bool shift = (event->modifiers() & Qt::ShiftModifier); // scroll instead of zoom
-	bool alt = (event->modifiers() & Qt::AltModifier); // horiz scroll instead of vert scroll
 
 	if (shift) {
 		// scroll
@@ -795,11 +793,11 @@ void GraphView::set_zoom(double z) {
 }
 
 int GraphView::get_screen_x(double d) {
-	return (d*zoom) - x_scroll;
+	return qRound((d*zoom) - x_scroll);
 }
 
 int GraphView::get_screen_y(double d) {
-	return height() + y_scroll - d*zoom;
+	return qRound(height() + y_scroll - d*zoom);
 }
 
 long GraphView::get_value_x(int i) {
