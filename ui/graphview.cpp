@@ -392,7 +392,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 			if (sel_key > -1) {
 				for (int i=0;i<selected_keys.size();i++) {
 					if (selected_keys.at(i) == sel_key && selected_keys_fields.at(i) == sel_key_field) {
-						if ((event->modifiers() & Qt::ShiftModifier)) {
+						if ((event->modifiers() & Qt::ShiftModifier) && current_handle == BEZIER_HANDLE_NONE) {
 							selected_keys.removeAt(i);
 							selected_keys_fields.removeAt(i);
 						}

@@ -701,6 +701,14 @@ void Effect::load(QXmlStreamReader& stream) {
 											key.time = attr.value().toLong();
 										} else if (attr.name() == "type") {
 											key.type = attr.value().toInt();
+										} else if (attr.name() == "prehx") {
+											key.pre_handle_x = attr.value().toDouble();
+										} else if (attr.name() == "prehy") {
+											key.pre_handle_y = attr.value().toDouble();
+										} else if (attr.name() == "posthx") {
+											key.post_handle_x = attr.value().toDouble();
+										} else if (attr.name() == "posthy") {
+											key.post_handle_y = attr.value().toDouble();
 										}
 									}
 									field->keyframes.append(key);
@@ -740,6 +748,10 @@ void Effect::save(QXmlStreamWriter& stream) {
 					stream.writeAttribute("value", save_data_to_string(field->type, key.data));
 					stream.writeAttribute("frame", QString::number(key.time));
 					stream.writeAttribute("type", QString::number(key.type));
+					stream.writeAttribute("prehx", QString::number(key.pre_handle_x));
+					stream.writeAttribute("prehy", QString::number(key.pre_handle_y));
+					stream.writeAttribute("posthx", QString::number(key.post_handle_x));
+					stream.writeAttribute("posthy", QString::number(key.post_handle_y));
 					stream.writeEndElement(); // key
 				}
 				stream.writeEndElement(); // field
