@@ -70,6 +70,8 @@ private:
 	int rect_select_w;
 	int rect_select_h;
 	int rect_select_offset;
+
+	long visible_in;
 private slots:
 	void show_context_menu(const QPoint& pos);
 	void reset_view();

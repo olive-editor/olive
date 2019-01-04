@@ -14,6 +14,7 @@
 #include "ui/keyframedrawing.h"
 #include "project/undo.h"
 #include "project/effect.h"
+#include "project/clip.h"
 #include "ui/rectangleselect.h"
 
 #include "debug.h"
@@ -43,7 +44,8 @@ GraphView::GraphView(QWidget* parent) :
 	row(NULL),
 	moved_keys(false),
 	current_handle(BEZIER_HANDLE_NONE),
-	rect_select(false)
+	rect_select(false),
+	visible_in(0)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -228,7 +230,7 @@ void GraphView::paintEvent(QPaintEvent *event) {
 
 		// draw playhead
 		p.setPen(Qt::red);
-		int playhead_x = get_screen_x(panel_sequence_viewer->seq->playhead);
+		int playhead_x = get_screen_x(panel_sequence_viewer->seq->playhead - visible_in);
 		p.drawLine(playhead_x, 0, playhead_x, height());
 
 		if (rect_select) {
@@ -339,6 +341,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent *event) {
+	unsetCursor();
 	if (mousedown) {
 		if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
 			set_scroll_x(x_scroll + start_x - event->pos().x());
@@ -494,6 +497,7 @@ void GraphView::set_row(EffectRow *r) {
 		if (row != NULL) {
 			field_visibility.resize(row->fieldCount());
 			field_visibility.fill(true);
+			visible_in = row->parent_effect->parent_clip->timeline_in;
 		}
 		update();
 	}
