@@ -360,6 +360,21 @@ private:
 	bool done;
 };
 
+// a more modern version of the above, could probably replace it
+// assumes the keyframe already exists
+class KeyframeFieldSet : public QUndoCommand {
+public:
+	KeyframeFieldSet(EffectField* ifield, int ii);
+	void undo();
+	void redo();
+private:
+	EffectField* field;
+	int index;
+	EffectKeyframe key;
+	bool done;
+	bool old_project_changed;
+};
+
 class EffectFieldUndo : public QUndoCommand {
 public:
 	EffectFieldUndo(EffectField* field);

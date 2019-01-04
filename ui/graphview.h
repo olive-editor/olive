@@ -5,6 +5,7 @@
 #include <QVector>
 
 class EffectRow;
+class EffectField;
 
 QColor get_curve_color(int index, int length);
 
@@ -45,6 +46,8 @@ private:
 
 	int get_screen_x(double);
 	int get_screen_y(double);
+	long get_value_x(int);
+	double get_value_y(int);
 
 	void selection_update();
 
@@ -77,6 +80,11 @@ private:
 	int rect_select_offset;
 
 	long visible_in;
+
+	bool click_add;
+	EffectField* click_add_field;
+	int click_add_key;
+	int click_add_type;
 private slots:
 	void show_context_menu(const QPoint& pos);
 	void reset_view();

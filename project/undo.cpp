@@ -1269,3 +1269,25 @@ void SetLong::redo() {
 	*p = newval;
 	mainWindow->setWindowModified(true);
 }
+
+KeyframeFieldSet::KeyframeFieldSet(EffectField *ifield, int ii) :
+	field(ifield),
+	index(ii),
+	key(ifield->keyframes.at(ii)),
+	done(true),
+	old_project_changed(mainWindow->isWindowModified())
+{}
+
+void KeyframeFieldSet::undo() {
+	field->keyframes.removeAt(index);
+	mainWindow->setWindowModified(old_project_changed);
+	done = false;
+}
+
+void KeyframeFieldSet::redo() {
+	if (!done) {
+		field->keyframes.insert(index, key);
+		mainWindow->setWindowModified(true);
+	}
+	done = true;
+}
