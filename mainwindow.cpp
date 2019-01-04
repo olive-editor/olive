@@ -80,13 +80,13 @@ void MainWindow::setup_layout(bool reset) {
 #endif
 
 	// load panels from file
-    if (!reset) {
+	if (!reset) {
 		QFile panel_config(get_data_path() + "/layout");
 		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
 			restoreState(panel_config.readAll(), 0);
 			panel_config.close();
 		}
-    }
+	}
 
 	layout()->update();
 }
@@ -727,7 +727,7 @@ void MainWindow::setup_menus() {
 	tools_menu->addAction("Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+."));
 
 #ifdef QT_DEBUG
-    tools_menu->addAction("Clear Undo", this, SLOT(clear_undo_stack()));
+	tools_menu->addAction("Clear Undo", this, SLOT(clear_undo_stack()));
 #endif
 
 	// INITIALIZE HELP MENU
@@ -762,10 +762,10 @@ void MainWindow::updateTitle(const QString& url) {
 void MainWindow::closeEvent(QCloseEvent *e) {
 	if (can_close_project()) {
 		panel_effect_controls->clear_effects(true);
-		panel_sequence_viewer->viewer_widget->delete_function();
-		panel_footage_viewer->viewer_widget->delete_function();
 
 		set_sequence(NULL);
+
+		panel_footage_viewer->set_main_sequence();
 
 		QString data_dir = get_data_path();
 		if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
@@ -824,10 +824,10 @@ void MainWindow::reset_layout() {
 }
 
 void MainWindow::go_to_start() {
-    if (panel_timeline->focused()
-            || panel_sequence_viewer->is_focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_graph_editor->view_is_focused()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->go_to_start();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->go_to_start();
@@ -835,10 +835,10 @@ void MainWindow::go_to_start() {
 }
 
 void MainWindow::prev_frame() {
-    if (panel_timeline->focused()
-            || panel_sequence_viewer->is_focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_graph_editor->view_is_focused()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->previous_frame();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->previous_frame();
@@ -846,10 +846,10 @@ void MainWindow::prev_frame() {
 }
 
 void MainWindow::next_frame() {
-    if (panel_timeline->focused()
-            || panel_sequence_viewer->is_focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_graph_editor->view_is_focused()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->next_frame();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->next_frame();
@@ -857,10 +857,10 @@ void MainWindow::next_frame() {
 }
 
 void MainWindow::go_to_end() {
-    if (panel_timeline->focused()
-            || panel_sequence_viewer->is_focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_graph_editor->view_is_focused()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->go_to_end();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->go_to_end();
@@ -868,10 +868,10 @@ void MainWindow::go_to_end() {
 }
 
 void MainWindow::playpause() {
-    if (panel_timeline->focused()
-            || panel_sequence_viewer->is_focused()
-            || panel_effect_controls->keyframe_focus()
-            || panel_graph_editor->view_is_focused()) {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
 		panel_sequence_viewer->toggle_play();
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->toggle_play();

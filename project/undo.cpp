@@ -150,7 +150,7 @@ void DeleteClipAction::redo() {
 	// remove ref to clip
 	ref = seq->clips.at(index);
 	if (ref->open) {
-		close_clip(ref);
+		close_clip(ref, true);
 	}
 	seq->clips[index] = NULL;
 
@@ -493,7 +493,7 @@ void AddClipCommand::undo() {
 		Clip* c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 		undone_clips.prepend(c);
-		if (c->open) close_clip(c);
+		if (c->open) close_clip(c, true);
 		seq->clips.removeLast();
 	}
 	mainWindow->setWindowModified(old_project_changed);
@@ -587,8 +587,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
 		for (int j=0;j<s->clips.size();j++) {
 			Clip* c = s->clips.at(j);
 			if (c != NULL && c->media == item && c->open) {
-				close_clip(c);
-				if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+				close_clip(c, true);
 				c->replaced = true;
 			}
 		}
@@ -628,8 +627,7 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		if (c->open) {
-			close_clip(c);
-			if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) c->cacher->wait();
+			close_clip(c, true);
 		}
 
 		if (undo) {
@@ -1102,7 +1100,7 @@ void CloseAllClipsCommand::undo() {
 }
 
 void CloseAllClipsCommand::redo() {
-	closeActiveClips(sequence, true);
+	closeActiveClips(sequence);
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) :

@@ -749,6 +749,10 @@ void Effect::save(QXmlStreamWriter& stream) {
 	}
 }
 
+bool Effect::is_open() {
+	return isOpen;
+}
+
 void Effect::validate_meta_path() {
 	if (!meta->path.isEmpty() || (vertPath.isEmpty() && fragPath.isEmpty())) return;
 	QList<QString> effects_paths = get_effects_paths();

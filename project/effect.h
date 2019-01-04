@@ -140,6 +140,7 @@ public:
 	void save(QXmlStreamWriter& stream);
 
 	// glsl handling
+	bool is_open();
 	void open();
 	void close();
 	virtual void startEffect();

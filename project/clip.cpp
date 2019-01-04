@@ -12,6 +12,7 @@
 #include "project/media.h"
 #include "io/clipboard.h"
 #include "undo.h"
+#include "debug.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -113,9 +114,9 @@ void Clip::refresh() {
 		Footage* m = media->to_footage();
 
 		if (track < 0 && m->video_tracks.size() > 0)  {
-            media_stream = m->video_tracks.at(0).file_index;
+			media_stream = m->video_tracks.at(0).file_index;
 		} else if (track >= 0 && m->audio_tracks.size() > 0) {
-            media_stream = m->audio_tracks.at(0).file_index;
+			media_stream = m->audio_tracks.at(0).file_index;
 		}
 	}
 	replaced = false;
@@ -171,12 +172,7 @@ Transition* Clip::get_closing_transition() {
 
 Clip::~Clip() {
 	if (open) {
-		close_clip(this);
-
-		// make sure clip has closed before clip is destroyed
-		if (multithreaded && media != NULL && media->get_type() == MEDIA_TYPE_FOOTAGE) {
-			cacher->wait();
-		}
+		close_clip(this, true);
 	}
 
 	if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
@@ -241,8 +237,8 @@ void Clip::recalculateMaxLength() {
 			case MEDIA_TYPE_FOOTAGE:
 			{
 				Footage* m = media->to_footage();
-                const FootageStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
-                if (ms != NULL && ms->infinite_length) {
+				const FootageStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
+				if (ms != NULL && ms->infinite_length) {
 					calculated_length = LONG_MAX;
 				} else {
 					calculated_length = m->get_length_in_frames(fr);
@@ -269,7 +265,7 @@ int Clip::getWidth() {
 	switch (media->get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-        const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
+		const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
 		if (ms != NULL) return ms->video_width;
 		if (sequence != NULL) return sequence->width;
 	}
@@ -287,7 +283,7 @@ int Clip::getHeight() {
 	switch (media->get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-        const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
+		const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
 		if (ms != NULL) return ms->video_height;
 		if (sequence != NULL) return sequence->height;
 	}

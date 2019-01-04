@@ -573,14 +573,14 @@ void Viewer::set_media(Media* m) {
 			seq->frame_rate = 30;
 
 			if (footage->video_tracks.size() > 0) {
-                const FootageStream& video_stream = footage->video_tracks.at(0);
-                seq->width = video_stream.video_width;
-                seq->height = video_stream.video_height;
-                if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate;
+				const FootageStream& video_stream = footage->video_tracks.at(0);
+				seq->width = video_stream.video_width;
+				seq->height = video_stream.video_height;
+				if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate;
 
 				Clip* c = new Clip(seq);
 				c->media = media;
-                c->media_stream = video_stream.file_index;
+				c->media_stream = video_stream.file_index;
 				c->timeline_in = 0;
 				c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
 				if (c->timeline_out <= 0) c->timeline_out = 150;
@@ -594,12 +594,12 @@ void Viewer::set_media(Media* m) {
 			}
 
 			if (footage->audio_tracks.size() > 0) {
-                const FootageStream& audio_stream = footage->audio_tracks.at(0);
-                seq->audio_frequency = audio_stream.audio_frequency;
+				const FootageStream& audio_stream = footage->audio_tracks.at(0);
+				seq->audio_frequency = audio_stream.audio_frequency;
 
 				Clip* c = new Clip(seq);
 				c->media = media;
-                c->media_stream = audio_stream.file_index;
+				c->media_stream = audio_stream.file_index;
 				c->timeline_in = 0;
 				c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
 				c->track = 0;
@@ -610,7 +610,7 @@ void Viewer::set_media(Media* m) {
 				if (footage->video_tracks.size() == 0) {
 					viewer_widget->waveform = true;
 					viewer_widget->waveform_clip = c;
-                    viewer_widget->waveform_ms = &audio_stream;
+					viewer_widget->waveform_ms = &audio_stream;
 					viewer_widget->update();
 				}
 			} else {
@@ -697,6 +697,10 @@ void Viewer::clean_created_seq() {
 
 void Viewer::set_sequence(bool main, Sequence *s) {
 	reset_all_audio();
+
+	if (seq != NULL) {
+		closeActiveClips(seq);
+	}
 
 	main_sequence = main;
 	seq = (main) ? sequence : s;
