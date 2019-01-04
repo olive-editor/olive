@@ -1043,15 +1043,17 @@ void Timeline::paste(bool insert) {
 void Timeline::ripple_to_in_point(bool in, bool ripple) {
 	if (sequence != NULL) {
 		if (sequence->clips.size() > 0) {
-			if (!in && sequence->playhead == 0) return;
-
 			// get track count
 			int track_min = INT_MAX;
 			int track_max = INT_MIN;
 			long sequence_end = 0;
 
+			bool playhead_falls_on_in = false;
+			bool playhead_falls_on_out = false;
+			long next_cut = LONG_MAX;
+			long prev_cut = 0;
+
 			// find closest in point to playhead
-			long in_point = in ? LONG_MIN : LONG_MAX;
 			for (int i=0;i<sequence->clips.size();i++) {
 				Clip* c = sequence->clips.at(i);
 				if (c != NULL) {
@@ -1060,32 +1062,36 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 
 					sequence_end = qMax(c->timeline_out, sequence_end);
 
-					if (sequence->playhead != in_point) {
-						if ((in && c->timeline_in > in_point && c->timeline_in <= sequence->playhead)
-								|| (!in && c->timeline_in < in_point && c->timeline_in >= sequence->playhead)) {
-							in_point = c->timeline_in;
-						}
-						if ((in && c->timeline_out > in_point && c->timeline_out <= sequence->playhead)
-								|| (!in && c->timeline_out < in_point && c->timeline_out >= sequence->playhead)) {
-							in_point = c->timeline_out;
-						}
-					}
+					if (c->timeline_in == sequence->playhead)
+						playhead_falls_on_in = true;
+					if (c->timeline_out == sequence->playhead)
+						playhead_falls_on_out = true;
+					if (c->timeline_in > sequence->playhead)
+						next_cut = qMin(c->timeline_in, next_cut);
+					if (c->timeline_out > sequence->playhead)
+						next_cut = qMin(c->timeline_out, next_cut);
+					if (c->timeline_in < sequence->playhead)
+						prev_cut = qMax(c->timeline_in, prev_cut);
+					if (c->timeline_out < sequence->playhead)
+						prev_cut = qMax(c->timeline_out, prev_cut);
 				}
 			}
 
-			if (in && sequence->playhead == sequence_end) return;
+			next_cut = qMin(sequence_end, next_cut);
 
 			QVector<Selection> areas;
 			ComboAction* ca = new ComboAction();
 			bool push_undo = true;
+			long seek = sequence->playhead;
 
-			if (sequence->playhead == in_point) { // one frame mode
+			if ((in && (playhead_falls_on_out || (playhead_falls_on_in && sequence->playhead == 0)))
+					|| (!in && (playhead_falls_on_in || (playhead_falls_on_out && sequence->playhead == sequence_end)))) { // one frame mode
 				if (ripple) {
 					// set up deletion areas based on track count
-					if (in) {
-						in_point = sequence->playhead;
-					} else {
-						in_point = sequence->playhead - 1;
+					long in_point = sequence->playhead;
+					if (!in) {
+						in_point--;
+						seek--;
 					}
 
 					if (in_point >= 0) {
@@ -1110,16 +1116,22 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 			} else {
 				// set up deletion areas based on track count
 				Selection s;
-				s.in = qMin(in_point, sequence->playhead);
-				s.out = qMax(in_point, sequence->playhead);
-				for (int i=track_min;i<=track_max;i++) {
-					s.track = i;
-					areas.append(s);
-				}
+				if (in) seek = prev_cut;
+				s.in = in ? prev_cut : sequence->playhead;
+				s.out = in ? sequence->playhead : next_cut;
 
-				// trim and move clips around the in point
-				delete_areas_and_relink(ca, areas);
-				if (ripple) ripple_clips(ca, sequence, in_point, (in) ? (in_point - sequence->playhead) : (sequence->playhead - in_point));
+				if (s.in == s.out) {
+					push_undo = false;
+				} else {
+					for (int i=track_min;i<=track_max;i++) {
+						s.track = i;
+						areas.append(s);
+					}
+
+					// trim and move clips around the in point
+					delete_areas_and_relink(ca, areas);
+					if (ripple) ripple_clips(ca, sequence, s.in, s.in - s.out);
+				}
 			}
 
 			if (push_undo) {
@@ -1127,7 +1139,7 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 
 				update_ui(true);
 
-				if (in_point < sequence->playhead && ripple) panel_sequence_viewer->seek(in_point);
+				if (seek != sequence->playhead && ripple) panel_sequence_viewer->seek(seek);
 			} else {
 				delete ca;
 			}
