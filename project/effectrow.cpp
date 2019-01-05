@@ -68,6 +68,7 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 					ca->append(new KeyframeDelete(f, 0));
 				}
 			}
+			ca->append(new SetKeyframing(this, false));
 			undo_stack.push(ca);
 			panel_effect_controls->update_keyframes();
 		} else {

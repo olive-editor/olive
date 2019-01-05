@@ -713,10 +713,6 @@ void GraphView::wheelEvent(QWheelEvent *event) {
 			double new_zoom = (event->angleDelta().y() < 0) ? zoom - zoom_diff : zoom + zoom_diff;
 
 			// center zoom on screen
-			/*set_scroll_x(qRound(x_scroll + double(event->pos().x())*new_zoom - double(event->pos().x())*zoom));
-			set_scroll_y(qRound(y_scroll + double(height()-event->pos().y())*new_zoom - double(height()-event->pos().y())*zoom));*/
-			/*set_scroll_x(qRound((double(x_scroll)/zoom*new_zoom) + (double(event->pos().x())/zoom*new_zoom)));
-			set_scroll_y(qRound((double(y_scroll)/zoom*new_zoom)));*/
 			set_scroll_x(qRound((double(x_scroll)/zoom*new_zoom) + double(event->pos().x())*new_zoom - double(event->pos().x())*zoom));
 			set_scroll_y(qRound((double(y_scroll)/zoom*new_zoom) + double(height()-event->pos().y())*new_zoom - double(height()-event->pos().y())*zoom));
 

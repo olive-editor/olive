@@ -1291,3 +1291,16 @@ void KeyframeFieldSet::redo() {
 	}
 	done = true;
 }
+
+SetKeyframing::SetKeyframing(EffectRow *irow, bool ib) :
+	row(irow),
+	b(ib)
+{}
+
+void SetKeyframing::undo() {
+	row->setKeyframing(!b);
+}
+
+void SetKeyframing::redo() {
+	row->setKeyframing(b);
+}

@@ -641,4 +641,14 @@ private:
 	QVariant new_val;
 };
 
+class SetKeyframing : public QUndoCommand {
+public:
+	SetKeyframing(EffectRow* irow, bool ib);
+	void undo();
+	void redo();
+private:
+	EffectRow* row;
+	bool b;
+};
+
 #endif // UNDO_H
