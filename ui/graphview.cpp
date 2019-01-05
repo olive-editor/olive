@@ -733,8 +733,10 @@ void GraphView::set_row(EffectRow *r) {
 			field_visibility.resize(row->fieldCount());
 			field_visibility.fill(true);
 			visible_in = row->parent_effect->parent_clip->timeline_in;
+			set_view_to_all();
+		} else {
+			update();
 		}
-		update();
 	}
 }
 
