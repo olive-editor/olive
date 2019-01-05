@@ -187,9 +187,15 @@ MainWindow::MainWindow(QWidget *parent) :
 				}
 				f.close();
 			}
-
-			config_dir = data_dir + "/config.xml";
-			config.load(config_dir);
+		}
+	}
+	QString config_path = get_config_path();
+	if (!config_path.isEmpty()) {
+		QDir config_dir(config_path);
+		config_dir.mkpath(".");
+		QString config_fn = config_path + "/config.xml";
+		if (QFileInfo::exists(config_fn)) {
+			config.load(config_fn);
 		}
 	}
 

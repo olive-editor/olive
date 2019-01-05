@@ -11,7 +11,7 @@ QDebug debug_out(&debug_file);
 
 void setup_debug() {
 #ifndef QT_DEBUG
-	debug_file.setFileName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/debug_log");
+	debug_file.setFileName(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/debug_log");
 	if (debug_file.open(QFile::WriteOnly)) {
 		QString debug_intro = "Olive Session " + QString::number(QDateTime::currentMSecsSinceEpoch());
 		debug_file.write(debug_intro.toUtf8());
