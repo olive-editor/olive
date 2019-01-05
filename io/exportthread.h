@@ -10,6 +10,13 @@ struct AVCodecContext;
 struct AVFrame;
 struct AVPacket;
 struct AVStream;
+struct AVCodec;
+struct SwsContext;
+struct SwrContext;
+
+extern "C" {
+	#include <libavcodec/avcodec.h>
+}
 
 #define COMPRESSION_TYPE_CBR 0
 #define COMPRESSION_TYPE_CFR 1
@@ -20,7 +27,7 @@ class ExportThread : public QThread {
 	Q_OBJECT
 public:
 	ExportThread();
-    void run();
+	void run();
 
 	// export parameters
 	QString filename;
@@ -35,8 +42,8 @@ public:
 	int audio_codec;
 	int audio_sampling_rate;
 	int audio_bitrate;
-    long start_frame;
-    long end_frame;
+	long start_frame;
+	long end_frame;
 
 	QOffscreenSurface surface;
 
@@ -44,12 +51,31 @@ public:
 
 	bool continueEncode;
 signals:
-    void progress_changed(int value, qint64 remaining_ms);
+	void progress_changed(int value, qint64 remaining_ms);
 private:
-	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream);
+	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
 	bool setupVideo();
 	bool setupAudio();
 	bool setupContainer();
+
+	AVFormatContext* fmt_ctx = NULL;
+	AVStream* video_stream;
+	AVCodec* vcodec;
+	AVCodecContext* vcodec_ctx;
+	AVFrame* video_frame;
+	AVFrame* sws_frame;
+	SwsContext* sws_ctx = NULL;
+	AVStream* audio_stream;
+	AVCodec* acodec;
+	AVFrame* audio_frame;
+	AVFrame* swr_frame;
+	AVCodecContext* acodec_ctx;
+	AVPacket video_pkt;
+	AVPacket audio_pkt;
+	SwrContext* swr_ctx = NULL;
+	int aframe_bytes;
+	int ret;
+	char* c_filename;
 };
 
 #endif // EXPORTTHREAD_H

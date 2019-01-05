@@ -676,6 +676,8 @@ void Viewer::clean_created_seq() {
 }
 
 void Viewer::set_sequence(bool main, Sequence *s) {
+	pause();
+
 	reset_all_audio();
 
 	if (seq != NULL) {
