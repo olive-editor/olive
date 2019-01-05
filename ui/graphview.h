@@ -85,6 +85,7 @@ private:
 	long visible_in;
 
 	bool click_add;
+	bool click_add_proc;
 	EffectField* click_add_field;
 	int click_add_key;
 	int click_add_type;

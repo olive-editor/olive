@@ -46,7 +46,8 @@ GraphView::GraphView(QWidget* parent) :
 	moved_keys(false),
 	current_handle(BEZIER_HANDLE_NONE),
 	rect_select(false),
-	visible_in(0)
+	visible_in(0),
+	click_add_proc(false)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -331,7 +332,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 		int sel_key_field = -1;
 		current_handle = BEZIER_HANDLE_NONE;
 
-		if (click_add) {
+		if (click_add && (event->buttons() & Qt::LeftButton)) {
 			selected_keys.clear();
 			selected_keys_fields.clear();
 
@@ -342,6 +343,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 			click_add_key = click_add_field->keyframes.size();
 			click_add_field->keyframes.append(key);
 			update_ui(false);
+			click_add_proc = true;
 		} else {
 			for (int i=0;i<row->fieldCount();i++) {
 				EffectField* field = row->field(i);
@@ -429,16 +431,16 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 void GraphView::mouseMoveEvent(QMouseEvent *event) {
 	if (!mousedown || !click_add) unsetCursor();
 	if (mousedown) {
-		if (click_add) {
-			click_add_field->keyframes[click_add_key].time = get_value_x(event->pos().x());
-			click_add_field->keyframes[click_add_key].data = get_value_y(event->pos().y());
-			update_ui(false);
-		} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
+		if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
 			set_scroll_x(x_scroll + start_x - event->pos().x());
 			set_scroll_y(y_scroll + event->pos().y() - start_y);
 			start_x = event->pos().x();
 			start_y = event->pos().y();
 			update();
+		} else if (click_add_proc) {
+			click_add_field->keyframes[click_add_key].time = get_value_x(event->pos().x());
+			click_add_field->keyframes[click_add_key].data = get_value_y(event->pos().y());
+			update_ui(false);
 		} else if (rect_select) {
 			rect_select_w = event->pos().x() - rect_select_x;
 			rect_select_h = event->pos().y() - rect_select_y;
@@ -656,8 +658,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 	}
 }
 
-void GraphView::mouseReleaseEvent(QMouseEvent *) {
-	if (click_add) {
+void GraphView::mouseReleaseEvent(QMouseEvent *e) {
+	if (click_add_proc) {
 		undo_stack.push(new KeyframeFieldSet(click_add_field, click_add_key));
 	} else if (moved_keys && selected_keys.size() > 0) {
 		ComboAction* ca = new ComboAction();
@@ -685,6 +687,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
 	moved_keys = false;
 	mousedown = false;
 	click_add = false;
+	click_add_proc = false;
 	if (rect_select) {
 		rect_select = false;
 		selection_update();
@@ -693,6 +696,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
 }
 
 void GraphView::wheelEvent(QWheelEvent *event) {
+	dout << x_scroll << y_scroll;
+
 	bool redraw = false;
 	bool shift = (event->modifiers() & Qt::ShiftModifier); // scroll instead of zoom
 
@@ -708,10 +713,15 @@ void GraphView::wheelEvent(QWheelEvent *event) {
 			double new_zoom = (event->angleDelta().y() < 0) ? zoom - zoom_diff : zoom + zoom_diff;
 
 			// center zoom on screen
-			set_scroll_x(qRound(x_scroll + double(event->pos().x())*new_zoom - double(event->pos().x())*zoom));
-			set_scroll_y(qRound(y_scroll + double(height()-event->pos().y())*new_zoom - double(height()-event->pos().y())*zoom));
+			/*set_scroll_x(qRound(x_scroll + double(event->pos().x())*new_zoom - double(event->pos().x())*zoom));
+			set_scroll_y(qRound(y_scroll + double(height()-event->pos().y())*new_zoom - double(height()-event->pos().y())*zoom));*/
+			/*set_scroll_x(qRound((double(x_scroll)/zoom*new_zoom) + (double(event->pos().x())/zoom*new_zoom)));
+			set_scroll_y(qRound((double(y_scroll)/zoom*new_zoom)));*/
+			set_scroll_x(qRound((double(x_scroll)/zoom*new_zoom) + double(event->pos().x())*new_zoom - double(event->pos().x())*zoom));
+			set_scroll_y(qRound((double(y_scroll)/zoom*new_zoom) + double(height()-event->pos().y())*new_zoom - double(height()-event->pos().y())*zoom));
 
 			set_zoom(new_zoom);
+
 			redraw = true;
 		}
 	}
