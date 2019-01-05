@@ -54,7 +54,7 @@ MainWindow* mainWindow;
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
 QTimer autorecovery_timer;
-QString config_dir;
+QString config_fn;
 QString appName = "Olive (January 2019 | Alpha)";
 bool demoNoticeShown = false;
 
@@ -81,7 +81,7 @@ void MainWindow::setup_layout(bool reset) {
 
 	// load panels from file
 	if (!reset) {
-		QFile panel_config(get_data_path() + "/layout");
+		QFile panel_config(get_config_path() + "/layout");
 		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
 			restoreState(panel_config.readAll(), 0);
 			panel_config.close();
@@ -193,7 +193,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	if (!config_path.isEmpty()) {
 		QDir config_dir(config_path);
 		config_dir.mkpath(".");
-		QString config_fn = config_path + "/config.xml";
+		config_fn = config_path + "/config.xml";
 		if (QFileInfo::exists(config_fn)) {
 			config.load(config_fn);
 		}
@@ -789,17 +789,18 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 		panel_footage_viewer->set_main_sequence();
 
 		QString data_dir = get_data_path();
+		QString config_dir = get_config_path();
 		if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
 			if (QFile::exists(autorecovery_filename)) {
 				QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
 			}
 		}
-		if (!config_dir.isEmpty()) {
+		if (!config_dir.isEmpty() && !config_fn.isEmpty()) {
 			// save settings
-			config.save(config_dir);
+			config.save(config_fn);
 
 			// save panel layout
-			QFile panel_config(data_dir + "/layout");
+			QFile panel_config(config_dir + "/layout");
 			if (panel_config.open(QFile::WriteOnly)) {
 				panel_config.write(saveState(0));
 				panel_config.close();
