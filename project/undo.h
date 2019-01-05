@@ -342,24 +342,6 @@ private:
 	bool old_project_changed;
 };
 
-
-class KeyframeSet : public QUndoCommand {
-public:
-	KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
-	void undo();
-	void redo();
-	QVector<QVariant> old_values;
-	QVector<QVariant> new_values;
-private:
-	bool old_project_changed;
-	EffectRow* row;
-	int index;
-	long time;
-	bool enable_keyframes;
-	bool just_made_keyframe;
-	bool done;
-};
-
 // a more modern version of the above, could probably replace it
 // assumes the keyframe already exists
 class KeyframeFieldSet : public QUndoCommand {

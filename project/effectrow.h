@@ -48,6 +48,10 @@ private:
 	KeyframeNavigator* keyframe_nav;
 
 	bool just_made_unsafe_keyframe;
+	QVector<int> unsafe_keys;
+	QVector<QVariant> unsafe_old_data;
+	QVector<bool> key_is_new;
+
 };
 
 #endif // EFFECTROW_H

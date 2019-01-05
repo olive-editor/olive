@@ -752,66 +752,6 @@ void KeyframeDelete::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-KeyframeSet::KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe) :
-	old_project_changed(mainWindow->isWindowModified()),
-	row(r),
-	index(i),
-	time(t),
-	just_made_keyframe(justMadeKeyframe),
-	done(true)
-{
-	enable_keyframes = !row->isKeyframing();
-	if (index != -1) old_values.resize(row->fieldCount());
-	new_values.resize(row->fieldCount());
-	for (int i=0;i<row->fieldCount();i++) {
-		EffectField* field = row->field(i);
-		if (index != -1) {
-			if (field->type == EFFECT_FIELD_DOUBLE) {
-				old_values[i] = static_cast<LabelSlider*>(field->ui_element)->getPreviousValue();
-			} else {
-				old_values[i] = field->keyframes.at(index).data;
-			}
-		}
-		new_values[i] = field->get_current_data();
-	}
-}
-
-void KeyframeSet::undo() {
-	if (enable_keyframes) row->setKeyframing(false);
-
-	bool append = (index == -1 || just_made_keyframe);
-	for (int i=0;i<row->fieldCount();i++) {
-		if (append) {
-			row->field(i)->keyframes.removeLast();
-		} else {
-			row->field(i)->keyframes[index].data = old_values.at(i);
-		}
-	}
-
-	mainWindow->setWindowModified(old_project_changed);
-	done = false;
-}
-
-void KeyframeSet::redo() {
-	bool append = (index == -1 || (just_made_keyframe && !done));
-	for (int i=0;i<row->fieldCount();i++) {
-		EffectField* f = row->field(i);
-		if (append) {
-			EffectKeyframe k;
-			k.data = new_values.at(i);
-			k.time = time;
-			k.type = (f->keyframes.size() > 0) ? f->keyframes.last().type : EFFECT_KEYFRAME_LINEAR;
-			f->keyframes.append(k);
-		} else {
-			f->keyframes[index].data = new_values.at(i);
-		}
-	}
-	row->setKeyframing(true);
-
-	mainWindow->setWindowModified(true);
-	done = true;
-}
-
 EffectFieldUndo::EffectFieldUndo(EffectField* f) :
 	field(f),
 	done(true),

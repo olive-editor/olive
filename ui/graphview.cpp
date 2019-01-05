@@ -133,9 +133,6 @@ void GraphView::set_view_to_rect(int x1, double y1, int x2, double y2) {
 
 	set_scroll_x(qRound((double(x1) - ((x_diff_padded-x_diff)/2))*zoom));
 	set_scroll_y(qRound((double(y1) - ((y_diff_padded-y_diff)/2))*zoom));
-
-	//set_scroll_y(height() - y1);
-
 }
 
 void GraphView::draw_line_text(QPainter &p, bool vert, int line_no, int line_pos, int next_line_pos) {

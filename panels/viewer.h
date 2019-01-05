@@ -77,12 +77,6 @@ public slots:
 	void go_to_end();
 
 private slots:
-	void on_btnSkipToStart_clicked();
-	void on_btnRewind_clicked();
-	void on_btnPlay_clicked();
-	void on_btnFastForward_clicked();
-	void on_btnSkipToEnd_clicked();
-
 	void update_playhead();
 	void timer_update();
 	void recording_flasher_update();
@@ -102,8 +96,8 @@ private:
 	void setup_ui();
 
 	TimelineHeader* headers;
-	ResizableScrollBar* horizontalScrollBar;
-	ViewerContainer* glViewerPane;
+	ResizableScrollBar* horizontal_bar;
+	ViewerContainer* viewer_container;
 	LabelSlider* currentTimecode;
 	QLabel* endTimecode;
 

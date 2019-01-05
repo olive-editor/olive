@@ -53,8 +53,8 @@ Viewer::Viewer(QWidget *parent) :
 	headers->viewer = this;
 	headers->snapping = false;
 	headers->show_text(false);
-	glViewerPane->viewer = this;
-	viewer_widget = glViewerPane->child;
+	viewer_container->viewer = this;
+	viewer_widget = viewer_container->child;
 	viewer_widget->viewer = this;
 	set_media(NULL);
 
@@ -69,9 +69,9 @@ Viewer::Viewer(QWidget *parent) :
 
 	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
 	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
-	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
-	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
-	connect(horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
+	connect(horizontal_bar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
+	connect(horizontal_bar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+	connect(horizontal_bar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
 	update_playhead_timecode(0);
 	update_end_timecode();
@@ -441,13 +441,13 @@ void Viewer::set_zoom_value(double d) {
 	}
 	if (seq != NULL) {
 		set_sb_max();
-		if (!horizontalScrollBar->is_resizing())
-			center_scroll_to_playhead(horizontalScrollBar, headers->get_zoom(), seq->playhead);
+		if (!horizontal_bar->is_resizing())
+			center_scroll_to_playhead(horizontal_bar, headers->get_zoom(), seq->playhead);
 	}
 }
 
 void Viewer::set_sb_max() {
-	headers->set_scrollbar_max(horizontalScrollBar, seq->getEndFrame(), headers->width());
+	headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
 }
 
 void Viewer::setup_ui() {
@@ -457,17 +457,17 @@ void Viewer::setup_ui() {
 	layout->setSpacing(0);
 	layout->setMargin(0);
 
-	glViewerPane = new ViewerContainer(contents);
-	glViewerPane->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	layout->addWidget(glViewerPane);
+	viewer_container = new ViewerContainer(contents);
+	viewer_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	layout->addWidget(viewer_container);
 
 	headers = new TimelineHeader(contents);
 	layout->addWidget(headers);
 
-	horizontalScrollBar = new ResizableScrollBar(contents);
-	horizontalScrollBar->setSingleStep(20);
-	horizontalScrollBar->setOrientation(Qt::Horizontal);
-	layout->addWidget(horizontalScrollBar);
+	horizontal_bar = new ResizableScrollBar(contents);
+	horizontal_bar->setSingleStep(20);
+	horizontal_bar->setOrientation(Qt::Horizontal);
+	layout->addWidget(horizontal_bar);
 
 	QWidget* lower_controls = new QWidget(contents);
 
@@ -628,26 +628,6 @@ void Viewer::set_media(Media* m) {
 	set_sequence(false, seq);
 }
 
-void Viewer::on_btnSkipToStart_clicked() {
-	go_to_start();
-}
-
-void Viewer::on_btnSkipToEnd_clicked() {
-	go_to_end();
-}
-
-void Viewer::on_btnRewind_clicked() {
-	previous_frame();
-}
-
-void Viewer::on_btnFastForward_clicked() {
-	next_frame();
-}
-
-void Viewer::on_btnPlay_clicked() {
-	toggle_play();
-}
-
 void Viewer::update_playhead() {
 	seek(currentTimecode->value());
 }
@@ -725,7 +705,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 		update_playhead_timecode(seq->playhead);
 		update_end_timecode();
 
-		glViewerPane->adjust();
+		viewer_container->adjust();
 
 		setWindowTitle(panel_name + seq->name);
 	} else {

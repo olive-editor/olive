@@ -116,19 +116,17 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 									long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time);
 
 									// see if any other keyframes have this time
-									bool solo = true;
+									int appearances = 0;
 									for (int m=0;m<row->fieldCount();m++) {
 										EffectField* compf = row->field(m);
 										for (int n=0;n<compf->keyframes.size();n++) {
-											if (f->keyframes.at(k).time == compf->keyframes.at(n).time
-													&& !(m == l && k == n)) {
-												solo = false;
-												break;
+											if (f->keyframes.at(k).time == compf->keyframes.at(n).time) {
+												appearances++;
 											}
 										}
 									}
 
-									if (solo) {
+									if (appearances != row->fieldCount()) {
 										QColor cc = get_curve_color(l, row->fieldCount());
 										draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected, cc.red(), cc.green(), cc.blue());
 									} else {

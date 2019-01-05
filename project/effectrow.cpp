@@ -56,6 +56,7 @@ void EffectRow::setKeyframing(bool b) {
 void EffectRow::set_keyframe_enabled(bool enabled) {
 	if (enabled) {
 		ComboAction* ca = new ComboAction();
+		ca->append(new SetKeyframing(this, true));
 		set_keyframe_now(ca);
 		undo_stack.push(ca);
 	} else {
@@ -156,7 +157,74 @@ EffectRow::~EffectRow() {
 }
 
 void EffectRow::set_keyframe_now(ComboAction* ca) {
-	int index = -1;
+	long time = sequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
+
+	if (!just_made_unsafe_keyframe) {
+		EffectKeyframe key;
+		key.time = time;
+
+		unsafe_keys.resize(fieldCount());
+		unsafe_old_data.resize(fieldCount());
+		key_is_new.resize(fieldCount());
+
+		for (int i=0;i<fieldCount();i++) {
+			EffectField* f = field(i);
+
+			int exist_key = -1;
+			int closest_key = 0;
+			for (int j=0;j<f->keyframes.size();j++) {
+				if (f->keyframes.at(j).time == time) {
+					exist_key = j;
+				} else if (f->keyframes.at(j).time < time
+						   && f->keyframes.at(closest_key).time < f->keyframes.at(j).time) {
+					closest_key = j;
+				}
+			}
+			if (exist_key == -1) {
+				key.type = (f->keyframes.size() == 0) ? KEYFRAME_TYPE_LINEAR : f->keyframes.at(closest_key).type;
+				key.data = f->get_current_data();//f->keyframes.at(closest_key).data;
+				unsafe_keys[i] = f->keyframes.size();
+				f->keyframes.append(key);
+				key_is_new[i] = true;
+			} else {
+				unsafe_keys[i] = exist_key;
+				key_is_new[i] = false;
+			}
+			unsafe_old_data[i] = f->get_current_data();
+		}
+		just_made_unsafe_keyframe = true;
+	}
+
+	for (int i=0;i<fieldCount();i++) {
+		field(i)->keyframes[unsafe_keys.at(i)].data = field(i)->get_current_data();
+	}
+
+	if (ca != NULL)	{
+		for (int i=0;i<fieldCount();i++) {
+			if (key_is_new.at(i)) ca->append(new KeyframeFieldSet(field(i), unsafe_keys.at(i)));
+			ca->append(new SetQVariant(&field(i)->keyframes[unsafe_keys.at(i)].data, unsafe_old_data.at(i), field(i)->get_current_data()));
+		}
+		unsafe_keys.clear();
+		unsafe_old_data.clear();
+		just_made_unsafe_keyframe = false;
+	}
+
+	panel_effect_controls->update_keyframes();
+
+
+
+
+
+	/*if (ca != NULL) {
+		just_made_unsafe_keyframe = false;
+	} else {
+		if (!just_made_unsafe_keyframe) {
+			just_made_unsafe_keyframe = true;
+		}
+	}*/
+
+
+	/*int index = -1;
 	long time = sequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
 	for (int j=0;j<fieldCount();j++) {
 		EffectField* f = field(j);
@@ -179,7 +247,7 @@ void EffectRow::set_keyframe_now(ComboAction* ca) {
 		delete ks;
 	}
 
-	panel_effect_controls->update_keyframes();
+	panel_effect_controls->update_keyframes();*/
 }
 
 void EffectRow::delete_keyframe_at_time(ComboAction* ca, long time) {
