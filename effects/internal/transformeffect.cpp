@@ -119,55 +119,40 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	// set defaults
 	uniform_scale_field->set_bool_value(true);
 	blend_mode_box->set_combo_index(0);
-    set = false;
+	set = false;
 	refresh();
 }
 
 void adjust_field(EffectField* field, double old_offset, double new_offset) {
-    if (field->keyframes.size() > 0) {
-        for (int i=0;i<field->keyframes.size();i++) {
-            field->keyframes[i].data = field->keyframes.at(i).data.toDouble() - old_offset + new_offset;
-        }
-    } else {
-        field->set_current_data(field->get_current_data().toDouble() - old_offset + new_offset);
-    }
+	if (field->keyframes.size() > 0) {
+		for (int i=0;i<field->keyframes.size();i++) {
+			field->keyframes[i].data = field->keyframes.at(i).data.toDouble() - old_offset + new_offset;
+		}
+	} else {
+		field->set_current_data(field->get_current_data().toDouble() - old_offset + new_offset);
+	}
 }
 
 void TransformEffect::refresh() {
 	if (parent_clip != NULL && parent_clip->sequence != NULL) {
-        double new_default_pos_x = parent_clip->sequence->width/2;
-        double new_default_pos_y = parent_clip->sequence->height/2;
+		double new_default_pos_x = parent_clip->sequence->width/2;
+		double new_default_pos_y = parent_clip->sequence->height/2;
 
-        /*if (set) {
-            adjust_field(position_x, default_pos_x, new_default_pos_x);
-            adjust_field(position_y, default_pos_y, new_default_pos_y);
-        }*/
+		/*if (set) {
+			adjust_field(position_x, default_pos_x, new_default_pos_x);
+			adjust_field(position_y, default_pos_y, new_default_pos_y);
+		}*/
 
-        default_pos_x = new_default_pos_x;
-        default_pos_y = new_default_pos_y;
+		double default_pos_x = new_default_pos_x;
+		double default_pos_y = new_default_pos_y;
 
 		position_x->set_double_default_value(default_pos_x);
 		position_y->set_double_default_value(default_pos_y);
 		scale_x->set_double_default_value(100);
 		scale_y->set_double_default_value(100);
 
-        int new_default_anchor_x = parent_clip->getWidth()/2;
-        int new_default_anchor_y = parent_clip->getHeight()/2;
-
-        if (new_default_anchor_x == 0) new_default_anchor_x = default_pos_x;
-        if (new_default_anchor_y == 0) new_default_anchor_y = default_pos_y;
-
-        // adjust anchors for new size
-        if (set) {
-            adjust_field(anchor_x_box, default_anchor_x, new_default_anchor_x);
-            adjust_field(anchor_y_box, default_anchor_y, new_default_anchor_y);
-        }
-
-        default_anchor_x = new_default_anchor_x;
-        default_anchor_y = new_default_anchor_y;
-
-		anchor_x_box->set_double_default_value(default_anchor_x);
-		anchor_y_box->set_double_default_value(default_anchor_y);
+		anchor_x_box->set_double_default_value(0);
+		anchor_y_box->set_double_default_value(0);
 		opacity->set_double_default_value(100);
 
 		double x_percent_multipler = 200.0 / parent_clip->sequence->width;
@@ -186,7 +171,7 @@ void TransformEffect::refresh() {
 		right_center_gizmo->x_field_multi1 = x_percent_multipler;
 		rotate_gizmo->x_field_multi1 = x_percent_multipler;
 
-        set = true;
+		set = true;
 	}
 }
 
@@ -206,8 +191,8 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 
 	// anchor point
-	int anchor_x_offset = (anchor_x_box->get_double_value(timecode)-default_anchor_x);
-	int anchor_y_offset = (anchor_y_box->get_double_value(timecode)-default_anchor_y);
+	int anchor_x_offset = (anchor_x_box->get_double_value(timecode));
+	int anchor_y_offset = (anchor_y_box->get_double_value(timecode));
 	coords.vertexTopLeftX -= anchor_x_offset;
 	coords.vertexTopRightX -= anchor_x_offset;
 	coords.vertexBottomLeftX -= anchor_x_offset;
