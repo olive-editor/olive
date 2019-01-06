@@ -1298,7 +1298,8 @@ void MainWindow::nest() {
 			Media* m = panel_project->new_sequence(ca, s, false, NULL);
 
 			// add nested sequence to active sequence
-			QVector<Media*> media_list = {m};
+			QVector<Media*> media_list;
+			media_list.append(m);
 			panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
 			panel_timeline->add_clips_from_ghosts(ca, sequence);
 
