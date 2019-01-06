@@ -4,6 +4,9 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include "panels/project.h"
+#include "panels/panels.h"
+
 #include "debug.h"
 
 Config config;
@@ -34,7 +37,8 @@ Config::Config()
 	  fast_seeking(false),
 	  hover_focus(false),
 	  project_view_type(PROJECT_VIEW_TREE),
-	  set_name_with_marker(true)
+	  set_name_with_marker(true),
+	  show_project_toolbar(false)
 {}
 
 void Config::load(QString path) {
@@ -123,6 +127,9 @@ void Config::load(QString path) {
 				} else if (stream.name() == "SetNameWithMarker") {
 					stream.readNext();
 					set_name_with_marker = (stream.text() == "1");
+				} else if (stream.name() == "ShowProjectToolbar") {
+					stream.readNext();
+					show_project_toolbar = (stream.text() == "1");
 				}
 			}
 		}
@@ -173,6 +180,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("HoverFocus", QString::number(hover_focus));
 	stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
 	stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
+	stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

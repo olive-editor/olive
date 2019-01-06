@@ -127,6 +127,11 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	QAction* icon_view_action = menu.addAction("Icon View");
 	connect(icon_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_icon_view()));
 
+	QAction* toolbar_action = menu.addAction("Show Toolbar");
+	toolbar_action->setCheckable(true);
+	toolbar_action->setChecked(project_parent->toolbar_widget->isVisible());
+	connect(toolbar_action, SIGNAL(triggered(bool)), project_parent->toolbar_widget, SLOT(setVisible(bool)));
+
 	menu.exec(QCursor::pos());
 }
 
