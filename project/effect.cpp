@@ -111,9 +111,9 @@ void load_internal_effects() {
 	em.internal = EFFECT_INTERNAL_CORNERPIN;
 	effects.append(em);
 
-	em.name = "Mask";
+	/*em.name = "Mask";
 	em.internal = EFFECT_INTERNAL_MASK;
-	effects.append(em);
+	effects.append(em);*/
 
 	em.name = "Shake";
 	em.internal = EFFECT_INTERNAL_SHAKE;
