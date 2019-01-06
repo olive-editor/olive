@@ -506,9 +506,8 @@ void Viewer::setup_ui() {
 	playback_control_layout->addWidget(btnRewind);
 
 	btnPlay = new QPushButton(playback_controls);
-	QIcon playIcon;
-	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::Off);
-	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::On);
+	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	btnPlay->setIcon(playIcon);
 	connect(btnPlay, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
 	playback_control_layout->addWidget(btnPlay);
@@ -725,5 +724,5 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 }
 
 void Viewer::set_playpause_icon(bool play) {
-	btnPlay->setIcon(QIcon((play) ? ":/icons/play.png" : ":/icons/pause.png"));
+	btnPlay->setIcon(play ? playIcon : QIcon(":/icons/pause.png"));
 }

@@ -443,6 +443,47 @@ bool MainWindow::can_close_project() {
 	return true;
 }
 
+void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save) {
+	QList<QAction*> actions = menu->actions();
+	for (int i=0;i<actions.size();i++) {
+		QAction* a = actions.at(i);
+		if (a->menu() != NULL) {
+			kbd_shortcut_processor(file, a->menu(), save);
+		} else if (!a->isSeparator()) {
+			if (save) {
+				// saving custom shortcuts
+				if (!a->property("default").isNull()) {
+					QKeySequence defks(a->property("default").toString());
+					if (a->shortcut() != defks) {
+						// custom shortcut
+						if (!file.isEmpty()) file.append('\n');
+						file.append(a->text().replace("&", ""));
+						file.append('\t');
+						file.append(a->shortcut().toString());
+					}
+				}
+			} else {
+				// loading custom shortcuts
+				a->setProperty("default", a->shortcut().toString());
+				QString comp_str = a->text().replace("&", "");
+				int shortcut_index = file.indexOf(comp_str);
+				if (shortcut_index == 0 || (shortcut_index > 0 && file.at(shortcut_index-1) == '\n')) {
+					shortcut_index += comp_str.size() + 1;
+					QString shortcut;
+					while (shortcut_index < file.size() && file.at(shortcut_index) != '\n') {
+						shortcut.append(file.at(shortcut_index));
+						shortcut_index++;
+					}
+					QKeySequence ks(shortcut);
+					if (!ks.isEmpty()) {
+						a->setShortcut(ks);
+					}
+				}
+			}
+		}
+	}
+}
+
 void MainWindow::setup_menus() {
 	QMenuBar* menuBar = new QMenuBar(this);
 	setMenuBar(menuBar);
@@ -756,6 +797,16 @@ void MainWindow::setup_menus() {
 	QMenu* help_menu = menuBar->addMenu("&Help");
 
 	help_menu->addAction("&About...", this, SLOT(show_about()));
+
+	QFile shortcut_path(get_config_path() + "/shortcuts");
+	if (shortcut_path.exists() && shortcut_path.open(QFile::ReadOnly)) {
+		QList<QAction*> menus = menuBar->actions();
+		QByteArray shortcut_bytes = shortcut_path.readAll();
+		for (int i=0;i<menus.size();i++) {
+			QMenu* menu = menus.at(i)->menu();
+			kbd_shortcut_processor(shortcut_bytes, menu, false);
+		}
+	}
 }
 
 void MainWindow::set_bool_action_checked(QAction *a) {
@@ -806,6 +857,21 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 				panel_config.close();
 			} else {
 				dout << "[ERROR] Failed to save layout";
+			}
+
+			// save main menu actions
+			QList<QAction*> menus = menuBar()->actions();
+			QByteArray shortcut_file;
+			for (int i=0;i<menus.size();i++) {
+				QMenu* menu = menus.at(i)->menu();
+				kbd_shortcut_processor(shortcut_file, menu, true);
+			}
+			QFile shortcut_file_io(config_dir + "/shortcuts");
+			if (shortcut_file_io.open(QFile::WriteOnly)) {
+				shortcut_file_io.write(shortcut_file);
+				shortcut_file_io.close();
+			} else {
+				dout << "[ERROR] Failed to save shortcut file";
 			}
 		}
 
