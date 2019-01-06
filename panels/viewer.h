@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QTimer>
+#include <QIcon>
 
 class Timeline;
 class ViewerWidget;
@@ -92,6 +93,8 @@ private:
 	double minimum_zoom;
 	void set_zoom_value(double d);
 	void set_sb_max();
+
+	QIcon playIcon;
 
 	void setup_ui();
 

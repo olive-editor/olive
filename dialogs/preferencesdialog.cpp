@@ -14,6 +14,11 @@
 #include <QDialogButtonBox>
 #include <QTreeWidget>
 #include <QVector>
+#include <QPushButton>
+#include <QTreeWidgetItem>
+#include <QList>
+
+#include "debug.h"
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 	: QKeySequenceEdit(parent), action(a) {
@@ -53,6 +58,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 			if (a->menu() != NULL) {
 				setup_kbd_shortcut_worker(a->menu(), item);
 			} else {
+				item->setData(0, Qt::UserRole + 1, reinterpret_cast<quintptr>(a));
 				key_shortcut_items.append(item);
 				key_shortcut_actions.append(a);
 			}
@@ -92,6 +98,19 @@ void PreferencesDialog::save() {
 	}
 
 	accept();
+}
+
+void PreferencesDialog::reset_default_shortcut() {
+	QList<QTreeWidgetItem*> items = keyboard_tree->selectedItems();
+	for (int i=0;i<items.size();i++) {
+		QTreeWidgetItem* item = keyboard_tree->selectedItems().at(i);
+		const QVariant& data = item->data(0, Qt::UserRole + 1);
+		if (!data.isNull()) {
+			QAction* a = reinterpret_cast<QAction*>(data.value<quintptr>());
+			QKeySequence ks(a->property("default").toString());
+			static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->setKeySequence(ks);
+		}
+	}
 }
 
 void PreferencesDialog::setup_ui() {
@@ -136,17 +155,27 @@ void PreferencesDialog::setup_ui() {
 	verticalLayout_2->addWidget(groupBox);
 
 	tabWidget->addTab(tab_4, "Playback");
-	QWidget* tab_3 = new QWidget();
-	QHBoxLayout* horizontalLayout = new QHBoxLayout(tab_3);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
+
+	QWidget* shortcut_tab = new QWidget();
+
+	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
 
 	keyboard_tree = new QTreeWidget();
 	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
 	tree_header->setText(0, "Action");
 	tree_header->setText(1, "Shortcut");
-	horizontalLayout->addWidget(keyboard_tree);
+	shortcut_layout->addWidget(keyboard_tree);
 
-	tabWidget->addTab(tab_3, "Keyboard");
+	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
+	reset_shortcut_layout->addStretch();
+
+	reset_shortcut_button = new QPushButton("Reset to Default");
+	reset_shortcut_layout->addWidget(reset_shortcut_button);
+	connect(reset_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+
+	shortcut_layout->addLayout(reset_shortcut_layout);
+
+	tabWidget->addTab(shortcut_tab, "Keyboard");
 
 	verticalLayout->addWidget(tabWidget);
 
