@@ -852,6 +852,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					stream.writeAttribute("using_inout", QString::number(f->using_inout));
 					stream.writeAttribute("in", QString::number(f->in));
 					stream.writeAttribute("out", QString::number(f->out));
+					stream.writeAttribute("speed", QString::number(f->speed));
 					for (int j=0;j<f->video_tracks.size();j++) {
 						const FootageStream& ms = f->video_tracks.at(j);
 						stream.writeStartElement("video");
