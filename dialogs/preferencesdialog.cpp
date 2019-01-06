@@ -113,6 +113,46 @@ void PreferencesDialog::reset_default_shortcut() {
 	}
 }
 
+bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* parent) {
+	if (parent == NULL) {
+		for (int i=0;i<keyboard_tree->topLevelItemCount();i++) {
+			refine_shortcut_list(s, keyboard_tree->topLevelItem(i));
+		}
+	} else {
+		parent->setExpanded(!s.isEmpty());
+
+		bool all_children_are_hidden = !s.isEmpty();
+
+		for (int i=0;i<parent->childCount();i++) {
+			QTreeWidgetItem* item = parent->child(i);
+			if (item->childCount() > 0) {
+				all_children_are_hidden = refine_shortcut_list(s, item);
+			} else {
+				item->setHidden(false);
+				if (s.isEmpty()) {
+					all_children_are_hidden = false;
+				} else {
+					QString shortcut;
+					if (keyboard_tree->itemWidget(item, 1) != NULL) {
+						shortcut = static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->keySequence().toString();
+					}
+					if (item->text(0).contains(s, Qt::CaseInsensitive) || shortcut.contains(s, Qt::CaseInsensitive)) {
+						all_children_are_hidden = false;
+					} else {
+						item->setHidden(true);
+					}
+				}
+			}
+		}
+
+		if (parent->text(0).contains(s, Qt::CaseInsensitive)) all_children_are_hidden = false;
+
+		parent->setHidden(all_children_are_hidden);
+
+		return all_children_are_hidden;
+	}
+}
+
 void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 	QTabWidget* tabWidget = new QTabWidget(this);
@@ -159,6 +199,12 @@ void PreferencesDialog::setup_ui() {
 	QWidget* shortcut_tab = new QWidget();
 
 	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
+
+	QLineEdit* key_search_line = new QLineEdit();
+	key_search_line->setPlaceholderText("Search for action or shortcut");
+	connect(key_search_line, SIGNAL(textChanged(const QString &)), this, SLOT(refine_shortcut_list(const QString &)));
+
+	shortcut_layout->addWidget(key_search_line);
 
 	keyboard_tree = new QTreeWidget();
 	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();

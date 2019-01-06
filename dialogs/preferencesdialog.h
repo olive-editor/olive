@@ -33,6 +33,7 @@ public:
 private slots:
 	void save();
 	void reset_default_shortcut();
+	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = NULL);
 
 private:
 	void setup_ui();
