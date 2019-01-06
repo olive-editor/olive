@@ -32,6 +32,7 @@ public:
 
 private slots:
 	void save();
+	void reset_default_shortcut();
 
 private:
 	void setup_ui();
@@ -46,6 +47,8 @@ private:
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;
 	QVector<KeySequenceEditor*> key_shortcut_fields;
+
+	QPushButton* reset_shortcut_button;
 };
 
 #endif // PREFERENCESDIALOG_H
