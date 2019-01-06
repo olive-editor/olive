@@ -2347,6 +2347,10 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 										p.drawImage(QRect(thumb_x, clip_rect.y()+thumb_y, thumb_clip_width, thumb_height), ms->video_preview, QRect(0, 0, thumb_clip_width*((double)ms->video_preview.width()/(double)thumb_width), ms->video_preview.height()));
 									}
 								}
+								if (clip->timeline_out - clip->timeline_in + clip->clip_in > clip->getMaximumLength()) {
+									draw_checkerboard = true;
+									checkerboard_rect.setLeft(panel_timeline->getTimelineScreenPointFromFrame(clip->getMaximumLength() + clip->timeline_in - clip->clip_in));
+								}
 							} else if (clip_rect.height() > TRACK_MIN_HEIGHT) {
 								// draw waveform
 								p.setPen(QColor(80, 80, 80));

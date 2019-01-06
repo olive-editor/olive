@@ -331,7 +331,7 @@ void ExportThread::run() {
 	qint64 start_time, frame_time, avg_time, eta, total_time = 0;
 	long remaining_frames, frame_count = 1;
 
-	while (sequence->playhead < end_frame && continueEncode) {
+	while (sequence->playhead <= end_frame && continueEncode) {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
 		panel_sequence_viewer->viewer_widget->paintGL();

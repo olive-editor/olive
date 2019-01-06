@@ -1244,3 +1244,26 @@ void SetKeyframing::undo() {
 void SetKeyframing::redo() {
 	row->setKeyframing(b);
 }
+
+RefreshClips::RefreshClips(Media *m) :
+	media(m)
+{}
+
+void RefreshClips::undo() {
+	redo();
+}
+
+void RefreshClips::redo() {
+	// close any clips currently using this media
+	QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
+	for (int i=0;i<all_sequences.size();i++) {
+		Sequence* s = all_sequences.at(i)->to_sequence();
+		for (int j=0;j<s->clips.size();j++) {
+			Clip* c = s->clips.at(j);
+			if (c != NULL && c->media == media) {
+				c->replaced = true;
+				c->refresh();
+			}
+		}
+	}
+}

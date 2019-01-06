@@ -178,7 +178,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			can_import = m->ready;
 			if (m->using_inout) {
 				double source_fr = 30;
-				if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate;
+				if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate * m->speed;
 				default_clip_in = refactor_frame_number(m->in, source_fr, seq->frame_rate);
 				default_clip_out = refactor_frame_number(m->out, source_fr, seq->frame_rate);
 			}
