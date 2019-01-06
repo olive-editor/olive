@@ -202,13 +202,13 @@ HEADERS += \
 FORMS +=
 
 win32 {
-    RC_FILE = icons/resources.rc
+    RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
 }
 
 mac {
     LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
-    ICON = icons/olive.icns
+    ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
 }
 
