@@ -27,6 +27,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# Tries to get the current Git short hash
+system("which git") {
+    GITHASHVAR = $$system(git --git-dir $$PWD/.git --work-tree $$PWD log -1 --format=%h)
+    DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
+}
 
 SOURCES += \
         main.cpp \

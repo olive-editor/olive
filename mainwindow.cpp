@@ -55,7 +55,7 @@ MainWindow* mainWindow;
 
 QTimer autorecovery_timer;
 QString config_fn;
-QString appName = "Olive (January 2019 | Alpha)";
+QString appName;
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout(bool reset) {
@@ -94,6 +94,13 @@ void MainWindow::setup_layout(bool reset) {
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 {
+	appName = "Olive (January 2019 | Alpha";
+#ifdef GITHASH
+	appName += " | ";
+	appName += GITHASH;
+#endif
+	appName += ")";
+
 	enable_launch_with_project = false;
 
 	setup_debug();
