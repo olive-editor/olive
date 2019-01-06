@@ -42,6 +42,7 @@
 #include <QXmlStreamWriter>
 #include <QSizePolicy>
 #include <QVBoxLayout>
+#include <QMenu>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -74,11 +75,62 @@ Project::Project(QWidget *parent) :
 	sorter = new QSortFilterProxyModel(this);
 	sorter->setSourceModel(&project_model);
 
+	// optional toolbar
+	toolbar_widget = new QWidget();
+	toolbar_widget->setVisible(config.show_project_toolbar);
+	QHBoxLayout* toolbar = new QHBoxLayout();
+	toolbar->setMargin(0);
+	toolbar->setSpacing(0);
+	toolbar_widget->setLayout(toolbar);
+
+	QPushButton* toolbar_new = new QPushButton("New");
+	toolbar_new->setIcon(QIcon(":/icons/tri-down.png"));
+	toolbar_new->setIconSize(QSize(8, 8));
+	toolbar_new->setToolTip("New");
+	connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
+	toolbar->addWidget(toolbar_new);
+
+	QPushButton* toolbar_open = new QPushButton("Open");
+	toolbar_open->setToolTip("Open Project");
+	connect(toolbar_open, SIGNAL(clicked(bool)), mainWindow, SLOT(open_project()));
+	toolbar->addWidget(toolbar_open);
+
+	QPushButton* toolbar_save = new QPushButton("Save");
+	toolbar_save->setToolTip("Save Project");
+	connect(toolbar_save, SIGNAL(clicked(bool)), mainWindow, SLOT(save_project()));
+	toolbar->addWidget(toolbar_save);
+
+	QPushButton* toolbar_undo = new QPushButton("Undo");
+	toolbar_undo->setToolTip("Undo");
+	connect(toolbar_undo, SIGNAL(clicked(bool)), mainWindow, SLOT(undo()));
+	toolbar->addWidget(toolbar_undo);
+
+	QPushButton* toolbar_redo = new QPushButton("Redo");
+	toolbar_redo->setToolTip("Redo");
+	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
+	toolbar->addWidget(toolbar_redo);
+
+	toolbar->addStretch();
+
+	QPushButton* toolbar_tree_view = new QPushButton("Tree View");
+	toolbar_tree_view->setToolTip("Tree View");
+	connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
+	toolbar->addWidget(toolbar_tree_view);
+
+	QPushButton* toolbar_icon_view = new QPushButton("Icon View");
+	toolbar_icon_view->setToolTip("Icon View");
+	connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
+	toolbar->addWidget(toolbar_icon_view);
+
+	verticalLayout->addWidget(toolbar_widget);
+
+	// tree view
 	tree_view = new SourceTable(dockWidgetContents);
 	tree_view->project_parent = this;
 	tree_view->setModel(sorter);
 	verticalLayout->addWidget(tree_view);
 
+	// icon view
 	icon_view_container = new QWidget();
 
 	QVBoxLayout* icon_view_container_layout = new QVBoxLayout();
@@ -1085,6 +1137,12 @@ void Project::set_up_dir_enabled() {
 void Project::go_up_dir() {
 	icon_view->setRootIndex(icon_view->rootIndex().parent());
 	set_up_dir_enabled();
+}
+
+void Project::make_new_menu() {
+	QMenu new_menu(this);
+	mainWindow->make_new_menu(&new_menu);
+	new_menu.exec(QCursor::pos());
 }
 
 void Project::add_recent_project(QString url) {

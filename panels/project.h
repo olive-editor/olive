@@ -77,6 +77,8 @@ public:
 
 	void start_preview_generator(Media* item, bool replacing);
 	void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
+
+	QWidget* toolbar_widget;
 public slots:
 	void import_dialog();
 	void delete_selected_media();
@@ -103,6 +105,7 @@ private slots:
 	void set_icon_view_size(int);
 	void set_up_dir_enabled();
 	void go_up_dir();
+	void make_new_menu();
 };
 
 class MediaThrobber : public QObject {
