@@ -247,7 +247,8 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 #ifdef AUDIOWARNINGS
 									dout << "pre cutoff deets::: rev_frame.pts:" << rev_frame->pts << "rev_frame.nb_samples" << rev_frame->nb_samples << "rev_target:" << c->reverse_target;
 #endif
-									rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * (current_audio_freq() / c->speed));
+									double playback_speed = c->speed * c->media->to_footage()->speed;
+									rev_frame->nb_samples = qRound64(static_cast<double>(c->reverse_target - rev_frame->pts) / c->stream->codecpar->sample_rate * (current_audio_freq() / playback_speed));
 #ifdef AUDIOWARNINGS
 									dout << "post cutoff deets::" << rev_frame->nb_samples;
 #endif
@@ -451,7 +452,7 @@ void cache_video_worker(Clip* c, long playhead) {
 			AVFrame* frame = av_frame_alloc();
 
 			Footage* media = c->media->to_footage();
-            const FootageStream* ms = media->get_stream_from_file_index(true, c->media_stream);
+			const FootageStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
 				if (c->multithreaded && c->cacher->interrupt) return; // abort
@@ -546,7 +547,7 @@ void reset_cache(Clip* c, long target_frame) {
 			c->frame->pts = 0;
 		}
 	} else {
-        const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+		const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		if (ms->infinite_length) {
 			/*avcodec_flush_buffers(c->codecCtx);
 			av_seek_frame(c->formatCtx, ms->file_index, 0, AVSEEK_FLAG_BACKWARD);*/
@@ -640,7 +641,7 @@ void open_clip_worker(Clip* clip) {
 		Footage* m = clip->media->to_footage();
 		QByteArray ba = m->url.toUtf8();
 		const char* filename = ba.constData();
-        const FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
+		const FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 
 		int errCode = avformat_open_input(
 				&clip->formatCtx,
@@ -670,7 +671,7 @@ void open_clip_worker(Clip* clip) {
 		clip->codecCtx = avcodec_alloc_context3(clip->codec);
 		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
-		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate*0.5);
+		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate * m->speed * 0.5);
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
 		clip->opts = NULL;
@@ -797,7 +798,9 @@ void open_clip_worker(Clip* clip) {
 
 			int target_sample_rate = current_audio_freq();
 
-			if (qFuzzyCompare(clip->speed, 1.0)) {
+			double playback_speed = clip->speed * m->speed;
+
+			if (qFuzzyCompare(playback_speed, 1.0)) {
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 			} else if (clip->maintain_audio_pitch) {
 				AVFilterContext* previous_filter = clip->buffersrc_ctx;
@@ -805,10 +808,10 @@ void open_clip_worker(Clip* clip) {
 
 				char speed_param[10];
 
-				if (clip->speed != 1.0) {
-					double base = (clip->speed > 1.0) ? 2.0 : 0.5;
+//				if (playback_speed != 1.0) {
+					double base = (playback_speed > 1.0) ? 2.0 : 0.5;
 
-					double speedlog = log(clip->speed) / log(base);
+					double speedlog = log(playback_speed) / log(base);
 					int whole2 = qFloor(speedlog);
 					speedlog -= whole2;
 
@@ -826,11 +829,11 @@ void open_clip_worker(Clip* clip) {
 					last_filter = NULL;
 					avfilter_graph_create_filter(&last_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
 					avfilter_link(previous_filter, 0, last_filter, 0);
-				}
+//				}
 
 				avfilter_link(last_filter, 0, clip->buffersink_ctx, 0);
 			} else {
-				target_sample_rate = qRound64(target_sample_rate / clip->speed);
+				target_sample_rate = qRound64(target_sample_rate / playback_speed);
 				avfilter_link(clip->buffersrc_ctx, 0, clip->buffersink_ctx, 0);
 			}
 

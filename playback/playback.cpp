@@ -266,7 +266,9 @@ double playhead_to_clip_seconds(Clip* c, long playhead) {
 	// returns time in seconds
 	long clip_frame = playhead_to_clip_frame(c, playhead);
 	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame - 1;
-	return ((double) clip_frame/c->sequence->frame_rate)*c->speed;
+	double secs = ((double) clip_frame/c->sequence->frame_rate)*c->speed;
+	if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) secs *= c->media->to_footage()->speed;
+	return secs;
 }
 
 int64_t seconds_to_timestamp(Clip* c, double seconds) {

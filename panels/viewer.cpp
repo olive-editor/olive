@@ -576,7 +576,7 @@ void Viewer::set_media(Media* m) {
 				const FootageStream& video_stream = footage->video_tracks.at(0);
 				seq->width = video_stream.video_width;
 				seq->height = video_stream.video_height;
-				if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate;
+				if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate * footage->speed;
 
 				Clip* c = new Clip(seq);
 				c->media = media;
