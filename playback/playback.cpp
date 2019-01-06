@@ -37,39 +37,39 @@ bool texture_failed = false;
 bool rendering = false;
 
 bool clip_uses_cacher(Clip* clip) {
-    return (clip->media == NULL && clip->track >= 0) || (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
+	return (clip->media == NULL && clip->track >= 0) || (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
 }
 
 void open_clip(Clip* clip, bool multithreaded) {
-    if (clip_uses_cacher(clip)) {
-        clip->multithreaded = multithreaded;
-        if (multithreaded) {
-            if (clip->open_lock.tryLock()) {
-                // maybe keep cacher instance in memory while clip exists for performance?
-                clip->cacher = new Cacher(clip);
-                QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
-                clip->cacher->start((clip->track < 0) ? QThread::NormalPriority : QThread::TimeCriticalPriority);
-            }
-        } else {
-            clip->finished_opening = false;
-            clip->open = true;
+	if (clip_uses_cacher(clip)) {
+		clip->multithreaded = multithreaded;
+		if (multithreaded) {
+			if (clip->open_lock.tryLock()) {
+				// maybe keep cacher instance in memory while clip exists for performance?
+				clip->cacher = new Cacher(clip);
+				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
+				clip->cacher->start((clip->track < 0) ? QThread::NormalPriority : QThread::TimeCriticalPriority);
+			}
+		} else {
+			clip->finished_opening = false;
+			clip->open = true;
 
-            open_clip_worker(clip);
-        }
-    } else {
-        clip->open = true;
-    }
+			open_clip_worker(clip);
+		}
+	} else {
+		clip->open = true;
+	}
 }
 
-void close_clip(Clip* clip) {
+void close_clip(Clip* clip, bool wait) {
 	// destroy opengl texture in main thread
-    if (clip->texture != NULL) {
+	if (clip->texture != NULL) {
 		delete clip->texture;
 		clip->texture = NULL;
 	}
 
 	for (int i=0;i<clip->effects.size();i++) {
-		clip->effects.at(i)->close();
+		if (clip->effects.at(i)->is_open()) clip->effects.at(i)->close();
 	}
 
 	if (clip->fbo != NULL) {
@@ -79,29 +79,30 @@ void close_clip(Clip* clip) {
 		clip->fbo = NULL;
 	}
 
-    if (clip_uses_cacher(clip)) {
-        if (clip->multithreaded) {
-            clip->cacher->caching = false;
-            clip->can_cache.wakeAll();
-        } else {
-            close_clip_worker(clip);
-        }
-    } else {
-        if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
-            closeActiveClips(clip->media->to_sequence(), false);
+	if (clip_uses_cacher(clip)) {
+		if (clip->multithreaded) {
+			clip->cacher->caching = false;
+			clip->can_cache.wakeAll();
+			if (wait) clip->cacher->wait();
+		} else {
+			close_clip_worker(clip);
+		}
+	} else {
+		if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
+			closeActiveClips(clip->media->to_sequence());
 
 		clip->open = false;
-    }
+	}
 }
 
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*>& nests) {
-    if (clip_uses_cacher(clip)) {
+	if (clip_uses_cacher(clip)) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
 			clip->cacher->reset = reset;
 			clip->cacher->nests = nests;
-            clip->cacher->scrubbing = scrubbing;
-            if (reset && clip->queue.size() > 0) clip->cacher->interrupt = true;
+			clip->cacher->scrubbing = scrubbing;
+			if (reset && clip->queue.size() > 0) clip->cacher->interrupt = true;
 
 			clip->can_cache.wakeAll();
 		} else {
@@ -111,15 +112,15 @@ void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<C
 }
 
 double get_timecode(Clip* c, long playhead) {
-    return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
+	return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 }
 
 void get_clip_frame(Clip* c, long playhead) {
 	if (c->finished_opening) {
-        FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
+		const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 
-        int64_t target_pts = qMax(static_cast<int64_t>(0), playhead_to_timestamp(c, playhead));
-        int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
+		int64_t target_pts = qMax(static_cast<int64_t>(0), playhead_to_timestamp(c, playhead));
+		int64_t second_pts = qRound64(av_q2d(av_inv_q(c->stream->time_base)));
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 			target_pts *= 2;
 			second_pts *= 2;
@@ -192,14 +193,14 @@ void get_clip_frame(Clip* c, long playhead) {
 #endif
 							c->reached_end = false;
 							cache = false;
-                        } else if (target_pts != c->last_invalid_ts && (target_pts < target_frame->pts || pts_diff > second_pts)) {
+						} else if (target_pts != c->last_invalid_ts && (target_pts < target_frame->pts || pts_diff > second_pts)) {
 
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
-                            if (!config.fast_seeking) target_frame = NULL;
+							if (!config.fast_seeking) target_frame = NULL;
 							reset = true;
-                            c->last_invalid_ts = target_pts;
+							c->last_invalid_ts = target_pts;
 						} else {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> WAIT - target pts:" << target_pts << "closest frame:" << target_frame->pts;
@@ -225,26 +226,26 @@ void get_clip_frame(Clip* c, long playhead) {
 			int nb_components = av_pix_fmt_desc_get(static_cast<enum AVPixelFormat>(c->pix_fmt))->nb_components;
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/nb_components);
 
-            bool copied = false;
-            uint8_t* data = target_frame->data[0];
-            int frame_size;
+			bool copied = false;
+			uint8_t* data = target_frame->data[0];
+			int frame_size;
 
-            for (int i=0;i<c->effects.size();i++) {
-                Effect* e = c->effects.at(i);
-                if (e->enable_image) {
-                    if (!copied) {
-                        frame_size = target_frame->linesize[0]*target_frame->height;
-                        data = new uint8_t[frame_size];
-                        memcpy(data, target_frame->data[0], frame_size);
-                        copied = true;
-                    }
-                    e->process_image(get_timecode(c, playhead), data, frame_size);
-                }
-            }
+			for (int i=0;i<c->effects.size();i++) {
+				Effect* e = c->effects.at(i);
+				if (e->enable_image) {
+					if (!copied) {
+						frame_size = target_frame->linesize[0]*target_frame->height;
+						data = new uint8_t[frame_size];
+						memcpy(data, target_frame->data[0], frame_size);
+						copied = true;
+					}
+					e->process_image(get_timecode(c, playhead), data, frame_size);
+				}
+			}
 
 			c->texture->setData(0, get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, data);
 
-            if (copied) delete [] data;
+			if (copied) delete [] data;
 
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		}
@@ -252,20 +253,22 @@ void get_clip_frame(Clip* c, long playhead) {
 		c->queue_lock.unlock();
 
 		// get more frames
-        QVector<Clip*> empty;
-        if (cache) cache_clip(c, playhead, reset, false, empty);
+		QVector<Clip*> empty;
+		if (cache) cache_clip(c, playhead, reset, false, empty);
 	}
 }
 
 long playhead_to_clip_frame(Clip* c, long playhead) {
-    return (qMax(0L, playhead - c->get_timeline_in_with_transition()) + c->get_clip_in_with_transition());
+	return (qMax(0L, playhead - c->get_timeline_in_with_transition()) + c->get_clip_in_with_transition());
 }
 
 double playhead_to_clip_seconds(Clip* c, long playhead) {
 	// returns time in seconds
 	long clip_frame = playhead_to_clip_frame(c, playhead);
 	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame - 1;
-	return ((double) clip_frame/c->sequence->frame_rate)*c->speed;
+	double secs = ((double) clip_frame/c->sequence->frame_rate)*c->speed;
+	if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) secs *= c->media->to_footage()->speed;
+	return secs;
 }
 
 int64_t seconds_to_timestamp(Clip* c, double seconds) {
@@ -278,11 +281,11 @@ int64_t playhead_to_timestamp(Clip* c, long playhead) {
 
 int retrieve_next_frame(Clip* c, AVFrame* f) {
 	int result = 0;
-    int receive_ret;
+	int receive_ret;
 
 	// do we need to retrieve a new packet for a new frame?
 	av_frame_unref(f);
-    while ((receive_ret = avcodec_receive_frame(c->codecCtx, f)) == AVERROR(EAGAIN)) {
+	while ((receive_ret = avcodec_receive_frame(c->codecCtx, f)) == AVERROR(EAGAIN)) {
 		int read_ret = 0;
 		do {
 			if (c->pkt_written) {
@@ -293,15 +296,15 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 			if (read_ret >= 0) {
 				c->pkt_written = true;
 			}
-        } while (read_ret >= 0 && c->pkt->stream_index != c->media_stream);
+		} while (read_ret >= 0 && c->pkt->stream_index != c->media_stream);
 
 		if (read_ret >= 0) {
 			int send_ret = avcodec_send_packet(c->codecCtx, c->pkt);
 			if (send_ret < 0) {
 				dout << "[ERROR] Failed to send packet to decoder." << send_ret;
-                return send_ret;
+				return send_ret;
 			}
-        } else {
+		} else {
 			if (read_ret == AVERROR_EOF) {
 				int send_ret = avcodec_send_packet(c->codecCtx, NULL);
 				if (send_ret < 0) {
@@ -323,32 +326,30 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 }
 
 bool is_clip_active(Clip* c, long playhead) {
-    return c->enabled
-            && c->get_timeline_in_with_transition() < playhead + ceil(c->sequence->frame_rate*2)
-            && c->get_timeline_out_with_transition() > playhead
-            && playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition() < c->getMaximumLength();
+	return c->enabled
+			&& c->get_timeline_in_with_transition() < playhead + ceil(c->sequence->frame_rate*2)
+			&& c->get_timeline_out_with_transition() > playhead
+			&& playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition() < c->getMaximumLength();
 }
 
 void set_sequence(Sequence* s) {
-    closeActiveClips(sequence, true);
 	panel_effect_controls->clear_effects(true);
-    sequence = s;
+	sequence = s;
 	panel_sequence_viewer->set_main_sequence();
-    panel_timeline->update_sequence();
-    panel_timeline->setFocus();
+	panel_timeline->update_sequence();
+	panel_timeline->setFocus();
 }
 
-void closeActiveClips(Sequence *s, bool wait) {
+void closeActiveClips(Sequence *s) {
 	if (s != NULL) {
-        for (int i=0;i<s->clips.size();i++) {
-            Clip* c = s->clips.at(i);
-            if (c != NULL) {
-                if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
-                    closeActiveClips(c->media->to_sequence(), wait);
-					if (c->open) close_clip(c);
-                } else if (clip_uses_cacher(c) && c->open) {
-					close_clip(c);
-					if (c->multithreaded && wait) c->cacher->wait();
+		for (int i=0;i<s->clips.size();i++) {
+			Clip* c = s->clips.at(i);
+			if (c != NULL) {
+				if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+					closeActiveClips(c->media->to_sequence());
+					if (c->open) close_clip(c, true);
+				} else if (c->open) {
+					close_clip(c, true);
 				}
 			}
 		}

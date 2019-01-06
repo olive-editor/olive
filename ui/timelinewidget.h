@@ -22,7 +22,7 @@ class QPainter;
 class Media;
 
 bool same_sign(int a, int b);
-void draw_waveform(Clip* clip, FootageStream* ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
+void draw_waveform(Clip* clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
 
 class TimelineWidget : public QWidget {
 	Q_OBJECT

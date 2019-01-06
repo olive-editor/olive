@@ -15,6 +15,8 @@ public:
 	void updateTitle(const QString &url);
 	~MainWindow();
 
+	void launch_with_project(const char *s);
+
 	void make_new_menu(QMenu* parent);
 	void make_inout_menu(QMenu* parent);
 
@@ -110,6 +112,9 @@ private slots:
 	void menu_click_button();
 	void toggle_panel_visibility();
 	void set_timecode_view();
+	void open_project_worker(const QString &fn, bool autorecovery);
+
+	void load_with_launch();
 
 private:
 	void setup_layout(bool reset);
@@ -161,6 +166,7 @@ private:
 	QAction* enable_audio_scrubbing;
 	QAction* enable_drop_on_media_to_replace;
 	QAction* enable_hover_focus;
+	QAction* set_name_and_marker;
 
 	// edit menu actions
 	QAction* undo_action;
@@ -169,6 +175,8 @@ private:
 	void set_bool_action_checked(QAction* a);
 	void set_int_action_checked(QAction* a, const int& i);
 	void set_button_action_checked(QAction* a);
+
+	bool enable_launch_with_project;
 };
 
 extern MainWindow* mainWindow;

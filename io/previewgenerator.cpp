@@ -55,14 +55,13 @@ void PreviewGenerator::parse_media() {
         if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == NULL) {
             dout << "[ERROR] Unsupported codec in stream" << i << "of file" << footage->name;
         } else {
-            FootageStream* ms = footage->get_stream_from_file_index(fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, i);
+            FootageStream ms;
+            ms.preview_done = false;
+            ms.file_index = i;
+            ms.enabled = true;
+
             bool append = false;
-            if (ms == NULL) {
-                ms = new FootageStream();
-                ms->preview_done = false;
-                ms->file_index = i;
-                append = true;
-            }
+
 			if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
 					&& fmt_ctx->streams[i]->codecpar->width > 0
 					&& fmt_ctx->streams[i]->codecpar->height > 0) {
@@ -76,33 +75,43 @@ void PreviewGenerator::parse_media() {
                 // heuristic to determine if video is a still image
 				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0
                         && fmt_ctx->streams[i]->codecpar->codec_id != AV_CODEC_ID_DNXHD) { // silly hack but this is the only scenario i've seen this
-					ms->infinite_length = true;
+                    ms.infinite_length = true;
 					contains_still_image = true;
-					ms->video_frame_rate = 0;
+                    ms.video_frame_rate = 0;
 				} else {
-					ms->infinite_length = false;
+                    ms.infinite_length = false;
 					if (fmt_ctx->streams[i]->r_frame_rate.den == 0) {
-						ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
+                        ms.video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
 					} else {
-						ms->video_frame_rate = av_q2d(fmt_ctx->streams[i]->r_frame_rate);
+                        ms.video_frame_rate = av_q2d(fmt_ctx->streams[i]->r_frame_rate);
 					}
 				}
-				ms->video_width = fmt_ctx->streams[i]->codecpar->width;
-				ms->video_height = fmt_ctx->streams[i]->codecpar->height;
+                ms.video_width = fmt_ctx->streams[i]->codecpar->width;
+                ms.video_height = fmt_ctx->streams[i]->codecpar->height;
 
 				// default value, we get the true value later in generate_waveform()
-				ms->video_auto_interlacing = VIDEO_PROGRESSIVE;
-				ms->video_interlacing = VIDEO_PROGRESSIVE;
+                ms.video_auto_interlacing = VIDEO_PROGRESSIVE;
+                ms.video_interlacing = VIDEO_PROGRESSIVE;
 
-                if (append) footage->video_tracks.append(ms);
+                append = true;
             } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                ms->audio_channels = fmt_ctx->streams[i]->codecpar->channels;
-                ms->audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
-                ms->audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
-                if (append) footage->audio_tracks.append(ms);
-			} else if (append) {
-				delete ms;
-			}
+                ms.audio_channels = fmt_ctx->streams[i]->codecpar->channels;
+                ms.audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
+                ms.audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
+
+                append = true;
+            }
+
+            if (append) {
+                QVector<FootageStream>& stream_list = (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) ? footage->audio_tracks : footage->video_tracks;
+                for (int j=0;j<stream_list.size();j++) {
+                    if (stream_list.at(j).file_index == i) {
+                        stream_list[j] = ms;
+                        append = false;
+                    }
+                }
+                if (append) stream_list.append(ms);
+            }
         }
     }
     footage->length = fmt_ctx->duration;
@@ -123,32 +132,32 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 
 	bool found = true;
     for (int i=0;i<footage->video_tracks.size();i++) {
-        FootageStream* ms = footage->video_tracks.at(i);
+        FootageStream& ms = footage->video_tracks[i];
 		QString thumb_path = get_thumbnail_path(hash, ms);
 		QFile f(thumb_path);
-        if (f.exists() && ms->video_preview.load(thumb_path)) {
+        if (f.exists() && ms.video_preview.load(thumb_path)) {
             //dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
-            ms->make_square_thumb();
-            ms->preview_done = true;
+            ms.make_square_thumb();
+            ms.preview_done = true;
 		} else {
 			found = false;
 			break;
 		}
 	}
     for (int i=0;i<footage->audio_tracks.size();i++) {
-        FootageStream* ms = footage->audio_tracks.at(i);
+        FootageStream& ms = footage->audio_tracks[i];
 		QString waveform_path = get_waveform_path(hash, ms);
 		QFile f(waveform_path);
 		if (f.exists()) {
             //dout << "loaded wave" << ms->file_index << "from" << waveform_path;
 			f.open(QFile::ReadOnly);
 			QByteArray data = f.readAll();
-			ms->audio_preview.resize(data.size());
+            ms.audio_preview.resize(data.size());
 			for (int j=0;j<data.size();j++) {
 				// faster way?
-				ms->audio_preview[j] = data.at(j);
+                ms.audio_preview[j] = data.at(j);
 			}
-			ms->preview_done = true;
+            ms.preview_done = true;
 			f.close();
 		} else {
 			found = false;
@@ -157,13 +166,13 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 	}
 	if (!found) {
         for (int i=0;i<footage->video_tracks.size();i++) {
-            FootageStream* ms = footage->video_tracks.at(i);
-			ms->preview_done = false;
+            FootageStream& ms = footage->video_tracks[i];
+            ms.preview_done = false;
 		}
         for (int i=0;i<footage->audio_tracks.size();i++) {
-            FootageStream* ms = footage->audio_tracks.at(i);
-			ms->audio_preview.clear();
-			ms->preview_done = false;
+            FootageStream& ms = footage->audio_tracks[i];
+            ms.audio_preview.clear();
+            ms.preview_done = false;
 		}
 	}
 	return !found;
@@ -336,7 +345,7 @@ void PreviewGenerator::generate_waveform() {
 									break;
 								}
 							}
-							s->audio_preview.append(min >> 8);
+                            s->audio_preview.append(min >> 8);
 							s->audio_preview.append(max >> 8);
 							if (cancelled) break;
 						}
@@ -359,7 +368,7 @@ void PreviewGenerator::generate_waveform() {
             } else if (footage->audio_tracks.size() == 0) {
 				done = true;
                 for (int i=0;i<footage->video_tracks.size();i++) {
-                    if (!footage->video_tracks.at(i)->preview_done) {
+                    if (!footage->video_tracks.at(i).preview_done) {
 						done = false;
 						break;
 					}
@@ -373,7 +382,7 @@ void PreviewGenerator::generate_waveform() {
         }
     }
     for (int i=0;i<footage->audio_tracks.size();i++) {
-        footage->audio_tracks.at(i)->preview_done = true;
+        footage->audio_tracks[i].preview_done = true;
     }
     av_frame_free(&temp_frame);
 	av_packet_free(&packet);
@@ -397,12 +406,12 @@ void PreviewGenerator::generate_waveform() {
 	delete [] codec_ctx;
 }
 
-QString PreviewGenerator::get_thumbnail_path(const QString& hash, FootageStream* ms) {
-	return data_path + "/" + hash + "t" + QString::number(ms->file_index);
+QString PreviewGenerator::get_thumbnail_path(const QString& hash, const FootageStream& ms) {
+    return data_path + "/" + hash + "t" + QString::number(ms.file_index);
 }
 
-QString PreviewGenerator::get_waveform_path(const QString& hash, FootageStream* ms) {
-	return data_path + "/" + hash + "w" + QString::number(ms->file_index);
+QString PreviewGenerator::get_waveform_path(const QString& hash, const FootageStream& ms) {
+    return data_path + "/" + hash + "w" + QString::number(ms.file_index);
 }
 
 void PreviewGenerator::run() {	
@@ -445,15 +454,15 @@ void PreviewGenerator::run() {
 
 				// save preview to file
                 for (int i=0;i<footage->video_tracks.size();i++) {
-                    FootageStream* ms = footage->video_tracks.at(i);
-                    ms->video_preview.save(get_thumbnail_path(hash, ms), "PNG");
+                    FootageStream& ms = footage->video_tracks[i];
+                    ms.video_preview.save(get_thumbnail_path(hash, ms), "PNG");
                     //dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
 				}
                 for (int i=0;i<footage->audio_tracks.size();i++) {
-                    FootageStream* ms = footage->audio_tracks.at(i);
+                    FootageStream& ms = footage->audio_tracks[i];
 					QFile f(get_waveform_path(hash, ms));
 					f.open(QFile::WriteOnly);
-					f.write(ms->audio_preview.constData(), ms->audio_preview.size());
+                    f.write(ms.audio_preview.constData(), ms.audio_preview.size());
 					f.close();
                     //dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
 				}

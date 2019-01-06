@@ -17,6 +17,7 @@ struct EffectMeta;
 
 #include "project/marker.h"
 #include "project/selection.h"
+#include "project/effectfield.h"
 
 #include <QUndoStack>
 #include <QUndoCommand>
@@ -328,50 +329,32 @@ private:
 	QString to;
 };
 
-class KeyframeMove : public QUndoCommand {
-public:
-	KeyframeMove();
-	QVector<EffectRow*> rows;
-	QVector<int> keyframes;
-	long movement;
-	void undo();
-	void redo();
-private:
-	bool old_project_changed;
-};
-
 class KeyframeDelete : public QUndoCommand {
 public:
-	KeyframeDelete();
-	QVector<EffectRow*> rows;
-	EffectRow* disable_keyframes_on_row;
-	QVector<int> keyframes;
+	KeyframeDelete(EffectField* ifield, int iindex);
 	void undo();
 	void redo();
 private:
+	EffectField* field;
+	int index;
+	bool done;
+	EffectKeyframe deleted_key;
 	bool old_project_changed;
-	QVector<long> deleted_keyframe_times;
-	QVector<int> deleted_keyframe_types;
-	QVector<QVariant> deleted_keyframe_data;
-	bool sorted;
 };
 
-
-class KeyframeSet : public QUndoCommand {
+// a more modern version of the above, could probably replace it
+// assumes the keyframe already exists
+class KeyframeFieldSet : public QUndoCommand {
 public:
-	KeyframeSet(EffectRow* r, int i, long t, bool justMadeKeyframe);
+	KeyframeFieldSet(EffectField* ifield, int ii);
 	void undo();
 	void redo();
-	QVector<QVariant> old_values;
-	QVector<QVariant> new_values;
 private:
-	bool old_project_changed;
-	EffectRow* row;
+	EffectField* field;
 	int index;
-	long time;
-	bool enable_keyframes;
-	bool just_made_keyframe;
+	EffectKeyframe key;
 	bool done;
+	bool old_project_changed;
 };
 
 class EffectFieldUndo : public QUndoCommand {
@@ -523,6 +506,30 @@ private:
 	bool old_project_changed;
 };
 
+class SetLong : public QUndoCommand {
+public:
+	SetLong(long* pointer, long old_value, long new_value);
+	void undo();
+	void redo();
+private:
+	long* p;
+	long oldval;
+	long newval;
+	bool old_project_changed;
+};
+
+class SetDouble : public QUndoCommand {
+public:
+	SetDouble(double* pointer, double old_value, double new_value);
+	void undo();
+	void redo();
+private:
+	double* p;
+	double oldval;
+	double newval;
+	bool old_project_changed;
+};
+
 class SetString : public QUndoCommand {
 public:
 	SetString(QString* pointer, QString new_value);
@@ -603,6 +610,36 @@ class ReloadEffectsCommand : public QUndoCommand {
 public:
 	void undo();
 	void redo();
+};
+
+class SetQVariant : public QUndoCommand {
+public:
+	SetQVariant(QVariant* itarget, const QVariant& iold, const QVariant& inew);
+	void undo();
+	void redo();
+private:
+	QVariant* target;
+	QVariant old_val;
+	QVariant new_val;
+};
+
+class SetKeyframing : public QUndoCommand {
+public:
+	SetKeyframing(EffectRow* irow, bool ib);
+	void undo();
+	void redo();
+private:
+	EffectRow* row;
+	bool b;
+};
+
+class RefreshClips : public QUndoCommand {
+public:
+	RefreshClips(Media* m);
+	void undo();
+	void redo();
+private:
+	Media* media;
 };
 
 #endif // UNDO_H

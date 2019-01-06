@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QTimer>
+#include <QIcon>
 
 class Timeline;
 class ViewerWidget;
@@ -77,12 +78,6 @@ public slots:
 	void go_to_end();
 
 private slots:
-	void on_btnSkipToStart_clicked();
-	void on_btnRewind_clicked();
-	void on_btnPlay_clicked();
-	void on_btnFastForward_clicked();
-	void on_btnSkipToEnd_clicked();
-
 	void update_playhead();
 	void timer_update();
 	void recording_flasher_update();
@@ -99,11 +94,13 @@ private:
 	void set_zoom_value(double d);
 	void set_sb_max();
 
+	QIcon playIcon;
+
 	void setup_ui();
 
 	TimelineHeader* headers;
-	ResizableScrollBar* horizontalScrollBar;
-	ViewerContainer* glViewerPane;
+	ResizableScrollBar* horizontal_bar;
+	ViewerContainer* viewer_container;
 	LabelSlider* currentTimecode;
 	QLabel* endTimecode;
 

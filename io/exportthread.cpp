@@ -12,9 +12,8 @@
 #include "debug.h"
 
 extern "C" {
-	#include <libavcodec/avcodec.h>
-    #include <libavformat/avformat.h>
-    #include <libavutil/opt.h>
+	#include <libavformat/avformat.h>
+	#include <libavutil/opt.h>
 	#include <libswresample/swresample.h>
 	#include <libswscale/swscale.h>
 }
@@ -25,30 +24,11 @@ extern "C" {
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 
-AVFormatContext* fmt_ctx = NULL;
-AVStream* video_stream;
-AVCodec* vcodec;
-AVCodecContext* vcodec_ctx;
-AVFrame* video_frame;
-AVFrame* sws_frame;
-SwsContext* sws_ctx = NULL;
-AVStream* audio_stream;
-AVCodec* acodec;
-AVFrame* audio_frame;
-AVFrame* swr_frame;
-AVCodecContext* acodec_ctx;
-AVPacket video_pkt;
-AVPacket audio_pkt;
-SwrContext* swr_ctx = NULL;
-int aframe_bytes;
-int ret;
-char* c_filename;
-
 ExportThread::ExportThread() : continueEncode(true) {
 	surface.create();
 }
 
-bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream) {
+bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale) {
 	ret = avcodec_send_frame(codec_ctx, frame);
 	if (ret < 0) {
 		dout << "[ERROR] Failed to send frame to encoder." << ret;
@@ -69,6 +49,7 @@ bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, 
 		}
 
 		packet->stream_index = stream->index;
+		if (rescale) av_packet_rescale_ts(packet, codec_ctx->time_base, stream->time_base);
 		av_interleaved_write_frame(ofmt_ctx, packet);
 		av_packet_unref(packet);
 	}
@@ -98,7 +79,7 @@ bool ExportThread::setupVideo() {
 
 	// allocate context
 //	vcodec_ctx = video_stream->codec;
-    vcodec_ctx = avcodec_alloc_context3(vcodec);
+	vcodec_ctx = avcodec_alloc_context3(vcodec);
 	if (!vcodec_ctx) {
 		dout << "[ERROR] Could not allocate video encoding context";
 		ed->export_error = "could not allocate video encoding context";
@@ -107,6 +88,7 @@ bool ExportThread::setupVideo() {
 
 	// setup context
 	vcodec_ctx->codec_id = static_cast<AVCodecID>(video_codec);
+	vcodec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
 	vcodec_ctx->width = video_width;
 	vcodec_ctx->height = video_height;
 	vcodec_ctx->sample_aspect_ratio = {1, 1};
@@ -122,10 +104,10 @@ bool ExportThread::setupVideo() {
 
 	if (vcodec_ctx->codec_id == AV_CODEC_ID_H264) {
 		/*char buffer[50];
-        itoa(vcodec_ctx, buffer, 10);*/
+		itoa(vcodec_ctx, buffer, 10);*/
 
-        //av_opt_set(vcodec_ctx->priv_data, "preset", "fast", AV_OPT_SEARCH_CHILDREN);
-        //av_opt_set(vcodec_ctx->priv_data, "x264opts", "opencl", AV_OPT_SEARCH_CHILDREN);
+		//av_opt_set(vcodec_ctx->priv_data, "preset", "fast", AV_OPT_SEARCH_CHILDREN);
+		//av_opt_set(vcodec_ctx->priv_data, "x264opts", "opencl", AV_OPT_SEARCH_CHILDREN);
 
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
@@ -204,7 +186,7 @@ bool ExportThread::setupAudio() {
 
 	// allocate context
 //	acodec_ctx = audio_stream->codec;
-    acodec_ctx = avcodec_alloc_context3(acodec);
+	acodec_ctx = avcodec_alloc_context3(acodec);
 	if (!acodec_ctx) {
 		dout << "[ERROR] Could not find allocate audio encoding context";
 		ed->export_error = "could not allocate audio encoding context";
@@ -213,6 +195,7 @@ bool ExportThread::setupAudio() {
 
 	// setup context
 	acodec_ctx->codec_id = static_cast<AVCodecID>(audio_codec);
+	acodec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
 	acodec_ctx->sample_rate = audio_sampling_rate;
 	acodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;  // change this to support surround/mono sound in the future (this is what the user sets the output audio to)
 	acodec_ctx->channels = av_get_channel_layout_nb_channels(acodec_ctx->channel_layout);
@@ -261,7 +244,7 @@ bool ExportThread::setupAudio() {
 	audio_frame = av_frame_alloc();
 	audio_frame->sample_rate = sequence->audio_frequency;
 	audio_frame->nb_samples = acodec_ctx->frame_size;
-	if (audio_frame->nb_samples == 0) audio_frame->nb_samples = 2048; // should possibly be smaller?
+	if (audio_frame->nb_samples == 0) audio_frame->nb_samples = 256; // should possibly be smaller?
 	audio_frame->format = AV_SAMPLE_FMT_S16;
 	audio_frame->channel_layout = AV_CH_LAYOUT_STEREO; // change this to support surround/mono sound in the future (this is whatever format they're held in the internal buffer)
 	audio_frame->channels = av_get_channel_layout_nb_channels(audio_frame->channel_layout);
@@ -295,7 +278,7 @@ bool ExportThread::setupContainer() {
 		return false;
 	}
 
-//	av_dump_format(fmt_ctx, 0, c_filename, 1);
+	//av_dump_format(fmt_ctx, 0, c_filename, 1);
 
 	ret = avio_open(&fmt_ctx->pb, c_filename, AVIO_FLAG_WRITE);
 	if (ret < 0) {
@@ -323,9 +306,9 @@ void ExportThread::run() {
 
 	continueEncode = setupContainer();
 
-    if (video_enabled && continueEncode) continueEncode = setupVideo();
+	if (video_enabled && continueEncode) continueEncode = setupVideo();
 
-    if (audio_enabled && continueEncode) continueEncode = setupAudio();
+	if (audio_enabled && continueEncode) continueEncode = setupAudio();
 
 	if (continueEncode) {
 		ret = avformat_write_header(fmt_ctx, NULL);
@@ -345,11 +328,11 @@ void ExportThread::run() {
 	panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 	long file_audio_samples = 0;
-    qint64 start_time, frame_time, avg_time, eta, total_time = 0;
-    long remaining_frames, frame_count = 1;
+	qint64 start_time, frame_time, avg_time, eta, total_time = 0;
+	long remaining_frames, frame_count = 1;
 
-	while (sequence->playhead < end_frame && continueEncode) {
-        start_time = QDateTime::currentMSecsSinceEpoch();
+	while (sequence->playhead <= end_frame && continueEncode) {
+		start_time = QDateTime::currentMSecsSinceEpoch();
 
 		panel_sequence_viewer->viewer_widget->paintGL();
 
@@ -360,10 +343,10 @@ void ExportThread::run() {
 
 			// change pixel format
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
-			sws_frame->pts = round(timecode_secs/av_q2d(video_stream->time_base));
+			sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
 
-            // send to encoder
-            if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream)) continueEncode = false;
+			// send to encoder
+			if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream, false)) continueEncode = false;
 		}
 		if (audio_enabled) {
 			// do we need to encode more audio samples?
@@ -386,25 +369,25 @@ void ExportThread::run() {
 				swr_convert_frame(swr_ctx, swr_frame, audio_frame);
 				swr_frame->pts = file_audio_samples;
 
-                // send to encoder
-                if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) continueEncode = false;
+				// send to encoder
+				if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) continueEncode = false;
 
 				file_audio_samples += swr_frame->nb_samples;
 			}
 		}
 
-        // encoding stats
-        frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
-        total_time += frame_time;
-        remaining_frames = (end_frame-sequence->playhead);
-        avg_time = (total_time/frame_count);
-        eta = (remaining_frames*avg_time);
+		// encoding stats
+		frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
+		total_time += frame_time;
+		remaining_frames = (end_frame-sequence->playhead);
+		avg_time = (total_time/frame_count);
+		eta = (remaining_frames*avg_time);
 
 //        dout << "[INFO] Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
 
-        emit progress_changed(qRound(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100), eta);
+		emit progress_changed(qRound(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100), eta);
 		sequence->playhead++;
-        frame_count++;
+		frame_count++;
 	}
 
 	panel_sequence_viewer->viewer_widget->default_fbo = NULL;
@@ -418,7 +401,7 @@ void ExportThread::run() {
 			swr_convert_frame(swr_ctx, swr_frame, NULL);
 			if (swr_frame->nb_samples == 0) break;
 			swr_frame->pts = file_audio_samples;
-			if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) continueEncode = false;
+			if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) continueEncode = false;
 			file_audio_samples += swr_frame->nb_samples;
 		} while (swr_frame->nb_samples > 0);
 	}
@@ -428,8 +411,8 @@ void ExportThread::run() {
 	if (continueEncode) {
 		// flush remaining packets
 		while (continueVideo && continueAudio) {
-            if (continueVideo && video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream);
-            if (continueAudio && audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream);
+			if (continueVideo && video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream, false);
+			if (continueAudio && audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream, true);
 		}
 
 		ret = av_write_trailer(fmt_ctx);
@@ -439,7 +422,7 @@ void ExportThread::run() {
 			continueEncode = false;
 		}
 
-        emit progress_changed(100, 0);
+		emit progress_changed(100, 0);
 	}
 
 	avio_closep(&fmt_ctx->pb);
@@ -448,14 +431,14 @@ void ExportThread::run() {
 		avcodec_close(vcodec_ctx);
 		av_packet_unref(&video_pkt);
 		av_frame_free(&video_frame);
-        avcodec_free_context(&vcodec_ctx);
+		avcodec_free_context(&vcodec_ctx);
 	}
 
 	if (audio_enabled) {
 		avcodec_close(acodec_ctx);
 		av_packet_unref(&audio_pkt);
 		av_frame_free(&audio_frame);
-        avcodec_free_context(&acodec_ctx);
+		avcodec_free_context(&acodec_ctx);
 	}
 
 	avformat_free_context(fmt_ctx);

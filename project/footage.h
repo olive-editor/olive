@@ -23,44 +23,46 @@ struct FootageStream {
 	int video_width;
 	int video_height;
 	bool infinite_length;
-    double video_frame_rate;
-    int video_interlacing;
+	double video_frame_rate;
+	int video_interlacing;
 	int video_auto_interlacing;
-    int audio_channels;
-    int audio_layout;
-    int audio_frequency;
+	int audio_channels;
+	int audio_layout;
+	int audio_frequency;
+	bool enabled;
 
-    // preview thumbnail/waveform
-    bool preview_done;
-    QImage video_preview;
-    QIcon video_preview_square;
+	// preview thumbnail/waveform
+	bool preview_done;
+	QImage video_preview;
+	QIcon video_preview_square;
 	QVector<char> audio_preview;
-    void make_square_thumb();
+	void make_square_thumb();
 };
 
 struct Footage {
-    Footage();
-    ~Footage();
+	Footage();
+	~Footage();
 
-    QString url;
-    QString name;
+	QString url;
+	QString name;
 	int64_t length;
-    QVector<FootageStream*> video_tracks;
-    QVector<FootageStream*> audio_tracks;
-    int save_id;
-    bool ready;
-    bool invalid;
+	QVector<FootageStream> video_tracks;
+	QVector<FootageStream> audio_tracks;
+	int save_id;
+	bool ready;
+	bool invalid;
+	double speed;
 
-    PreviewGenerator* preview_gen;
-    QMutex ready_lock;
+	PreviewGenerator* preview_gen;
+	QMutex ready_lock;
 
-    bool using_inout;
-    long in;
-    long out;
+	bool using_inout;
+	long in;
+	long out;
 
-    long get_length_in_frames(double frame_rate);
-    FootageStream* get_stream_from_file_index(bool video, int index);
-    void reset();
+	long get_length_in_frames(double frame_rate);
+	FootageStream *get_stream_from_file_index(bool video, int index);
+	void reset();
 };
 
 #endif // FOOTAGE_H

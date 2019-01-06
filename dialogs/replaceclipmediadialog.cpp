@@ -23,6 +23,8 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media
 	QDialog(parent),
 	media(old_media)
 {
+	setWindowTitle("Replace clips using \"" + old_media->get_name() + "\"");
+
 	resize(300, 400);
 
 	QVBoxLayout* layout = new QVBoxLayout();
@@ -56,12 +58,10 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media
 	setLayout(layout);
 
 	tree->setModel(&project_model);
-
-	//copy_tree(NULL, NULL);
 }
 
 void ReplaceClipMediaDialog::replace() {
-	QModelIndexList selected_items = panel_project->get_current_selected();
+	QModelIndexList selected_items = tree->selectionModel()->selectedRows();
 	if (selected_items.size() != 1) {
 		QMessageBox::critical(this, "No media selected", "Please select a media to replace with or click 'Cancel'.", QMessageBox::Ok);
 	} else {

@@ -15,7 +15,7 @@ extern bool rendering;
 bool clip_uses_cacher(Clip* clip);
 void open_clip(Clip* clip, bool multithreaded);
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> &nests);
-void close_clip(Clip* clip);
+void close_clip(Clip* clip, bool wait);
 void cache_audio_worker(Clip* c, bool write_A);
 void cache_video_worker(Clip* c, long playhead);
 void handle_media(Sequence* sequence, long playhead, bool multithreaded);
@@ -32,6 +32,6 @@ int retrieve_next_frame(Clip* c, AVFrame* f);
 bool is_clip_active(Clip* c, long playhead);
 void get_next_audio(Clip* c, bool mix);
 void set_sequence(Sequence* s);
-void closeActiveClips(Sequence* s, bool wait);
+void closeActiveClips(Sequence* s);
 
 #endif // PLAYBACK_H

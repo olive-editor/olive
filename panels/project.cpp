@@ -42,6 +42,7 @@
 #include <QXmlStreamWriter>
 #include <QSizePolicy>
 #include <QVBoxLayout>
+#include <QMenu>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -60,7 +61,7 @@ QString recent_proj_file;
 Project::Project(QWidget *parent) :
 	QDockWidget(parent)
 {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	QWidget* dockWidgetContents = new QWidget();
 	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
@@ -74,11 +75,62 @@ Project::Project(QWidget *parent) :
 	sorter = new QSortFilterProxyModel(this);
 	sorter->setSourceModel(&project_model);
 
+	// optional toolbar
+	toolbar_widget = new QWidget();
+	toolbar_widget->setVisible(config.show_project_toolbar);
+	QHBoxLayout* toolbar = new QHBoxLayout();
+	toolbar->setMargin(0);
+	toolbar->setSpacing(0);
+	toolbar_widget->setLayout(toolbar);
+
+	QPushButton* toolbar_new = new QPushButton("New");
+	toolbar_new->setIcon(QIcon(":/icons/tri-down.png"));
+	toolbar_new->setIconSize(QSize(8, 8));
+	toolbar_new->setToolTip("New");
+	connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
+	toolbar->addWidget(toolbar_new);
+
+	QPushButton* toolbar_open = new QPushButton("Open");
+	toolbar_open->setToolTip("Open Project");
+	connect(toolbar_open, SIGNAL(clicked(bool)), mainWindow, SLOT(open_project()));
+	toolbar->addWidget(toolbar_open);
+
+	QPushButton* toolbar_save = new QPushButton("Save");
+	toolbar_save->setToolTip("Save Project");
+	connect(toolbar_save, SIGNAL(clicked(bool)), mainWindow, SLOT(save_project()));
+	toolbar->addWidget(toolbar_save);
+
+	QPushButton* toolbar_undo = new QPushButton("Undo");
+	toolbar_undo->setToolTip("Undo");
+	connect(toolbar_undo, SIGNAL(clicked(bool)), mainWindow, SLOT(undo()));
+	toolbar->addWidget(toolbar_undo);
+
+	QPushButton* toolbar_redo = new QPushButton("Redo");
+	toolbar_redo->setToolTip("Redo");
+	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
+	toolbar->addWidget(toolbar_redo);
+
+	toolbar->addStretch();
+
+	QPushButton* toolbar_tree_view = new QPushButton("Tree View");
+	toolbar_tree_view->setToolTip("Tree View");
+	connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
+	toolbar->addWidget(toolbar_tree_view);
+
+	QPushButton* toolbar_icon_view = new QPushButton("Icon View");
+	toolbar_icon_view->setToolTip("Icon View");
+	connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
+	toolbar->addWidget(toolbar_icon_view);
+
+	verticalLayout->addWidget(toolbar_widget);
+
+	// tree view
 	tree_view = new SourceTable(dockWidgetContents);
 	tree_view->project_parent = this;
 	tree_view->setModel(sorter);
 	verticalLayout->addWidget(tree_view);
 
+	// icon view
 	icon_view_container = new QWidget();
 
 	QVBoxLayout* icon_view_container_layout = new QVBoxLayout();
@@ -181,13 +233,13 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 			if (m->ready) {
 				if (!got_video_values) {
 					for (int j=0;j<m->video_tracks.size();j++) {
-						FootageStream* ms = m->video_tracks.at(j);
-						s->width = ms->video_width;
-						s->height = ms->video_height;
-						if (ms->video_frame_rate != 0) {
-							s->frame_rate = ms->video_frame_rate;
+						const FootageStream& ms = m->video_tracks.at(j);
+						s->width = ms.video_width;
+						s->height = ms.video_height;
+						if (ms.video_frame_rate != 0) {
+							s->frame_rate = ms.video_frame_rate * m->speed;
 
-							if (ms->video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
+							if (ms.video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
 
 							// only break with a decent frame rate, otherwise there may be a better candidate
 							got_video_values = true;
@@ -197,8 +249,8 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 				}
 				if (!got_audio_values) {
 					for (int j=0;j<m->audio_tracks.size();j++) {
-						FootageStream* ms = m->audio_tracks.at(j);
-						s->audio_frequency = ms->audio_frequency;
+						const FootageStream& ms = m->audio_tracks.at(j);
+						s->audio_frequency = ms.audio_frequency;
 						got_audio_values = true;
 						break;
 					}
@@ -469,12 +521,14 @@ void Project::delete_selected_media() {
 			if (confirm_delete) {
 				delete_clips_in_clipboard_with_media(ca, item);
 			}
-
 		}
 	}
 
 	// remove
 	if (remove) {
+		panel_effect_controls->clear_effects(true);
+		sequence->selections.clear();
+
 		// remove media and parents
 		for (int m=0;m<parents.size();m++) {
 			for (int l=0;l<items.size();l++) {
@@ -850,23 +904,24 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					stream.writeAttribute("using_inout", QString::number(f->using_inout));
 					stream.writeAttribute("in", QString::number(f->in));
 					stream.writeAttribute("out", QString::number(f->out));
+					stream.writeAttribute("speed", QString::number(f->speed));
 					for (int j=0;j<f->video_tracks.size();j++) {
-						FootageStream* ms = f->video_tracks.at(j);
+						const FootageStream& ms = f->video_tracks.at(j);
 						stream.writeStartElement("video");
-						stream.writeAttribute("id", QString::number(ms->file_index));
-						stream.writeAttribute("width", QString::number(ms->video_width));
-						stream.writeAttribute("height", QString::number(ms->video_height));
-						stream.writeAttribute("framerate", QString::number(ms->video_frame_rate, 'f', 10));
-						stream.writeAttribute("infinite", QString::number(ms->infinite_length));
+						stream.writeAttribute("id", QString::number(ms.file_index));
+						stream.writeAttribute("width", QString::number(ms.video_width));
+						stream.writeAttribute("height", QString::number(ms.video_height));
+						stream.writeAttribute("framerate", QString::number(ms.video_frame_rate, 'f', 10));
+						stream.writeAttribute("infinite", QString::number(ms.infinite_length));
 						stream.writeEndElement();
 					}
 					for (int j=0;j<f->audio_tracks.size();j++) {
-						FootageStream* ms = f->audio_tracks.at(j);
+						const FootageStream& ms = f->audio_tracks.at(j);
 						stream.writeStartElement("audio");
-						stream.writeAttribute("id", QString::number(ms->file_index));
-						stream.writeAttribute("channels", QString::number(ms->audio_channels));
-						stream.writeAttribute("layout", QString::number(ms->audio_layout));
-						stream.writeAttribute("frequency", QString::number(ms->audio_frequency));
+						stream.writeAttribute("id", QString::number(ms.file_index));
+						stream.writeAttribute("channels", QString::number(ms.audio_channels));
+						stream.writeAttribute("layout", QString::number(ms.audio_layout));
+						stream.writeAttribute("frequency", QString::number(ms.audio_frequency));
 						stream.writeEndElement();
 					}
 					stream.writeEndElement();
@@ -1082,6 +1137,12 @@ void Project::set_up_dir_enabled() {
 void Project::go_up_dir() {
 	icon_view->setRootIndex(icon_view->rootIndex().parent());
 	set_up_dir_enabled();
+}
+
+void Project::make_new_menu() {
+	QMenu new_menu(this);
+	mainWindow->make_new_menu(&new_menu);
+	new_menu.exec(QCursor::pos());
 }
 
 void Project::add_recent_project(QString url) {

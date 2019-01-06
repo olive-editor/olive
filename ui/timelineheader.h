@@ -21,12 +21,12 @@ public:
 	bool snapping;
 
 	void show_text(bool enable);
-	void update_zoom(double z);
     double get_zoom();
 	void delete_markers();
     void set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset);
 
 public slots:
+	void update_zoom(double z);
 	void set_scroll(int);
 	void set_visible_in(long i);
     void show_context_menu(const QPoint &pos);

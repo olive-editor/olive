@@ -14,6 +14,11 @@
 #include <QDialogButtonBox>
 #include <QTreeWidget>
 #include <QVector>
+#include <QPushButton>
+#include <QTreeWidgetItem>
+#include <QList>
+
+#include "debug.h"
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 	: QKeySequenceEdit(parent), action(a) {
@@ -53,6 +58,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 			if (a->menu() != NULL) {
 				setup_kbd_shortcut_worker(a->menu(), item);
 			} else {
+				item->setData(0, Qt::UserRole + 1, reinterpret_cast<quintptr>(a));
 				key_shortcut_items.append(item);
 				key_shortcut_actions.append(a);
 			}
@@ -92,6 +98,59 @@ void PreferencesDialog::save() {
 	}
 
 	accept();
+}
+
+void PreferencesDialog::reset_default_shortcut() {
+	QList<QTreeWidgetItem*> items = keyboard_tree->selectedItems();
+	for (int i=0;i<items.size();i++) {
+		QTreeWidgetItem* item = keyboard_tree->selectedItems().at(i);
+		const QVariant& data = item->data(0, Qt::UserRole + 1);
+		if (!data.isNull()) {
+			QAction* a = reinterpret_cast<QAction*>(data.value<quintptr>());
+			QKeySequence ks(a->property("default").toString());
+			static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->setKeySequence(ks);
+		}
+	}
+}
+
+bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* parent) {
+	if (parent == NULL) {
+		for (int i=0;i<keyboard_tree->topLevelItemCount();i++) {
+			refine_shortcut_list(s, keyboard_tree->topLevelItem(i));
+		}
+	} else {
+		parent->setExpanded(!s.isEmpty());
+
+		bool all_children_are_hidden = !s.isEmpty();
+
+		for (int i=0;i<parent->childCount();i++) {
+			QTreeWidgetItem* item = parent->child(i);
+			if (item->childCount() > 0) {
+				all_children_are_hidden = refine_shortcut_list(s, item);
+			} else {
+				item->setHidden(false);
+				if (s.isEmpty()) {
+					all_children_are_hidden = false;
+				} else {
+					QString shortcut;
+					if (keyboard_tree->itemWidget(item, 1) != NULL) {
+						shortcut = static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->keySequence().toString();
+					}
+					if (item->text(0).contains(s, Qt::CaseInsensitive) || shortcut.contains(s, Qt::CaseInsensitive)) {
+						all_children_are_hidden = false;
+					} else {
+						item->setHidden(true);
+					}
+				}
+			}
+		}
+
+		if (parent->text(0).contains(s, Qt::CaseInsensitive)) all_children_are_hidden = false;
+
+		parent->setHidden(all_children_are_hidden);
+
+		return all_children_are_hidden;
+	}
 }
 
 void PreferencesDialog::setup_ui() {
@@ -136,17 +195,33 @@ void PreferencesDialog::setup_ui() {
 	verticalLayout_2->addWidget(groupBox);
 
 	tabWidget->addTab(tab_4, "Playback");
-	QWidget* tab_3 = new QWidget();
-	QHBoxLayout* horizontalLayout = new QHBoxLayout(tab_3);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
+
+	QWidget* shortcut_tab = new QWidget();
+
+	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
+
+	QLineEdit* key_search_line = new QLineEdit();
+	key_search_line->setPlaceholderText("Search for action or shortcut");
+	connect(key_search_line, SIGNAL(textChanged(const QString &)), this, SLOT(refine_shortcut_list(const QString &)));
+
+	shortcut_layout->addWidget(key_search_line);
 
 	keyboard_tree = new QTreeWidget();
 	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
 	tree_header->setText(0, "Action");
 	tree_header->setText(1, "Shortcut");
-	horizontalLayout->addWidget(keyboard_tree);
+	shortcut_layout->addWidget(keyboard_tree);
 
-	tabWidget->addTab(tab_3, "Keyboard");
+	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
+	reset_shortcut_layout->addStretch();
+
+	reset_shortcut_button = new QPushButton("Reset to Default");
+	reset_shortcut_layout->addWidget(reset_shortcut_button);
+	connect(reset_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+
+	shortcut_layout->addLayout(reset_shortcut_layout);
+
+	tabWidget->addTab(shortcut_tab, "Keyboard");
 
 	verticalLayout->addWidget(tabWidget);
 

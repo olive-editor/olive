@@ -46,13 +46,15 @@ Viewer::Viewer(QWidget *parent) :
 	panel_name("Viewer: "),
 	minimum_zoom(1.0)
 {
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	setup_ui();
 
 	headers->viewer = this;
 	headers->snapping = false;
 	headers->show_text(false);
-	glViewerPane->viewer = this;
-	viewer_widget = glViewerPane->child;
+	viewer_container->viewer = this;
+	viewer_widget = viewer_container->child;
 	viewer_widget->viewer = this;
 	set_media(NULL);
 
@@ -67,9 +69,9 @@ Viewer::Viewer(QWidget *parent) :
 
 	connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
 	connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
-	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
-	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
-	connect(horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
+	connect(horizontal_bar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
+	connect(horizontal_bar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+	connect(horizontal_bar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
 	update_playhead_timecode(0);
 	update_end_timecode();
@@ -439,35 +441,33 @@ void Viewer::set_zoom_value(double d) {
 	}
 	if (seq != NULL) {
 		set_sb_max();
-		if (!horizontalScrollBar->is_resizing())
-			center_scroll_to_playhead(horizontalScrollBar, headers->get_zoom(), seq->playhead);
+		if (!horizontal_bar->is_resizing())
+			center_scroll_to_playhead(horizontal_bar, headers->get_zoom(), seq->playhead);
 	}
 }
 
 void Viewer::set_sb_max() {
-	headers->set_scrollbar_max(horizontalScrollBar, seq->getEndFrame(), headers->width());
+	headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
 }
 
 void Viewer::setup_ui() {
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
 	QWidget* contents = new QWidget();
 
 	QVBoxLayout* layout = new QVBoxLayout(contents);
 	layout->setSpacing(0);
 	layout->setMargin(0);
 
-	glViewerPane = new ViewerContainer(contents);
-	glViewerPane->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	layout->addWidget(glViewerPane);
+	viewer_container = new ViewerContainer(contents);
+	viewer_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	layout->addWidget(viewer_container);
 
 	headers = new TimelineHeader(contents);
 	layout->addWidget(headers);
 
-	horizontalScrollBar = new ResizableScrollBar(contents);
-	horizontalScrollBar->setSingleStep(20);
-	horizontalScrollBar->setOrientation(Qt::Horizontal);
-	layout->addWidget(horizontalScrollBar);
+	horizontal_bar = new ResizableScrollBar(contents);
+	horizontal_bar->setSingleStep(20);
+	horizontal_bar->setOrientation(Qt::Horizontal);
+	layout->addWidget(horizontal_bar);
 
 	QWidget* lower_controls = new QWidget(contents);
 
@@ -506,9 +506,8 @@ void Viewer::setup_ui() {
 	playback_control_layout->addWidget(btnRewind);
 
 	btnPlay = new QPushButton(playback_controls);
-	QIcon playIcon;
-	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::Off);
-	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::On);
+	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	btnPlay->setIcon(playIcon);
 	connect(btnPlay, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
 	playback_control_layout->addWidget(btnPlay);
@@ -573,14 +572,14 @@ void Viewer::set_media(Media* m) {
 			seq->frame_rate = 30;
 
 			if (footage->video_tracks.size() > 0) {
-				FootageStream* video_stream = footage->video_tracks.at(0);
-				seq->width = video_stream->video_width;
-				seq->height = video_stream->video_height;
-				if (video_stream->video_frame_rate > 0 && !video_stream->infinite_length) seq->frame_rate = video_stream->video_frame_rate;
+				const FootageStream& video_stream = footage->video_tracks.at(0);
+				seq->width = video_stream.video_width;
+				seq->height = video_stream.video_height;
+				if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate * footage->speed;
 
 				Clip* c = new Clip(seq);
 				c->media = media;
-				c->media_stream = video_stream->file_index;
+				c->media_stream = video_stream.file_index;
 				c->timeline_in = 0;
 				c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
 				if (c->timeline_out <= 0) c->timeline_out = 150;
@@ -594,12 +593,12 @@ void Viewer::set_media(Media* m) {
 			}
 
 			if (footage->audio_tracks.size() > 0) {
-				FootageStream* audio_stream = footage->audio_tracks.at(0);
-				seq->audio_frequency = audio_stream->audio_frequency;
+				const FootageStream& audio_stream = footage->audio_tracks.at(0);
+				seq->audio_frequency = audio_stream.audio_frequency;
 
 				Clip* c = new Clip(seq);
 				c->media = media;
-				c->media_stream = audio_stream->file_index;
+				c->media_stream = audio_stream.file_index;
 				c->timeline_in = 0;
 				c->timeline_out = footage->get_length_in_frames(seq->frame_rate);
 				c->track = 0;
@@ -610,7 +609,7 @@ void Viewer::set_media(Media* m) {
 				if (footage->video_tracks.size() == 0) {
 					viewer_widget->waveform = true;
 					viewer_widget->waveform_clip = c;
-					viewer_widget->waveform_ms = audio_stream;
+					viewer_widget->waveform_ms = &audio_stream;
 					viewer_widget->update();
 				}
 			} else {
@@ -626,26 +625,6 @@ void Viewer::set_media(Media* m) {
 		}
 	}
 	set_sequence(false, seq);
-}
-
-void Viewer::on_btnSkipToStart_clicked() {
-	go_to_start();
-}
-
-void Viewer::on_btnSkipToEnd_clicked() {
-	go_to_end();
-}
-
-void Viewer::on_btnRewind_clicked() {
-	previous_frame();
-}
-
-void Viewer::on_btnFastForward_clicked() {
-	next_frame();
-}
-
-void Viewer::on_btnPlay_clicked() {
-	toggle_play();
 }
 
 void Viewer::update_playhead() {
@@ -696,7 +675,13 @@ void Viewer::clean_created_seq() {
 }
 
 void Viewer::set_sequence(bool main, Sequence *s) {
+	pause();
+
 	reset_all_audio();
+
+	if (seq != NULL) {
+		closeActiveClips(seq);
+	}
 
 	main_sequence = main;
 	seq = (main) ? sequence : s;
@@ -721,7 +706,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 		update_playhead_timecode(seq->playhead);
 		update_end_timecode();
 
-		glViewerPane->adjust();
+		viewer_container->adjust();
 
 		setWindowTitle(panel_name + seq->name);
 	} else {
@@ -739,5 +724,5 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 }
 
 void Viewer::set_playpause_icon(bool play) {
-	btnPlay->setIcon(QIcon((play) ? ":/icons/play.png" : ":/icons/pause.png"));
+	btnPlay->setIcon(play ? playIcon : QIcon(":/icons/pause.png"));
 }

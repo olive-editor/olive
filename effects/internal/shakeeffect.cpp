@@ -16,19 +16,19 @@
 ShakeEffect::ShakeEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 	enable_coords = true;
 
-	EffectRow* intensity_row = add_row("Intensity:");
-    intensity_val = intensity_row->add_field(EFFECT_FIELD_DOUBLE, "intensity");
+	EffectRow* intensity_row = add_row("Intensity");
+	intensity_val = intensity_row->add_field(EFFECT_FIELD_DOUBLE, "intensity");
 	intensity_val->set_double_minimum_value(0);
 
-	EffectRow* rotation_row = add_row("Rotation:");
-    rotation_val = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
+	EffectRow* rotation_row = add_row("Rotation");
+	rotation_val = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
 	rotation_val->set_double_minimum_value(0);
 
-	EffectRow* frequency_row = add_row("Frequency:");
-    frequency_val = frequency_row->add_field(EFFECT_FIELD_DOUBLE, "frequency");
+	EffectRow* frequency_row = add_row("Frequency");
+	frequency_val = frequency_row->add_field(EFFECT_FIELD_DOUBLE, "frequency");
 	frequency_val->set_double_minimum_value(0);
 
-    // set defaults
+	// set defaults
 	intensity_val->set_double_default_value(25);
 	rotation_val->set_double_default_value(10);
 	frequency_val->set_double_default_value(5);

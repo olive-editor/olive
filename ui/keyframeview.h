@@ -7,6 +7,7 @@
 struct Clip;
 class Effect;
 class EffectRow;
+class EffectField;
 class TimelineHeader;
 
 class KeyframeView : public QWidget {
@@ -23,26 +24,25 @@ public:
 public slots:
 	void set_x_scroll(int);
 	void set_y_scroll(int);
-    void resize_move(double d);
+	void resize_move(double d);
 private:
 	long adjust_row_keyframe(EffectRow* row, long time);
-	QVector<EffectRow*> selected_rows;
-    QVector<int> selected_keyframes;
+	QVector<EffectField*> selected_fields;
+	QVector<int> selected_keyframes;
 	QVector<int> rowY;
-	long frame_diff;
 	QVector<EffectRow*> rows;
+	QVector<long> old_key_vals;
 	void mousePressEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
-    void draw_keyframe(QPainter& p, int type, int x, int y, bool darker);
-    bool mousedown;
+	bool mousedown;
 	bool dragging;
 	bool keys_selected;
-    bool select_rect;
-    bool scroll_drag;
+	bool select_rect;
+	bool scroll_drag;
 
-	bool keyframeIsSelected(EffectRow* row, int keyframe);
+	bool keyframeIsSelected(EffectField *field, int keyframe);
 
 	long drag_frame_start;
 	long last_frame_diff;
@@ -50,12 +50,15 @@ private:
 	int rect_select_y;
 	int rect_select_w;
 	int rect_select_h;
+	int rect_select_offset;
 
 	int x_scroll;
 	int y_scroll;
+
+	void update_keys();
 private slots:
-    void show_context_menu(const QPoint& pos);
-    void menu_set_key_type(QAction*);
+	void show_context_menu(const QPoint& pos);
+	void menu_set_key_type(QAction*);
 };
 
 #endif // KEYFRAMEVIEW_H

@@ -38,7 +38,6 @@ struct FootageStream;
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
-void draw_selection_rectangle(QPainter& painter, const QRect& rect);
 bool selection_contains_transition(const Selection& s, Clip* c, int type);
 void move_clip(ComboAction *ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions = true, bool relative = false);
 void ripple_clips(ComboAction *ca, Sequence* s, long point, long length, const QVector<int>& ignore = QVector<int>());

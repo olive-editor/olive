@@ -57,6 +57,7 @@ enum ExportFormats {
 ExportDialog::ExportDialog(QWidget *parent) :
 	QDialog(parent)
 {
+	setWindowTitle("Export \"" + sequence->name + "\"");
 	setup_ui();
 
 	rangeCombobox->setCurrentIndex(0);
@@ -478,7 +479,7 @@ void ExportDialog::export_action() {
 		connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
-		closeActiveClips(sequence, true);
+		closeActiveClips(sequence);
 
 		mainWindow->autorecover_interval();
 
@@ -601,54 +602,41 @@ void ExportDialog::setup_ui() {
 	videoGroupbox->setTitle("Video");
 	videoGroupbox->setFlat(false);
 	videoGroupbox->setCheckable(true);
-	QGridLayout* gridLayout = new QGridLayout(videoGroupbox);
 
-	gridLayout->addWidget(new QLabel("Compression Type:"), 4, 0, 1, 1);
+	QGridLayout* videoGridLayout = new QGridLayout(videoGroupbox);
 
-	compressionTypeCombobox = new QComboBox(videoGroupbox);
-	compressionTypeCombobox->addItem("Quality-based (Constant Rate Factor)");
-	compressionTypeCombobox->addItem("File size-based (Two-Pass)");
-
-	gridLayout->addWidget(compressionTypeCombobox, 4, 1, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Codec:"), 0, 0, 1, 1);
-
+	videoGridLayout->addWidget(new QLabel("Codec:"), 0, 0, 1, 1);
 	vcodecCombobox = new QComboBox(videoGroupbox);
+	videoGridLayout->addWidget(vcodecCombobox, 0, 1, 1, 1);
 
-	gridLayout->addWidget(vcodecCombobox, 0, 1, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Height:"), 2, 0, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Width:"), 1, 0, 1, 1);
-
-	heightSpinbox = new QSpinBox(videoGroupbox);
-	heightSpinbox->setMaximum(16777216);
-
-	gridLayout->addWidget(heightSpinbox, 2, 1, 1, 1);
-
+	videoGridLayout->addWidget(new QLabel("Width:"), 1, 0, 1, 1);
 	widthSpinbox = new QSpinBox(videoGroupbox);
 	widthSpinbox->setMaximum(16777216);
+	videoGridLayout->addWidget(widthSpinbox, 1, 1, 1, 1);
 
-	gridLayout->addWidget(widthSpinbox, 1, 1, 1, 1);
+	videoGridLayout->addWidget(new QLabel("Height:"), 2, 0, 1, 1);
+	heightSpinbox = new QSpinBox(videoGroupbox);
+	heightSpinbox->setMaximum(16777216);
+	videoGridLayout->addWidget(heightSpinbox, 2, 1, 1, 1);
 
-	videobitrateSpinbox = new QDoubleSpinBox(videoGroupbox);
-	videobitrateSpinbox->setMaximum(100);
-	videobitrateSpinbox->setValue(2);
-
-	gridLayout->addWidget(videobitrateSpinbox, 5, 1, 1, 1);
-
-	videoBitrateLabel = new QLabel(videoGroupbox);
-
-	gridLayout->addWidget(videoBitrateLabel, 5, 0, 1, 1);
-
-	gridLayout->addWidget(new QLabel("Frame Rate:"), 3, 0, 1, 1);
-
+	videoGridLayout->addWidget(new QLabel("Frame Rate:"), 3, 0, 1, 1);
 	framerateSpinbox = new QDoubleSpinBox(videoGroupbox);
 	framerateSpinbox->setMaximum(60);
 	framerateSpinbox->setValue(0);
+	videoGridLayout->addWidget(framerateSpinbox, 3, 1, 1, 1);
 
-	gridLayout->addWidget(framerateSpinbox, 3, 1, 1, 1);
+	videoGridLayout->addWidget(new QLabel("Compression Type:"), 4, 0, 1, 1);
+	compressionTypeCombobox = new QComboBox(videoGroupbox);
+	compressionTypeCombobox->addItem("Quality-based (Constant Rate Factor)");
+	compressionTypeCombobox->addItem("File size-based (Two-Pass)");
+	videoGridLayout->addWidget(compressionTypeCombobox, 4, 1, 1, 1);
 
+	videoBitrateLabel = new QLabel(videoGroupbox);
+	videoGridLayout->addWidget(videoBitrateLabel, 5, 0, 1, 1);
+	videobitrateSpinbox = new QDoubleSpinBox(videoGroupbox);
+	videobitrateSpinbox->setMaximum(100);
+	videobitrateSpinbox->setValue(2);
+	videoGridLayout->addWidget(videobitrateSpinbox, 5, 1, 1, 1);
 
 	verticalLayout->addWidget(videoGroupbox);
 
@@ -656,69 +644,60 @@ void ExportDialog::setup_ui() {
 	audioGroupbox->setTitle("Audio");
 	audioGroupbox->setCheckable(true);
 
-	QGridLayout* gridLayout_2 = new QGridLayout(audioGroupbox);
-	gridLayout_2->addWidget(new QLabel("Codec:"), 0, 0, 1, 1);
+	QGridLayout* audioGridLayout = new QGridLayout(audioGroupbox);
 
+	audioGridLayout->addWidget(new QLabel("Codec:"), 0, 0, 1, 1);
 	acodecCombobox = new QComboBox(audioGroupbox);
+	audioGridLayout->addWidget(acodecCombobox, 0, 1, 1, 1);
 
-	gridLayout_2->addWidget(acodecCombobox, 0, 1, 1, 1);
-
+	audioGridLayout->addWidget(new QLabel("Sampling Rate:"), 1, 0, 1, 1);
 	samplingRateSpinbox = new QSpinBox(audioGroupbox);
 	samplingRateSpinbox->setMaximum(96000);
 	samplingRateSpinbox->setValue(0);
+	audioGridLayout->addWidget(samplingRateSpinbox, 1, 1, 1, 1);
 
-	gridLayout_2->addWidget(samplingRateSpinbox, 1, 1, 1, 1);
-
-	gridLayout_2->addWidget(new QLabel("Sampling Rate:"), 1, 0, 1, 1);
-
-	gridLayout_2->addWidget(new QLabel("Bitrate (Kbps/CBR):"), 3, 0, 1, 1);
-
+	audioGridLayout->addWidget(new QLabel("Bitrate (Kbps/CBR):"), 3, 0, 1, 1);
 	audiobitrateSpinbox = new QSpinBox(audioGroupbox);
 	audiobitrateSpinbox->setMaximum(320);
 	audiobitrateSpinbox->setValue(256);
-
-	gridLayout_2->addWidget(audiobitrateSpinbox, 3, 1, 1, 1);
-
+	audioGridLayout->addWidget(audiobitrateSpinbox, 3, 1, 1, 1);
 
 	verticalLayout->addWidget(audioGroupbox);
 
-	QHBoxLayout* horizontalLayout_3 = new QHBoxLayout();
+	QHBoxLayout* progressLayout = new QHBoxLayout();
 	progressBar = new QProgressBar(this);
 	progressBar->setFormat("%p% (ETA: 0:00:00)");
 	progressBar->setEnabled(false);
 	progressBar->setValue(0);
-
-	horizontalLayout_3->addWidget(progressBar);
+	progressLayout->addWidget(progressBar);
 
 	renderCancel = new QPushButton(this);
 	renderCancel->setText("x");
 	renderCancel->setEnabled(false);
 	renderCancel->setMaximumSize(QSize(20, 16777215));
 	connect(renderCancel, SIGNAL(clicked(bool)), this, SLOT(cancel_render()));
+	progressLayout->addWidget(renderCancel);
 
-	horizontalLayout_3->addWidget(renderCancel);
+	verticalLayout->addLayout(progressLayout);
 
-
-	verticalLayout->addLayout(horizontalLayout_3);
-
-	QHBoxLayout* horizontalLayout_2 = new QHBoxLayout();
-	horizontalLayout_2->addStretch();
+	QHBoxLayout* buttonLayout = new QHBoxLayout();
+	buttonLayout->addStretch();
 
 	export_button = new QPushButton(this);
 	export_button->setText("Export");
 	connect(export_button, SIGNAL(clicked(bool)), this, SLOT(export_action()));
 
-	horizontalLayout_2->addWidget(export_button);
+	buttonLayout->addWidget(export_button);
 
 	cancel_button = new QPushButton(this);
 	cancel_button->setText("Cancel");
 	connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(reject()));
 
-	horizontalLayout_2->addWidget(cancel_button);
+	buttonLayout->addWidget(cancel_button);
 
-	horizontalLayout_2->addStretch();
+	buttonLayout->addStretch();
 
-	verticalLayout->addLayout(horizontalLayout_2);
+	verticalLayout->addLayout(buttonLayout);
 
 	connect(formatCombobox, SIGNAL(currentIndexChanged(int)), this, SLOT(format_changed(int)));
 	connect(compressionTypeCombobox, SIGNAL(currentIndexChanged(int)), this, SLOT(comp_type_changed(int)));

@@ -43,6 +43,8 @@ extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
 void clear_audio_ibuffer();
 
+int current_audio_freq();
+
 bool is_audio_device_set();
 
 void init_audio();
