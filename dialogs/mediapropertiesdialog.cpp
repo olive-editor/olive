@@ -8,6 +8,7 @@
 #include <QTreeWidgetItem>
 #include <QGroupBox>
 #include <QListWidget>
+#include <QSpinBox>
 
 #include "project/footage.h"
 #include "project/media.h"
@@ -52,6 +53,16 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 	row++;
 
 	if (f->video_tracks.size() > 0) {
+		// frame conforming
+		grid->addWidget(new QLabel("Conform to Frame Rate:"), row, 0);
+		conform_fr = new QDoubleSpinBox();
+		conform_fr->setMinimum(0.01);
+		conform_fr->setValue(f->video_tracks.at(0).video_frame_rate * f->speed);
+		grid->addWidget(conform_fr, row, 1);
+
+		row++;
+
+		// deinterlacing mode
 		interlacing_box = new QComboBox();
 		interlacing_box->addItem("Auto (" + get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing) + ")");
 		interlacing_box->addItem(get_interlacing_name(VIDEO_PROGRESSIVE));
@@ -109,12 +120,20 @@ void MediaPropertiesDialog::accept() {
 		}
 	}
 
+	bool refresh_clips = false;
+
 	// set interlacing
 	if (f->video_tracks.size() > 0) {
 		if (interlacing_box->currentIndex() > 0) {
 			ca->append(new SetInt(&f->video_tracks[0].video_interlacing, interlacing_box->currentIndex() - 1));
 		} else {
 			ca->append(new SetInt(&f->video_tracks[0].video_interlacing, f->video_tracks.at(0).video_auto_interlacing));
+		}
+
+		// set frame rate conform
+		if (!qFuzzyCompare(conform_fr->value(), f->video_tracks.at(0).video_frame_rate)) {
+			ca->append(new SetDouble(&f->speed, f->speed, conform_fr->value()/f->video_tracks.at(0).video_frame_rate));
+			refresh_clips = true;
 		}
 	}
 
@@ -124,6 +143,7 @@ void MediaPropertiesDialog::accept() {
 	ca->append(mr);
 	ca->appendPost(new CloseAllClipsCommand());
 	ca->appendPost(new UpdateFootageTooltip(item));
+	if (refresh_clips) ca->appendPost(new RefreshClips(item));
 
 	undo_stack.push(ca);
 

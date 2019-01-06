@@ -633,4 +633,13 @@ private:
 	bool b;
 };
 
+class RefreshClips : public QUndoCommand {
+public:
+	RefreshClips(Media* m);
+	void undo();
+	void redo();
+private:
+	Media* media;
+};
+
 #endif // UNDO_H
