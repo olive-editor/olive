@@ -117,6 +117,8 @@ private slots:
 
 	void load_with_launch();
 
+	void show_action_search();
+
 private:
 	void setup_layout(bool reset);
 	bool can_close_project();

@@ -27,6 +27,7 @@
 #include "dialogs/preferencesdialog.h"
 #include "dialogs/demonotice.h"
 #include "dialogs/speeddialog.h"
+#include "dialogs/actionsearch.h"
 
 #include "playback/audio.h"
 #include "playback/playback.h"
@@ -804,6 +805,10 @@ void MainWindow::setup_menus() {
 
 	QMenu* help_menu = menuBar->addMenu("&Help");
 
+	help_menu->addAction("A&ction Search", this, SLOT(show_action_search()));
+
+	help_menu->addSeparator();
+
 	help_menu->addAction("&About...", this, SLOT(show_about()));
 
 	QFile shortcut_path(get_config_path() + "/shortcuts");
@@ -925,6 +930,11 @@ void MainWindow::open_project_worker(const QString& fn, bool autorecovery) {
 
 void MainWindow::load_with_launch() {
 	open_project_worker(project_url, false);
+}
+
+void MainWindow::show_action_search() {
+	ActionSearch as(this);
+	as.exec();
 }
 
 void MainWindow::reset_layout() {
