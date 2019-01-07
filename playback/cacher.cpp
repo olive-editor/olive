@@ -13,6 +13,7 @@
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "project/media.h"
+#include "io/config.h"
 #include "debug.h"
 
 extern "C" {
@@ -458,7 +459,9 @@ void cache_video_worker(Clip* c, long playhead) {
 				if (c->multithreaded && c->cacher->interrupt) return; // abort
 
 				AVFrame* send_frame = c->frame;
+//				qint64 time = QDateTime::currentMSecsSinceEpoch();
 				read_ret = (c->use_existing_frame) ? 0 : retrieve_next_frame(c, send_frame);
+//				dout << QDateTime::currentMSecsSinceEpoch() - time;
 				c->use_existing_frame = false;
 				if (read_ret >= 0) {
 					bool send_it = true;
@@ -677,10 +680,11 @@ void open_clip_worker(Clip* clip) {
 		clip->opts = NULL;
 
 		// optimized decoding settings
-		if (clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
-			clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
-			clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
-			clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD) {
+		if ((clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
+			 clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
+			 clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
+			 clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD)
+				|| !config.disable_multithreading_for_images) {
 			av_dict_set(&clip->opts, "threads", "auto", 0);
 		}
 		if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {

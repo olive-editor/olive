@@ -10,6 +10,7 @@ class QRadioButton;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QMenu;
+class QCheckBox;
 
 class KeySequenceEditor : public QKeySequenceEdit {
 	Q_OBJECT
@@ -44,6 +45,7 @@ private:
 	QRadioButton* accurateSeekButton;
 	QRadioButton* fastSeekButton;
 	QTreeWidget* keyboard_tree;
+	QCheckBox* disable_img_multithread;
 
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;

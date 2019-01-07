@@ -38,7 +38,8 @@ Config::Config()
 	  hover_focus(false),
 	  project_view_type(PROJECT_VIEW_TREE),
 	  set_name_with_marker(true),
-	  show_project_toolbar(false)
+	  show_project_toolbar(false),
+	  disable_multithreading_for_images(false)
 {}
 
 void Config::load(QString path) {
@@ -130,6 +131,9 @@ void Config::load(QString path) {
 				} else if (stream.name() == "ShowProjectToolbar") {
 					stream.readNext();
 					show_project_toolbar = (stream.text() == "1");
+				} else if (stream.name() == "DisableMultithreadedImages") {
+					stream.readNext();
+					disable_multithreading_for_images = (stream.text() == "1");
 				}
 			}
 		}
@@ -181,6 +185,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
 	stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
 	stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
+	stream.writeTextElement("DisableMultithreadedImages", QString::number(disable_multithreading_for_images));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

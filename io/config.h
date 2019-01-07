@@ -50,6 +50,7 @@ struct Config {
 	int project_view_type;
 	bool set_name_with_marker;
 	bool show_project_toolbar;
+	bool disable_multithreading_for_images;
 
 	void load(QString path);
 	void save(QString path);

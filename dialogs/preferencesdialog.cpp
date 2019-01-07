@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QGroupBox>
+#include <QCheckBox>
 #include <QRadioButton>
 #include <QDialogButtonBox>
 #include <QTreeWidget>
@@ -91,6 +92,7 @@ void PreferencesDialog::save() {
 	config.recording_mode = recordingComboBox->currentIndex() + 1;
 	config.img_seq_formats = imgSeqFormatEdit->text();
 	config.fast_seeking = fastSeekButton->isChecked();
+	config.disable_multithreading_for_images = disable_img_multithread->isChecked();
 
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
@@ -177,24 +179,29 @@ void PreferencesDialog::setup_ui() {
 	tabWidget->addTab(tab, "General");
 	QWidget* tab_2 = new QWidget();
 	tabWidget->addTab(tab_2, "Behavior");
-	QWidget* tab_4 = new QWidget();
-	QVBoxLayout* verticalLayout_2 = new QVBoxLayout(tab_4);
-	QGroupBox* groupBox = new QGroupBox(tab_4);
-	groupBox->setTitle("Seeking");
-	QVBoxLayout* verticalLayout_3 = new QVBoxLayout(groupBox);
-	accurateSeekButton = new QRadioButton(groupBox);
+
+	// Playback
+	QWidget* playback_tab = new QWidget();
+	QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
+
+	// Playback -> Seeking
+	QGroupBox* seeking_group = new QGroupBox(playback_tab);
+	seeking_group->setTitle("Seeking");
+	QVBoxLayout* seeking_group_layout = new QVBoxLayout(seeking_group);
+	accurateSeekButton = new QRadioButton(seeking_group);
 	accurateSeekButton->setText("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)");
-
-	verticalLayout_3->addWidget(accurateSeekButton);
-
-	fastSeekButton = new QRadioButton(groupBox);
+	seeking_group_layout->addWidget(accurateSeekButton);
+	fastSeekButton = new QRadioButton(seeking_group);
 	fastSeekButton->setText("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)");
+	seeking_group_layout->addWidget(fastSeekButton);
+	playback_tab_layout->addWidget(seeking_group);
 
-	verticalLayout_3->addWidget(fastSeekButton);
+	// Playback -> Disable Multithreading on Images
+	disable_img_multithread = new QCheckBox("Disable Multithreading on Images");
+	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
+	playback_tab_layout->addWidget(disable_img_multithread);
 
-	verticalLayout_2->addWidget(groupBox);
-
-	tabWidget->addTab(tab_4, "Playback");
+	tabWidget->addTab(playback_tab, "Playback");
 
 	QWidget* shortcut_tab = new QWidget();
 

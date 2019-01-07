@@ -48,7 +48,7 @@ void open_clip(Clip* clip, bool multithreaded) {
 				// maybe keep cacher instance in memory while clip exists for performance?
 				clip->cacher = new Cacher(clip);
 				QObject::connect(clip->cacher, SIGNAL(finished()), clip->cacher, SLOT(deleteLater()));
-				clip->cacher->start((clip->track < 0) ? QThread::NormalPriority : QThread::TimeCriticalPriority);
+				clip->cacher->start((clip->track < 0) ? QThread::HighPriority : QThread::TimeCriticalPriority);
 			}
 		} else {
 			clip->finished_opening = false;
@@ -83,7 +83,10 @@ void close_clip(Clip* clip, bool wait) {
 		if (clip->multithreaded) {
 			clip->cacher->caching = false;
 			clip->can_cache.wakeAll();
-			if (wait) clip->cacher->wait();
+			if (wait) {
+				clip->open_lock.lock();
+				clip->open_lock.unlock();
+			}
 		} else {
 			close_clip_worker(clip);
 		}
@@ -172,7 +175,7 @@ void get_clip_frame(Clip* c, long playhead) {
 					}
 					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
 						//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
-						av_frame_free(&c->queue[i]); // may be a little heavy for the UI thread?
+						av_frame_free(&c->queue[i]); // may be a little heavy for the main thread?
 						c->queue.removeAt(i);
 						i--;
 					}
