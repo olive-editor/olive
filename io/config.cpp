@@ -39,7 +39,11 @@ Config::Config()
 	  project_view_type(PROJECT_VIEW_TREE),
 	  set_name_with_marker(true),
 	  show_project_toolbar(false),
-	  disable_multithreading_for_images(false)
+	  disable_multithreading_for_images(false),
+	  previous_queue_size(3),
+	  previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
+	  upcoming_queue_size(0.5),
+	  upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS)
 {}
 
 void Config::load(QString path) {
@@ -134,6 +138,18 @@ void Config::load(QString path) {
 				} else if (stream.name() == "DisableMultithreadedImages") {
 					stream.readNext();
 					disable_multithreading_for_images = (stream.text() == "1");
+				} else if (stream.name() == "PreviousFrameQueueSize") {
+					stream.readNext();
+					previous_queue_size = stream.text().toDouble();
+				} else if (stream.name() == "PreviousFrameQueueType") {
+					stream.readNext();
+					previous_queue_type = stream.text().toInt();
+				} else if (stream.name() == "UpcomingFrameQueueSize") {
+					stream.readNext();
+					upcoming_queue_size = stream.text().toDouble();
+				} else if (stream.name() == "UpcomingFrameQueueType") {
+					stream.readNext();
+					upcoming_queue_type = stream.text().toInt();
 				}
 			}
 		}
@@ -186,6 +202,10 @@ void Config::save(QString path) {
 	stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
 	stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
 	stream.writeTextElement("DisableMultithreadedImages", QString::number(disable_multithreading_for_images));
+	stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
+	stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
+	stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
+	stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

@@ -163,23 +163,44 @@ void get_clip_frame(Clip* c, long playhead) {
 				target_frame = c->queue.at(closest_frame);
 				int64_t next_pts = INT64_MAX;
 				int64_t minimum_ts = target_frame->pts;
-				/*if (c->reverse) {
-					minimum_ts += quarter_pts;
-				} else {
-					minimum_ts -= quarter_pts;
-				}*/
+
+				int previous_frame_count = 0;
+				if (config.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+					minimum_ts -= (second_pts*config.previous_queue_size);
+				}
+
 				//dout << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
 				for (int i=0;i<c->queue.size();i++) {
 					if (c->queue.at(i)->pts > target_frame->pts && c->queue.at(i)->pts < next_pts) {
 						next_pts = c->queue.at(i)->pts;
 					}
 					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
-						//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
-						av_frame_free(&c->queue[i]); // may be a little heavy for the main thread?
-						c->queue.removeAt(i);
-						i--;
+						if (config.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+							//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
+							av_frame_free(&c->queue[i]); // may be a little heavy for the main thread?
+							c->queue.removeAt(i);
+							i--;
+						} else {
+							// TODO sort from largest to smallest
+							previous_frame_count++;
+						}
 					}
 				}
+
+				if (config.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+					while (previous_frame_count > qCeil(config.previous_queue_size)) {
+						int smallest = 0;
+						for (int i=1;i<c->queue.size();i++) {
+							if (c->queue.at(i)->pts < c->queue.at(smallest)->pts) {
+								smallest = i;
+							}
+						}
+						av_frame_free(&c->queue[smallest]);
+						c->queue.removeAt(smallest);
+						previous_frame_count--;
+					}
+				}
+
 				if (next_pts == INT64_MAX) next_pts = target_frame->pts + target_frame->pkt_duration;
 
 				// we didn't get the exact timestamp

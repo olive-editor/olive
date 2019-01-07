@@ -21,6 +21,9 @@
 #define PROJECT_VIEW_TREE 0
 #define PROJECT_VIEW_ICON 1
 
+#define FRAME_QUEUE_TYPE_FRAMES 0
+#define FRAME_QUEUE_TYPE_SECONDS 1
+
 struct Config {
 	Config();
 	bool saved_layout;
@@ -51,6 +54,10 @@ struct Config {
 	bool set_name_with_marker;
 	bool show_project_toolbar;
 	bool disable_multithreading_for_images;
+	double previous_queue_size;
+	int previous_queue_type;
+	double upcoming_queue_size;
+	int upcoming_queue_type;
 
 	void load(QString path);
 	void save(QString path);

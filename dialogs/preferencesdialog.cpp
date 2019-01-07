@@ -18,6 +18,7 @@
 #include <QPushButton>
 #include <QTreeWidgetItem>
 #include <QList>
+#include <QDoubleSpinBox>
 
 #include "debug.h"
 
@@ -94,6 +95,10 @@ void PreferencesDialog::save() {
 	config.img_seq_formats = imgSeqFormatEdit->text();
 	config.fast_seeking = fastSeekButton->isChecked();
 	config.disable_multithreading_for_images = disable_img_multithread->isChecked();
+	config.upcoming_queue_size = upcoming_queue_spinbox->value();
+	config.upcoming_queue_type = upcoming_queue_type->currentIndex();
+	config.previous_queue_size = previous_queue_spinbox->value();
+	config.previous_queue_type = previous_queue_type->currentIndex();
 
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
@@ -160,30 +165,35 @@ void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 	QTabWidget* tabWidget = new QTabWidget(this);
 
-	QTabWidget* tab = new QTabWidget();
-	QGridLayout* gridLayout_2 = new QGridLayout(tab);
+	QTabWidget* general_tab = new QTabWidget();
+	QGridLayout* general_layout = new QGridLayout(general_tab);
 
-	gridLayout_2->addWidget(new QLabel("Image sequence formats:"), 0, 0, 1, 1);
+	general_layout->addWidget(new QLabel("Image sequence formats:"), 0, 0, 1, 1);
 
-	imgSeqFormatEdit = new QLineEdit(tab);
+	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-	gridLayout_2->addWidget(imgSeqFormatEdit, 0, 1, 1, 1);
+	general_layout->addWidget(imgSeqFormatEdit, 0, 1, 1, 1);
 
-	gridLayout_2->addWidget(new QLabel("Audio Recording:"), 1, 0, 1, 1);
+	general_layout->addWidget(new QLabel("Audio Recording:"), 1, 0, 1, 1);
 
-	recordingComboBox = new QComboBox(tab);
+	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem("Mono");
 	recordingComboBox->addItem("Stereo");
 
-	gridLayout_2->addWidget(recordingComboBox, 1, 1, 1, 1);
+	general_layout->addWidget(recordingComboBox, 1, 1, 1, 1);
 
-	tabWidget->addTab(tab, "General");
-	QWidget* tab_2 = new QWidget();
-	tabWidget->addTab(tab_2, "Behavior");
+	tabWidget->addTab(general_tab, "General");
+	QWidget* behavior_tab = new QWidget();
+	tabWidget->addTab(behavior_tab, "Behavior");
 
 	// Playback
 	QWidget* playback_tab = new QWidget();
 	QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
+
+	// Playback -> Disable Multithreading on Images
+	disable_img_multithread = new QCheckBox("Disable Multithreading on Images");
+	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
+	playback_tab_layout->addWidget(disable_img_multithread);
 
 	// Playback -> Seeking
 	QGroupBox* seeking_group = new QGroupBox(playback_tab);
@@ -197,10 +207,29 @@ void PreferencesDialog::setup_ui() {
 	seeking_group_layout->addWidget(fastSeekButton);
 	playback_tab_layout->addWidget(seeking_group);
 
-	// Playback -> Disable Multithreading on Images
-	disable_img_multithread = new QCheckBox("Disable Multithreading on Images");
-	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
-	playback_tab_layout->addWidget(disable_img_multithread);
+	// Playback -> Memory Usage
+	QGroupBox* memory_usage_group = new QGroupBox(playback_tab);
+	memory_usage_group->setTitle("Memory Usage");
+	QGridLayout* memory_usage_layout = new QGridLayout(memory_usage_group);
+	memory_usage_layout->addWidget(new QLabel("Upcoming Frame Queue:"), 0, 0);
+	upcoming_queue_spinbox = new QDoubleSpinBox();
+	upcoming_queue_spinbox->setValue(config.upcoming_queue_size);
+	memory_usage_layout->addWidget(upcoming_queue_spinbox, 0, 1);
+	upcoming_queue_type = new QComboBox();
+	upcoming_queue_type->addItem("frames");
+	upcoming_queue_type->addItem("seconds");
+	upcoming_queue_type->setCurrentIndex(config.upcoming_queue_type);
+	memory_usage_layout->addWidget(upcoming_queue_type, 0, 2);
+	memory_usage_layout->addWidget(new QLabel("Previous Frame Queue:"), 1, 0);
+	previous_queue_spinbox = new QDoubleSpinBox();
+	previous_queue_spinbox->setValue(config.previous_queue_size);
+	memory_usage_layout->addWidget(previous_queue_spinbox, 1, 1);
+	previous_queue_type = new QComboBox();
+	previous_queue_type->addItem("frames");
+	previous_queue_type->addItem("seconds");
+	previous_queue_type->setCurrentIndex(config.previous_queue_type);
+	memory_usage_layout->addWidget(previous_queue_type, 1, 2);
+	playback_tab_layout->addWidget(memory_usage_group);
 
 	tabWidget->addTab(playback_tab, "Playback");
 

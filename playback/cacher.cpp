@@ -674,7 +674,22 @@ void open_clip_worker(Clip* clip) {
 		clip->codecCtx = avcodec_alloc_context3(clip->codec);
 		avcodec_parameters_to_context(clip->codecCtx, clip->stream->codecpar);
 
-		clip->max_queue_size = (ms->infinite_length) ? 1 : qCeil(ms->video_frame_rate * m->speed * 0.5);
+		if (ms->infinite_length) {
+			clip->max_queue_size = 1;
+		} else {
+			clip->max_queue_size = 0;
+			if (config.upcoming_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+				clip->max_queue_size += qCeil(config.upcoming_queue_size);
+			} else {
+				clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * config.upcoming_queue_size);
+			}
+			if (config.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+				clip->max_queue_size += qCeil(config.previous_queue_size);
+			} else {
+				clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * config.previous_queue_size);
+			}
+		}
+
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
 		clip->opts = NULL;
