@@ -58,13 +58,13 @@ private:
 	bool setupAudio();
 	bool setupContainer();
 
-	AVFormatContext* fmt_ctx = NULL;
+    AVFormatContext* fmt_ctx;
 	AVStream* video_stream;
 	AVCodec* vcodec;
 	AVCodecContext* vcodec_ctx;
 	AVFrame* video_frame;
 	AVFrame* sws_frame;
-	SwsContext* sws_ctx = NULL;
+    SwsContext* sws_ctx;
 	AVStream* audio_stream;
 	AVCodec* acodec;
 	AVFrame* audio_frame;
@@ -72,7 +72,11 @@ private:
 	AVCodecContext* acodec_ctx;
 	AVPacket video_pkt;
 	AVPacket audio_pkt;
-	SwrContext* swr_ctx = NULL;
+    SwrContext* swr_ctx;
+
+    bool vpkt_alloc;
+    bool apkt_alloc;
+
 	int aframe_bytes;
 	int ret;
 	char* c_filename;

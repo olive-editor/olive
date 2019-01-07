@@ -26,6 +26,23 @@ extern "C" {
 
 ExportThread::ExportThread() : continueEncode(true) {
 	surface.create();
+
+    fmt_ctx = NULL;
+    video_stream = NULL;
+    vcodec = NULL;
+    vcodec_ctx = NULL;
+    video_frame = NULL;
+    sws_frame = NULL;
+    sws_ctx = NULL;
+    audio_stream = NULL;
+    acodec = NULL;
+    audio_frame = NULL;
+    swr_frame = NULL;
+    acodec_ctx = NULL;
+    swr_ctx = NULL;
+
+    vpkt_alloc = false;
+    apkt_alloc = false;
 }
 
 bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale) {
@@ -390,12 +407,17 @@ void ExportThread::run() {
 		frame_count++;
 	}
 
+    if (continueEncode) {
+        if (video_enabled) vpkt_alloc = true;
+        if (audio_enabled) apkt_alloc = true;
+    }
+
 	panel_sequence_viewer->viewer_widget->default_fbo = NULL;
 	rendering = false;
 
 	fbo.release();
 
-	if (audio_enabled) {
+    if (audio_enabled && continueEncode) {
 		// flush swresample
 		do {
 			swr_convert_frame(swr_ctx, swr_frame, NULL);
@@ -427,19 +449,19 @@ void ExportThread::run() {
 
 	avio_closep(&fmt_ctx->pb);
 
-	if (video_enabled) {
-		avcodec_close(vcodec_ctx);
-		av_packet_unref(&video_pkt);
-		av_frame_free(&video_frame);
-		avcodec_free_context(&vcodec_ctx);
-	}
+    if (vpkt_alloc) av_packet_unref(&video_pkt);
+    if (video_frame != NULL) av_frame_free(&video_frame);
+    if (vcodec_ctx != NULL) {
+        avcodec_close(vcodec_ctx);
+        avcodec_free_context(&vcodec_ctx);
+    }
 
-	if (audio_enabled) {
-		avcodec_close(acodec_ctx);
-		av_packet_unref(&audio_pkt);
-		av_frame_free(&audio_frame);
-		avcodec_free_context(&acodec_ctx);
-	}
+    if (apkt_alloc) av_packet_unref(&audio_pkt);
+    if (audio_frame != NULL) av_frame_free(&audio_frame);
+    if (acodec_ctx != NULL) {
+        avcodec_close(acodec_ctx);
+        avcodec_free_context(&acodec_ctx);
+    }
 
 	avformat_free_context(fmt_ctx);
 

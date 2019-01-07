@@ -527,7 +527,7 @@ void Project::delete_selected_media() {
 	// remove
 	if (remove) {
 		panel_effect_controls->clear_effects(true);
-		sequence->selections.clear();
+        if (sequence != NULL) sequence->selections.clear();
 
 		// remove media and parents
 		for (int m=0;m<parents.size();m++) {

@@ -189,7 +189,7 @@ void ViewerWidget::initializeGL() {
 //}
 
 void ViewerWidget::paintEvent(QPaintEvent *e) {
-	if (!rendering) {
+    if (!rendering && context()->thread() == this->thread()) {
 		makeCurrent();
 		QOpenGLWidget::paintEvent(e);
 	}

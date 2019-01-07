@@ -88,9 +88,9 @@ void ActionSearch::perform_action() {
 void ActionSearch::move_selection_up() {
 	int lim = list_widget->count();
 	for (int i=1;i<lim;i++) {
-		if (list_widget->item(i)->isSelected()) {
-//			list_widget->item(i)->setSelected(false);
+        if (list_widget->item(i)->isSelected()) {
 			list_widget->item(i-1)->setSelected(true);
+            list_widget->scrollToItem(list_widget->item(i-1));
 			break;
 		}
 	}
@@ -99,9 +99,9 @@ void ActionSearch::move_selection_up() {
 void ActionSearch::move_selection_down() {
 	int lim = list_widget->count()-1;
 	for (int i=0;i<lim;i++) {
-		if (list_widget->item(i)->isSelected()) {
-//			list_widget->item(i)->setSelected(false);
+        if (list_widget->item(i)->isSelected()) {
 			list_widget->item(i+1)->setSelected(true);
+            list_widget->scrollToItem(list_widget->item(i+1));
 			break;
 		}
 	}
