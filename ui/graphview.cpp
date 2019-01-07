@@ -59,19 +59,27 @@ void GraphView::show_context_menu(const QPoint& pos) {
 	QMenu menu(this);
 
 	QAction* zoom_to_selection = menu.addAction("Zoom to Selection");
-	if (selected_keys.size() == 0) {
+	if (selected_keys.size() == 0 || row == NULL) {
 		zoom_to_selection->setEnabled(false);
 	} else {
 		connect(zoom_to_selection, SIGNAL(triggered(bool)), this, SLOT(set_view_to_selection()));
 	}
 
 	QAction* zoom_to_all = menu.addAction("Zoom to Show All");
-	connect(zoom_to_all, SIGNAL(triggered(bool)), this, SLOT(set_view_to_all()));
+	if (row == NULL) {
+		zoom_to_all->setEnabled(false);
+	} else {
+		connect(zoom_to_all, SIGNAL(triggered(bool)), this, SLOT(set_view_to_all()));
+	}
 
 	menu.addSeparator();
 
 	QAction* reset_action = menu.addAction("Reset View");
-	connect(reset_action, SIGNAL(triggered(bool)), this, SLOT(reset_view()));
+	if (row == NULL) {
+		reset_action->setEnabled(false);
+	} else {
+		connect(reset_action, SIGNAL(triggered(bool)), this, SLOT(reset_view()));
+	}
 
 	menu.exec(mapToGlobal(pos));
 }
@@ -85,7 +93,7 @@ void GraphView::reset_view() {
 }
 
 void GraphView::set_view_to_selection() {
-	if (selected_keys.size() > 0) {
+	if (row != NULL && selected_keys.size() > 0) {
 		long min_time = LONG_MAX;
 		long max_time = LONG_MIN;
 		double min_dbl = DBL_MAX;
@@ -102,24 +110,26 @@ void GraphView::set_view_to_selection() {
 }
 
 void GraphView::set_view_to_all() {
-	bool can_set = false;
+	if (row != NULL) {
+		bool can_set = false;
 
-	long min_time = LONG_MAX;
-	long max_time = LONG_MIN;
-	double min_dbl = DBL_MAX;
-	double max_dbl = DBL_MIN;
-	for (int i=0;i<row->fieldCount();i++) {
-		for (int j=0;j<row->field(i)->keyframes.size();j++) {
-			const EffectKeyframe& key = row->field(i)->keyframes.at(j);
-			min_time = qMin(key.time, min_time);
-			max_time = qMax(key.time, max_time);
-			min_dbl = qMin(key.data.toDouble(), min_dbl);
-			max_dbl = qMax(key.data.toDouble(), max_dbl);
-			can_set = true;
+		long min_time = LONG_MAX;
+		long max_time = LONG_MIN;
+		double min_dbl = DBL_MAX;
+		double max_dbl = DBL_MIN;
+		for (int i=0;i<row->fieldCount();i++) {
+			for (int j=0;j<row->field(i)->keyframes.size();j++) {
+				const EffectKeyframe& key = row->field(i)->keyframes.at(j);
+				min_time = qMin(key.time, min_time);
+				max_time = qMax(key.time, max_time);
+				min_dbl = qMin(key.data.toDouble(), min_dbl);
+				max_dbl = qMax(key.data.toDouble(), max_dbl);
+				can_set = true;
+			}
 		}
-	}
-	if (can_set) {
-		set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
+		if (can_set) {
+			set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
+		}
 	}
 }
 
