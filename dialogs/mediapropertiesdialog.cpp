@@ -54,11 +54,13 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 
 	if (f->video_tracks.size() > 0) {
 		// frame conforming
-		grid->addWidget(new QLabel("Conform to Frame Rate:"), row, 0);
-		conform_fr = new QDoubleSpinBox();
-		conform_fr->setMinimum(0.01);
-		conform_fr->setValue(f->video_tracks.at(0).video_frame_rate * f->speed);
-		grid->addWidget(conform_fr, row, 1);
+		if (!f->video_tracks.at(0).infinite_length) {
+			grid->addWidget(new QLabel("Conform to Frame Rate:"), row, 0);
+			conform_fr = new QDoubleSpinBox();
+			conform_fr->setMinimum(0.01);
+			conform_fr->setValue(f->video_tracks.at(0).video_frame_rate * f->speed);
+			grid->addWidget(conform_fr, row, 1);
+		}
 
 		row++;
 
@@ -131,9 +133,11 @@ void MediaPropertiesDialog::accept() {
 		}
 
 		// set frame rate conform
-		if (!qFuzzyCompare(conform_fr->value(), f->video_tracks.at(0).video_frame_rate)) {
-			ca->append(new SetDouble(&f->speed, f->speed, conform_fr->value()/f->video_tracks.at(0).video_frame_rate));
-			refresh_clips = true;
+		if (!f->video_tracks.at(0).infinite_length) {
+			if (!qFuzzyCompare(conform_fr->value(), f->video_tracks.at(0).video_frame_rate)) {
+				ca->append(new SetDouble(&f->speed, f->speed, conform_fr->value()/f->video_tracks.at(0).video_frame_rate));
+				refresh_clips = true;
+			}
 		}
 	}
 
