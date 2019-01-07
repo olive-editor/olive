@@ -500,7 +500,6 @@ void MainWindow::setup_menus() {
 
 	QMenu* file_menu = menuBar->addMenu("&File");
 	connect(file_menu, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
-	connect(file_menu, SIGNAL(aboutToHide()), this, SLOT(fileMenu_About_To_Hide()));
 
 	QMenu* new_menu = file_menu->addMenu("&New");
 	make_new_menu(new_menu);
@@ -1125,7 +1124,7 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::fileMenu_About_To_Hide() {
-	open_recent->clear();
+//	open_recent->clear();
 }
 
 void MainWindow::load_recent_project() {
