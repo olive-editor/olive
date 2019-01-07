@@ -57,6 +57,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 			parent->addChild(item);
 
 			if (a->menu() != NULL) {
+				item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 				setup_kbd_shortcut_worker(a->menu(), item);
 			} else {
 				item->setData(0, Qt::UserRole + 1, reinterpret_cast<quintptr>(a));
