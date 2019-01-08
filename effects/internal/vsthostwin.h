@@ -9,6 +9,7 @@
 typedef VstIntPtr (*dispatcherFuncPtr)(AEffect *effect, VstInt32 opCode, VstInt32 index, VstInt32 value, void *ptr, float opt);
 
 struct AEffect;
+class QDialog;
 
 class VSTHostWin : public Effect {
 	Q_OBJECT
@@ -16,7 +17,8 @@ public:
 	VSTHostWin(Clip* c, const EffectMeta* em);
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 private slots:
-	void show_interface();
+	void show_interface(bool show);
+	void uncheck_show_button();
 private:
 	void loadPlugin();
 	dispatcherFuncPtr dispatcher;
@@ -31,6 +33,8 @@ private:
 	void silenceChannel(float **channelData, int numChannels, long numFrames);
 	float** inputs;
 	float** outputs;
+	QDialog* dialog;
+	QPushButton* show_interface_btn;
 };
 
 #endif // VSTHOSTWIN_H

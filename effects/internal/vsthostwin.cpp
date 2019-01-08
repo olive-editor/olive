@@ -5,6 +5,7 @@
 #include <Windows.h>
 
 #include <QPushButton>
+#include <QDialog>
 
 #include "playback/audio.h"
 #include "mainwindow.h"
@@ -23,6 +24,8 @@ extern "C" {
 		case audioMasterIdle:
 			effect->dispatcher(effect, effEditIdle, 0, 0, 0, 0);
 			break;
+		case 6: // audioMasterWantMidi
+			return 0;
 		case audioMasterGetCurrentProcessLevel:
 			return 0;
 		// Handle other opcodes here... there will be lots of them
@@ -47,7 +50,7 @@ typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs,
 void VSTHostWin::loadPlugin() {
 	plugin = NULL;
 
-	const char* vst_path = "C:\\Users\\Matt\\Downloads\\ToneGenerator_Win\\ToneGenerator_64b.dll";
+	const char* vst_path = "C:\\Program Files\\VSTPlugins\\ReaPlugs\\reaeq-standalone.dll";
 	wchar_t win_char[200];
 	mbstowcs(win_char, vst_path, 200);
 
@@ -136,50 +139,79 @@ void VSTHostWin::silenceChannel(float **channelData, int numChannels, long numFr
 }
 
 VSTHostWin::VSTHostWin(Clip* c, const EffectMeta *em) : Effect(c, em) {
-	EffectRow* interface_row = add_row("Open Interface");
-	QPushButton* show_interface_btn = new QPushButton();
+	EffectRow* interface_row = add_row("Interface");
+	show_interface_btn = new QPushButton("Show");
+	show_interface_btn->setCheckable(true);
+	connect(show_interface_btn, SIGNAL(toggled(bool)), this, SLOT(show_interface(bool)));
 	interface_row->add_widget(show_interface_btn);
 	loadPlugin();
 	if (plugin != NULL) {
 		initializeIO();
 		configurePluginCallbacks();
 		startPlugin();
+		dialog = new QDialog(mainWindow);
+		dialog->setWindowTitle("VST Plugin");
+		dialog->setAttribute(Qt::WA_NativeWindow, true);
+		dialog->setWindowFlags(dialog->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
+		connect(dialog, SIGNAL(finished(int)), this, SLOT(uncheck_show_button()));
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->winId()), 0);
+
+		ERect* eRect = NULL;
+		plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
+		dialog->setFixedWidth(eRect->right);
+		dialog->setFixedHeight(eRect->bottom);
 	}
 }
 
 void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
 	if (plugin != NULL) {
-		// convert to floats
-		int nb_frames = qMin(nb_bytes >> 2, BLOCK_SIZE);
-		int lim = qMin(nb_bytes, BLOCK_SIZE << 2);
-		for (int i=0;i<lim;i+=4) {
-			qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-			qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
+		int interval = BLOCK_SIZE*4;
+		for (int i=0;i<nb_bytes;i+=interval) {
+			int process_size = qMin(interval, nb_bytes - i);
+			int lim = i + process_size;
 
-			int index = i >> 2;
-			inputs[0][index] = float(left_sample) / float(INT16_MAX);
-			inputs[1][index] = float(right_sample) / float(INT16_MAX);
+			// convert to float
+			for (int j=i;j<lim;j+=4) {
+				qint16 left_sample = (qint16) (((samples[j+1] & 0xFF) << 8) | (samples[j] & 0xFF));
+				qint16 right_sample = (qint16) (((samples[j+3] & 0xFF) << 8) | (samples[j+2] & 0xFF));
+
+				/*left_sample = 0;
+				right_sample = 0;
+
+				samples[j+3] = (quint8) (right_sample >> 8);
+				samples[j+2] = (quint8) right_sample;
+				samples[j+1] = (quint8) (left_sample >> 8);
+				samples[j] = (quint8) left_sample;*/
+
+				int index = (j-i)>>2;
+				inputs[0][index] = float(left_sample) / float(INT16_MAX);
+				inputs[1][index] = float(right_sample) / float(INT16_MAX);
+			}
+
+			// send to VST
+			processAudio(process_size>>2);
+
+			// convert back to int16
+			for (int j=i;j<lim;j+=4) {
+				int index = (j-i)>>2;
+
+				qint16 left_sample = qRound(outputs[0][index] * INT16_MAX);
+				qint16 right_sample = qRound(outputs[1][index] * INT16_MAX);
+
+				samples[j+3] = (quint8) (right_sample >> 8);
+				samples[j+2] = (quint8) right_sample;
+				samples[j+1] = (quint8) (left_sample >> 8);
+				samples[j] = (quint8) left_sample;
+			}
 		}
 
-		// send to VST
-		processAudio(nb_frames);
-
-		// convert back to int16
-		for (int i=0;i<nb_frames;i++) {
-			qint16 left_sample = qRound(inputs[0][i]*INT16_MAX);
-			qint16 right_sample = qRound(inputs[1][i]*INT16_MAX);
-
-			int index = i << 2;
-
-			samples[index+3] = (quint8) (right_sample >> 8);
-			samples[index+2] = (quint8) right_sample;
-			samples[index+1] = (quint8) (left_sample >> 8);
-			samples[index] = (quint8) left_sample;
-		}
 	}
 }
 
-void VSTHostWin::show_interface() {
-//	dispatcher(plugin, effEditOpen, 0, 1, NULL, 0.0f);
-//	dispatcher(plugin, effEditOpen, 0, 0, mainWindow->winId());
+void VSTHostWin::show_interface(bool show) {
+	dialog->setVisible(show);
+}
+
+void VSTHostWin::uncheck_show_button() {
+	show_interface_btn->setChecked(false);
 }

@@ -212,7 +212,7 @@ FORMS +=
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
-    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
 }
 
 mac {
