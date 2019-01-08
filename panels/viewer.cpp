@@ -3,6 +3,7 @@
 #include "playback/audio.h"
 #include "timeline.h"
 #include "panels/project.h"
+#include "panels/effectcontrols.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "panels/panels.h"
@@ -237,6 +238,10 @@ bool frame_rate_is_droppable(float rate) {
 void Viewer::seek(long p) {
 	pause();
 	seq->playhead = p;
+	if (main_sequence) {
+		panel_timeline->scroll_to_frame(p);
+		panel_effect_controls->scroll_to_frame(p);
+	}
 	update_parents();
 	reset_all_audio();
 	audio_scrub = true;

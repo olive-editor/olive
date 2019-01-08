@@ -74,6 +74,14 @@ void VSTHostWin::loadPlugin() {
 	plugin = mainEntryPoint(hostCallback);
 }
 
+void VSTHostWin::freePlugin() {
+	if (plugin != NULL) {
+		stopPlugin();
+		FreeLibrary(modulePtr);
+		plugin = NULL;
+	}
+}
+
 bool VSTHostWin::configurePluginCallbacks() {
 	// Check plugin's magic number
 	// If incorrect, then the file either was not loaded properly, is not a
@@ -166,6 +174,10 @@ VSTHostWin::VSTHostWin(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	connect(dialog, SIGNAL(finished(int)), this, SLOT(uncheck_show_button()));
 }
 
+VSTHostWin::~VSTHostWin() {
+	freePlugin();
+}
+
 void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
 	if (plugin != NULL) {
 		int interval = BLOCK_SIZE*4;
@@ -220,11 +232,7 @@ void VSTHostWin::uncheck_show_button() {
 }
 
 void VSTHostWin::change_plugin() {
-	if (plugin != NULL) {
-		stopPlugin();
-		FreeLibrary(modulePtr);
-		plugin = NULL;
-	}
+	freePlugin();
 	loadPlugin();
 	if (plugin != NULL) {
 		if (configurePluginCallbacks()) {

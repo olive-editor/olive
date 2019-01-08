@@ -15,6 +15,7 @@ class VSTHostWin : public Effect {
 	Q_OBJECT
 public:
 	VSTHostWin(Clip* c, const EffectMeta* em);
+	~VSTHostWin();
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 private slots:
 	void show_interface(bool show);
@@ -24,6 +25,7 @@ private:
 	EffectField* file_field;
 
 	void loadPlugin();
+	void freePlugin();
 	dispatcherFuncPtr dispatcher;
 	AEffect* plugin;
 	bool configurePluginCallbacks();

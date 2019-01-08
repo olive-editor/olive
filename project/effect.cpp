@@ -29,6 +29,7 @@
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
 #include "effects/internal/vsthostwin.h"
+#include "effects/internal/fillleftrighteffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -61,6 +62,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
+		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
 		case EFFECT_INTERNAL_VST: return new VSTHostWin(c, em);
 		}
 	} else {
@@ -104,6 +106,10 @@ void load_internal_effects() {
 
 	em.name = "Noise";
 	em.internal = EFFECT_INTERNAL_NOISE;
+	effects.append(em);
+
+	em.name = "Fill Left/Right";
+	em.internal = EFFECT_INTERNAL_FILLLEFTRIGHT;
 	effects.append(em);
 
 	em.subtype = EFFECT_TYPE_VIDEO;
@@ -463,7 +469,7 @@ Effect::~Effect() {
 		close();
 	}
 
-	delete container;
+	//delete container;
 
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
@@ -922,27 +928,7 @@ GLuint Effect::process_superimpose(double timecode) {
 	return 0;
 }
 
-//void Effect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
-void Effect::process_audio(double, double, quint8*, int, int) {
-	// only volume/pan, hand off to AU and VST for all other cases
-
-	/*double interval = (timecode_end-timecode_start)/nb_bytes;
-
-	for (int i=0;i<nb_bytes;i+=2) {
-		qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-
-		jsEngine.globalObject().setProperty("sample", samp);
-		jsEngine.globalObject().setProperty("volume", row(0)->field(0)->get_double_value(timecode_start+(interval*i), true));
-		QJSValue result = eval.call();
-		samp = result.toInt();
-		QJSValueList args;
-		args << samples << nb_bytes;
-
-
-		samples[i+1] = (quint8) (samp >> 8);
-		samples[i] = (quint8) samp;
-	}*/
-}
+void Effect::process_audio(double, double, quint8*, int, int) {}
 
 void Effect::gizmo_draw(double, GLTextureCoords &) {}
 

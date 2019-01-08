@@ -203,6 +203,8 @@ public:
 	QPushButton* toolTransitionButton;
 	QPushButton* snappingButton;
 
+	void scroll_to_frame(long frame);
+
 	void resizeEvent(QResizeEvent *event);
 public slots:
 	void repaint_timeline();

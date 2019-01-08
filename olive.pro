@@ -119,7 +119,8 @@ SOURCES += \
     ui/rectangleselect.cpp \
     dialogs/actionsearch.cpp \
     effects/internal/vsthostwin.cpp \
-    ui/embeddedfilechooser.cpp
+    ui/embeddedfilechooser.cpp \
+    effects/internal/fillleftrighteffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -208,7 +209,8 @@ HEADERS += \
     ui/rectangleselect.h \
     dialogs/actionsearch.h \
     effects/internal/vsthostwin.h \
-    ui/embeddedfilechooser.h
+    ui/embeddedfilechooser.h \
+    effects/internal/fillleftrighteffect.h
 
 FORMS +=
 
