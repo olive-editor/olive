@@ -118,7 +118,8 @@ SOURCES += \
     project/keyframe.cpp \
     ui/rectangleselect.cpp \
     dialogs/actionsearch.cpp \
-    effects/internal/vsthostwin.cpp
+    effects/internal/vsthostwin.cpp \
+    ui/embeddedfilechooser.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -206,7 +207,8 @@ HEADERS += \
     project/keyframe.h \
     ui/rectangleselect.h \
     dialogs/actionsearch.h \
-    effects/internal/vsthostwin.h
+    effects/internal/vsthostwin.h \
+    ui/embeddedfilechooser.h
 
 FORMS +=
 

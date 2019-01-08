@@ -313,6 +313,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 											type = EFFECT_FIELD_FONT;
 										} else if (comp == "STRING") {
 											type = EFFECT_FIELD_STRING;
+										} else if (comp == "FILE") {
+											type = EFFECT_FIELD_FILE;
 										}
 									} else if (attr.name() == "id") {
 										id = attr.value().toString();
@@ -405,6 +407,14 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 											}
 										}
 										break;
+									case EFFECT_FIELD_FILE:
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "filename") {
+												field->set_filename(attr.value().toString());
+											}
+										}
+										break;
 									}
 								}
 							}
@@ -477,7 +487,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 	}
 }
 
-EffectRow* Effect::add_row(const QString& name, bool savable) {
+EffectRow* Effect::add_row(const QString& name, bool savable, bool keyframable) {
 	EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size());
 	rows.append(row);
 	return row;
@@ -586,10 +596,12 @@ QVariant load_data_from_string(int type, const QString& string) {
 	switch (type) {
 	case EFFECT_FIELD_DOUBLE: return string.toDouble();
 	case EFFECT_FIELD_COLOR: return QColor(string);
-	case EFFECT_FIELD_STRING: return string;
 	case EFFECT_FIELD_BOOL: return (string == "1");
 	case EFFECT_FIELD_COMBO: return string.toInt();
-	case EFFECT_FIELD_FONT: return string;
+	case EFFECT_FIELD_STRING:
+	case EFFECT_FIELD_FONT:
+	case EFFECT_FIELD_FILE:
+		 return string;
 	}
 	return QVariant();
 }
@@ -598,10 +610,12 @@ QString save_data_to_string(int type, const QVariant& data) {
 	switch (type) {
 	case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble());
 	case EFFECT_FIELD_COLOR: return data.value<QColor>().name();
-	case EFFECT_FIELD_STRING: return data.toString();
 	case EFFECT_FIELD_BOOL: return QString::number(data.toBool());
 	case EFFECT_FIELD_COMBO: return QString::number(data.toInt());
-	case EFFECT_FIELD_FONT: return data.toString();
+	case EFFECT_FIELD_STRING:
+	case EFFECT_FIELD_FONT:
+	case EFFECT_FIELD_FILE:
+		return data.toString();
 	}
 	return QString();
 }
@@ -872,6 +886,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_combo_index(timecode));
 					break;
 				case EFFECT_FIELD_FONT: break; // can you even send a string to a uniform value?
+				case EFFECT_FIELD_FILE: break; // can you even send a string to a uniform value?
 				}
 			}
 		}

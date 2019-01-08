@@ -17,7 +17,7 @@ class ClickableLabel;
 class EffectRow : public QObject {
 	Q_OBJECT
 public:
-	EffectRow(Effect* parent, bool save, QGridLayout* uilayout, const QString& n, int row);
+	EffectRow(Effect* parent, bool save, QGridLayout* uilayout, const QString& n, int row, bool keyframable = true);
 	~EffectRow();
 	EffectField* add_field(int type, const QString &id, int colspan = 1);
 	void add_widget(QWidget *w);

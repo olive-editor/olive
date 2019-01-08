@@ -19,22 +19,26 @@ public:
 private slots:
 	void show_interface(bool show);
 	void uncheck_show_button();
+	void change_plugin();
 private:
+	EffectField* file_field;
+
 	void loadPlugin();
 	dispatcherFuncPtr dispatcher;
 	AEffect* plugin;
-	int configurePluginCallbacks();
+	bool configurePluginCallbacks();
 	void startPlugin();
+	void stopPlugin();
 	void resumePlugin();
 	void suspendPlugin();
 	bool canPluginDo(char *canDoString);
 	void initializeIO();
 	void processAudio(long numFrames);
-	void silenceChannel(float **channelData, int numChannels, long numFrames);
 	float** inputs;
 	float** outputs;
 	QDialog* dialog;
 	QPushButton* show_interface_btn;
+	HMODULE modulePtr;
 };
 
 #endif // VSTHOSTWIN_H

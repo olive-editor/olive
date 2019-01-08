@@ -16,7 +16,7 @@
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QString &n, int row) :
+EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QString &n, int row, bool keyframable) :
 	parent_effect(parent),
 	savable(save),
 	keyframing(false),
@@ -31,7 +31,7 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
 
 	column_count = 1;
 
-	if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
+	if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION && keyframable) {
 		connect(label, SIGNAL(clicked()), this, SLOT(focus_row()));
 
 		keyframe_nav = new KeyframeNavigator();
