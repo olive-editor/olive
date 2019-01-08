@@ -28,6 +28,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
+#include "effects/internal/fillleftrighteffect.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -60,6 +61,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
+		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -98,6 +100,10 @@ void load_internal_effects() {
 
 	em.name = "Noise";
 	em.internal = EFFECT_INTERNAL_NOISE;
+	effects.append(em);
+
+	em.name = "Fill Left/Right";
+	em.internal = EFFECT_INTERNAL_FILLLEFTRIGHT;
 	effects.append(em);
 
 	em.subtype = EFFECT_TYPE_VIDEO;
@@ -447,7 +453,7 @@ Effect::~Effect() {
 		close();
 	}
 
-	delete container;
+	//delete container;
 
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
