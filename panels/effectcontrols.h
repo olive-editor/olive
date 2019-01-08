@@ -41,6 +41,7 @@ public:
 	bool keyframe_focus();
 	void delete_selected_keyframes();
 	void copy(bool del);
+    void effects_area_wrap(int keyframe);
 	bool multiple;
 
 	QVector<int> selected_clips;
@@ -48,7 +49,7 @@ public:
 	double zoom;
 
 	ResizableScrollBar* horizontalScrollBar;
-	QScrollBar* verticalScrollBar;
+    QScrollBar* verticalScrollBar;
 public slots:
 	void update_keyframes();
 private slots:

@@ -90,7 +90,10 @@ void EffectRow::goto_previous_key() {
 			}
 		}
 	}
-	if (key != LONG_MIN) panel_sequence_viewer->seek(key);
+    if (key != LONG_MIN) {
+        panel_sequence_viewer->seek(key);
+        panel_effect_controls->effects_area_wrap(key);
+    }
 }
 
 void EffectRow::toggle_key() {
@@ -133,7 +136,10 @@ void EffectRow::goto_next_key() {
 			}
 		}
 	}
-	if (key != LONG_MAX) panel_sequence_viewer->seek(key);
+    if (key != LONG_MAX) {
+        panel_sequence_viewer->seek(key);
+        panel_effect_controls->effects_area_wrap(key);
+    }
 }
 
 void EffectRow::focus_row() {

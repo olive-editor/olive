@@ -548,3 +548,9 @@ EffectsArea::EffectsArea(QWidget* parent) : QWidget(parent) {}
 void EffectsArea::resizeEvent(QResizeEvent*) {
 	parent_widget->setMinimumWidth(sizeHint().width());
 }
+
+void EffectControls::effects_area_wrap(int keyframe){
+    if (keyframe > keyframeView->width()+horizontalScrollBar->value() || keyframe <  horizontalScrollBar->value()){
+        horizontalScrollBar->setValue(keyframe);
+    }
+}
