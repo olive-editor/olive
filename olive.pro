@@ -224,6 +224,18 @@ unix:!mac {
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
 }
 
+CONFIG(debug, debug|release) {
+    DESTDIR = build/debug
+} else {
+    DESTDIR = build/release
+}
+
+OBJECTS_DIR = $${DESTDIR}/obj
+MOC_DIR = $${DESTDIR}/moc
+RCC_DIR = $${DESTDIR}/rcc
+UI_DIR = $${DESTDIR}/ui
+
+
 RESOURCES += \
     icons/icons.qrc
 
