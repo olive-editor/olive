@@ -29,6 +29,8 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
 
 	ui->addWidget(label, row, 0);
 
+	column_count = 1;
+
 	if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) {
 		connect(label, SIGNAL(clicked()), this, SLOT(focus_row()));
 
@@ -145,9 +147,15 @@ EffectField* EffectRow::add_field(int type, const QString& id, int colspan) {
 	if (parent_effect->meta->type != EFFECT_TYPE_TRANSITION) connect(field, SIGNAL(clicked()), this, SLOT(focus_row()));
 	fields.append(field);
 	QWidget* element = field->get_ui_element();
-	ui->addWidget(element, ui_row, fields.size(), 1, colspan);
+	ui->addWidget(element, ui_row, column_count, 1, colspan);
+	column_count++;
 	connect(field, SIGNAL(changed()), parent_effect, SLOT(field_changed()));
 	return field;
+}
+
+void EffectRow::add_widget(QWidget* w) {
+	ui->addWidget(w, ui_row, column_count);
+	column_count++;
 }
 
 EffectRow::~EffectRow() {

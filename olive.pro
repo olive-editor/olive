@@ -117,7 +117,8 @@ SOURCES += \
     ui/clickablelabel.cpp \
     project/keyframe.cpp \
     ui/rectangleselect.cpp \
-    dialogs/actionsearch.cpp
+    dialogs/actionsearch.cpp \
+    effects/internal/vsthostwin.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -204,7 +205,8 @@ HEADERS += \
     ui/clickablelabel.h \
     project/keyframe.h \
     ui/rectangleselect.h \
-    dialogs/actionsearch.h
+    dialogs/actionsearch.h \
+    effects/internal/vsthostwin.h
 
 FORMS +=
 

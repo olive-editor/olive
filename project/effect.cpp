@@ -28,6 +28,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
+#include "effects/internal/vsthostwin.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -60,6 +61,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
+		case EFFECT_INTERNAL_VST: return new VSTHostWin(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -90,6 +92,10 @@ void load_internal_effects() {
 
 	em.name = "Pan";
 	em.internal = EFFECT_INTERNAL_PAN;
+	effects.append(em);
+
+	em.name = "VST Plugin 2.x";
+	em.internal = EFFECT_INTERNAL_VST;
 	effects.append(em);
 
 	em.name = "Tone";
@@ -466,6 +472,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 			EffectField* field = row->field(j);
 			EffectField* copy_field = copy_row->field(j);
 			copy_field->keyframes = field->keyframes;
+			copy_field->set_current_data(field->get_current_data());
 		}
 	}
 }
