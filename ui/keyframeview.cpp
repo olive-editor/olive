@@ -199,7 +199,9 @@ void KeyframeView::set_y_scroll(int s) {
 }
 
 void KeyframeView::resize_move(double d) {
-	header->update_zoom(header->get_zoom()*d);
+    panel_effect_controls->zoom *= d;
+    header->update_zoom(panel_effect_controls->zoom);
+    update();
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {
