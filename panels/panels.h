@@ -9,6 +9,7 @@ class GraphEditor;
 
 class QWidget;
 class QDockWidget;
+class QScrollBar;
 
 extern Project* panel_project;
 extern EffectControls* panel_effect_controls;
@@ -21,5 +22,6 @@ void update_ui(bool modified);
 QDockWidget* get_focused_panel();
 void alloc_panels(QWidget *parent);
 void free_panels();
+void scroll_to_frame_internal(QScrollBar* bar, long frame, double zoom, int area_width);
 
 #endif // PANELS_H

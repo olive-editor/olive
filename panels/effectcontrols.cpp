@@ -145,6 +145,10 @@ void EffectControls::copy(bool del) {
 	}
 }
 
+void EffectControls::scroll_to_frame(long frame) {
+	scroll_to_frame_internal(horizontalScrollBar, frame, zoom, keyframeView->width());
+}
+
 void EffectControls::show_effect_menu(int type, int subtype) {
 	effect_menu_type = type;
 	effect_menu_subtype = subtype;

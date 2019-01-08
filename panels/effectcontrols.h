@@ -42,6 +42,7 @@ public:
 	void delete_selected_keyframes();
 	void copy(bool del);
 	bool multiple;
+	void scroll_to_frame(long frame);
 
 	QVector<int> selected_clips;
 
