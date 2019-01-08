@@ -524,11 +524,20 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				}
 
 				EffectKeyframe& key = row->field(handle_field)->keyframes[handle_index];
-				key.pre_handle_x = new_pre_handle_x;
-				key.pre_handle_y = new_pre_handle_y;
-				key.post_handle_x = new_post_handle_x;
-				key.post_handle_y = new_post_handle_y;
-
+                if (new_pre_handle_x < 0){
+                    key.pre_handle_x = new_pre_handle_x;
+                    key.pre_handle_y = new_pre_handle_y;
+                } else {
+                    key.pre_handle_x = 0;
+                    key.pre_handle_y = new_pre_handle_y;
+                }
+                if (new_post_handle_x > 0){
+                    key.post_handle_x = new_post_handle_x;
+                    key.post_handle_y = new_post_handle_y;
+                } else {
+                    key.post_handle_x = 0;
+                    key.post_handle_y = new_post_handle_y;
+                }
 				moved_keys = true;
 				update_ui(false);
 			}
