@@ -190,14 +190,6 @@ void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint
 				qint16 left_sample = (qint16) (((samples[j+1] & 0xFF) << 8) | (samples[j] & 0xFF));
 				qint16 right_sample = (qint16) (((samples[j+3] & 0xFF) << 8) | (samples[j+2] & 0xFF));
 
-				/*left_sample = 0;
-				right_sample = 0;
-
-				samples[j+3] = (quint8) (right_sample >> 8);
-				samples[j+2] = (quint8) right_sample;
-				samples[j+1] = (quint8) (left_sample >> 8);
-				samples[j] = (quint8) left_sample;*/
-
 				int index = (j-i)>>2;
 				inputs[0][index] = float(left_sample) / float(INT16_MAX);
 				inputs[1][index] = float(right_sample) / float(INT16_MAX);
@@ -219,7 +211,6 @@ void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint
 				samples[j] = (quint8) left_sample;
 			}
 		}
-
 	}
 }
 
