@@ -1391,14 +1391,13 @@ void Timeline::toggle_links() {
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
 		if (c != NULL && is_clip_selected(c, true)) {
-			command->clips.append(i);
+			if (!command->clips.contains(i)) command->clips.append(i);
+
 			if (c->linked.size() > 0) {
 				command->link = false; // prioritize unlinking
 
 				for (int j=0;j<c->linked.size();j++) { // add links to the command
-					if (!command->clips.contains(c->linked.at(j))) {
-						command->clips.append(c->linked.at(j));
-					}
+					if (!command->clips.contains(c->linked.at(j))) command->clips.append(c->linked.at(j));
 				}
 			}
 		}

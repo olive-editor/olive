@@ -489,6 +489,7 @@ AddClipCommand::~AddClipCommand() {
 }
 
 void AddClipCommand::undo() {
+	panel_effect_controls->clear_effects(true);
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
@@ -539,6 +540,7 @@ void LinkCommand::undo() {
 void LinkCommand::redo() {
 	old_links.clear();
 	for (int i=0;i<clips.size();i++) {
+		dout << clips.at(i);
 		Clip* c = s->clips.at(clips.at(i));
 		if (link) {
 			for (int j=0;j<clips.size();j++) {
