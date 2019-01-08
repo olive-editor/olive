@@ -466,6 +466,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 			EffectField* field = row->field(j);
 			EffectField* copy_field = copy_row->field(j);
 			copy_field->keyframes = field->keyframes;
+			copy_field->set_current_data(field->get_current_data());
 		}
 	}
 }
