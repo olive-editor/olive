@@ -475,6 +475,19 @@ void Timeline::select_all() {
 	}
 }
 
+void Timeline::scroll_to_frame(long frame) {
+	if (sequence != NULL) {
+		int screen_point = getTimelineScreenPointFromFrame(frame);
+		int min_x = timeline_area->width()*0.1;
+		int max_x = timeline_area->width()*0.9;
+		if (screen_point < min_x) {
+			horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, frame) - min_x);
+		} else if (screen_point > max_x) {
+			horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, frame) - max_x);
+		}
+	}
+}
+
 void Timeline::resizeEvent(QResizeEvent *event) {
 	if (sequence != NULL) set_sb_max();
 }

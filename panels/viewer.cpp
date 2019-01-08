@@ -237,6 +237,7 @@ bool frame_rate_is_droppable(float rate) {
 void Viewer::seek(long p) {
 	pause();
 	seq->playhead = p;
+	if (main_sequence) panel_timeline->scroll_to_frame(p);
 	update_parents();
 	reset_all_audio();
 	audio_scrub = true;
