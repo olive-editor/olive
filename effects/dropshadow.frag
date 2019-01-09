@@ -4,7 +4,7 @@ uniform sampler2D image;
 
 uniform vec2 resolution;
 
-uniform bool shadow;
+uniform int shadow;
 uniform vec3 shadowcolor;
 uniform float shadowsoftness;
 uniform float shadowopacity;
@@ -14,8 +14,7 @@ varying vec2 vTexCoord;
 
 void main(void) {
 	vec4 master_px = texture2D(image, vTexCoord);
-	if (shadow) {
-
+	if (shadow == 1) {
 		vec2 shadow_dist = vec2(shadowdistance)/resolution;
 
 		float shadow_opacity = 0.01*shadowopacity;
