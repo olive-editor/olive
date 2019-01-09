@@ -206,9 +206,17 @@ void ViewerWidget::initializeGL() {
 //}
 
 void ViewerWidget::paintEvent(QPaintEvent *e) {
-    if (!rendering && context()->thread() == this->thread()) {
-		makeCurrent();
-		QOpenGLWidget::paintEvent(e);
+    if (!rendering) {
+        QOpenGLContext* const ctxt = context();
+        if (ctxt != NULL) {
+            if (ctxt->thread() == this->thread()) {
+                makeCurrent();
+                QOpenGLWidget::paintEvent(e);
+            }
+        } else {
+            // FIXME: segfault from now on in
+        }
+
 	}
 }
 
@@ -882,7 +890,7 @@ void ViewerWidget::paintGL() {
 				p.drawLine(playhead_x, 0, playhead_x, height());
 			}
 
-			if (force_quit) break;
+            if (force_quit) break;
 			if (texture_failed) {
 				if (rendering) {
 					dout << "[INFO] Texture failed - looping";
