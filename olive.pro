@@ -223,6 +223,9 @@ unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
 }
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS_DEBUG += -g3
+QMAKE_CXXFLAGS_RELEASE += -g1
 
 CONFIG(debug, debug|release) {
     DESTDIR = build/debug
