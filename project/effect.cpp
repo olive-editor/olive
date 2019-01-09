@@ -800,9 +800,18 @@ void Effect::open() {
 		} else {
 			glslProgram = new QOpenGLShaderProgram();
 			validate_meta_path();
-			if (!vertPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath);
-			if (!fragPath.isEmpty()) glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath);
-			glslProgram->link();
+			bool glsl_compiled = true;
+			if (!vertPath.isEmpty()) {
+				if (!glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
+					glsl_compiled = false;
+				}
+			}
+			if (!fragPath.isEmpty()) {
+				if (!glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
+					glsl_compiled = false;
+				}
+			}
+			if (glsl_compiled) glslProgram->link();
 			isOpen = true;
 		}
 	} else {
@@ -826,12 +835,16 @@ void Effect::close() {
 	isOpen = false;
 }
 
+bool Effect::is_glsl_linked() {
+	return glslProgram != NULL && glslProgram->isLinked();
+}
+
 void Effect::startEffect() {
 	if (!isOpen) {
 		open();
 		dout << "[WARNING] Tried to start a closed effect - opening";
 	}
-	if (enable_shader) bound = glslProgram->bind();
+	if (enable_shader && glslProgram->isLinked()) bound = glslProgram->bind();
 }
 
 void Effect::endEffect() {
