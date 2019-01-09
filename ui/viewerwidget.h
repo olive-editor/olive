@@ -55,16 +55,16 @@ public:
     double waveform_zoom;
     int waveform_scroll;
 
-    bool force_quit;
+    bool force_quit = false;
 public slots:
     void delete_function();
     void set_waveform_scroll(int s);
 protected:
-    void paintEvent(QPaintEvent *e);
+    virtual void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
-	void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
 private:
 	QTimer retry_timer;
     void drawTitleSafeArea();
