@@ -1,3 +1,8 @@
 *.pro.user*
 Makefile
 .qmake.stash
+build/*
+snap/parts/*
+snap/prime/*
+snap/snap/*
+snap/stage/*
