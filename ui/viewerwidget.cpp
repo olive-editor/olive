@@ -189,7 +189,7 @@ void ViewerWidget::initializeGL() {
 //}
 
 void ViewerWidget::paintEvent(QPaintEvent *e) {
-    if (!rendering && context()->thread() == this->thread()) {
+	if (!rendering && context()->thread() == this->thread()) {
 		makeCurrent();
 		QOpenGLWidget::paintEvent(e);
 	}
@@ -429,7 +429,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 		}
 		if (e->enable_shader || e->enable_superimpose) {
 			e->startEffect();
-			if (e->enable_shader) {
+			if (e->enable_shader && e->is_glsl_linked()) {
 				e->process_shader(timecode, coords);
 				composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
 				fbo_switcher = !fbo_switcher;

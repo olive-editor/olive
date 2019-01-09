@@ -142,6 +142,7 @@ public:
 	bool is_open();
 	void open();
 	void close();
+	bool is_glsl_linked();
 	virtual void startEffect();
 	virtual void endEffect();
 
