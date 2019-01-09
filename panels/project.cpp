@@ -83,41 +83,67 @@ Project::Project(QWidget *parent) :
 	toolbar->setSpacing(0);
 	toolbar_widget->setLayout(toolbar);
 
-	QPushButton* toolbar_new = new QPushButton("New");
-	toolbar_new->setIcon(QIcon(":/icons/tri-down.png"));
-	toolbar_new->setIconSize(QSize(8, 8));
+    QPushButton* toolbar_new = new QPushButton(toolbar_widget);
+	QIcon icon1;
+	icon1.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon1.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_new->setIcon(icon1);
 	toolbar_new->setToolTip("New");
 	connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
 	toolbar->addWidget(toolbar_new);
 
-	QPushButton* toolbar_open = new QPushButton("Open");
+	QPushButton* toolbar_open = new QPushButton(toolbar_widget);
+	QIcon icon2;
+	icon2.addFile(QStringLiteral(":/icons/open.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_open->setIcon(icon2);
 	toolbar_open->setToolTip("Open Project");
 	connect(toolbar_open, SIGNAL(clicked(bool)), mainWindow, SLOT(open_project()));
 	toolbar->addWidget(toolbar_open);
 
-	QPushButton* toolbar_save = new QPushButton("Save");
+	QPushButton* toolbar_save = new QPushButton(toolbar_widget);
+	QIcon icon3;
+	icon3.addFile(QStringLiteral(":/icons/save.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_save->setIcon(icon3);
 	toolbar_save->setToolTip("Save Project");
 	connect(toolbar_save, SIGNAL(clicked(bool)), mainWindow, SLOT(save_project()));
 	toolbar->addWidget(toolbar_save);
 
-	QPushButton* toolbar_undo = new QPushButton("Undo");
+	QPushButton* toolbar_undo = new QPushButton(toolbar_widget);
+	QIcon icon4;
+	icon4.addFile(QStringLiteral(":/icons/undo.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_undo->setIcon(icon4);
 	toolbar_undo->setToolTip("Undo");
 	connect(toolbar_undo, SIGNAL(clicked(bool)), mainWindow, SLOT(undo()));
 	toolbar->addWidget(toolbar_undo);
 
-	QPushButton* toolbar_redo = new QPushButton("Redo");
+	QPushButton* toolbar_redo = new QPushButton(toolbar_widget);
+	QIcon icon5;
+	icon5.addFile(QStringLiteral(":/icons/redo.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_redo->setIcon(icon5);
 	toolbar_redo->setToolTip("Redo");
 	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
 	toolbar->addStretch();
 
-	QPushButton* toolbar_tree_view = new QPushButton("Tree View");
+	QPushButton* toolbar_tree_view = new QPushButton(toolbar_widget);
+	QIcon icon6;
+	icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon6.addFile(QStringLiteral(":/icons/treeview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_tree_view->setIcon(icon6);
 	toolbar_tree_view->setToolTip("Tree View");
 	connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
 	toolbar->addWidget(toolbar_tree_view);
 
-	QPushButton* toolbar_icon_view = new QPushButton("Icon View");
+	QPushButton* toolbar_icon_view = new QPushButton(toolbar_widget);
+	QIcon icon7;
+	icon7.addFile(QStringLiteral(":/icons/iconview.png"), QSize(), QIcon::Normal, QIcon::On);
+	icon7.addFile(QStringLiteral(":/icons/iconview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+	toolbar_icon_view->setIcon(icon7);
 	toolbar_icon_view->setToolTip("Icon View");
 	connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
 	toolbar->addWidget(toolbar_icon_view);
@@ -401,7 +427,7 @@ Media* Project::new_folder(QString name) {
 
 Media *Project::item_to_media(const QModelIndex &index) {
 	return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
-//    return static_cast<Media*>(index.internalPointer());
+//	return static_cast<Media*>(index.internalPointer());
 }
 
 void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list, int search_type) {
@@ -527,7 +553,7 @@ void Project::delete_selected_media() {
 	// remove
 	if (remove) {
 		panel_effect_controls->clear_effects(true);
-        if (sequence != NULL) sequence->selections.clear();
+		if (sequence != NULL) sequence->selections.clear();
 
 		// remove media and parents
 		for (int m=0;m<parents.size();m++) {
