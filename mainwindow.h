@@ -15,10 +15,12 @@ public:
 	void updateTitle(const QString &url);
 	~MainWindow();
 
-	void launch_with_project(const char *s);
+	void launch_with_project(const QString& s);
 
 	void make_new_menu(QMenu* parent);
 	void make_inout_menu(QMenu* parent);
+
+	QString appName;
 
 public slots:
 	void undo();

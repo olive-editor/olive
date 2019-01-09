@@ -56,7 +56,6 @@ MainWindow* mainWindow;
 
 QTimer autorecovery_timer;
 QString config_fn;
-QString appName;
 bool demoNoticeShown = false;
 
 void MainWindow::setup_layout(bool reset) {
@@ -95,13 +94,6 @@ void MainWindow::setup_layout(bool reset) {
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 {
-	appName = "Olive (January 2019 | Alpha";
-#ifdef GITHASH
-	appName += " | ";
-	appName += GITHASH;
-#endif
-	appName += ")";
-
 	enable_launch_with_project = false;
 
 	setup_debug();
@@ -136,8 +128,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setCentralWidget(centralWidget);
 
 	setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-
-	updateTitle("");
 
 	setDockNestingEnabled(true);
 
@@ -239,9 +229,10 @@ MainWindow::~MainWindow() {
 	close_debug();
 }
 
-void MainWindow::launch_with_project(const char* s) {
+void MainWindow::launch_with_project(const QString& s) {
 	project_url = s;
 	enable_launch_with_project = true;
+	demoNoticeShown = true;
 }
 
 void MainWindow::make_new_menu(QMenu *parent) {
