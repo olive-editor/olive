@@ -642,6 +642,9 @@ void MainWindow::setup_menus() {
 	playback_menu->addSeparator();
 	playback_menu->addAction("Go to Previous Cut", this, SLOT(prev_cut()), QKeySequence("Up"));
 	playback_menu->addAction("Go to Next Cut", this, SLOT(next_cut()), QKeySequence("Down"));
+	playback_menu->addSeparator();
+	playback_menu->addAction("Go to In Point", this, SLOT(go_to_in()), QKeySequence("Shift+I"));
+	playback_menu->addAction("Go to Out Point", this, SLOT(go_to_out()), QKeySequence("Shift+O"));
 
 	// INITIALIZE WINDOW MENU
 
@@ -769,13 +772,13 @@ void MainWindow::setup_menus() {
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
 
-    loop_action = tools_menu->addAction("Loop", this, SLOT(toggle_bool_action()));
-    loop_action->setCheckable(true);
-    loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
+	loop_action = tools_menu->addAction("Loop", this, SLOT(toggle_bool_action()));
+	loop_action->setCheckable(true);
+	loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
 
-    pause_at_out_point_action = tools_menu->addAction("Pause At Out Point", this, SLOT(toggle_bool_action()));
-    pause_at_out_point_action->setCheckable(true);
-    pause_at_out_point_action->setData(reinterpret_cast<quintptr>(&config.pause_at_out_point));
+	pause_at_out_point_action = tools_menu->addAction("Pause At Out Point", this, SLOT(toggle_bool_action()));
+	pause_at_out_point_action->setCheckable(true);
+	pause_at_out_point_action->setData(reinterpret_cast<quintptr>(&config.pause_at_out_point));
 
 	tools_menu->addSeparator();
 
@@ -939,6 +942,28 @@ void MainWindow::reset_layout() {
 	setup_layout(true);
 }
 
+void MainWindow::go_to_in() {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
+		panel_sequence_viewer->go_to_in();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->go_to_in();
+	}
+}
+
+void MainWindow::go_to_out() {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
+		panel_sequence_viewer->go_to_out();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->go_to_out();
+	}
+}
+
 void MainWindow::go_to_start() {
 	if (panel_timeline->focused()
 			|| panel_sequence_viewer->is_focused()
@@ -1074,8 +1099,8 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
 	set_bool_action_checked(set_name_and_marker);
-    set_bool_action_checked(loop_action);
-    set_bool_action_checked(pause_at_out_point_action);
+	set_bool_action_checked(loop_action);
+	set_bool_action_checked(pause_at_out_point_action);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);

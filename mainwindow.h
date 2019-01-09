@@ -56,6 +56,8 @@ private slots:
 	bool save_project_as();
 	bool save_project();
 
+	void go_to_in();
+	void go_to_out();
 	void go_to_start();
 	void prev_frame();
 	void playpause();
@@ -172,8 +174,8 @@ private:
 	QAction* enable_drop_on_media_to_replace;
 	QAction* enable_hover_focus;
 	QAction* set_name_and_marker;
-    QAction* loop_action;
-    QAction* pause_at_out_point_action;
+	QAction* loop_action;
+	QAction* pause_at_out_point_action;
 
 	// edit menu actions
 	QAction* undo_action;
