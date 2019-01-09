@@ -307,6 +307,12 @@ void Viewer::play() {
 	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
 	if (seq != NULL) {
+        if (!is_recording_cued()
+                && seq->playhead >= get_seq_out()
+                && (config.loop || !main_sequence)) {
+            seek(get_seq_in());
+        }
+
 		reset_all_audio();
 		if (is_recording_cued() && !start_recording()) {
 			dout << "[ERROR] Failed to record audio";
@@ -452,7 +458,19 @@ void Viewer::set_zoom_value(double d) {
 }
 
 void Viewer::set_sb_max() {
-	headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
+    headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
+}
+
+long Viewer::get_seq_in() {
+    return (seq->using_workarea)
+            ? seq->workarea_in
+            : 0;
+}
+
+long Viewer::get_seq_out() {
+    return (seq->using_workarea && previous_playhead < seq->workarea_out)
+            ? seq->workarea_out
+            : seq->getEndFrame();
 }
 
 void Viewer::setup_ui() {
@@ -637,19 +655,25 @@ void Viewer::update_playhead() {
 }
 
 void Viewer::timer_update() {
-	long previous_playhead = seq->playhead;
+    previous_playhead = seq->playhead;
 
 	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
 	update_parents();
 
-	long end_frame = (seq->using_workarea && previous_playhead < seq->workarea_out) ? seq->workarea_out : seq->getEndFrame();
-	if ((!recording
+    long end_frame = get_seq_out();
+    if (!recording
 			&& playing
 			&& seq->playhead >= end_frame
-			&& previous_playhead < end_frame)
-			|| (recording && recording_start != recording_end && seq->playhead >= recording_end)) {
-		pause();
-	}
+            && previous_playhead < end_frame) {
+        if (!config.pause_at_out_point && config.loop) {
+            seek(get_seq_in());
+            play();
+        } else if (config.pause_at_out_point || !main_sequence) {
+            pause();
+        }
+    } else if (recording && recording_start != recording_end && seq->playhead >= recording_end) {
+        pause();
+    }
 }
 
 void Viewer::recording_flasher_update() {

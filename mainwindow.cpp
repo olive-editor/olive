@@ -769,6 +769,14 @@ void MainWindow::setup_menus() {
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
 
+    loop_action = tools_menu->addAction("Loop", this, SLOT(toggle_bool_action()));
+    loop_action->setCheckable(true);
+    loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
+
+    pause_at_out_point_action = tools_menu->addAction("Pause At Out Point", this, SLOT(toggle_bool_action()));
+    pause_at_out_point_action->setCheckable(true);
+    pause_at_out_point_action->setData(reinterpret_cast<quintptr>(&config.pause_at_out_point));
+
 	tools_menu->addSeparator();
 
 	no_autoscroll = tools_menu->addAction("No Auto-Scroll", this, SLOT(set_autoscroll()));
@@ -1066,6 +1074,8 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
 	set_bool_action_checked(set_name_and_marker);
+    set_bool_action_checked(loop_action);
+    set_bool_action_checked(pause_at_out_point_action);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);
