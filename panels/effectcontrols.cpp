@@ -41,7 +41,6 @@ EffectControls::EffectControls(QWidget *parent) :
 
 	setup_ui();
 
-	init_effects();
 	clear_effects(false);
 	headers->viewer = panel_sequence_viewer;
 	headers->snapping = false;
