@@ -793,16 +793,28 @@ void Effect::open() {
 			validate_meta_path();
 			bool glsl_compiled = true;
 			if (!vertPath.isEmpty()) {
-				if (!glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
-					glsl_compiled = false;
-				}
+                if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
+                    dout << "[INFO] Vertex shader added successfully";
+                } else {
+                    glsl_compiled = false;
+                    dout << "[WARNING] Vertex shader could not be added";
+                }
 			}
 			if (!fragPath.isEmpty()) {
-				if (!glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
-					glsl_compiled = false;
-				}
+                if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
+                    dout << "[INFO] Fragment shader added successfully";
+                } else {
+                    glsl_compiled = false;
+                    dout << "[WARNING] Fragment shader could not be added";
+                }
 			}
-			if (glsl_compiled) glslProgram->link();
+            if (glsl_compiled) {
+                if (glslProgram->link()) {
+                    dout << "[INFO] Shader program linked successfully";
+                } else {
+                    dout << "[WARNING] Shader program failed to link";
+                }
+            }
 			isOpen = true;
 		}
 	} else {
