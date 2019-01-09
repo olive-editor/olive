@@ -136,7 +136,8 @@ public:
 	void copy_field_keyframes(Effect *e);
 
 	void load(QXmlStreamReader& stream);
-	void save(QXmlStreamWriter& stream);
+	virtual void custom_load(QXmlStreamReader& stream);
+	virtual void save(QXmlStreamWriter& stream);
 
 	// glsl handling
 	bool is_open();

@@ -7,6 +7,8 @@
 #include <QPushButton>
 #include <QDialog>
 #include <QMessageBox>
+#include <QFile>
+#include <QXmlStreamWriter>
 
 #include "playback/audio.h"
 #include "mainwindow.h"
@@ -30,6 +32,9 @@ extern "C" {
 		case audioMasterGetCurrentProcessLevel:
 			return 0;
 		// Handle other opcodes here... there will be lots of them
+		case audioMasterEndEdit: // change made
+			mainWindow->setWindowModified(true);
+			break;
 		default:
 			dout << "[INFO] Plugin requested unhandled opcode" << opcode;
 			break;
@@ -211,6 +216,27 @@ void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint
 				samples[j] = (quint8) left_sample;
 			}
 		}
+	}
+}
+
+void VSTHostWin::custom_load(QXmlStreamReader &stream) {
+	if (stream.name() == "plugindata") {
+		stream.readNext();
+		QByteArray b = QByteArray::fromBase64(stream.text().toUtf8());
+		const char* data = b.constData();
+		if (plugin != NULL) {
+			dispatcher(plugin, effSetChunk, 0, (VstInt32) b.size(), (void*) b.constData(), 0);
+		}
+	}
+}
+
+void VSTHostWin::save(QXmlStreamWriter &stream) {
+	Effect::save(stream);
+	if (plugin != NULL) {
+		char* p = NULL;
+		VstInt32 length = dispatcher(plugin, effGetChunk, 0, 0, &p, 0);
+		QByteArray b(p, length);
+		stream.writeTextElement("plugindata", b.toBase64());
 	}
 }
 

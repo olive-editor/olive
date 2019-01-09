@@ -17,6 +17,9 @@ public:
 	VSTHostWin(Clip* c, const EffectMeta* em);
 	~VSTHostWin();
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+
+	void custom_load(QXmlStreamReader& stream);
+	void save(QXmlStreamWriter& stream);
 private slots:
 	void show_interface(bool show);
 	void uncheck_show_button();

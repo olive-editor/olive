@@ -641,42 +641,6 @@ void Effect::load(QXmlStreamReader& stream) {
 				while (!stream.atEnd() && !(stream.name() == "row" && stream.isEndElement())) {
 					stream.readNext();
 
-					// read keyframes
-					/*if (stream.name() == "keyframes" && stream.isStartElement()) {
-						for (int k=0;k<stream.attributes().size();k++) {
-							const QXmlStreamAttribute& attr = stream.attributes().at(k);
-							if (attr.name() == "enabled") {
-								row->setKeyframing(attr.value() == "1");
-							}
-						}
-						if (row->isKeyframing()) {
-							stream.readNext();
-							while (!stream.atEnd() && !(stream.name() == "keyframes" && stream.isEndElement())) {
-								if (stream.name() == "key" && stream.isStartElement()) {
-									long keyframe_frame;
-									int keyframe_type;
-									for (int k=0;k<stream.attributes().size();k++) {
-										const QXmlStreamAttribute& attr = stream.attributes().at(k);
-										if (attr.name() == "frame") {
-											keyframe_frame = attr.value().toLong();
-										} else if (attr.name() == "type") {
-											keyframe_type = attr.value().toInt();
-										}
-									}
-									for (int k=0;k<row->fieldCount();k++) {
-										EffectField* field = row->field(k);
-										EffectKeyframe key;
-										key.time = keyframe_frame;
-										key.type = keyframe_type;
-										field->keyframes.append(key);
-									}
-								}
-								stream.readNext();
-							}
-						}
-						stream.readNext();
-					}*/
-
 					// read field
 					if (stream.name() == "field" && stream.isStartElement()) {
 						if (field_count < row->fieldCount()) {
@@ -697,9 +661,6 @@ void Effect::load(QXmlStreamReader& stream) {
 									break;
 								}
 							}
-
-							// TODO DEPRECATED, only used for backwards compatibility with 180820
-							if (!found_field_by_id) dout << "[INFO] Found field by field number";
 
 							EffectField* field = row->field(field_number);
 
@@ -752,9 +713,13 @@ void Effect::load(QXmlStreamReader& stream) {
 				dout << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
 			}
 			row_count++;
+		} else if (stream.isStartElement()) {
+			custom_load(stream);
 		}
 	}
 }
+
+void Effect::custom_load(QXmlStreamReader &stream) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
 	stream.writeAttribute("name", meta->name);
