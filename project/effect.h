@@ -64,7 +64,7 @@ extern QMutex effects_loaded;
 #define EFFECT_INTERNAL_TIMECODE 8
 #define EFFECT_INTERNAL_MASK 9
 #define EFFECT_INTERNAL_FILLLEFTRIGHT 10
-
+#define EFFECT_INTERNAL_VST 11
 #define EFFECT_INTERNAL_CORNERPIN 12
 #define EFFECT_INTERNAL_COUNT 13
 
@@ -119,7 +119,7 @@ public:
 	QString name;
 	CollapsibleWidget* container;
 
-	EffectRow* add_row(const QString &name, bool savable = true);
+	EffectRow* add_row(const QString &name, bool savable = true, bool keyframable = true);
 	EffectRow* row(int i);
 	int row_count();
 
@@ -136,7 +136,8 @@ public:
 	void copy_field_keyframes(Effect *e);
 
 	void load(QXmlStreamReader& stream);
-	void save(QXmlStreamWriter& stream);
+	virtual void custom_load(QXmlStreamReader& stream);
+	virtual void save(QXmlStreamWriter& stream);
 
 	// glsl handling
 	bool is_open();

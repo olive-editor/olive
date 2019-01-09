@@ -6,6 +6,7 @@
 #include "ui/checkboxex.h"
 #include "ui/comboboxex.h"
 #include "ui/fontcombobox.h"
+#include "ui/embeddedfilechooser.h"
 
 #include "effectrow.h"
 #include "effect.h"
@@ -70,6 +71,13 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 		connect(fcb, SIGNAL(activated(int)), this, SLOT(ui_element_change()));
 	}
 		break;
+	case EFFECT_FIELD_FILE:
+	{
+		EmbeddedFileChooser* efc = new EmbeddedFileChooser();
+		ui_element = efc;
+		connect(efc, SIGNAL(changed()), this, SLOT(ui_element_change()));
+	}
+		break;
 	}
 }
 
@@ -81,6 +89,7 @@ QVariant EffectField::get_previous_data() {
 	case EFFECT_FIELD_BOOL: return !static_cast<QCheckBox*>(ui_element)->isChecked();
 	case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->getPreviousIndex();
 	case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->getPreviousValue();
+	case EFFECT_FIELD_FILE: return static_cast<EmbeddedFileChooser*>(ui_element)->getPreviousValue();
 	}
 	return QVariant();
 }
@@ -93,6 +102,7 @@ QVariant EffectField::get_current_data() {
 	case EFFECT_FIELD_BOOL: return static_cast<QCheckBox*>(ui_element)->isChecked();
 	case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
 	case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->currentText();
+	case EFFECT_FIELD_FILE: return static_cast<EmbeddedFileChooser*>(ui_element)->getFilename();
 	}
 	return QVariant();
 }
@@ -113,6 +123,7 @@ void EffectField::set_current_data(const QVariant& data) {
 	case EFFECT_FIELD_BOOL: return static_cast<QCheckBox*>(ui_element)->setChecked(data.toBool());
 	case EFFECT_FIELD_COMBO: return static_cast<ComboBoxEx*>(ui_element)->setCurrentIndexEx(data.toInt());
 	case EFFECT_FIELD_FONT: return static_cast<FontCombobox*>(ui_element)->setCurrentTextEx(data.toString());
+	case EFFECT_FIELD_FILE: return static_cast<EmbeddedFileChooser*>(ui_element)->setFilename(data.toString());
 	}
 }
 
@@ -246,6 +257,12 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
 			}
 			static_cast<FontCombobox*>(ui_element)->setCurrentTextEx(before_data.toString());
 			break;
+		case EFFECT_FIELD_FILE:
+			if (async) {
+				return before_data;
+			}
+			static_cast<EmbeddedFileChooser*>(ui_element)->setFilename(before_data.toString());
+			break;
 		}
 	}
 	return QVariant();
@@ -313,12 +330,12 @@ int EffectField::get_combo_index(double timecode, bool async) {
 	return static_cast<ComboBoxEx*>(ui_element)->currentIndex();
 }
 
-const QVariant EffectField::get_combo_data(double timecode) {
+QVariant EffectField::get_combo_data(double timecode) {
 	validate_keyframe_data(timecode);
 	return static_cast<ComboBoxEx*>(ui_element)->currentData();
 }
 
-const QString EffectField::get_combo_string(double timecode) {
+QString EffectField::get_combo_string(double timecode) {
 	validate_keyframe_data(timecode);
 	return static_cast<ComboBoxEx*>(ui_element)->currentText();
 }
@@ -343,7 +360,7 @@ void EffectField::set_bool_value(bool b) {
 	return static_cast<QCheckBox*>(ui_element)->setChecked(b);
 }
 
-const QString EffectField::get_string_value(double timecode, bool async) {
+QString EffectField::get_string_value(double timecode, bool async) {
 	if (async && hasKeyframes()) {
 		return validate_keyframe_data(timecode, true).toString();
 	}
@@ -355,7 +372,7 @@ void EffectField::set_string_value(const QString& s) {
 	static_cast<TextEditEx*>(ui_element)->setPlainTextEx(s);
 }
 
-const QString EffectField::get_font_name(double timecode, bool async) {
+QString EffectField::get_font_name(double timecode, bool async) {
 	if (async && hasKeyframes()) {
 		return validate_keyframe_data(timecode, true).toString();
 	}
@@ -377,4 +394,16 @@ QColor EffectField::get_color_value(double timecode, bool async) {
 
 void EffectField::set_color_value(QColor color) {
 	static_cast<ColorButton*>(ui_element)->set_color(color);
+}
+
+QString EffectField::get_filename(double timecode, bool async) {
+	if (async && hasKeyframes()) {
+		return validate_keyframe_data(timecode, true).toString();
+	}
+	validate_keyframe_data(timecode);
+	return static_cast<EmbeddedFileChooser*>(ui_element)->getFilename();
+}
+
+void EffectField::set_filename(const QString &s) {
+	static_cast<EmbeddedFileChooser*>(ui_element)->setFilename(s);
 }
