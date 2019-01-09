@@ -28,7 +28,9 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
+#ifdef _WIN32
 #include "effects/internal/vsthostwin.h"
+#endif
 #include "effects/internal/fillleftrighteffect.h"
 
 #include <QCheckBox>
@@ -63,7 +65,9 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
+#ifdef _WIN32
 		case EFFECT_INTERNAL_VST: return new VSTHostWin(c, em);
+#endif
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -96,9 +100,11 @@ void load_internal_effects() {
 	em.internal = EFFECT_INTERNAL_PAN;
 	effects.append(em);
 
+#ifdef _WIN32
 	em.name = "VST Plugin 2.x";
 	em.internal = EFFECT_INTERNAL_VST;
 	effects.append(em);
+#endif
 
 	em.name = "Tone";
 	em.internal = EFFECT_INTERNAL_TONE;
