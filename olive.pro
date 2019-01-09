@@ -118,6 +118,8 @@ SOURCES += \
     project/keyframe.cpp \
     ui/rectangleselect.cpp \
     dialogs/actionsearch.cpp \
+    effects/internal/vsthostwin.cpp \
+    ui/embeddedfilechooser.cpp \
     effects/internal/fillleftrighteffect.cpp
 
 HEADERS += \
@@ -206,13 +208,15 @@ HEADERS += \
     project/keyframe.h \
     ui/rectangleselect.h \
     dialogs/actionsearch.h \
+    effects/internal/vsthostwin.h \
+    ui/embeddedfilechooser.h \
     effects/internal/fillleftrighteffect.h
 
 FORMS +=
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
-    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
 }
 
 mac {

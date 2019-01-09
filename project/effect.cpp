@@ -28,6 +28,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
+#include "effects/internal/vsthostwin.h"
 #include "effects/internal/fillleftrighteffect.h"
 
 #include <QCheckBox>
@@ -62,6 +63,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
+		case EFFECT_INTERNAL_VST: return new VSTHostWin(c, em);
 		}
 	} else {
 		dout << "[ERROR] Invalid effect data";
@@ -92,6 +94,10 @@ void load_internal_effects() {
 
 	em.name = "Pan";
 	em.internal = EFFECT_INTERNAL_PAN;
+	effects.append(em);
+
+	em.name = "VST Plugin 2.x";
+	em.internal = EFFECT_INTERNAL_VST;
 	effects.append(em);
 
 	em.name = "Tone";
@@ -313,6 +319,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 											type = EFFECT_FIELD_FONT;
 										} else if (comp == "STRING") {
 											type = EFFECT_FIELD_STRING;
+										} else if (comp == "FILE") {
+											type = EFFECT_FIELD_FILE;
 										}
 									} else if (attr.name() == "id") {
 										id = attr.value().toString();
@@ -405,6 +413,14 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 											}
 										}
 										break;
+									case EFFECT_FIELD_FILE:
+										for (int i=0;i<attributes.size();i++) {
+											const QXmlStreamAttribute& attr = attributes.at(i);
+											if (attr.name() == "filename") {
+												field->set_filename(attr.value().toString());
+											}
+										}
+										break;
 									}
 								}
 							}
@@ -477,7 +493,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 	}
 }
 
-EffectRow* Effect::add_row(const QString& name, bool savable) {
+EffectRow* Effect::add_row(const QString& name, bool savable, bool keyframable) {
 	EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size());
 	rows.append(row);
 	return row;
@@ -586,10 +602,12 @@ QVariant load_data_from_string(int type, const QString& string) {
 	switch (type) {
 	case EFFECT_FIELD_DOUBLE: return string.toDouble();
 	case EFFECT_FIELD_COLOR: return QColor(string);
-	case EFFECT_FIELD_STRING: return string;
 	case EFFECT_FIELD_BOOL: return (string == "1");
 	case EFFECT_FIELD_COMBO: return string.toInt();
-	case EFFECT_FIELD_FONT: return string;
+	case EFFECT_FIELD_STRING:
+	case EFFECT_FIELD_FONT:
+	case EFFECT_FIELD_FILE:
+		 return string;
 	}
 	return QVariant();
 }
@@ -598,10 +616,12 @@ QString save_data_to_string(int type, const QVariant& data) {
 	switch (type) {
 	case EFFECT_FIELD_DOUBLE: return QString::number(data.toDouble());
 	case EFFECT_FIELD_COLOR: return data.value<QColor>().name();
-	case EFFECT_FIELD_STRING: return data.toString();
 	case EFFECT_FIELD_BOOL: return QString::number(data.toBool());
 	case EFFECT_FIELD_COMBO: return QString::number(data.toInt());
-	case EFFECT_FIELD_FONT: return data.toString();
+	case EFFECT_FIELD_STRING:
+	case EFFECT_FIELD_FONT:
+	case EFFECT_FIELD_FILE:
+		return data.toString();
 	}
 	return QString();
 }
@@ -620,42 +640,6 @@ void Effect::load(QXmlStreamReader& stream) {
 
 				while (!stream.atEnd() && !(stream.name() == "row" && stream.isEndElement())) {
 					stream.readNext();
-
-					// read keyframes
-					/*if (stream.name() == "keyframes" && stream.isStartElement()) {
-						for (int k=0;k<stream.attributes().size();k++) {
-							const QXmlStreamAttribute& attr = stream.attributes().at(k);
-							if (attr.name() == "enabled") {
-								row->setKeyframing(attr.value() == "1");
-							}
-						}
-						if (row->isKeyframing()) {
-							stream.readNext();
-							while (!stream.atEnd() && !(stream.name() == "keyframes" && stream.isEndElement())) {
-								if (stream.name() == "key" && stream.isStartElement()) {
-									long keyframe_frame;
-									int keyframe_type;
-									for (int k=0;k<stream.attributes().size();k++) {
-										const QXmlStreamAttribute& attr = stream.attributes().at(k);
-										if (attr.name() == "frame") {
-											keyframe_frame = attr.value().toLong();
-										} else if (attr.name() == "type") {
-											keyframe_type = attr.value().toInt();
-										}
-									}
-									for (int k=0;k<row->fieldCount();k++) {
-										EffectField* field = row->field(k);
-										EffectKeyframe key;
-										key.time = keyframe_frame;
-										key.type = keyframe_type;
-										field->keyframes.append(key);
-									}
-								}
-								stream.readNext();
-							}
-						}
-						stream.readNext();
-					}*/
 
 					// read field
 					if (stream.name() == "field" && stream.isStartElement()) {
@@ -677,9 +661,6 @@ void Effect::load(QXmlStreamReader& stream) {
 									break;
 								}
 							}
-
-							// TODO DEPRECATED, only used for backwards compatibility with 180820
-							if (!found_field_by_id) dout << "[INFO] Found field by field number";
 
 							EffectField* field = row->field(field_number);
 
@@ -732,9 +713,13 @@ void Effect::load(QXmlStreamReader& stream) {
 				dout << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
 			}
 			row_count++;
+		} else if (stream.isStartElement()) {
+			custom_load(stream);
 		}
 	}
 }
+
+void Effect::custom_load(QXmlStreamReader &stream) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
 	stream.writeAttribute("name", meta->name);
@@ -885,6 +870,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_combo_index(timecode));
 					break;
 				case EFFECT_FIELD_FONT: break; // can you even send a string to a uniform value?
+				case EFFECT_FIELD_FILE: break; // can you even send a string to a uniform value?
 				}
 			}
 		}
@@ -920,27 +906,7 @@ GLuint Effect::process_superimpose(double timecode) {
 	return 0;
 }
 
-//void Effect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count) {
-void Effect::process_audio(double, double, quint8*, int, int) {
-	// only volume/pan, hand off to AU and VST for all other cases
-
-	/*double interval = (timecode_end-timecode_start)/nb_bytes;
-
-	for (int i=0;i<nb_bytes;i+=2) {
-		qint32 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-
-		jsEngine.globalObject().setProperty("sample", samp);
-		jsEngine.globalObject().setProperty("volume", row(0)->field(0)->get_double_value(timecode_start+(interval*i), true));
-		QJSValue result = eval.call();
-		samp = result.toInt();
-		QJSValueList args;
-		args << samples << nb_bytes;
-
-
-		samples[i+1] = (quint8) (samp >> 8);
-		samples[i] = (quint8) samp;
-	}*/
-}
+void Effect::process_audio(double, double, quint8*, int, int) {}
 
 void Effect::gizmo_draw(double, GLTextureCoords &) {}
 
