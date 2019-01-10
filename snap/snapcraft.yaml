@@ -12,6 +12,7 @@ apps:
   olive-editor:
     environment:
       "LD_LIBRARY_PATH": "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
+      "DISABLE_WAYLAND": "1"
     command: desktop-launch $SNAP/bin/olive-editor
     plugs:
       - opengl
@@ -42,7 +43,11 @@ parts:
     override-build: |
       qmake olive.pro
       make
-      make install
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/effects
+      cp olive-editor $SNAPCRAFT_PART_INSTALL/bin
+      cp effects/*.xml $SNAPCRAFT_PART_INSTALL/bin/effects
+      cp effects/*.frag $SNAPCRAFT_PART_INSTALL/bin/effects
+      cp effects/*.vert $SNAPCRAFT_PART_INSTALL/bin/effects
       snapcraftctl set-version $(git rev-parse --short HEAD)
   desktop-qt5:
     build-packages:

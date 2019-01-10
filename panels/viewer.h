@@ -54,7 +54,10 @@ public:
 	void update_end_timecode();
 	void update_header_zoom();
 	void update_viewer();
+    void clear_in();
+    void clear_out();
 	void clear_inout_point();
+    void toggle_enable_inout();
 	void set_in_point();
 	void set_out_point();
 	void set_zoom(bool in);
@@ -89,9 +92,11 @@ public:
 public slots:
 	void play_wake();
 	void go_to_start();
+	void go_to_in();
 	void previous_frame();
 	void toggle_play();
 	void next_frame();
+	void go_to_out();
 	void go_to_end();
 
 private slots:
@@ -111,6 +116,9 @@ private:
 	void set_zoom_value(double d);
 	void set_sb_max();
 
+	long get_seq_in();
+	long get_seq_out();
+
 	QIcon playIcon;
 
 	void setup_ui();
@@ -129,6 +137,8 @@ private:
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;
+
+	long previous_playhead;
 };
 
 #endif // VIEWER_H

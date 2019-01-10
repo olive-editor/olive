@@ -117,7 +117,10 @@ SOURCES += \
     ui/clickablelabel.cpp \
     project/keyframe.cpp \
     ui/rectangleselect.cpp \
-    dialogs/actionsearch.cpp
+    dialogs/actionsearch.cpp \
+    ui/embeddedfilechooser.cpp \
+    effects/internal/fillleftrighteffect.cpp \
+    effects/internal/voideffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -204,13 +207,19 @@ HEADERS += \
     ui/clickablelabel.h \
     project/keyframe.h \
     ui/rectangleselect.h \
-    dialogs/actionsearch.h
+    dialogs/actionsearch.h \
+    ui/embeddedfilechooser.h \
+    effects/internal/fillleftrighteffect.h \
+    effects/internal/voideffect.h
 
 FORMS +=
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
-    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
+	
+	SOURCES += effects/internal/vsthostwin.cpp
+	HEADERS += effects/internal/vsthostwin.h
 }
 
 mac {

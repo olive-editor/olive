@@ -210,12 +210,12 @@ void ViewerWidget::paintEvent(QPaintEvent *e) {
         QOpenGLContext* const ctxt = context();
         if (ctxt != NULL) {
             if (ctxt->thread() == this->thread()) {
-                makeCurrent();
-                QOpenGLWidget::paintEvent(e);
-            }
+		makeCurrent();
+		QOpenGLWidget::paintEvent(e);
+	}
         } else {
             // FIXME: segfault from now on in
-        }
+}
 
 	}
 }
@@ -454,7 +454,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 		}
 		if (e->enable_shader || e->enable_superimpose) {
 			e->startEffect();
-			if (e->enable_shader) {
+			if (e->enable_shader && e->is_glsl_linked()) {
 				e->process_shader(timecode, coords);
 				composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
 				fbo_switcher = !fbo_switcher;
@@ -890,7 +890,7 @@ void ViewerWidget::paintGL() {
 				p.drawLine(playhead_x, 0, playhead_x, height());
 			}
 
-            if (force_quit) break;
+			if (force_quit) break;
 			if (texture_failed) {
 				if (rendering) {
 					dout << "[INFO] Texture failed - looping";

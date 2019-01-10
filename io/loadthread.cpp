@@ -19,6 +19,7 @@
 
 #include "mainwindow.h"
 #include "panels/panels.h"
+#include "panels/effectcontrols.h"
 #include "panels/project.h"
 #include "project/footage.h"
 #include "io/config.h"
@@ -30,6 +31,7 @@
 #include "io/previewgenerator.h"
 #include "dialogs/loaddialog.h"
 #include "project/media.h"
+#include "effects/internal/voideffect.h"
 #include "debug.h"
 
 #include <QFile>
@@ -49,7 +51,7 @@ LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelle
 	connect(this, SIGNAL(success()), this, SLOT(success_func()));
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));
 	connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)));
-	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const EffectMeta*, long, bool)));
+	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
 }
 
 const EffectMeta* get_meta_from_name(const QString& name) {
@@ -79,26 +81,8 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 		}
 	}
 
-	// backwards compatibility with 180820
-	if (stream.name() == "effect" && effect_id != -1) {
-		switch (effect_id) {
-		case 0: effect_name = (c->track < 0) ? "Transform" : "Volume"; break;
-		case 1: effect_name = (c->track < 0) ? "Shake" : "Pan"; break;
-		case 2: effect_name = (c->track < 0) ? "Text" : "Noise"; break;
-		case 3: effect_name = (c->track < 0) ? "Solid" : "Tone"; break;
-		case 4: effect_name = "Invert"; break;
-		case 5: effect_name = "Chroma Key"; break;
-		case 6: effect_name = "Gaussian Blur"; break;
-		case 7: effect_name = "Crop"; break;
-		case 8: effect_name = "Flip"; break;
-		case 9: effect_name = "Box Blur"; break;
-		case 10: effect_name = "Wave"; break;
-		case 11: effect_name = "Temperature"; break;
-		}
-	}
-
 	// wait for effects to be loaded
-	effects_loaded.lock();
+	panel_effect_controls->effects_loaded.lock();
 
 	const EffectMeta* meta = NULL;
 
@@ -107,26 +91,21 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 		meta = get_meta_from_name(effect_name);
 	}
 
-	effects_loaded.unlock();
+	panel_effect_controls->effects_loaded.unlock();
 
-	if (meta == NULL) {
-		dout << "[WARNING] An effect used by this project is missing. It was not loaded.";
+	QString tag = stream.name().toString();
+
+	int type;
+	if (tag == "opening") {
+		type = TA_OPENING_TRANSITION;
+	} else if (tag == "closing") {
+		type = TA_CLOSING_TRANSITION;
 	} else {
-		QString tag = stream.name().toString();
-
-		int type;
-		if (tag == "opening") {
-			type = TA_OPENING_TRANSITION;
-		} else if (tag == "closing") {
-			type = TA_CLOSING_TRANSITION;
-		} else {
-			type = TA_NO_TRANSITION;
-		}
-
-		emit start_create_effect_ui(&stream, c, type, meta, effect_length, effect_enabled);
-
-		waitCond.wait(&mutex);
+		type = TA_NO_TRANSITION;
 	}
+
+	emit start_create_effect_ui(&stream, c, type, &effect_name, meta, effect_length, effect_enabled);
+	waitCond.wait(&mutex);
 }
 
 void LoadThread::read_next(QXmlStreamReader &stream) {
@@ -200,7 +179,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 				internal_proj_url = stream.readElementText();
 				internal_proj_dir = QFileInfo(internal_proj_url).absoluteDir();
 			} else {
-				while (!cancelled && !(stream.name() == root_search && stream.isEndElement())) {
+				while (!cancelled && !stream.atEnd() && !(stream.name() == root_search && stream.isEndElement())) {
 					read_next(stream);
 					if (stream.name() == child_search && stream.isStartElement()) {
 						switch (type) {
@@ -311,6 +290,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									open_seq = s;
 								} else if (attr.name() == "workarea") {
 									s->using_workarea = (attr.value() == "1");
+                                } else if (attr.name() == "workareaEnabled") {
+                                    s->enable_workarea = (attr.value() == "1");
 								} else if (attr.name() == "workareaIn") {
 									s->workarea_in = attr.value().toLong();
 								} else if (attr.name() == "workareaOut") {
@@ -620,7 +601,7 @@ void LoadThread::run() {
 			xml_error = false;
 			if (show_err) emit error();
 		} else if (stream.hasError()) {
-			error_str = stream.errorString();
+			error_str = stream.errorString() + " - Line: " + QString::number(stream.lineNumber()) + " Col:" + QString::number(stream.columnNumber());
 			xml_error = true;
 			emit error();
 			cont = false;
@@ -695,6 +676,7 @@ void LoadThread::create_effect_ui(
 		QXmlStreamReader* stream,
 		Clip* c,
 		int type,
+		const QString* effect_name,
 		const EffectMeta* meta,
 		long effect_length,
 		bool effect_enabled)
@@ -722,11 +704,19 @@ void LoadThread::create_effect_ui(
 
 	if (cancelled) return;
 	if (type == TA_NO_TRANSITION) {
-		Effect* e = create_effect(c, meta);
-		e->set_enabled(effect_enabled);
-		e->load(*stream);
+		if (meta == NULL) {
+			// create void effect
+			VoidEffect* ve = new VoidEffect(c, *effect_name);
+			ve->set_enabled(effect_enabled);
+			ve->load(*stream);
+			c->effects.append(ve);
+		} else {
+			Effect* e = create_effect(c, meta);
+			e->set_enabled(effect_enabled);
+			e->load(*stream);
 
-		c->effects.append(e);
+			c->effects.append(e);
+		}
 	} else {
 		int transition_index = create_transition(c, NULL, meta);
 		Transition* t = c->sequence->transitions.at(transition_index);

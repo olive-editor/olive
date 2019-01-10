@@ -9,10 +9,14 @@
   <summary xml:lang="pt_BR">Editor de vídeo não-linear</summary>
   <summary xml:lang="es">Editor de video no lineal</summary>
   <summary xml:lang="ru">Нелинейный видеоредактор</summary>
+  <summary xml:lang="uk">Нелінійний відеоредактор</summary>
+  <summary xml:lang="uk_UA">Нелінійний відеоредактор</summary>
   <description><p>Olive is a free non-linear video editor aiming to provide a fully-featured alternative to high-end professional video editing software.</p></description>
   <description xml:lang="pt_BR"><p>Olive é um editor de vídeo não-linear com o objetivo de fornecer uma alternativa completa para softwares profissionais de edição de vídeo.</p></description>
   <description xml:lang="es"><p>Olive es un editor de video no lineal libre que apunta a brindar una alternativa completa al software de edición de video profesional.</p></description>
   <description xml:lang="ru"><p>Olive — свободный нелинейный видеоредактор, задуманный как полноценная замена закрытым коммерческим продуктам.</p></description>
+  <description xml:lang="uk"><p>Olive — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам.</p></description>
+  <description xml:lang="uk_UA"><p>Olive — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам.</p></description>
   <url type="homepage">https://www.olivevideoeditor.org</url>
   <url type="donation">https://www.patreon.com/olivevideoeditor</url>
   <url type="bugtracker">https://github.com/olive-editor/olive/issues</url>

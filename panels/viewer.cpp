@@ -265,11 +265,19 @@ void Viewer::seek(long p) {
 }
 
 void Viewer::go_to_start() {
+	if (seq != NULL) seek(0);
+}
+
+void Viewer::go_to_end() {
+	if (seq != NULL) seek(seq->getEndFrame());
+}
+
+void Viewer::go_to_in() {
 	if (seq != NULL) {
-		if (seq->using_workarea && seq->playhead != seq->workarea_in) {
+        if (seq->using_workarea && seq->enable_workarea) {
 			seek(seq->workarea_in);
 		} else {
-			seek(0);
+			go_to_start();
 		}
 	}
 }
@@ -282,12 +290,12 @@ void Viewer::next_frame() {
 	if (seq != NULL) seek(seq->playhead+1);
 }
 
-void Viewer::go_to_end() {
+void Viewer::go_to_out() {
 	if (seq != NULL) {
-		if (seq->using_workarea && seq->playhead != seq->workarea_out) {
+        if (seq->using_workarea && seq->enable_workarea) {
 			seek(seq->workarea_out);
 		} else {
-			seek(seq->getEndFrame());
+			go_to_end();
 		}
 	}
 }
@@ -324,6 +332,12 @@ void Viewer::play() {
 	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
 	if (seq != NULL) {
+		if (!is_recording_cued()
+				&& seq->playhead >= get_seq_out()
+				&& (config.loop || !main_sequence)) {
+			seek(get_seq_in());
+		}
+
 		reset_all_audio();
 		if (is_recording_cued() && !start_recording()) {
 			dout << "[ERROR] Failed to record audio";
@@ -434,11 +448,32 @@ void Viewer::update_viewer() {
 	update_end_timecode();
 }
 
+void Viewer::clear_in() {
+    if (seq->using_workarea) {
+        undo_stack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
+        update_parents();
+    }
+}
+
+void Viewer::clear_out() {
+    if (seq->using_workarea) {
+        undo_stack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
+        update_parents();
+    }
+}
+
 void Viewer::clear_inout_point() {
 	if (seq->using_workarea) {
 		undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
 		update_parents();
-	}
+    }
+}
+
+void Viewer::toggle_enable_inout() {
+    if (seq != NULL && seq->using_workarea) {
+        undo_stack.push(new SetBool(&seq->enable_workarea, !seq->enable_workarea));
+        update_parents();
+    }
 }
 
 void Viewer::set_in_point() {
@@ -470,6 +505,18 @@ void Viewer::set_zoom_value(double d) {
 
 void Viewer::set_sb_max() {
 	headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
+}
+
+long Viewer::get_seq_in() {
+    return (seq->using_workarea && seq->enable_workarea)
+			? seq->workarea_in
+			: 0;
+}
+
+long Viewer::get_seq_out() {
+    return (seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
+			? seq->workarea_out
+			: seq->getEndFrame();
 }
 
 void Viewer::setup_ui() {
@@ -516,7 +563,7 @@ void Viewer::setup_ui() {
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev.png"), QSize(), QIcon::Normal, QIcon::Off);
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnSkipToStart->setIcon(goToStartIcon);
-	connect(btnSkipToStart, SIGNAL(clicked(bool)), this, SLOT(go_to_start()));
+	connect(btnSkipToStart, SIGNAL(clicked(bool)), this, SLOT(go_to_in()));
 	playback_control_layout->addWidget(btnSkipToStart);
 
 	btnRewind = new QPushButton(playback_controls);
@@ -547,7 +594,7 @@ void Viewer::setup_ui() {
 	nextIcon.addFile(QStringLiteral(":/icons/next.png"), QSize(), QIcon::Normal, QIcon::Off);
 	nextIcon.addFile(QStringLiteral(":/icons/next-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
 	btnSkipToEnd->setIcon(nextIcon);
-	connect(btnSkipToEnd, SIGNAL(clicked(bool)), this, SLOT(go_to_end()));
+	connect(btnSkipToEnd, SIGNAL(clicked(bool)), this, SLOT(go_to_out()));
 	playback_control_layout->addWidget(btnSkipToEnd);
 
 	lower_control_layout->addWidget(playback_controls);
@@ -654,17 +701,23 @@ void Viewer::update_playhead() {
 }
 
 void Viewer::timer_update() {
-	long previous_playhead = seq->playhead;
+	previous_playhead = seq->playhead;
 
 	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
 	update_parents();
 
-	long end_frame = (seq->using_workarea && previous_playhead < seq->workarea_out) ? seq->workarea_out : seq->getEndFrame();
-	if ((!recording
+	long end_frame = get_seq_out();
+	if (!recording
 			&& playing
 			&& seq->playhead >= end_frame
-			&& previous_playhead < end_frame)
-			|| (recording && recording_start != recording_end && seq->playhead >= recording_end)) {
+			&& previous_playhead < end_frame) {
+		if (!config.pause_at_out_point && config.loop) {
+			seek(get_seq_in());
+			play();
+		} else if (config.pause_at_out_point || !main_sequence) {
+			pause();
+		}
+	} else if (recording && recording_start != recording_end && seq->playhead >= recording_end) {
 		pause();
 	}
 }

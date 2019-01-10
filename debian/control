@@ -2,7 +2,7 @@ Source: olive-editor
 Section: video
 Priority: optional
 Maintainer: Olive Team <itsmattkc@gmail.com>
-Build-Depends: debhelper (>=9), build-essential, qt5-default, qtmultimedia5-dev, libqt5opengl5-dev, libqt5multimedia5-plugins, libavformat-dev, libavcodec-dev, libavutil-dev, libswscale-dev, libswresample-dev, libavfilter-dev, libpostproc-dev
+Build-Depends: debhelper (>=9), build-essential, qt5-default, qtmultimedia5-dev, libqt5opengl5-dev, libqt5multimedia5-plugins, libavformat-dev, libavcodec-dev, libavutil-dev, libswscale-dev, libswresample-dev, libavfilter-dev, libpostproc-dev, git
 Standards-Version: 3.9.6
 Homepage: https://olivevideoeditor.org/
 
