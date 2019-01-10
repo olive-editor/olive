@@ -848,7 +848,7 @@ void MainWindow::setup_menus() {
 
 	QMenu* help_menu = menuBar->addMenu("&Help");
 
-	help_menu->addAction("A&ction Search", this, SLOT(show_action_search()));
+	help_menu->addAction("A&ction Search", this, SLOT(show_action_search()), QKeySequence("/"));
 
 	help_menu->addSeparator();
 
