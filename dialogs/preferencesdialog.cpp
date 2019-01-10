@@ -133,6 +133,14 @@ void PreferencesDialog::reset_default_shortcut() {
 	}
 }
 
+void PreferencesDialog::reset_all_shortcuts() {
+	if (QMessageBox::question(this, "Confirm Reset All Shortcuts", "Are you sure you wish to reset all keyboard shortcuts to their defaults?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+		for (int i=0;i<key_shortcut_fields.size();i++) {
+			key_shortcut_fields.at(i)->reset_to_default();
+		}
+	}
+}
+
 bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* parent) {
 	if (parent == NULL) {
 		for (int i=0;i<keyboard_tree->topLevelItemCount();i++) {
@@ -325,9 +333,13 @@ void PreferencesDialog::setup_ui() {
 
 	reset_shortcut_layout->addStretch();
 
-	reset_shortcut_button = new QPushButton("Reset to Default");
-	reset_shortcut_layout->addWidget(reset_shortcut_button);
-	connect(reset_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+	QPushButton* reset_selected_shortcut_button = new QPushButton("Reset Selected");
+	reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
+	connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+
+	QPushButton* reset_all_shortcut_button = new QPushButton("Reset All");
+	reset_shortcut_layout->addWidget(reset_all_shortcut_button);
+	connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
 
 	shortcut_layout->addLayout(reset_shortcut_layout);
 
