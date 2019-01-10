@@ -34,7 +34,7 @@ LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelle
 	connect(this, SIGNAL(success()), this, SLOT(success_func()));
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));
 	connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)));
-    connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
+	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
 }
 
 const EffectMeta* get_meta_from_name(const QString& name) {
@@ -62,10 +62,10 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 		} else if (attr.name() == "length") {
 			effect_length = attr.value().toLong();
 		}
-    }
+	}
 
 	// wait for effects to be loaded
-    panel_effect_controls->effects_loaded.lock();
+	panel_effect_controls->effects_loaded.lock();
 
 	const EffectMeta* meta = NULL;
 
@@ -74,21 +74,21 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 		meta = get_meta_from_name(effect_name);
 	}
 
-    panel_effect_controls->effects_loaded.unlock();
+	panel_effect_controls->effects_loaded.unlock();
 
-    QString tag = stream.name().toString();
+	QString tag = stream.name().toString();
 
-    int type;
-    if (tag == "opening") {
-        type = TA_OPENING_TRANSITION;
-    } else if (tag == "closing") {
-        type = TA_CLOSING_TRANSITION;
-    } else {
-        type = TA_NO_TRANSITION;
-    }
+	int type;
+	if (tag == "opening") {
+		type = TA_OPENING_TRANSITION;
+	} else if (tag == "closing") {
+		type = TA_CLOSING_TRANSITION;
+	} else {
+		type = TA_NO_TRANSITION;
+	}
 
-    emit start_create_effect_ui(&stream, c, type, &effect_name, meta, effect_length, effect_enabled);
-    waitCond.wait(&mutex);
+	emit start_create_effect_ui(&stream, c, type, &effect_name, meta, effect_length, effect_enabled);
+	waitCond.wait(&mutex);
 }
 
 void LoadThread::read_next(QXmlStreamReader &stream) {
@@ -162,7 +162,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 				internal_proj_url = stream.readElementText();
 				internal_proj_dir = QFileInfo(internal_proj_url).absoluteDir();
 			} else {
-				while (!cancelled && !(stream.name() == root_search && stream.isEndElement())) {
+				while (!cancelled && !stream.atEnd() && !(stream.name() == root_search && stream.isEndElement())) {
 					read_next(stream);
 					if (stream.name() == child_search && stream.isStartElement()) {
 						switch (type) {
@@ -582,7 +582,7 @@ void LoadThread::run() {
 			xml_error = false;
 			if (show_err) emit error();
 		} else if (stream.hasError()) {
-			error_str = stream.errorString();
+			error_str = stream.errorString() + " - Line: " + QString::number(stream.lineNumber()) + " Col:" + QString::number(stream.columnNumber());
 			xml_error = true;
 			emit error();
 			cont = false;
@@ -657,7 +657,7 @@ void LoadThread::create_effect_ui(
 		QXmlStreamReader* stream,
 		Clip* c,
 		int type,
-        const QString* effect_name,
+		const QString* effect_name,
 		const EffectMeta* meta,
 		long effect_length,
 		bool effect_enabled)
@@ -685,19 +685,19 @@ void LoadThread::create_effect_ui(
 
 	if (cancelled) return;
 	if (type == TA_NO_TRANSITION) {
-        if (meta == NULL) {
-            // create void effect
-            VoidEffect* ve = new VoidEffect(c, *effect_name);
-            ve->set_enabled(effect_enabled);
-            ve->load(*stream);
-            c->effects.append(ve);
-        } else {
-            Effect* e = create_effect(c, meta);
-            e->set_enabled(effect_enabled);
-            e->load(*stream);
+		if (meta == NULL) {
+			// create void effect
+			VoidEffect* ve = new VoidEffect(c, *effect_name);
+			ve->set_enabled(effect_enabled);
+			ve->load(*stream);
+			c->effects.append(ve);
+		} else {
+			Effect* e = create_effect(c, meta);
+			e->set_enabled(effect_enabled);
+			e->load(*stream);
 
-            c->effects.append(e);
-        }
+			c->effects.append(e);
+		}
 	} else {
 		int transition_index = create_transition(c, NULL, meta);
 		Transition* t = c->sequence->transitions.at(transition_index);
