@@ -431,6 +431,20 @@ void Viewer::update_viewer() {
 	update_end_timecode();
 }
 
+void Viewer::clear_in() {
+    if (seq->using_workarea) {
+        undo_stack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
+        update_parents();
+    }
+}
+
+void Viewer::clear_out() {
+    if (seq->using_workarea) {
+        undo_stack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
+        update_parents();
+    }
+}
+
 void Viewer::clear_inout_point() {
 	if (seq->using_workarea) {
 		undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));

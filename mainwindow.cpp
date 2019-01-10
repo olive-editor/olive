@@ -245,6 +245,9 @@ void MainWindow::make_new_menu(QMenu *parent) {
 void MainWindow::make_inout_menu(QMenu *parent) {
 	parent->addAction("Set In Point", this, SLOT(set_in_point()), QKeySequence("I"));
 	parent->addAction("Set Out Point", this, SLOT(set_out_point()), QKeySequence("O"));
+    parent->addSeparator();
+    parent->addAction("Reset In Point", this, SLOT(clear_in()));
+    parent->addAction("Reset Out Point", this, SLOT(clear_out()));
 	parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
 }
 
@@ -1210,6 +1213,22 @@ void MainWindow::set_out_point() {
 	} else if (panel_footage_viewer->is_focused()) {
 		panel_footage_viewer->set_out_point();
 	}
+}
+
+void MainWindow::clear_in() {
+    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->clear_in();
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->clear_in();
+    }
+}
+
+void MainWindow::clear_out() {
+    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->clear_out();
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->clear_out();
+    }
 }
 
 void MainWindow::clear_inout() {

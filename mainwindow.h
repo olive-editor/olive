@@ -98,6 +98,8 @@ private slots:
 	void set_in_point();
 	void set_out_point();
 
+    void clear_in();
+    void clear_out();
 	void clear_inout();
 	void delete_inout();
 	void ripple_delete_inout();
