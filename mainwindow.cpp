@@ -245,85 +245,85 @@ void MainWindow::make_new_menu(QMenu *parent) {
 void MainWindow::make_inout_menu(QMenu *parent) {
 	parent->addAction("Set In Point", this, SLOT(set_in_point()), QKeySequence("I"));
 	parent->addAction("Set Out Point", this, SLOT(set_out_point()), QKeySequence("O"));
-    parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
+	parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
 }
 
 void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first) {
-    QList<QAction*> actions = menu->actions();
-    for (int i=0;i<actions.size();i++) {
-        QAction* a = actions.at(i);
-        if (a->menu() != NULL) {
-            kbd_shortcut_processor(file, a->menu(), save, first);
-        } else if (!a->isSeparator()) {
-            if (save) {
-                // saving custom shortcuts
-                if (!a->property("default").isNull()) {
-                    QKeySequence defks(a->property("default").toString());
-                    if (a->shortcut() != defks) {
-                        // custom shortcut
-                        if (!file.isEmpty()) file.append('\n');
-                        file.append(a->text().replace("&", ""));
-                        file.append('\t');
-                        file.append(a->shortcut().toString());
-                    }
-                }
-            } else {
-                // loading custom shortcuts
-                if (first) {
-                    // store default shortcut
-                    a->setProperty("default", a->shortcut().toString());
-                } else {
-                    // restore default shortcut
-                    a->setShortcut(a->property("default").toString());
-                }
-                QString comp_str = a->text().replace("&", "");
-                int shortcut_index = file.indexOf(comp_str);
-                if (shortcut_index == 0 || (shortcut_index > 0 && file.at(shortcut_index-1) == '\n')) {
-                    shortcut_index += comp_str.size() + 1;
-                    QString shortcut;
-                    while (shortcut_index < file.size() && file.at(shortcut_index) != '\n') {
-                        shortcut.append(file.at(shortcut_index));
-                        shortcut_index++;
-                    }
-                    QKeySequence ks(shortcut);
-                    if (!ks.isEmpty()) {
-                        a->setShortcut(ks);
-                    }
-                }
-            }
-        }
-    }
+	QList<QAction*> actions = menu->actions();
+	for (int i=0;i<actions.size();i++) {
+		QAction* a = actions.at(i);
+		if (a->menu() != NULL) {
+			kbd_shortcut_processor(file, a->menu(), save, first);
+		} else if (!a->isSeparator()) {
+			if (save) {
+				// saving custom shortcuts
+				if (!a->property("default").isNull()) {
+					QKeySequence defks(a->property("default").toString());
+					if (a->shortcut() != defks) {
+						// custom shortcut
+						if (!file.isEmpty()) file.append('\n');
+						file.append(a->text().replace("&", ""));
+						file.append('\t');
+						file.append(a->shortcut().toString());
+					}
+				}
+			} else {
+				// loading custom shortcuts
+				if (first) {
+					// store default shortcut
+					a->setProperty("default", a->shortcut().toString());
+				} else {
+					// restore default shortcut
+					a->setShortcut(a->property("default").toString());
+				}
+				QString comp_str = a->text().replace("&", "");
+				int shortcut_index = file.indexOf(comp_str);
+				if (shortcut_index == 0 || (shortcut_index > 0 && file.at(shortcut_index-1) == '\n')) {
+					shortcut_index += comp_str.size() + 1;
+					QString shortcut;
+					while (shortcut_index < file.size() && file.at(shortcut_index) != '\n') {
+						shortcut.append(file.at(shortcut_index));
+						shortcut_index++;
+					}
+					QKeySequence ks(shortcut);
+					if (!ks.isEmpty()) {
+						a->setShortcut(ks);
+					}
+				}
+			}
+		}
+	}
 }
 
 void MainWindow::load_shortcuts(const QString& fn, bool first) {
-    QByteArray shortcut_bytes;
-    QFile shortcut_path(fn);
-    if (shortcut_path.exists() && shortcut_path.open(QFile::ReadOnly)) {
-        shortcut_bytes = shortcut_path.readAll();
-        shortcut_path.close();
-    }
-    QList<QAction*> menus = menuBar()->actions();
-    for (int i=0;i<menus.size();i++) {
-        QMenu* menu = menus.at(i)->menu();
-        kbd_shortcut_processor(shortcut_bytes, menu, false, first);
-    }
+	QByteArray shortcut_bytes;
+	QFile shortcut_path(fn);
+	if (shortcut_path.exists() && shortcut_path.open(QFile::ReadOnly)) {
+		shortcut_bytes = shortcut_path.readAll();
+		shortcut_path.close();
+	}
+	QList<QAction*> menus = menuBar()->actions();
+	for (int i=0;i<menus.size();i++) {
+		QMenu* menu = menus.at(i)->menu();
+		kbd_shortcut_processor(shortcut_bytes, menu, false, first);
+	}
 }
 
 void MainWindow::save_shortcuts(const QString& fn) {
-    // save main menu actions
-    QList<QAction*> menus = menuBar()->actions();
-    QByteArray shortcut_file;
-    for (int i=0;i<menus.size();i++) {
-        QMenu* menu = menus.at(i)->menu();
-        kbd_shortcut_processor(shortcut_file, menu, true, false);
-    }
-    QFile shortcut_file_io(fn);
-    if (shortcut_file_io.open(QFile::WriteOnly)) {
-        shortcut_file_io.write(shortcut_file);
-        shortcut_file_io.close();
-    } else {
-        dout << "[ERROR] Failed to save shortcut file";
-    }
+	// save main menu actions
+	QList<QAction*> menus = menuBar()->actions();
+	QByteArray shortcut_file;
+	for (int i=0;i<menus.size();i++) {
+		QMenu* menu = menus.at(i)->menu();
+		kbd_shortcut_processor(shortcut_file, menu, true, false);
+	}
+	QFile shortcut_file_io(fn);
+	if (shortcut_file_io.open(QFile::WriteOnly)) {
+		shortcut_file_io.write(shortcut_file);
+		shortcut_file_io.close();
+	} else {
+		dout << "[ERROR] Failed to save shortcut file";
+	}
 }
 
 void MainWindow::show_about() {
@@ -534,7 +534,12 @@ void MainWindow::setup_menus() {
 
 	file_menu->addAction("&Open Project", this, SLOT(open_project()), QKeySequence("Ctrl+O"));
 
+	clear_open_recent_action = new QAction("Clear Recent List");
+	connect(clear_open_recent_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
+
 	open_recent = file_menu->addMenu("Open Recent");
+
+	open_recent->addAction(clear_open_recent_action);
 
 	file_menu->addAction("&Save Project", this, SLOT(save_project()), QKeySequence("Ctrl+S"));
 	file_menu->addAction("Save Project &As", this, SLOT(save_project_as()), QKeySequence("Ctrl+Shift+S"));
@@ -849,7 +854,7 @@ void MainWindow::setup_menus() {
 
 	help_menu->addAction("&About...", this, SLOT(show_about()));
 
-    load_shortcuts(get_config_path() + "/shortcuts", true);
+	load_shortcuts(get_config_path() + "/shortcuts", true);
 }
 
 void MainWindow::set_bool_action_checked(QAction *a) {
@@ -902,7 +907,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 				dout << "[ERROR] Failed to save layout";
 			}
 
-            save_shortcuts(config_dir + "/shortcuts");
+			save_shortcuts(config_dir + "/shortcuts");
 		}
 
 		stop_audio();
@@ -1154,12 +1159,13 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 		open_recent->setEnabled(true);
 		for (int i=0;i<recent_projects.size();i++) {
 			QAction* action = open_recent->addAction(recent_projects.at(i));
+			action->setProperty("keyignore", true);
 			action->setData(i);
 			connect(action, SIGNAL(triggered()), this, SLOT(load_recent_project()));
 		}
 		open_recent->addSeparator();
-		QAction* clear_action = open_recent->addAction("Clear Recent List");
-		connect(clear_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
+
+		open_recent->addAction(clear_open_recent_action);
 	} else {
 		open_recent->setEnabled(false);
 	}
