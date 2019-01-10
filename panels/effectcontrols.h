@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QUndoCommand>
+#include <QMutex>
 
 struct Clip;
 class QMenu;
@@ -50,6 +51,8 @@ public:
 
 	ResizableScrollBar* horizontalScrollBar;
 	QScrollBar* verticalScrollBar;
+
+    QMutex effects_loaded;
 public slots:
 	void update_keyframes();
 private slots:
