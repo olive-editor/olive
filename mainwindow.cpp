@@ -174,14 +174,7 @@ void MainWindow::setup_layout(bool reset) {
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
-{
-    appName = APP_NAME + " (" + APP_DATE + " | " + APP_STATE;
-#ifdef GITHASH
-	appName += " | ";
-	appName += GITHASH;
-#endif
-	appName += ")";
-	
+{	
 	setup_debug();
 
 	mainWindow = this;
@@ -214,8 +207,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setCentralWidget(centralWidget);
 
 	setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-
-	updateTitle("");
 
 	setDockNestingEnabled(true);
 
@@ -317,9 +308,10 @@ MainWindow::~MainWindow() {
 	close_debug();
 }
 
-void MainWindow::launch_with_project(const char* s) {
+void MainWindow::launch_with_project(const QString& s) {
 	project_url = s;
 	enable_launch_with_project = true;
+	demoNoticeShown = true;
 }
 
 void MainWindow::make_new_menu(QMenu *parent) {
@@ -330,9 +322,91 @@ void MainWindow::make_new_menu(QMenu *parent) {
 }
 
 void MainWindow::make_inout_menu(QMenu *parent) {
-    parent->addAction("Set In Point", this, SLOT(set_in_point()), SEQUENCE_SET_IN);
-    parent->addAction("Set Out Point", this, SLOT(set_out_point()), SEQUENCE_SET_OUT);
-    parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), SEQUENCE_CLEAR_POINTS);
+	parent->addAction("Set In Point", this, SLOT(set_in_point()), QKeySequence("I"));
+	parent->addAction("Set Out Point", this, SLOT(set_out_point()), QKeySequence("O"));
+    parent->addAction("Enable/Disable In/Out Point", this, SLOT(enable_inout()));
+    parent->addSeparator();
+    parent->addAction("Reset In Point", this, SLOT(clear_in()));
+    parent->addAction("Reset Out Point", this, SLOT(clear_out()));
+	parent->addAction("Clear In/Out Point", this, SLOT(clear_inout()), QKeySequence("G"));
+}
+
+void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first) {
+	QList<QAction*> actions = menu->actions();
+	for (int i=0;i<actions.size();i++) {
+		QAction* a = actions.at(i);
+		if (a->menu() != NULL) {
+			kbd_shortcut_processor(file, a->menu(), save, first);
+		} else if (!a->isSeparator()) {
+			if (save) {
+				// saving custom shortcuts
+				if (!a->property("default").isNull()) {
+					QKeySequence defks(a->property("default").toString());
+					if (a->shortcut() != defks) {
+						// custom shortcut
+						if (!file.isEmpty()) file.append('\n');
+						file.append(a->text().replace("&", ""));
+						file.append('\t');
+						file.append(a->shortcut().toString());
+					}
+				}
+			} else {
+				// loading custom shortcuts
+				if (first) {
+					// store default shortcut
+					a->setProperty("default", a->shortcut().toString());
+				} else {
+					// restore default shortcut
+					a->setShortcut(a->property("default").toString());
+				}
+				QString comp_str = a->text().replace("&", "");
+				int shortcut_index = file.indexOf(comp_str);
+				if (shortcut_index == 0 || (shortcut_index > 0 && file.at(shortcut_index-1) == '\n')) {
+					shortcut_index += comp_str.size() + 1;
+					QString shortcut;
+					while (shortcut_index < file.size() && file.at(shortcut_index) != '\n') {
+						shortcut.append(file.at(shortcut_index));
+						shortcut_index++;
+					}
+					QKeySequence ks(shortcut);
+					if (!ks.isEmpty()) {
+						a->setShortcut(ks);
+					}
+				}
+			}
+		}
+	}
+}
+
+void MainWindow::load_shortcuts(const QString& fn, bool first) {
+	QByteArray shortcut_bytes;
+	QFile shortcut_path(fn);
+	if (shortcut_path.exists() && shortcut_path.open(QFile::ReadOnly)) {
+		shortcut_bytes = shortcut_path.readAll();
+		shortcut_path.close();
+	}
+	QList<QAction*> menus = menuBar()->actions();
+	for (int i=0;i<menus.size();i++) {
+		QMenu* menu = menus.at(i)->menu();
+		kbd_shortcut_processor(shortcut_bytes, menu, false, first);
+	}
+}
+
+void MainWindow::save_shortcuts(const QString& fn) {
+	// save main menu actions
+	QList<QAction*> menus = menuBar()->actions();
+	QByteArray shortcut_file;
+	for (int i=0;i<menus.size();i++) {
+		QMenu* menu = menus.at(i)->menu();
+		kbd_shortcut_processor(shortcut_file, menu, true, false);
+	}
+	QFile shortcut_file_io(fn);
+	if (shortcut_file_io.open(QFile::WriteOnly)) {
+		shortcut_file_io.write(shortcut_file);
+		shortcut_file_io.close();
+	} else {
+		dout << "[ERROR] Failed to save shortcut file";
+	}
 }
 
 void MainWindow::show_about() {
@@ -406,7 +480,7 @@ void MainWindow::export_dialog() {
 }
 
 void MainWindow::ripple_delete() {
-	panel_timeline->delete_selection(sequence->selections, true);
+	if (sequence != NULL) panel_timeline->delete_selection(sequence->selections, true);
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {
@@ -529,47 +603,6 @@ bool MainWindow::can_close_project() {
 	return true;
 }
 
-void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save) {
-	QList<QAction*> actions = menu->actions();
-	for (int i=0;i<actions.size();i++) {
-		QAction* a = actions.at(i);
-		if (a->menu() != NULL) {
-			kbd_shortcut_processor(file, a->menu(), save);
-		} else if (!a->isSeparator()) {
-			if (save) {
-				// saving custom shortcuts
-				if (!a->property("default").isNull()) {
-					QKeySequence defks(a->property("default").toString());
-					if (a->shortcut() != defks) {
-						// custom shortcut
-						if (!file.isEmpty()) file.append('\n');
-						file.append(a->text().replace("&", ""));
-						file.append('\t');
-						file.append(a->shortcut().toString());
-					}
-				}
-			} else {
-				// loading custom shortcuts
-				a->setProperty("default", a->shortcut().toString());
-				QString comp_str = a->text().replace("&", "");
-				int shortcut_index = file.indexOf(comp_str);
-				if (shortcut_index == 0 || (shortcut_index > 0 && file.at(shortcut_index-1) == '\n')) {
-					shortcut_index += comp_str.size() + 1;
-					QString shortcut;
-					while (shortcut_index < file.size() && file.at(shortcut_index) != '\n') {
-						shortcut.append(file.at(shortcut_index));
-						shortcut_index++;
-					}
-					QKeySequence ks(shortcut);
-					if (!ks.isEmpty()) {
-						a->setShortcut(ks);
-					}
-				}
-			}
-		}
-	}
-}
-
 void MainWindow::setup_menus() {
 	QMenuBar* menuBar = new QMenuBar(this);
 	setMenuBar(menuBar);
@@ -584,18 +617,23 @@ void MainWindow::setup_menus() {
 
     file_menu->addAction("&Open Project", this, SLOT(open_project()), SEQUENCE_OPEN_PROJECT);
 
+	clear_open_recent_action = new QAction("Clear Recent List");
+	connect(clear_open_recent_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
+
 	open_recent = file_menu->addMenu("Open Recent");
 
-    file_menu->addAction("&Save Project", this, SLOT(save_project()), SEQUENCE_SAVE_PROJECT);
-    file_menu->addAction("Save Project &As", this, SLOT(save_project_as()), SEQUENCE_SAVE_PROJECT_AS);
+	open_recent->addAction(clear_open_recent_action);
+
+	file_menu->addAction("&Save Project", this, SLOT(save_project()), QKeySequence("Ctrl+S"));
+	file_menu->addAction("Save Project &As", this, SLOT(save_project_as()), QKeySequence("Ctrl+Shift+S"));
 
 	file_menu->addSeparator();
 
-    file_menu->addAction("&Import...", panel_project, SLOT(import_dialog()), SEQUENCE_IMPORT);
+	file_menu->addAction("&Import...", panel_project, SLOT(import_dialog()), QKeySequence("Ctrl+I"));
 
 	file_menu->addSeparator();
 
-    file_menu->addAction("&Export...", this, SLOT(export_dialog()), SEQUENCE_EXPORT);
+	file_menu->addAction("&Export...", this, SLOT(export_dialog()), QKeySequence("Ctrl+M"));
 
 	file_menu->addSeparator();
 
@@ -606,61 +644,61 @@ void MainWindow::setup_menus() {
 	QMenu* edit_menu = menuBar->addMenu("&Edit");
 	connect(edit_menu, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
 
-    undo_action = edit_menu->addAction("&Undo", this, SLOT(undo()), SEQUENCE_UNDO);
-    redo_action = edit_menu->addAction("Redo", this, SLOT(redo()), SEQUENCE_REDO);
+	undo_action = edit_menu->addAction("&Undo", this, SLOT(undo()), QKeySequence("Ctrl+Z"));
+	redo_action = edit_menu->addAction("Redo", this, SLOT(redo()), QKeySequence("Ctrl+Shift+Z"));
 
 	edit_menu->addSeparator();
 
-    edit_menu->addAction("Cu&t", this, SLOT(cut()), SEQUENCE_CUT);
-    edit_menu->addAction("Cop&y", this, SLOT(copy()), SEQUENCE_COPY);
-    edit_menu->addAction("&Paste", this, SLOT(paste()), SEQUENCE_PASTE);
-    edit_menu->addAction("Paste Insert", this, SLOT(paste_insert()), SEQUENCE_PASTE_INSERT);
-    edit_menu->addAction("Duplicate", this, SLOT(duplicate()), SEQUENCE_DUPLICATE);
-    edit_menu->addAction("Delete", this, SLOT(delete_slot()), SEQUENCE_DELETE);
-    edit_menu->addAction("Ripple Delete", this, SLOT(ripple_delete()), SEQUENCE_RIPPLE_DELETE);
-    edit_menu->addAction("Split", panel_timeline, SLOT(split_at_playhead()), SEQUENCE_SPLIT);
+	edit_menu->addAction("Cu&t", this, SLOT(cut()), QKeySequence("Ctrl+X"));
+	edit_menu->addAction("Cop&y", this, SLOT(copy()), QKeySequence("Ctrl+C"));
+	edit_menu->addAction("&Paste", this, SLOT(paste()), QKeySequence("Ctrl+V"));
+	edit_menu->addAction("Paste Insert", this, SLOT(paste_insert()), QKeySequence("Ctrl+Shift+V"));
+	edit_menu->addAction("Duplicate", this, SLOT(duplicate()), QKeySequence("Ctrl+D"));
+	edit_menu->addAction("Delete", this, SLOT(delete_slot()), QKeySequence("Del"));
+	edit_menu->addAction("Ripple Delete", this, SLOT(ripple_delete()), QKeySequence("Shift+Del"));
+	edit_menu->addAction("Split", panel_timeline, SLOT(split_at_playhead()), QKeySequence("Ctrl+K"));
 
 	edit_menu->addSeparator();
 
-    edit_menu->addAction("Select &All", this, SLOT(select_all()), SEQUENCE_SELECT_ALL);
+	edit_menu->addAction("Select &All", this, SLOT(select_all()), QKeySequence("Ctrl+A"));
 
-    edit_menu->addAction("Deselect All", panel_timeline, SLOT(deselect()), SEQUENCE_DESELECT_ALL);
+	edit_menu->addAction("Deselect All", panel_timeline, SLOT(deselect()), QKeySequence("Ctrl+Shift+A"));
 
 	edit_menu->addSeparator();
 
-    edit_menu->addAction("Add Default Transition", this, SLOT(add_default_transition()), SEQUENCE_ADD_DEFAULT_TRANSITION);
-    edit_menu->addAction("Link/Unlink", panel_timeline, SLOT(toggle_links()), SEQUENCE_TOGGLE_LINKS);
-    edit_menu->addAction("Enable/Disable", this, SLOT(toggle_enable_clips()), SEQUENCE_TOGGLE_CLIPS);
+	edit_menu->addAction("Add Default Transition", this, SLOT(add_default_transition()), QKeySequence("Ctrl+Shift+D"));
+	edit_menu->addAction("Link/Unlink", panel_timeline, SLOT(toggle_links()), QKeySequence("Ctrl+L"));
+	edit_menu->addAction("Enable/Disable", this, SLOT(toggle_enable_clips()), QKeySequence("Shift+E"));
 	edit_menu->addAction("Nest", this, SLOT(nest()));
 
 	edit_menu->addSeparator();
 
-    edit_menu->addAction("Ripple to In Point", this, SLOT(ripple_to_in_point()), SEQUENCE_RIPPLE_TO_IN);
-    edit_menu->addAction("Ripple to Out Point", this, SLOT(ripple_to_out_point()), SEQUENCE_RIPPLE_TO_OUT);
-    edit_menu->addAction("Edit to In Point", this, SLOT(edit_to_in_point()), SEQUENCE_EDIT_TO_IN);
-    edit_menu->addAction("Edit to Out Point", this, SLOT(edit_to_out_point()), SEQUENCE_EDIT_TO_OUT);
+	edit_menu->addAction("Ripple to In Point", this, SLOT(ripple_to_in_point()), QKeySequence("Q"));
+	edit_menu->addAction("Ripple to Out Point", this, SLOT(ripple_to_out_point()), QKeySequence("W"));
+	edit_menu->addAction("Edit to In Point", this, SLOT(edit_to_in_point()), QKeySequence("Ctrl+Alt+Q"));
+	edit_menu->addAction("Edit to Out Point", this, SLOT(edit_to_out_point()), QKeySequence("Ctrl+Alt+W"));
 
 	edit_menu->addSeparator();
 
 	make_inout_menu(edit_menu);
-    edit_menu->addAction("Delete In/Out Point", this, SLOT(delete_inout()), SEQUENCE_DELETE_POINT);
-    edit_menu->addAction("Ripple Delete In/Out Point", this, SLOT(ripple_delete_inout()), SEQUENCE_RIPPLE_DELETE_POINT);
+	edit_menu->addAction("Delete In/Out Point", this, SLOT(delete_inout()), QKeySequence(";"));
+	edit_menu->addAction("Ripple Delete In/Out Point", this, SLOT(ripple_delete_inout()), QKeySequence("'"));
 
 	edit_menu->addSeparator();
 
-    edit_menu->addAction("Set/Edit Marker", this, SLOT(set_marker()), SEQUENCE_SET_MARKER);
+	edit_menu->addAction("Set/Edit Marker", this, SLOT(set_marker()), QKeySequence("M"));
 
 	// INITIALIZE VIEW MENU
 
 	QMenu* view_menu = menuBar->addMenu("&View");
 	connect(view_menu, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
 
-    view_menu->addAction("Zoom In", this, SLOT(zoom_in()), SEQUENCE_ZOOM_IN);
-    view_menu->addAction("Zoom Out", this, SLOT(zoom_out()), SEQUENCE_ZOOM_OUT);
-    view_menu->addAction("Increase Track Height", this, SLOT(zoom_in_tracks()), SEQUENCE_INCREASE_TRACK_HEIGHT);
-    view_menu->addAction("Decrease Track Height", this, SLOT(zoom_out_tracks()), SEQUENCE_DECREASE_TRACK_HEIGHT);
+	view_menu->addAction("Zoom In", this, SLOT(zoom_in()), QKeySequence("="));
+	view_menu->addAction("Zoom Out", this, SLOT(zoom_out()), QKeySequence("-"));
+	view_menu->addAction("Increase Track Height", this, SLOT(zoom_in_tracks()), QKeySequence("Ctrl+="));
+	view_menu->addAction("Decrease Track Height", this, SLOT(zoom_out_tracks()), QKeySequence("Ctrl+-"));
 
-    show_all = view_menu->addAction("Toggle Show All", panel_timeline, SLOT(toggle_show_all()), SEQUENCE_TOGGLE_SHOW_ALL);
+	show_all = view_menu->addAction("Toggle Show All", panel_timeline, SLOT(toggle_show_all()), QKeySequence("\\"));
 	show_all->setCheckable(true);
 
 	view_menu->addSeparator();
@@ -714,7 +752,7 @@ void MainWindow::setup_menus() {
 
 	view_menu->addSeparator();
 
-    full_screen = view_menu->addAction("Full Screen", this, SLOT(toggle_full_screen()), SEQUENCE_FULLSCREEN);
+	full_screen = view_menu->addAction("Full Screen", this, SLOT(toggle_full_screen()), QKeySequence("F11"));
 	full_screen->setCheckable(true);
 
 	// INITIALIZE PLAYBACK MENU
@@ -729,6 +767,9 @@ void MainWindow::setup_menus() {
 	playback_menu->addSeparator();
 	playback_menu->addAction("Go to Previous Cut", this, SLOT(prev_cut()), QKeySequence("Up"));
 	playback_menu->addAction("Go to Next Cut", this, SLOT(next_cut()), QKeySequence("Down"));
+	playback_menu->addSeparator();
+	playback_menu->addAction("Go to In Point", this, SLOT(go_to_in()), QKeySequence("Shift+I"));
+	playback_menu->addAction("Go to Out Point", this, SLOT(go_to_out()), QKeySequence("Shift+O"));
 
 	// INITIALIZE WINDOW MENU
 
@@ -856,6 +897,14 @@ void MainWindow::setup_menus() {
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
 
+	loop_action = tools_menu->addAction("Loop", this, SLOT(toggle_bool_action()));
+	loop_action->setCheckable(true);
+	loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
+
+	pause_at_out_point_action = tools_menu->addAction("Pause At Out Point", this, SLOT(toggle_bool_action()));
+	pause_at_out_point_action->setCheckable(true);
+	pause_at_out_point_action->setData(reinterpret_cast<quintptr>(&config.pause_at_out_point));
+
 	tools_menu->addSeparator();
 
 	no_autoscroll = tools_menu->addAction("No Auto-Scroll", this, SLOT(set_autoscroll()));
@@ -882,21 +931,13 @@ void MainWindow::setup_menus() {
 
 	QMenu* help_menu = menuBar->addMenu("&Help");
 
-	help_menu->addAction("A&ction Search", this, SLOT(show_action_search()));
+	help_menu->addAction("A&ction Search", this, SLOT(show_action_search()), QKeySequence("/"));
 
 	help_menu->addSeparator();
 
 	help_menu->addAction("&About...", this, SLOT(show_about()));
 
-	QFile shortcut_path(get_config_path() + "/shortcuts");
-	if (shortcut_path.exists() && shortcut_path.open(QFile::ReadOnly)) {
-		QList<QAction*> menus = menuBar->actions();
-		QByteArray shortcut_bytes = shortcut_path.readAll();
-		for (int i=0;i<menus.size();i++) {
-			QMenu* menu = menus.at(i)->menu();
-			kbd_shortcut_processor(shortcut_bytes, menu, false);
-		}
-	}
+	load_shortcuts(get_config_path() + "/shortcuts", true);
 }
 
 void MainWindow::set_bool_action_checked(QAction *a) {
@@ -949,20 +990,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 				dout << "[ERROR] Failed to save layout";
 			}
 
-			// save main menu actions
-			QList<QAction*> menus = menuBar()->actions();
-			QByteArray shortcut_file;
-			for (int i=0;i<menus.size();i++) {
-				QMenu* menu = menus.at(i)->menu();
-				kbd_shortcut_processor(shortcut_file, menu, true);
-			}
-			QFile shortcut_file_io(config_dir + "/shortcuts");
-			if (shortcut_file_io.open(QFile::WriteOnly)) {
-				shortcut_file_io.write(shortcut_file);
-				shortcut_file_io.close();
-			} else {
-				dout << "[ERROR] Failed to save shortcut file";
-			}
+			save_shortcuts(config_dir + "/shortcuts");
 		}
 
 		stop_audio();
@@ -1016,6 +1044,28 @@ void MainWindow::show_action_search() {
 
 void MainWindow::reset_layout() {
 	setup_layout(true);
+}
+
+void MainWindow::go_to_in() {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
+		panel_sequence_viewer->go_to_in();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->go_to_in();
+	}
+}
+
+void MainWindow::go_to_out() {
+	if (panel_timeline->focused()
+			|| panel_sequence_viewer->is_focused()
+			|| panel_effect_controls->keyframe_focus()
+			|| panel_graph_editor->view_is_focused()) {
+		panel_sequence_viewer->go_to_out();
+	} else if (panel_footage_viewer->is_focused()) {
+		panel_footage_viewer->go_to_out();
+	}
 }
 
 void MainWindow::go_to_start() {
@@ -1153,6 +1203,8 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
 	set_bool_action_checked(set_name_and_marker);
+	set_bool_action_checked(loop_action);
+	set_bool_action_checked(pause_at_out_point_action);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);
@@ -1190,12 +1242,13 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 		open_recent->setEnabled(true);
 		for (int i=0;i<recent_projects.size();i++) {
 			QAction* action = open_recent->addAction(recent_projects.at(i));
+			action->setProperty("keyignore", true);
 			action->setData(i);
 			connect(action, SIGNAL(triggered()), this, SLOT(load_recent_project()));
 		}
 		open_recent->addSeparator();
-		QAction* clear_action = open_recent->addAction("Clear Recent List");
-		connect(clear_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
+
+		open_recent->addAction(clear_open_recent_action);
 	} else {
 		open_recent->setEnabled(false);
 	}
@@ -1242,6 +1295,22 @@ void MainWindow::set_out_point() {
 	}
 }
 
+void MainWindow::clear_in() {
+    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->clear_in();
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->clear_in();
+    }
+}
+
+void MainWindow::clear_out() {
+    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->clear_out();
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->clear_out();
+    }
+}
+
 void MainWindow::clear_inout() {
 	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
 		panel_sequence_viewer->clear_inout_point();
@@ -1270,6 +1339,14 @@ void MainWindow::ripple_delete_inout()
 	if (panel_timeline->focused()) {
 		panel_timeline->delete_in_out(true);
 	}
+}
+
+void MainWindow::enable_inout() {
+    if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
+        panel_sequence_viewer->toggle_enable_inout();
+    } else if (panel_footage_viewer->is_focused()) {
+        panel_footage_viewer->toggle_enable_inout();
+    }
 }
 
 void MainWindow::set_tsa_default() {
