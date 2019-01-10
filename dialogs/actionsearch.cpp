@@ -21,7 +21,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 
 	ActionSearchEntry* entry_field = new ActionSearchEntry();
 	QFont entry_field_font = entry_field->font();
-	entry_field_font.setPointSize(entry_field_font.pointSize()*2);
+	entry_field_font.setPointSize(entry_field_font.pointSize()*1.2);
 	entry_field->setFont(entry_field_font);
 	entry_field->setPlaceholderText("Search for action...");
 	connect(entry_field, SIGNAL(textChanged(const QString&)), this, SLOT(search_update(const QString &)));
@@ -32,7 +32,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 
 	list_widget = new ActionSearchList();
 	QFont list_widget_font = list_widget->font();
-	list_widget_font.setPointSize(list_widget_font.pointSize()*1.5);
+	list_widget_font.setPointSize(list_widget_font.pointSize()*1.2);
 	list_widget->setFont(list_widget_font);
 	layout->addWidget(list_widget);
 	connect(list_widget, SIGNAL(dbl_click()), this, SLOT(perform_action()));
