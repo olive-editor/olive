@@ -240,7 +240,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			case MEDIA_TYPE_SEQUENCE:
 				g.out = entry_point + sequence_length - default_clip_in;
 
-				if (s->using_workarea) {
+                if (s->using_workarea && s->enable_workarea) {
 					g.out -= (sequence_length - default_clip_out);
 				}
 

@@ -321,8 +321,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 		while (true) {
 			long frame = qRound(interval*i);
-			int lineX = qRound(frame*zoom) - scroll;
-			int next_lineX = qRound(qRound(interval*(i+1))*zoom) - scroll;
+            int lineX = qRound(frame*zoom) - scroll;
 
 			if (lineX > width()) break;
 
@@ -367,7 +366,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		if (viewer->seq->using_workarea) {
 			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
 			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
-			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
+            p.fillRect(QRect(in_x, 0, out_x-in_x, height()), viewer->seq->enable_workarea ? QColor(0, 192, 255, 128) : QColor(255, 255, 255, 64));
 			p.setPen(Qt::white);
 			p.drawLine(in_x, 0, in_x, height());
 			p.drawLine(out_x, 0, out_x, height());

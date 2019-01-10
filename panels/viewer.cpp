@@ -257,7 +257,7 @@ void Viewer::go_to_end() {
 
 void Viewer::go_to_in() {
 	if (seq != NULL) {
-		if (seq->using_workarea) {
+        if (seq->using_workarea && seq->enable_workarea) {
 			seek(seq->workarea_in);
 		} else {
 			go_to_start();
@@ -275,7 +275,7 @@ void Viewer::next_frame() {
 
 void Viewer::go_to_out() {
 	if (seq != NULL) {
-		if (seq->using_workarea) {
+        if (seq->using_workarea && seq->enable_workarea) {
 			seek(seq->workarea_out);
 		} else {
 			go_to_end();
@@ -449,7 +449,14 @@ void Viewer::clear_inout_point() {
 	if (seq->using_workarea) {
 		undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
 		update_parents();
-	}
+    }
+}
+
+void Viewer::toggle_enable_inout() {
+    if (seq != NULL && seq->using_workarea) {
+        undo_stack.push(new SetBool(&seq->enable_workarea, !seq->enable_workarea));
+        update_parents();
+    }
 }
 
 void Viewer::set_in_point() {
@@ -484,13 +491,13 @@ void Viewer::set_sb_max() {
 }
 
 long Viewer::get_seq_in() {
-	return (seq->using_workarea)
+    return (seq->using_workarea && seq->enable_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-	return (seq->using_workarea && previous_playhead < seq->workarea_out)
+    return (seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }

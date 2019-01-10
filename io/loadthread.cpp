@@ -273,6 +273,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									open_seq = s;
 								} else if (attr.name() == "workarea") {
 									s->using_workarea = (attr.value() == "1");
+                                } else if (attr.name() == "workareaEnabled") {
+                                    s->enable_workarea = (attr.value() == "1");
 								} else if (attr.name() == "workareaIn") {
 									s->workarea_in = attr.value().toLong();
 								} else if (attr.name() == "workareaOut") {

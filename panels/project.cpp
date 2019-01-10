@@ -944,7 +944,8 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						if (s == sequence) {
 							stream.writeAttribute("open", "1");
 						}
-						stream.writeAttribute("workarea", QString::number(s->using_workarea));
+                        stream.writeAttribute("workarea", QString::number(s->using_workarea));
+                        stream.writeAttribute("workareaEnabled", QString::number(s->enable_workarea));
 						stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
 						stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
 

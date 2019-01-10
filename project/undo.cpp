@@ -209,6 +209,7 @@ SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long
 
 void SetTimelineInOutCommand::undo() {
 	seq->using_workarea = old_enabled;
+    seq->enable_workarea = old_workarea_enabled;
 	seq->workarea_in = old_in;
 	seq->workarea_out = old_out;
 
@@ -225,9 +226,11 @@ void SetTimelineInOutCommand::undo() {
 
 void SetTimelineInOutCommand::redo() {
 	old_enabled = seq->using_workarea;
+    old_workarea_enabled = seq->enable_workarea;
 	old_in = seq->workarea_in;
 	old_out = seq->workarea_out;
 
+    if (!seq->using_workarea) seq->enable_workarea = true;
 	seq->using_workarea = new_enabled;
 	seq->workarea_in = new_in;
 	seq->workarea_out = new_out;

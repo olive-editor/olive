@@ -40,6 +40,7 @@ public:
     void clear_in();
     void clear_out();
 	void clear_inout_point();
+    void toggle_enable_inout();
 	void set_in_point();
 	void set_out_point();
 	void set_zoom(bool in);
