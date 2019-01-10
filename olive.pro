@@ -210,7 +210,8 @@ HEADERS += \
     dialogs/actionsearch.h \
     ui/embeddedfilechooser.h \
     effects/internal/fillleftrighteffect.h \
-    effects/internal/voideffect.h
+    effects/internal/voideffect.h \
+    ui/defaultshortcut.h
 
 FORMS +=
 
