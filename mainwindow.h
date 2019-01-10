@@ -20,6 +20,9 @@ public:
 	void make_new_menu(QMenu* parent);
 	void make_inout_menu(QMenu* parent);
 
+	void load_shortcuts(const QString &fn, bool first = false);
+	void save_shortcuts(const QString &fn);
+
 	QString appName;
 
 public slots:
@@ -133,6 +136,7 @@ private:
 
 	// file menu actions
 	QMenu* open_recent;
+	QAction* clear_open_recent_action;
 
 	// view menu actions
 	QAction* track_lines;
