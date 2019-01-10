@@ -45,7 +45,6 @@
 #include <QMenu>
 
 QVector<EffectMeta> effects;
-QMutex effects_loaded;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
 	if (!em->filename.isEmpty()) {
@@ -245,7 +244,7 @@ void init_effects() {
 }
 
 EffectInit::EffectInit() {
-	effects_loaded.lock();
+	panel_effect_controls->effects_loaded.lock();
 }
 
 void EffectInit::run() {
@@ -253,7 +252,7 @@ void EffectInit::run() {
 	load_internal_effects();
 	load_shader_effects();
 	load_vst_effects();
-	effects_loaded.unlock();
+	panel_effect_controls->effects_loaded.unlock();
 	dout << "[INFO] Finished initializing effects";
 }
 
@@ -281,191 +280,193 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 
 	connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
 
-	// set up UI from effect file
-	container->setText(em->name);
+	if (em != NULL) {
+		// set up UI from effect file
+		container->setText(em->name);
 
-	if (!em->filename.isEmpty()) {
-		QFile effect_file(em->filename);
-		if (effect_file.open(QFile::ReadOnly)) {
-			QXmlStreamReader reader(&effect_file);
+		if (!em->filename.isEmpty()) {
+			QFile effect_file(em->filename);
+			if (effect_file.open(QFile::ReadOnly)) {
+				QXmlStreamReader reader(&effect_file);
 
-			while (!reader.atEnd()) {
-				if (reader.name() == "row" && reader.isStartElement()) {
-					QString row_name;
-					const QXmlStreamAttributes& attributes = reader.attributes();
-					for (int i=0;i<attributes.size();i++) {
-						const QXmlStreamAttribute& attr = attributes.at(i);
-						if (attr.name() == "name") {
-							row_name = attr.value().toString();
+				while (!reader.atEnd()) {
+					if (reader.name() == "row" && reader.isStartElement()) {
+						QString row_name;
+						const QXmlStreamAttributes& attributes = reader.attributes();
+						for (int i=0;i<attributes.size();i++) {
+							const QXmlStreamAttribute& attr = attributes.at(i);
+							if (attr.name() == "name") {
+								row_name = attr.value().toString();
+							}
 						}
-					}
-					if (!row_name.isEmpty()) {
-						EffectRow* row = add_row(row_name);
-						while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
-							reader.readNext();
-							if (reader.name() == "field" && reader.isStartElement()) {
-								int type = EFFECT_TYPE_VIDEO;
-								QString id;
+						if (!row_name.isEmpty()) {
+							EffectRow* row = add_row(row_name);
+							while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
+								reader.readNext();
+								if (reader.name() == "field" && reader.isStartElement()) {
+									int type = EFFECT_TYPE_VIDEO;
+									QString id;
 
-								// get field type
-								const QXmlStreamAttributes& attributes = reader.attributes();
-								for (int i=0;i<attributes.size();i++) {
-									const QXmlStreamAttribute& attr = attributes.at(i);
-									if (attr.name() == "type") {
-										QString comp = attr.value().toString().toUpper();
-										if (comp == "DOUBLE") {
-											type = EFFECT_FIELD_DOUBLE;
-										} else if (comp == "BOOL") {
-											type = EFFECT_FIELD_BOOL;
-										} else if (comp == "COLOR") {
-											type = EFFECT_FIELD_COLOR;
-										} else if (comp == "COMBO") {
-											type = EFFECT_FIELD_COMBO;
-										} else if (comp == "FONT") {
-											type = EFFECT_FIELD_FONT;
-										} else if (comp == "STRING") {
-											type = EFFECT_FIELD_STRING;
-										} else if (comp == "FILE") {
-											type = EFFECT_FIELD_FILE;
+									// get field type
+									const QXmlStreamAttributes& attributes = reader.attributes();
+									for (int i=0;i<attributes.size();i++) {
+										const QXmlStreamAttribute& attr = attributes.at(i);
+										if (attr.name() == "type") {
+											QString comp = attr.value().toString().toUpper();
+											if (comp == "DOUBLE") {
+												type = EFFECT_FIELD_DOUBLE;
+											} else if (comp == "BOOL") {
+												type = EFFECT_FIELD_BOOL;
+											} else if (comp == "COLOR") {
+												type = EFFECT_FIELD_COLOR;
+											} else if (comp == "COMBO") {
+												type = EFFECT_FIELD_COMBO;
+											} else if (comp == "FONT") {
+												type = EFFECT_FIELD_FONT;
+											} else if (comp == "STRING") {
+												type = EFFECT_FIELD_STRING;
+											} else if (comp == "FILE") {
+												type = EFFECT_FIELD_FILE;
+											}
+										} else if (attr.name() == "id") {
+											id = attr.value().toString();
 										}
-									} else if (attr.name() == "id") {
-										id = attr.value().toString();
 									}
-								}
 
-								if (id.isEmpty()) {
-									dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
-								} else if (type > -1) {
-									EffectField* field = row->add_field(type, id);
-									connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
-									switch (type) {
-									case EFFECT_FIELD_DOUBLE:
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "default") {
-												field->set_double_default_value(attr.value().toDouble());
-											} else if (attr.name() == "min") {
-												field->set_double_minimum_value(attr.value().toDouble());
-											} else if (attr.name() == "max") {
-												field->set_double_maximum_value(attr.value().toDouble());
+									if (id.isEmpty()) {
+										dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
+									} else if (type > -1) {
+										EffectField* field = row->add_field(type, id);
+										connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
+										switch (type) {
+										case EFFECT_FIELD_DOUBLE:
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "default") {
+													field->set_double_default_value(attr.value().toDouble());
+												} else if (attr.name() == "min") {
+													field->set_double_minimum_value(attr.value().toDouble());
+												} else if (attr.name() == "max") {
+													field->set_double_maximum_value(attr.value().toDouble());
+												}
 											}
-										}
-										break;
-									case EFFECT_FIELD_COLOR:
-									{
-										QColor color;
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "r") {
-												color.setRed(attr.value().toInt());
-											} else if (attr.name() == "g") {
-												color.setGreen(attr.value().toInt());
-											} else if (attr.name() == "b") {
-												color.setBlue(attr.value().toInt());
-											} else if (attr.name() == "rf") {
-												color.setRedF(attr.value().toFloat());
-											} else if (attr.name() == "gf") {
-												color.setGreenF(attr.value().toFloat());
-											} else if (attr.name() == "bf") {
-												color.setBlueF(attr.value().toFloat());
-											} else if (attr.name() == "hex") {
-												color.setNamedColor(attr.value().toString());
+											break;
+										case EFFECT_FIELD_COLOR:
+										{
+											QColor color;
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "r") {
+													color.setRed(attr.value().toInt());
+												} else if (attr.name() == "g") {
+													color.setGreen(attr.value().toInt());
+												} else if (attr.name() == "b") {
+													color.setBlue(attr.value().toInt());
+												} else if (attr.name() == "rf") {
+													color.setRedF(attr.value().toFloat());
+												} else if (attr.name() == "gf") {
+													color.setGreenF(attr.value().toFloat());
+												} else if (attr.name() == "bf") {
+													color.setBlueF(attr.value().toFloat());
+												} else if (attr.name() == "hex") {
+													color.setNamedColor(attr.value().toString());
+												}
 											}
+											field->set_color_value(color);
 										}
-										field->set_color_value(color);
-									}
-										break;
-									case EFFECT_FIELD_STRING:
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "default") {
-												field->set_string_value(attr.value().toString());
+											break;
+										case EFFECT_FIELD_STRING:
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "default") {
+													field->set_string_value(attr.value().toString());
+												}
 											}
-										}
-										break;
-									case EFFECT_FIELD_BOOL:
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "default") {
-												field->set_bool_value(attr.value() == "1");
+											break;
+										case EFFECT_FIELD_BOOL:
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "default") {
+													field->set_bool_value(attr.value() == "1");
+												}
 											}
-										}
-										break;
-									case EFFECT_FIELD_COMBO:
-									{
-										int combo_index = 0;
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "default") {
-												combo_index = attr.value().toInt();
-												break;
+											break;
+										case EFFECT_FIELD_COMBO:
+										{
+											int combo_index = 0;
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "default") {
+													combo_index = attr.value().toInt();
+													break;
+												}
 											}
-										}
-										while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
-											reader.readNext();
-											if (reader.name() == "option" && reader.isStartElement()) {
+											while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
 												reader.readNext();
-												field->add_combo_item(reader.text().toString(), 0);
+												if (reader.name() == "option" && reader.isStartElement()) {
+													reader.readNext();
+													field->add_combo_item(reader.text().toString(), 0);
+												}
 											}
+											field->set_combo_index(combo_index);
 										}
-										field->set_combo_index(combo_index);
-									}
-										break;
-									case EFFECT_FIELD_FONT:
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "default") {
-												field->set_font_name(attr.value().toString());
+											break;
+										case EFFECT_FIELD_FONT:
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "default") {
+													field->set_font_name(attr.value().toString());
+												}
 											}
-										}
-										break;
-									case EFFECT_FIELD_FILE:
-										for (int i=0;i<attributes.size();i++) {
-											const QXmlStreamAttribute& attr = attributes.at(i);
-											if (attr.name() == "filename") {
-												field->set_filename(attr.value().toString());
+											break;
+										case EFFECT_FIELD_FILE:
+											for (int i=0;i<attributes.size();i++) {
+												const QXmlStreamAttribute& attr = attributes.at(i);
+												if (attr.name() == "filename") {
+													field->set_filename(attr.value().toString());
+												}
 											}
+											break;
 										}
-										break;
 									}
 								}
 							}
 						}
-					}
-				} else if (reader.name() == "shader" && reader.isStartElement()) {
-					enable_shader = true;
-					const QXmlStreamAttributes& attributes = reader.attributes();
-					for (int i=0;i<attributes.size();i++) {
-						const QXmlStreamAttribute& attr = attributes.at(i);
-						if (attr.name() == "vert") {
-							vertPath = attr.value().toString();
-						} else if (attr.name() == "frag") {
-							fragPath = attr.value().toString();
-						}
-					}
-				}/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
-					enable_superimpose = true;
-					const QXmlStreamAttributes& attributes = reader.attributes();
-					for (int i=0;i<attributes.size();i++) {
-						const QXmlStreamAttribute& attr = attributes.at(i);
-						if (attr.name() == "script") {
-							QFile script_file(get_effects_dir() + "/" + attr.value().toString());
-							if (script_file.open(QFile::ReadOnly)) {
-								script = script_file.readAll();
-							} else {
-								dout << "[ERROR] Failed to open superimpose script file for" << em->filename;
-								enable_superimpose = false;
+					} else if (reader.name() == "shader" && reader.isStartElement()) {
+						enable_shader = true;
+						const QXmlStreamAttributes& attributes = reader.attributes();
+						for (int i=0;i<attributes.size();i++) {
+							const QXmlStreamAttribute& attr = attributes.at(i);
+							if (attr.name() == "vert") {
+								vertPath = attr.value().toString();
+							} else if (attr.name() == "frag") {
+								fragPath = attr.value().toString();
 							}
-							break;
 						}
-					}
-				}*/
-				reader.readNext();
-			}
+					}/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
+						enable_superimpose = true;
+						const QXmlStreamAttributes& attributes = reader.attributes();
+						for (int i=0;i<attributes.size();i++) {
+							const QXmlStreamAttribute& attr = attributes.at(i);
+							if (attr.name() == "script") {
+								QFile script_file(get_effects_dir() + "/" + attr.value().toString());
+								if (script_file.open(QFile::ReadOnly)) {
+									script = script_file.readAll();
+								} else {
+									dout << "[ERROR] Failed to open superimpose script file for" << em->filename;
+									enable_superimpose = false;
+								}
+								break;
+							}
+						}
+					}*/
+					reader.readNext();
+				}
 
-			effect_file.close();
-		} else {
-			dout << "[ERROR] Failed to open effect file" << em->filename;
+				effect_file.close();
+			} else {
+				dout << "[ERROR] Failed to open effect file" << em->filename;
+			}
 		}
 	}
 }
@@ -793,28 +794,28 @@ void Effect::open() {
 			validate_meta_path();
 			bool glsl_compiled = true;
 			if (!vertPath.isEmpty()) {
-                if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
-                    dout << "[INFO] Vertex shader added successfully";
-                } else {
-                    glsl_compiled = false;
-                    dout << "[WARNING] Vertex shader could not be added";
-                }
+				if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
+					dout << "[INFO] Vertex shader added successfully";
+				} else {
+					glsl_compiled = false;
+					dout << "[WARNING] Vertex shader could not be added";
+				}
 			}
 			if (!fragPath.isEmpty()) {
-                if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
-                    dout << "[INFO] Fragment shader added successfully";
-                } else {
-                    glsl_compiled = false;
-                    dout << "[WARNING] Fragment shader could not be added";
-                }
+				if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
+					dout << "[INFO] Fragment shader added successfully";
+				} else {
+					glsl_compiled = false;
+					dout << "[WARNING] Fragment shader could not be added";
+				}
 			}
-            if (glsl_compiled) {
-                if (glslProgram->link()) {
-                    dout << "[INFO] Shader program linked successfully";
-                } else {
-                    dout << "[WARNING] Shader program failed to link";
-                }
-            }
+			if (glsl_compiled) {
+				if (glslProgram->link()) {
+					dout << "[INFO] Shader program linked successfully";
+				} else {
+					dout << "[WARNING] Shader program failed to link";
+				}
+			}
 			isOpen = true;
 		}
 	} else {
