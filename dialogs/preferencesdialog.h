@@ -18,6 +18,9 @@ class KeySequenceEditor : public QKeySequenceEdit {
 public:
 	KeySequenceEditor(QWidget *parent, QAction* a);
 	void set_action_shortcut();
+    void reset_to_default();
+    QString action_name();
+    QString export_shortcut();
 private:
 	QAction* action;
 };
@@ -36,6 +39,8 @@ private slots:
 	void save();
 	void reset_default_shortcut();
 	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = NULL);
+    void load_shortcut_file();
+    void save_shortcut_file();
 
 private:
 	void setup_ui();

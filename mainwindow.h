@@ -18,7 +18,10 @@ public:
 	void launch_with_project(const QString& s);
 
 	void make_new_menu(QMenu* parent);
-	void make_inout_menu(QMenu* parent);
+	void make_inout_menu(QMenu* parent);    
+
+    void load_shortcuts(const QString &fn, bool first = false);
+    void save_shortcuts(const QString &fn);
 
 	QString appName;
 
