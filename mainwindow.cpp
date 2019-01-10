@@ -397,7 +397,7 @@ void MainWindow::export_dialog() {
 }
 
 void MainWindow::ripple_delete() {
-	panel_timeline->delete_selection(sequence->selections, true);
+	if (sequence != NULL) panel_timeline->delete_selection(sequence->selections, true);
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {
