@@ -18,6 +18,9 @@ class KeySequenceEditor : public QKeySequenceEdit {
 public:
 	KeySequenceEditor(QWidget *parent, QAction* a);
 	void set_action_shortcut();
+	void reset_to_default();
+	QString action_name();
+	QString export_shortcut();
 private:
 	QAction* action;
 };
@@ -35,7 +38,10 @@ public:
 private slots:
 	void save();
 	void reset_default_shortcut();
+	void reset_all_shortcuts();
 	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = NULL);
+	void load_shortcut_file();
+	void save_shortcut_file();
 
 private:
 	void setup_ui();
@@ -55,8 +61,6 @@ private:
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;
 	QVector<KeySequenceEditor*> key_shortcut_fields;
-
-	QPushButton* reset_shortcut_button;
 };
 
 #endif // PREFERENCESDIALOG_H

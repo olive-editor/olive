@@ -58,6 +58,8 @@ struct Config {
 	int previous_queue_type;
 	double upcoming_queue_size;
 	int upcoming_queue_type;
+    bool loop;
+    bool pause_at_out_point;
 
 	void load(QString path);
 	void save(QString path);

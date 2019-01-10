@@ -554,7 +554,10 @@ bool isLiveEditing() {
 void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 	if (sequence != NULL) {
 		int tool = panel_timeline->tool;
-		if (event->button() == Qt::RightButton) {
+        if (event->button() == Qt::MiddleButton) {
+            tool = TIMELINE_TOOL_HAND;
+            panel_timeline->creating = false;
+        } else if (event->button() == Qt::RightButton) {
 			tool = TIMELINE_TOOL_MENU;
 			panel_timeline->creating = false;
 		}
@@ -1155,12 +1158,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 			panel_timeline->rect_select_proc = false;
 			panel_timeline->transition_tool_init = false;
 			panel_timeline->transition_tool_proc = false;
-			panel_timeline->hand_moving = false;
 			pre_clips.clear();
 			post_clips.clear();
 
 			update_ui(true);
 		}
+        panel_timeline->hand_moving = false;
 	}
 }
 

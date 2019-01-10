@@ -43,7 +43,9 @@ Config::Config()
 	  previous_queue_size(3),
 	  previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
 	  upcoming_queue_size(0.5),
-	  upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS)
+      upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
+      loop(true),
+      pause_at_out_point(true)
 {}
 
 void Config::load(QString path) {
@@ -150,7 +152,13 @@ void Config::load(QString path) {
 				} else if (stream.name() == "UpcomingFrameQueueType") {
 					stream.readNext();
 					upcoming_queue_type = stream.text().toInt();
-				}
+                } else if (stream.name() == "Loop") {
+                    stream.readNext();
+                    loop = (stream.text() == "1");
+                } else if (stream.name() == "PauseAtOutPoint") {
+                    stream.readNext();
+                    pause_at_out_point = (stream.text() == "1");
+                }
 			}
 		}
 		if (stream.hasError()) {
@@ -206,6 +214,8 @@ void Config::save(QString path) {
 	stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
 	stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
 	stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
+    stream.writeTextElement("Loop", QString::number(loop));
+    stream.writeTextElement("PauseAtOutPoint", QString::number(pause_at_out_point));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

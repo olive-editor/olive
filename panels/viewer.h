@@ -72,9 +72,11 @@ public:
 public slots:
 	void play_wake();
 	void go_to_start();
+	void go_to_in();
 	void previous_frame();
 	void toggle_play();
 	void next_frame();
+	void go_to_out();
 	void go_to_end();
 
 private slots:
@@ -94,6 +96,9 @@ private:
 	void set_zoom_value(double d);
 	void set_sb_max();
 
+	long get_seq_in();
+	long get_seq_out();
+
 	QIcon playIcon;
 
 	void setup_ui();
@@ -112,6 +117,8 @@ private:
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;
+
+	long previous_playhead;
 };
 
 #endif // VIEWER_H

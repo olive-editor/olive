@@ -24,7 +24,7 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	Effect(c, em)
 {
 	enable_superimpose = true;
-	enable_shader = true;
+	//enable_shader = true;
 
 	text_val = add_row("Text")->add_field(EFFECT_FIELD_STRING, "text", 2);
 
@@ -189,6 +189,9 @@ void TextEffect::redraw(double timecode) {
 }
 
 void TextEffect::shadow_enable(bool e) {
+	enable_shader = e;
+	close();
+
 	shadow_color->set_enabled(e);
 	shadow_distance->set_enabled(e);
 	shadow_softness->set_enabled(e);

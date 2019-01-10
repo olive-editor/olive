@@ -19,6 +19,8 @@
 #include <QTreeWidgetItem>
 #include <QList>
 #include <QDoubleSpinBox>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "debug.h"
 
@@ -30,6 +32,22 @@ KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 
 void KeySequenceEditor::set_action_shortcut() {
 	action->setShortcut(keySequence());
+}
+
+void KeySequenceEditor::reset_to_default() {
+	setKeySequence(action->property("default").toString());
+}
+
+QString KeySequenceEditor::action_name() {
+	return action->text().replace("&", "");
+}
+
+QString KeySequenceEditor::export_shortcut() {
+	QString ks = keySequence().toString();
+	if (ks != action->property("default")) {
+		return action->text().replace("&", "") + "\t" + keySequence().toString();
+	}
+	return 0;
 }
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
@@ -51,7 +69,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 	for (int i=0;i<actions.size();i++) {
 		QAction* a = actions.at(i);
 
-		if (!a->isSeparator()) {
+		if (!a->isSeparator() && a->property("keyignore").isNull()) {
 			QTreeWidgetItem* item = new QTreeWidgetItem();
 			item->setText(0, a->text().replace("&", ""));
 
@@ -61,7 +79,6 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 				item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 				setup_kbd_shortcut_worker(a->menu(), item);
 			} else {
-				item->setData(0, Qt::UserRole + 1, reinterpret_cast<quintptr>(a));
 				key_shortcut_items.append(item);
 				key_shortcut_actions.append(a);
 			}
@@ -112,11 +129,14 @@ void PreferencesDialog::reset_default_shortcut() {
 	QList<QTreeWidgetItem*> items = keyboard_tree->selectedItems();
 	for (int i=0;i<items.size();i++) {
 		QTreeWidgetItem* item = keyboard_tree->selectedItems().at(i);
-		const QVariant& data = item->data(0, Qt::UserRole + 1);
-		if (!data.isNull()) {
-			QAction* a = reinterpret_cast<QAction*>(data.value<quintptr>());
-			QKeySequence ks(a->property("default").toString());
-			static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->setKeySequence(ks);
+		static_cast<KeySequenceEditor*>(keyboard_tree->itemWidget(item, 1))->reset_to_default();
+	}
+}
+
+void PreferencesDialog::reset_all_shortcuts() {
+	if (QMessageBox::question(this, "Confirm Reset All Shortcuts", "Are you sure you wish to reset all keyboard shortcuts to their defaults?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+		for (int i=0;i<key_shortcut_fields.size();i++) {
+			key_shortcut_fields.at(i)->reset_to_default();
 		}
 	}
 }
@@ -158,6 +178,58 @@ bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* 
 		parent->setHidden(all_children_are_hidden);
 
 		return all_children_are_hidden;
+	}
+	return true;
+}
+
+void PreferencesDialog::load_shortcut_file() {
+	QString fn = QFileDialog::getOpenFileName(this, "Import Keyboard Shortcuts");
+	if (!fn.isEmpty()) {
+		QFile f(fn);
+		if (f.exists() && f.open(QFile::ReadOnly)) {
+			QByteArray ba = f.readAll();
+			f.close();
+			for (int i=0;i<key_shortcut_fields.size();i++) {
+				int index = ba.indexOf(key_shortcut_fields.at(i)->action_name());
+				if (index == 0 || (index > 0 && ba.at(index-1) == '\n')) {
+					while (index < ba.size() && ba.at(index) != '\t') index++;
+					QString ks;
+					index++;
+					while (index < ba.size() && ba.at(index) != '\n') {
+						ks.append(ba.at(index));
+						index++;
+					}
+					dout << "set" << key_shortcut_fields.at(i)->action_name() << "to" << ks;
+					key_shortcut_fields.at(i)->setKeySequence(ks);
+				} else {
+					key_shortcut_fields.at(i)->reset_to_default();
+				}
+			}
+		} else {
+			QMessageBox::critical(this, "Error saving shortcuts", "Failed to open file for reading");
+		}
+	}
+}
+
+void PreferencesDialog::save_shortcut_file() {
+	QString fn = QFileDialog::getSaveFileName(this, "Export Keyboard Shortcuts");
+	if (!fn.isEmpty()) {
+		QFile f(fn);
+		if (f.open(QFile::WriteOnly)) {
+			bool start = true;
+			for (int i=0;i<key_shortcut_fields.size();i++) {
+				QString s = key_shortcut_fields.at(i)->export_shortcut();
+				if (!s.isEmpty()) {
+					if (!start) f.write("\n");
+					f.write(s.toUtf8());
+					start = false;
+				}
+			}
+			QMessageBox::information(this, "Export Shortcuts", "Shortcuts exported successfully");
+			f.close();
+		} else {
+			QMessageBox::critical(this, "Error saving shortcuts", "Failed to open file for writing");
+		}
 	}
 }
 
@@ -250,11 +322,24 @@ void PreferencesDialog::setup_ui() {
 	shortcut_layout->addWidget(keyboard_tree);
 
 	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
+
+	QPushButton* import_shortcut_button = new QPushButton("Import");
+	reset_shortcut_layout->addWidget(import_shortcut_button);
+	connect(import_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(load_shortcut_file()));
+
+	QPushButton* export_shortcut_button = new QPushButton("Export");
+	reset_shortcut_layout->addWidget(export_shortcut_button);
+	connect(export_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(save_shortcut_file()));
+
 	reset_shortcut_layout->addStretch();
 
-	reset_shortcut_button = new QPushButton("Reset to Default");
-	reset_shortcut_layout->addWidget(reset_shortcut_button);
-	connect(reset_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+	QPushButton* reset_selected_shortcut_button = new QPushButton("Reset Selected");
+	reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
+	connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+
+	QPushButton* reset_all_shortcut_button = new QPushButton("Reset All");
+	reset_shortcut_layout->addWidget(reset_all_shortcut_button);
+	connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
 
 	shortcut_layout->addLayout(reset_shortcut_layout);
 
