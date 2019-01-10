@@ -129,8 +129,9 @@ void MainWindow::setup_layout(bool reset) {
 	layout()->update();
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent, const QString &appName) :
+    QMainWindow(parent),
+    app_name(appName)
 {	
 	setup_debug();
 

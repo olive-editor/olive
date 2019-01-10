@@ -28,7 +28,7 @@ class Timeline;
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
-	explicit MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent, const QString& appName);
 	void updateTitle(const QString &url);
 	virtual ~MainWindow();
 
@@ -39,8 +39,6 @@ public:
 
 	void load_shortcuts(const QString &fn, bool first = false);
 	void save_shortcuts(const QString &fn);
-
-	QString appName;
 
 public slots:
 	void undo();
@@ -154,6 +152,9 @@ private:
 	void set_bool_action_checked(QAction* a);
 	void set_int_action_checked(QAction* a, const int& i);
 	void set_button_action_checked(QAction* a);
+
+
+    const QString& app_name;
 
 	// menu bar menus
 	QMenu* window_menu = NULL;
