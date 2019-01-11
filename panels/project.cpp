@@ -742,12 +742,12 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 	}
 	if (create_undo_action) {
         if (imported) {
+            undo_stack.push(ca);
+
             for (int i=0;i<last_imported_media.size();i++) {
                 // generate waveform/thumbnail in another thread
                 start_preview_generator(last_imported_media.at(i), replace != NULL);
             }
-
-			undo_stack.push(ca);
 		} else {
 			delete ca;
 		}
