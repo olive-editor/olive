@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QWidget>
 #include <QtMath>
+#include <QMenu>
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
@@ -19,6 +20,8 @@
 #include "ui/comboboxex.h"
 #include "ui/colorbutton.h"
 #include "ui/fontcombobox.h"
+#include "dialogs/texteditdialog.h"
+#include "mainwindow.h"
 
 TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	Effect(c, em)
@@ -27,6 +30,9 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	//enable_shader = true;
 
 	text_val = add_row("Text")->add_field(EFFECT_FIELD_STRING, "text", 2);
+	QTextEdit* text_widget = static_cast<QTextEdit*>(text_val->ui_element);
+	text_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(text_widget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(text_edit_menu()));
 
 	set_font_combobox = add_row("Font")->add_field(EFFECT_FIELD_FONT, "font", 2);
 
@@ -196,6 +202,24 @@ void TextEffect::shadow_enable(bool e) {
 	shadow_distance->set_enabled(e);
 	shadow_softness->set_enabled(e);
 	shadow_opacity->set_enabled(e);
+}
+
+void TextEffect::text_edit_menu() {
+	QMenu menu;
+
+	menu.addAction("&Edit Text", this, SLOT(open_text_edit()));
+
+	menu.exec(QCursor::pos());
+}
+
+void TextEffect::open_text_edit() {
+	TextEditDialog ted(mainWindow, text_val->get_current_data().toString());
+	ted.exec();
+	QString result = ted.get_string();
+	if (!result.isEmpty()) {
+		text_val->set_current_data(result);
+		text_val->ui_element_change();
+	}
 }
 
 void TextEffect::outline_enable(bool e) {

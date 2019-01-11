@@ -68,10 +68,10 @@ public:
 	QWidget* ui_element;
 
 	void make_key_from_change(ComboAction* ca);
+public slots:
+	void ui_element_change();
 private:
 	bool hasKeyframes();
-private slots:
-	void ui_element_change();
 signals:
 	void changed();
 	void toggled(bool);

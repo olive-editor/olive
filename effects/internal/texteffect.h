@@ -33,8 +33,10 @@ public:
 private slots:
 	void outline_enable(bool);
 	void shadow_enable(bool);
+	void text_edit_menu();
+	void open_text_edit();
 private:
-    QFont font;
+	QFont font;
 };
 
 #endif // TEXTEFFECT_H

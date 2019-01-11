@@ -692,9 +692,7 @@ void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
 	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
-
 	if (config.seek_also_selects) panel_timeline->select_from_playhead();
-
 	update_parents(config.seek_also_selects);
 
 	long end_frame = get_seq_out();
