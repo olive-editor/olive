@@ -81,8 +81,8 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
 
 int create_transition(Clip* c, Clip* s, const EffectMeta* em, long length) {
 	Transition* t = get_transition_from_meta(c, s, em);
-	if (length >= 0) t->set_length(length);
 	if (t != NULL) {
+		if (length >= 0) t->set_length(length);
 		QVector<Transition*>& transition_list = (c->sequence == NULL) ? clipboard_transitions : c->sequence->transitions;
 		transition_list.append(t);
 		return transition_list.size() - 1;
