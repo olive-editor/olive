@@ -238,16 +238,16 @@ bool frame_rate_is_droppable(float rate) {
 void Viewer::seek(long p) {
 	pause();
 	seq->playhead = p;
-    bool update_fx = false;
+	bool update_fx = false;
 	if (main_sequence) {
 		panel_timeline->scroll_to_frame(p);
 		panel_effect_controls->scroll_to_frame(p);
-        if (config.seek_also_selects) {
-            panel_timeline->select_from_playhead();
-            update_fx = true;
-        }
+		if (config.seek_also_selects) {
+			panel_timeline->select_from_playhead();
+			update_fx = true;
+		}
 	}
-    update_parents(update_fx);
+	update_parents(update_fx);
 	reset_all_audio();
 	audio_scrub = true;
 }
@@ -262,7 +262,7 @@ void Viewer::go_to_end() {
 
 void Viewer::go_to_in() {
 	if (seq != NULL) {
-        if (seq->using_workarea && seq->enable_workarea) {
+		if (seq->using_workarea && seq->enable_workarea) {
 			seek(seq->workarea_in);
 		} else {
 			go_to_start();
@@ -280,7 +280,7 @@ void Viewer::next_frame() {
 
 void Viewer::go_to_out() {
 	if (seq != NULL) {
-        if (seq->using_workarea && seq->enable_workarea) {
+		if (seq->using_workarea && seq->enable_workarea) {
 			seek(seq->workarea_out);
 		} else {
 			go_to_end();
@@ -417,7 +417,7 @@ void Viewer::update_header_zoom() {
 
 void Viewer::update_parents(bool reload_fx) {
 	if (main_sequence) {
-        update_ui(reload_fx);
+		update_ui(reload_fx);
 	} else {
 		update_viewer();
 	}
@@ -437,31 +437,31 @@ void Viewer::update_viewer() {
 }
 
 void Viewer::clear_in() {
-    if (seq->using_workarea) {
-        undo_stack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
-        update_parents();
-    }
+	if (seq->using_workarea) {
+		undo_stack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
+		update_parents();
+	}
 }
 
 void Viewer::clear_out() {
-    if (seq->using_workarea) {
-        undo_stack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
-        update_parents();
-    }
+	if (seq->using_workarea) {
+		undo_stack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
+		update_parents();
+	}
 }
 
 void Viewer::clear_inout_point() {
 	if (seq->using_workarea) {
 		undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
 		update_parents();
-    }
+	}
 }
 
 void Viewer::toggle_enable_inout() {
-    if (seq != NULL && seq->using_workarea) {
-        undo_stack.push(new SetBool(&seq->enable_workarea, !seq->enable_workarea));
-        update_parents();
-    }
+	if (seq != NULL && seq->using_workarea) {
+		undo_stack.push(new SetBool(&seq->enable_workarea, !seq->enable_workarea));
+		update_parents();
+	}
 }
 
 void Viewer::set_in_point() {
@@ -496,13 +496,13 @@ void Viewer::set_sb_max() {
 }
 
 long Viewer::get_seq_in() {
-    return (seq->using_workarea && seq->enable_workarea)
+	return (seq->using_workarea && seq->enable_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-    return (seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
+	return (seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }
@@ -692,7 +692,10 @@ void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
 	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
-	update_parents();
+
+	if (config.seek_also_selects) panel_timeline->select_from_playhead();
+
+	update_parents(config.seek_also_selects);
 
 	long end_frame = get_seq_out();
 	if (!recording
