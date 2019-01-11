@@ -43,6 +43,7 @@ private slots:
 	void clear_undo_stack();
 
 	void show_about();
+	void show_debug_log();
 	void delete_slot();
 	void select_all();
 
@@ -181,7 +182,7 @@ private:
 	QAction* set_name_and_marker;
 	QAction* loop_action;
 	QAction* pause_at_out_point_action;
-    QAction* seek_also_selects;
+	QAction* seek_also_selects;
 
 	// edit menu actions
 	QAction* undo_action;

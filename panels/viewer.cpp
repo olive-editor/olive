@@ -328,7 +328,7 @@ void Viewer::play() {
 
 		reset_all_audio();
 		if (is_recording_cued() && !start_recording()) {
-			dout << "[ERROR] Failed to record audio";
+			qCritical() << "Failed to record audio";
 			return;
 		}
 		playhead_start = seq->playhead;

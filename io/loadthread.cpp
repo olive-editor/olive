@@ -209,19 +209,19 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
 										if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
 											m->url = proj_dir_test;
-											dout << "[INFO] Matched" << attr.value().toString() << "relative to project's current directory";
+											qInfo() << "Matched" << attr.value().toString() << "relative to project's current directory";
 										} else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
 											m->url = internal_proj_dir_test;
-											dout << "[INFO] Matched" << attr.value().toString() << "relative to project's internal directory";
+											qInfo() << "Matched" << attr.value().toString() << "relative to project's internal directory";
 										} else if (m->url.contains('%')) {
 											// hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
 											m->url = internal_proj_dir_test;
-											dout << "[INFO] Guess image sequence" << attr.value().toString() << "path to project's internal directory";
+											qInfo() << "Guess image sequence" << attr.value().toString() << "path to project's internal directory";
 										} else {
-											dout << "[INFO] Failed to match" << attr.value().toString() << "to file";
+											qInfo() << "Failed to match" << attr.value().toString() << "to file";
 										}
 									} else {
-										dout << "[INFO] Matched" << attr.value().toString() << "with absolute path";
+										qInfo() << "Matched" << attr.value().toString() << "with absolute path";
 									}
 								} else if (attr.name() == "duration") {
 									m->length = attr.value().toLongLong();
@@ -273,8 +273,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									open_seq = s;
 								} else if (attr.name() == "workarea") {
 									s->using_workarea = (attr.value() == "1");
-                                } else if (attr.name() == "workareaEnabled") {
-                                    s->enable_workarea = (attr.value() == "1");
+								} else if (attr.name() == "workareaEnabled") {
+									s->enable_workarea = (attr.value() == "1");
 								} else if (attr.name() == "workareaIn") {
 									s->workarea_in = attr.value().toLong();
 								} else if (attr.name() == "workareaOut") {
@@ -471,7 +471,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									}
 									const EffectMeta* meta = get_meta_from_name(td.name);
 									if (meta == NULL) {
-										dout << "[WARNING] Failed to link transition with name:" << td.name;
+										qWarning() << "Failed to link transition with name:" << td.name;
 										if (td.otc != NULL) td.otc->opening_transition = -1;
 										if (td.ctc != NULL) td.ctc->closing_transition = -1;
 									} else {
@@ -514,7 +514,7 @@ void LoadThread::run() {
 
 	QFile file(project_url);
 	if (!file.open(QIODevice::ReadOnly)) {
-		dout << "[ERROR] Could not open file";
+		qCritical() << "Could not open file";
 		return;
 	}
 
@@ -623,7 +623,7 @@ void LoadThread::cancel() {
 
 void LoadThread::error_func() {
 	if (xml_error) {
-		dout << "[ERROR] Error parsing XML." << error_str;
+		qCritical() << "Error parsing XML." << error_str;
 		QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + error_str, QMessageBox::Ok);
 	} else {
 		QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);

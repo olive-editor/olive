@@ -62,8 +62,8 @@ ExportDialog::ExportDialog(QWidget *parent) :
 
 	rangeCombobox->setCurrentIndex(0);
 	if (sequence->using_workarea) {
-        rangeCombobox->setEnabled(true);
-        if (sequence->enable_workarea) rangeCombobox->setCurrentIndex(1);
+		rangeCombobox->setEnabled(true);
+		if (sequence->enable_workarea) rangeCombobox->setCurrentIndex(1);
 	}
 
 	format_strings.resize(FORMAT_SIZE);
@@ -286,7 +286,7 @@ void ExportDialog::format_changed(int index)
 		default_acodec = 1;
 		break;
 	default:
-		dout << "[ERROR] Invalid format selection - this is a bug, please inform the developers";
+		qCritical() << "Invalid format selection - this is a bug, please inform the developers";
 	}
 
 	AVCodec* codec_info;
@@ -388,7 +388,7 @@ void ExportDialog::export_action() {
 			ext = "tif";
 			break;
 		default:
-			dout << "[ERROR] Invalid codec selection for an image sequence";
+			qCritical() << "Invalid codec selection for an image sequence";
 			QMessageBox::critical(this, "Invalid codec", "Couldn't determine output parameters for the selected codec. This is a bug, please contact the developers.", QMessageBox::Ok);
 			return;
 		}
@@ -453,7 +453,7 @@ void ExportDialog::export_action() {
 		}
 		break;
 	default:
-		dout << "[ERROR] Invalid format - this is a bug, please inform the developers";
+		qCritical() << "Invalid format - this is a bug, please inform the developers";
 		QMessageBox::critical(this, "Invalid format", "Couldn't determine output format. This is a bug, please contact the developers.", QMessageBox::Ok);
 		return;
 	}

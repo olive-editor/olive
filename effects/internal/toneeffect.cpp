@@ -50,7 +50,7 @@ void ToneEffect::process_audio(double timecode_start, double timecode_end, quint
 		int presin = sinX;
 		sinX++;
 		if (sinX < presin) {
-			dout << "[WARNING] Tone effect overflowed";
+			qWarning() << "Tone effect overflowed";
 		}
 	}
 }

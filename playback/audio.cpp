@@ -55,18 +55,18 @@ void init_audio() {
 
 	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
 	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-	dout << "[INFO] Found the following audio devices:";
+	qInfo() << "Found the following audio devices:";
 	for (int i=0;i<devs.size();i++) {
 		dout << "    " << devs.at(i).deviceName();
 	}
 	if (info.isNull() && devs.size() > 0) {
-		dout << "[WARNING] Default audio returned NULL, attempting to use first device found...";
+		qWarning() << "Default audio returned NULL, attempting to use first device found...";
 		info = devs.at(0);
 	}
-	dout << "[INFO] Using audio device" << info.deviceName();
+	qInfo() << "Using audio device" << info.deviceName();
 
 	if (!info.isFormatSupported(audio_format)) {
-		qWarning() << "[WARNING] Audio format is not supported by backend, using nearest";
+		qWarning() << "Audio format is not supported by backend, using nearest";
 		audio_format = info.nearestFormat(audio_format);
 	}
 
@@ -77,7 +77,7 @@ void init_audio() {
 	// connect
 	audio_io_device = audio_output->start();
 	if (audio_io_device == NULL) {
-		dout << "[WARNING] Received NULL audio device. No compatible audio output was found.";
+		qWarning() << "Received NULL audio device. No compatible audio output was found.";
 	} else {
 		audio_device_set = true;
 
@@ -115,7 +115,7 @@ int get_buffer_offset_from_frame(double framerate, long frame) {
 	if (frame >= audio_ibuffer_frame) {
 		return qFloor(((double) (frame - audio_ibuffer_frame)/framerate)*current_audio_freq())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
 	} else {
-		dout << "[WARNING] Invalid values passed to get_buffer_offset_from_frame";
+		qWarning() << "Invalid values passed to get_buffer_offset_from_frame";
 		return 0;
 	}
 }
@@ -288,14 +288,14 @@ void write_wave_trailer(QFile& f) {
 
 bool start_recording() {
 	if (sequence == NULL) {
-		dout << "[ERROR] No active sequence to record into";
+		qCritical() << "No active sequence to record into";
 		return false;
 	}
 
 	QString audio_path = project_url + " Audio";
 	QDir audio_dir(audio_path);
 	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
-		dout << "[ERROR] Failed to create audio directory";
+		qCritical() << "Failed to create audio directory";
 		return false;
 	}
 
@@ -308,7 +308,7 @@ bool start_recording() {
 
 	output_recording.setFileName(audio_filename);
 	if (!output_recording.open(QFile::WriteOnly)) {
-		dout << "[ERROR] Failed to open output file. Does Olive have permission to write to this directory?";
+		qCritical() << "Failed to open output file. Does Olive have permission to write to this directory?";
 		return false;
 	}
 
@@ -318,7 +318,7 @@ bool start_recording() {
 	}
 	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
 	if (!info.isFormatSupported(audio_format)) {
-		dout << "[WARNING] Default format not supported, using nearest";
+		qWarning() << "Default format not supported, using nearest";
 		audio_format = info.nearestFormat(audio_format);
 	}
 	write_wave_header(output_recording, audio_format);

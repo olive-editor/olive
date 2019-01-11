@@ -225,7 +225,7 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 		break;
 	default:
-		dout << "[ERROR] Invalid blend mode. This is a bug - please contact developers";
+		qCritical() << "Invalid blend mode. This is a bug - please contact developers";
 	}
 
 	// opacity

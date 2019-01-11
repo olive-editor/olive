@@ -73,7 +73,7 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
 		case TRANSITION_INTERNAL_CUBE: return new CubeTransition(c, s, em);
 		}
 	} else {
-		dout << "[ERROR] Invalid transition data";
+		qCritical() << "Invalid transition data";
 		QMessageBox::critical(mainWindow, "Invalid transition", "No candidate for transition '" + em->name + "'. This transition may be corrupt. Try reinstalling it or Olive.");
 	}
 	return NULL;

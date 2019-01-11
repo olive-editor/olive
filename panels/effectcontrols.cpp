@@ -45,7 +45,7 @@ EffectControls::EffectControls(QWidget *parent) :
 	headers->viewer = panel_sequence_viewer;
 	headers->snapping = false;
 
-    effects_area->parent_widget = scrollArea;
+	effects_area->parent_widget = scrollArea;
 	effects_area->keyframe_area = keyframeView;
 	effects_area->header = headers;
 	keyframeView->header = headers;
@@ -260,9 +260,9 @@ void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
 void EffectControls::setup_ui() {
 	QWidget* contents = new QWidget();
 
-    QHBoxLayout* hlayout = new QHBoxLayout(contents);
-    hlayout->setSpacing(0);
-    hlayout->setMargin(0);
+	QHBoxLayout* hlayout = new QHBoxLayout(contents);
+	hlayout->setSpacing(0);
+	hlayout->setMargin(0);
 
 	QSplitter* splitter = new QSplitter(contents);
 	splitter->setOrientation(Qt::Horizontal);
@@ -431,7 +431,7 @@ void EffectControls::setup_ui() {
 
 	splitter->addWidget(keyframeArea);
 
-    hlayout->addWidget(splitter);
+	hlayout->addWidget(splitter);
 
 	setWidget(contents);
 }
@@ -540,14 +540,14 @@ bool EffectControls::is_focused() {
 				}
 			}
 		} else {
-			dout << "[WARNING] Tried to check focus of a NULL clip";
+			qWarning() << "Tried to check focus of a NULL clip";
 		}
 	}
 	return false;
 }
 
 EffectsArea::EffectsArea(QWidget* parent) :
-    QWidget(parent)
+	QWidget(parent)
 {}
 
 void EffectsArea::resizeEvent(QResizeEvent*) {
