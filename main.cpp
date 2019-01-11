@@ -14,10 +14,10 @@ int main(int argc, char *argv[]) {
 	appName += GITHASH;
 #endif
 	appName += ")";
-	
+
 	bool launch_fullscreen = false;
 	QString load_proj;
-	
+
 	if (argc > 1) {
 		for (int i=1;i<argc;i++) {
 			if (argv[i][0] == '-') {
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 			} else if (load_proj.isEmpty()) {
 				load_proj = argv[i];
 			}
-		}		
+		}
 	}
 
 	// init ffmpeg subsystem
@@ -48,8 +48,7 @@ int main(int argc, char *argv[]) {
 
 	QApplication a(argc, argv);
 
-	MainWindow w;
-	w.appName = appName;
+	MainWindow w(NULL, appName);
 	w.updateTitle("");
 
 	if (!load_proj.isEmpty()) {

@@ -11,7 +11,7 @@ class Timeline;
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
-	explicit MainWindow(QWidget *parent = 0);
+	explicit MainWindow(QWidget *parent, const QString& an);
 	void updateTitle(const QString &url);
 	~MainWindow();
 
@@ -22,8 +22,6 @@ public:
 
 	void load_shortcuts(const QString &fn, bool first = false);
 	void save_shortcuts(const QString &fn);
-
-	QString appName;
 
 public slots:
 	void undo();
@@ -98,12 +96,12 @@ private slots:
 	void set_in_point();
 	void set_out_point();
 
-    void clear_in();
-    void clear_out();
+	void clear_in();
+	void clear_out();
 	void clear_inout();
 	void delete_inout();
 	void ripple_delete_inout();
-    void enable_inout();
+	void enable_inout();
 
 	// title safe area functions
 	void set_tsa_disable();
@@ -193,6 +191,8 @@ private:
 	void set_button_action_checked(QAction* a);
 
 	bool enable_launch_with_project;
+
+	QString appName;
 };
 
 extern MainWindow* mainWindow;
