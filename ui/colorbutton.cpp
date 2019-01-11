@@ -31,7 +31,7 @@ void ColorButton::set_button_color() {
 }
 
 void ColorButton::open_dialog() {
-    QColor new_color = QColorDialog::getColor(color, NULL, "Set Color");
+    QColor new_color = QColorDialog::getColor(color, NULL, tr("Set Color"));
 	if (new_color.isValid() && color != new_color) {
 		set_color(new_color);
         set_button_color();

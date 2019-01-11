@@ -221,10 +221,12 @@ void TimelineWidget::tooltip_timer_timeout() {
 			Clip* c = sequence->clips.at(tooltip_clip);
 			if (c != NULL) {
 				QToolTip::showText(QCursor::pos(),
-							c->name
-								   + "\nStart: " + frame_to_timecode(c->timeline_in, config.timecode_view, sequence->frame_rate)
-								   + "\nEnd: " + frame_to_timecode(c->timeline_out, config.timecode_view, sequence->frame_rate)
-								   + "\nDuration: " + frame_to_timecode(c->getLength(), config.timecode_view, sequence->frame_rate));
+                            tr("%1\nStart: %2\nEnd: %3\nDuration: %4").arg(
+                                       c->name,
+                                       frame_to_timecode(c->timeline_in, config.timecode_view, sequence->frame_rate),
+                                       frame_to_timecode(c->timeline_out, config.timecode_view, sequence->frame_rate),
+                                       frame_to_timecode(c->getLength(), config.timecode_view, sequence->frame_rate)
+                                    ));
 			}
 		}
 	}
@@ -241,8 +243,8 @@ void TimelineWidget::rename_clip() {
 	}
 	if (selected_clips.size() > 0) {
 		QString s = QInputDialog::getText(this,
-										  (selected_clips.size() == 1) ? "Rename '" + selected_clips.at(0)->name + "'" : "Rename multiple clips",
-										  "Enter a new name for this clip:",
+                                          (selected_clips.size() == 1) ? tr("Rename '%1'").arg(selected_clips.at(0)->name) : tr("Rename multiple clips"),
+                                          tr("Enter a new name for this clip:"),
 										  QLineEdit::Normal,
 										  selected_clips.at(0)->name
 									);
@@ -275,7 +277,7 @@ void TimelineWidget::open_sequence_properties() {
 			return;
 		}
 	}
-	QMessageBox::critical(this, "Error", "Couldn't locate media wrapper for sequence.");
+    QMessageBox::critical(this, tr("Error"), tr("Couldn't locate media wrapper for sequence."));
 }
 
 bool same_sign(int a, int b) {
@@ -827,27 +829,27 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 						switch (panel_timeline->creating_object) {
 						case ADD_OBJ_TITLE:
-							c->name = "Title";
+                            c->name = tr("Title");
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TEXT, EFFECT_TYPE_EFFECT)));
 							break;
 						case ADD_OBJ_SOLID:
-							c->name = "Solid Color";
+                            c->name = tr("Solid Color");
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT)));
 							break;
 						case ADD_OBJ_BARS:
 						{
-							c->name = "Bars";
+                            c->name = tr("Bars");
 							Effect* e = create_effect(c, get_internal_meta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
 							e->row(0)->field(0)->set_combo_index(1);
 							c->effects.append(e);
 						}
 							break;
 						case ADD_OBJ_TONE:
-							c->name = "Tone";
+                            c->name = tr("Tone");
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TONE, EFFECT_TYPE_EFFECT)));
 							break;
 						case ADD_OBJ_NOISE:
-							c->name = "Noise";
+                            c->name = tr("Noise");
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
 							break;
 						}
@@ -1575,7 +1577,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 			}
 
 			if (g != NULL) {
-				tip += " Duration: ";
+                tip += " " + tr("Duration:") + " ";
 				long len = (g->old_out-g->old_in);
 				if (panel_timeline->trim_in_point) {
 					len -= frame_diff;

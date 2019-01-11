@@ -749,7 +749,7 @@ void open_clip_worker(Clip* clip) {
 			bool stabilize = false;
 			if (stabilize) {
 				AVFilterContext* stab_filter;
-				int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=/media/matt/Home/samples/transforms.trf", NULL, clip->filter_graph);
+                int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=", NULL, clip->filter_graph);
 				if (stab_ret < 0) {
 					char err[100];
 					av_strerror(stab_ret, err, sizeof(err));

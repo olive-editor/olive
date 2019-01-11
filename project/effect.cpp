@@ -43,6 +43,7 @@
 #include <QPainter>
 #include <QtMath>
 #include <QMenu>
+#include <QApplication>
 
 bool shaders_are_enabled = true;
 QVector<EffectMeta> effects;
@@ -71,7 +72,9 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		}
 	} else {
 		qCritical() << "Invalid effect data";
-		QMessageBox::critical(mainWindow, "Invalid effect", "No candidate for effect '" + em->name + "'. This effect may be corrupt. Try reinstalling it or Olive.");
+        QMessageBox::critical(mainWindow,
+                              QCoreApplication::translate("Effect", "Invalid effect"),
+                              QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
 	}
 	return NULL;
 }
@@ -86,7 +89,7 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 }
 
 void load_internal_effects() {
-    qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+    if (!shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
 
 	EffectMeta em;
 
@@ -545,18 +548,18 @@ void Effect::show_context_menu(const QPoint& pos) {
 		int index = get_index_in_clip();
 
 		if (index > 0) {
-			QAction* move_up = menu.addAction("Move &Up");
+            QAction* move_up = menu.addAction(tr("Move &Up"));
 			connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
 		}
 
 		if (index < parent_clip->effects.size() - 1) {
-			QAction* move_down = menu.addAction("Move &Down");
+            QAction* move_down = menu.addAction(tr("Move &Down"));
 			connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
 		}
 
 		menu.addSeparator();
 
-		QAction* del_action = menu.addAction("D&elete");
+        QAction* del_action = menu.addAction(tr("D&elete"));
 		connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
 
 		menu.exec(container->title_bar->mapToGlobal(pos));

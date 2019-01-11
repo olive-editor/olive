@@ -87,14 +87,14 @@ void ViewerWidget::set_waveform_scroll(int s) {
 void ViewerWidget::show_context_menu() {
 	QMenu menu(this);
 
-	QAction* save_frame_as_image = menu.addAction("Save Frame as Image...");
+    QAction* save_frame_as_image = menu.addAction(tr("Save Frame as Image..."));
 	connect(save_frame_as_image, SIGNAL(triggered(bool)), this, SLOT(save_frame()));
 
-	QAction* show_fullscreen_action = menu.addAction("Show Fullscreen");
+    QAction* show_fullscreen_action = menu.addAction(tr("Show Fullscreen"));
 	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));
 
-	QMenu zoom_menu("Zoom");
-	QAction* fit_zoom = zoom_menu.addAction("Fit");
+    QMenu zoom_menu(tr("Zoom"));
+    QAction* fit_zoom = zoom_menu.addAction(tr("Fit"));
 	connect(fit_zoom, SIGNAL(triggered(bool)), this, SLOT(set_fit_zoom()));
 	zoom_menu.addAction("10%")->setData(0.1);
 	zoom_menu.addAction("25%")->setData(0.25);
@@ -104,13 +104,13 @@ void ViewerWidget::show_context_menu() {
 	zoom_menu.addAction("150%")->setData(1.5);
 	zoom_menu.addAction("200%")->setData(2.0);
 	zoom_menu.addAction("400%")->setData(4.0);
-	QAction* custom_zoom = zoom_menu.addAction("Custom");
+    QAction* custom_zoom = zoom_menu.addAction(tr("Custom"));
 	connect(custom_zoom, SIGNAL(triggered(bool)), this, SLOT(set_custom_zoom()));
 	connect(&zoom_menu, SIGNAL(triggered(QAction*)), this, SLOT(set_menu_zoom(QAction*)));
 	menu.addMenu(&zoom_menu);
 
 	if (!viewer->is_main_sequence()) {
-		menu.addAction("Close Media", viewer, SLOT(close_media()));
+        menu.addAction(tr("Close Media"), viewer, SLOT(close_media()));
 	}
 
 	menu.exec(QCursor::pos());
@@ -120,7 +120,7 @@ void ViewerWidget::save_frame() {
 	QFileDialog fd(this);
 	fd.setAcceptMode(QFileDialog::AcceptSave);
 	fd.setFileMode(QFileDialog::AnyFile);
-	fd.setWindowTitle("Save Frame");
+    fd.setWindowTitle(tr("Save Frame"));
 	fd.setNameFilter("Portable Network Graphic (*.png);;JPEG (*.jpg);;Windows Bitmap (*.bmp);;Portable Pixmap (*.ppm);;X11 Bitmap (*.xbm);;X11 Pixmap (*.xpm)");
 
 	if (fd.exec()) {
@@ -159,7 +159,10 @@ void ViewerWidget::set_fit_zoom() {
 
 void ViewerWidget::set_custom_zoom() {
 	bool ok;
-	double d = QInputDialog::getDouble(this, "Viewer Zoom", "Set Custom Zoom Value:", container->zoom*100, 0, 2147483647, 2, &ok);
+    double d = QInputDialog::getDouble(this,
+                                       tr("Viewer Zoom"),
+                                       tr("Set Custom Zoom Value:"),
+                                       container->zoom*100, 0, 2147483647, 2, &ok);
 	if (ok) {
 		container->fit = false;
 		container->zoom = d*0.01;

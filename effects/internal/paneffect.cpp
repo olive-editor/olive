@@ -9,7 +9,7 @@
 #include "ui/collapsiblewidget.h"
 
 PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-	EffectRow* pan_row = add_row("Pan");
+    EffectRow* pan_row = add_row(tr("Pan"));
 	pan_val = pan_row->add_field(EFFECT_FIELD_DOUBLE, "pan");
 	pan_val->set_double_minimum_value(-100);
 	pan_val->set_double_maximum_value(100);

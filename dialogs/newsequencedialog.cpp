@@ -31,7 +31,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
 
 	if (existing != NULL) {
 		existing_sequence = existing->to_sequence();
-		setWindowTitle("Editing \"" + existing_sequence->name + "\"");
+        setWindowTitle(tr("Editing \"%1\"").arg(existing_sequence->name));
 
 		width_numeric->setValue(existing_sequence->width);
 		height_numeric->setValue(existing_sequence->height);
@@ -51,7 +51,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
 		}
 	} else {
 		existing_sequence = NULL;
-		setWindowTitle("New Sequence");
+        setWindowTitle(tr("New Sequence"));
 	}
 }
 
@@ -157,21 +157,21 @@ void NewSequenceDialog::setup_ui() {
     QHBoxLayout* preset_layout = new QHBoxLayout(widget);
     preset_layout->setContentsMargins(0, 0, 0, 0);
 
-    preset_layout->addWidget(new QLabel("Preset:"));
+    preset_layout->addWidget(new QLabel(tr("Preset:")));
 
 	preset_combobox = new QComboBox(widget);
 
-	preset_combobox->addItem("Film 4K");
-	preset_combobox->addItem("TV 4K (Ultra HD/2160p)");
-	preset_combobox->addItem("1080p");
-	preset_combobox->addItem("720p");
-	preset_combobox->addItem("480p");
-	preset_combobox->addItem("360p");
-	preset_combobox->addItem("240p");
-	preset_combobox->addItem("144p");
-	preset_combobox->addItem("NTSC (480i)");
-	preset_combobox->addItem("PAL (576i)");
-	preset_combobox->addItem("Custom");
+    preset_combobox->addItem(tr("Film 4K"));
+    preset_combobox->addItem(tr("TV 4K (Ultra HD/2160p)"));
+    preset_combobox->addItem(tr("1080p"));
+    preset_combobox->addItem(tr("720p"));
+    preset_combobox->addItem(tr("480p"));
+    preset_combobox->addItem(tr("360p"));
+    preset_combobox->addItem(tr("240p"));
+    preset_combobox->addItem(tr("144p"));
+    preset_combobox->addItem(tr("NTSC (480i)"));
+    preset_combobox->addItem(tr("PAL (576i)"));
+    preset_combobox->addItem(tr("Custom"));
 	preset_combobox->setCurrentIndex(2);
 
     preset_layout->addWidget(preset_combobox);
@@ -179,23 +179,23 @@ void NewSequenceDialog::setup_ui() {
 	verticalLayout->addWidget(widget);
 
     QGroupBox* videoGroupBox = new QGroupBox(this);
-    videoGroupBox->setTitle("Video");
+    videoGroupBox->setTitle(tr("Video"));
 
     QGridLayout* videoLayout = new QGridLayout(videoGroupBox);
 
-    videoLayout->addWidget(new QLabel("Width:"), 0, 0, 1, 1);
+    videoLayout->addWidget(new QLabel(tr("Width:")), 0, 0, 1, 1);
     width_numeric = new QSpinBox(videoGroupBox);
     width_numeric->setMaximum(9999);
     width_numeric->setValue(1920);
     videoLayout->addWidget(width_numeric, 0, 2, 1, 2);
 
-    videoLayout->addWidget(new QLabel("Height:"), 1, 0, 1, 2);
+    videoLayout->addWidget(new QLabel(tr("Height:")), 1, 0, 1, 2);
     height_numeric = new QSpinBox(videoGroupBox);
 	height_numeric->setMaximum(9999);
 	height_numeric->setValue(1080);
     videoLayout->addWidget(height_numeric, 1, 2, 1, 2);
 
-    videoLayout->addWidget(new QLabel("Frame Rate:"), 2, 0, 1, 1);
+    videoLayout->addWidget(new QLabel(tr("Frame Rate:")), 2, 0, 1, 1);
     frame_rate_combobox = new QComboBox(videoGroupBox);
     frame_rate_combobox->addItem("10 FPS", 10.0);
     frame_rate_combobox->addItem("12.5 FPS", 12.5);
@@ -211,14 +211,14 @@ void NewSequenceDialog::setup_ui() {
     frame_rate_combobox->setCurrentIndex(6);
     videoLayout->addWidget(frame_rate_combobox, 2, 2, 1, 2);
 
-    videoLayout->addWidget(new QLabel("Pixel Aspect Ratio:"), 4, 0, 1, 1);
+    videoLayout->addWidget(new QLabel(tr("Pixel Aspect Ratio:")), 4, 0, 1, 1);
     par_combobox = new QComboBox(videoGroupBox);
-    par_combobox->addItem("Square Pixels (1.0)");
+    par_combobox->addItem(tr("Square Pixels (1.0)"));
     videoLayout->addWidget(par_combobox, 4, 2, 1, 2);
 
-    videoLayout->addWidget(new QLabel("Interlacing:"), 6, 0, 1, 1);
+    videoLayout->addWidget(new QLabel(tr("Interlacing:")), 6, 0, 1, 1);
     interlacing_combobox = new QComboBox(videoGroupBox);
-	interlacing_combobox->addItem("None (Progressive)");
+    interlacing_combobox->addItem(tr("None (Progressive)"));
 //	interlacing_combobox->addItem("Upper Field First");
 //	interlacing_combobox->addItem("Lower Field First");
     videoLayout->addWidget(interlacing_combobox, 6, 2, 1, 2);
@@ -226,11 +226,11 @@ void NewSequenceDialog::setup_ui() {
     verticalLayout->addWidget(videoGroupBox);
 
     QGroupBox* audioGroupBox = new QGroupBox(this);
-    audioGroupBox->setTitle("Audio");
+    audioGroupBox->setTitle(tr("Audio"));
 
     QGridLayout* audioLayout = new QGridLayout(audioGroupBox);
 
-    audioLayout->addWidget(new QLabel("Sample Rate: "), 0, 0, 1, 1);
+    audioLayout->addWidget(new QLabel(tr("Sample Rate: ")), 0, 0, 1, 1);
 
     audio_frequency_combobox = new QComboBox(audioGroupBox);
 	audio_frequency_combobox->addItem("22050 Hz", 22050);

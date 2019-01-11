@@ -7,7 +7,7 @@
 TextEditDialog::TextEditDialog(QWidget *parent, const QString &s) :
 	QDialog(parent)
 {
-	setWindowTitle("Edit Text");
+    setWindowTitle(tr("Edit Text"));
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	setLayout(layout);

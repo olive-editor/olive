@@ -153,7 +153,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 			if (type == LOAD_TYPE_VERSION) {
 				int proj_version = stream.readElementText().toInt();
 				if (proj_version < MIN_SAVE_VERSION && proj_version > SAVE_VERSION) {
-					if (QMessageBox::warning(mainWindow, "Version Mismatch", "This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                    if (QMessageBox::warning(
+                                mainWindow,
+                                tr("Version Mismatch"),
+                                tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),
+                                QMessageBox::Yes,
+                                QMessageBox::No) == QMessageBox::No) {
 						show_err = false;
 						return false;
 					}
@@ -435,7 +440,11 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									if (!found) {
 										correct_clip->linked.removeAt(j);
 										j--;
-										if (QMessageBox::warning(mainWindow, "Invalid Clip Link", "This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                                        if (QMessageBox::warning(mainWindow,
+                                                                 tr("Invalid Clip Link"),
+                                                                 tr("This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?"),
+                                                                 QMessageBox::Yes,
+                                                                 QMessageBox::No) == QMessageBox::No) {
 											delete s;
 											return false;
 										}
@@ -584,7 +593,7 @@ void LoadThread::run() {
 			xml_error = false;
 			if (show_err) emit error();
 		} else if (stream.hasError()) {
-			error_str = stream.errorString() + " - Line: " + QString::number(stream.lineNumber()) + " Col:" + QString::number(stream.columnNumber());
+            error_str = tr("%1 - Line: %2 Col: %3").arg(stream.errorString(), QString::number(stream.lineNumber()), QString::number(stream.columnNumber()));
 			xml_error = true;
 			emit error();
 			cont = false;
@@ -624,9 +633,15 @@ void LoadThread::cancel() {
 void LoadThread::error_func() {
 	if (xml_error) {
 		qCritical() << "Error parsing XML." << error_str;
-		QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + error_str, QMessageBox::Ok);
+        QMessageBox::critical(mainWindow,
+                              tr("XML Parsing Error"),
+                              tr("Couldn't load '%1'. %2").arg(project_url, error_str),
+                              QMessageBox::Ok);
 	} else {
-		QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+        QMessageBox::critical(mainWindow,
+                              tr("Project Load Error"),
+                              tr("Error loading project: %1").arg(error_str),
+                              QMessageBox::Ok);
 	}
 }
 

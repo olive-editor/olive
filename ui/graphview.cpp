@@ -58,14 +58,14 @@ GraphView::GraphView(QWidget* parent) :
 void GraphView::show_context_menu(const QPoint& pos) {
 	QMenu menu(this);
 
-	QAction* zoom_to_selection = menu.addAction("Zoom to Selection");
+    QAction* zoom_to_selection = menu.addAction(tr("Zoom to Selection"));
 	if (selected_keys.size() == 0 || row == NULL) {
 		zoom_to_selection->setEnabled(false);
 	} else {
 		connect(zoom_to_selection, SIGNAL(triggered(bool)), this, SLOT(set_view_to_selection()));
 	}
 
-	QAction* zoom_to_all = menu.addAction("Zoom to Show All");
+    QAction* zoom_to_all = menu.addAction(tr("Zoom to Show All"));
 	if (row == NULL) {
 		zoom_to_all->setEnabled(false);
 	} else {
@@ -74,7 +74,7 @@ void GraphView::show_context_menu(const QPoint& pos) {
 
 	menu.addSeparator();
 
-	QAction* reset_action = menu.addAction("Reset View");
+    QAction* reset_action = menu.addAction(tr("Reset View"));
 	if (row == NULL) {
 		reset_action->setEnabled(false);
 	} else {

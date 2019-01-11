@@ -292,7 +292,7 @@ bool start_recording() {
 		return false;
 	}
 
-	QString audio_path = project_url + " Audio";
+    QString audio_path = project_url + " " + QCoreApplication::translate("Audio", "Audio");
 	QDir audio_dir(audio_path);
 	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
 		qCritical() << "Failed to create audio directory";
@@ -303,7 +303,7 @@ bool start_recording() {
 	int file_number = 0;
 	do {
 		file_number++;
-		audio_filename = audio_path + "/Recording " + QString::number(file_number) + ".wav";
+        audio_filename = audio_path + "/" + QCoreApplication::translate("Audio", "Recording") + " " + QString::number(file_number) + ".wav";
 	} while (QFile(audio_filename).exists());
 
 	output_recording.setFileName(audio_filename);

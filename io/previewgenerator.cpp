@@ -435,14 +435,14 @@ void PreviewGenerator::run() {
 	if(errCode != 0) {
 		char err[1024];
 		av_strerror(errCode, err, 1024);
-		errorStr = "Could not open file - " + QString(err);
+        errorStr = tr("Could not open file - %1").arg(err);
 		error = true;
 	} else {
 		errCode = avformat_find_stream_info(fmt_ctx, NULL);
 		if (errCode < 0) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
-			errorStr = "Could not find stream information - " + QString(err);
+            errorStr = tr("Could not find stream information - %1").arg(err);
 			error = true;
 		} else {
 			av_dump_format(fmt_ctx, 0, filename, 0);

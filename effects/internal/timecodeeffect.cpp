@@ -29,33 +29,33 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
 	enable_always_update = true;
 	enable_superimpose = true;
 
-	EffectRow* tc_row = add_row("Timecode");
+    EffectRow* tc_row = add_row(tr("Timecode"));
 	tc_select = tc_row->add_field(EFFECT_FIELD_COMBO, "tc_selector");
-	tc_select->add_combo_item("Sequence", true);
-	tc_select->add_combo_item("Media", false);
+    tc_select->add_combo_item(tr("Sequence"), true);
+    tc_select->add_combo_item(tr("Media"), false);
 	tc_select->set_combo_index(0);
 
-	scale_val = add_row("Scale")->add_field(EFFECT_FIELD_DOUBLE, "scale", 2);
+    scale_val = add_row(tr("Scale"))->add_field(EFFECT_FIELD_DOUBLE, "scale", 2);
 	scale_val->set_double_minimum_value(1);
 	scale_val->set_double_default_value(100);
 	scale_val->set_double_maximum_value(1000);
 
-	color_val = add_row("Color")->add_field(EFFECT_FIELD_COLOR, "color", 2);
+    color_val = add_row(tr("Color"))->add_field(EFFECT_FIELD_COLOR, "color", 2);
 	color_val->set_color_value(Qt::white);
 
-	color_bg_val = add_row("Background Color")->add_field(EFFECT_FIELD_COLOR, "bgcolor", 2);
+    color_bg_val = add_row(tr("Background Color"))->add_field(EFFECT_FIELD_COLOR, "bgcolor", 2);
 	color_bg_val->set_color_value(Qt::black);
 
-	bg_alpha = add_row("Background Opacity")->add_field(EFFECT_FIELD_DOUBLE, "bgalpha", 2);
+    bg_alpha = add_row(tr("Background Opacity"))->add_field(EFFECT_FIELD_DOUBLE, "bgalpha", 2);
 	bg_alpha->set_double_minimum_value(0);
 	bg_alpha->set_double_maximum_value(100);
 	bg_alpha->set_double_default_value(50);
 
-	EffectRow* offset = add_row("Offset");
+    EffectRow* offset = add_row(tr("Offset"));
 	offset_x_val = offset->add_field(EFFECT_FIELD_DOUBLE, "offsetx");
 	offset_y_val = offset->add_field(EFFECT_FIELD_DOUBLE, "offsety");
 
-	prepend_text = add_row("Prepend")->add_field(EFFECT_FIELD_STRING, "prepend", 2);
+    prepend_text = add_row(tr("Prepend"))->add_field(EFFECT_FIELD_STRING, "prepend", 2);
 }
 
 

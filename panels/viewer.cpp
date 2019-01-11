@@ -44,7 +44,7 @@ Viewer::Viewer(QWidget *parent) :
 	seq(NULL),
 	created_sequence(false),
 	cue_recording_internal(false),
-	panel_name("Viewer: "),
+    panel_name(tr("Viewer: ")),
 	minimum_zoom(1.0)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -785,7 +785,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 		update_playhead_timecode(0);
 		update_end_timecode();
 
-		setWindowTitle(panel_name + "(none)");
+        setWindowTitle(panel_name + tr("(none)"));
 	}
 
 	update_header_zoom();

@@ -8,7 +8,7 @@
 DebugDialog* debug_dialog = NULL;
 
 DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
-	setWindowTitle("Debug Log");
+    setWindowTitle(tr("Debug Log"));
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	setLayout(layout);

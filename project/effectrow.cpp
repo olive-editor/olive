@@ -64,7 +64,10 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 		set_keyframe_now(ca);
 		undo_stack.push(ca);
 	} else {
-		if (QMessageBox::question(panel_effect_controls, "Disable Keyframes", "Disabling keyframes will delete all current keyframes. Are you sure you want to do this?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+        if (QMessageBox::question(panel_effect_controls,
+                                  tr("Disable Keyframes"),
+                                  tr("Disabling keyframes will delete all current keyframes. Are you sure you want to do this?"),
+                                  QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
 			// clear
 			ComboAction* ca = new ComboAction();
 			for (int i=0;i<fieldCount();i++) {
