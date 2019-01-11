@@ -394,8 +394,9 @@ bool Project::is_focused() {
 }
 
 Media* Project::new_folder(QString name) {
-	Media* item = new Media(0);
+    Media* item = new Media(0);
 	item->set_folder();
+    item->set_name(name);
 	return item;
 }
 
@@ -722,10 +723,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 				m->url = file;
 				m->name = get_file_name_from_path(files.at(i));
 
-				item->set_footage(m);
-
-				// generate waveform/thumbnail in another thread
-				start_preview_generator(item, replace != NULL);
+                item->set_footage(m);
 
 				last_imported_media.append(item);
 
@@ -733,7 +731,8 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 					if (create_undo_action) {
 						ca->append(new AddMediaCommand(item, parent));
 					} else {
-						project_model.appendChild(parent, item);
+                        parent->appendChild(item);
+//						project_model.appendChild(parent, item);
 					}
 				}
 
@@ -742,7 +741,12 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 		}
 	}
 	if (create_undo_action) {
-		if (imported) {
+        if (imported) {
+            for (int i=0;i<last_imported_media.size();i++) {
+                // generate waveform/thumbnail in another thread
+                start_preview_generator(last_imported_media.at(i), replace != NULL);
+            }
+
 			undo_stack.push(ca);
 		} else {
 			delete ca;
