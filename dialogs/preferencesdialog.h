@@ -42,11 +42,13 @@ private slots:
 	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = NULL);
 	void load_shortcut_file();
 	void save_shortcut_file();
+    void browse_css_file();
 
 private:
 	void setup_ui();
 	void setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent);
 
+    QLineEdit* custom_css_fn;
 	QLineEdit* imgSeqFormatEdit;
 	QComboBox* recordingComboBox;
 	QRadioButton* accurateSeekButton;

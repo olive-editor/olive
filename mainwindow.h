@@ -23,6 +23,8 @@ public:
 	void load_shortcuts(const QString &fn, bool first = false);
 	void save_shortcuts(const QString &fn);
 
+    void load_css_from_file(const QString& fn);
+
 public slots:
 	void undo();
 	void redo();
