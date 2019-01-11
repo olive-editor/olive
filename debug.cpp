@@ -3,30 +3,46 @@
 #include <QFile>
 #include <QDateTime>
 #include <QStandardPaths>
+#include <QDir>
 
-#ifndef QT_DEBUG
-QFile debug_file;
-QDebug debug_out(&debug_file);
-#endif
+#include "dialogs/debugdialog.h"
 
-void setup_debug() {
-#ifndef QT_DEBUG
-	debug_file.setFileName(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/debug_log");
-	if (debug_file.open(QFile::WriteOnly)) {
-		QString debug_intro = "Olive Session " + QString::number(QDateTime::currentMSecsSinceEpoch());
-		debug_file.write(debug_intro.toUtf8());
-	} else {
-		debug_out = QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug();
+QString debug_info;
+
+void debug_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+	QByteArray localMsg = msg.toLocal8Bit();
+	switch (type) {
+	case QtDebugMsg:
+		fprintf(stderr, "[DEBUG] %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		debug_info.prepend(QString("<b>[DEBUG]</b> %1 (%2:%3, %4)<br>").arg(localMsg.constData(), context.file, QString::number(context.line), context.function));
+		fflush(stderr);
+		break;
+	case QtInfoMsg:
+		fprintf(stderr, "[INFO] %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		debug_info.prepend(QString("<b>[INFO]</b> %1 (%2:%3, %4)<br>").arg(localMsg.constData(), context.file, QString::number(context.line), context.function));
+		fflush(stderr);
+		break;
+	case QtWarningMsg:
+		fprintf(stderr, "[WARNING] %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		debug_info.prepend(QString("<font color='yellow'><b>[WARNING]</b> %1 (%2:%3, %4)</font><br>").arg(localMsg.constData(), context.file, QString::number(context.line), context.function));
+		fflush(stderr);
+		break;
+	case QtCriticalMsg:
+		fprintf(stderr, "[ERROR] %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		debug_info.prepend(QString("<font color='red'><b>[ERROR]</b> %1 (%2:%3, %4)</font><br>").arg(localMsg.constData(), context.file, QString::number(context.line), context.function));
+		fflush(stderr);
+		break;
+	case QtFatalMsg:
+		fprintf(stderr, "[FATAL] %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		debug_info.prepend(QString("<font color='red'><b>[FATAL]</b> %1 (%2:%3, %4)</font><br>").arg(localMsg.constData(), context.file, QString::number(context.line), context.function));
+		fflush(stderr);
+		abort();
 	}
-#endif
+	if (debug_dialog->isVisible()) {
+		QMetaObject::invokeMethod(debug_dialog, "update_log", Qt::QueuedConnection);
+	}
 }
 
-void close_debug() {
-#ifndef QT_DEBUG
-	if (debug_file.isOpen()) {
-		debug_file.putChar(10);
-		debug_file.putChar(10);
-		debug_file.close();
-	}
-#endif
+const QString &get_debug_str() {
+	return debug_info;
 }

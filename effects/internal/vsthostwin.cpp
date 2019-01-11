@@ -36,7 +36,7 @@ extern "C" {
 			mainWindow->setWindowModified(true);
 			break;
 		default:
-			dout << "[INFO] Plugin requested unhandled opcode" << opcode;
+			qInfo() << "Plugin requested unhandled opcode" << opcode;
 			break;
 		}
 	}
@@ -60,7 +60,7 @@ void VSTHostWin::loadPlugin() {
 	modulePtr = LoadLibrary(dll_fn_w);
 	if(modulePtr == NULL) {
 		DWORD dll_err = GetLastError();
-		dout << "[ERROR] Failed to load VST" << dll_fn_w << "-" << dll_err;
+		qCritical() << "Failed to load VST" << dll_fn_w << "-" << dll_err;
 		QString msg_err = "Failed to load VST plugin \"" + dll_fn + "\": " + QString::number(dll_err);
 		if (dll_err == 193) {
 #ifdef _WIN64
@@ -92,7 +92,7 @@ bool VSTHostWin::configurePluginCallbacks() {
 	// If incorrect, then the file either was not loaded properly, is not a
 	// real VST plugin, or is otherwise corrupt.
 	if(plugin->magic != kEffectMagic) {
-		dout << "[ERROR] Plugin's magic number is bad";
+		qCritical() << "Plugin's magic number is bad";
 		QMessageBox::critical(mainWindow, "VST Error", "Plugin's magic number is invalid");
 		return false;
 	}

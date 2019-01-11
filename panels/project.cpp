@@ -283,7 +283,6 @@ void Project::duplicate_selected() {
 	bool duped = false;
 	ComboAction* ca = new ComboAction();
 	for (int j=0;j<items.size();j++) {
-		dout << "duplicate called";
 		Media* i = item_to_media(items.at(j));
 		if (i->get_type() == MEDIA_TYPE_SEQUENCE) {
 			new_sequence(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
@@ -394,9 +393,9 @@ bool Project::is_focused() {
 }
 
 Media* Project::new_folder(QString name) {
-    Media* item = new Media(0);
+	Media* item = new Media(0);
 	item->set_folder();
-    item->set_name(name);
+	item->set_name(name);
 	return item;
 }
 
@@ -528,7 +527,7 @@ void Project::delete_selected_media() {
 	// remove
 	if (remove) {
 		panel_effect_controls->clear_effects(true);
-        if (sequence != NULL) sequence->selections.clear();
+		if (sequence != NULL) sequence->selections.clear();
 
 		// remove media and parents
 		for (int m=0;m<parents.size();m++) {
@@ -723,7 +722,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 				m->url = file;
 				m->name = get_file_name_from_path(files.at(i));
 
-                item->set_footage(m);
+				item->set_footage(m);
 
 				last_imported_media.append(item);
 
@@ -731,7 +730,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 					if (create_undo_action) {
 						ca->append(new AddMediaCommand(item, parent));
 					} else {
-                        parent->appendChild(item);
+						parent->appendChild(item);
 //						project_model.appendChild(parent, item);
 					}
 				}
@@ -741,13 +740,13 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 		}
 	}
 	if (create_undo_action) {
-        if (imported) {
-            undo_stack.push(ca);
+		if (imported) {
+			undo_stack.push(ca);
 
-            for (int i=0;i<last_imported_media.size();i++) {
-                // generate waveform/thumbnail in another thread
-                start_preview_generator(last_imported_media.at(i), replace != NULL);
-            }
+			for (int i=0;i<last_imported_media.size();i++) {
+				// generate waveform/thumbnail in another thread
+				start_preview_generator(last_imported_media.at(i), replace != NULL);
+			}
 		} else {
 			delete ca;
 		}
@@ -948,8 +947,8 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						if (s == sequence) {
 							stream.writeAttribute("open", "1");
 						}
-                        stream.writeAttribute("workarea", QString::number(s->using_workarea));
-                        stream.writeAttribute("workareaEnabled", QString::number(s->enable_workarea));
+						stream.writeAttribute("workarea", QString::number(s->using_workarea));
+						stream.writeAttribute("workareaEnabled", QString::number(s->enable_workarea));
 						stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
 						stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
 
@@ -1042,7 +1041,7 @@ void Project::save_project(bool autorecovery) {
 
 	QFile file(autorecovery ? autorecovery_filename : project_url);
 	if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
-		dout << "[ERROR] Could not open file";
+		qCritical() << "Could not open file";
 		return;
 	}
 
@@ -1122,7 +1121,7 @@ void Project::save_recent_projects() {
 		}
 		f.close();
 	} else {
-		dout << "[WARNING] Could not save recent projects";
+		qWarning() << "Could not save recent projects";
 	}
 }
 

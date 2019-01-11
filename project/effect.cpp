@@ -69,7 +69,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 #endif
 		}
 	} else {
-		dout << "[ERROR] Invalid effect data";
+		qCritical() << "Invalid effect data";
 		QMessageBox::critical(mainWindow, "Invalid effect", "No candidate for effect '" + em->name + "'. This effect may be corrupt. Try reinstalling it or Olive.");
 	}
 	return NULL;
@@ -192,7 +192,7 @@ void load_shader_effects() {
 			for (int i=0;i<entries.size();i++) {
 				QFile file(effects_path + "/" + entries.at(i));
 				if (!file.open(QIODevice::ReadOnly)) {
-					dout << "[ERROR] Could not open" << entries.at(i);
+					qCritical() << "Could not open" << entries.at(i);
 					return;
 				}
 
@@ -220,7 +220,7 @@ void load_shader_effects() {
 							em.internal = -1;
 							effects.append(em);
 						} else {
-							dout << "[ERROR] Invalid effect found in" << entries.at(i);
+							qCritical() << "Invalid effect found in" << entries.at(i);
 						}
 						break;
 					}
@@ -248,12 +248,12 @@ EffectInit::EffectInit() {
 }
 
 void EffectInit::run() {
-	dout << "[INFO] Initializing effects...";
+	qInfo() << "Initializing effects...";
 	load_internal_effects();
 	load_shader_effects();
 	load_vst_effects();
 	panel_effect_controls->effects_loaded.unlock();
-	dout << "[INFO] Finished initializing effects";
+	qInfo() << "Finished initializing effects";
 }
 
 Effect::Effect(Clip* c, const EffectMeta *em) :
@@ -334,7 +334,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 									}
 
 									if (id.isEmpty()) {
-										dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
+										qCritical() << "Couldn't load field from" << em->filename << "- ID cannot be empty.";
 									} else if (type > -1) {
 										EffectField* field = row->add_field(type, id);
 										connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
@@ -453,7 +453,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 								if (script_file.open(QFile::ReadOnly)) {
 									script = script_file.readAll();
 								} else {
-									dout << "[ERROR] Failed to open superimpose script file for" << em->filename;
+									qCritical() << "Failed to open superimpose script file for" << em->filename;
 									enable_superimpose = false;
 								}
 								break;
@@ -465,7 +465,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 
 				effect_file.close();
 			} else {
-				dout << "[ERROR] Failed to open effect file" << em->filename;
+				qCritical() << "Failed to open effect file" << em->filename;
 			}
 		}
 	}
@@ -661,7 +661,7 @@ void Effect::load(QXmlStreamReader& stream) {
 										if (row->field(l)->id == attr.value()) {
 											field_number = l;
 											found_field_by_id = true;
-											dout << "[INFO] Found field by ID";
+											qInfo() << "Found field by ID";
 											break;
 										}
 									}
@@ -710,14 +710,14 @@ void Effect::load(QXmlStreamReader& stream) {
 								}
 							}
 						} else {
-							dout << "[ERROR] Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
+							qCritical() << "Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
 						}
 						field_count++;
 					}
 				}
 
 			} else {
-				dout << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
+				qCritical() << "Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
 			}
 			row_count++;
 		} else if (stream.isStartElement()) {
@@ -783,37 +783,37 @@ void Effect::validate_meta_path() {
 
 void Effect::open() {
 	if (isOpen) {
-		dout << "[WARNING] Tried to open an effect that was already open";
+		qWarning() << "Tried to open an effect that was already open";
 		close();
 	}
 	if (enable_shader) {
 		if (QOpenGLContext::currentContext() == NULL) {
-			dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
+			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
 			glslProgram = new QOpenGLShaderProgram();
 			validate_meta_path();
 			bool glsl_compiled = true;
 			if (!vertPath.isEmpty()) {
 				if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
-					dout << "[INFO] Vertex shader added successfully";
+					qInfo() << "Vertex shader added successfully";
 				} else {
 					glsl_compiled = false;
-					dout << "[WARNING] Vertex shader could not be added";
+					qWarning() << "Vertex shader could not be added";
 				}
 			}
 			if (!fragPath.isEmpty()) {
 				if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
-					dout << "[INFO] Fragment shader added successfully";
+					qInfo() << "Fragment shader added successfully";
 				} else {
 					glsl_compiled = false;
-					dout << "[WARNING] Fragment shader could not be added";
+					qWarning() << "Fragment shader could not be added";
 				}
 			}
 			if (glsl_compiled) {
 				if (glslProgram->link()) {
-					dout << "[INFO] Shader program linked successfully";
+					qInfo() << "Shader program linked successfully";
 				} else {
-					dout << "[WARNING] Shader program failed to link";
+					qWarning() << "Shader program failed to link";
 				}
 			}
 			isOpen = true;
@@ -829,7 +829,7 @@ void Effect::open() {
 
 void Effect::close() {
 	if (!isOpen) {
-		dout << "[WARNING] Tried to close an effect that was already closed";
+		qWarning() << "Tried to close an effect that was already closed";
 	}
 	delete_texture();
 	if (glslProgram != NULL) {
@@ -846,7 +846,7 @@ bool Effect::is_glsl_linked() {
 void Effect::startEffect() {
 	if (!isOpen) {
 		open();
-		dout << "[WARNING] Tried to start a closed effect - opening";
+		qWarning() << "Tried to start a closed effect - opening";
 	}
 	if (enable_shader && glslProgram->isLinked()) bound = glslProgram->bind();
 }

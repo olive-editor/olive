@@ -243,7 +243,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		if (target_frame == NULL || reset) {
 			// reset cache
 			texture_failed = true;
-			dout << "[INFO] Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
+			qInfo() << "Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
 		}
 
 		if (target_frame != NULL) {
@@ -325,24 +325,24 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 		if (read_ret >= 0) {
 			int send_ret = avcodec_send_packet(c->codecCtx, c->pkt);
 			if (send_ret < 0) {
-				dout << "[ERROR] Failed to send packet to decoder." << send_ret;
+				qCritical() << "Failed to send packet to decoder." << send_ret;
 				return send_ret;
 			}
 		} else {
 			if (read_ret == AVERROR_EOF) {
 				int send_ret = avcodec_send_packet(c->codecCtx, NULL);
 				if (send_ret < 0) {
-					dout << "[ERROR] Failed to send packet to decoder." << send_ret;
+					qCritical() << "Failed to send packet to decoder." << send_ret;
 					return send_ret;
 				}
 			} else {
-				dout << "[ERROR] Could not read frame." << read_ret;
+				qCritical() << "Could not read frame." << read_ret;
 				return read_ret; // skips trying to find a frame at all
 			}
 		}
 	}
 	if (receive_ret < 0) {
-		if (receive_ret != AVERROR_EOF) dout << "[ERROR] Failed to receive packet from decoder." << receive_ret;
+		if (receive_ret != AVERROR_EOF) qCritical() << "Failed to receive packet from decoder." << receive_ret;
 		result = receive_ret;
 	}
 

@@ -27,28 +27,28 @@ extern "C" {
 ExportThread::ExportThread() : continueEncode(true) {
 	surface.create();
 
-    fmt_ctx = NULL;
-    video_stream = NULL;
-    vcodec = NULL;
-    vcodec_ctx = NULL;
-    video_frame = NULL;
-    sws_frame = NULL;
-    sws_ctx = NULL;
-    audio_stream = NULL;
-    acodec = NULL;
-    audio_frame = NULL;
-    swr_frame = NULL;
-    acodec_ctx = NULL;
-    swr_ctx = NULL;
+	fmt_ctx = NULL;
+	video_stream = NULL;
+	vcodec = NULL;
+	vcodec_ctx = NULL;
+	video_frame = NULL;
+	sws_frame = NULL;
+	sws_ctx = NULL;
+	audio_stream = NULL;
+	acodec = NULL;
+	audio_frame = NULL;
+	swr_frame = NULL;
+	acodec_ctx = NULL;
+	swr_ctx = NULL;
 
-    vpkt_alloc = false;
-    apkt_alloc = false;
+	vpkt_alloc = false;
+	apkt_alloc = false;
 }
 
 bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale) {
 	ret = avcodec_send_frame(codec_ctx, frame);
 	if (ret < 0) {
-		dout << "[ERROR] Failed to send frame to encoder." << ret;
+		qCritical() << "Failed to send frame to encoder." << ret;
 		ed->export_error = "failed to send frame to encoder (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -59,7 +59,7 @@ bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, 
 			return true;
 		} else if (ret < 0) {
 			if (ret != AVERROR_EOF) {
-				dout << "[ERROR] Failed to receive packet from encoder." << ret;
+				qCritical() << "Failed to receive packet from encoder." << ret;
 				ed->export_error = "failed to receive packet from encoder (" + QString::number(ret) + ")";
 			}
 			return false;
@@ -80,7 +80,7 @@ bool ExportThread::setupVideo() {
 	// find video encoder
 	vcodec = avcodec_find_encoder((enum AVCodecID) video_codec);
 	if (!vcodec) {
-		dout << "[ERROR] Could not find video encoder";
+		qCritical() << "Could not find video encoder";
 		ed->export_error = "could not video encoder for " + QString::number(video_codec);
 		return false;
 	}
@@ -89,7 +89,7 @@ bool ExportThread::setupVideo() {
 	video_stream = avformat_new_stream(fmt_ctx, vcodec);
 	video_stream->id = 0;
 	if (!video_stream) {
-		dout << "[ERROR] Could not allocate video stream";
+		qCritical() << "Could not allocate video stream";
 		ed->export_error = "could not allocate video stream";
 		return false;
 	}
@@ -98,7 +98,7 @@ bool ExportThread::setupVideo() {
 //	vcodec_ctx = video_stream->codec;
 	vcodec_ctx = avcodec_alloc_context3(vcodec);
 	if (!vcodec_ctx) {
-		dout << "[ERROR] Could not allocate video encoding context";
+		qCritical() << "Could not allocate video encoding context";
 		ed->export_error = "could not allocate video encoding context";
 		return false;
 	}
@@ -135,7 +135,7 @@ bool ExportThread::setupVideo() {
 
 	ret = avcodec_open2(vcodec_ctx, vcodec, NULL);
 	if (ret < 0) {
-		dout << "[ERROR] Could not open output video encoder." << ret;
+		qCritical() << "Could not open output video encoder." << ret;
 		ed->export_error = "could not open output video encoder (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -143,7 +143,7 @@ bool ExportThread::setupVideo() {
 	// copy video encoder parameters to output stream
 	ret = avcodec_parameters_from_context(video_stream->codecpar, vcodec_ctx);
 	if (ret < 0) {
-		dout << "[ERROR] Could not copy video encoder parameters to output stream." << ret;
+		qCritical() << "Could not copy video encoder parameters to output stream." << ret;
 		ed->export_error = "could not copy video encoder parameters to output stream (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -187,7 +187,7 @@ bool ExportThread::setupAudio() {
 	// find encoder
 	acodec = avcodec_find_encoder(static_cast<AVCodecID>(audio_codec));
 	if (!acodec) {
-		dout << "[ERROR] Could not find audio encoder";
+		qCritical() << "Could not find audio encoder";
 		ed->export_error = "could not audio encoder for " + QString::number(audio_codec);
 		return false;
 	}
@@ -196,7 +196,7 @@ bool ExportThread::setupAudio() {
 	audio_stream = avformat_new_stream(fmt_ctx, acodec);
 	audio_stream->id = 1;
 	if (!audio_stream) {
-		dout << "[ERROR] Could not allocate audio stream";
+		qCritical() << "Could not allocate audio stream";
 		ed->export_error = "could not allocate audio stream";
 		return false;
 	}
@@ -205,7 +205,7 @@ bool ExportThread::setupAudio() {
 //	acodec_ctx = audio_stream->codec;
 	acodec_ctx = avcodec_alloc_context3(acodec);
 	if (!acodec_ctx) {
-		dout << "[ERROR] Could not find allocate audio encoding context";
+		qCritical() << "Could not find allocate audio encoding context";
 		ed->export_error = "could not allocate audio encoding context";
 		return false;
 	}
@@ -230,7 +230,7 @@ bool ExportThread::setupAudio() {
 	// open encoder
 	ret = avcodec_open2(acodec_ctx, acodec, NULL);
 	if (ret < 0) {
-		dout << "[ERROR] Could not open output audio encoder." << ret;
+		qCritical() << "Could not open output audio encoder." << ret;
 		ed->export_error = "could not open output audio encoder (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -238,7 +238,7 @@ bool ExportThread::setupAudio() {
 	// copy params to output stream
 	ret = avcodec_parameters_from_context(audio_stream->codecpar, acodec_ctx);
 	if (ret < 0) {
-		dout << "[ERROR] Could not copy audio encoder parameters to output stream." << ret;
+		qCritical() << "Could not copy audio encoder parameters to output stream." << ret;
 		ed->export_error = "could not copy audio encoder parameters to output stream (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -268,7 +268,7 @@ bool ExportThread::setupAudio() {
 	av_frame_make_writable(audio_frame);
 	ret = av_frame_get_buffer(audio_frame, 0);
 	if (ret < 0) {
-		dout << "[ERROR] Could not allocate audio buffer." << ret;
+		qCritical() << "Could not allocate audio buffer." << ret;
 		ed->export_error = "could not allocate audio buffer (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -290,7 +290,7 @@ bool ExportThread::setupAudio() {
 bool ExportThread::setupContainer() {
 	avformat_alloc_output_context2(&fmt_ctx, NULL, NULL, c_filename);
 	if (!fmt_ctx) {
-		dout << "[ERROR] Could not create output context";
+		qCritical() << "Could not create output context";
 		ed->export_error = "could not create output format context";
 		return false;
 	}
@@ -299,7 +299,7 @@ bool ExportThread::setupContainer() {
 
 	ret = avio_open(&fmt_ctx->pb, c_filename, AVIO_FLAG_WRITE);
 	if (ret < 0) {
-		dout << "[ERROR] Could not open output file." << ret;
+		qCritical() << "Could not open output file." << ret;
 		ed->export_error = "could not open output file (" + QString::number(ret) + ")";
 		return false;
 	}
@@ -311,7 +311,7 @@ void ExportThread::run() {
 	panel_sequence_viewer->pause();
 
 	if (!panel_sequence_viewer->viewer_widget->context()->makeCurrent(&surface)) {
-		dout << "[ERROR] Make current failed";
+		qCritical() << "Make current failed";
 		ed->export_error = "could not make OpenGL context current";
 		return;
 	}
@@ -330,7 +330,7 @@ void ExportThread::run() {
 	if (continueEncode) {
 		ret = avformat_write_header(fmt_ctx, NULL);
 		if (ret < 0) {
-			dout << "[ERROR] Could not write output file header." << ret;
+			qCritical() << "Could not write output file header." << ret;
 			ed->export_error = "could not write output file header (" + QString::number(ret) + ")";
 			continueEncode = false;
 		}
@@ -400,24 +400,24 @@ void ExportThread::run() {
 		avg_time = (total_time/frame_count);
 		eta = (remaining_frames*avg_time);
 
-//        dout << "[INFO] Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
+//        qInfo() << "Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
 
 		emit progress_changed(qRound(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100), eta);
 		sequence->playhead++;
 		frame_count++;
 	}
 
-    if (continueEncode) {
-        if (video_enabled) vpkt_alloc = true;
-        if (audio_enabled) apkt_alloc = true;
-    }
+	if (continueEncode) {
+		if (video_enabled) vpkt_alloc = true;
+		if (audio_enabled) apkt_alloc = true;
+	}
 
 	panel_sequence_viewer->viewer_widget->default_fbo = NULL;
 	rendering = false;
 
 	fbo.release();
 
-    if (audio_enabled && continueEncode) {
+	if (audio_enabled && continueEncode) {
 		// flush swresample
 		do {
 			swr_convert_frame(swr_ctx, swr_frame, NULL);
@@ -439,7 +439,7 @@ void ExportThread::run() {
 
 		ret = av_write_trailer(fmt_ctx);
 		if (ret < 0) {
-			dout << "[ERROR] Could not write output file trailer." << ret;
+			qCritical() << "Could not write output file trailer." << ret;
 			ed->export_error = "could not write output file trailer (" + QString::number(ret) + ")";
 			continueEncode = false;
 		}
@@ -449,19 +449,19 @@ void ExportThread::run() {
 
 	avio_closep(&fmt_ctx->pb);
 
-    if (vpkt_alloc) av_packet_unref(&video_pkt);
-    if (video_frame != NULL) av_frame_free(&video_frame);
-    if (vcodec_ctx != NULL) {
-        avcodec_close(vcodec_ctx);
-        avcodec_free_context(&vcodec_ctx);
-    }
+	if (vpkt_alloc) av_packet_unref(&video_pkt);
+	if (video_frame != NULL) av_frame_free(&video_frame);
+	if (vcodec_ctx != NULL) {
+		avcodec_close(vcodec_ctx);
+		avcodec_free_context(&vcodec_ctx);
+	}
 
-    if (apkt_alloc) av_packet_unref(&audio_pkt);
-    if (audio_frame != NULL) av_frame_free(&audio_frame);
-    if (acodec_ctx != NULL) {
-        avcodec_close(acodec_ctx);
-        avcodec_free_context(&acodec_ctx);
-    }
+	if (apkt_alloc) av_packet_unref(&audio_pkt);
+	if (audio_frame != NULL) av_frame_free(&audio_frame);
+	if (acodec_ctx != NULL) {
+		avcodec_close(acodec_ctx);
+		avcodec_free_context(&acodec_ctx);
+	}
 
 	avformat_free_context(fmt_ctx);
 

@@ -554,10 +554,10 @@ bool isLiveEditing() {
 void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 	if (sequence != NULL) {
 		int tool = panel_timeline->tool;
-        if (event->button() == Qt::MiddleButton) {
-            tool = TIMELINE_TOOL_HAND;
-            panel_timeline->creating = false;
-        } else if (event->button() == Qt::RightButton) {
+		if (event->button() == Qt::MiddleButton) {
+			tool = TIMELINE_TOOL_HAND;
+			panel_timeline->creating = false;
+		} else if (event->button() == Qt::RightButton) {
 			tool = TIMELINE_TOOL_MENU;
 			panel_timeline->creating = false;
 		}
@@ -1163,7 +1163,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 			update_ui(true);
 		}
-        panel_timeline->hand_moving = false;
+		panel_timeline->hand_moving = false;
 	}
 }
 
@@ -2178,7 +2178,7 @@ void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPain
 					p->drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
 				}
 			}/* else {
-				dout << "[WARNING] Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
+				qWarning() << "Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
 			}*/
 		}
 	}

@@ -437,7 +437,7 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
 				if (superimpose_texture == 0) {
-					dout << "[WARNING] Superimpose texture was NULL, retrying...";
+					qWarning() << "Superimpose texture was NULL, retrying...";
 					texture_failed = true;
 				} else {
 					composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
@@ -498,7 +498,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 								close_clip(c, false);
 							}
 						} else {
-							//dout << "[WARNING] Media '" + m->name + "' was not ready, retrying...";
+							//qWarning() << "Media '" + m->name + "' was not ready, retrying...";
 							texture_failed = true;
 						}
 					}
@@ -542,7 +542,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 		Clip* c = current_clips.at(i);
 
 		if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
-			dout << "[WARNING] Tried to display clip" << i << "but it's closed";
+			qWarning() << "Tried to display clip" << i << "but it's closed";
 			texture_failed = true;
 		} else {
 			if (c->track < 0) {
@@ -572,7 +572,7 @@ GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) 
 				}
 
 				if (textureID == 0 && c->media != NULL) {
-					dout << "[WARNING] Texture hasn't been created yet";
+					qWarning() << "Texture hasn't been created yet";
 					texture_failed = true;
 				} else if (playhead >= c->get_timeline_in_with_transition()) {
 					glPushMatrix();
@@ -868,7 +868,7 @@ void ViewerWidget::paintGL() {
 			if (force_quit) break;
 			if (texture_failed) {
 				if (rendering) {
-					dout << "[INFO] Texture failed - looping";
+					qInfo() << "Texture failed - looping";
 					loop = true;
 				} else if (!viewer->playing) {
 					retry_timer.start();

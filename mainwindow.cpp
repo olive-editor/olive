@@ -28,6 +28,7 @@
 #include "dialogs/demonotice.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
+#include "dialogs/debugdialog.h"
 
 #include "playback/audio.h"
 #include "playback/playback.h"
@@ -93,11 +94,10 @@ void MainWindow::setup_layout(bool reset) {
 
 MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	QMainWindow(parent),
-	appName(an)
+	appName(an),
+	enable_launch_with_project(false)
 {
-	enable_launch_with_project = false;
-
-	setup_debug();
+	debug_dialog = new DebugDialog(this);
 
 	mainWindow = this;
 
@@ -154,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 					if (QFile(file_name).remove()) deleted_ars++;
 				}
 			}
-			if (deleted_ars > 0) dout << "[INFO] Deleted" << deleted_ars << "autorecovery" << ((deleted_ars == 1) ? "file that was" : "files that were") << "older than 7 days";
+			if (deleted_ars > 0) qInfo() << "Deleted" << deleted_ars << "autorecovery" << ((deleted_ars == 1) ? "file that was" : "files that were") << "older than 7 days";
 
 			// delete previews older than 30 days
 			QDir preview_dir = QDir(data_dir + "/previews");
@@ -168,7 +168,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 						if (QFile(file_name).remove()) deleted_ars++;
 					}
 				}
-				if (deleted_ars > 0) dout << "[INFO] Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
+				if (deleted_ars > 0) qInfo() << "Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
 			}
 
 			// search for open recents list
@@ -227,7 +227,6 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 
 MainWindow::~MainWindow() {
 	free_panels();
-	close_debug();
 }
 
 void MainWindow::launch_with_project(const QString& s) {
@@ -327,13 +326,17 @@ void MainWindow::save_shortcuts(const QString& fn) {
 		shortcut_file_io.write(shortcut_file);
 		shortcut_file_io.close();
 	} else {
-		dout << "[ERROR] Failed to save shortcut file";
+		qCritical() << "Failed to save shortcut file";
 	}
 }
 
 void MainWindow::show_about() {
 	AboutDialog a(this);
 	a.exec();
+}
+
+void MainWindow::show_debug_log() {
+	debug_dialog->show();
 }
 
 void MainWindow::delete_slot() {
@@ -479,7 +482,7 @@ void MainWindow::new_project() {
 void MainWindow::autorecover_interval() {
 	if (!rendering && isWindowModified()) {
 		panel_project->save_project(true);
-		dout << "[INFO] Auto-recovery project saved";
+		qInfo() << "Auto-recovery project saved";
 	}
 }
 
@@ -783,9 +786,9 @@ void MainWindow::setup_menus() {
 	edit_tool_selects_links->setCheckable(true);
 	edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&config.edit_tool_selects_links));
 
-    seek_also_selects = tools_menu->addAction("Seek Also Selects", this, SLOT(toggle_bool_action()));
-    seek_also_selects->setCheckable(true);
-    seek_also_selects->setData(reinterpret_cast<quintptr>(&config.seek_also_selects));
+	seek_also_selects = tools_menu->addAction("Seek Also Selects", this, SLOT(toggle_bool_action()));
+	seek_also_selects->setCheckable(true);
+	seek_also_selects->setData(reinterpret_cast<quintptr>(&config.seek_also_selects));
 
 	seek_to_end_of_pastes = tools_menu->addAction("Seek to the End of Pastes", this, SLOT(toggle_bool_action()));
 	seek_to_end_of_pastes->setCheckable(true);
@@ -861,6 +864,10 @@ void MainWindow::setup_menus() {
 
 	help_menu->addSeparator();
 
+	help_menu->addAction("Debug Log", this, SLOT(show_debug_log()));
+
+	help_menu->addSeparator();
+
 	help_menu->addAction("&About...", this, SLOT(show_about()));
 
 	load_shortcuts(get_config_path() + "/shortcuts", true);
@@ -913,7 +920,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 				panel_config.write(saveState(0));
 				panel_config.close();
 			} else {
-				dout << "[ERROR] Failed to save layout";
+				qCritical() << "Failed to save layout";
 			}
 
 			save_shortcuts(config_dir + "/shortcuts");
@@ -1131,7 +1138,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(set_name_and_marker);
 	set_bool_action_checked(loop_action);
 	set_bool_action_checked(pause_at_out_point_action);
-    set_bool_action_checked(seek_also_selects);
+	set_bool_action_checked(seek_also_selects);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);

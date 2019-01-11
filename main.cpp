@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <QDebug>
+
+#include "debug.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -18,12 +19,14 @@ int main(int argc, char *argv[]) {
 	bool launch_fullscreen = false;
 	QString load_proj;
 
+	qInstallMessageHandler(debug_message_handler);
+
 	if (argc > 1) {
 		for (int i=1;i<argc;i++) {
 			if (argv[i][0] == '-') {
 				if (!strcmp(argv[1], "--version") || !strcmp(argv[1], "-v")) {
 #ifndef GITHASH
-				printf("[WARNING] No Git commit information found\n");
+					qWarning() << "No Git commit information found";
 #endif
 					printf("%s\n", appName.toUtf8().constData());
 					return 0;
