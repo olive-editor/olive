@@ -205,7 +205,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 
 		// dragging files within project
 		// if we dragged to the root OR dragged to a folder
-		if (!drop_item.isValid() || (drop_item.isValid() && m->get_type() == MEDIA_TYPE_FOLDER)) {
+		if (!drop_item.isValid() || m->get_type() == MEDIA_TYPE_FOLDER) {
 			QVector<Media*> move_items;
 			for (int i=0;i<items.size();i++) {
 				const QModelIndex& item = items.at(i);
