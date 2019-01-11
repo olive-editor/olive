@@ -44,6 +44,7 @@
 #include <QtMath>
 #include <QMenu>
 
+bool shaders_are_enabled = true;
 QVector<EffectMeta> effects;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
@@ -85,6 +86,8 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 }
 
 void load_internal_effects() {
+    qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+
 	EffectMeta em;
 
 	// internal effects
@@ -785,8 +788,8 @@ void Effect::open() {
 	if (isOpen) {
 		qWarning() << "Tried to open an effect that was already open";
 		close();
-	}
-	if (enable_shader) {
+    }
+    if (shaders_are_enabled && enable_shader) {
 		if (QOpenGLContext::currentContext() == NULL) {
 			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
@@ -848,7 +851,11 @@ void Effect::startEffect() {
 		open();
 		qWarning() << "Tried to start a closed effect - opening";
 	}
-	if (enable_shader && glslProgram->isLinked()) bound = glslProgram->bind();
+    if (shaders_are_enabled
+            && enable_shader
+            && glslProgram->isLinked()) {
+        bound = glslProgram->bind();
+    }
 }
 
 void Effect::endEffect() {

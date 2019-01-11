@@ -431,9 +431,9 @@ void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTexture
 		if (e->enable_coords) {
 			e->process_coords(timecode, coords, data);
 		}
-		if (e->enable_shader || e->enable_superimpose) {
+        if ((e->enable_shader && shaders_are_enabled) || e->enable_superimpose) {
 			e->startEffect();
-			if (e->enable_shader && e->is_glsl_linked()) {
+            if ((e->enable_shader && shaders_are_enabled) && e->is_glsl_linked()) {
 				e->process_shader(timecode, coords);
 				composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
 				fbo_switcher = !fbo_switcher;
