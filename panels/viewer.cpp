@@ -90,6 +90,10 @@ bool Viewer::is_focused() {
 			|| btnSkipToEnd->hasFocus();
 }
 
+bool Viewer::is_main_sequence() {
+	return main_sequence;
+}
+
 void Viewer::set_main_sequence() {
 	clean_created_seq();
 	set_sequence(true, sequence);
@@ -258,6 +262,10 @@ void Viewer::go_to_start() {
 
 void Viewer::go_to_end() {
 	if (seq != NULL) seek(seq->getEndFrame());
+}
+
+void Viewer::close_media() {
+	set_media(NULL);
 }
 
 void Viewer::go_to_in() {

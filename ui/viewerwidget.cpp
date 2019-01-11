@@ -109,6 +109,10 @@ void ViewerWidget::show_context_menu() {
 	connect(&zoom_menu, SIGNAL(triggered(QAction*)), this, SLOT(set_menu_zoom(QAction*)));
 	menu.addMenu(&zoom_menu);
 
+	if (!viewer->is_main_sequence()) {
+		menu.addAction("Close Media", viewer, SLOT(close_media()));
+	}
+
 	menu.exec(QCursor::pos());
 }
 

@@ -29,6 +29,7 @@ public:
 	~Viewer();
 
 	bool is_focused();
+	bool is_main_sequence();
 	void set_main_sequence();
 	void set_media(Media *m);
 	void compose();
@@ -81,6 +82,7 @@ public slots:
 	void next_frame();
 	void go_to_out();
 	void go_to_end();
+	void close_media();
 
 private slots:
 	void update_playhead();
