@@ -94,9 +94,11 @@ void MainWindow::setup_layout(bool reset) {
 
 MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	QMainWindow(parent),
-	appName(an),
-	enable_launch_with_project(false)
+	enable_launch_with_project(false),
+	appName(an)
 {
+	open_debug_file();
+
 	debug_dialog = new DebugDialog(this);
 
 	mainWindow = this;
@@ -227,6 +229,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 
 MainWindow::~MainWindow() {
 	free_panels();
+	close_debug_file();
 }
 
 void MainWindow::launch_with_project(const QString& s) {
