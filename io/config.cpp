@@ -45,7 +45,8 @@ Config::Config()
 	  upcoming_queue_size(0.5),
       upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
       loop(true),
-      pause_at_out_point(true)
+      pause_at_out_point(true),
+      seek_also_selects(false)
 {}
 
 void Config::load(QString path) {
@@ -158,6 +159,9 @@ void Config::load(QString path) {
                 } else if (stream.name() == "PauseAtOutPoint") {
                     stream.readNext();
                     pause_at_out_point = (stream.text() == "1");
+                } else if (stream.name() == "SeekAlsoSelects") {
+                    stream.readNext();
+                    seek_also_selects = (stream.text() == "1");
                 }
 			}
 		}
@@ -216,6 +220,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
     stream.writeTextElement("Loop", QString::number(loop));
     stream.writeTextElement("PauseAtOutPoint", QString::number(pause_at_out_point));
+    stream.writeTextElement("SeekAlsoSelects", QString::number(seek_also_selects));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

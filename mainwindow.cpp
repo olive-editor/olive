@@ -783,6 +783,10 @@ void MainWindow::setup_menus() {
 	edit_tool_selects_links->setCheckable(true);
 	edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&config.edit_tool_selects_links));
 
+    seek_also_selects = tools_menu->addAction("Seek Also Selects", this, SLOT(toggle_bool_action()));
+    seek_also_selects->setCheckable(true);
+    seek_also_selects->setData(reinterpret_cast<quintptr>(&config.seek_also_selects));
+
 	seek_to_end_of_pastes = tools_menu->addAction("Seek to the End of Pastes", this, SLOT(toggle_bool_action()));
 	seek_to_end_of_pastes->setCheckable(true);
 	seek_to_end_of_pastes->setData(reinterpret_cast<quintptr>(&config.paste_seeks));
@@ -1127,6 +1131,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(set_name_and_marker);
 	set_bool_action_checked(loop_action);
 	set_bool_action_checked(pause_at_out_point_action);
+    set_bool_action_checked(seek_also_selects);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
 	set_int_action_checked(page_autoscroll, config.autoscroll);

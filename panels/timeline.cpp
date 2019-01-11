@@ -476,7 +476,23 @@ void Timeline::select_all() {
 }
 
 void Timeline::scroll_to_frame(long frame) {
-	scroll_to_frame_internal(horizontalScrollBar, frame, zoom, timeline_area->width());
+    scroll_to_frame_internal(horizontalScrollBar, frame, zoom, timeline_area->width());
+}
+
+void Timeline::select_from_playhead() {
+    sequence->selections.clear();
+    for (int i=0;i<sequence->clips.size();i++) {
+        Clip* c = sequence->clips.at(i);
+        if (c != NULL
+                && c->timeline_in <= sequence->playhead
+                && c->timeline_out > sequence->playhead) {
+            Selection s;
+            s.in = c->timeline_in;
+            s.out = c->timeline_out;
+            s.track = c->track;
+            sequence->selections.append(s);
+        }
+    }
 }
 
 void Timeline::resizeEvent(QResizeEvent *event) {

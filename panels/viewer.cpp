@@ -238,11 +238,16 @@ bool frame_rate_is_droppable(float rate) {
 void Viewer::seek(long p) {
 	pause();
 	seq->playhead = p;
+    bool update_fx = false;
 	if (main_sequence) {
 		panel_timeline->scroll_to_frame(p);
 		panel_effect_controls->scroll_to_frame(p);
+        if (config.seek_also_selects) {
+            panel_timeline->select_from_playhead();
+            update_fx = true;
+        }
 	}
-	update_parents();
+    update_parents(update_fx);
 	reset_all_audio();
 	audio_scrub = true;
 }
@@ -410,9 +415,9 @@ void Viewer::update_header_zoom() {
 	}
 }
 
-void Viewer::update_parents() {
+void Viewer::update_parents(bool reload_fx) {
 	if (main_sequence) {
-		update_ui(false);
+        update_ui(reload_fx);
 	} else {
 		update_viewer();
 	}

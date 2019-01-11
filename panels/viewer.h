@@ -63,7 +63,7 @@ public:
 	int recording_track;
 
 	void reset_all_audio();
-	void update_parents();
+    void update_parents(bool reload_fx = false);
 
 	ViewerWidget* viewer_widget;
 
