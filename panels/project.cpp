@@ -558,10 +558,8 @@ void Project::delete_selected_media() {
 				if (panel_footage_viewer->seq != NULL) {
 					for (int j=0;j<panel_footage_viewer->seq->clips.size();j++) {
 						Clip* c = panel_footage_viewer->seq->clips.at(j);
-						if (c != NULL) {
-							if (c->media == items.at(i)->to_object()) {
-								panel_footage_viewer->set_media(NULL);
-							}
+						if (c != NULL && c->media == items.at(i)) {
+							panel_footage_viewer->set_media(NULL);
 							break;
 						}
 					}
