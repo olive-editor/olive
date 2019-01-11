@@ -870,7 +870,7 @@ void ViewerWidget::paintGL() {
 				if (rendering) {
 					dout << "[INFO] Texture failed - looping";
 					loop = true;
-				} else {
+				} else if (!viewer->playing) {
 					retry_timer.start();
 				}
 			}
