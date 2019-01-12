@@ -60,15 +60,15 @@ void VSTHostWin::loadPlugin() {
 	if(modulePtr == nullptr) {
 		DWORD dll_err = GetLastError();
 		qCritical() << "Failed to load VST" << dll_fn_w << "-" << dll_err;
-		QString msg_err = "Failed to load VST plugin \"" + dll_fn + "\": " + QString::number(dll_err);
+		QString msg_err = tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, QString::number(dll_err));
 		if (dll_err == 193) {
 #ifdef _WIN64
-			msg_err += "\n\nNOTE: You can't load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.";
+			msg_err += "\n\n" + tr("NOTE: You can't load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.");
 #elif _WIN32
-			msg_err += "\n\nNOTE: You can't load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.";
+			msg_err += "\n\n" + tr("NOTE: You can't load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
 #endif
 		}
-		QMessageBox::critical(mainWindow, "Error loading VST plugin", msg_err);
+		QMessageBox::critical(mainWindow, tr("Error loading VST plugin"), msg_err);
 		return;
 	}
 
@@ -92,7 +92,7 @@ bool VSTHostWin::configurePluginCallbacks() {
 	// real VST plugin, or is otherwise corrupt.
 	if(plugin->magic != kEffectMagic) {
 		qCritical() << "Plugin's magic number is bad";
-		QMessageBox::critical(mainWindow, "VST Error", "Plugin's magic number is invalid");
+		QMessageBox::critical(mainWindow, tr("VST Error"), tr("Plugin's magic number is invalid"));
 		return false;
 	}
 
@@ -161,18 +161,18 @@ VSTHostWin::VSTHostWin(Clip* c, const EffectMeta *em) : Effect(c, em) {
 
 	initializeIO();
 
-	file_field = add_row("Plugin", true, false)->add_field(EFFECT_FIELD_FILE, "filename", true);
+	file_field = add_row(tr("Plugin"), true, false)->add_field(EFFECT_FIELD_FILE, "filename");
 	connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
 
-	EffectRow* interface_row = add_row("Interface", false, false);
-	show_interface_btn = new QPushButton("Show");
+	EffectRow* interface_row = add_row(tr("Interface"), false, false);
+	show_interface_btn = new QPushButton(tr("Show"));
 	show_interface_btn->setCheckable(true);
 	show_interface_btn->setEnabled(false);
 	connect(show_interface_btn, SIGNAL(toggled(bool)), this, SLOT(show_interface(bool)));
 	interface_row->add_widget(show_interface_btn);
 
 	dialog = new QDialog(mainWindow);
-	dialog->setWindowTitle("VST Plugin");
+	dialog->setWindowTitle(tr("VST Plugin"));
 	dialog->setAttribute(Qt::WA_NativeWindow, true);
 	dialog->setWindowFlags(dialog->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
 	connect(dialog, SIGNAL(finished(int)), this, SLOT(uncheck_show_button()));

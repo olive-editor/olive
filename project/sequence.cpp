@@ -3,6 +3,8 @@
 #include "clip.h"
 #include "transition.h"
 
+#include <QCoreApplication>
+
 #include "debug.h"
 
 Sequence::Sequence() :
@@ -24,7 +26,7 @@ Sequence::~Sequence() {
 
 Sequence* Sequence::copy() {
 	Sequence* s = new Sequence();
-	s->name = name + " (copy)";
+    s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
 	s->width = width;
 	s->height = height;
 	s->frame_rate = frame_rate;

@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	// set up style?
 
 	qApp->setStyle(QStyleFactory::create("Fusion"));
-    setStyleSheet(DEFAULT_CSS);
+	setStyleSheet(DEFAULT_CSS);
 
 	QPalette darkPalette;
 	darkPalette.setColor(QPalette::Window, QColor(53,53,53));
@@ -199,10 +199,10 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 		if (QFileInfo::exists(config_fn)) {
 			config.load(config_fn);
 
-            if (!config.css_path.isEmpty()) {
-                load_css_from_file(config.css_path);
-            }
-        }
+			if (!config.css_path.isEmpty()) {
+				load_css_from_file(config.css_path);
+			}
+		}
 	}
 
 	alloc_panels(this);
@@ -335,18 +335,18 @@ void MainWindow::save_shortcuts(const QString& fn) {
 		shortcut_file_io.close();
 	} else {
 		qCritical() << "Failed to save shortcut file";
-    }
+	}
 }
 
 void MainWindow::load_css_from_file(const QString &fn) {
-    QFile css_file(fn);
-    if (css_file.exists() && css_file.open(QFile::ReadOnly)) {
-        setStyleSheet(css_file.readAll());
-        css_file.close();
-    } else {
-        // set default stylesheet
-        setStyleSheet(DEFAULT_CSS);
-    }
+	QFile css_file(fn);
+	if (css_file.exists() && css_file.open(QFile::ReadOnly)) {
+		setStyleSheet(css_file.readAll());
+		css_file.close();
+	} else {
+		// set default stylesheet
+		setStyleSheet(DEFAULT_CSS);
+	}
 }
 
 void MainWindow::show_about() {

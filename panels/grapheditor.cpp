@@ -20,7 +20,7 @@
 GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-	setWindowTitle("Graph Editor");
+    setWindowTitle(tr("Graph Editor"));
 	resize(720, 480);
 
 	QWidget* main_widget = new QWidget();
@@ -58,13 +58,13 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	left_tool_layout->addWidget(keyframe_nav);
 	left_tool_layout->addStretch();
 
-	linear_button = new QPushButton("Linear");
+    linear_button = new QPushButton(tr("Linear"));
 	linear_button->setProperty("type", KEYFRAME_TYPE_LINEAR);
 	linear_button->setCheckable(true);
-	bezier_button = new QPushButton("Bezier");
+    bezier_button = new QPushButton(tr("Bezier"));
 	bezier_button->setProperty("type", KEYFRAME_TYPE_BEZIER);
 	bezier_button->setCheckable(true);
-	hold_button = new QPushButton("Hold");
+    hold_button = new QPushButton(tr("Hold"));
 	hold_button->setProperty("type", KEYFRAME_TYPE_HOLD);
 	hold_button->setCheckable(true);
 

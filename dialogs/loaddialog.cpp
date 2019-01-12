@@ -14,19 +14,19 @@
 #include "mainwindow.h"
 
 LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
-	setWindowTitle("Loading...");
+    setWindowTitle(tr("Loading..."));
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	setLayout(layout);
 
-	layout->addWidget(new QLabel("Loading '" + project_url.mid(project_url.lastIndexOf('/')+1) + "'..."));
+    layout->addWidget(new QLabel(tr("Loading '%1'...").arg(project_url.mid(project_url.lastIndexOf('/')+1))));
 
 	bar = new QProgressBar();
 	bar->setValue(0);
 	layout->addWidget(bar);
 
-	cancel_button = new QPushButton("Cancel");
+    cancel_button = new QPushButton(tr("Cancel"));
 	connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(cancel()));
 
 	hboxLayout = new QHBoxLayout();

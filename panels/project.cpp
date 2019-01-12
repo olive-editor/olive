@@ -177,7 +177,7 @@ Project::Project(QWidget *parent) :
 	connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
 
 	//retranslateUi(Project);
-	setWindowTitle(QApplication::translate("Project", "Project", nullptr));
+	setWindowTitle(tr("Project"));
 
 	update_view_type();
 }
@@ -187,7 +187,7 @@ Project::~Project() {
 }
 
 QString Project::get_next_sequence_name(QString start) {
-	if (start.isEmpty()) start = "Sequence";
+	if (start.isEmpty()) start = tr("Sequence");
 
 	int n = 1;
 	bool found = true;
@@ -305,7 +305,11 @@ void Project::replace_selected_file() {
 
 void Project::replace_media(Media* item, QString filename) {
 	if (filename.isEmpty()) {
-		filename = QFileDialog::getOpenFileName(this, "Replace '" + item->get_name() + "'", "", "All Files (*)");
+		filename = QFileDialog::getOpenFileName(
+					this,
+					tr("Replace '%1'").arg(item->get_name()),
+					"",
+					tr("All Files") + " (*)");
 	}
 	if (!filename.isEmpty()) {
 		ReplaceMediaCommand* rmc = new ReplaceMediaCommand(item, filename);
@@ -315,13 +319,19 @@ void Project::replace_media(Media* item, QString filename) {
 
 void Project::replace_clip_media() {
 	if (sequence == nullptr) {
-		QMessageBox::critical(this, "No active sequence", "No sequence is active, please open the sequence you want to replace clips from.", QMessageBox::Ok);
+		QMessageBox::critical(this,
+							  tr("No active sequence"),
+							  tr("No sequence is active, please open the sequence you want to replace clips from."),
+							  QMessageBox::Ok);
 	} else {
 		QModelIndexList selected_items = get_current_selected();
 		if (selected_items.size() == 1) {
 			Media* item = item_to_media(selected_items.at(0));
 			if (item->get_type() == MEDIA_TYPE_SEQUENCE && sequence == item->to_sequence()) {
-				QMessageBox::critical(this, "Active sequence selected", "You cannot insert a sequence into itself, so no clips of this media would be in this sequence.", QMessageBox::Ok);
+				QMessageBox::critical(this,
+									  tr("Active sequence selected"),
+									  tr("You cannot insert a sequence into itself, so no clips of this media would be in this sequence."),
+									  QMessageBox::Ok);
 			} else {
 				ReplaceClipMediaDialog dialog(this, item);
 				dialog.exec();
@@ -350,7 +360,11 @@ void Project::open_properties() {
 		default:
 		{
 			// fall back to renaming
-			QString new_name = QInputDialog::getText(this, "Rename '" + item->get_name() + "'", "Enter new name:", QLineEdit::Normal, item->get_name());
+			QString new_name = QInputDialog::getText(this,
+													 tr("Rename '%1'").arg(item->get_name()),
+													 tr("Enter new name:"),
+													 QLineEdit::Normal,
+													 item->get_name());
 			if (!new_name.isEmpty()) {
 				MediaRename* mr = new MediaRename(item, new_name);
 				undo_stack.push(mr);
@@ -467,11 +481,11 @@ void Project::delete_selected_media() {
 						if (!confirm_delete) {
 							// we found a reference, so we know we'll need to ask if the user wants to delete it
 							QMessageBox confirm(this);
-							confirm.setWindowTitle("Delete media in use?");
-							confirm.setText("The media '" + media->name + "' is currently used in '" + s->name + "'. Deleting it will remove all instances in the sequence. Are you sure you want to do this?");
+							confirm.setWindowTitle(tr("Delete media in use?"));
+							confirm.setText(tr("The media '%1' is currently used in '%2'. Deleting it will remove all instances in the sequence. Are you sure you want to do this?").arg(media->name, s->name));
 							QAbstractButton* yes_button = confirm.addButton(QMessageBox::Yes);
 							QAbstractButton* skip_button = nullptr;
-							if (items.size() > 1) skip_button = confirm.addButton("Skip", QMessageBox::NoRole);
+							if (items.size() > 1) skip_button = confirm.addButton(tr("Skip"), QMessageBox::NoRole);
 							QAbstractButton* abort_button = confirm.addButton(QMessageBox::Cancel);
 							confirm.exec();
 							if (confirm.clickedButton() == yes_button) {
@@ -694,7 +708,11 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 					}
 					if (!found) {
 						image_sequence_urls.append(new_filename);
-						if (QMessageBox::question(this, "Image sequence detected", "The file '" + file + "' appears to be part of an image sequence. Would you like to import it as such?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+						if (QMessageBox::question(this,
+												  tr("Image sequence detected"),
+												  tr("The file '%1' appears to be part of an image sequence. Would you like to import it as such?").arg(file),
+												  QMessageBox::Yes | QMessageBox::No,
+												  QMessageBox::Yes) == QMessageBox::Yes) {
 							file = new_filename;
 							image_sequence_importassequence.append(true);
 						} else {
@@ -797,7 +815,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 }
 
 void Project::import_dialog() {
-	QFileDialog fd(this, "Import media...", "", "All Files (*)");
+	QFileDialog fd(this, tr("Import media..."), "", tr("All Files") + " (*)");
 	fd.setFileMode(QFileDialog::ExistingFiles);
 
 	if (fd.exec()) {
@@ -808,7 +826,10 @@ void Project::import_dialog() {
 
 void Project::delete_clips_using_selected_media() {
 	if (sequence == nullptr) {
-		QMessageBox::critical(this, "No active sequence", "No sequence is active, please open the sequence you want to delete clips from.", QMessageBox::Ok);
+		QMessageBox::critical(this,
+							  tr("No active sequence"),
+							  tr("No sequence is active, please open the sequence you want to delete clips from."),
+							  QMessageBox::Ok);
 	} else {
 		ComboAction* ca = new ComboAction();
 		bool deleted = false;

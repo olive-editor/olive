@@ -23,7 +23,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 	QFont entry_field_font = entry_field->font();
 	entry_field_font.setPointSize(qRound(entry_field_font.pointSize()*1.2));
 	entry_field->setFont(entry_field_font);
-	entry_field->setPlaceholderText("Search for action...");
+    entry_field->setPlaceholderText(tr("Search for action..."));
 	connect(entry_field, SIGNAL(textChanged(const QString&)), this, SLOT(search_update(const QString &)));
 	connect(entry_field, SIGNAL(returnPressed()), this, SLOT(perform_action()));
 	connect(entry_field, SIGNAL(moveSelectionUp()), this, SLOT(move_selection_up()));
