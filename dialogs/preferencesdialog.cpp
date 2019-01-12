@@ -1,6 +1,7 @@
 #include "preferencesdialog.h"
 
 #include "io/config.h"
+#include "mainwindow.h"
 
 #include <QMenuBar>
 #include <QAction>
@@ -108,6 +109,13 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 }
 
 void PreferencesDialog::save() {
+    if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
+        QMessageBox::critical(this, "Invalid CSS File", "CSS file '" + custom_css_fn->text() + "' does not exist.");
+        return;
+    }
+
+    config.css_path = custom_css_fn->text();
+    mainWindow->load_css_from_file(config.css_path);
 	config.recording_mode = recordingComboBox->currentIndex() + 1;
 	config.img_seq_formats = imgSeqFormatEdit->text();
 	config.fast_seeking = fastSeekButton->isChecked();
@@ -230,7 +238,14 @@ void PreferencesDialog::save_shortcut_file() {
 		} else {
 			QMessageBox::critical(this, "Error saving shortcuts", "Failed to open file for writing");
 		}
-	}
+    }
+}
+
+void PreferencesDialog::browse_css_file() {
+    QString fn = QFileDialog::getOpenFileName(this, "Browse for CSS file");
+    if (!fn.isEmpty()) {
+        custom_css_fn->setText(fn);
+    }
 }
 
 void PreferencesDialog::setup_ui() {
@@ -240,19 +255,29 @@ void PreferencesDialog::setup_ui() {
 	QTabWidget* general_tab = new QTabWidget();
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
-	general_layout->addWidget(new QLabel("Image sequence formats:"), 0, 0, 1, 1);
+    general_layout->addWidget(new QLabel("Custom CSS:"), 0, 0, 1, 1);
+
+    custom_css_fn = new QLineEdit(general_tab);
+    custom_css_fn->setText(config.css_path);
+    general_layout->addWidget(custom_css_fn, 0, 1, 1, 1);
+
+    QPushButton* custom_css_browse = new QPushButton("Browse", general_tab);
+    connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
+    general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
+
+    general_layout->addWidget(new QLabel("Image sequence formats:"), 1, 0, 1, 1);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-	general_layout->addWidget(imgSeqFormatEdit, 0, 1, 1, 1);
+    general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
 
-	general_layout->addWidget(new QLabel("Audio Recording:"), 1, 0, 1, 1);
+    general_layout->addWidget(new QLabel("Audio Recording:"), 2, 0, 1, 1);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem("Mono");
 	recordingComboBox->addItem("Stereo");
 
-	general_layout->addWidget(recordingComboBox, 1, 1, 1, 1);
+    general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
 
 	tabWidget->addTab(general_tab, "General");
 	QWidget* behavior_tab = new QWidget();

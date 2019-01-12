@@ -61,6 +61,7 @@ struct Config {
     bool loop;
     bool pause_at_out_point;
     bool seek_also_selects;
+    QString css_path;
 
 	void load(QString path);
 	void save(QString path);

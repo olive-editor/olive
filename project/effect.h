@@ -34,6 +34,7 @@ struct EffectMeta {
 	int subtype;
 };
 
+extern bool shaders_are_enabled;
 extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
