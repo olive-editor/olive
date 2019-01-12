@@ -76,7 +76,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 
 			parent->addChild(item);
 
-			if (a->menu() != NULL) {
+			if (a->menu() != nullptr) {
 				item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 				setup_kbd_shortcut_worker(a->menu(), item);
 			} else {
@@ -150,7 +150,7 @@ void PreferencesDialog::reset_all_shortcuts() {
 }
 
 bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* parent) {
-	if (parent == NULL) {
+	if (parent == nullptr) {
 		for (int i=0;i<keyboard_tree->topLevelItemCount();i++) {
 			refine_shortcut_list(s, keyboard_tree->topLevelItem(i));
 		}
@@ -169,7 +169,7 @@ bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* 
 					all_children_are_hidden = false;
 				} else {
 					QString shortcut;
-					if (keyboard_tree->itemWidget(item, 1) != NULL) {
+					if (keyboard_tree->itemWidget(item, 1) != nullptr) {
 						shortcut = static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->keySequence().toString();
 					}
 					if (item->text(0).contains(s, Qt::CaseInsensitive) || shortcut.contains(s, Qt::CaseInsensitive)) {

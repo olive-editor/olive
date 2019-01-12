@@ -73,7 +73,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		qCritical() << "Invalid effect data";
 		QMessageBox::critical(mainWindow, "Invalid effect", "No candidate for effect '" + em->name + "'. This effect may be corrupt. Try reinstalling it or Olive.");
 	}
-	return NULL;
+	return nullptr;
 }
 
 const EffectMeta* get_internal_meta(int internal_id, int type) {
@@ -82,11 +82,11 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 			return &effects.at(i);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void load_internal_effects() {
-    qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+	qWarning() << "Shaders are disabled, some effects may be nonfunctional";
 
 	EffectMeta em;
 
@@ -266,8 +266,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	enable_coords(false),
 	enable_superimpose(false),
 	enable_image(false),
-	glslProgram(NULL),
-	texture(NULL),
+	glslProgram(nullptr),
+	texture(nullptr),
 	isOpen(false),
 	bound(false),
 	enable_always_update(false)
@@ -283,7 +283,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 
 	connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
 
-	if (em != NULL) {
+	if (em != nullptr) {
 		// set up UI from effect file
 		container->setText(em->name);
 
@@ -504,7 +504,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 }
 
 EffectRow* Effect::add_row(const QString& name, bool savable, bool keyframable) {
-	EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size());
+	EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size(), keyframable);
 	rows.append(row);
 	return row;
 }
@@ -590,7 +590,7 @@ void Effect::move_down() {
 }
 
 int Effect::get_index_in_clip() {
-	if (parent_clip != NULL) {
+	if (parent_clip != nullptr) {
 		for (int i=0;i<parent_clip->effects.size();i++) {
 			if (parent_clip->effects.at(i) == this) {
 				return i;
@@ -729,7 +729,7 @@ void Effect::load(QXmlStreamReader& stream) {
 	}
 }
 
-void Effect::custom_load(QXmlStreamReader &stream) {}
+void Effect::custom_load(QXmlStreamReader &) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
 	stream.writeAttribute("name", meta->name);
@@ -788,9 +788,9 @@ void Effect::open() {
 	if (isOpen) {
 		qWarning() << "Tried to open an effect that was already open";
 		close();
-    }
-    if (shaders_are_enabled && enable_shader) {
-		if (QOpenGLContext::currentContext() == NULL) {
+	}
+	if (shaders_are_enabled && enable_shader) {
+		if (QOpenGLContext::currentContext() == nullptr) {
 			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
 			glslProgram = new QOpenGLShaderProgram();
@@ -835,15 +835,15 @@ void Effect::close() {
 		qWarning() << "Tried to close an effect that was already closed";
 	}
 	delete_texture();
-	if (glslProgram != NULL) {
+	if (glslProgram != nullptr) {
 		delete glslProgram;
-		glslProgram = NULL;
+		glslProgram = nullptr;
 	}
 	isOpen = false;
 }
 
 bool Effect::is_glsl_linked() {
-	return glslProgram != NULL && glslProgram->isLinked();
+	return glslProgram != nullptr && glslProgram->isLinked();
 }
 
 void Effect::startEffect() {
@@ -851,11 +851,11 @@ void Effect::startEffect() {
 		open();
 		qWarning() << "Tried to start a closed effect - opening";
 	}
-    if (shaders_are_enabled
-            && enable_shader
-            && glslProgram->isLinked()) {
-        bound = glslProgram->bind();
-    }
+	if (shaders_are_enabled
+			&& enable_shader
+			&& glslProgram->isLinked()) {
+		bound = glslProgram->bind();
+	}
 }
 
 void Effect::endEffect() {
@@ -903,7 +903,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 	}
 }
 
-void Effect::process_coords(double, GLTextureCoords&, int data) {}
+void Effect::process_coords(double, GLTextureCoords&, int) {}
 
 GLuint Effect::process_superimpose(double timecode) {
 	bool recreate_texture = false;
@@ -919,7 +919,7 @@ GLuint Effect::process_superimpose(double timecode) {
 		redraw(timecode);
 	}
 
-	if (texture != NULL) {
+	if (texture != nullptr) {
 		if (recreate_texture || texture->width() != img.width() || texture->height() != img.height()) {
 			delete_texture();
 			texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
@@ -939,21 +939,21 @@ void Effect::gizmo_draw(double, GLTextureCoords &) {}
 void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
 	for (int i=0;i<gizmos.size();i++) {
 		if (gizmos.at(i) == gizmo) {
-			ComboAction* ca = NULL;
+			ComboAction* ca = nullptr;
 			if (done) ca = new ComboAction();
-			if (gizmo->x_field1 != NULL) {
+			if (gizmo->x_field1 != nullptr) {
 				gizmo->x_field1->set_double_value(gizmo->x_field1->get_double_value(timecode) + x_movement*gizmo->x_field_multi1);
 				gizmo->x_field1->make_key_from_change(ca);
 			}
-			if (gizmo->y_field1 != NULL) {
+			if (gizmo->y_field1 != nullptr) {
 				gizmo->y_field1->set_double_value(gizmo->y_field1->get_double_value(timecode) + y_movement*gizmo->y_field_multi1);
 				gizmo->y_field1->make_key_from_change(ca);
 			}
-			if (gizmo->x_field2 != NULL) {
+			if (gizmo->x_field2 != nullptr) {
 				gizmo->x_field2->set_double_value(gizmo->x_field2->get_double_value(timecode) + x_movement*gizmo->x_field_multi2);
 				gizmo->x_field2->make_key_from_change(ca);
 			}
-			if (gizmo->y_field2 != NULL) {
+			if (gizmo->y_field2 != nullptr) {
 				gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
 				gizmo->y_field2->make_key_from_change(ca);
 			}
@@ -1063,9 +1063,9 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-	if (texture != NULL) {
+	if (texture != nullptr) {
 		delete texture;
-		texture = NULL;
+		texture = nullptr;
 	}
 }
 

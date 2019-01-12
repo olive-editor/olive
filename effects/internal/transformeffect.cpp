@@ -134,7 +134,7 @@ void adjust_field(EffectField* field, double old_offset, double new_offset) {
 }
 
 void TransformEffect::refresh() {
-	if (parent_clip != NULL && parent_clip->sequence != NULL) {
+	if (parent_clip != nullptr && parent_clip->sequence != nullptr) {
 		double new_default_pos_x = parent_clip->sequence->width/2;
 		double new_default_pos_y = parent_clip->sequence->height/2;
 
@@ -180,13 +180,13 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 	top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
 	bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
-	top_left_gizmo->y_field1 = enabled ? NULL : scale_y;
-	top_right_gizmo->y_field1 = enabled ? NULL : scale_y;
-	bottom_left_gizmo->y_field1 = enabled ? NULL : scale_y;
-	bottom_right_gizmo->y_field1 = enabled ? NULL : scale_y;
+	top_left_gizmo->y_field1 = enabled ? nullptr : scale_y;
+	top_right_gizmo->y_field1 = enabled ? nullptr : scale_y;
+	bottom_left_gizmo->y_field1 = enabled ? nullptr : scale_y;
+	bottom_right_gizmo->y_field1 = enabled ? nullptr : scale_y;
 }
 
-void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {
+void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
 	// position
 	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 
@@ -234,7 +234,7 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
 }
 
-void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
+void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
 	top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
 	top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
 	top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);

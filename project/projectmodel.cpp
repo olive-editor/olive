@@ -6,7 +6,7 @@
 #include "project/media.h"
 #include "debug.h"
 
-ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent), root_item(NULL) {
+ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent), root_item(nullptr) {
 	root_item = new Media(0);
 	root_item->root = true;
 }
@@ -16,10 +16,10 @@ ProjectModel::~ProjectModel() {
 }
 
 void ProjectModel::destroy_root() {
-	if (panel_sequence_viewer != NULL) panel_sequence_viewer->viewer_widget->delete_function();
-	if (panel_footage_viewer != NULL) panel_footage_viewer->viewer_widget->delete_function();
+	if (panel_sequence_viewer != nullptr) panel_sequence_viewer->viewer_widget->delete_function();
+	if (panel_footage_viewer != nullptr) panel_footage_viewer->viewer_widget->delete_function();
 
-	if (root_item != NULL) {
+	if (root_item != nullptr) {
 		delete root_item;
 	}
 }
@@ -143,14 +143,14 @@ void ProjectModel::set_icon(Media* m, const QIcon &ico) {
 }
 
 void ProjectModel::appendChild(Media *parent, Media *child) {
-	if (parent == NULL) parent = root_item;
+	if (parent == nullptr) parent = root_item;
 	beginInsertRows(parent == root_item ? QModelIndex() : createIndex(parent->row(), 0, parent), parent->childCount(), parent->childCount());
 	parent->appendChild(child);
 	endInsertRows();
 }
 
 void ProjectModel::moveChild(Media *child, Media *to) {
-	if (to == NULL) to = root_item;
+	if (to == nullptr) to = root_item;
 	Media* from = child->parentItem();
 	beginMoveRows(
 				from == root_item ? QModelIndex() : createIndex(from->row(), 0, from),
@@ -165,18 +165,18 @@ void ProjectModel::moveChild(Media *child, Media *to) {
 }
 
 void ProjectModel::removeChild(Media* parent, Media* m) {
-	if (parent == NULL) parent = root_item;
+	if (parent == nullptr) parent = root_item;
 	beginRemoveRows(parent == root_item ? QModelIndex() : createIndex(parent->row(), 0, parent), m->row(), m->row());
 	parent->removeChild(m->row());
 	endRemoveRows();
 }
 
 Media* ProjectModel::child(int i, Media* parent) {
-	if (parent == NULL) parent = root_item;
+	if (parent == nullptr) parent = root_item;
 	return parent->child(i);
 }
 
 int ProjectModel::childCount(Media *parent) {
-	if (parent == NULL) parent = root_item;
+	if (parent == nullptr) parent = root_item;
 	return parent->childCount();
 }

@@ -47,7 +47,7 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
 	fragPath = "cornerpin.frag";
 }
 
-void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, int data) {
+void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, int) {
 	coords.vertexTopLeftX += top_left_x->get_double_value(timecode);
 	coords.vertexTopLeftY += top_left_y->get_double_value(timecode);
 
@@ -69,7 +69,7 @@ void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords) {
 	glslProgram->setUniformValue("perspective", perspective->get_bool_value(timecode));
 }
 
-void CornerPinEffect::gizmo_draw(double timecode, GLTextureCoords &coords) {
+void CornerPinEffect::gizmo_draw(double, GLTextureCoords &coords) {
 	top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
 	top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
 	bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);

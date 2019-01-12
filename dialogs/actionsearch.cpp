@@ -21,7 +21,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 
 	ActionSearchEntry* entry_field = new ActionSearchEntry();
 	QFont entry_field_font = entry_field->font();
-	entry_field_font.setPointSize(entry_field_font.pointSize()*1.2);
+	entry_field_font.setPointSize(qRound(entry_field_font.pointSize()*1.2));
 	entry_field->setFont(entry_field_font);
 	entry_field->setPlaceholderText("Search for action...");
 	connect(entry_field, SIGNAL(textChanged(const QString&)), this, SLOT(search_update(const QString &)));
@@ -32,7 +32,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 
 	list_widget = new ActionSearchList();
 	QFont list_widget_font = list_widget->font();
-	list_widget_font.setPointSize(list_widget_font.pointSize()*1.2);
+	list_widget_font.setPointSize(qRound(list_widget_font.pointSize()*1.2));
 	list_widget->setFont(list_widget_font);
 	layout->addWidget(list_widget);
 	connect(list_widget, SIGNAL(dbl_click()), this, SLOT(perform_action()));
@@ -43,7 +43,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 }
 
 void ActionSearch::search_update(const QString &s, const QString &p, QMenu *parent) {
-	if (parent == NULL) {
+	if (parent == nullptr) {
 		list_widget->clear();
 		QList<QAction*> menus = mainWindow->menuBar()->actions();
 		for (int i=0;i<menus.size();i++) {
@@ -60,7 +60,7 @@ void ActionSearch::search_update(const QString &s, const QString &p, QMenu *pare
 		for (int i=0;i<actions.size();i++) {
 			QAction* a = actions.at(i);
 			if (!a->isSeparator()) {
-				if (a->menu() != NULL) {
+				if (a->menu() != nullptr) {
 					search_update(s, menu_text, a->menu());
 				} else {
 					QString comp = a->text().replace("&", "");
@@ -88,9 +88,9 @@ void ActionSearch::perform_action() {
 void ActionSearch::move_selection_up() {
 	int lim = list_widget->count();
 	for (int i=1;i<lim;i++) {
-        if (list_widget->item(i)->isSelected()) {
+		if (list_widget->item(i)->isSelected()) {
 			list_widget->item(i-1)->setSelected(true);
-            list_widget->scrollToItem(list_widget->item(i-1));
+			list_widget->scrollToItem(list_widget->item(i-1));
 			break;
 		}
 	}
@@ -99,9 +99,9 @@ void ActionSearch::move_selection_up() {
 void ActionSearch::move_selection_down() {
 	int lim = list_widget->count()-1;
 	for (int i=0;i<lim;i++) {
-        if (list_widget->item(i)->isSelected()) {
+		if (list_widget->item(i)->isSelected()) {
 			list_widget->item(i+1)->setSelected(true);
-            list_widget->scrollToItem(list_widget->item(i+1));
+			list_widget->scrollToItem(list_widget->item(i+1));
 			break;
 		}
 	}
@@ -120,6 +120,6 @@ void ActionSearchEntry::keyPressEvent(QKeyEvent * event) {
 	}
 }
 
-void ActionSearchList::mouseDoubleClickEvent(QMouseEvent *event) {
+void ActionSearchList::mouseDoubleClickEvent(QMouseEvent *) {
 	emit dbl_click();
 }

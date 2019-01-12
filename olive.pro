@@ -33,6 +33,8 @@ system("which git") {
     DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
 }
 
+CONFIG += c++11
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -221,9 +223,9 @@ FORMS +=
 win32 {
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-	
-	SOURCES += effects/internal/vsthostwin.cpp
-	HEADERS += effects/internal/vsthostwin.h
+
+        SOURCES += effects/internal/vsthostwin.cpp
+        HEADERS += effects/internal/vsthostwin.h
 }
 
 mac {

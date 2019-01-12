@@ -29,7 +29,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
 {
 	setup_ui();
 
-	if (existing != NULL) {
+	if (existing != nullptr) {
 		existing_sequence = existing->to_sequence();
 		setWindowTitle("Editing \"" + existing_sequence->name + "\"");
 
@@ -50,7 +50,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
 			}
 		}
 	} else {
-		existing_sequence = NULL;
+		existing_sequence = nullptr;
 		setWindowTitle("New Sequence");
 	}
 }
@@ -63,7 +63,7 @@ void NewSequenceDialog::set_sequence_name(const QString& s) {
 }
 
 void NewSequenceDialog::create() {
-	if (existing_sequence == NULL) {
+	if (existing_sequence == nullptr) {
 		Sequence* s = new Sequence();
 
         s->name = sequence_name_edit->text();
@@ -74,7 +74,7 @@ void NewSequenceDialog::create() {
 		s->audio_layout = AV_CH_LAYOUT_STEREO;
 
 		ComboAction* ca = new ComboAction();
-		panel_project->new_sequence(ca, s, true, NULL);
+		panel_project->new_sequence(ca, s, true, nullptr);
 		undo_stack.push(ca);
 	} else {
 		ComboAction* ca = new ComboAction();
@@ -92,7 +92,7 @@ void NewSequenceDialog::create() {
 
 		for (int i=0;i<existing_sequence->clips.size();i++) {
 			Clip* c = existing_sequence->clips.at(i);
-			if (c != NULL) {
+			if (c != nullptr) {
 				c->refactor_frame_rate(ca, multiplier, true);
 			}
 		}

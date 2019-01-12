@@ -39,7 +39,7 @@ private slots:
 	void save();
 	void reset_default_shortcut();
 	void reset_all_shortcuts();
-	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = NULL);
+	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = nullptr);
 	void load_shortcut_file();
 	void save_shortcut_file();
     void browse_css_file();

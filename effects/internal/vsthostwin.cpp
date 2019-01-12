@@ -20,15 +20,13 @@
 // C callbacks
 extern "C" {
 	// Main host callback
-	VstIntPtr VSTCALLBACK hostCallback(AEffect *effect, int opcode, int index, long long value, void *ptr, float opt) {
+	VstIntPtr VSTCALLBACK hostCallback(AEffect *effect, int opcode, int, long long, void *, float) {
 		switch(opcode) {
 		case audioMasterVersion:
 			return 2400;
 		case audioMasterIdle:
-			effect->dispatcher(effect, effEditIdle, 0, 0, 0, 0);
+			effect->dispatcher(effect, effEditIdle, 0, 0, nullptr, 0);
 			break;
-		case 6: // audioMasterWantMidi
-			return 0;
 		case audioMasterGetCurrentProcessLevel:
 			return 0;
 		// Handle other opcodes here... there will be lots of them
@@ -39,6 +37,7 @@ extern "C" {
 			qInfo() << "Plugin requested unhandled opcode" << opcode;
 			break;
 		}
+		return 0;
 	}
 }
 
@@ -58,7 +57,7 @@ void VSTHostWin::loadPlugin() {
 	LPCWSTR dll_fn_w = reinterpret_cast<const wchar_t*>(dll_fn.utf16());
 
 	modulePtr = LoadLibrary(dll_fn_w);
-	if(modulePtr == NULL) {
+	if(modulePtr == nullptr) {
 		DWORD dll_err = GetLastError();
 		qCritical() << "Failed to load VST" << dll_fn_w << "-" << dll_err;
 		QString msg_err = "Failed to load VST plugin \"" + dll_fn + "\": " + QString::number(dll_err);
@@ -74,16 +73,16 @@ void VSTHostWin::loadPlugin() {
 	}
 
 	vstPluginFuncPtr mainEntryPoint =
-	(vstPluginFuncPtr)GetProcAddress(modulePtr, "VSTPluginMain");
+	reinterpret_cast<vstPluginFuncPtr>(GetProcAddress(modulePtr, "VSTPluginMain"));
 	// Instantiate the plugin
 	plugin = mainEntryPoint(hostCallback);
 }
 
 void VSTHostWin::freePlugin() {
-	if (plugin != NULL) {
+	if (plugin != nullptr) {
 		stopPlugin();
 		FreeLibrary(modulePtr);
-		plugin = NULL;
+		plugin = nullptr;
 	}
 }
 
@@ -98,22 +97,22 @@ bool VSTHostWin::configurePluginCallbacks() {
 	}
 
 	// Create dispatcher handle
-	dispatcher = (dispatcherFuncPtr)(plugin->dispatcher);
+	dispatcher = reinterpret_cast<dispatcherFuncPtr>(plugin->dispatcher);
 
 	// Set up plugin callback functions
-	plugin->getParameter = (getParameterFuncPtr)plugin->getParameter;
-	plugin->processReplacing = (processFuncPtr)plugin->processReplacing;
-	plugin->setParameter = (setParameterFuncPtr)plugin->setParameter;
+	plugin->getParameter = reinterpret_cast<getParameterFuncPtr>(plugin->getParameter);
+	plugin->processReplacing = reinterpret_cast<processFuncPtr>(plugin->processReplacing);
+	plugin->setParameter = reinterpret_cast<setParameterFuncPtr>(plugin->setParameter);
 
 	return true;
 }
 
 void VSTHostWin::startPlugin() {
-	dispatcher(plugin, effOpen, 0, 0, NULL, 0.0f);
+	dispatcher(plugin, effOpen, 0, 0, nullptr, 0.0f);
 
 	// Set some default properties
-	dispatcher(plugin, effSetSampleRate, 0, 0, NULL, current_audio_freq());
-	dispatcher(plugin, effSetBlockSize, 0, BLOCK_SIZE, NULL, 0.0f);
+	dispatcher(plugin, effSetSampleRate, 0, 0, nullptr, current_audio_freq());
+	dispatcher(plugin, effSetBlockSize, 0, BLOCK_SIZE, nullptr, 0.0f);
 
 	resumePlugin();
 }
@@ -121,19 +120,19 @@ void VSTHostWin::startPlugin() {
 void VSTHostWin::stopPlugin() {
 	suspendPlugin();
 
-	dispatcher(plugin, effClose, 0, 0, NULL, 0);
+	dispatcher(plugin, effClose, 0, 0, nullptr, 0);
 }
 
 void VSTHostWin::resumePlugin() {
-	dispatcher(plugin, effMainsChanged, 0, 1, NULL, 0.0f);
+	dispatcher(plugin, effMainsChanged, 0, 1, nullptr, 0.0f);
 }
 
 void VSTHostWin::suspendPlugin() {
-	dispatcher(plugin, effMainsChanged, 0, 0, NULL, 0.0f);
+	dispatcher(plugin, effMainsChanged, 0, 0, nullptr, 0.0f);
 }
 
 bool VSTHostWin::canPluginDo(char *canDoString) {
-	return (dispatcher(plugin, effCanDo, 0, 0, (void*)canDoString, 0.0f) > 0);
+	return (dispatcher(plugin, effCanDo, 0, 0, static_cast<void*>(canDoString), 0.0f) > 0);
 }
 
 void VSTHostWin::initializeIO() {
@@ -158,11 +157,11 @@ void VSTHostWin::processAudio(long numFrames) {
 }
 
 VSTHostWin::VSTHostWin(Clip* c, const EffectMeta *em) : Effect(c, em) {
-	plugin = NULL;
+	plugin = nullptr;
 
 	initializeIO();
 
-	file_field = add_row("Plugin", true, false)->add_field(EFFECT_FIELD_FILE, "filename");
+	file_field = add_row("Plugin", true, false)->add_field(EFFECT_FIELD_FILE, "filename", true);
 	connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
 
 	EffectRow* interface_row = add_row("Interface", false, false);
@@ -183,8 +182,8 @@ VSTHostWin::~VSTHostWin() {
 	freePlugin();
 }
 
-void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
-	if (plugin != NULL) {
+void VSTHostWin::process_audio(double, double, quint8* samples, int nb_bytes, int) {
+	if (plugin != nullptr) {
 		int interval = BLOCK_SIZE*4;
 		for (int i=0;i<nb_bytes;i+=interval) {
 			int process_size = qMin(interval, nb_bytes - i);
@@ -192,8 +191,8 @@ void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint
 
 			// convert to float
 			for (int j=i;j<lim;j+=4) {
-				qint16 left_sample = (qint16) (((samples[j+1] & 0xFF) << 8) | (samples[j] & 0xFF));
-				qint16 right_sample = (qint16) (((samples[j+3] & 0xFF) << 8) | (samples[j+2] & 0xFF));
+				qint16 left_sample = qint16(((samples[j+1] & 0xFF) << 8) | (samples[j] & 0xFF));
+				qint16 right_sample = qint16(((samples[j+3] & 0xFF) << 8) | (samples[j+2] & 0xFF));
 
 				int index = (j-i)>>2;
 				inputs[0][index] = float(left_sample) / float(INT16_MAX);
@@ -207,13 +206,13 @@ void VSTHostWin::process_audio(double timecode_start, double timecode_end, quint
 			for (int j=i;j<lim;j+=4) {
 				int index = (j-i)>>2;
 
-				qint16 left_sample = qRound(outputs[0][index] * INT16_MAX);
-				qint16 right_sample = qRound(outputs[1][index] * INT16_MAX);
+				qint16 left_sample = qint16(qRound(outputs[0][index] * INT16_MAX));
+				qint16 right_sample = qint16(qRound(outputs[1][index] * INT16_MAX));
 
-				samples[j+3] = (quint8) (right_sample >> 8);
-				samples[j+2] = (quint8) right_sample;
-				samples[j+1] = (quint8) (left_sample >> 8);
-				samples[j] = (quint8) left_sample;
+				samples[j+3] = quint8(right_sample >> 8);
+				samples[j+2] = quint8(right_sample);
+				samples[j+1] = quint8(left_sample >> 8);
+				samples[j] = quint8(left_sample);
 			}
 		}
 	}
@@ -223,18 +222,17 @@ void VSTHostWin::custom_load(QXmlStreamReader &stream) {
 	if (stream.name() == "plugindata") {
 		stream.readNext();
 		QByteArray b = QByteArray::fromBase64(stream.text().toUtf8());
-		const char* data = b.constData();
-		if (plugin != NULL) {
-			dispatcher(plugin, effSetChunk, 0, (VstInt32) b.size(), (void*) b.constData(), 0);
+		if (plugin != nullptr) {
+			dispatcher(plugin, effSetChunk, 0, VstInt32(b.size()), static_cast<void*>(b.data()), 0);
 		}
 	}
 }
 
 void VSTHostWin::save(QXmlStreamWriter &stream) {
 	Effect::save(stream);
-	if (plugin != NULL) {
-		char* p = NULL;
-		VstInt32 length = dispatcher(plugin, effGetChunk, 0, 0, &p, 0);
+	if (plugin != nullptr) {
+		char* p = nullptr;
+		VstInt32 length = VstInt32(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));
 		QByteArray b(p, length);
 		stream.writeTextElement("plugindata", b.toBase64());
 	}
@@ -251,18 +249,18 @@ void VSTHostWin::uncheck_show_button() {
 void VSTHostWin::change_plugin() {
 	freePlugin();
 	loadPlugin();
-	if (plugin != NULL) {
+	if (plugin != nullptr) {
 		if (configurePluginCallbacks()) {
 			startPlugin();
 			dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->winId()), 0);
-			ERect* eRect = NULL;
+			ERect* eRect = nullptr;
 			plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
 			dialog->setFixedWidth(eRect->right);
 			dialog->setFixedHeight(eRect->bottom);
 		} else {
 			FreeLibrary(modulePtr);
-			plugin = NULL;
+			plugin = nullptr;
 		}
 	}
-	show_interface_btn->setEnabled(plugin != NULL);
+	show_interface_btn->setEnabled(plugin != nullptr);
 }

@@ -217,7 +217,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 		// detect auto-recovery file
 		autorecovery_filename = data_dir + "/autorecovery.ove";
 		if (QFile::exists(autorecovery_filename)) {
-			if (QMessageBox::question(NULL, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+			if (QMessageBox::question(nullptr, "Auto-recovery", "Olive didn't close properly and an autorecovery file was detected. Would you like to open it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
 				enable_launch_with_project = false;
 				open_project_worker(autorecovery_filename, true);
 			}
@@ -264,7 +264,7 @@ void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first
 	QList<QAction*> actions = menu->actions();
 	for (int i=0;i<actions.size();i++) {
 		QAction* a = actions.at(i);
-		if (a->menu() != NULL) {
+		if (a->menu() != nullptr) {
 			kbd_shortcut_processor(file, a->menu(), save, first);
 		} else if (!a->isSeparator()) {
 			if (save) {
@@ -415,7 +415,7 @@ void MainWindow::zoom_out() {
 }
 
 void MainWindow::export_dialog() {
-	if (sequence == NULL) {
+	if (sequence == nullptr) {
 		QMessageBox::information(this, "No active sequence", "Please open the sequence you wish to export.", QMessageBox::Ok);
 	} else {
 		ExportDialog e(this);
@@ -424,7 +424,7 @@ void MainWindow::export_dialog() {
 }
 
 void MainWindow::ripple_delete() {
-	if (sequence != NULL) panel_timeline->delete_selection(sequence->selections, true);
+	if (sequence != nullptr) panel_timeline->delete_selection(sequence->selections, true);
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {
@@ -445,11 +445,11 @@ void MainWindow::redo() {
 }
 
 void MainWindow::open_speed_dialog() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		SpeedDialog s(this);
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
 				s.clips.append(c);
 			}
 		}
@@ -458,7 +458,7 @@ void MainWindow::open_speed_dialog() {
 }
 
 void MainWindow::cut() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		QDockWidget* focused_panel = get_focused_panel();
 		if (panel_timeline == focused_panel) {
 			panel_timeline->copy(true);
@@ -469,7 +469,7 @@ void MainWindow::cut() {
 }
 
 void MainWindow::copy() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		QDockWidget* focused_panel = get_focused_panel();
 		if (panel_timeline == focused_panel) {
 			panel_timeline->copy(false);
@@ -481,7 +481,7 @@ void MainWindow::copy() {
 
 void MainWindow::paste() {
 	QDockWidget* focused_panel = get_focused_panel();
-	if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != NULL) {
+	if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != nullptr) {
 		panel_timeline->paste(false);
 	}
 }
@@ -918,7 +918,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	if (can_close_project()) {
 		panel_effect_controls->clear_effects(true);
 
-		set_sequence(NULL);
+		set_sequence(nullptr);
 
 		panel_footage_viewer->set_main_sequence();
 
@@ -1076,13 +1076,13 @@ void MainWindow::playpause() {
 }
 
 void MainWindow::prev_cut() {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
+	if (sequence != nullptr && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
 		panel_timeline->previous_cut();
 	}
 }
 
 void MainWindow::next_cut() {
-	if (sequence != NULL && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
+	if (sequence != nullptr && (panel_timeline->focused() || panel_sequence_viewer->is_focused())) {
 		panel_timeline->next_cut();
 	}
 }
@@ -1352,16 +1352,16 @@ void MainWindow::set_tsa_custom() {
 }
 
 void MainWindow::set_marker() {
-	if (sequence != NULL) panel_timeline->set_marker();
+	if (sequence != nullptr) panel_timeline->set_marker();
 }
 
 void MainWindow::toggle_enable_clips() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		ComboAction* ca = new ComboAction();
 		bool push_undo = false;
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
 				ca->append(new SetEnableCommand(c, !c->enabled));
 				push_undo = true;
 			}
@@ -1384,14 +1384,14 @@ void MainWindow::edit_to_out_point() {
 }
 
 void MainWindow::nest() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		QVector<int> selected_clips;
 		long earliest_point = LONG_MAX;
 
 		// get selected clips
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
 				selected_clips.append(i);
 				earliest_point = qMin(c->timeline_in, earliest_point);
 			}
@@ -1424,7 +1424,7 @@ void MainWindow::nest() {
 			}
 
 			// add sequence to project
-			Media* m = panel_project->new_sequence(ca, s, false, NULL);
+			Media* m = panel_project->new_sequence(ca, s, false, nullptr);
 
 			// add nested sequence to active sequence
 			QVector<Media*> media_list;
@@ -1443,7 +1443,7 @@ void MainWindow::nest() {
 }
 
 void MainWindow::paste_insert() {
-	if (panel_timeline->focused() && sequence != NULL) {
+	if (panel_timeline->focused() && sequence != nullptr) {
 		panel_timeline->paste(true);
 	}
 }

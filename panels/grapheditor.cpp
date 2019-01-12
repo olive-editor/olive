@@ -17,7 +17,7 @@
 #include "panels.h"
 #include "debug.h"
 
-GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
+GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	setWindowTitle("Graph Editor");
@@ -120,7 +120,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(NULL) {
 
 void GraphEditor::update_panel() {
 	if (isVisible()) {
-		if (row != NULL) {
+		if (row != nullptr) {
 			int slider_index = 0;
 			for (int i=0;i<row->fieldCount();i++) {
 				EffectField* field = row->field(i);
@@ -145,7 +145,7 @@ void GraphEditor::set_row(EffectRow *r) {
 	slider_proxy_buttons.clear();
 	slider_proxy_sources.clear();
 
-	if (row != NULL) {
+	if (row != nullptr) {
 		// clear old row connections
 		disconnect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(goto_previous_key()));
 		disconnect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(toggle_key()));
@@ -154,7 +154,7 @@ void GraphEditor::set_row(EffectRow *r) {
 
 	bool found_vals = false;
 
-	if (r != NULL && r->isKeyframing()) {
+	if (r != nullptr && r->isKeyframing()) {
 		for (int i=0;i<r->fieldCount();i++) {
 			EffectField* field = r->field(i);
 			if (field->type == EFFECT_FIELD_DOUBLE) {
@@ -191,7 +191,7 @@ void GraphEditor::set_row(EffectRow *r) {
 		connect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(toggle_key()));
 		connect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(goto_next_key()));
 	} else {
-		row = NULL;
+		row = nullptr;
 		current_row_desc->setText(0);
 	}
 	view->set_row(row);

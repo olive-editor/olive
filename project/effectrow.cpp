@@ -31,7 +31,7 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
 
 	column_count = 1;
 
-    if (parent_effect->meta != NULL
+    if (parent_effect->meta != nullptr
             && parent_effect->meta->type != EFFECT_TYPE_TRANSITION
             && keyframable) {
 		connect(label, SIGNAL(clicked()), this, SLOT(focus_row()));
@@ -209,7 +209,7 @@ void EffectRow::set_keyframe_now(ComboAction* ca) {
 		field(i)->keyframes[unsafe_keys.at(i)].data = field(i)->get_current_data();
 	}
 
-	if (ca != NULL)	{
+	if (ca != nullptr)	{
 		for (int i=0;i<fieldCount();i++) {
 			if (key_is_new.at(i)) ca->append(new KeyframeFieldSet(field(i), unsafe_keys.at(i)));
 			ca->append(new SetQVariant(&field(i)->keyframes[unsafe_keys.at(i)].data, unsafe_old_data.at(i), field(i)->get_current_data()));
@@ -225,7 +225,7 @@ void EffectRow::set_keyframe_now(ComboAction* ca) {
 
 
 
-	/*if (ca != NULL) {
+	/*if (ca != nullptr) {
 		just_made_unsafe_keyframe = false;
 	} else {
 		if (!just_made_unsafe_keyframe) {
@@ -248,7 +248,7 @@ void EffectRow::set_keyframe_now(ComboAction* ca) {
 
 	KeyframeSet* ks = new KeyframeSet(this, index, time, just_made_unsafe_keyframe);
 
-	if (ca != NULL) {
+	if (ca != nullptr) {
 		just_made_unsafe_keyframe = false;
 		ca->append(ks);
 	} else {

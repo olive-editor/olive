@@ -65,7 +65,7 @@ void debug_message_handler(QtMsgType type, const QMessageLogContext &context, co
 		fflush(stderr);
 		abort();
 	}
-	if (debug_dialog->isVisible()) {
+	if (debug_dialog != nullptr && debug_dialog->isVisible()) {
 		QMetaObject::invokeMethod(debug_dialog, "update_log", Qt::QueuedConnection);
 	}
 	debug_mutex.unlock();

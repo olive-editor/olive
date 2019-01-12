@@ -18,8 +18,8 @@
 #include <QDesktopServices>
 
 SourcesCommon::SourcesCommon(Project* parent) :
-	project_parent(parent),
-	editing_item(NULL)
+	editing_item(nullptr),
+	project_parent(parent)
 {
 	rename_timer.setInterval(1000);
 	connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
@@ -39,7 +39,7 @@ void SourcesCommon::create_seq_from_selected() {
 		panel_timeline->create_ghosts_from_media(s, 0, media_list);
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
-		project_parent->new_sequence(ca, s, true, NULL);
+		project_parent->new_sequence(ca, s, true, nullptr);
 		undo_stack.push(ca);
 	}
 }
@@ -148,7 +148,7 @@ void SourcesCommon::item_click(Media *m, const QModelIndex& index) {
 	}
 }
 
-void SourcesCommon::mouseDoubleClickEvent(QMouseEvent *e, const QModelIndexList& selected_items) {
+void SourcesCommon::mouseDoubleClickEvent(QMouseEvent *, const QModelIndexList& selected_items) {
 	stop_rename_timer();
 	if (selected_items.size() == 0) {
 		project_parent->import_dialog();
@@ -196,7 +196,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 						parent = drop_item.parent();
 					}
 				}
-				project_parent->process_file_list(paths, false, NULL, panel_project->item_to_media(parent));
+				project_parent->process_file_list(paths, false, nullptr, panel_project->item_to_media(parent));
 			}
 		}
 		event->acceptProposedAction();
@@ -271,7 +271,7 @@ void SourcesCommon::stop_rename_timer() {
 
 void SourcesCommon::rename_interval() {
 	stop_rename_timer();
-	if (view->hasFocus() && editing_item != NULL) {
+	if (view->hasFocus() && editing_item != nullptr) {
 		view->edit(editing_index);
 	}
 }
@@ -280,6 +280,6 @@ void SourcesCommon::item_renamed(Media* item) {
 	if (editing_item == item) {
 		MediaRename* mr = new MediaRename(item, "idk");
 		undo_stack.push(mr);
-		editing_item = NULL;
+		editing_item = nullptr;
 	}
 }

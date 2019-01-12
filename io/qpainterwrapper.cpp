@@ -15,7 +15,7 @@ QColor get_color_from_string(const QString& s) {
 	// workaround for alpha
 	if (s.at(0) == '#' && s.length() == 9) {
 		QColor color(s.left(7));
-		color.setAlpha(s.mid(7).toInt(NULL, 16));
+		color.setAlpha(s.mid(7).toInt(nullptr, 16));
 		return color;
 	} else {
 		return QColor(s);

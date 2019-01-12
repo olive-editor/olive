@@ -44,7 +44,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 
     set_button_icon(true);
 
-	contents = NULL;
+	contents = nullptr;
 }
 
 void CollapsibleWidget::header_click(bool s, bool deselect) {
@@ -74,7 +74,7 @@ void CollapsibleWidget::set_button_icon(bool open) {
 }
 
 void CollapsibleWidget::setContents(QWidget* c) {
-	bool existing = (contents != NULL);
+	bool existing = (contents != nullptr);
 	contents = c;
 	if (!existing) {
 		layout->addWidget(contents);

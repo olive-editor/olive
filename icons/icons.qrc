@@ -58,5 +58,6 @@
         <file>tri-up.png</file>
         <file>hand.png</file>
         <file>hand-disabled.png</file>
+        <file>olive64.png</file>
     </qresource>
 </RCC>

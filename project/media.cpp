@@ -28,9 +28,9 @@ QString get_interlacing_name(int interlacing) {
 
 QString get_channel_layout_name(int channels, uint64_t layout) {
 	switch (channels) {
-	case 0: return "Invalid"; break;
-	case 1: return "Mono"; break;
-	case 2: return "Stereo"; break;
+	case 0: return "Invalid";
+	case 1: return "Mono";
+	case 2: return "Stereo";
 	default: {
 		char buf[50];
 		av_get_channel_layout_string(buf, sizeof(buf), channels, layout);
@@ -41,7 +41,7 @@ QString get_channel_layout_name(int channels, uint64_t layout) {
 
 Media::Media(Media* iparent) :
 	parent(iparent),
-	throbber(NULL),
+	throbber(nullptr),
 	root(false),
 	type(-1)
 {}
@@ -49,9 +49,9 @@ Media::Media(Media* iparent) :
 Media::~Media() {
 	switch (get_type()) {
 	case MEDIA_TYPE_FOOTAGE: delete to_footage(); break;
-	case MEDIA_TYPE_SEQUENCE: if (object != NULL) delete to_sequence(); break;
+	case MEDIA_TYPE_SEQUENCE: if (object != nullptr) delete to_sequence(); break;
 	}
-	if (throbber != NULL) delete throbber;
+	if (throbber != nullptr) delete throbber;
 	qDeleteAll(children);
 }
 
@@ -72,14 +72,14 @@ void Media::set_sequence(Sequence *s) {
 	set_icon(QIcon(":/icons/sequence.png"));
 	type = MEDIA_TYPE_SEQUENCE;
 	object = s;
-	if (s != NULL) update_tooltip();
+	if (s != nullptr) update_tooltip();
 }
 
 void Media::set_folder() {
 	if (folder_name.isEmpty()) folder_name = "New Folder";
 	set_icon(QIcon(":/icons/folder.png"));
 	type = MEDIA_TYPE_FOLDER;
-	object = NULL;
+	object = nullptr;
 }
 
 void Media::set_icon(const QIcon &ico) {
@@ -207,7 +207,7 @@ double Media::get_frame_rate(int stream) {
 	}
 	case MEDIA_TYPE_SEQUENCE: return to_sequence()->frame_rate;
 	}
-	return NULL;
+	return 0;
 }
 
 int Media::get_sampling_rate(int stream) {

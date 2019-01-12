@@ -78,14 +78,14 @@ void EffectControls::menu_select(QAction* q) {
 		if ((c->track < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
 			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
 			if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
-				if (c->get_opening_transition() == NULL) {
-					ca->append(new AddTransitionCommand(c, NULL, NULL, meta, TA_OPENING_TRANSITION, 30));
+				if (c->get_opening_transition() == nullptr) {
+					ca->append(new AddTransitionCommand(c, nullptr, nullptr, meta, TA_OPENING_TRANSITION, 30));
 				}
-				if (c->get_closing_transition() == NULL) {
-					ca->append(new AddTransitionCommand(c, NULL, NULL, meta, TA_CLOSING_TRANSITION, 30));
+				if (c->get_closing_transition() == nullptr) {
+					ca->append(new AddTransitionCommand(c, nullptr, nullptr, meta, TA_CLOSING_TRANSITION, 30));
 				}
 			} else {
-				ca->append(new AddEffectCommand(c, NULL, meta));
+				ca->append(new AddEffectCommand(c, nullptr, meta));
 			}
 		}
 	}
@@ -112,7 +112,7 @@ void EffectControls::copy(bool del) {
 		bool cleared = false;
 
 		ComboAction* ca = new ComboAction();
-		EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : NULL;
+		EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : nullptr;
 		for (int i=0;i<selected_clips.size();i++) {
 			Clip* c = sequence->clips.at(selected_clips.at(i));
 			for (int j=0;j<c->effects.size();j++) {
@@ -124,16 +124,16 @@ void EffectControls::copy(bool del) {
 						clipboard_type = CLIPBOARD_TYPE_EFFECT;
 					}
 
-					clipboard.append(effect->copy(NULL));
+					clipboard.append(effect->copy(nullptr));
 
-					if (del_com != NULL) {
+					if (del_com != nullptr) {
 						del_com->clips.append(c);
 						del_com->fx.append(j);
 					}
 				}
 			}
 		}
-		if (del_com != NULL) {
+		if (del_com != nullptr) {
 			if (del_com->clips.size() > 0) {
 				ca->append(del_com);
 			} else {
@@ -168,7 +168,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 				bool found = false;
 				for (int j=0;j<effects_menu.actions().size();j++) {
 					QAction* action = effects_menu.actions().at(j);
-					if (action->menu() != NULL) {
+					if (action->menu() != nullptr) {
 						if (action->menu()->title() == em.category) {
 							parent = action->menu();
 							found = true;
@@ -214,20 +214,20 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 
 void EffectControls::clear_effects(bool clear_cache) {
 	// clear existing clips
-	deselect_all_effects(NULL);
+	deselect_all_effects(nullptr);
 
 	// clear graph editor
-	if (panel_graph_editor != NULL) panel_graph_editor->set_row(NULL);
+	if (panel_graph_editor != nullptr) panel_graph_editor->set_row(nullptr);
 
 	QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(video_effect_area->layout());
 	QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(audio_effect_area->layout());
 	QLayoutItem* item;
 	while ((item = video_layout->takeAt(0))) {
-		item->widget()->setParent(NULL);
+		item->widget()->setParent(nullptr);
 		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
 	}
 	while ((item = audio_layout->takeAt(0))) {
-		item->widget()->setParent(NULL);
+		item->widget()->setParent(nullptr);
 		disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
 	}
 	lblMultipleClipsSelected->setVisible(false);
@@ -455,9 +455,9 @@ void EffectControls::load_effects() {
 				for (int j=0;j<c->effects.size();j++) {
 					open_effect(layout, c->effects.at(j));
 				}
-			} else if (mode == TA_OPENING_TRANSITION && c->get_opening_transition() != NULL) {
+			} else if (mode == TA_OPENING_TRANSITION && c->get_opening_transition() != nullptr) {
 				open_effect(layout, c->get_opening_transition());
-			} else if (mode == TA_CLOSING_TRANSITION && c->get_closing_transition() != NULL) {
+			} else if (mode == TA_CLOSING_TRANSITION && c->get_closing_transition() != nullptr) {
 				open_effect(layout, c->get_closing_transition());
 			}
 		}
@@ -533,14 +533,14 @@ bool EffectControls::is_focused() {
 	if (this->hasFocus()) return true;
 	for (int i=0;i<selected_clips.size();i++) {
 		Clip* c = sequence->clips.at(selected_clips.at(i));
-		if (c != NULL) {
+		if (c != nullptr) {
 			for (int j=0;j<c->effects.size();j++) {
 				if (c->effects.at(j)->container->is_focused()) {
 					return true;
 				}
 			}
 		} else {
-			qWarning() << "Tried to check focus of a NULL clip";
+			qWarning() << "Tried to check focus of a nullptr clip";
 		}
 	}
 	return false;

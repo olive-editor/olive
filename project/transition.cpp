@@ -31,7 +31,7 @@ Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) :
 
 	LabelSlider* length_ui_ele = static_cast<LabelSlider*>(length_field->ui_element);
 	length_ui_ele->set_display_type(LABELSLIDER_FRAMENUMBER);
-	length_ui_ele->set_frame_rate(parent_clip->sequence == NULL ? parent_clip->cached_fr : parent_clip->sequence->frame_rate);
+	length_ui_ele->set_frame_rate(parent_clip->sequence == nullptr ? parent_clip->cached_fr : parent_clip->sequence->frame_rate);
 }
 
 int Transition::copy(Clip *c, Clip* s) {
@@ -48,7 +48,7 @@ long Transition::get_true_length() {
 }
 
 long Transition::get_length() {
-	if (secondary_clip != NULL) {
+	if (secondary_clip != nullptr) {
 		return length * 2;
 	}
 	return length;
@@ -76,14 +76,14 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
 		qCritical() << "Invalid transition data";
 		QMessageBox::critical(mainWindow, "Invalid transition", "No candidate for transition '" + em->name + "'. This transition may be corrupt. Try reinstalling it or Olive.");
 	}
-	return NULL;
+	return nullptr;
 }
 
 int create_transition(Clip* c, Clip* s, const EffectMeta* em, long length) {
 	Transition* t = get_transition_from_meta(c, s, em);
-	if (t != NULL) {
+	if (t != nullptr) {
 		if (length >= 0) t->set_length(length);
-		QVector<Transition*>& transition_list = (c->sequence == NULL) ? clipboard_transitions : c->sequence->transitions;
+		QVector<Transition*>& transition_list = (c->sequence == nullptr) ? clipboard_transitions : c->sequence->transitions;
 		transition_list.append(t);
 		return transition_list.size() - 1;
 	}

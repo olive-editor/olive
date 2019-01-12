@@ -292,16 +292,16 @@ void ExportDialog::format_changed(int index)
 	AVCodec* codec_info;
 	for (int i=0;i<format_vcodecs.size();i++) {
 		codec_info = avcodec_find_encoder((enum AVCodecID) format_vcodecs.at(i));
-		if (codec_info == NULL) {
-			vcodecCombobox->addItem("NULL");
+		if (codec_info == nullptr) {
+			vcodecCombobox->addItem("nullptr");
 		} else {
 			vcodecCombobox->addItem(codec_info->long_name);
 		}
 	}
 	for (int i=0;i<format_acodecs.size();i++) {
 		codec_info = avcodec_find_encoder((enum AVCodecID) format_acodecs.at(i));
-		if (codec_info == NULL) {
-			acodecCombobox->addItem("NULL");
+		if (codec_info == nullptr) {
+			acodecCombobox->addItem("nullptr");
 		} else {
 			acodecCombobox->addItem(codec_info->long_name);
 		}

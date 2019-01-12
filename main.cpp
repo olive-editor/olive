@@ -25,19 +25,19 @@ int main(int argc, char *argv[]) {
 	if (argc > 1) {
 		for (int i=1;i<argc;i++) {
 			if (argv[i][0] == '-') {
-                if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v")) {
+				if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v")) {
 #ifndef GITHASH
 					qWarning() << "No Git commit information found";
 #endif
 					printf("%s\n", appName.toUtf8().constData());
 					return 0;
-                } else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
+				} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 					printf("Usage: %s [options] [filename]\n\n[filename] is the file to open on startup.\n\nOptions:\n\t-v, --version\tShow version information\n\t-h, --help\tShow this help\n\t-f, --fullscreen\tStart in full screen mode\n\n", argv[0]);
 					return 0;
-                } else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
+				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
 					launch_fullscreen = true;
-                } else if (!strcmp(argv[i], "--disable-shaders")) {
-                    shaders_are_enabled = false;
+				} else if (!strcmp(argv[i], "--disable-shaders")) {
+					shaders_are_enabled = false;
 
 				} else {
 					printf("[ERROR] Unknown argument '%s'\n", argv[1]);
@@ -54,8 +54,9 @@ int main(int argc, char *argv[]) {
 	avfilter_register_all();
 
 	QApplication a(argc, argv);
+	a.setWindowIcon(QIcon(":/icons/olive64.png"));
 
-	MainWindow w(NULL, appName);
+	MainWindow w(nullptr, appName);
 	w.updateTitle("");
 
 	if (!load_proj.isEmpty()) {

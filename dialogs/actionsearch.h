@@ -22,7 +22,7 @@ class ActionSearch : public QDialog
 public:
 	ActionSearch(QWidget* parent = 0);
 private slots:
-	void search_update(const QString& s, const QString &p = 0, QMenu *parent = NULL);
+	void search_update(const QString& s, const QString &p = 0, QMenu *parent = nullptr);
 	void perform_action();
 	void move_selection_up();
 	void move_selection_down();

@@ -48,7 +48,7 @@ public:
 	void clear();
 	Media* new_sequence(ComboAction *ca, Sequence* s, bool open, Media* parent);
 	QString get_next_sequence_name(QString start = 0);
-	void process_file_list(QStringList& files, bool recursive = false, Media* replace = NULL, Media *parent = NULL);
+	void process_file_list(QStringList& files, bool recursive = false, Media* replace = nullptr, Media *parent = nullptr);
 	void replace_media(Media* item, QString filename);
 	Media *get_selected_folder();
 	bool reveal_media(Media *media, QModelIndex parent = QModelIndex());

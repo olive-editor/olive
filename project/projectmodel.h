@@ -31,8 +31,8 @@ public:
 	void appendChild(Media* parent, Media* child);
 	void moveChild(Media *child, Media *to);
 	void removeChild(Media *parent, Media* m);
-	Media *child(int i, Media* parent = NULL);
-	int childCount(Media* parent = NULL);
+	Media *child(int i, Media* parent = nullptr);
+	int childCount(Media* parent = nullptr);
 	void set_icon(Media* m, const QIcon &ico);
 
 private:

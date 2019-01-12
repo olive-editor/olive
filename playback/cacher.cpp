@@ -51,8 +51,8 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 		Effect* e = c->effects.at(j);
 		if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
 	}
-	if (c->get_opening_transition() != NULL) {
-		if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+	if (c->get_opening_transition() != nullptr) {
+		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 			double transition_start = (c->get_clip_in_with_transition() / c->sequence->frame_rate);
 			double transition_end = (c->get_clip_in_with_transition() + c->get_opening_transition()->get_length()) / c->sequence->frame_rate;
 			if (timecode_end < transition_end) {
@@ -63,8 +63,8 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 			}
 		}
 	}
-	if (c->get_closing_transition() != NULL) {
-		if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+	if (c->get_closing_transition() != nullptr) {
+		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 			long length_with_transitions = c->get_timeline_out_with_transition() - c->get_timeline_in_with_transition();
 			double transition_start = (c->get_clip_in_with_transition() + length_with_transitions - c->get_closing_transition()->get_length()) / c->sequence->frame_rate;
 			double transition_end = (c->get_clip_in_with_transition() + length_with_transitions) / c->sequence->frame_rate;
@@ -117,7 +117,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		AVFrame* frame;
 		int nb_bytes = INT_MAX;
 
-		if (c->media == NULL) {
+		if (c->media == nullptr) {
 			frame = c->frame;
 			nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
 			while ((c->frame_sample_index == -1 || c->frame_sample_index >= nb_bytes) && nb_bytes > 0) {
@@ -390,7 +390,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 			audio_write_lock.unlock();
 
 			if (scrubbing) {
-				if (audio_thread != NULL) audio_thread->notifyReceiver();
+				if (audio_thread != nullptr) audio_thread->notifyReceiver();
 			}
 
 			if (c->frame_sample_index == nb_bytes) {
@@ -541,7 +541,7 @@ void cache_video_worker(Clip* c, long playhead) {
 
 void reset_cache(Clip* c, long target_frame) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
-	if (c->media == NULL) {
+	if (c->media == nullptr) {
 		if (c->track >= 0) {
 			// tone clip
 			c->reached_end = false;
@@ -625,7 +625,7 @@ Cacher::Cacher(Clip* c) : clip(c) {}
 AVSampleFormat sample_format = AV_SAMPLE_FMT_S16;
 
 void open_clip_worker(Clip* clip) {
-	if (clip->media == NULL) {
+	if (clip->media == nullptr) {
 		if (clip->track >= 0) {
 			clip->frame = av_frame_alloc();
 			clip->frame->format = sample_format;
@@ -649,8 +649,8 @@ void open_clip_worker(Clip* clip) {
 		int errCode = avformat_open_input(
 				&clip->formatCtx,
 				filename,
-				NULL,
-				NULL
+				nullptr,
+				nullptr
 			);
 		if (errCode != 0) {
 			char err[1024];
@@ -659,7 +659,7 @@ void open_clip_worker(Clip* clip) {
 			return;
 		}
 
-		errCode = avformat_find_stream_info(clip->formatCtx, NULL);
+		errCode = avformat_find_stream_info(clip->formatCtx, nullptr);
 		if (errCode < 0) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
@@ -692,7 +692,7 @@ void open_clip_worker(Clip* clip) {
 
 		if (ms->video_interlacing != VIDEO_PROGRESSIVE) clip->max_queue_size *= 2;
 
-		clip->opts = NULL;
+		clip->opts = nullptr;
 
 		// optimized decoding settings
 		if ((clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
@@ -714,7 +714,7 @@ void open_clip_worker(Clip* clip) {
 
 		// allocate filtergraph
 		clip->filter_graph = avfilter_graph_alloc();
-		if (clip->filter_graph == NULL) {
+		if (clip->filter_graph == nullptr) {
 			qCritical() << "Could not create filtergraph";
 		}
 		char filter_args[512];
@@ -730,8 +730,8 @@ void open_clip_worker(Clip* clip) {
 						clip->stream->codecpar->sample_aspect_ratio.den
 					 );
 
-			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, NULL, clip->filter_graph);
-			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", NULL, NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("buffer"), "in", filter_args, nullptr, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("buffersink"), "out", nullptr, nullptr, clip->filter_graph);
 
 			AVFilterContext* last_filter = clip->buffersrc_ctx;
 
@@ -739,7 +739,7 @@ void open_clip_worker(Clip* clip) {
 				AVFilterContext* yadif_filter;
 				char yadif_args[100];
 				snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
-				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, NULL, clip->filter_graph);
+				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, nullptr, clip->filter_graph);
 
 				avfilter_link(last_filter, 0, yadif_filter, 0);
 				last_filter = yadif_filter;
@@ -749,7 +749,7 @@ void open_clip_worker(Clip* clip) {
 			bool stabilize = false;
 			if (stabilize) {
 				AVFilterContext* stab_filter;
-				int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=/media/matt/Home/samples/transforms.trf", NULL, clip->filter_graph);
+				int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=/media/matt/Home/samples/transforms.trf", nullptr, clip->filter_graph);
 				if (stab_ret < 0) {
 					char err[100];
 					av_strerror(stab_ret, err, sizeof(err));
@@ -765,18 +765,18 @@ void open_clip_worker(Clip* clip) {
 				AV_PIX_FMT_NONE
 			};
 
-			clip->pix_fmt = avcodec_find_best_pix_fmt_of_list(valid_pix_fmts, static_cast<enum AVPixelFormat>(clip->stream->codecpar->format), 1, NULL);
+			clip->pix_fmt = avcodec_find_best_pix_fmt_of_list(valid_pix_fmts, static_cast<enum AVPixelFormat>(clip->stream->codecpar->format), 1, nullptr);
 			const char* chosen_format = av_get_pix_fmt_name(static_cast<enum AVPixelFormat>(clip->pix_fmt));
 			char format_args[100];
 			snprintf(format_args, sizeof(format_args), "pix_fmts=%s", chosen_format);
 
 			AVFilterContext* format_conv;
-			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", format_args, NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", format_args, nullptr, clip->filter_graph);
 			avfilter_link(last_filter, 0, format_conv, 0);
 
 			avfilter_link(format_conv, 0, clip->buffersink_ctx, 0);
 
-			avfilter_graph_config(clip->filter_graph, NULL);
+			avfilter_graph_config(clip->filter_graph, nullptr);
 		} else if (clip->stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 			if (clip->codecCtx->channel_layout == 0) clip->codecCtx->channel_layout = av_get_default_channel_layout(clip->stream->codecpar->channels);
 
@@ -802,8 +802,8 @@ void open_clip_worker(Clip* clip) {
 						clip->codecCtx->channel_layout
 					 );
 
-			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("abuffer"), "in", filter_args, NULL, clip->filter_graph);
-			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersrc_ctx, avfilter_get_by_name("abuffer"), "in", filter_args, nullptr, clip->filter_graph);
+			avfilter_graph_create_filter(&clip->buffersink_ctx, avfilter_get_by_name("abuffersink"), "out", nullptr, nullptr, clip->filter_graph);
 
 			enum AVSampleFormat sample_fmts[] = { sample_format,  static_cast<AVSampleFormat>(-1) };
 			if (av_opt_set_int_list(clip->buffersink_ctx, "sample_fmts", sample_fmts, -1, AV_OPT_SEARCH_CHILDREN) < 0) {
@@ -837,16 +837,16 @@ void open_clip_worker(Clip* clip) {
 					if (whole2 > 0) {
 						snprintf(speed_param, sizeof(speed_param), "%f", base);
 						for (int i=0;i<whole2;i++) {
-							AVFilterContext* tempo_filter = NULL;
-							avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+							AVFilterContext* tempo_filter = nullptr;
+							avfilter_graph_create_filter(&tempo_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, nullptr, clip->filter_graph);
 							avfilter_link(previous_filter, 0, tempo_filter, 0);
 							previous_filter = tempo_filter;
 						}
 					}
 
 					snprintf(speed_param, sizeof(speed_param), "%f", qPow(base, speedlog));
-					last_filter = NULL;
-					avfilter_graph_create_filter(&last_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, NULL, clip->filter_graph);
+					last_filter = nullptr;
+					avfilter_graph_create_filter(&last_filter, avfilter_get_by_name("atempo"), "atempo", speed_param, nullptr, clip->filter_graph);
 					avfilter_link(previous_filter, 0, last_filter, 0);
 //				}
 
@@ -861,7 +861,7 @@ void open_clip_worker(Clip* clip) {
 				qCritical() << "Could not set output sample rates";
 			}
 
-			avfilter_graph_config(clip->filter_graph, NULL);
+			avfilter_graph_config(clip->filter_graph, nullptr);
 
 			clip->audio_reset = true;
 		}
@@ -885,7 +885,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QV
 		clip->audio_reset = false;
 	}
 
-	if (clip->media == NULL) {
+	if (clip->media == nullptr) {
 		if (clip->track >= 0) {
 			cache_audio_worker(clip, scrubbing, nests);
 		}
@@ -901,7 +901,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QV
 void close_clip_worker(Clip* clip) {
 	clip->finished_opening = false;
 
-	if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+	if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		clip->queue_clear();
 
 		avfilter_graph_free(&clip->filter_graph);

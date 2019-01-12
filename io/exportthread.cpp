@@ -27,19 +27,19 @@ extern "C" {
 ExportThread::ExportThread() : continueEncode(true) {
 	surface.create();
 
-	fmt_ctx = NULL;
-	video_stream = NULL;
-	vcodec = NULL;
-	vcodec_ctx = NULL;
-	video_frame = NULL;
-	sws_frame = NULL;
-	sws_ctx = NULL;
-	audio_stream = NULL;
-	acodec = NULL;
-	audio_frame = NULL;
-	swr_frame = NULL;
-	acodec_ctx = NULL;
-	swr_ctx = NULL;
+	fmt_ctx = nullptr;
+	video_stream = nullptr;
+	vcodec = nullptr;
+	vcodec_ctx = nullptr;
+	video_frame = nullptr;
+	sws_frame = nullptr;
+	sws_ctx = nullptr;
+	audio_stream = nullptr;
+	acodec = nullptr;
+	audio_frame = nullptr;
+	swr_frame = nullptr;
+	acodec_ctx = nullptr;
+	swr_ctx = nullptr;
 
 	vpkt_alloc = false;
 	apkt_alloc = false;
@@ -133,7 +133,7 @@ bool ExportThread::setupVideo() {
 		}
 	}
 
-	ret = avcodec_open2(vcodec_ctx, vcodec, NULL);
+	ret = avcodec_open2(vcodec_ctx, vcodec, nullptr);
 	if (ret < 0) {
 		qCritical() << "Could not open output video encoder." << ret;
 		ed->export_error = "could not open output video encoder (" + QString::number(ret) + ")";
@@ -166,9 +166,9 @@ bool ExportThread::setupVideo() {
 				video_height,
 				vcodec_ctx->pix_fmt,
 				SWS_FAST_BILINEAR,
-				NULL,
-				NULL,
-				NULL
+				nullptr,
+				nullptr,
+				nullptr
 			);
 
 	sws_frame = av_frame_alloc();
@@ -228,7 +228,7 @@ bool ExportThread::setupAudio() {
 	}
 
 	// open encoder
-	ret = avcodec_open2(acodec_ctx, acodec, NULL);
+	ret = avcodec_open2(acodec_ctx, acodec, nullptr);
 	if (ret < 0) {
 		qCritical() << "Could not open output audio encoder." << ret;
 		ed->export_error = "could not open output audio encoder (" + QString::number(ret) + ")";
@@ -245,7 +245,7 @@ bool ExportThread::setupAudio() {
 
 	// init audio resampler context
 	swr_ctx = swr_alloc_set_opts(
-			NULL,
+			nullptr,
 			acodec_ctx->channel_layout,
 			acodec_ctx->sample_fmt,
 			acodec_ctx->sample_rate,
@@ -253,7 +253,7 @@ bool ExportThread::setupAudio() {
 			AV_SAMPLE_FMT_S16,
 			sequence->audio_frequency,
 			0,
-			NULL
+			nullptr
 		);
 	swr_init(swr_ctx);
 
@@ -272,7 +272,7 @@ bool ExportThread::setupAudio() {
 		ed->export_error = "could not allocate audio buffer (" + QString::number(ret) + ")";
 		return false;
 	}
-	aframe_bytes = av_samples_get_buffer_size(NULL, audio_frame->channels, audio_frame->nb_samples, static_cast<AVSampleFormat>(audio_frame->format), 0);
+	aframe_bytes = av_samples_get_buffer_size(nullptr, audio_frame->channels, audio_frame->nb_samples, static_cast<AVSampleFormat>(audio_frame->format), 0);
 
 	// init converted audio frame
 	swr_frame = av_frame_alloc();
@@ -288,7 +288,7 @@ bool ExportThread::setupAudio() {
 }
 
 bool ExportThread::setupContainer() {
-	avformat_alloc_output_context2(&fmt_ctx, NULL, NULL, c_filename);
+	avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, c_filename);
 	if (!fmt_ctx) {
 		qCritical() << "Could not create output context";
 		ed->export_error = "could not create output format context";
@@ -328,7 +328,7 @@ void ExportThread::run() {
 	if (audio_enabled && continueEncode) continueEncode = setupAudio();
 
 	if (continueEncode) {
-		ret = avformat_write_header(fmt_ctx, NULL);
+		ret = avformat_write_header(fmt_ctx, nullptr);
 		if (ret < 0) {
 			qCritical() << "Could not write output file header." << ret;
 			ed->export_error = "could not write output file header (" + QString::number(ret) + ")";
@@ -412,7 +412,7 @@ void ExportThread::run() {
 		if (audio_enabled) apkt_alloc = true;
 	}
 
-	panel_sequence_viewer->viewer_widget->default_fbo = NULL;
+	panel_sequence_viewer->viewer_widget->default_fbo = nullptr;
 	rendering = false;
 
 	fbo.release();
@@ -420,7 +420,7 @@ void ExportThread::run() {
 	if (audio_enabled && continueEncode) {
 		// flush swresample
 		do {
-			swr_convert_frame(swr_ctx, swr_frame, NULL);
+			swr_convert_frame(swr_ctx, swr_frame, nullptr);
 			if (swr_frame->nb_samples == 0) break;
 			swr_frame->pts = file_audio_samples;
 			if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) continueEncode = false;
@@ -433,8 +433,8 @@ void ExportThread::run() {
 	if (continueEncode) {
 		// flush remaining packets
 		while (continueVideo && continueAudio) {
-			if (continueVideo && video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, NULL, &video_pkt, video_stream, false);
-			if (continueAudio && audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, NULL, &audio_pkt, audio_stream, true);
+			if (continueVideo && video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream, false);
+			if (continueAudio && audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, nullptr, &audio_pkt, audio_stream, true);
 		}
 
 		ret = av_write_trailer(fmt_ctx);
@@ -450,26 +450,26 @@ void ExportThread::run() {
 	avio_closep(&fmt_ctx->pb);
 
 	if (vpkt_alloc) av_packet_unref(&video_pkt);
-	if (video_frame != NULL) av_frame_free(&video_frame);
-	if (vcodec_ctx != NULL) {
+	if (video_frame != nullptr) av_frame_free(&video_frame);
+	if (vcodec_ctx != nullptr) {
 		avcodec_close(vcodec_ctx);
 		avcodec_free_context(&vcodec_ctx);
 	}
 
 	if (apkt_alloc) av_packet_unref(&audio_pkt);
-	if (audio_frame != NULL) av_frame_free(&audio_frame);
-	if (acodec_ctx != NULL) {
+	if (audio_frame != nullptr) av_frame_free(&audio_frame);
+	if (acodec_ctx != nullptr) {
 		avcodec_close(acodec_ctx);
 		avcodec_free_context(&acodec_ctx);
 	}
 
 	avformat_free_context(fmt_ctx);
 
-	if (sws_ctx != NULL) {
+	if (sws_ctx != nullptr) {
 		sws_freeContext(sws_ctx);
 		av_frame_free(&sws_frame);
 	}
-	if (swr_ctx != NULL) {
+	if (swr_ctx != nullptr) {
 		swr_free(&swr_ctx);
 		av_frame_free(&swr_frame);
 	}

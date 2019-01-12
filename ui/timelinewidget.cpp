@@ -48,8 +48,8 @@
 #define TRANSITION_BETWEEN_RANGE 40
 
 TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
-	selection_command = NULL;
-	self_created_sequence = NULL;
+	selection_command = nullptr;
+	self_created_sequence = nullptr;
 	scroll = 0;
 
 	bottom_align = false;
@@ -79,7 +79,7 @@ void TimelineWidget::right_click_ripple() {
 }
 
 void TimelineWidget::show_context_menu(const QPoint& pos) {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		// hack because sometimes right clicking doesn't trigger mouse release event
 		panel_timeline->rect_select_init = false;
 		panel_timeline->rect_select_proc = false;
@@ -98,7 +98,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		QVector<Clip*> selected_clips;
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
 				selected_clips.append(c);
 			}
 		}
@@ -115,7 +115,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 			for (int i=0;i<sequence->clips.size();i++) {
 				Clip* c = sequence->clips.at(i);
-				if (c != NULL) {
+				if (c != nullptr) {
 					if (c->timeline_in > panel_timeline->cursor_frame || c->timeline_out > panel_timeline->cursor_frame) {
 						at_end_of_sequence = false;
 					}
@@ -163,7 +163,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			for (int i=0;i<selected_clips.size();i++) {
 				if (selected_clips.at(i)->track < 0) {
 					video_clip_count++;
-					if (selected_clips.at(i)->media == NULL
+					if (selected_clips.at(i)->media == nullptr
 							|| selected_clips.at(i)->media->get_type() != MEDIA_TYPE_FOOTAGE) {
 						all_video_is_footage = false;
 					}
@@ -204,7 +204,7 @@ void TimelineWidget::toggle_autoscale() {
 	SetAutoscaleAction* action = new SetAutoscaleAction();
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+		if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
 			action->clips.append(c);
 		}
 	}
@@ -216,10 +216,10 @@ void TimelineWidget::toggle_autoscale() {
 }
 
 void TimelineWidget::tooltip_timer_timeout() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		if (tooltip_clip < sequence->clips.size()) {
 			Clip* c = sequence->clips.at(tooltip_clip);
-			if (c != NULL) {
+			if (c != nullptr) {
 				QToolTip::showText(QCursor::pos(),
 							c->name
 								   + "\nStart: " + frame_to_timecode(c->timeline_in, config.timecode_view, sequence->frame_rate)
@@ -235,7 +235,7 @@ void TimelineWidget::rename_clip() {
 	QVector<Clip*> selected_clips;
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c != NULL && panel_timeline->is_clip_selected(c, true)) {
+		if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
 			selected_clips.append(c);
 		}
 	}
@@ -343,7 +343,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 		long entry_point;
 		Sequence* seq = sequence;
 
-		if (seq == NULL) {
+		if (seq == nullptr) {
 			// if no sequence, we're going to create a new one using the clips as a reference
 			entry_point = 0;
 
@@ -365,7 +365,7 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 	if (panel_timeline->importing) {
 		event->acceptProposedAction();
 
-		if (sequence != NULL) {
+		if (sequence != nullptr) {
 			QPoint pos = event->pos();
 			update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
 			panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
@@ -403,9 +403,9 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent* event) {
 		panel_timeline->importing = false;
 		update_ui(false);
 	}
-	if (self_created_sequence != NULL) {
+	if (self_created_sequence != nullptr) {
 		delete self_created_sequence;
-		self_created_sequence = NULL;
+		self_created_sequence = nullptr;
 	}
 }
 
@@ -453,7 +453,7 @@ void insert_clips(ComboAction* ca) {
 
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c != NULL) {
+		if (c != nullptr) {
 			// don't split any clips that are moving
 			bool found = false;
 			for (int j=0;j<panel_timeline->ghosts.size();j++) {
@@ -511,10 +511,10 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 		Sequence* s = sequence;
 
 		// if we're dropping into nothing, create a new sequences based on the clip being dragged
-		if (s == NULL) {
+		if (s == nullptr) {
 			s = self_created_sequence;
-			panel_project->new_sequence(ca, self_created_sequence, true, NULL);
-			self_created_sequence = NULL;
+			panel_project->new_sequence(ca, self_created_sequence, true, nullptr);
+			self_created_sequence = nullptr;
 		} else if (event->keyboardModifiers() & Qt::ControlModifier) {
 			insert_clips(ca);
 		} else {
@@ -552,7 +552,7 @@ bool isLiveEditing() {
 }
 
 void TimelineWidget::mousePressEvent(QMouseEvent *event) {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		int tool = panel_timeline->tool;
 		if (event->button() == Qt::MiddleButton) {
 			tool = TIMELINE_TOOL_HAND;
@@ -602,7 +602,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 				Ghost g;
 				g.in = g.old_in = g.out = g.old_out = panel_timeline->drag_frame_start;
 				g.track = g.old_track = panel_timeline->drag_track_start;
-				g.transition = NULL;
+				g.transition = nullptr;
 				g.clip = -1;
 				g.trimming = true;
 				g.trim_in = false;
@@ -626,7 +626,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 				} else {
 					if (clip_index >= 0) {
 						Clip* clip = sequence->clips.at(clip_index);
-						if (clip != NULL) {
+						if (clip != nullptr) {
 							if (panel_timeline->is_clip_selected(clip, true)) {
 								if (shift) {
 									panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
@@ -648,14 +648,14 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 									Selection s;
 									s.track = clip->track;
 
-									if (panel_timeline->transition_select == TA_OPENING_TRANSITION && clip->get_opening_transition() != NULL) {
+									if (panel_timeline->transition_select == TA_OPENING_TRANSITION && clip->get_opening_transition() != nullptr) {
 										s.in = clip->timeline_in;
-										if (clip->get_opening_transition()->secondary_clip != NULL) s.in -= clip->get_opening_transition()->get_true_length();
+										if (clip->get_opening_transition()->secondary_clip != nullptr) s.in -= clip->get_opening_transition()->get_true_length();
 										s.out = clip->timeline_in + clip->get_opening_transition()->get_true_length();
-									} else if (panel_timeline->transition_select == TA_CLOSING_TRANSITION && clip->get_closing_transition() != NULL) {
+									} else if (panel_timeline->transition_select == TA_CLOSING_TRANSITION && clip->get_closing_transition() != nullptr) {
 										s.in = clip->timeline_out - clip->get_closing_transition()->get_true_length();
 										s.out = clip->timeline_out;
-										if (clip->get_closing_transition()->secondary_clip != NULL) s.out += clip->get_closing_transition()->get_true_length();
+										if (clip->get_closing_transition()->secondary_clip != nullptr) s.out += clip->get_closing_transition()->get_true_length();
 									}
 									sequence->selections.append(s);
 								}
@@ -673,12 +673,12 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 								if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
 									if (panel_timeline->transition_select == TA_OPENING_TRANSITION) {
 										s.out = clip->timeline_in + clip->get_opening_transition()->get_true_length();
-										if (clip->get_opening_transition()->secondary_clip != NULL) s.in -= clip->get_opening_transition()->get_true_length();
+										if (clip->get_opening_transition()->secondary_clip != nullptr) s.in -= clip->get_opening_transition()->get_true_length();
 									}
 
 									if (panel_timeline->transition_select == TA_CLOSING_TRANSITION) {
 										s.in = clip->timeline_out - clip->get_closing_transition()->get_true_length();
-										if (clip->get_closing_transition()->secondary_clip != NULL) s.out += clip->get_closing_transition()->get_true_length();
+										if (clip->get_closing_transition()->secondary_clip != nullptr) s.out += clip->get_closing_transition()->get_true_length();
 									}
 								}
 
@@ -749,10 +749,10 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transition_start, long transition_end, bool delete_old_transitions) {
 	// make room for transition
 	if (type == TA_OPENING_TRANSITION) {
-		if (delete_old_transitions && c->get_opening_transition() != NULL) {
+		if (delete_old_transitions && c->get_opening_transition() != nullptr) {
 			ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
 		}
-		if (c->get_closing_transition() != NULL) {
+		if (c->get_closing_transition() != nullptr) {
 			if (transition_end >= c->timeline_out) {
 				ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
 			} else if (transition_end > c->timeline_out - c->get_closing_transition()->get_true_length()) {
@@ -760,10 +760,10 @@ void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transitio
 			}
 		}
 	} else {
-		if (delete_old_transitions && c->get_closing_transition() != NULL) {
+		if (delete_old_transitions && c->get_closing_transition() != nullptr) {
 			ca->append(new DeleteTransitionCommand(c->sequence, c->closing_transition));
 		}
-		if (c->get_opening_transition() != NULL) {
+		if (c->get_opening_transition() != nullptr) {
 			if (transition_start <= c->timeline_in) {
 				ca->append(new DeleteTransitionCommand(c->sequence, c->opening_transition));
 			} else if (transition_start < c->timeline_in + c->get_opening_transition()->get_true_length()) {
@@ -775,7 +775,7 @@ void make_room_for_transition(ComboAction* ca, Clip* c, int type, long transitio
 
 void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 	QToolTip::hideText();
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		bool alt = (event->modifiers() & Qt::AltModifier);
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
 		bool ctrl = (event->modifiers() & Qt::ControlModifier);
@@ -794,7 +794,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						panel_timeline->creating = false;
 					} else if (g.in != g.out) {
 						Clip* c = new Clip(sequence);
-						c->media = NULL;
+						c->media = nullptr;
 						c->timeline_in = qMin(g.in, g.out);
 						c->timeline_out = qMax(g.in, g.out);
 						c->clip_in = 0;
@@ -955,9 +955,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 								 const Ghost& g = panel_timeline->ghosts.at(i);
 
 								 sequence->clips.at(g.clip)->undeletable = true;
-								 if (g.transition != NULL) {
+								 if (g.transition != nullptr) {
 									 g.transition->parent_clip->undeletable = true;
-									 if (g.transition->secondary_clip != NULL) g.transition->secondary_clip->undeletable = true;
+									 if (g.transition->secondary_clip != nullptr) g.transition->secondary_clip->undeletable = true;
 								 }
 
 								 Selection s;
@@ -970,9 +970,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
 								 const Ghost& g = panel_timeline->ghosts.at(i);
 								 sequence->clips.at(g.clip)->undeletable = false;
-								 if (g.transition != NULL) {
+								 if (g.transition != nullptr) {
 									 g.transition->parent_clip->undeletable = false;
-									 if (g.transition->secondary_clip != NULL) g.transition->secondary_clip->undeletable = false;
+									 if (g.transition->secondary_clip != nullptr) g.transition->secondary_clip->undeletable = false;
 								 }
 							 }
 						 }
@@ -981,14 +981,14 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 							 // step 3 - move clips
 							 Clip* c = sequence->clips.at(g.clip);
-							 if (g.transition == NULL) {
+							 if (g.transition == nullptr) {
 								 move_clip(ca, c, (g.in - g.old_in), (g.out - g.old_out), (g.clip_in - g.old_clip_in), (g.track - g.old_track), true, true);
 
 								 // adjust transitions if we need to
 								 long new_clip_length = (g.out - g.in);
-								 if (c->get_opening_transition() != NULL) {
+								 if (c->get_opening_transition() != nullptr) {
 									 long max_open_length = new_clip_length;
-									 if (c->get_closing_transition() != NULL && !panel_timeline->trim_in_point) {
+									 if (c->get_closing_transition() != nullptr && !panel_timeline->trim_in_point) {
 										 max_open_length -= c->get_closing_transition()->get_true_length();
 									 }
 									 if (max_open_length <= 0) {
@@ -997,9 +997,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 										 ca->append(new ModifyTransitionCommand(c, TA_OPENING_TRANSITION, max_open_length));
 									 }
 								 }
-								 if (c->get_closing_transition() != NULL) {
+								 if (c->get_closing_transition() != nullptr) {
 									 long max_open_length = new_clip_length;
-									 if (c->get_opening_transition() != NULL && panel_timeline->trim_in_point) {
+									 if (c->get_opening_transition() != nullptr && panel_timeline->trim_in_point) {
 										 max_open_length -= c->get_opening_transition()->get_true_length();
 									 }
 									 if (max_open_length <= 0) {
@@ -1011,12 +1011,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 } else {
 								 bool is_opening_transition = (g.transition == c->get_opening_transition());
 								 long new_transition_length = g.out - g.in;
-								 if (g.transition->secondary_clip != NULL) new_transition_length >>= 1;
+								 if (g.transition->secondary_clip != nullptr) new_transition_length >>= 1;
 								 ca->append(new ModifyTransitionCommand(c, is_opening_transition ? TA_OPENING_TRANSITION : TA_CLOSING_TRANSITION, new_transition_length));
 
 								 long clip_length = c->getLength();
 
-								 if (g.transition->secondary_clip != NULL) {
+								 if (g.transition->secondary_clip != nullptr) {
 									 if (g.in != g.old_in && !g.trimming) {
 										 long movement = g.in - g.old_in;
 										 move_clip(ca, g.transition->parent_clip, movement, 0, movement, 0, false, true);
@@ -1106,9 +1106,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					}
 
 					if (panel_timeline->transition_tool_post_clip > -1) {
-						ca->append(new AddTransitionCommand(pre, post, NULL, panel_timeline->transition_tool_meta, TA_OPENING_TRANSITION, transition_end - pre->timeline_in));
+						ca->append(new AddTransitionCommand(pre, post, nullptr, panel_timeline->transition_tool_meta, TA_OPENING_TRANSITION, transition_end - pre->timeline_in));
 					} else {
-						ca->append(new AddTransitionCommand(pre, NULL, NULL, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
+						ca->append(new AddTransitionCommand(pre, nullptr, nullptr, panel_timeline->transition_tool_meta, panel_timeline->transition_tool_type, transition_end - transition_start));
 					}
 
 					push_undo = true;
@@ -1130,10 +1130,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 			// remove duplicate selections
 			panel_timeline->clean_up_selections(sequence->selections);
 
-			if (selection_command != NULL) {
+			if (selection_command != nullptr) {
 				selection_command->new_data = sequence->selections;
 				ca->append(selection_command);
-				selection_command = NULL;
+				selection_command = nullptr;
 				push_undo = true;
 			}
 
@@ -1180,7 +1180,7 @@ void TimelineWidget::init_ghosts() {
 			g.in = g.old_in = c->get_timeline_in_with_transition();
 			g.out = g.old_out = c->get_timeline_out_with_transition();
 			g.ghost_length = g.old_out - g.old_in;
-		} else if (g.transition == NULL) {
+		} else if (g.transition == nullptr) {
 			// this ghost is for a clip
 			g.in = g.old_in = c->timeline_in;
 			g.out = g.old_out = c->timeline_out;
@@ -1277,11 +1277,11 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 	long temp_frame_diff = frame_diff; // cache to see if we change it (thus cancelling any snap)
 	for (int i=0;i<panel_timeline->ghosts.size();i++) {
 		const Ghost& g = panel_timeline->ghosts.at(i);
-		Clip* c = NULL;
+		Clip* c = nullptr;
 		if (g.clip != -1) c = sequence->clips.at(g.clip);
 
-		const FootageStream* ms = NULL;
-		if (g.clip != -1 && c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+		const FootageStream* ms = nullptr;
+		if (g.clip != -1 && c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 			ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 		}
 
@@ -1289,8 +1289,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 		if (panel_timeline->creating) {
 			// i feel like we might need something here but we haven't so far?
 		} else if (effective_tool == TIMELINE_TOOL_SLIP) {
-			if ((c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
-					|| (ms != NULL && !ms->infinite_length)) {
+			if ((c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
+					|| (ms != nullptr && !ms->infinite_length)) {
 				// prevent slip moving a clip below 0 clip_in
 				validator = g.old_clip_in - frame_diff;
 				if (validator < 0) frame_diff += validator;
@@ -1312,8 +1312,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 
 				// prevent clip_in from going below 0
-				if ((c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
-						|| (ms != NULL && !ms->infinite_length)) {
+				if ((c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
+						|| (ms != nullptr && !ms->infinite_length)) {
 					validator = g.old_clip_in + frame_diff;
 					if (validator < 0) frame_diff -= validator;
 				}
@@ -1323,15 +1323,15 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				if (validator < 1) frame_diff += (1 - validator);
 
 				// prevent clip length exceeding media length
-				if ((c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
-						|| (ms != NULL && !ms->infinite_length)) {
+				if ((c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE)
+						|| (ms != nullptr && !ms->infinite_length)) {
 					validator = g.old_clip_in + g.ghost_length + frame_diff;
 					if (validator > g.media_length) frame_diff -= validator - g.media_length;
 				}
 			}
 
 			// prevent dual transition from going below 0 on the primary or media length on the secondary
-			if (g.transition != NULL && g.transition->secondary_clip != NULL) {
+			if (g.transition != nullptr && g.transition->secondary_clip != nullptr) {
 				Clip* otc = g.transition->parent_clip;
 				Clip* ctc = g.transition->secondary_clip;
 
@@ -1387,8 +1387,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 			validator = g.old_in + frame_diff;
 			if (validator < 0) frame_diff -= validator;
 
-			if (g.transition != NULL) {
-				if (g.transition->secondary_clip != NULL) {
+			if (g.transition != nullptr) {
+				if (g.transition->secondary_clip != nullptr) {
 					// prevent dual transitions from going below 0 on the primary or above media length on the secondary
 
 					validator = g.transition->parent_clip->get_clip_in_with_transition() + frame_diff;
@@ -1405,14 +1405,14 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				} else {
 					// prevent clip_in from going below 0
 					if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
-							|| (ms != NULL && !ms->infinite_length)) {
+							|| (ms != nullptr && !ms->infinite_length)) {
 						validator = g.old_clip_in + frame_diff;
 						if (validator < 0) frame_diff -= validator;
 					}
 
 					// prevent clip length exceeding media length
 					if (c->media->get_type() == MEDIA_TYPE_SEQUENCE
-							|| (ms != NULL && !ms->infinite_length)) {
+							|| (ms != nullptr && !ms->infinite_length)) {
 						validator = g.old_clip_in + g.ghost_length + frame_diff;
 						if (validator > g.media_length) frame_diff -= validator - g.media_length;
 					}
@@ -1482,7 +1482,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 			}
 
 			// apply changes
-			if (g.transition != NULL && g.transition->secondary_clip != NULL) {
+			if (g.transition != nullptr && g.transition->secondary_clip != nullptr) {
 				if (g.trim_in) ghost_diff = -ghost_diff;
 				g.in = g.old_in - ghost_diff;
 				g.out = g.old_out + ghost_diff;
@@ -1497,7 +1497,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 			g.in = g.old_in + frame_diff;
 			g.out = g.old_out + frame_diff;
 
-			if (g.transition != NULL && g.transition == sequence->clips.at(g.clip)->get_opening_transition()) {
+			if (g.transition != nullptr && g.transition == sequence->clips.at(g.clip)->get_opening_transition()) {
 				g.clip_in = g.old_clip_in + frame_diff;
 			}
 
@@ -1566,7 +1566,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 		QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), config.timecode_view, sequence->frame_rate);
 		if (panel_timeline->trim_target > -1) {
 			// find which clip is being moved
-			const Ghost* g = NULL;
+			const Ghost* g = nullptr;
 			for (int i=0;i<panel_timeline->ghosts.size();i++) {
 				if (panel_timeline->ghosts.at(i).clip == panel_timeline->trim_target) {
 					g = &panel_timeline->ghosts.at(i);
@@ -1574,7 +1574,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
 
-			if (g != NULL) {
+			if (g != nullptr) {
 				tip += " Duration: ";
 				long len = (g->old_out-g->old_in);
 				if (panel_timeline->trim_in_point) {
@@ -1591,7 +1591,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 	tooltip_timer.stop();
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		bool alt = (event->modifiers() & Qt::AltModifier);
 
 		panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
@@ -1690,14 +1690,14 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 				// create ghosts
 				for (int i=0;i<sequence->clips.size();i++) {
 					Clip* c = sequence->clips.at(i);
-					if (c != NULL) {
+					if (c != nullptr) {
 						Ghost g;
-						g.transition = NULL;
+						g.transition = nullptr;
 
 						bool add = panel_timeline->is_clip_selected(c, true);
 
 						// if a whole clip is not selected, maybe just a transition is
-						if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (c->get_opening_transition() != NULL || c->get_closing_transition() != NULL)) {
+						if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (c->get_opening_transition() != nullptr || c->get_closing_transition() != nullptr)) {
 							// check if any selections contain the whole clip or transition
 							for (int j=0;j<sequence->selections.size();j++) {
 								const Selection& s = sequence->selections.at(j);
@@ -1715,7 +1715,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 							}
 						}
 
-						if (add && g.transition != NULL) {
+						if (add && g.transition != nullptr) {
 							// check for duplicate transitions
 							for (int j=0;j<panel_timeline->ghosts.size();j++) {
 								if (panel_timeline->ghosts.at(j).transition == g.transition) {
@@ -1771,7 +1771,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 										if (!found) {
 											// add ghost for this clip with opposite trim_in
 											Ghost gh;
-											gh.transition = NULL;
+											gh.transition = nullptr;
 											gh.clip = j;
 											gh.trimming = (panel_timeline->trim_target > -1);
 											gh.trim_in = !panel_timeline->trim_in_point;
@@ -1795,7 +1795,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 						panel_timeline->ghosts[i].trimming = false;
 						for (int j=0;j<sequence->clips.size();j++) {
 							Clip* c = sequence->clips.at(j);
-							if (c != NULL && c->track == ghost_clip->track) {
+							if (c != nullptr && c->track == ghost_clip->track) {
 								bool found = false;
 								for (int k=0;k<size;k++) {
 									if (panel_timeline->ghosts.at(k).clip == j) {
@@ -1807,7 +1807,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 									bool is_in = (c->timeline_in == ghost_clip->timeline_out);
 									if (is_in || c->timeline_out == ghost_clip->timeline_in) {
 										Ghost gh;
-										gh.transition = NULL;
+										gh.transition = nullptr;
 										gh.clip = j;
 										gh.trimming = true;
 										gh.trim_in = is_in;
@@ -1836,7 +1836,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
 					for (int i=0;i<sequence->clips.size();i++) {
 						Clip* c = sequence->clips.at(i);
-						if (c != NULL && !panel_timeline->is_clip_selected(c, true)) {
+						if (c != nullptr && !panel_timeline->is_clip_selected(c, true)) {
 							bool clip_is_post = (c->timeline_in >= axis);
 
 							// see if this a clip on this track is already in the list, and if it's closer
@@ -1912,7 +1912,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 				QVector<Clip*> selected_clips;
 				for (int i=0;i<sequence->clips.size();i++) {
 					Clip* clip = sequence->clips.at(i);
-					if (clip != NULL &&
+					if (clip != nullptr &&
 							clip->track >= track_min &&
 							clip->track <= track_max &&
 							!(clip->timeline_in < frame_min && clip->timeline_out < frame_min) &&
@@ -1983,7 +1983,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			panel_timeline->transition_select = TA_NO_TRANSITION;
 			for (int i=0;i<sequence->clips.size();i++) {
 				Clip* c = sequence->clips.at(i);
-				if (c != NULL) {
+				if (c != nullptr) {
 					min_track = qMin(min_track, c->track);
 					max_track = qMax(max_track, c->track);
 					if (c->track == mouse_track) {
@@ -1994,9 +1994,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 							tooltip_timer.start();
 							tooltip_clip = i;
 
-							if (c->get_opening_transition() != NULL && panel_timeline->cursor_frame <= c->timeline_in + c->get_opening_transition()->get_true_length()) {
+							if (c->get_opening_transition() != nullptr && panel_timeline->cursor_frame <= c->timeline_in + c->get_opening_transition()->get_true_length()) {
 								panel_timeline->transition_select = TA_OPENING_TRANSITION;
-							} else if (c->get_closing_transition() != NULL && panel_timeline->cursor_frame >= c->timeline_out - c->get_closing_transition()->get_true_length()) {
+							} else if (c->get_closing_transition() != nullptr && panel_timeline->cursor_frame >= c->timeline_out - c->get_closing_transition()->get_true_length()) {
 								panel_timeline->transition_select = TA_CLOSING_TRANSITION;
 							}
 						}
@@ -2019,7 +2019,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 							}
 						}
 						if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
-							if (c->get_opening_transition() != NULL) {
+							if (c->get_opening_transition() != nullptr) {
 								long transition_point = c->timeline_in + c->get_opening_transition()->get_true_length();
 
 								if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
@@ -2033,7 +2033,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 									}
 								}
 							}
-							if (c->get_closing_transition() != NULL) {
+							if (c->get_closing_transition() != nullptr) {
 								long transition_point = c->timeline_out - c->get_closing_transition()->get_true_length();
 								if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 									int nc = qAbs(transition_point + 1 - panel_timeline->cursor_frame);
@@ -2150,7 +2150,7 @@ void TimelineWidget::leaveEvent(QEvent*) {
 }
 
 int color_brightness(int r, int g, int b) {
-	return (0.2126*r + 0.7152*g + 0.0722*b);
+	return qRound(0.2126*r + 0.7152*g + 0.0722*b);
 }
 
 void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
@@ -2186,7 +2186,7 @@ void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPain
 
 void draw_transition(QPainter& p, Clip* c, const QRect& clip_rect, QRect& text_rect, int transition_type) {
 	Transition* t = (transition_type == TA_OPENING_TRANSITION) ? c->get_opening_transition() : c->get_closing_transition();
-	if (t != NULL) {
+	if (t != nullptr) {
 		QColor transition_color(255, 0, 0, 16);
 		int transition_width = getScreenPointFromFrame(panel_timeline->zoom, t->get_true_length());
 		int transition_height = clip_rect.height();
@@ -2206,7 +2206,7 @@ void draw_transition(QPainter& p, Clip* c, const QRect& clip_rect, QRect& text_r
 			bool draw_text = true;
 
 			p.setPen(QColor(0, 0, 0, 96));
-			if (t->secondary_clip == NULL) {
+			if (t->secondary_clip == nullptr) {
 				if (transition_type == TA_OPENING_TRANSITION) {
 					p.drawLine(transition_rect.bottomLeft(), transition_rect.topRight());
 				} else {
@@ -2236,7 +2236,7 @@ void draw_transition(QPainter& p, Clip* c, const QRect& clip_rect, QRect& text_r
 
 void TimelineWidget::paintEvent(QPaintEvent*) {
 	// Draw clips
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		QPainter p(this);
 
 		// get widget width and height
@@ -2244,7 +2244,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 		int audio_track_limit = 0;
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* clip = sequence->clips.at(i);
-			if (clip != NULL) {
+			if (clip != nullptr) {
 				video_track_limit = qMin(video_track_limit, clip->track);
 				audio_track_limit = qMax(audio_track_limit, clip->track);
 			}
@@ -2268,7 +2268,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* clip = sequence->clips.at(i);
-			if (clip != NULL && is_track_visible(clip->track)) {
+			if (clip != nullptr && is_track_visible(clip->track)) {
 				QRect clip_rect(panel_timeline->getTimelineScreenPointFromFrame(clip->timeline_in), getScreenPointFromTrack(clip->track), getScreenPointFromFrame(panel_timeline->zoom, clip->getLength()), panel_timeline->calculate_track_height(clip->track, -1));
 				QRect text_rect(clip_rect.left() + CLIP_TEXT_PADDING, clip_rect.top() + CLIP_TEXT_PADDING, clip_rect.width() - CLIP_TEXT_PADDING - 1, clip_rect.height() - CLIP_TEXT_PADDING - 1);
 				if (clip_rect.left() < width() && clip_rect.right() >= 0 && clip_rect.top() < height() && clip_rect.bottom() >= 0) {
@@ -2281,12 +2281,12 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 
 					int thumb_x = clip_rect.x() + 1;
 
-					if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+					if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 						bool draw_checkerboard = false;
 						QRect checkerboard_rect(clip_rect);
 						Footage* m = clip->media->to_footage();
 						FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
-						if (ms == NULL) {
+						if (ms == nullptr) {
 							draw_checkerboard = true;
 						} else if (ms->preview_done) {
 							// draw top and tail triangles
@@ -2332,12 +2332,12 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 								int thumb_y = p.fontMetrics().height()+CLIP_TEXT_PADDING+CLIP_TEXT_PADDING;
 								if (thumb_x < width() && thumb_y < height()) {
 									int space_for_thumb = clip_rect.width()-1;
-									if (clip->get_opening_transition() != NULL) {
+									if (clip->get_opening_transition() != nullptr) {
 										int ot_width = getScreenPointFromFrame(panel_timeline->zoom, clip->get_opening_transition()->get_true_length());
 										thumb_x += ot_width;
 										space_for_thumb -= ot_width;
 									}
-									if (clip->get_closing_transition() != NULL) {
+									if (clip->get_closing_transition() != nullptr) {
 										space_for_thumb -= getScreenPointFromFrame(panel_timeline->zoom, clip->get_closing_transition()->get_true_length());
 									}
 									int thumb_height = clip_rect.height()-thumb_y;
@@ -2642,7 +2642,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 	}
 }
 
-void TimelineWidget::resizeEvent(QResizeEvent *event) {
+void TimelineWidget::resizeEvent(QResizeEvent *) {
 	scrollBar->setPageStep(height());
 }
 
@@ -2692,7 +2692,7 @@ int TimelineWidget::getScreenPointFromTrack(int track) {
 int TimelineWidget::getClipIndexFromCoords(long frame, int track) {
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c != NULL && c->track == track && frame >= c->timeline_in && frame < c->timeline_out) {
+		if (c != nullptr && c->track == track && frame >= c->timeline_in && frame < c->timeline_out) {
 			return i;
 		}
 	}

@@ -25,7 +25,7 @@ Clip::Clip(Sequence* s) :
 	timeline_in(0),
 	timeline_out(0),
 	track(0),
-	media(NULL),
+	media(nullptr),
 	speed(1.0),
 	reverse(false),
 	maintain_audio_pitch(false),
@@ -36,9 +36,9 @@ Clip::Clip(Sequence* s) :
 	replaced(false),
 	ignore_reverse(false),
 	use_existing_frame(false),
-	filter_graph(NULL),
-	fbo(NULL),
-	opts(NULL)
+	filter_graph(nullptr),
+	fbo(nullptr),
+	opts(nullptr)
 {
 	pkt = av_packet_alloc();
 	reset();
@@ -67,10 +67,10 @@ Clip* Clip::copy(Sequence* s) {
 		copy->effects.append(effects.at(i)->copy(copy));
 	}
 
-	copy->cached_fr = (this->sequence == NULL) ? cached_fr : this->sequence->frame_rate;
+	copy->cached_fr = (this->sequence == nullptr) ? cached_fr : this->sequence->frame_rate;
 
-	if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip == NULL) copy->opening_transition = get_opening_transition()->copy(copy, NULL);
-	if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip == NULL) copy->closing_transition = get_closing_transition()->copy(copy, NULL);
+	if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip == nullptr) copy->opening_transition = get_opening_transition()->copy(copy, nullptr);
+	if (get_closing_transition() != nullptr && get_closing_transition()->secondary_clip == nullptr) copy->closing_transition = get_closing_transition()->copy(copy, nullptr);
 
 	copy->recalculateMaxLength();
 
@@ -86,16 +86,16 @@ void Clip::reset() {
 	frame_sample_index = -1;
 	audio_buffer_write = false;
 	texture_frame = -1;
-	formatCtx = NULL;
-	stream = NULL;
-	codec = NULL;
-	codecCtx = NULL;
-	texture = NULL;
+	formatCtx = nullptr;
+	stream = nullptr;
+	codec = nullptr;
+	codecCtx = nullptr;
+	texture = nullptr;
 	last_invalid_ts = -1;
 }
 
 void Clip::reset_audio() {
-	if (media == NULL || media->get_type() == MEDIA_TYPE_FOOTAGE) {
+	if (media == nullptr || media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		audio_reset = true;
 		frame_sample_index = -1;
 		audio_buffer_write = 0;
@@ -103,14 +103,14 @@ void Clip::reset_audio() {
 		Sequence* nested_sequence = media->to_sequence();
 		for (int i=0;i<nested_sequence->clips.size();i++) {
 			Clip* c = nested_sequence->clips.at(i);
-			if (c != NULL) c->reset_audio();
+			if (c != nullptr) c->reset_audio();
 		}
 	}
 }
 
 void Clip::refresh() {
 	// validates media if it was replaced
-	if (replaced && media != NULL && media->get_type() == MEDIA_TYPE_FOOTAGE) {
+	if (replaced && media != nullptr && media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		Footage* m = media->to_footage();
 
 		if (track < 0 && m->video_tracks.size() > 0)  {
@@ -150,24 +150,24 @@ void Clip::queue_remove_earliest() {
 
 Transition* Clip::get_opening_transition() {
 	if (opening_transition > -1) {
-		if (this->sequence == NULL) {
+		if (this->sequence == nullptr) {
 			return clipboard_transitions.at(opening_transition);
 		} else {
 			return this->sequence->transitions.at(opening_transition);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Transition* Clip::get_closing_transition() {
 	if (closing_transition > -1) {
-		if (this->sequence == NULL) {
+		if (this->sequence == nullptr) {
 			return clipboard_transitions.at(closing_transition);
 		} else {
 			return this->sequence->transitions.at(closing_transition);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Clip::~Clip() {
@@ -185,7 +185,7 @@ Clip::~Clip() {
 }
 
 long Clip::get_clip_in_with_transition() {
-	if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
+	if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip != nullptr) {
 		// we must be the secondary clip, so return (timeline in - length)
 		return clip_in - get_opening_transition()->get_true_length();
 	}
@@ -193,7 +193,7 @@ long Clip::get_clip_in_with_transition() {
 }
 
 long Clip::get_timeline_in_with_transition() {
-	if (get_opening_transition() != NULL && get_opening_transition()->secondary_clip != NULL) {
+	if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip != nullptr) {
 		// we must be the secondary clip, so return (timeline in - length)
 		return timeline_in - get_opening_transition()->get_true_length();
 	}
@@ -201,7 +201,7 @@ long Clip::get_timeline_in_with_transition() {
 }
 
 long Clip::get_timeline_out_with_transition() {
-	if (get_closing_transition() != NULL && get_closing_transition()->secondary_clip != NULL) {
+	if (get_closing_transition() != nullptr && get_closing_transition()->secondary_clip != nullptr) {
 		// we must be the primary clip, so return (timeline out + length2)
 		return timeline_out + get_closing_transition()->get_true_length();
 	} else {
@@ -216,29 +216,29 @@ long Clip::getLength() {
 
 double Clip::getMediaFrameRate() {
 	Q_ASSERT(track < 0);
-	if (media != NULL) {
+	if (media != nullptr) {
 		double rate = media->get_frame_rate(media_stream);
 		if (!qIsNaN(rate)) return rate;
 	}
-	if (sequence != NULL) return sequence->frame_rate;
+	if (sequence != nullptr) return sequence->frame_rate;
 	return qSNaN();
 }
 
 void Clip::recalculateMaxLength() {
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		double fr = this->sequence->frame_rate;
 
 		fr /= speed;
 
 		calculated_length = LONG_MAX;
 
-		if (media != NULL) {
+		if (media != nullptr) {
 			switch (media->get_type()) {
 			case MEDIA_TYPE_FOOTAGE:
 			{
 				Footage* m = media->to_footage();
 				const FootageStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
-				if (ms != NULL && ms->infinite_length) {
+				if (ms != nullptr && ms->infinite_length) {
 					calculated_length = LONG_MAX;
 				} else {
 					calculated_length = m->get_length_in_frames(fr);
@@ -261,13 +261,13 @@ long Clip::getMaximumLength() {
 }
 
 int Clip::getWidth() {
-	if (media == NULL && sequence != NULL) return sequence->width;
+	if (media == nullptr && sequence != nullptr) return sequence->width;
 	switch (media->get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
 		const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
-		if (ms != NULL) return ms->video_width;
-		if (sequence != NULL) return sequence->width;
+		if (ms != nullptr) return ms->video_width;
+		if (sequence != nullptr) return sequence->width;
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
@@ -279,13 +279,13 @@ int Clip::getWidth() {
 }
 
 int Clip::getHeight() {
-	if (media == NULL && sequence != NULL) return sequence->height;
+	if (media == nullptr && sequence != nullptr) return sequence->height;
 	switch (media->get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
 		const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
-		if (ms != NULL) return ms->video_height;
-		if (sequence != NULL) return sequence->height;
+		if (ms != nullptr) return ms->video_height;
+		if (sequence != nullptr) return sequence->height;
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
