@@ -125,7 +125,9 @@ QDockWidget *get_focused_panel() {
 			w = panel_footage_viewer;
 		} else if (panel_timeline->underMouse()) {
 			w = panel_timeline;
-		}
+        } else if (panel_graph_editor->view_is_under_mouse()) {
+            w = panel_graph_editor;
+        }
 	}
 	if (w == nullptr) {
 		if (panel_project->is_focused()) {
@@ -138,7 +140,9 @@ QDockWidget *get_focused_panel() {
 			w = panel_footage_viewer;
 		} else if (panel_timeline->focused()) {
 			w = panel_timeline;
-		}
+        } else if (panel_graph_editor->view_is_focused()) {
+            w = panel_graph_editor;
+        }
 	}
 	return w;
 }

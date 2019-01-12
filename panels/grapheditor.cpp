@@ -199,7 +199,11 @@ void GraphEditor::set_row(EffectRow *r) {
 }
 
 bool GraphEditor::view_is_focused() {
-	return view->hasFocus() || header->hasFocus();
+    return view->hasFocus() || header->hasFocus();
+}
+
+bool GraphEditor::view_is_under_mouse() {
+    return view->underMouse() || header->underMouse();
 }
 
 void GraphEditor::delete_selected_keys() {
