@@ -142,7 +142,6 @@ void TextEffect::redraw(double timecode) {
 
 		switch (halign_field->get_combo_data(timecode).toInt()) {
 		case Qt::AlignLeft: text_x = 0; break;
-		case Qt::AlignHCenter: text_x = (width/2) - (fm.width(lines.at(i))/2); break;
 		case Qt::AlignRight: text_x = width - fm.width(lines.at(i)); break;
 		case Qt::AlignJustify:
 			// add spaces until the string is too big
@@ -167,12 +166,23 @@ void TextEffect::redraw(double timecode) {
 				}
 			}
 			break;
+		case Qt::AlignHCenter:
+		default:
+			text_x = (width/2) - (fm.width(lines.at(i))/2);
+			break;
 		}
 
 		switch (valign_field->get_combo_data(timecode).toInt()) {
-		case Qt::AlignTop: text_y = (fm.height()*i)+fm.ascent(); break;
-		case Qt::AlignVCenter: text_y = ((height/2) - (text_height/2) - fm.descent()) + (fm.height()*(i+1)); break;
-		case Qt::AlignBottom: text_y = (height - text_height - fm.descent()) + (fm.height()*(i+1)); break;
+		case Qt::AlignTop:
+			text_y = (fm.height()*i)+fm.ascent();
+			break;
+		case Qt::AlignBottom:
+			text_y = (height - text_height - fm.descent()) + (fm.height()*(i+1));
+			break;
+		case Qt::AlignVCenter:
+		default:
+			text_y = ((height/2) - (text_height/2) - fm.descent()) + (fm.height()*(i+1));
+			break;
 		}
 
 		path.addText(text_x, text_y, font, lines.at(i));

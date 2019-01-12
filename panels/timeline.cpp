@@ -40,7 +40,7 @@
 #include <QStatusBar>
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
-	return qRound(((double)framenumber/source_frame_rate)*target_frame_rate);
+	return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
 }
 
 Timeline::Timeline(QWidget *parent) :
@@ -78,7 +78,7 @@ Timeline::Timeline(QWidget *parent) :
 
 	setup_ui();
 
-	default_track_height = (QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT;
+	default_track_height = qRound((QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT);
 
 	headers->viewer = panel_sequence_viewer;
 
@@ -150,7 +150,7 @@ void Timeline::toggle_show_all() {
 	showing_all = !showing_all;
 	if (showing_all) {
 		old_zoom = zoom;
-		set_zoom_value((double) (timeline_area->width() - 200) / (double) sequence->getEndFrame());
+		set_zoom_value(double(timeline_area->width() - 200) / double(sequence->getEndFrame()));
 	} else {
 		set_zoom_value(old_zoom);
 	}
@@ -166,7 +166,6 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 		Media* medium = media_list.at(i);
 		Footage* m = nullptr;
 		Sequence* s = nullptr;
-		void* media = nullptr;
 		long sequence_length = 0;
 		long default_clip_in = 0;
 		long default_clip_out = 0;
@@ -174,7 +173,6 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 		switch (medium->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 			m = medium->to_footage();
-			media = m;
 			can_import = m->ready;
 			if (m->using_inout) {
 				double source_fr = 30;
@@ -187,7 +185,6 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			s = medium->to_sequence();
 			sequence_length = s->getEndFrame();
 			if (seq != nullptr) sequence_length = refactor_frame_number(sequence_length, s->frame_rate, seq->frame_rate);
-			media = s;
 			can_import = (s != seq && sequence_length != 0);
 			if (s->using_workarea) {
 				default_clip_in = refactor_frame_number(s->workarea_in, s->frame_rate, seq->frame_rate);
@@ -671,7 +668,7 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
 		}
 		if (pre->get_closing_transition() != nullptr) {
 			ca->append(new DeleteTransitionCommand(pre->sequence, pre->closing_transition));
-			if (pre->get_closing_transition()->secondary_clip == nullptr) post->get_closing_transition()->set_length(qMin((long) post->get_closing_transition()->get_true_length(), post->getLength()));
+			if (pre->get_closing_transition()->secondary_clip == nullptr) post->get_closing_transition()->set_length(qMin(long(post->get_closing_transition()->get_true_length()), post->getLength()));
 		}
 
 		return post;
@@ -1458,7 +1455,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-	long f = qCeil((float) x / zoom);
+	long f = qCeil(double(x) / zoom);
 	if (f < 0) {
 		return 0;
 	}
@@ -1466,7 +1463,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-	return (int) qFloor(frame*zoom);
+	return qFloor(double(frame)*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
@@ -1824,13 +1821,13 @@ void move_clip(ComboAction* ca, Clip *c, long iin, long iout, long iclip_in, int
 	if (verify_transitions) {
 		if (c->get_opening_transition() != nullptr && c->get_opening_transition()->secondary_clip != nullptr && c->get_opening_transition()->secondary_clip->timeline_out != iin) {
 			// separate transition
-			ca->append(new SetPointer((void**) &c->get_opening_transition()->secondary_clip, nullptr));
+			ca->append(new SetPointer(reinterpret_cast<void**>(&c->get_opening_transition()->secondary_clip), nullptr));
 			ca->append(new AddTransitionCommand(c->get_opening_transition()->secondary_clip, nullptr, c->get_opening_transition(), nullptr, TA_CLOSING_TRANSITION, 0));
 		}
 
 		if (c->get_closing_transition() != nullptr && c->get_closing_transition()->secondary_clip != nullptr && c->get_closing_transition()->parent_clip->timeline_in != iout) {
 			// separate transition
-			ca->append(new SetPointer((void**) &c->get_closing_transition()->secondary_clip, nullptr));
+			ca->append(new SetPointer(reinterpret_cast<void**>(&c->get_closing_transition()->secondary_clip), nullptr));
 			ca->append(new AddTransitionCommand(c, nullptr, c->get_closing_transition(), nullptr, TA_CLOSING_TRANSITION, 0));
 		}
 	}

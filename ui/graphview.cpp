@@ -221,7 +221,8 @@ void GraphView::paintEvent(QPaintEvent *) {
 					// sort keyframes by time
 					QVector<int> sorted_keys = sort_keys_from_field(field);
 
-					int last_key_x, last_key_y;
+					int last_key_x = 0;
+					int last_key_y = 0;
 
 					// draw lines
 					for (int j=0;j<sorted_keys.size();j++) {

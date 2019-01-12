@@ -31,26 +31,22 @@ void ToneEffect::process_audio(double timecode_start, double timecode_end, quint
 	for (int i=0;i<nb_bytes;i+=4) {
 		double timecode = timecode_start+(interval*i);
 
-		qint16 left_tone_sample = qSin((2*M_PI*sinX*freq_val->get_double_value(timecode, true))/parent_clip->sequence->audio_frequency)*log_volume(amount_val->get_double_value(timecode, true)*0.01)*INT16_MAX;
+		qint16 left_tone_sample = qint16(qRound(qSin((2*M_PI*sinX*freq_val->get_double_value(timecode, true))/parent_clip->sequence->audio_frequency)*log_volume(amount_val->get_double_value(timecode, true)*0.01)*INT16_MAX));
 		qint16 right_tone_sample = left_tone_sample;
 
 		// mix with source audio
 		if (mix_val->get_bool_value(timecode, true)) {
-			qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-			qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
+			qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+			qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
 			left_tone_sample = mix_audio_sample(left_tone_sample, left_sample);
 			right_tone_sample = mix_audio_sample(right_tone_sample, right_sample);
 		}
 
-		samples[i+3] = (quint8) (right_tone_sample >> 8);
-		samples[i+2] = (quint8) right_tone_sample;
-		samples[i+1] = (quint8) (left_tone_sample >> 8);
-		samples[i] = (quint8) left_tone_sample;
+		samples[i+3] = quint8(right_tone_sample >> 8);
+		samples[i+2] = quint8(right_tone_sample);
+		samples[i+1] = quint8(left_tone_sample >> 8);
+		samples[i] = quint8(left_tone_sample);
 
-		int presin = sinX;
 		sinX++;
-		if (sinX < presin) {
-			qWarning() << "Tone effect overflowed";
-		}
 	}
 }

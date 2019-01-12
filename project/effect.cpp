@@ -268,9 +268,9 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	enable_image(false),
 	glslProgram(nullptr),
 	texture(nullptr),
+	enable_always_update(false),
 	isOpen(false),
-	bound(false),
-	enable_always_update(false)
+	bound(false)
 {
 	// set up base UI
 	container = new CollapsibleWidget();
@@ -366,11 +366,11 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 												} else if (attr.name() == "b") {
 													color.setBlue(attr.value().toInt());
 												} else if (attr.name() == "rf") {
-													color.setRedF(attr.value().toFloat());
+													color.setRedF(attr.value().toDouble());
 												} else if (attr.name() == "gf") {
-													color.setGreenF(attr.value().toFloat());
+													color.setGreenF(attr.value().toDouble());
 												} else if (attr.name() == "bf") {
-													color.setBlueF(attr.value().toFloat());
+													color.setBlueF(attr.value().toDouble());
 												} else if (attr.name() == "hex") {
 													color.setNamedColor(attr.value().toString());
 												}
@@ -655,7 +655,6 @@ void Effect::load(QXmlStreamReader& stream) {
 					if (stream.name() == "field" && stream.isStartElement()) {
 						if (field_count < row->fieldCount()) {
 							// match field using ID
-							bool found_field_by_id = false;
 							int field_number = field_count;
 							for (int k=0;k<stream.attributes().size();k++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(k);
@@ -663,7 +662,6 @@ void Effect::load(QXmlStreamReader& stream) {
 									for (int l=0;l<row->fieldCount();l++) {
 										if (row->field(l)->id == attr.value()) {
 											field_number = l;
-											found_field_by_id = true;
 											qInfo() << "Found field by ID";
 											break;
 										}
@@ -874,7 +872,7 @@ Effect* Effect::copy(Clip* c) {
 
 void Effect::process_shader(double timecode, GLTextureCoords&) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
-	glslProgram->setUniformValue("time", (GLfloat) timecode);
+	glslProgram->setUniformValue("time", GLfloat(timecode));
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
@@ -883,10 +881,15 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 			if (!field->id.isEmpty()) {
 				switch (field->type) {
 				case EFFECT_FIELD_DOUBLE:
-					glslProgram->setUniformValue(field->id.toUtf8().constData(), (GLfloat) field->get_double_value(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), GLfloat(field->get_double_value(timecode)));
 					break;
 				case EFFECT_FIELD_COLOR:
-					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_color_value(timecode).redF(), field->get_color_value(timecode).greenF(), field->get_color_value(timecode).blueF());
+					glslProgram->setUniformValue(
+								field->id.toUtf8().constData(),
+								GLfloat(field->get_color_value(timecode).redF()),
+								GLfloat(field->get_color_value(timecode).greenF()),
+								GLfloat(field->get_color_value(timecode).blueF())
+							);
 					break;
 				case EFFECT_FIELD_STRING: break; // can you even send a string to a uniform value?
 				case EFFECT_FIELD_BOOL:
