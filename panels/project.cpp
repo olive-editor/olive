@@ -236,7 +236,7 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 						const FootageStream& ms = m->video_tracks.at(j);
 						s->width = ms.video_width;
 						s->height = ms.video_height;
-						if (qFuzzyCompare(ms.video_frame_rate, 0.0)) {
+						if (!qFuzzyCompare(ms.video_frame_rate, 0.0)) {
 							s->frame_rate = ms.video_frame_rate * m->speed;
 
 							if (ms.video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
