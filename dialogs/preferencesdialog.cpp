@@ -40,13 +40,13 @@ void KeySequenceEditor::reset_to_default() {
 }
 
 QString KeySequenceEditor::action_name() {
-	return action->text().replace("&", "");
+	return action->property("id").toString();
 }
 
 QString KeySequenceEditor::export_shortcut() {
 	QString ks = keySequence().toString();
 	if (ks != action->property("default")) {
-		return action->text().replace("&", "") + "\t" + keySequence().toString();
+		return action->property("id").toString() + "\t" + keySequence().toString();
 	}
 	return 0;
 }
@@ -54,7 +54,7 @@ QString KeySequenceEditor::export_shortcut() {
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
 	QDialog(parent)
 {
-	setWindowTitle("Preferences");
+	setWindowTitle(tr("Preferences"));
 	setup_ui();
 
 	accurateSeekButton->setChecked(!config.fast_seeking);
@@ -102,20 +102,26 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 	}
 
 	for (int i=0;i<key_shortcut_items.size();i++) {
-		KeySequenceEditor* editor = new KeySequenceEditor(keyboard_tree, key_shortcut_actions.at(i));
-		keyboard_tree->setItemWidget(key_shortcut_items.at(i), 1, editor);
-		key_shortcut_fields.append(editor);
+		if (!key_shortcut_actions.at(i)->property("id").isNull()) {
+			KeySequenceEditor* editor = new KeySequenceEditor(keyboard_tree, key_shortcut_actions.at(i));
+			keyboard_tree->setItemWidget(key_shortcut_items.at(i), 1, editor);
+			key_shortcut_fields.append(editor);
+		}
 	}
 }
 
 void PreferencesDialog::save() {
-    if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
-        QMessageBox::critical(this, "Invalid CSS File", "CSS file '" + custom_css_fn->text() + "' does not exist.");
-        return;
-    }
+	if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
+		QMessageBox::critical(
+					this,
+					tr("Invalid CSS File"),
+					tr("CSS file '%1' does not exist.").arg(custom_css_fn->text())
+				);
+		return;
+	}
 
-    config.css_path = custom_css_fn->text();
-    mainWindow->load_css_from_file(config.css_path);
+	config.css_path = custom_css_fn->text();
+	mainWindow->load_css_from_file(config.css_path);
 	config.recording_mode = recordingComboBox->currentIndex() + 1;
 	config.img_seq_formats = imgSeqFormatEdit->text();
 	config.fast_seeking = fastSeekButton->isChecked();
@@ -142,7 +148,11 @@ void PreferencesDialog::reset_default_shortcut() {
 }
 
 void PreferencesDialog::reset_all_shortcuts() {
-	if (QMessageBox::question(this, "Confirm Reset All Shortcuts", "Are you sure you wish to reset all keyboard shortcuts to their defaults?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+	if (QMessageBox::question(
+				this,
+				tr("Confirm Reset All Shortcuts"),
+				tr("Are you sure you wish to reset all keyboard shortcuts to their defaults?"),
+				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 		for (int i=0;i<key_shortcut_fields.size();i++) {
 			key_shortcut_fields.at(i)->reset_to_default();
 		}
@@ -191,7 +201,7 @@ bool PreferencesDialog::refine_shortcut_list(const QString &s, QTreeWidgetItem* 
 }
 
 void PreferencesDialog::load_shortcut_file() {
-	QString fn = QFileDialog::getOpenFileName(this, "Import Keyboard Shortcuts");
+	QString fn = QFileDialog::getOpenFileName(this, tr("Import Keyboard Shortcuts"));
 	if (!fn.isEmpty()) {
 		QFile f(fn);
 		if (f.exists() && f.open(QFile::ReadOnly)) {
@@ -207,20 +217,23 @@ void PreferencesDialog::load_shortcut_file() {
 						ks.append(ba.at(index));
 						index++;
 					}
-					dout << "set" << key_shortcut_fields.at(i)->action_name() << "to" << ks;
 					key_shortcut_fields.at(i)->setKeySequence(ks);
 				} else {
 					key_shortcut_fields.at(i)->reset_to_default();
 				}
 			}
 		} else {
-			QMessageBox::critical(this, "Error saving shortcuts", "Failed to open file for reading");
+			QMessageBox::critical(
+						this,
+						tr("Error saving shortcuts"),
+						tr("Failed to open file for reading")
+					);
 		}
 	}
 }
 
 void PreferencesDialog::save_shortcut_file() {
-	QString fn = QFileDialog::getSaveFileName(this, "Export Keyboard Shortcuts");
+	QString fn = QFileDialog::getSaveFileName(this, tr("Export Keyboard Shortcuts"));
 	if (!fn.isEmpty()) {
 		QFile f(fn);
 		if (f.open(QFile::WriteOnly)) {
@@ -233,19 +246,19 @@ void PreferencesDialog::save_shortcut_file() {
 					start = false;
 				}
 			}
-			QMessageBox::information(this, "Export Shortcuts", "Shortcuts exported successfully");
 			f.close();
+			QMessageBox::information(this, tr("Export Shortcuts"), tr("Shortcuts exported successfully"));
 		} else {
-			QMessageBox::critical(this, "Error saving shortcuts", "Failed to open file for writing");
+			QMessageBox::critical(this, tr("Error saving shortcuts"), tr("Failed to open file for writing"));
 		}
-    }
+	}
 }
 
 void PreferencesDialog::browse_css_file() {
-    QString fn = QFileDialog::getOpenFileName(this, "Browse for CSS file");
-    if (!fn.isEmpty()) {
-        custom_css_fn->setText(fn);
-    }
+	QString fn = QFileDialog::getOpenFileName(this, tr("Browse for CSS file"));
+	if (!fn.isEmpty()) {
+		custom_css_fn->setText(fn);
+	}
 }
 
 void PreferencesDialog::setup_ui() {
@@ -255,120 +268,120 @@ void PreferencesDialog::setup_ui() {
 	QTabWidget* general_tab = new QTabWidget();
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
-    general_layout->addWidget(new QLabel("Custom CSS:"), 0, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Custom CSS:")), 0, 0, 1, 1);
 
-    custom_css_fn = new QLineEdit(general_tab);
-    custom_css_fn->setText(config.css_path);
-    general_layout->addWidget(custom_css_fn, 0, 1, 1, 1);
+	custom_css_fn = new QLineEdit(general_tab);
+	custom_css_fn->setText(config.css_path);
+	general_layout->addWidget(custom_css_fn, 0, 1, 1, 1);
 
-    QPushButton* custom_css_browse = new QPushButton("Browse", general_tab);
-    connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
-    general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
+	QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
+	connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
+	general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
 
-    general_layout->addWidget(new QLabel("Image sequence formats:"), 1, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Image sequence formats:")), 1, 0, 1, 1);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-    general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
+	general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
 
-    general_layout->addWidget(new QLabel("Audio Recording:"), 2, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Audio Recording:")), 2, 0, 1, 1);
 
 	recordingComboBox = new QComboBox(general_tab);
-	recordingComboBox->addItem("Mono");
-	recordingComboBox->addItem("Stereo");
+	recordingComboBox->addItem(tr("Mono"));
+	recordingComboBox->addItem(tr("Stereo"));
 
-    general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
+	general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
 
-	tabWidget->addTab(general_tab, "General");
+	tabWidget->addTab(general_tab, tr("General"));
 	QWidget* behavior_tab = new QWidget();
-	tabWidget->addTab(behavior_tab, "Behavior");
+	tabWidget->addTab(behavior_tab, tr("Behavior"));
 
 	// Playback
 	QWidget* playback_tab = new QWidget();
 	QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
 
 	// Playback -> Disable Multithreading on Images
-	disable_img_multithread = new QCheckBox("Disable Multithreading on Images");
+	disable_img_multithread = new QCheckBox(tr("Disable Multithreading on Images"));
 	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
 	playback_tab_layout->addWidget(disable_img_multithread);
 
 	// Playback -> Seeking
 	QGroupBox* seeking_group = new QGroupBox(playback_tab);
-	seeking_group->setTitle("Seeking");
+	seeking_group->setTitle(tr("Seeking"));
 	QVBoxLayout* seeking_group_layout = new QVBoxLayout(seeking_group);
 	accurateSeekButton = new QRadioButton(seeking_group);
-	accurateSeekButton->setText("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)");
+	accurateSeekButton->setText(tr("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)"));
 	seeking_group_layout->addWidget(accurateSeekButton);
 	fastSeekButton = new QRadioButton(seeking_group);
-	fastSeekButton->setText("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)");
+	fastSeekButton->setText(tr("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)"));
 	seeking_group_layout->addWidget(fastSeekButton);
 	playback_tab_layout->addWidget(seeking_group);
 
 	// Playback -> Memory Usage
 	QGroupBox* memory_usage_group = new QGroupBox(playback_tab);
-	memory_usage_group->setTitle("Memory Usage");
+	memory_usage_group->setTitle(tr("Memory Usage"));
 	QGridLayout* memory_usage_layout = new QGridLayout(memory_usage_group);
-	memory_usage_layout->addWidget(new QLabel("Upcoming Frame Queue:"), 0, 0);
+	memory_usage_layout->addWidget(new QLabel(tr("Upcoming Frame Queue:")), 0, 0);
 	upcoming_queue_spinbox = new QDoubleSpinBox();
 	upcoming_queue_spinbox->setValue(config.upcoming_queue_size);
 	memory_usage_layout->addWidget(upcoming_queue_spinbox, 0, 1);
 	upcoming_queue_type = new QComboBox();
-	upcoming_queue_type->addItem("frames");
-	upcoming_queue_type->addItem("seconds");
+	upcoming_queue_type->addItem(tr("frames"));
+	upcoming_queue_type->addItem(tr("seconds"));
 	upcoming_queue_type->setCurrentIndex(config.upcoming_queue_type);
 	memory_usage_layout->addWidget(upcoming_queue_type, 0, 2);
-	memory_usage_layout->addWidget(new QLabel("Previous Frame Queue:"), 1, 0);
+	memory_usage_layout->addWidget(new QLabel(tr("Previous Frame Queue:")), 1, 0);
 	previous_queue_spinbox = new QDoubleSpinBox();
 	previous_queue_spinbox->setValue(config.previous_queue_size);
 	memory_usage_layout->addWidget(previous_queue_spinbox, 1, 1);
 	previous_queue_type = new QComboBox();
-	previous_queue_type->addItem("frames");
-	previous_queue_type->addItem("seconds");
+	previous_queue_type->addItem(tr("frames"));
+	previous_queue_type->addItem(tr("seconds"));
 	previous_queue_type->setCurrentIndex(config.previous_queue_type);
 	memory_usage_layout->addWidget(previous_queue_type, 1, 2);
 	playback_tab_layout->addWidget(memory_usage_group);
 
-	tabWidget->addTab(playback_tab, "Playback");
+	tabWidget->addTab(playback_tab, tr("Playback"));
 
 	QWidget* shortcut_tab = new QWidget();
 
 	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
 
 	QLineEdit* key_search_line = new QLineEdit();
-	key_search_line->setPlaceholderText("Search for action or shortcut");
+	key_search_line->setPlaceholderText(tr("Search for action or shortcut"));
 	connect(key_search_line, SIGNAL(textChanged(const QString &)), this, SLOT(refine_shortcut_list(const QString &)));
 
 	shortcut_layout->addWidget(key_search_line);
 
 	keyboard_tree = new QTreeWidget();
 	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
-	tree_header->setText(0, "Action");
-	tree_header->setText(1, "Shortcut");
+	tree_header->setText(0, tr("Action"));
+	tree_header->setText(1, tr("Shortcut"));
 	shortcut_layout->addWidget(keyboard_tree);
 
 	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
 
-	QPushButton* import_shortcut_button = new QPushButton("Import");
+	QPushButton* import_shortcut_button = new QPushButton(tr("Import"));
 	reset_shortcut_layout->addWidget(import_shortcut_button);
 	connect(import_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(load_shortcut_file()));
 
-	QPushButton* export_shortcut_button = new QPushButton("Export");
+	QPushButton* export_shortcut_button = new QPushButton(tr("Export"));
 	reset_shortcut_layout->addWidget(export_shortcut_button);
 	connect(export_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(save_shortcut_file()));
 
 	reset_shortcut_layout->addStretch();
 
-	QPushButton* reset_selected_shortcut_button = new QPushButton("Reset Selected");
+	QPushButton* reset_selected_shortcut_button = new QPushButton(tr("Reset Selected"));
 	reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
 	connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
 
-	QPushButton* reset_all_shortcut_button = new QPushButton("Reset All");
+	QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"));
 	reset_shortcut_layout->addWidget(reset_all_shortcut_button);
 	connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
 
 	shortcut_layout->addLayout(reset_shortcut_layout);
 
-	tabWidget->addTab(shortcut_tab, "Keyboard");
+	tabWidget->addTab(shortcut_tab, tr("Keyboard"));
 
 	verticalLayout->addWidget(tabWidget);
 

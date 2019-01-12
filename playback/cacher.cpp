@@ -746,10 +746,11 @@ void open_clip_worker(Clip* clip) {
 			}
 
 			/* stabilization code */
-			bool stabilize = false;
+			/*bool stabilize = false;
 			if (stabilize) {
 				AVFilterContext* stab_filter;
 				int stab_ret = avfilter_graph_create_filter(&stab_filter, avfilter_get_by_name("vidstabtransform"), "vidstab", "input=/media/matt/Home/samples/transforms.trf", nullptr, clip->filter_graph);
+
 				if (stab_ret < 0) {
 					char err[100];
 					av_strerror(stab_ret, err, sizeof(err));
@@ -757,7 +758,7 @@ void open_clip_worker(Clip* clip) {
 					avfilter_link(last_filter, 0, stab_filter, 0);
 					last_filter = stab_filter;
 				}
-			}
+			}*/
 
 			enum AVPixelFormat valid_pix_fmts[] = {
 				AV_PIX_FMT_RGB24,

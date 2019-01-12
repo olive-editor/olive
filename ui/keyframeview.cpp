@@ -50,11 +50,11 @@ void KeyframeView::show_context_menu(const QPoint& pos) {
 	if (selected_fields.size() > 0) {
 		QMenu menu(this);
 
-		QAction* linear = menu.addAction("Linear");
+        QAction* linear = menu.addAction(tr("Linear"));
 		linear->setData(KEYFRAME_TYPE_LINEAR);
-		QAction* bezier = menu.addAction("Bezier");
+        QAction* bezier = menu.addAction(tr("Bezier"));
 		bezier->setData(KEYFRAME_TYPE_BEZIER);
-		QAction* hold = menu.addAction("Hold");
+        QAction* hold = menu.addAction(tr("Hold"));
 		hold->setData(KEYFRAME_TYPE_HOLD);
 		menu.addSeparator();
 		menu.addAction("Graph Editor");
