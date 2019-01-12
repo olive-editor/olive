@@ -372,7 +372,11 @@ Media* Project::new_sequence(ComboAction *ca, Sequence *s, bool open, Media* par
 		ca->append(new NewSequenceCommand(item, parent));
 		if (open) ca->append(new ChangeSequenceAction(s));
 	} else {
-		project_model.appendChild(NULL, item);
+		if (parent == project_model.get_root()) {
+			project_model.appendChild(parent, item);
+		} else {
+			parent->appendChild(item);
+		}
 		if (open) set_sequence(s);
 	}
 	return item;
@@ -868,7 +872,6 @@ void Project::load_project(bool autorecovery) {
 }
 
 void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
-	bool root = (!parent.parent().isValid());
 	for (int i=0;i<project_model.rowCount(parent);i++) {
 		const QModelIndex& item = project_model.index(i, 0, parent);
 		Media* m = project_model.getItem(item);
@@ -892,7 +895,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 				}
 				// save_folder(stream, item, type, set_ids_only);
 			} else {
-				int folder = root ? 0 : project_model.getItem(parent)->temp_id;
+				int folder = (m->parentItem() != NULL) ? m->parentItem()->temp_id : 0;
 				if (type == MEDIA_TYPE_FOOTAGE) {
 					Footage* f = m->to_footage();
 					f->save_id = media_id;
