@@ -3,14 +3,11 @@
 
 #include <QDebug>
 
-#ifndef QT_DEBUG
-#define dout debug_out << "\n"
-extern QDebug debug_out;
-#else
-#define dout qDebug()
-#endif
+void debug_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+const QString& get_debug_str();
+void open_debug_file();
+void close_debug_file();
 
-void setup_debug();
-void close_debug();
+#define dout qDebug()
 
 #endif // DEBUG_H

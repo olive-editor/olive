@@ -70,5 +70,6 @@
         <file>undo-disabled.png</file>
         <file>redo.png</file>
         <file>redo-disabled.png</file>
+        <file>olive64.png</file>
     </qresource>
 </RCC>

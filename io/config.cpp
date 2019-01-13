@@ -43,9 +43,10 @@ Config::Config()
 	  previous_queue_size(3),
 	  previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
 	  upcoming_queue_size(0.5),
-      upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
-      loop(true),
-      pause_at_out_point(true)
+	  upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
+	  loop(true),
+	  pause_at_out_point(true),
+      seek_also_selects(false)
 {}
 
 void Config::load(QString path) {
@@ -152,17 +153,23 @@ void Config::load(QString path) {
 				} else if (stream.name() == "UpcomingFrameQueueType") {
 					stream.readNext();
 					upcoming_queue_type = stream.text().toInt();
-                } else if (stream.name() == "Loop") {
+				} else if (stream.name() == "Loop") {
+					stream.readNext();
+					loop = (stream.text() == "1");
+				} else if (stream.name() == "PauseAtOutPoint") {
+					stream.readNext();
+					pause_at_out_point = (stream.text() == "1");
+				} else if (stream.name() == "SeekAlsoSelects") {
+					stream.readNext();
+					seek_also_selects = (stream.text() == "1");
+                } else if (stream.name() == "CSSPath") {
                     stream.readNext();
-                    loop = (stream.text() == "1");
-                } else if (stream.name() == "PauseAtOutPoint") {
-                    stream.readNext();
-                    pause_at_out_point = (stream.text() == "1");
+                    css_path = stream.text().toString();
                 }
 			}
 		}
 		if (stream.hasError()) {
-			dout << "[ERROR] Error parsing config XML." << stream.errorString();
+			qCritical() << "Error parsing config XML." << stream.errorString();
 		}
 
 		f.close();
@@ -172,7 +179,7 @@ void Config::load(QString path) {
 void Config::save(QString path) {
 	QFile f(path);
 	if (!f.open(QIODevice::WriteOnly)) {
-		dout << "[ERROR] Could not save configuration";
+		qCritical() << "Could not save configuration";
 		return;
 	}
 
@@ -214,8 +221,10 @@ void Config::save(QString path) {
 	stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
 	stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
 	stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
-    stream.writeTextElement("Loop", QString::number(loop));
-    stream.writeTextElement("PauseAtOutPoint", QString::number(pause_at_out_point));
+	stream.writeTextElement("Loop", QString::number(loop));
+	stream.writeTextElement("PauseAtOutPoint", QString::number(pause_at_out_point));
+    stream.writeTextElement("SeekAlsoSelects", QString::number(seek_also_selects));
+    stream.writeTextElement("CSSPath", css_path);
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

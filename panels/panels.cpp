@@ -30,10 +30,10 @@ void update_effect_controls() {
 	int aclip = -1;
 	QVector<int> selected_clips;
 	int mode = TA_NO_TRANSITION;
-	if (sequence != NULL) {
+	if (sequence != nullptr) {
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* clip = sequence->clips.at(i);
-			if (clip != NULL) {
+			if (clip != nullptr) {
 				for (int j=0;j<sequence->selections.size();j++) {
 					const Selection& s = sequence->selections.at(j);
 					bool add = true;
@@ -113,7 +113,7 @@ void update_ui(bool modified) {
 }
 
 QDockWidget *get_focused_panel() {
-	QDockWidget* w = NULL;
+	QDockWidget* w = nullptr;
 	if (config.hover_focus) {
 		if (panel_project->underMouse()) {
 			w = panel_project;
@@ -125,9 +125,11 @@ QDockWidget *get_focused_panel() {
 			w = panel_footage_viewer;
 		} else if (panel_timeline->underMouse()) {
 			w = panel_timeline;
-		}
+        } else if (panel_graph_editor->view_is_under_mouse()) {
+            w = panel_graph_editor;
+        }
 	}
-	if (w == NULL) {
+	if (w == nullptr) {
 		if (panel_project->is_focused()) {
 			w = panel_project;
 		} else if (panel_effect_controls->keyframe_focus() || panel_effect_controls->is_focused()) {
@@ -138,7 +140,9 @@ QDockWidget *get_focused_panel() {
 			w = panel_footage_viewer;
 		} else if (panel_timeline->focused()) {
 			w = panel_timeline;
-		}
+        } else if (panel_graph_editor->view_is_focused()) {
+            w = panel_graph_editor;
+        }
 	}
 	return w;
 }
@@ -162,15 +166,15 @@ void alloc_panels(QWidget* parent) {
 
 void free_panels() {
 	delete panel_sequence_viewer;
-	panel_sequence_viewer = NULL;
+	panel_sequence_viewer = nullptr;
 	delete panel_footage_viewer;
-	panel_footage_viewer = NULL;
+	panel_footage_viewer = nullptr;
 	delete panel_project;
-	panel_project = NULL;
+	panel_project = nullptr;
 	delete panel_effect_controls;
-	panel_effect_controls = NULL;
+	panel_effect_controls = nullptr;
 	delete panel_timeline;
-	panel_timeline = NULL;
+	panel_timeline = nullptr;
 }
 
 void scroll_to_frame_internal(QScrollBar* bar, long frame, double zoom, int area_width) {

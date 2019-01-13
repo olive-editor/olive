@@ -28,6 +28,7 @@ struct Sequence {
 	long playhead;
 
 	bool using_workarea;
+    bool enable_workarea;
 	long workarea_in;
 	long workarea_out;
 

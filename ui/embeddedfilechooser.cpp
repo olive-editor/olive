@@ -35,7 +35,7 @@ void EmbeddedFileChooser::setFilename(const QString &s) {
 }
 
 void EmbeddedFileChooser::update_label() {
-	QString l = "<html>File: ";
+    QString l = "<html>" + tr("File:") + " ";
 	if (filename.isEmpty()) {
 		l += "(none)";
 	} else {

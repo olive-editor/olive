@@ -53,7 +53,7 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent) : QWidget(parent) {
     keyframe_enable->setMaximumSize(button_size);
 	keyframe_enable->setIconSize(clock_size);
     keyframe_enable->setCheckable(true);
-    keyframe_enable->setToolTip("Enable Keyframes");
+    keyframe_enable->setToolTip(tr("Enable Keyframes"));
 	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SIGNAL(keyframe_enabled_changed(bool)));
     connect(keyframe_enable, SIGNAL(toggled(bool)), this, SLOT(keyframe_ui_enabled(bool)));
 	connect(keyframe_enable, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));

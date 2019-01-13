@@ -29,6 +29,7 @@ public:
 	~Viewer();
 
 	bool is_focused();
+	bool is_main_sequence();
 	void set_main_sequence();
 	void set_media(Media *m);
 	void compose();
@@ -37,7 +38,10 @@ public:
 	void update_end_timecode();
 	void update_header_zoom();
 	void update_viewer();
+	void clear_in();
+	void clear_out();
 	void clear_inout_point();
+	void toggle_enable_inout();
 	void set_in_point();
 	void set_out_point();
 	void set_zoom(bool in);
@@ -60,7 +64,7 @@ public:
 	int recording_track;
 
 	void reset_all_audio();
-	void update_parents();
+	void update_parents(bool reload_fx = false);
 
 	ViewerWidget* viewer_widget;
 
@@ -78,6 +82,7 @@ public slots:
 	void next_frame();
 	void go_to_out();
 	void go_to_end();
+	void close_media();
 
 private slots:
 	void update_playhead();

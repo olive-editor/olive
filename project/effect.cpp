@@ -43,7 +43,9 @@
 #include <QPainter>
 #include <QtMath>
 #include <QMenu>
+#include <QApplication>
 
+bool shaders_are_enabled = true;
 QVector<EffectMeta> effects;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
@@ -69,10 +71,12 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 #endif
 		}
 	} else {
-		dout << "[ERROR] Invalid effect data";
-		QMessageBox::critical(mainWindow, "Invalid effect", "No candidate for effect '" + em->name + "'. This effect may be corrupt. Try reinstalling it or Olive.");
+		qCritical() << "Invalid effect data";
+		QMessageBox::critical(mainWindow,
+							  QCoreApplication::translate("Effect", "Invalid effect"),
+							  QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
 	}
-	return NULL;
+	return nullptr;
 }
 
 const EffectMeta* get_internal_meta(int internal_id, int type) {
@@ -81,10 +85,12 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 			return &effects.at(i);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void load_internal_effects() {
+	if (!shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+
 	EffectMeta em;
 
 	// internal effects
@@ -192,7 +198,7 @@ void load_shader_effects() {
 			for (int i=0;i<entries.size();i++) {
 				QFile file(effects_path + "/" + entries.at(i));
 				if (!file.open(QIODevice::ReadOnly)) {
-					dout << "[ERROR] Could not open" << entries.at(i);
+					qCritical() << "Could not open" << entries.at(i);
 					return;
 				}
 
@@ -220,7 +226,7 @@ void load_shader_effects() {
 							em.internal = -1;
 							effects.append(em);
 						} else {
-							dout << "[ERROR] Invalid effect found in" << entries.at(i);
+							qCritical() << "Invalid effect found in" << entries.at(i);
 						}
 						break;
 					}
@@ -248,12 +254,12 @@ EffectInit::EffectInit() {
 }
 
 void EffectInit::run() {
-	dout << "[INFO] Initializing effects...";
+	qInfo() << "Initializing effects...";
 	load_internal_effects();
 	load_shader_effects();
 	load_vst_effects();
 	panel_effect_controls->effects_loaded.unlock();
-	dout << "[INFO] Finished initializing effects";
+	qInfo() << "Finished initializing effects";
 }
 
 Effect::Effect(Clip* c, const EffectMeta *em) :
@@ -263,11 +269,11 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	enable_coords(false),
 	enable_superimpose(false),
 	enable_image(false),
-	glslProgram(NULL),
-	texture(NULL),
+	glslProgram(nullptr),
+	texture(nullptr),
+	enable_always_update(false),
 	isOpen(false),
-	bound(false),
-	enable_always_update(false)
+	bound(false)
 {
 	// set up base UI
 	container = new CollapsibleWidget();
@@ -280,7 +286,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 
 	connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
 
-	if (em != NULL) {
+	if (em != nullptr) {
 		// set up UI from effect file
 		container->setText(em->name);
 
@@ -334,7 +340,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 									}
 
 									if (id.isEmpty()) {
-										dout << "[ERROR] Couldn't load field from" << em->filename << "- ID cannot be empty.";
+										qCritical() << "Couldn't load field from" << em->filename << "- ID cannot be empty.";
 									} else if (type > -1) {
 										EffectField* field = row->add_field(type, id);
 										connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
@@ -363,11 +369,11 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 												} else if (attr.name() == "b") {
 													color.setBlue(attr.value().toInt());
 												} else if (attr.name() == "rf") {
-													color.setRedF(attr.value().toFloat());
+													color.setRedF(attr.value().toDouble());
 												} else if (attr.name() == "gf") {
-													color.setGreenF(attr.value().toFloat());
+													color.setGreenF(attr.value().toDouble());
 												} else if (attr.name() == "bf") {
-													color.setBlueF(attr.value().toFloat());
+													color.setBlueF(attr.value().toDouble());
 												} else if (attr.name() == "hex") {
 													color.setNamedColor(attr.value().toString());
 												}
@@ -453,7 +459,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 								if (script_file.open(QFile::ReadOnly)) {
 									script = script_file.readAll();
 								} else {
-									dout << "[ERROR] Failed to open superimpose script file for" << em->filename;
+									qCritical() << "Failed to open superimpose script file for" << em->filename;
 									enable_superimpose = false;
 								}
 								break;
@@ -465,7 +471,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 
 				effect_file.close();
 			} else {
-				dout << "[ERROR] Failed to open effect file" << em->filename;
+				qCritical() << "Failed to open effect file" << em->filename;
 			}
 		}
 	}
@@ -501,7 +507,7 @@ void Effect::copy_field_keyframes(Effect* e) {
 }
 
 EffectRow* Effect::add_row(const QString& name, bool savable, bool keyframable) {
-	EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size());
+	EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size(), keyframable);
 	rows.append(row);
 	return row;
 }
@@ -542,18 +548,18 @@ void Effect::show_context_menu(const QPoint& pos) {
 		int index = get_index_in_clip();
 
 		if (index > 0) {
-			QAction* move_up = menu.addAction("Move &Up");
+			QAction* move_up = menu.addAction(tr("Move &Up"));
 			connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
 		}
 
 		if (index < parent_clip->effects.size() - 1) {
-			QAction* move_down = menu.addAction("Move &Down");
+			QAction* move_down = menu.addAction(tr("Move &Down"));
 			connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
 		}
 
 		menu.addSeparator();
 
-		QAction* del_action = menu.addAction("D&elete");
+		QAction* del_action = menu.addAction(tr("D&elete"));
 		connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
 
 		menu.exec(container->title_bar->mapToGlobal(pos));
@@ -587,7 +593,7 @@ void Effect::move_down() {
 }
 
 int Effect::get_index_in_clip() {
-	if (parent_clip != NULL) {
+	if (parent_clip != nullptr) {
 		for (int i=0;i<parent_clip->effects.size();i++) {
 			if (parent_clip->effects.at(i) == this) {
 				return i;
@@ -652,7 +658,6 @@ void Effect::load(QXmlStreamReader& stream) {
 					if (stream.name() == "field" && stream.isStartElement()) {
 						if (field_count < row->fieldCount()) {
 							// match field using ID
-							bool found_field_by_id = false;
 							int field_number = field_count;
 							for (int k=0;k<stream.attributes().size();k++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(k);
@@ -660,8 +665,7 @@ void Effect::load(QXmlStreamReader& stream) {
 									for (int l=0;l<row->fieldCount();l++) {
 										if (row->field(l)->id == attr.value()) {
 											field_number = l;
-											found_field_by_id = true;
-											dout << "[INFO] Found field by ID";
+											qInfo() << "Found field by ID";
 											break;
 										}
 									}
@@ -710,14 +714,14 @@ void Effect::load(QXmlStreamReader& stream) {
 								}
 							}
 						} else {
-							dout << "[ERROR] Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
+							qCritical() << "Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
 						}
 						field_count++;
 					}
 				}
 
 			} else {
-				dout << "[ERROR] Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
+				qCritical() << "Too many rows for effect" << id << ". Project might be corrupt. (Got" << row_count << ", expected <" << rows.size()-1 << ")";
 			}
 			row_count++;
 		} else if (stream.isStartElement()) {
@@ -726,7 +730,7 @@ void Effect::load(QXmlStreamReader& stream) {
 	}
 }
 
-void Effect::custom_load(QXmlStreamReader &stream) {}
+void Effect::custom_load(QXmlStreamReader &) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
 	stream.writeAttribute("name", meta->name);
@@ -783,37 +787,37 @@ void Effect::validate_meta_path() {
 
 void Effect::open() {
 	if (isOpen) {
-		dout << "[WARNING] Tried to open an effect that was already open";
+		qWarning() << "Tried to open an effect that was already open";
 		close();
 	}
-	if (enable_shader) {
-		if (QOpenGLContext::currentContext() == NULL) {
-			dout << "[WARNING] No current context to create a shader program for - will retry next repaint";
+	if (shaders_are_enabled && enable_shader) {
+		if (QOpenGLContext::currentContext() == nullptr) {
+			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
 			glslProgram = new QOpenGLShaderProgram();
 			validate_meta_path();
 			bool glsl_compiled = true;
 			if (!vertPath.isEmpty()) {
 				if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
-					dout << "[INFO] Vertex shader added successfully";
+					qInfo() << "Vertex shader added successfully";
 				} else {
 					glsl_compiled = false;
-					dout << "[WARNING] Vertex shader could not be added";
+					qWarning() << "Vertex shader could not be added";
 				}
 			}
 			if (!fragPath.isEmpty()) {
 				if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
-					dout << "[INFO] Fragment shader added successfully";
+					qInfo() << "Fragment shader added successfully";
 				} else {
 					glsl_compiled = false;
-					dout << "[WARNING] Fragment shader could not be added";
+					qWarning() << "Fragment shader could not be added";
 				}
 			}
 			if (glsl_compiled) {
 				if (glslProgram->link()) {
-					dout << "[INFO] Shader program linked successfully";
+					qInfo() << "Shader program linked successfully";
 				} else {
-					dout << "[WARNING] Shader program failed to link";
+					qWarning() << "Shader program failed to link";
 				}
 			}
 			isOpen = true;
@@ -829,26 +833,30 @@ void Effect::open() {
 
 void Effect::close() {
 	if (!isOpen) {
-		dout << "[WARNING] Tried to close an effect that was already closed";
+		qWarning() << "Tried to close an effect that was already closed";
 	}
 	delete_texture();
-	if (glslProgram != NULL) {
+	if (glslProgram != nullptr) {
 		delete glslProgram;
-		glslProgram = NULL;
+		glslProgram = nullptr;
 	}
 	isOpen = false;
 }
 
 bool Effect::is_glsl_linked() {
-	return glslProgram != NULL && glslProgram->isLinked();
+	return glslProgram != nullptr && glslProgram->isLinked();
 }
 
 void Effect::startEffect() {
 	if (!isOpen) {
 		open();
-		dout << "[WARNING] Tried to start a closed effect - opening";
+		qWarning() << "Tried to start a closed effect - opening";
 	}
-	if (enable_shader && glslProgram->isLinked()) bound = glslProgram->bind();
+	if (shaders_are_enabled
+			&& enable_shader
+			&& glslProgram->isLinked()) {
+		bound = glslProgram->bind();
+	}
 }
 
 void Effect::endEffect() {
@@ -867,7 +875,7 @@ Effect* Effect::copy(Clip* c) {
 
 void Effect::process_shader(double timecode, GLTextureCoords&) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
-	glslProgram->setUniformValue("time", (GLfloat) timecode);
+	glslProgram->setUniformValue("time", GLfloat(timecode));
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
@@ -876,10 +884,15 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 			if (!field->id.isEmpty()) {
 				switch (field->type) {
 				case EFFECT_FIELD_DOUBLE:
-					glslProgram->setUniformValue(field->id.toUtf8().constData(), (GLfloat) field->get_double_value(timecode));
+					glslProgram->setUniformValue(field->id.toUtf8().constData(), GLfloat(field->get_double_value(timecode)));
 					break;
 				case EFFECT_FIELD_COLOR:
-					glslProgram->setUniformValue(field->id.toUtf8().constData(), field->get_color_value(timecode).redF(), field->get_color_value(timecode).greenF(), field->get_color_value(timecode).blueF());
+					glslProgram->setUniformValue(
+								field->id.toUtf8().constData(),
+								GLfloat(field->get_color_value(timecode).redF()),
+								GLfloat(field->get_color_value(timecode).greenF()),
+								GLfloat(field->get_color_value(timecode).blueF())
+							);
 					break;
 				case EFFECT_FIELD_STRING: break; // can you even send a string to a uniform value?
 				case EFFECT_FIELD_BOOL:
@@ -896,7 +909,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 	}
 }
 
-void Effect::process_coords(double, GLTextureCoords&, int data) {}
+void Effect::process_coords(double, GLTextureCoords&, int) {}
 
 GLuint Effect::process_superimpose(double timecode) {
 	bool recreate_texture = false;
@@ -912,7 +925,7 @@ GLuint Effect::process_superimpose(double timecode) {
 		redraw(timecode);
 	}
 
-	if (texture != NULL) {
+	if (texture != nullptr) {
 		if (recreate_texture || texture->width() != img.width() || texture->height() != img.height()) {
 			delete_texture();
 			texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
@@ -932,21 +945,21 @@ void Effect::gizmo_draw(double, GLTextureCoords &) {}
 void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
 	for (int i=0;i<gizmos.size();i++) {
 		if (gizmos.at(i) == gizmo) {
-			ComboAction* ca = NULL;
+			ComboAction* ca = nullptr;
 			if (done) ca = new ComboAction();
-			if (gizmo->x_field1 != NULL) {
+			if (gizmo->x_field1 != nullptr) {
 				gizmo->x_field1->set_double_value(gizmo->x_field1->get_double_value(timecode) + x_movement*gizmo->x_field_multi1);
 				gizmo->x_field1->make_key_from_change(ca);
 			}
-			if (gizmo->y_field1 != NULL) {
+			if (gizmo->y_field1 != nullptr) {
 				gizmo->y_field1->set_double_value(gizmo->y_field1->get_double_value(timecode) + y_movement*gizmo->y_field_multi1);
 				gizmo->y_field1->make_key_from_change(ca);
 			}
-			if (gizmo->x_field2 != NULL) {
+			if (gizmo->x_field2 != nullptr) {
 				gizmo->x_field2->set_double_value(gizmo->x_field2->get_double_value(timecode) + x_movement*gizmo->x_field_multi2);
 				gizmo->x_field2->make_key_from_change(ca);
 			}
-			if (gizmo->y_field2 != NULL) {
+			if (gizmo->y_field2 != nullptr) {
 				gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
 				gizmo->y_field2->make_key_from_change(ca);
 			}
@@ -1056,9 +1069,9 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-	if (texture != NULL) {
+	if (texture != nullptr) {
 		delete texture;
-		texture = NULL;
+		texture = nullptr;
 	}
 }
 

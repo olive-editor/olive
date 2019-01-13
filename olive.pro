@@ -33,6 +33,8 @@ system("which git") {
     DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
 }
 
+CONFIG += c++11
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -120,7 +122,9 @@ SOURCES += \
     dialogs/actionsearch.cpp \
     ui/embeddedfilechooser.cpp \
     effects/internal/fillleftrighteffect.cpp \
-    effects/internal/voideffect.cpp
+    effects/internal/voideffect.cpp \
+    dialogs/texteditdialog.cpp \
+    dialogs/debugdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -210,16 +214,18 @@ HEADERS += \
     dialogs/actionsearch.h \
     ui/embeddedfilechooser.h \
     effects/internal/fillleftrighteffect.h \
-    effects/internal/voideffect.h
+    effects/internal/voideffect.h \
+    dialogs/texteditdialog.h \
+    dialogs/debugdialog.h
 
 FORMS +=
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-	
-	SOURCES += effects/internal/vsthostwin.cpp
-	HEADERS += effects/internal/vsthostwin.h
+
+        SOURCES += effects/internal/vsthostwin.cpp
+        HEADERS += effects/internal/vsthostwin.h
 }
 
 mac {

@@ -19,25 +19,27 @@
 #include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
+    setWindowTitle(tr("Speed/Duration"));
+
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	setLayout(main_layout);
 
 	QGridLayout* grid = new QGridLayout();
 	grid->setSpacing(6);
 
-	grid->addWidget(new QLabel("Speed:"), 0, 0);
+    grid->addWidget(new QLabel(tr("Speed:")), 0, 0);
 	percent = new LabelSlider();
 	percent->decimal_places = 2;
 	percent->set_display_type(LABELSLIDER_PERCENT);
 	percent->set_default_value(1);
 	grid->addWidget(percent, 0, 1);
 
-	grid->addWidget(new QLabel("Frame Rate:"), 1, 0);
+    grid->addWidget(new QLabel(tr("Frame Rate:")), 1, 0);
 	frame_rate = new LabelSlider();
 	frame_rate->decimal_places = 3;
 	grid->addWidget(frame_rate, 1, 1);
 
-	grid->addWidget(new QLabel("Duration:"), 2, 0);
+    grid->addWidget(new QLabel(tr("Duration:")), 2, 0);
 	duration = new LabelSlider();
 	duration->set_display_type(LABELSLIDER_FRAMENUMBER);
 	duration->set_frame_rate(sequence->frame_rate);
@@ -45,9 +47,9 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 
 	main_layout->addLayout(grid);
 
-	reverse = new QCheckBox("Reverse");
-	maintain_pitch = new QCheckBox("Maintain Audio Pitch");
-	ripple = new QCheckBox("Ripple Changes");
+    reverse = new QCheckBox(tr("Reverse"));
+    maintain_pitch = new QCheckBox(tr("Maintain Audio Pitch"));
+    ripple = new QCheckBox(tr("Ripple Changes"));
 
 	main_layout->addWidget(reverse);
 	main_layout->addWidget(maintain_pitch);
@@ -84,10 +86,10 @@ void SpeedDialog::run() {
 		clip_percent = c->speed;
 		if (c->track < 0) {
 			bool process_video = true;
-			if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+			if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 				Footage* m = c->media->to_footage();
 				FootageStream* ms = m->get_stream_from_file_index(true, c->media_stream);
-				if (ms != NULL && ms->infinite_length) {
+				if (ms != nullptr && ms->infinite_length) {
 					process_video = false;
 				}
 			}
@@ -304,7 +306,7 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	if (!ripple && proposed_out > c->timeline_out) {
 		for (int i=0;i<c->sequence->clips.size();i++) {
 			Clip* compare = c->sequence->clips.at(i);
-			if (compare != NULL
+			if (compare != nullptr
 					&& compare->track == c->track
 					&& compare->timeline_in >= c->timeline_out && compare->timeline_in < proposed_out) {
 				proposed_out = compare->timeline_in;

@@ -270,7 +270,7 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
 
 void EffectField::ui_element_change() {
 	bool dragging_double = (type == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging());
-	ComboAction* ca = NULL;
+	ComboAction* ca = nullptr;
 	if (!dragging_double) ca = new ComboAction();
 	make_key_from_change(ca);
 	if (!dragging_double) undo_stack.push(ca);
@@ -280,7 +280,7 @@ void EffectField::ui_element_change() {
 void EffectField::make_key_from_change(ComboAction* ca) {
 	if (parent_row->isKeyframing()) {
 		parent_row->set_keyframe_now(ca);
-	} else if (ca != NULL) {
+	} else if (ca != nullptr) {
 		// set undo
 		ca->append(new EffectFieldUndo(this));
 	}

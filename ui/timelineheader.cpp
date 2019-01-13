@@ -118,7 +118,7 @@ void TimelineHeader::show_text(bool enable) {
 }
 
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
-	if (viewer->seq != NULL && event->buttons() & Qt::LeftButton) {
+	if (viewer->seq != nullptr && event->buttons() & Qt::LeftButton) {
 		if (resizing_workarea) {
 			sequence_end = viewer->seq->getEndFrame();
 		} else {
@@ -168,7 +168,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 }
 
 void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
-	if (viewer->seq != NULL) {
+	if (viewer->seq != nullptr) {
 		if (dragging) {
 			if (resizing_workarea) {
 				long frame = getHeaderFrameFromScreenPoint(event->pos().x());
@@ -214,7 +214,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 		} else {
 			resizing_workarea = false;
 			unsetCursor();
-			if (viewer->seq != NULL && viewer->seq->using_workarea) {
+			if (viewer->seq != nullptr && viewer->seq->using_workarea) {
 				long min_frame = getHeaderFrameFromScreenPoint(event->pos().x() - CLICK_RANGE) - 1;
 				long max_frame = getHeaderFrameFromScreenPoint(event->pos().x() + CLICK_RANGE) + 1;
 				if (viewer->seq->workarea_in > min_frame && viewer->seq->workarea_in < max_frame) {
@@ -235,7 +235,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
-	if (viewer->seq != NULL) {
+	if (viewer->seq != nullptr) {
 		dragging = false;
 		if (resizing_workarea) {
 			undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
@@ -294,7 +294,7 @@ void TimelineHeader::delete_markers() {
 }
 
 void TimelineHeader::paintEvent(QPaintEvent*) {
-	if (viewer->seq != NULL && zoom > 0) {
+	if (viewer->seq != nullptr && zoom > 0) {
 		QPainter p(this);
 		int yoff = (text_enabled) ? height()/2 : 0;
 
@@ -321,8 +321,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 		while (true) {
 			long frame = qRound(interval*i);
-			int lineX = qRound(frame*zoom) - scroll;
-			int next_lineX = qRound(qRound(interval*(i+1))*zoom) - scroll;
+            int lineX = qRound(frame*zoom) - scroll;
 
 			if (lineX > width()) break;
 
@@ -367,7 +366,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		if (viewer->seq->using_workarea) {
 			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
 			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
-			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
+            p.fillRect(QRect(in_x, 0, out_x-in_x, height()), viewer->seq->enable_workarea ? QColor(0, 192, 255, 128) : QColor(255, 255, 255, 64));
 			p.setPen(Qt::white);
 			p.drawLine(in_x, 0, in_x, height());
 			p.drawLine(out_x, 0, out_x, height());

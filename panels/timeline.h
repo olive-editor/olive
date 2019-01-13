@@ -204,6 +204,7 @@ public:
 	QPushButton* snappingButton;
 
 	void scroll_to_frame(long frame);
+    void select_from_playhead();
 
 	void resizeEvent(QResizeEvent *event);
 public slots:

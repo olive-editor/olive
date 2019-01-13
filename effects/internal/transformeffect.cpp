@@ -31,11 +31,11 @@
 TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	enable_coords = true;
 
-	EffectRow* position_row = add_row("Position");
+    EffectRow* position_row = add_row(tr("Position"));
 	position_x = position_row->add_field(EFFECT_FIELD_DOUBLE, "posx"); // position X
 	position_y = position_row->add_field(EFFECT_FIELD_DOUBLE, "posy"); // position Y
 
-	EffectRow* scale_row = add_row("Scale");
+    EffectRow* scale_row = add_row(tr("Scale"));
 	scale_x = scale_row->add_field(EFFECT_FIELD_DOUBLE, "scalex"); // scale X (and Y is uniform scale is selected)
 	scale_x->set_double_minimum_value(0);
 	scale_x->set_double_maximum_value(3000);
@@ -43,27 +43,27 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	scale_y->set_double_minimum_value(0);
 	scale_y->set_double_maximum_value(3000);
 
-	EffectRow* uniform_scale_row = add_row("Uniform Scale");
+    EffectRow* uniform_scale_row = add_row(tr("Uniform Scale"));
 	uniform_scale_field = uniform_scale_row->add_field(EFFECT_FIELD_BOOL, "uniformscale"); // uniform scale option
 
-	EffectRow* rotation_row = add_row("Rotation");
+    EffectRow* rotation_row = add_row(tr("Rotation"));
 	rotation = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
 
-	EffectRow* anchor_point_row = add_row("Anchor Point");
+    EffectRow* anchor_point_row = add_row(tr("Anchor Point"));
 	anchor_x_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchorx"); // anchor point X
 	anchor_y_box = anchor_point_row->add_field(EFFECT_FIELD_DOUBLE, "anchory"); // anchor point Y
 
-	EffectRow* opacity_row = add_row("Opacity");
+    EffectRow* opacity_row = add_row(tr("Opacity"));
 	opacity = opacity_row->add_field(EFFECT_FIELD_DOUBLE, "opacity"); // opacity
 	opacity->set_double_minimum_value(0);
 	opacity->set_double_maximum_value(100);
 
-	EffectRow* blend_mode_row = add_row("Blend Mode");
+    EffectRow* blend_mode_row = add_row(tr("Blend Mode"));
 	blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO, "blendmode"); // blend mode
-	blend_mode_box->add_combo_item("Normal", BLEND_MODE_NORMAL);
-	blend_mode_box->add_combo_item("Overlay", BLEND_MODE_OVERLAY);
-	blend_mode_box->add_combo_item("Screen", BLEND_MODE_SCREEN);
-	blend_mode_box->add_combo_item("Multiply", BLEND_MODE_MULTIPLY);
+    blend_mode_box->add_combo_item(tr("Normal"), BLEND_MODE_NORMAL);
+    blend_mode_box->add_combo_item(tr("Overlay"), BLEND_MODE_OVERLAY);
+    blend_mode_box->add_combo_item(tr("Screen"), BLEND_MODE_SCREEN);
+    blend_mode_box->add_combo_item(tr("Multiply"), BLEND_MODE_MULTIPLY);
 
 	// set up gizmos
 	top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
@@ -134,7 +134,7 @@ void adjust_field(EffectField* field, double old_offset, double new_offset) {
 }
 
 void TransformEffect::refresh() {
-	if (parent_clip != NULL && parent_clip->sequence != NULL) {
+	if (parent_clip != nullptr && parent_clip->sequence != nullptr) {
 		double new_default_pos_x = parent_clip->sequence->width/2;
 		double new_default_pos_y = parent_clip->sequence->height/2;
 
@@ -180,13 +180,13 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 	top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
 	bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
-	top_left_gizmo->y_field1 = enabled ? NULL : scale_y;
-	top_right_gizmo->y_field1 = enabled ? NULL : scale_y;
-	bottom_left_gizmo->y_field1 = enabled ? NULL : scale_y;
-	bottom_right_gizmo->y_field1 = enabled ? NULL : scale_y;
+	top_left_gizmo->y_field1 = enabled ? nullptr : scale_y;
+	top_right_gizmo->y_field1 = enabled ? nullptr : scale_y;
+	bottom_left_gizmo->y_field1 = enabled ? nullptr : scale_y;
+	bottom_right_gizmo->y_field1 = enabled ? nullptr : scale_y;
 }
 
-void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int data) {
+void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
 	// position
 	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 
@@ -225,7 +225,7 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 		break;
 	default:
-		dout << "[ERROR] Invalid blend mode. This is a bug - please contact developers";
+		qCritical() << "Invalid blend mode. This is a bug - please contact developers";
 	}
 
 	// opacity
@@ -234,7 +234,7 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));
 }
 
-void TransformEffect::gizmo_draw(double timecode, GLTextureCoords& coords) {
+void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
 	top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
 	top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
 	top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);

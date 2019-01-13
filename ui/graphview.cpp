@@ -42,7 +42,7 @@ GraphView::GraphView(QWidget* parent) :
 	y_scroll(0),
 	mousedown(false),
 	zoom(1.0),
-	row(NULL),
+	row(nullptr),
 	moved_keys(false),
 	current_handle(BEZIER_HANDLE_NONE),
 	rect_select(false),
@@ -58,15 +58,15 @@ GraphView::GraphView(QWidget* parent) :
 void GraphView::show_context_menu(const QPoint& pos) {
 	QMenu menu(this);
 
-	QAction* zoom_to_selection = menu.addAction("Zoom to Selection");
-	if (selected_keys.size() == 0 || row == NULL) {
+	QAction* zoom_to_selection = menu.addAction(tr("Zoom to Selection"));
+	if (selected_keys.size() == 0 || row == nullptr) {
 		zoom_to_selection->setEnabled(false);
 	} else {
 		connect(zoom_to_selection, SIGNAL(triggered(bool)), this, SLOT(set_view_to_selection()));
 	}
 
-	QAction* zoom_to_all = menu.addAction("Zoom to Show All");
-	if (row == NULL) {
+	QAction* zoom_to_all = menu.addAction(tr("Zoom to Show All"));
+	if (row == nullptr) {
 		zoom_to_all->setEnabled(false);
 	} else {
 		connect(zoom_to_all, SIGNAL(triggered(bool)), this, SLOT(set_view_to_all()));
@@ -74,8 +74,8 @@ void GraphView::show_context_menu(const QPoint& pos) {
 
 	menu.addSeparator();
 
-	QAction* reset_action = menu.addAction("Reset View");
-	if (row == NULL) {
+	QAction* reset_action = menu.addAction(tr("Reset View"));
+	if (row == nullptr) {
 		reset_action->setEnabled(false);
 	} else {
 		connect(reset_action, SIGNAL(triggered(bool)), this, SLOT(reset_view()));
@@ -93,7 +93,7 @@ void GraphView::reset_view() {
 }
 
 void GraphView::set_view_to_selection() {
-	if (row != NULL && selected_keys.size() > 0) {
+	if (row != nullptr && selected_keys.size() > 0) {
 		long min_time = LONG_MAX;
 		long max_time = LONG_MIN;
 		double min_dbl = DBL_MAX;
@@ -110,7 +110,7 @@ void GraphView::set_view_to_selection() {
 }
 
 void GraphView::set_view_to_all() {
-	if (row != NULL) {
+	if (row != nullptr) {
 		bool can_set = false;
 
 		long min_time = LONG_MAX;
@@ -201,7 +201,7 @@ QVector<int> sort_keys_from_field(EffectField* field) {
 void GraphView::paintEvent(QPaintEvent *) {
 	QPainter p(this);
 
-	if (panel_sequence_viewer->seq != NULL) {
+	if (panel_sequence_viewer->seq != nullptr) {
 		// draw grid lines
 
 		p.setPen(Qt::gray);
@@ -210,7 +210,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 		draw_lines(p, false);
 
 		// draw keyframes
-		if (row != NULL) {
+		if (row != nullptr) {
 			QPen line_pen;
 			line_pen.setWidth(BEZIER_LINE_SIZE);
 
@@ -221,7 +221,8 @@ void GraphView::paintEvent(QPaintEvent *) {
 					// sort keyframes by time
 					QVector<int> sorted_keys = sort_keys_from_field(field);
 
-					int last_key_x, last_key_y;
+					int last_key_x = 0;
+					int last_key_y = 0;
 
 					// draw lines
 					for (int j=0;j<sorted_keys.size();j++) {
@@ -329,7 +330,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 }
 
 void GraphView::mousePressEvent(QMouseEvent *event) {
-	if (row != NULL) {
+	if (row != nullptr) {
 		mousedown = true;
 		start_x = event->pos().x();
 		start_y = event->pos().y();
@@ -530,7 +531,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				break;
 			}
 		}
-	} else if (row != NULL) {
+	} else if (row != nullptr) {
 		// clicking on the curve
 		click_add = false;
 
@@ -665,7 +666,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 	}
 }
 
-void GraphView::mouseReleaseEvent(QMouseEvent *e) {
+void GraphView::mouseReleaseEvent(QMouseEvent *) {
 	if (click_add_proc) {
 		undo_stack.push(new KeyframeFieldSet(click_add_field, click_add_key));
 	} else if (moved_keys && selected_keys.size() > 0) {
@@ -742,7 +743,7 @@ void GraphView::set_row(EffectRow *r) {
 		selected_keys_old_doubles.clear();
 		emit selection_changed(false, -1);
 		row = r;
-		if (row != NULL) {
+		if (row != nullptr) {
 			field_visibility.resize(row->fieldCount());
 			field_visibility.fill(true);
 			visible_in = row->parent_effect->parent_clip->timeline_in;
@@ -771,7 +772,7 @@ void GraphView::set_field_visibility(int field, bool b) {
 }
 
 void GraphView::delete_selected_keys() {
-	if (row != NULL) {
+	if (row != nullptr) {
 		QVector<EffectField*> fields;
 		for (int i=0;i<selected_keys_fields.size();i++) {
 			fields.append(row->field(selected_keys_fields.at(i)));
@@ -781,7 +782,7 @@ void GraphView::delete_selected_keys() {
 }
 
 void GraphView::select_all() {
-	if (row != NULL) {
+	if (row != nullptr) {
 		selected_keys.clear();
 		selected_keys_fields.clear();
 		for (int i=0;i<row->fieldCount();i++) {

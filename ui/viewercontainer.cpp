@@ -14,7 +14,7 @@
 ViewerContainer::ViewerContainer(QWidget *parent) :
     QScrollArea(parent),
     fit(true),
-    child(NULL)
+    child(nullptr)
 {
     setFrameShadow(QFrame::Plain);
     setFrameShape(QFrame::NoFrame);
@@ -50,7 +50,7 @@ void ViewerContainer::dragScrollMove(const QPoint &p) {
 }
 
 void ViewerContainer::adjust() {
-    if (viewer->seq != NULL) {
+    if (viewer->seq != nullptr) {
         if (child->waveform) {
             child->move(0, 0);
             child->resize(size());

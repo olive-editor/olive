@@ -4,10 +4,10 @@
 #define FILL_TYPE_RIGHT 1
 
 FillLeftRightEffect::FillLeftRightEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-	EffectRow* type_row = add_row("Type");
+    EffectRow* type_row = add_row(tr("Type"));
 	fill_type = type_row->add_field(EFFECT_FIELD_COMBO, "type");
-	fill_type->add_combo_item("Fill Left with Right", FILL_TYPE_LEFT);
-	fill_type->add_combo_item("Fill Right with Left", FILL_TYPE_RIGHT);
+    fill_type->add_combo_item(tr("Fill Left with Right"), FILL_TYPE_LEFT);
+    fill_type->add_combo_item(tr("Fill Right with Left"), FILL_TYPE_RIGHT);
 }
 
 void FillLeftRightEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {

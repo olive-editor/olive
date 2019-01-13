@@ -11,7 +11,7 @@ extern "C" {
 
 #include "project/clip.h"
 
-Footage::Footage() : ready(false), preview_gen(NULL), invalid(false), in(0), out(0), speed(1.0) {
+Footage::Footage() : ready(false), preview_gen(nullptr), invalid(false), in(0), out(0), speed(1.0) {
 	ready_lock.lock();
 }
 
@@ -20,7 +20,7 @@ Footage::~Footage() {
 }
 
 void Footage::reset() {
-	if (preview_gen != NULL) {
+	if (preview_gen != nullptr) {
 		preview_gen->cancel();
 		preview_gen->wait();
 	}
@@ -48,7 +48,7 @@ FootageStream* Footage::get_stream_from_file_index(bool video, int index) {
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void FootageStream::make_square_thumb() {

@@ -9,7 +9,7 @@ CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectM
 }
 
 void CrossDissolveTransition::process_coords(double progress, GLTextureCoords&, int data) {
-    if (!(data == TA_CLOSING_TRANSITION && secondary_clip != NULL)) {
+    if (!(data == TA_CLOSING_TRANSITION && secondary_clip != nullptr)) {
         float color[4];
         glGetFloatv(GL_CURRENT_COLOR, color);
         if (data == TA_CLOSING_TRANSITION) progress = 1.0 - progress;

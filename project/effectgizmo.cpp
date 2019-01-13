@@ -4,13 +4,13 @@
 #include "effectfield.h"
 
 EffectGizmo::EffectGizmo(int type) :
-    x_field1(NULL),
+    x_field1(nullptr),
     x_field_multi1(1.0),
-    y_field1(NULL),
+    y_field1(nullptr),
     y_field_multi1(1.0),
-    x_field2(NULL),
+    x_field2(nullptr),
     x_field_multi2(1.0),
-    y_field2(NULL),
+    y_field2(nullptr),
     y_field_multi2(1.0),
     type(type),
     cursor(-1)
@@ -23,10 +23,10 @@ EffectGizmo::EffectGizmo(int type) :
 }
 
 void EffectGizmo::set_previous_value() {
-    if (x_field1 != NULL) static_cast<LabelSlider*>(x_field1->ui_element)->set_previous_value();
-    if (y_field1 != NULL) static_cast<LabelSlider*>(y_field1->ui_element)->set_previous_value();
-    if (x_field2 != NULL) static_cast<LabelSlider*>(x_field2->ui_element)->set_previous_value();
-    if (y_field2 != NULL) static_cast<LabelSlider*>(y_field2->ui_element)->set_previous_value();
+    if (x_field1 != nullptr) static_cast<LabelSlider*>(x_field1->ui_element)->set_previous_value();
+    if (y_field1 != nullptr) static_cast<LabelSlider*>(y_field1->ui_element)->set_previous_value();
+    if (x_field2 != nullptr) static_cast<LabelSlider*>(x_field2->ui_element)->set_previous_value();
+    if (y_field2 != nullptr) static_cast<LabelSlider*>(y_field2->ui_element)->set_previous_value();
 }
 
 int EffectGizmo::get_point_count() {

@@ -19,7 +19,7 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 	QDialog(parent),
 	item(i)
 {
-	setWindowTitle("\"" + i->get_name() + "\" Properties");
+    setWindowTitle(tr("\"%1\" Properties").arg(i->get_name()));
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	QGridLayout* grid = new QGridLayout();
@@ -29,13 +29,21 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 
 	Footage* f = item->to_footage();
 
-	grid->addWidget(new QLabel("Tracks:"), row, 0, 1, 2);
+    grid->addWidget(new QLabel(tr("Tracks:")), row, 0, 1, 2);
 	row++;
 
 	track_list = new QListWidget();
 	for (int i=0;i<f->video_tracks.size();i++) {
 		const FootageStream& fs = f->video_tracks.at(i);
-		QListWidgetItem* item = new QListWidgetItem("Video " + QString::number(fs.file_index) + ": " + QString::number(fs.video_width) + "x" + QString::number(fs.video_height) + " " + QString::number(fs.video_frame_rate) + "FPS");
+
+        QListWidgetItem* item = new QListWidgetItem(
+                    tr("Video %1: %2x%3 %4FPS").arg(
+                        QString::number(fs.file_index),
+                        QString::number(fs.video_width),
+                        QString::number(fs.video_height),
+                        QString::number(fs.video_frame_rate)
+                    )
+                );
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(fs.enabled ? Qt::Checked : Qt::Unchecked);
 		item->setData(Qt::UserRole+1, fs.file_index);
@@ -43,7 +51,13 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 	}
 	for (int i=0;i<f->audio_tracks.size();i++) {
 		const FootageStream& fs = f->audio_tracks.at(i);
-		QListWidgetItem* item = new QListWidgetItem("Audio " + QString::number(fs.file_index) + ": " + QString::number(fs.audio_frequency) + "Hz " + QString::number(fs.audio_channels) + " channels");
+        QListWidgetItem* item = new QListWidgetItem(
+                    tr("Audio %1: %2Hz %3 channels").arg(
+                        QString::number(fs.file_index),
+                        QString::number(fs.audio_frequency),
+                        QString::number(fs.audio_channels)
+                    )
+                );
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(fs.enabled ? Qt::Checked : Qt::Unchecked);
 		item->setData(Qt::UserRole+1, fs.file_index);
@@ -55,7 +69,7 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 	if (f->video_tracks.size() > 0) {
 		// frame conforming
 		if (!f->video_tracks.at(0).infinite_length) {
-			grid->addWidget(new QLabel("Conform to Frame Rate:"), row, 0);
+            grid->addWidget(new QLabel(tr("Conform to Frame Rate:")), row, 0);
 			conform_fr = new QDoubleSpinBox();
 			conform_fr->setMinimum(0.01);
 			conform_fr->setValue(f->video_tracks.at(0).video_frame_rate * f->speed);
@@ -65,22 +79,29 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 		row++;
 
 		// deinterlacing mode
-		interlacing_box = new QComboBox();
-		interlacing_box->addItem("Auto (" + get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing) + ")");
+		interlacing_box = new QComboBox();        
+        interlacing_box->addItem(
+                    tr("Auto (%1)").arg(
+                        get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing)
+                    )
+                );
 		interlacing_box->addItem(get_interlacing_name(VIDEO_PROGRESSIVE));
 		interlacing_box->addItem(get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
 		interlacing_box->addItem(get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
 
-		interlacing_box->setCurrentIndex((f->video_tracks.at(0).video_auto_interlacing == f->video_tracks.at(0).video_interlacing) ? 0 : f->video_tracks.at(0).video_interlacing + 1);
+        interlacing_box->setCurrentIndex(
+                    (f->video_tracks.at(0).video_auto_interlacing == f->video_tracks.at(0).video_interlacing)
+                    ? 0
+                    : f->video_tracks.at(0).video_interlacing + 1);
 
-		grid->addWidget(new QLabel("Interlacing:"), row, 0);
+        grid->addWidget(new QLabel(tr("Interlacing:")), row, 0);
 		grid->addWidget(interlacing_box, row, 1);
 
 		row++;
 	}
 
 	name_box = new QLineEdit(item->get_name());
-	grid->addWidget(new QLabel("Name:"), row, 0);
+    grid->addWidget(new QLabel(tr("Name:")), row, 0);
 	grid->addWidget(name_box, row, 1);
 	row++;
 

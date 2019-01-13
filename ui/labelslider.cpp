@@ -147,8 +147,8 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 			if (display_type == LABELSLIDER_FRAMENUMBER) {
 				QString s = QInputDialog::getText(
 							this,
-							"Set Value",
-							"New value:",
+                            tr("Set Value"),
+                            tr("New value:"),
 							QLineEdit::Normal,
 							valueToString(internal_value)
 						);
@@ -158,8 +158,8 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
                 bool ok;
 				d = QInputDialog::getDouble(
 							this,
-							"Set Value",
-							"New value:",
+                            tr("Set Value"),
+                            tr("New value:"),
 							(display_type == LABELSLIDER_PERCENT) ? internal_value * 100 : internal_value,
 							(min_enabled) ? min_value : INT_MIN,
 							(max_enabled) ? max_value : INT_MAX,

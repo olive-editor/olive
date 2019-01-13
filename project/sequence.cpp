@@ -3,11 +3,14 @@
 #include "clip.h"
 #include "transition.h"
 
+#include <QCoreApplication>
+
 #include "debug.h"
 
 Sequence::Sequence() :
 	playhead(0),
 	using_workarea(false),
+    enable_workarea(true),
 	workarea_in(0),
 	workarea_out(0),
 	wrapper_sequence(false)
@@ -23,7 +26,7 @@ Sequence::~Sequence() {
 
 Sequence* Sequence::copy() {
 	Sequence* s = new Sequence();
-	s->name = name + " (copy)";
+    s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
 	s->width = width;
 	s->height = height;
 	s->frame_rate = frame_rate;
@@ -32,8 +35,8 @@ Sequence* Sequence::copy() {
 	s->clips.resize(clips.size());
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
-		if (c == NULL) {
-			s->clips[i] = NULL;
+		if (c == nullptr) {
+			s->clips[i] = nullptr;
 		} else {
 			Clip* copy = c->copy(s);
 			copy->linked = c->linked;
@@ -47,7 +50,7 @@ long Sequence::getEndFrame() {
 	long end = 0;
 	for (int j=0;j<clips.size();j++) {
 		Clip* c = clips.at(j);
-		if (c != NULL && c->timeline_out > end) {
+		if (c != nullptr && c->timeline_out > end) {
 			end = c->timeline_out;
 		}
 	}
@@ -60,10 +63,10 @@ void Sequence::hard_delete_transition(Clip *c, int type) {
 		bool del = true;
 
 		Transition* t = transitions.at(transition_index);
-		if (t->secondary_clip != NULL) {
+		if (t->secondary_clip != nullptr) {
 			for (int i=0;i<clips.size();i++) {
 				Clip* comp = clips.at(i);
-				if (comp != NULL
+				if (comp != nullptr
 						&& c != comp
 						&& (c->opening_transition == transition_index
 						|| c->closing_transition == transition_index)) {
@@ -73,14 +76,14 @@ void Sequence::hard_delete_transition(Clip *c, int type) {
 					}
 
 					del = false;
-					t->secondary_clip = NULL;
+					t->secondary_clip = nullptr;
 				}
 			}
 		}
 
 		if (del) {
 			delete transitions.at(transition_index);
-			transitions[transition_index] = NULL;
+			transitions[transition_index] = nullptr;
 		}
 
 		if (type == TA_OPENING_TRANSITION) {
@@ -96,7 +99,7 @@ void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 	int at = 0;
 	for (int j=0;j<clips.size();j++) {
 		Clip* c = clips.at(j);
-		if (c != NULL) {
+		if (c != nullptr) {
 			if (c->track < 0 && c->track < vt) { // video clip
 				vt = c->track;
 			} else if (c->track > at) {
@@ -104,9 +107,9 @@ void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 			}
 		}
 	}
-	if (video_tracks != NULL) *video_tracks = vt;
-	if (audio_tracks != NULL) *audio_tracks = at;
+	if (video_tracks != nullptr) *video_tracks = vt;
+	if (audio_tracks != nullptr) *audio_tracks = at;
 }
 
 // static variable for the currently active sequence
-Sequence* sequence = NULL;
+Sequence* sequence = nullptr;

@@ -37,7 +37,7 @@ bool texture_failed = false;
 bool rendering = false;
 
 bool clip_uses_cacher(Clip* clip) {
-	return (clip->media == NULL && clip->track >= 0) || (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
+	return (clip->media == nullptr && clip->track >= 0) || (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
 }
 
 void open_clip(Clip* clip, bool multithreaded) {
@@ -63,20 +63,20 @@ void open_clip(Clip* clip, bool multithreaded) {
 
 void close_clip(Clip* clip, bool wait) {
 	// destroy opengl texture in main thread
-	if (clip->texture != NULL) {
+	if (clip->texture != nullptr) {
 		delete clip->texture;
-		clip->texture = NULL;
+		clip->texture = nullptr;
 	}
 
 	for (int i=0;i<clip->effects.size();i++) {
 		if (clip->effects.at(i)->is_open()) clip->effects.at(i)->close();
 	}
 
-	if (clip->fbo != NULL) {
+	if (clip->fbo != nullptr) {
 		delete clip->fbo[0];
 		delete clip->fbo[1];
 		delete [] clip->fbo;
-		clip->fbo = NULL;
+		clip->fbo = nullptr;
 	}
 
 	if (clip_uses_cacher(clip)) {
@@ -91,7 +91,7 @@ void close_clip(Clip* clip, bool wait) {
 			close_clip_worker(clip);
 		}
 	} else {
-		if (clip->media != NULL && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
+		if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
 			closeActiveClips(clip->media->to_sequence());
 
 		clip->open = false;
@@ -129,7 +129,7 @@ void get_clip_frame(Clip* c, long playhead) {
 			second_pts *= 2;
 		}
 
-		AVFrame* target_frame = NULL;
+		AVFrame* target_frame = nullptr;
 
 		bool reset = false;
 		bool cache = true;
@@ -222,7 +222,7 @@ void get_clip_frame(Clip* c, long playhead) {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
-							if (!config.fast_seeking) target_frame = NULL;
+							if (!config.fast_seeking) target_frame = nullptr;
 							reset = true;
 							c->last_invalid_ts = target_pts;
 						} else {
@@ -231,7 +231,7 @@ void get_clip_frame(Clip* c, long playhead) {
 #endif
 							if (c->queue.size() >= c->max_queue_size) c->queue_remove_earliest();
 							c->ignore_reverse = true;
-							target_frame = NULL;
+							target_frame = nullptr;
 						}
 					}
 				}
@@ -240,13 +240,13 @@ void get_clip_frame(Clip* c, long playhead) {
 			reset = true;
 		}
 
-		if (target_frame == NULL || reset) {
+		if (target_frame == nullptr || reset) {
 			// reset cache
 			texture_failed = true;
-			dout << "[INFO] Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
+			qInfo() << "Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
 		}
 
-		if (target_frame != NULL) {
+		if (target_frame != nullptr) {
 			int nb_components = av_pix_fmt_desc_get(static_cast<enum AVPixelFormat>(c->pix_fmt))->nb_components;
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/nb_components);
 
@@ -291,7 +291,7 @@ double playhead_to_clip_seconds(Clip* c, long playhead) {
 	long clip_frame = playhead_to_clip_frame(c, playhead);
 	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame - 1;
 	double secs = ((double) clip_frame/c->sequence->frame_rate)*c->speed;
-	if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_FOOTAGE) secs *= c->media->to_footage()->speed;
+	if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) secs *= c->media->to_footage()->speed;
 	return secs;
 }
 
@@ -325,24 +325,24 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 		if (read_ret >= 0) {
 			int send_ret = avcodec_send_packet(c->codecCtx, c->pkt);
 			if (send_ret < 0) {
-				dout << "[ERROR] Failed to send packet to decoder." << send_ret;
+				qCritical() << "Failed to send packet to decoder." << send_ret;
 				return send_ret;
 			}
 		} else {
 			if (read_ret == AVERROR_EOF) {
-				int send_ret = avcodec_send_packet(c->codecCtx, NULL);
+				int send_ret = avcodec_send_packet(c->codecCtx, nullptr);
 				if (send_ret < 0) {
-					dout << "[ERROR] Failed to send packet to decoder." << send_ret;
+					qCritical() << "Failed to send packet to decoder." << send_ret;
 					return send_ret;
 				}
 			} else {
-				dout << "[ERROR] Could not read frame." << read_ret;
+				qCritical() << "Could not read frame." << read_ret;
 				return read_ret; // skips trying to find a frame at all
 			}
 		}
 	}
 	if (receive_ret < 0) {
-		if (receive_ret != AVERROR_EOF) dout << "[ERROR] Failed to receive packet from decoder." << receive_ret;
+		if (receive_ret != AVERROR_EOF) qCritical() << "Failed to receive packet from decoder." << receive_ret;
 		result = receive_ret;
 	}
 
@@ -365,11 +365,11 @@ void set_sequence(Sequence* s) {
 }
 
 void closeActiveClips(Sequence *s) {
-	if (s != NULL) {
+	if (s != nullptr) {
 		for (int i=0;i<s->clips.size();i++) {
 			Clip* c = s->clips.at(i);
-			if (c != NULL) {
-				if (c->media != NULL && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+			if (c != nullptr) {
+				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 					closeActiveClips(c->media->to_sequence());
 					if (c->open) close_clip(c, true);
 				} else if (c->open) {

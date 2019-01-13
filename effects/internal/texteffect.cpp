@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QWidget>
 #include <QtMath>
+#include <QMenu>
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
@@ -19,6 +20,8 @@
 #include "ui/comboboxex.h"
 #include "ui/colorbutton.h"
 #include "ui/fontcombobox.h"
+#include "dialogs/texteditdialog.h"
+#include "mainwindow.h"
 
 TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	Effect(c, em)
@@ -26,46 +29,49 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	enable_superimpose = true;
 	//enable_shader = true;
 
-	text_val = add_row("Text")->add_field(EFFECT_FIELD_STRING, "text", 2);
+    text_val = add_row(tr("Text"))->add_field(EFFECT_FIELD_STRING, "text", 2);
+	QTextEdit* text_widget = static_cast<QTextEdit*>(text_val->ui_element);
+	text_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(text_widget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(text_edit_menu()));
 
-	set_font_combobox = add_row("Font")->add_field(EFFECT_FIELD_FONT, "font", 2);
+    set_font_combobox = add_row(tr("Font"))->add_field(EFFECT_FIELD_FONT, "font", 2);
 
-	size_val = add_row("Size")->add_field(EFFECT_FIELD_DOUBLE, "size", 2);
+    size_val = add_row(tr("Size"))->add_field(EFFECT_FIELD_DOUBLE, "size", 2);
 	size_val->set_double_minimum_value(0);
 
-	set_color_button = add_row("Color")->add_field(EFFECT_FIELD_COLOR, "color", 2);
+    set_color_button = add_row(tr("Color"))->add_field(EFFECT_FIELD_COLOR, "color", 2);
 
-	EffectRow* alignment_row = add_row("Alignment");
+    EffectRow* alignment_row = add_row(tr("Alignment"));
 	halign_field = alignment_row->add_field(EFFECT_FIELD_COMBO, "halign");
-	halign_field->add_combo_item("Left", Qt::AlignLeft);
-	halign_field->add_combo_item("Center", Qt::AlignHCenter);
-	halign_field->add_combo_item("Right", Qt::AlignRight);
-	halign_field->add_combo_item("Justify", Qt::AlignJustify);
+    halign_field->add_combo_item(tr("Left"), Qt::AlignLeft);
+    halign_field->add_combo_item(tr("Center"), Qt::AlignHCenter);
+    halign_field->add_combo_item(tr("Right"), Qt::AlignRight);
+    halign_field->add_combo_item(tr("Justify"), Qt::AlignJustify);
 
 	valign_field = alignment_row->add_field(EFFECT_FIELD_COMBO, "valign");
-	valign_field->add_combo_item("Top", Qt::AlignTop);
-	valign_field->add_combo_item("Center", Qt::AlignVCenter);
-	valign_field->add_combo_item("Bottom", Qt::AlignBottom);
+    valign_field->add_combo_item(tr("Top"), Qt::AlignTop);
+    valign_field->add_combo_item(tr("Center"), Qt::AlignVCenter);
+    valign_field->add_combo_item(tr("Bottom"), Qt::AlignBottom);
 
-	word_wrap_field = add_row("Word Wrap")->add_field(EFFECT_FIELD_BOOL, "wordwrap", 2);
+    word_wrap_field = add_row(tr("Word Wrap"))->add_field(EFFECT_FIELD_BOOL, "wordwrap", 2);
 
-	outline_bool = add_row("Outline")->add_field(EFFECT_FIELD_BOOL, "outline", 2);
-	outline_color = add_row("Outline Color")->add_field(EFFECT_FIELD_COLOR, "outlinecolor", 2);
-	outline_width = add_row("Outline Width")->add_field(EFFECT_FIELD_DOUBLE, "outlinewidth", 2);
+    outline_bool = add_row(tr("Outline"))->add_field(EFFECT_FIELD_BOOL, "outline", 2);
+    outline_color = add_row(tr("Outline Color"))->add_field(EFFECT_FIELD_COLOR, "outlinecolor", 2);
+    outline_width = add_row(tr("Outline Width"))->add_field(EFFECT_FIELD_DOUBLE, "outlinewidth", 2);
 	outline_width->set_double_minimum_value(0);
 
-	shadow_bool = add_row("Shadow")->add_field(EFFECT_FIELD_BOOL, "shadow", 2);
-	shadow_color = add_row("Shadow Color")->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
-	shadow_distance = add_row("Shadow Distance")->add_field(EFFECT_FIELD_DOUBLE, "shadowdistance", 2);
+    shadow_bool = add_row(tr("Shadow"))->add_field(EFFECT_FIELD_BOOL, "shadow", 2);
+    shadow_color = add_row(tr("Shadow Color"))->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
+    shadow_distance = add_row(tr("Shadow Distance"))->add_field(EFFECT_FIELD_DOUBLE, "shadowdistance", 2);
 	shadow_distance->set_double_minimum_value(0);
-	shadow_softness = add_row("Shadow Softness")->add_field(EFFECT_FIELD_DOUBLE, "shadowsoftness", 2);
+    shadow_softness = add_row(tr("Shadow Softness"))->add_field(EFFECT_FIELD_DOUBLE, "shadowsoftness", 2);
 	shadow_softness->set_double_minimum_value(0);
-	shadow_opacity = add_row("Shadow Opacity")->add_field(EFFECT_FIELD_DOUBLE, "shadowopacity", 2);
+    shadow_opacity = add_row(tr("Shadow Opacity"))->add_field(EFFECT_FIELD_DOUBLE, "shadowopacity", 2);
 	shadow_opacity->set_double_minimum_value(0);
 	shadow_opacity->set_double_maximum_value(100);
 
 	size_val->set_double_default_value(48);
-	text_val->set_string_value("Sample Text");
+    text_val->set_string_value(tr("Sample Text"));
 	halign_field->set_combo_index(1);
 	valign_field->set_combo_index(1);
 	word_wrap_field->set_bool_value(true);
@@ -136,7 +142,6 @@ void TextEffect::redraw(double timecode) {
 
 		switch (halign_field->get_combo_data(timecode).toInt()) {
 		case Qt::AlignLeft: text_x = 0; break;
-		case Qt::AlignHCenter: text_x = (width/2) - (fm.width(lines.at(i))/2); break;
 		case Qt::AlignRight: text_x = width - fm.width(lines.at(i)); break;
 		case Qt::AlignJustify:
 			// add spaces until the string is too big
@@ -161,12 +166,23 @@ void TextEffect::redraw(double timecode) {
 				}
 			}
 			break;
+		case Qt::AlignHCenter:
+		default:
+			text_x = (width/2) - (fm.width(lines.at(i))/2);
+			break;
 		}
 
 		switch (valign_field->get_combo_data(timecode).toInt()) {
-		case Qt::AlignTop: text_y = (fm.height()*i)+fm.ascent(); break;
-		case Qt::AlignVCenter: text_y = ((height/2) - (text_height/2) - fm.descent()) + (fm.height()*(i+1)); break;
-		case Qt::AlignBottom: text_y = (height - text_height - fm.descent()) + (fm.height()*(i+1)); break;
+		case Qt::AlignTop:
+			text_y = (fm.height()*i)+fm.ascent();
+			break;
+		case Qt::AlignBottom:
+			text_y = (height - text_height - fm.descent()) + (fm.height()*(i+1));
+			break;
+		case Qt::AlignVCenter:
+		default:
+			text_y = ((height/2) - (text_height/2) - fm.descent()) + (fm.height()*(i+1));
+			break;
 		}
 
 		path.addText(text_x, text_y, font, lines.at(i));
@@ -196,6 +212,24 @@ void TextEffect::shadow_enable(bool e) {
 	shadow_distance->set_enabled(e);
 	shadow_softness->set_enabled(e);
 	shadow_opacity->set_enabled(e);
+}
+
+void TextEffect::text_edit_menu() {
+	QMenu menu;
+
+    menu.addAction(tr("&Edit Text"), this, SLOT(open_text_edit()));
+
+	menu.exec(QCursor::pos());
+}
+
+void TextEffect::open_text_edit() {
+	TextEditDialog ted(mainWindow, text_val->get_current_data().toString());
+	ted.exec();
+	QString result = ted.get_string();
+	if (!result.isEmpty()) {
+		text_val->set_current_data(result);
+		text_val->ui_element_change();
+	}
 }
 
 void TextEffect::outline_enable(bool e) {

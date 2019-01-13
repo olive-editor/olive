@@ -43,7 +43,7 @@ const EffectMeta* get_meta_from_name(const QString& name) {
 			return &effects.at(j);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
@@ -67,7 +67,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 	// wait for effects to be loaded
 	panel_effect_controls->effects_loaded.lock();
 
-	const EffectMeta* meta = NULL;
+	const EffectMeta* meta = nullptr;
 
 	// find effect with this name
 	if (!effect_name.isEmpty()) {
@@ -153,7 +153,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 			if (type == LOAD_TYPE_VERSION) {
 				int proj_version = stream.readElementText().toInt();
 				if (proj_version < MIN_SAVE_VERSION && proj_version > SAVE_VERSION) {
-					if (QMessageBox::warning(mainWindow, "Version Mismatch", "This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                    if (QMessageBox::warning(
+                                mainWindow,
+                                tr("Version Mismatch"),
+                                tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),
+                                QMessageBox::Yes,
+                                QMessageBox::No) == QMessageBox::No) {
 						show_err = false;
 						return false;
 					}
@@ -168,7 +173,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 						switch (type) {
 						case MEDIA_TYPE_FOLDER:
 						{
-							Media* folder = panel_project->new_folder(0);
+							Media* folder = panel_project->new_folder(nullptr);
 							folder->temp_id2 = 0;
 							for (int j=0;j<stream.attributes().size();j++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -209,19 +214,19 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
 										if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
 											m->url = proj_dir_test;
-											dout << "[INFO] Matched" << attr.value().toString() << "relative to project's current directory";
+											qInfo() << "Matched" << attr.value().toString() << "relative to project's current directory";
 										} else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
 											m->url = internal_proj_dir_test;
-											dout << "[INFO] Matched" << attr.value().toString() << "relative to project's internal directory";
+											qInfo() << "Matched" << attr.value().toString() << "relative to project's internal directory";
 										} else if (m->url.contains('%')) {
 											// hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
 											m->url = internal_proj_dir_test;
-											dout << "[INFO] Guess image sequence" << attr.value().toString() << "path to project's internal directory";
+											qInfo() << "Guess image sequence" << attr.value().toString() << "path to project's internal directory";
 										} else {
-											dout << "[INFO] Failed to match" << attr.value().toString() << "to file";
+											qInfo() << "Failed to match" << attr.value().toString() << "to file";
 										}
 									} else {
-										dout << "[INFO] Matched" << attr.value().toString() << "with absolute path";
+										qInfo() << "Matched" << attr.value().toString() << "with absolute path";
 									}
 								} else if (attr.name() == "duration") {
 									m->length = attr.value().toLongLong();
@@ -238,7 +243,11 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
 							item->set_footage(m);
 
-							project_model.appendChild(find_loaded_folder_by_id(folder), item);
+							if (folder == 0) {
+								project_model.appendChild(nullptr, item);
+							} else {
+								find_loaded_folder_by_id(folder)->appendChild(item);
+							}
 
 							// analyze media to see if it's the same
 							loaded_media_items.append(item);
@@ -246,7 +255,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							break;
 						case MEDIA_TYPE_SEQUENCE:
 						{
-							Media* parent = NULL;
+							Media* parent = nullptr;
 							Sequence* s = new Sequence();
 
 							// load attributes about sequence
@@ -273,6 +282,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									open_seq = s;
 								} else if (attr.name() == "workarea") {
 									s->using_workarea = (attr.value() == "1");
+								} else if (attr.name() == "workareaEnabled") {
+									s->enable_workarea = (attr.value() == "1");
 								} else if (attr.name() == "workareaIn") {
 									s->workarea_in = attr.value().toLong();
 								} else if (attr.name() == "workareaOut") {
@@ -298,8 +309,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									s->markers.append(m);
 								} else if (stream.name() == "transition" && stream.isStartElement()) {
 									TransitionData td;
-									td.otc = NULL;
-									td.ctc = NULL;
+									td.otc = nullptr;
+									td.ctc = nullptr;
 									for (int j=0;j<stream.attributes().size();j++) {
 										const QXmlStreamAttribute& attr = stream.attributes().at(j);
 										if (attr.name() == "id") {
@@ -319,7 +330,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									// backwards compatibility code
 									c->autoscale = false;
 
-									c->media = NULL;
+									c->media = nullptr;
 
 									for (int j=0;j<stream.attributes().size();j++) {
 										const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -364,7 +375,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 											media_type = MEDIA_TYPE_SEQUENCE;
 
 											// since we haven't finished loading sequences, we defer linking this until later
-											c->media = NULL;
+											c->media = nullptr;
 											c->media_stream = attr.value().toInt();
 											loaded_clips.append(c);
 										}
@@ -433,7 +444,11 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									if (!found) {
 										correct_clip->linked.removeAt(j);
 										j--;
-										if (QMessageBox::warning(mainWindow, "Invalid Clip Link", "This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                                        if (QMessageBox::warning(mainWindow,
+                                                                 tr("Invalid Clip Link"),
+                                                                 tr("This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?"),
+                                                                 QMessageBox::Yes,
+                                                                 QMessageBox::No) == QMessageBox::No) {
 											delete s;
 											return false;
 										}
@@ -462,16 +477,16 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 								const TransitionData& td = transition_data.at(i);
 								Clip* primary = td.otc;
 								Clip* secondary = td.ctc;
-								if (primary != NULL || secondary != NULL) {
-									if (primary == NULL) {
+								if (primary != nullptr || secondary != nullptr) {
+									if (primary == nullptr) {
 										primary = secondary;
-										secondary = NULL;
+										secondary = nullptr;
 									}
 									const EffectMeta* meta = get_meta_from_name(td.name);
-									if (meta == NULL) {
-										dout << "[WARNING] Failed to link transition with name:" << td.name;
-										if (td.otc != NULL) td.otc->opening_transition = -1;
-										if (td.ctc != NULL) td.ctc->closing_transition = -1;
+									if (meta == nullptr) {
+										qWarning() << "Failed to link transition with name:" << td.name;
+										if (td.otc != nullptr) td.otc->opening_transition = -1;
+										if (td.ctc != nullptr) td.ctc->closing_transition = -1;
 									} else {
 										emit start_create_dual_transition(&td, primary, secondary, meta);
 
@@ -480,7 +495,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 								}
 							}
 
-							Media* m = panel_project->new_sequence(NULL, s, false, parent);
+							Media* m = panel_project->new_sequence(nullptr, s, false, parent);
 
 							loaded_sequences.append(m);
 						}
@@ -497,14 +512,14 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 }
 
 Media* LoadThread::find_loaded_folder_by_id(int id) {
-	if (id == 0) return NULL;
+	if (id == 0) return nullptr;
 	for (int j=0;j<loaded_folders.size();j++) {
 		Media* parent_item = loaded_folders.at(j);
 		if (parent_item->temp_id == id) {
 			return parent_item;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void LoadThread::run() {
@@ -512,7 +527,7 @@ void LoadThread::run() {
 
 	QFile file(project_url);
 	if (!file.open(QIODevice::ReadOnly)) {
-		dout << "[ERROR] Could not open file";
+		qCritical() << "Could not open file";
 		return;
 	}
 
@@ -532,7 +547,7 @@ void LoadThread::run() {
 	show_err = true;
 
 	// temp variables for loading (unnecessary?)
-	open_seq = NULL;
+	open_seq = nullptr;
 	loaded_folders.clear();
 	loaded_media_items.clear();
 	loaded_clips.clear();
@@ -566,7 +581,11 @@ void LoadThread::run() {
 		for (int i=0;i<loaded_folders.size();i++) {
 			Media* folder = loaded_folders.at(i);
 			int parent = folder->temp_id2;
-			project_model.appendChild(find_loaded_folder_by_id(parent), folder);
+			if (folder->temp_id2 == 0) {
+				project_model.appendChild(nullptr, folder);
+			} else {
+				find_loaded_folder_by_id(parent)->appendChild(folder);
+			}
 		}
 
 		cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);
@@ -582,7 +601,7 @@ void LoadThread::run() {
 			xml_error = false;
 			if (show_err) emit error();
 		} else if (stream.hasError()) {
-			error_str = stream.errorString() + " - Line: " + QString::number(stream.lineNumber()) + " Col:" + QString::number(stream.columnNumber());
+            error_str = tr("%1 - Line: %2 Col: %3").arg(stream.errorString(), QString::number(stream.lineNumber()), QString::number(stream.columnNumber()));
 			xml_error = true;
 			emit error();
 			cont = false;
@@ -591,7 +610,7 @@ void LoadThread::run() {
 			// attach nested sequence clips to their sequences
 			for (int i=0;i<loaded_clips.size();i++) {
 				for (int j=0;j<loaded_sequences.size();j++) {
-					if (loaded_clips.at(i)->media == NULL && loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->to_sequence()->save_id) {
+					if (loaded_clips.at(i)->media == nullptr && loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->to_sequence()->save_id) {
 						loaded_clips.at(i)->media = loaded_sequences.at(j);
 						loaded_clips.at(i)->refresh();
 						break;
@@ -621,10 +640,16 @@ void LoadThread::cancel() {
 
 void LoadThread::error_func() {
 	if (xml_error) {
-		dout << "[ERROR] Error parsing XML." << error_str;
-		QMessageBox::critical(mainWindow, "XML Parsing Error", "Couldn't load '" + project_url + "'. " + error_str, QMessageBox::Ok);
+		qCritical() << "Error parsing XML." << error_str;
+        QMessageBox::critical(mainWindow,
+                              tr("XML Parsing Error"),
+                              tr("Couldn't load '%1'. %2").arg(project_url, error_str),
+                              QMessageBox::Ok);
 	} else {
-		QMessageBox::critical(mainWindow, "Project Load Error", "Error loading project: " + error_str, QMessageBox::Ok);
+        QMessageBox::critical(mainWindow,
+                              tr("Project Load Error"),
+                              tr("Error loading project: %1").arg(error_str),
+                              QMessageBox::Ok);
 	}
 }
 
@@ -649,7 +674,7 @@ void LoadThread::success_func() {
 	}
 
 	mainWindow->setWindowModified(autorecovery);
-	if (open_seq != NULL) set_sequence(open_seq);
+	if (open_seq != nullptr) set_sequence(open_seq);
 	update_ui(false);
 }
 
@@ -685,7 +710,7 @@ void LoadThread::create_effect_ui(
 
 	if (cancelled) return;
 	if (type == TA_NO_TRANSITION) {
-		if (meta == NULL) {
+		if (meta == nullptr) {
 			// create void effect
 			VoidEffect* ve = new VoidEffect(c, *effect_name);
 			ve->set_enabled(effect_enabled);
@@ -699,7 +724,7 @@ void LoadThread::create_effect_ui(
 			c->effects.append(e);
 		}
 	} else {
-		int transition_index = create_transition(c, NULL, meta);
+		int transition_index = create_transition(c, nullptr, meta);
 		Transition* t = c->sequence->transitions.at(transition_index);
 		if (effect_length > -1) t->set_length(effect_length);
 		t->set_enabled(effect_enabled);
@@ -718,7 +743,7 @@ void LoadThread::create_effect_ui(
 void LoadThread::create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta) {
 	int transition_index = create_transition(primary, secondary, meta);
 	primary->sequence->transitions.at(transition_index)->set_length(td->length);
-	if (td->otc != NULL) td->otc->opening_transition = transition_index;
-	if (td->ctc != NULL) td->ctc->closing_transition = transition_index;
+	if (td->otc != nullptr) td->otc->opening_transition = transition_index;
+	if (td->ctc != nullptr) td->ctc->closing_transition = transition_index;
 	waitCond.wakeAll();
 }

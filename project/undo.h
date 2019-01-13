@@ -174,6 +174,8 @@ public:
 private:
 	Sequence* seq;
 
+    bool old_workarea_enabled;
+
 	bool old_enabled;
 	long old_in;
 	long old_out;

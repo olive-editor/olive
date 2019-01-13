@@ -57,13 +57,13 @@ enum ExportFormats {
 ExportDialog::ExportDialog(QWidget *parent) :
 	QDialog(parent)
 {
-	setWindowTitle("Export \"" + sequence->name + "\"");
+    setWindowTitle(tr("Export \"%1\"").arg(sequence->name));
 	setup_ui();
 
 	rangeCombobox->setCurrentIndex(0);
 	if (sequence->using_workarea) {
-		rangeCombobox->setEnabled(sequence->using_workarea);
-		rangeCombobox->setCurrentIndex(1);
+		rangeCombobox->setEnabled(true);
+		if (sequence->enable_workarea) rangeCombobox->setCurrentIndex(1);
 	}
 
 	format_strings.resize(FORMAT_SIZE);
@@ -286,22 +286,22 @@ void ExportDialog::format_changed(int index)
 		default_acodec = 1;
 		break;
 	default:
-		dout << "[ERROR] Invalid format selection - this is a bug, please inform the developers";
+		qCritical() << "Invalid format selection - this is a bug, please inform the developers";
 	}
 
 	AVCodec* codec_info;
 	for (int i=0;i<format_vcodecs.size();i++) {
 		codec_info = avcodec_find_encoder((enum AVCodecID) format_vcodecs.at(i));
-		if (codec_info == NULL) {
-			vcodecCombobox->addItem("NULL");
+		if (codec_info == nullptr) {
+			vcodecCombobox->addItem("nullptr");
 		} else {
 			vcodecCombobox->addItem(codec_info->long_name);
 		}
 	}
 	for (int i=0;i<format_acodecs.size();i++) {
 		codec_info = avcodec_find_encoder((enum AVCodecID) format_acodecs.at(i));
-		if (codec_info == NULL) {
-			acodecCombobox->addItem("NULL");
+		if (codec_info == nullptr) {
+			acodecCombobox->addItem("nullptr");
 		} else {
 			acodecCombobox->addItem(codec_info->long_name);
 		}
@@ -320,7 +320,12 @@ void ExportDialog::format_changed(int index)
 
 void ExportDialog::render_thread_finished() {
 	if (progressBar->value() < 100 && !cancelled) {
-		QMessageBox::critical(this, "Export Failed", "Export failed - " + export_error, QMessageBox::Ok);
+        QMessageBox::critical(
+                    this,
+                    tr("Export Failed"),
+                    tr("Export failed - %1").arg(export_error),
+                    QMessageBox::Ok
+                );
 	}
 	prep_ui_for_render(false);
 	panel_sequence_viewer->viewer_widget->makeCurrent();
@@ -337,7 +342,12 @@ void ExportDialog::prep_ui_for_render(bool r) {
 
 void ExportDialog::export_action() {
 	if (widthSpinbox->value()%2 == 1 || heightSpinbox->value()%2 == 1) {
-		QMessageBox::critical(this, "Invalid dimensions", "Export width and height must both be even numbers/divisible by 2.", QMessageBox::Ok);
+        QMessageBox::critical(
+                    this,
+                    tr("Invalid dimensions"),
+                    tr("Export width and height must both be even numbers/divisible by 2."),
+                    QMessageBox::Ok
+                );
 		return;
 	}
 
@@ -388,8 +398,13 @@ void ExportDialog::export_action() {
 			ext = "tif";
 			break;
 		default:
-			dout << "[ERROR] Invalid codec selection for an image sequence";
-			QMessageBox::critical(this, "Invalid codec", "Couldn't determine output parameters for the selected codec. This is a bug, please contact the developers.", QMessageBox::Ok);
+			qCritical() << "Invalid codec selection for an image sequence";
+            QMessageBox::critical(
+                        this,
+                        tr("Invalid codec"),
+                        tr("Couldn't determine output parameters for the selected codec. This is a bug, please contact the developers."),
+                        QMessageBox::Ok
+                    );
 			return;
 		}
 		break;
@@ -453,11 +468,21 @@ void ExportDialog::export_action() {
 		}
 		break;
 	default:
-		dout << "[ERROR] Invalid format - this is a bug, please inform the developers";
-		QMessageBox::critical(this, "Invalid format", "Couldn't determine output format. This is a bug, please contact the developers.", QMessageBox::Ok);
+		qCritical() << "Invalid format - this is a bug, please inform the developers";
+        QMessageBox::critical(
+                    this,
+                    tr("Invalid format"),
+                    tr("Couldn't determine output format. This is a bug, please contact the developers."),
+                    QMessageBox::Ok
+                );
 		return;
 	}
-	QString filename = QFileDialog::getSaveFileName(this, "Export Media", "", format_strings[formatCombobox->currentIndex()] + " (*." + ext + ")");
+    QString filename = QFileDialog::getSaveFileName(
+                this,
+                tr("Export Media"),
+                "",
+                format_strings[formatCombobox->currentIndex()] + " (*." + ext + ")"
+            );
 	if (!filename.isEmpty()) {
 		if (!filename.endsWith("." + ext, Qt::CaseInsensitive)) {
 			filename += "." + ext;
@@ -540,11 +565,11 @@ void ExportDialog::vcodec_changed(int index) {
 	compressionTypeCombobox->clear();
 	if ((format_vcodecs.size() > 0 && format_vcodecs.at(index) == AV_CODEC_ID_H264)) {
 		compressionTypeCombobox->setEnabled(true);
-		compressionTypeCombobox->addItem("Quality-based (Constant Rate Factor)", COMPRESSION_TYPE_CFR);
+        compressionTypeCombobox->addItem(tr("Quality-based (Constant Rate Factor)"), COMPRESSION_TYPE_CFR);
 //		compressionTypeCombobox->addItem("File size-based (Two-Pass)", COMPRESSION_TYPE_TARGETSIZE);
 //		compressionTypeCombobox->addItem("Average bitrate (Two-Pass)", COMPRESSION_TYPE_TARGETBR);
 	} else {
-		compressionTypeCombobox->addItem("Constant Bitrate", COMPRESSION_TYPE_CBR);
+        compressionTypeCombobox->addItem(tr("Constant Bitrate"), COMPRESSION_TYPE_CBR);
 		compressionTypeCombobox->setCurrentIndex(0);
 		compressionTypeCombobox->setEnabled(false);
 	}
@@ -557,17 +582,17 @@ void ExportDialog::comp_type_changed(int) {
 	switch (compressionTypeCombobox->currentData().toInt()) {
 	case COMPRESSION_TYPE_CBR:
 	case COMPRESSION_TYPE_TARGETBR:
-		videoBitrateLabel->setText("Bitrate (Mbps):");
+        videoBitrateLabel->setText(tr("Bitrate (Mbps):"));
 		videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence->height) - 4.5)));
 		break;
 	case COMPRESSION_TYPE_CFR:
-		videoBitrateLabel->setText("Quality (CRF):");
+        videoBitrateLabel->setText(tr("Quality (CRF):"));
 		videobitrateSpinbox->setValue(36);
 		videobitrateSpinbox->setMaximum(51);
-		videobitrateSpinbox->setToolTip("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = high quality\n51 = lowest quality possible");
+        videobitrateSpinbox->setToolTip(tr("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = high quality\n51 = lowest quality possible"));
 		break;
 	case COMPRESSION_TYPE_TARGETSIZE:
-		videoBitrateLabel->setText("Target File Size (MB):");
+        videoBitrateLabel->setText(tr("Target File Size (MB):"));
 		videobitrateSpinbox->setValue(100);
 		break;
 	}
@@ -576,59 +601,57 @@ void ExportDialog::comp_type_changed(int) {
 void ExportDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 
-	QHBoxLayout* horizontalLayout = new QHBoxLayout();
+    QHBoxLayout* format_layout = new QHBoxLayout();
 
-	horizontalLayout->addWidget(new QLabel("Format:"));
+    format_layout->addWidget(new QLabel(tr("Format:")));
 
 	formatCombobox = new QComboBox(this);
 
-	horizontalLayout->addWidget(formatCombobox);
+    format_layout->addWidget(formatCombobox);
 
-	verticalLayout->addLayout(horizontalLayout);
+    verticalLayout->addLayout(format_layout);
 
-	QHBoxLayout* horizontalLayout_4 = new QHBoxLayout();
+    QHBoxLayout* range_layout = new QHBoxLayout();
 
-	horizontalLayout_4->addWidget(new QLabel("Range:"));
+    range_layout->addWidget(new QLabel(tr("Range:")));
 
 	rangeCombobox = new QComboBox(this);
-	rangeCombobox->addItem("Entire Sequence");
-	rangeCombobox->addItem("In to Out");
+    rangeCombobox->addItem(tr("Entire Sequence"));
+    rangeCombobox->addItem(tr("In to Out"));
 
-	horizontalLayout_4->addWidget(rangeCombobox);
+    range_layout->addWidget(rangeCombobox);
 
-	verticalLayout->addLayout(horizontalLayout_4);
+    verticalLayout->addLayout(range_layout);
 
 	videoGroupbox = new QGroupBox(this);
-	videoGroupbox->setTitle("Video");
+    videoGroupbox->setTitle(tr("Video"));
 	videoGroupbox->setFlat(false);
 	videoGroupbox->setCheckable(true);
 
 	QGridLayout* videoGridLayout = new QGridLayout(videoGroupbox);
 
-	videoGridLayout->addWidget(new QLabel("Codec:"), 0, 0, 1, 1);
+    videoGridLayout->addWidget(new QLabel(tr("Codec:")), 0, 0, 1, 1);
 	vcodecCombobox = new QComboBox(videoGroupbox);
 	videoGridLayout->addWidget(vcodecCombobox, 0, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel("Width:"), 1, 0, 1, 1);
+    videoGridLayout->addWidget(new QLabel(tr("Width:")), 1, 0, 1, 1);
 	widthSpinbox = new QSpinBox(videoGroupbox);
 	widthSpinbox->setMaximum(16777216);
 	videoGridLayout->addWidget(widthSpinbox, 1, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel("Height:"), 2, 0, 1, 1);
+    videoGridLayout->addWidget(new QLabel(tr("Height:")), 2, 0, 1, 1);
 	heightSpinbox = new QSpinBox(videoGroupbox);
 	heightSpinbox->setMaximum(16777216);
 	videoGridLayout->addWidget(heightSpinbox, 2, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel("Frame Rate:"), 3, 0, 1, 1);
+    videoGridLayout->addWidget(new QLabel(tr("Frame Rate:")), 3, 0, 1, 1);
 	framerateSpinbox = new QDoubleSpinBox(videoGroupbox);
 	framerateSpinbox->setMaximum(60);
 	framerateSpinbox->setValue(0);
 	videoGridLayout->addWidget(framerateSpinbox, 3, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel("Compression Type:"), 4, 0, 1, 1);
-	compressionTypeCombobox = new QComboBox(videoGroupbox);
-	compressionTypeCombobox->addItem("Quality-based (Constant Rate Factor)");
-	compressionTypeCombobox->addItem("File size-based (Two-Pass)");
+    videoGridLayout->addWidget(new QLabel(tr("Compression Type:")), 4, 0, 1, 1);
+    compressionTypeCombobox = new QComboBox(videoGroupbox);
 	videoGridLayout->addWidget(compressionTypeCombobox, 4, 1, 1, 1);
 
 	videoBitrateLabel = new QLabel(videoGroupbox);
@@ -646,17 +669,17 @@ void ExportDialog::setup_ui() {
 
 	QGridLayout* audioGridLayout = new QGridLayout(audioGroupbox);
 
-	audioGridLayout->addWidget(new QLabel("Codec:"), 0, 0, 1, 1);
+    audioGridLayout->addWidget(new QLabel(tr("Codec:")), 0, 0, 1, 1);
 	acodecCombobox = new QComboBox(audioGroupbox);
 	audioGridLayout->addWidget(acodecCombobox, 0, 1, 1, 1);
 
-	audioGridLayout->addWidget(new QLabel("Sampling Rate:"), 1, 0, 1, 1);
+    audioGridLayout->addWidget(new QLabel(tr("Sampling Rate:")), 1, 0, 1, 1);
 	samplingRateSpinbox = new QSpinBox(audioGroupbox);
 	samplingRateSpinbox->setMaximum(96000);
 	samplingRateSpinbox->setValue(0);
 	audioGridLayout->addWidget(samplingRateSpinbox, 1, 1, 1, 1);
 
-	audioGridLayout->addWidget(new QLabel("Bitrate (Kbps/CBR):"), 3, 0, 1, 1);
+    audioGridLayout->addWidget(new QLabel(tr("Bitrate (Kbps/CBR):")), 3, 0, 1, 1);
 	audiobitrateSpinbox = new QSpinBox(audioGroupbox);
 	audiobitrateSpinbox->setMaximum(320);
 	audiobitrateSpinbox->setValue(256);
