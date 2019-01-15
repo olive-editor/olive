@@ -537,7 +537,7 @@ int Effect::gizmo_count(){
 void Effect::refresh() {}
 
 void Effect::field_changed() {
-	panel_sequence_viewer->viewer_widget->update();
+	panel_sequence_viewer->viewer_widget->frame_update();
 	panel_graph_editor->update_panel();
 }
 

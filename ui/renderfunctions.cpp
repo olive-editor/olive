@@ -83,6 +83,7 @@ void process_effect(QOpenGLContext* ctx,
 					GLTextureCoords& coords,
 					GLuint& composite_texture,
 					bool& fbo_switcher,
+					bool& texture_failed,
 					int data) {
 	if (e->is_enabled()) {
 		if (e->enable_coords) {
@@ -115,7 +116,8 @@ GLuint compose_sequence(Viewer* viewer,
 						QVector<Clip*>& nests,
 						bool video,
 						bool render_audio,
-						Effect** gizmos) {
+						Effect** gizmos,
+						bool& texture_failed) {
 	GLint current_fbo = 0;
 	if (video) {
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
@@ -235,7 +237,7 @@ GLuint compose_sequence(Viewer* viewer,
 							c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
 						}
-						get_clip_frame(c, playhead);
+						get_clip_frame(c, playhead, texture_failed);
 						textureID = c->texture->textureId();
 						break;
 					case MEDIA_TYPE_SEQUENCE:
@@ -281,7 +283,7 @@ GLuint compose_sequence(Viewer* viewer,
 						// for nested sequences
 						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
 							nests.append(c);
-							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos);
+							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed);
 							nests.removeLast();
 							fbo_switcher = true;
 						}
@@ -319,7 +321,7 @@ GLuint compose_sequence(Viewer* viewer,
 
 					for (int j=0;j<c->effects.size();j++) {
 						Effect* e = c->effects.at(j);
-						process_effect(ctx, c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
+						process_effect(ctx, c, e, timecode, coords, composite_texture, fbo_switcher, texture_failed, TA_NO_TRANSITION);
 
 						if (e->are_gizmos_enabled()) {
 							if (first_gizmo_effect == nullptr) first_gizmo_effect = e;
@@ -338,14 +340,14 @@ GLuint compose_sequence(Viewer* viewer,
 					if (c->get_opening_transition() != nullptr) {
 						int transition_progress = playhead - c->get_timeline_in_with_transition();
 						if (transition_progress < c->get_opening_transition()->get_length()) {
-							process_effect(ctx, c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_OPENING_TRANSITION);
+							process_effect(ctx, c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, texture_failed, TA_OPENING_TRANSITION);
 						}
 					}
 
 					if (c->get_closing_transition() != nullptr) {
 						int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
 						if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
-							process_effect(ctx, c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_CLOSING_TRANSITION);
+							process_effect(ctx, c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, texture_failed, TA_CLOSING_TRANSITION);
 						}
 					}
 					// EFFECT CODE END
@@ -452,7 +454,7 @@ GLuint compose_sequence(Viewer* viewer,
 				if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 						nests.append(c);
-						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos);
+						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed);
 						nests.removeLast();
 					} else {
 						if (c->lock.tryLock()) {

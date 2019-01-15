@@ -33,8 +33,6 @@ void ViewerWindow::paintGL() {
 		double widget_ar = double(width()) / double(height());
 
 		if (widget_ar > ar) {
-			/*widget_width = widget_height * aspect_ratio;
-			widget_x = (width() / 2) - (widget_width / 2);*/
 			double width = 1.0 * ar / widget_ar;
 			left = (1.0 - width)*0.5;
 			right = left + width;

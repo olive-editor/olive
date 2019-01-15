@@ -57,7 +57,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	dragging(false),
 	gizmos(nullptr),
 	selected_gizmo(nullptr),
-	just_repaint(false),
 	window(nullptr)
 {
 	setMouseTracking(true);
@@ -73,6 +72,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	renderer = new RenderThread();
 	renderer->start(QThread::HighPriority);
 	connect(renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
+	connect(renderer, SIGNAL(finished()), renderer, SLOT(deleteLater()));
 }
 
 ViewerWidget::~ViewerWidget() {
@@ -80,15 +80,11 @@ ViewerWidget::~ViewerWidget() {
 		window->close();
 		delete window;
 	}
+	renderer->cancel();
 }
 
 void ViewerWidget::delete_function() {
-	// destroy all textures as well
-	if (viewer->seq != nullptr) {
-		makeCurrent();
-		closeActiveClips(viewer->seq);
-		doneCurrent();
-	}
+	renderer->start_render(context(), nullptr);
 }
 
 void ViewerWidget::set_waveform_scroll(int s) {
@@ -173,7 +169,6 @@ void ViewerWidget::save_frame() {
 }
 
 void ViewerWidget::queue_repaint() {
-	just_repaint = true;
 	update();
 }
 
@@ -222,14 +217,10 @@ void ViewerWidget::retry() {
 void ViewerWidget::initializeGL() {
 	initializeOpenGLFunctions();
 
-	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
-
 	if (window != nullptr) {
 		delete window;
 	}
 	window = new ViewerWindow(context());
-
-//	retry_timer.start();
 }
 
 void ViewerWidget::frame_update() {
@@ -246,7 +237,8 @@ void ViewerWidget::frame_update() {
 
 		// render the audio
 		QVector<Clip*> nests;
-		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos);
+		bool texture_failed;
+		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos, texture_failed);
 	}
 }
 
@@ -482,7 +474,7 @@ void ViewerWidget::paintGL() {
 
 		renderer->mutex.unlock();
 
-		if (texture_failed) {
+		if (renderer->did_texture_fail()) {
 			doneCurrent();
 			renderer->start_render(context(), viewer->seq);
 		}

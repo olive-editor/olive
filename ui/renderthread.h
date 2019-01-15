@@ -21,9 +21,16 @@ public:
 	GLuint texColorBuffer;
 	void paint();
 	void start_render(QOpenGLContext* share, Sequence* s, int idivider = 0);
+	bool did_texture_fail();
+	void cancel();
 signals:
 	void ready();
 private:
+	// cleanup functions
+	void delete_texture();
+	void delete_fbo();
+	void delete_ctx();
+
 	QWaitCondition waitCond;
 	QOffscreenSurface surface;
 	QOpenGLContext* share_ctx;
@@ -33,6 +40,8 @@ private:
 	int tex_width;
 	int tex_height;
 	bool queued;
+	bool texture_failed;
+	bool running;
 };
 
 #endif // RENDERTHREAD_H

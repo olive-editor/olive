@@ -28,6 +28,8 @@ public:
 	ViewerWidget(QWidget *parent = 0);
 	~ViewerWidget();
 
+	void delete_function();
+
 	void paintGL();
 	void initializeGL();
 	Viewer* viewer;
@@ -45,11 +47,8 @@ public:
 
 	void frame_update();
 public slots:
-	void delete_function();
 	void set_waveform_scroll(int s);
 protected:
-//	void paintEvent(QPaintEvent *e);
-//    void resizeGL(int w, int h);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
@@ -68,7 +67,6 @@ private:
 	void move_gizmos(QMouseEvent *event, bool done);
 	RenderThread* renderer;
 	ViewerWindow* window;
-	bool just_repaint;
 private slots:
 	void retry();
 	void show_context_menu();

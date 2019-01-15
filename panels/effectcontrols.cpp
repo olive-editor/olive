@@ -34,7 +34,7 @@ EffectControls::EffectControls(QWidget *parent) :
 	QDockWidget(parent),
 	multiple(false),
 	zoom(1),
-    panel_name(tr("Effects: ")),
+	panel_name(tr("Effects: ")),
 	mode(TA_NO_TRANSITION)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -94,7 +94,7 @@ void EffectControls::menu_select(QAction* q) {
 		update_ui(true);
 	} else {
 		reload_clips();
-		panel_sequence_viewer->viewer_widget->update();
+		panel_sequence_viewer->viewer_widget->frame_update();
 	}
 }
 
@@ -303,7 +303,7 @@ void EffectControls::setup_ui() {
 
 	QPushButton* btnAddVideoEffect = new QPushButton(veHeader);
 	btnAddVideoEffect->setIcon(QIcon(":/icons/add-effect.png"));
-    btnAddVideoEffect->setToolTip(tr("Add Video Effect"));
+	btnAddVideoEffect->setToolTip(tr("Add Video Effect"));
 	veHeaderLayout->addWidget(btnAddVideoEffect);
 	connect(btnAddVideoEffect, SIGNAL(clicked(bool)), this, SLOT(video_effect_click()));
 
@@ -314,14 +314,14 @@ void EffectControls::setup_ui() {
 	font.setPointSize(9);
 	lblVideoEffects->setFont(font);
 	lblVideoEffects->setAlignment(Qt::AlignCenter);
-    lblVideoEffects->setText(tr("VIDEO EFFECTS"));
+	lblVideoEffects->setText(tr("VIDEO EFFECTS"));
 	veHeaderLayout->addWidget(lblVideoEffects);
 
 	veHeaderLayout->addStretch();
 
 	QPushButton* btnAddVideoTransition = new QPushButton(veHeader);
 	btnAddVideoTransition->setIcon(QIcon(":/icons/add-transition.png"));
-    btnAddVideoTransition->setToolTip(tr("Add Video Transition"));
+	btnAddVideoTransition->setToolTip(tr("Add Video Transition"));
 	connect(btnAddVideoTransition, SIGNAL(clicked(bool)), this, SLOT(video_transition_click()));
 
 	veHeaderLayout->addWidget(btnAddVideoTransition);
@@ -351,7 +351,7 @@ void EffectControls::setup_ui() {
 
 	QPushButton* btnAddAudioEffect = new QPushButton(aeHeader);
 	btnAddAudioEffect->setIcon(QIcon(":/icons/add-effect.png"));
-    btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
+	btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
 	connect(btnAddAudioEffect, SIGNAL(clicked(bool)), this, SLOT(audio_effect_click()));
 	aeHeaderLayout->addWidget(btnAddAudioEffect);
 
@@ -360,14 +360,14 @@ void EffectControls::setup_ui() {
 	QLabel* lblAudioEffects = new QLabel(aeHeader);
 	lblAudioEffects->setFont(font);
 	lblAudioEffects->setAlignment(Qt::AlignCenter);
-    lblAudioEffects->setText(tr("AUDIO EFFECTS"));
+	lblAudioEffects->setText(tr("AUDIO EFFECTS"));
 	aeHeaderLayout->addWidget(lblAudioEffects);
 
 	aeHeaderLayout->addStretch();
 
 	QPushButton* btnAddAudioTransition = new QPushButton(aeHeader);
 	btnAddAudioTransition->setIcon(QIcon(":/icons/add-transition.png"));
-    btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
+	btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
 	connect(btnAddAudioTransition, SIGNAL(clicked(bool)), this, SLOT(audio_transition_click()));
 	aeHeaderLayout->addWidget(btnAddAudioTransition);
 
@@ -384,7 +384,7 @@ void EffectControls::setup_ui() {
 
 	lblMultipleClipsSelected = new QLabel(effects_area);
 	lblMultipleClipsSelected->setAlignment(Qt::AlignCenter);
-    lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
+	lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
 	effects_area_layout->addWidget(lblMultipleClipsSelected);
 
 	effects_area_layout->addStretch();

@@ -33,7 +33,6 @@ extern "C" {
 //#define GCF_DEBUG
 #endif
 
-bool texture_failed = false;
 bool rendering = false;
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
@@ -122,7 +121,7 @@ double get_timecode(Clip* c, long playhead) {
 	return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 }
 
-void get_clip_frame(Clip* c, long playhead) {
+void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 	if (c->finished_opening) {
 		const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 
@@ -249,7 +248,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		if (target_frame == nullptr || reset) {
 			// reset cache
 			texture_failed = true;
-//			qInfo() << "Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
+			qInfo() << "Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
 		}
 
 		if (target_frame != nullptr) {

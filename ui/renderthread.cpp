@@ -10,13 +10,16 @@
 #include "project/sequence.h"
 
 RenderThread::RenderThread() :
-	share_ctx(nullptr),
-	ctx(nullptr),
 	frameBuffer(0),
 	texColorBuffer(0),
+	share_ctx(nullptr),
+	ctx(nullptr),
+	seq(nullptr),
 	tex_width(-1),
 	tex_height(-1),
-	queued(false)
+	queued(false),
+	texture_failed(false),
+	running(true)
 {
 	surface.create();
 }
@@ -28,26 +31,23 @@ RenderThread::~RenderThread() {
 void RenderThread::run() {
 	mutex.lock();
 
-	bool running = true;
-
 	while (running) {
 		if (!queued) {
 			waitCond.wait(&mutex);
 		}
+		if (!running) {
+			break;
+		}
 		queued = false;
 
-		if (share_ctx != nullptr) {
-			if (ctx == nullptr) {
-				ctx = new QOpenGLContext();
-				ctx->setFormat(share_ctx->format());
-				ctx->setShareContext(share_ctx);
-				ctx->create();
-				ctx->makeCurrent(&surface);
-			}
 
+		if (share_ctx != nullptr) {
 			if (ctx != nullptr) {
+				ctx->makeCurrent(&surface);
+
 				// gen fbo
 				if (frameBuffer == 0) {
+					delete_fbo();
 					ctx->functions()->glGenFramebuffers(1, &frameBuffer);
 				}
 
@@ -55,13 +55,8 @@ void RenderThread::run() {
 				ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBuffer);
 
 				// gen texture
-				if (texColorBuffer == 0 || tex_width != seq->width || tex_height != seq->height) {\
-					if (texColorBuffer > 0) {
-						ctx->functions()->glFramebufferTexture2D(
-							GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0
-						);
-						glDeleteTextures(1, &texColorBuffer);
-					}
+				if (texColorBuffer == 0 || tex_width != seq->width || tex_height != seq->height) {
+					delete_texture();
 					glGenTextures(1, &texColorBuffer);
 					glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 					glTexImage2D(
@@ -91,12 +86,7 @@ void RenderThread::run() {
 		}
 	}
 
-	if (ctx != nullptr) {
-		if (texColorBuffer > 0) glDeleteTextures(1, &texColorBuffer);
-		if (frameBuffer > 0) ctx->functions()->glDeleteFramebuffers(1, &frameBuffer);
-		ctx->doneCurrent();
-		delete ctx;
-	}
+	delete_ctx();
 
 	mutex.unlock();
 }
@@ -118,7 +108,7 @@ void RenderThread::paint() {
 	Effect* gizmos; // does nothing yet
 	QVector<Clip*> nests;
 
-	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos);
+	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed);
 
 	glDisable(GL_DEPTH);
 	glDisable(GL_BLEND);
@@ -126,8 +116,61 @@ void RenderThread::paint() {
 }
 
 void RenderThread::start_render(QOpenGLContext *share, Sequence *s, int idivider) {
-	share_ctx = share;
+	if (s != seq && seq != nullptr) {
+		closeActiveClips(seq);
+	}
+
 	seq = s;
-	queued = true;
+
+	if (share != nullptr && (ctx == nullptr || ctx->shareContext() != share_ctx)) {
+		share_ctx = share;
+		delete_ctx();
+		ctx = new QOpenGLContext();
+		ctx->setFormat(share_ctx->format());
+		ctx->setShareContext(share_ctx);
+		ctx->create();
+		ctx->moveToThread(this);
+	}
+
+	if (seq != nullptr) {
+		queued = true;
+		waitCond.wakeAll();
+	}
+}
+
+bool RenderThread::did_texture_fail() {
+	return texture_failed;
+}
+
+void RenderThread::cancel() {
+	running = false;
 	waitCond.wakeAll();
+	wait();
+}
+
+void RenderThread::delete_texture() {
+	if (texColorBuffer > 0) {
+		ctx->functions()->glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0
+		);
+		glDeleteTextures(1, &texColorBuffer);
+	}
+	texColorBuffer = 0;
+}
+
+void RenderThread::delete_fbo() {
+	if (frameBuffer > 0) {
+		ctx->functions()->glDeleteFramebuffers(1, &frameBuffer);
+	}
+	frameBuffer = 0;
+}
+
+void RenderThread::delete_ctx() {
+	if (ctx != nullptr) {
+		delete_texture();
+		delete_fbo();
+		ctx->doneCurrent();
+		delete ctx;
+	}
+	ctx = nullptr;
 }

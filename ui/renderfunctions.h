@@ -15,6 +15,6 @@ GLuint compose_sequence(Viewer* viewer,
 						QVector<Clip*>& nests,
 						bool video,
 						bool render_audio,
-						Effect **gizmos);
+						Effect **gizmos, bool &texture_failed);
 
 #endif // RENDERFUNCTIONS_H
