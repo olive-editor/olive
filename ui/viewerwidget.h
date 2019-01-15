@@ -19,12 +19,14 @@ class EffectGizmo;
 class ViewerContainer;
 struct GLTextureCoords;
 class RenderThread;
+class ViewerWindow;
 
 class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
 {
 	Q_OBJECT
 public:
 	ViewerWidget(QWidget *parent = 0);
+	~ViewerWidget();
 
 	void paintGL();
 	void initializeGL();
@@ -40,23 +42,21 @@ public:
 	int waveform_scroll;
 
 	bool force_quit;
+
+	void frame_update();
 public slots:
 	void delete_function();
 	void set_waveform_scroll(int s);
 protected:
-	void paintEvent(QPaintEvent *e);
+//	void paintEvent(QPaintEvent *e);
 //    void resizeGL(int w, int h);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
-	QTimer retry_timer;
 	void drawTitleSafeArea();
 	bool dragging;
 	void seek_from_click(int x);
-//	GLuint compose_sequence(QVector<Clip *> &nests, bool video, bool render_audio);
-//	GLuint draw_clip(QOpenGLFramebufferObject *clip, GLuint texture, bool clear);
-//	void process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data);
 	Effect* gizmos;
 	int drag_start_x;
 	int drag_start_y;
@@ -67,13 +67,14 @@ private:
 	bool drawn_gizmos;
 	void move_gizmos(QMouseEvent *event, bool done);
 	RenderThread* renderer;
+	ViewerWindow* window;
 	bool just_repaint;
 private slots:
 	void retry();
 	void show_context_menu();
 	void save_frame();
-	void show_fullscreen();
-
+	void queue_repaint();
+	void fullscreen_menu_action(QAction* action);
 	void set_fit_zoom();
 	void set_custom_zoom();
 	void set_menu_zoom(QAction *action);

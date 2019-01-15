@@ -11,6 +11,7 @@
 struct Sequence;
 
 class RenderThread : public QThread {
+	Q_OBJECT
 public:
 	RenderThread();
 	~RenderThread();
@@ -20,6 +21,8 @@ public:
 	GLuint texColorBuffer;
 	void paint();
 	void start_render(QOpenGLContext* share, Sequence* s, int idivider = 0);
+signals:
+	void ready();
 private:
 	QWaitCondition waitCond;
 	QOffscreenSurface surface;
@@ -27,6 +30,9 @@ private:
 	QOpenGLContext* ctx;
 	Sequence* seq;
 	int divider;
+	int tex_width;
+	int tex_height;
+	bool queued;
 };
 
 #endif // RENDERTHREAD_H

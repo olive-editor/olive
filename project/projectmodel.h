@@ -9,9 +9,10 @@ class ProjectModel : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
-	ProjectModel(QObject* parent = 0);
+	ProjectModel(QObject* parent = nullptr);
 	~ProjectModel() override;
 
+	void make_root();
 	void destroy_root();
 	void clear();
 	Media* get_root();

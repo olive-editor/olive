@@ -158,8 +158,10 @@ void get_clip_frame(Clip* c, long playhead) {
 #endif
 						closest_frame = i;
 						break;
-					} else if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
-						closest_frame = i;
+					} else {
+						if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
+							closest_frame = i;
+						}
 					}
 				}
 
@@ -247,7 +249,7 @@ void get_clip_frame(Clip* c, long playhead) {
 		if (target_frame == nullptr || reset) {
 			// reset cache
 			texture_failed = true;
-			qInfo() << "Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
+//			qInfo() << "Frame queue couldn't keep up - either the user seeked or the system is overloaded (queue size:" << c->queue.size() << ")";
 		}
 
 		if (target_frame != nullptr) {

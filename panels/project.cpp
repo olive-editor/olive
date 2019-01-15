@@ -913,7 +913,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 				}
 				// save_folder(stream, item, type, set_ids_only);
 			} else {
-				int folder = (m->parentItem() != nullptr) ? m->parentItem()->temp_id : 0;
+				int folder = m->parentItem()->temp_id;
 				if (type == MEDIA_TYPE_FOOTAGE) {
 					Footage* f = m->to_footage();
 					f->save_id = media_id;

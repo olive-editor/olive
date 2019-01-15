@@ -23,6 +23,8 @@
 #include "ui/timelinewidget.h"
 #include "ui/renderfunctions.h"
 #include "ui/renderthread.h"
+#include "Ui/viewerwindow.h"
+#include "mainwindow.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -39,6 +41,8 @@
 #include <QDesktopWidget>
 #include <QInputDialog>
 #include <QApplication>
+#include <QScreen>
+#include <QMessageBox>
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -53,7 +57,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	dragging(false),
 	gizmos(nullptr),
 	selected_gizmo(nullptr),
-	just_repaint(false)
+	just_repaint(false),
+	window(nullptr)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -62,15 +67,19 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	format.setDepthBufferSize(24);
 	setFormat(format);
 
-	// error handler - retries after 50ms if we couldn't get the entire image
-	retry_timer.setInterval(50);
-	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
-
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 
 	renderer = new RenderThread();
 	renderer->start(QThread::HighPriority);
+	connect(renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
+}
+
+ViewerWidget::~ViewerWidget() {
+	if (window != nullptr) {
+		window->close();
+		delete window;
+	}
 }
 
 void ViewerWidget::delete_function() {
@@ -95,8 +104,18 @@ void ViewerWidget::show_context_menu() {
 	QAction* save_frame_as_image = menu.addAction(tr("Save Frame as Image..."));
 	connect(save_frame_as_image, SIGNAL(triggered(bool)), this, SLOT(save_frame()));
 
-	QAction* show_fullscreen_action = menu.addAction(tr("Show Fullscreen"));
-	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));
+	/*QAction* show_fullscreen_action = menu.addAction(tr("Show Fullscreen"));
+	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));*/
+	QMenu* fullscreen_menu = menu.addMenu(tr("Show Fullscreen"));
+	QList<QScreen*> screens = QGuiApplication::screens();
+	for (int i=0;i<screens.size();i++) {
+		QAction* screen_action = fullscreen_menu->addAction(tr("Screen %1: %2x%3").arg(
+																QString::number(i),
+																QString::number(screens.at(i)->size().width()),
+																QString::number(screens.at(i)->size().height())));
+		screen_action->setData(i);
+	}
+	connect(fullscreen_menu, SIGNAL(triggered(QAction*)), this, SLOT(fullscreen_menu_action(QAction*)));
 
 	QMenu zoom_menu(tr("Zoom"));
 	QAction* fit_zoom = zoom_menu.addAction(tr("Fit"));
@@ -153,8 +172,20 @@ void ViewerWidget::save_frame() {
 	}
 }
 
-void ViewerWidget::show_fullscreen() {
-	showFullScreen();
+void ViewerWidget::queue_repaint() {
+	just_repaint = true;
+	update();
+}
+
+void ViewerWidget::fullscreen_menu_action(QAction *action) {
+	if (window == nullptr) {
+		QMessageBox::critical(this, "Error", "Failed to create viewer window");
+	} else {
+		QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
+		window->showFullScreen();
+		window->setGeometry(selected_screen->geometry());
+//		window->show();
+	}
 }
 
 void ViewerWidget::set_fit_zoom() {
@@ -193,19 +224,41 @@ void ViewerWidget::initializeGL() {
 
 	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
 
-	retry_timer.start();
+	if (window != nullptr) {
+		delete window;
+	}
+	window = new ViewerWindow(context());
+
+//	retry_timer.start();
+}
+
+void ViewerWidget::frame_update() {
+	if (viewer->seq != nullptr) {
+		gizmos = nullptr;
+		drawn_gizmos = false;
+		force_quit = false;
+
+		bool render_audio = (viewer->playing || rendering);
+
+		// send context to other thread for drawing
+		doneCurrent();
+		renderer->start_render(context(), viewer->seq);
+
+		// render the audio
+		QVector<Clip*> nests;
+		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos);
+	}
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
 //{
 //}
 
-void ViewerWidget::paintEvent(QPaintEvent *e) {
-	if (!rendering && context()->thread() == this->thread()) {
-		makeCurrent();
+/*void ViewerWidget::paintEvent(QPaintEvent *e) {
+	if (!rendering) {
 		QOpenGLWidget::paintEvent(e);
 	}
-}
+}*/
 
 void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
@@ -393,8 +446,51 @@ void ViewerWidget::drawTitleSafeArea() {
 }
 
 void ViewerWidget::paintGL() {
-	retry_timer.stop();
+	if (renderer->mutex.tryLock(10)) {
+		makeCurrent();
 
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
+
+		glLoadIdentity();
+		glOrtho(0, 1, 1, 0, -1, 1);
+
+		glBegin(GL_QUADS);
+
+		glVertex2f(0, 0);
+		glTexCoord2f(0, 0);
+		glVertex2f(0, 1);
+		glTexCoord2f(1, 0);
+		glVertex2f(1, 1);
+		glTexCoord2f(1, 1);
+		glVertex2f(1, 0);
+		glTexCoord2f(0, 1);
+
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_TEXTURE_2D);
+
+		if (window != nullptr && window->isVisible()) {
+			window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height));
+		}
+
+		renderer->mutex.unlock();
+
+		if (texture_failed) {
+			doneCurrent();
+			renderer->start_render(context(), viewer->seq);
+		}
+	}
+
+//	retry_timer.stop();
+
+	/*
 	if (viewer->seq != nullptr) {
 		gizmos = nullptr;
 		drawn_gizmos = false;
@@ -410,53 +506,57 @@ void ViewerWidget::paintGL() {
 			// render the audio
 			QVector<Clip*> nests;
 			compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos);
-		}
-
-		// try to draw the texture from the other thread if we got it
-		if (renderer->mutex.tryLock(10)) {
-			makeCurrent();
-
-			glClearColor(0.0, 0.0, 0.0, 1.0);
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			glEnable(GL_TEXTURE_2D);
-
-			glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
-
-			glLoadIdentity();
-			glOrtho(0, 1, 1, 0, -1, 1);
-
-			glBegin(GL_QUADS);
-
-			glVertex2f(0, 0);
-			glTexCoord2f(0, 0);
-			glVertex2f(0, 1);
-			glTexCoord2f(1, 0);
-			glVertex2f(1, 1);
-			glTexCoord2f(1, 1);
-			glVertex2f(1, 0);
-			glTexCoord2f(0, 1);
-
-			glEnd();
-
-			glBindTexture(GL_TEXTURE_2D, 0);
-
-			glDisable(GL_TEXTURE_2D);
-
-			renderer->mutex.unlock();
-
-			if (texture_failed) {
-				qDebug() << "texture failed, retry called";
-				retry_timer.start();
-			}
 		} else {
-			qDebug() << "renderer failed, retry called";
-			retry_timer.start();
-			just_repaint = true;
-		}
-	}
+			// try to draw the texture from the other thread if we got it
+//			if (renderer->mutex.tryLock(10)) {
+				makeCurrent();
 
-	just_repaint = false;
+				glClearColor(0.0, 0.0, 0.0, 1.0);
+				glClear(GL_COLOR_BUFFER_BIT);
+
+				glEnable(GL_TEXTURE_2D);
+
+				glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
+
+				glLoadIdentity();
+				glOrtho(0, 1, 1, 0, -1, 1);
+
+				glBegin(GL_QUADS);
+
+				glVertex2f(0, 0);
+				glTexCoord2f(0, 0);
+				glVertex2f(0, 1);
+				glTexCoord2f(1, 0);
+				glVertex2f(1, 1);
+				glTexCoord2f(1, 1);
+				glVertex2f(1, 0);
+				glTexCoord2f(0, 1);
+
+				glEnd();
+
+				glBindTexture(GL_TEXTURE_2D, 0);
+
+				glDisable(GL_TEXTURE_2D);
+
+				if (window != nullptr && window->isVisible()) {
+					window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height));
+				}
+
+//				renderer->mutex.unlock();
+
+//				if (texture_failed) {
+//					qDebug() << "texture failed, retry called";
+//					retry_timer.start();
+//				}
+//			} else {
+//				qDebug() << "renderer failed, retry called";
+//				retry_timer.start();
+//				just_repaint = true;
+//			}
+		}
+
+		just_repaint = false;
+	}*/
 
 
 	/*drawn_gizmos = false;

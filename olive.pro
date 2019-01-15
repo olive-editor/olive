@@ -126,7 +126,8 @@ SOURCES += \
     dialogs/texteditdialog.cpp \
     dialogs/debugdialog.cpp \
     ui/renderthread.cpp \
-    ui/renderfunctions.cpp
+    ui/renderfunctions.cpp \
+    ui/viewerwindow.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -220,7 +221,8 @@ HEADERS += \
     dialogs/texteditdialog.h \
     dialogs/debugdialog.h \
     ui/renderthread.h \
-    ui/renderfunctions.h
+    ui/renderfunctions.h \
+    ui/viewerwindow.h
 
 FORMS +=
 

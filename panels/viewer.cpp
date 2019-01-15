@@ -44,7 +44,7 @@ Viewer::Viewer(QWidget *parent) :
 	seq(nullptr),
 	created_sequence(false),
 	cue_recording_internal(false),
-    panel_name(tr("Viewer: ")),
+	panel_name(tr("Viewer: ")),
 	minimum_zoom(1.0)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -107,7 +107,9 @@ void Viewer::reset_all_audio() {
 
 		for (int i=0;i<seq->clips.size();i++) {
 			Clip* c = seq->clips.at(i);
-			if (c != nullptr) c->reset_audio();
+			if (c != nullptr) {
+				c->reset_audio();
+			}
 		}
 	}
 	clear_audio_ibuffer();
@@ -251,9 +253,9 @@ void Viewer::seek(long p) {
 			update_fx = true;
 		}
 	}
-	update_parents(update_fx);
 	reset_all_audio();
 	audio_scrub = true;
+	update_parents(update_fx);
 }
 
 void Viewer::go_to_start() {
@@ -439,7 +441,7 @@ void Viewer::resizeEvent(QResizeEvent *) {
 
 void Viewer::update_viewer() {
 	update_header_zoom();
-	viewer_widget->update();
+	viewer_widget->frame_update();
 	if (seq != nullptr) update_playhead_timecode(seq->playhead);
 	update_end_timecode();
 }
@@ -675,7 +677,7 @@ void Viewer::set_media(Media* m) {
 					viewer_widget->waveform = true;
 					viewer_widget->waveform_clip = c;
 					viewer_widget->waveform_ms = &audio_stream;
-					viewer_widget->update();
+					viewer_widget->frame_update();
 				}
 			} else {
 				seq->audio_frequency = 48000;
@@ -785,12 +787,12 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 		update_playhead_timecode(0);
 		update_end_timecode();
 
-        setWindowTitle(panel_name + tr("(none)"));
+		setWindowTitle(panel_name + tr("(none)"));
 	}
 
 	update_header_zoom();
 
-	viewer_widget->update();
+	viewer_widget->frame_update();
 
 	update();
 }

@@ -425,7 +425,7 @@ GLuint compose_sequence(Viewer* viewer,
 					glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
 
 					// TODO restore this function
-					/*if (gizmos != nullptr && !drawn_gizmos && nests.isEmpty()) {
+					/*if ((*gizmos) != nullptr && !drawn_gizmos && nests.isEmpty()) {
 						(*gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
 						(*gizmos)->gizmo_world_to_screen();
 
