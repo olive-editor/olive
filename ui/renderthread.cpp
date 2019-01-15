@@ -101,6 +101,7 @@ void RenderThread::paint() {
 
 	glClearColor(0, 0, 0, 0);
 	glMatrixMode(GL_MODELVIEW);
+
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH);

@@ -28,7 +28,8 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
+//#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
+#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE)
 
 GLuint draw_clip(QOpenGLContext* ctx, QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 	glPushMatrix();

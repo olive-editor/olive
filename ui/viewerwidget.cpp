@@ -179,8 +179,7 @@ void ViewerWidget::fullscreen_menu_action(QAction *action) {
 		QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
 		window->showFullScreen();
 		window->setGeometry(selected_screen->geometry());
-		window->update();
-//		window->show();
+		QTimer::singleShot(100, window, SLOT(update()));
 	}
 }
 
@@ -448,6 +447,9 @@ void ViewerWidget::paintGL() {
 
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// set color multipler to straight white
+		glColor4f(1.0, 1.0, 1.0, 1.0);
 
 		glEnable(GL_TEXTURE_2D);
 
