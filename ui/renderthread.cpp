@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #include "ui/renderfunctions.h"
+#include "playback/playback.h"
 
 RenderThread::RenderThread() :
 	share_ctx(nullptr),
@@ -83,10 +84,12 @@ void RenderThread::run() {
 }
 
 void RenderThread::paint() {
+	glLoadIdentity();
+
+	texture_failed = false;
+
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	glLoadIdentity();
 
 	glClearColor(0, 0, 0, 0);
 	glMatrixMode(GL_MODELVIEW);
@@ -104,7 +107,7 @@ void RenderThread::paint() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s) {
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, int idivider) {
 	share_ctx = share;
 	seq = s;
 	waitCond.wakeAll();

@@ -122,7 +122,6 @@ GLuint compose_sequence(Viewer* viewer,
 	}
 
 	bool drawn_gizmos = false;
-	if (video && nests.isEmpty()) texture_failed = false;
 
 	Sequence* s = seq;
 	long playhead = s->playhead;

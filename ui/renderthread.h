@@ -19,13 +19,14 @@ public:
 	GLuint frameBuffer;
 	GLuint texColorBuffer;
 	void paint();
-	void start_render(QOpenGLContext* share, Sequence* s);
+	void start_render(QOpenGLContext* share, Sequence* s, int idivider = 0);
 private:
 	QWaitCondition waitCond;
 	QOffscreenSurface surface;
 	QOpenGLContext* share_ctx;
 	QOpenGLContext* ctx;
 	Sequence* seq;
+	int divider;
 };
 
 #endif // RENDERTHREAD_H

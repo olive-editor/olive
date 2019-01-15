@@ -67,6 +67,7 @@ private:
 	bool drawn_gizmos;
 	void move_gizmos(QMouseEvent *event, bool done);
 	RenderThread* renderer;
+	bool just_repaint;
 private slots:
 	void retry();
 	void show_context_menu();

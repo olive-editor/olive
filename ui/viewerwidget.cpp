@@ -52,7 +52,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	waveform_scroll(0),
 	dragging(false),
 	gizmos(nullptr),
-	selected_gizmo(nullptr)
+	selected_gizmo(nullptr),
+	just_repaint(false)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -392,25 +393,27 @@ void ViewerWidget::drawTitleSafeArea() {
 }
 
 void ViewerWidget::paintGL() {
+	retry_timer.stop();
+
 	if (viewer->seq != nullptr) {
 		gizmos = nullptr;
 		drawn_gizmos = false;
 		force_quit = false;
 
-		bool render_audio = (viewer->playing || rendering);
+		if (!just_repaint) {
+			bool render_audio = (viewer->playing || rendering);
 
-		retry_timer.stop();
+			// send context to other thread for drawing
+			doneCurrent();
+			renderer->start_render(context(), viewer->seq);
 
-		// send context to other thread for drawing
-		doneCurrent();
-		renderer->start_render(context(), viewer->seq);
-
-		// render the audio
-		QVector<Clip*> nests;
-		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos);
+			// render the audio
+			QVector<Clip*> nests;
+			compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos);
+		}
 
 		// try to draw the texture from the other thread if we got it
-		if (renderer->mutex.tryLock()) {
+		if (renderer->mutex.tryLock(10)) {
 			makeCurrent();
 
 			glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -441,8 +444,19 @@ void ViewerWidget::paintGL() {
 			glDisable(GL_TEXTURE_2D);
 
 			renderer->mutex.unlock();
+
+			if (texture_failed) {
+				qDebug() << "texture failed, retry called";
+				retry_timer.start();
+			}
+		} else {
+			qDebug() << "renderer failed, retry called";
+			retry_timer.start();
+			just_repaint = true;
 		}
 	}
+
+	just_repaint = false;
 
 
 	/*drawn_gizmos = false;
