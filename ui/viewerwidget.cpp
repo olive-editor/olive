@@ -179,6 +179,7 @@ void ViewerWidget::fullscreen_menu_action(QAction *action) {
 		QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
 		window->showFullScreen();
 		window->setGeometry(selected_screen->geometry());
+		window->update();
 //		window->show();
 	}
 }
@@ -438,18 +439,26 @@ void ViewerWidget::drawTitleSafeArea() {
 }
 
 void ViewerWidget::paintGL() {
-	if (renderer->mutex.tryLock(10)) {
+//	if (renderer->mutex.tryLock(10)) {
+		renderer->mutex.lock();
+
 		makeCurrent();
+
+		// clear to solid black
 
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glEnable(GL_TEXTURE_2D);
 
-		glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
+		// set screen coords to widget size
 
 		glLoadIdentity();
 		glOrtho(0, 1, 1, 0, -1, 1);
+
+		// draw texture from render thread
+
+		glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
 
 		glBegin(GL_QUADS);
 
@@ -466,6 +475,12 @@ void ViewerWidget::paintGL() {
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
+		// draw title/action safe area
+
+		if (config.show_title_safe_area && !rendering) {
+			drawTitleSafeArea();
+		}
+
 		glDisable(GL_TEXTURE_2D);
 
 		if (window != nullptr && window->isVisible()) {
@@ -478,7 +493,7 @@ void ViewerWidget::paintGL() {
 			doneCurrent();
 			renderer->start_render(context(), viewer->seq);
 		}
-	}
+//	}
 
 //	retry_timer.stop();
 
