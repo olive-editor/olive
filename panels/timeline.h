@@ -35,7 +35,7 @@ struct Clip;
 struct Footage;
 struct FootageStream;
 
-long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
+bool is_clip_selected(Clip* clip, bool containing);
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 bool selection_contains_transition(const Selection& s, Clip* c, int type);
@@ -137,7 +137,6 @@ public:
 	// selecting functions
 	bool selecting;
 	int selection_offset;
-	bool is_clip_selected(Clip* clip, bool containing);
 	void delete_selection(QVector<Selection> &selections, bool ripple);
 	void select_all();
 	bool rect_select_init;
@@ -204,7 +203,7 @@ public:
 	QPushButton* snappingButton;
 
 	void scroll_to_frame(long frame);
-    void select_from_playhead();
+	void select_from_playhead();
 
 	void resizeEvent(QResizeEvent *event);
 public slots:

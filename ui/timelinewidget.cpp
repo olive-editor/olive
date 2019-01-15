@@ -98,7 +98,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		QVector<Clip*> selected_clips;
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && is_clip_selected(c, true)) {
 				selected_clips.append(c);
 			}
 		}
@@ -204,7 +204,7 @@ void TimelineWidget::toggle_autoscale() {
 	SetAutoscaleAction* action = new SetAutoscaleAction();
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
+		if (c != nullptr && is_clip_selected(c, true)) {
 			action->clips.append(c);
 		}
 	}
@@ -237,7 +237,7 @@ void TimelineWidget::rename_clip() {
 	QVector<Clip*> selected_clips;
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
-		if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
+		if (c != nullptr && is_clip_selected(c, true)) {
 			selected_clips.append(c);
 		}
 	}
@@ -629,7 +629,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 					if (clip_index >= 0) {
 						Clip* clip = sequence->clips.at(clip_index);
 						if (clip != nullptr) {
-							if (panel_timeline->is_clip_selected(clip, true)) {
+							if (is_clip_selected(clip, true)) {
 								if (shift) {
 									panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
 
@@ -695,7 +695,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
 								if (!alt && panel_timeline->transition_select == TA_NO_TRANSITION) {
 									for (int i=0;i<clip->linked.size();i++) {
 										Clip* link = sequence->clips.at(clip->linked.at(i));
-										if (!panel_timeline->is_clip_selected(link, true)) {
+										if (!is_clip_selected(link, true)) {
 											Selection ss;
 											ss.in = link->timeline_in;
 											ss.out = link->timeline_out;
@@ -1696,7 +1696,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 						Ghost g;
 						g.transition = nullptr;
 
-						bool add = panel_timeline->is_clip_selected(c, true);
+						bool add = is_clip_selected(c, true);
 
 						// if a whole clip is not selected, maybe just a transition is
 						if (panel_timeline->tool == TIMELINE_TOOL_POINTER && (c->get_opening_transition() != nullptr || c->get_closing_transition() != nullptr)) {
@@ -1838,7 +1838,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
 					for (int i=0;i<sequence->clips.size();i++) {
 						Clip* c = sequence->clips.at(i);
-						if (c != nullptr && !panel_timeline->is_clip_selected(c, true)) {
+						if (c != nullptr && !is_clip_selected(c, true)) {
 							bool clip_is_post = (c->timeline_in >= axis);
 
 							// see if this a clip on this track is already in the list, and if it's closer

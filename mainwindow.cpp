@@ -377,10 +377,10 @@ void MainWindow::delete_slot() {
 }
 
 void MainWindow::select_all() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline) {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline) {
 		panel_timeline->select_all();
-    } else if (focused_panel == panel_graph_editor) {
+	} else if (focused_panel == panel_graph_editor) {
 		panel_graph_editor->select_all();
 	}
 }
@@ -452,7 +452,7 @@ void MainWindow::open_speed_dialog() {
 		SpeedDialog s(this);
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && is_clip_selected(c, true)) {
 				s.clips.append(c);
 			}
 		}
@@ -1051,78 +1051,78 @@ void MainWindow::reset_layout() {
 }
 
 void MainWindow::go_to_in() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->go_to_in();
-    } else {
-        panel_sequence_viewer->go_to_in();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->go_to_in();
+	} else {
+		panel_sequence_viewer->go_to_in();
+	}
 }
 
 void MainWindow::go_to_out() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->go_to_out();
-    } else {
-        panel_sequence_viewer->go_to_out();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->go_to_out();
+	} else {
+		panel_sequence_viewer->go_to_out();
+	}
 }
 
 void MainWindow::go_to_start() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->go_to_start();
-    } else {
-        panel_sequence_viewer->go_to_start();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->go_to_start();
+	} else {
+		panel_sequence_viewer->go_to_start();
+	}
 }
 
 void MainWindow::prev_frame() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->previous_frame();
-    } else {
-        panel_sequence_viewer->previous_frame();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->previous_frame();
+	} else {
+		panel_sequence_viewer->previous_frame();
+	}
 }
 
 void MainWindow::next_frame() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->next_frame();
-    } else {
-        panel_sequence_viewer->next_frame();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->next_frame();
+	} else {
+		panel_sequence_viewer->next_frame();
+	}
 }
 
 void MainWindow::go_to_end() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->go_to_end();
-    } else {
-        panel_sequence_viewer->go_to_end();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->go_to_end();
+	} else {
+		panel_sequence_viewer->go_to_end();
+	}
 }
 
 void MainWindow::playpause() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_footage_viewer) {
-        panel_footage_viewer->toggle_play();
-    } else {
-        panel_sequence_viewer->toggle_play();
-    }
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->toggle_play();
+	} else {
+		panel_sequence_viewer->toggle_play();
+	}
 }
 
 void MainWindow::prev_cut() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
 		panel_timeline->previous_cut();
 	}
 }
 
 void MainWindow::next_cut() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
 		panel_timeline->next_cut();
 	}
 }
@@ -1404,7 +1404,7 @@ void MainWindow::toggle_enable_clips() {
 		bool push_undo = false;
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && is_clip_selected(c, true)) {
 				ca->append(new SetEnableCommand(c, !c->enabled));
 				push_undo = true;
 			}
@@ -1419,13 +1419,13 @@ void MainWindow::toggle_enable_clips() {
 }
 
 void MainWindow::edit_to_in_point() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(true, false);
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(true, false);
 }
 
 void MainWindow::edit_to_out_point() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(false, false);
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(false, false);
 }
 
 void MainWindow::nest() {
@@ -1436,7 +1436,7 @@ void MainWindow::nest() {
 		// get selected clips
 		for (int i=0;i<sequence->clips.size();i++) {
 			Clip* c = sequence->clips.at(i);
-			if (c != nullptr && panel_timeline->is_clip_selected(c, true)) {
+			if (c != nullptr && is_clip_selected(c, true)) {
 				selected_clips.append(i);
 				earliest_point = qMin(c->timeline_in, earliest_point);
 			}
@@ -1488,8 +1488,8 @@ void MainWindow::nest() {
 }
 
 void MainWindow::paste_insert() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline && sequence != nullptr) {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline && sequence != nullptr) {
 		panel_timeline->paste(true);
 	}
 }
@@ -1507,11 +1507,11 @@ void MainWindow::set_autoscroll() {
 }
 
 void MainWindow::menu_click_button() {
-    QDockWidget* focused_panel = get_focused_panel();
-    if (focused_panel == panel_timeline
-            || focused_panel == panel_effect_controls
-            || focused_panel == panel_footage_viewer
-            || focused_panel == panel_sequence_viewer)
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_timeline
+			|| focused_panel == panel_effect_controls
+			|| focused_panel == panel_footage_viewer
+			|| focused_panel == panel_sequence_viewer)
 		reinterpret_cast<QPushButton*>(static_cast<QAction*>(sender())->data().value<quintptr>())->click();
 }
 

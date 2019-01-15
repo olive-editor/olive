@@ -12,6 +12,7 @@ struct AVFrame;
 extern bool texture_failed;
 extern bool rendering;
 
+long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
 bool clip_uses_cacher(Clip* clip);
 void open_clip(Clip* clip, bool multithreaded);
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> &nests);

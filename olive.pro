@@ -124,7 +124,9 @@ SOURCES += \
     effects/internal/fillleftrighteffect.cpp \
     effects/internal/voideffect.cpp \
     dialogs/texteditdialog.cpp \
-    dialogs/debugdialog.cpp
+    dialogs/debugdialog.cpp \
+    ui/renderthread.cpp \
+    ui/renderfunctions.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -216,7 +218,9 @@ HEADERS += \
     effects/internal/fillleftrighteffect.h \
     effects/internal/voideffect.h \
     dialogs/texteditdialog.h \
-    dialogs/debugdialog.h
+    dialogs/debugdialog.h \
+    ui/renderthread.h \
+    ui/renderfunctions.h
 
 FORMS +=
 

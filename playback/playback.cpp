@@ -36,6 +36,10 @@ extern "C" {
 bool texture_failed = false;
 bool rendering = false;
 
+long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
+	return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
+}
+
 bool clip_uses_cacher(Clip* clip) {
 	return (clip->media == nullptr && clip->track >= 0) || (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
 }
