@@ -86,11 +86,16 @@ void PreviewGenerator::parse_media() {
 					}
 				} else {
 					ms.infinite_length = false;
-					if (fmt_ctx->streams[i]->r_frame_rate.den == 0) {
+
+					// using ffmpeg's built-in heuristic
+					ms.video_frame_rate = av_q2d(av_guess_frame_rate(fmt_ctx, fmt_ctx->streams[i], nullptr));
+
+					// old heuristic
+					/*if (fmt_ctx->streams[i]->r_frame_rate.den == 0) {
 						ms.video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
 					} else {
 						ms.video_frame_rate = av_q2d(fmt_ctx->streams[i]->r_frame_rate);
-					}
+					}*/
 				}
 
 				ms.video_width = fmt_ctx->streams[i]->codecpar->width;
@@ -435,14 +440,14 @@ void PreviewGenerator::run() {
 	if(errCode != 0) {
 		char err[1024];
 		av_strerror(errCode, err, 1024);
-        errorStr = tr("Could not open file - %1").arg(err);
+		errorStr = tr("Could not open file - %1").arg(err);
 		error = true;
 	} else {
 		errCode = avformat_find_stream_info(fmt_ctx, nullptr);
 		if (errCode < 0) {
 			char err[1024];
 			av_strerror(errCode, err, 1024);
-            errorStr = tr("Could not find stream information - %1").arg(err);
+			errorStr = tr("Could not find stream information - %1").arg(err);
 			error = true;
 		} else {
 			av_dump_format(fmt_ctx, 0, filename, 0);
