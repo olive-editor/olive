@@ -44,6 +44,7 @@ public:
 	bool force_quit;
 
 	void frame_update();
+	RenderThread* get_renderer();
 public slots:
 	void set_waveform_scroll(int s);
 protected:

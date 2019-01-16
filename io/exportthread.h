@@ -3,6 +3,8 @@
 
 #include <QThread>
 #include <QOffscreenSurface>
+#include <QMutex>
+#include <QWaitCondition>
 
 class ExportDialog;
 struct AVFormatContext;
@@ -52,19 +54,21 @@ public:
 	bool continueEncode;
 signals:
 	void progress_changed(int value, qint64 remaining_ms);
+private slots:
+	void wake();
 private:
 	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
 	bool setupVideo();
 	bool setupAudio();
 	bool setupContainer();
 
-    AVFormatContext* fmt_ctx;
+	AVFormatContext* fmt_ctx;
 	AVStream* video_stream;
 	AVCodec* vcodec;
 	AVCodecContext* vcodec_ctx;
 	AVFrame* video_frame;
 	AVFrame* sws_frame;
-    SwsContext* sws_ctx;
+	SwsContext* sws_ctx;
 	AVStream* audio_stream;
 	AVCodec* acodec;
 	AVFrame* audio_frame;
@@ -72,14 +76,17 @@ private:
 	AVCodecContext* acodec_ctx;
 	AVPacket video_pkt;
 	AVPacket audio_pkt;
-    SwrContext* swr_ctx;
+	SwrContext* swr_ctx;
 
-    bool vpkt_alloc;
-    bool apkt_alloc;
+	bool vpkt_alloc;
+	bool apkt_alloc;
 
 	int aframe_bytes;
 	int ret;
 	char* c_filename;
+
+	QMutex mutex;
+	QWaitCondition waitCond;
 };
 
 #endif // EXPORTTHREAD_H

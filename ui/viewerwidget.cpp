@@ -229,6 +229,10 @@ void ViewerWidget::frame_update() {
 	}
 }
 
+RenderThread *ViewerWidget::get_renderer() {
+	return renderer;
+}
+
 //void ViewerWidget::resizeGL(int w, int h)
 //{
 //}

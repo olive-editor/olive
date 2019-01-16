@@ -6,6 +6,7 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
+#include "ui/renderthread.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "dialogs/exportdialog.h"
@@ -335,23 +336,24 @@ void ExportThread::run() {
 		}
 	}
 
-	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
-	fbo.bind();
-
 	long file_audio_samples = 0;
 	qint64 start_time, frame_time, avg_time, eta, total_time = 0;
 	long remaining_frames, frame_count = 1;
 
+	RenderThread* renderer = panel_sequence_viewer->viewer_widget->get_renderer();
+	disconnect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
+	connect(renderer, SIGNAL(ready()), this, SLOT(wake()));
+
+	mutex.lock();
+
 	while (sequence->playhead <= end_frame && continueEncode) {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
-		panel_sequence_viewer->viewer_widget->paintGL();
+		renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0]);
+		waitCond.wait(&mutex);
 
 		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
 		if (video_enabled) {
-			// get image from opengl
-			glReadPixels(0, 0, video_frame->linesize[0]/4, sequence->height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
-
 			// change pixel format
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
 			sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
@@ -396,10 +398,15 @@ void ExportThread::run() {
 
 //        qInfo() << "Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
 
-		emit progress_changed(qRound(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100), eta);
+		emit progress_changed(qRound((double(sequence->playhead-start_frame) / double(end_frame-start_frame)) * 100.0), eta);
 		sequence->playhead++;
 		frame_count++;
 	}
+
+	disconnect(renderer, SIGNAL(ready()), this, SLOT(wake()));
+	connect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
+
+	mutex.unlock();
 
 	if (continueEncode) {
 		if (video_enabled) vpkt_alloc = true;
@@ -407,8 +414,6 @@ void ExportThread::run() {
 	}
 
 	mainWindow->set_rendering_state(false);
-
-	fbo.release();
 
 	if (audio_enabled && continueEncode) {
 		// flush swresample
@@ -468,4 +473,8 @@ void ExportThread::run() {
 	}
 
 	delete [] c_filename;
+}
+
+void ExportThread::wake() {
+	waitCond.wakeAll();
 }

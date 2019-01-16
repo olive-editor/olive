@@ -125,12 +125,19 @@ void RenderThread::paint() {
 		}
 	}
 
+	if (pixel_buffer != nullptr) {
+		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+		glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, pixel_buffer);
+		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		pixel_buffer = nullptr;
+	}
+
 	glDisable(GL_DEPTH);
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, int idivider) {
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider) {
 	seq = s;
 
 	// stall any dependent actions
@@ -147,6 +154,8 @@ void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QStrin
 	}
 
 	save_fn = save;
+	pixel_buffer = pixels;
+
 	queued = true;
 	waitCond.wakeAll();
 }
