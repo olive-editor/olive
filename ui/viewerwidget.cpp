@@ -223,9 +223,7 @@ void ViewerWidget::frame_update() {
 		renderer->start_render(context(), viewer->seq);
 
 		// render the audio
-		QVector<Clip*> nests;
-		bool texture_failed;
-		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos, texture_failed, audio_rendering);
+		compose_audio(viewer, viewer->seq, render_audio);
 	}
 }
 
@@ -445,9 +443,8 @@ void ViewerWidget::paintGL() {
 		glEnable(GL_TEXTURE_2D);
 
 		// set screen coords to widget size
-
 		glLoadIdentity();
-		glOrtho(0, 1, 1, 0, -1, 1);
+		glOrtho(0, 1, 0, 1, -1, 1);
 
 		// draw texture from render thread
 

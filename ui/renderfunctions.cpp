@@ -206,16 +206,14 @@ GLuint compose_sequence(Viewer* viewer,
 
 	int half_width = s->width/2;
 	int half_height = s->height/2;
-	if (rendering || !nests.isEmpty()) half_height = -half_height; // invert vertical
 
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(-half_width, half_width, half_height, -half_height, -1, 10);
+	if (video) {
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(-half_width, half_width, -half_height, half_height, -1, 10);
+	}
 
 	for (int i=0;i<current_clips.size();i++) {
-		ctx->functions()->GL_DEFAULT_BLEND;
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-
 		Clip* c = current_clips.at(i);
 
 		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
@@ -223,6 +221,9 @@ GLuint compose_sequence(Viewer* viewer,
 			texture_failed = true;
 		} else {
 			if (c->track < 0) {
+				ctx->functions()->GL_DEFAULT_BLEND;
+				glColor4f(1.0, 1.0, 1.0, 1.0);
+
 				GLuint textureID = 0;
 				int video_width = c->getWidth();
 				int video_height = c->getHeight();
@@ -488,7 +489,9 @@ GLuint compose_sequence(Viewer* viewer,
 		viewer->play_wake();
 	}
 
-	glPopMatrix();
+	if (video) {
+		glPopMatrix();
+	}
 
 	if (!nests.isEmpty() && nests.last()->fbo != nullptr) {
 		// returns nested clip's texture
@@ -496,4 +499,10 @@ GLuint compose_sequence(Viewer* viewer,
 	}
 
 	return 0;
+}
+
+void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio) {
+	QVector<Clip*> nests;
+	bool texture_failed;
+	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering);
 }

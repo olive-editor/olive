@@ -21,7 +21,7 @@ void ViewerWindow::paintGL() {
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glLoadIdentity();
-		glOrtho(0, 1, 1, 0, -1, 1);
+		glOrtho(0, 1, 0, 1, -1, 1);
 
 		glBegin(GL_QUADS);
 

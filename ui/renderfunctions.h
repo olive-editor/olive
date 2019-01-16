@@ -19,4 +19,6 @@ GLuint compose_sequence(Viewer* viewer,
 						bool &texture_failed,
 						bool rendering);
 
+void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio);
+
 #endif // RENDERFUNCTIONS_H
