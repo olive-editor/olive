@@ -23,7 +23,7 @@
 #include "ui/timelinewidget.h"
 #include "ui/renderfunctions.h"
 #include "ui/renderthread.h"
-#include "Ui/viewerwindow.h"
+#include "ui/viewerwindow.h"
 #include "mainwindow.h"
 
 #include <QPainter>
@@ -50,7 +50,6 @@ extern "C" {
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
-	default_fbo(nullptr),
 	waveform(false),
 	waveform_zoom(1.0),
 	waveform_scroll(0),
@@ -84,7 +83,7 @@ ViewerWidget::~ViewerWidget() {
 }
 
 void ViewerWidget::delete_function() {
-	renderer->start_render(context(), nullptr);
+	closeActiveClips(viewer->seq);
 }
 
 void ViewerWidget::set_waveform_scroll(int s) {
@@ -149,22 +148,8 @@ void ViewerWidget::save_frame() {
 		if (!fn.endsWith(selected_ext,  Qt::CaseInsensitive)) {
 			fn += selected_ext;
 		}
-		QOpenGLFramebufferObject fbo(viewer->seq->width, viewer->seq->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 
-		rendering = true;
-		fbo.bind();
-
-		default_fbo = &fbo;
-
-		paintGL();
-
-		QImage img(viewer->seq->width, viewer->seq->height, QImage::Format_RGBA8888);
-		glReadPixels(0, 0, img.width(), img.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
-		img.save(fn);
-
-		fbo.release();
-		default_fbo = nullptr;
-		rendering = false;
+		renderer->start_render(context(), viewer->seq, fn);
 	}
 }
 
@@ -179,6 +164,8 @@ void ViewerWidget::fullscreen_menu_action(QAction *action) {
 		QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
 		window->showFullScreen();
 		window->setGeometry(selected_screen->geometry());
+
+		// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
 		QTimer::singleShot(100, window, SLOT(update()));
 	}
 }
@@ -229,7 +216,7 @@ void ViewerWidget::frame_update() {
 		drawn_gizmos = false;
 		force_quit = false;
 
-		bool render_audio = (viewer->playing || rendering);
+		bool render_audio = (viewer->playing || audio_rendering);
 
 		// send context to other thread for drawing
 		doneCurrent();
@@ -238,7 +225,7 @@ void ViewerWidget::frame_update() {
 		// render the audio
 		QVector<Clip*> nests;
 		bool texture_failed;
-		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos, texture_failed);
+		compose_sequence(viewer, context(), viewer->seq, nests, false, render_audio, &gizmos, texture_failed, audio_rendering);
 	}
 }
 
@@ -298,8 +285,8 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 	if (selected_gizmo != nullptr) {
 		double multiplier = double(viewer->seq->width) / double(width());
 
-		int x_movement = (event->pos().x() - drag_start_x)*multiplier;
-		int y_movement = (event->pos().y() - drag_start_y)*multiplier;
+		int x_movement = qRound((event->pos().x() - drag_start_x)*multiplier);
+		int y_movement = qRound((event->pos().y() - drag_start_y)*multiplier);
 
 		gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead), done);
 
@@ -479,7 +466,7 @@ void ViewerWidget::paintGL() {
 
 		// draw title/action safe area
 
-		if (config.show_title_safe_area && !rendering) {
+		if (config.show_title_safe_area) {
 			drawTitleSafeArea();
 		}
 

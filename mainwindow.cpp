@@ -351,6 +351,15 @@ void MainWindow::load_css_from_file(const QString &fn) {
 	}
 }
 
+void MainWindow::set_rendering_state(bool rendering) {
+	audio_rendering = rendering;
+	if (rendering) {
+		autorecovery_timer.stop();
+	} else {
+		autorecovery_timer.start();
+	}
+}
+
 void MainWindow::show_about() {
 	AboutDialog a(this);
 	a.exec();
@@ -502,7 +511,7 @@ void MainWindow::new_project() {
 }
 
 void MainWindow::autorecover_interval() {
-	if (!rendering && isWindowModified()) {
+	if (isWindowModified()) {
 		panel_project->save_project(true);
 		qInfo() << "Auto-recovery project saved";
 	}

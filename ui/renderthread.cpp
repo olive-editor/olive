@@ -109,19 +109,32 @@ void RenderThread::paint() {
 	Effect* gizmos; // does nothing yet
 	QVector<Clip*> nests;
 
-	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed);
+	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed, false);
+
+	if (!save_fn.isEmpty()) {
+		if (texture_failed) {
+			// texture failed, try again
+			queued = true;
+		} else {
+			ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+			QImage img(tex_width, tex_height, QImage::Format_RGBA8888);
+			glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+			img.mirrored(false, true).save(save_fn);
+			ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+			save_fn = "";
+		}
+	}
 
 	glDisable(GL_DEPTH);
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, int idivider) {
-	if (s != seq && seq != nullptr) {
-		closeActiveClips(seq);
-	}
-
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, int idivider) {
 	seq = s;
+
+	// stall any dependent actions
+	texture_failed = true;
 
 	if (share != nullptr && (ctx == nullptr || ctx->shareContext() != share_ctx)) {
 		share_ctx = share;
@@ -133,10 +146,9 @@ void RenderThread::start_render(QOpenGLContext *share, Sequence *s, int idivider
 		ctx->moveToThread(this);
 	}
 
-	if (seq != nullptr) {
-		queued = true;
-		waitCond.wakeAll();
-	}
+	save_fn = save;
+	queued = true;
+	waitCond.wakeAll();
 }
 
 bool RenderThread::did_texture_fail() {

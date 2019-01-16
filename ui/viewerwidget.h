@@ -35,8 +35,6 @@ public:
 	Viewer* viewer;
 	ViewerContainer* container;
 
-	QOpenGLFramebufferObject* default_fbo;
-
 	bool waveform;
 	Clip* waveform_clip;
 	const FootageStream* waveform_ms;

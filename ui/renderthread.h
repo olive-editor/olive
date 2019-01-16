@@ -20,7 +20,7 @@ public:
 	GLuint frameBuffer;
 	GLuint texColorBuffer;
 	void paint();
-	void start_render(QOpenGLContext* share, Sequence* s, int idivider = 0);
+	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, int idivider = 0);
 	bool did_texture_fail();
 	void cancel();
 signals:
@@ -42,6 +42,7 @@ private:
 	bool queued;
 	bool texture_failed;
 	bool running;
+	QString save_fn;
 };
 
 #endif // RENDERTHREAD_H

@@ -29,6 +29,7 @@ bool audio_scrub = false;
 QMutex audio_write_lock;
 QAudioInput* audio_input = nullptr;
 QFile output_recording;
+bool audio_rendering = false;
 bool recording = false;
 
 qint8 audio_ibuffer[audio_ibuffer_size];
@@ -110,7 +111,7 @@ void clear_audio_ibuffer() {
 }
 
 int current_audio_freq() {
-	return rendering ? sequence->audio_frequency : audio_output->format().sampleRate();
+	return audio_rendering ? sequence->audio_frequency : audio_output->format().sampleRate();
 }
 
 int get_buffer_offset_from_frame(double framerate, long frame) {

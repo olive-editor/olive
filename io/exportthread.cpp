@@ -9,6 +9,7 @@
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "dialogs/exportdialog.h"
+#include "mainwindow.h"
 #include "debug.h"
 
 extern "C" {
@@ -111,7 +112,7 @@ bool ExportThread::setupVideo() {
 	vcodec_ctx->sample_aspect_ratio = {1, 1};
 	vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
 	vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
-	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = video_bitrate * 1000000;
+	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = qRound(video_bitrate * 1000000);
 	vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
 	video_stream->time_base = vcodec_ctx->time_base;
 
@@ -312,12 +313,7 @@ bool ExportThread::setupContainer() {
 
 void ExportThread::run() {
 	panel_sequence_viewer->pause();
-
-	if (!panel_sequence_viewer->viewer_widget->context()->makeCurrent(&surface)) {
-		qCritical() << "Make current failed";
-		ed->export_error = tr("could not make OpenGL context current");
-		return;
-	}
+	panel_sequence_viewer->seek(start_frame);
 
 	// copy filename
 	QByteArray ba = filename.toUtf8();
@@ -339,13 +335,8 @@ void ExportThread::run() {
 		}
 	}
 
-	panel_sequence_viewer->seek(start_frame);
-	panel_sequence_viewer->reset_all_audio();
-
 	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 	fbo.bind();
-
-	panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
 
 	long file_audio_samples = 0;
 	qint64 start_time, frame_time, avg_time, eta, total_time = 0;
@@ -415,8 +406,7 @@ void ExportThread::run() {
 		if (audio_enabled) apkt_alloc = true;
 	}
 
-	panel_sequence_viewer->viewer_widget->default_fbo = nullptr;
-	rendering = false;
+	mainWindow->set_rendering_state(false);
 
 	fbo.release();
 
@@ -478,9 +468,4 @@ void ExportThread::run() {
 	}
 
 	delete [] c_filename;
-
-	panel_sequence_viewer->viewer_widget->context()->doneCurrent();
-	panel_sequence_viewer->viewer_widget->context()->moveToThread(qApp->thread());
-
-	rendering = false;
 }

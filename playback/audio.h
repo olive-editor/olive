@@ -41,6 +41,8 @@ extern int audio_ibuffer_read;
 extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
+extern bool recording;
+extern bool audio_rendering;
 void clear_audio_ibuffer();
 
 int current_audio_freq();
@@ -54,6 +56,5 @@ int get_buffer_offset_from_frame(double framerate, long frame);
 bool start_recording();
 void stop_recording();
 QString get_recorded_audio_filename();
-extern bool recording;
 
 #endif // AUDIO_H

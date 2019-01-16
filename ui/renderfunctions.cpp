@@ -118,7 +118,8 @@ GLuint compose_sequence(Viewer* viewer,
 						bool video,
 						bool render_audio,
 						Effect** gizmos,
-						bool& texture_failed) {
+						bool& texture_failed,
+						bool rendering) {
 	GLint current_fbo = 0;
 	if (video) {
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
@@ -284,7 +285,7 @@ GLuint compose_sequence(Viewer* viewer,
 						// for nested sequences
 						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
 							nests.append(c);
-							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed);
+							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);
 							nests.removeLast();
 							fbo_switcher = true;
 						}
@@ -455,7 +456,7 @@ GLuint compose_sequence(Viewer* viewer,
 				if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 						nests.append(c);
-						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed);
+						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);
 						nests.removeLast();
 					} else {
 						if (c->lock.tryLock()) {
