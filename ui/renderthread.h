@@ -9,6 +9,7 @@
 #include <QOpenGLFramebufferObject>
 
 struct Sequence;
+class Effect;
 
 class RenderThread : public QThread {
 	Q_OBJECT
@@ -19,6 +20,7 @@ public:
 	QMutex mutex;
 	GLuint frameBuffer;
 	GLuint texColorBuffer;
+	Effect* gizmos;
 	void paint();
 	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
 	bool did_texture_fail();

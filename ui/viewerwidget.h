@@ -41,8 +41,6 @@ public:
 	double waveform_zoom;
 	int waveform_scroll;
 
-	bool force_quit;
-
 	void frame_update();
 	RenderThread* get_renderer();
 public slots:
@@ -52,7 +50,11 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
-	void drawTitleSafeArea();
+	void draw_waveform_func();
+	void draw_title_safe_area();
+	void draw_gizmos();
+	EffectGizmo* get_gizmo_from_mouse(int x, int y);
+	void move_gizmos(QMouseEvent *event, bool done);
 	bool dragging;
 	void seek_from_click(int x);
 	Effect* gizmos;
@@ -61,9 +63,6 @@ private:
 	int gizmo_x_mvmt;
 	int gizmo_y_mvmt;
 	EffectGizmo* selected_gizmo;
-	EffectGizmo* get_gizmo_from_mouse(int x, int y);
-	bool drawn_gizmos;
-	void move_gizmos(QMouseEvent *event, bool done);
 	RenderThread* renderer;
 	ViewerWindow* window;
 private slots:

@@ -12,6 +12,7 @@
 RenderThread::RenderThread() :
 	frameBuffer(0),
 	texColorBuffer(0),
+	gizmos(nullptr),
 	share_ctx(nullptr),
 	ctx(nullptr),
 	seq(nullptr),
@@ -106,9 +107,8 @@ void RenderThread::paint() {
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH);
 
-	Effect* gizmos; // does nothing yet
+	gizmos = nullptr;
 	QVector<Clip*> nests;
-
 	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed, false);
 
 	if (!save_fn.isEmpty()) {

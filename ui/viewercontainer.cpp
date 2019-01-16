@@ -28,6 +28,7 @@ ViewerContainer::ViewerContainer(QWidget *parent) :
 }
 
 ViewerContainer::~ViewerContainer() {
+	delete child;
 	delete area;
 }
 

@@ -125,8 +125,6 @@ GLuint compose_sequence(Viewer* viewer,
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
 	}
 
-	bool drawn_gizmos = false;
-
 	Sequence* s = seq;
 	long playhead = s->playhead;
 
@@ -332,12 +330,10 @@ GLuint compose_sequence(Viewer* viewer,
 						}
 					}
 
-					if (!rendering) {
-						if (selected_effect != nullptr) {
-							gizmos = &selected_effect;
-						} else if (is_clip_selected(c, true)) {
-							gizmos = &first_gizmo_effect;
-						}
+					if (selected_effect != nullptr) {
+						(*gizmos) = selected_effect;
+					} else if (is_clip_selected(c, true)) {
+						(*gizmos) = first_gizmo_effect;
 					}
 
 					if (c->get_opening_transition() != nullptr) {
@@ -429,17 +425,16 @@ GLuint compose_sequence(Viewer* viewer,
 
 					glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
 
-					// TODO restore this function
-					/*if ((*gizmos) != nullptr && !drawn_gizmos && nests.isEmpty()) {
+					// prepare gizmos
+					if ((*gizmos) != nullptr
+							&& nests.isEmpty()
+							&& ((*gizmos) == first_gizmo_effect
+							|| (*gizmos) == selected_effect)) {
 						(*gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
-						(*gizmos)->gizmo_world_to_screen();
-
-						drawn_gizmos = true;
-					}*/
+						(*gizmos)->gizmo_world_to_screen(); // convert gizmo coords to screen coords
+					}
 
 					if (!nests.isEmpty()) {
-//						nests.last()->fbo[0]->release();
-//						if (default_fbo != nullptr) default_fbo->bind();
 						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 

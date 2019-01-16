@@ -554,9 +554,9 @@ void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
 }
 
 void ExportDialog::cancel_render() {
-	panel_sequence_viewer->viewer_widget->force_quit = true;
 	et->continueEncode = false;
 	cancelled = true;
+	et->wake();
 }
 
 void ExportDialog::vcodec_changed(int index) {

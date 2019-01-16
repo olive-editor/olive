@@ -80,6 +80,7 @@ ViewerWidget::~ViewerWidget() {
 		delete window;
 	}
 	renderer->cancel();
+	delete renderer;
 }
 
 void ViewerWidget::delete_function() {
@@ -212,15 +213,15 @@ void ViewerWidget::initializeGL() {
 
 void ViewerWidget::frame_update() {
 	if (viewer->seq != nullptr) {
-		gizmos = nullptr;
-		drawn_gizmos = false;
-		force_quit = false;
-
 		bool render_audio = (viewer->playing || audio_rendering);
 
 		// send context to other thread for drawing
-		doneCurrent();
-		renderer->start_render(context(), viewer->seq);
+		if (waveform) {
+			update();
+		} else {
+			doneCurrent();
+			renderer->start_render(context(), viewer->seq);
+		}
 
 		// render the audio
 		compose_audio(viewer, viewer->seq, render_audio);
@@ -248,7 +249,7 @@ void ViewerWidget::seek_from_click(int x) {
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
 	if (gizmos != nullptr) {
 		double multiplier = double(viewer->seq->width) / double(width());
-		QPoint mouse_pos(qRound(x*multiplier), qRound(y*multiplier));
+		QPoint mouse_pos(qRound(x*multiplier), qRound((height()-y)*multiplier));
 		int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
 		int target_size = 2 * qRound(GIZMO_TARGET_SIZE * multiplier);
 		for (int i=0;i<gizmos->gizmo_count();i++) {
@@ -277,8 +278,10 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
 				}
 				break;
 			}
-
 		}
+
+		qDebug() << mouse_pos.x() << gizmos->gizmo(0)->screen_pos[0].x();
+		qDebug() << mouse_pos.y() << gizmos->gizmo(0)->screen_pos[0].y();
 	}
 	return nullptr;
 }
@@ -358,7 +361,28 @@ void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
 	dragging = false;
 }
 
-void ViewerWidget::drawTitleSafeArea() {
+void ViewerWidget::draw_waveform_func() {
+	QPainter p(this);
+	if (viewer->seq->using_workarea) {
+		int in_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_in) - waveform_scroll;
+		int out_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_out) - waveform_scroll;
+
+		p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
+		p.setPen(Qt::white);
+		p.drawLine(in_x, 0, in_x, height());
+		p.drawLine(out_x, 0, out_x, height());
+	}
+	QRect wr = rect();
+	wr.setX(wr.x() - waveform_scroll);
+
+	p.setPen(Qt::green);
+	draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
+	p.setPen(Qt::red);
+	int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
+	p.drawLine(playhead_x, 0, playhead_x, height());
+}
+
+void ViewerWidget::draw_title_safe_area() {
 	double halfWidth = 0.5;
 	double halfHeight = 0.5;
 	double viewportAr = (double) width() / (double) height();
@@ -426,8 +450,71 @@ void ViewerWidget::drawTitleSafeArea() {
 	glEnd();
 }
 
+void ViewerWidget::draw_gizmos() {
+	float color[4];
+	glGetFloatv(GL_CURRENT_COLOR, color);
+
+	float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
+	float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
+
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
+	float gizmo_z = 0.0f;
+	for (int j=0;j<gizmos->gizmo_count();j++) {
+		EffectGizmo* g = gizmos->gizmo(j);
+		glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
+		switch (g->get_type()) {
+		case GIZMO_TYPE_DOT: // draw dot
+			glBegin(GL_QUADS);
+			glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+			glEnd();
+			break;
+		case GIZMO_TYPE_POLY: // draw lines
+			glBegin(GL_LINES);
+			for (int k=1;k<g->get_point_count();k++) {
+				glVertex3f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y(), gizmo_z);
+				glVertex3f(g->screen_pos[k].x(), g->screen_pos[k].y(), gizmo_z);
+			}
+			glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
+			glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
+			glEnd();
+			break;
+		case GIZMO_TYPE_TARGET: // draw target
+			glBegin(GL_LINES);
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y(), gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y(), gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()-target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()+target_size, gizmo_z);
+			glEnd();
+			break;
+		}
+	}
+	glPopMatrix();
+
+	glColor4f(color[0], color[1], color[2], color[3]);
+}
+
 void ViewerWidget::paintGL() {
-//	if (renderer->mutex.tryLock(10)) {
+	if (waveform) {
+		draw_waveform_func();
+	} else {
 		renderer->mutex.lock();
 
 		makeCurrent();
@@ -466,9 +553,13 @@ void ViewerWidget::paintGL() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// draw title/action safe area
-
 		if (config.show_title_safe_area) {
-			drawTitleSafeArea();
+			draw_title_safe_area();
+		}
+
+		gizmos = renderer->gizmos;
+		if (gizmos != nullptr) {
+			draw_gizmos();
 		}
 
 		glDisable(GL_TEXTURE_2D);
@@ -483,7 +574,7 @@ void ViewerWidget::paintGL() {
 			doneCurrent();
 			renderer->start_render(context(), viewer->seq);
 		}
-//	}
+	}
 
 //	retry_timer.stop();
 

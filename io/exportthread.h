@@ -54,7 +54,7 @@ public:
 	bool continueEncode;
 signals:
 	void progress_changed(int value, qint64 remaining_ms);
-private slots:
+public slots:
 	void wake();
 private:
 	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);

@@ -355,19 +355,13 @@ void ExportThread::run() {
 		}
 		if (video_enabled) {
 			do {
+				// TODO optimize by rendering the next frame while encoding the last
 				renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0]);
 				waitCond.wait(&mutex);
+				if (!continueEncode) break;
 			} while (renderer->did_texture_fail());
+			if (!continueEncode) break;
 		}
-
-		/*if (sequence->playhead == start_frame) {
-			// render first frame
-			if (video_enabled) {
-				qDebug() << "FIRST FRAME start video thread";
-				renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0]);
-			}
-			sequence->playhead++;
-		}*/
 
 		// encode last frame while rendering next frame
 		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
