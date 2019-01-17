@@ -84,6 +84,7 @@ private slots:
 	void fileMenu_About_To_Hide();
 	void editMenu_About_To_Be_Shown();
 	void windowMenu_About_To_Be_Shown();
+	void playbackMenu_About_To_Be_Shown();
 	void viewMenu_About_To_Be_Shown();
 	void toolMenu_About_To_Be_Shown();
 

@@ -730,6 +730,7 @@ void MainWindow::setup_menus() {
 	// INITIALIZE PLAYBACK MENU
 
 	QMenu* playback_menu = menuBar->addMenu(tr("&Playback"));
+	connect(playback_menu, SIGNAL(aboutToShow()), this, SLOT(playbackMenu_About_To_Be_Shown()));
 
 	playback_menu->addAction(tr("Go to Start"), this, SLOT(go_to_start()), QKeySequence("Home"))->setProperty("id", "gotostart");
 	playback_menu->addAction(tr("Previous Frame"), this, SLOT(prev_frame()), QKeySequence("Left"))->setProperty("id", "prevframe");
@@ -742,6 +743,11 @@ void MainWindow::setup_menus() {
 	playback_menu->addSeparator();
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
+
+	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
+	loop_action->setProperty("id", "loop");
+	loop_action->setCheckable(true);
+	loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
 
 	// INITIALIZE WINDOW MENU
 
@@ -900,11 +906,6 @@ void MainWindow::setup_menus() {
 	set_name_and_marker->setProperty("id", "asknamemarkerset");
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
-
-	loop_action = tools_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
-	loop_action->setProperty("id", "loop");
-	loop_action->setCheckable(true);
-	loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
 
 	pause_at_out_point_action = tools_menu->addAction(tr("Pause At Out Point"), this, SLOT(toggle_bool_action()));
 	pause_at_out_point_action->setProperty("id", "pauseoutpoint");
@@ -1164,6 +1165,10 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
 	}
 }
 
+void MainWindow::playbackMenu_About_To_Be_Shown() {
+	set_bool_action_checked(loop_action);
+}
+
 void MainWindow::viewMenu_About_To_Be_Shown() {
 	set_bool_action_checked(track_lines);
 
@@ -1207,7 +1212,6 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
 	set_bool_action_checked(set_name_and_marker);
-	set_bool_action_checked(loop_action);
 	set_bool_action_checked(pause_at_out_point_action);
 	set_bool_action_checked(seek_also_selects);
 
