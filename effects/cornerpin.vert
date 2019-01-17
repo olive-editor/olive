@@ -1,5 +1,4 @@
-#version 110
-#extension GL_EXT_gpu_shader4 : enable
+#version 130
 
 uniform bool perspective;
 uniform vec2 p0;
