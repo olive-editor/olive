@@ -127,7 +127,8 @@ SOURCES += \
     dialogs/debugdialog.cpp \
     ui/renderthread.cpp \
     ui/renderfunctions.cpp \
-    ui/viewerwindow.cpp
+    ui/viewerwindow.cpp \
+    project/projectfilter.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -222,7 +223,8 @@ HEADERS += \
     dialogs/debugdialog.h \
     ui/renderthread.h \
     ui/renderfunctions.h \
-    ui/viewerwindow.h
+    ui/viewerwindow.h \
+    project/projectfilter.h
 
 FORMS +=
 

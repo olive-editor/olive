@@ -18,7 +18,7 @@ class Media;
 class QXmlStreamWriter;
 class QXmlStreamReader;
 class QFile;
-class QSortFilterProxyModel;
+class ProjectFilter;
 class ComboAction;
 class SourceIconView;
 class QPushButton;
@@ -69,7 +69,7 @@ public:
 	SourceIconView* icon_view;
 	SourcesCommon* sources_common;
 
-	QSortFilterProxyModel* sorter;
+	ProjectFilter* sorter;
 
 	QVector<Media*> last_imported_media;
 

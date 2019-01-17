@@ -8,6 +8,7 @@
 #include "project/clip.h"
 #include "project/undo.h"
 #include "project/media.h"
+#include "project/projectfilter.h"
 
 #include "ui/sourcetable.h"
 #include "ui/viewerwidget.h"
@@ -43,7 +44,6 @@
 #include <QMovie>
 #include <QInputDialog>
 #include <QRegExp>
-#include <QSortFilterProxyModel>
 #include <QStatusBar>
 #include <QMenu>
 #include <QMenuBar>

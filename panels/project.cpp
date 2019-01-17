@@ -25,6 +25,7 @@
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
 #include "project/sourcescommon.h"
+#include "project/projectfilter.h"
 #include "debug.h"
 
 #include <QApplication>
@@ -37,7 +38,6 @@
 #include <QMimeData>
 #include <QPushButton>
 #include <QInputDialog>
-#include <QSortFilterProxyModel>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QSizePolicy>
@@ -72,7 +72,7 @@ Project::Project(QWidget *parent) :
 
 	sources_common = new SourcesCommon(this);
 
-	sorter = new QSortFilterProxyModel(this);
+	sorter = new ProjectFilter(this);
 	sorter->setSourceModel(&project_model);
 
 	// optional toolbar
