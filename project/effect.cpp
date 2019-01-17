@@ -922,7 +922,6 @@ GLuint Effect::process_superimpose(double timecode) {
 	}
 
 	if (valueHasChanged(timecode) || recreate_texture || enable_always_update) {
-		qDebug() << "redrew";
 		redraw(timecode);
 	}
 

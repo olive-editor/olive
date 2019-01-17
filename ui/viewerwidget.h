@@ -66,6 +66,7 @@ private:
 	RenderThread* renderer;
 	ViewerWindow* window;
 private slots:
+	void context_destroy();
 	void retry();
 	void show_context_menu();
 	void save_frame();

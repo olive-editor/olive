@@ -104,6 +104,9 @@ void ViewerWidget::show_context_menu() {
 	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));*/
 	QMenu* fullscreen_menu = menu.addMenu(tr("Show Fullscreen"));
 	QList<QScreen*> screens = QGuiApplication::screens();
+	if (window != nullptr && window->isVisible()) {
+		fullscreen_menu->addAction(tr("Disable"));
+	}
 	for (int i=0;i<screens.size();i++) {
 		QAction* screen_action = fullscreen_menu->addAction(tr("Screen %1: %2x%3").arg(
 																QString::number(i),
@@ -162,12 +165,16 @@ void ViewerWidget::fullscreen_menu_action(QAction *action) {
 	if (window == nullptr) {
 		QMessageBox::critical(this, "Error", "Failed to create viewer window");
 	} else {
-		QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
-		window->showFullScreen();
-		window->setGeometry(selected_screen->geometry());
+		if (action->data().isNull()) {
+			window->hide();
+		} else {
+			QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
+			window->showFullScreen();
+			window->setGeometry(selected_screen->geometry());
 
-		// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
-		QTimer::singleShot(100, window, SLOT(update()));
+			// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
+			QTimer::singleShot(100, window, SLOT(update()));
+		}
 	}
 }
 
@@ -205,9 +212,8 @@ void ViewerWidget::retry() {
 void ViewerWidget::initializeGL() {
 	initializeOpenGLFunctions();
 
-	if (window != nullptr) {
-		delete window;
-	}
+	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
+
 	window = new ViewerWindow(context());
 }
 
@@ -244,6 +250,12 @@ RenderThread *ViewerWidget::get_renderer() {
 
 void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
+}
+
+void ViewerWidget::context_destroy() {
+	if (window != nullptr) {
+		delete window;
+	}
 }
 
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
