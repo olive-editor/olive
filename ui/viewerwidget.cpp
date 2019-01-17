@@ -375,6 +375,10 @@ void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
 	dragging = false;
 }
 
+void ViewerWidget::close_window() {
+	if (window != nullptr) window->hide();
+}
+
 void ViewerWidget::draw_waveform_func() {
 	QPainter p(this);
 	if (viewer->seq->using_workarea) {

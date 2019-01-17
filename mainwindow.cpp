@@ -981,6 +981,9 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 		set_sequence(nullptr);
 
+		panel_footage_viewer->viewer_widget->close_window();
+		panel_sequence_viewer->viewer_widget->close_window();
+
 		panel_footage_viewer->set_main_sequence();
 
 		QString data_dir = get_data_path();

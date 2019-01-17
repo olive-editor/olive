@@ -29,6 +29,7 @@ public:
 	~ViewerWidget();
 
 	void delete_function();
+	void close_window();
 
 	void paintGL();
 	void initializeGL();
