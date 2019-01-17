@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	bool launch_fullscreen = false;
 	QString load_proj;
 
-	qInstallMessageHandler(debug_message_handler);
+//	qInstallMessageHandler(debug_message_handler);
 
 	if (argc > 1) {
 		for (int i=1;i<argc;i++) {

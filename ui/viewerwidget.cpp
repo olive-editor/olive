@@ -21,6 +21,10 @@
 #include "ui/viewercontainer.h"
 #include "io/avtogl.h"
 #include "ui/timelinewidget.h"
+#include "ui/renderfunctions.h"
+#include "ui/renderthread.h"
+#include "ui/viewerwindow.h"
+#include "mainwindow.h"
 
 #include <QPainter>
 #include <QAudioOutput>
@@ -37,21 +41,22 @@
 #include <QDesktopWidget>
 #include <QInputDialog>
 #include <QApplication>
+#include <QScreen>
+#include <QMessageBox>
 
 extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-
 ViewerWidget::ViewerWidget(QWidget *parent) :
 	QOpenGLWidget(parent),
-	default_fbo(nullptr),
 	waveform(false),
 	waveform_zoom(1.0),
 	waveform_scroll(0),
 	dragging(false),
-	selected_gizmo(nullptr)
+	gizmos(nullptr),
+	selected_gizmo(nullptr),
+	window(nullptr)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -60,21 +65,26 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	format.setDepthBufferSize(24);
 	setFormat(format);
 
-	// error handler - retries after 50ms if we couldn't get the entire image
-	retry_timer.setInterval(50);
-	connect(&retry_timer, SIGNAL(timeout()), this, SLOT(retry()));
-
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
+
+	renderer = new RenderThread();
+	renderer->start(QThread::HighPriority);
+	connect(renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
+	connect(renderer, SIGNAL(finished()), renderer, SLOT(deleteLater()));
+}
+
+ViewerWidget::~ViewerWidget() {
+	if (window != nullptr) {
+		window->close();
+		delete window;
+	}
+	renderer->cancel();
+	delete renderer;
 }
 
 void ViewerWidget::delete_function() {
-	// destroy all textures as well
-	if (viewer->seq != nullptr) {
-		makeCurrent();
-		closeActiveClips(viewer->seq);
-		doneCurrent();
-	}
+	closeActiveClips(viewer->seq);
 }
 
 void ViewerWidget::set_waveform_scroll(int s) {
@@ -90,8 +100,21 @@ void ViewerWidget::show_context_menu() {
 	QAction* save_frame_as_image = menu.addAction(tr("Save Frame as Image..."));
 	connect(save_frame_as_image, SIGNAL(triggered(bool)), this, SLOT(save_frame()));
 
-	QAction* show_fullscreen_action = menu.addAction(tr("Show Fullscreen"));
-	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));
+	/*QAction* show_fullscreen_action = menu.addAction(tr("Show Fullscreen"));
+	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));*/
+	QMenu* fullscreen_menu = menu.addMenu(tr("Show Fullscreen"));
+	QList<QScreen*> screens = QGuiApplication::screens();
+	if (window != nullptr && window->isVisible()) {
+		fullscreen_menu->addAction(tr("Disable"));
+	}
+	for (int i=0;i<screens.size();i++) {
+		QAction* screen_action = fullscreen_menu->addAction(tr("Screen %1: %2x%3").arg(
+																QString::number(i),
+																QString::number(screens.at(i)->size().width()),
+																QString::number(screens.at(i)->size().height())));
+		screen_action->setData(i);
+	}
+	connect(fullscreen_menu, SIGNAL(triggered(QAction*)), this, SLOT(fullscreen_menu_action(QAction*)));
 
 	QMenu zoom_menu(tr("Zoom"));
 	QAction* fit_zoom = zoom_menu.addAction(tr("Fit"));
@@ -129,27 +152,30 @@ void ViewerWidget::save_frame() {
 		if (!fn.endsWith(selected_ext,  Qt::CaseInsensitive)) {
 			fn += selected_ext;
 		}
-		QOpenGLFramebufferObject fbo(viewer->seq->width, viewer->seq->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
 
-		rendering = true;
-		fbo.bind();
-
-		default_fbo = &fbo;
-
-		paintGL();
-
-		QImage img(viewer->seq->width, viewer->seq->height, QImage::Format_RGBA8888);
-		glReadPixels(0, 0, img.width(), img.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
-		img.save(fn);
-
-		fbo.release();
-		default_fbo = nullptr;
-		rendering = false;
+		renderer->start_render(context(), viewer->seq, fn);
 	}
 }
 
-void ViewerWidget::show_fullscreen() {
-	showFullScreen();
+void ViewerWidget::queue_repaint() {
+	update();
+}
+
+void ViewerWidget::fullscreen_menu_action(QAction *action) {
+	if (window == nullptr) {
+		QMessageBox::critical(this, "Error", "Failed to create viewer window");
+	} else {
+		if (action->data().isNull()) {
+			window->hide();
+		} else {
+			QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
+			window->showFullScreen();
+			window->setGeometry(selected_screen->geometry());
+
+			// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
+			QTimer::singleShot(100, window, SLOT(update()));
+		}
+	}
 }
 
 void ViewerWidget::set_fit_zoom() {
@@ -186,30 +212,63 @@ void ViewerWidget::retry() {
 void ViewerWidget::initializeGL() {
 	initializeOpenGLFunctions();
 
-	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(delete_function()), Qt::DirectConnection);
+	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
 
-	retry_timer.start();
+	window = new ViewerWindow(context());
+}
+
+void ViewerWidget::frame_update() {
+	if (viewer->seq != nullptr) {
+		bool render_audio = (viewer->playing || audio_rendering);
+
+		// send context to other thread for drawing
+		if (waveform) {
+			update();
+		} else {
+			doneCurrent();
+			renderer->start_render(context(), viewer->seq);
+		}
+
+		// render the audio
+		compose_audio(viewer, viewer->seq, render_audio);
+	}
+}
+
+RenderThread *ViewerWidget::get_renderer() {
+	return renderer;
 }
 
 //void ViewerWidget::resizeGL(int w, int h)
 //{
 //}
 
-void ViewerWidget::paintEvent(QPaintEvent *e) {
-	if (!rendering && context()->thread() == this->thread()) {
-		makeCurrent();
+/*void ViewerWidget::paintEvent(QPaintEvent *e) {
+	if (!rendering) {
 		QOpenGLWidget::paintEvent(e);
 	}
-}
+}*/
 
 void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
 }
 
+void ViewerWidget::context_destroy() {
+	makeCurrent();
+	if (viewer->seq != nullptr) {
+		closeActiveClips(viewer->seq);
+	}
+	if (window != nullptr) {
+		delete window;
+	}
+	//QMetaObject::invokeMethod(renderer, "delete_ctx", Qt::QueuedConnection);
+	renderer->delete_ctx();
+	doneCurrent();
+}
+
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
 	if (gizmos != nullptr) {
 		double multiplier = double(viewer->seq->width) / double(width());
-		QPoint mouse_pos(qRound(x*multiplier), qRound(y*multiplier));
+		QPoint mouse_pos(qRound(x*multiplier), qRound((height()-y)*multiplier));
 		int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
 		int target_size = 2 * qRound(GIZMO_TARGET_SIZE * multiplier);
 		for (int i=0;i<gizmos->gizmo_count();i++) {
@@ -238,7 +297,6 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
 				}
 				break;
 			}
-
 		}
 	}
 	return nullptr;
@@ -248,8 +306,8 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 	if (selected_gizmo != nullptr) {
 		double multiplier = double(viewer->seq->width) / double(width());
 
-		int x_movement = (event->pos().x() - drag_start_x)*multiplier;
-		int y_movement = (event->pos().y() - drag_start_y)*multiplier;
+		int x_movement = qRound((event->pos().x() - drag_start_x)*multiplier);
+		int y_movement = qRound((event->pos().y() - drag_start_y)*multiplier);
 
 		gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead), done);
 
@@ -315,11 +373,38 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
-	if (dragging) move_gizmos(event, true);
+	if (dragging && gizmos != nullptr && !(event->button() == Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND)) {
+		move_gizmos(event, true);
+	}
 	dragging = false;
 }
 
-void ViewerWidget::drawTitleSafeArea() {
+void ViewerWidget::close_window() {
+	if (window != nullptr) window->hide();
+}
+
+void ViewerWidget::draw_waveform_func() {
+	QPainter p(this);
+	if (viewer->seq->using_workarea) {
+		int in_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_in) - waveform_scroll;
+		int out_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_out) - waveform_scroll;
+
+		p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
+		p.setPen(Qt::white);
+		p.drawLine(in_x, 0, in_x, height());
+		p.drawLine(out_x, 0, out_x, height());
+	}
+	QRect wr = rect();
+	wr.setX(wr.x() - waveform_scroll);
+
+	p.setPen(Qt::green);
+	draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
+	p.setPen(Qt::red);
+	int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
+	p.drawLine(playhead_x, 0, playhead_x, height());
+}
+
+void ViewerWidget::draw_title_safe_area() {
 	double halfWidth = 0.5;
 	double halfHeight = 0.5;
 	double viewportAr = (double) width() / (double) height();
@@ -387,571 +472,129 @@ void ViewerWidget::drawTitleSafeArea() {
 	glEnd();
 }
 
-GLuint ViewerWidget::draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, 1, 0, 1, -1, 1);
+void ViewerWidget::draw_gizmos() {
+	float color[4];
+	glGetFloatv(GL_CURRENT_COLOR, color);
 
-	fbo->bind();
-
-	if (clear) glClear(GL_COLOR_BUFFER_BIT);
-
-	// get current blend mode
-	GLint src_rgb, src_alpha, dst_rgb, dst_alpha;
-	glGetIntegerv(GL_BLEND_SRC_RGB, &src_rgb);
-	glGetIntegerv(GL_BLEND_SRC_ALPHA, &src_alpha);
-	glGetIntegerv(GL_BLEND_DST_RGB, &dst_rgb);
-	glGetIntegerv(GL_BLEND_DST_ALPHA, &dst_alpha);
-
-	GL_DEFAULT_BLEND
-
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); // top left
-	glVertex2f(0, 0); // top left
-	glTexCoord2f(1, 0); // top right
-	glVertex2f(1, 0); // top right
-	glTexCoord2f(1, 1); // bottom right
-	glVertex2f(1, 1); // bottom right
-	glTexCoord2f(0, 1); // bottom left
-	glVertex2f(0, 1); // bottom left
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	fbo->release();
-
-	// restore previous blendFunc
-	glBlendFuncSeparate(src_rgb, dst_rgb, src_alpha, dst_alpha);
-
-	if (default_fbo != nullptr) default_fbo->bind();
-
-	glPopMatrix();
-	return fbo->texture();
-}
-
-void ViewerWidget::process_effect(Clip* c, Effect* e, double timecode, GLTextureCoords& coords, GLuint& composite_texture, bool& fbo_switcher, int data) {
-	if (e->is_enabled()) {
-		if (e->enable_coords) {
-			e->process_coords(timecode, coords, data);
-		}
-		if ((e->enable_shader && shaders_are_enabled) || e->enable_superimpose) {
-			e->startEffect();
-			if ((e->enable_shader && shaders_are_enabled) && e->is_glsl_linked()) {
-				e->process_shader(timecode, coords);
-				composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
-				fbo_switcher = !fbo_switcher;
-			}
-			if (e->enable_superimpose) {
-				GLuint superimpose_texture = e->process_superimpose(timecode);
-				if (superimpose_texture == 0) {
-					qWarning() << "Superimpose texture was nullptr, retrying...";
-					texture_failed = true;
-				} else {
-					composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
-				}
-			}
-			e->endEffect();
-		}
-	}
-}
-
-int motion_blur_prog = 0;
-int motion_blur_lim = 4;
-
-GLuint ViewerWidget::compose_sequence(QVector<Clip*>& nests, bool render_audio) {
-	Sequence* s = viewer->seq;
-	long playhead = s->playhead;
-
-	if (!nests.isEmpty()) {
-		for (int i=0;i<nests.size();i++) {
-			s = nests.at(i)->media->to_sequence();
-			playhead += nests.at(i)->clip_in - nests.at(i)->get_timeline_in_with_transition();
-			playhead = refactor_frame_number(playhead, nests.at(i)->sequence->frame_rate, s->frame_rate);
-		}
-
-		if (nests.last()->fbo != nullptr) {
-			nests.last()->fbo[0]->bind();
-			glClear(GL_COLOR_BUFFER_BIT);
-			nests.last()->fbo[0]->release();
-		}
-	}
-
-	int audio_track_count = 0;
-
-	QVector<Clip*> current_clips;
-
-	for (int i=0;i<s->clips.size();i++) {
-		Clip* c = s->clips.at(i);
-
-		// if clip starts within one second and/or hasn't finished yet
-		if (c != nullptr) {
-			if (!(!nests.isEmpty() && !same_sign(c->track, nests.last()->track))) {
-				bool clip_is_active = false;
-
-				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
-					Footage* m = c->media->to_footage();
-					if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
-						if (m->ready) {
-							const FootageStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
-							if (ms != nullptr && is_clip_active(c, playhead)) {
-								// if thread is already working, we don't want to touch this,
-								// but we also don't want to hang the UI thread
-								if (!c->open) {
-									open_clip(c, !rendering);
-								}
-								clip_is_active = true;
-								if (c->track >= 0) audio_track_count++;
-							} else if (c->open) {
-								close_clip(c, false);
-							}
-						} else {
-							//qWarning() << "Media '" + m->name + "' was not ready, retrying...";
-							texture_failed = true;
-						}
-					}
-				} else {
-					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !rendering);
-						clip_is_active = true;
-					} else if (c->open) {
-						close_clip(c, false);
-					}
-				}
-				if (clip_is_active) {
-					bool added = false;
-					for (int j=0;j<current_clips.size();j++) {
-						if (current_clips.at(j)->track < c->track) {
-							current_clips.insert(j, c);
-							added = true;
-							break;
-						}
-					}
-					if (!added) {
-						current_clips.append(c);
-					}
-				}
-			}
-		}
-	}
-
-	int half_width = s->width/2;
-	int half_height = s->height/2;
-	if (rendering || !nests.isEmpty()) half_height = -half_height; // invert vertical
+	float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
+	float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
 
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(-half_width, half_width, half_height, -half_height, -1, 10);
-
-	for (int i=0;i<current_clips.size();i++) {
-		GL_DEFAULT_BLEND
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-
-		Clip* c = current_clips.at(i);
-
-		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
-			qWarning() << "Tried to display clip" << i << "but it's closed";
-			texture_failed = true;
-		} else {
-			if (c->track < 0) {
-				GLuint textureID = 0;
-				int video_width = c->getWidth();
-				int video_height = c->getHeight();
-
-				if (c->media != nullptr) {
-					switch (c->media->get_type()) {
-					case MEDIA_TYPE_FOOTAGE:
-						// set up opengl texture
-						if (c->texture == nullptr) {
-							c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-							c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
-							c->texture->setFormat(get_gl_tex_fmt_from_av(c->pix_fmt));
-							c->texture->setMipLevels(c->texture->maximumMipLevels());
-							c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
-						}
-						get_clip_frame(c, playhead);
-						textureID = c->texture->textureId();
-						break;
-					case MEDIA_TYPE_SEQUENCE:
-						textureID = -1;
-						break;
-					}
-				}
-
-				if (textureID == 0 && c->media != nullptr) {
-					qWarning() << "Texture hasn't been created yet";
-					texture_failed = true;
-				} else if (playhead >= c->get_timeline_in_with_transition()) {
-					glPushMatrix();
-
-					// start preparing cache
-					if (c->fbo == nullptr) {
-						c->fbo = new QOpenGLFramebufferObject* [2];
-						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
-						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
-					}
-
-					// clear fbos
-					/*c->fbo[0]->bind();
-					glClear(GL_COLOR_BUFFER_BIT);
-					c->fbo[0]->release();
-					c->fbo[1]->bind();
-					glClear(GL_COLOR_BUFFER_BIT);
-					c->fbo[1]->release();*/
-
-					bool fbo_switcher = false;
-
-					glViewport(0, 0, video_width, video_height);
-
-					GLuint composite_texture;
-
-					if (c->media == nullptr) {
-						c->fbo[fbo_switcher]->bind();
-						glClear(GL_COLOR_BUFFER_BIT);
-						c->fbo[fbo_switcher]->release();
-						composite_texture = c->fbo[fbo_switcher]->texture();
-					} else {
-						// for nested sequences
-						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
-							nests.append(c);
-							textureID = compose_sequence(nests, render_audio);
-							nests.removeLast();
-							fbo_switcher = true;
-						}
-
-						composite_texture = draw_clip(c->fbo[fbo_switcher], textureID, true);
-					}
-
-					fbo_switcher = !fbo_switcher;
-
-					// set up default coords
-					GLTextureCoords coords;
-					coords.grid_size = 1;
-					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
-					coords.vertexTopLeftY = coords.vertexTopRightY = -video_height/2;
-					coords.vertexTopRightX = coords.vertexBottomRightX = video_width/2;
-					coords.vertexBottomLeftY = coords.vertexBottomRightY = video_height/2;
-					coords.vertexBottomLeftZ = coords.vertexBottomRightZ = coords.vertexTopLeftZ = coords.vertexTopRightZ = 1;
-					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0.0;
-					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
-					coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
-
-					// set up autoscale
-					if (c->autoscale && (video_width != s->width && video_height != s->height)) {
-						float width_multiplier = float(s->width) / float(video_width);
-						float height_multiplier = float(s->height) / float(video_height);
-						float scale_multiplier = qMin(width_multiplier, height_multiplier);
-						glScalef(scale_multiplier, scale_multiplier, 1);
-					}
-
-					// EFFECT CODE START
-					double timecode = get_timecode(c, playhead);
-
-					Effect* first_gizmo_effect = nullptr;
-					Effect* selected_effect = nullptr;
-
-					for (int j=0;j<c->effects.size();j++) {
-						Effect* e = c->effects.at(j);
-						process_effect(c, e, timecode, coords, composite_texture, fbo_switcher, TA_NO_TRANSITION);
-
-						if (e->are_gizmos_enabled()) {
-							if (first_gizmo_effect == nullptr) first_gizmo_effect = e;
-							if (e->container->selected) selected_effect = e;
-						}
-					}
-
-					if (!rendering) {
-						if (selected_effect != nullptr) {
-							gizmos = selected_effect;
-						} else if (panel_timeline->is_clip_selected(c, true)) {
-							gizmos = first_gizmo_effect;
-						}
-					}
-
-					if (c->get_opening_transition() != nullptr) {
-						int transition_progress = playhead - c->get_timeline_in_with_transition();
-						if (transition_progress < c->get_opening_transition()->get_length()) {
-							process_effect(c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_OPENING_TRANSITION);
-						}
-					}
-
-					if (c->get_closing_transition() != nullptr) {
-						int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
-						if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
-							process_effect(c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, TA_CLOSING_TRANSITION);
-						}
-					}
-					// EFFECT CODE END
-
-					if (!nests.isEmpty()) {
-						nests.last()->fbo[0]->bind();
-						glViewport(0, 0, s->width, s->height);
-					} else if (rendering) {
-						glViewport(0, 0, s->width, s->height);
-					} else {
-						int widget_width = width();
-						int widget_height = height();
-
-						widget_width *= QApplication::desktop()->devicePixelRatio();
-						widget_height *= QApplication::desktop()->devicePixelRatio();
-
-						glViewport(0, 0, widget_width, widget_height);
-					}
-
-					glBindTexture(GL_TEXTURE_2D, composite_texture);
-
-					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-					glBegin(GL_QUADS);
-
-					if (coords.grid_size <= 1) {
-						float z = 0.0f;
-
-						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-						glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, z); // top left
-						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-						glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, z); // top right
-						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-						glVertex3f(coords.vertexBottomRightX, coords.vertexBottomRightY, z); // bottom right
-						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-						glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, z); // bottom left
-					} else {
-						float rows = coords.grid_size;
-						float cols = coords.grid_size;
-
-						for (float k=0;k<rows;k++) {
-							float row_prog = k/rows;
-							float next_row_prog = (k+1)/rows;
-							for (float j=0;j<cols;j++) {
-								float col_prog = j/cols;
-								float next_col_prog = (j+1)/cols;
-
-								float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
-								float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
-								float vertexBLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
-								float vertexBRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
-
-								float vertexTLY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
-								float vertexTRY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
-								float vertexBLY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
-								float vertexBRY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
-
-								glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
-								glVertex2f(float_lerp(vertexTLX, vertexTRX, col_prog), float_lerp(vertexTLY, vertexBLY, row_prog)); // top left
-								glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
-								glVertex2f(float_lerp(vertexTLX, vertexTRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, row_prog)); // top right
-								glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
-								glVertex2f(float_lerp(vertexBLX, vertexBRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
-								glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
-								glVertex2f(float_lerp(vertexBLX, vertexBRX, col_prog), float_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
-							}
-						}
-					}
-
-					glEnd();
-
-					glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
-
-					if (gizmos != nullptr && !drawn_gizmos) {
-						gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
-						gizmos->gizmo_world_to_screen();
-
-						drawn_gizmos = true;
-					}
-
-					if (!nests.isEmpty()) {
-						nests.last()->fbo[0]->release();
-						if (default_fbo != nullptr) default_fbo->bind();
-					}
-
-					glPopMatrix();
-
-					/*GLfloat motion_blur_frac = (GLfloat) motion_blur_prog / (GLfloat) motion_blur_lim;
-					if (motion_blur_prog == 0) {
-						glAccum(GL_LOAD, motion_blur_frac);
-					} else {
-						glAccum(GL_ACCUM, motion_blur_frac);
-					}
-					motion_blur_prog++;*/
-				}
-			} else {
-				if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
-					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
-						nests.append(c);
-						compose_sequence(nests, render_audio);
-						nests.removeLast();
-					} else {
-						if (c->lock.tryLock()) {
-							// clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
-							c->lock.unlock();
-						}
-					}
-				}
-
-				// visually update all the keyframe values
-				if (c->sequence == viewer->seq) { // only if you can currently see them
-					double ts = (playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition())/s->frame_rate;
-					for (int i=0;i<c->effects.size();i++) {
-						Effect* e = c->effects.at(i);
-						for (int j=0;j<e->row_count();j++) {
-							EffectRow* r = e->row(j);
-							for (int k=0;k<r->fieldCount();k++) {
-								r->field(k)->validate_keyframe_data(ts);
-							}
-						}
-					}
-				}
+	glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
+	float gizmo_z = 0.0f;
+	for (int j=0;j<gizmos->gizmo_count();j++) {
+		EffectGizmo* g = gizmos->gizmo(j);
+		glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
+		switch (g->get_type()) {
+		case GIZMO_TYPE_DOT: // draw dot
+			glBegin(GL_QUADS);
+			glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
+			glEnd();
+			break;
+		case GIZMO_TYPE_POLY: // draw lines
+			glBegin(GL_LINES);
+			for (int k=1;k<g->get_point_count();k++) {
+				glVertex3f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y(), gizmo_z);
+				glVertex3f(g->screen_pos[k].x(), g->screen_pos[k].y(), gizmo_z);
 			}
+			glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
+			glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
+			glEnd();
+			break;
+		case GIZMO_TYPE_TARGET: // draw target
+			glBegin(GL_LINES);
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y(), gizmo_z);
+			glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y(), gizmo_z);
+
+			glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()-target_size, gizmo_z);
+			glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()+target_size, gizmo_z);
+			glEnd();
+			break;
 		}
 	}
-
-	if (audio_track_count == 0) {
-		viewer->play_wake();
-	}
-
 	glPopMatrix();
 
-	if (!nests.isEmpty() && nests.last()->fbo != nullptr) {
-		// returns nested clip's texture
-		return nests.last()->fbo[0]->texture();
-	}
-
-	return 0;
+	glColor4f(color[0], color[1], color[2], color[3]);
 }
 
 void ViewerWidget::paintGL() {
-	drawn_gizmos = false;
-	force_quit = false;
-	if (viewer->seq != nullptr) {
-		gizmos = nullptr;
+	if (waveform) {
+		draw_waveform_func();
+	} else {
+		renderer->mutex.lock();
 
-		bool render_audio = (viewer->playing || rendering);
-		bool loop = false;
-		do {
-			loop = false;
+		makeCurrent();
 
-			glClearColor(0, 0, 0, 1);
-			glMatrixMode(GL_MODELVIEW);
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_BLEND);
-			glEnable(GL_DEPTH);
+		// clear to solid black
 
-			texture_failed = false;
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-			if (!rendering) retry_timer.stop();
+		// set color multipler to straight white
+		glColor4f(1.0, 1.0, 1.0, 1.0);
 
-			glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_TEXTURE_2D);
 
-			// compose video preview
-			glClearColor(0, 0, 0, 0);
+		// set screen coords to widget size
+		glLoadIdentity();
+		glOrtho(0, 1, 0, 1, -1, 1);
 
-			QVector<Clip*> nests;
+		// draw texture from render thread
 
-			compose_sequence(nests, render_audio);
+		glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
 
-			if (waveform) {
-				QPainter p(this);
-				if (viewer->seq->using_workarea) {
-					int in_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_in) - waveform_scroll;
-					int out_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->workarea_out) - waveform_scroll;
+		glBegin(GL_QUADS);
 
-					p.fillRect(QRect(in_x, 0, out_x - in_x, height()), QColor(255, 255, 255, 64));
-					p.setPen(Qt::white);
-					p.drawLine(in_x, 0, in_x, height());
-					p.drawLine(out_x, 0, out_x, height());
-				}
-				QRect wr = rect();
-				wr.setX(wr.x() - waveform_scroll);
+		glVertex2f(0, 0);
+		glTexCoord2f(0, 0);
+		glVertex2f(0, 1);
+		glTexCoord2f(1, 0);
+		glVertex2f(1, 1);
+		glTexCoord2f(1, 1);
+		glVertex2f(1, 0);
+		glTexCoord2f(0, 1);
 
-				p.setPen(Qt::green);
-				draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out, &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
-				p.setPen(Qt::red);
-				int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
-				p.drawLine(playhead_x, 0, playhead_x, height());
-			}
+		glEnd();
 
-			if (force_quit) break;
-			if (texture_failed) {
-				if (rendering) {
-					qInfo() << "Texture failed - looping";
-					loop = true;
-				} else if (!viewer->playing) {
-					retry_timer.start();
-				}
-			}
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-			if (config.show_title_safe_area && !rendering) {
-				drawTitleSafeArea();
-			}
+		// draw title/action safe area
+		if (config.show_title_safe_area) {
+			draw_title_safe_area();
+		}
 
-			if (gizmos != nullptr && drawn_gizmos) {
-				float color[4];
-				glGetFloatv(GL_CURRENT_COLOR, color);
+		gizmos = renderer->gizmos;
+		if (gizmos != nullptr) {
+			draw_gizmos();
+		}
 
-				float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
-				float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
+		glDisable(GL_TEXTURE_2D);
 
-				glPushMatrix();
-				glLoadIdentity();
-				glOrtho(0, viewer->seq->width, viewer->seq->height, 0, -1, 10);
-				float gizmo_z = 0.0f;
-				for (int j=0;j<gizmos->gizmo_count();j++) {
-					EffectGizmo* g = gizmos->gizmo(j);
-					glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
-					switch (g->get_type()) {
-					case GIZMO_TYPE_DOT: // draw dot
-						glBegin(GL_QUADS);
-						glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
-						glEnd();
-						break;
-					case GIZMO_TYPE_POLY: // draw lines
-						glBegin(GL_LINES);
-						for (int k=1;k<g->get_point_count();k++) {
-							glVertex3f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y(), gizmo_z);
-							glVertex3f(g->screen_pos[k].x(), g->screen_pos[k].y(), gizmo_z);
-						}
-						glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
-						glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
-						glEnd();
-						break;
-					case GIZMO_TYPE_TARGET: // draw target
-						glBegin(GL_LINES);
-						glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+		if (window != nullptr && window->isVisible()) {
+			window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
+		}
 
-						glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+		renderer->mutex.unlock();
 
-						glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
-
-						glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
-
-						glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y(), gizmo_z);
-						glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y(), gizmo_z);
-
-						glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()-target_size, gizmo_z);
-						glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()+target_size, gizmo_z);
-						glEnd();
-						break;
-					}
-				}
-				glPopMatrix();
-
-				glColor4f(color[0], color[1], color[2], color[3]);
-
-				drawn_gizmos = true;
-			}
-
-			glDisable(GL_DEPTH);
-			glDisable(GL_BLEND);
-			glDisable(GL_TEXTURE_2D);
-		} while (loop);
+		if (renderer->did_texture_fail()) {
+			doneCurrent();
+			renderer->start_render(context(), viewer->seq);
+		}
 	}
 }

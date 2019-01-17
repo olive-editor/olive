@@ -6,9 +6,12 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
+#include "ui/renderthread.h"
+#include "ui/renderfunctions.h"
 #include "playback/playback.h"
 #include "playback/audio.h"
 #include "dialogs/exportdialog.h"
+#include "mainwindow.h"
 #include "debug.h"
 
 extern "C" {
@@ -111,7 +114,7 @@ bool ExportThread::setupVideo() {
 	vcodec_ctx->sample_aspect_ratio = {1, 1};
 	vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
 	vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
-	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = video_bitrate * 1000000;
+	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = qRound(video_bitrate * 1000000);
 	vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
 	video_stream->time_base = vcodec_ctx->time_base;
 
@@ -312,12 +315,7 @@ bool ExportThread::setupContainer() {
 
 void ExportThread::run() {
 	panel_sequence_viewer->pause();
-
-	if (!panel_sequence_viewer->viewer_widget->context()->makeCurrent(&surface)) {
-		qCritical() << "Make current failed";
-		ed->export_error = tr("could not make OpenGL context current");
-		return;
-	}
+	panel_sequence_viewer->seek(start_frame);
 
 	// copy filename
 	QByteArray ba = filename.toUtf8();
@@ -339,28 +337,35 @@ void ExportThread::run() {
 		}
 	}
 
-	panel_sequence_viewer->seek(start_frame);
-	panel_sequence_viewer->reset_all_audio();
-
-	QOpenGLFramebufferObject fbo(sequence->width, sequence->height, QOpenGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_RECTANGLE);
-	fbo.bind();
-
-	panel_sequence_viewer->viewer_widget->default_fbo = &fbo;
-
 	long file_audio_samples = 0;
 	qint64 start_time, frame_time, avg_time, eta, total_time = 0;
 	long remaining_frames, frame_count = 1;
 
+	RenderThread* renderer = panel_sequence_viewer->viewer_widget->get_renderer();
+	disconnect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
+	connect(renderer, SIGNAL(ready()), this, SLOT(wake()));
+
+	mutex.lock();
+
 	while (sequence->playhead <= end_frame && continueEncode) {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
-		panel_sequence_viewer->viewer_widget->paintGL();
+		if (audio_enabled) {
+			compose_audio(nullptr, sequence, true);
+		}
+		if (video_enabled) {
+			do {
+				// TODO optimize by rendering the next frame while encoding the last
+				renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0]);
+				waitCond.wait(&mutex);
+				if (!continueEncode) break;
+			} while (renderer->did_texture_fail());
+			if (!continueEncode) break;
+		}
 
+		// encode last frame while rendering next frame
 		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
 		if (video_enabled) {
-			// get image from opengl
-			glReadPixels(0, 0, video_frame->linesize[0]/4, sequence->height, GL_RGBA, GL_UNSIGNED_BYTE, video_frame->data[0]);
-
 			// change pixel format
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
 			sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
@@ -371,6 +376,7 @@ void ExportThread::run() {
 		if (audio_enabled) {
 			// do we need to encode more audio samples?
 			while (continueEncode && file_audio_samples <= (timecode_secs*audio_sampling_rate)) {
+				// copy samples from audio buffer to AVFrame
 				int adjusted_read = audio_ibuffer_read%audio_ibuffer_size;
 				int copylen = qMin(aframe_bytes, audio_ibuffer_size-adjusted_read);
 				memcpy(audio_frame->data[0], audio_ibuffer+adjusted_read, copylen);
@@ -405,20 +411,22 @@ void ExportThread::run() {
 
 //        qInfo() << "Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
 
-		emit progress_changed(qRound(((double) (sequence->playhead-start_frame) / (double) (end_frame-start_frame)) * 100), eta);
+		emit progress_changed(qRound((double(sequence->playhead-start_frame) / double(end_frame-start_frame)) * 100.0), eta);
 		sequence->playhead++;
 		frame_count++;
 	}
+
+	disconnect(renderer, SIGNAL(ready()), this, SLOT(wake()));
+	connect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
+
+	mutex.unlock();
 
 	if (continueEncode) {
 		if (video_enabled) vpkt_alloc = true;
 		if (audio_enabled) apkt_alloc = true;
 	}
 
-	panel_sequence_viewer->viewer_widget->default_fbo = nullptr;
-	rendering = false;
-
-	fbo.release();
+	mainWindow->set_rendering_state(false);
 
 	if (audio_enabled && continueEncode) {
 		// flush swresample
@@ -478,9 +486,8 @@ void ExportThread::run() {
 	}
 
 	delete [] c_filename;
+}
 
-	panel_sequence_viewer->viewer_widget->context()->doneCurrent();
-	panel_sequence_viewer->viewer_widget->context()->moveToThread(qApp->thread());
-
-	rendering = false;
+void ExportThread::wake() {
+	waitCond.wakeAll();
 }

@@ -9,9 +9,7 @@ struct ClipCache;
 struct Sequence;
 struct AVFrame;
 
-extern bool texture_failed;
-extern bool rendering;
-
+long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
 bool clip_uses_cacher(Clip* clip);
 void open_clip(Clip* clip, bool multithreaded);
 void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> &nests);
@@ -20,7 +18,7 @@ void cache_audio_worker(Clip* c, bool write_A);
 void cache_video_worker(Clip* c, long playhead);
 void handle_media(Sequence* sequence, long playhead, bool multithreaded);
 void reset_cache(Clip* c, long target_frame);
-void get_clip_frame(Clip* c, long playhead);
+void get_clip_frame(Clip* c, long playhead, bool &texture_failed);
 double get_timecode(Clip* c, long playhead);
 
 long playhead_to_clip_frame(Clip* c, long playhead);

@@ -7,12 +7,17 @@
 #include "debug.h"
 
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent), root_item(nullptr) {
-	root_item = new Media(0);
-	root_item->root = true;
+	make_root();
 }
 
 ProjectModel::~ProjectModel() {
 	destroy_root();
+}
+
+void ProjectModel::make_root() {
+	root_item = new Media(nullptr);
+	root_item->temp_id = 0;
+	root_item->root = true;
 }
 
 void ProjectModel::destroy_root() {
@@ -27,8 +32,7 @@ void ProjectModel::destroy_root() {
 void ProjectModel::clear() {
 	beginResetModel();
 	destroy_root();
-	root_item = new Media(0);
-	root_item->root = true;
+	make_root();
 	endResetModel();
 }
 

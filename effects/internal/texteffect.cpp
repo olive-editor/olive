@@ -29,49 +29,49 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	enable_superimpose = true;
 	//enable_shader = true;
 
-    text_val = add_row(tr("Text"))->add_field(EFFECT_FIELD_STRING, "text", 2);
+	text_val = add_row(tr("Text"))->add_field(EFFECT_FIELD_STRING, "text", 2);
 	QTextEdit* text_widget = static_cast<QTextEdit*>(text_val->ui_element);
 	text_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(text_widget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(text_edit_menu()));
 
-    set_font_combobox = add_row(tr("Font"))->add_field(EFFECT_FIELD_FONT, "font", 2);
+	set_font_combobox = add_row(tr("Font"))->add_field(EFFECT_FIELD_FONT, "font", 2);
 
-    size_val = add_row(tr("Size"))->add_field(EFFECT_FIELD_DOUBLE, "size", 2);
+	size_val = add_row(tr("Size"))->add_field(EFFECT_FIELD_DOUBLE, "size", 2);
 	size_val->set_double_minimum_value(0);
 
-    set_color_button = add_row(tr("Color"))->add_field(EFFECT_FIELD_COLOR, "color", 2);
+	set_color_button = add_row(tr("Color"))->add_field(EFFECT_FIELD_COLOR, "color", 2);
 
-    EffectRow* alignment_row = add_row(tr("Alignment"));
+	EffectRow* alignment_row = add_row(tr("Alignment"));
 	halign_field = alignment_row->add_field(EFFECT_FIELD_COMBO, "halign");
-    halign_field->add_combo_item(tr("Left"), Qt::AlignLeft);
-    halign_field->add_combo_item(tr("Center"), Qt::AlignHCenter);
-    halign_field->add_combo_item(tr("Right"), Qt::AlignRight);
-    halign_field->add_combo_item(tr("Justify"), Qt::AlignJustify);
+	halign_field->add_combo_item(tr("Left"), Qt::AlignLeft);
+	halign_field->add_combo_item(tr("Center"), Qt::AlignHCenter);
+	halign_field->add_combo_item(tr("Right"), Qt::AlignRight);
+	halign_field->add_combo_item(tr("Justify"), Qt::AlignJustify);
 
 	valign_field = alignment_row->add_field(EFFECT_FIELD_COMBO, "valign");
-    valign_field->add_combo_item(tr("Top"), Qt::AlignTop);
-    valign_field->add_combo_item(tr("Center"), Qt::AlignVCenter);
-    valign_field->add_combo_item(tr("Bottom"), Qt::AlignBottom);
+	valign_field->add_combo_item(tr("Top"), Qt::AlignTop);
+	valign_field->add_combo_item(tr("Center"), Qt::AlignVCenter);
+	valign_field->add_combo_item(tr("Bottom"), Qt::AlignBottom);
 
-    word_wrap_field = add_row(tr("Word Wrap"))->add_field(EFFECT_FIELD_BOOL, "wordwrap", 2);
+	word_wrap_field = add_row(tr("Word Wrap"))->add_field(EFFECT_FIELD_BOOL, "wordwrap", 2);
 
-    outline_bool = add_row(tr("Outline"))->add_field(EFFECT_FIELD_BOOL, "outline", 2);
-    outline_color = add_row(tr("Outline Color"))->add_field(EFFECT_FIELD_COLOR, "outlinecolor", 2);
-    outline_width = add_row(tr("Outline Width"))->add_field(EFFECT_FIELD_DOUBLE, "outlinewidth", 2);
+	outline_bool = add_row(tr("Outline"))->add_field(EFFECT_FIELD_BOOL, "outline", 2);
+	outline_color = add_row(tr("Outline Color"))->add_field(EFFECT_FIELD_COLOR, "outlinecolor", 2);
+	outline_width = add_row(tr("Outline Width"))->add_field(EFFECT_FIELD_DOUBLE, "outlinewidth", 2);
 	outline_width->set_double_minimum_value(0);
 
-    shadow_bool = add_row(tr("Shadow"))->add_field(EFFECT_FIELD_BOOL, "shadow", 2);
-    shadow_color = add_row(tr("Shadow Color"))->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
-    shadow_distance = add_row(tr("Shadow Distance"))->add_field(EFFECT_FIELD_DOUBLE, "shadowdistance", 2);
+	shadow_bool = add_row(tr("Shadow"))->add_field(EFFECT_FIELD_BOOL, "shadow", 2);
+	shadow_color = add_row(tr("Shadow Color"))->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
+	shadow_distance = add_row(tr("Shadow Distance"))->add_field(EFFECT_FIELD_DOUBLE, "shadowdistance", 2);
 	shadow_distance->set_double_minimum_value(0);
-    shadow_softness = add_row(tr("Shadow Softness"))->add_field(EFFECT_FIELD_DOUBLE, "shadowsoftness", 2);
+	shadow_softness = add_row(tr("Shadow Softness"))->add_field(EFFECT_FIELD_DOUBLE, "shadowsoftness", 2);
 	shadow_softness->set_double_minimum_value(0);
-    shadow_opacity = add_row(tr("Shadow Opacity"))->add_field(EFFECT_FIELD_DOUBLE, "shadowopacity", 2);
+	shadow_opacity = add_row(tr("Shadow Opacity"))->add_field(EFFECT_FIELD_DOUBLE, "shadowopacity", 2);
 	shadow_opacity->set_double_minimum_value(0);
 	shadow_opacity->set_double_maximum_value(100);
 
 	size_val->set_double_default_value(48);
-    text_val->set_string_value(tr("Sample Text"));
+	text_val->set_string_value(tr("Sample Text"));
 	halign_field->set_combo_index(1);
 	valign_field->set_combo_index(1);
 	word_wrap_field->set_bool_value(true);
@@ -94,7 +94,9 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 }
 
 void TextEffect::redraw(double timecode) {
-	img.fill(Qt::transparent);
+	QColor bkg = set_color_button->get_color_value(timecode);
+	bkg.setAlpha(0);
+	img.fill(bkg);
 
 	QPainter p(&img);
 	p.setRenderHint(QPainter::Antialiasing);
@@ -217,7 +219,7 @@ void TextEffect::shadow_enable(bool e) {
 void TextEffect::text_edit_menu() {
 	QMenu menu;
 
-    menu.addAction(tr("&Edit Text"), this, SLOT(open_text_edit()));
+	menu.addAction(tr("&Edit Text"), this, SLOT(open_text_edit()));
 
 	menu.exec(QCursor::pos());
 }

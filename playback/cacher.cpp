@@ -376,11 +376,13 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 				qint16 new_sample = static_cast<qint16>((frame->data[0][c->frame_sample_index+1] & 0xFF) << 8 | (frame->data[0][c->frame_sample_index] & 0xFF));
 				qint16 mixed_sample = mix_audio_sample(old_sample, new_sample);
 
-				audio_ibuffer[upper_byte_index] = static_cast<quint8>((mixed_sample >> 8) & 0xFF);
-				audio_ibuffer[lower_byte_index] = static_cast<quint8>(mixed_sample & 0xFF);
+				audio_ibuffer[upper_byte_index] = quint8((mixed_sample >> 8) & 0xFF);
+				audio_ibuffer[lower_byte_index] = quint8(mixed_sample & 0xFF);
 
 				c->audio_buffer_write+=2;
 				c->frame_sample_index+=2;
+
+				if (c->audio_reset) break;
 			}
 
 #ifdef AUDIOWARNINGS
@@ -388,6 +390,8 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 #endif
 
 			audio_write_lock.unlock();
+
+			if (c->audio_reset) return;
 
 			if (scrubbing) {
 				if (audio_thread != nullptr) audio_thread->notifyReceiver();
@@ -558,7 +562,9 @@ void reset_cache(Clip* c, long target_frame) {
 		} else {
 			if (c->stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 				// clear current queue
+				c->queue_lock.lock();
 				c->queue_clear();
+				c->queue_lock.unlock();
 
 				// seeks to nearest keyframe (target_frame represents internal clip frame)
 				int64_t target_ts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, target_frame));

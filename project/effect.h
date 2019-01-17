@@ -134,7 +134,7 @@ public:
 	Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
-    virtual void load(QXmlStreamReader& stream);
+	virtual void load(QXmlStreamReader& stream);
 	virtual void custom_load(QXmlStreamReader& stream);
 	virtual void save(QXmlStreamWriter& stream);
 

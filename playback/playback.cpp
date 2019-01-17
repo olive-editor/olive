@@ -33,8 +33,11 @@ extern "C" {
 //#define GCF_DEBUG
 #endif
 
-bool texture_failed = false;
 bool rendering = false;
+
+long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
+	return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
+}
 
 bool clip_uses_cacher(Clip* clip) {
 	return (clip->media == nullptr && clip->track >= 0) || (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
@@ -118,7 +121,7 @@ double get_timecode(Clip* c, long playhead) {
 	return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 }
 
-void get_clip_frame(Clip* c, long playhead) {
+void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 	if (c->finished_opening) {
 		const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 
@@ -154,8 +157,10 @@ void get_clip_frame(Clip* c, long playhead) {
 #endif
 						closest_frame = i;
 						break;
-					} else if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
-						closest_frame = i;
+					} else {
+						if (c->queue.at(i)->pts > c->queue.at(closest_frame)->pts && c->queue.at(i)->pts < target_pts) {
+							closest_frame = i;
+						}
 					}
 				}
 

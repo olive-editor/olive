@@ -63,7 +63,7 @@ void debug_message_handler(QtMsgType type, const QMessageLogContext &context, co
 		if (debug_file.isOpen()) debug_stream << QString("[FATAL] %1 (%2:%3, %4)\n").arg(localMsg.constData(), context.file, QString::number(context.line), context.function);
 		debug_info.prepend(QString("<font color='red'><b>[FATAL]</b> %1 (%2:%3, %4)</font><br>").arg(localMsg.constData(), context.file, QString::number(context.line), context.function));
 		fflush(stderr);
-		abort();
+//		abort();
 	}
 	if (debug_dialog != nullptr && debug_dialog->isVisible()) {
 		QMetaObject::invokeMethod(debug_dialog, "update_log", Qt::QueuedConnection);
