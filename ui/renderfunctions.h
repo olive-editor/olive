@@ -21,4 +21,6 @@ GLuint compose_sequence(Viewer* viewer,
 
 void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio);
 
+void viewport_render();
+
 #endif // RENDERFUNCTIONS_H

@@ -1,18 +1,24 @@
 #include "viewerwindow.h"
 
+#include <QMutex>
+
 ViewerWindow::ViewerWindow(QOpenGLContext *share) :
 	QOpenGLWindow(share),
-	texture(0)
+	texture(0),
+	mutex(nullptr)
 {}
 
-void ViewerWindow::set_texture(GLuint t, double iar) {
+void ViewerWindow::set_texture(GLuint t, double iar, QMutex* imutex) {
 	texture = t;
 	ar = iar;
+	mutex = imutex;
 	update();
 }
 
 void ViewerWindow::paintGL() {
 	if (texture > 0) {
+		if (mutex != nullptr) mutex->lock();
+
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -56,5 +62,7 @@ void ViewerWindow::paintGL() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glDisable(GL_TEXTURE_2D);
+
+		if (mutex != nullptr) mutex->unlock();
 	}
 }

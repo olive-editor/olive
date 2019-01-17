@@ -279,9 +279,6 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
 				break;
 			}
 		}
-
-		qDebug() << mouse_pos.x() << gizmos->gizmo(0)->screen_pos[0].x();
-		qDebug() << mouse_pos.y() << gizmos->gizmo(0)->screen_pos[0].y();
 	}
 	return nullptr;
 }
@@ -565,7 +562,7 @@ void ViewerWidget::paintGL() {
 		glDisable(GL_TEXTURE_2D);
 
 		if (window != nullptr && window->isVisible()) {
-			window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height));
+			window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
 		}
 
 		renderer->mutex.unlock();

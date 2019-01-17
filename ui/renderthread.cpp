@@ -77,7 +77,8 @@ void RenderThread::run() {
 				paint();
 
 				// flush changes
-				glFlush();
+//				glFlush();
+				glFinish();
 
 				// release
 				ctx->functions()->glBindFramebuffer(GL_FRAMEBUFFER, 0);
