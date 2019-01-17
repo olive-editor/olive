@@ -366,7 +366,12 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
-	if (dragging) move_gizmos(event, true);
+	if (event->button() == Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
+		qDebug() << "hand";
+	} else if (dragging && gizmos != nullptr) {
+		qDebug() << "gizmos";
+		move_gizmos(event, true);
+	}
 	dragging = false;
 }
 

@@ -120,7 +120,7 @@ void RenderThread::paint() {
 			ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
 			QImage img(tex_width, tex_height, QImage::Format_RGBA8888);
 			glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
-			img.mirrored(false, true).save(save_fn);
+			img.save(save_fn);
 			ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 			save_fn = "";
 		}
