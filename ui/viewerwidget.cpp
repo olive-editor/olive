@@ -253,9 +253,16 @@ void ViewerWidget::seek_from_click(int x) {
 }
 
 void ViewerWidget::context_destroy() {
+	makeCurrent();
+	if (viewer->seq != nullptr) {
+		closeActiveClips(viewer->seq);
+	}
 	if (window != nullptr) {
 		delete window;
 	}
+	//QMetaObject::invokeMethod(renderer, "delete_ctx", Qt::QueuedConnection);
+	renderer->delete_ctx();
+	doneCurrent();
 }
 
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
@@ -367,7 +374,6 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
 	if (dragging && gizmos != nullptr && !(event->button() == Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND)) {
-		qDebug() << "gizmos";
 		move_gizmos(event, true);
 	}
 	dragging = false;

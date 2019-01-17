@@ -25,13 +25,16 @@ public:
 	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
 	bool did_texture_fail();
 	void cancel();
+
+public slots:
+	// cleanup functions
+	void delete_ctx();
 signals:
 	void ready();
 private:
 	// cleanup functions
 	void delete_texture();
 	void delete_fbo();
-	void delete_ctx();
 
 	QWaitCondition waitCond;
 	QOffscreenSurface surface;
