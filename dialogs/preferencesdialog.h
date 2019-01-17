@@ -12,6 +12,7 @@ class QTreeWidgetItem;
 class QMenu;
 class QCheckBox;
 class QDoubleSpinBox;
+class QSpinBox;
 
 class KeySequenceEditor : public QKeySequenceEdit {
 	Q_OBJECT
@@ -42,13 +43,13 @@ private slots:
 	bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = nullptr);
 	void load_shortcut_file();
 	void save_shortcut_file();
-    void browse_css_file();
+	void browse_css_file();
 
 private:
 	void setup_ui();
 	void setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent);
 
-    QLineEdit* custom_css_fn;
+	QLineEdit* custom_css_fn;
 	QLineEdit* imgSeqFormatEdit;
 	QComboBox* recordingComboBox;
 	QRadioButton* accurateSeekButton;
@@ -59,6 +60,7 @@ private:
 	QComboBox* upcoming_queue_type;
 	QDoubleSpinBox* previous_queue_spinbox;
 	QComboBox* previous_queue_type;
+	QSpinBox* effect_textbox_lines_field;
 
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;

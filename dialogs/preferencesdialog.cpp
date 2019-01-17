@@ -130,6 +130,7 @@ void PreferencesDialog::save() {
 	config.upcoming_queue_type = upcoming_queue_type->currentIndex();
 	config.previous_queue_size = previous_queue_spinbox->value();
 	config.previous_queue_type = previous_queue_type->currentIndex();
+	config.effect_textbox_lines = effect_textbox_lines_field->value();
 
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
@@ -265,9 +266,11 @@ void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 	QTabWidget* tabWidget = new QTabWidget(this);
 
+	// General
 	QTabWidget* general_tab = new QTabWidget();
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
+	// General -> Custom CSS
 	general_layout->addWidget(new QLabel(tr("Custom CSS:")), 0, 0, 1, 1);
 
 	custom_css_fn = new QLineEdit(general_tab);
@@ -278,21 +281,32 @@ void PreferencesDialog::setup_ui() {
 	connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
 	general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
 
+	// General -> Image Sequence Formats
 	general_layout->addWidget(new QLabel(tr("Image sequence formats:")), 1, 0, 1, 1);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
 	general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
 
+	// General -> Audio Recording
 	general_layout->addWidget(new QLabel(tr("Audio Recording:")), 2, 0, 1, 1);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem(tr("Mono"));
 	recordingComboBox->addItem(tr("Stereo"));
-
 	general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
 
+	// General -> Effect Textbox Lines
+	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:")), 3, 0, 1, 1);
+
+	effect_textbox_lines_field = new QSpinBox(general_tab);
+	effect_textbox_lines_field->setMinimum(1);
+	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
+	general_layout->addWidget(effect_textbox_lines_field, 3, 1, 1, 2);
+
 	tabWidget->addTab(general_tab, tr("General"));
+
+	// Behavior
 	QWidget* behavior_tab = new QWidget();
 	tabWidget->addTab(behavior_tab, tr("Behavior"));
 
