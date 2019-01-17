@@ -43,9 +43,8 @@ Viewer::Viewer(QWidget *parent) :
 	media(nullptr),
 	seq(nullptr),
 	created_sequence(false),
-	cue_recording_internal(false),
-	panel_name(tr("Viewer: ")),
-	minimum_zoom(1.0)
+	minimum_zoom(1.0),
+	cue_recording_internal(false)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -488,6 +487,21 @@ void Viewer::set_zoom(bool in) {
 	}
 }
 
+void Viewer::set_panel_name(const QString &n) {
+	panel_name = n;
+	update_window_title();
+}
+
+void Viewer::update_window_title() {
+	QString name;
+	if (seq == nullptr) {
+		name = tr("(none)");
+	} else {
+		name = seq->name;
+	}
+	setWindowTitle(QString("%1: %2").arg(panel_name, name));
+}
+
 void Viewer::set_zoom_value(double d) {
 	headers->update_zoom(d);
 	if (viewer_widget->waveform) {
@@ -781,14 +795,11 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 		update_end_timecode();
 
 		viewer_container->adjust();
-
-		setWindowTitle(panel_name + seq->name);
 	} else {
 		update_playhead_timecode(0);
 		update_end_timecode();
-
-		setWindowTitle(panel_name + tr("(none)"));
 	}
+	update_window_title();
 
 	update_header_zoom();
 

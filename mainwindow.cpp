@@ -774,7 +774,7 @@ void MainWindow::setup_menus() {
 	window_graph_editor_action->setCheckable(true);
 	window_graph_editor_action->setData(reinterpret_cast<quintptr>(panel_graph_editor));
 
-	QAction* window_footageviewer_action = window_menu->addAction(tr("Footage Viewer"), this, SLOT(toggle_panel_visibility()));
+	QAction* window_footageviewer_action = window_menu->addAction(tr("Media Viewer"), this, SLOT(toggle_panel_visibility()));
 	window_footageviewer_action->setProperty("id", "panelfootageviewer");
 	window_footageviewer_action->setCheckable(true);
 	window_footageviewer_action->setData(reinterpret_cast<quintptr>(panel_footage_viewer));

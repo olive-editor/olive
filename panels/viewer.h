@@ -45,6 +45,7 @@ public:
 	void set_in_point();
 	void set_out_point();
 	void set_zoom(bool in);
+	void set_panel_name(const QString& n);
 
 	// playback functions
 	void seek(long p);
@@ -91,6 +92,7 @@ private slots:
 	void resize_move(double d);
 
 private:
+	void update_window_title();
 	void clean_created_seq();
 	void set_sequence(bool main, Sequence* s);
 	bool main_sequence;
