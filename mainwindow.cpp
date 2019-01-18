@@ -743,6 +743,10 @@ void MainWindow::setup_menus() {
 	playback_menu->addSeparator();
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
+	playback_menu->addSeparator();
+	playback_menu->addAction(tr("Increase Speed"), this, SLOT(go_to_out()), QKeySequence("L"))->setProperty("id", "incspeed");
+	playback_menu->addAction(tr("Pause"), panel_sequence_viewer, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
+	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(go_to_in()), QKeySequence("J"))->setProperty("id", "decspeed");
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
 	loop_action->setProperty("id", "loop");

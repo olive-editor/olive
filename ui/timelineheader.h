@@ -10,27 +10,27 @@ bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead);
 
 class TimelineHeader : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit TimelineHeader(QWidget *parent = 0);
-    void set_in_point(long p);
-    void set_out_point(long p);
+	void set_in_point(long p);
+	void set_out_point(long p);
 
 	Viewer* viewer;
 
 	bool snapping;
 
 	void show_text(bool enable);
-    double get_zoom();
+	double get_zoom();
 	void delete_markers();
-    void set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset);
+	void set_scrollbar_max(QScrollBar* bar, long sequence_end_frame, int offset);
 
 public slots:
 	void update_zoom(double z);
 	void set_scroll(int);
 	void set_visible_in(long i);
-    void show_context_menu(const QPoint &pos);
-    void resized_scroll_listener(double d);
+	void show_context_menu(const QPoint &pos);
+	void resized_scroll_listener(double d);
 
 protected:
 	void paintEvent(QPaintEvent*);
@@ -42,21 +42,23 @@ protected:
 private:
 	void update_parents();
 
-    bool dragging;
+	bool dragging;
 
-    bool resizing_workarea;
-    bool resizing_workarea_in;
-    long temp_workarea_in;
-    long temp_workarea_out;
-    long sequence_end;
+	bool resizing_workarea;
+	bool resizing_workarea_in;
+	long temp_workarea_in;
+	long temp_workarea_out;
+	long sequence_end;
 
 	double zoom;
 
-    long in_visible;
+	long in_visible;
 
 	void set_playhead(int mouse_x);
 
-    QFontMetrics fm;
+	int get_marker_offset();
+
+	QFontMetrics fm;
 
 	int drag_start;
 	bool dragging_markers;

@@ -74,6 +74,10 @@ void TimelineHeader::set_playhead(int mouse_x) {
 	}
 }
 
+int TimelineHeader::get_marker_offset() {
+	return (text_enabled) ? height()/2 : 0;
+}
+
 void TimelineHeader::set_visible_in(long i) {
 	in_visible = i;
 	update();
@@ -122,32 +126,46 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 		if (resizing_workarea) {
 			sequence_end = viewer->seq->getEndFrame();
 		} else {
+			/*int
+			QPoint start(in_x, height()+2);
+			QPainterPath path;
+			path.moveTo(start + QPoint(1,0));
+			path.lineTo(in_x-PLAYHEAD_SIZE, yoff);
+			path.lineTo(in_x+PLAYHEAD_SIZE+1, yoff);*/
+
 			bool shift = (event->modifiers() & Qt::ShiftModifier);
 			bool clicked_on_marker = false;
-			for (int i=0;i<viewer->seq->markers.size();i++) {
-				int marker_pos = getHeaderScreenPointFromFrame(viewer->seq->markers.at(i).frame);
-				if (event->pos().x() > marker_pos - MARKER_SIZE && event->pos().x() < marker_pos + MARKER_SIZE) {
-					bool found = false;
-					for (int j=0;j<selected_markers.size();j++) {
-						if (selected_markers.at(j) == i) {
-							if (shift) {
-								selected_markers.removeAt(j);
+			int playhead_x = getHeaderScreenPointFromFrame(viewer->seq->playhead);
+
+			if (event->pos().y() > get_marker_offset()
+					&& (event->pos().x() < playhead_x-PLAYHEAD_SIZE
+					|| event->pos().x() > playhead_x+PLAYHEAD_SIZE)) {
+				for (int i=0;i<viewer->seq->markers.size();i++) {
+					int marker_pos = getHeaderScreenPointFromFrame(viewer->seq->markers.at(i).frame);
+					if (event->pos().x() > marker_pos - MARKER_SIZE && event->pos().x() < marker_pos + MARKER_SIZE) {
+						bool found = false;
+						for (int j=0;j<selected_markers.size();j++) {
+							if (selected_markers.at(j) == i) {
+								if (shift) {
+									selected_markers.removeAt(j);
+								}
+								found = true;
+								break;
 							}
-							found = true;
-							break;
 						}
-					}
-					if (!found) {
-						if (!shift) {
-							selected_markers.clear();
+						if (!found) {
+							if (!shift) {
+								selected_markers.clear();
+							}
+							selected_markers.append(i);
 						}
-						selected_markers.append(i);
+						clicked_on_marker = true;
+						update();
+						break;
 					}
-					clicked_on_marker = true;
-					update();
-					break;
 				}
 			}
+
 			if (clicked_on_marker) {
 				selected_marker_original_times.resize(selected_markers.size());
 				for (int i=0;i<selected_markers.size();i++) {
@@ -156,7 +174,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 				drag_start = event->pos().x();
 				dragging_markers = true;
 			} else {
-				if (selected_markers.size() > 0) {
+				if (selected_markers.size() > 0 && !shift) {
 					selected_markers.clear();
 					update();
 				}
@@ -296,7 +314,7 @@ void TimelineHeader::delete_markers() {
 void TimelineHeader::paintEvent(QPaintEvent*) {
 	if (viewer->seq != nullptr && zoom > 0) {
 		QPainter p(this);
-		int yoff = (text_enabled) ? height()/2 : 0;
+		int yoff = get_marker_offset();
 
 		double interval = viewer->seq->frame_rate;
 		int textWidth = 0;
@@ -321,7 +339,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 		while (true) {
 			long frame = qRound(interval*i);
-            int lineX = qRound(frame*zoom) - scroll;
+			int lineX = qRound(frame*zoom) - scroll;
 
 			if (lineX > width()) break;
 
@@ -366,7 +384,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		if (viewer->seq->using_workarea) {
 			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
 			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
-            p.fillRect(QRect(in_x, 0, out_x-in_x, height()), viewer->seq->enable_workarea ? QColor(0, 192, 255, 128) : QColor(255, 255, 255, 64));
+			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), viewer->seq->enable_workarea ? QColor(0, 192, 255, 128) : QColor(255, 255, 255, 64));
 			p.setPen(Qt::white);
 			p.drawLine(in_x, 0, in_x, height());
 			p.drawLine(out_x, 0, out_x, height());
@@ -383,6 +401,13 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 				QPoint(marker_x - MARKER_SIZE, yoff),
 				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
 			};
+			/*const QPoint points[5] = {
+				QPoint(marker_x, height()-1),
+				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
+				QPoint(marker_x + MARKER_SIZE, yoff),
+				QPoint(marker_x - MARKER_SIZE, yoff),
+				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
+			};*/
 			p.setPen(Qt::black);
 			bool selected = false;
 			for (int j=0;j<selected_markers.size();j++) {
@@ -401,7 +426,6 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 		// draw playhead triangle
 		p.setRenderHint(QPainter::Antialiasing);
-
 		in_x = getHeaderScreenPointFromFrame(viewer->seq->playhead);
 		QPoint start(in_x, height()+2);
 		QPainterPath path;
