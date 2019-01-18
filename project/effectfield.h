@@ -26,6 +26,8 @@ public:
 	int type;
 	QString id;
 
+    double get_validated_keyframe_handle(int key, bool post);
+
 	QVariant get_previous_data();
 	QVariant get_current_data();
 	double frameToTimecode(long frame);

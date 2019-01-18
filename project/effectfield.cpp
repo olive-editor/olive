@@ -86,7 +86,53 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 		connect(efc, SIGNAL(changed()), this, SLOT(ui_element_change()));
 	}
 		break;
-	}
+    }
+}
+
+double EffectField::get_validated_keyframe_handle(int key, bool post) {
+    int comp_key = -1;
+
+    // find keyframe before or after this one
+    for (int i=0;i<keyframes.size();i++) {
+        if (i != key
+                && ((keyframes.at(i).time > keyframes.at(key).time) == post)
+                && (comp_key == -1
+                    || ((keyframes.at(i).time < keyframes.at(comp_key).time) == post))) {
+            // compare with next keyframe for post or previous frame for pre
+            comp_key = i;
+        }
+    }
+
+    double adjusted_key = post ? keyframes.at(key).post_handle_x : keyframes.at(key).pre_handle_x;
+
+    // if this is the earliest/latest keyframe, no validation is required
+    if (comp_key == -1) {
+        return adjusted_key;
+    }
+
+    double comp = keyframes.at(comp_key).time - keyframes.at(key).time;
+
+    // if comp keyframe is bezier, validate with its accompanying handle
+    if (keyframes.at(comp_key).type == KEYFRAME_TYPE_BEZIER) {
+        double relative_comp_handle = comp + (post ? keyframes.at(comp_key).pre_handle_x : keyframes.at(comp_key).post_handle_x);
+        // return an average
+        if ((post && keyframes.at(key).post_handle_x > relative_comp_handle)
+                || (!post && keyframes.at(key).pre_handle_x < relative_comp_handle)) {
+            adjusted_key = (adjusted_key + relative_comp_handle)*0.5;
+        }
+    }
+
+    // don't let handle go beyond the compare keyframe's time
+    if (post == (adjusted_key > comp)) {
+        return comp;
+    }
+
+    if (post == (adjusted_key < 0)) {
+        return 0;
+    }
+
+    // original value is valid
+    return adjusted_key;
 }
 
 QVariant EffectField::get_previous_data() {
@@ -203,15 +249,15 @@ QVariant EffectField::validate_keyframe_data(double timecode, bool async) {
 					// bezier interpolation
 					if (before_key.type == KEYFRAME_TYPE_BEZIER && after_key.type == KEYFRAME_TYPE_BEZIER) {
 						// cubic bezier
-						double t = cubic_t_from_x(timecode*parent_row->parent_effect->parent_clip->sequence->frame_rate, before_key.time, before_key.time+before_key.post_handle_x, after_key.time+after_key.pre_handle_x, after_key.time);
+                        double t = cubic_t_from_x(timecode*parent_row->parent_effect->parent_clip->sequence->frame_rate, before_key.time, before_key.time+get_validated_keyframe_handle(before_keyframe, true), after_key.time+get_validated_keyframe_handle(after_keyframe, false), after_key.time);
 						value = cubic_from_t(before_dbl, before_dbl+before_key.post_handle_y, after_dbl+after_key.pre_handle_y, after_dbl, t);
 					} else if (after_key.type == KEYFRAME_TYPE_LINEAR) { // quadratic bezier
 						// last keyframe is the bezier one
-						double t = quad_t_from_x(timecode*parent_row->parent_effect->parent_clip->sequence->frame_rate, before_key.time, before_key.time+before_key.post_handle_x, after_key.time);
+                        double t = quad_t_from_x(timecode*parent_row->parent_effect->parent_clip->sequence->frame_rate, before_key.time, before_key.time+get_validated_keyframe_handle(before_keyframe, true), after_key.time);
 						value = quad_from_t(before_dbl, before_dbl+before_key.post_handle_y, after_dbl, t);
 					} else {
 						// this keyframe is the bezier one
-						double t = quad_t_from_x(timecode*parent_row->parent_effect->parent_clip->sequence->frame_rate, before_key.time, after_key.time+after_key.pre_handle_x, after_key.time);
+                        double t = quad_t_from_x(timecode*parent_row->parent_effect->parent_clip->sequence->frame_rate, before_key.time, after_key.time+get_validated_keyframe_handle(after_keyframe, false), after_key.time);
 						value = quad_from_t(before_dbl, after_dbl+after_key.pre_handle_y, after_dbl, t);
 					}
 				} else {

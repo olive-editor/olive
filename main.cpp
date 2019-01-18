@@ -20,7 +20,9 @@ int main(int argc, char *argv[]) {
 	bool launch_fullscreen = false;
 	QString load_proj;
 
+#ifndef NODEBUG
 	qInstallMessageHandler(debug_message_handler);
+#endif
 
 	if (argc > 1) {
 		for (int i=1;i<argc;i++) {
