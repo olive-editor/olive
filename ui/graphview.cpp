@@ -745,7 +745,9 @@ void GraphView::set_row(EffectRow *r) {
 		row = r;
 		if (row != nullptr) {
 			field_visibility.resize(row->fieldCount());
-			field_visibility.fill(true);
+			for (int i=0;i<row->fieldCount();i++) {
+				field_visibility[i] = row->field(i)->is_enabled();
+			}
 			visible_in = row->parent_effect->parent_clip->timeline_in;
 			set_view_to_all();
 		} else {

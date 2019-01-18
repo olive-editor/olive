@@ -63,6 +63,7 @@ public:
 	void set_filename(const QString& s);
 
 	QWidget* get_ui_element();
+	bool is_enabled();
 	void set_enabled(bool e);
 	QVector<EffectKeyframe> keyframes;
 	QWidget* ui_element;

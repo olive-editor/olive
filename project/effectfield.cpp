@@ -298,6 +298,10 @@ QWidget* EffectField::get_ui_element() {
 	return ui_element;
 }
 
+bool EffectField::is_enabled() {
+	return ui_element->isEnabled();
+}
+
 void EffectField::set_enabled(bool e) {
 	ui_element->setEnabled(e);
 }

@@ -20,7 +20,7 @@
 GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    setWindowTitle(tr("Graph Editor"));
+	setWindowTitle(tr("Graph Editor"));
 	resize(720, 480);
 
 	QWidget* main_widget = new QWidget();
@@ -58,13 +58,13 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	left_tool_layout->addWidget(keyframe_nav);
 	left_tool_layout->addStretch();
 
-    linear_button = new QPushButton(tr("Linear"));
+	linear_button = new QPushButton(tr("Linear"));
 	linear_button->setProperty("type", KEYFRAME_TYPE_LINEAR);
 	linear_button->setCheckable(true);
-    bezier_button = new QPushButton(tr("Bezier"));
+	bezier_button = new QPushButton(tr("Bezier"));
 	bezier_button->setProperty("type", KEYFRAME_TYPE_BEZIER);
 	bezier_button->setCheckable(true);
-    hold_button = new QPushButton(tr("Hold"));
+	hold_button = new QPushButton(tr("Hold"));
 	hold_button->setProperty("type", KEYFRAME_TYPE_HOLD);
 	hold_button->setCheckable(true);
 
@@ -160,7 +160,7 @@ void GraphEditor::set_row(EffectRow *r) {
 			if (field->type == EFFECT_FIELD_DOUBLE) {
 				QPushButton* slider_button = new QPushButton();
 				slider_button->setCheckable(true);
-				slider_button->setChecked(true);
+				slider_button->setChecked(field->is_enabled());
 				slider_button->setIcon(QIcon(":/icons/record.png"));
 				slider_button->setProperty("field", i);
 				slider_button->setIconSize(QSize(8, 8));
@@ -199,11 +199,11 @@ void GraphEditor::set_row(EffectRow *r) {
 }
 
 bool GraphEditor::view_is_focused() {
-    return view->hasFocus() || header->hasFocus();
+	return view->hasFocus() || header->hasFocus();
 }
 
 bool GraphEditor::view_is_under_mouse() {
-    return view->underMouse() || header->underMouse();
+	return view->underMouse() || header->underMouse();
 }
 
 void GraphEditor::delete_selected_keys() {
