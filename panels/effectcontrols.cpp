@@ -487,7 +487,7 @@ void EffectControls::delete_effects() {
 		}
 		if (command->clips.size() > 0) {
 			undo_stack.push(command);
-			panel_sequence_viewer->viewer_widget->update();
+			panel_sequence_viewer->viewer_widget->frame_update();
 		} else {
 			delete command;
 		}
