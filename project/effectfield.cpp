@@ -18,7 +18,9 @@
 #include "project/sequence.h"
 
 #include "io/math.h"
+
 #include <QDateTime>
+#include <QtMath>
 
 #include "debug.h"
 
@@ -46,7 +48,7 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 	case EFFECT_FIELD_STRING:
 	{
 		TextEditEx* edit = new TextEditEx();
-		edit->setFixedHeight(edit->fontMetrics().lineSpacing()*config.effect_textbox_lines);
+		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*config.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
 		connect(edit, SIGNAL(textChanged()), this, SLOT(ui_element_change()));
