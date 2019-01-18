@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 	if (launch_fullscreen) {
 		w.showFullScreen();
 	} else {
-        w.show();
+		w.showMaximized();
 	}
 
 	return a.exec();

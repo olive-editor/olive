@@ -229,7 +229,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 
 	setup_layout(false);
 
-    init_audio();
+	init_audio();
 }
 
 MainWindow::~MainWindow() {
@@ -1028,18 +1028,18 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 		QTimer::singleShot(10, this, SLOT(load_with_launch()));
 		enable_launch_with_project = false;
 	}
-    if (!demoNoticeShown) {
+	if (!demoNoticeShown) {
 #ifndef QT_DEBUG
 		DemoNotice* d = new DemoNotice(this);
 		d->open();
 #endif
-        if (windowState() != Qt::WindowFullScreen) {
-            // workaround for setting to maximized - on some systems, setting
-            // to maximized doesn't work until after the paintEvent
-            setWindowState(Qt::WindowMaximized);
-        }
+		/*if (windowState() != Qt::WindowFullScreen) {
+			// workaround for setting to maximized - on some systems, setting
+			// to maximized doesn't work until after the paintEvent
+			setWindowState(Qt::WindowMaximized);
+		}*/
 
-        demoNoticeShown = true;
+		demoNoticeShown = true;
 	}
 }
 

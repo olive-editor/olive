@@ -113,8 +113,8 @@ private:
 	TimelineHeader* headers;
 	ResizableScrollBar* horizontal_bar;
 	ViewerContainer* viewer_container;
-	LabelSlider* currentTimecode;
-	QLabel* endTimecode;
+	LabelSlider* current_timecode_slider;
+	QLabel* end_timecode;
 
 	QPushButton* go_to_start_button;
 	QPushButton* prev_frame_button;

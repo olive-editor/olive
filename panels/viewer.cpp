@@ -58,12 +58,12 @@ Viewer::Viewer(QWidget *parent) :
 	viewer_widget->viewer = this;
 	set_media(nullptr);
 
-	currentTimecode->setEnabled(false);
-	currentTimecode->set_minimum_value(0);
-	currentTimecode->set_default_value(qSNaN());
-	currentTimecode->set_value(0, false);
-	currentTimecode->set_display_type(LABELSLIDER_FRAMENUMBER);
-	connect(currentTimecode, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
+	current_timecode_slider->setEnabled(false);
+	current_timecode_slider->set_minimum_value(0);
+	current_timecode_slider->set_default_value(qSNaN());
+	current_timecode_slider->set_value(0, false);
+	current_timecode_slider->set_display_type(LABELSLIDER_FRAMENUMBER);
+	connect(current_timecode_slider, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
 
 	recording_flasher.setInterval(500);
 
@@ -403,11 +403,11 @@ void Viewer::pause() {
 }
 
 void Viewer::update_playhead_timecode(long p) {
-	currentTimecode->set_value(p, false);
+	current_timecode_slider->set_value(p, false);
 }
 
 void Viewer::update_end_timecode() {
-	endTimecode->setText((seq == nullptr) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), config.timecode_view, seq->frame_rate));
+	end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), config.timecode_view, seq->frame_rate));
 }
 
 void Viewer::update_header_zoom() {
@@ -560,8 +560,8 @@ void Viewer::setup_ui() {
 	QHBoxLayout* current_timecode_container_layout = new QHBoxLayout(current_timecode_container);
 	current_timecode_container_layout->setSpacing(0);
 	current_timecode_container_layout->setMargin(0);
-	currentTimecode = new LabelSlider(current_timecode_container);
-	current_timecode_container_layout->addWidget(currentTimecode);
+	current_timecode_slider = new LabelSlider(current_timecode_container);
+	current_timecode_container_layout->addWidget(current_timecode_slider);
 	lower_control_layout->addWidget(current_timecode_container);
 
 	QWidget* playback_controls = new QWidget(lower_controls);
@@ -617,10 +617,10 @@ void Viewer::setup_ui() {
 	end_timecode_layout->setSpacing(0);
 	end_timecode_layout->setMargin(0);
 
-	endTimecode = new QLabel(end_timecode_container);
-	endTimecode->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+	end_timecode = new QLabel(end_timecode_container);
+	end_timecode->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-	end_timecode_layout->addWidget(endTimecode);
+	end_timecode_layout->addWidget(end_timecode);
 
 	lower_control_layout->addWidget(end_timecode_container);
 
@@ -709,7 +709,7 @@ void Viewer::set_media(Media* m) {
 }
 
 void Viewer::update_playhead() {
-	seek(currentTimecode->value());
+	seek(current_timecode_slider->value());
 }
 
 void Viewer::timer_update() {
@@ -777,7 +777,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	bool null_sequence = (seq == nullptr);
 
 	headers->setEnabled(!null_sequence);
-	currentTimecode->setEnabled(!null_sequence);
+	current_timecode_slider->setEnabled(!null_sequence);
 	viewer_widget->setEnabled(!null_sequence);
 	viewer_widget->setVisible(!null_sequence);
 	go_to_start_button->setEnabled(!null_sequence);
@@ -787,7 +787,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	go_to_end_frame->setEnabled(!null_sequence);
 
 	if (!null_sequence) {
-		currentTimecode->set_frame_rate(seq->frame_rate);
+		current_timecode_slider->set_frame_rate(seq->frame_rate);
 
 		playback_updater.setInterval(qFloor(1000 / seq->frame_rate));
 
