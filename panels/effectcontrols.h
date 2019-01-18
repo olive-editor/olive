@@ -53,9 +53,7 @@ public:
 	ResizableScrollBar* horizontalScrollBar;
 	QScrollBar* verticalScrollBar;
 
-    QMutex effects_loaded;
-
-
+	QMutex effects_loaded;
 public slots:
 	void update_keyframes();
 private slots:
@@ -73,7 +71,7 @@ private:
 	void show_effect_menu(int type, int subtype);
 	void load_effects();
 	void load_keyframes();
-    void open_effect(QVBoxLayout* hlayout, Effect* e);
+	void open_effect(QVBoxLayout* hlayout, Effect* e);
 
 	void setup_ui();
 

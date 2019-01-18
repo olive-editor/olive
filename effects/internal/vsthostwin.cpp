@@ -20,7 +20,7 @@
 // C callbacks
 extern "C" {
 	// Main host callback
-	VstIntPtr VSTCALLBACK hostCallback(AEffect *effect, int opcode, int, long long, void *, float) {
+	VstIntPtr VSTCALLBACK hostCallback(AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void* ptr, float opt) {
 		switch(opcode) {
 		case audioMasterVersion:
 			return 2400;

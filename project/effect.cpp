@@ -580,7 +580,8 @@ void Effect::move_up() {
 	command->from = get_index_in_clip();
 	command->to = command->from - 1;
 	undo_stack.push(command);
-	update_ui(true);
+	panel_effect_controls->reload_clips();
+	panel_sequence_viewer->viewer_widget->frame_update();
 }
 
 void Effect::move_down() {
@@ -589,7 +590,8 @@ void Effect::move_down() {
 	command->from = get_index_in_clip();
 	command->to = command->from + 1;
 	undo_stack.push(command);
-	update_ui(true);
+	panel_effect_controls->reload_clips();
+	panel_sequence_viewer->viewer_widget->frame_update();
 }
 
 int Effect::get_index_in_clip() {
