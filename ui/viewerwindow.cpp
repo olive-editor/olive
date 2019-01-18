@@ -1,18 +1,44 @@
 #include "viewerwindow.h"
 
 #include <QMutex>
+#include <QKeyEvent>
+#include <QPainter>
 
 ViewerWindow::ViewerWindow(QOpenGLContext *share) :
 	QOpenGLWindow(share),
 	texture(0),
-	mutex(nullptr)
-{}
+	mutex(nullptr),
+	show_fullscreen_msg(false)
+{
+	fullscreen_msg_timer.setInterval(2000);
+	connect(&fullscreen_msg_timer, SIGNAL(timeout()), this, SLOT(fullscreen_msg_timeout()));
+}
 
 void ViewerWindow::set_texture(GLuint t, double iar, QMutex* imutex) {
 	texture = t;
 	ar = iar;
 	mutex = imutex;
 	update();
+}
+
+void ViewerWindow::keyPressEvent(QKeyEvent *e) {
+	if (e->key() == Qt::Key_Escape) {
+		hide();
+	}
+}
+
+void ViewerWindow::mousePressEvent(QMouseEvent *e) {
+	if (show_fullscreen_msg && fullscreen_msg_rect.contains(e->pos())) {
+		hide();
+	}
+}
+
+void ViewerWindow::mouseMoveEvent(QMouseEvent *) {
+	fullscreen_msg_timer.start();
+	if (!show_fullscreen_msg) {
+		show_fullscreen_msg = true;
+		update();
+	}
 }
 
 void ViewerWindow::paintGL() {
@@ -64,5 +90,43 @@ void ViewerWindow::paintGL() {
 		glDisable(GL_TEXTURE_2D);
 
 		if (mutex != nullptr) mutex->unlock();
+	}
+
+	if (show_fullscreen_msg) {
+		QPainter p(this);
+
+		QFont f = p.font();
+		f.setPointSize(24);
+		p.setFont(f);
+
+		QFontMetrics fm(f);
+
+		QString fs_str = tr("Exit Fullscreen");
+
+		p.setPen(Qt::white);
+		p.setBrush(QColor(0, 0, 0, 128));
+
+		int text_width = fm.width(fs_str);
+		int text_x = (width()/2)-(text_width/2);
+		int text_y = fm.height()+fm.ascent();
+
+		int rect_padding = 8;
+
+		fullscreen_msg_rect = QRect(text_x-rect_padding,
+									fm.height()-rect_padding,
+									text_width+rect_padding+rect_padding,
+									fm.height()+rect_padding+rect_padding);
+
+		p.drawRect(fullscreen_msg_rect);
+
+		p.drawText(text_x, text_y, fs_str);
+	}
+}
+
+void ViewerWindow::fullscreen_msg_timeout() {
+	fullscreen_msg_timer.stop();
+	if (show_fullscreen_msg) {
+		show_fullscreen_msg = false;
+		update();
 	}
 }
