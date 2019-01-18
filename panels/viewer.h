@@ -116,11 +116,11 @@ private:
 	LabelSlider* currentTimecode;
 	QLabel* endTimecode;
 
-	QPushButton* btnSkipToStart;
-	QPushButton* btnRewind;
-	QPushButton* btnPlay;
-	QPushButton* btnFastForward;
-	QPushButton* btnSkipToEnd;
+	QPushButton* go_to_start_button;
+	QPushButton* prev_frame_button;
+	QPushButton* play_button;
+	QPushButton* next_frame_button;
+	QPushButton* go_to_end_frame;
 
 	bool cue_recording_internal;
 	QTimer recording_flasher;

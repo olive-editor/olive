@@ -82,11 +82,11 @@ Viewer::~Viewer() {}
 bool Viewer::is_focused() {
 	return headers->hasFocus()
 			|| viewer_widget->hasFocus()
-			|| btnSkipToStart->hasFocus()
-			|| btnRewind->hasFocus()
-			|| btnPlay->hasFocus()
-			|| btnFastForward->hasFocus()
-			|| btnSkipToEnd->hasFocus();
+			|| go_to_start_button->hasFocus()
+			|| prev_frame_button->hasFocus()
+			|| play_button->hasFocus()
+			|| next_frame_button->hasFocus()
+			|| go_to_end_frame->hasFocus();
 }
 
 bool Viewer::is_main_sequence() {
@@ -309,7 +309,7 @@ void Viewer::cue_recording(long start, long end, int track) {
 void Viewer::uncue_recording() {
 	cue_recording_internal = false;
 	recording_flasher.stop();
-	btnPlay->setStyleSheet(QString());
+	play_button->setStyleSheet(QString());
 }
 
 bool Viewer::is_recording_cued() {
@@ -570,44 +570,44 @@ void Viewer::setup_ui() {
 	playback_control_layout->setSpacing(0);
 	playback_control_layout->setMargin(0);
 
-	btnSkipToStart = new QPushButton(playback_controls);
+	go_to_start_button = new QPushButton(playback_controls);
 	QIcon goToStartIcon;
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev.png"), QSize(), QIcon::Normal, QIcon::Off);
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-	btnSkipToStart->setIcon(goToStartIcon);
-	connect(btnSkipToStart, SIGNAL(clicked(bool)), this, SLOT(go_to_in()));
-	playback_control_layout->addWidget(btnSkipToStart);
+	go_to_start_button->setIcon(goToStartIcon);
+	connect(go_to_start_button, SIGNAL(clicked(bool)), this, SLOT(go_to_in()));
+	playback_control_layout->addWidget(go_to_start_button);
 
-	btnRewind = new QPushButton(playback_controls);
+	prev_frame_button = new QPushButton(playback_controls);
 	QIcon rewindIcon;
 	rewindIcon.addFile(QStringLiteral(":/icons/rew.png"), QSize(), QIcon::Normal, QIcon::Off);
 	rewindIcon.addFile(QStringLiteral(":/icons/rew-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-	btnRewind->setIcon(rewindIcon);
-	connect(btnRewind, SIGNAL(clicked(bool)), this, SLOT(previous_frame()));
-	playback_control_layout->addWidget(btnRewind);
+	prev_frame_button->setIcon(rewindIcon);
+	connect(prev_frame_button, SIGNAL(clicked(bool)), this, SLOT(previous_frame()));
+	playback_control_layout->addWidget(prev_frame_button);
 
-	btnPlay = new QPushButton(playback_controls);
+	play_button = new QPushButton(playback_controls);
 	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::On);
 	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	btnPlay->setIcon(playIcon);
-	connect(btnPlay, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
-	playback_control_layout->addWidget(btnPlay);
+	play_button->setIcon(playIcon);
+	connect(play_button, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
+	playback_control_layout->addWidget(play_button);
 
-	btnFastForward = new QPushButton(playback_controls);
+	next_frame_button = new QPushButton(playback_controls);
 	QIcon ffIcon;
 	ffIcon.addFile(QStringLiteral(":/icons/ff.png"), QSize(), QIcon::Normal, QIcon::On);
 	ffIcon.addFile(QStringLiteral(":/icons/ff-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-	btnFastForward->setIcon(ffIcon);
-	connect(btnFastForward, SIGNAL(clicked(bool)), this, SLOT(next_frame()));
-	playback_control_layout->addWidget(btnFastForward);
+	next_frame_button->setIcon(ffIcon);
+	connect(next_frame_button, SIGNAL(clicked(bool)), this, SLOT(next_frame()));
+	playback_control_layout->addWidget(next_frame_button);
 
-	btnSkipToEnd = new QPushButton(playback_controls);
+	go_to_end_frame = new QPushButton(playback_controls);
 	QIcon nextIcon;
 	nextIcon.addFile(QStringLiteral(":/icons/next.png"), QSize(), QIcon::Normal, QIcon::Off);
 	nextIcon.addFile(QStringLiteral(":/icons/next-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-	btnSkipToEnd->setIcon(nextIcon);
-	connect(btnSkipToEnd, SIGNAL(clicked(bool)), this, SLOT(go_to_out()));
-	playback_control_layout->addWidget(btnSkipToEnd);
+	go_to_end_frame->setIcon(nextIcon);
+	connect(go_to_end_frame, SIGNAL(clicked(bool)), this, SLOT(go_to_out()));
+	playback_control_layout->addWidget(go_to_end_frame);
 
 	lower_control_layout->addWidget(playback_controls);
 
@@ -736,10 +736,10 @@ void Viewer::timer_update() {
 }
 
 void Viewer::recording_flasher_update() {
-	if (btnPlay->styleSheet().isEmpty()) {
-		btnPlay->setStyleSheet("background: red;");
+	if (play_button->styleSheet().isEmpty()) {
+		play_button->setStyleSheet("background: red;");
 	} else {
-		btnPlay->setStyleSheet(QString());
+		play_button->setStyleSheet(QString());
 	}
 }
 
@@ -780,11 +780,11 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	currentTimecode->setEnabled(!null_sequence);
 	viewer_widget->setEnabled(!null_sequence);
 	viewer_widget->setVisible(!null_sequence);
-	btnSkipToStart->setEnabled(!null_sequence);
-	btnRewind->setEnabled(!null_sequence);
-	btnPlay->setEnabled(!null_sequence);
-	btnFastForward->setEnabled(!null_sequence);
-	btnSkipToEnd->setEnabled(!null_sequence);
+	go_to_start_button->setEnabled(!null_sequence);
+	prev_frame_button->setEnabled(!null_sequence);
+	play_button->setEnabled(!null_sequence);
+	next_frame_button->setEnabled(!null_sequence);
+	go_to_end_frame->setEnabled(!null_sequence);
 
 	if (!null_sequence) {
 		currentTimecode->set_frame_rate(seq->frame_rate);
@@ -809,5 +809,5 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 }
 
 void Viewer::set_playpause_icon(bool play) {
-	btnPlay->setIcon(play ? playIcon : QIcon(":/icons/pause.png"));
+	play_button->setIcon(play ? playIcon : QIcon(":/icons/pause.png"));
 }
