@@ -103,6 +103,14 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			}
 		}
 
+		if (!selected_clips.isEmpty()) {
+			// clips are selected
+			menu.addAction("C&ut", mainWindow, SLOT(cut()));
+			menu.addAction("Cop&y", mainWindow, SLOT(copy()));
+		}
+
+		menu.addAction("&Paste", mainWindow, SLOT(paste()));
+
 		if (selected_clips.isEmpty()) {
 			// no clips are selected
 			panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
@@ -139,23 +147,20 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 			QAction* seq_settings = menu.addAction("Sequence Settings");
 			connect(seq_settings, SIGNAL(triggered(bool)), this, SLOT(open_sequence_properties()));
-		} else {
-			// clips are selected
-			QAction* cutAction = menu.addAction("C&ut");
-			connect(cutAction, SIGNAL(triggered(bool)), mainWindow, SLOT(cut()));
-			QAction* copyAction = menu.addAction("Cop&y");
-			connect(copyAction, SIGNAL(triggered(bool)), mainWindow, SLOT(copy()));
-			QAction* pasteAction = menu.addAction("&Paste");
-			connect(pasteAction, SIGNAL(triggered(bool)), mainWindow, SLOT(paste()));
-			menu.addSeparator();
-			QAction* speedAction = menu.addAction("&Speed/Duration");
-			connect(speedAction, SIGNAL(triggered(bool)), mainWindow, SLOT(open_speed_dialog()));
-			QAction* autoscaleAction = menu.addAction("Auto-s&cale");
-			autoscaleAction->setCheckable(true);
-			connect(autoscaleAction, SIGNAL(triggered(bool)), this, SLOT(toggle_autoscale()));
+		}
 
-			QAction* nestAction = menu.addAction("&Nest");
-			connect(nestAction, SIGNAL(triggered(bool)), mainWindow, SLOT(nest()));
+		if (!selected_clips.isEmpty()) {
+			menu.addSeparator();
+			menu.addAction("&Speed/Duration", mainWindow, SLOT(open_speed_dialog()));
+
+			QAction* autoscaleAction = menu.addAction("Auto-s&cale", this, SLOT(toggle_autoscale()));
+			autoscaleAction->setCheckable(true);
+			// set autoscale to the first selected clip
+			autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
+
+			menu.addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()));
+
+			menu.addAction("&Nest", mainWindow, SLOT(nest()));
 
 			// stabilizer option
 			/*int video_clip_count = 0;
@@ -173,9 +178,6 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 				QAction* stabilizerAction = menu.addAction("S&tabilizer");
 				connect(stabilizerAction, SIGNAL(triggered(bool)), this, SLOT(show_stabilizer_diag()));
 			}*/
-
-			// set autoscale arbitrarily to the first selected clip
-			autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 
 			// check if all selected clips have the same media for a "Reveal In Project"
 			bool same_media = true;
