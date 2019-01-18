@@ -41,7 +41,7 @@ public slots:
 
 protected:
 	void closeEvent(QCloseEvent *);
-	void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private slots:
 	void clear_undo_stack();
