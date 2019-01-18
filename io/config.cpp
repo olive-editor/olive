@@ -47,7 +47,8 @@ Config::Config()
 	  loop(true),
 	  pause_at_out_point(true),
 	  seek_also_selects(false),
-	  effect_textbox_lines(3)
+      effect_textbox_lines(3),
+      use_software_fallback(false)
 {}
 
 void Config::load(QString path) {
@@ -169,7 +170,10 @@ void Config::load(QString path) {
 				} else if (stream.name() == "EffectTextboxLines") {
 					stream.readNext();
 					effect_textbox_lines = stream.text().toInt();
-				}
+                } else if (stream.name() == "UseSoftwareFallback") {
+                    stream.readNext();
+                    use_software_fallback = (stream.text() == "1");
+                }
 			}
 		}
 		if (stream.hasError()) {
@@ -229,7 +233,8 @@ void Config::save(QString path) {
 	stream.writeTextElement("PauseAtOutPoint", QString::number(pause_at_out_point));
 	stream.writeTextElement("SeekAlsoSelects", QString::number(seek_also_selects));
 	stream.writeTextElement("CSSPath", css_path);
-	stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
+    stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
+    stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

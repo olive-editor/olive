@@ -63,6 +63,7 @@ struct Config {
 	bool seek_also_selects;
 	QString css_path;
 	int effect_textbox_lines;
+    bool use_software_fallback;
 
 	void load(QString path);
 	void save(QString path);
