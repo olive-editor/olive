@@ -48,7 +48,10 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 	case EFFECT_FIELD_STRING:
 	{
 		TextEditEx* edit = new TextEditEx();
+
+		// TODO magic number 2 - i'm not sure how to make this work otherwise though
 		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*config.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
+
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
 		connect(edit, SIGNAL(textChanged()), this, SLOT(ui_element_change()));

@@ -326,7 +326,7 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 		seek_from_click(event->x());
 	} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
 		container->dragScrollPress(event->pos());
-	} else {
+	} else if (event->buttons() & Qt::LeftButton) {
 		drag_start_x = event->pos().x();
 		drag_start_y = event->pos().y();
 
@@ -352,15 +352,17 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 			seek_from_click(event->x());
 		} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
 			container->dragScrollMove(event->pos());
-		} else if (gizmos == nullptr) {
-			QDrag* drag = new QDrag(this);
-			QMimeData* mimeData = new QMimeData;
-			mimeData->setText("h"); // QMimeData will fail without some kind of data
-			drag->setMimeData(mimeData);
-			drag->exec();
-			dragging = false;
-		} else {
-			move_gizmos(event, false);
+		} else if (event->buttons() & Qt::LeftButton) {
+			if (gizmos == nullptr) {
+				QDrag* drag = new QDrag(this);
+				QMimeData* mimeData = new QMimeData;
+				mimeData->setText("h"); // QMimeData will fail without some kind of data
+				drag->setMimeData(mimeData);
+				drag->exec();
+				dragging = false;
+			} else {
+				move_gizmos(event, false);
+			}
 		}
 	} else {
 		EffectGizmo* g = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
@@ -373,7 +375,10 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
-	if (dragging && gizmos != nullptr && !(event->button() == Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND)) {
+	if (dragging
+			&& gizmos != nullptr
+			&& event->button() == Qt::LeftButton
+			&& panel_timeline->tool != TIMELINE_TOOL_HAND) {
 		move_gizmos(event, true);
 	}
 	dragging = false;
