@@ -25,6 +25,7 @@
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
 #include "project/sourcescommon.h"
+#include "project/projectfilter.h"
 #include "debug.h"
 
 #include <QApplication>
@@ -37,7 +38,6 @@
 #include <QMimeData>
 #include <QPushButton>
 #include <QInputDialog>
-#include <QSortFilterProxyModel>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QSizePolicy>
@@ -72,7 +72,7 @@ Project::Project(QWidget *parent) :
 
 	sources_common = new SourcesCommon(this);
 
-	sorter = new QSortFilterProxyModel(this);
+	sorter = new ProjectFilter(this);
 	sorter->setSourceModel(&project_model);
 
 	// optional toolbar
@@ -84,66 +84,66 @@ Project::Project(QWidget *parent) :
 	toolbar_widget->setLayout(toolbar);
 
     QPushButton* toolbar_new = new QPushButton(toolbar_widget);
-	QIcon icon1;
-	icon1.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon1.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_new->setIcon(icon1);
+    QIcon icon1;
+    icon1.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon1.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_new->setIcon(icon1);
 	toolbar_new->setToolTip("New");
 	connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
 	toolbar->addWidget(toolbar_new);
 
 	QPushButton* toolbar_open = new QPushButton(toolbar_widget);
-	QIcon icon2;
-	icon2.addFile(QStringLiteral(":/icons/open.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_open->setIcon(icon2);
+    QIcon icon2;
+    icon2.addFile(QStringLiteral(":/icons/open.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_open->setIcon(icon2);
 	toolbar_open->setToolTip("Open Project");
 	connect(toolbar_open, SIGNAL(clicked(bool)), mainWindow, SLOT(open_project()));
 	toolbar->addWidget(toolbar_open);
 
 	QPushButton* toolbar_save = new QPushButton(toolbar_widget);
-	QIcon icon3;
-	icon3.addFile(QStringLiteral(":/icons/save.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_save->setIcon(icon3);
+    QIcon icon3;
+    icon3.addFile(QStringLiteral(":/icons/save.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_save->setIcon(icon3);
 	toolbar_save->setToolTip("Save Project");
 	connect(toolbar_save, SIGNAL(clicked(bool)), mainWindow, SLOT(save_project()));
 	toolbar->addWidget(toolbar_save);
 
 	QPushButton* toolbar_undo = new QPushButton(toolbar_widget);
-	QIcon icon4;
-	icon4.addFile(QStringLiteral(":/icons/undo.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_undo->setIcon(icon4);
+    QIcon icon4;
+    icon4.addFile(QStringLiteral(":/icons/undo.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_undo->setIcon(icon4);
 	toolbar_undo->setToolTip("Undo");
 	connect(toolbar_undo, SIGNAL(clicked(bool)), mainWindow, SLOT(undo()));
 	toolbar->addWidget(toolbar_undo);
 
 	QPushButton* toolbar_redo = new QPushButton(toolbar_widget);
-	QIcon icon5;
-	icon5.addFile(QStringLiteral(":/icons/redo.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_redo->setIcon(icon5);
+    QIcon icon5;
+    icon5.addFile(QStringLiteral(":/icons/redo.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_redo->setIcon(icon5);
 	toolbar_redo->setToolTip("Redo");
 	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
 	toolbar->addStretch();
 
-	QPushButton* toolbar_tree_view = new QPushButton(toolbar_widget);
-	QIcon icon6;
-	icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon6.addFile(QStringLiteral(":/icons/treeview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_tree_view->setIcon(icon6);
-	toolbar_tree_view->setToolTip("Tree View");
-	connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
-	toolbar->addWidget(toolbar_tree_view);
+    QPushButton* toolbar_tree_view = new QPushButton(toolbar_widget);
+    QIcon icon6;
+    icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon6.addFile(QStringLiteral(":/icons/treeview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_tree_view->setIcon(icon6);
+    toolbar_tree_view->setToolTip("Tree View");
+    connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
+    toolbar->addWidget(toolbar_tree_view);
 
 	QPushButton* toolbar_icon_view = new QPushButton(toolbar_widget);
-	QIcon icon7;
-	icon7.addFile(QStringLiteral(":/icons/iconview.png"), QSize(), QIcon::Normal, QIcon::On);
-	icon7.addFile(QStringLiteral(":/icons/iconview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-	toolbar_icon_view->setIcon(icon7);
+    QIcon icon7;
+    icon7.addFile(QStringLiteral(":/icons/iconview.png"), QSize(), QIcon::Normal, QIcon::On);
+    icon7.addFile(QStringLiteral(":/icons/iconview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
+    toolbar_icon_view->setIcon(icon7);
 	toolbar_icon_view->setToolTip("Icon View");
 	connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
 	toolbar->addWidget(toolbar_icon_view);
@@ -442,7 +442,7 @@ Media* Project::new_folder(QString name) {
 
 Media *Project::item_to_media(const QModelIndex &index) {
 	return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
-//	return static_cast<Media*>(index.internalPointer());
+//    return static_cast<Media*>(index.internalPointer());
 }
 
 void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list, int search_type) {
@@ -939,7 +939,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 				}
 				// save_folder(stream, item, type, set_ids_only);
 			} else {
-				int folder = (m->parentItem() != nullptr) ? m->parentItem()->temp_id : 0;
+				int folder = m->parentItem()->temp_id;
 				if (type == MEDIA_TYPE_FOOTAGE) {
 					Footage* f = m->to_footage();
 					f->save_id = media_id;
