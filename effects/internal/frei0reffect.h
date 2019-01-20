@@ -5,6 +5,9 @@
 
 #include <frei0r/frei0r.h>
 
+typedef void (*f0rGetParamInfo)(f0r_param_info_t * info,
+								int param_index );
+
 class Frei0rEffect : public Effect {
 	Q_OBJECT
 public:
@@ -15,6 +18,8 @@ public:
 private:
 	HMODULE modulePtr;
 	f0r_instance_t instance;
+	int param_count;
+	f0rGetParamInfo get_param_info;
 };
 
 #endif // FREI0REFFECT_H

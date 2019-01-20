@@ -50,12 +50,12 @@ void KeyframeView::show_context_menu(const QPoint& pos) {
 	if (selected_fields.size() > 0) {
 		QMenu menu(this);
 
-        QAction* linear = menu.addAction(tr("Linear"));
-		linear->setData(KEYFRAME_TYPE_LINEAR);
-        QAction* bezier = menu.addAction(tr("Bezier"));
-		bezier->setData(KEYFRAME_TYPE_BEZIER);
-        QAction* hold = menu.addAction(tr("Hold"));
-		hold->setData(KEYFRAME_TYPE_HOLD);
+		QAction* linear = menu.addAction(tr("Linear"));
+		linear->setData(EFFECT_KEYFRAME_LINEAR);
+		QAction* bezier = menu.addAction(tr("Bezier"));
+		bezier->setData(EFFECT_KEYFRAME_BEZIER);
+		QAction* hold = menu.addAction(tr("Hold"));
+		hold->setData(EFFECT_KEYFRAME_HOLD);
 		menu.addSeparator();
 		menu.addAction("Graph Editor");
 
@@ -199,9 +199,9 @@ void KeyframeView::set_y_scroll(int s) {
 }
 
 void KeyframeView::resize_move(double d) {
-    panel_effect_controls->zoom *= d;
-    header->update_zoom(panel_effect_controls->zoom);
-    update();
+	panel_effect_controls->zoom *= d;
+	header->update_zoom(panel_effect_controls->zoom);
+	update();
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event) {

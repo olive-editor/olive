@@ -50,10 +50,7 @@ bool shaders_are_enabled = true;
 QVector<EffectMeta> effects;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
-	if (!em->filename.isEmpty()) {
-		// load effect from file
-		return new Effect(c, em);
-	} else if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
+	if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
 		// must be an internal effect
 		switch (em->internal) {
 		case EFFECT_INTERNAL_TRANSFORM: return new TransformEffect(c, em);
@@ -72,6 +69,9 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 #endif
 		case EFFECT_INTERNAL_FREI0R: return new Frei0rEffect(c, em);
 		}
+	} else if (!em->filename.isEmpty()) {
+		// load effect from file
+		return new Effect(c, em);
 	} else {
 		qCritical() << "Invalid effect data";
 		QMessageBox::critical(mainWindow,
@@ -118,7 +118,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 		// set up UI from effect file
 		container->setText(em->name);
 
-		if (!em->filename.isEmpty()) {
+		if (!em->filename.isEmpty() && em->internal == -1) {
 			QFile effect_file(em->filename);
 			if (effect_file.open(QFile::ReadOnly)) {
 				QXmlStreamReader reader(&effect_file);
@@ -563,7 +563,7 @@ void Effect::load(QXmlStreamReader& stream) {
 void Effect::custom_load(QXmlStreamReader &) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
-	stream.writeAttribute("name", meta->name);
+	stream.writeAttribute("name", meta->category + "/" + meta->name);
 	stream.writeAttribute("enabled", QString::number(is_enabled()));
 
 	for (int i=0;i<rows.size();i++) {

@@ -767,7 +767,7 @@ void open_clip_worker(Clip* clip) {
 			}*/
 
 			enum AVPixelFormat valid_pix_fmts[] = {
-				AV_PIX_FMT_RGB24,
+//				AV_PIX_FMT_RGB24,
 				AV_PIX_FMT_RGBA,
 				AV_PIX_FMT_NONE
 			};

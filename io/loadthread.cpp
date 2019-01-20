@@ -37,9 +37,21 @@ LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelle
 	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
 }
 
-const EffectMeta* get_meta_from_name(const QString& name) {
+const EffectMeta* get_meta_from_name(const QString& input) {
+	int split_index = input.indexOf('/');
+	QString category;
+	if (split_index > -1) {
+		category = input.left(split_index);
+	}
+	QString name = input.mid(split_index + 1);
+
+	qDebug() << "CAT:" << category;
+	qDebug() << "NAM:" << name;
+
 	for (int j=0;j<effects.size();j++) {
-		if (effects.at(j).name == name) {
+		if (effects.at(j).name == name
+				&& (effects.at(j).category == category
+					|| category.isEmpty())) {
 			return &effects.at(j);
 		}
 	}
