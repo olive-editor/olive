@@ -264,7 +264,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
-				if (e->enable_image) {
+				if (e->enable_image && e->is_enabled()) {
 					if (data_buffer_1 == target_frame->data[0]) {
 						frame_size = target_frame->linesize[0]*target_frame->height;
 

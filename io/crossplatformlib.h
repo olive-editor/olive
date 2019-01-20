@@ -4,15 +4,15 @@
 #include <QString>
 
 #ifdef _WIN32
-    #include <Windows.h>
-    #define LibAddress GetProcAddress
-    #define CloseLib FreeModule
-    #define ModulePtr HMODULE
+	#include <Windows.h>
+	#define LibAddress GetProcAddress
+	#define LibClose FreeModule
+	#define ModulePtr HMODULE
 #elif __linux__
-    #include <dlfcn.h>
-    #define LibAddress dlsym
-    #define LibClose dlclose
-    #define ModulePtr void*
+	#include <dlfcn.h>
+	#define LibAddress dlsym
+	#define LibClose dlclose
+	#define ModulePtr void*
 #endif
 
 ModulePtr LibLoad(const QString& filename);
