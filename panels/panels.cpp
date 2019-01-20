@@ -9,6 +9,7 @@
 #include "project/transition.h"
 #include "io/config.h"
 #include "grapheditor.h"
+#include "project/effectloaders.h"
 #include "debug.h"
 
 #include <QScrollBar>

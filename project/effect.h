@@ -38,7 +38,6 @@ extern bool shaders_are_enabled;
 extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
-void init_effects();
 Effect* create_effect(Clip* c, const EffectMeta *em);
 const EffectMeta* get_internal_meta(int internal_id, int type);
 
@@ -65,7 +64,8 @@ const EffectMeta* get_internal_meta(int internal_id, int type);
 #define EFFECT_INTERNAL_FILLLEFTRIGHT 10
 #define EFFECT_INTERNAL_VST 11
 #define EFFECT_INTERNAL_CORNERPIN 12
-#define EFFECT_INTERNAL_COUNT 13
+#define EFFECT_INTERNAL_FREI0R 13
+#define EFFECT_INTERNAL_COUNT 14
 
 #define KEYFRAME_TYPE_LINEAR 0
 #define KEYFRAME_TYPE_BEZIER 1
@@ -156,7 +156,7 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(double timecode, uint8_t* data, int size);
+	virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
 	virtual void process_shader(double timecode, GLTextureCoords&);
 	virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);
