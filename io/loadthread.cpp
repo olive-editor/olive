@@ -43,10 +43,7 @@ const EffectMeta* get_meta_from_name(const QString& input) {
 	if (split_index > -1) {
 		category = input.left(split_index);
 	}
-	QString name = input.mid(split_index + 1);
-
-	qDebug() << "CAT:" << category;
-	qDebug() << "NAM:" << name;
+    QString name = input.mid(split_index + 1);
 
 	for (int j=0;j<effects.size();j++) {
 		if (effects.at(j).name == name

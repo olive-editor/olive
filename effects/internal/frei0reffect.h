@@ -3,7 +3,9 @@
 
 #include "project/effect.h"
 
-#include <frei0r/frei0r.h>
+#include <frei0r.h>
+
+#include "io/crossplatformlib.h"
 
 typedef void (*f0rGetParamInfo)(f0r_param_info_t * info,
 								int param_index );
@@ -16,7 +18,7 @@ public:
 
 	virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
 private:
-	HMODULE modulePtr;
+    ModulePtr handle;
 	f0r_instance_t instance;
 	int param_count;
 	f0rGetParamInfo get_param_info;

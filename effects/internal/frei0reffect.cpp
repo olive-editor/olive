@@ -3,8 +3,6 @@
 #include <QMessageBox>
 #include <QDir>
 
-#include <Windows.h>
-
 typedef f0r_instance_t (*f0rConstructFunc)(unsigned int width, unsigned int height);
 typedef int (*f0rInitFunc) ();
 typedef void (*f0rDeinitFunc) ();
@@ -20,32 +18,45 @@ Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 
 	// Windows DLL loading routine
 	QString dll_fn = QDir(em->path).filePath(em->filename);
-	LPCWSTR dll_fn_w = reinterpret_cast<const wchar_t*>(dll_fn.utf16());
 
-	modulePtr = LoadLibrary(dll_fn_w);
-	if(modulePtr == nullptr) {
+    handle = LibLoad(dll_fn);
+    if(handle == nullptr) {
+        QString dll_error;
+
+#ifdef _WIN32
 		DWORD dll_err = GetLastError();
-		qCritical() << "Failed to load VST" << dll_fn_w << "-" << dll_err;
-		QString msg_err = tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, QString::number(dll_err));
+        dll_error = QString::number(dll_err);
+        qCritical() << "Failed to load Frei0r plugin" << dll_fn_w << "-" << dll_err;
+#elif __linux__
+        dll_error = dlerror();
+        qCritical() << "Failed to load Frei0r plugin" << dll_fn << "-" << dll_error;
+#endif
+
+        QString msg_err = tr("Failed to load Frei0r plugin \"%1\": %2").arg(dll_fn, dll_error);
+
+#ifdef _WIN32
 		if (dll_err == 193) {
 #ifdef _WIN64
-			msg_err += "\n\n" + tr("NOTE: You can't load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.");
+            msg_err += "\n\n" + tr("NOTE: You can't load 32-bit Frei0r plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.");
 #elif _WIN32
-			msg_err += "\n\n" + tr("NOTE: You can't load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
+            msg_err += "\n\n" + tr("NOTE: You can't load 64-bit Frei0r plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
 #endif
 		}
-		QMessageBox::critical(nullptr, tr("Error loading VST plugin"), msg_err);
-		return;
-	}
+#endif
 
-	f0rInitFunc init = reinterpret_cast<f0rInitFunc>(GetProcAddress(modulePtr, "f0r_init"));
+        QMessageBox::critical(nullptr, tr("Error loading Frei0r plugin"), msg_err);
+
+		return;
+    }
+
+    f0rInitFunc init = reinterpret_cast<f0rInitFunc>(LibAddress(handle, "f0r_init"));
 	init();
 
-	f0rConstructFunc construct = reinterpret_cast<f0rConstructFunc>(GetProcAddress(modulePtr, "f0r_construct"));
+    f0rConstructFunc construct = reinterpret_cast<f0rConstructFunc>(LibAddress(handle, "f0r_construct"));
 	instance = construct(1920, 1080);
 
 	f0r_plugin_info_t info;
-	f0rGetPluginInfo info_func = reinterpret_cast<f0rGetPluginInfo>(GetProcAddress(modulePtr, "f0r_get_plugin_info"));
+    f0rGetPluginInfo info_func = reinterpret_cast<f0rGetPluginInfo>(LibAddress(handle, "f0r_get_plugin_info"));
 	info_func(&info);
 
 	param_count = info.num_params;
@@ -54,7 +65,7 @@ Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 	qDebug() << "Frei0r Param Count:" << info.num_params;
 	qDebug() << "Frei0r Explanation:" << info.explanation;
 
-	get_param_info = reinterpret_cast<f0rGetParamInfo>(GetProcAddress(modulePtr, "f0r_get_param_info"));
+    get_param_info = reinterpret_cast<f0rGetParamInfo>(LibAddress(handle, "f0r_get_param_info"));
 	for (int i=0;i<param_count;i++) {
 		f0r_param_info_t param_info;
 		get_param_info(&param_info, i);
@@ -94,19 +105,19 @@ Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 }
 
 Frei0rEffect::~Frei0rEffect() {
-	if (modulePtr != nullptr) {
-		f0rDestructFunc destruct = reinterpret_cast<f0rDestructFunc>(GetProcAddress(modulePtr, "f0r_destruct"));
+    if (handle != nullptr) {
+        f0rDestructFunc destruct = reinterpret_cast<f0rDestructFunc>(LibAddress(handle, "f0r_destruct"));
 		destruct(instance);
 
-		f0rDeinitFunc deinit = reinterpret_cast<f0rDeinitFunc>(GetProcAddress(modulePtr, "f0r_deinit"));
+        f0rDeinitFunc deinit = reinterpret_cast<f0rDeinitFunc>(LibAddress(handle, "f0r_deinit"));
 		deinit();
 
-		FreeModule(modulePtr);
+        LibClose(handle);
 	}
 }
 
 void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *output, int) {
-	f0rUpdateFunc update_func = reinterpret_cast<f0rUpdateFunc>(GetProcAddress(modulePtr, "f0r_update"));
+    f0rUpdateFunc update_func = reinterpret_cast<f0rUpdateFunc>(LibAddress(handle, "f0r_update"));
 
 	for (int i=0;i<param_count;i++) {
 		EffectRow* param_row = row(i);
@@ -114,7 +125,7 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
 		f0r_param_info_t param_info;
 		get_param_info(&param_info, i);
 
-		f0rSetParamValue set_param = reinterpret_cast<f0rSetParamValue>(GetProcAddress(modulePtr, "f0r_set_param_value"));
+        f0rSetParamValue set_param = reinterpret_cast<f0rSetParamValue>(LibAddress(handle, "f0r_set_param_value"));
 		switch (param_info.type) {
 		case F0R_PARAM_BOOL:
 		{

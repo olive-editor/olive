@@ -130,7 +130,8 @@ SOURCES += \
     ui/viewerwindow.cpp \
     project/projectfilter.cpp \
     effects/internal/frei0reffect.cpp \
-    project/effectloaders.cpp
+    project/effectloaders.cpp \
+    io/crossplatformlib.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -228,7 +229,8 @@ HEADERS += \
     ui/viewerwindow.h \
     project/projectfilter.h \
     effects/internal/frei0reffect.h \
-    project/effectloaders.h
+    project/effectloaders.h \
+    io/crossplatformlib.h
 
 FORMS +=
 
@@ -249,6 +251,7 @@ mac {
 unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
+    LIBS += -ldl
 }
 
 RESOURCES += \

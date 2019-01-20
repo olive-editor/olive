@@ -5,14 +5,17 @@
 #include "io/path.h"
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
+#include "io/crossplatformlib.h"
 
 #include <QDir>
 #include <QXmlStreamReader>
 
 #include <QDebug>
 
-#include <frei0r/frei0r.h>
+#ifndef NOFREI0R
+#include <frei0r.h>
 typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
+#endif
 
 void load_internal_effects() {
 	if (!shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
@@ -162,6 +165,40 @@ void init_effects() {
 	init_thread->start();
 }
 
+void load_frei0r_effects_worker(const QString& dir, EffectMeta& em) {
+    QDir search_dir(dir);
+    if (search_dir.exists()) {
+        QList<QString> entry_list = search_dir.entryList(LibFilter(), QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+        for (int j=0;j<entry_list.size();j++) {
+            QString entry_path = search_dir.filePath(entry_list.at(j));
+            if (QFileInfo(entry_path).isDir()) {
+                load_frei0r_effects_worker(entry_path, em);
+            } else {
+                ModulePtr effect = LibLoad(entry_path);
+                if (effect != nullptr) {
+                    f0rGetPluginInfo get_info_func = reinterpret_cast<f0rGetPluginInfo>(LibAddress(effect, "f0r_get_plugin_info"));
+                    if (get_info_func != nullptr) {
+                        f0r_plugin_info_t info;
+                        get_info_func(&info);
+
+                        if (info.plugin_type == F0R_PLUGIN_TYPE_FILTER
+                                && info.color_model == F0R_COLOR_MODEL_RGBA8888) {
+                            em.name = info.name;
+                            em.path = dir;
+                            em.filename = entry_list.at(j);
+
+                            effects.append(em);
+                        }
+//                        qDebug() << "Found:" << info.name << "by" << info.author;
+                    }
+                    LibClose(effect);
+                }
+//                qDebug() << search_dir.filePath(entry_list.at(j));
+            }
+        }
+    }
+}
+
 void load_frei0r_effects() {
 	QList<QString> effect_dirs = get_effects_paths();
 	int lim = effect_dirs.size();
@@ -173,46 +210,20 @@ void load_frei0r_effects() {
 
 	// add defined paths for frei0r plugins on unix
 #if defined(__APPLE__) || defined(__linux__)
-
+    effect_dirs.append(QDir::homePath() + "/.frei0r-1/lib");
+    effect_dirs.append("/usr/local/lib/frei0r-1");
+    effect_dirs.append("/usr/lib/frei0r-1");
 #endif
 
-	// search for paths
-	EffectMeta em;
-	em.category = "Frei0r";
-	em.type = EFFECT_TYPE_EFFECT;
-	em.subtype = EFFECT_TYPE_VIDEO;
-	em.internal = EFFECT_INTERNAL_FREI0R;
+	// search for paths	
+    EffectMeta em;
+    em.category = "Frei0r";
+    em.type = EFFECT_TYPE_EFFECT;
+    em.subtype = EFFECT_TYPE_VIDEO;
+    em.internal = EFFECT_INTERNAL_FREI0R;
+
 	for (int i=0;i<effect_dirs.size();i++) {
-		QDir search_dir(effect_dirs.at(i));
-		if (search_dir.exists()) {
-			QList<QString> entry_list = search_dir.entryList(QStringList("*.dll"));
-			for (int j=0;j<entry_list.size();j++) {
-
-				HMODULE effect = LoadLibrary(reinterpret_cast<const wchar_t*>(search_dir.filePath(entry_list.at(j)).utf16()));
-				if (effect != nullptr) {
-					f0rGetPluginInfo get_info_func = reinterpret_cast<f0rGetPluginInfo>(GetProcAddress(effect, "f0r_get_plugin_info"));
-					if (get_info_func != nullptr) {
-						f0r_plugin_info_t info;
-						get_info_func(&info);
-
-						if (info.plugin_type == F0R_PLUGIN_TYPE_FILTER
-								&& info.color_model == F0R_COLOR_MODEL_RGBA8888) {
-							em.name = info.name;
-							em.path = effect_dirs.at(i);
-							em.filename = entry_list.at(j);
-
-							effects.append(em);
-						}
-
-//						qDebug() << "Found:" << info.name << "by" << info.author;
-					}
-					FreeLibrary(effect);
-				}
-
-
-//				qDebug() << search_dir.filePath(entry_list.at(j));
-			}
-		}
+        load_frei0r_effects_worker(effect_dirs.at(i), em);
 	}
 }
 
