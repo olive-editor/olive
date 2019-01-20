@@ -8,7 +8,7 @@
 	#define LibAddress GetProcAddress
 	#define LibClose FreeModule
 	#define ModulePtr HMODULE
-#elif __linux__
+#elif defined(__linux__) || defined(__APPLE__)
 	#include <dlfcn.h>
 	#define LibAddress dlsym
 	#define LibClose dlclose
