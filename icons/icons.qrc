@@ -58,6 +58,18 @@
         <file>tri-up.png</file>
         <file>hand.png</file>
         <file>hand-disabled.png</file>
+        <file>treeview.png</file>
+        <file>treeview-disabled.png</file>
+        <file>iconview.png</file>
+        <file>iconview-disabled.png</file>
+        <file>open.png</file>
+        <file>open-disabled.png</file>
+        <file>save.png</file>
+        <file>save-disabled.png</file>
+        <file>undo.png</file>
+        <file>undo-disabled.png</file>
+        <file>redo.png</file>
+        <file>redo-disabled.png</file>
         <file>olive64.png</file>
     </qresource>
 </RCC>
