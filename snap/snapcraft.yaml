@@ -33,6 +33,7 @@ parts:
       - qtmultimedia5-dev 
       - libavformat-dev
       - libavfilter-dev
+      - frei0r-plugins-dev
     stage-packages:
       - ffmpeg
       - libqt5multimedia5
@@ -40,6 +41,7 @@ parts:
       - libpulse0
       - libslang2
       - libglu1-mesa
+      - frei0r-plugins
     override-build: |
       qmake olive.pro
       make

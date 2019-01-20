@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt-get -y install qt59base qt59multimedia libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev libswresample-dev
+  - sudo apt-get -y install qt59base qt59multimedia libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev libswresample-dev frei0r-plugins-dev frei0r-plugins
   - source /opt/qt*/bin/qt*-env.sh
 
 script:

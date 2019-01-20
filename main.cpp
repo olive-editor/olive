@@ -20,9 +20,7 @@ int main(int argc, char *argv[]) {
 	bool launch_fullscreen = false;
 	QString load_proj;
 
-#ifndef NODEBUG
-	qInstallMessageHandler(debug_message_handler);
-#endif
+	bool use_internal_logger = true;
 
 	if (argc > 1) {
 		for (int i=1;i<argc;i++) {
@@ -40,7 +38,8 @@ int main(int argc, char *argv[]) {
 					launch_fullscreen = true;
 				} else if (!strcmp(argv[i], "--disable-shaders")) {
 					shaders_are_enabled = false;
-
+				} else if (!strcmp(argv[i], "--no-debug")) {
+					use_internal_logger = false;
 				} else {
 					printf("[ERROR] Unknown argument '%s'\n", argv[1]);
 					return 1;
@@ -49,6 +48,10 @@ int main(int argc, char *argv[]) {
 				load_proj = argv[i];
 			}
 		}
+	}
+
+	if (use_internal_logger) {
+		qInstallMessageHandler(debug_message_handler);
 	}
 
 	// init ffmpeg subsystem
