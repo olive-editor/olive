@@ -1,6 +1,8 @@
 #ifndef FREI0REFFECT_H
 #define FREI0REFFECT_H
 
+#ifndef NOFREI0R
+
 #include "project/effect.h"
 
 #include <frei0r.h>
@@ -23,5 +25,7 @@ private:
 	int param_count;
 	f0rGetParamInfo get_param_info;
 };
+
+#endif
 
 #endif // FREI0REFFECT_H

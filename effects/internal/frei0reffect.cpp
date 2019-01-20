@@ -1,5 +1,7 @@
 #include "frei0reffect.h"
 
+#ifndef NOFREI0R
+
 #include <QMessageBox>
 #include <QDir>
 
@@ -170,3 +172,5 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
 
 	update_func(instance, timecode, reinterpret_cast<uint32_t*>(input), reinterpret_cast<uint32_t*>(output));
 }
+
+#endif

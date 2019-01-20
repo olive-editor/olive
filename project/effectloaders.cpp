@@ -165,6 +165,7 @@ void init_effects() {
 	init_thread->start();
 }
 
+#ifndef NOFREI0R
 void load_frei0r_effects_worker(const QString& dir, EffectMeta& em) {
     QDir search_dir(dir);
     if (search_dir.exists()) {
@@ -226,6 +227,7 @@ void load_frei0r_effects() {
         load_frei0r_effects_worker(effect_dirs.at(i), em);
 	}
 }
+#endif
 
 EffectInit::EffectInit() {
 	panel_effect_controls->effects_loaded.lock();
@@ -235,7 +237,9 @@ void EffectInit::run() {
 	qInfo() << "Initializing effects...";
 	load_internal_effects();
 	load_shader_effects();
+#ifndef NOFREI0R
 	load_frei0r_effects();
+#endif
 	panel_effect_controls->effects_loaded.unlock();
 	qInfo() << "Finished initializing effects";
 }

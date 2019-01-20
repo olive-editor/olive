@@ -67,7 +67,9 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 #ifdef _WIN32
 		case EFFECT_INTERNAL_VST: return new VSTHostWin(c, em);
 #endif
+#ifndef NOFREI0R
 		case EFFECT_INTERNAL_FREI0R: return new Frei0rEffect(c, em);
+#endif
 		}
 	} else if (!em->filename.isEmpty()) {
 		// load effect from file
