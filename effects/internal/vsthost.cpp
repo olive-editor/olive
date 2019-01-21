@@ -135,18 +135,6 @@ bool VSTHost::canPluginDo(char *canDoString) {
 	return (dispatcher(plugin, effCanDo, 0, 0, static_cast<void*>(canDoString), 0.0f) > 0);
 }
 
-void VSTHost::initializeIO() {
-	// inputs and outputs are assumed to be float** and are declared elsewhere,
-	// most likely the are fields owned by this class. numChannels and blocksize
-	// are also fields, both should be size_t (or unsigned int, if you prefer).
-	inputs = new float* [CHANNEL_COUNT];
-	outputs = new float* [CHANNEL_COUNT];
-	for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
-		inputs[channel] = new float[BLOCK_SIZE];
-		outputs[channel] = new float[BLOCK_SIZE];
-	}
-}
-
 void VSTHost::processAudio(long numFrames) {
 	// Always reset the output array before processing.
 	for (int i=0;i<CHANNEL_COUNT;i++) {
@@ -159,7 +147,12 @@ void VSTHost::processAudio(long numFrames) {
 VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	plugin = nullptr;
 
-	initializeIO();
+	inputs = new float* [CHANNEL_COUNT];
+	outputs = new float* [CHANNEL_COUNT];
+	for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
+		inputs[channel] = new float[BLOCK_SIZE];
+		outputs[channel] = new float[BLOCK_SIZE];
+	}
 
 	file_field = add_row(tr("Plugin"), true, false)->add_field(EFFECT_FIELD_FILE, "filename");
 	connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
@@ -179,6 +172,13 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
 }
 
 VSTHost::~VSTHost() {
+	for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
+		delete [] inputs[channel];
+		delete [] outputs[channel];
+	}
+	delete [] outputs;
+	delete [] inputs;
+
 	freePlugin();
 }
 

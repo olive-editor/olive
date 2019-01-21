@@ -39,7 +39,6 @@ private:
 	void resumePlugin();
 	void suspendPlugin();
 	bool canPluginDo(char *canDoString);
-	void initializeIO();
 	void processAudio(long numFrames);
 	float** inputs;
 	float** outputs;
