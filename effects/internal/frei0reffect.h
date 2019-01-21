@@ -19,11 +19,16 @@ public:
 	~Frei0rEffect();
 
 	virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
+
+	virtual void refresh();
 private:
-    ModulePtr handle;
+	ModulePtr handle;
 	f0r_instance_t instance;
 	int param_count;
 	f0rGetParamInfo get_param_info;
+	void destruct_module();
+	void construct_module();
+	bool open;
 };
 
 #endif

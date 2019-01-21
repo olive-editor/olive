@@ -5,6 +5,8 @@
 #include <QMessageBox>
 #include <QDir>
 
+#include "project/clip.h"
+
 typedef f0r_instance_t (*f0rConstructFunc)(unsigned int width, unsigned int height);
 typedef int (*f0rInitFunc) ();
 typedef void (*f0rDeinitFunc) ();
@@ -15,7 +17,10 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 typedef void (*f0rSetParamValue) (f0r_instance_t instance,
 				f0r_param_t param, int param_index);
 
-Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
+Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) :
+	Effect(c, em),
+	open(false)
+{
 	enable_image = true;
 
 	// Windows DLL loading routine
@@ -53,18 +58,13 @@ Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 	f0rInitFunc init = reinterpret_cast<f0rInitFunc>(LibAddress(handle, "f0r_init"));
 	init();
 
-	f0rConstructFunc construct = reinterpret_cast<f0rConstructFunc>(LibAddress(handle, "f0r_construct"));
-	instance = construct(1920, 1080);
+	construct_module();
 
 	f0r_plugin_info_t info;
 	f0rGetPluginInfo info_func = reinterpret_cast<f0rGetPluginInfo>(LibAddress(handle, "f0r_get_plugin_info"));
 	info_func(&info);
 
 	param_count = info.num_params;
-
-//	qDebug() << "Frei0r Name:" << info.name;
-//	qDebug() << "Frei0r Param Count:" << info.num_params;
-//	qDebug() << "Frei0r Explanation:" << info.explanation;
 
 	get_param_info = reinterpret_cast<f0rGetParamInfo>(LibAddress(handle, "f0r_get_param_info"));
 	for (int i=0;i<param_count;i++) {
@@ -107,9 +107,6 @@ Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 
 Frei0rEffect::~Frei0rEffect() {
 	if (handle != nullptr) {
-		f0rDestructFunc destruct = reinterpret_cast<f0rDestructFunc>(LibAddress(handle, "f0r_destruct"));
-		destruct(instance);
-
 		f0rDeinitFunc deinit = reinterpret_cast<f0rDeinitFunc>(LibAddress(handle, "f0r_deinit"));
 		deinit();
 
@@ -171,6 +168,27 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
 	}
 
 	update_func(instance, timecode, reinterpret_cast<uint32_t*>(input), reinterpret_cast<uint32_t*>(output));
+}
+
+void Frei0rEffect::refresh() {
+	destruct_module();
+	construct_module();
+}
+
+void Frei0rEffect::destruct_module() {
+	if (open) {
+		f0rDestructFunc destruct = reinterpret_cast<f0rDestructFunc>(LibAddress(handle, "f0r_destruct"));
+		destruct(instance);
+
+		open = false;
+	}
+}
+
+void Frei0rEffect::construct_module() {
+	f0rConstructFunc construct = reinterpret_cast<f0rConstructFunc>(LibAddress(handle, "f0r_construct"));
+	instance = construct(parent_clip->getWidth(), parent_clip->getHeight());
+
+	open = true;
 }
 
 #endif
