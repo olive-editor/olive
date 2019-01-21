@@ -1,4 +1,4 @@
-#ifndef EFFECT_H
+﻿#ifndef EFFECT_H
 #define EFFECT_H
 
 #include <QObject>
@@ -159,7 +159,7 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
+    virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
 	virtual void process_shader(double timecode, GLTextureCoords&);
 	virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);

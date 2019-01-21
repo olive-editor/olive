@@ -1,6 +1,8 @@
 #ifndef VSTHOSTWIN_H
 #define VSTHOSTWIN_H
 
+#ifdef _WIN32
+
 #include "project/effect.h"
 
 #include "io/crossplatformlib.h"
@@ -46,5 +48,7 @@ private:
 	QPushButton* show_interface_btn;
 	ModulePtr modulePtr;
 };
+
+#endif
 
 #endif // VSTHOSTWIN_H
