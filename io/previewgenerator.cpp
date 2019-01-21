@@ -401,6 +401,7 @@ void PreviewGenerator::generate_waveform() {
 	for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 		if (codec_ctx[i] != nullptr) {
 			avcodec_close(codec_ctx[i]);
+			avcodec_free_context(&codec_ctx[i]);
 		}
 	}
 	if (retrieve_duration) {
