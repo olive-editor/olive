@@ -167,7 +167,11 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 
 	/*if (mouseover && mouseover_row < rowY.size()) {
 		draw_keyframe(p, getScreenPointFromFrame(panel_effect_controls->zoom, mouseover_frame - visible_in), rowY.at(mouseover_row), true);
-	}*/
+    }*/
+}
+
+void KeyframeView::wheelEvent(QWheelEvent *e) {
+    emit wheel_event_signal(e);
 }
 
 bool KeyframeView::keyframeIsSelected(EffectField *field, int keyframe) {

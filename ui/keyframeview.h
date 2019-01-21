@@ -21,6 +21,8 @@ public:
 
 	long visible_in;
 	long visible_out;
+signals:
+    void wheel_event_signal(QWheelEvent*);
 public slots:
 	void set_x_scroll(int);
 	void set_y_scroll(int);
@@ -36,6 +38,7 @@ private:
 	void mouseMoveEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
+    void wheelEvent(QWheelEvent* e);
 	bool mousedown;
 	bool dragging;
 	bool keys_selected;
