@@ -21,6 +21,7 @@
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
+#include "ui/flowlayout.h"
 #include "mainwindow.h"
 #include "debug.h"
 
@@ -490,7 +491,21 @@ void Timeline::select_from_playhead() {
 }
 
 void Timeline::resizeEvent(QResizeEvent *) {
-	if (sequence != nullptr) set_sb_max();
+    // adjust maximum scrollbar
+    if (sequence != nullptr) set_sb_max();
+
+
+    // resize tool button widget to its contents
+    QList<QWidget*> tool_button_children = tool_button_widget->findChildren<QWidget*>();
+    int total_client_height = 0;
+    int layout_spacing = tool_button_widget->layout()->spacing();
+    for (int i=0;i<tool_button_children.size();i++) {
+        total_client_height += tool_button_children.at(i)->height() + layout_spacing;
+    }
+    int comp_height = tool_button_widget->height();
+    qDebug() << total_client_height << comp_height << layout_spacing;
+    int cols = qCeil(double(total_client_height)/double(comp_height));
+    tool_button_widget->setFixedWidth((tool_button_children.at(0)->width())*cols + layout_spacing*(cols+1));
 }
 
 void Timeline::delete_in_out(bool ripple) {
@@ -1596,14 +1611,15 @@ void Timeline::setup_ui() {
 	horizontalLayout->setSpacing(0);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
-	QWidget* tool_buttons = new QWidget(dockWidgetContents);
-	tool_buttons->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
+    tool_button_widget = new QWidget(dockWidgetContents);
+    tool_button_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	QVBoxLayout* tool_buttons_layout = new QVBoxLayout(tool_buttons);
+    FlowLayout* tool_buttons_layout = new FlowLayout(tool_button_widget);
+//    tool_buttons_layout->setSizeConstraint(QLayout::SetNoConstraint);
 	tool_buttons_layout->setSpacing(4);
 	tool_buttons_layout->setContentsMargins(0, 0, 0, 0);
 
-	toolArrowButton = new QPushButton(tool_buttons);
+    toolArrowButton = new QPushButton(tool_button_widget);
 	QIcon arrow_icon;
 	arrow_icon.addFile(QStringLiteral(":/icons/arrow.png"), QSize(), QIcon::Normal, QIcon::Off);
 	arrow_icon.addFile(QStringLiteral(":/icons/arrow-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1612,9 +1628,9 @@ void Timeline::setup_ui() {
 	toolArrowButton->setToolTip(tr("Pointer Tool") + " (V)");
 	toolArrowButton->setProperty("tool", TIMELINE_TOOL_POINTER);
 	connect(toolArrowButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
-	tool_buttons_layout->addWidget(toolArrowButton);
+    tool_buttons_layout->addWidget(toolArrowButton);
 
-	toolEditButton = new QPushButton(tool_buttons);
+    toolEditButton = new QPushButton(tool_button_widget);
 	QIcon icon1;
 	icon1.addFile(QStringLiteral(":/icons/beam.png"), QSize(), QIcon::Normal, QIcon::Off);
 	icon1.addFile(QStringLiteral(":/icons/beam-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1625,7 +1641,7 @@ void Timeline::setup_ui() {
 	connect(toolEditButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolEditButton);
 
-	toolRippleButton = new QPushButton(tool_buttons);
+    toolRippleButton = new QPushButton(tool_button_widget);
 	QIcon icon2;
 	icon2.addFile(QStringLiteral(":/icons/ripple.png"), QSize(), QIcon::Normal, QIcon::Off);
 	icon2.addFile(QStringLiteral(":/icons/ripple-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1636,7 +1652,7 @@ void Timeline::setup_ui() {
 	connect(toolRippleButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolRippleButton);
 
-	toolRazorButton = new QPushButton(tool_buttons);
+    toolRazorButton = new QPushButton(tool_button_widget);
 	QIcon icon4;
 	icon4.addFile(QStringLiteral(":/icons/razor.png"), QSize(), QIcon::Normal, QIcon::Off);
 	icon4.addFile(QStringLiteral(":/icons/razor-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1647,7 +1663,7 @@ void Timeline::setup_ui() {
 	connect(toolRazorButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolRazorButton);
 
-	toolSlipButton = new QPushButton(tool_buttons);
+    toolSlipButton = new QPushButton(tool_button_widget);
 	QIcon icon5;
 	icon5.addFile(QStringLiteral(":/icons/slip.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon5.addFile(QStringLiteral(":/icons/slip-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1658,7 +1674,7 @@ void Timeline::setup_ui() {
 	connect(toolSlipButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolSlipButton);
 
-	toolSlideButton = new QPushButton(tool_buttons);
+    toolSlideButton = new QPushButton(tool_button_widget);
 	QIcon icon6;
 	icon6.addFile(QStringLiteral(":/icons/slide.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon6.addFile(QStringLiteral(":/icons/slide-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1669,7 +1685,7 @@ void Timeline::setup_ui() {
 	connect(toolSlideButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolSlideButton);
 
-	toolHandButton = new QPushButton(tool_buttons);
+    toolHandButton = new QPushButton(tool_button_widget);
 	QIcon icon7;
 	icon7.addFile(QStringLiteral(":/icons/hand.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon7.addFile(QStringLiteral(":/icons/hand-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1680,7 +1696,7 @@ void Timeline::setup_ui() {
 	connect(toolHandButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolHandButton);
 
-	toolTransitionButton = new QPushButton(tool_buttons);
+    toolTransitionButton = new QPushButton(tool_button_widget);
 	QIcon icon8;
 	icon8.addFile(QStringLiteral(":/icons/transition-tool.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon8.addFile(QStringLiteral(":/icons/transition-tool-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1690,7 +1706,7 @@ void Timeline::setup_ui() {
 	connect(toolTransitionButton, SIGNAL(clicked(bool)), this, SLOT(transition_tool_click()));
 	tool_buttons_layout->addWidget(toolTransitionButton);
 
-	snappingButton = new QPushButton(tool_buttons);
+    snappingButton = new QPushButton(tool_button_widget);
 	QIcon icon9;
 	icon9.addFile(QStringLiteral(":/icons/magnet.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon9.addFile(QStringLiteral(":/icons/magnet-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1701,7 +1717,7 @@ void Timeline::setup_ui() {
 	connect(snappingButton, SIGNAL(toggled(bool)), this, SLOT(snapping_clicked(bool)));
 	tool_buttons_layout->addWidget(snappingButton);
 
-	zoomInButton = new QPushButton(tool_buttons);
+    zoomInButton = new QPushButton(tool_button_widget);
 	QIcon icon10;
 	icon10.addFile(QStringLiteral(":/icons/zoomin.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon10.addFile(QStringLiteral(":/icons/zoomin-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1710,7 +1726,7 @@ void Timeline::setup_ui() {
 	connect(zoomInButton, SIGNAL(clicked(bool)), this, SLOT(zoom_in()));
 	tool_buttons_layout->addWidget(zoomInButton);
 
-	zoomOutButton = new QPushButton(tool_buttons);
+    zoomOutButton = new QPushButton(tool_button_widget);
 	QIcon icon11;
 	icon11.addFile(QStringLiteral(":/icons/zoomout.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon11.addFile(QStringLiteral(":/icons/zoomout-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1719,7 +1735,7 @@ void Timeline::setup_ui() {
 	connect(zoomOutButton, SIGNAL(clicked(bool)), this, SLOT(zoom_out()));
 	tool_buttons_layout->addWidget(zoomOutButton);
 
-	recordButton = new QPushButton(tool_buttons);
+    recordButton = new QPushButton(tool_button_widget);
 	QIcon icon12;
 	icon12.addFile(QStringLiteral(":/icons/record.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon12.addFile(QStringLiteral(":/icons/record-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1729,18 +1745,16 @@ void Timeline::setup_ui() {
 
 	tool_buttons_layout->addWidget(recordButton);
 
-	addButton = new QPushButton(tool_buttons);
+    addButton = new QPushButton(tool_button_widget);
 	QIcon icon13;
 	icon13.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon13.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	addButton->setIcon(icon13);
 	addButton->setToolTip(tr("Add title, solid, bars, etc."));
 	connect(addButton, SIGNAL(clicked()), this, SLOT(add_btn_click()));
-	tool_buttons_layout->addWidget(addButton);
+    tool_buttons_layout->addWidget(addButton);
 
-	tool_buttons_layout->addStretch();
-
-	horizontalLayout->addWidget(tool_buttons);
+    horizontalLayout->addWidget(tool_button_widget);
 
 	timeline_area = new QWidget(dockWidgetContents);
 	QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Minimum);

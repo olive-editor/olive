@@ -249,6 +249,7 @@ private:
 	QPushButton* zoomOutButton;
 	QPushButton* recordButton;
 	QPushButton* addButton;
+    QWidget* tool_button_widget;
 };
 
 #endif // TIMELINE_H
