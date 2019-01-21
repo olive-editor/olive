@@ -1,5 +1,7 @@
 #include "vsthost.h"
 
+#ifdef _WIN32
+
 // adapted from http://teragonaudio.com/article/How-to-make-your-own-VST-host.html
 
 #include <QPushButton>
@@ -264,3 +266,5 @@ void VSTHost::change_plugin() {
 	}
 	show_interface_btn->setEnabled(plugin != nullptr);
 }
+
+#endif

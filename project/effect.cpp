@@ -693,10 +693,10 @@ void Effect::startEffect() {
 
 void Effect::endEffect() {
 	if (bound) glslProgram->release();
-	bound = false;
+    bound = false;
 }
 
-void Effect::process_image(double, uint8_t *input, uint8_t *output, int) {}
+void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
 Effect* Effect::copy(Clip* c) {
 	Effect* copy = create_effect(c, meta);
