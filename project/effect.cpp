@@ -29,7 +29,7 @@
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
 #ifdef _WIN32
-#include "effects/internal/vsthostwin.h"
+#include "effects/internal/vsthost.h"
 #endif
 #include "effects/internal/fillleftrighteffect.h"
 #include "effects/internal/frei0reffect.h"
@@ -65,7 +65,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
 #ifdef _WIN32
-		case EFFECT_INTERNAL_VST: return new VSTHostWin(c, em);
+		case EFFECT_INTERNAL_VST: return new VSTHost(c, em);
 #endif
 #ifndef NOFREI0R
 		case EFFECT_INTERNAL_FREI0R: return new Frei0rEffect(c, em);

@@ -131,7 +131,8 @@ SOURCES += \
     project/projectfilter.cpp \
     effects/internal/frei0reffect.cpp \
     project/effectloaders.cpp \
-    io/crossplatformlib.cpp
+    io/crossplatformlib.cpp \
+    effects/internal/vsthost.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -230,7 +231,8 @@ HEADERS += \
     project/projectfilter.h \
     effects/internal/frei0reffect.h \
     project/effectloaders.h \
-    io/crossplatformlib.h
+    io/crossplatformlib.h \
+    effects/internal/vsthost.h
 
 FORMS +=
 
@@ -238,8 +240,8 @@ win32 {
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
 
-        SOURCES += effects/internal/vsthostwin.cpp
-        HEADERS += effects/internal/vsthostwin.h
+        SOURCES +=
+        HEADERS +=
 }
 
 mac {
