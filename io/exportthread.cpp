@@ -489,5 +489,7 @@ void ExportThread::run() {
 }
 
 void ExportThread::wake() {
+    mutex.lock();
 	waitCond.wakeAll();
+    mutex.unlock();
 }
