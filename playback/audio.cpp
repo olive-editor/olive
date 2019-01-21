@@ -166,7 +166,7 @@ void AudioSenderThread::run() {
 
 int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	// send audio to device
-	int actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
+	unsigned long actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
 
 	unsigned long audio_ibuffer_limit = audio_ibuffer_read + actual_write;
 
@@ -185,19 +185,20 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 		}
 		int channel_count = av_get_channel_layout_nb_channels(s->audio_layout);
 		long sample_cache_playhead = panel_timeline->audio_monitor->sample_cache_offset + (panel_timeline->audio_monitor->sample_cache.size()/channel_count);
-		int next_buffer_offset, buffer_offset_adjusted, i;
-		int buffer_offset = get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead);
+		unsigned long next_buffer_offset, buffer_offset_adjusted;
+		int i;
+		unsigned long buffer_offset = get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead);
 		if (samples.size() != channel_count) samples.resize(channel_count);
 		samples.fill(0);
 
 		// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
-		while (buffer_offset < audio_ibuffer_limit) {
+		while (static_cast<unsigned long>(buffer_offset) < audio_ibuffer_limit) {
 			sample_cache_playhead++;
-			next_buffer_offset = qMin(get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead), audio_ibuffer_limit);
+			next_buffer_offset = qMin(get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead), static_cast<unsigned long>(audio_ibuffer_limit));
 			while (buffer_offset < next_buffer_offset) {
 				for (i=0;i<samples.size();i++) {
 					buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
-					samples[i] = qMax(qAbs((qint16) (((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
+					samples[i] = qMax(qAbs(qint16(((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
 					buffer_offset += 2;
 				}
 			}

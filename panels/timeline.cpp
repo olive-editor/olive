@@ -830,6 +830,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 				}
 			}
 		}
+		deselect_area(s.in, s.out, s.track);
 	}
 	relink_clips_using_ids(pre_clips, post_clips);
 	ca->append(new AddClipCommand(sequence, post_clips));
