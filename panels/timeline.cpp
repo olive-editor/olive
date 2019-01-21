@@ -1760,6 +1760,7 @@ void Timeline::setup_ui() {
 	editAreaLayout->setSpacing(0);
 	editAreaLayout->setContentsMargins(0, 0, 0, 0);
 	QSplitter* splitter = new QSplitter(editAreas);
+    splitter->setChildrenCollapsible(false);
 	splitter->setOrientation(Qt::Vertical);
 	QWidget* videoContainer = new QWidget(splitter);
 	QHBoxLayout* videoContainerLayout = new QHBoxLayout(videoContainer);
