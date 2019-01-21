@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#define SAVE_VERSION 190104 // YYMMDD
+#define SAVE_VERSION 190120 // YYMMDD
 #define MIN_SAVE_VERSION 190104 // lowest compatible project version
 
 #define TIMECODE_DROP 0
@@ -63,7 +63,7 @@ struct Config {
 	bool seek_also_selects;
 	QString css_path;
 	int effect_textbox_lines;
-    bool use_software_fallback;
+	bool use_software_fallback;
 
 	void load(QString path);
 	void save(QString path);

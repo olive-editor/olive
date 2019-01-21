@@ -37,7 +37,7 @@ extern QMutex audio_write_lock;
 
 #define audio_ibuffer_size 192000
 extern qint8 audio_ibuffer[audio_ibuffer_size];
-extern int audio_ibuffer_read;
+extern unsigned long audio_ibuffer_read;
 extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
@@ -51,7 +51,7 @@ bool is_audio_device_set();
 
 void init_audio();
 void stop_audio();
-int get_buffer_offset_from_frame(double framerate, long frame);
+unsigned long get_buffer_offset_from_frame(double framerate, long frame);
 
 bool start_recording();
 void stop_recording();

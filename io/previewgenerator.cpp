@@ -217,6 +217,10 @@ void PreviewGenerator::finalize_media() {
 	}
 }
 
+void thumb_data_cleanup(void *info) {
+	delete [] static_cast<uint8_t*>(info);
+}
+
 void PreviewGenerator::generate_waveform() {
 	SwsContext* sws_ctx;
 	SwrContext* swr_ctx;
@@ -277,7 +281,7 @@ void PreviewGenerator::generate_waveform() {
 					if (!s->preview_done) {
 						int dstH = 120;
 						int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
-						uint8_t* imgData = new uint8_t[dstW*dstH*4];
+						uint8_t* data = new uint8_t[dstW*dstH*4];
 
 						sws_ctx = sws_getContext(
 								temp_frame->width,
@@ -294,9 +298,9 @@ void PreviewGenerator::generate_waveform() {
 
 						int linesize[AV_NUM_DATA_POINTERS];
 						linesize[0] = dstW*4;
-						sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &imgData, linesize);
+						sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
-						s->video_preview = QImage(imgData, dstW, dstH, linesize[0], QImage::Format_RGBA8888);
+						s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGBA8888, thumb_data_cleanup);
 						s->make_square_thumb();
 
 						// is video interlaced?
@@ -311,8 +315,6 @@ void PreviewGenerator::generate_waveform() {
 							avcodec_close(codec_ctx[packet->stream_index]);
 							codec_ctx[packet->stream_index] = nullptr;
 						}
-
-                        delete[] imgData;
 					}
 					media_lengths[packet->stream_index]++;
 				} else if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -403,6 +405,7 @@ void PreviewGenerator::generate_waveform() {
 	for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 		if (codec_ctx[i] != nullptr) {
 			avcodec_close(codec_ctx[i]);
+			avcodec_free_context(&codec_ctx[i]);
 		}
 	}
 	if (retrieve_duration) {
@@ -417,10 +420,7 @@ void PreviewGenerator::generate_waveform() {
 		finalize_media();
 	}
 	delete [] media_lengths;
-
-    if (codec_ctx != NULL) {
-        avcodec_free_context(codec_ctx);
-    }
+	delete [] codec_ctx;
 }
 
 QString PreviewGenerator::get_thumbnail_path(const QString& hash, const FootageStream& ms) {

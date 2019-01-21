@@ -364,7 +364,8 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
-			long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence->frame_rate, timeline_out);
+			unsigned long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence->frame_rate, timeline_out);
+
 			audio_write_lock.lock();
 
 			while (c->frame_sample_index < nb_bytes
@@ -767,7 +768,7 @@ void open_clip_worker(Clip* clip) {
 			}*/
 
 			enum AVPixelFormat valid_pix_fmts[] = {
-				AV_PIX_FMT_RGB24,
+//				AV_PIX_FMT_RGB24,
 				AV_PIX_FMT_RGBA,
 				AV_PIX_FMT_NONE
 			};

@@ -1,7 +1,11 @@
 #ifndef VSTHOSTWIN_H
 #define VSTHOSTWIN_H
 
+#ifdef _WIN32
+
 #include "project/effect.h"
+
+#include "io/crossplatformlib.h"
 
 #include <vst/aeffectx.h>
 
@@ -11,11 +15,11 @@ typedef VstIntPtr (*dispatcherFuncPtr)(AEffect *effect, VstInt32 opCode, VstInt3
 struct AEffect;
 class QDialog;
 
-class VSTHostWin : public Effect {
+class VSTHost : public Effect {
 	Q_OBJECT
 public:
-	VSTHostWin(Clip* c, const EffectMeta* em);
-	~VSTHostWin();
+	VSTHost(Clip* c, const EffectMeta* em);
+	~VSTHost();
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
 	void custom_load(QXmlStreamReader& stream);
@@ -37,13 +41,14 @@ private:
 	void resumePlugin();
 	void suspendPlugin();
 	bool canPluginDo(char *canDoString);
-	void initializeIO();
 	void processAudio(long numFrames);
 	float** inputs;
 	float** outputs;
 	QDialog* dialog;
 	QPushButton* show_interface_btn;
-	HMODULE modulePtr;
+	ModulePtr modulePtr;
 };
+
+#endif
 
 #endif // VSTHOSTWIN_H

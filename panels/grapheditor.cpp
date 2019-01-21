@@ -59,13 +59,13 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	left_tool_layout->addStretch();
 
 	linear_button = new QPushButton(tr("Linear"));
-	linear_button->setProperty("type", KEYFRAME_TYPE_LINEAR);
+	linear_button->setProperty("type", EFFECT_KEYFRAME_LINEAR);
 	linear_button->setCheckable(true);
 	bezier_button = new QPushButton(tr("Bezier"));
-	bezier_button->setProperty("type", KEYFRAME_TYPE_BEZIER);
+	bezier_button->setProperty("type", EFFECT_KEYFRAME_BEZIER);
 	bezier_button->setCheckable(true);
 	hold_button = new QPushButton(tr("Hold"));
-	hold_button->setProperty("type", KEYFRAME_TYPE_HOLD);
+	hold_button->setProperty("type", EFFECT_KEYFRAME_HOLD);
 	hold_button->setCheckable(true);
 
 	center_tool_layout->addStretch();
@@ -162,9 +162,8 @@ void GraphEditor::set_row(EffectRow *r) {
 				slider_button->setCheckable(true);
 				slider_button->setChecked(field->is_enabled());
 				slider_button->setIcon(QIcon(":/icons/record.png"));
-				slider_button->setProperty("field", i);
-				slider_button->setIconSize(QSize(8, 8));
-				slider_button->setMaximumSize(QSize(12, 12));
+                slider_button->setProperty("field", i);
+                slider_button->setIconSize(slider_button->iconSize()*0.5);
 				connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));
 				slider_proxy_buttons.append(slider_button);
 				value_layout->addWidget(slider_button);
@@ -216,11 +215,11 @@ void GraphEditor::select_all() {
 
 void GraphEditor::set_key_button_enabled(bool e, int type) {
 	linear_button->setEnabled(e);
-	linear_button->setChecked(type == KEYFRAME_TYPE_LINEAR);
+	linear_button->setChecked(type == EFFECT_KEYFRAME_LINEAR);
 	bezier_button->setEnabled(e);
-	bezier_button->setChecked(type == KEYFRAME_TYPE_BEZIER);
+	bezier_button->setChecked(type == EFFECT_KEYFRAME_BEZIER);
 	hold_button->setEnabled(e);
-	hold_button->setChecked(type == KEYFRAME_TYPE_HOLD);
+	hold_button->setChecked(type == EFFECT_KEYFRAME_HOLD);
 }
 
 void GraphEditor::passthrough_slider_value() {

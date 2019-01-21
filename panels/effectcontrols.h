@@ -19,12 +19,14 @@ class QScrollBar;
 class QHBoxLayout;
 
 class EffectsArea : public QWidget {
+    Q_OBJECT
 public:
-	EffectsArea(QWidget* parent = 0);
-	void resizeEvent(QResizeEvent *event);
+    EffectsArea(QWidget* parent = 0);
 	QScrollArea* parent_widget;
 	KeyframeView* keyframe_area;
 	TimelineHeader* header;
+public slots:
+    void receive_wheel_event(QWheelEvent* e);
 };
 
 class EffectControls : public QDockWidget
@@ -65,6 +67,9 @@ private slots:
 	void audio_transition_click();
 
 	void deselect_all_effects(QWidget*);
+
+    void update_scrollbar();
+    void queue_post_update();
 protected:
 	void resizeEvent(QResizeEvent *event);
 private:

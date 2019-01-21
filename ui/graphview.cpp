@@ -238,33 +238,33 @@ void GraphView::paintEvent(QPaintEvent *) {
 						} else {
 							const EffectKeyframe& last_key = field->keyframes.at(sorted_keys.at(j-1));
 
-                            double pre_handle = field->get_validated_keyframe_handle(sorted_keys.at(j), false);
-                            double last_post_handle = field->get_validated_keyframe_handle(sorted_keys.at(j-1), true);
+							double pre_handle = field->get_validated_keyframe_handle(sorted_keys.at(j), false);
+							double last_post_handle = field->get_validated_keyframe_handle(sorted_keys.at(j-1), true);
 
-							if (last_key.type == KEYFRAME_TYPE_HOLD) {
+							if (last_key.type == EFFECT_KEYFRAME_HOLD) {
 								// hold
 								p.drawLine(last_key_x, last_key_y, key_x, last_key_y);
 								p.drawLine(key_x, last_key_y, key_x, key_y);
-							} else if (last_key.type == KEYFRAME_TYPE_BEZIER || key.type == KEYFRAME_TYPE_BEZIER) {
+							} else if (last_key.type == EFFECT_KEYFRAME_BEZIER || key.type == EFFECT_KEYFRAME_BEZIER) {
 								QPainterPath bezier_path;
 								bezier_path.moveTo(last_key_x, last_key_y);
-								if (last_key.type == KEYFRAME_TYPE_BEZIER && key.type == KEYFRAME_TYPE_BEZIER) {
+								if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
 									// cubic bezier
 									bezier_path.cubicTo(
-                                                QPointF(last_key_x+last_post_handle*zoom, last_key_y-last_key.post_handle_y*zoom),
-                                                QPointF(key_x+pre_handle*zoom, key_y-key.pre_handle_y*zoom),
+												QPointF(last_key_x+last_post_handle*zoom, last_key_y-last_key.post_handle_y*zoom),
+												QPointF(key_x+pre_handle*zoom, key_y-key.pre_handle_y*zoom),
 												QPointF(key_x, key_y)
 											);
-								} else if (key.type == KEYFRAME_TYPE_LINEAR) { // quadratic bezier
+								} else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 									// last keyframe is the bezier one
 									bezier_path.quadTo(
-                                                QPointF(last_key_x+last_post_handle*zoom, last_key_y-last_key.post_handle_y*zoom),
+												QPointF(last_key_x+last_post_handle*zoom, last_key_y-last_key.post_handle_y*zoom),
 												QPointF(key_x, key_y)
 											);
 								} else {
 									// this keyframe is the bezier one
 									bezier_path.quadTo(
-                                                QPointF(key_x+pre_handle*zoom, key_y-key.pre_handle_y*zoom),
+												QPointF(key_x+pre_handle*zoom, key_y-key.pre_handle_y*zoom),
 												QPointF(key_x, key_y)
 											);
 								}
@@ -286,7 +286,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 						int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 
-						if (key.type == KEYFRAME_TYPE_BEZIER) {
+						if (key.type == EFFECT_KEYFRAME_BEZIER) {
 							p.setPen(Qt::gray);
 
 							// pre handle line
@@ -612,24 +612,24 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 									&& event->pos().x() <= key_x) {
 								QRect mouse_rect(event->pos().x()-BEZIER_LINE_SIZE, event->pos().y()-BEZIER_LINE_SIZE, BEZIER_LINE_SIZE+BEZIER_LINE_SIZE, BEZIER_LINE_SIZE+BEZIER_LINE_SIZE);
 								// NOTE: FILTHY copy/paste from paintEvent
-								if (last_key.type == KEYFRAME_TYPE_HOLD) {
+								if (last_key.type == EFFECT_KEYFRAME_HOLD) {
 									// hold
 									if (event->pos().y() >= last_key_y-BEZIER_LINE_SIZE
 											&& event->pos().y() <= last_key_y+BEZIER_LINE_SIZE) {
 	//									dout << "make an HOLD key on field" << i << "after key" << j;
 										click_add = true;
 									}
-								} else if (last_key.type == KEYFRAME_TYPE_BEZIER || key.type == KEYFRAME_TYPE_BEZIER) {
+								} else if (last_key.type == EFFECT_KEYFRAME_BEZIER || key.type == EFFECT_KEYFRAME_BEZIER) {
 									QPainterPath bezier_path;
 									bezier_path.moveTo(last_key_x, last_key_y);
-									if (last_key.type == KEYFRAME_TYPE_BEZIER && key.type == KEYFRAME_TYPE_BEZIER) {
+									if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
 										// cubic bezier
 										bezier_path.cubicTo(
 													QPointF(last_key_x+last_key.post_handle_x*zoom, last_key_y-last_key.post_handle_y*zoom),
 													QPointF(key_x+key.pre_handle_x*zoom, key_y-key.pre_handle_y*zoom),
 													QPointF(key_x, key_y)
 												);
-									} else if (key.type == KEYFRAME_TYPE_LINEAR) { // quadratic bezier
+									} else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 										// last keyframe is the bezier one
 										bezier_path.quadTo(
 													QPointF(last_key_x+last_key.post_handle_x*zoom, last_key_y-last_key.post_handle_y*zoom),

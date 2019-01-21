@@ -778,6 +778,7 @@ bool selection_contains_transition(const Selection& s, Clip* c, int type) {
 
 void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas) {
 	clean_up_selections(areas);
+	panel_effect_controls->clear_effects(true);
 
 	QVector<int> pre_clips;
 	QVector<Clip*> post_clips;
@@ -829,6 +830,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 				}
 			}
 		}
+		deselect_area(s.in, s.out, s.track);
 	}
 	relink_clips_using_ids(pre_clips, post_clips);
 	ca->append(new AddClipCommand(sequence, post_clips));
@@ -1758,6 +1760,7 @@ void Timeline::setup_ui() {
 	editAreaLayout->setSpacing(0);
 	editAreaLayout->setContentsMargins(0, 0, 0, 0);
 	QSplitter* splitter = new QSplitter(editAreas);
+    splitter->setChildrenCollapsible(false);
 	splitter->setOrientation(Qt::Vertical);
 	QWidget* videoContainer = new QWidget(splitter);
 	QHBoxLayout* videoContainerLayout = new QHBoxLayout(videoContainer);

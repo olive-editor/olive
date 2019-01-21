@@ -1,3 +1,5 @@
 *.pro.user*
 Makefile
 .qmake.stash
+effects/frei0r
+

@@ -560,8 +560,7 @@ void Viewer::setup_ui() {
 	QHBoxLayout* current_timecode_container_layout = new QHBoxLayout(current_timecode_container);
 	current_timecode_container_layout->setSpacing(0);
 	current_timecode_container_layout->setMargin(0);
-	current_timecode_slider = new LabelSlider(current_timecode_container);
-	current_timecode_container_layout->addWidget(current_timecode_slider);
+    current_timecode_slider = new LabelSlider(current_timecode_container);
 	lower_control_layout->addWidget(current_timecode_container);
 
 	QWidget* playback_controls = new QWidget(lower_controls);
@@ -616,7 +615,6 @@ void Viewer::setup_ui() {
 	QHBoxLayout* end_timecode_layout = new QHBoxLayout(end_timecode_container);
 	end_timecode_layout->setSpacing(0);
 	end_timecode_layout->setMargin(0);
-
 	end_timecode = new QLabel(end_timecode_container);
 	end_timecode->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 

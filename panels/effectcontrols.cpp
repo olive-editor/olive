@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QIcon>
+#include <QApplication>
 
 #include "panels/panels.h"
 #include "project/effect.h"
@@ -52,6 +53,7 @@ EffectControls::EffectControls(QWidget *parent) :
 
 	lblMultipleClipsSelected->setVisible(false);
 
+    connect(keyframeView, SIGNAL(wheel_event_signal(QWheelEvent*)), effects_area, SLOT(receive_wheel_event(QWheelEvent*)));
 	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
 	connect(horizontalScrollBar, SIGNAL(resize_move(double)), keyframeView, SLOT(resize_move(double)));
 	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), keyframeView, SLOT(set_x_scroll(int)));
@@ -155,6 +157,8 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 	effects_loaded.lock();
 
 	QMenu effects_menu(this);
+	effects_menu.setToolTipsVisible(true);
+
 	for (int i=0;i<effects.size();i++) {
 		const EffectMeta& em = effects.at(i);
 
@@ -162,6 +166,9 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 			QAction* action = new QAction(&effects_menu);
 			action->setText(em.name);
 			action->setData(reinterpret_cast<quintptr>(&em));
+			if (!em.tooltip.isEmpty()) {
+				action->setToolTip(em.tooltip);
+			}
 
 			QMenu* parent = &effects_menu;
 			if (!em.category.isEmpty()) {
@@ -178,6 +185,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 				}
 				if (!found) {
 					parent = new QMenu(&effects_menu);
+					parent->setToolTipsVisible(true);
 					parent->setTitle(em.category);
 
 					bool found = false;
@@ -433,7 +441,17 @@ void EffectControls::setup_ui() {
 
 	hlayout->addWidget(splitter);
 
-	setWidget(contents);
+    setWidget(contents);
+}
+
+void EffectControls::update_scrollbar() {
+    verticalScrollBar->setMaximum(qMax(0, effects_area->height() - keyframeView->height() - headers->height()));
+    verticalScrollBar->setPageStep(verticalScrollBar->height());
+}
+
+void EffectControls::queue_post_update() {
+    keyframeView->update();
+    update_scrollbar();
 }
 
 void EffectControls::load_effects() {
@@ -463,10 +481,10 @@ void EffectControls::load_effects() {
 		}
 		if (selected_clips.size() > 0) {
 			setWindowTitle(panel_name + sequence->clips.at(selected_clips.at(0))->name);
-			verticalScrollBar->setMaximum(qMax(0, effects_area->sizeHint().height() - headers->height() + scrollArea->horizontalScrollBar()->height()/* - keyframeView->height() - headers->height()*/));
 			keyframeView->setEnabled(true);
 			headers->setVisible(true);
-			keyframeView->update();
+
+            QTimer::singleShot(50, this, SLOT(queue_post_update()));
 		}
 	}
 }
@@ -526,7 +544,7 @@ void EffectControls::audio_transition_click() {
 }
 
 void EffectControls::resizeEvent(QResizeEvent*) {
-	verticalScrollBar->setMaximum(qMax(0, effects_area->height() - keyframeView->height() - headers->height()));
+    update_scrollbar();
 }
 
 bool EffectControls::is_focused() {
@@ -550,8 +568,6 @@ EffectsArea::EffectsArea(QWidget* parent) :
 	QWidget(parent)
 {}
 
-void EffectsArea::resizeEvent(QResizeEvent*) {
-//    parent_widget->setMinimumWidth(sizeHint().width());
-//    parent_widget->resize(sizeHint().width(), parent_widget->height());
-//    parent_widget->updateGeometry();
+void EffectsArea::receive_wheel_event(QWheelEvent *e) {
+    QApplication::sendEvent(this, e);
 }

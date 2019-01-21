@@ -320,7 +320,6 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		int textWidth = 0;
 		int lastTextBoundary = INT_MIN;
 
-		int i = 0;
 		int lastLineX = INT_MIN;
 
 		int sublineCount = 1;
@@ -336,6 +335,9 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 		int text_x, fullTextWidth;
 		QString timecode;
+
+		// find where to start drawing lines (lineX algorithm reversed if lineX = 0)
+		int i = qFloor(double(scroll)/zoom/interval);
 
 		while (true) {
 			long frame = qRound(interval*i);
@@ -375,7 +377,6 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 				lastLineX = lineX;
 			}
 
-			// TODO wastes cycles here, could just bring it up to 0
 			i++;
 		}
 

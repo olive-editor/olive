@@ -1,8 +1,8 @@
-#include "vsthostwin.h"
+#include "vsthost.h"
+
+#ifdef _WIN32
 
 // adapted from http://teragonaudio.com/article/How-to-make-your-own-VST-host.html
-
-#include <Windows.h>
 
 #include <QPushButton>
 #include <QDialog>
@@ -52,14 +52,15 @@ typedef VstInt32 (*processEventsFuncPtr)(VstEvents *events);
 // Plugin's process() method
 typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs, VstInt32 sampleFrames);
 
-void VSTHostWin::loadPlugin() {
+void VSTHost::loadPlugin() {
 	QString dll_fn = file_field->get_filename(0, true);
-	LPCWSTR dll_fn_w = reinterpret_cast<const wchar_t*>(dll_fn.utf16());
 
-	modulePtr = LoadLibrary(dll_fn_w);
+	modulePtr = LibLoad(dll_fn);
 	if(modulePtr == nullptr) {
 		DWORD dll_err = GetLastError();
-		qCritical() << "Failed to load VST" << dll_fn_w << "-" << dll_err;
+		qCritical() << "Failed to load VST" << dll_fn << "-" << dll_err;
+
+#ifdef _WIN32
 		QString msg_err = tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, QString::number(dll_err));
 		if (dll_err == 193) {
 #ifdef _WIN64
@@ -67,26 +68,27 @@ void VSTHostWin::loadPlugin() {
 #elif _WIN32
 			msg_err += "\n\n" + tr("NOTE: You can't load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
 #endif
+#endif
 		}
 		QMessageBox::critical(mainWindow, tr("Error loading VST plugin"), msg_err);
 		return;
 	}
 
 	vstPluginFuncPtr mainEntryPoint =
-	reinterpret_cast<vstPluginFuncPtr>(GetProcAddress(modulePtr, "VSTPluginMain"));
+	reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
 	// Instantiate the plugin
 	plugin = mainEntryPoint(hostCallback);
 }
 
-void VSTHostWin::freePlugin() {
+void VSTHost::freePlugin() {
 	if (plugin != nullptr) {
 		stopPlugin();
-		FreeLibrary(modulePtr);
+		LibClose(modulePtr);
 		plugin = nullptr;
 	}
 }
 
-bool VSTHostWin::configurePluginCallbacks() {
+bool VSTHost::configurePluginCallbacks() {
 	// Check plugin's magic number
 	// If incorrect, then the file either was not loaded properly, is not a
 	// real VST plugin, or is otherwise corrupt.
@@ -107,7 +109,7 @@ bool VSTHostWin::configurePluginCallbacks() {
 	return true;
 }
 
-void VSTHostWin::startPlugin() {
+void VSTHost::startPlugin() {
 	dispatcher(plugin, effOpen, 0, 0, nullptr, 0.0f);
 
 	// Set some default properties
@@ -117,37 +119,25 @@ void VSTHostWin::startPlugin() {
 	resumePlugin();
 }
 
-void VSTHostWin::stopPlugin() {
+void VSTHost::stopPlugin() {
 	suspendPlugin();
 
 	dispatcher(plugin, effClose, 0, 0, nullptr, 0);
 }
 
-void VSTHostWin::resumePlugin() {
+void VSTHost::resumePlugin() {
 	dispatcher(plugin, effMainsChanged, 0, 1, nullptr, 0.0f);
 }
 
-void VSTHostWin::suspendPlugin() {
+void VSTHost::suspendPlugin() {
 	dispatcher(plugin, effMainsChanged, 0, 0, nullptr, 0.0f);
 }
 
-bool VSTHostWin::canPluginDo(char *canDoString) {
+bool VSTHost::canPluginDo(char *canDoString) {
 	return (dispatcher(plugin, effCanDo, 0, 0, static_cast<void*>(canDoString), 0.0f) > 0);
 }
 
-void VSTHostWin::initializeIO() {
-	// inputs and outputs are assumed to be float** and are declared elsewhere,
-	// most likely the are fields owned by this class. numChannels and blocksize
-	// are also fields, both should be size_t (or unsigned int, if you prefer).
-	inputs = new float* [CHANNEL_COUNT];
-	outputs = new float* [CHANNEL_COUNT];
-	for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
-		inputs[channel] = new float[BLOCK_SIZE];
-		outputs[channel] = new float[BLOCK_SIZE];
-	}
-}
-
-void VSTHostWin::processAudio(long numFrames) {
+void VSTHost::processAudio(long numFrames) {
 	// Always reset the output array before processing.
 	for (int i=0;i<CHANNEL_COUNT;i++) {
 		memset(outputs[i], 0, BLOCK_SIZE*sizeof(float));
@@ -156,10 +146,15 @@ void VSTHostWin::processAudio(long numFrames) {
 	plugin->processReplacing(plugin, inputs, outputs, numFrames);
 }
 
-VSTHostWin::VSTHostWin(Clip* c, const EffectMeta *em) : Effect(c, em) {
+VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	plugin = nullptr;
 
-	initializeIO();
+	inputs = new float* [CHANNEL_COUNT];
+	outputs = new float* [CHANNEL_COUNT];
+	for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
+		inputs[channel] = new float[BLOCK_SIZE];
+		outputs[channel] = new float[BLOCK_SIZE];
+	}
 
 	file_field = add_row(tr("Plugin"), true, false)->add_field(EFFECT_FIELD_FILE, "filename");
 	connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
@@ -178,11 +173,18 @@ VSTHostWin::VSTHostWin(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	connect(dialog, SIGNAL(finished(int)), this, SLOT(uncheck_show_button()));
 }
 
-VSTHostWin::~VSTHostWin() {
+VSTHost::~VSTHost() {
+	for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
+		delete [] inputs[channel];
+		delete [] outputs[channel];
+	}
+	delete [] outputs;
+	delete [] inputs;
+
 	freePlugin();
 }
 
-void VSTHostWin::process_audio(double, double, quint8* samples, int nb_bytes, int) {
+void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) {
 	if (plugin != nullptr) {
 		int interval = BLOCK_SIZE*4;
 		for (int i=0;i<nb_bytes;i+=interval) {
@@ -218,7 +220,7 @@ void VSTHostWin::process_audio(double, double, quint8* samples, int nb_bytes, in
 	}
 }
 
-void VSTHostWin::custom_load(QXmlStreamReader &stream) {
+void VSTHost::custom_load(QXmlStreamReader &stream) {
 	if (stream.name() == "plugindata") {
 		stream.readNext();
 		QByteArray b = QByteArray::fromBase64(stream.text().toUtf8());
@@ -228,7 +230,7 @@ void VSTHostWin::custom_load(QXmlStreamReader &stream) {
 	}
 }
 
-void VSTHostWin::save(QXmlStreamWriter &stream) {
+void VSTHost::save(QXmlStreamWriter &stream) {
 	Effect::save(stream);
 	if (plugin != nullptr) {
 		char* p = nullptr;
@@ -238,15 +240,15 @@ void VSTHostWin::save(QXmlStreamWriter &stream) {
 	}
 }
 
-void VSTHostWin::show_interface(bool show) {
+void VSTHost::show_interface(bool show) {
 	dialog->setVisible(show);
 }
 
-void VSTHostWin::uncheck_show_button() {
+void VSTHost::uncheck_show_button() {
 	show_interface_btn->setChecked(false);
 }
 
-void VSTHostWin::change_plugin() {
+void VSTHost::change_plugin() {
 	freePlugin();
 	loadPlugin();
 	if (plugin != nullptr) {
@@ -258,9 +260,11 @@ void VSTHostWin::change_plugin() {
 			dialog->setFixedWidth(eRect->right);
 			dialog->setFixedHeight(eRect->bottom);
 		} else {
-			FreeLibrary(modulePtr);
+			LibClose(modulePtr);
 			plugin = nullptr;
 		}
 	}
 	show_interface_btn->setEnabled(plugin != nullptr);
 }
+
+#endif

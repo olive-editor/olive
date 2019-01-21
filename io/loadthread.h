@@ -6,6 +6,7 @@
 #include <QXmlStreamReader>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QMessageBox>
 
 class Media;
 struct Footage;
@@ -23,12 +24,14 @@ public:
 	void run();
 	void cancel();
 signals:
+	void start_question(const QString &title, const QString &text, int buttons);
 	void success();
 	void error();
 	void start_create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
 	void start_create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
 	void report_progress(int p);
 private slots:
+	void question_func(const QString &title, const QString &text, int buttons);
 	void error_func();
 	void success_func();
 	void create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
@@ -67,6 +70,8 @@ private:
 
 	bool cancelled;
 	bool xml_error;
+
+	QMessageBox::StandardButton question_btn;
 };
 
 #endif // LOADTHREAD_H

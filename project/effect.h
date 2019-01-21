@@ -1,4 +1,4 @@
-#ifndef EFFECT_H
+﻿#ifndef EFFECT_H
 #define EFFECT_H
 
 #include <QObject>
@@ -29,6 +29,7 @@ struct EffectMeta {
 	QString category;
 	QString filename;
 	QString path;
+	QString tooltip;
 	int internal;
 	int type;
 	int subtype;
@@ -38,38 +39,40 @@ extern bool shaders_are_enabled;
 extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
-void init_effects();
 Effect* create_effect(Clip* c, const EffectMeta *em);
 const EffectMeta* get_internal_meta(int internal_id, int type);
 
-#define EFFECT_TYPE_INVALID 0
-#define EFFECT_TYPE_VIDEO 1
-#define EFFECT_TYPE_AUDIO 2
-#define EFFECT_TYPE_EFFECT 3
-#define EFFECT_TYPE_TRANSITION 4
+enum EffectType {
+	EFFECT_TYPE_INVALID,
+	EFFECT_TYPE_VIDEO,
+	EFFECT_TYPE_AUDIO,
+	EFFECT_TYPE_EFFECT,
+	EFFECT_TYPE_TRANSITION
+};
 
-#define EFFECT_KEYFRAME_LINEAR 0
-#define EFFECT_KEYFRAME_HOLD 1
-#define EFFECT_KEYFRAME_BEZIER 2
+enum EffectKeyframeType {
+	EFFECT_KEYFRAME_LINEAR,
+	EFFECT_KEYFRAME_BEZIER,
+	EFFECT_KEYFRAME_HOLD
+};
 
-#define EFFECT_INTERNAL_TRANSFORM 0
-#define EFFECT_INTERNAL_TEXT 1
-#define EFFECT_INTERNAL_SOLID 2
-#define EFFECT_INTERNAL_NOISE 3
-#define EFFECT_INTERNAL_VOLUME 4
-#define EFFECT_INTERNAL_PAN 5
-#define EFFECT_INTERNAL_TONE 6
-#define EFFECT_INTERNAL_SHAKE 7
-#define EFFECT_INTERNAL_TIMECODE 8
-#define EFFECT_INTERNAL_MASK 9
-#define EFFECT_INTERNAL_FILLLEFTRIGHT 10
-#define EFFECT_INTERNAL_VST 11
-#define EFFECT_INTERNAL_CORNERPIN 12
-#define EFFECT_INTERNAL_COUNT 13
-
-#define KEYFRAME_TYPE_LINEAR 0
-#define KEYFRAME_TYPE_BEZIER 1
-#define KEYFRAME_TYPE_HOLD 2
+enum EffectInternal {
+	EFFECT_INTERNAL_TRANSFORM,
+	EFFECT_INTERNAL_TEXT,
+	EFFECT_INTERNAL_SOLID,
+	EFFECT_INTERNAL_NOISE,
+	EFFECT_INTERNAL_VOLUME,
+	EFFECT_INTERNAL_PAN,
+	EFFECT_INTERNAL_TONE,
+	EFFECT_INTERNAL_SHAKE,
+	EFFECT_INTERNAL_TIMECODE,
+	EFFECT_INTERNAL_MASK,
+	EFFECT_INTERNAL_FILLLEFTRIGHT,
+	EFFECT_INTERNAL_VST,
+	EFFECT_INTERNAL_CORNERPIN,
+	EFFECT_INTERNAL_FREI0R,
+	EFFECT_INTERNAL_COUNT
+};
 
 struct GLTextureCoords {
 	int grid_size;
@@ -156,7 +159,7 @@ public:
 
 	const char* ffmpeg_filter;
 
-	virtual void process_image(double timecode, uint8_t* data, int size);
+    virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
 	virtual void process_shader(double timecode, GLTextureCoords&);
 	virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);

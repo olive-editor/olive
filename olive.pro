@@ -128,7 +128,11 @@ SOURCES += \
     ui/renderthread.cpp \
     ui/renderfunctions.cpp \
     ui/viewerwindow.cpp \
-    project/projectfilter.cpp
+    project/projectfilter.cpp \
+    effects/internal/frei0reffect.cpp \
+    project/effectloaders.cpp \
+    io/crossplatformlib.cpp \
+    effects/internal/vsthost.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -224,16 +228,17 @@ HEADERS += \
     ui/renderthread.h \
     ui/renderfunctions.h \
     ui/viewerwindow.h \
-    project/projectfilter.h
+    project/projectfilter.h \
+    effects/internal/frei0reffect.h \
+    project/effectloaders.h \
+    io/crossplatformlib.h \
+    effects/internal/vsthost.h
 
 FORMS +=
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-
-        SOURCES += effects/internal/vsthostwin.cpp
-        HEADERS += effects/internal/vsthostwin.h
 }
 
 mac {
@@ -245,6 +250,7 @@ mac {
 unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
+    LIBS += -ldl
 }
 
 RESOURCES += \

@@ -33,6 +33,7 @@ parts:
       - qtmultimedia5-dev 
       - libavformat-dev
       - libavfilter-dev
+      - frei0r-plugins-dev
     stage-packages:
       - ffmpeg
       - libqt5multimedia5
@@ -40,14 +41,11 @@ parts:
       - libpulse0
       - libslang2
       - libglu1-mesa
+      - frei0r-plugins
     override-build: |
-      qmake olive.pro
+      qmake PREFIX=$SNAPCRAFT_PART_INSTALL
       make
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/effects
-      cp olive-editor $SNAPCRAFT_PART_INSTALL/bin
-      cp effects/*.xml $SNAPCRAFT_PART_INSTALL/bin/effects
-      cp effects/*.frag $SNAPCRAFT_PART_INSTALL/bin/effects
-      cp effects/*.vert $SNAPCRAFT_PART_INSTALL/bin/effects
+      make install
       snapcraftctl set-version $(git rev-parse --short HEAD)
   desktop-qt5:
     build-packages:
