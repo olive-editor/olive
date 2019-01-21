@@ -62,9 +62,9 @@ Frei0rEffect::Frei0rEffect(Clip *c, const EffectMeta *em) : Effect(c, em) {
 
 	param_count = info.num_params;
 
-	qDebug() << "Frei0r Name:" << info.name;
-	qDebug() << "Frei0r Param Count:" << info.num_params;
-	qDebug() << "Frei0r Explanation:" << info.explanation;
+//	qDebug() << "Frei0r Name:" << info.name;
+//	qDebug() << "Frei0r Param Count:" << info.num_params;
+//	qDebug() << "Frei0r Explanation:" << info.explanation;
 
 	get_param_info = reinterpret_cast<f0rGetParamInfo>(LibAddress(handle, "f0r_get_param_info"));
 	for (int i=0;i<param_count;i++) {

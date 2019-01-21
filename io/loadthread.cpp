@@ -18,7 +18,6 @@
 #include "debug.h"
 
 #include <QFile>
-#include <QMessageBox>
 #include <QTreeWidgetItem>
 
 struct TransitionData {
@@ -35,6 +34,7 @@ LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelle
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));
 	connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)));
 	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
+	connect(this, SIGNAL(start_question(const QString&, const QString &, int)), this, SLOT(question_func(const QString &, const QString &, int)));
 }
 
 const EffectMeta* get_meta_from_name(const QString& input) {
@@ -43,7 +43,7 @@ const EffectMeta* get_meta_from_name(const QString& input) {
 	if (split_index > -1) {
 		category = input.left(split_index);
 	}
-    QString name = input.mid(split_index + 1);
+	QString name = input.mid(split_index + 1);
 
 	for (int j=0;j<effects.size();j++) {
 		if (effects.at(j).name == name
@@ -161,13 +161,14 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 		if (stream.name() == root_search) {
 			if (type == LOAD_TYPE_VERSION) {
 				int proj_version = stream.readElementText().toInt();
-				if (proj_version < MIN_SAVE_VERSION && proj_version > SAVE_VERSION) {
-					if (QMessageBox::warning(
-								mainWindow,
-								tr("Version Mismatch"),
-								tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),
-								QMessageBox::Yes,
-								QMessageBox::No) == QMessageBox::No) {
+				if (proj_version < MIN_SAVE_VERSION || proj_version > SAVE_VERSION) {
+					emit start_question(
+									tr("Version Mismatch"),
+									tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),
+									QMessageBox::Yes | QMessageBox::No
+								);
+					waitCond.wait(&mutex);
+					if (question_btn == QMessageBox::No) {
 						show_err = false;
 						return false;
 					}
@@ -453,11 +454,14 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									if (!found) {
 										correct_clip->linked.removeAt(j);
 										j--;
-										if (QMessageBox::warning(mainWindow,
-																 tr("Invalid Clip Link"),
-																 tr("This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?"),
-																 QMessageBox::Yes,
-																 QMessageBox::No) == QMessageBox::No) {
+
+										emit start_question(
+														tr("Invalid Clip Link"),
+														tr("This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?"),
+														QMessageBox::Yes | QMessageBox::No
+													);
+										waitCond.wait(&mutex);
+										if (question_btn == QMessageBox::No) {
 											delete s;
 											return false;
 										}
@@ -574,10 +578,14 @@ void LoadThread::run() {
 	cont = !cancelled;
 
 	// find project file version
-	cont = load_worker(file, stream, LOAD_TYPE_VERSION);
+	if (cont) {
+		cont = load_worker(file, stream, LOAD_TYPE_VERSION);
+	}
 
 	// find project's internal URL
-	cont = load_worker(file, stream, LOAD_TYPE_URL);
+	if (cont) {
+		cont = load_worker(file, stream, LOAD_TYPE_URL);
+	}
 
 	// load folders first
 	if (cont) {
@@ -614,7 +622,6 @@ void LoadThread::run() {
 			xml_error = true;
 			emit error();
 			cont = false;
-
 		} else {
 			// attach nested sequence clips to their sequences
 			for (int i=0;i<loaded_clips.size();i++) {
@@ -635,6 +642,9 @@ void LoadThread::run() {
 		for (int i=0;i<loaded_media_items.size();i++) {
 			panel_project->start_preview_generator(loaded_media_items.at(i), true);
 		}
+	} else {
+		error_str = tr("User aborted loading");
+		emit error();
 	}
 
 	file.close();
@@ -645,6 +655,15 @@ void LoadThread::run() {
 void LoadThread::cancel() {
 	waitCond.wakeAll();
 	cancelled = true;
+}
+
+void LoadThread::question_func(const QString &title, const QString &text, int buttons) {
+	question_btn = QMessageBox::warning(
+					mainWindow,
+					title,
+					text,
+					static_cast<enum QMessageBox::StandardButton>(buttons));
+	waitCond.wakeAll();
 }
 
 void LoadThread::error_func() {
