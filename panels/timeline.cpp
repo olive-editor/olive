@@ -778,6 +778,7 @@ bool selection_contains_transition(const Selection& s, Clip* c, int type) {
 
 void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas) {
 	clean_up_selections(areas);
+	panel_effect_controls->clear_effects(true);
 
 	QVector<int> pre_clips;
 	QVector<Clip*> post_clips;
