@@ -197,7 +197,7 @@ void EffectRow::set_keyframe_now(ComboAction* ca) {
 				}
 			}
 			if (exist_key == -1) {
-				key.type = (f->keyframes.size() == 0) ? KEYFRAME_TYPE_LINEAR : f->keyframes.at(closest_key).type;
+				key.type = (f->keyframes.size() == 0) ? EFFECT_KEYFRAME_LINEAR : f->keyframes.at(closest_key).type;
 				key.data = f->get_current_data();//f->keyframes.at(closest_key).data;
 				unsafe_keys[i] = f->keyframes.size();
 				f->keyframes.append(key);

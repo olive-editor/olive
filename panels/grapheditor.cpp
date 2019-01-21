@@ -59,13 +59,13 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	left_tool_layout->addStretch();
 
 	linear_button = new QPushButton(tr("Linear"));
-	linear_button->setProperty("type", KEYFRAME_TYPE_LINEAR);
+	linear_button->setProperty("type", EFFECT_KEYFRAME_LINEAR);
 	linear_button->setCheckable(true);
 	bezier_button = new QPushButton(tr("Bezier"));
-	bezier_button->setProperty("type", KEYFRAME_TYPE_BEZIER);
+	bezier_button->setProperty("type", EFFECT_KEYFRAME_BEZIER);
 	bezier_button->setCheckable(true);
 	hold_button = new QPushButton(tr("Hold"));
-	hold_button->setProperty("type", KEYFRAME_TYPE_HOLD);
+	hold_button->setProperty("type", EFFECT_KEYFRAME_HOLD);
 	hold_button->setCheckable(true);
 
 	center_tool_layout->addStretch();
@@ -216,11 +216,11 @@ void GraphEditor::select_all() {
 
 void GraphEditor::set_key_button_enabled(bool e, int type) {
 	linear_button->setEnabled(e);
-	linear_button->setChecked(type == KEYFRAME_TYPE_LINEAR);
+	linear_button->setChecked(type == EFFECT_KEYFRAME_LINEAR);
 	bezier_button->setEnabled(e);
-	bezier_button->setChecked(type == KEYFRAME_TYPE_BEZIER);
+	bezier_button->setChecked(type == EFFECT_KEYFRAME_BEZIER);
 	hold_button->setEnabled(e);
-	hold_button->setChecked(type == KEYFRAME_TYPE_HOLD);
+	hold_button->setChecked(type == EFFECT_KEYFRAME_HOLD);
 }
 
 void GraphEditor::passthrough_slider_value() {

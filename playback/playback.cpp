@@ -255,26 +255,35 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 			int nb_components = av_pix_fmt_desc_get(static_cast<enum AVPixelFormat>(c->pix_fmt))->nb_components;
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, target_frame->linesize[0]/nb_components);
 
-			bool copied = false;
-			uint8_t* data = target_frame->data[0];
+			// 2 data buffers to ping-pong between
+			bool using_db_1 = true;
+			uint8_t* data_buffer_1 = target_frame->data[0];
+			uint8_t* data_buffer_2 = nullptr;
+
 			int frame_size;
 
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
-				if (e->enable_image) {
-					if (!copied) {
+				if (e->enable_image && e->is_enabled()) {
+					if (data_buffer_1 == target_frame->data[0]) {
 						frame_size = target_frame->linesize[0]*target_frame->height;
-						data = new uint8_t[frame_size];
-						memcpy(data, target_frame->data[0], frame_size);
-						copied = true;
+
+						data_buffer_1 = new uint8_t[frame_size];
+						data_buffer_2 = new uint8_t[frame_size];
+
+						memcpy(data_buffer_1, target_frame->data[0], frame_size);
 					}
-					e->process_image(get_timecode(c, playhead), data, frame_size);
+					e->process_image(get_timecode(c, playhead), using_db_1 ? data_buffer_1 : data_buffer_2, using_db_1 ? data_buffer_2 : data_buffer_1, frame_size);
+					using_db_1 = !using_db_1;
 				}
 			}
 
-			c->texture->setData(0, get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, data);
+			c->texture->setData(0, get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, using_db_1 ? data_buffer_1 : data_buffer_2);
 
-			if (copied) delete [] data;
+			if (data_buffer_1 != target_frame->data[0]) {
+				delete [] data_buffer_1;
+				delete [] data_buffer_2;
+			}
 
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		}

@@ -128,7 +128,10 @@ SOURCES += \
     ui/renderthread.cpp \
     ui/renderfunctions.cpp \
     ui/viewerwindow.cpp \
-    project/projectfilter.cpp
+    project/projectfilter.cpp \
+    effects/internal/frei0reffect.cpp \
+    project/effectloaders.cpp \
+    io/crossplatformlib.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -224,7 +227,10 @@ HEADERS += \
     ui/renderthread.h \
     ui/renderfunctions.h \
     ui/viewerwindow.h \
-    project/projectfilter.h
+    project/projectfilter.h \
+    effects/internal/frei0reffect.h \
+    project/effectloaders.h \
+    io/crossplatformlib.h
 
 FORMS +=
 
@@ -245,6 +251,7 @@ mac {
 unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
+    LIBS += -ldl
 }
 
 RESOURCES += \
