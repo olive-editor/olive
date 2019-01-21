@@ -162,9 +162,8 @@ void GraphEditor::set_row(EffectRow *r) {
 				slider_button->setCheckable(true);
 				slider_button->setChecked(field->is_enabled());
 				slider_button->setIcon(QIcon(":/icons/record.png"));
-				slider_button->setProperty("field", i);
-				slider_button->setIconSize(QSize(8, 8));
-				slider_button->setMaximumSize(QSize(12, 12));
+                slider_button->setProperty("field", i);
+                slider_button->setIconSize(slider_button->iconSize()*0.5);
 				connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));
 				slider_proxy_buttons.append(slider_button);
 				value_layout->addWidget(slider_button);
