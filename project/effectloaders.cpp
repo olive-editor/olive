@@ -188,6 +188,9 @@ void load_frei0r_effects_worker(const QString& dir, EffectMeta& em, QVector<QStr
 							em.name = info.name;
 							em.path = dir;
 							em.filename = entry_list.at(j);
+							em.tooltip = QString("%1\n%2\n%3\n%4").arg(em.name, info.author, info.explanation, em.filename);
+
+							loaded_names.append(em.name);
 
 							effects.append(em);
 						}
@@ -203,18 +206,12 @@ void load_frei0r_effects_worker(const QString& dir, EffectMeta& em, QVector<QStr
 
 void load_frei0r_effects() {
 	QList<QString> effect_dirs = get_effects_paths();
-	int lim = effect_dirs.size();
-
-	// add extra search paths for frei0r effects
-	for (int i=0;i<lim;i++) {
-		effect_dirs.append(QDir(effect_dirs.at(i)).filePath("frei0r"));
-	}
 
 	// add defined paths for frei0r plugins on unix
 #if defined(__APPLE__) || defined(__linux__)
-	effect_dirs.append(QDir::homePath() + "/.frei0r-1/lib");
-	effect_dirs.append("/usr/local/lib/frei0r-1");
-	effect_dirs.append("/usr/lib/frei0r-1");
+	effect_dirs.prepend("/usr/lib/frei0r-1");
+	effect_dirs.prepend("/usr/local/lib/frei0r-1");
+	effect_dirs.prepend(QDir::homePath() + "/.frei0r-1/lib");
 #endif
 
 	QVector<QString> loaded_names;

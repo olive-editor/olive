@@ -155,6 +155,8 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 	effects_loaded.lock();
 
 	QMenu effects_menu(this);
+	effects_menu.setToolTipsVisible(true);
+
 	for (int i=0;i<effects.size();i++) {
 		const EffectMeta& em = effects.at(i);
 
@@ -162,6 +164,9 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 			QAction* action = new QAction(&effects_menu);
 			action->setText(em.name);
 			action->setData(reinterpret_cast<quintptr>(&em));
+			if (!em.tooltip.isEmpty()) {
+				action->setToolTip(em.tooltip);
+			}
 
 			QMenu* parent = &effects_menu;
 			if (!em.category.isEmpty()) {
@@ -178,6 +183,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 				}
 				if (!found) {
 					parent = new QMenu(&effects_menu);
+					parent->setToolTipsVisible(true);
 					parent->setTitle(em.category);
 
 					bool found = false;

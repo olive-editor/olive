@@ -360,7 +360,7 @@ EffectGizmo *Effect::gizmo(int i) {
 	return gizmos.at(i);
 }
 
-int Effect::gizmo_count(){
+int Effect::gizmo_count() {
 	return gizmos.size();
 }
 

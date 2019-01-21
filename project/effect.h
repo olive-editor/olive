@@ -29,6 +29,7 @@ struct EffectMeta {
 	QString category;
 	QString filename;
 	QString path;
+	QString tooltip;
 	int internal;
 	int type;
 	int subtype;
