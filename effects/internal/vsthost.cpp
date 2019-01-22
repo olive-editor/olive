@@ -39,12 +39,12 @@ extern "C" {
 			break;
 		case audioMasterGetCurrentProcessLevel:
 			return 0;
-        // modulePtr other opcodes here... there will be lots of them
+        // handle other opcodes here... there will be lots of them
 		case audioMasterEndEdit: // change made
 			mainWindow->setWindowModified(true);
 			break;
 		default:
-            qInfo() << "Plugin requested unmodulePtrd opcode" << opcode;
+            qInfo() << "Plugin requested unhandled opcode" << opcode;
 			break;
 		}
 		return 0;
@@ -151,7 +151,7 @@ bool VSTHost::configurePluginCallbacks() {
 		return false;
 	}
 
-    // Create dispatcher modulePtr
+    // Create dispatcher handle
 	dispatcher = reinterpret_cast<dispatcherFuncPtr>(plugin->dispatcher);
 
 	// Set up plugin callback functions
