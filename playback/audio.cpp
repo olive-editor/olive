@@ -33,7 +33,7 @@ bool audio_rendering = false;
 bool recording = false;
 
 qint8 audio_ibuffer[audio_ibuffer_size];
-unsigned long audio_ibuffer_read = 0;
+qint64 audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
 double audio_ibuffer_timecode = 0;
 
@@ -114,9 +114,10 @@ int current_audio_freq() {
 	return audio_rendering ? sequence->audio_frequency : audio_output->format().sampleRate();
 }
 
-unsigned long get_buffer_offset_from_frame(double framerate, long frame) {
+qint64 get_buffer_offset_from_frame(double framerate, long frame) {
 	if (frame >= audio_ibuffer_frame) {
-		return static_cast<unsigned long>(((double(frame - audio_ibuffer_frame)/framerate)*current_audio_freq())*av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO));
+		int multiplier = av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+		return qFloor((double(frame - audio_ibuffer_frame)/framerate)*current_audio_freq())*multiplier;
 	} else {
 		qWarning() << "Invalid values passed to get_buffer_offset_from_frame";
 		return 0;
@@ -164,23 +165,23 @@ void AudioSenderThread::run() {
 	lock.unlock();
 }
 
-int AudioSenderThread::send_audio_to_output(unsigned long offset, int max) {
+int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
 	// send audio to device
-	unsigned long actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
+	qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(audio_ibuffer)+offset, max);
 
-	unsigned long audio_ibuffer_limit = audio_ibuffer_read + actual_write;
+	qint64 audio_ibuffer_limit = audio_ibuffer_read + actual_write;
 
 	if (actual_write > 0) {
 		// average values and send to audio monitor
 		int channels = audio_output->format().channelCount();
-		unsigned long lim = offset + actual_write;
+		qint64 lim = offset + actual_write;
 		QVector<double> averages;
 		averages.resize(channels);
 		averages.fill(0);
 
 		int counter = 0;
 		qint16 sample;
-		for (unsigned long i=offset;i<lim;i+=2) {
+		for (qint64 i=offset;i<lim;i+=2) {
 			sample = qint16(((audio_ibuffer[i+1] & 0xFF) << 8) | (audio_ibuffer[i] & 0xFF));
 			averages[counter] = qMax((double(sample)/32768.0), averages[counter]);
 			counter = (counter+1)%channels;
@@ -268,14 +269,14 @@ void write_wave_trailer(QFile& f) {
 	f.seek(4);
 
 	// 4 bytes for total file size - 8 bytes
-	qint32 file_size = f.size() - 8;
+	qint32 file_size = qint32(f.size()) - 8;
 	int32_to_char_array(file_size, arr);
 	f.write(arr, 4);
 
 	f.seek(40);
 
 	// 4 bytes for data chunk size (file size - header)
-	file_size = f.size() - 44;
+	file_size = qint32(f.size()) - 44;
 	int32_to_char_array(file_size, arr);
 	f.write(arr, 4);
 }
