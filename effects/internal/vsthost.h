@@ -46,7 +46,7 @@ private:
 	QDialog* dialog;
 	QPushButton* show_interface_btn;
 #if defined(__APPLE__)
-    CFBundleRef bundle;
+	CFBundleRef bundle;
 #else
 	ModulePtr modulePtr;
 #endif
