@@ -9,10 +9,15 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QXmlStreamWriter>
+#include <QWindow>
 
 #include "playback/audio.h"
 #include "mainwindow.h"
 #include "debug.h"
+
+#ifdef __linux__
+#include <X11/X.h>
+#endif
 
 #define BLOCK_SIZE 512
 #define CHANNEL_COUNT 2
@@ -294,10 +299,21 @@ void VSTHost::save(QXmlStreamWriter &stream) {
 }
 
 void VSTHost::show_interface(bool show) {
+#if defined(_WIN32)
+    dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->winId()), 0);
+#elif defined(__APPLE__)
+    dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->winId()), 0);
+#elif defined(__linux__)
+    Window xwindow = dialog->windowHandle()->winId();
+    dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(xwindow), 0);
+#endif
+
 	dialog->setVisible(show);
 }
 
 void VSTHost::uncheck_show_button() {
+    dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
+
 	show_interface_btn->setChecked(false);
 }
 
@@ -307,11 +323,6 @@ void VSTHost::change_plugin() {
 	if (plugin != nullptr) {
 		if (configurePluginCallbacks()) {
 			startPlugin();
-#ifdef _WIN32
-			dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->winId()), 0);
-#elif __APPLE__
-			dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->winId()), 0);
-#endif
 			VSTRect* eRect = nullptr;
 			plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
 			dialog->setFixedWidth(eRect->right);
