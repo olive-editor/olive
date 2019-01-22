@@ -1,7 +1,7 @@
 #ifndef VSTHOSTWIN_H
 #define VSTHOSTWIN_H
 
-#if (defined(_WIN32) || defined(__APPLE__)) && !defined(NOVST)
+#ifndef NOVST
 
 #include "project/effect.h"
 

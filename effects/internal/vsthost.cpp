@@ -1,6 +1,6 @@
 #include "vsthost.h"
 
-#if (defined(_WIN32) || defined(__APPLE__)) && !defined(NOVST)
+#ifndef NOVST
 
 // adapted from http://teragonaudio.com/article/How-to-make-your-own-VST-host.html
 
@@ -39,12 +39,12 @@ extern "C" {
 			break;
 		case audioMasterGetCurrentProcessLevel:
 			return 0;
-		// Handle other opcodes here... there will be lots of them
+        // modulePtr other opcodes here... there will be lots of them
 		case audioMasterEndEdit: // change made
 			mainWindow->setWindowModified(true);
 			break;
 		default:
-			qInfo() << "Plugin requested unhandled opcode" << opcode;
+            qInfo() << "Plugin requested unmodulePtrd opcode" << opcode;
 			break;
 		}
 		return 0;
@@ -92,8 +92,8 @@ void VSTHost::loadPlugin() {
         return;
     }
 #else
-    handle = LibLoad(dll_fn);
-    if(handle == nullptr) {
+    modulePtr = LibLoad(dll_fn);
+    if(modulePtr == nullptr) {
         QString dll_error;
 
 #ifdef _WIN32
@@ -151,7 +151,7 @@ bool VSTHost::configurePluginCallbacks() {
 		return false;
 	}
 
-	// Create dispatcher handle
+    // Create dispatcher modulePtr
 	dispatcher = reinterpret_cast<dispatcherFuncPtr>(plugin->dispatcher);
 
 	// Set up plugin callback functions

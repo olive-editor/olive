@@ -22,6 +22,7 @@ QStringList LibFilter() {
 #endif
 }
 
+#ifdef __APPLE__
 CFBundleRef BundleLoad(const QString &filename) {
     CFStringRef bundle_str = CFStringCreateWithCString(NULL, filename.toUtf8(), kCFStringEncodingUTF8);
     CFURLRef bundle_url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, bundle_str, kCFURLPOSIXPathStyle, true);
@@ -40,3 +41,4 @@ void BundleClose(CFBundleRef bundle) {
     CFBundleUnloadExecutable(bundle);
     CFRelease(bundle);
 }
+#endif
