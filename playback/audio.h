@@ -27,8 +27,10 @@ public slots:
 	void notifyReceiver();
 private:
 	QVector<qint16> samples;
-	int send_audio_to_output(int offset, int max);
+	int send_audio_to_output(unsigned long offset, int max);
 };
+
+double log_volume(double linear);
 
 extern QAudioOutput* audio_output;
 extern QIODevice* audio_io_device;

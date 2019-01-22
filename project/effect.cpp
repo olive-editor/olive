@@ -693,7 +693,7 @@ void Effect::startEffect() {
 
 void Effect::endEffect() {
 	if (bound) glslProgram->release();
-    bound = false;
+	bound = false;
 }
 
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
@@ -911,9 +911,4 @@ qint16 mix_audio_sample(qint16 a, qint16 b) {
 	qint32 mixed_sample = static_cast<qint32>(a) + static_cast<qint32>(b);
 	mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
 	return static_cast<qint16>(mixed_sample);
-}
-
-double log_volume(double linear) {
-	// expects a value between 0 and 1 (or more if amplifying)
-	return (qExp(linear)-1)/(M_E-1);
 }

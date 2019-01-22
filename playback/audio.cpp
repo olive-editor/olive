@@ -164,47 +164,36 @@ void AudioSenderThread::run() {
 	lock.unlock();
 }
 
-int AudioSenderThread::send_audio_to_output(int offset, int max) {
+int AudioSenderThread::send_audio_to_output(unsigned long offset, int max) {
 	// send audio to device
 	unsigned long actual_write = audio_io_device->write((const char*) audio_ibuffer+offset, max);
 
 	unsigned long audio_ibuffer_limit = audio_ibuffer_read + actual_write;
 
-	// send samples to audio monitor cache
-	// TODO make this work for the footage viewer - currently, enabling it causes crash due to an ASSERT
-	Sequence* s = nullptr;
-	/*if (panel_footage_viewer->playing) {
-		s = panel_footage_viewer->seq;
-	}*/
-	if (panel_sequence_viewer->playing) {
-		s = panel_sequence_viewer->seq;
-	}
-	if (s != nullptr) {
-		if (panel_timeline->audio_monitor->sample_cache_offset == -1) {
-			panel_timeline->audio_monitor->sample_cache_offset = s->playhead;
-		}
-		int channel_count = av_get_channel_layout_nb_channels(s->audio_layout);
-		long sample_cache_playhead = panel_timeline->audio_monitor->sample_cache_offset + (panel_timeline->audio_monitor->sample_cache.size()/channel_count);
-		unsigned long next_buffer_offset, buffer_offset_adjusted;
-		int i;
-		unsigned long buffer_offset = get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead);
-		if (samples.size() != channel_count) samples.resize(channel_count);
-		samples.fill(0);
+	if (actual_write > 0) {
+		// average values and send to audio monitor
+		int channels = audio_output->format().channelCount();
+		unsigned long lim = offset + actual_write;
+		QVector<double> averages;
+		averages.resize(channels);
+		averages.fill(0);
 
-		// TODO: I don't like this, but i'm not sure if there's a smarter way to do it
-		while (static_cast<unsigned long>(buffer_offset) < audio_ibuffer_limit) {
-			sample_cache_playhead++;
-			next_buffer_offset = qMin(get_buffer_offset_from_frame(s->frame_rate, sample_cache_playhead), static_cast<unsigned long>(audio_ibuffer_limit));
-			while (buffer_offset < next_buffer_offset) {
-				for (i=0;i<samples.size();i++) {
-					buffer_offset_adjusted = buffer_offset%audio_ibuffer_size;
-					samples[i] = qMax(qAbs(qint16(((audio_ibuffer[buffer_offset_adjusted+1] & 0xFF) << 8) | (audio_ibuffer[buffer_offset_adjusted] & 0xFF))), samples[i]);
-					buffer_offset += 2;
-				}
-			}
-			panel_timeline->audio_monitor->sample_cache.append(samples);
-			buffer_offset = next_buffer_offset;
+		for (int i=0;i<channels;i++) {
+			averages[i] = 0;
 		}
+		int counter = 0;
+		qint16 sample;
+		for (unsigned long i=offset;i<lim;i+=2) {
+			sample = qint16(((audio_ibuffer[i+1] & 0xFF) << 8) | (audio_ibuffer[i] & 0xFF));
+			averages[counter%channels] += qAbs(double(sample)/32768.0);
+			counter++;
+		}
+		double divider = counter / channels;
+		for (int i=0;i<channels;i++) {
+			averages[i] = log_volume(1.0-(averages[i]/divider));
+		}
+
+		panel_timeline->audio_monitor->set_value(averages);
 	}
 
 	memset(audio_ibuffer+offset, 0, actual_write);
@@ -212,6 +201,11 @@ int AudioSenderThread::send_audio_to_output(int offset, int max) {
 	audio_ibuffer_read = audio_ibuffer_limit;
 
 	return actual_write;
+}
+
+double log_volume(double linear) {
+	// expects a value between 0 and 1 (or more if amplifying)
+	return (qExp(linear)-1)/(M_E-1);
 }
 
 void int32_to_char_array(qint32 i, char* array) {
