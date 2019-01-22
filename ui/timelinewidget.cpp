@@ -22,6 +22,7 @@
 #include "dialogs/newsequencedialog.h"
 #include "mainwindow.h"
 #include "ui/rectangleselect.h"
+#include "playback/playback.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -547,6 +548,14 @@ void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 			s.track = clip->track;
 			sequence->selections.append(s);
 			update_ui(false);
+		}
+	} else if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+		int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+		if (clip_index >= 0) {
+			Clip* c = sequence->clips.at(clip_index);
+			if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+				set_sequence(c->media->to_sequence());
+			}
 		}
 	}
 }

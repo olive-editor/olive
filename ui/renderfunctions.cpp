@@ -169,7 +169,7 @@ GLuint compose_sequence(Viewer* viewer,
 								}
 								clip_is_active = true;
 								if (c->track >= 0) audio_track_count++;
-							} else if (c->open) {
+							} else if (c->finished_opening) {
 								close_clip(c, false);
 							}
 						} else {
@@ -181,7 +181,7 @@ GLuint compose_sequence(Viewer* viewer,
 					if (is_clip_active(c, playhead)) {
 						if (!c->open) open_clip(c, !rendering);
 						clip_is_active = true;
-					} else if (c->open) {
+					} else if (c->finished_opening) {
 						close_clip(c, false);
 					}
 				}

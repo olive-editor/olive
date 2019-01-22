@@ -1494,6 +1494,9 @@ void MainWindow::nest() {
 				s->clips.append(copy);
 			}
 
+			// relink clips in new nested sequences
+			panel_timeline->relink_clips_using_ids(selected_clips, s->clips);
+
 			// add sequence to project
 			Media* m = panel_project->new_sequence(ca, s, false, nullptr);
 

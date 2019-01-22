@@ -61,10 +61,15 @@ void open_clip(Clip* clip, bool multithreaded) {
 		}
 	} else {
 		clip->open = true;
+		clip->finished_opening = true;
 	}
 }
 
 void close_clip(Clip* clip, bool wait) {
+//	qDebug() << "closing" << clip->name;
+
+	clip->finished_opening = false;
+
 	// destroy opengl texture in main thread
 	if (clip->texture != nullptr) {
 		delete clip->texture;
@@ -94,8 +99,9 @@ void close_clip(Clip* clip, bool wait) {
 			close_clip_worker(clip);
 		}
 	} else {
-		if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
+		if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 			closeActiveClips(clip->media->to_sequence());
+		}
 
 		clip->open = false;
 	}
@@ -385,8 +391,8 @@ void closeActiveClips(Sequence *s) {
 			if (c != nullptr) {
 				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 					closeActiveClips(c->media->to_sequence());
-					if (c->open) close_clip(c, true);
-				} else if (c->open) {
+					if (c->finished_opening) close_clip(c, true);
+				} else if (c->finished_opening) {
 					close_clip(c, true);
 				}
 			}
