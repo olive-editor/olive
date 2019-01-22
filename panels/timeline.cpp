@@ -68,7 +68,6 @@ Timeline::Timeline(QWidget *parent) :
 	transition_tool_post_clip(-1),
 	hand_moving(false),
 	block_repaints(false),
-	last_frame(0),
 	scroll(0)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -443,11 +442,6 @@ void Timeline::repaint_timeline() {
 
 			if (sequence != nullptr) {
 				set_sb_max();
-
-				if (last_frame != sequence->playhead) {
-					audio_monitor->update();
-					last_frame = sequence->playhead;
-				}
 			}
 		}
 	}

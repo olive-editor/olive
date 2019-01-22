@@ -2,6 +2,7 @@
 #define AUDIOMONITOR_H
 
 #include <QWidget>
+#include <QTimer>
 
 class AudioMonitor : public QWidget
 {
@@ -21,6 +22,10 @@ public slots:
 private:
 	QLinearGradient gradient;
 	QVector<double> values;
+	QTimer clear_timer;
+
+private slots:
+	void clear();
 };
 
 #endif // AUDIOMONITOR_H

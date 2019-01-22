@@ -560,7 +560,7 @@ void Viewer::setup_ui() {
 	QHBoxLayout* current_timecode_container_layout = new QHBoxLayout(current_timecode_container);
 	current_timecode_container_layout->setSpacing(0);
 	current_timecode_container_layout->setMargin(0);
-    current_timecode_slider = new LabelSlider(current_timecode_container);
+	current_timecode_slider = new LabelSlider(current_timecode_container);
 	lower_control_layout->addWidget(current_timecode_container);
 
 	QWidget* playback_controls = new QWidget(lower_controls);

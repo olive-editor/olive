@@ -178,19 +178,15 @@ int AudioSenderThread::send_audio_to_output(unsigned long offset, int max) {
 		averages.resize(channels);
 		averages.fill(0);
 
-		for (int i=0;i<channels;i++) {
-			averages[i] = 0;
-		}
 		int counter = 0;
 		qint16 sample;
 		for (unsigned long i=offset;i<lim;i+=2) {
 			sample = qint16(((audio_ibuffer[i+1] & 0xFF) << 8) | (audio_ibuffer[i] & 0xFF));
-			averages[counter%channels] += qAbs(double(sample)/32768.0);
-			counter++;
+			averages[counter] = qMax((double(sample)/32768.0), averages[counter]);
+			counter = (counter+1)%channels;
 		}
-		double divider = counter / channels;
 		for (int i=0;i<channels;i++) {
-			averages[i] = log_volume(1.0-(averages[i]/divider));
+			averages[i] = log_volume(1.0-(averages[i]));
 		}
 
 		panel_timeline->audio_monitor->set_value(averages);

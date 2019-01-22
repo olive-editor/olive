@@ -21,12 +21,21 @@ extern "C" {
 AudioMonitor::AudioMonitor(QWidget *parent) :
 	QWidget(parent)
 {
-	values.resize(2);
-	values.fill(1.0);
+	clear_timer.setInterval(500);
+	connect(&clear_timer, SIGNAL(timeout()), this, SLOT(clear()));
 }
 
 void AudioMonitor::set_value(const QVector<double> &ivalues) {
 	values = ivalues;
+	update();
+
+	QMetaObject::invokeMethod(&clear_timer, "start");
+}
+
+void AudioMonitor::clear() {
+	clear_timer.stop();
+
+	values.fill(1);
 	update();
 }
 
@@ -39,10 +48,9 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
 }
 
 void AudioMonitor::paintEvent(QPaintEvent *) {
-	if (sequence != nullptr) {
+	if (sequence != nullptr && values.size() > 0) {
 		QPainter p(this);
 		int channel_x = AUDIO_MONITOR_GAP;
-//		int channel_count = av_get_channel_layout_nb_channels(sequence->audio_layout);
 		int channel_count = values.size();
 		int channel_width = (width()/channel_count) - AUDIO_MONITOR_GAP;
 		int i;
@@ -53,6 +61,7 @@ void AudioMonitor::paintEvent(QPaintEvent *) {
 			bool peak = false;
 
 			r.setHeight(qRound(r.height()*(values.at(i))));
+			peak = (r.height() == 0);
 
 			QRect peak_rect(channel_x, 0, channel_width, AUDIO_MONITOR_PEAK_HEIGHT);
 			if (peak) {

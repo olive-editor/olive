@@ -231,7 +231,6 @@ private:
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
-	long last_frame;
 	int scroll;
 	void set_sb_max();
 
@@ -249,7 +248,7 @@ private:
 	QPushButton* zoomOutButton;
 	QPushButton* recordButton;
 	QPushButton* addButton;
-    QWidget* tool_button_widget;
+	QWidget* tool_button_widget;
 };
 
 #endif // TIMELINE_H
