@@ -365,9 +365,6 @@ GLuint compose_sequence(Viewer* viewer,
 
 					glBegin(GL_QUADS);
 
-					GLint current_fbo = 0;
-					glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
-
 					if (coords.grid_size <= 1) {
 						float z = 0.0f;
 

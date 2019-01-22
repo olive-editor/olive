@@ -364,7 +364,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests) {
 		if (frame->nb_samples == 0) {
 			break;
 		} else {
-			unsigned long buffer_timeline_out = get_buffer_offset_from_frame(c->sequence->frame_rate, timeline_out);
+			qint64 buffer_timeline_out = get_buffer_offset_from_frame(c->sequence->frame_rate, timeline_out);
 
 			audio_write_lock.lock();
 

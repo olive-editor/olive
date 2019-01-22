@@ -127,7 +127,7 @@ struct Clip
 	// audio playback variables
 	int64_t reverse_target;
 	int frame_sample_index;
-	unsigned long audio_buffer_write;
+	qint64 audio_buffer_write;
 	bool audio_reset;
 	bool audio_just_reset;
 	long audio_target_frame;
