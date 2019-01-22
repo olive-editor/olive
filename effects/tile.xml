@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Tile" category="Distort">
+	<row name="Tile Count">
+		<field type="double" min="1" default="2" id="tilecount"/>
+	</row>
+	<row name="Mirror X">
+		<field type="bool" default="0" id="mirrorx"/>
+	</row>
+	<row name="Mirror Y">
+		<field type="bool" default="0" id="mirrory"/>
+	</row>
+	<shader vert="common.vert" frag="tile.frag"/>
+</effect>
