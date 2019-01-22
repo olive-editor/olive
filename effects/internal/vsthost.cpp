@@ -299,21 +299,22 @@ void VSTHost::save(QXmlStreamWriter &stream) {
 }
 
 void VSTHost::show_interface(bool show) {
-#if defined(_WIN32)
-    dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->winId()), 0);
-#elif defined(__APPLE__)
-    dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->winId()), 0);
-#elif defined(__linux__)
-    Window xwindow = dialog->windowHandle()->winId();
-    dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(xwindow), 0);
-#endif
+    dialog->setVisible(show);
 
-	dialog->setVisible(show);
+    if (show) {
+#if defined(_WIN32)
+        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
+#elif defined(__APPLE__)
+        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
+#elif defined(__linux__)
+        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
+#endif
+    } else {
+        dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
+    }
 }
 
 void VSTHost::uncheck_show_button() {
-    dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
-
 	show_interface_btn->setChecked(false);
 }
 
