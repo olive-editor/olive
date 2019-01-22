@@ -1,18 +1,17 @@
 #ifndef VSTHOSTWIN_H
 #define VSTHOSTWIN_H
 
-#ifdef _WIN32
+#if (defined(_WIN32) || defined(__APPLE__)) && !defined(NOVST)
 
 #include "project/effect.h"
 
 #include "io/crossplatformlib.h"
 
-#include <vst/aeffectx.h>
+#include "include/vestige.h"
 
 // Plugin's dispatcher function
-typedef VstIntPtr (*dispatcherFuncPtr)(AEffect *effect, VstInt32 opCode, VstInt32 index, VstInt32 value, void *ptr, float opt);
+typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t index, int32_t value, void *ptr, float opt);
 
-struct AEffect;
 class QDialog;
 
 class VSTHost : public Effect {
@@ -46,7 +45,11 @@ private:
 	float** outputs;
 	QDialog* dialog;
 	QPushButton* show_interface_btn;
+#if defined(__APPLE__)
+    CFBundleRef bundle;
+#else
 	ModulePtr modulePtr;
+#endif
 };
 
 #endif

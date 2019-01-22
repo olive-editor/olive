@@ -21,3 +21,22 @@ QStringList LibFilter() {
     return {"*.so", "*.dylib"};
 #endif
 }
+
+CFBundleRef BundleLoad(const QString &filename) {
+    CFStringRef bundle_str = CFStringCreateWithCString(NULL, filename.toUtf8(), kCFStringEncodingUTF8);
+    CFURLRef bundle_url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, bundle_str, kCFURLPOSIXPathStyle, true);
+    CFBundleRef bundle = NULL;
+    if (bundle_url != NULL) {
+        bundle = CFBundleCreate(kCFAllocatorDefault, bundle_url);
+    } else {
+        qCritical() << "Failed to create VST URL";
+    }
+    CFRelease(bundle_url);
+    CFRelease(bundle_str);
+    return bundle;
+}
+
+void BundleClose(CFBundleRef bundle) {
+    CFBundleUnloadExecutable(bundle);
+    CFRelease(bundle);
+}

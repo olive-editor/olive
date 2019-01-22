@@ -28,7 +28,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 #include "effects/internal/vsthost.h"
 #endif
 #include "effects/internal/fillleftrighteffect.h"
@@ -64,7 +64,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
-#ifdef _WIN32
+#if (defined(_WIN32) || defined(__APPLE__)) && !defined(NOVST)
 		case EFFECT_INTERNAL_VST: return new VSTHost(c, em);
 #endif
 #ifndef NOFREI0R

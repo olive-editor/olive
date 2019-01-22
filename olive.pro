@@ -244,7 +244,7 @@ win32 {
 }
 
 mac {
-    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -framework CoreFoundation
     ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
 }

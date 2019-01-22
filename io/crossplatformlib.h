@@ -18,4 +18,12 @@
 ModulePtr LibLoad(const QString& filename);
 QStringList LibFilter();
 
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+class NSWindow;
+
+CFBundleRef BundleLoad(const QString& filename);
+void BundleClose(CFBundleRef bundle);
+#endif
+
 #endif // CROSSPLATFORMLIB_H

@@ -34,7 +34,7 @@ void load_internal_effects() {
 	em.internal = EFFECT_INTERNAL_PAN;
 	effects.append(em);
 
-#ifdef _WIN32
+#if (defined(_WIN32) || defined(__APPLE__)) && !defined(NOVST)
 	em.name = "VST Plugin 2.x";
 	em.internal = EFFECT_INTERNAL_VST;
 	effects.append(em);
