@@ -10,7 +10,7 @@ class KeyframeNavigator : public QWidget
 {
 	Q_OBJECT
 public:
-	KeyframeNavigator(QWidget* parent = 0);
+	KeyframeNavigator(QWidget* parent = 0, bool addLeftPad = true);
 	~KeyframeNavigator();
 	void enable_keyframes(bool);
 	void enable_keyframe_toggle(bool);
