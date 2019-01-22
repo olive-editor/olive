@@ -580,8 +580,6 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 			}
 		}
 
-		selections.clear();
-
 		undo_stack.push(ca);
 
 		update_ui(true);
@@ -839,8 +837,15 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 				}
 			}
 		}
+	}
+
+	// deselect selected clip areas
+	QVector<Selection> area_copy = areas;
+	for (int i=0;i<area_copy.size();i++) {
+		const Selection& s = area_copy.at(i);
 		deselect_area(s.in, s.out, s.track);
 	}
+
 	relink_clips_using_ids(pre_clips, post_clips);
 	ca->append(new AddClipCommand(sequence, post_clips));
 }
