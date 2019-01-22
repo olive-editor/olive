@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <effect name="Tile" category="Distort">
-	<row name="Tile Count">
-		<field type="double" min="1" default="2" id="tilecount"/>
+	<row name="Scale">
+		<field type="double" min="0" default="50" id="scale"/>
+	</row>
+	<row name="Center">
+		<field type="double" default="0" id="centerx"/>
+		<field type="double" default="0" id="centery"/>
 	</row>
 	<row name="Mirror X">
 		<field type="bool" default="0" id="mirrorx"/>
