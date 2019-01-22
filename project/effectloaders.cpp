@@ -214,6 +214,9 @@ void load_frei0r_effects() {
 	effect_dirs.prepend(QDir::homePath() + "/.frei0r-1/lib");
 #endif
 
+	QString env_path(qgetenv("FREI0R_PATH"));
+	if (!env_path.isEmpty()) effect_dirs.append(env_path);
+
 	QVector<QString> loaded_names;
 
 	// search for paths
