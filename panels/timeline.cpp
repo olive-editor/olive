@@ -505,7 +505,7 @@ void Timeline::resizeEvent(QResizeEvent *) {
 	}
 	int comp_height = tool_button_widget->height();
 	int cols = qCeil(double(total_client_height)/double(comp_height));
-	tool_button_widget->setFixedWidth((tool_button_children.at(0)->width())*cols + horizontal_spacing*(cols));
+	tool_button_widget->setFixedWidth((tool_button_children.at(0)->width())*cols + horizontal_spacing*(cols-1) + 1);
 }
 
 void Timeline::delete_in_out(bool ripple) {
