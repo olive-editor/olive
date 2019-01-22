@@ -35,7 +35,7 @@ struct Clip
 {
 	Clip(Sequence* s);
 	~Clip();
-	Clip* copy(Sequence* s);
+	Clip* copy(Sequence* s, bool duplicate_transitions = true);
 	void reset_audio();
 	void reset();
 	void refresh();

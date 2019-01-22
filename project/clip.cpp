@@ -44,7 +44,7 @@ Clip::Clip(Sequence* s) :
 	reset();
 }
 
-Clip* Clip::copy(Sequence* s) {
+Clip* Clip::copy(Sequence* s, bool duplicate_transitions) {
 	Clip* copy = new Clip(s);
 
 	copy->enabled = enabled;
@@ -69,8 +69,10 @@ Clip* Clip::copy(Sequence* s) {
 
 	copy->cached_fr = (this->sequence == nullptr) ? cached_fr : this->sequence->frame_rate;
 
-	if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip == nullptr) copy->opening_transition = get_opening_transition()->copy(copy, nullptr);
-	if (get_closing_transition() != nullptr && get_closing_transition()->secondary_clip == nullptr) copy->closing_transition = get_closing_transition()->copy(copy, nullptr);
+	if (duplicate_transitions) {
+		if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip == nullptr) copy->opening_transition = get_opening_transition()->copy(copy, nullptr);
+		if (get_closing_transition() != nullptr && get_closing_transition()->secondary_clip == nullptr) copy->closing_transition = get_closing_transition()->copy(copy, nullptr);
+	}
 
 	copy->recalculateMaxLength();
 

@@ -29,7 +29,7 @@ void AudioMonitor::set_value(const QVector<double> &ivalues) {
 	values = ivalues;
 	update();
 
-	QMetaObject::invokeMethod(&clear_timer, "start");
+	QMetaObject::invokeMethod(&clear_timer, "start", Qt::QueuedConnection);
 }
 
 void AudioMonitor::clear() {

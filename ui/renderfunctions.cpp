@@ -238,7 +238,7 @@ GLuint compose_sequence(Viewer* viewer,
 							c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
 						}
-						get_clip_frame(c, playhead, texture_failed);
+						get_clip_frame(c, qMax(playhead, c->timeline_in), texture_failed);
 						textureID = c->texture->textureId();
 						break;
 					case MEDIA_TYPE_SEQUENCE:
@@ -258,6 +258,7 @@ GLuint compose_sequence(Viewer* viewer,
 						c->fbo = new QOpenGLFramebufferObject* [2];
 						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
 						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
+						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 
 					// clear fbos
@@ -267,6 +268,7 @@ GLuint compose_sequence(Viewer* viewer,
 					c->fbo[1]->bind();
 					glClear(GL_COLOR_BUFFER_BIT);
 					c->fbo[1]->release();*/
+
 
 					bool fbo_switcher = false;
 
@@ -351,20 +353,6 @@ GLuint compose_sequence(Viewer* viewer,
 					}
 					// EFFECT CODE END
 
-					/*if (!nests.isEmpty()) {
-						nests.last()->fbo[0]->bind();
-						glViewport(0, 0, s->width, s->height);
-					} else if (rendering) {
-						glViewport(0, 0, s->width, s->height);
-					} else {
-						int widget_width = width();
-						int widget_height = height();
-
-						widget_width *= QApplication::desktop()->devicePixelRatio();
-						widget_height *= QApplication::desktop()->devicePixelRatio();
-
-						glViewport(0, 0, widget_width, widget_height);
-					}*/
 					if (!nests.isEmpty()) {
 						nests.last()->fbo[0]->bind();
 					}
@@ -376,6 +364,9 @@ GLuint compose_sequence(Viewer* viewer,
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 					glBegin(GL_QUADS);
+
+					GLint current_fbo = 0;
+					glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
 
 					if (coords.grid_size <= 1) {
 						float z = 0.0f;
@@ -449,7 +440,7 @@ GLuint compose_sequence(Viewer* viewer,
 					motion_blur_prog++;*/
 				}
 			} else {
-				if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
+				if (render_audio || (config.enable_audio_scrubbing && audio_scrub && seq->playhead > c->timeline_in)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 						nests.append(c);
 						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);

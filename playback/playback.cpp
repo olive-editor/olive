@@ -66,8 +66,6 @@ void open_clip(Clip* clip, bool multithreaded) {
 }
 
 void close_clip(Clip* clip, bool wait) {
-//	qDebug() << "closing" << clip->name;
-
 	clip->finished_opening = false;
 
 	// destroy opengl texture in main thread
@@ -284,7 +282,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 				}
 			}
 
-			c->texture->setData(0, get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, using_db_1 ? data_buffer_1 : data_buffer_2);
+			c->texture->setData(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
 
 			if (data_buffer_1 != target_frame->data[0]) {
 				delete [] data_buffer_1;

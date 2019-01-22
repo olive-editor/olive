@@ -79,8 +79,8 @@ public:
 	void set_zoom(bool in);
 	void copy(bool del);
 	void paste(bool insert);
-	Clip* split_clip(ComboAction* ca, int p, long frame);
-	Clip* split_clip(ComboAction* ca, int p, long frame, long post_in);
+	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame);
+	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
 	bool split_selection(ComboAction* ca);
 	bool split_all_clips_at_point(ComboAction *ca, long point);
 	bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
