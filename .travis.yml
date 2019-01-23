@@ -3,6 +3,11 @@ compiler: gcc
 sudo: require
 dist: trusty
 
+matrix:
+  include:
+  - env: ARCH=x86_64
+  - env: ARCH=i386
+
 before_install:
   - sudo add-apt-repository ppa:beineri/opt-qt593-trusty -y
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
