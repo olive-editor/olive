@@ -78,7 +78,6 @@ public:
 	bool focused();
 	void set_zoom(bool in);
 	void copy(bool del);
-	void paste(bool insert);
 	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame);
 	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
 	bool split_selection(ComboAction* ca);
@@ -207,6 +206,7 @@ public:
 
 	void resizeEvent(QResizeEvent *event);
 public slots:
+	void paste(bool insert = false);
 	void repaint_timeline();
 	void toggle_show_all();
 	void deselect();

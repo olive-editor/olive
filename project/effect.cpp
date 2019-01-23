@@ -16,6 +16,7 @@
 #include "io/path.h"
 #include "mainwindow.h"
 #include "io/math.h"
+#include "io/clipboard.h"
 #include "transition.h"
 
 #include "effects/internal/transformeffect.h"
@@ -377,20 +378,24 @@ void Effect::show_context_menu(const QPoint& pos) {
 
 		int index = get_index_in_clip();
 
+		menu.addAction(tr("Cu&t"), panel_effect_controls, SLOT(cut()));
+		menu.addAction(tr("&Copy"), panel_effect_controls, SLOT(copy(bool)));
+
+		panel_effect_controls->add_effect_paste_action(&menu);
+
+		menu.addSeparator();
+
 		if (index > 0) {
-			QAction* move_up = menu.addAction(tr("Move &Up"));
-			connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
+			menu.addAction(tr("Move &Up"), this, SLOT(move_up()));
 		}
 
 		if (index < parent_clip->effects.size() - 1) {
-			QAction* move_down = menu.addAction(tr("Move &Down"));
-			connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
+			menu.addAction(tr("Move &Down"), this, SLOT(move_down()));
 		}
 
 		menu.addSeparator();
 
-		QAction* del_action = menu.addAction(tr("D&elete"));
-		connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
+		menu.addAction(tr("D&elete"), this, SLOT(delete_self()));
 
 		menu.exec(container->title_bar->mapToGlobal(pos));
 	}
