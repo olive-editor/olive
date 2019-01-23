@@ -110,7 +110,7 @@ void RenderThread::paint() {
 
 	gizmos = nullptr;
 	QVector<Clip*> nests;
-	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed, false);
+	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed, false, temp_reverse);
 
 	if (!save_fn.isEmpty()) {
 		if (texture_failed) {
@@ -138,11 +138,13 @@ void RenderThread::paint() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider) {
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider, bool itemp_reverse) {
 	seq = s;
 
 	// stall any dependent actions
 	texture_failed = true;
+
+	temp_reverse = itemp_reverse;
 
 	if (share != nullptr && (ctx == nullptr || ctx->shareContext() != share_ctx)) {
 		share_ctx = share;

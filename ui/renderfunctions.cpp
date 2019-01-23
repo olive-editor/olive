@@ -119,7 +119,8 @@ GLuint compose_sequence(Viewer* viewer,
 						bool render_audio,
 						Effect** gizmos,
 						bool& texture_failed,
-						bool rendering) {
+						bool rendering,
+						int playback_speed) {
 	GLint current_fbo = 0;
 	if (video) {
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
@@ -286,7 +287,7 @@ GLuint compose_sequence(Viewer* viewer,
 						// for nested sequences
 						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
 							nests.append(c);
-							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);
+							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering, false);
 							nests.removeLast();
 							fbo_switcher = true;
 						}
@@ -440,12 +441,12 @@ GLuint compose_sequence(Viewer* viewer,
 				if (render_audio || (config.enable_audio_scrubbing && audio_scrub && seq->playhead > c->timeline_in)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 						nests.append(c);
-						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);
+						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering, playback_speed);
 						nests.removeLast();
 					} else {
 						if (c->lock.tryLock()) {
 							// clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
+							cache_clip(c, playhead, c->audio_reset, !render_audio, nests, playback_speed);
 							c->lock.unlock();
 						}
 					}
@@ -484,8 +485,8 @@ GLuint compose_sequence(Viewer* viewer,
 	return 0;
 }
 
-void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio) {
+void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio, int playback_speed) {
 	QVector<Clip*> nests;
 	bool texture_failed;
-	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering);
+	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering, playback_speed);
 }

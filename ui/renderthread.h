@@ -22,7 +22,7 @@ public:
 	GLuint texColorBuffer;
 	Effect* gizmos;
 	void paint();
-	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
+	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0, bool itemp_reverse = false);
 	bool did_texture_fail();
 	void cancel();
 
@@ -47,6 +47,7 @@ private:
 	bool queued;
 	bool texture_failed;
 	bool running;
+	bool temp_reverse;
 	QString save_fn;
 	GLvoid *pixel_buffer;
 };

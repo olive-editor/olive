@@ -230,7 +230,7 @@ void ViewerWidget::frame_update() {
 		}
 
 		// render the audio
-		compose_audio(viewer, viewer->seq, render_audio);
+		compose_audio(viewer, viewer->seq, render_audio, viewer->get_playback_speed());
 	}
 }
 

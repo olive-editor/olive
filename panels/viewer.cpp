@@ -44,7 +44,8 @@ Viewer::Viewer(QWidget *parent) :
 	seq(nullptr),
 	created_sequence(false),
 	minimum_zoom(1.0),
-	cue_recording_internal(false)
+	cue_recording_internal(false),
+	playback_speed(0)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -101,15 +102,20 @@ void Viewer::set_main_sequence() {
 void Viewer::reset_all_audio() {
 	// reset all clip audio
 	if (seq != nullptr) {
-		audio_ibuffer_frame = seq->playhead;
-		audio_ibuffer_timecode = (double) audio_ibuffer_frame / seq->frame_rate;
-
+		long last_frame = 0;
 		for (int i=0;i<seq->clips.size();i++) {
 			Clip* c = seq->clips.at(i);
 			if (c != nullptr) {
 				c->reset_audio();
+				last_frame = qMax(last_frame, c->timeline_out);
 			}
 		}
+
+		audio_ibuffer_frame = seq->playhead;
+		if (playback_speed < 0) {
+			audio_ibuffer_frame = last_frame - audio_ibuffer_frame;
+		}
+		audio_ibuffer_timecode = double(audio_ibuffer_frame) / seq->frame_rate;
 	}
 	clear_audio_ibuffer();
 }
@@ -324,6 +330,14 @@ void Viewer::toggle_play() {
 	}
 }
 
+void Viewer::increase_speed() {
+	set_playback_speed(playback_speed+1);
+}
+
+void Viewer::decrease_speed() {
+	set_playback_speed(playback_speed-1);
+}
+
 void Viewer::play() {
 	if (panel_sequence_viewer->playing) panel_sequence_viewer->pause();
 	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
@@ -333,6 +347,10 @@ void Viewer::play() {
 				&& seq->playhead >= get_seq_out()
 				&& (config.loop || !main_sequence)) {
 			seek(get_seq_in());
+		}
+
+		if (playback_speed == 0) {
+			playback_speed = 1;
 		}
 
 		reset_all_audio();
@@ -363,6 +381,7 @@ void Viewer::pause() {
 	just_played = false;
 	set_playpause_icon(true);
 	playback_updater.stop();
+	playback_speed = 0;
 
 	if (is_recording_cued()) {
 		uncue_recording();
@@ -430,6 +449,10 @@ void Viewer::update_parents(bool reload_fx) {
 	} else {
 		update_viewer();
 	}
+}
+
+int Viewer::get_playback_speed() {
+	return playback_speed;
 }
 
 void Viewer::resizeEvent(QResizeEvent *) {
@@ -517,6 +540,14 @@ void Viewer::set_zoom_value(double d) {
 
 void Viewer::set_sb_max() {
 	headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
+}
+
+void Viewer::set_playback_speed(int s) {
+	pause();
+	playback_speed = qMin(3, qMax(s, -3));
+	if (playback_speed != 0) {
+		play();
+	}
 }
 
 long Viewer::get_seq_in() {
@@ -713,7 +744,7 @@ void Viewer::update_playhead() {
 void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
-	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
+	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed));
 	if (config.seek_also_selects) panel_timeline->select_from_playhead();
 	update_parents(config.seek_also_selects);
 

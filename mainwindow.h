@@ -41,7 +41,7 @@ public slots:
 
 protected:
 	void closeEvent(QCloseEvent *);
-    void paintEvent(QPaintEvent *event);
+	void paintEvent(QPaintEvent *event);
 
 private slots:
 	void clear_undo_stack();
@@ -67,6 +67,9 @@ private slots:
 	void go_to_start();
 	void prev_frame();
 	void playpause();
+	void pause();
+	void increase_speed();
+	void decrease_speed();
 	void next_frame();
 	void go_to_end();
 	void prev_cut();

@@ -744,9 +744,9 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
 	playback_menu->addSeparator();
-	playback_menu->addAction(tr("Increase Speed"), this, SLOT(go_to_out()), QKeySequence("L"))->setProperty("id", "incspeed");
-	playback_menu->addAction(tr("Pause"), panel_sequence_viewer, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
-	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(go_to_in()), QKeySequence("J"))->setProperty("id", "decspeed");
+	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
+	playback_menu->addAction(tr("Pause"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
+	playback_menu->addAction(tr("Increase Speed"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
 	loop_action->setProperty("id", "loop");
@@ -1133,6 +1133,33 @@ void MainWindow::playpause() {
 		panel_footage_viewer->toggle_play();
 	} else {
 		panel_sequence_viewer->toggle_play();
+	}
+}
+
+void MainWindow::pause() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->pause();
+	} else {
+		panel_sequence_viewer->pause();
+	}
+}
+
+void MainWindow::increase_speed() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->increase_speed();
+	} else {
+		panel_sequence_viewer->increase_speed();
+	}
+}
+
+void MainWindow::decrease_speed() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->decrease_speed();
+	} else {
+		panel_sequence_viewer->decrease_speed();
 	}
 }
 

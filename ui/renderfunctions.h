@@ -17,9 +17,10 @@ GLuint compose_sequence(Viewer* viewer,
 						bool render_audio,
 						Effect **gizmos,
 						bool &texture_failed,
-						bool rendering);
+						bool rendering,
+						int playback_speed);
 
-void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio);
+void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio, int playback_speed);
 
 void viewport_render();
 
