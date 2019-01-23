@@ -15,7 +15,13 @@ void main(void) {
 	
 	luma /= 2.0;
 
-	texture_color.a = (luma >= loc && luma <= hic) ? luma : 0.0;
+	if (luma > hic) {
+        texture_color.a = 1.0;
+    } else if (luma < loc) {
+        texture_color.a = 0.0;
+    } else {
+        texture_color.a = luma;
+    }
 	
 	gl_FragColor = texture_color; 
 }
