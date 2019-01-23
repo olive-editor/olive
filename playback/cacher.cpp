@@ -382,8 +382,6 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int play
 
 			audio_write_lock.lock();
 
-			int audio_skip_resolution = 100; // FIXME magic number
-
 			int sample_skip = 4*qMax(0, qAbs(playback_speed)-1);
 			int sample_byte_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format));
 

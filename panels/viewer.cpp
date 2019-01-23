@@ -331,11 +331,19 @@ void Viewer::toggle_play() {
 }
 
 void Viewer::increase_speed() {
-	set_playback_speed(playback_speed+1);
+	int new_speed = playback_speed+1;
+	if (new_speed == 0) {
+		new_speed++;
+	}
+	set_playback_speed(new_speed);
 }
 
 void Viewer::decrease_speed() {
-	set_playback_speed(playback_speed-1);
+	int new_speed = playback_speed-1;
+	if (new_speed == 0) {
+		new_speed--;
+	}
+	set_playback_speed(new_speed);
 }
 
 void Viewer::play() {
