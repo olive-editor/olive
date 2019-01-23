@@ -20,7 +20,7 @@ install:
 
 script:
   - if [ "$ARCH" == "x86_64" ]; then qmake CONFIG+=release PREFIX=/usr; fi
-  - if [ "$ARCH" == "i386" ]; then qmake CONFIG+=release "CFLAGS += -m32" "QMAKE_CXXFLAGS += -m32" PREFIX=/usr -spec linux-g++-32; fi
+  - if [ "$ARCH" == "i386" ]; then qmake CONFIG+=release "QMAKE_CFLAGS+=-m32" "QMAKE_CXXFLAGS+=-m32" "QMAKE_LFLAGS+=-m32" PREFIX=/usr -spec linux-g++-32; fi
   - make -j$(nproc)
   - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
   - mkdir -p appdir/usr/bin/ ; cp olive-editor appdir/usr/bin/ # FIXME; "make install" should do this
