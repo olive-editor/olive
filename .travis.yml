@@ -31,7 +31,7 @@ script:
   - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop
-  - ./$APPIMGTOOL 'appdir' -n -g
+  - ./$APPIMGTOOL '/home/travis/build/olive-editor/olive/appdir' -n -g
 
 after_success:
   - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
