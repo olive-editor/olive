@@ -832,7 +832,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 					// middle of clip is within deletion area
 
 					// duplicate clip
-					Clip* post = split_clip(ca, j, s.in, s.out);
+					Clip* post = split_clip(ca, true, j, s.in, s.out);
 
 					pre_clips.append(j);
 					post_clips.append(post);
