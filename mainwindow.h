@@ -66,6 +66,7 @@ private slots:
 	void go_to_out();
 	void go_to_start();
 	void prev_frame();
+	void play_in_to_out();
 	void playpause();
 	void pause();
 	void increase_speed();

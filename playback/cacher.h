@@ -20,6 +20,7 @@ public:
 	bool reset;
 	bool scrubbing;
 	bool interrupt;
+	bool queued;
 	int playback_speed;
 	QVector<Clip*> nests;
 

@@ -113,6 +113,7 @@ void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<C
 			clip->cacher->nests = nests;
 			clip->cacher->scrubbing = scrubbing;
 			clip->cacher->playback_speed = playback_speed;
+			clip->cacher->queued = true;
 			if (reset && clip->queue.size() > 0) clip->cacher->interrupt = true;
 
 			clip->can_cache.wakeAll();

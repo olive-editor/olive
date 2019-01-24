@@ -160,6 +160,7 @@ void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QStrin
 	pixel_buffer = pixels;
 
 	queued = true;
+
 	waitCond.wakeAll();
 }
 

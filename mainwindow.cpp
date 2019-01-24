@@ -735,6 +735,7 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Go to Start"), this, SLOT(go_to_start()), QKeySequence("Home"))->setProperty("id", "gotostart");
 	playback_menu->addAction(tr("Previous Frame"), this, SLOT(prev_frame()), QKeySequence("Left"))->setProperty("id", "prevframe");
 	playback_menu->addAction(tr("Play/Pause"), this, SLOT(playpause()), QKeySequence("Space"))->setProperty("id", "playpause");
+	playback_menu->addAction(tr("Play In to Out"), this, SLOT(play_in_to_out()), QKeySequence("Shift+Space"))->setProperty("id", "playintoout");
 	playback_menu->addAction(tr("Next Frame"), this, SLOT(next_frame()), QKeySequence("Right"))->setProperty("id", "nextframe");
 	playback_menu->addAction(tr("Go to End"), this, SLOT(go_to_end()), QKeySequence("End"))->setProperty("id", "gotoend");
 	playback_menu->addSeparator();
@@ -747,6 +748,7 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
 	playback_menu->addAction(tr("Pause"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
 	playback_menu->addAction(tr("Increase Speed"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
+	playback_menu->addSeparator();
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
 	loop_action->setProperty("id", "loop");
@@ -910,11 +912,6 @@ void MainWindow::setup_menus() {
 	set_name_and_marker->setProperty("id", "asknamemarkerset");
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
-
-	pause_at_out_point_action = tools_menu->addAction(tr("Pause At Out Point"), this, SLOT(toggle_bool_action()));
-	pause_at_out_point_action->setProperty("id", "pauseoutpoint");
-	pause_at_out_point_action->setCheckable(true);
-	pause_at_out_point_action->setData(reinterpret_cast<quintptr>(&config.pause_at_out_point));
 
 	tools_menu->addSeparator();
 
@@ -1106,6 +1103,15 @@ void MainWindow::prev_frame() {
 		panel_footage_viewer->previous_frame();
 	} else {
 		panel_sequence_viewer->previous_frame();
+	}
+}
+
+void MainWindow::play_in_to_out() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->play(true);
+	} else {
+		panel_sequence_viewer->play(true);
 	}
 }
 

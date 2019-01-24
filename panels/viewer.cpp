@@ -248,7 +248,11 @@ bool frame_rate_is_droppable(float rate) {
 
 void Viewer::seek(long p) {
 	pause();
-	seq->playhead = p;
+	if (main_sequence) {
+		seq->playhead = p;
+	} else {
+		seq->playhead = qMin(seq->getEndFrame(), qMax(0L, p));
+	}
 	bool update_fx = false;
 	if (main_sequence) {
 		panel_timeline->scroll_to_frame(p);
@@ -346,15 +350,24 @@ void Viewer::decrease_speed() {
 	set_playback_speed(new_speed);
 }
 
-void Viewer::play() {
+void Viewer::play(bool in_to_out) {
 	if (panel_sequence_viewer->playing) panel_sequence_viewer->pause();
 	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
+	playing_in_to_out = in_to_out;
+
 	if (seq != nullptr) {
+
+		if (playing_in_to_out) {
+			uncue_recording();
+		}
+
+		bool seek_to_in = (seq->using_workarea && config.loop);
 		if (!is_recording_cued()
-				&& seq->playhead >= get_seq_out()
-				&& (config.loop || !main_sequence)) {
-			seek(get_seq_in());
+				&& (playing_in_to_out
+					|| seq->playhead >= seq->getEndFrame()
+					|| (seek_to_in && seq->playhead >= seq->workarea_out))) {
+			seek(seek_to_in ? seq->workarea_in : 0);
 		}
 
 		if (playback_speed == 0) {
@@ -371,6 +384,9 @@ void Viewer::play() {
 		just_played = true;
 		set_playpause_icon(false);
 		start_msecs = QDateTime::currentMSecsSinceEpoch();
+
+		qDebug() << "play called";
+
 		timer_update();
 	}
 }
@@ -559,13 +575,13 @@ void Viewer::set_playback_speed(int s) {
 }
 
 long Viewer::get_seq_in() {
-	return (seq->using_workarea && seq->enable_workarea)
+	return ((config.loop || playing_in_to_out) && seq->using_workarea && seq->enable_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-	return (seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
+	return ((config.loop || playing_in_to_out) && seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }
@@ -756,19 +772,24 @@ void Viewer::timer_update() {
 	if (config.seek_also_selects) panel_timeline->select_from_playhead();
 	update_parents(config.seek_also_selects);
 
-	long end_frame = get_seq_out();
-	if (!recording
-			&& playing
-			&& seq->playhead >= end_frame
-			&& previous_playhead < end_frame) {
-		if (!config.pause_at_out_point && config.loop) {
-			seek(get_seq_in());
-			play();
-		} else if (config.pause_at_out_point || !main_sequence) {
-			pause();
+	if (playing) {
+		if (recording) {
+			if (recording_start != recording_end && seq->playhead >= recording_end) {
+				pause();
+			}
+		} else {
+			if (seq->playhead >= seq->getEndFrame()) {
+				pause();
+			}
+			if (seq->using_workarea && seq->playhead >= seq->workarea_out) {
+				if (config.loop) {
+					// loop
+					play();
+				} else if (playing_in_to_out) {
+					pause();
+				}
+			}
 		}
-	} else if (recording && recording_start != recording_end && seq->playhead >= recording_end) {
-		pause();
 	}
 }
 

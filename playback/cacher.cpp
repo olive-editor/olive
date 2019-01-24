@@ -436,6 +436,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int play
 		}
 	}
 
+	qDebug() << "hello?";
 	QMetaObject::invokeMethod(panel_footage_viewer, "play_wake", Qt::QueuedConnection);
 	QMetaObject::invokeMethod(panel_sequence_viewer, "play_wake", Qt::QueuedConnection);
 }
@@ -961,11 +962,13 @@ void Cacher::run() {
 	clip->open = true;
 	caching = true;
 	interrupt = false;
+	queued = false;
 
 	open_clip_worker(clip);
 
 	while (caching) {
-		clip->can_cache.wait(&clip->lock);
+		if (!queued) clip->can_cache.wait(&clip->lock);
+		queued = false;
 		if (!caching) {
 			break;
 		} else {

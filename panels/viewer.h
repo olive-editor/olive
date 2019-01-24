@@ -49,7 +49,7 @@ public:
 
 	// playback functions
 	void seek(long p);
-	void play();
+	void play(bool in_to_out = false);
 	void pause();
 	bool playing;
 	long playhead_start;
@@ -104,6 +104,7 @@ private:
 	long cached_end_frame;
 	QString panel_name;
 	double minimum_zoom;
+	bool playing_in_to_out;
 	void set_zoom_value(double d);
 	void set_sb_max();
 	void set_playback_speed(int s);

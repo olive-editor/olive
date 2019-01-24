@@ -218,6 +218,7 @@ void ViewerWidget::initializeGL() {
 }
 
 void ViewerWidget::frame_update() {
+	qDebug() << "frame update called";
 	if (viewer->seq != nullptr) {
 		bool render_audio = (viewer->playing || audio_rendering);
 
