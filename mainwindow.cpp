@@ -1255,7 +1255,6 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
 	set_bool_action_checked(set_name_and_marker);
-	set_bool_action_checked(pause_at_out_point_action);
 	set_bool_action_checked(seek_also_selects);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
