@@ -436,7 +436,6 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int play
 		}
 	}
 
-	qDebug() << "hello?";
 	QMetaObject::invokeMethod(panel_footage_viewer, "play_wake", Qt::QueuedConnection);
 	QMetaObject::invokeMethod(panel_sequence_viewer, "play_wake", Qt::QueuedConnection);
 }

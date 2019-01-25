@@ -385,8 +385,6 @@ void Viewer::play(bool in_to_out) {
 		set_playpause_icon(false);
 		start_msecs = QDateTime::currentMSecsSinceEpoch();
 
-		qDebug() << "play called";
-
 		timer_update();
 	}
 }

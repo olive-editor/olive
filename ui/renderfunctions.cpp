@@ -438,8 +438,6 @@ GLuint compose_sequence(Viewer* viewer,
 					motion_blur_prog++;*/
 				}
 			} else {
-				qDebug() << "ra loc";
-
 				if (render_audio || (config.enable_audio_scrubbing && audio_scrub && seq->playhead > c->timeline_in)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 						nests.append(c);
@@ -488,7 +486,6 @@ GLuint compose_sequence(Viewer* viewer,
 }
 
 void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio, int playback_speed) {
-	qDebug() << "ca called";
 	QVector<Clip*> nests;
 	bool texture_failed;
 	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering, playback_speed);
