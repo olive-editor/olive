@@ -190,7 +190,6 @@ private:
 	QAction* enable_hover_focus;
 	QAction* set_name_and_marker;
 	QAction* loop_action;
-	QAction* pause_at_out_point_action;
 	QAction* seek_also_selects;
 
 	// edit menu actions
