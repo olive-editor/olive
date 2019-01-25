@@ -7,6 +7,7 @@ varying vec2 vTexCoord;
 
 uniform float loc;
 uniform float hic;
+uniform bool invert;
 
 void main(void) {
 	vec4 texture_color = texture2D(tex,vTexCoord);
@@ -15,12 +16,12 @@ void main(void) {
 	
 	luma /= 2.0;
 
-	if (luma > hic) {
-        texture_color.a = 1.0;
-    } else if (luma < loc) {
-        texture_color.a = 0.0;
+	if (luma > hic/100.0) {
+        texture_color.a = (invert ? 0.0 : 1.0);
+    } else if (luma < loc/100.0) {
+        texture_color.a = (invert ? 1.0 : 0.0);
     } else {
-        texture_color.a = luma;
+        texture_color.a = (invert ? 1.0-luma : luma);
     }
 	
 	gl_FragColor = texture_color; 

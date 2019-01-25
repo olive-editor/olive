@@ -10,6 +10,7 @@ varying vec2 vTexCoord;
 uniform float loc;
 uniform float hic;
 uniform int compo;
+uniform bool invert;
 
 float rgb2luma(vec3 c) {
     return (max(max(c.r,c.g), c.b) + min(min(c.r,c.g), c.b))/2.0;
@@ -63,27 +64,27 @@ void main(void) {
     
 	switch(compo) {
         case 0 :
-            toCheck = rgb2luma(color);
+            toCheck = rgb2luma(color)*100.0;
             break;
         case 4 :
-            toCheck = color.r;
+            toCheck = color.r*100.0;
             break;
         case 5 :
-            toCheck = color.g;
+            toCheck = color.g*100.0;
             break;
         case 6 :
-            toCheck = color.b;
+            toCheck = color.b*100.0;
             break;
         case 1 :
-            toCheck = rgb2hsv(color).z;
+            toCheck = rgb2hsv(color).z*100.0;
             break;
         case 2 :
-            toCheck = rgb2hsv(color).x/360.0;
+            toCheck = rgb2hsv(color).x/3.6;
             break;
         case 3 :
-            toCheck = rgb2hsv(color).y;
+            toCheck = rgb2hsv(color).y*100.0;
             break;
 	}
-	tc.a = isNotIncreasingSequence(loc, toCheck, hic) ? 0.0 : tc.a;
+	tc.a = isNotIncreasingSequence(loc, toCheck, hic) ? (invert ? tc.a : 0.0) : (invert ? 0.0 : tc.a);
 	gl_FragColor = tc;
 }
