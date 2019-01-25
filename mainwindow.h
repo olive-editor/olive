@@ -41,7 +41,7 @@ public slots:
 
 protected:
 	void closeEvent(QCloseEvent *);
-    void paintEvent(QPaintEvent *event);
+	void paintEvent(QPaintEvent *event);
 
 private slots:
 	void clear_undo_stack();
@@ -66,7 +66,11 @@ private slots:
 	void go_to_out();
 	void go_to_start();
 	void prev_frame();
+	void play_in_to_out();
 	void playpause();
+	void pause();
+	void increase_speed();
+	void decrease_speed();
 	void next_frame();
 	void go_to_end();
 	void prev_cut();
@@ -186,7 +190,6 @@ private:
 	QAction* enable_hover_focus;
 	QAction* set_name_and_marker;
 	QAction* loop_action;
-	QAction* pause_at_out_point_action;
 	QAction* seek_also_selects;
 
 	// edit menu actions

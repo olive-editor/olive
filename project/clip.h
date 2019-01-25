@@ -35,7 +35,7 @@ struct Clip
 {
 	Clip(Sequence* s);
 	~Clip();
-	Clip* copy(Sequence* s);
+	Clip* copy(Sequence* s, bool duplicate_transitions = true);
 	void reset_audio();
 	void reset();
 	void refresh();
@@ -127,7 +127,7 @@ struct Clip
 	// audio playback variables
 	int64_t reverse_target;
 	int frame_sample_index;
-	unsigned long audio_buffer_write;
+	qint64 audio_buffer_write;
 	bool audio_reset;
 	bool audio_just_reset;
 	long audio_target_frame;

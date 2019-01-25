@@ -44,7 +44,8 @@ Viewer::Viewer(QWidget *parent) :
 	seq(nullptr),
 	created_sequence(false),
 	minimum_zoom(1.0),
-	cue_recording_internal(false)
+	cue_recording_internal(false),
+	playback_speed(0)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -101,15 +102,20 @@ void Viewer::set_main_sequence() {
 void Viewer::reset_all_audio() {
 	// reset all clip audio
 	if (seq != nullptr) {
-		audio_ibuffer_frame = seq->playhead;
-		audio_ibuffer_timecode = (double) audio_ibuffer_frame / seq->frame_rate;
-
+		long last_frame = 0;
 		for (int i=0;i<seq->clips.size();i++) {
 			Clip* c = seq->clips.at(i);
 			if (c != nullptr) {
 				c->reset_audio();
+				last_frame = qMax(last_frame, c->timeline_out);
 			}
 		}
+
+		audio_ibuffer_frame = seq->playhead;
+		if (playback_speed < 0) {
+			audio_ibuffer_frame = last_frame - audio_ibuffer_frame;
+		}
+		audio_ibuffer_timecode = double(audio_ibuffer_frame) / seq->frame_rate;
 	}
 	clear_audio_ibuffer();
 }
@@ -242,7 +248,11 @@ bool frame_rate_is_droppable(float rate) {
 
 void Viewer::seek(long p) {
 	pause();
-	seq->playhead = p;
+	if (main_sequence) {
+		seq->playhead = p;
+	} else {
+		seq->playhead = qMin(seq->getEndFrame(), qMax(0L, p));
+	}
 	bool update_fx = false;
 	if (main_sequence) {
 		panel_timeline->scroll_to_frame(p);
@@ -324,15 +334,44 @@ void Viewer::toggle_play() {
 	}
 }
 
-void Viewer::play() {
+void Viewer::increase_speed() {
+	int new_speed = playback_speed+1;
+	if (new_speed == 0) {
+		new_speed++;
+	}
+	set_playback_speed(new_speed);
+}
+
+void Viewer::decrease_speed() {
+	int new_speed = playback_speed-1;
+	if (new_speed == 0) {
+		new_speed--;
+	}
+	set_playback_speed(new_speed);
+}
+
+void Viewer::play(bool in_to_out) {
 	if (panel_sequence_viewer->playing) panel_sequence_viewer->pause();
 	if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
+	playing_in_to_out = in_to_out;
+
 	if (seq != nullptr) {
+
+		if (playing_in_to_out) {
+			uncue_recording();
+		}
+
+		bool seek_to_in = (seq->using_workarea && config.loop);
 		if (!is_recording_cued()
-				&& seq->playhead >= get_seq_out()
-				&& (config.loop || !main_sequence)) {
-			seek(get_seq_in());
+				&& (playing_in_to_out
+					|| seq->playhead >= seq->getEndFrame()
+					|| (seek_to_in && seq->playhead >= seq->workarea_out))) {
+			seek(seek_to_in ? seq->workarea_in : 0);
+		}
+
+		if (playback_speed == 0) {
+			playback_speed = 1;
 		}
 
 		reset_all_audio();
@@ -345,6 +384,7 @@ void Viewer::play() {
 		just_played = true;
 		set_playpause_icon(false);
 		start_msecs = QDateTime::currentMSecsSinceEpoch();
+
 		timer_update();
 	}
 }
@@ -363,6 +403,7 @@ void Viewer::pause() {
 	just_played = false;
 	set_playpause_icon(true);
 	playback_updater.stop();
+	playback_speed = 0;
 
 	if (is_recording_cued()) {
 		uncue_recording();
@@ -430,6 +471,10 @@ void Viewer::update_parents(bool reload_fx) {
 	} else {
 		update_viewer();
 	}
+}
+
+int Viewer::get_playback_speed() {
+	return playback_speed;
 }
 
 void Viewer::resizeEvent(QResizeEvent *) {
@@ -519,14 +564,22 @@ void Viewer::set_sb_max() {
 	headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
 }
 
+void Viewer::set_playback_speed(int s) {
+	pause();
+	playback_speed = qMin(3, qMax(s, -3));
+	if (playback_speed != 0) {
+		play();
+	}
+}
+
 long Viewer::get_seq_in() {
-	return (seq->using_workarea && seq->enable_workarea)
+	return ((config.loop || playing_in_to_out) && seq->using_workarea && seq->enable_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-	return (seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
+	return ((config.loop || playing_in_to_out) && seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }
@@ -560,7 +613,7 @@ void Viewer::setup_ui() {
 	QHBoxLayout* current_timecode_container_layout = new QHBoxLayout(current_timecode_container);
 	current_timecode_container_layout->setSpacing(0);
 	current_timecode_container_layout->setMargin(0);
-    current_timecode_slider = new LabelSlider(current_timecode_container);
+	current_timecode_slider = new LabelSlider(current_timecode_container);
 	lower_control_layout->addWidget(current_timecode_container);
 
 	QWidget* playback_controls = new QWidget(lower_controls);
@@ -713,23 +766,28 @@ void Viewer::update_playhead() {
 void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
-	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate));
+	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed));
 	if (config.seek_also_selects) panel_timeline->select_from_playhead();
 	update_parents(config.seek_also_selects);
 
-	long end_frame = get_seq_out();
-	if (!recording
-			&& playing
-			&& seq->playhead >= end_frame
-			&& previous_playhead < end_frame) {
-		if (!config.pause_at_out_point && config.loop) {
-			seek(get_seq_in());
-			play();
-		} else if (config.pause_at_out_point || !main_sequence) {
-			pause();
+	if (playing) {
+		if (recording) {
+			if (recording_start != recording_end && seq->playhead >= recording_end) {
+				pause();
+			}
+		} else {
+			if (seq->playhead >= seq->getEndFrame()) {
+				pause();
+			}
+			if (seq->using_workarea && seq->playhead >= seq->workarea_out) {
+				if (config.loop) {
+					// loop
+					play();
+				} else if (playing_in_to_out) {
+					pause();
+				}
+			}
 		}
-	} else if (recording && recording_start != recording_end && seq->playhead >= recording_end) {
-		pause();
 	}
 }
 

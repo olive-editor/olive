@@ -21,6 +21,7 @@
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
+#include "ui/flowlayout.h"
 #include "mainwindow.h"
 #include "debug.h"
 
@@ -67,7 +68,6 @@ Timeline::Timeline(QWidget *parent) :
 	transition_tool_post_clip(-1),
 	hand_moving(false),
 	block_repaints(false),
-	last_frame(0),
 	scroll(0)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -442,11 +442,6 @@ void Timeline::repaint_timeline() {
 
 			if (sequence != nullptr) {
 				set_sb_max();
-
-				if (last_frame != sequence->playhead) {
-					audio_monitor->update();
-					last_frame = sequence->playhead;
-				}
 			}
 		}
 	}
@@ -490,7 +485,21 @@ void Timeline::select_from_playhead() {
 }
 
 void Timeline::resizeEvent(QResizeEvent *) {
+	// adjust maximum scrollbar
 	if (sequence != nullptr) set_sb_max();
+
+
+	// resize tool button widget to its contents
+	QList<QWidget*> tool_button_children = tool_button_widget->findChildren<QWidget*>();
+	int total_client_height = 0;
+	int horizontal_spacing = static_cast<FlowLayout*>(tool_button_widget->layout())->horizontalSpacing();
+	int vertical_spacing = static_cast<FlowLayout*>(tool_button_widget->layout())->verticalSpacing();
+	for (int i=0;i<tool_button_children.size();i++) {
+		total_client_height += tool_button_children.at(i)->height() + vertical_spacing;
+	}
+	int comp_height = tool_button_widget->height();
+	int cols = qCeil(double(total_client_height)/double(comp_height));
+	tool_button_widget->setFixedWidth((tool_button_children.at(0)->width())*cols + horizontal_spacing*(cols-1) + 1);
 }
 
 void Timeline::delete_in_out(bool ripple) {
@@ -571,8 +580,6 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 			}
 		}
 
-		selections.clear();
-
 		undo_stack.push(ca);
 
 		update_ui(true);
@@ -634,14 +641,22 @@ void Timeline::snapping_clicked(bool checked) {
 	snapping = checked;
 }
 
-Clip* Timeline::split_clip(ComboAction* ca, int p, long frame) {
-	return split_clip(ca, p, frame, frame);
+Clip* Timeline::split_clip(ComboAction* ca, bool transitions, int p, long frame) {
+	return split_clip(ca, transitions, p, frame, frame);
 }
 
-Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
+Clip* Timeline::split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in) {
 	Clip* pre = sequence->clips.at(p);
 	if (pre != nullptr && pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
-		Clip* post = pre->copy(sequence);
+		bool splitting_closing_dual_transition = false;
+
+		if (transitions
+				&& pre->get_closing_transition() != nullptr
+				&& pre->get_closing_transition()->secondary_clip != nullptr) {
+			splitting_closing_dual_transition = true;
+		}
+
+		Clip* post = pre->copy(sequence, transitions && !splitting_closing_dual_transition);
 
 		long new_clip_length = frame - pre->timeline_in;
 
@@ -651,11 +666,11 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
 		move_clip(ca, pre, pre->timeline_in, frame, pre->clip_in, pre->track);
 
 		if (pre->get_opening_transition() != nullptr) {
-			/*if (frame < pre->timeline_in + pre->get_opening_transition()->length && pre->get_opening_transition()->secondary_clip != nullptr) {
+//			if (frame < pre->timeline_in + pre->get_opening_transition()->length && pre->get_opening_transition()->secondary_clip != nullptr) {
 				// separate shared transition
-				ca->append(new SetPointer((void**) &pre->get_opening_transition()->secondary_clip, nullptr));
-				pre->get_opening_transition()->secondary_clip->closing_transition = pre->get_opening_transition()->copy(pre->get_opening_transition()->secondary_clip, nullptr);
-			}*/
+//				ca->append(new SetPointer((void**) &pre->get_opening_transition()->secondary_clip, nullptr));
+//				pre->get_opening_transition()->secondary_clip->closing_transition = pre->get_opening_transition()->copy(pre->get_opening_transition()->secondary_clip, nullptr);
+//			}
 
 			if (pre->get_opening_transition()->get_true_length() > new_clip_length) {
 				ca->append(new ModifyTransitionCommand(pre, TA_OPENING_TRANSITION, new_clip_length));
@@ -664,8 +679,24 @@ Clip* Timeline::split_clip(ComboAction* ca, int p, long frame, long post_in) {
 			post->sequence->hard_delete_transition(post, TA_OPENING_TRANSITION);
 		}
 		if (pre->get_closing_transition() != nullptr) {
-			ca->append(new DeleteTransitionCommand(pre->sequence, pre->closing_transition));
-			if (pre->get_closing_transition()->secondary_clip == nullptr) post->get_closing_transition()->set_length(qMin(long(post->get_closing_transition()->get_true_length()), post->getLength()));
+			if (splitting_closing_dual_transition) {
+				// just move closing transition to post clip
+
+				// WORKAROUND
+				ca->append(new DeleteTransitionCommand(pre->sequence, pre->closing_transition));
+			} else {
+				ca->append(new DeleteTransitionCommand(pre->sequence, pre->closing_transition));
+
+				if (post->get_closing_transition() != nullptr) {
+					if (pre->get_closing_transition()->secondary_clip == nullptr) {
+						post->get_closing_transition()->set_length(qMin(long(post->get_closing_transition()->get_true_length()), post->getLength()));
+					}
+
+					if (post->get_closing_transition()->get_length() > post->getLength()) {
+						post->get_closing_transition()->set_length(post->getLength());
+					}
+				}
+			}
 		}
 
 		return post;
@@ -695,7 +726,7 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
 		QVector<int> pre_clips;
 		QVector<Clip*> post_clips;
 
-		Clip* post = split_clip(ca, clip, frame);
+		Clip* post = split_clip(ca, true, clip, frame);
 
 		// if alt is not down, split clips links too
 		if (post == nullptr) {
@@ -714,7 +745,7 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
 						Clip* link = sequence->clips.at(l);
 						if ((original_clip_is_selected && is_clip_selected(link, true)) || !original_clip_is_selected) {
 							split_cache.append(l);
-							Clip* s = split_clip(ca, l, frame);
+							Clip* s = split_clip(ca, true, l, frame);
 							if (s != nullptr) {
 								pre_clips.append(l);
 								post_clips.append(s);
@@ -801,7 +832,7 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 					// middle of clip is within deletion area
 
 					// duplicate clip
-					Clip* post = split_clip(ca, j, s.in, s.out);
+					Clip* post = split_clip(ca, true, j, s.in, s.out);
 
 					pre_clips.append(j);
 					post_clips.append(post);
@@ -830,8 +861,15 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 				}
 			}
 		}
+	}
+
+	// deselect selected clip areas
+	QVector<Selection> area_copy = areas;
+	for (int i=0;i<area_copy.size();i++) {
+		const Selection& s = area_copy.at(i);
 		deselect_area(s.in, s.out, s.track);
 	}
+
 	relink_clips_using_ids(pre_clips, post_clips);
 	ca->append(new AddClipCommand(sequence, post_clips));
 }
@@ -902,7 +940,9 @@ void Timeline::relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& n
 		for (int j=0;j<oc->linked.size();j++) {
 			for (int k=0;k<old_clips.size();k++) { // find clip with that ID
 				if (oc->linked.at(j) == old_clips.at(k)) {
-					new_clips.at(i)->linked.append(k);
+					if (new_clips.at(i) != nullptr) {
+						new_clips.at(i)->linked.append(k);
+					}
 				}
 			}
 		}
@@ -1180,50 +1220,12 @@ bool Timeline::split_selection(ComboAction* ca) {
 			for (int i=0;i<sequence->selections.size();i++) {
 				const Selection& s = sequence->selections.at(i);
 				if (s.track == clip->track) {
-					if (clip->timeline_in < s.in && clip->timeline_out > s.out) {
-						Clip* split_A = clip->copy(sequence);
-						split_A->clip_in += (s.in - clip->timeline_in);
-						split_A->timeline_in = s.in;
-						split_A->timeline_out = s.out;
-						pre_splits.append(j);
-						post_splits.append(split_A);
-
-						Clip* split_B = clip->copy(sequence);
-						split_B->clip_in += (s.out - clip->timeline_in);
-						split_B->timeline_in = s.out;
-						secondary_post_splits.append(split_B);
-
-						if (clip->get_opening_transition() != nullptr) {
-							split_B->sequence->hard_delete_transition(split_B, TA_OPENING_TRANSITION);
-							split_A->sequence->hard_delete_transition(split_A, TA_OPENING_TRANSITION);
-						}
-
-						if (clip->get_closing_transition() != nullptr) {
-							ca->append(new DeleteTransitionCommand(clip->sequence, clip->closing_transition));
-
-							split_A->sequence->hard_delete_transition(split_A, TA_CLOSING_TRANSITION);
-						}
-
-						move_clip(ca, clip, clip->timeline_in, s.in, clip->clip_in, clip->track);
-						split = true;
-					} else {
-						Clip* post_a = split_clip(ca, j, s.in);
-						Clip* post_b = split_clip(ca, j, s.out);
-						if (post_a != nullptr) {
-							pre_splits.append(j);
-							post_splits.append(post_a);
-							split = true;
-						}
-						if (post_b != nullptr) {
-							if (post_a != nullptr) {
-								pre_splits.append(j);
-								post_splits.append(post_b);
-							} else {
-								secondary_post_splits.append(post_b);
-							}
-							split = true;
-						}
-					}
+					Clip* post_b = split_clip(ca, true, j, s.out);
+					Clip* post_a = split_clip(ca, post_b == nullptr, j, s.in);
+					pre_splits.append(j);
+					post_splits.append(post_a);
+					secondary_post_splits.append(post_b);
+					split = true;
 				}
 			}
 		}
@@ -1233,6 +1235,10 @@ bool Timeline::split_selection(ComboAction* ca) {
 		// relink after splitting
 		relink_clips_using_ids(pre_splits, post_splits);
 		relink_clips_using_ids(pre_splits, secondary_post_splits);
+
+		post_splits.removeAll(nullptr);
+		secondary_post_splits.removeAll(nullptr);
+
 		ca->append(new AddClipCommand(sequence, post_splits));
 		ca->append(new AddClipCommand(sequence, secondary_post_splits));
 
@@ -1267,7 +1273,7 @@ void Timeline::split_at_playhead() {
 		for (int j=0;j<sequence->clips.size();j++) {
 			Clip* clip = sequence->clips.at(j);
 			if (clip != nullptr && is_clip_selected(clip, true)) {
-				Clip* s = split_clip(ca, j, sequence->playhead);
+				Clip* s = split_clip(ca, true, j, sequence->playhead);
 				if (s != nullptr) {
 					pre_clips.append(j);
 					post_clips.append(s);
@@ -1596,14 +1602,15 @@ void Timeline::setup_ui() {
 	horizontalLayout->setSpacing(0);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
-	QWidget* tool_buttons = new QWidget(dockWidgetContents);
-	tool_buttons->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
+	tool_button_widget = new QWidget(dockWidgetContents);
+	tool_button_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	QVBoxLayout* tool_buttons_layout = new QVBoxLayout(tool_buttons);
+	FlowLayout* tool_buttons_layout = new FlowLayout(tool_button_widget);
+//    tool_buttons_layout->setSizeConstraint(QLayout::SetNoConstraint);
 	tool_buttons_layout->setSpacing(4);
 	tool_buttons_layout->setContentsMargins(0, 0, 0, 0);
 
-	toolArrowButton = new QPushButton(tool_buttons);
+	toolArrowButton = new QPushButton(tool_button_widget);
 	QIcon arrow_icon;
 	arrow_icon.addFile(QStringLiteral(":/icons/arrow.png"), QSize(), QIcon::Normal, QIcon::Off);
 	arrow_icon.addFile(QStringLiteral(":/icons/arrow-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1614,7 +1621,7 @@ void Timeline::setup_ui() {
 	connect(toolArrowButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolArrowButton);
 
-	toolEditButton = new QPushButton(tool_buttons);
+	toolEditButton = new QPushButton(tool_button_widget);
 	QIcon icon1;
 	icon1.addFile(QStringLiteral(":/icons/beam.png"), QSize(), QIcon::Normal, QIcon::Off);
 	icon1.addFile(QStringLiteral(":/icons/beam-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1625,7 +1632,7 @@ void Timeline::setup_ui() {
 	connect(toolEditButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolEditButton);
 
-	toolRippleButton = new QPushButton(tool_buttons);
+	toolRippleButton = new QPushButton(tool_button_widget);
 	QIcon icon2;
 	icon2.addFile(QStringLiteral(":/icons/ripple.png"), QSize(), QIcon::Normal, QIcon::Off);
 	icon2.addFile(QStringLiteral(":/icons/ripple-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1636,7 +1643,7 @@ void Timeline::setup_ui() {
 	connect(toolRippleButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolRippleButton);
 
-	toolRazorButton = new QPushButton(tool_buttons);
+	toolRazorButton = new QPushButton(tool_button_widget);
 	QIcon icon4;
 	icon4.addFile(QStringLiteral(":/icons/razor.png"), QSize(), QIcon::Normal, QIcon::Off);
 	icon4.addFile(QStringLiteral(":/icons/razor-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -1647,7 +1654,7 @@ void Timeline::setup_ui() {
 	connect(toolRazorButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolRazorButton);
 
-	toolSlipButton = new QPushButton(tool_buttons);
+	toolSlipButton = new QPushButton(tool_button_widget);
 	QIcon icon5;
 	icon5.addFile(QStringLiteral(":/icons/slip.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon5.addFile(QStringLiteral(":/icons/slip-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1658,7 +1665,7 @@ void Timeline::setup_ui() {
 	connect(toolSlipButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolSlipButton);
 
-	toolSlideButton = new QPushButton(tool_buttons);
+	toolSlideButton = new QPushButton(tool_button_widget);
 	QIcon icon6;
 	icon6.addFile(QStringLiteral(":/icons/slide.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon6.addFile(QStringLiteral(":/icons/slide-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1669,7 +1676,7 @@ void Timeline::setup_ui() {
 	connect(toolSlideButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolSlideButton);
 
-	toolHandButton = new QPushButton(tool_buttons);
+	toolHandButton = new QPushButton(tool_button_widget);
 	QIcon icon7;
 	icon7.addFile(QStringLiteral(":/icons/hand.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon7.addFile(QStringLiteral(":/icons/hand-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1680,7 +1687,7 @@ void Timeline::setup_ui() {
 	connect(toolHandButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
 	tool_buttons_layout->addWidget(toolHandButton);
 
-	toolTransitionButton = new QPushButton(tool_buttons);
+	toolTransitionButton = new QPushButton(tool_button_widget);
 	QIcon icon8;
 	icon8.addFile(QStringLiteral(":/icons/transition-tool.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon8.addFile(QStringLiteral(":/icons/transition-tool-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1690,7 +1697,7 @@ void Timeline::setup_ui() {
 	connect(toolTransitionButton, SIGNAL(clicked(bool)), this, SLOT(transition_tool_click()));
 	tool_buttons_layout->addWidget(toolTransitionButton);
 
-	snappingButton = new QPushButton(tool_buttons);
+	snappingButton = new QPushButton(tool_button_widget);
 	QIcon icon9;
 	icon9.addFile(QStringLiteral(":/icons/magnet.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon9.addFile(QStringLiteral(":/icons/magnet-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1701,7 +1708,7 @@ void Timeline::setup_ui() {
 	connect(snappingButton, SIGNAL(toggled(bool)), this, SLOT(snapping_clicked(bool)));
 	tool_buttons_layout->addWidget(snappingButton);
 
-	zoomInButton = new QPushButton(tool_buttons);
+	zoomInButton = new QPushButton(tool_button_widget);
 	QIcon icon10;
 	icon10.addFile(QStringLiteral(":/icons/zoomin.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon10.addFile(QStringLiteral(":/icons/zoomin-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1710,7 +1717,7 @@ void Timeline::setup_ui() {
 	connect(zoomInButton, SIGNAL(clicked(bool)), this, SLOT(zoom_in()));
 	tool_buttons_layout->addWidget(zoomInButton);
 
-	zoomOutButton = new QPushButton(tool_buttons);
+	zoomOutButton = new QPushButton(tool_button_widget);
 	QIcon icon11;
 	icon11.addFile(QStringLiteral(":/icons/zoomout.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon11.addFile(QStringLiteral(":/icons/zoomout-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1719,7 +1726,7 @@ void Timeline::setup_ui() {
 	connect(zoomOutButton, SIGNAL(clicked(bool)), this, SLOT(zoom_out()));
 	tool_buttons_layout->addWidget(zoomOutButton);
 
-	recordButton = new QPushButton(tool_buttons);
+	recordButton = new QPushButton(tool_button_widget);
 	QIcon icon12;
 	icon12.addFile(QStringLiteral(":/icons/record.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon12.addFile(QStringLiteral(":/icons/record-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1729,7 +1736,7 @@ void Timeline::setup_ui() {
 
 	tool_buttons_layout->addWidget(recordButton);
 
-	addButton = new QPushButton(tool_buttons);
+	addButton = new QPushButton(tool_button_widget);
 	QIcon icon13;
 	icon13.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon13.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -1738,9 +1745,7 @@ void Timeline::setup_ui() {
 	connect(addButton, SIGNAL(clicked()), this, SLOT(add_btn_click()));
 	tool_buttons_layout->addWidget(addButton);
 
-	tool_buttons_layout->addStretch();
-
-	horizontalLayout->addWidget(tool_buttons);
+	horizontalLayout->addWidget(tool_button_widget);
 
 	timeline_area = new QWidget(dockWidgetContents);
 	QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -1760,7 +1765,7 @@ void Timeline::setup_ui() {
 	editAreaLayout->setSpacing(0);
 	editAreaLayout->setContentsMargins(0, 0, 0, 0);
 	QSplitter* splitter = new QSplitter(editAreas);
-    splitter->setChildrenCollapsible(false);
+	splitter->setChildrenCollapsible(false);
 	splitter->setOrientation(Qt::Vertical);
 	QWidget* videoContainer = new QWidget(splitter);
 	QHBoxLayout* videoContainerLayout = new QHBoxLayout(videoContainer);

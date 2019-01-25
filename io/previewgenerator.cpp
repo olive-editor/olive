@@ -59,6 +59,7 @@ void PreviewGenerator::parse_media() {
 			ms.preview_done = false;
 			ms.file_index = i;
 			ms.enabled = true;
+			ms.infinite_length = false;
 
 			bool append = false;
 
@@ -77,7 +78,6 @@ void PreviewGenerator::parse_media() {
 						&& fmt_ctx->streams[i]->codecpar->codec_id != AV_CODEC_ID_DNXHD) { // silly hack but this is the only scenario i've seen this
 					if (footage->url.contains('%')) {
 						// must be an image sequence
-						ms.infinite_length = false;
 						ms.video_frame_rate = 25;
 					} else {
 						ms.infinite_length = true;
@@ -85,8 +85,6 @@ void PreviewGenerator::parse_media() {
 						ms.video_frame_rate = 0;
 					}
 				} else {
-					ms.infinite_length = false;
-
 					// using ffmpeg's built-in heuristic
 					ms.video_frame_rate = av_q2d(av_guess_frame_rate(fmt_ctx, fmt_ctx->streams[i], nullptr));
 

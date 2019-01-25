@@ -735,6 +735,7 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Go to Start"), this, SLOT(go_to_start()), QKeySequence("Home"))->setProperty("id", "gotostart");
 	playback_menu->addAction(tr("Previous Frame"), this, SLOT(prev_frame()), QKeySequence("Left"))->setProperty("id", "prevframe");
 	playback_menu->addAction(tr("Play/Pause"), this, SLOT(playpause()), QKeySequence("Space"))->setProperty("id", "playpause");
+	playback_menu->addAction(tr("Play In to Out"), this, SLOT(play_in_to_out()), QKeySequence("Shift+Space"))->setProperty("id", "playintoout");
 	playback_menu->addAction(tr("Next Frame"), this, SLOT(next_frame()), QKeySequence("Right"))->setProperty("id", "nextframe");
 	playback_menu->addAction(tr("Go to End"), this, SLOT(go_to_end()), QKeySequence("End"))->setProperty("id", "gotoend");
 	playback_menu->addSeparator();
@@ -744,9 +745,10 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
 	playback_menu->addSeparator();
-	playback_menu->addAction(tr("Increase Speed"), this, SLOT(go_to_out()), QKeySequence("L"))->setProperty("id", "incspeed");
-	playback_menu->addAction(tr("Pause"), panel_sequence_viewer, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
-	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(go_to_in()), QKeySequence("J"))->setProperty("id", "decspeed");
+	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
+	playback_menu->addAction(tr("Pause"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
+	playback_menu->addAction(tr("Increase Speed"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
+	playback_menu->addSeparator();
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
 	loop_action->setProperty("id", "loop");
@@ -910,11 +912,6 @@ void MainWindow::setup_menus() {
 	set_name_and_marker->setProperty("id", "asknamemarkerset");
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
-
-	pause_at_out_point_action = tools_menu->addAction(tr("Pause At Out Point"), this, SLOT(toggle_bool_action()));
-	pause_at_out_point_action->setProperty("id", "pauseoutpoint");
-	pause_at_out_point_action->setCheckable(true);
-	pause_at_out_point_action->setData(reinterpret_cast<quintptr>(&config.pause_at_out_point));
 
 	tools_menu->addSeparator();
 
@@ -1109,6 +1106,15 @@ void MainWindow::prev_frame() {
 	}
 }
 
+void MainWindow::play_in_to_out() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->play(true);
+	} else {
+		panel_sequence_viewer->play(true);
+	}
+}
+
 void MainWindow::next_frame() {
 	QDockWidget* focused_panel = get_focused_panel();
 	if (focused_panel == panel_footage_viewer) {
@@ -1133,6 +1139,33 @@ void MainWindow::playpause() {
 		panel_footage_viewer->toggle_play();
 	} else {
 		panel_sequence_viewer->toggle_play();
+	}
+}
+
+void MainWindow::pause() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->pause();
+	} else {
+		panel_sequence_viewer->pause();
+	}
+}
+
+void MainWindow::increase_speed() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->increase_speed();
+	} else {
+		panel_sequence_viewer->increase_speed();
+	}
+}
+
+void MainWindow::decrease_speed() {
+	QDockWidget* focused_panel = get_focused_panel();
+	if (focused_panel == panel_footage_viewer) {
+		panel_footage_viewer->decrease_speed();
+	} else {
+		panel_sequence_viewer->decrease_speed();
 	}
 }
 
@@ -1222,7 +1255,6 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
 	set_bool_action_checked(enable_drop_on_media_to_replace);
 	set_bool_action_checked(enable_hover_focus);
 	set_bool_action_checked(set_name_and_marker);
-	set_bool_action_checked(pause_at_out_point_action);
 	set_bool_action_checked(seek_also_selects);
 
 	set_int_action_checked(no_autoscroll, config.autoscroll);
@@ -1493,6 +1525,9 @@ void MainWindow::nest() {
 				copy->timeline_out -= earliest_point;
 				s->clips.append(copy);
 			}
+
+			// relink clips in new nested sequences
+			panel_timeline->relink_clips_using_ids(selected_clips, s->clips);
 
 			// add sequence to project
 			Media* m = panel_project->new_sequence(ca, s, false, nullptr);

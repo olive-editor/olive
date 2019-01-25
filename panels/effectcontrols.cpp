@@ -53,7 +53,7 @@ EffectControls::EffectControls(QWidget *parent) :
 
 	lblMultipleClipsSelected->setVisible(false);
 
-    connect(keyframeView, SIGNAL(wheel_event_signal(QWheelEvent*)), effects_area, SLOT(receive_wheel_event(QWheelEvent*)));
+	connect(keyframeView, SIGNAL(wheel_event_signal(QWheelEvent*)), effects_area, SLOT(receive_wheel_event(QWheelEvent*)));
 	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
 	connect(horizontalScrollBar, SIGNAL(resize_move(double)), keyframeView, SLOT(resize_move(double)));
 	connect(horizontalScrollBar, SIGNAL(valueChanged(int)), keyframeView, SLOT(set_x_scroll(int)));
@@ -148,6 +148,15 @@ void EffectControls::copy(bool del) {
 
 void EffectControls::scroll_to_frame(long frame) {
 	scroll_to_frame_internal(horizontalScrollBar, frame, zoom, keyframeView->width());
+}
+
+void EffectControls::add_effect_paste_action(QMenu *menu) {
+	QAction* paste_action = menu->addAction(tr("&Paste"), panel_timeline, SLOT(paste(bool)));
+	paste_action->setEnabled(clipboard.size() > 0 && clipboard_type == CLIPBOARD_TYPE_EFFECT);
+}
+
+void EffectControls::cut() {
+	copy(true);
 }
 
 void EffectControls::show_effect_menu(int type, int subtype) {
@@ -291,6 +300,8 @@ void EffectControls::setup_ui() {
 	scrollAreaLayout->setMargin(0);
 
 	effects_area = new EffectsArea(scrollAreaWidgetContents);
+	effects_area->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(effects_area, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(effects_area_context_menu()));
 
 	QVBoxLayout* effects_area_layout = new QVBoxLayout(effects_area);
 	effects_area_layout->setSpacing(0);
@@ -441,17 +452,25 @@ void EffectControls::setup_ui() {
 
 	hlayout->addWidget(splitter);
 
-    setWidget(contents);
+	setWidget(contents);
 }
 
 void EffectControls::update_scrollbar() {
-    verticalScrollBar->setMaximum(qMax(0, effects_area->height() - keyframeView->height() - headers->height()));
-    verticalScrollBar->setPageStep(verticalScrollBar->height());
+	verticalScrollBar->setMaximum(qMax(0, effects_area->height() - keyframeView->height() - headers->height()));
+	verticalScrollBar->setPageStep(verticalScrollBar->height());
 }
 
 void EffectControls::queue_post_update() {
-    keyframeView->update();
-    update_scrollbar();
+	keyframeView->update();
+	update_scrollbar();
+}
+
+void EffectControls::effects_area_context_menu() {
+	QMenu menu(this);
+
+	add_effect_paste_action(&menu);
+
+	menu.exec(QCursor::pos());
 }
 
 void EffectControls::load_effects() {
@@ -484,7 +503,7 @@ void EffectControls::load_effects() {
 			keyframeView->setEnabled(true);
 			headers->setVisible(true);
 
-            QTimer::singleShot(50, this, SLOT(queue_post_update()));
+			QTimer::singleShot(50, this, SLOT(queue_post_update()));
 		}
 	}
 }
@@ -544,7 +563,7 @@ void EffectControls::audio_transition_click() {
 }
 
 void EffectControls::resizeEvent(QResizeEvent*) {
-    update_scrollbar();
+	update_scrollbar();
 }
 
 bool EffectControls::is_focused() {
@@ -569,5 +588,5 @@ EffectsArea::EffectsArea(QWidget* parent) :
 {}
 
 void EffectsArea::receive_wheel_event(QWheelEvent *e) {
-    QApplication::sendEvent(this, e);
+	QApplication::sendEvent(this, e);
 }

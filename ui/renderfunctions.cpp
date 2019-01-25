@@ -119,7 +119,8 @@ GLuint compose_sequence(Viewer* viewer,
 						bool render_audio,
 						Effect** gizmos,
 						bool& texture_failed,
-						bool rendering) {
+						bool rendering,
+						int playback_speed) {
 	GLint current_fbo = 0;
 	if (video) {
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
@@ -169,7 +170,7 @@ GLuint compose_sequence(Viewer* viewer,
 								}
 								clip_is_active = true;
 								if (c->track >= 0) audio_track_count++;
-							} else if (c->open) {
+							} else if (c->finished_opening) {
 								close_clip(c, false);
 							}
 						} else {
@@ -181,7 +182,7 @@ GLuint compose_sequence(Viewer* viewer,
 					if (is_clip_active(c, playhead)) {
 						if (!c->open) open_clip(c, !rendering);
 						clip_is_active = true;
-					} else if (c->open) {
+					} else if (c->finished_opening) {
 						close_clip(c, false);
 					}
 				}
@@ -238,7 +239,7 @@ GLuint compose_sequence(Viewer* viewer,
 							c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
 						}
-						get_clip_frame(c, playhead, texture_failed);
+						get_clip_frame(c, qMax(playhead, c->timeline_in), texture_failed);
 						textureID = c->texture->textureId();
 						break;
 					case MEDIA_TYPE_SEQUENCE:
@@ -258,6 +259,7 @@ GLuint compose_sequence(Viewer* viewer,
 						c->fbo = new QOpenGLFramebufferObject* [2];
 						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
 						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
+						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 
 					// clear fbos
@@ -267,6 +269,7 @@ GLuint compose_sequence(Viewer* viewer,
 					c->fbo[1]->bind();
 					glClear(GL_COLOR_BUFFER_BIT);
 					c->fbo[1]->release();*/
+
 
 					bool fbo_switcher = false;
 
@@ -284,7 +287,7 @@ GLuint compose_sequence(Viewer* viewer,
 						// for nested sequences
 						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
 							nests.append(c);
-							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);
+							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering, false);
 							nests.removeLast();
 							fbo_switcher = true;
 						}
@@ -351,20 +354,6 @@ GLuint compose_sequence(Viewer* viewer,
 					}
 					// EFFECT CODE END
 
-					/*if (!nests.isEmpty()) {
-						nests.last()->fbo[0]->bind();
-						glViewport(0, 0, s->width, s->height);
-					} else if (rendering) {
-						glViewport(0, 0, s->width, s->height);
-					} else {
-						int widget_width = width();
-						int widget_height = height();
-
-						widget_width *= QApplication::desktop()->devicePixelRatio();
-						widget_height *= QApplication::desktop()->devicePixelRatio();
-
-						glViewport(0, 0, widget_width, widget_height);
-					}*/
 					if (!nests.isEmpty()) {
 						nests.last()->fbo[0]->bind();
 					}
@@ -449,15 +438,15 @@ GLuint compose_sequence(Viewer* viewer,
 					motion_blur_prog++;*/
 				}
 			} else {
-				if (render_audio || (config.enable_audio_scrubbing && audio_scrub)) {
+				if (render_audio || (config.enable_audio_scrubbing && audio_scrub && seq->playhead > c->timeline_in)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 						nests.append(c);
-						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering);
+						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering, playback_speed);
 						nests.removeLast();
 					} else {
 						if (c->lock.tryLock()) {
 							// clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !render_audio, nests);
+							cache_clip(c, playhead, c->audio_reset, !render_audio, nests, playback_speed);
 							c->lock.unlock();
 						}
 					}
@@ -496,8 +485,8 @@ GLuint compose_sequence(Viewer* viewer,
 	return 0;
 }
 
-void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio) {
+void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio, int playback_speed) {
 	QVector<Clip*> nests;
 	bool texture_failed;
-	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering);
+	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering, playback_speed);
 }

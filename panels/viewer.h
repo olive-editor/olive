@@ -49,7 +49,7 @@ public:
 
 	// playback functions
 	void seek(long p);
-	void play();
+	void play(bool in_to_out = false);
 	void pause();
 	bool playing;
 	long playhead_start;
@@ -67,6 +67,8 @@ public:
 	void reset_all_audio();
 	void update_parents(bool reload_fx = false);
 
+	int get_playback_speed();
+
 	ViewerWidget* viewer_widget;
 
 	Media* media;
@@ -80,6 +82,8 @@ public slots:
 	void go_to_in();
 	void previous_frame();
 	void toggle_play();
+	void increase_speed();
+	void decrease_speed();
 	void next_frame();
 	void go_to_out();
 	void go_to_end();
@@ -100,8 +104,10 @@ private:
 	long cached_end_frame;
 	QString panel_name;
 	double minimum_zoom;
+	bool playing_in_to_out;
 	void set_zoom_value(double d);
 	void set_sb_max();
+	void set_playback_speed(int s);
 
 	long get_seq_in();
 	long get_seq_out();
@@ -126,6 +132,7 @@ private:
 	QTimer recording_flasher;
 
 	long previous_playhead;
+	int playback_speed;
 };
 
 #endif // VIEWER_H

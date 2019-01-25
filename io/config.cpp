@@ -45,10 +45,9 @@ Config::Config()
 	  upcoming_queue_size(0.5),
 	  upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
 	  loop(true),
-	  pause_at_out_point(true),
 	  seek_also_selects(false),
-      effect_textbox_lines(3),
-      use_software_fallback(false)
+	  effect_textbox_lines(3),
+	  use_software_fallback(false)
 {}
 
 void Config::load(QString path) {
@@ -158,9 +157,6 @@ void Config::load(QString path) {
 				} else if (stream.name() == "Loop") {
 					stream.readNext();
 					loop = (stream.text() == "1");
-				} else if (stream.name() == "PauseAtOutPoint") {
-					stream.readNext();
-					pause_at_out_point = (stream.text() == "1");
 				} else if (stream.name() == "SeekAlsoSelects") {
 					stream.readNext();
 					seek_also_selects = (stream.text() == "1");
@@ -170,10 +166,10 @@ void Config::load(QString path) {
 				} else if (stream.name() == "EffectTextboxLines") {
 					stream.readNext();
 					effect_textbox_lines = stream.text().toInt();
-                } else if (stream.name() == "UseSoftwareFallback") {
-                    stream.readNext();
-                    use_software_fallback = (stream.text() == "1");
-                }
+				} else if (stream.name() == "UseSoftwareFallback") {
+					stream.readNext();
+					use_software_fallback = (stream.text() == "1");
+				}
 			}
 		}
 		if (stream.hasError()) {
@@ -230,11 +226,10 @@ void Config::save(QString path) {
 	stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
 	stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
 	stream.writeTextElement("Loop", QString::number(loop));
-	stream.writeTextElement("PauseAtOutPoint", QString::number(pause_at_out_point));
 	stream.writeTextElement("SeekAlsoSelects", QString::number(seek_also_selects));
 	stream.writeTextElement("CSSPath", css_path);
-    stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
-    stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
+	stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
+	stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

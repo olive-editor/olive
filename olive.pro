@@ -132,7 +132,8 @@ SOURCES += \
     effects/internal/frei0reffect.cpp \
     project/effectloaders.cpp \
     io/crossplatformlib.cpp \
-    effects/internal/vsthost.cpp
+    effects/internal/vsthost.cpp \
+    ui/flowlayout.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -232,7 +233,8 @@ HEADERS += \
     effects/internal/frei0reffect.h \
     project/effectloaders.h \
     io/crossplatformlib.h \
-    effects/internal/vsthost.h
+    effects/internal/vsthost.h \
+    ui/flowlayout.h
 
 FORMS +=
 
@@ -242,7 +244,7 @@ win32 {
 }
 
 mac {
-    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -framework CoreFoundation
     ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
 }

@@ -27,8 +27,10 @@ public slots:
 	void notifyReceiver();
 private:
 	QVector<qint16> samples;
-	int send_audio_to_output(int offset, int max);
+	int send_audio_to_output(qint64 offset, int max);
 };
+
+double log_volume(double linear);
 
 extern QAudioOutput* audio_output;
 extern QIODevice* audio_io_device;
@@ -37,7 +39,7 @@ extern QMutex audio_write_lock;
 
 #define audio_ibuffer_size 192000
 extern qint8 audio_ibuffer[audio_ibuffer_size];
-extern unsigned long audio_ibuffer_read;
+extern qint64 audio_ibuffer_read;
 extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
@@ -51,7 +53,7 @@ bool is_audio_device_set();
 
 void init_audio();
 void stop_audio();
-unsigned long get_buffer_offset_from_frame(double framerate, long frame);
+qint64 get_buffer_offset_from_frame(double framerate, long frame);
 
 bool start_recording();
 void stop_recording();

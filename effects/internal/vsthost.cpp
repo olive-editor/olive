@@ -1,6 +1,6 @@
 #include "vsthost.h"
 
-#ifdef _WIN32
+#ifndef NOVST
 
 // adapted from http://teragonaudio.com/article/How-to-make-your-own-VST-host.html
 
@@ -9,18 +9,33 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QXmlStreamWriter>
+#include <QWindow>
 
 #include "playback/audio.h"
 #include "mainwindow.h"
 #include "debug.h"
 
+#ifdef __linux__
+#include <X11/X.h>
+#endif
+
 #define BLOCK_SIZE 512
 #define CHANNEL_COUNT 2
+
+struct VSTRect {
+	int16_t top;
+	int16_t left;
+	int16_t bottom;
+	int16_t right;
+};
+
+#define effGetChunk 23
+#define effSetChunk 24
 
 // C callbacks
 extern "C" {
 	// Main host callback
-	VstIntPtr VSTCALLBACK hostCallback(AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void* ptr, float opt) {
+	intptr_t hostCallback(AEffect* effect, int32_t opcode, int32_t index, intptr_t value, void* ptr, float opt) {
 		switch(opcode) {
 		case audioMasterVersion:
 			return 2400;
@@ -29,7 +44,7 @@ extern "C" {
 			break;
 		case audioMasterGetCurrentProcessLevel:
 			return 0;
-		// Handle other opcodes here... there will be lots of them
+		// handle other opcodes here... there will be lots of them
 		case audioMasterEndEdit: // change made
 			mainWindow->setWindowModified(true);
 			break;
@@ -44,33 +59,70 @@ extern "C" {
 // Plugin's entry point
 typedef AEffect *(*vstPluginFuncPtr)(audioMasterCallback host);
 // Plugin's getParameter() method
-typedef float (*getParameterFuncPtr)(AEffect *effect, VstInt32 index);
+typedef float (*getParameterFuncPtr)(AEffect *effect, int32_t index);
 // Plugin's setParameter() method
-typedef void (*setParameterFuncPtr)(AEffect *effect, VstInt32 index, float value);
+typedef void (*setParameterFuncPtr)(AEffect *effect, int32_t index, float value);
 // Plugin's processEvents() method
-typedef VstInt32 (*processEventsFuncPtr)(VstEvents *events);
+typedef int32_t (*processEventsFuncPtr)(VstEvents *events);
 // Plugin's process() method
-typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs, VstInt32 sampleFrames);
+typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs, int32_t sampleFrames);
 
 void VSTHost::loadPlugin() {
 	QString dll_fn = file_field->get_filename(0, true);
 
+#if defined(__APPLE__)
+	bundle = BundleLoad(dll_fn);
+
+	if (bundle == NULL) {
+		QMessageBox::critical(nullptr, tr("Error loading VST plugin"), tr("Failed to create VST reference"));
+		return;
+	}
+
+	vstPluginFuncPtr mainEntryPoint = NULL;
+	mainEntryPoint = (vstPluginFuncPtr)CFBundleGetFunctionPointerForName(bundle, CFSTR("VSTPluginMain"));
+	// VST plugins previous to the 2.4 SDK used main_macho for the entry point name
+	if(mainEntryPoint == NULL) {
+		mainEntryPoint = (vstPluginFuncPtr)CFBundleGetFunctionPointerForName(bundle, CFSTR("main_macho"));
+	}
+	if(mainEntryPoint == NULL) {
+		qCritical() << "Couldn't get a pointer to VST plugin's main()";
+		BundleClose(bundle);
+		return;
+	}
+
+	plugin = mainEntryPoint(hostCallback);
+	if(plugin == NULL) {
+		qCritical() << "Plugin's main() returns null";
+		BundleClose(bundle);
+		return;
+	}
+#else
 	modulePtr = LibLoad(dll_fn);
 	if(modulePtr == nullptr) {
-		DWORD dll_err = GetLastError();
-		qCritical() << "Failed to load VST" << dll_fn << "-" << dll_err;
+		QString dll_error;
 
 #ifdef _WIN32
-		QString msg_err = tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, QString::number(dll_err));
+		DWORD dll_err = GetLastError();
+		dll_error = QString::number(dll_err);
+#elif __linux__
+		dll_error = dlerror();
+#endif
+		qCritical() << "Failed to load VST plugin" << dll_fn << "-" << dll_error;
+
+		QString msg_err = tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, dll_error);
+
+#ifdef _WIN32
 		if (dll_err == 193) {
 #ifdef _WIN64
 			msg_err += "\n\n" + tr("NOTE: You can't load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.");
 #elif _WIN32
 			msg_err += "\n\n" + tr("NOTE: You can't load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
 #endif
-#endif
 		}
-		QMessageBox::critical(mainWindow, tr("Error loading VST plugin"), msg_err);
+#endif
+
+		QMessageBox::critical(nullptr, tr("Error loading VST plugin"), msg_err);
+
 		return;
 	}
 
@@ -78,12 +130,18 @@ void VSTHost::loadPlugin() {
 	reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
 	// Instantiate the plugin
 	plugin = mainEntryPoint(hostCallback);
+#endif
 }
 
 void VSTHost::freePlugin() {
 	if (plugin != nullptr) {
 		stopPlugin();
+#if defined(__APPLE__)
+		CFBundleUnloadExecutable(bundle);
+		CFRelease(bundle);
+#else
 		LibClose(modulePtr);
+#endif
 		plugin = nullptr;
 	}
 }
@@ -225,7 +283,7 @@ void VSTHost::custom_load(QXmlStreamReader &stream) {
 		stream.readNext();
 		QByteArray b = QByteArray::fromBase64(stream.text().toUtf8());
 		if (plugin != nullptr) {
-			dispatcher(plugin, effSetChunk, 0, VstInt32(b.size()), static_cast<void*>(b.data()), 0);
+			dispatcher(plugin, effSetChunk, 0, int32_t(b.size()), static_cast<void*>(b.data()), 0);
 		}
 	}
 }
@@ -234,14 +292,26 @@ void VSTHost::save(QXmlStreamWriter &stream) {
 	Effect::save(stream);
 	if (plugin != nullptr) {
 		char* p = nullptr;
-		VstInt32 length = VstInt32(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));
+		int32_t length = int32_t(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));
 		QByteArray b(p, length);
 		stream.writeTextElement("plugindata", b.toBase64());
 	}
 }
 
 void VSTHost::show_interface(bool show) {
-	dialog->setVisible(show);
+    dialog->setVisible(show);
+
+    if (show) {
+#if defined(_WIN32)
+        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
+#elif defined(__APPLE__)
+        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
+#elif defined(__linux__)
+        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
+#endif
+    } else {
+        dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
+    }
 }
 
 void VSTHost::uncheck_show_button() {
@@ -254,13 +324,17 @@ void VSTHost::change_plugin() {
 	if (plugin != nullptr) {
 		if (configurePluginCallbacks()) {
 			startPlugin();
-			dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->winId()), 0);
-			ERect* eRect = nullptr;
+			VSTRect* eRect = nullptr;
 			plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
 			dialog->setFixedWidth(eRect->right);
 			dialog->setFixedHeight(eRect->bottom);
 		} else {
+#ifdef __APPLE__
+			CFBundleUnloadExecutable(bundle);
+			CFRelease(bundle);
+#else
 			LibClose(modulePtr);
+#endif
 			plugin = nullptr;
 		}
 	}

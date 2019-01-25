@@ -59,7 +59,6 @@ struct Config {
 	double upcoming_queue_size;
 	int upcoming_queue_type;
 	bool loop;
-	bool pause_at_out_point;
 	bool seek_also_selects;
 	QString css_path;
 	int effect_textbox_lines;

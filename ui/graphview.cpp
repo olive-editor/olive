@@ -708,8 +708,6 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
 }
 
 void GraphView::wheelEvent(QWheelEvent *event) {
-	dout << x_scroll << y_scroll;
-
 	bool redraw = false;
 	bool shift = (event->modifiers() & Qt::ShiftModifier); // scroll instead of zoom
 

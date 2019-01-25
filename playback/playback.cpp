@@ -61,10 +61,13 @@ void open_clip(Clip* clip, bool multithreaded) {
 		}
 	} else {
 		clip->open = true;
+		clip->finished_opening = true;
 	}
 }
 
 void close_clip(Clip* clip, bool wait) {
+	clip->finished_opening = false;
+
 	// destroy opengl texture in main thread
 	if (clip->texture != nullptr) {
 		delete clip->texture;
@@ -94,25 +97,28 @@ void close_clip(Clip* clip, bool wait) {
 			close_clip_worker(clip);
 		}
 	} else {
-		if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_SEQUENCE)
+		if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 			closeActiveClips(clip->media->to_sequence());
+		}
 
 		clip->open = false;
 	}
 }
 
-void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*>& nests) {
+void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*>& nests, int playback_speed) {
 	if (clip_uses_cacher(clip)) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
 			clip->cacher->reset = reset;
 			clip->cacher->nests = nests;
 			clip->cacher->scrubbing = scrubbing;
+			clip->cacher->playback_speed = playback_speed;
+			clip->cacher->queued = true;
 			if (reset && clip->queue.size() > 0) clip->cacher->interrupt = true;
 
 			clip->can_cache.wakeAll();
 		} else {
-			cache_clip_worker(clip, playhead, reset, scrubbing, nests);
+			cache_clip_worker(clip, playhead, reset, scrubbing, nests, playback_speed);
 		}
 	}
 }
@@ -260,13 +266,13 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 			uint8_t* data_buffer_1 = target_frame->data[0];
 			uint8_t* data_buffer_2 = nullptr;
 
-			int frame_size;
+			size_t frame_size;
 
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
 				if (e->enable_image && e->is_enabled()) {
 					if (data_buffer_1 == target_frame->data[0]) {
-						frame_size = target_frame->linesize[0]*target_frame->height;
+						frame_size = size_t(target_frame->linesize[0])*size_t(target_frame->height);
 
 						data_buffer_1 = new uint8_t[frame_size];
 						data_buffer_2 = new uint8_t[frame_size];
@@ -278,7 +284,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 				}
 			}
 
-			c->texture->setData(0, get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, using_db_1 ? data_buffer_1 : data_buffer_2);
+			c->texture->setData(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
 
 			if (data_buffer_1 != target_frame->data[0]) {
 				delete [] data_buffer_1;
@@ -292,7 +298,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 
 		// get more frames
 		QVector<Clip*> empty;
-		if (cache) cache_clip(c, playhead, reset, false, empty);
+		if (cache) cache_clip(c, playhead, reset, false, empty, false);
 	}
 }
 
@@ -385,8 +391,8 @@ void closeActiveClips(Sequence *s) {
 			if (c != nullptr) {
 				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 					closeActiveClips(c->media->to_sequence());
-					if (c->open) close_clip(c, true);
-				} else if (c->open) {
+					if (c->finished_opening) close_clip(c, true);
+				} else if (c->finished_opening) {
 					close_clip(c, true);
 				}
 			}

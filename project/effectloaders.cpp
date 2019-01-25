@@ -34,7 +34,7 @@ void load_internal_effects() {
 	em.internal = EFFECT_INTERNAL_PAN;
 	effects.append(em);
 
-#ifdef _WIN32
+#ifndef NOVST
 	em.name = "VST Plugin 2.x";
 	em.internal = EFFECT_INTERNAL_VST;
 	effects.append(em);
@@ -213,6 +213,9 @@ void load_frei0r_effects() {
 	effect_dirs.prepend("/usr/local/lib/frei0r-1");
 	effect_dirs.prepend(QDir::homePath() + "/.frei0r-1/lib");
 #endif
+
+	QString env_path(qgetenv("FREI0R_PATH"));
+	if (!env_path.isEmpty()) effect_dirs.append(env_path);
 
 	QVector<QString> loaded_names;
 

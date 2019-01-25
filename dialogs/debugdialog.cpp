@@ -2,6 +2,7 @@
 
 #include <QTextEdit>
 #include <QVBoxLayout>
+#include <QScrollBar>
 
 #include "debug.h"
 
@@ -20,6 +21,7 @@ DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
 
 void DebugDialog::update_log() {
 	textEdit->setHtml(get_debug_str());
+	textEdit->verticalScrollBar()->setValue(textEdit->verticalScrollBar()->maximum());
 }
 
 void DebugDialog::showEvent(QShowEvent *) {

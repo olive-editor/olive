@@ -351,7 +351,7 @@ void ExportThread::run() {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
 		if (audio_enabled) {
-			compose_audio(nullptr, sequence, true);
+			compose_audio(nullptr, sequence, true, false);
 		}
 		if (video_enabled) {
 			do {
@@ -489,7 +489,7 @@ void ExportThread::run() {
 }
 
 void ExportThread::wake() {
-    mutex.lock();
+	mutex.lock();
 	waitCond.wakeAll();
-    mutex.unlock();
+	mutex.unlock();
 }

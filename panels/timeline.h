@@ -78,9 +78,8 @@ public:
 	bool focused();
 	void set_zoom(bool in);
 	void copy(bool del);
-	void paste(bool insert);
-	Clip* split_clip(ComboAction* ca, int p, long frame);
-	Clip* split_clip(ComboAction* ca, int p, long frame, long post_in);
+	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame);
+	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
 	bool split_selection(ComboAction* ca);
 	bool split_all_clips_at_point(ComboAction *ca, long point);
 	bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
@@ -207,6 +206,7 @@ public:
 
 	void resizeEvent(QResizeEvent *event);
 public slots:
+	void paste(bool insert = false);
 	void repaint_timeline();
 	void toggle_show_all();
 	void deselect();
@@ -231,7 +231,6 @@ private:
 	QVector<QPushButton*> tool_buttons;
 	void decheck_tool_buttons(QObject* sender);
 	void set_tool(int tool);
-	long last_frame;
 	int scroll;
 	void set_sb_max();
 
@@ -249,6 +248,7 @@ private:
 	QPushButton* zoomOutButton;
 	QPushButton* recordButton;
 	QPushButton* addButton;
+	QWidget* tool_button_widget;
 };
 
 #endif // TIMELINE_H

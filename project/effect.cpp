@@ -16,6 +16,7 @@
 #include "io/path.h"
 #include "mainwindow.h"
 #include "io/math.h"
+#include "io/clipboard.h"
 #include "transition.h"
 
 #include "effects/internal/transformeffect.h"
@@ -28,7 +29,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
-#ifdef _WIN32
+#ifndef NOVST
 #include "effects/internal/vsthost.h"
 #endif
 #include "effects/internal/fillleftrighteffect.h"
@@ -64,7 +65,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
 		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
 		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
-#ifdef _WIN32
+#ifndef NOVST
 		case EFFECT_INTERNAL_VST: return new VSTHost(c, em);
 #endif
 #ifndef NOFREI0R
@@ -377,20 +378,24 @@ void Effect::show_context_menu(const QPoint& pos) {
 
 		int index = get_index_in_clip();
 
+		menu.addAction(tr("Cu&t"), panel_effect_controls, SLOT(cut()));
+		menu.addAction(tr("&Copy"), panel_effect_controls, SLOT(copy(bool)));
+
+		panel_effect_controls->add_effect_paste_action(&menu);
+
+		menu.addSeparator();
+
 		if (index > 0) {
-			QAction* move_up = menu.addAction(tr("Move &Up"));
-			connect(move_up, SIGNAL(triggered(bool)), this, SLOT(move_up()));
+			menu.addAction(tr("Move &Up"), this, SLOT(move_up()));
 		}
 
 		if (index < parent_clip->effects.size() - 1) {
-			QAction* move_down = menu.addAction(tr("Move &Down"));
-			connect(move_down, SIGNAL(triggered(bool)), this, SLOT(move_down()));
+			menu.addAction(tr("Move &Down"), this, SLOT(move_down()));
 		}
 
 		menu.addSeparator();
 
-		QAction* del_action = menu.addAction(tr("D&elete"));
-		connect(del_action, SIGNAL(triggered(bool)), this, SLOT(delete_self()));
+		menu.addAction(tr("D&elete"), this, SLOT(delete_self()));
 
 		menu.exec(container->title_bar->mapToGlobal(pos));
 	}
@@ -693,7 +698,7 @@ void Effect::startEffect() {
 
 void Effect::endEffect() {
 	if (bound) glslProgram->release();
-    bound = false;
+	bound = false;
 }
 
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
@@ -911,9 +916,4 @@ qint16 mix_audio_sample(qint16 a, qint16 b) {
 	qint32 mixed_sample = static_cast<qint32>(a) + static_cast<qint32>(b);
 	mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
 	return static_cast<qint16>(mixed_sample);
-}
-
-double log_volume(double linear) {
-	// expects a value between 0 and 1 (or more if amplifying)
-	return (qExp(linear)-1)/(M_E-1);
 }
