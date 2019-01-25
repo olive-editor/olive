@@ -335,6 +335,9 @@ GLuint compose_sequence(Viewer* viewer,
 
 					glBegin(GL_QUADS);
 
+					QOpenGLShaderProgram program;
+					program.bind();
+
 					if (coords.grid_size <= 1) {
 						float z = 0.0f;
 
@@ -378,6 +381,8 @@ GLuint compose_sequence(Viewer* viewer,
 							}
 						}
 					}
+
+					program.release();
 
 					glEnd();
 
