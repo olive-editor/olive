@@ -28,9 +28,6 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-//#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
-#define GL_DEFAULT_BLEND glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE)
-
 GLuint draw_clip(QOpenGLContext* ctx, QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 	glPushMatrix();
 	glLoadIdentity();
@@ -42,15 +39,6 @@ GLuint draw_clip(QOpenGLContext* ctx, QOpenGLFramebufferObject* fbo, GLuint text
 	fbo->bind();
 
 	if (clear) glClear(GL_COLOR_BUFFER_BIT);
-
-	// get current blend mode
-	GLint src_rgb, src_alpha, dst_rgb, dst_alpha;
-	glGetIntegerv(GL_BLEND_SRC_RGB, &src_rgb);
-	glGetIntegerv(GL_BLEND_SRC_ALPHA, &src_alpha);
-	glGetIntegerv(GL_BLEND_DST_RGB, &dst_rgb);
-	glGetIntegerv(GL_BLEND_DST_ALPHA, &dst_alpha);
-
-	ctx->functions()->GL_DEFAULT_BLEND;
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
@@ -65,13 +53,7 @@ GLuint draw_clip(QOpenGLContext* ctx, QOpenGLFramebufferObject* fbo, GLuint text
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-//	fbo->release();
 	ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
-
-	// restore previous blendFunc
-	ctx->functions()->glBlendFuncSeparate(src_rgb, dst_rgb, src_alpha, dst_alpha);
-
-	//if (default_fbo != nullptr) default_fbo->bind();
 
 	glPopMatrix();
 	return fbo->texture();
@@ -139,7 +121,6 @@ GLuint compose_sequence(Viewer* viewer,
 		if (video && nests.last()->fbo != nullptr) {
 			nests.last()->fbo[0]->bind();
 			glClear(GL_COLOR_BUFFER_BIT);
-//			nests.last()->fbo[0]->release();
 			ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 		}
 	}
@@ -153,7 +134,6 @@ GLuint compose_sequence(Viewer* viewer,
 
 		// if clip starts within one second and/or hasn't finished yet
 		if (c != nullptr) {
-//			if (!(!nests.isEmpty() && !same_sign(c->track, nests.last()->track))) {
 			if ((c->track < 0) == video) {
 				bool clip_is_active = false;
 
@@ -220,7 +200,6 @@ GLuint compose_sequence(Viewer* viewer,
 			texture_failed = true;
 		} else {
 			if (c->track < 0) {
-				ctx->functions()->GL_DEFAULT_BLEND;
 				glColor4f(1.0, 1.0, 1.0, 1.0);
 
 				GLuint textureID = 0;
@@ -262,15 +241,6 @@ GLuint compose_sequence(Viewer* viewer,
 						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 
-					// clear fbos
-					/*c->fbo[0]->bind();
-					glClear(GL_COLOR_BUFFER_BIT);
-					c->fbo[0]->release();
-					c->fbo[1]->bind();
-					glClear(GL_COLOR_BUFFER_BIT);
-					c->fbo[1]->release();*/
-
-
 					bool fbo_switcher = false;
 
 					glViewport(0, 0, video_width, video_height);
@@ -280,7 +250,6 @@ GLuint compose_sequence(Viewer* viewer,
 					if (c->media == nullptr) {
 						c->fbo[fbo_switcher]->bind();
 						glClear(GL_COLOR_BUFFER_BIT);
-//						c->fbo[fbo_switcher]->release();
 						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 						composite_texture = c->fbo[fbo_switcher]->texture();
 					} else {
@@ -428,14 +397,6 @@ GLuint compose_sequence(Viewer* viewer,
 					}
 
 					glPopMatrix();
-
-					/*GLfloat motion_blur_frac = (GLfloat) motion_blur_prog / (GLfloat) motion_blur_lim;
-					if (motion_blur_prog == 0) {
-						glAccum(GL_LOAD, motion_blur_frac);
-					} else {
-						glAccum(GL_ACCUM, motion_blur_frac);
-					}
-					motion_blur_prog++;*/
 				}
 			} else {
 				if (render_audio || (config.enable_audio_scrubbing && audio_scrub && seq->playhead > c->timeline_in)) {
