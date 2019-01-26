@@ -515,7 +515,7 @@ void Timeline::delete_in_out(bool ripple) {
 			areas.append(s);
 		}
 		ComboAction* ca = new ComboAction();
-		delete_areas_and_relink(ca, areas);
+		delete_areas_and_relink(ca, areas, true);
 		if (ripple) ripple_clips(ca, sequence, sequence->workarea_in, sequence->workarea_in - sequence->workarea_out);
 		ca->append(new SetTimelineInOutCommand(sequence, false, 0, 0));
 		undo_stack.push(ca);
@@ -529,7 +529,7 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 
 		ComboAction* ca = new ComboAction();
 
-		delete_areas_and_relink(ca, selections);
+		delete_areas_and_relink(ca, selections, true);
 
 		if (ripple_delete) {
 			long ripple_point = selections.at(0).in;
@@ -807,7 +807,7 @@ bool selection_contains_transition(const Selection& s, Clip* c, int type) {
 	}
 }
 
-void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas) {
+void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas, bool deselect_areas) {
 	clean_up_selections(areas);
 	panel_effect_controls->clear_effects(true);
 
@@ -864,10 +864,12 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
 	}
 
 	// deselect selected clip areas
-	QVector<Selection> area_copy = areas;
-	for (int i=0;i<area_copy.size();i++) {
-		const Selection& s = area_copy.at(i);
-		deselect_area(s.in, s.out, s.track);
+	if (deselect_areas) {
+		QVector<Selection> area_copy = areas;
+		for (int i=0;i<area_copy.size();i++) {
+			const Selection& s = area_copy.at(i);
+			deselect_area(s.in, s.out, s.track);
+		}
 	}
 
 	relink_clips_using_ids(pre_clips, post_clips);
@@ -992,7 +994,7 @@ void Timeline::paste(bool insert) {
 				split_all_clips_at_point(ca, sequence->playhead);
 				ripple_clips(ca, sequence, paste_start, paste_end - paste_start);
 			} else {
-				delete_areas_and_relink(ca, delete_areas);
+				delete_areas_and_relink(ca, delete_areas, false);
 			}
 
 			// correct linked clips
@@ -1160,7 +1162,7 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 						}
 
 						// trim and move clips around the in point
-						delete_areas_and_relink(ca, areas);
+						delete_areas_and_relink(ca, areas, true);
 
 						if (ripple) ripple_clips(ca, sequence, in_point, -1);
 					} else {
@@ -1185,7 +1187,7 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 					}
 
 					// trim and move clips around the in point
-					delete_areas_and_relink(ca, areas);
+					delete_areas_and_relink(ca, areas, true);
 					if (ripple) ripple_clips(ca, sequence, s.in, s.in - s.out);
 				}
 			}
@@ -1225,6 +1227,11 @@ bool Timeline::split_selection(ComboAction* ca) {
 					pre_splits.append(j);
 					post_splits.append(post_a);
 					secondary_post_splits.append(post_b);
+
+					if (post_a != nullptr) {
+						post_a->timeline_out = qMin(post_a->timeline_out, s.out);
+					}
+
 					split = true;
 				}
 			}
@@ -1235,9 +1242,6 @@ bool Timeline::split_selection(ComboAction* ca) {
 		// relink after splitting
 		relink_clips_using_ids(pre_splits, post_splits);
 		relink_clips_using_ids(pre_splits, secondary_post_splits);
-
-		post_splits.removeAll(nullptr);
-		secondary_post_splits.removeAll(nullptr);
 
 		ca->append(new AddClipCommand(sequence, post_splits));
 		ca->append(new AddClipCommand(sequence, secondary_post_splits));
