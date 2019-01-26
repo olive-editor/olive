@@ -7,6 +7,7 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLShaderProgram>
 
 struct Sequence;
 class Effect;
@@ -22,7 +23,7 @@ public:
 	GLuint texColorBuffer;
 	Effect* gizmos;
 	void paint();
-	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0, bool itemp_reverse = false);
+	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
 	bool did_texture_fail();
 	void cancel();
 
@@ -35,11 +36,13 @@ private:
 	// cleanup functions
 	void delete_texture();
 	void delete_fbo();
+	void delete_shader_program();
 
 	QWaitCondition waitCond;
 	QOffscreenSurface surface;
 	QOpenGLContext* share_ctx;
 	QOpenGLContext* ctx;
+	QOpenGLShaderProgram* blend_mode_program;
 	Sequence* seq;
 	int divider;
 	int tex_width;
@@ -47,7 +50,6 @@ private:
 	bool queued;
 	bool texture_failed;
 	bool running;
-	bool temp_reverse;
 	QString save_fn;
 	GLvoid *pixel_buffer;
 };

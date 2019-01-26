@@ -134,7 +134,7 @@ struct GLTextureCoords {
 	float textureBottomLeftQ;
 
 	int blendmode;
-	double opacity;
+	float opacity;
 };
 
 qint16 mix_audio_sample(qint16 a, qint16 b);

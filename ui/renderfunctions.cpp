@@ -93,35 +93,26 @@ void process_effect(QOpenGLContext* ctx,
 	}
 }
 
-GLuint compose_sequence(Viewer* viewer,
-						QOpenGLContext* ctx,
-						Sequence* seq,
-						QVector<Clip*>& nests,
-						bool video,
-						bool render_audio,
-						Effect** gizmos,
-						bool& texture_failed,
-						bool rendering,
-						int playback_speed) {
+GLuint compose_sequence(ComposeSequenceParams &params) {
 	GLint current_fbo = 0;
-	if (video) {
+	if (params.video) {
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
 	}
 
-	Sequence* s = seq;
+	Sequence* s = params.seq;
 	long playhead = s->playhead;
 
-	if (!nests.isEmpty()) {
-		for (int i=0;i<nests.size();i++) {
-			s = nests.at(i)->media->to_sequence();
-			playhead += nests.at(i)->clip_in - nests.at(i)->get_timeline_in_with_transition();
-			playhead = refactor_frame_number(playhead, nests.at(i)->sequence->frame_rate, s->frame_rate);
+	if (!params.nests.isEmpty()) {
+		for (int i=0;i<params.nests.size();i++) {
+			s = params.nests.at(i)->media->to_sequence();
+			playhead += params.nests.at(i)->clip_in - params.nests.at(i)->get_timeline_in_with_transition();
+			playhead = refactor_frame_number(playhead, params.nests.at(i)->sequence->frame_rate, s->frame_rate);
 		}
 
-		if (video && nests.last()->fbo != nullptr) {
-			nests.last()->fbo[0]->bind();
+		if (params.video && params.nests.last()->fbo != nullptr) {
+			params.nests.last()->fbo[0]->bind();
 			glClear(GL_COLOR_BUFFER_BIT);
-			ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
+			params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 		}
 	}
 
@@ -134,7 +125,7 @@ GLuint compose_sequence(Viewer* viewer,
 
 		// if clip starts within one second and/or hasn't finished yet
 		if (c != nullptr) {
-			if ((c->track < 0) == video) {
+			if ((c->track < 0) == params.video) {
 				bool clip_is_active = false;
 
 				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
@@ -146,7 +137,7 @@ GLuint compose_sequence(Viewer* viewer,
 								// if thread is already working, we don't want to touch this,
 								// but we also don't want to hang the UI thread
 								if (!c->open) {
-									open_clip(c, !rendering);
+									open_clip(c, !params.rendering);
 								}
 								clip_is_active = true;
 								if (c->track >= 0) audio_track_count++;
@@ -155,12 +146,12 @@ GLuint compose_sequence(Viewer* viewer,
 							}
 						} else {
 							//qWarning() << "Media '" + m->name + "' was not ready, retrying...";
-							texture_failed = true;
+							params.texture_failed = true;
 						}
 					}
 				} else {
 					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !rendering);
+						if (!c->open) open_clip(c, !params.rendering);
 						clip_is_active = true;
 					} else if (c->finished_opening) {
 						close_clip(c, false);
@@ -186,7 +177,7 @@ GLuint compose_sequence(Viewer* viewer,
 	int half_width = s->width/2;
 	int half_height = s->height/2;
 
-	if (video) {
+	if (params.video) {
 		glPushMatrix();
 		glLoadIdentity();
 		glOrtho(-half_width, half_width, -half_height, half_height, -1, 10);
@@ -197,7 +188,7 @@ GLuint compose_sequence(Viewer* viewer,
 
 		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
 			qWarning() << "Tried to display clip" << i << "but it's closed";
-			texture_failed = true;
+			params.texture_failed = true;
 		} else {
 			if (c->track < 0) {
 				glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -218,7 +209,7 @@ GLuint compose_sequence(Viewer* viewer,
 							c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
 						}
-						get_clip_frame(c, qMax(playhead, c->timeline_in), texture_failed);
+						get_clip_frame(c, qMax(playhead, c->timeline_in), params.texture_failed);
 						textureID = c->texture->textureId();
 						break;
 					case MEDIA_TYPE_SEQUENCE:
@@ -229,7 +220,7 @@ GLuint compose_sequence(Viewer* viewer,
 
 				if (textureID == 0 && c->media != nullptr) {
 					qWarning() << "Texture hasn't been created yet";
-					texture_failed = true;
+					params.texture_failed = true;
 				} else if (playhead >= c->get_timeline_in_with_transition()) {
 					glPushMatrix();
 
@@ -238,7 +229,7 @@ GLuint compose_sequence(Viewer* viewer,
 						c->fbo = new QOpenGLFramebufferObject* [2];
 						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
 						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
-						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 
 					bool fbo_switcher = false;
@@ -250,18 +241,18 @@ GLuint compose_sequence(Viewer* viewer,
 					if (c->media == nullptr) {
 						c->fbo[fbo_switcher]->bind();
 						glClear(GL_COLOR_BUFFER_BIT);
-						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 						composite_texture = c->fbo[fbo_switcher]->texture();
 					} else {
 						// for nested sequences
 						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
-							nests.append(c);
-							textureID = compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering, false);
-							nests.removeLast();
+							params.nests.append(c);
+							textureID = compose_sequence(params);
+							params.nests.removeLast();
 							fbo_switcher = true;
 						}
 
-						composite_texture = draw_clip(ctx, c->fbo[fbo_switcher], textureID, true);
+						composite_texture = draw_clip(params.ctx, c->fbo[fbo_switcher], textureID, true);
 					}
 
 					fbo_switcher = !fbo_switcher;
@@ -294,7 +285,7 @@ GLuint compose_sequence(Viewer* viewer,
 
 					for (int j=0;j<c->effects.size();j++) {
 						Effect* e = c->effects.at(j);
-						process_effect(ctx, c, e, timecode, coords, composite_texture, fbo_switcher, texture_failed, TA_NO_TRANSITION);
+						process_effect(params.ctx, c, e, timecode, coords, composite_texture, fbo_switcher, params.texture_failed, TA_NO_TRANSITION);
 
 						if (e->are_gizmos_enabled()) {
 							if (first_gizmo_effect == nullptr) first_gizmo_effect = e;
@@ -303,28 +294,28 @@ GLuint compose_sequence(Viewer* viewer,
 					}
 
 					if (selected_effect != nullptr) {
-						(*gizmos) = selected_effect;
+						(*params.gizmos) = selected_effect;
 					} else if (is_clip_selected(c, true)) {
-						(*gizmos) = first_gizmo_effect;
+						(*params.gizmos) = first_gizmo_effect;
 					}
 
 					if (c->get_opening_transition() != nullptr) {
 						int transition_progress = playhead - c->get_timeline_in_with_transition();
 						if (transition_progress < c->get_opening_transition()->get_length()) {
-							process_effect(ctx, c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, texture_failed, TA_OPENING_TRANSITION);
+							process_effect(params.ctx, c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, params.texture_failed, TA_OPENING_TRANSITION);
 						}
 					}
 
 					if (c->get_closing_transition() != nullptr) {
 						int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
 						if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
-							process_effect(ctx, c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, texture_failed, TA_CLOSING_TRANSITION);
+							process_effect(params.ctx, c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, params.texture_failed, TA_CLOSING_TRANSITION);
 						}
 					}
 					// EFFECT CODE END
 
-					if (!nests.isEmpty()) {
-						nests.last()->fbo[0]->bind();
+					if (!params.nests.isEmpty()) {
+						params.nests.last()->fbo[0]->bind();
 					}
 					glViewport(0, 0, s->width, s->height);
 
@@ -333,10 +324,16 @@ GLuint compose_sequence(Viewer* viewer,
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-					glBegin(GL_QUADS);
+					// get current color attachment from framebuffer
+					GLint texture_id;
+					params.ctx->functions()->glGetFramebufferAttachmentParameteriv(GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture_id);
 
-					QOpenGLShaderProgram program;
-					program.bind();
+					params.blend_mode_program->bind();
+					params.blend_mode_program->setUniformValue("blend_mode", coords.blendmode);
+					params.blend_mode_program->setUniformValue("opacity", coords.opacity);
+//					blend_mode_program->setUniformValue("background", texture_id);
+
+					glBegin(GL_QUADS);
 
 					if (coords.grid_size <= 1) {
 						float z = 0.0f;
@@ -382,44 +379,44 @@ GLuint compose_sequence(Viewer* viewer,
 						}
 					}
 
-					program.release();
-
 					glEnd();
+
+					params.blend_mode_program->release();
 
 					glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
 
 					// prepare gizmos
-					if ((*gizmos) != nullptr
-							&& nests.isEmpty()
-							&& ((*gizmos) == first_gizmo_effect
-							|| (*gizmos) == selected_effect)) {
-						(*gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
-						(*gizmos)->gizmo_world_to_screen(); // convert gizmo coords to screen coords
+					if ((*params.gizmos) != nullptr
+							&& params.nests.isEmpty()
+							&& ((*params.gizmos) == first_gizmo_effect
+							|| (*params.gizmos) == selected_effect)) {
+						(*params.gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
+						(*params.gizmos)->gizmo_world_to_screen(); // convert gizmo coords to screen coords
 					}
 
-					if (!nests.isEmpty()) {
-						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
+					if (!params.nests.isEmpty()) {
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 
 					glPopMatrix();
 				}
 			} else {
-				if (render_audio || (config.enable_audio_scrubbing && audio_scrub && seq->playhead > c->timeline_in)) {
+				if (params.render_audio || (config.enable_audio_scrubbing && audio_scrub && params.seq->playhead > c->timeline_in)) {
 					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
-						nests.append(c);
-						compose_sequence(viewer, ctx, seq, nests, video, render_audio, gizmos, texture_failed, rendering, playback_speed);
-						nests.removeLast();
+						params.nests.append(c);
+						compose_sequence(params);
+						params.nests.removeLast();
 					} else {
 						if (c->lock.tryLock()) {
 							// clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !render_audio, nests, playback_speed);
+							cache_clip(c, playhead, c->audio_reset, !params.render_audio, params.nests, params.playback_speed);
 							c->lock.unlock();
 						}
 					}
 				}
 
 				// visually update all the keyframe values
-				if (c->sequence == seq) { // only if you can currently see them
+				if (c->sequence == params.seq) { // only if you can currently see them
 					double ts = (playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition())/s->frame_rate;
 					for (int i=0;i<c->effects.size();i++) {
 						Effect* e = c->effects.at(i);
@@ -435,24 +432,32 @@ GLuint compose_sequence(Viewer* viewer,
 		}
 	}
 
-	if (audio_track_count == 0 && viewer != nullptr) {
-		viewer->play_wake();
+	if (audio_track_count == 0 && params.viewer != nullptr) {
+		params.viewer->play_wake();
 	}
 
-	if (video) {
+	if (params.video) {
 		glPopMatrix();
 	}
 
-	if (!nests.isEmpty() && nests.last()->fbo != nullptr) {
+	if (!params.nests.isEmpty() && params.nests.last()->fbo != nullptr) {
 		// returns nested clip's texture
-		return nests.last()->fbo[0]->texture();
+		return params.nests.last()->fbo[0]->texture();
 	}
 
 	return 0;
 }
 
 void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio, int playback_speed) {
-	QVector<Clip*> nests;
-	bool texture_failed;
-	compose_sequence(viewer, nullptr, seq, nests, false, render_audio, nullptr, texture_failed, audio_rendering, playback_speed);
+	ComposeSequenceParams params;
+	params.viewer = viewer;
+	params.ctx = nullptr;
+	params.seq = seq;
+	params.video = false;
+	params.render_audio = render_audio;
+	params.gizmos = nullptr;
+	params.rendering = audio_rendering;
+	params.playback_speed = playback_speed;
+	params.blend_mode_program = nullptr;
+	compose_sequence(params);
 }

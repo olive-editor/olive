@@ -1,3 +1,5 @@
+#version 110
+
 const int BLEND_MODE_ADD = 0;
 const int BLEND_MODE_AVERAGE = 1;
 const int BLEND_MODE_COLORBURN = 2;
@@ -25,5 +27,11 @@ const int BLEND_MODE_SUBSTRACT = 23;
 const int BLEND_MODE_SUBTRACT = 24;
 const int BLEND_MODE_VIVIDLIGHT = 25;
 
+uniform sampler2D background;
+uniform sampler2D texture;
+varying vec2 vTexCoord;
+
 void main(void) {
+	gl_FragColor = texture2D(background, vTexCoord);
+	// gl_FragColor = texture2D(texture, vTexCoord)*2.0;
 }

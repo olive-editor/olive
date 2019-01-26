@@ -15,6 +15,7 @@ RenderThread::RenderThread() :
 	gizmos(nullptr),
 	share_ctx(nullptr),
 	ctx(nullptr),
+	blend_mode_program(nullptr),
 	seq(nullptr),
 	tex_width(-1),
 	tex_height(-1),
@@ -73,6 +74,14 @@ void RenderThread::run() {
 					glBindTexture(GL_TEXTURE_2D, 0);
 				}
 
+				if (blend_mode_program == nullptr) {
+					delete_shader_program();
+					blend_mode_program = new QOpenGLShaderProgram();
+					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, "C:/msys64/home/Matt/olive/effects/common.vert");
+					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Fragment, "C:/msys64/home/Matt/olive/effects/blending.frag");
+					blend_mode_program->link();
+				}
+
 				// draw
 				paint();
 
@@ -96,8 +105,6 @@ void RenderThread::run() {
 void RenderThread::paint() {
 	glLoadIdentity();
 
-	texture_failed = false;
-
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -109,8 +116,21 @@ void RenderThread::paint() {
 	glEnable(GL_DEPTH);
 
 	gizmos = nullptr;
-	QVector<Clip*> nests;
-	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed, false, temp_reverse);
+
+	ComposeSequenceParams params;
+	params.viewer = nullptr;
+	params.ctx = ctx;
+	params.seq = seq;
+	params.video = true;
+	params.texture_failed = false;
+	params.render_audio = false;
+	params.gizmos = &gizmos;
+	params.rendering = false;
+	params.playback_speed = 1;
+	params.blend_mode_program = blend_mode_program;
+	compose_sequence(params);
+
+	texture_failed = params.texture_failed;
 
 	if (!save_fn.isEmpty()) {
 		if (texture_failed) {
@@ -138,13 +158,11 @@ void RenderThread::paint() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider, bool itemp_reverse) {
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider) {
 	seq = s;
 
 	// stall any dependent actions
 	texture_failed = true;
-
-	temp_reverse = itemp_reverse;
 
 	if (share != nullptr && (ctx == nullptr || ctx->shareContext() != share_ctx)) {
 		share_ctx = share;
@@ -191,8 +209,16 @@ void RenderThread::delete_fbo() {
 	frameBuffer = 0;
 }
 
+void RenderThread::delete_shader_program() {
+	if (blend_mode_program != nullptr) {
+		delete blend_mode_program;
+	}
+	blend_mode_program = nullptr;
+}
+
 void RenderThread::delete_ctx() {
 	if (ctx != nullptr) {
+		delete_shader_program();
 		delete_texture();
 		delete_fbo();
 		ctx->doneCurrent();
