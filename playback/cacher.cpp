@@ -777,6 +777,8 @@ void open_clip_worker(Clip* clip) {
 				last_filter = yadif_filter;
 			}
 
+			// ffmpeg premultiplier
+			/*
 			if (!clip->media->to_footage()->alpha_is_premultiplied) {
 				AVFilterContext* premultiply_filter;
 				snprintf(filter_args, sizeof(filter_args), "inplace=1");
@@ -785,6 +787,7 @@ void open_clip_worker(Clip* clip) {
 				avfilter_link(last_filter, 0, premultiply_filter, 0);
 				last_filter = premultiply_filter;
 			}
+			*/
 
 			/* stabilization code */
 			/*bool stabilize = false;
@@ -801,13 +804,7 @@ void open_clip_worker(Clip* clip) {
 				}
 			}*/
 
-			enum AVPixelFormat valid_pix_fmts[] = {
-//				AV_PIX_FMT_RGB24,
-				AV_PIX_FMT_RGBA,
-				AV_PIX_FMT_NONE
-			};
-
-			clip->pix_fmt = avcodec_find_best_pix_fmt_of_list(valid_pix_fmts, static_cast<enum AVPixelFormat>(clip->stream->codecpar->format), 1, nullptr);
+			clip->pix_fmt = AV_PIX_FMT_RGBA;
 			const char* chosen_format = av_get_pix_fmt_name(static_cast<enum AVPixelFormat>(clip->pix_fmt));
 			snprintf(filter_args, sizeof(filter_args), "pix_fmts=%s", chosen_format);
 

@@ -22,7 +22,9 @@ void load_internal_effects() {
 
 	EffectMeta em;
 
-	// internal effects
+	// load internal effects
+	em.path = ":/internalshaders";
+
 	em.type = EFFECT_TYPE_EFFECT;
 	em.subtype = EFFECT_TYPE_AUDIO;
 

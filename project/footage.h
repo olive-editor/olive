@@ -9,9 +9,11 @@
 #include <QPixmap>
 #include <QIcon>
 
-#define VIDEO_PROGRESSIVE 0
-#define VIDEO_TOP_FIELD_FIRST 1
-#define VIDEO_BOTTOM_FIELD_FIRST 2
+enum VideoInterlacingMode {
+	VIDEO_PROGRESSIVE,
+	VIDEO_TOP_FIELD_FIRST,
+	VIDEO_BOTTOM_FIELD_FIRST
+};
 
 struct Sequence;
 struct Clip;

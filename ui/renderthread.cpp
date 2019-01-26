@@ -16,6 +16,7 @@ RenderThread::RenderThread() :
 	share_ctx(nullptr),
 	ctx(nullptr),
 	blend_mode_program(nullptr),
+	premultiply_program(nullptr),
 	seq(nullptr),
 	tex_width(-1),
 	tex_height(-1),
@@ -107,10 +108,16 @@ void RenderThread::run() {
 				if (blend_mode_program == nullptr) {
 					// create shader program to make blending modes work
 					delete_shader_program();
+
 					blend_mode_program = new QOpenGLShaderProgram();
-					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, "C:/msys64/home/Matt/olive/effects/common.vert");
-					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Fragment, "C:/msys64/home/Matt/olive/effects/blending.frag");
+					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
+					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/blending.frag");
 					blend_mode_program->link();
+
+					premultiply_program = new QOpenGLShaderProgram();
+					premultiply_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
+					premultiply_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/premultiply.frag");
+					premultiply_program->link();
 				}
 
 				// bind framebuffer for drawing
@@ -161,6 +168,7 @@ void RenderThread::paint() {
 	params.rendering = false;
 	params.playback_speed = 1;
 	params.blend_mode_program = blend_mode_program;
+	params.premultiply_program = premultiply_program;
 	params.backend_buffer1 = back_buffer_1;
 	params.backend_buffer2 = back_buffer_2;
 	params.backend_attachment1 = back_texture_1;
@@ -253,8 +261,10 @@ void RenderThread::delete_fbo() {
 void RenderThread::delete_shader_program() {
 	if (blend_mode_program != nullptr) {
 		delete blend_mode_program;
+		delete premultiply_program;
 	}
 	blend_mode_program = nullptr;
+	premultiply_program = nullptr;
 }
 
 void RenderThread::delete_ctx() {

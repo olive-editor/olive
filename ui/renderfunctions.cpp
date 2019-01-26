@@ -78,22 +78,26 @@ void process_effect(Clip* c,
 			}
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
+				qDebug() << "superimpose texture was:" << superimpose_texture;
+				qDebug() << "composite texture was:" << composite_texture;
+
 				if (superimpose_texture == 0) {
 					qWarning() << "Superimpose texture was nullptr, retrying...";
 					texture_failed = true;
+				} else if (composite_texture == 0) {
+					// if there is no previous texture, just return the superimposes texture
+					// UNLESS this is a shader-extended superimpose effect in which case,
+					// we'll need to draw it below
+					qDebug() << "returning superimpose directly";
+					composite_texture = superimpose_texture;
 				} else {
-					if (composite_texture == 0) {
-						// if there is no previous texture, just return the superimposes texture
-						composite_texture = superimpose_texture;
-					} else {
-						// if the source texture is not already a framebuffer texture,
-						// we'll need to make it one before drawing a superimpose effect on it
-						if (composite_texture != c->fbo[0]->texture() && composite_texture != c->fbo[1]->texture()) {
-							draw_clip(c->fbo[!fbo_switcher], composite_texture, true);
-						}
-
-						composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
+					// if the source texture is not already a framebuffer texture,
+					// we'll need to make it one before drawing a superimpose effect on it
+					if (composite_texture != c->fbo[0]->texture() && composite_texture != c->fbo[1]->texture()) {
+						draw_clip(c->fbo[!fbo_switcher], composite_texture, true);
 					}
+
+					composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
 				}
 			}
 			e->endEffect();
@@ -279,7 +283,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 				}
 
 				// if clip should actually be shown on screen in this frame
-				if (playhead >= c->get_timeline_in_with_transition()) {
+				if (playhead >= c->get_timeline_in_with_transition()
+						&& playhead < c->get_timeline_out_with_transition()) {
 					glPushMatrix();
 
 					// simple bool for switching between the two framebuffers
@@ -287,20 +292,31 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 					glViewport(0, 0, video_width, video_height);
 
-					if (c->media != nullptr && c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
-						// for a nested sequence, run this function again on that sequence and retrieve the texture
+					if (c->media != nullptr) {
+						if (c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+							// for a nested sequence, run this function again on that sequence and retrieve the texture
 
-						// add nested sequence to nest list
-						params.nests.append(c);
+							// add nested sequence to nest list
+							params.nests.append(c);
 
-						// compose sequence
-						textureID = compose_sequence(params);
+							// compose sequence
+							textureID = compose_sequence(params);
 
-						// remove sequence from nest list
-						params.nests.removeLast();
+							// remove sequence from nest list
+							params.nests.removeLast();
 
-						// compose_sequence() would have written to this clip's fbo[0], so we switch to fbo[1]
-						fbo_switcher = true;
+							// compose_sequence() would have written to this clip's fbo[0], so we switch to fbo[1]
+							fbo_switcher = true;
+						} else if (c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->media->to_footage()->alpha_is_premultiplied) {
+							// alpha is not premultiplied, we'll need to premultiply it for the rest of the pipeline
+							params.premultiply_program->bind();
+
+							textureID = draw_clip(c->fbo[0], textureID, true);
+
+							params.premultiply_program->release();
+
+							fbo_switcher = true;
+						}
 					}
 
 					// set up default coordinates for drawing the clip
@@ -345,6 +361,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 							if (e->container->selected) selected_effect = e;
 						}
 					}
+					qDebug() << "texture ID:" << textureID;
 
 					// using gizmo data, set definitive gizmo
 					if (selected_effect != nullptr) {
@@ -373,79 +390,82 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 					// == START FINAL DRAW ON SEQUENCE BUFFER ==
 
-					// bind framebuffer
-					params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
+					if (textureID > 0) {
+						// bind framebuffer
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
-					// set viewport to sequence size
-					glViewport(0, 0, s->width, s->height);
+						// set viewport to sequence size
+						glViewport(0, 0, s->width, s->height);
 
-					// bind final texture
-					glBindTexture(GL_TEXTURE_2D, textureID);
+						// bind final texture
+						glBindTexture(GL_TEXTURE_2D, textureID);
 
-					// set texture filter to bilinear
-					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+						// set texture filter to bilinear
+						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-					// bind and configure blending mode shader
-					params.blend_mode_program->bind();
-					params.blend_mode_program->setUniformValue("blend_mode", coords.blendmode);
-					params.blend_mode_program->setUniformValue("opacity", coords.opacity);
+						// bind and configure blending mode shader
+						params.blend_mode_program->bind();
+						params.blend_mode_program->setUniformValue("blend_mode", coords.blendmode);
+						params.blend_mode_program->setUniformValue("opacity", coords.opacity);
 
-					// draw clip on screen
-					glBegin(GL_QUADS);
+						// draw clip on screen
+						glBegin(GL_QUADS);
 
-					if (coords.grid_size <= 1) {
-						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-						glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
-						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-						glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
-						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-						glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
-						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
-					} else {
-						float rows = coords.grid_size;
-						float cols = coords.grid_size;
+						if (coords.grid_size <= 1) {
+							glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
+							glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
+							glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
+							glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
+							glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
+							glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
+							glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+							glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
+						} else {
+							float rows = coords.grid_size;
+							float cols = coords.grid_size;
 
-						for (int k=0;k<rows;k++) {
-							float row_prog = float(k)/rows;
-							float next_row_prog = float(k+1)/rows;
-							for (int j=0;j<cols;j++) {
-								float col_prog = float(j)/cols;
-								float next_col_prog = float(j+1)/cols;
+							for (int k=0;k<rows;k++) {
+								float row_prog = float(k)/rows;
+								float next_row_prog = float(k+1)/rows;
+								for (int j=0;j<cols;j++) {
+									float col_prog = float(j)/cols;
+									float next_col_prog = float(j+1)/cols;
 
-								float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
-								float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
-								float vertexBLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
-								float vertexBRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
+									float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
+									float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
+									float vertexBLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
+									float vertexBRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
 
-								float vertexTLY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
-								float vertexTRY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
-								float vertexBLY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
-								float vertexBRY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
+									float vertexTLY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
+									float vertexTRY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
+									float vertexBLY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
+									float vertexBRY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
 
-								glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
-								glVertex2f(float_lerp(vertexTLX, vertexTRX, col_prog), float_lerp(vertexTLY, vertexBLY, row_prog)); // top left
-								glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
-								glVertex2f(float_lerp(vertexTLX, vertexTRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, row_prog)); // top right
-								glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
-								glVertex2f(float_lerp(vertexBLX, vertexBRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
-								glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
-								glVertex2f(float_lerp(vertexBLX, vertexBRX, col_prog), float_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
+									glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
+									glVertex2f(float_lerp(vertexTLX, vertexTRX, col_prog), float_lerp(vertexTLY, vertexBLY, row_prog)); // top left
+									glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
+									glVertex2f(float_lerp(vertexTLX, vertexTRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, row_prog)); // top right
+									glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
+									glVertex2f(float_lerp(vertexBLX, vertexBRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
+									glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
+									glVertex2f(float_lerp(vertexBLX, vertexBRX, col_prog), float_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
+								}
 							}
 						}
+
+						glEnd();
+
+						// release blend mode shader
+						params.blend_mode_program->release();
+
+						// unbind texture
+						glBindTexture(GL_TEXTURE_2D, 0);
+
+						// unbind framebuffer
+						params.ctx->functions()->glBindFramebuffer(GL_TEXTURE_2D, 0);
+
 					}
-
-					glEnd();
-
-					// release blend mode shader
-					params.blend_mode_program->release();
-
-					// unbind texture
-					glBindTexture(GL_TEXTURE_2D, 0);
-
-					// unbind framebuffer
-					params.ctx->functions()->glBindFramebuffer(GL_TEXTURE_2D, 0);
 
 					// == END FINAL DRAW ON SEQUENCE BUFFER ==
 

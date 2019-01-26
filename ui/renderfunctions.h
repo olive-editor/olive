@@ -22,6 +22,7 @@ struct ComposeSequenceParams {
 	bool rendering;
 	int playback_speed;
 	QOpenGLShaderProgram* blend_mode_program;
+	QOpenGLShaderProgram* premultiply_program;
 	GLuint main_buffer;
 	GLuint backend_buffer1;
 	GLuint backend_attachment1;

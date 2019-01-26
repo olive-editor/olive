@@ -47,11 +47,15 @@ void main(void) {
 	float mask = colorclose(cb, cr, cb_key, cr_key, (tola/100.0), (tolb/100.0));
 
 	if (mode == 0) { // composite
-		float submask = 1.0-mask;
+		//float submask = 1.0-mask;
+		float submask = 0.0;
 		texture_color.r = max(texture_color.r - submask*key_color.r, 0.0) + submask;
 		texture_color.g = max(texture_color.g - submask*key_color.g, 0.0) + submask;
 		texture_color.b = max(texture_color.b - submask*key_color.b, 0.0) + submask;
 		texture_color.a *= mask;
+
+		// premultiply
+		texture_color.rgb *= texture_color.a;
 	} else if (mode == 1) { // alpha
 		texture_color.rgb = vec3(mask);
 	} else if (mode == 2) { // original
