@@ -37,7 +37,6 @@ public:
 	void update_playhead_timecode(long p);
 	void update_end_timecode();
 	void update_header_zoom();
-	void update_viewer();
 	void clear_in();
 	void clear_out();
 	void clear_inout_point();
@@ -88,6 +87,7 @@ public slots:
 	void go_to_out();
 	void go_to_end();
 	void close_media();
+	void update_viewer();
 
 private slots:
 	void update_playhead();

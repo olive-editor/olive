@@ -644,4 +644,10 @@ private:
 	Media* media;
 };
 
+class UpdateViewer : public QUndoCommand {
+public:
+	void undo();
+	void redo();
+};
+
 #endif // UNDO_H

@@ -52,6 +52,7 @@ struct Footage {
 	bool ready;
 	bool invalid;
 	double speed;
+	bool alpha_is_premultiplied;
 
 	PreviewGenerator* preview_gen;
 	QMutex ready_lock;

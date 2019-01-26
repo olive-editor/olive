@@ -205,11 +205,11 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
 	// position
-	glTranslatef(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
+	glTranslated(position_x->get_double_value(timecode)-(parent_clip->sequence->width/2), position_y->get_double_value(timecode)-(parent_clip->sequence->height/2), 0);
 
 	// anchor point
-	int anchor_x_offset = (anchor_x_box->get_double_value(timecode));
-	int anchor_y_offset = (anchor_y_box->get_double_value(timecode));
+	int anchor_x_offset = qRound(anchor_x_box->get_double_value(timecode));
+	int anchor_y_offset = qRound(anchor_y_box->get_double_value(timecode));
 	coords.vertexTopLeftX -= anchor_x_offset;
 	coords.vertexTopRightX -= anchor_x_offset;
 	coords.vertexBottomLeftX -= anchor_x_offset;
@@ -220,37 +220,18 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 	coords.vertexBottomRightY -= anchor_y_offset;
 
 	// rotation
-	glRotatef(rotation->get_double_value(timecode), 0, 0, 1);
+	glRotated(rotation->get_double_value(timecode), 0, 0, 1);
 
 	// scale
-	float sx = scale_x->get_double_value(timecode)*0.01;
-	float sy = (uniform_scale_field->get_bool_value(timecode)) ? sx : scale_y->get_double_value(timecode)*0.01;
-	glScalef(sx, sy, 1);
+	double sx = scale_x->get_double_value(timecode)*0.01;
+	double sy = (uniform_scale_field->get_bool_value(timecode)) ? sx : scale_y->get_double_value(timecode)*0.01;
+	glScaled(sx, sy, 1);
 
 	// blend mode
 	coords.blendmode = blend_mode_box->get_combo_data(timecode).toInt();
-	/*switch (blend_mode_box->get_combo_data(timecode).toInt()) {
-	case BLEND_MODE_NORMAL:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		break;
-	case BLEND_MODE_OVERLAY:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		break;
-	case BLEND_MODE_SCREEN:
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-		break;
-	case BLEND_MODE_MULTIPLY:
-		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		break;
-	default:
-		qCritical() << "Invalid blend mode. This is a bug - please contact developers";
-	}*/
 
 	// opacity
-	coords.opacity *= opacity->get_double_value(timecode)*0.01;
-	/*float color[4];
-	glGetFloatv(GL_CURRENT_COLOR, color);
-	glColor4f(1.0, 1.0, 1.0, color[3]*(opacity->get_double_value(timecode)*0.01));*/
+	coords.opacity *= float(opacity->get_double_value(timecode)*0.01);
 }
 
 void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {

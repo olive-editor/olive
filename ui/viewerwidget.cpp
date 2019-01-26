@@ -562,7 +562,7 @@ void ViewerWidget::paintGL() {
 
 		// draw texture from render thread
 
-		glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
+		glBindTexture(GL_TEXTURE_2D, renderer->front_texture);
 
 		glBegin(GL_QUADS);
 
@@ -592,7 +592,7 @@ void ViewerWidget::paintGL() {
 		glDisable(GL_TEXTURE_2D);
 
 		if (window != nullptr && window->isVisible()) {
-			window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
+			window->set_texture(renderer->front_texture, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
 		}
 
 		renderer->mutex.unlock();

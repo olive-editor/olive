@@ -29,9 +29,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
-#ifndef NOVST
 #include "effects/internal/vsthost.h"
-#endif
 #include "effects/internal/fillleftrighteffect.h"
 #include "effects/internal/frei0reffect.h"
 
@@ -754,7 +752,7 @@ GLuint Effect::process_superimpose(double timecode) {
 	int height = parent_clip->getHeight();
 
 	if (width != img.width() || height != img.height()) {
-		img = QImage(width, height, QImage::Format_RGBA8888);
+		img = QImage(width, height, QImage::Format_RGBA8888_Premultiplied);
 		recreate_texture = true;
 	}
 

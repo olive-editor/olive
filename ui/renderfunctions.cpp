@@ -28,17 +28,16 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-GLuint draw_clip(QOpenGLContext* ctx, QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
+GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, 1, 0, 1, -1, 1);
 
-	GLint current_fbo = 0;
-	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
-
 	fbo->bind();
 
-	if (clear) glClear(GL_COLOR_BUFFER_BIT);
+	if (clear) {
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
@@ -53,14 +52,11 @@ GLuint draw_clip(QOpenGLContext* ctx, QOpenGLFramebufferObject* fbo, GLuint text
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
-
 	glPopMatrix();
 	return fbo->texture();
 }
 
-void process_effect(QOpenGLContext* ctx,
-					Clip* c,
+void process_effect(Clip* c,
 					Effect* e,
 					double timecode,
 					GLTextureCoords& coords,
@@ -72,11 +68,12 @@ void process_effect(QOpenGLContext* ctx,
 		if (e->enable_coords) {
 			e->process_coords(timecode, coords, data);
 		}
-		if ((e->enable_shader && shaders_are_enabled) || e->enable_superimpose) {
+		bool can_process_shaders = (e->enable_shader && shaders_are_enabled);
+		if (can_process_shaders || e->enable_superimpose) {
 			e->startEffect();
-			if ((e->enable_shader && shaders_are_enabled) && e->is_glsl_linked()) {
+			if (can_process_shaders && e->is_glsl_linked()) {
 				e->process_shader(timecode, coords);
-				composite_texture = draw_clip(ctx, c->fbo[fbo_switcher], composite_texture, true);
+				composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
 				fbo_switcher = !fbo_switcher;
 			}
 			if (e->enable_superimpose) {
@@ -85,7 +82,18 @@ void process_effect(QOpenGLContext* ctx,
 					qWarning() << "Superimpose texture was nullptr, retrying...";
 					texture_failed = true;
 				} else {
-					composite_texture = draw_clip(ctx, c->fbo[!fbo_switcher], superimpose_texture, false);
+					if (composite_texture == 0) {
+						// if there is no previous texture, just return the superimposes texture
+						composite_texture = superimpose_texture;
+					} else {
+						// if the source texture is not already a framebuffer texture,
+						// we'll need to make it one before drawing a superimpose effect on it
+						if (composite_texture != c->fbo[0]->texture() && composite_texture != c->fbo[1]->texture()) {
+							draw_clip(c->fbo[!fbo_switcher], composite_texture, true);
+						}
+
+						composite_texture = draw_clip(c->fbo[!fbo_switcher], superimpose_texture, false);
+					}
 				}
 			}
 			e->endEffect();
@@ -94,10 +102,7 @@ void process_effect(QOpenGLContext* ctx,
 }
 
 GLuint compose_sequence(ComposeSequenceParams &params) {
-	GLint current_fbo = 0;
-	if (params.video) {
-		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
-	}
+	GLuint final_fbo = params.main_buffer;
 
 	Sequence* s = params.seq;
 	long playhead = s->playhead;
@@ -112,7 +117,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 		if (params.video && params.nests.last()->fbo != nullptr) {
 			params.nests.last()->fbo[0]->bind();
 			glClear(GL_COLOR_BUFFER_BIT);
-			params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
+			final_fbo = params.nests.last()->fbo[0]->handle();
 		}
 	}
 
@@ -120,36 +125,58 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 	QVector<Clip*> current_clips;
 
+	// loop through clips, find currently active, and sort by track
 	for (int i=0;i<s->clips.size();i++) {
+
 		Clip* c = s->clips.at(i);
 
-		// if clip starts within one second and/or hasn't finished yet
 		if (c != nullptr) {
+
+			// if clip is video and we're processing video
 			if ((c->track < 0) == params.video) {
+
 				bool clip_is_active = false;
 
+				// is the clip a "footage" clip?
 				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 					Footage* m = c->media->to_footage();
+
+					// does the clip have a valid media source?
 					if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
+
+						// is the media process and ready?
 						if (m->ready) {
 							const FootageStream* ms = m->get_stream_from_file_index(c->track < 0, c->media_stream);
+
+							// does the media have a valid media stream source and is it active?
 							if (ms != nullptr && is_clip_active(c, playhead)) {
-								// if thread is already working, we don't want to touch this,
-								// but we also don't want to hang the UI thread
+
+								// open if not open
 								if (!c->open) {
 									open_clip(c, !params.rendering);
 								}
+
 								clip_is_active = true;
+
+								// increment audio track count
 								if (c->track >= 0) audio_track_count++;
+
 							} else if (c->finished_opening) {
+
+								// close the clip if it isn't active anymore
 								close_clip(c, false);
+
 							}
 						} else {
-							//qWarning() << "Media '" + m->name + "' was not ready, retrying...";
+
+							// media wasn't ready, schedule a redraw
 							params.texture_failed = true;
+
 						}
 					}
 				} else {
+					// if the clip is a nested sequence or null clip, just open it
+
 					if (is_clip_active(c, playhead)) {
 						if (!c->open) open_clip(c, !params.rendering);
 						clip_is_active = true;
@@ -157,15 +184,26 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 						close_clip(c, false);
 					}
 				}
+
+				// if the clip is active, added it to "current_clips", sorted by track
 				if (clip_is_active) {
 					bool added = false;
-					for (int j=0;j<current_clips.size();j++) {
-						if (current_clips.at(j)->track < c->track) {
-							current_clips.insert(j, c);
-							added = true;
-							break;
+
+					// track sorting is only necessary for video clips
+					// audio clips are mixed equally, so we skip sorting for those
+					if (params.video) {
+
+						// insertion sort by track
+						for (int j=0;j<current_clips.size();j++) {
+							if (current_clips.at(j)->track < c->track) {
+								current_clips.insert(j, c);
+								added = true;
+								break;
+							}
 						}
+
 					}
+
 					if (!added) {
 						current_clips.append(c);
 					}
@@ -174,90 +212,98 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 		}
 	}
 
-	int half_width = s->width/2;
-	int half_height = s->height/2;
-
 	if (params.video) {
+		// set default coordinates based on the sequence, with 0 in the direct center
 		glPushMatrix();
 		glLoadIdentity();
+
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+		int half_width = s->width/2;
+		int half_height = s->height/2;
 		glOrtho(-half_width, half_width, -half_height, half_height, -1, 10);
 	}
 
+	// loop through current clips
 	for (int i=0;i<current_clips.size();i++) {
 		Clip* c = current_clips.at(i);
 
+		// check if this clip was successfully opened by earlier function
 		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
 			qWarning() << "Tried to display clip" << i << "but it's closed";
 			params.texture_failed = true;
 		} else {
+			// if clip is a video clip
 			if (c->track < 0) {
+				// reset OpenGL to full color
 				glColor4f(1.0, 1.0, 1.0, 1.0);
 
+				// textureID variable contains texture to be drawn on screen at the end
 				GLuint textureID = 0;
+
+				// store video source dimensions
 				int video_width = c->getWidth();
 				int video_height = c->getHeight();
 
-				if (c->media != nullptr) {
-					switch (c->media->get_type()) {
-					case MEDIA_TYPE_FOOTAGE:
-						// set up opengl texture
-						if (c->texture == nullptr) {
-							c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-							c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
-							c->texture->setFormat(get_gl_tex_fmt_from_av(c->pix_fmt));
-							c->texture->setMipLevels(c->texture->maximumMipLevels());
-							c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-							c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
-						}
-						get_clip_frame(c, qMax(playhead, c->timeline_in), params.texture_failed);
-						textureID = c->texture->textureId();
-						break;
-					case MEDIA_TYPE_SEQUENCE:
-						textureID = -1;
-						break;
+				// if media is footage
+				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
+
+					if (c->texture == nullptr) {
+						// opengl texture doesn't exist yet, create it
+
+						c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+						c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
+						c->texture->setFormat(get_gl_tex_fmt_from_av(c->pix_fmt));
+						c->texture->setMipLevels(c->texture->maximumMipLevels());
+						c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+						c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
+					}
+
+					// retrieve video frame from cache and store it in c->texture
+					get_clip_frame(c, qMax(playhead, c->timeline_in), params.texture_failed);
+
+					// retrieve ID from c->texture
+					textureID = c->texture->textureId();
+
+					if (textureID == 0) {
+						qWarning() << "Failed to create texture";
+						return 0;
 					}
 				}
 
-				if (textureID == 0 && c->media != nullptr) {
-					qWarning() << "Texture hasn't been created yet";
-					params.texture_failed = true;
-				} else if (playhead >= c->get_timeline_in_with_transition()) {
+				// prepare framebuffers for backend drawing operations
+				if (c->fbo == nullptr) {
+					c->fbo = new QOpenGLFramebufferObject* [2];
+					c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
+					c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
+				}
+
+				// if clip should actually be shown on screen in this frame
+				if (playhead >= c->get_timeline_in_with_transition()) {
 					glPushMatrix();
 
-					// start preparing cache
-					if (c->fbo == nullptr) {
-						c->fbo = new QOpenGLFramebufferObject* [2];
-						c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
-						c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
-						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
-					}
-
+					// simple bool for switching between the two framebuffers
 					bool fbo_switcher = false;
 
 					glViewport(0, 0, video_width, video_height);
 
-					GLuint composite_texture;
+					if (c->media != nullptr && c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
+						// for a nested sequence, run this function again on that sequence and retrieve the texture
 
-					if (c->media == nullptr) {
-						c->fbo[fbo_switcher]->bind();
-						glClear(GL_COLOR_BUFFER_BIT);
-						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
-						composite_texture = c->fbo[fbo_switcher]->texture();
-					} else {
-						// for nested sequences
-						if (c->media->get_type()== MEDIA_TYPE_SEQUENCE) {
-							params.nests.append(c);
-							textureID = compose_sequence(params);
-							params.nests.removeLast();
-							fbo_switcher = true;
-						}
+						// add nested sequence to nest list
+						params.nests.append(c);
 
-						composite_texture = draw_clip(params.ctx, c->fbo[fbo_switcher], textureID, true);
+						// compose sequence
+						textureID = compose_sequence(params);
+
+						// remove sequence from nest list
+						params.nests.removeLast();
+
+						// compose_sequence() would have written to this clip's fbo[0], so we switch to fbo[1]
+						fbo_switcher = true;
 					}
 
-					fbo_switcher = !fbo_switcher;
-
-					// set up default coords
+					// set up default coordinates for drawing the clip
 					GLTextureCoords coords;
 					coords.grid_size = 1;
 					coords.vertexTopLeftX = coords.vertexBottomLeftX = -video_width/2;
@@ -268,8 +314,10 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0.0;
 					coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
 					coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
+					coords.blendmode = BLEND_MODE_NORMAL;
+					coords.opacity = 1.0;
 
-					// set up autoscale
+					// if auto-scale is enabled, auto-scale the clip
 					if (c->autoscale && (video_width != s->width && video_height != s->height)) {
 						float width_multiplier = float(s->width) / float(video_width);
 						float height_multiplier = float(s->height) / float(video_height);
@@ -277,85 +325,94 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 						glScalef(scale_multiplier, scale_multiplier, 1);
 					}
 
-					// EFFECT CODE START
+					// == EFFECT CODE START ==
+
+					// get current sequence time in seconds (used for effects)
 					double timecode = get_timecode(c, playhead);
 
+					// set up variables for gizmos later
 					Effect* first_gizmo_effect = nullptr;
 					Effect* selected_effect = nullptr;
 
+					// run through all of the clip's effects
 					for (int j=0;j<c->effects.size();j++) {
 						Effect* e = c->effects.at(j);
-						process_effect(params.ctx, c, e, timecode, coords, composite_texture, fbo_switcher, params.texture_failed, TA_NO_TRANSITION);
+						process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, TA_NO_TRANSITION);
 
+						// retrieve gizmo data from effect
 						if (e->are_gizmos_enabled()) {
 							if (first_gizmo_effect == nullptr) first_gizmo_effect = e;
 							if (e->container->selected) selected_effect = e;
 						}
 					}
 
+					// using gizmo data, set definitive gizmo
 					if (selected_effect != nullptr) {
 						(*params.gizmos) = selected_effect;
 					} else if (is_clip_selected(c, true)) {
 						(*params.gizmos) = first_gizmo_effect;
 					}
 
+					// if the clip has an opening transition, process that now
 					if (c->get_opening_transition() != nullptr) {
 						int transition_progress = playhead - c->get_timeline_in_with_transition();
 						if (transition_progress < c->get_opening_transition()->get_length()) {
-							process_effect(params.ctx, c, c->get_opening_transition(), (double)transition_progress/(double)c->get_opening_transition()->get_length(), coords, composite_texture, fbo_switcher, params.texture_failed, TA_OPENING_TRANSITION);
+							process_effect(c, c->get_opening_transition(), double(transition_progress)/double(c->get_opening_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, TA_OPENING_TRANSITION);
 						}
 					}
 
+					// if the clip has a closing transition, process that now
 					if (c->get_closing_transition() != nullptr) {
 						int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
 						if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
-							process_effect(params.ctx, c, c->get_closing_transition(), (double)transition_progress/(double)c->get_closing_transition()->get_length(), coords, composite_texture, fbo_switcher, params.texture_failed, TA_CLOSING_TRANSITION);
+							process_effect(c, c->get_closing_transition(), double(transition_progress)/double(c->get_closing_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, TA_CLOSING_TRANSITION);
 						}
 					}
-					// EFFECT CODE END
 
-					if (!params.nests.isEmpty()) {
-						params.nests.last()->fbo[0]->bind();
-					}
+					// == EFFECT CODE END ==
+
+					// == START FINAL DRAW ON SEQUENCE BUFFER ==
+
+					// bind framebuffer
+					params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
+
+					// set viewport to sequence size
 					glViewport(0, 0, s->width, s->height);
 
-					glBindTexture(GL_TEXTURE_2D, composite_texture);
+					// bind final texture
+					glBindTexture(GL_TEXTURE_2D, textureID);
 
+					// set texture filter to bilinear
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-					// get current color attachment from framebuffer
-					GLint texture_id;
-					params.ctx->functions()->glGetFramebufferAttachmentParameteriv(GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture_id);
-
+					// bind and configure blending mode shader
 					params.blend_mode_program->bind();
 					params.blend_mode_program->setUniformValue("blend_mode", coords.blendmode);
 					params.blend_mode_program->setUniformValue("opacity", coords.opacity);
-//					blend_mode_program->setUniformValue("background", texture_id);
 
+					// draw clip on screen
 					glBegin(GL_QUADS);
 
 					if (coords.grid_size <= 1) {
-						float z = 0.0f;
-
 						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-						glVertex3f(coords.vertexTopLeftX, coords.vertexTopLeftY, z); // top left
+						glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
 						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-						glVertex3f(coords.vertexTopRightX, coords.vertexTopRightY, z); // top right
+						glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
 						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-						glVertex3f(coords.vertexBottomRightX, coords.vertexBottomRightY, z); // bottom right
+						glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
 						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-						glVertex3f(coords.vertexBottomLeftX, coords.vertexBottomLeftY, z); // bottom left
+						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
 					} else {
 						float rows = coords.grid_size;
 						float cols = coords.grid_size;
 
-						for (float k=0;k<rows;k++) {
-							float row_prog = k/rows;
-							float next_row_prog = (k+1)/rows;
-							for (float j=0;j<cols;j++) {
-								float col_prog = j/cols;
-								float next_col_prog = (j+1)/cols;
+						for (int k=0;k<rows;k++) {
+							float row_prog = float(k)/rows;
+							float next_row_prog = float(k+1)/rows;
+							for (int j=0;j<cols;j++) {
+								float col_prog = float(j)/cols;
+								float next_col_prog = float(j+1)/cols;
 
 								float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
 								float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
@@ -381,9 +438,16 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 					glEnd();
 
+					// release blend mode shader
 					params.blend_mode_program->release();
 
-					glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
+					// unbind texture
+					glBindTexture(GL_TEXTURE_2D, 0);
+
+					// unbind framebuffer
+					params.ctx->functions()->glBindFramebuffer(GL_TEXTURE_2D, 0);
+
+					// == END FINAL DRAW ON SEQUENCE BUFFER ==
 
 					// prepare gizmos
 					if ((*params.gizmos) != nullptr
@@ -392,10 +456,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 							|| (*params.gizmos) == selected_effect)) {
 						(*params.gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
 						(*params.gizmos)->gizmo_world_to_screen(); // convert gizmo coords to screen coords
-					}
-
-					if (!params.nests.isEmpty()) {
-						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, current_fbo);
 					}
 
 					glPopMatrix();

@@ -1,4 +1,4 @@
-#ifndef RENDERTHREAD_H
+﻿#ifndef RENDERTHREAD_H
 #define RENDERTHREAD_H
 
 #include <QThread>
@@ -19,8 +19,8 @@ public:
 	~RenderThread();
 	void run();
 	QMutex mutex;
-	GLuint frameBuffer;
-	GLuint texColorBuffer;
+	GLuint front_buffer;
+	GLuint front_texture;
 	Effect* gizmos;
 	void paint();
 	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
@@ -43,6 +43,12 @@ private:
 	QOpenGLContext* share_ctx;
 	QOpenGLContext* ctx;
 	QOpenGLShaderProgram* blend_mode_program;
+
+	GLuint back_buffer_1;
+	GLuint back_buffer_2;
+	GLuint back_texture_1;
+	GLuint back_texture_2;
+
 	Sequence* seq;
 	int divider;
 	int tex_width;

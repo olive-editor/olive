@@ -787,7 +787,7 @@ void SetAutoscaleAction::undo() {
 	for (int i=0;i<clips.size();i++) {
 		clips.at(i)->autoscale = !clips.at(i)->autoscale;
 	}
-	panel_sequence_viewer->viewer_widget->update();
+	panel_sequence_viewer->viewer_widget->frame_update();
 	mainWindow->setWindowModified(old_project_changed);
 }
 
@@ -795,7 +795,7 @@ void SetAutoscaleAction::redo() {
 	for (int i=0;i<clips.size();i++) {
 		clips.at(i)->autoscale = !clips.at(i)->autoscale;
 	}
-	panel_sequence_viewer->viewer_widget->update();
+	panel_sequence_viewer->viewer_widget->frame_update();
 	mainWindow->setWindowModified(true);
 }
 
@@ -1271,4 +1271,12 @@ void RefreshClips::redo() {
 			}
 		}
 	}
+}
+
+void UpdateViewer::undo() {
+	redo();
+}
+
+void UpdateViewer::redo() {
+	panel_sequence_viewer->viewer_widget->frame_update();
 }
