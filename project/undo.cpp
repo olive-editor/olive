@@ -513,14 +513,18 @@ void AddClipCommand::redo() {
 		int linkOffset = seq->clips.size();
 		for (int i=0;i<clips.size();i++) {
 			Clip* original = clips.at(i);
-			Clip* copy = original->copy(seq);
-			copy->linked.resize(original->linked.size());
-			for (int j=0;j<original->linked.size();j++) {
-				copy->linked[j] = original->linked.at(j) + linkOffset;
+			if (original != nullptr) {
+				Clip* copy = original->copy(seq);
+				copy->linked.resize(original->linked.size());
+				for (int j=0;j<original->linked.size();j++) {
+					copy->linked[j] = original->linked.at(j) + linkOffset;
+				}
+				if (original->opening_transition > -1) copy->opening_transition = original->get_opening_transition()->copy(copy, nullptr);
+				if (original->closing_transition > -1) copy->closing_transition = original->get_closing_transition()->copy(copy, nullptr);
+				seq->clips.append(copy);
+			} else {
+				seq->clips.append(nullptr);
 			}
-			if (original->opening_transition > -1) copy->opening_transition = original->get_opening_transition()->copy(copy, nullptr);
-			if (original->closing_transition > -1) copy->closing_transition = original->get_closing_transition()->copy(copy, nullptr);
-			seq->clips.append(copy);
 		}
 	}
 	mainWindow->setWindowModified(true);

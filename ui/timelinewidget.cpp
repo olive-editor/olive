@@ -425,7 +425,7 @@ void delete_area_under_ghosts(ComboAction* ca) {
 		sel.track = g.track;
 		delete_areas.append(sel);
 	}
-	panel_timeline->delete_areas_and_relink(ca, delete_areas);
+	panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
 }
 
 void insert_clips(ComboAction* ca) {
@@ -825,7 +825,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							s.track = c->track;
 							QVector<Selection> areas;
 							areas.append(s);
-							panel_timeline->delete_areas_and_relink(ca, areas);
+							panel_timeline->delete_areas_and_relink(ca, areas, false);
 						}
 
 						QVector<Clip*> add;
@@ -880,7 +880,17 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 					}
 				}
 			} else if (panel_timeline->moving_proc) {
-				if (panel_timeline->ghosts.size() > 0) {
+				bool process_moving = false;
+
+				for (int i=0;i<panel_timeline->ghosts.size();i++) {
+					const Ghost& g = panel_timeline->ghosts.at(i);
+					if (g.in != g.old_in || g.out != g.old_out || g.clip_in != g.old_clip_in) {
+						process_moving = true;
+						break;
+					}
+				}
+
+				if (process_moving) {
 					 const Ghost& first_ghost = panel_timeline->ghosts.at(0);
 
 					 // if we were RIPPLING, move all the clips
@@ -949,7 +959,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							 }
 						 }
 						 if (new_clips.size() > 0) {
-							 panel_timeline->delete_areas_and_relink(ca, delete_areas);
+							 panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
 
 							 // relink duplicated clips
 							 panel_timeline->relink_clips_using_ids(old_clips, new_clips);
@@ -979,7 +989,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 								 s.track = g.track;
 								 delete_areas.append(s);
 							 }
-							 panel_timeline->delete_areas_and_relink(ca, delete_areas);
+							 panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
 							 for (int i=0;i<panel_timeline->ghosts.size();i++) {
 								 const Ghost& g = panel_timeline->ghosts.at(i);
 								 sequence->clips.at(g.clip)->undeletable = false;
@@ -1112,7 +1122,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							move_pre = true;
 						}
 
-						panel_timeline->delete_areas_and_relink(ca, areas);
+						panel_timeline->delete_areas_and_relink(ca, areas, false);
 
 						if (move_post) move_clip(ca, post, qMin(transition_start, post->timeline_in), post->timeline_out, post->clip_in - (post->timeline_in - transition_start), post->track);
 						if (move_pre) move_clip(ca, pre, pre->timeline_in, qMax(transition_end, pre->timeline_out), pre->clip_in, pre->track);
