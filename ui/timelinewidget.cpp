@@ -884,7 +884,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 				for (int i=0;i<panel_timeline->ghosts.size();i++) {
 					const Ghost& g = panel_timeline->ghosts.at(i);
-					if (g.in != g.old_in || g.out != g.old_out || g.clip_in != g.old_clip_in) {
+					if (g.in != g.old_in
+							|| g.out != g.old_out
+							|| g.clip_in != g.old_clip_in
+							|| g.track != g.old_track) {
 						process_moving = true;
 						break;
 					}
