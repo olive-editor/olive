@@ -869,7 +869,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							// default audio effects (after custom effects)
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
-							//c->media_type = MEDIA_TYPE_TONE;
 						}
 
 						push_undo = true;
@@ -884,7 +883,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 				for (int i=0;i<panel_timeline->ghosts.size();i++) {
 					const Ghost& g = panel_timeline->ghosts.at(i);
-					if (g.in != g.old_in || g.out != g.old_out || g.clip_in != g.old_clip_in) {
+					if (g.in != g.old_in
+							|| g.out != g.old_out
+							|| g.clip_in != g.old_clip_in
+							|| g.track != g.old_track) {
 						process_moving = true;
 						break;
 					}

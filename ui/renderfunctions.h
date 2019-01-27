@@ -24,6 +24,7 @@ struct ComposeSequenceParams {
 	QOpenGLShaderProgram* blend_mode_program;
 	QOpenGLShaderProgram* premultiply_program;
 	GLuint main_buffer;
+	GLuint main_attachment;
 	GLuint backend_buffer1;
 	GLuint backend_attachment1;
 	GLuint backend_buffer2;

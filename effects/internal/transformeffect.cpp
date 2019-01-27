@@ -63,7 +63,7 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	blend_mode_box->add_combo_item(tr("Lighten"), BLEND_MODE_LIGHTEN);
 	blend_mode_box->add_combo_item(tr("Screen"), BLEND_MODE_SCREEN);
 	blend_mode_box->add_combo_item(tr("Color Dodge"), BLEND_MODE_COLORDODGE);
-	blend_mode_box->add_combo_item(tr("Linear Dodge"), BLEND_MODE_LINEARDODGE);
+	blend_mode_box->add_combo_item(tr("Linear Dodge (Add)"), BLEND_MODE_LINEARDODGE);
 	blend_mode_box->add_combo_item(tr("Overlay"), BLEND_MODE_OVERLAY);
 	blend_mode_box->add_combo_item(tr("Soft Light"), BLEND_MODE_SOFTLIGHT);
 	blend_mode_box->add_combo_item(tr("Hard Light"), BLEND_MODE_HARDLIGHT);
@@ -74,9 +74,9 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	blend_mode_box->add_combo_item(tr("Difference"), BLEND_MODE_DIFFERENCE);
 	blend_mode_box->add_combo_item(tr("Exclusion"), BLEND_MODE_EXCLUSION);
 	blend_mode_box->add_combo_item(tr("Reflect"), BLEND_MODE_REFLECT);
-	blend_mode_box->add_combo_item(tr("Subtract"), BLEND_MODE_SUBTRACT);
+//	blend_mode_box->add_combo_item(tr("Subtract"), BLEND_MODE_SUBTRACT);
 	blend_mode_box->add_combo_item(tr("Substract"), BLEND_MODE_SUBSTRACT);
-	blend_mode_box->add_combo_item(tr("Add"), BLEND_MODE_ADD);
+//	blend_mode_box->add_combo_item(tr("Add"), BLEND_MODE_ADD);
 	blend_mode_box->add_combo_item(tr("Average"), BLEND_MODE_AVERAGE);
 	blend_mode_box->add_combo_item(tr("Glow"), BLEND_MODE_GLOW);
 	blend_mode_box->add_combo_item(tr("Negation"), BLEND_MODE_NEGATION);

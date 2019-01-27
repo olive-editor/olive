@@ -28,18 +28,11 @@ extern "C" {
 	#include <libavformat/avformat.h>
 }
 
-GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
+void full_blit() {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, 1, 0, 1, -1, 1);
 
-	fbo->bind();
-
-	if (clear) {
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-
-	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); // top left
 	glVertex2f(0, 0); // top left
@@ -50,9 +43,41 @@ GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 	glTexCoord2f(0, 1); // bottom left
 	glVertex2f(0, 1); // bottom left
 	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glPopMatrix();
+}
+
+void draw_clip(QOpenGLContext* ctx, GLuint fbo, GLuint texture, bool clear) {
+	ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+	if (clear) {
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	full_blit();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
+	fbo->bind();
+
+	if (clear) {
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	full_blit();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	fbo->release();
+
 	return fbo->texture();
 }
 
@@ -78,8 +103,6 @@ void process_effect(Clip* c,
 			}
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
-				qDebug() << "superimpose texture was:" << superimpose_texture;
-				qDebug() << "composite texture was:" << composite_texture;
 
 				if (superimpose_texture == 0) {
 					qWarning() << "Superimpose texture was nullptr, retrying...";
@@ -88,7 +111,6 @@ void process_effect(Clip* c,
 					// if there is no previous texture, just return the superimposes texture
 					// UNLESS this is a shader-extended superimpose effect in which case,
 					// we'll need to draw it below
-					qDebug() << "returning superimpose directly";
 					composite_texture = superimpose_texture;
 				} else {
 					// if the source texture is not already a framebuffer texture,
@@ -361,7 +383,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 							if (e->container->selected) selected_effect = e;
 						}
 					}
-					qDebug() << "texture ID:" << textureID;
 
 					// using gizmo data, set definitive gizmo
 					if (selected_effect != nullptr) {
@@ -388,86 +409,110 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 					// == EFFECT CODE END ==
 
-					// == START FINAL DRAW ON SEQUENCE BUFFER ==
-
 					if (textureID > 0) {
-						// bind framebuffer
-						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
-
 						// set viewport to sequence size
-						glViewport(0, 0, s->width, s->height);
+						params.ctx->functions()->glViewport(0, 0, s->width, s->height);
 
-						// bind final texture
+
+
+						// == START RENDER CLIP IN CONTEXT OF SEQUENCE ==
+
+
+
+						// render a backbuffer
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, params.backend_buffer1);
+
+						glClearColor(0.0, 0.0, 0.0, 0.0);
+						glClear(GL_COLOR_BUFFER_BIT);
+
+						// bind final clip texture
 						glBindTexture(GL_TEXTURE_2D, textureID);
 
 						// set texture filter to bilinear
-						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-						glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+						params.ctx->functions()->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						params.ctx->functions()->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+						// draw clip on screen according to gl coordinates
+						glBegin(GL_QUADS);
+
+						glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
+						glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
+						glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
+						glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
+						glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
+						glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
+						glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
+						glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
+
+						glEnd();
+
+						// release final clip texture
+						glBindTexture(GL_TEXTURE_2D, 0);
+
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+
+
+						// == END RENDER CLIP IN CONTEXT OF SEQUENCE ==
+
+
+
+						//
+						//
+						// PROCESS POST-SHADERS
+						//
+						//
+
+
+
+						// copy front buffer to back buffer
+						draw_clip(params.ctx, params.backend_buffer2, params.main_attachment, true);
+
+
+
+						// == START FINAL DRAW ON SEQUENCE BUFFER ==
+
+
+
+						// bind front buffer as draw buffer
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
+
+						// load background texture into texture unit 0
+						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, params.backend_attachment2);
+
+						// load foreground texture into texture unit 1
+						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, params.backend_attachment1);
 
 						// bind and configure blending mode shader
 						params.blend_mode_program->bind();
-						params.blend_mode_program->setUniformValue("blend_mode", coords.blendmode);
+						params.blend_mode_program->setUniformValue("blendmode", coords.blendmode);
 						params.blend_mode_program->setUniformValue("opacity", coords.opacity);
+						params.blend_mode_program->setUniformValue("background", 0);
+						params.blend_mode_program->setUniformValue("foreground", 1);
 
-						// draw clip on screen
-						glBegin(GL_QUADS);
+						glClear(GL_COLOR_BUFFER_BIT);
 
-						if (coords.grid_size <= 1) {
-							glTexCoord2f(coords.textureTopLeftX, coords.textureTopLeftY); // top left
-							glVertex2f(coords.vertexTopLeftX, coords.vertexTopLeftY); // top left
-							glTexCoord2f(coords.textureTopRightX, coords.textureTopRightY); // top right
-							glVertex2f(coords.vertexTopRightX, coords.vertexTopRightY); // top right
-							glTexCoord2f(coords.textureBottomRightX, coords.textureBottomRightY); // bottom right
-							glVertex2f(coords.vertexBottomRightX, coords.vertexBottomRightY); // bottom right
-							glTexCoord2f(coords.textureBottomLeftX, coords.textureBottomLeftY); // bottom left
-							glVertex2f(coords.vertexBottomLeftX, coords.vertexBottomLeftY); // bottom left
-						} else {
-							float rows = coords.grid_size;
-							float cols = coords.grid_size;
-
-							for (int k=0;k<rows;k++) {
-								float row_prog = float(k)/rows;
-								float next_row_prog = float(k+1)/rows;
-								for (int j=0;j<cols;j++) {
-									float col_prog = float(j)/cols;
-									float next_col_prog = float(j+1)/cols;
-
-									float vertexTLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, row_prog);
-									float vertexTRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, row_prog);
-									float vertexBLX = float_lerp(coords.vertexTopLeftX, coords.vertexBottomLeftX, next_row_prog);
-									float vertexBRX = float_lerp(coords.vertexTopRightX, coords.vertexBottomRightX, next_row_prog);
-
-									float vertexTLY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, col_prog);
-									float vertexTRY = float_lerp(coords.vertexTopLeftY, coords.vertexTopRightY, next_col_prog);
-									float vertexBLY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, col_prog);
-									float vertexBRY = float_lerp(coords.vertexBottomLeftY, coords.vertexBottomRightY, next_col_prog);
-
-									glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, row_prog)); // top left
-									glVertex2f(float_lerp(vertexTLX, vertexTRX, col_prog), float_lerp(vertexTLY, vertexBLY, row_prog)); // top left
-									glTexCoord2f(float_lerp(coords.textureTopLeftX, coords.textureTopRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, row_prog)); // top right
-									glVertex2f(float_lerp(vertexTLX, vertexTRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, row_prog)); // top right
-									glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, next_col_prog), float_lerp(coords.textureTopRightY, coords.textureBottomRightY, next_row_prog)); // bottom right
-									glVertex2f(float_lerp(vertexBLX, vertexBRX, next_col_prog), float_lerp(vertexTRY, vertexBRY, next_row_prog)); // bottom right
-									glTexCoord2f(float_lerp(coords.textureBottomLeftX, coords.textureBottomRightX, col_prog), float_lerp(coords.textureTopLeftY, coords.textureBottomLeftY, next_row_prog)); // bottom left
-									glVertex2f(float_lerp(vertexBLX, vertexBRX, col_prog), float_lerp(vertexTLY, vertexBLY, next_row_prog)); // bottom left
-								}
-							}
-						}
-
-						glEnd();
+						full_blit();
 
 						// release blend mode shader
 						params.blend_mode_program->release();
 
-						// unbind texture
-						glBindTexture(GL_TEXTURE_2D, 0);
+						// unbind texture from texture unit 1
+						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+
+						// unbind texture from texture unit 0
+						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 
 						// unbind framebuffer
-						params.ctx->functions()->glBindFramebuffer(GL_TEXTURE_2D, 0);
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
+
+
+						// == END FINAL DRAW ON SEQUENCE BUFFER ==
 					}
-
-					// == END FINAL DRAW ON SEQUENCE BUFFER ==
 
 					// prepare gizmos
 					if ((*params.gizmos) != nullptr

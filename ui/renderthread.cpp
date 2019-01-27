@@ -70,11 +70,11 @@ void RenderThread::run() {
 
 					// create texture
 					glGenTextures(1, &front_texture);
-					glGenTextures(1, &back_buffer_1);
-					glGenTextures(1, &back_buffer_2);
+					glGenTextures(1, &back_texture_1);
+					glGenTextures(1, &back_texture_2);
 
 					GLuint fbos[3] = {front_buffer, back_buffer_1, back_buffer_2};
-					GLuint textures[3] = {front_buffer, back_buffer_1, back_buffer_2};
+					GLuint textures[3] = {front_texture, back_texture_1, back_texture_2};
 
 					for (int i=0;i<3;i++) {
 						// bind framebuffer for attaching
@@ -85,7 +85,7 @@ void RenderThread::run() {
 
 						// allocate storage for texture
 						glTexImage2D(
-							GL_TEXTURE_2D, 0, GL_RGB, seq->width, seq->height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr
+							GL_TEXTURE_2D, 0, GL_RGBA, seq->width, seq->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr
 						);
 
 						// set texture filtering to bilinear
@@ -174,6 +174,7 @@ void RenderThread::paint() {
 	params.backend_attachment1 = back_texture_1;
 	params.backend_attachment2 = back_texture_2;
 	params.main_buffer = front_buffer;
+	params.main_attachment = front_texture;
 	compose_sequence(params);
 
 	texture_failed = params.texture_failed;

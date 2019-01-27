@@ -500,7 +500,7 @@ void Effect::load(QXmlStreamReader& stream) {
 									for (int l=0;l<row->fieldCount();l++) {
 										if (row->field(l)->id == attr.value()) {
 											field_number = l;
-											qInfo() << "Found field by ID";
+//											qInfo() << "Found field by ID";
 											break;
 										}
 									}
