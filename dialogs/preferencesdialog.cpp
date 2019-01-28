@@ -120,7 +120,7 @@ void PreferencesDialog::save() {
 		return;
 	}
 
-    bool needs_restart = false;
+	// save settings from UI to backend
 
 	config.css_path = custom_css_fn->text();
 	mainWindow->load_css_from_file(config.css_path);
@@ -133,24 +133,28 @@ void PreferencesDialog::save() {
 	config.previous_queue_size = previous_queue_spinbox->value();
 	config.previous_queue_type = previous_queue_type->currentIndex();
 
-    if (config.effect_textbox_lines != effect_textbox_lines_field->value()) {
-        needs_restart = true;
-    }
+	// the following settings may require a restart of Olive to take effect:
+
+	bool needs_restart = false;
+
+	if (config.effect_textbox_lines != effect_textbox_lines_field->value()) {
+		needs_restart = true;
+	}
 	config.effect_textbox_lines = effect_textbox_lines_field->value();
 
-    if (config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()) {
-        needs_restart = true;
-    }
-    config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
+	if (config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()) {
+		needs_restart = true;
+	}
+	config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
 
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
 		key_shortcut_fields.at(i)->set_action_shortcut();
 	}
 
-    if (needs_restart) {
-        QMessageBox::information(this, tr("Warning"), tr("Some changed settings will require restarting Olive to take effect"));
-    }
+	if (needs_restart) {
+		QMessageBox::information(this, tr("Warning"), tr("Some changed settings will require restarting Olive to take effect"));
+	}
 
 	accept();
 }
@@ -319,11 +323,11 @@ void PreferencesDialog::setup_ui() {
 	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
 	general_layout->addWidget(effect_textbox_lines_field, 3, 1, 1, 2);
 
-    // General -> Use Software Fallbacks When Possible
-    use_software_fallbacks_checkbox = new QCheckBox(general_tab);
-    use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
-    use_software_fallbacks_checkbox->setChecked(config.use_software_fallback);
-    general_layout->addWidget(use_software_fallbacks_checkbox, 4, 0, 1, 1);
+	// General -> Use Software Fallbacks When Possible
+	use_software_fallbacks_checkbox = new QCheckBox(general_tab);
+	use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
+	use_software_fallbacks_checkbox->setChecked(config.use_software_fallback);
+	general_layout->addWidget(use_software_fallbacks_checkbox, 4, 0, 1, 1);
 
 	tabWidget->addTab(general_tab, tr("General"));
 

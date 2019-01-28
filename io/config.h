@@ -63,6 +63,7 @@ struct Config {
 	QString css_path;
 	int effect_textbox_lines;
 	bool use_software_fallback;
+	bool center_timeline_timecodes;
 
 	void load(QString path);
 	void save(QString path);
