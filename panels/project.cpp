@@ -78,6 +78,7 @@ Project::Project(QWidget *parent) :
 	// optional toolbar
 	toolbar_widget = new QWidget();
 	toolbar_widget->setVisible(config.show_project_toolbar);
+	toolbar_widget->setObjectName("project_toolbar");
 	QHBoxLayout* toolbar = new QHBoxLayout();
 	toolbar->setMargin(0);
 	toolbar->setSpacing(0);
@@ -129,7 +130,6 @@ Project::Project(QWidget *parent) :
 	toolbar->addWidget(toolbar_redo);
 
 	toolbar->addStretch();
-
 	QPushButton* toolbar_tree_view = new QPushButton(toolbar_widget);
 	QIcon icon6;
 	icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);

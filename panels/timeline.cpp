@@ -1649,6 +1649,7 @@ void Timeline::setup_ui() {
 
 	tool_button_widget = new QWidget(dockWidgetContents);
 	tool_button_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	tool_button_widget->setObjectName("timeline_toolbar");
 
 	FlowLayout* tool_buttons_layout = new FlowLayout(tool_button_widget);
 //    tool_buttons_layout->setSizeConstraint(QLayout::SetNoConstraint);
