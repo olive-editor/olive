@@ -72,7 +72,7 @@ class Timeline : public QDockWidget
 {
 	Q_OBJECT
 public:
-	explicit Timeline(QWidget *parent = 0);
+	explicit Timeline(QWidget *parent = nullptr);
 	~Timeline();
 
 	bool focused();
@@ -204,6 +204,8 @@ public:
 	void scroll_to_frame(long frame);
 	void select_from_playhead();
 
+	bool can_ripple_empty_space(long frame, int track);
+
 	void resizeEvent(QResizeEvent *event);
 public slots:
 	void paste(bool insert = false);
@@ -212,6 +214,7 @@ public slots:
 	void deselect();
 	void toggle_links();
 	void split_at_playhead();
+	void ripple_delete_empty_space();
 
 private slots:
 	void zoom_in();
@@ -237,6 +240,10 @@ private:
 	void setup_ui();
 
 	int default_track_height;
+
+	// ripple delete empty space variables
+	long rc_ripple_min;
+	long rc_ripple_max;
 
 	QWidget* timeline_area;
 	TimelineWidget* video_area;

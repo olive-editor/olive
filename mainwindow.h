@@ -39,6 +39,8 @@ public slots:
 	void nest();
 	void toggle_full_screen();
 
+	void toggle_bool_action();
+
 protected:
 	void closeEvent(QCloseEvent *);
 	void paintEvent(QPaintEvent *event);
@@ -126,7 +128,6 @@ private slots:
 	void edit_to_in_point();
 	void edit_to_out_point();
 	void paste_insert();
-	void toggle_bool_action();
 	void set_autoscroll();
 	void menu_click_button();
 	void toggle_panel_visibility();
@@ -141,6 +142,10 @@ private:
 	void setup_layout(bool reset);
 	bool can_close_project();
 	void setup_menus();
+
+	void set_bool_action_checked(QAction* a);
+	void set_int_action_checked(QAction* a, const int& i);
+	void set_button_action_checked(QAction* a);
 
 	// menu bar menus
 	QMenu* window_menu;
@@ -195,10 +200,6 @@ private:
 	// edit menu actions
 	QAction* undo_action;
 	QAction* redo_action;
-
-	void set_bool_action_checked(QAction* a);
-	void set_int_action_checked(QAction* a, const int& i);
-	void set_button_action_checked(QAction* a);
 
 	bool enable_launch_with_project;
 

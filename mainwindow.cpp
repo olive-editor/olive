@@ -436,7 +436,15 @@ void MainWindow::export_dialog() {
 }
 
 void MainWindow::ripple_delete() {
-	if (sequence != nullptr) panel_timeline->delete_selection(sequence->selections, true);
+	if (sequence != nullptr) {
+		if (sequence->selections.size() > 0) {
+			panel_timeline->delete_selection(sequence->selections, true);
+		} else if (config.hover_focus && get_focused_panel() == panel_timeline) {
+			if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
+				panel_timeline->ripple_delete_empty_space();
+			}
+		}
+	}
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {

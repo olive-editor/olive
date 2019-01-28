@@ -22,6 +22,9 @@
 #define SUBLINE_MIN_PADDING 50 // TODO play with this
 #define MARKER_SIZE 4
 
+// used only if center_timeline_timecodes is FALSE
+#define TEXT_PADDING_FROM_LINE 4
+
 bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead) {
 	// returns true is the scroll was changed, false if not
 	int target_scroll = qMin(bar->maximum(), qMax(0, getScreenPointFromFrame(zoom, playhead)-(bar->width()>>1)));
@@ -351,7 +354,16 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 				timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
 				fullTextWidth = fm.width(timecode);
 				textWidth = fullTextWidth>>1;
-				text_x = lineX-textWidth;
+
+				text_x = lineX;
+
+				// centers the text to that point on the timeline, LEFT aligns it if not
+				if (config.center_timeline_timecodes) {
+					text_x -= textWidth;
+				} else {
+					text_x += TEXT_PADDING_FROM_LINE;
+				}
+
 				lastTextBoundary = lineX+textWidth;
 				if (lastTextBoundary >= 0) {
 					draw_text = true;
@@ -366,7 +378,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 				// draw line markers
 				p.setPen(Qt::gray);
-				p.drawLine(lineX, yoff, lineX, height());
+				p.drawLine(lineX, (!config.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
 
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
@@ -442,6 +454,13 @@ void TimelineHeader::show_context_menu(const QPoint &pos) {
 	QMenu menu(this);
 
 	mainWindow->make_inout_menu(&menu);
+
+	menu.addSeparator();
+
+	QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), mainWindow, SLOT(toggle_bool_action()));
+	center_timecodes->setCheckable(true);
+	center_timecodes->setChecked(config.center_timeline_timecodes);
+	center_timecodes->setData(reinterpret_cast<quintptr>(&config.center_timeline_timecodes));
 
 	menu.exec(mapToGlobal(pos));
 }

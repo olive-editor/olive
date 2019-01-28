@@ -61,7 +61,7 @@ private:
 	QDoubleSpinBox* previous_queue_spinbox;
 	QComboBox* previous_queue_type;
 	QSpinBox* effect_textbox_lines_field;
-    QCheckBox* use_software_fallbacks_checkbox;
+	QCheckBox* use_software_fallbacks_checkbox;
 
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;

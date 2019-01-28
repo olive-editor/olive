@@ -63,12 +63,9 @@ private:
 	QVector<Clip*> pre_clips;
 	QVector<Clip*> post_clips;
 
-	Sequence* self_created_sequence;
-
-	// used for "right click ripple"
-	long rc_ripple_min;
-	long rc_ripple_max;
 	Media* rc_reveal_media;
+
+	Sequence* self_created_sequence;
 
 	QTimer tooltip_timer;
 	int tooltip_clip;
@@ -83,7 +80,6 @@ public slots:
 
 private slots:
 	void reveal_media();
-	void right_click_ripple();
 	void show_context_menu(const QPoint& pos);
 	void toggle_autoscale();
 	void tooltip_timer_timeout();

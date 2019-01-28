@@ -47,7 +47,8 @@ Config::Config()
 	  loop(true),
 	  seek_also_selects(false),
 	  effect_textbox_lines(3),
-	  use_software_fallback(false)
+	  use_software_fallback(false),
+	  center_timeline_timecodes(true)
 {}
 
 void Config::load(QString path) {
@@ -169,6 +170,9 @@ void Config::load(QString path) {
 				} else if (stream.name() == "UseSoftwareFallback") {
 					stream.readNext();
 					use_software_fallback = (stream.text() == "1");
+				} else if (stream.name() == "CenterTimelineTimecodes") {
+					stream.readNext();
+					center_timeline_timecodes =  (stream.text() == "1");
 				}
 			}
 		}
@@ -230,6 +234,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("CSSPath", css_path);
 	stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
 	stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
+	stream.writeTextElement("CenterTimelineTimecodes", QString::number(center_timeline_timecodes));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

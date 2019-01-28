@@ -66,19 +66,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
 	connect(&tooltip_timer, SIGNAL(timeout()), this, SLOT(tooltip_timer_timeout()));
 }
 
-void TimelineWidget::right_click_ripple() {
-	QVector<Selection> sels;
-
-	Selection s;
-	s.in = rc_ripple_min;
-	s.out = rc_ripple_max;
-	s.track = panel_timeline->cursor_track;
-
-	sels.append(s);
-
-	panel_timeline->delete_selection(sels, true);
-}
-
 void TimelineWidget::show_context_menu(const QPoint& pos) {
 	if (sequence != nullptr) {
 		// hack because sometimes right clicking doesn't trigger mouse release event
@@ -114,36 +101,14 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		if (selected_clips.isEmpty()) {
 			// no clips are selected
+
+			// determine if we can perform a ripple empty space
 			panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
 			panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 
-			bool can_ripple_delete = true;
-			bool at_end_of_sequence = true;
-			rc_ripple_min = 0;
-			rc_ripple_max = LONG_MAX;
-
-			for (int i=0;i<sequence->clips.size();i++) {
-				Clip* c = sequence->clips.at(i);
-				if (c != nullptr) {
-					if (c->timeline_in > panel_timeline->cursor_frame || c->timeline_out > panel_timeline->cursor_frame) {
-						at_end_of_sequence = false;
-					}
-					if (c->track == panel_timeline->cursor_track) {
-						if (c->timeline_in <= panel_timeline->cursor_frame && c->timeline_out >= panel_timeline->cursor_frame) {
-							can_ripple_delete = false;
-							break;
-						} else if (c->timeline_out < panel_timeline->cursor_frame) {
-							rc_ripple_min = qMax(rc_ripple_min, c->timeline_out);
-						} else if (c->timeline_in > panel_timeline->cursor_frame) {
-							rc_ripple_max = qMin(rc_ripple_max, c->timeline_in);
-						}
-					}
-				}
-			}
-
-			if (can_ripple_delete && !at_end_of_sequence) {
+			if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
 				QAction* ripple_delete_action = menu.addAction("R&ipple Delete");
-				connect(ripple_delete_action, SIGNAL(triggered(bool)), this, SLOT(right_click_ripple()));
+				connect(ripple_delete_action, SIGNAL(triggered(bool)), panel_timeline, SLOT(ripple_delete_empty_space()));
 			}
 
 			QAction* seq_settings = menu.addAction("Sequence Settings");
