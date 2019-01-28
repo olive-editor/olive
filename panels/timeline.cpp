@@ -484,6 +484,47 @@ void Timeline::select_from_playhead() {
 	}
 }
 
+bool Timeline::can_ripple_empty_space(long frame, int track) {
+	bool can_ripple_delete = true;
+	bool at_end_of_sequence = true;
+	rc_ripple_min = 0;
+	rc_ripple_max = LONG_MAX;
+
+	for (int i=0;i<sequence->clips.size();i++) {
+		Clip* c = sequence->clips.at(i);
+		if (c != nullptr) {
+			if (c->timeline_in > frame || c->timeline_out > frame) {
+				at_end_of_sequence = false;
+			}
+			if (c->track == track) {
+				if (c->timeline_in <= frame && c->timeline_out >= frame) {
+					can_ripple_delete = false;
+					break;
+				} else if (c->timeline_out < frame) {
+					rc_ripple_min = qMax(rc_ripple_min, c->timeline_out);
+				} else if (c->timeline_in > frame) {
+					rc_ripple_max = qMin(rc_ripple_max, c->timeline_in);
+				}
+			}
+		}
+	}
+
+	return (can_ripple_delete && !at_end_of_sequence);
+}
+
+void Timeline::ripple_delete_empty_space() {
+	QVector<Selection> sels;
+
+	Selection s;
+	s.in = rc_ripple_min;
+	s.out = rc_ripple_max;
+	s.track = panel_timeline->cursor_track;
+
+	sels.append(s);
+
+	panel_timeline->delete_selection(sels, true);
+}
+
 void Timeline::resizeEvent(QResizeEvent *) {
 	// adjust maximum scrollbar
 	if (sequence != nullptr) set_sb_max();
