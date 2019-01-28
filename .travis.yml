@@ -5,8 +5,8 @@ dist: trusty
 
 matrix:
   include:
-  - env: ARCH=x86_64 APPIMGTOOL=appimagetool-x86_64.AppImage
-  - env: ARCH=i386 APPIMGTOOL=appimagetool-i686.AppImage
+  - env: ARCH=x86_64
+  - env: ARCH=i386
 
 before_install:
   - sudo add-apt-repository ppa:beineri/opt-qt593-trusty -y
@@ -26,13 +26,10 @@ script:
   - mkdir -p appdir/usr/bin/ ; cp olive-editor appdir/usr/bin/ # FIXME; "make install" should do this
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-  - wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/$APPIMGTOOL"
-  - chmod a+x $APPIMGTOOL
   - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
-  - rm Olive*.AppImage
-  - ./$APPIMGTOOL 'appdir' -n -g
+  - if [ "$ARCH" == "i386" ]; then rm Olive*.AppImage; wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-i686.AppImage"; chmod a+x $APPIMGTOOL; ./$APPIMGTOOL 'appdir' -n -g; fi
 
 after_success:
   - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
