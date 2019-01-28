@@ -74,6 +74,36 @@ enum EffectInternal {
 	EFFECT_INTERNAL_COUNT
 };
 
+enum EffectBlendMode {
+	BLEND_MODE_ADD,
+	BLEND_MODE_AVERAGE,
+	BLEND_MODE_COLORBURN,
+	BLEND_MODE_COLORDODGE,
+	BLEND_MODE_DARKEN,
+	BLEND_MODE_DIFFERENCE,
+	BLEND_MODE_EXCLUSION,
+	BLEND_MODE_GLOW,
+	BLEND_MODE_HARDLIGHT,
+	BLEND_MODE_HARDMIX,
+	BLEND_MODE_LIGHTEN,
+	BLEND_MODE_LINEARBURN,
+	BLEND_MODE_LINEARDODGE,
+	BLEND_MODE_LINEARLIGHT,
+	BLEND_MODE_MULTIPLY,
+	BLEND_MODE_NEGATION,
+	BLEND_MODE_NORMAL,
+	BLEND_MODE_OVERLAY,
+	BLEND_MODE_PHOENIX,
+	BLEND_MODE_PINLIGHT,
+	BLEND_MODE_REFLECT,
+	BLEND_MODE_SCREEN,
+	BLEND_MODE_SOFTLIGHT,
+	BLEND_MODE_SUBSTRACT,
+	BLEND_MODE_SUBTRACT,
+	BLEND_MODE_VIVIDLIGHT,
+	BLEND_MODE_COUNT
+};
+
 struct GLTextureCoords {
 	int grid_size;
 
@@ -102,6 +132,9 @@ struct GLTextureCoords {
 	float textureBottomLeftX;
 	float textureBottomLeftY;
 	float textureBottomLeftQ;
+
+	int blendmode;
+	float opacity;
 };
 
 qint16 mix_audio_sample(qint16 a, qint16 b);
@@ -159,7 +192,7 @@ public:
 
 	const char* ffmpeg_filter;
 
-    virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
+	virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
 	virtual void process_shader(double timecode, GLTextureCoords&);
 	virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);

@@ -834,7 +834,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							// default audio effects (after custom effects)
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
-							//c->media_type = MEDIA_TYPE_TONE;
 						}
 
 						push_undo = true;

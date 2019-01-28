@@ -264,6 +264,7 @@ void Viewer::seek(long p) {
 	}
 	reset_all_audio();
 	audio_scrub = true;
+	last_playhead = seq->playhead;
 	update_parents(update_fx);
 }
 

@@ -370,9 +370,15 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 }
 
 bool is_clip_active(Clip* c, long playhead) {
+	// these buffers allow clips to be opened and prepared well before they're displayed
+	// as well as closed a little after they're not needed anymore
+	int open_buffer = qCeil(c->sequence->frame_rate*2);
+	int close_buffer = qCeil(c->sequence->frame_rate);
+
+
 	return c->enabled
-			&& c->get_timeline_in_with_transition() < playhead + ceil(c->sequence->frame_rate*2)
-			&& c->get_timeline_out_with_transition() > playhead
+			&& c->get_timeline_in_with_transition() < playhead + open_buffer
+			&& c->get_timeline_out_with_transition() > playhead - close_buffer
 			&& playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition() < c->getMaximumLength();
 }
 

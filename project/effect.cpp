@@ -29,9 +29,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
-#ifndef NOVST
 #include "effects/internal/vsthost.h"
-#endif
 #include "effects/internal/fillleftrighteffect.h"
 #include "effects/internal/frei0reffect.h"
 
@@ -502,7 +500,7 @@ void Effect::load(QXmlStreamReader& stream) {
 									for (int l=0;l<row->fieldCount();l++) {
 										if (row->field(l)->id == attr.value()) {
 											field_number = l;
-											qInfo() << "Found field by ID";
+//											qInfo() << "Found field by ID";
 											break;
 										}
 									}
@@ -662,10 +660,6 @@ void Effect::open() {
 	} else {
 		isOpen = true;
 	}
-
-	if (enable_superimpose) {
-		texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-	}
 }
 
 void Effect::close() {
@@ -749,30 +743,40 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 void Effect::process_coords(double, GLTextureCoords&, int) {}
 
 GLuint Effect::process_superimpose(double timecode) {
-	bool recreate_texture = false;
+	bool dimensions_changed = false;
+	bool redrew_image = false;
+
 	int width = parent_clip->getWidth();
 	int height = parent_clip->getHeight();
 
 	if (width != img.width() || height != img.height()) {
-		img = QImage(width, height, QImage::Format_RGBA8888);
-		recreate_texture = true;
+		img = QImage(width, height, QImage::Format_RGBA8888_Premultiplied);
+		dimensions_changed = true;
 	}
 
-	if (valueHasChanged(timecode) || recreate_texture || enable_always_update) {
+	if (valueHasChanged(timecode) || dimensions_changed || enable_always_update) {
 		redraw(timecode);
+		redrew_image = true;
 	}
 
-	if (texture != nullptr) {
-		if (recreate_texture || texture->width() != img.width() || texture->height() != img.height()) {
-			delete_texture();
-			texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-			texture->setData(img);
-		} else {
-			texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, img.constBits());
-		}
-		return texture->textureId();
+	if (texture == nullptr || texture->width() != img.width() || texture->height() != img.height()) {
+		delete_texture();
+
+		texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+		texture->setSize(img.width(), img.height());
+		texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+		texture->setMipLevels(texture->maximumMipLevels());
+		texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+		texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+
+		redrew_image = true;
 	}
-	return 0;
+
+	if (redrew_image) {
+		texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, img.constBits());
+	}
+
+	return texture->textureId();
 }
 
 void Effect::process_audio(double, double, quint8*, int, int) {}

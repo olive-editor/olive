@@ -766,15 +766,28 @@ void open_clip_worker(Clip* clip) {
 
 			AVFilterContext* last_filter = clip->buffersrc_ctx;
 
+			char filter_args[100];
+
 			if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 				AVFilterContext* yadif_filter;
-				char yadif_args[100];
-				snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
-				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, nullptr, clip->filter_graph);
+				snprintf(filter_args, sizeof(filter_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
+				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, clip->filter_graph);
 
 				avfilter_link(last_filter, 0, yadif_filter, 0);
 				last_filter = yadif_filter;
 			}
+
+			// ffmpeg premultiplier
+			/*
+			if (!clip->media->to_footage()->alpha_is_premultiplied) {
+				AVFilterContext* premultiply_filter;
+				snprintf(filter_args, sizeof(filter_args), "inplace=1");
+				avfilter_graph_create_filter(&premultiply_filter, avfilter_get_by_name("premultiply"), "premultiply", filter_args, nullptr, clip->filter_graph);
+
+				avfilter_link(last_filter, 0, premultiply_filter, 0);
+				last_filter = premultiply_filter;
+			}
+			*/
 
 			/* stabilization code */
 			/*bool stabilize = false;
@@ -791,19 +804,12 @@ void open_clip_worker(Clip* clip) {
 				}
 			}*/
 
-			enum AVPixelFormat valid_pix_fmts[] = {
-//				AV_PIX_FMT_RGB24,
-				AV_PIX_FMT_RGBA,
-				AV_PIX_FMT_NONE
-			};
-
-			clip->pix_fmt = avcodec_find_best_pix_fmt_of_list(valid_pix_fmts, static_cast<enum AVPixelFormat>(clip->stream->codecpar->format), 1, nullptr);
+			clip->pix_fmt = AV_PIX_FMT_RGBA;
 			const char* chosen_format = av_get_pix_fmt_name(static_cast<enum AVPixelFormat>(clip->pix_fmt));
-			char format_args[100];
-			snprintf(format_args, sizeof(format_args), "pix_fmts=%s", chosen_format);
+			snprintf(filter_args, sizeof(filter_args), "pix_fmts=%s", chosen_format);
 
 			AVFilterContext* format_conv;
-			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", format_args, nullptr, clip->filter_graph);
+			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", filter_args, nullptr, clip->filter_graph);
 			avfilter_link(last_filter, 0, format_conv, 0);
 
 			avfilter_link(format_conv, 0, clip->buffersink_ctx, 0);

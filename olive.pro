@@ -256,7 +256,8 @@ unix:!mac {
 }
 
 RESOURCES += \
-    icons/icons.qrc
+    icons/icons.qrc \
+    effects/internal/internalshaders.qrc
 
 unix:!mac:isEmpty(PREFIX) {
     PREFIX = /usr/local

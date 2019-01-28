@@ -13,6 +13,7 @@ uniform float shadowdistance;
 varying vec2 vTexCoord;
 
 void main(void) {
+	/*
 	vec4 master_px = texture2D(image, vTexCoord);
 	if (shadow == 1) {
 		vec2 shadow_dist = vec2(shadowdistance)/resolution;
@@ -39,5 +40,7 @@ void main(void) {
 		gl_FragColor = composition;
 	} else {
 		gl_FragColor = master_px;
-	}	
+	}
+	*/
+	gl_FragColor = texture2D(image, vTexCoord);
 }

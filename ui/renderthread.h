@@ -1,4 +1,4 @@
-#ifndef RENDERTHREAD_H
+﻿#ifndef RENDERTHREAD_H
 #define RENDERTHREAD_H
 
 #include <QThread>
@@ -7,6 +7,7 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLShaderProgram>
 
 struct Sequence;
 class Effect;
@@ -18,11 +19,11 @@ public:
 	~RenderThread();
 	void run();
 	QMutex mutex;
-	GLuint frameBuffer;
-	GLuint texColorBuffer;
+	GLuint front_buffer;
+	GLuint front_texture;
 	Effect* gizmos;
 	void paint();
-	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0, bool itemp_reverse = false);
+	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
 	bool did_texture_fail();
 	void cancel();
 
@@ -35,11 +36,20 @@ private:
 	// cleanup functions
 	void delete_texture();
 	void delete_fbo();
+	void delete_shader_program();
 
 	QWaitCondition waitCond;
 	QOffscreenSurface surface;
 	QOpenGLContext* share_ctx;
 	QOpenGLContext* ctx;
+	QOpenGLShaderProgram* blend_mode_program;
+	QOpenGLShaderProgram* premultiply_program;
+
+	GLuint back_buffer_1;
+	GLuint back_buffer_2;
+	GLuint back_texture_1;
+	GLuint back_texture_2;
+
 	Sequence* seq;
 	int divider;
 	int tex_width;
@@ -47,7 +57,6 @@ private:
 	bool queued;
 	bool texture_failed;
 	bool running;
-	bool temp_reverse;
 	QString save_fn;
 	GLvoid *pixel_buffer;
 };

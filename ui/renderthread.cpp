@@ -10,11 +10,13 @@
 #include "project/sequence.h"
 
 RenderThread::RenderThread() :
-	frameBuffer(0),
-	texColorBuffer(0),
+	front_buffer(0),
+	front_texture(0),
 	gizmos(nullptr),
 	share_ctx(nullptr),
 	ctx(nullptr),
+	blend_mode_program(nullptr),
+	premultiply_program(nullptr),
 	seq(nullptr),
 	tex_width(-1),
 	tex_height(-1),
@@ -41,47 +43,94 @@ void RenderThread::run() {
 		}
 		queued = false;
 
-
 		if (share_ctx != nullptr) {
 			if (ctx != nullptr) {
 				ctx->makeCurrent(&surface);
 
 				// gen fbo
-				if (frameBuffer == 0) {
+				if (front_buffer == 0) {
+					// delete any existing framebuffers
 					delete_fbo();
-					ctx->functions()->glGenFramebuffers(1, &frameBuffer);
+
+					// create framebuffers
+					ctx->functions()->glGenFramebuffers(1, &front_buffer);
+					ctx->functions()->glGenFramebuffers(1, &back_buffer_1);
+					ctx->functions()->glGenFramebuffers(1, &back_buffer_2);
 				}
 
-				// bind
-				ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBuffer);
 
 				// gen texture
-				if (texColorBuffer == 0 || tex_width != seq->width || tex_height != seq->height) {
-					delete_texture();
-					glGenTextures(1, &texColorBuffer);
-					glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-					glTexImage2D(
-						GL_TEXTURE_2D, 0, GL_RGB, seq->width, seq->height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr
-					);
+				if (front_texture == 0 || tex_width != seq->width || tex_height != seq->height) {
+					// cache texture size
 					tex_width = seq->width;
 					tex_height = seq->height;
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					ctx->functions()->glFramebufferTexture2D(
-						GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0
-					);
-					glBindTexture(GL_TEXTURE_2D, 0);
+
+					// delete any existing textures
+					delete_texture();
+
+					// create texture
+					glGenTextures(1, &front_texture);
+					glGenTextures(1, &back_texture_1);
+					glGenTextures(1, &back_texture_2);
+
+					GLuint fbos[3] = {front_buffer, back_buffer_1, back_buffer_2};
+					GLuint textures[3] = {front_texture, back_texture_1, back_texture_2};
+
+					for (int i=0;i<3;i++) {
+						// bind framebuffer for attaching
+						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbos[i]);
+
+						// bind texture
+						glBindTexture(GL_TEXTURE_2D, textures[i]);
+
+						// allocate storage for texture
+						glTexImage2D(
+							GL_TEXTURE_2D, 0, GL_RGBA, seq->width, seq->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr
+						);
+
+						// set texture filtering to bilinear
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+						// attach texture to framebuffer
+						ctx->functions()->glFramebufferTexture2D(
+							GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[i], 0
+						);
+
+						// release texture
+						glBindTexture(GL_TEXTURE_2D, 0);
+
+						// release framebuffer
+						ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+					}
 				}
 
-				// draw
+				if (blend_mode_program == nullptr) {
+					// create shader program to make blending modes work
+					delete_shader_program();
+
+					blend_mode_program = new QOpenGLShaderProgram();
+					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
+					blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/blending.frag");
+					blend_mode_program->link();
+
+					premultiply_program = new QOpenGLShaderProgram();
+					premultiply_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
+					premultiply_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/premultiply.frag");
+					premultiply_program->link();
+				}
+
+				// bind framebuffer for drawing
+				ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, front_buffer);
+
+				// draw frame
 				paint();
 
 				// flush changes
-//				glFlush();
-				glFinish();
+				ctx->functions()->glFinish();
 
 				// release
-				ctx->functions()->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 				emit ready();
 			}
@@ -96,8 +145,6 @@ void RenderThread::run() {
 void RenderThread::paint() {
 	glLoadIdentity();
 
-	texture_failed = false;
-
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -109,15 +156,35 @@ void RenderThread::paint() {
 	glEnable(GL_DEPTH);
 
 	gizmos = nullptr;
-	QVector<Clip*> nests;
-	compose_sequence(nullptr, ctx, seq, nests, true, false, &gizmos, texture_failed, false, temp_reverse);
+
+	ComposeSequenceParams params;
+	params.viewer = nullptr;
+	params.ctx = ctx;
+	params.seq = seq;
+	params.video = true;
+	params.texture_failed = false;
+	params.render_audio = false;
+	params.gizmos = &gizmos;
+	params.rendering = false;
+	params.playback_speed = 1;
+	params.blend_mode_program = blend_mode_program;
+	params.premultiply_program = premultiply_program;
+	params.backend_buffer1 = back_buffer_1;
+	params.backend_buffer2 = back_buffer_2;
+	params.backend_attachment1 = back_texture_1;
+	params.backend_attachment2 = back_texture_2;
+	params.main_buffer = front_buffer;
+	params.main_attachment = front_texture;
+	compose_sequence(params);
+
+	texture_failed = params.texture_failed;
 
 	if (!save_fn.isEmpty()) {
 		if (texture_failed) {
 			// texture failed, try again
 			queued = true;
 		} else {
-			ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+			ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, front_buffer);
 			QImage img(tex_width, tex_height, QImage::Format_RGBA8888);
 			glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
 			img.save(save_fn);
@@ -127,7 +194,7 @@ void RenderThread::paint() {
 	}
 
 	if (pixel_buffer != nullptr) {
-		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, front_buffer);
 		glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, pixel_buffer);
 		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 		pixel_buffer = nullptr;
@@ -138,13 +205,11 @@ void RenderThread::paint() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider, bool itemp_reverse) {
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider) {
 	seq = s;
 
 	// stall any dependent actions
 	texture_failed = true;
-
-	temp_reverse = itemp_reverse;
 
 	if (share != nullptr && (ctx == nullptr || ctx->shareContext() != share_ctx)) {
 		share_ctx = share;
@@ -175,24 +240,37 @@ void RenderThread::cancel() {
 }
 
 void RenderThread::delete_texture() {
-	if (texColorBuffer > 0) {
-		ctx->functions()->glFramebufferTexture2D(
-			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0
-		);
-		glDeleteTextures(1, &texColorBuffer);
+	if (front_texture > 0) {
+		GLuint tex[3] = {front_texture, back_texture_1, back_texture_2};
+		glDeleteTextures(3, tex);
 	}
-	texColorBuffer = 0;
+	front_texture = 0;
+	back_texture_1 = 0;
+	back_texture_2 = 0;
 }
 
 void RenderThread::delete_fbo() {
-	if (frameBuffer > 0) {
-		ctx->functions()->glDeleteFramebuffers(1, &frameBuffer);
+	if (front_buffer > 0) {
+		GLuint fbos[3] = {front_buffer, back_buffer_1, back_buffer_2};
+		ctx->functions()->glDeleteFramebuffers(3, fbos);
 	}
-	frameBuffer = 0;
+	front_buffer = 0;
+	back_buffer_1 = 0;
+	back_buffer_2 = 0;
+}
+
+void RenderThread::delete_shader_program() {
+	if (blend_mode_program != nullptr) {
+		delete blend_mode_program;
+		delete premultiply_program;
+	}
+	blend_mode_program = nullptr;
+	premultiply_program = nullptr;
 }
 
 void RenderThread::delete_ctx() {
 	if (ctx != nullptr) {
+		delete_shader_program();
 		delete_texture();
 		delete_fbo();
 		ctx->doneCurrent();

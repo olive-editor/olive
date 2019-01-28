@@ -8,23 +8,23 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
 	enable_coords = true;
 	enable_shader = true;
 
-    EffectRow* top_left = add_row(tr("Top Left"));
+	EffectRow* top_left = add_row(tr("Top Left"));
 	top_left_x = top_left->add_field(EFFECT_FIELD_DOUBLE, "topleftx");
 	top_left_y = top_left->add_field(EFFECT_FIELD_DOUBLE, "toplefty");
 
-    EffectRow* top_right = add_row(tr("Top Right"));
+	EffectRow* top_right = add_row(tr("Top Right"));
 	top_right_x = top_right->add_field(EFFECT_FIELD_DOUBLE, "toprightx");
 	top_right_y = top_right->add_field(EFFECT_FIELD_DOUBLE, "toprighty");
 
-    EffectRow* bottom_left = add_row(tr("Bottom Left"));
+	EffectRow* bottom_left = add_row(tr("Bottom Left"));
 	bottom_left_x = bottom_left->add_field(EFFECT_FIELD_DOUBLE, "bottomleftx");
 	bottom_left_y = bottom_left->add_field(EFFECT_FIELD_DOUBLE, "bottomlefty");
 
-    EffectRow* bottom_right = add_row(tr("Bottom Right"));
+	EffectRow* bottom_right = add_row(tr("Bottom Right"));
 	bottom_right_x = bottom_right->add_field(EFFECT_FIELD_DOUBLE, "bottomrightx");
 	bottom_right_y = bottom_right->add_field(EFFECT_FIELD_DOUBLE, "bottomrighty");
 
-    perspective = add_row(tr("Perspective"))->add_field(EFFECT_FIELD_BOOL, "perspective");
+	perspective = add_row(tr("Perspective"))->add_field(EFFECT_FIELD_BOOL, "perspective");
 	perspective->set_bool_value(true);
 
 	top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);

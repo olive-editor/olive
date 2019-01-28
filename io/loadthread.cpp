@@ -248,6 +248,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									m->out = attr.value().toLong();
 								} else if (attr.name() == "speed") {
 									m->speed = attr.value().toDouble();
+								} else if (attr.name() == "alphapremul") {
+									m->alpha_is_premultiplied = (attr.value() == "1");
 								}
 							}
 

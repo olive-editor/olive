@@ -9,6 +9,7 @@ class QLineEdit;
 class Media;
 class QListWidget;
 class QDoubleSpinBox;
+class QCheckBox;
 
 class MediaPropertiesDialog : public QDialog {
 	Q_OBJECT
@@ -20,6 +21,7 @@ private:
 	Media* item;
 	QListWidget* track_list;
 	QDoubleSpinBox* conform_fr;
+	QCheckBox* premultiply_alpha_setting;
 private slots:
 	void accept();
 };

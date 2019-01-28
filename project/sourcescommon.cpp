@@ -56,6 +56,24 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	QMenu* new_menu = menu.addMenu(tr("New"));
 	mainWindow->make_new_menu(new_menu);
 
+	QMenu* view_menu = menu.addMenu(tr("View"));
+
+	QAction* tree_view_action = view_menu->addAction(tr("Tree View"));
+	connect(tree_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_tree_view()));
+
+	QAction* icon_view_action = view_menu->addAction(tr("Icon View"));
+	connect(icon_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_icon_view()));
+
+	QAction* toolbar_action = view_menu->addAction(tr("Show Toolbar"));
+	toolbar_action->setCheckable(true);
+	toolbar_action->setChecked(project_parent->toolbar_widget->isVisible());
+	connect(toolbar_action, SIGNAL(triggered(bool)), project_parent->toolbar_widget, SLOT(setVisible(bool)));
+
+	QAction* show_sequences = view_menu->addAction(tr("Show Sequences"));
+	show_sequences->setCheckable(true);
+	show_sequences->setChecked(panel_project->sorter->get_show_sequences());
+	connect(show_sequences, SIGNAL(triggered(bool)), panel_project->sorter, SLOT(set_show_sequences(bool)));
+
 	if (items.size() > 0) {
 		Media* m = project_parent->item_to_media(items.at(0));
 
@@ -119,24 +137,6 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 			QObject::connect(properties_action, SIGNAL(triggered(bool)), project_parent, SLOT(open_properties()));
 		}
 	}
-
-	menu.addSeparator();
-
-	QAction* tree_view_action = menu.addAction(tr("Tree View"));
-	connect(tree_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_tree_view()));
-
-	QAction* icon_view_action = menu.addAction(tr("Icon View"));
-	connect(icon_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_icon_view()));
-
-	QAction* toolbar_action = menu.addAction(tr("Show Toolbar"));
-	toolbar_action->setCheckable(true);
-	toolbar_action->setChecked(project_parent->toolbar_widget->isVisible());
-	connect(toolbar_action, SIGNAL(triggered(bool)), project_parent->toolbar_widget, SLOT(setVisible(bool)));
-
-	QAction* show_sequences = menu.addAction(tr("Show Sequences"));
-	show_sequences->setCheckable(true);
-	show_sequences->setChecked(panel_project->sorter->get_show_sequences());
-	connect(show_sequences, SIGNAL(triggered(bool)), panel_project->sorter, SLOT(set_show_sequences(bool)));
 
 	menu.exec(QCursor::pos());
 }
