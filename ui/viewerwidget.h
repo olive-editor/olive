@@ -25,7 +25,7 @@ class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
 {
 	Q_OBJECT
 public:
-	ViewerWidget(QWidget *parent = 0);
+	ViewerWidget(QWidget *parent = nullptr);
 	~ViewerWidget();
 
 	void delete_function();
