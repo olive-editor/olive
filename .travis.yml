@@ -29,7 +29,7 @@ script:
   - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
-  - if [ "$ARCH" == "i386" ]; then rm Olive*.AppImage; wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-i686.AppImage"; chmod a+x $APPIMGTOOL; ./$APPIMGTOOL 'appdir' -n -g; fi
+  - if [ "$ARCH" == "i386" ]; then rm Olive*.AppImage; wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-i686.AppImage"; chmod a+x appimagetool-i686.AppImage; ./appimagetool-i686.AppImage 'appdir' -n -g; fi
 
 after_success:
   - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
