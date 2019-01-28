@@ -25,12 +25,10 @@ void main(void) {
 		if (bottom > 0.0) alpha = alpha * clamp((((1.0-vTexCoord.y)+(0.5/f))-(bottom*0.01))*f, 0.0, 1.0); // bottom
 	}
 
-	
-
 	gl_FragColor = vec4(
-		textureColor.r,
-		textureColor.g,
-		textureColor.b,
+		textureColor.r*alpha,
+		textureColor.g*alpha,
+		textureColor.b*alpha,
 		alpha
 	);
 }
