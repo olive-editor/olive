@@ -35,6 +35,9 @@ uniform float opacity;
 
 varying vec2 vTexCoord;
 
+// adapted from https://github.com/jamieowen/glsl-blend
+// and http://www.deepskycolors.com/archivo/2010/04/21/formulas-for-Photoshop-blending-modes.html
+
 // float blending functions
 float blend_color_burn(float base, float blend) {
 	return (blend==0.0)?blend:max((1.0-((1.0-base)/blend)),0.0);
@@ -116,7 +119,6 @@ float blend_soft_light(float base, float blend) {
 	return (blend<0.5)?(2.0*base*blend+base*base*(1.0-2.0*blend)):(sqrt(base)*(2.0*blend-1.0)+2.0*base*(1.0-blend));
 }
 
-// adapted from https://github.com/jamieowen/glsl-blend
 // RGB blending function, alpha is handled below
 vec3 blend(vec3 base, vec3 blend) {
 	switch (blendmode) {
@@ -207,33 +209,29 @@ void main(void) {
 	vec3 composite = blend(bg_color.rgb, fg_color.rgb);	
 
 	// add foreground and background alpha's together
-	vec4 full_composite = vec4(composite, bg_color.a + fg_color.a);
+	float alpha_opac = fg_color.a*opacity;
 
-	// restore background texture based on foreground's alpha
-	bool restore_bg = true;
-
-	// some blend modes don't need this
 	switch (blendmode) {
-	case BLEND_MODE_SCREEN:
+	case BLEND_MODE_OVERLAY:
 	case BLEND_MODE_LIGHTEN:
+	case BLEND_MODE_SCREEN:
 	case BLEND_MODE_COLORDODGE:
 	case BLEND_MODE_LINEARDODGE:
 	case BLEND_MODE_ADD:
-	// case BLEND_MODE_OVERLAY:
 	case BLEND_MODE_SOFTLIGHT:
-	case BLEND_MODE_DIFFERENCE:
-	case BLEND_MODE_AVERAGE:
 	case BLEND_MODE_NEGATION:
-	case BLEND_MODE_PHOENIX:
-		restore_bg = false;
+	case BLEND_MODE_AVERAGE:
+	case BLEND_MODE_REFLECT:
+	case BLEND_MODE_EXCLUSION:
+	case BLEND_MODE_DIFFERENCE:
+		composite *= alpha_opac;
+		break;
 	}
 
-	if (restore_bg) {
-		full_composite += vec4(bg_color.rgb*(1.0-fg_color.a), 0.0);
-	}
+	vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-alpha_opac), bg_color.a + fg_color.a);
+	// vec4 full_composite = vec4(mix(bg_color.rgb, composite, alpha_opac), bg_color.a + alpha_opac);
 
-	// mix via opacity
-	full_composite = mix(bg_color, full_composite, opacity);
+	// full_composite = mix(bg_color, full_composite, alpha_opac);
 
 	// output to color
 	gl_FragColor = full_composite;

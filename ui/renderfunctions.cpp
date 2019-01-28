@@ -299,9 +299,14 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 				// prepare framebuffers for backend drawing operations
 				if (c->fbo == nullptr) {
-					c->fbo = new QOpenGLFramebufferObject* [2];
-					c->fbo[0] = new QOpenGLFramebufferObject(video_width, video_height);
-					c->fbo[1] = new QOpenGLFramebufferObject(video_width, video_height);
+					// create 3 fbos for nested sequences, 2 for most clips
+					int fbo_count = (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
+
+					c->fbo = new QOpenGLFramebufferObject* [fbo_count];
+
+					for (int j=0;j<fbo_count;j++) {
+						c->fbo[j] = new QOpenGLFramebufferObject(video_width, video_height);
+					}
 				}
 
 				// if clip should actually be shown on screen in this frame
@@ -419,8 +424,22 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 
+						// use clip textures for nested sequences, otherwise use main frame buffers
+						GLuint back_buffer_1;
+						GLuint backend_tex_1;
+						GLuint backend_tex_2;
+						if (params.nests.size() > 0) {
+							back_buffer_1 = params.nests.last()->fbo[1]->handle();
+							backend_tex_1 = params.nests.last()->fbo[1]->texture();
+							backend_tex_2 = params.nests.last()->fbo[2]->texture();
+						} else {
+							back_buffer_1 = params.backend_buffer1;
+							backend_tex_1 = params.backend_attachment1;
+							backend_tex_2 = params.backend_attachment2;
+						}
+
 						// render a backbuffer
-						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, params.backend_buffer1);
+						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, back_buffer_1);
 
 						glClearColor(0.0, 0.0, 0.0, 0.0);
 						glClear(GL_COLOR_BUFFER_BIT);
@@ -466,7 +485,11 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 						// copy front buffer to back buffer
-						draw_clip(params.ctx, params.backend_buffer2, params.main_attachment, true);
+						if (params.nests.size() > 0) {
+							draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
+						} else {
+							draw_clip(params.ctx, params.backend_buffer2, params.main_attachment, true);
+						}
 
 
 
@@ -479,11 +502,11 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 						// load background texture into texture unit 0
 						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, params.backend_attachment2);
+						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_2);
 
 						// load foreground texture into texture unit 1
 						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
-						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, params.backend_attachment1);
+						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
 
 						// bind and configure blending mode shader
 						params.blend_mode_program->bind();
