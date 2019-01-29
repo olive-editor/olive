@@ -45,6 +45,8 @@ private:
 	float** outputs;
 	QDialog* dialog;
 	QPushButton* show_interface_btn;
+	QByteArray data_cache;
+
 #if defined(__APPLE__)
 	CFBundleRef bundle;
 #else

@@ -281,9 +281,9 @@ void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) 
 void VSTHost::custom_load(QXmlStreamReader &stream) {
 	if (stream.name() == "plugindata") {
 		stream.readNext();
-		QByteArray b = QByteArray::fromBase64(stream.text().toUtf8());
+		data_cache = QByteArray::fromBase64(stream.text().toUtf8());
 		if (plugin != nullptr) {
-			dispatcher(plugin, effSetChunk, 0, int32_t(b.size()), static_cast<void*>(b.data()), 0);
+			dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
 		}
 	}
 }
@@ -293,25 +293,27 @@ void VSTHost::save(QXmlStreamWriter &stream) {
 	if (plugin != nullptr) {
 		char* p = nullptr;
 		int32_t length = int32_t(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));
-		QByteArray b(p, length);
-		stream.writeTextElement("plugindata", b.toBase64());
+		data_cache = QByteArray(p, length);
+	}
+	if (data_cache.size() > 0) {
+		stream.writeTextElement("plugindata", data_cache.toBase64());
 	}
 }
 
 void VSTHost::show_interface(bool show) {
-    dialog->setVisible(show);
+	dialog->setVisible(show);
 
-    if (show) {
+	if (show) {
 #if defined(_WIN32)
-        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
 #elif defined(__APPLE__)
-        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
 #elif defined(__linux__)
-        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
 #endif
-    } else {
-        dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
-    }
+	} else {
+		dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
+	}
 }
 
 void VSTHost::uncheck_show_button() {
