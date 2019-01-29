@@ -1825,7 +1825,6 @@ void Timeline::setup_ui() {
 	videoScrollbar = new QScrollBar(videoContainer);
 	videoScrollbar->setMaximum(0);
 	videoScrollbar->setSingleStep(20);
-	videoScrollbar->setPageStep(1826);
 	videoScrollbar->setOrientation(Qt::Vertical);
 
 	videoContainerLayout->addWidget(videoScrollbar);
@@ -1856,7 +1855,6 @@ void Timeline::setup_ui() {
 	horizontalScrollBar = new ResizableScrollBar(timeline_area);
 	horizontalScrollBar->setMaximum(0);
 	horizontalScrollBar->setSingleStep(20);
-	horizontalScrollBar->setPageStep(1826);
 	horizontalScrollBar->setOrientation(Qt::Horizontal);
 
 	timeline_area_layout->addWidget(horizontalScrollBar);
