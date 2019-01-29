@@ -121,83 +121,54 @@ float blend_soft_light(float base, float blend) {
 
 // RGB blending function, alpha is handled below
 vec3 blend(vec3 base, vec3 blend) {
-	switch (blendmode) {
-
-	case BLEND_MODE_AVERAGE:
+	if (blendmode == BLEND_MODE_AVERAGE) {
 		return (base+blend)/2.0;
-
-	case BLEND_MODE_COLORBURN:
+	} else if (blendmode == BLEND_MODE_COLORBURN) {
 		return vec3(blend_color_burn(base.r, blend.r), blend_color_burn(base.g, blend.g), blend_color_burn(base.b, blend.b));
-
-	case BLEND_MODE_COLORDODGE:
+	} else if (blendmode == BLEND_MODE_COLORDODGE) {
 		return vec3(blend_color_dodge(base.r, blend.r), blend_color_dodge(base.g, blend.g), blend_color_dodge(base.b, blend.b));
-
-	case BLEND_MODE_DARKEN:
+	} else if (blendmode == BLEND_MODE_DARKEN) {
 		return vec3(blend_darken(base.r, blend.r), blend_darken(base.g, blend.g), blend_darken(base.b, blend.b));
-
-	case BLEND_MODE_DIFFERENCE:
+	} else if (blendmode == BLEND_MODE_DIFFERENCE) {
 		return abs(base-blend);
-
-	case BLEND_MODE_EXCLUSION:
+	} else if (blendmode == BLEND_MODE_EXCLUSION) {
 		return base+blend-2.0*base*blend;
-
-	case BLEND_MODE_GLOW:
+	} else if (blendmode == BLEND_MODE_GLOW) {
 		return blend_reflect(blend, base);
-
-	case BLEND_MODE_HARDLIGHT:
+	} else if (blendmode == BLEND_MODE_HARDLIGHT) {
 		return blend_overlay(blend,base);
-
-	case BLEND_MODE_HARDMIX:
+	} else if (blendmode == BLEND_MODE_HARDMIX) {
 		return vec3(blend_hard_mix(base.r,blend.r),blend_hard_mix(base.g,blend.g),blend_hard_mix(base.b,blend.b));
-
-	case BLEND_MODE_LIGHTEN:
+	} else if (blendmode == BLEND_MODE_LIGHTEN) {
 		return vec3(blend_lighten(base.r,blend.r),blend_lighten(base.g,blend.g),blend_lighten(base.b,blend.b));
-
-	case BLEND_MODE_LINEARBURN:
-	case BLEND_MODE_SUBTRACT:
+	} else if (blendmode == BLEND_MODE_LINEARBURN || blendmode == BLEND_MODE_SUBTRACT) {
 		return blend_linear_burn(base, blend);
-
-	case BLEND_MODE_ADD:
-	case BLEND_MODE_LINEARDODGE:
+	} else if (blendmode == BLEND_MODE_LINEARDODGE || blendmode == BLEND_MODE_ADD) {
 		return blend_linear_dodge(base, blend);
-
-	case BLEND_MODE_LINEARLIGHT:
+	} else if (blendmode == BLEND_MODE_LINEARLIGHT) {
 		return vec3(blend_linear_light(base.r,blend.r),blend_linear_light(base.g,blend.g),blend_linear_light(base.b,blend.b));
-
-	case BLEND_MODE_MULTIPLY:
+	} else if (blendmode == BLEND_MODE_MULTIPLY) {
 		return (base * blend);
-
-	case BLEND_MODE_NEGATION:
+	} else if (blendmode == BLEND_MODE_NEGATION) {
 		return vec3(1.0)-abs(vec3(1.0)-base-blend);
-
-	case BLEND_MODE_OVERLAY:
+	} else if (blendmode == BLEND_MODE_OVERLAY) {
 		return blend_overlay(base, blend);
-
-	case BLEND_MODE_PHOENIX:
+	} else if (blendmode == BLEND_MODE_PHOENIX) {
 		return min(base,blend)-max(base,blend)+vec3(1.0);
-
-	case BLEND_MODE_PINLIGHT:
+	} else if (blendmode == BLEND_MODE_PINLIGHT) {
 		return vec3(blend_pin_light(base.r,blend.r),blend_pin_light(base.g,blend.g),blend_pin_light(base.b,blend.b));
-
-	case BLEND_MODE_REFLECT:
+	} else if (blendmode == BLEND_MODE_REFLECT) {
 		return blend_reflect(base, blend);
-
-	case BLEND_MODE_SCREEN:
+	} else if (blendmode == BLEND_MODE_SCREEN) {
 		return vec3(blend_screen(base.r,blend.r),blend_screen(base.g,blend.g),blend_screen(base.b,blend.b));
-
-	case BLEND_MODE_SUBSTRACT:
+	} else if (blendmode == BLEND_MODE_SUBSTRACT) {
 		return max(base+blend-vec3(1.0),vec3(0.0));
-
-	case BLEND_MODE_SOFTLIGHT:
+	} else if (blendmode == BLEND_MODE_SOFTLIGHT) {
 		return vec3(blend_soft_light(base.r,blend.r),blend_soft_light(base.g,blend.g),blend_soft_light(base.b,blend.b));
-
-	case BLEND_MODE_VIVIDLIGHT:
+	} else if (blendmode == BLEND_MODE_VIVIDLIGHT) {
 		return vec3(blend_vivid_light(base.r,blend.r),blend_vivid_light(base.g,blend.g),blend_vivid_light(base.b,blend.b));
-
-	case BLEND_MODE_NORMAL:
-	default:
+	} else {
 		return blend;
-
 	}
 }
 
@@ -211,21 +182,19 @@ void main(void) {
 	// add foreground and background alpha's together
 	float alpha_opac = fg_color.a*opacity;
 
-	switch (blendmode) {
-	case BLEND_MODE_OVERLAY:
-	case BLEND_MODE_LIGHTEN:
-	case BLEND_MODE_SCREEN:
-	case BLEND_MODE_COLORDODGE:
-	case BLEND_MODE_LINEARDODGE:
-	case BLEND_MODE_ADD:
-	case BLEND_MODE_SOFTLIGHT:
-	case BLEND_MODE_NEGATION:
-	case BLEND_MODE_AVERAGE:
-	case BLEND_MODE_REFLECT:
-	case BLEND_MODE_EXCLUSION:
-	case BLEND_MODE_DIFFERENCE:
+	if (blendmode == BLEND_MODE_OVERLAY
+			|| blendmode == BLEND_MODE_LIGHTEN 
+			|| blendmode == BLEND_MODE_SCREEN 
+			|| blendmode == BLEND_MODE_COLORDODGE 
+			|| blendmode == BLEND_MODE_LINEARDODGE 
+			|| blendmode == BLEND_MODE_ADD 
+			|| blendmode == BLEND_MODE_SOFTLIGHT 
+			|| blendmode == BLEND_MODE_NEGATION 
+			|| blendmode == BLEND_MODE_AVERAGE 
+			|| blendmode == BLEND_MODE_REFLECT 
+			|| blendmode == BLEND_MODE_EXCLUSION 
+			|| blendmode == BLEND_MODE_DIFFERENCE) {
 		composite *= alpha_opac;
-		break;
 	}
 
 	vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-alpha_opac), bg_color.a + fg_color.a);
