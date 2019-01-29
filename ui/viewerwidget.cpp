@@ -56,7 +56,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	dragging(false),
 	gizmos(nullptr),
 	selected_gizmo(nullptr),
-	window(nullptr)
+	window(nullptr),
+	x_scroll(0),
+	y_scroll(0)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -238,6 +240,12 @@ RenderThread *ViewerWidget::get_renderer() {
 	return renderer;
 }
 
+void ViewerWidget::set_scroll(double x, double y) {
+	x_scroll = x;
+	y_scroll = y;
+	update();
+}
+
 //void ViewerWidget::resizeGL(int w, int h)
 //{
 //}
@@ -382,6 +390,10 @@ void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
 		move_gizmos(event, true);
 	}
 	dragging = false;
+}
+
+void ViewerWidget::wheelEvent(QWheelEvent *event) {
+	container->parseWheelEvent(event);
 }
 
 void ViewerWidget::close_window() {
@@ -547,7 +559,6 @@ void ViewerWidget::paintGL() {
 		makeCurrent();
 
 		// clear to solid black
-
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -558,7 +569,7 @@ void ViewerWidget::paintGL() {
 
 		// set screen coords to widget size
 		glLoadIdentity();
-		glOrtho(0, 1, 0, 1, -1, 1);
+		glOrtho(-1, 1, -1, 1, -1, 1);
 
 		// draw texture from render thread
 
@@ -566,14 +577,21 @@ void ViewerWidget::paintGL() {
 
 		glBegin(GL_QUADS);
 
-		glVertex2f(0, 0);
-		glTexCoord2f(0, 0);
-		glVertex2f(0, 1);
-		glTexCoord2f(1, 0);
-		glVertex2f(1, 1);
-		glTexCoord2f(1, 1);
-		glVertex2f(1, 0);
-		glTexCoord2f(0, 1);
+		double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+		double zoom_size = (zoom_factor*2.0) - 2.0;
+		double zoom_left = -zoom_size*x_scroll - 1.0;
+		double zoom_right = zoom_size*(1.0-x_scroll) + 1.0;
+		double zoom_bottom = -zoom_size*(1.0-y_scroll) - 1.0;
+		double zoom_top = zoom_size*(y_scroll) + 1.0;
+
+		glVertex2d(zoom_left, zoom_bottom);
+		glTexCoord2d(0, 0);
+		glVertex2d(zoom_left, zoom_top);
+		glTexCoord2d(1, 0);
+		glVertex2d(zoom_right, zoom_top);
+		glTexCoord2d(1, 1);
+		glVertex2d(zoom_right, zoom_bottom);
+		glTexCoord2d(0, 1);
 
 		glEnd();
 

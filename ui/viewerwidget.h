@@ -44,12 +44,14 @@ public:
 
 	void frame_update();
 	RenderThread* get_renderer();
+	void set_scroll(double x, double y);
 public slots:
 	void set_waveform_scroll(int s);
 protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+	void wheelEvent(QWheelEvent* event);
 private:
 	void draw_waveform_func();
 	void draw_title_safe_area();
@@ -66,6 +68,8 @@ private:
 	EffectGizmo* selected_gizmo;
 	RenderThread* renderer;
 	ViewerWindow* window;
+	double x_scroll;
+	double y_scroll;
 private slots:
 	void context_destroy();
 	void retry();
