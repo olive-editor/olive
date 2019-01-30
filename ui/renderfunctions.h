@@ -10,6 +10,8 @@ class QOpenGLShaderProgram;
 struct Sequence;
 struct Clip;
 
+extern bool disable_blending;
+
 struct ComposeSequenceParams {
 	Viewer* viewer;
 	QOpenGLContext* ctx;
