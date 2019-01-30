@@ -160,68 +160,70 @@ void EffectControls::cut() {
 }
 
 void EffectControls::show_effect_menu(int type, int subtype) {
-	effect_menu_type = type;
-	effect_menu_subtype = subtype;
+    effect_menu_type = type;
+    effect_menu_subtype = subtype;
 
-	effects_loaded.lock();
+    effects_loaded.lock();
 
-	QMenu effects_menu(this);
-	effects_menu.setToolTipsVisible(true);
+    QMenu effects_menu(this);
+    effects_menu.setToolTipsVisible(true);
 
-	for (int i=0;i<effects.size();i++) {
-		const EffectMeta& em = effects.at(i);
+    for (int i=0;i<effects.size();i++) {
+        const EffectMeta& em = effects.at(i);
 
-		if (em.type == type && em.subtype == subtype) {
-			QAction* action = effects_menu.addAction(em.name);
-			action->setData(reinterpret_cast<quintptr>(&em));
-			if (!em.tooltip.isEmpty()) {
-				action->setToolTip(em.tooltip);
-			}
+        if (em.type == type && em.subtype == subtype) {
+            QAction* action = new QAction(&effects_menu);
+            action->setText(em.name);
+            action->setData(reinterpret_cast<quintptr>(&em));
+            if (!em.tooltip.isEmpty()) {
+                action->setToolTip(em.tooltip);
+            }
 
-			QMenu* parent = &effects_menu;
-			if (!em.category.isEmpty()) {
-				bool found = false;
-				for (int j=0;j<effects_menu.actions().size();j++) {
-					QAction* action = effects_menu.actions().at(j);
-					if (action->menu() != nullptr) {
-						if (action->menu()->title() == em.category) {
-							parent = action->menu();
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
-					parent = effects_menu.addMenu(em.category);
-					parent->setToolTipsVisible(true);
+            QMenu* parent = &effects_menu;
+            if (!em.category.isEmpty()) {
+                bool found = false;
+                for (int j=0;j<effects_menu.actions().size();j++) {
+                    QAction* action = effects_menu.actions().at(j);
+                    if (action->menu() != nullptr) {
+                        if (action->menu()->title() == em.category) {
+                            parent = action->menu();
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    parent = new QMenu(&effects_menu);
+                    parent->setToolTipsVisible(true);
+                    parent->setTitle(em.category);
 
-					bool found = false;
-					for (int i=0;i<effects_menu.actions().size();i++) {
-						QAction* comp_action = effects_menu.actions().at(i);
-						if (comp_action->text() > em.category) {
-							effects_menu.insertMenu(comp_action, parent);
-							found = true;
-							break;
-						}
-					}
-					if (!found) effects_menu.addMenu(parent);
-				}
-			}
+                    bool found = false;
+                    for (int i=0;i<effects_menu.actions().size();i++) {
+                        QAction* comp_action = effects_menu.actions().at(i);
+                        if (comp_action->text() > em.category) {
+                            effects_menu.insertMenu(comp_action, parent);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) effects_menu.addMenu(parent);
+                }
+            }
 
-			bool found = false;
-			for (int i=0;i<parent->actions().size();i++) {
-				QAction* comp_action = parent->actions().at(i);
-				if (comp_action->text() > action->text()) {
-					parent->insertAction(comp_action, action);
-					found = true;
-					break;
-				}
-			}
-			if (!found) parent->addAction(action);
-		}
-	}
+            bool found = false;
+            for (int i=0;i<parent->actions().size();i++) {
+                QAction* comp_action = parent->actions().at(i);
+                if (comp_action->text() > action->text()) {
+                    parent->insertAction(comp_action, action);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) parent->addAction(action);
+        }
+    }
 
-	effects_loaded.unlock();
+    effects_loaded.unlock();
 
 	connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
 	effects_menu.exec(QCursor::pos());
