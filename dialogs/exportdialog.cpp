@@ -498,7 +498,7 @@ void ExportDialog::export_action() {
 			}
 		}
 
-		et = new ExportThread();
+		et = new ExportThread(this);
 
 		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
 		connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
@@ -599,9 +599,9 @@ void ExportDialog::comp_type_changed(int) {
 void ExportDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 
-	QHBoxLayout* format_layout = new QHBoxLayout();
+	QHBoxLayout* format_layout = new QHBoxLayout(this);
 
-	format_layout->addWidget(new QLabel(tr("Format:")));
+	format_layout->addWidget(new QLabel(tr("Format:"), this));
 
 	formatCombobox = new QComboBox(this);
 
@@ -609,9 +609,9 @@ void ExportDialog::setup_ui() {
 
 	verticalLayout->addLayout(format_layout);
 
-	QHBoxLayout* range_layout = new QHBoxLayout();
+	QHBoxLayout* range_layout = new QHBoxLayout(this);
 
-	range_layout->addWidget(new QLabel(tr("Range:")));
+	range_layout->addWidget(new QLabel(tr("Range:"), this));
 
 	rangeCombobox = new QComboBox(this);
 	rangeCombobox->addItem(tr("Entire Sequence"));

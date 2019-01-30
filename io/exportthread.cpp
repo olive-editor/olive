@@ -27,7 +27,10 @@ extern "C" {
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 
-ExportThread::ExportThread() : continueEncode(true) {
+ExportThread::ExportThread(QObject *parent) :
+	QThread(parent),
+	continueEncode(true)
+{
 	surface.create();
 
 	fmt_ctx = nullptr;

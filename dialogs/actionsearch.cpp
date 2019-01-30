@@ -17,20 +17,20 @@ ActionSearch::ActionSearch(QWidget *parent) :
 
 	setWindowFlags(Qt::Popup);
 
-	QVBoxLayout* layout = new QVBoxLayout();
+	QVBoxLayout* layout = new QVBoxLayout(this);
 
-	ActionSearchEntry* entry_field = new ActionSearchEntry();
+	ActionSearchEntry* entry_field = new ActionSearchEntry(this);
 	QFont entry_field_font = entry_field->font();
 	entry_field_font.setPointSize(qRound(entry_field_font.pointSize()*1.2));
 	entry_field->setFont(entry_field_font);
-    entry_field->setPlaceholderText(tr("Search for action..."));
+	entry_field->setPlaceholderText(tr("Search for action..."));
 	connect(entry_field, SIGNAL(textChanged(const QString&)), this, SLOT(search_update(const QString &)));
 	connect(entry_field, SIGNAL(returnPressed()), this, SLOT(perform_action()));
 	connect(entry_field, SIGNAL(moveSelectionUp()), this, SLOT(move_selection_up()));
 	connect(entry_field, SIGNAL(moveSelectionDown()), this, SLOT(move_selection_down()));
 	layout->addWidget(entry_field);
 
-	list_widget = new ActionSearchList();
+	list_widget = new ActionSearchList(this);
 	QFont list_widget_font = list_widget->font();
 	list_widget_font.setPointSize(qRound(list_widget_font.pointSize()*1.2));
 	list_widget->setFont(list_widget_font);
@@ -65,7 +65,7 @@ void ActionSearch::search_update(const QString &s, const QString &p, QMenu *pare
 				} else {
 					QString comp = a->text().replace("&", "");
 					if (comp.contains(s, Qt::CaseInsensitive)) {
-						QListWidgetItem* item = new QListWidgetItem(comp + "\n(" + menu_text + ")");
+						QListWidgetItem* item = new QListWidgetItem(QString("%1\n(%2)").arg(comp, menu_text), list_widget);
 						item->setData(Qt::UserRole+1, reinterpret_cast<quintptr>(a));
 						list_widget->addItem(item);
 					}
@@ -107,6 +107,8 @@ void ActionSearch::move_selection_down() {
 	}
 }
 
+ActionSearchEntry::ActionSearchEntry(QWidget *parent) : QLineEdit(parent) {}
+
 void ActionSearchEntry::keyPressEvent(QKeyEvent * event) {
 	switch (event->key()) {
 	case Qt::Key_Up:
@@ -119,6 +121,8 @@ void ActionSearchEntry::keyPressEvent(QKeyEvent * event) {
 		QLineEdit::keyPressEvent(event);
 	}
 }
+
+ActionSearchList::ActionSearchList(QWidget *parent) : QListWidget(parent) {}
 
 void ActionSearchList::mouseDoubleClickEvent(QMouseEvent *) {
 	emit dbl_click();

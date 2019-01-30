@@ -11,10 +11,10 @@ DebugDialog* debug_dialog = nullptr;
 DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
 	setWindowTitle(tr("Debug Log"));
 
-	QVBoxLayout* layout = new QVBoxLayout();
+	QVBoxLayout* layout = new QVBoxLayout(this);
 	setLayout(layout);
 
-	textEdit = new QTextEdit();
+	textEdit = new QTextEdit(this);
 	textEdit->setWordWrapMode(QTextOption::NoWrap);
 	layout->addWidget(textEdit);
 }
