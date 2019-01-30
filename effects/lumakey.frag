@@ -24,5 +24,6 @@ void main(void) {
         texture_color.a = (invert ? 1.0-luma : luma);
     }
 	
+	texture_color.rgb *= texture_color.a;
 	gl_FragColor = texture_color; 
 }

@@ -2,7 +2,7 @@
 Based on Edward Cannon's Simple Chroma Key (adaptation by Olive Team)
 RGB to HSV based on MattKC's toonify source code
 Feel free to modify and use at will */
-#version 150
+#version 110
 
 uniform sampler2D tex;
 varying vec2 vTexCoord;
@@ -58,33 +58,26 @@ bool isNotIncreasingSequence(float a, float b, float c) {
 }
 
 void main(void) {
-	vec4 tc = texture2D(tex,vTexCoord);
-    vec3 color = tc.rgb;
+	vec4 texture_color = texture2D(tex,vTexCoord);
+    vec3 color = texture_color.rgb;
     float toCheck = 0.0;
     
-	switch(compo) {
-        case 0 :
+	if (compo == 0) {
             toCheck = rgb2luma(color)*100.0;
-            break;
-        case 4 :
+    } else if (compo == 4) {
             toCheck = color.r*100.0;
-            break;
-        case 5 :
+    } else if (compo == 5) {
             toCheck = color.g*100.0;
-            break;
-        case 6 :
+    } else if (compo == 6) {
             toCheck = color.b*100.0;
-            break;
-        case 1 :
+    } else if (compo == 1) {
             toCheck = rgb2hsv(color).z*100.0;
-            break;
-        case 2 :
+    } else if (compo == 2) {
             toCheck = rgb2hsv(color).x/3.6;
-            break;
-        case 3 :
+    } else if (compo == 3) {
             toCheck = rgb2hsv(color).y*100.0;
-            break;
-	}
-	tc.a = isNotIncreasingSequence(loc, toCheck, hic) ? (invert ? tc.a : 0.0) : (invert ? 0.0 : tc.a);
-	gl_FragColor = tc;
+    }
+	texture_color.a = isNotIncreasingSequence(loc, toCheck, hic) ? (invert ? texture_color.a : 0.0) : (invert ? 0.0 : texture_color.a);
+	texture_color.rgb *= texture_color.a;
+	gl_FragColor = texture_color;
 }
