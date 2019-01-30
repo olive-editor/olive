@@ -240,6 +240,9 @@ VSTHost::~VSTHost() {
 	delete [] inputs;
 
 	freePlugin();
+
+	delete show_interface_btn;
+	delete dialog;
 }
 
 void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) {

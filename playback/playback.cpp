@@ -79,9 +79,15 @@ void close_clip(Clip* clip, bool wait) {
 	}
 
 	if (clip->fbo != nullptr) {
-		delete clip->fbo[0];
-		delete clip->fbo[1];
+		// delete 3 fbos for nested sequences, 2 for most clips
+		int fbo_count = (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
+
+		for (int j=0;j<fbo_count;j++) {
+			delete clip->fbo[j];
+		}
+
 		delete [] clip->fbo;
+
 		clip->fbo = nullptr;
 	}
 

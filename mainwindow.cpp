@@ -558,6 +558,7 @@ bool MainWindow::can_close_project() {
 				);
 		m->setWindowModality(Qt::WindowModal);
 		int r = m->exec();
+		delete m;
 		if (r == QMessageBox::Yes) {
 			return save_project();
 		} else if (r == QMessageBox::Cancel) {
@@ -581,7 +582,7 @@ void MainWindow::setup_menus() {
 
 	file_menu->addAction(tr("&Open Project"), this, SLOT(open_project()), QKeySequence("Ctrl+O"))->setProperty("id", "openproj");
 
-	clear_open_recent_action = new QAction(tr("Clear Recent List"));
+	clear_open_recent_action = new QAction(tr("Clear Recent List"), menuBar);
 	clear_open_recent_action->setProperty("id", "clearopenrecent");
 	connect(clear_open_recent_action, SIGNAL(triggered()), panel_project, SLOT(clear_recent_projects()));
 
@@ -1037,12 +1038,8 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 #ifndef QT_DEBUG
 		DemoNotice* d = new DemoNotice(this);
 		d->open();
+		connect(d, SIGNAL(finished()), d, SLOT(deleteLater()));
 #endif
-		/*if (windowState() != Qt::WindowFullScreen) {
-			// workaround for setting to maximized - on some systems, setting
-			// to maximized doesn't work until after the paintEvent
-			setWindowState(Qt::WindowMaximized);
-		}*/
 
 		demoNoticeShown = true;
 	}

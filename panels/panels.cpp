@@ -100,6 +100,7 @@ void update_effect_controls() {
 
 	if (panel_effect_controls->multiple != multiple || !same) {
 		panel_effect_controls->multiple = multiple;
+
 		panel_effect_controls->set_clips(selected_clips, mode);
 	}
 }

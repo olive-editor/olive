@@ -19,43 +19,42 @@
 #include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle(tr("Speed/Duration"));
+	setWindowTitle(tr("Speed/Duration"));
 
-	QVBoxLayout* main_layout = new QVBoxLayout();
-	setLayout(main_layout);
+	QVBoxLayout* main_layout = new QVBoxLayout(this);
 
-	QGridLayout* grid = new QGridLayout();
+	QGridLayout* grid = new QGridLayout(this);
 	grid->setSpacing(6);
 
-    grid->addWidget(new QLabel(tr("Speed:")), 0, 0);
-	percent = new LabelSlider();
+	grid->addWidget(new QLabel(tr("Speed:"), this), 0, 0);
+	percent = new LabelSlider(this);
 	percent->decimal_places = 2;
 	percent->set_display_type(LABELSLIDER_PERCENT);
 	percent->set_default_value(1);
 	grid->addWidget(percent, 0, 1);
 
-    grid->addWidget(new QLabel(tr("Frame Rate:")), 1, 0);
-	frame_rate = new LabelSlider();
+	grid->addWidget(new QLabel(tr("Frame Rate:"), this), 1, 0);
+	frame_rate = new LabelSlider(this);
 	frame_rate->decimal_places = 3;
 	grid->addWidget(frame_rate, 1, 1);
 
-    grid->addWidget(new QLabel(tr("Duration:")), 2, 0);
-	duration = new LabelSlider();
+	grid->addWidget(new QLabel(tr("Duration:"), this), 2, 0);
+	duration = new LabelSlider(this);
 	duration->set_display_type(LABELSLIDER_FRAMENUMBER);
 	duration->set_frame_rate(sequence->frame_rate);
 	grid->addWidget(duration, 2, 1);
 
 	main_layout->addLayout(grid);
 
-    reverse = new QCheckBox(tr("Reverse"));
-    maintain_pitch = new QCheckBox(tr("Maintain Audio Pitch"));
-    ripple = new QCheckBox(tr("Ripple Changes"));
+	reverse = new QCheckBox(tr("Reverse"), this);
+	maintain_pitch = new QCheckBox(tr("Maintain Audio Pitch"), this);
+	ripple = new QCheckBox(tr("Ripple Changes"), this);
 
 	main_layout->addWidget(reverse);
 	main_layout->addWidget(maintain_pitch);
 	main_layout->addWidget(ripple);
 
-	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 	buttonBox->setCenterButtons(true);
 	main_layout->addWidget(buttonBox);
 	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));

@@ -11,6 +11,7 @@
 
 class QIODevice;
 class QAudioOutput;
+class QComboBox;
 
 struct Sequence;
 
@@ -58,5 +59,7 @@ qint64 get_buffer_offset_from_frame(double framerate, long frame);
 bool start_recording();
 void stop_recording();
 QString get_recorded_audio_filename();
+
+void combobox_audio_sample_rates(QComboBox* combobox);
 
 #endif // AUDIO_H

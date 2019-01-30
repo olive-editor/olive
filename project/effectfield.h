@@ -22,11 +22,13 @@ class EffectField : public QObject {
 	Q_OBJECT
 public:
 	EffectField(EffectRow* parent, int t, const QString& i);
+	~EffectField();
+
 	EffectRow* parent_row;
 	int type;
 	QString id;
 
-    double get_validated_keyframe_handle(int key, bool post);
+	double get_validated_keyframe_handle(int key, bool post);
 
 	QVariant get_previous_data();
 	QVariant get_current_data();

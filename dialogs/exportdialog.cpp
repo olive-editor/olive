@@ -498,7 +498,7 @@ void ExportDialog::export_action() {
 			}
 		}
 
-		et = new ExportThread();
+		et = new ExportThread(this);
 
 		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
 		connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
@@ -601,17 +601,16 @@ void ExportDialog::setup_ui() {
 
 	QHBoxLayout* format_layout = new QHBoxLayout();
 
-	format_layout->addWidget(new QLabel(tr("Format:")));
+	format_layout->addWidget(new QLabel(tr("Format:"), this));
 
-	formatCombobox = new QComboBox(this);
-
+	formatCombobox = new QComboBox();
 	format_layout->addWidget(formatCombobox);
 
 	verticalLayout->addLayout(format_layout);
 
 	QHBoxLayout* range_layout = new QHBoxLayout();
 
-	range_layout->addWidget(new QLabel(tr("Range:")));
+	range_layout->addWidget(new QLabel(tr("Range:"), this));
 
 	rangeCombobox = new QComboBox(this);
 	rangeCombobox->addItem(tr("Entire Sequence"));
@@ -628,27 +627,27 @@ void ExportDialog::setup_ui() {
 
 	QGridLayout* videoGridLayout = new QGridLayout(videoGroupbox);
 
-	videoGridLayout->addWidget(new QLabel(tr("Codec:")), 0, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Codec:"), this), 0, 0, 1, 1);
 	vcodecCombobox = new QComboBox(videoGroupbox);
 	videoGridLayout->addWidget(vcodecCombobox, 0, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Width:")), 1, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Width:"), this), 1, 0, 1, 1);
 	widthSpinbox = new QSpinBox(videoGroupbox);
 	widthSpinbox->setMaximum(16777216);
 	videoGridLayout->addWidget(widthSpinbox, 1, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Height:")), 2, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Height:"), this), 2, 0, 1, 1);
 	heightSpinbox = new QSpinBox(videoGroupbox);
 	heightSpinbox->setMaximum(16777216);
 	videoGridLayout->addWidget(heightSpinbox, 2, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Frame Rate:")), 3, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Frame Rate:"), this), 3, 0, 1, 1);
 	framerateSpinbox = new QDoubleSpinBox(videoGroupbox);
 	framerateSpinbox->setMaximum(60);
 	framerateSpinbox->setValue(0);
 	videoGridLayout->addWidget(framerateSpinbox, 3, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Compression Type:")), 4, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Compression Type:"), this), 4, 0, 1, 1);
 	compressionTypeCombobox = new QComboBox(videoGroupbox);
 	videoGridLayout->addWidget(compressionTypeCombobox, 4, 1, 1, 1);
 
@@ -667,17 +666,17 @@ void ExportDialog::setup_ui() {
 
 	QGridLayout* audioGridLayout = new QGridLayout(audioGroupbox);
 
-	audioGridLayout->addWidget(new QLabel(tr("Codec:")), 0, 0, 1, 1);
+	audioGridLayout->addWidget(new QLabel(tr("Codec:"), this), 0, 0, 1, 1);
 	acodecCombobox = new QComboBox(audioGroupbox);
 	audioGridLayout->addWidget(acodecCombobox, 0, 1, 1, 1);
 
-	audioGridLayout->addWidget(new QLabel(tr("Sampling Rate:")), 1, 0, 1, 1);
+	audioGridLayout->addWidget(new QLabel(tr("Sampling Rate:"), this), 1, 0, 1, 1);
 	samplingRateSpinbox = new QSpinBox(audioGroupbox);
 	samplingRateSpinbox->setMaximum(96000);
 	samplingRateSpinbox->setValue(0);
 	audioGridLayout->addWidget(samplingRateSpinbox, 1, 1, 1, 1);
 
-	audioGridLayout->addWidget(new QLabel(tr("Bitrate (Kbps/CBR):")), 3, 0, 1, 1);
+	audioGridLayout->addWidget(new QLabel(tr("Bitrate (Kbps/CBR):"), this), 3, 0, 1, 1);
 	audiobitrateSpinbox = new QSpinBox(audioGroupbox);
 	audiobitrateSpinbox->setMaximum(320);
 	audiobitrateSpinbox->setValue(256);

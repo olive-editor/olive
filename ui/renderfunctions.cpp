@@ -24,6 +24,8 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 
+bool disable_blending = false;
+
 extern "C" {
 	#include <libavformat/avformat.h>
 }
@@ -486,11 +488,13 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 
-						// copy front buffer to back buffer
-						if (params.nests.size() > 0) {
-							draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
-						} else {
-							draw_clip(params.ctx, params.backend_buffer2, params.main_attachment, true);
+						// copy front buffer to back buffer (only if we're using blending modes - which we usually will be)
+						if (!disable_blending) {
+							if (params.nests.size() > 0) {
+								draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
+							} else {
+								draw_clip(params.ctx, params.backend_buffer2, params.main_attachment, true);
+							}
 						}
 
 
@@ -502,34 +506,44 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 						// bind front buffer as draw buffer
 						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
-						// load background texture into texture unit 0
-						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_2);
+						if (disable_blending) {
+							// some GPUs don't like the blending shader, so we provide a pure GL fallback here
 
-						// load foreground texture into texture unit 1
-						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
-						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
+							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
 
-						// bind and configure blending mode shader
-						params.blend_mode_program->bind();
-						params.blend_mode_program->setUniformValue("blendmode", coords.blendmode);
-						params.blend_mode_program->setUniformValue("opacity", coords.opacity);
-						params.blend_mode_program->setUniformValue("background", 0);
-						params.blend_mode_program->setUniformValue("foreground", 1);
+							full_blit();
 
-						glClear(GL_COLOR_BUFFER_BIT);
+							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+						} else {
+							// load background texture into texture unit 0
+							params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_2);
 
-						full_blit();
+							// load foreground texture into texture unit 1
+							params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
 
-						// release blend mode shader
-						params.blend_mode_program->release();
+							// bind and configure blending mode shader
+							params.blend_mode_program->bind();
+							params.blend_mode_program->setUniformValue("blendmode", coords.blendmode);
+							params.blend_mode_program->setUniformValue("opacity", coords.opacity);
+							params.blend_mode_program->setUniformValue("background", 0);
+							params.blend_mode_program->setUniformValue("foreground", 1);
 
-						// unbind texture from texture unit 1
-						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+							glClear(GL_COLOR_BUFFER_BIT);
 
-						// unbind texture from texture unit 0
-						params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-						params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+							full_blit();
+
+							// release blend mode shader
+							params.blend_mode_program->release();
+
+							// unbind texture from texture unit 1
+							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+
+							// unbind texture from texture unit 0
+							params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+						}
 
 						// unbind framebuffer
 						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

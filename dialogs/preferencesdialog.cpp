@@ -1,6 +1,7 @@
 #include "preferencesdialog.h"
 
 #include "io/config.h"
+#include "playback/audio.h"
 #include "mainwindow.h"
 
 #include <QMenuBar>
@@ -22,6 +23,7 @@
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QAudioDeviceInfo>
 
 #include "debug.h"
 
@@ -71,7 +73,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 		QAction* a = actions.at(i);
 
 		if (!a->isSeparator() && a->property("keyignore").isNull()) {
-			QTreeWidgetItem* item = new QTreeWidgetItem();
+			QTreeWidgetItem* item = new QTreeWidgetItem(parent);
 			item->setText(0, a->text().replace("&", ""));
 
 			parent->addChild(item);
@@ -93,7 +95,7 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 	for (int i=0;i<menus.size();i++) {
 		QMenu* menu = menus.at(i)->menu();
 
-		QTreeWidgetItem* item = new QTreeWidgetItem();
+		QTreeWidgetItem* item = new QTreeWidgetItem(keyboard_tree);
 		item->setText(0, menu->title().replace("&", ""));
 
 		keyboard_tree->addTopLevelItem(item);
@@ -133,6 +135,14 @@ void PreferencesDialog::save() {
 	config.previous_queue_size = previous_queue_spinbox->value();
 	config.previous_queue_type = previous_queue_type->currentIndex();
 
+	// audio preferences
+	bool reset_audio_required = (config.preferred_audio_output != audio_output_devices->currentData().toString()
+									|| config.preferred_audio_input != audio_input_devices->currentData().toString());
+	config.preferred_audio_output = audio_output_devices->currentData().toString();
+	config.preferred_audio_input = audio_input_devices->currentData().toString();
+	qDebug() << "selected audio input" << audio_input_devices->currentData().toString();
+	config.audio_rate = audio_sample_rate->currentData().toInt();
+
 	// the following settings may require a restart of Olive to take effect:
 
 	bool needs_restart = false;
@@ -150,6 +160,10 @@ void PreferencesDialog::save() {
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
 		key_shortcut_fields.at(i)->set_action_shortcut();
+	}
+
+	if (reset_audio_required) {
+		init_audio();
 	}
 
 	if (needs_restart) {
@@ -286,11 +300,11 @@ void PreferencesDialog::setup_ui() {
 	QTabWidget* tabWidget = new QTabWidget(this);
 
 	// General
-	QTabWidget* general_tab = new QTabWidget();
+	QWidget* general_tab = new QWidget(this);
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
 	// General -> Custom CSS
-	general_layout->addWidget(new QLabel(tr("Custom CSS:")), 0, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), 0, 0, 1, 1);
 
 	custom_css_fn = new QLineEdit(general_tab);
 	custom_css_fn->setText(config.css_path);
@@ -301,14 +315,14 @@ void PreferencesDialog::setup_ui() {
 	general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
 
 	// General -> Image Sequence Formats
-	general_layout->addWidget(new QLabel(tr("Image sequence formats:")), 1, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), 1, 0, 1, 1);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
 	general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
 
 	// General -> Audio Recording
-	general_layout->addWidget(new QLabel(tr("Audio Recording:")), 2, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), 2, 0, 1, 1);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem(tr("Mono"));
@@ -316,7 +330,7 @@ void PreferencesDialog::setup_ui() {
 	general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
 
 	// General -> Effect Textbox Lines
-	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:")), 3, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), 3, 0, 1, 1);
 
 	effect_textbox_lines_field = new QSpinBox(general_tab);
 	effect_textbox_lines_field->setMinimum(1);
@@ -332,15 +346,15 @@ void PreferencesDialog::setup_ui() {
 	tabWidget->addTab(general_tab, tr("General"));
 
 	// Behavior
-	QWidget* behavior_tab = new QWidget();
+	QWidget* behavior_tab = new QWidget(this);
 	tabWidget->addTab(behavior_tab, tr("Behavior"));
 
 	// Playback
-	QWidget* playback_tab = new QWidget();
+	QWidget* playback_tab = new QWidget(this);
 	QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
 
 	// Playback -> Disable Multithreading on Images
-	disable_img_multithread = new QCheckBox(tr("Disable Multithreading on Images"));
+	disable_img_multithread = new QCheckBox(tr("Disable Multithreading on Images"), playback_tab);
 	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
 	playback_tab_layout->addWidget(disable_img_multithread);
 
@@ -360,20 +374,20 @@ void PreferencesDialog::setup_ui() {
 	QGroupBox* memory_usage_group = new QGroupBox(playback_tab);
 	memory_usage_group->setTitle(tr("Memory Usage"));
 	QGridLayout* memory_usage_layout = new QGridLayout(memory_usage_group);
-	memory_usage_layout->addWidget(new QLabel(tr("Upcoming Frame Queue:")), 0, 0);
-	upcoming_queue_spinbox = new QDoubleSpinBox();
+	memory_usage_layout->addWidget(new QLabel(tr("Upcoming Frame Queue:"), playback_tab), 0, 0);
+	upcoming_queue_spinbox = new QDoubleSpinBox(playback_tab);
 	upcoming_queue_spinbox->setValue(config.upcoming_queue_size);
 	memory_usage_layout->addWidget(upcoming_queue_spinbox, 0, 1);
-	upcoming_queue_type = new QComboBox();
+	upcoming_queue_type = new QComboBox(playback_tab);
 	upcoming_queue_type->addItem(tr("frames"));
 	upcoming_queue_type->addItem(tr("seconds"));
 	upcoming_queue_type->setCurrentIndex(config.upcoming_queue_type);
 	memory_usage_layout->addWidget(upcoming_queue_type, 0, 2);
-	memory_usage_layout->addWidget(new QLabel(tr("Previous Frame Queue:")), 1, 0);
-	previous_queue_spinbox = new QDoubleSpinBox();
+	memory_usage_layout->addWidget(new QLabel(tr("Previous Frame Queue:"), playback_tab), 1, 0);
+	previous_queue_spinbox = new QDoubleSpinBox(playback_tab);
 	previous_queue_spinbox->setValue(config.previous_queue_size);
 	memory_usage_layout->addWidget(previous_queue_spinbox, 1, 1);
-	previous_queue_type = new QComboBox();
+	previous_queue_type = new QComboBox(playback_tab);
 	previous_queue_type->addItem(tr("frames"));
 	previous_queue_type->addItem(tr("seconds"));
 	previous_queue_type->setCurrentIndex(config.previous_queue_type);
@@ -382,39 +396,98 @@ void PreferencesDialog::setup_ui() {
 
 	tabWidget->addTab(playback_tab, tr("Playback"));
 
-	QWidget* shortcut_tab = new QWidget();
+	// Audio
+	QWidget* audio_tab = new QWidget(this);
+
+	QGridLayout* audio_tab_layout = new QGridLayout(audio_tab);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), 0, 0);
+
+	audio_output_devices = new QComboBox();
+	audio_output_devices->addItem(tr("Default"), "");
+
+	// list all available audio output devices
+	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+	bool found_preferred_device = false;
+	for (int i=0;i<devs.size();i++) {
+		audio_output_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
+		if (!found_preferred_device
+				&& devs.at(i).deviceName() == config.preferred_audio_output) {
+			audio_output_devices->setCurrentIndex(audio_output_devices->count()-1);
+			found_preferred_device = true;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_output_devices, 0, 1);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), 1, 0);
+
+	audio_input_devices = new QComboBox();
+	audio_input_devices->addItem(tr("Default"), "");
+
+	// list all available audio input devices
+	devs = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+	found_preferred_device = false;
+	for (int i=0;i<devs.size();i++) {
+		audio_input_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
+		if (!found_preferred_device
+				&& devs.at(i).deviceName() == config.preferred_audio_input) {
+			audio_input_devices->setCurrentIndex(audio_input_devices->count()-1);
+			found_preferred_device = true;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_input_devices, 1, 1);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), 2, 0);
+
+	audio_sample_rate = new QComboBox();
+	combobox_audio_sample_rates(audio_sample_rate);
+	for (int i=0;i<audio_sample_rate->count();i++) {
+		if (audio_sample_rate->itemData(i).toInt() == config.audio_rate) {
+			audio_sample_rate->setCurrentIndex(i);
+			break;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_sample_rate, 2, 1);
+
+	tabWidget->addTab(audio_tab, tr("Audio"));
+
+	// Shortcuts
+	QWidget* shortcut_tab = new QWidget(this);
 
 	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
 
-	QLineEdit* key_search_line = new QLineEdit();
+	QLineEdit* key_search_line = new QLineEdit(shortcut_tab);
 	key_search_line->setPlaceholderText(tr("Search for action or shortcut"));
 	connect(key_search_line, SIGNAL(textChanged(const QString &)), this, SLOT(refine_shortcut_list(const QString &)));
 
 	shortcut_layout->addWidget(key_search_line);
 
-	keyboard_tree = new QTreeWidget();
+	keyboard_tree = new QTreeWidget(shortcut_tab);
 	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
 	tree_header->setText(0, tr("Action"));
 	tree_header->setText(1, tr("Shortcut"));
 	shortcut_layout->addWidget(keyboard_tree);
 
-	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
+	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout(shortcut_tab);
 
-	QPushButton* import_shortcut_button = new QPushButton(tr("Import"));
+	QPushButton* import_shortcut_button = new QPushButton(tr("Import"), shortcut_tab);
 	reset_shortcut_layout->addWidget(import_shortcut_button);
 	connect(import_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(load_shortcut_file()));
 
-	QPushButton* export_shortcut_button = new QPushButton(tr("Export"));
+	QPushButton* export_shortcut_button = new QPushButton(tr("Export"), shortcut_tab);
 	reset_shortcut_layout->addWidget(export_shortcut_button);
 	connect(export_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(save_shortcut_file()));
 
 	reset_shortcut_layout->addStretch();
 
-	QPushButton* reset_selected_shortcut_button = new QPushButton(tr("Reset Selected"));
+	QPushButton* reset_selected_shortcut_button = new QPushButton(tr("Reset Selected"), shortcut_tab);
 	reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
 	connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
 
-	QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"));
+	QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"), shortcut_tab);
 	reset_shortcut_layout->addWidget(reset_all_shortcut_button);
 	connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
 
@@ -432,6 +505,4 @@ void PreferencesDialog::setup_ui() {
 
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(save()));
 	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-	tabWidget->setCurrentIndex(2);
 }

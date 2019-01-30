@@ -173,6 +173,12 @@ void Config::load(QString path) {
 				} else if (stream.name() == "CenterTimelineTimecodes") {
 					stream.readNext();
 					center_timeline_timecodes =  (stream.text() == "1");
+				} else if (stream.name() == "PreferredAudioOutput") {
+					stream.readNext();
+					preferred_audio_output = stream.text().toString();
+				} else if (stream.name() == "PreferredAudioInput") {
+					stream.readNext();
+					preferred_audio_input = stream.text().toString();
 				}
 			}
 		}
@@ -235,6 +241,8 @@ void Config::save(QString path) {
 	stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
 	stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
 	stream.writeTextElement("CenterTimelineTimecodes", QString::number(center_timeline_timecodes));
+	stream.writeTextElement("PreferredAudioOutput", preferred_audio_output);
+	stream.writeTextElement("PreferredAudioInput", preferred_audio_input);
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

@@ -69,5 +69,6 @@ void FootageStream::make_square_thumb() {
 	int sqx = (diff < 0) ? -diff : 0;
 	int sqy = (diff > 0) ? diff : 0;
 	p.drawImage(sqx, sqy, video_preview);
+	p.end();
 	video_preview_square = QIcon(pixmap);
 }

@@ -89,6 +89,8 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 	}
 }
 
+EffectField::~EffectField() {}
+
 double EffectField::get_validated_keyframe_handle(int key, bool post) {
 	int comp_key = -1;
 

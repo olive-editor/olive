@@ -27,7 +27,10 @@ extern "C" {
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 
-ExportThread::ExportThread() : continueEncode(true) {
+ExportThread::ExportThread(QObject *parent) :
+	QThread(parent),
+	continueEncode(true)
+{
 	surface.create();
 
 	fmt_ctx = nullptr;
@@ -35,7 +38,6 @@ ExportThread::ExportThread() : continueEncode(true) {
 	vcodec = nullptr;
 	vcodec_ctx = nullptr;
 	video_frame = nullptr;
-	sws_frame = nullptr;
 	sws_ctx = nullptr;
 	audio_stream = nullptr;
 	acodec = nullptr;
@@ -122,18 +124,14 @@ bool ExportThread::setupVideo() {
 		vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 	}
 
-	if (vcodec_ctx->codec_id == AV_CODEC_ID_H264) {
-		/*char buffer[50];
-		itoa(vcodec_ctx, buffer, 10);*/
-
-		//av_opt_set(vcodec_ctx->priv_data, "preset", "fast", AV_OPT_SEARCH_CHILDREN);
-		//av_opt_set(vcodec_ctx->priv_data, "x264opts", "opencl", AV_OPT_SEARCH_CHILDREN);
-
+	switch (vcodec_ctx->codec_id) {
+	case AV_CODEC_ID_H264:
 		switch (video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
 			av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(video_bitrate)).toUtf8(), AV_OPT_SEARCH_CHILDREN);
 			break;
 		}
+		break;
 	}
 
 	AVDictionary* opts = nullptr;
@@ -176,12 +174,6 @@ bool ExportThread::setupVideo() {
 				nullptr,
 				nullptr
 			);
-
-	sws_frame = av_frame_alloc();
-	sws_frame->format = vcodec_ctx->pix_fmt;
-	sws_frame->width = video_width;
-	sws_frame->height = video_height;
-	av_frame_get_buffer(sws_frame, 0);
 
 	return true;
 }
@@ -366,16 +358,36 @@ void ExportThread::run() {
 		// encode last frame while rendering next frame
 		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
 		if (video_enabled) {
-			// change pixel format
+			// create sws_frame for converting pixel format
+
+			//
+			// - I'm not sure why, but we have to alloc/free sws_frame every frame, or it breaks GIF exporting.
+			// - (i.e. GIFs get stuck on the first frame)
+			// - The same problem/solution can be seen here: https://stackoverflow.com/a/38997739
+			// - Perhaps this is the intended way to use swscale, but it seems inefficient.
+			// - Anyway, here we are.
+			//
+
+			sws_frame = av_frame_alloc();
+			sws_frame->format = vcodec_ctx->pix_fmt;
+			sws_frame->width = video_width;
+			sws_frame->height = video_height;
+			av_frame_get_buffer(sws_frame, 0);
+
+			// convert pixel format to format expected by the encoder
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
 			sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
 
-			// send to encoder
+			// send converted frame to encoder
 			if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream, false)) continueEncode = false;
+
+			av_frame_free(&sws_frame);
 		}
 		if (audio_enabled) {
+
 			// do we need to encode more audio samples?
 			while (continueEncode && file_audio_samples <= (timecode_secs*audio_sampling_rate)) {
+
 				// copy samples from audio buffer to AVFrame
 				int adjusted_read = audio_ibuffer_read%audio_ibuffer_size;
 				int copylen = qMin(aframe_bytes, audio_ibuffer_size-adjusted_read);
@@ -402,14 +414,12 @@ void ExportThread::run() {
 			}
 		}
 
-		// encoding stats
+		// generating encoding statistics (time it took to encode this frame/estimated remaining time)
 		frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
 		total_time += frame_time;
 		remaining_frames = (end_frame-sequence->playhead);
 		avg_time = (total_time/frame_count);
 		eta = (remaining_frames*avg_time);
-
-//        qInfo() << "Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
 
 		emit progress_changed(qRound((double(sequence->playhead-start_frame) / double(end_frame-start_frame)) * 100.0), eta);
 		sequence->playhead++;
@@ -478,7 +488,6 @@ void ExportThread::run() {
 
 	if (sws_ctx != nullptr) {
 		sws_freeContext(sws_ctx);
-		av_frame_free(&sws_frame);
 	}
 	if (swr_ctx != nullptr) {
 		swr_free(&swr_ctx);

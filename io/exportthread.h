@@ -28,7 +28,7 @@ extern "C" {
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
-	ExportThread();
+	ExportThread(QObject* parent = nullptr);
 	void run();
 
 	// export parameters

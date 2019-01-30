@@ -20,6 +20,9 @@ ViewerContainer::ViewerContainer(QWidget *parent) :
 	horizontal_scrollbar = new QScrollBar(Qt::Horizontal, this);
 	vertical_scrollbar = new QScrollBar(Qt::Vertical, this);
 
+	horizontal_scrollbar->setVisible(false);
+	vertical_scrollbar->setVisible(false);
+
 	horizontal_scrollbar->setSingleStep(20);
 	vertical_scrollbar->setSingleStep(20);
 
@@ -30,12 +33,7 @@ ViewerContainer::ViewerContainer(QWidget *parent) :
 	connect(vertical_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scroll_changed()));
 }
 
-ViewerContainer::~ViewerContainer() {
-	delete child;
-
-	delete horizontal_scrollbar;
-	delete vertical_scrollbar;
-}
+ViewerContainer::~ViewerContainer() {}
 
 void ViewerContainer::dragScrollPress(const QPoint &p) {
 	drag_start_x = p.x();
@@ -133,11 +131,11 @@ void ViewerContainer::adjust() {
 
 void ViewerContainer::resizeEvent(QResizeEvent *event) {
 	horizontal_scrollbar->move(0, height()-horizontal_scrollbar->height());
-	horizontal_scrollbar->setFixedWidth(width()-vertical_scrollbar->width());
+	horizontal_scrollbar->setFixedWidth(qMax(0, width()-vertical_scrollbar->width()));
 	horizontal_scrollbar->setPageStep(width());
 
 	vertical_scrollbar->move(width() - vertical_scrollbar->width(), 0);
-	vertical_scrollbar->setFixedHeight(height()-horizontal_scrollbar->height());
+	vertical_scrollbar->setFixedHeight(qMax(0, height()-horizontal_scrollbar->height()));
 	vertical_scrollbar->setPageStep(height());
 
 	event->accept();

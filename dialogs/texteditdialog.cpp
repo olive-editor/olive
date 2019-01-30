@@ -7,16 +7,15 @@
 TextEditDialog::TextEditDialog(QWidget *parent, const QString &s) :
 	QDialog(parent)
 {
-    setWindowTitle(tr("Edit Text"));
+	setWindowTitle(tr("Edit Text"));
 
-	QVBoxLayout* layout = new QVBoxLayout();
-	setLayout(layout);
+	QVBoxLayout* layout = new QVBoxLayout(this);
 
-	textEdit = new QPlainTextEdit();
+	textEdit = new QPlainTextEdit(this);
 	textEdit->setPlainText(s);
 	layout->addWidget(textEdit);
 
-	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 	layout->addWidget(buttons);
 	connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
 	connect(buttons, SIGNAL(rejected()), this, SLOT(cancel()));

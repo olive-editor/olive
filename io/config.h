@@ -64,6 +64,8 @@ struct Config {
 	int effect_textbox_lines;
 	bool use_software_fallback;
 	bool center_timeline_timecodes;
+	QString preferred_audio_output;
+	QString preferred_audio_input;
 
 	void load(QString path);
 	void save(QString path);

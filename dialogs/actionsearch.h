@@ -10,6 +10,8 @@ class QMenu;
 
 class ActionSearchList : public QListWidget {
 	Q_OBJECT
+public:
+	ActionSearchList(QWidget* parent);
 protected:
 	void mouseDoubleClickEvent(QMouseEvent *event);
 signals:
@@ -20,9 +22,9 @@ class ActionSearch : public QDialog
 {
 	Q_OBJECT
 public:
-	ActionSearch(QWidget* parent = 0);
+	ActionSearch(QWidget* parent = nullptr);
 private slots:
-	void search_update(const QString& s, const QString &p = 0, QMenu *parent = nullptr);
+	void search_update(const QString& s, const QString &p = nullptr, QMenu *parent = nullptr);
 	void perform_action();
 	void move_selection_up();
 	void move_selection_down();
@@ -32,6 +34,8 @@ private:
 
 class ActionSearchEntry : public QLineEdit {
 	Q_OBJECT
+public:
+	ActionSearchEntry(QWidget* parent);
 protected:
 	void keyPressEvent(QKeyEvent * event);
 signals:

@@ -35,6 +35,10 @@ system("which git") {
 
 CONFIG += c++11
 
+CONFIG(debug, debug|release) {
+    CONFIG += console
+}
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -133,7 +137,8 @@ SOURCES += \
     project/effectloaders.cpp \
     io/crossplatformlib.cpp \
     effects/internal/vsthost.cpp \
-    ui/flowlayout.cpp
+    ui/flowlayout.cpp \
+    dialogs/proxydialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -234,7 +239,8 @@ HEADERS += \
     project/effectloaders.h \
     io/crossplatformlib.h \
     effects/internal/vsthost.h \
-    ui/flowlayout.h
+    ui/flowlayout.h \
+    dialogs/proxydialog.h
 
 FORMS +=
 

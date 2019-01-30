@@ -2,7 +2,10 @@
 #include <QApplication>
 
 #include "debug.h"
+
+// importing classes for certain command line args
 #include "project/effect.h"
+#include "ui/renderfunctions.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -40,6 +43,8 @@ int main(int argc, char *argv[]) {
 					shaders_are_enabled = false;
 				} else if (!strcmp(argv[i], "--no-debug")) {
 					use_internal_logger = false;
+				} else if (!strcmp(argv[i], "--disable-blend-modes")) {
+					disable_blending = true;
 				} else {
 					printf("[ERROR] Unknown argument '%s'\n", argv[1]);
 					return 1;
