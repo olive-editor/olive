@@ -35,7 +35,16 @@ int main(int argc, char *argv[]) {
 					printf("%s\n", appName.toUtf8().constData());
 					return 0;
 				} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
-					printf("Usage: %s [options] [filename]\n\n[filename] is the file to open on startup.\n\nOptions:\n\t-v, --version\tShow version information\n\t-h, --help\tShow this help\n\t-f, --fullscreen\tStart in full screen mode\n\n", argv[0]);
+                    printf("Usage: %s [options] [filename]\n\n"
+                           "[filename] is the file to open on startup.\n\n"
+                           "Options:\n"
+                           "\t-v, --version\t\tShow version information\n"
+                           "\t-h, --help\t\tShow this help\n"
+                           "\t-f, --fullscreen\tStart in full screen mode\n"
+                           "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
+                           "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
+                           "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
+                           "\n", argv[0]);
 					return 0;
 				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
 					launch_fullscreen = true;
