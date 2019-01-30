@@ -102,7 +102,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	texture(nullptr),
 	enable_always_update(false),
 	isOpen(false),
-	bound(false)
+	bound(false),
+	iterations(1)
 {
 	// set up base UI
 	container = new CollapsibleWidget();
@@ -276,6 +277,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 								vertPath = attr.value().toString();
 							} else if (attr.name() == "frag") {
 								fragPath = attr.value().toString();
+							} else if (attr.name() == "iterations") {
+								setIterations(attr.value().toInt());
 							}
 						}
 					}/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
@@ -695,6 +698,14 @@ void Effect::endEffect() {
 	bound = false;
 }
 
+int Effect::getIterations() {
+	return iterations;
+}
+
+void Effect::setIterations(int i) {
+	iterations = i;
+}
+
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
 Effect* Effect::copy(Clip* c) {
@@ -704,9 +715,10 @@ Effect* Effect::copy(Clip* c) {
 	return copy;
 }
 
-void Effect::process_shader(double timecode, GLTextureCoords&) {
+void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
 	glslProgram->setUniformValue("time", GLfloat(timecode));
+	glslProgram->setUniformValue("iteration", iteration);
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);

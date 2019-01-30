@@ -97,9 +97,11 @@ void process_effect(Clip* c,
 		if (can_process_shaders || e->enable_superimpose) {
 			e->startEffect();
 			if (can_process_shaders && e->is_glsl_linked()) {
-				e->process_shader(timecode, coords);
-				composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
-				fbo_switcher = !fbo_switcher;
+				for (int i=0;i<e->getIterations();i++) {
+					e->process_shader(timecode, coords, i);
+					composite_texture = draw_clip(c->fbo[fbo_switcher], composite_texture, true);
+					fbo_switcher = !fbo_switcher;
+				}
 			}
 			if (e->enable_superimpose) {
 				GLuint superimpose_texture = e->process_superimpose(timecode);
