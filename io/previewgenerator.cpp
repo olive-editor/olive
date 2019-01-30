@@ -19,6 +19,7 @@
 #include <QDateTime>
 
 #define WAVEFORM_RESOLUTION 64
+#define THUMBNAIL_RESOLUTION 120
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -30,7 +31,7 @@ extern "C" {
 QSemaphore sem(5); // only 5 preview generators can run at one time
 
 PreviewGenerator::PreviewGenerator(Media* i, Footage* m, bool r) :
-	QThread(0),
+	QThread(nullptr),
 	fmt_ctx(nullptr),
 	media(i),
 	footage(m),
@@ -50,7 +51,7 @@ PreviewGenerator::PreviewGenerator(Media* i, Footage* m, bool r) :
 
 void PreviewGenerator::parse_media() {
 	// detect video/audio streams in file
-	for (int i=0;i<(int)fmt_ctx->nb_streams;i++) {
+	for (int i=0;i<int(fmt_ctx->nb_streams);i++) {
 		// Find the decoder for the video stream
 		if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == nullptr) {
 			qCritical() << "Unsupported codec in stream" << i << "of file" << footage->name;
@@ -106,7 +107,7 @@ void PreviewGenerator::parse_media() {
 				append = true;
 			} else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 				ms.audio_channels = fmt_ctx->streams[i]->codecpar->channels;
-				ms.audio_layout = fmt_ctx->streams[i]->codecpar->channel_layout;
+				ms.audio_layout = int(fmt_ctx->streams[i]->codecpar->channel_layout);
 				ms.audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
 
 				append = true;
@@ -277,9 +278,9 @@ void PreviewGenerator::generate_waveform() {
 			if (s != nullptr) {
 				if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 					if (!s->preview_done) {
-						int dstH = 120;
-						int dstW = dstH * ((float)temp_frame->width/(float)temp_frame->height);
-						uint8_t* data = new uint8_t[dstW*dstH*4];
+						int dstH = THUMBNAIL_RESOLUTION;
+						int dstW = qRound(dstH * (float(temp_frame->width)/float(temp_frame->height)));
+						uint8_t* data = new uint8_t[size_t(dstW*dstH*4)];
 
 						sws_ctx = sws_getContext(
 								temp_frame->width,
@@ -414,7 +415,7 @@ void PreviewGenerator::generate_waveform() {
 				maximum_stream = i;
 			}
 		}
-		footage->length = (double) media_lengths[maximum_stream] / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE; // TODO redo with PTS
+		footage->length = double(media_lengths[maximum_stream]) / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE; // TODO redo with PTS
 		finalize_media();
 	}
 	delete [] media_lengths;

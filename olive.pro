@@ -35,6 +35,10 @@ system("which git") {
 
 CONFIG += c++11
 
+CONFIG(debug, debug|release) {
+    CONFIG += console
+}
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \

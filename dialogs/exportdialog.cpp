@@ -599,17 +599,16 @@ void ExportDialog::comp_type_changed(int) {
 void ExportDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 
-	QHBoxLayout* format_layout = new QHBoxLayout(this);
+	QHBoxLayout* format_layout = new QHBoxLayout();
 
 	format_layout->addWidget(new QLabel(tr("Format:"), this));
 
-	formatCombobox = new QComboBox(this);
-
+	formatCombobox = new QComboBox();
 	format_layout->addWidget(formatCombobox);
 
 	verticalLayout->addLayout(format_layout);
 
-	QHBoxLayout* range_layout = new QHBoxLayout(this);
+	QHBoxLayout* range_layout = new QHBoxLayout();
 
 	range_layout->addWidget(new QLabel(tr("Range:"), this));
 
@@ -685,7 +684,7 @@ void ExportDialog::setup_ui() {
 
 	verticalLayout->addWidget(audioGroupbox);
 
-	QHBoxLayout* progressLayout = new QHBoxLayout(this);
+	QHBoxLayout* progressLayout = new QHBoxLayout();
 	progressBar = new QProgressBar(this);
 	progressBar->setFormat("%p% (ETA: 0:00:00)");
 	progressBar->setEnabled(false);
@@ -701,7 +700,7 @@ void ExportDialog::setup_ui() {
 
 	verticalLayout->addLayout(progressLayout);
 
-	QHBoxLayout* buttonLayout = new QHBoxLayout(this);
+	QHBoxLayout* buttonLayout = new QHBoxLayout();
 	buttonLayout->addStretch();
 
 	export_button = new QPushButton(this);
