@@ -64,8 +64,9 @@ Project::Project(QWidget *parent) :
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	QWidget* dockWidgetContents = new QWidget(this);
+
 	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
-	verticalLayout->setContentsMargins(0, 0, 0, 0);
+	verticalLayout->setMargin(0);
 	verticalLayout->setSpacing(0);
 
 	setWidget(dockWidgetContents);
@@ -76,15 +77,15 @@ Project::Project(QWidget *parent) :
 	sorter->setSourceModel(&project_model);
 
 	// optional toolbar
-	toolbar_widget = new QWidget(this);
+	toolbar_widget = new QWidget();
 	toolbar_widget->setVisible(config.show_project_toolbar);
 	toolbar_widget->setObjectName("project_toolbar");
+
 	QHBoxLayout* toolbar = new QHBoxLayout(toolbar_widget);
 	toolbar->setMargin(0);
 	toolbar->setSpacing(0);
-	toolbar_widget->setLayout(toolbar);
 
-	QPushButton* toolbar_new = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_new = new QPushButton();
 	QIcon icon1;
 	icon1.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon1.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -93,7 +94,7 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
 	toolbar->addWidget(toolbar_new);
 
-	QPushButton* toolbar_open = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_open = new QPushButton();
 	QIcon icon2;
 	icon2.addFile(QStringLiteral(":/icons/open.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -102,7 +103,7 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_open, SIGNAL(clicked(bool)), mainWindow, SLOT(open_project()));
 	toolbar->addWidget(toolbar_open);
 
-	QPushButton* toolbar_save = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_save = new QPushButton();
 	QIcon icon3;
 	icon3.addFile(QStringLiteral(":/icons/save.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -111,7 +112,7 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_save, SIGNAL(clicked(bool)), mainWindow, SLOT(save_project()));
 	toolbar->addWidget(toolbar_save);
 
-	QPushButton* toolbar_undo = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_undo = new QPushButton();
 	QIcon icon4;
 	icon4.addFile(QStringLiteral(":/icons/undo.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -120,7 +121,7 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_undo, SIGNAL(clicked(bool)), mainWindow, SLOT(undo()));
 	toolbar->addWidget(toolbar_undo);
 
-	QPushButton* toolbar_redo = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_redo = new QPushButton();
 	QIcon icon5;
 	icon5.addFile(QStringLiteral(":/icons/redo.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -130,7 +131,7 @@ Project::Project(QWidget *parent) :
 	toolbar->addWidget(toolbar_redo);
 
 	toolbar->addStretch();
-	QPushButton* toolbar_tree_view = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_tree_view = new QPushButton();
 	QIcon icon6;
 	icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon6.addFile(QStringLiteral(":/icons/treeview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -139,7 +140,7 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
 	toolbar->addWidget(toolbar_tree_view);
 
-	QPushButton* toolbar_icon_view = new QPushButton(toolbar_widget);
+	QPushButton* toolbar_icon_view = new QPushButton();
 	QIcon icon7;
 	icon7.addFile(QStringLiteral(":/icons/iconview.png"), QSize(), QIcon::Normal, QIcon::On);
 	icon7.addFile(QStringLiteral(":/icons/iconview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
@@ -151,20 +152,19 @@ Project::Project(QWidget *parent) :
 	verticalLayout->addWidget(toolbar_widget);
 
 	// tree view
-	tree_view = new SourceTable(dockWidgetContents);
+	tree_view = new SourceTable();
 	tree_view->project_parent = this;
 	tree_view->setModel(sorter);
 	verticalLayout->addWidget(tree_view);
 
 	// icon view
-	icon_view_container = new QWidget(dockWidgetContents);
+	icon_view_container = new QWidget();
 
 	QVBoxLayout* icon_view_container_layout = new QVBoxLayout(icon_view_container);
 	icon_view_container_layout->setMargin(0);
 	icon_view_container_layout->setSpacing(0);
-	icon_view_container->setLayout(icon_view_container_layout);
 
-	QHBoxLayout* icon_view_controls = new QHBoxLayout(icon_view_container);
+	QHBoxLayout* icon_view_controls = new QHBoxLayout();
 	icon_view_controls->setMargin(0);
 	icon_view_controls->setSpacing(0);
 
@@ -172,14 +172,14 @@ Project::Project(QWidget *parent) :
 	directory_up_button.addFile(":/icons/dirup.png", QSize(), QIcon::Normal);
 	directory_up_button.addFile(":/icons/dirup-disabled.png", QSize(), QIcon::Disabled);
 
-	directory_up = new QPushButton(icon_view_container);
+	directory_up = new QPushButton();
 	directory_up->setIcon(directory_up_button);
 	directory_up->setEnabled(false);
 	icon_view_controls->addWidget(directory_up);
 
 	icon_view_controls->addStretch();
 
-	QSlider* icon_size_slider = new QSlider(Qt::Horizontal, icon_view_container);
+	QSlider* icon_size_slider = new QSlider(Qt::Horizontal);
 	icon_size_slider->setMinimum(16);
 	icon_size_slider->setMaximum(120);
 	icon_view_controls->addWidget(icon_size_slider);
@@ -187,7 +187,7 @@ Project::Project(QWidget *parent) :
 
 	icon_view_container_layout->addLayout(icon_view_controls);
 
-	icon_view = new SourceIconView(dockWidgetContents);
+	icon_view = new SourceIconView();
 	icon_view->project_parent = this;
 	icon_view->setModel(sorter);
 	icon_view->setIconSize(QSize(100, 100));

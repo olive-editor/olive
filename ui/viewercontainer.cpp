@@ -131,11 +131,11 @@ void ViewerContainer::adjust() {
 
 void ViewerContainer::resizeEvent(QResizeEvent *event) {
 	horizontal_scrollbar->move(0, height()-horizontal_scrollbar->height());
-	horizontal_scrollbar->setFixedWidth(width()-vertical_scrollbar->width());
+	horizontal_scrollbar->setFixedWidth(qMax(0, width()-vertical_scrollbar->width()));
 	horizontal_scrollbar->setPageStep(width());
 
 	vertical_scrollbar->move(width() - vertical_scrollbar->width(), 0);
-	vertical_scrollbar->setFixedHeight(height()-horizontal_scrollbar->height());
+	vertical_scrollbar->setFixedHeight(qMax(0, height()-horizontal_scrollbar->height()));
 	vertical_scrollbar->setPageStep(height());
 
 	event->accept();

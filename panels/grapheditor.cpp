@@ -24,46 +24,42 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	resize(720, 480);
 
 	QWidget* main_widget = new QWidget(this);
-	setWidget(main_widget);
 	QVBoxLayout* layout = new QVBoxLayout(main_widget);
+	setWidget(main_widget);
 
-	QWidget* tool_widget = new QWidget(this);
+	QWidget* tool_widget = new QWidget();
 	tool_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-	QHBoxLayout* tools = new QHBoxLayout(this);
-	tool_widget->setLayout(tools);
+	QHBoxLayout* tools = new QHBoxLayout(tool_widget);
 
-	QWidget* left_tool_widget = new QWidget(this);
-	QHBoxLayout* left_tool_layout = new QHBoxLayout(this);
+	QWidget* left_tool_widget = new QWidget();
+	QHBoxLayout* left_tool_layout = new QHBoxLayout(left_tool_widget);
 	left_tool_layout->setSpacing(0);
 	left_tool_layout->setMargin(0);
-	left_tool_widget->setLayout(left_tool_layout);
 	tools->addWidget(left_tool_widget);
-	QWidget* center_tool_widget = new QWidget(this);
-	QHBoxLayout* center_tool_layout = new QHBoxLayout(this);
+	QWidget* center_tool_widget = new QWidget();
+	QHBoxLayout* center_tool_layout = new QHBoxLayout(center_tool_widget);
 	center_tool_layout->setSpacing(0);
 	center_tool_layout->setMargin(0);
-	center_tool_widget->setLayout(center_tool_layout);
 	tools->addWidget(center_tool_widget);
-	QWidget* right_tool_widget = new QWidget(this);
-	QHBoxLayout* right_tool_layout = new QHBoxLayout(this);
+	QWidget* right_tool_widget = new QWidget();
+	QHBoxLayout* right_tool_layout = new QHBoxLayout(right_tool_widget);
 	right_tool_layout->setSpacing(0);
 	right_tool_layout->setMargin(0);
-	right_tool_widget->setLayout(right_tool_layout);
 	tools->addWidget(right_tool_widget);
 
-	keyframe_nav = new KeyframeNavigator(this, false);
+	keyframe_nav = new KeyframeNavigator(nullptr, false);
 	keyframe_nav->enable_keyframes(true);
 	keyframe_nav->enable_keyframe_toggle(false);
 	left_tool_layout->addWidget(keyframe_nav);
 	left_tool_layout->addStretch();
 
-	linear_button = new QPushButton(tr("Linear"), this);
+	linear_button = new QPushButton(tr("Linear"));
 	linear_button->setProperty("type", EFFECT_KEYFRAME_LINEAR);
 	linear_button->setCheckable(true);
-	bezier_button = new QPushButton(tr("Bezier"), this);
+	bezier_button = new QPushButton(tr("Bezier"));
 	bezier_button->setProperty("type", EFFECT_KEYFRAME_BEZIER);
 	bezier_button->setCheckable(true);
-	hold_button = new QPushButton(tr("Hold"), this);
+	hold_button = new QPushButton(tr("Hold"));
 	hold_button->setProperty("type", EFFECT_KEYFRAME_HOLD);
 	hold_button->setCheckable(true);
 
@@ -74,36 +70,33 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 
 	layout->addWidget(tool_widget);
 
-	QWidget* central_widget = new QWidget(this);
-	QVBoxLayout* central_layout = new QVBoxLayout(this);
-	central_widget->setLayout(central_layout);
+	QWidget* central_widget = new QWidget();
+	QVBoxLayout* central_layout = new QVBoxLayout(central_widget);
 	central_layout->setSpacing(0);
 	central_layout->setMargin(0);
-	header = new TimelineHeader(this);
+	header = new TimelineHeader();
 	header->viewer = panel_sequence_viewer;
 	central_layout->addWidget(header);
-	view = new GraphView(this);
+	view = new GraphView();
 	central_layout->addWidget(view);
 
 	layout->addWidget(central_widget);
 
-	QWidget* value_widget = new QWidget(this);
+	QWidget* value_widget = new QWidget();
 	value_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-	QHBoxLayout* values = new QHBoxLayout(this);
-	value_widget->setLayout(values);
+	QHBoxLayout* values = new QHBoxLayout(value_widget);
 	values->addStretch();
 
-	QWidget* central_value_widget = new QWidget(this);
-	value_layout = new QHBoxLayout(this);
+	QWidget* central_value_widget = new QWidget();
+	value_layout = new QHBoxLayout(central_value_widget);
 	value_layout->setMargin(0);
-	value_layout->addWidget(new QLabel("", this)); // a spacer so the layout doesn't jump
-	central_value_widget->setLayout(value_layout);
+	value_layout->addWidget(new QLabel("")); // a spacer so the layout doesn't jump
 	values->addWidget(central_value_widget);
 
 	values->addStretch();
 	layout->addWidget(value_widget);
 
-	current_row_desc = new QLabel(this);
+	current_row_desc = new QLabel();
 	current_row_desc->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 	current_row_desc->setAlignment(Qt::AlignCenter);
 	layout->addWidget(current_row_desc);
@@ -157,7 +150,7 @@ void GraphEditor::set_row(EffectRow *r) {
 		for (int i=0;i<r->fieldCount();i++) {
 			EffectField* field = r->field(i);
 			if (field->type == EFFECT_FIELD_DOUBLE) {
-				QPushButton* slider_button = new QPushButton(this);
+				QPushButton* slider_button = new QPushButton();
 				slider_button->setCheckable(true);
 				slider_button->setChecked(field->is_enabled());
 				slider_button->setIcon(QIcon(":/icons/record.png"));
@@ -167,7 +160,7 @@ void GraphEditor::set_row(EffectRow *r) {
 				slider_proxy_buttons.append(slider_button);
 				value_layout->addWidget(slider_button);
 
-				LabelSlider* slider = new LabelSlider(this);
+				LabelSlider* slider = new LabelSlider();
 				slider->set_color(get_curve_color(i, r->fieldCount()).name());
 				connect(slider, SIGNAL(valueChanged()), this, SLOT(passthrough_slider_value()));
 				slider_proxies.append(slider);
@@ -190,7 +183,7 @@ void GraphEditor::set_row(EffectRow *r) {
 		connect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(goto_next_key()));
 	} else {
 		row = nullptr;
-		current_row_desc->setText(0);
+		current_row_desc->setText(nullptr);
 	}
 	view->set_row(row);
 	update_panel();
