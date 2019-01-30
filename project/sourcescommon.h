@@ -11,29 +11,30 @@ class QAbstractItemView;
 class QDropEvent;
 
 class SourcesCommon : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    SourcesCommon(Project *parent);
-    QAbstractItemView* view;
-    void show_context_menu(QWidget* parent, const QModelIndexList &items);
+	SourcesCommon(Project *parent);
+	QAbstractItemView* view;
+	void show_context_menu(QWidget* parent, const QModelIndexList &items);
 
-    void mousePressEvent(QMouseEvent* e);
-    void mouseDoubleClickEvent(QMouseEvent* e, const QModelIndexList& selected_items);
-    void dropEvent(QWidget *parent, QDropEvent* e, const QModelIndex& drop_item, const QModelIndexList &items);
+	void mousePressEvent(QMouseEvent* e);
+	void mouseDoubleClickEvent(QMouseEvent* e, const QModelIndexList& selected_items);
+	void dropEvent(QWidget *parent, QDropEvent* e, const QModelIndex& drop_item, const QModelIndexList &items);
 
-    void item_click(Media* m, const QModelIndex &index);
+	void item_click(Media* m, const QModelIndex &index);
 private slots:
-    void create_seq_from_selected();
-    void reveal_in_browser();
-    void rename_interval();
-    void item_renamed(Media *item);
+	void create_seq_from_selected();
+	void reveal_in_browser();
+	void rename_interval();
+	void item_renamed(Media *item);
+	void open_create_proxy_dialog();
 private:
-    Media* editing_item;
-    QModelIndex editing_index;
-    QModelIndexList selected_items;
-    Project* project_parent;
-    void stop_rename_timer();
-    QTimer rename_timer;
+	Media* editing_item;
+	QModelIndex editing_index;
+	QModelIndexList selected_items;
+	Project* project_parent;
+	void stop_rename_timer();
+	QTimer rename_timer;
 };
 
 #endif // SOURCESCOMMON_H

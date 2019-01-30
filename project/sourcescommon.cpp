@@ -9,6 +9,7 @@
 #include "panels/viewer.h"
 #include "project/projectfilter.h"
 #include "io/config.h"
+#include "dialogs/proxydialog.h"
 #include "mainwindow.h"
 
 #include <QProcess>
@@ -126,6 +127,11 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 		if (all_footage) {
 			QAction* delete_footage_from_sequences = menu.addAction(tr("Delete All Clips Using This Media"));
 			QObject::connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), project_parent, SLOT(delete_clips_using_selected_media()));
+
+			QMenu* proxies = menu.addMenu(tr("Proxy"));
+			proxies->addAction(tr("Create Proxy"), this, SLOT(open_create_proxy_dialog()));
+//			proxies->addAction(tr("Modify Proxy"));
+//			proxies->addAction(tr("Restore Original"));
 		}
 
 		// delete media
@@ -292,4 +298,11 @@ void SourcesCommon::item_renamed(Media* item) {
 		undo_stack.push(mr);
 		editing_item = nullptr;
 	}
+}
+
+void SourcesCommon::open_create_proxy_dialog() {
+	QVector<Footage*> selected_footage;
+
+	ProxyDialog pd(mainWindow, selected_footage);
+	pd.exec();
 }
