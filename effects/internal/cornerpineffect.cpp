@@ -61,7 +61,7 @@ void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, i
 	coords.vertexBottomRightY += bottom_right_y->get_double_value(timecode);
 }
 
-void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords) {
+void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords, int iterations) {
 	glslProgram->setUniformValue("p0", (GLfloat) coords.vertexBottomLeftX, (GLfloat) coords.vertexBottomLeftY);
 	glslProgram->setUniformValue("p1", (GLfloat) coords.vertexBottomRightX, (GLfloat) coords.vertexBottomRightY);
 	glslProgram->setUniformValue("p2", (GLfloat) coords.vertexTopLeftX, (GLfloat) coords.vertexTopLeftY);
