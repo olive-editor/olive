@@ -180,7 +180,7 @@ void main(void) {
 	vec3 composite = blend(bg_color.rgb, fg_color.rgb);	
 
 	// add foreground and background alpha's together
-	float alpha_opac = fg_color.a*opacity;
+	// float alpha_opac = fg_color.a*opacity;
 
 	if (blendmode == BLEND_MODE_OVERLAY
 			|| blendmode == BLEND_MODE_LIGHTEN 
@@ -194,13 +194,13 @@ void main(void) {
 			|| blendmode == BLEND_MODE_REFLECT 
 			|| blendmode == BLEND_MODE_EXCLUSION 
 			|| blendmode == BLEND_MODE_DIFFERENCE) {
-		composite *= alpha_opac;
+		composite *= fg_color.a;
 	}
 
-	vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-alpha_opac), bg_color.a + fg_color.a);
+	vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-fg_color.a), bg_color.a + fg_color.a);
 	// vec4 full_composite = vec4(mix(bg_color.rgb, composite, alpha_opac), bg_color.a + alpha_opac);
 
-	full_composite = mix(bg_color, full_composite, alpha_opac);
+	full_composite = mix(bg_color, full_composite, opacity);
 
 	// output to color
 	gl_FragColor = full_composite;
