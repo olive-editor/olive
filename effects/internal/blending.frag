@@ -200,7 +200,7 @@ void main(void) {
 	vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-alpha_opac), bg_color.a + fg_color.a);
 	// vec4 full_composite = vec4(mix(bg_color.rgb, composite, alpha_opac), bg_color.a + alpha_opac);
 
-	// full_composite = mix(bg_color, full_composite, alpha_opac);
+	full_composite = mix(bg_color, full_composite, alpha_opac);
 
 	// output to color
 	gl_FragColor = full_composite;
