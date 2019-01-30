@@ -8,6 +8,7 @@
 #include "panels/timeline.h"
 #include "playback/playback.h"
 #include "project/media.h"
+#include "playback/audio.h"
 
 #include <QVariant>
 #include <QVBoxLayout>
@@ -232,13 +233,7 @@ void NewSequenceDialog::setup_ui() {
 	audioLayout->addWidget(new QLabel(tr("Sample Rate: "), this), 0, 0, 1, 1);
 
 	audio_frequency_combobox = new QComboBox(audioGroupBox);
-	audio_frequency_combobox->addItem("22050 Hz", 22050);
-	audio_frequency_combobox->addItem("24000 Hz", 24000);
-	audio_frequency_combobox->addItem("32000 Hz", 32000);
-	audio_frequency_combobox->addItem("44100 Hz", 44100);
-	audio_frequency_combobox->addItem("48000 Hz", 48000);
-	audio_frequency_combobox->addItem("88200 Hz", 88200);
-	audio_frequency_combobox->addItem("96000 Hz", 96000);
+	combobox_audio_sample_rates(audio_frequency_combobox);
 	audio_frequency_combobox->setCurrentIndex(4);
 
 	audioLayout->addWidget(audio_frequency_combobox, 0, 1, 1, 1);

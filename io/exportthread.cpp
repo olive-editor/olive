@@ -132,9 +132,6 @@ bool ExportThread::setupVideo() {
 			break;
 		}
 		break;
-	case AV_CODEC_ID_GIF:
-		av_opt_set(vcodec_ctx->priv_data, "image", "1", AV_OPT_SEARCH_CHILDREN);
-		break;
 	}
 
 	AVDictionary* opts = nullptr;
@@ -377,18 +374,20 @@ void ExportThread::run() {
 			sws_frame->height = video_height;
 			av_frame_get_buffer(sws_frame, 0);
 
-			// change pixel format
+			// convert pixel format to format expected by the encoder
 			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
 			sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
 
-			// send to encoder
+			// send converted frame to encoder
 			if (!encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream, false)) continueEncode = false;
 
 			av_frame_free(&sws_frame);
 		}
 		if (audio_enabled) {
+
 			// do we need to encode more audio samples?
 			while (continueEncode && file_audio_samples <= (timecode_secs*audio_sampling_rate)) {
+
 				// copy samples from audio buffer to AVFrame
 				int adjusted_read = audio_ibuffer_read%audio_ibuffer_size;
 				int copylen = qMin(aframe_bytes, audio_ibuffer_size-adjusted_read);
@@ -415,14 +414,12 @@ void ExportThread::run() {
 			}
 		}
 
-		// encoding stats
+		// generating encoding statistics (time it took to encode this frame/estimated remaining time)
 		frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
 		total_time += frame_time;
 		remaining_frames = (end_frame-sequence->playhead);
 		avg_time = (total_time/frame_count);
 		eta = (remaining_frames*avg_time);
-
-//        qInfo() << "Encoded frame" << sequence->playhead << "- took" << frame_time << "ms (avg:" << avg_time << "ms, remaining:" << remaining_frames << ", ETA:" << eta << ")";
 
 		emit progress_changed(qRound((double(sequence->playhead-start_frame) / double(end_frame-start_frame)) * 100.0), eta);
 		sequence->playhead++;

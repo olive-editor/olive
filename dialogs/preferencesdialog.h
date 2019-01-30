@@ -62,6 +62,9 @@ private:
 	QComboBox* previous_queue_type;
 	QSpinBox* effect_textbox_lines_field;
 	QCheckBox* use_software_fallbacks_checkbox;
+	QComboBox* audio_output_devices;
+	QComboBox* audio_input_devices;
+	QComboBox* audio_sample_rate;
 
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;

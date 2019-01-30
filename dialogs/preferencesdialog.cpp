@@ -1,6 +1,7 @@
 #include "preferencesdialog.h"
 
 #include "io/config.h"
+#include "playback/audio.h"
 #include "mainwindow.h"
 
 #include <QMenuBar>
@@ -22,6 +23,7 @@
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QAudioDeviceInfo>
 
 #include "debug.h"
 
@@ -133,6 +135,14 @@ void PreferencesDialog::save() {
 	config.previous_queue_size = previous_queue_spinbox->value();
 	config.previous_queue_type = previous_queue_type->currentIndex();
 
+	// audio preferences
+	bool reset_audio_required = (config.preferred_audio_output != audio_output_devices->currentData().toString()
+									|| config.preferred_audio_input != audio_input_devices->currentData().toString());
+	config.preferred_audio_output = audio_output_devices->currentData().toString();
+	config.preferred_audio_input = audio_input_devices->currentData().toString();
+	qDebug() << "selected audio input" << audio_input_devices->currentData().toString();
+	config.audio_rate = audio_sample_rate->currentData().toInt();
+
 	// the following settings may require a restart of Olive to take effect:
 
 	bool needs_restart = false;
@@ -150,6 +160,10 @@ void PreferencesDialog::save() {
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
 		key_shortcut_fields.at(i)->set_action_shortcut();
+	}
+
+	if (reset_audio_required) {
+		init_audio();
 	}
 
 	if (needs_restart) {
@@ -286,7 +300,7 @@ void PreferencesDialog::setup_ui() {
 	QTabWidget* tabWidget = new QTabWidget(this);
 
 	// General
-	QTabWidget* general_tab = new QTabWidget(this);
+	QWidget* general_tab = new QWidget(this);
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
 	// General -> Custom CSS
@@ -382,6 +396,65 @@ void PreferencesDialog::setup_ui() {
 
 	tabWidget->addTab(playback_tab, tr("Playback"));
 
+	// Audio
+	QWidget* audio_tab = new QWidget(this);
+
+	QGridLayout* audio_tab_layout = new QGridLayout(audio_tab);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), 0, 0);
+
+	audio_output_devices = new QComboBox();
+	audio_output_devices->addItem(tr("Default"), "");
+
+	// list all available audio output devices
+	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+	bool found_preferred_device = false;
+	for (int i=0;i<devs.size();i++) {
+		audio_output_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
+		if (!found_preferred_device
+				&& devs.at(i).deviceName() == config.preferred_audio_output) {
+			audio_output_devices->setCurrentIndex(audio_output_devices->count()-1);
+			found_preferred_device = true;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_output_devices, 0, 1);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), 1, 0);
+
+	audio_input_devices = new QComboBox();
+	audio_input_devices->addItem(tr("Default"), "");
+
+	// list all available audio input devices
+	devs = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+	found_preferred_device = false;
+	for (int i=0;i<devs.size();i++) {
+		audio_input_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
+		if (!found_preferred_device
+				&& devs.at(i).deviceName() == config.preferred_audio_input) {
+			audio_input_devices->setCurrentIndex(audio_input_devices->count()-1);
+			found_preferred_device = true;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_input_devices, 1, 1);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), 2, 0);
+
+	audio_sample_rate = new QComboBox();
+	combobox_audio_sample_rates(audio_sample_rate);
+	for (int i=0;i<audio_sample_rate->count();i++) {
+		if (audio_sample_rate->itemData(i).toInt() == config.audio_rate) {
+			audio_sample_rate->setCurrentIndex(i);
+			break;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_sample_rate, 2, 1);
+
+	tabWidget->addTab(audio_tab, tr("Audio"));
+
+	// Shortcuts
 	QWidget* shortcut_tab = new QWidget(this);
 
 	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
@@ -432,6 +505,4 @@ void PreferencesDialog::setup_ui() {
 
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(save()));
 	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-	tabWidget->setCurrentIndex(2);
 }

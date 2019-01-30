@@ -17,6 +17,7 @@
 #include <QtMath>
 #include <QFile>
 #include <QDir>
+#include <QComboBox>
 
 extern "C" {
 	#include <libavcodec/avcodec.h>
@@ -43,6 +44,35 @@ bool is_audio_device_set() {
 	return audio_device_set;
 }
 
+QAudioDeviceInfo get_audio_device(QAudio::Mode mode) {
+	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(mode);
+
+	// try to retrieve preferred device from config
+	QString preferred_device = (mode == QAudio::AudioOutput) ? config.preferred_audio_output : config.preferred_audio_input;
+	if (!preferred_device.isEmpty()) {
+		for (int i=0;i<devs.size();i++) {
+			// try to match available devices with preferred device
+			if (devs.at(i).deviceName() == preferred_device) {
+				return devs.at(i);
+			}
+		}
+	}
+
+	// if no preferred output is set, try to get the default device
+	QAudioDeviceInfo default_device = (mode == QAudio::AudioOutput) ? QAudioDeviceInfo::defaultOutputDevice() : QAudioDeviceInfo::defaultInputDevice();
+	if (!default_device.isNull()) {
+		return default_device;
+	}
+
+	// if no default output could be retrieved, just use the first in the list
+	if (devs.size() > 0) {
+		return devs.at(0);
+	}
+
+	// couldn't find any audio devices, return null device
+	return QAudioDeviceInfo();
+}
+
 void init_audio() {
 	stop_audio();
 
@@ -54,18 +84,9 @@ void init_audio() {
 	audio_format.setByteOrder(QAudioFormat::LittleEndian);
 	audio_format.setSampleType(QAudioFormat::SignedInt);
 
-	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-	qInfo() << "Found the following audio devices:";
-	for (int i=0;i<devs.size();i++) {
-		dout << "    " << devs.at(i).deviceName();
-	}
-	if (info.isNull() && devs.size() > 0) {
-		qWarning() << "Default audio returned nullptr, attempting to use first device found...";
-		info = devs.at(0);
-	}
-	qInfo() << "Using audio device" << info.deviceName();
+	QAudioDeviceInfo info = get_audio_device(QAudio::AudioOutput);
 
+	// see if desired format can be used by the device, use nearest if not
 	if (!info.isFormatSupported(audio_format)) {
 		qWarning() << "Audio format is not supported by backend, using nearest";
 		audio_format = info.nearestFormat(audio_format);
@@ -311,13 +332,15 @@ bool start_recording() {
 	if (config.recording_mode != audio_format.channelCount()) {
 		audio_format.setChannelCount(config.recording_mode);
 	}
-	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
+
+	QAudioDeviceInfo info = get_audio_device(QAudio::AudioInput);
+
 	if (!info.isFormatSupported(audio_format)) {
 		qWarning() << "Default format not supported, using nearest";
 		audio_format = info.nearestFormat(audio_format);
 	}
 	write_wave_header(output_recording, audio_format);
-	audio_input = new QAudioInput(audio_format);
+	audio_input = new QAudioInput(info, audio_format);
 	audio_input->start(&output_recording);
 	recording = true;
 
@@ -340,4 +363,14 @@ void stop_recording() {
 
 QString get_recorded_audio_filename() {
 	return output_recording.fileName();
+}
+
+void combobox_audio_sample_rates(QComboBox *combobox) {
+	combobox->addItem("22050 Hz", 22050);
+	combobox->addItem("24000 Hz", 24000);
+	combobox->addItem("32000 Hz", 32000);
+	combobox->addItem("44100 Hz", 44100);
+	combobox->addItem("48000 Hz", 48000);
+	combobox->addItem("88200 Hz", 88200);
+	combobox->addItem("96000 Hz", 96000);
 }
