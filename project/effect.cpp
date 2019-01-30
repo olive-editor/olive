@@ -108,10 +108,9 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	// set up base UI
 	container = new CollapsibleWidget();
 	connect(container->enabled_check, SIGNAL(clicked(bool)), this, SLOT(field_changed()));
-	ui = new QWidget();
-	ui_layout = new QGridLayout();
+	ui = new QWidget(container);
+	ui_layout = new QGridLayout(ui);
 	ui_layout->setSpacing(4);
-	ui->setLayout(ui_layout);
 	container->setContents(ui);
 
 	connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
@@ -314,7 +313,7 @@ Effect::~Effect() {
 		close();
 	}
 
-	//delete container;
+	delete container;
 
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);

@@ -7,13 +7,12 @@
 #include <QFileDialog>
 
 EmbeddedFileChooser::EmbeddedFileChooser(QWidget* parent) : QWidget(parent) {
-	QHBoxLayout* layout = new QHBoxLayout();
+	QHBoxLayout* layout = new QHBoxLayout(this);
 	layout->setMargin(0);
-	setLayout(layout);
-	file_label = new QLabel();
+	file_label = new QLabel(this);
 	update_label();
 	layout->addWidget(file_label);
-	QPushButton* browse_button = new QPushButton("...");
+	QPushButton* browse_button = new QPushButton("...", this);
 	browse_button->setFixedWidth(25);
 	layout->addWidget(browse_button);
 	connect(browse_button, SIGNAL(clicked(bool)), this, SLOT(browse()));
@@ -35,7 +34,7 @@ void EmbeddedFileChooser::setFilename(const QString &s) {
 }
 
 void EmbeddedFileChooser::update_label() {
-    QString l = "<html>" + tr("File:") + " ";
+	QString l = "<html>" + tr("File:") + " ";
 	if (filename.isEmpty()) {
 		l += "(none)";
 	} else {

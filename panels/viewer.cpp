@@ -481,6 +481,7 @@ int Viewer::get_playback_speed() {
 void Viewer::resizeEvent(QResizeEvent *) {
 	if (seq != nullptr) {
 		set_sb_max();
+		viewer_widget->update();
 	}
 }
 
@@ -586,7 +587,7 @@ long Viewer::get_seq_out() {
 }
 
 void Viewer::setup_ui() {
-	QWidget* contents = new QWidget();
+	QWidget* contents = new QWidget(this);
 
 	QVBoxLayout* layout = new QVBoxLayout(contents);
 	layout->setSpacing(0);

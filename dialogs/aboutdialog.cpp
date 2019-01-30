@@ -12,7 +12,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setSpacing(20);
-	setLayout(layout);
 
 	QLabel* label =
 			new QLabel("<html><head/><body>"

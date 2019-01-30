@@ -12,7 +12,6 @@ DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
 	setWindowTitle(tr("Debug Log"));
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
-	setLayout(layout);
 
 	textEdit = new QTextEdit(this);
 	textEdit->setWordWrapMode(QTextOption::NoWrap);

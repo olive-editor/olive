@@ -172,8 +172,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 		const EffectMeta& em = effects.at(i);
 
 		if (em.type == type && em.subtype == subtype) {
-			QAction* action = new QAction(&effects_menu);
-			action->setText(em.name);
+			QAction* action = effects_menu.addAction(em.name);
 			action->setData(reinterpret_cast<quintptr>(&em));
 			if (!em.tooltip.isEmpty()) {
 				action->setToolTip(em.tooltip);
@@ -193,9 +192,8 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 					}
 				}
 				if (!found) {
-					parent = new QMenu(&effects_menu);
+					parent = effects_menu.addMenu(em.category);
 					parent->setToolTipsVisible(true);
-					parent->setTitle(em.category);
 
 					bool found = false;
 					for (int i=0;i<effects_menu.actions().size();i++) {
@@ -275,7 +273,7 @@ void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
 }
 
 void EffectControls::setup_ui() {
-	QWidget* contents = new QWidget();
+	QWidget* contents = new QWidget(this);
 
 	QHBoxLayout* hlayout = new QHBoxLayout(contents);
 	hlayout->setSpacing(0);
@@ -293,7 +291,7 @@ void EffectControls::setup_ui() {
 	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	scrollArea->setWidgetResizable(true);
 
-	QWidget* scrollAreaWidgetContents = new QWidget();
+	QWidget* scrollAreaWidgetContents = new QWidget(scrollArea);
 
 	QHBoxLayout* scrollAreaLayout = new QHBoxLayout(scrollAreaWidgetContents);
 	scrollAreaLayout->setSpacing(0);
@@ -308,7 +306,7 @@ void EffectControls::setup_ui() {
 	effects_area_layout->setMargin(0);
 
 	vcontainer = new QWidget(effects_area);
-	QVBoxLayout* vcontainerLayout = new QVBoxLayout(vcontainer);
+	QVBoxLayout* vcontainerLayout = new QVBoxLayout();
 	vcontainerLayout->setSpacing(0);
 	vcontainerLayout->setMargin(0);
 
@@ -320,7 +318,7 @@ void EffectControls::setup_ui() {
 	veHeaderLayout->setSpacing(0);
 	veHeaderLayout->setMargin(0);
 
-	QPushButton* btnAddVideoEffect = new QPushButton(veHeader);
+	QPushButton* btnAddVideoEffect = new QPushButton();
 	btnAddVideoEffect->setIcon(QIcon(":/icons/add-effect.png"));
 	btnAddVideoEffect->setToolTip(tr("Add Video Effect"));
 	veHeaderLayout->addWidget(btnAddVideoEffect);
@@ -328,7 +326,7 @@ void EffectControls::setup_ui() {
 
 	veHeaderLayout->addStretch();
 
-	QLabel* lblVideoEffects = new QLabel(veHeader);
+	QLabel* lblVideoEffects = new QLabel();
 	QFont font;
 	font.setPointSize(9);
 	lblVideoEffects->setFont(font);
@@ -338,16 +336,15 @@ void EffectControls::setup_ui() {
 
 	veHeaderLayout->addStretch();
 
-	QPushButton* btnAddVideoTransition = new QPushButton(veHeader);
+	QPushButton* btnAddVideoTransition = new QPushButton();
 	btnAddVideoTransition->setIcon(QIcon(":/icons/add-transition.png"));
 	btnAddVideoTransition->setToolTip(tr("Add Video Transition"));
 	connect(btnAddVideoTransition, SIGNAL(clicked(bool)), this, SLOT(video_transition_click()));
-
 	veHeaderLayout->addWidget(btnAddVideoTransition);
 
 	vcontainerLayout->addWidget(veHeader);
 
-	video_effect_area = new QWidget(vcontainer);
+	video_effect_area = new QWidget();
 	QVBoxLayout* veAreaLayout = new QVBoxLayout(video_effect_area);
 	veAreaLayout->setSpacing(0);
 	veAreaLayout->setMargin(0);
@@ -368,7 +365,7 @@ void EffectControls::setup_ui() {
 	aeHeaderLayout->setSpacing(0);
 	aeHeaderLayout->setMargin(0);
 
-	QPushButton* btnAddAudioEffect = new QPushButton(aeHeader);
+	QPushButton* btnAddAudioEffect = new QPushButton();
 	btnAddAudioEffect->setIcon(QIcon(":/icons/add-effect.png"));
 	btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
 	connect(btnAddAudioEffect, SIGNAL(clicked(bool)), this, SLOT(audio_effect_click()));
@@ -376,7 +373,7 @@ void EffectControls::setup_ui() {
 
 	aeHeaderLayout->addStretch();
 
-	QLabel* lblAudioEffects = new QLabel(aeHeader);
+	QLabel* lblAudioEffects = new QLabel();
 	lblAudioEffects->setFont(font);
 	lblAudioEffects->setAlignment(Qt::AlignCenter);
 	lblAudioEffects->setText(tr("AUDIO EFFECTS"));
@@ -384,7 +381,7 @@ void EffectControls::setup_ui() {
 
 	aeHeaderLayout->addStretch();
 
-	QPushButton* btnAddAudioTransition = new QPushButton(aeHeader);
+	QPushButton* btnAddAudioTransition = new QPushButton();
 	btnAddAudioTransition->setIcon(QIcon(":/icons/add-transition.png"));
 	btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
 	connect(btnAddAudioTransition, SIGNAL(clicked(bool)), this, SLOT(audio_transition_click()));

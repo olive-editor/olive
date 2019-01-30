@@ -37,8 +37,6 @@ ActionSearch::ActionSearch(QWidget *parent) :
 	layout->addWidget(list_widget);
 	connect(list_widget, SIGNAL(dbl_click()), this, SLOT(perform_action()));
 
-	setLayout(layout);
-
 	entry_field->setFocus();
 }
 

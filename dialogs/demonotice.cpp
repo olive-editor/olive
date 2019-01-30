@@ -11,7 +11,6 @@ DemoNotice::DemoNotice(QWidget *parent) :
 	setMaximumWidth(600);
 
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
-	setLayout(vlayout);
 
 	QHBoxLayout* layout = new QHBoxLayout(this);
 	layout->setMargin(10);

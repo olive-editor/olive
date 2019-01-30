@@ -45,6 +45,7 @@ private:
 	QString name;
 	int ui_row;
 	QVector<EffectField*> fields;
+	QVector<QWidget*> widgets;
 
 	KeyframeNavigator* keyframe_nav;
 

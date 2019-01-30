@@ -63,7 +63,7 @@ Project::Project(QWidget *parent) :
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-	QWidget* dockWidgetContents = new QWidget();
+	QWidget* dockWidgetContents = new QWidget(this);
 	QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
 	verticalLayout->setContentsMargins(0, 0, 0, 0);
 	verticalLayout->setSpacing(0);
@@ -76,10 +76,10 @@ Project::Project(QWidget *parent) :
 	sorter->setSourceModel(&project_model);
 
 	// optional toolbar
-	toolbar_widget = new QWidget();
+	toolbar_widget = new QWidget(this);
 	toolbar_widget->setVisible(config.show_project_toolbar);
 	toolbar_widget->setObjectName("project_toolbar");
-	QHBoxLayout* toolbar = new QHBoxLayout();
+	QHBoxLayout* toolbar = new QHBoxLayout(toolbar_widget);
 	toolbar->setMargin(0);
 	toolbar->setSpacing(0);
 	toolbar_widget->setLayout(toolbar);
@@ -157,14 +157,14 @@ Project::Project(QWidget *parent) :
 	verticalLayout->addWidget(tree_view);
 
 	// icon view
-	icon_view_container = new QWidget();
+	icon_view_container = new QWidget(dockWidgetContents);
 
-	QVBoxLayout* icon_view_container_layout = new QVBoxLayout();
+	QVBoxLayout* icon_view_container_layout = new QVBoxLayout(icon_view_container);
 	icon_view_container_layout->setMargin(0);
 	icon_view_container_layout->setSpacing(0);
 	icon_view_container->setLayout(icon_view_container_layout);
 
-	QHBoxLayout* icon_view_controls = new QHBoxLayout();
+	QHBoxLayout* icon_view_controls = new QHBoxLayout(icon_view_container);
 	icon_view_controls->setMargin(0);
 	icon_view_controls->setSpacing(0);
 
@@ -172,14 +172,14 @@ Project::Project(QWidget *parent) :
 	directory_up_button.addFile(":/icons/dirup.png", QSize(), QIcon::Normal);
 	directory_up_button.addFile(":/icons/dirup-disabled.png", QSize(), QIcon::Disabled);
 
-	directory_up = new QPushButton();
+	directory_up = new QPushButton(icon_view_container);
 	directory_up->setIcon(directory_up_button);
 	directory_up->setEnabled(false);
 	icon_view_controls->addWidget(directory_up);
 
 	icon_view_controls->addStretch();
 
-	QSlider* icon_size_slider = new QSlider(Qt::Horizontal);
+	QSlider* icon_size_slider = new QSlider(Qt::Horizontal, icon_view_container);
 	icon_size_slider->setMinimum(16);
 	icon_size_slider->setMaximum(120);
 	icon_view_controls->addWidget(icon_size_slider);
