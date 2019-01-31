@@ -842,6 +842,7 @@ void AddMarkerAction::redo() {
 	if (index == -1) {
 		Marker m;
 		m.frame = time;
+        m.name = name;
         markers.append(m);
 	} else {
         old_name = markers.at(index).name;

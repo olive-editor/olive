@@ -130,7 +130,11 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
-	toolbar->addStretch();
+    QLineEdit* toolbar_search = new QLineEdit();
+    toolbar_search->setPlaceholderText(tr("Search media, markers, etc."));
+    connect(toolbar_search, SIGNAL(textChanged(QString)), sorter, SLOT(update_search_filter(const QString&)));
+    toolbar->addWidget(toolbar_search);
+
 	QPushButton* toolbar_tree_view = new QPushButton();
 	QIcon icon6;
 	icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
