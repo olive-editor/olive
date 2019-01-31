@@ -427,10 +427,24 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 													}
 												}
 												if (cancelled) return false;
-											} else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
+                                            } else if (stream.isStartElement()
+                                                           && (stream.name() == "effect"
+                                                               || stream.name() == "opening"
+                                                               || stream.name() == "closing")) {
 												// "opening" and "closing" are backwards compatibility code
 												load_effect(stream, c);
-											}
+                                            } else if (stream.name() == "marker" && stream.isStartElement()) {
+                                                Marker m;
+                                                for (int j=0;j<stream.attributes().size();j++) {
+                                                    const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                                    if (attr.name() == "frame") {
+                                                        m.frame = attr.value().toLong();
+                                                    } else if (attr.name() == "name") {
+                                                        m.name = attr.value().toString();
+                                                    }
+                                                }
+                                                c->markers.append(m);
+                                            }
 										}
 									}
 									if (cancelled) return false;

@@ -5,6 +5,8 @@
 #include <QMutex>
 #include <QVector>
 
+#include "marker.h"
+
 #define SKIP_TYPE_DISCARD 0
 #define SKIP_TYPE_SEEK 1
 
@@ -72,6 +74,9 @@ struct Clip
 	bool reverse;
 	bool maintain_audio_pitch;
 	bool autoscale;
+
+    // markers
+    QVector<Marker> markers;
 
 	// other variables (should be deep copied/duplicated in copy())
 	QList<Effect*> effects;

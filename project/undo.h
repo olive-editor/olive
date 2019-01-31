@@ -384,11 +384,12 @@ private:
 
 class AddMarkerAction : public QUndoCommand {
 public:
-	AddMarkerAction(Sequence* s, long t, QString n);
+    AddMarkerAction(bool is_sequence, void* s, long t, QString n);
 	void undo();
 	void redo();
 private:
-	Sequence* seq;
+    bool is_sequence_internal;
+    void* target;
 	long time;
 	QString name;
 	QString old_name;

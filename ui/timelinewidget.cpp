@@ -1244,6 +1244,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 		// slipping doesn't move the clips so we don't bother snapping for it
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
 			const Ghost& g = panel_timeline->ghosts.at(i);
+
+            // snap ghost's in point
 			if (panel_timeline->trim_target == -1 || g.trim_in) {
 				fm = g.old_in + frame_diff;
 				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1251,6 +1253,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 					break;
 				}
 			}
+
+            // snap ghost's out point
 			if (panel_timeline->trim_target == -1 || !g.trim_in) {
 				fm = g.old_out + frame_diff;
 				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1258,6 +1262,19 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 					break;
 				}
 			}
+
+            // if the ghost is attached to a clip, snap its markers too
+            if (panel_timeline->trim_target == -1 && g.clip >= 0) {
+                Clip* c = sequence->clips.at(g.clip);
+                for (int j=0;j<c->markers.size();j++) {
+                    long marker_real_time = c->markers.at(j).frame + c->timeline_in - c->clip_in;
+                    fm = marker_real_time + frame_diff;
+                    if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+                        frame_diff = fm - marker_real_time;
+                        break;
+                    }
+                }
+            }
 		}
 	}
 
@@ -2393,6 +2410,18 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 							}
 						}
 					}
+
+                    // draw clip markers
+                    for (int j=0;j<clip->markers.size();j++) {
+                        const Marker& m = clip->markers.at(j);
+
+                        // convert marker time (in clip time) to sequence time
+                        long marker_time = m.frame + clip->timeline_in - clip->clip_in;
+                        int marker_x = panel_timeline->getTimelineScreenPointFromFrame(marker_time);
+                        if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
+                            draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false, false);
+                        }
+                    }
 
 					// draw clip transitions
 					draw_transition(p, clip, clip_rect, text_rect, TA_OPENING_TRANSITION);

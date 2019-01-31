@@ -1426,7 +1426,14 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 				} else if (c->get_closing_transition() != nullptr
 						   && snap_to_point(c->timeline_out - c->get_closing_transition()->get_true_length(), l)) {
 					return true;
-				}
+                } else {
+                    // try to snap to clip markers
+                    for (int j=0;j<c->markers.size();j++) {
+                        if (snap_to_point(c->markers.at(j).frame + c->timeline_in - c->clip_in, l)) {
+                            return true;
+                        }
+                    }
+                }
 			}
 		}
 	}
@@ -1446,9 +1453,29 @@ void Timeline::set_marker() {
 		marker_name = d.textValue();
 	}
 
-
 	if (add_marker) {
-		undo_stack.push(new AddMarkerAction(sequence, sequence->playhead, marker_name));
+        ComboAction* ca = new ComboAction();
+
+        // see if any clips are selected, and if so add a marker to them
+        bool clip_mode = false;
+        for (int i=0;i<sequence->clips.size();i++) {
+            Clip* c = sequence->clips.at(i);
+            if (c != nullptr
+                    && is_clip_selected(c, true)) {
+                ca->append(new AddMarkerAction(false,
+                                               c,
+                                               sequence->playhead - c->timeline_in + c->clip_in,
+                                               marker_name));
+                clip_mode = true;
+            }
+        }
+
+        // if no clips are selected, we're adding a marker to the sequence
+        if (!clip_mode) {
+            ca->append(new AddMarkerAction(true, sequence, sequence->playhead, marker_name));
+        }
+
+        undo_stack.push(ca);
 	}
 }
 

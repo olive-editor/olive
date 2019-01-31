@@ -803,18 +803,23 @@ void SetAutoscaleAction::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddMarkerAction::AddMarkerAction(Sequence* s, long t, QString n) :
-	seq(s),
+AddMarkerAction::AddMarkerAction(bool is_sequence, void* s, long t, QString n) :
+    is_sequence_internal(is_sequence),
+    target(s),
 	time(t),
 	name(n),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void AddMarkerAction::undo() {
+    QVector<Marker>& markers = is_sequence_internal ?
+                static_cast<Sequence*>(target)->markers :
+                static_cast<Clip*>(target)->markers;
+
 	if (index == -1) {
-		seq->markers.removeLast();
+        markers.removeLast();
 	} else {
-		seq->markers[index].name = old_name;
+        markers[index].name = old_name;
 	}
 
 	mainWindow->setWindowModified(old_project_changed);
@@ -822,8 +827,13 @@ void AddMarkerAction::undo() {
 
 void AddMarkerAction::redo() {
 	index = -1;
-	for (int i=0;i<seq->markers.size();i++) {
-		if (seq->markers.at(i).frame == time) {
+
+    QVector<Marker>& markers = is_sequence_internal ?
+                static_cast<Sequence*>(target)->markers :
+                static_cast<Clip*>(target)->markers;
+
+    for (int i=0;i<markers.size();i++) {
+        if (markers.at(i).frame == time) {
 			index = i;
 			break;
 		}
@@ -832,10 +842,10 @@ void AddMarkerAction::redo() {
 	if (index == -1) {
 		Marker m;
 		m.frame = time;
-		seq->markers.append(m);
+        markers.append(m);
 	} else {
-		old_name = seq->markers.at(index).name;
-		seq->markers[index].name = name;
+        old_name = markers.at(index).name;
+        markers[index].name = name;
 	}
 
 	mainWindow->setWindowModified(true);
