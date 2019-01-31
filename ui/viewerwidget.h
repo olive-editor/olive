@@ -47,6 +47,7 @@ public:
 	void set_scroll(double x, double y);
 public slots:
 	void set_waveform_scroll(int s);
+    void set_fullscreen(int screen = 0);
 protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
