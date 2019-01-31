@@ -44,7 +44,6 @@ bool ProjectFilter::filterAcceptsRow(int source_row, const QModelIndex &source_p
         if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
             Sequence* s = media->to_sequence();
             for (int i=0;i<s->markers.size();i++) {
-                qDebug() << "marker name:" << s->markers.at(i).name;
                 if (s->markers.at(i).name.contains(search_filter, Qt::CaseInsensitive)) {
                     marker_contains_search = true;
                     break;
