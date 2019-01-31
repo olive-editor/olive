@@ -83,7 +83,7 @@ bool ExportThread::setupVideo() {
 	if (!video_enabled) return true;
 
 	// find video encoder
-	vcodec = avcodec_find_encoder((enum AVCodecID) video_codec);
+	vcodec = avcodec_find_encoder(static_cast<enum AVCodecID>(video_codec));
 	if (!vcodec) {
 		qCritical() << "Could not find video encoder";
 		ed->export_error = tr("could not video encoder for %1").arg(QString::number(video_codec));
@@ -109,7 +109,7 @@ bool ExportThread::setupVideo() {
 	}
 
 	// setup context
-	vcodec_ctx->codec_id = static_cast<AVCodecID>(video_codec);
+	vcodec_ctx->codec_id = static_cast<enum AVCodecID>(video_codec);
 	vcodec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
 	vcodec_ctx->width = video_width;
 	vcodec_ctx->height = video_height;

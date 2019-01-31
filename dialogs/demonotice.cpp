@@ -12,7 +12,7 @@ DemoNotice::DemoNotice(QWidget *parent) :
 
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
 
-	QHBoxLayout* layout = new QHBoxLayout(this);
+	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setMargin(10);
 	layout->setSpacing(20);
 

@@ -103,11 +103,14 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 		// duplicate item
 		bool all_sequences = true;
 		bool all_footage = true;
+		cached_selected_footage.clear();
 		for (int i=0;i<items.size();i++) {
 			if (m->get_type() != MEDIA_TYPE_SEQUENCE) {
 				all_sequences = false;
 			}
-			if (m->get_type() != MEDIA_TYPE_FOOTAGE) {
+			if (m->get_type() == MEDIA_TYPE_FOOTAGE) {
+				cached_selected_footage.append(m->to_footage());
+			} else {
 				all_footage = false;
 			}
 		}
@@ -301,8 +304,7 @@ void SourcesCommon::item_renamed(Media* item) {
 }
 
 void SourcesCommon::open_create_proxy_dialog() {
-	QVector<Footage*> selected_footage;
-
-	ProxyDialog pd(mainWindow, selected_footage);
+	// open the proxy dialog and send it a list of currently selected footage
+	ProxyDialog pd(mainWindow, cached_selected_footage);
 	pd.exec();
 }

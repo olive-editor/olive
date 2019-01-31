@@ -13,10 +13,8 @@
 #include <QtMath>
 #include <QTreeWidgetItem>
 #include <QSemaphore>
-#include <QCryptographicHash>
 #include <QFile>
 #include <QDir>
-#include <QDateTime>
 
 #define WAVEFORM_RESOLUTION 64
 #define THUMBNAIL_RESOLUTION 120
@@ -68,13 +66,7 @@ void PreviewGenerator::parse_media() {
 					&& fmt_ctx->streams[i]->codecpar->width > 0
 					&& fmt_ctx->streams[i]->codecpar->height > 0) {
 
-				/*dout << "avg_frame_rate was:" << fmt_ctx->streams[i]->avg_frame_rate.num << "/" << fmt_ctx->streams[i]->avg_frame_rate.den;
-				dout << "r_frame_rate was:" << fmt_ctx->streams[i]->r_frame_rate.num << "/" << fmt_ctx->streams[i]->r_frame_rate.den;
-				dout << "codec_frame_rate was:" << fmt_ctx->streams[i]->codec->framerate.num << "/" << fmt_ctx->streams[i]->codec->framerate.den;
-				dout << "nb_frames was:" << fmt_ctx->streams[i]->nb_frames;
-				dout << "duration was:" << fmt_ctx->streams[i]->duration << "OR fmt_ctx's duration is:" << fmt_ctx->duration;*/
-
-				// heuristic to determine if video is a still image
+				// heuristic to determine if video is a still image (if it is, we treat it differently in the playback/render process)
 				if (fmt_ctx->streams[i]->avg_frame_rate.den == 0
 						&& fmt_ctx->streams[i]->codecpar->codec_id != AV_CODEC_ID_DNXHD) { // silly hack but this is the only scenario i've seen this
 					if (footage->url.contains('%')) {
@@ -85,16 +77,10 @@ void PreviewGenerator::parse_media() {
 						contains_still_image = true;
 						ms.video_frame_rate = 0;
 					}
+
 				} else {
 					// using ffmpeg's built-in heuristic
 					ms.video_frame_rate = av_q2d(av_guess_frame_rate(fmt_ctx, fmt_ctx->streams[i], nullptr));
-
-					// old heuristic
-					/*if (fmt_ctx->streams[i]->r_frame_rate.den == 0) {
-						ms.video_frame_rate = av_q2d(fmt_ctx->streams[i]->avg_frame_rate);
-					} else {
-						ms.video_frame_rate = av_q2d(fmt_ctx->streams[i]->r_frame_rate);
-					}*/
 				}
 
 				ms.video_width = fmt_ctx->streams[i]->codecpar->width;
@@ -241,7 +227,9 @@ void PreviewGenerator::generate_waveform() {
 		}
 	}
 
+	// TODO may be unnecessary - doesn't av_read_frame allocate a packet itself?
 	AVPacket* packet = av_packet_alloc();
+
 	bool done = true;
 
 	bool end_of_file = false;
@@ -458,10 +446,7 @@ void PreviewGenerator::run() {
 			parse_media();
 
 			// see if we already have data for this
-			QFileInfo file_info(footage->url);
-			QString cache_file = footage->url.mid(footage->url.lastIndexOf('/')+1) + QString::number(file_info.size()) + QString::number(file_info.lastModified().toMSecsSinceEpoch());
-			//dout << "using hash" << cache_file;
-			QString hash = QCryptographicHash::hash(cache_file.toUtf8(), QCryptographicHash::Md5).toHex();
+			QString hash = get_file_hash(footage->url);
 
 			if (retrieve_preview(hash)) {
 				sem.acquire();
