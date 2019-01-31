@@ -56,6 +56,10 @@ struct Footage {
 	double speed;
 	bool alpha_is_premultiplied;
 
+	// proxy config
+	bool proxy;
+	QString proxy_path;
+
 	PreviewGenerator* preview_gen;
 	QMutex ready_lock;
 

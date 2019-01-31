@@ -673,7 +673,19 @@ void open_clip_worker(Clip* clip) {
 	} else if (clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		// opens file resource for FFmpeg and prepares Clip struct for playback
 		Footage* m = clip->media->to_footage();
-		QByteArray ba = m->url.toUtf8();
+
+		// byte array for retriving raw bytes from QString URL
+		QByteArray ba;
+
+		// do we have a proxy?
+		if (m->proxy
+				&& !m->proxy_path.isEmpty()
+				&& QFileInfo::exists(m->proxy_path)) {
+			ba = m->proxy_path.toUtf8();
+		} else {
+			ba = m->url.toUtf8();
+		}
+
 		const char* filename = ba.constData();
 		const FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 

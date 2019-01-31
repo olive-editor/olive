@@ -30,7 +30,10 @@ private slots:
 	void reveal_in_browser();
 	void rename_interval();
 	void item_renamed(Media *item);
+
+	// proxy functions
 	void open_create_proxy_dialog();
+	void clear_proxies_from_selected();
 private:
 	Media* editing_item;
 	QModelIndex editing_index;

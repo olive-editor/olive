@@ -108,6 +108,9 @@ void ProxyDialog::accept() {
 
 	// all proxy info checks out, queue it with the proxy generator
 	for (int i=0;i<info_list.size();i++) {
+		info_list.at(i).footage->proxy = true;
+		info_list.at(i).footage->proxy_path.clear();
+
 		proxy_generator.queue(info_list.at(i));
 	}
 

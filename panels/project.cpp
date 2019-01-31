@@ -954,6 +954,10 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					stream.writeAttribute("out", QString::number(f->out));
 					stream.writeAttribute("speed", QString::number(f->speed));
 					stream.writeAttribute("alphapremul", QString::number(f->alpha_is_premultiplied));
+
+					stream.writeAttribute("proxy", QString::number(f->proxy));
+					stream.writeAttribute("proxypath", f->proxy_path);
+
 					for (int j=0;j<f->video_tracks.size();j++) {
 						const FootageStream& ms = f->video_tracks.at(j);
 						stream.writeStartElement("video");

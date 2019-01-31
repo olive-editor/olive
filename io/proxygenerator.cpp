@@ -2,10 +2,12 @@
 
 #include "project/footage.h"
 #include "io/path.h"
+#include "mainwindow.h"
 
 #include <QDir>
 #include <QFileInfo>
 #include <QtMath>
+#include <QStatusBar>
 
 #include <QDebug>
 
@@ -19,7 +21,10 @@ enum AVCodecID temp_enc_codec = AV_CODEC_ID_PRORES;
 
 ProxyGenerator::ProxyGenerator() : cancelled(false) {}
 
-void transcode(const ProxyInfo& info) {
+void ProxyGenerator::transcode(const ProxyInfo& info) {
+	// set progress to 0
+	current_progress = 0.0;
+
 	// open input file
 	AVFormatContext* input_fmt_ctx = nullptr;
 	avformat_open_input(&input_fmt_ctx, info.footage->url.toUtf8(), nullptr, nullptr);
@@ -145,7 +150,7 @@ void transcode(const ProxyInfo& info) {
 	AVFrame* dec_frame = av_frame_alloc();
 
 	// main transcoding loop
-	while (true) {
+	while (!skip) {
 
 		// cache stream index
 		int stream_index = packet.stream_index;
@@ -186,28 +191,30 @@ void transcode(const ProxyInfo& info) {
 				// send packet to decoder
 				avcodec_send_packet(input_streams.at(stream_index), &packet);
 
+				// use timestamp and stream duration to create a rough estimation of the progress through this file
+				current_progress = qCeil((double(packet.pts)/double(input_fmt_ctx->streams[packet.stream_index]->duration))*100);
+
 			}
 
 			// free packet allocated by av_read_frame
 			av_packet_unref(&packet);
-		} while ((recfr_ret = avcodec_receive_frame(input_streams.at(packet.stream_index), dec_frame)) == AVERROR(EAGAIN));
+		} while ((recfr_ret = avcodec_receive_frame(input_streams.at(packet.stream_index), dec_frame)) == AVERROR(EAGAIN) && !skip);
 
 		// error/eof handling - cancel while loop
-		if (read_ret < 0) {
+		if (read_ret < 0 || skip) {
 			break;
 		}
-
-		//
-		// SWSCALE IF NECESSARY
-		//
 
 		// free packet as we're about to use it for encoding
 		av_packet_unref(&packet);
 
+		// rescale input frame timestamp to output timestamp
 		av_rescale_q(dec_frame->pts, input_fmt_ctx->streams[stream_index]->time_base, output_fmt_ctx->streams[stream_index]->time_base);
 
+		// determine if the pix_fmt is different, so if we need to convert
 		bool convert_pix_fmt = (output_streams.at(stream_index)->pix_fmt != input_streams.at(stream_index)->pix_fmt);
 
+		// create reference to the frame to be sent to the encoder
 		AVFrame* enc_frame = dec_frame;
 
 		if (convert_pix_fmt) {
@@ -233,14 +240,21 @@ void transcode(const ProxyInfo& info) {
 			av_frame_free(&enc_frame);
 		}
 
+		// return value for packet receiving
 		int recret;
-		while ((recret = avcodec_receive_packet(output_streams.at(stream_index), &packet)) >= 0) {
 
+		// loop through receiving packets
+		while ((recret = avcodec_receive_packet(output_streams.at(stream_index), &packet)) >= 0 && !skip) {
+
+			// set packet stream index to current stream index
 			packet.stream_index = stream_index;
 
+			// write frame to file
 			av_interleaved_write_frame(output_fmt_ctx, &packet);
 
+			// unref old packet
 			av_packet_unref(&packet);
+
 		}
 
 	}
@@ -276,7 +290,13 @@ void transcode(const ProxyInfo& info) {
 	// close input file
 	avformat_close_input(&input_fmt_ctx);
 
+	// set footage to use newly generated proxy
+	info.footage->proxy = true;
+	info.footage->proxy_path = info.path;
+
 	qInfo() << "Finished creating proxy for" << info.footage->url;
+	mainWindow->statusBar()->showMessage(tr("Finished generating proxy for \"%1\"").arg(info.footage->url));
+
 }
 
 // main proxy generating loop
@@ -300,6 +320,9 @@ void ProxyGenerator::run() {
 			// create directory for info
 			QFileInfo(info.path).dir().mkpath(".");
 
+			// set skip to false
+			skip = false;
+
 			// transcode proxy
 			transcode(info);
 
@@ -317,6 +340,22 @@ void ProxyGenerator::run() {
 
 // called to add footage to generate proxies for
 void ProxyGenerator::queue(const ProxyInfo &info) {
+	// remove any queued proxies with the same footage
+	if (!proxy_queue.isEmpty()
+			&& proxy_queue.first().footage == info.footage) {
+		// if the thread is currently processing a proxy with the same footage, abort it
+		skip = true;
+	}
+
+	// scan through the rest of the queue for another proxy with the same footage (start with 1 since we already processed first())
+	for (int i=1;i<proxy_queue.size();i++) {
+		if (proxy_queue.at(i).footage == info.footage) {
+			// found a duplicate, assume the one we're queuing now overrides and delete it
+			proxy_queue.removeAt(i);
+			i--;
+		}
+	}
+
 	// add proxy info to queue
 	proxy_queue.append(info);
 
@@ -328,12 +367,20 @@ void ProxyGenerator::queue(const ProxyInfo &info) {
 void ProxyGenerator::cancel() {
 	// signal to thread to cancel
 	cancelled = true;
+	skip = true;
 
 	// if signal is sleeping, wake it to cancel correctly
 	waitCond.wakeAll();
 
 	// wait for thread to finish
 	wait();
+}
+
+double ProxyGenerator::get_proxy_progress(Footage *f) {
+	if (proxy_queue.first().footage == f) {
+		return current_progress;
+	}
+	return 0.0;
 }
 
 // proxy generator is a global omnipotent entity
