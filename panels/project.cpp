@@ -130,10 +130,11 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
-    QLineEdit* toolbar_search = new QLineEdit();
-    toolbar_search->setPlaceholderText(tr("Search media, markers, etc."));
-    connect(toolbar_search, SIGNAL(textChanged(QString)), sorter, SLOT(update_search_filter(const QString&)));
-    toolbar->addWidget(toolbar_search);
+	QLineEdit* toolbar_search = new QLineEdit();
+	toolbar_search->setClearButtonEnabled(true);
+	toolbar_search->setPlaceholderText(tr("Search media, markers, etc."));
+	connect(toolbar_search, SIGNAL(textChanged(QString)), sorter, SLOT(update_search_filter(const QString&)));
+	toolbar->addWidget(toolbar_search);
 
 	QPushButton* toolbar_tree_view = new QPushButton();
 	QIcon icon6;
@@ -920,10 +921,10 @@ void Project::load_project(bool autorecovery) {
 }
 
 void save_marker(QXmlStreamWriter& stream, const Marker& m) {
-    stream.writeStartElement("marker");
-    stream.writeAttribute("frame", QString::number(m.frame));
-    stream.writeAttribute("name", m.name);
-    stream.writeEndElement();
+	stream.writeStartElement("marker");
+	stream.writeAttribute("frame", QString::number(m.frame));
+	stream.writeAttribute("name", m.name);
+	stream.writeEndElement();
 }
 
 void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
@@ -1056,10 +1057,10 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 									}
 								}
 
-                                // save markers
-                                for (int k=0;k<c->markers.size();k++) {
-                                    save_marker(stream, c->markers.at(k));
-                                }
+								// save markers
+								for (int k=0;k<c->markers.size();k++) {
+									save_marker(stream, c->markers.at(k));
+								}
 
 								stream.writeStartElement("linked"); // linked
 								for (int k=0;k<c->linked.size();k++) {
@@ -1079,7 +1080,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 							}
 						}
 						for (int j=0;j<s->markers.size();j++) {
-                            save_marker(stream, s->markers.at(j));
+							save_marker(stream, s->markers.at(j));
 						}
 						stream.writeEndElement();
 					}
