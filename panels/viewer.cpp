@@ -768,12 +768,14 @@ void Viewer::update_playhead() {
 void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
-	seq->playhead = qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed));
+	seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed)));
 	if (config.seek_also_selects) panel_timeline->select_from_playhead();
 	update_parents(config.seek_also_selects);
 
 	if (playing) {
-		if (recording) {
+		if (playback_speed < 0 && seq->playhead == 0) {
+			pause();
+		} else if (recording) {
 			if (recording_start != recording_end && seq->playhead >= recording_end) {
 				pause();
 			}
