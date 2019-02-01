@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Color Finder" category="Keying">
+    <row name="Find by">
+        <field type="combo" default="0" id="compo">
+			<option>Luminance</option>
+            <option>Value</option>
+            <option>Hue</option>
+            <option>Saturation</option>
+            <option>Red</option>
+			<option>Green</option>
+			<option>Blue</option>
+		</field>
+    </row>
+	<row name="Lower Limit">
+		<field type="double" min="0" default="0" max="100" id="loc"/>
+	</row>
+	<row name="Upper Limit">
+		<field type="double" min="0" default="100" max="100" id="hic"/>
+	</row>
+    <row name="Invert">
+		<field type="bool" min="0" default="100" max="100" id="invert"/>
+	</row>
+	<shader vert="common.vert" frag="colorsel.frag"/>
+</effect>
