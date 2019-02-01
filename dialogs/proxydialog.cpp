@@ -41,10 +41,10 @@ ProxyDialog::ProxyDialog(QWidget *parent, const QVector<Footage *> &footage) :
 
 	format_combobox = new QComboBox(this);
 	format_combobox->addItem(tr("ProRes HQ"));
-	format_combobox->addItem(tr("ProRes SQ"));
-	format_combobox->addItem(tr("ProRes LT"));
-	format_combobox->addItem(tr("DNxHD"));
-	format_combobox->addItem(tr("H.264"));
+//	format_combobox->addItem(tr("ProRes SQ"));
+//	format_combobox->addItem(tr("ProRes LT"));
+//	format_combobox->addItem(tr("DNxHD"));
+//	format_combobox->addItem(tr("H.264"));
 	layout->addWidget(format_combobox, 1, 1);
 
 	// set the location to place the proxies
