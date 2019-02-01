@@ -327,7 +327,7 @@ void PreferencesDialog::setup_ui() {
         QFileInfo locale_file(translation_files.at(i));
         QString locale_file_basename = locale_file.baseName();
         QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
-        language_combobox->addItem(QLocale::languageToString(QLocale(locale_str).language()), locale_full_path);
+        language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_full_path);
 
         if (config.language_file == locale_full_path) {
             language_combobox->setCurrentIndex(language_combobox->count() - 1);
