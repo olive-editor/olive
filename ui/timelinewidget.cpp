@@ -1245,7 +1245,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 		for (int i=0;i<panel_timeline->ghosts.size();i++) {
 			const Ghost& g = panel_timeline->ghosts.at(i);
 
-            // snap ghost's in point
+			// snap ghost's in point
 			if (panel_timeline->trim_target == -1 || g.trim_in) {
 				fm = g.old_in + frame_diff;
 				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1254,7 +1254,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
 
-            // snap ghost's out point
+			// snap ghost's out point
 			if (panel_timeline->trim_target == -1 || !g.trim_in) {
 				fm = g.old_out + frame_diff;
 				if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1263,18 +1263,18 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 				}
 			}
 
-            // if the ghost is attached to a clip, snap its markers too
-            if (panel_timeline->trim_target == -1 && g.clip >= 0) {
-                Clip* c = sequence->clips.at(g.clip);
-                for (int j=0;j<c->markers.size();j++) {
-                    long marker_real_time = c->markers.at(j).frame + c->timeline_in - c->clip_in;
-                    fm = marker_real_time + frame_diff;
-                    if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
-                        frame_diff = fm - marker_real_time;
-                        break;
-                    }
-                }
-            }
+			// if the ghost is attached to a clip, snap its markers too
+			if (panel_timeline->trim_target == -1 && g.clip >= 0) {
+				Clip* c = sequence->clips.at(g.clip);
+				for (int j=0;j<c->markers.size();j++) {
+					long marker_real_time = c->markers.at(j).frame + c->timeline_in - c->clip_in;
+					fm = marker_real_time + frame_diff;
+					if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+						frame_diff = fm - marker_real_time;
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -2164,8 +2164,11 @@ void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPain
 	int divider = ms->audio_channels*2;
 	int channel_height = clip_rect.height()/ms->audio_channels;
 
+	int last_waveform_index = -1;
+
 	for (int i=waveform_start;i<waveform_limit;i++) {
 		int waveform_index = qFloor((((clip->clip_in + ((double) i/zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+		if (last_waveform_index < 0) last_waveform_index = waveform_index;
 
 		if (clip->reverse) {
 			waveform_index = ms->audio_preview.size() - waveform_index - (ms->audio_channels * 2);
@@ -2173,21 +2176,35 @@ void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPain
 
 		for (int j=0;j<ms->audio_channels;j++) {
 			int mid = (config.rectified_waveforms) ? clip_rect.top()+channel_height*(j+1) : clip_rect.top()+channel_height*j+(channel_height/2);
-			int offset = waveform_index+(j*2);
 
-			if ((offset + 1) < ms->audio_preview.size()) {
-				qint8 min = (double)ms->audio_preview.at(offset) / 128.0 * (channel_height/2);
-				qint8 max = (double)ms->audio_preview.at(offset+1) / 128.0 * (channel_height/2);
+			int offset_range_start = last_waveform_index+(j*2);
+			int offset_range_end = waveform_index+(j*2);
 
+			qint8 min = qint8(qRound(double(ms->audio_preview.at(offset_range_start)) / 128.0 * (channel_height/2)));
+			qint8 max = qint8(qRound(double(ms->audio_preview.at(offset_range_start+1)) / 128.0 * (channel_height/2)));
+
+			if ((offset_range_end + 1) < ms->audio_preview.size()) {
+
+				// for waveform drawings, we get the maximum below 0 and maximum above 0 for this waveform range
+				for (int k=offset_range_start+2;k<=offset_range_end;k+=2) {
+					min = qMin(min, qint8(qRound(double(ms->audio_preview.at(k)) / 128.0 * (channel_height/2))));
+					max = qMax(max, qint8(qRound(double(ms->audio_preview.at(k+1)) / 128.0 * (channel_height/2))));
+				}
+
+				// draw waveforms
 				if (config.rectified_waveforms)  {
+
+					// rectified waveforms start from the bottom and draw upwards
 					p->drawLine(clip_rect.left()+i, mid, clip_rect.left()+i, mid - (max - min));
 				} else {
+
+					// non-rectified waveforms start from the center and draw outwards
 					p->drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
+
 				}
-			}/* else {
-				qWarning() << "Tried to reach" << offset + 1 << ", limit:" << ms->audio_preview.size();
-			}*/
+			}
 		}
+		last_waveform_index = waveform_index;
 	}
 }
 
@@ -2411,17 +2428,17 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 						}
 					}
 
-                    // draw clip markers
-                    for (int j=0;j<clip->markers.size();j++) {
-                        const Marker& m = clip->markers.at(j);
+					// draw clip markers
+					for (int j=0;j<clip->markers.size();j++) {
+						const Marker& m = clip->markers.at(j);
 
-                        // convert marker time (in clip time) to sequence time
-                        long marker_time = m.frame + clip->timeline_in - clip->clip_in;
-                        int marker_x = panel_timeline->getTimelineScreenPointFromFrame(marker_time);
-                        if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
-                            draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false, false);
-                        }
-                    }
+						// convert marker time (in clip time) to sequence time
+						long marker_time = m.frame + clip->timeline_in - clip->clip_in;
+						int marker_x = panel_timeline->getTimelineScreenPointFromFrame(marker_time);
+						if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
+							draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false, false);
+						}
+					}
 
 					// draw clip transitions
 					draw_transition(p, clip, clip_rect, text_rect, TA_OPENING_TRANSITION);
