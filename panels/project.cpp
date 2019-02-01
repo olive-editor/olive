@@ -130,7 +130,11 @@ Project::Project(QWidget *parent) :
 	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
-	toolbar->addStretch();
+    QLineEdit* toolbar_search = new QLineEdit();
+    toolbar_search->setPlaceholderText(tr("Search media, markers, etc."));
+    connect(toolbar_search, SIGNAL(textChanged(QString)), sorter, SLOT(update_search_filter(const QString&)));
+    toolbar->addWidget(toolbar_search);
+
 	QPushButton* toolbar_tree_view = new QPushButton();
 	QIcon icon6;
 	icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
@@ -915,6 +919,13 @@ void Project::load_project(bool autorecovery) {
 	ld.exec();
 }
 
+void save_marker(QXmlStreamWriter& stream, const Marker& m) {
+    stream.writeStartElement("marker");
+    stream.writeAttribute("frame", QString::number(m.frame));
+    stream.writeAttribute("name", m.name);
+    stream.writeEndElement();
+}
+
 void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
 	for (int i=0;i<project_model.rowCount(parent);i++) {
 		const QModelIndex& item = project_model.index(i, 0, parent);
@@ -1049,6 +1060,11 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 									}
 								}
 
+                                // save markers
+                                for (int k=0;k<c->markers.size();k++) {
+                                    save_marker(stream, c->markers.at(k));
+                                }
+
 								stream.writeStartElement("linked"); // linked
 								for (int k=0;k<c->linked.size();k++) {
 									stream.writeStartElement("link"); // link
@@ -1067,10 +1083,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 							}
 						}
 						for (int j=0;j<s->markers.size();j++) {
-							stream.writeStartElement("marker");
-							stream.writeAttribute("frame", QString::number(s->markers.at(j).frame));
-							stream.writeAttribute("name", s->markers.at(j).name);
-							stream.writeEndElement();
+                            save_marker(stream, s->markers.at(j));
 						}
 						stream.writeEndElement();
 					}

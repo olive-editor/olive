@@ -115,9 +115,9 @@ void update_ui(bool modified) {
 	panel_graph_editor->update_panel();
 }
 
-QDockWidget *get_focused_panel() {
+QDockWidget *get_focused_panel(bool force_hover) {
 	QDockWidget* w = nullptr;
-	if (config.hover_focus) {
+    if (config.hover_focus || force_hover) {
 		if (panel_project->underMouse()) {
 			w = panel_project;
 		} else if (panel_effect_controls->underMouse()) {

@@ -78,13 +78,15 @@ private slots:
 	void prev_cut();
 	void next_cut();
 
+    void maximize_panel();
 	void reset_layout();
 
 	void preferences();
 
 	void zoom_in_tracks();
-
 	void zoom_out_tracks();
+
+    void full_screen_viewer();
 
 	void fileMenu_About_To_Be_Shown();
 	void fileMenu_About_To_Hide();
@@ -204,6 +206,9 @@ private:
 	bool enable_launch_with_project;
 
 	QString appName;
+
+    // used to store the panel state when one panel is maximized
+    QByteArray temp_panel_state;
 };
 
 extern MainWindow* mainWindow;

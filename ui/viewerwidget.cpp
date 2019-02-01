@@ -93,7 +93,20 @@ void ViewerWidget::set_waveform_scroll(int s) {
 	if (waveform) {
 		waveform_scroll = s;
 		update();
-	}
+    }
+}
+
+void ViewerWidget::set_fullscreen(int screen) {
+    if (screen >= 0 && screen < QGuiApplication::screens().size()) {
+        QScreen* selected_screen = QGuiApplication::screens().at(screen);
+        window->showFullScreen();
+        window->setGeometry(selected_screen->geometry());
+
+        // HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
+        QTimer::singleShot(100, window, SLOT(update()));
+    } else {
+        qCritical() << "Failed to find requested screen" << screen << "to set fullscreen to";
+    }
 }
 
 void ViewerWidget::show_context_menu() {
@@ -170,12 +183,7 @@ void ViewerWidget::fullscreen_menu_action(QAction *action) {
 		if (action->data().isNull()) {
 			window->hide();
 		} else {
-			QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
-			window->showFullScreen();
-			window->setGeometry(selected_screen->geometry());
-
-			// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
-			QTimer::singleShot(100, window, SLOT(update()));
+            set_fullscreen(action->data().toInt());
 		}
 	}
 }

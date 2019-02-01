@@ -19,7 +19,7 @@ extern Timeline* panel_timeline;
 extern GraphEditor* panel_graph_editor;
 
 void update_ui(bool modified);
-QDockWidget* get_focused_panel();
+QDockWidget* get_focused_panel(bool force_hover = false);
 void alloc_panels(QWidget *parent);
 void free_panels();
 void scroll_to_frame_internal(QScrollBar* bar, long frame, double zoom, int area_width);

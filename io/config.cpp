@@ -48,7 +48,9 @@ Config::Config()
 	  seek_also_selects(false),
 	  effect_textbox_lines(3),
 	  use_software_fallback(false),
-	  center_timeline_timecodes(true)
+	  center_timeline_timecodes(true),
+	  waveform_resolution(64),
+	  thumbnail_resolution(120)
 {}
 
 void Config::load(QString path) {
@@ -179,6 +181,15 @@ void Config::load(QString path) {
 				} else if (stream.name() == "PreferredAudioInput") {
 					stream.readNext();
 					preferred_audio_input = stream.text().toString();
+				} else if (stream.name() == "LanguageFile") {
+					stream.readNext();
+					language_file = stream.text().toString();
+				} else if (stream.name() == "ThumbnailResolution") {
+					stream.readNext();
+					thumbnail_resolution = stream.text().toInt();
+				} else if (stream.name() == "WaveformResolution") {
+					stream.readNext();
+					waveform_resolution = stream.text().toInt();
 				}
 			}
 		}
@@ -243,6 +254,9 @@ void Config::save(QString path) {
 	stream.writeTextElement("CenterTimelineTimecodes", QString::number(center_timeline_timecodes));
 	stream.writeTextElement("PreferredAudioOutput", preferred_audio_output);
 	stream.writeTextElement("PreferredAudioInput", preferred_audio_input);
+	stream.writeTextElement("LanguageFile", language_file);
+	stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
+	stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc

@@ -20,7 +20,6 @@
 #define PLAYHEAD_SIZE 6
 #define LINE_MIN_PADDING 50
 #define SUBLINE_MIN_PADDING 50 // TODO play with this
-#define MARKER_SIZE 4
 
 // used only if center_timeline_timecodes is FALSE
 #define TEXT_PADDING_FROM_LINE 4
@@ -406,35 +405,18 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		// draw markers
 		for (int i=0;i<viewer->seq->markers.size();i++) {
 			const Marker& m = viewer->seq->markers.at(i);
+
 			int marker_x = getHeaderScreenPointFromFrame(m.frame);
-			const QPoint points[5] = {
-				QPoint(marker_x, height()-1),
-				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
-				QPoint(marker_x + MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
-			};
-			/*const QPoint points[5] = {
-				QPoint(marker_x, height()-1),
-				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
-				QPoint(marker_x + MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
-			};*/
-			p.setPen(Qt::black);
-			bool selected = false;
-			for (int j=0;j<selected_markers.size();j++) {
-				if (selected_markers.at(j) == i) {
-					selected = true;
-					break;
-				}
-			}
-			if (selected) {
-				p.setBrush(QColor(208, 255, 208));
-			} else {
-				p.setBrush(QColor(128, 224, 128));
-			}
-			p.drawPolygon(points, 5);
+
+            bool selected = false;
+            for (int j=0;j<selected_markers.size();j++) {
+                if (selected_markers.at(j) == i) {
+                    selected = true;
+                    break;
+                }
+            }
+
+            draw_marker(p, marker_x, yoff, height()-1, selected, false);
 		}
 
 		// draw playhead triangle

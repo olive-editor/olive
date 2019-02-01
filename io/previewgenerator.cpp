@@ -16,9 +16,6 @@
 #include <QFile>
 #include <QDir>
 
-#define WAVEFORM_RESOLUTION 64
-#define THUMBNAIL_RESOLUTION 120
-
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -266,7 +263,7 @@ void PreviewGenerator::generate_waveform() {
 			if (s != nullptr) {
 				if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 					if (!s->preview_done) {
-						int dstH = THUMBNAIL_RESOLUTION;
+						int dstH = config.thumbnail_resolution;
 						int dstW = qRound(dstH * (float(temp_frame->width)/float(temp_frame->height)));
 						uint8_t* data = new uint8_t[size_t(dstW*dstH*4)];
 
@@ -305,7 +302,7 @@ void PreviewGenerator::generate_waveform() {
 					}
 					media_lengths[packet->stream_index]++;
 				} else if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-					int interval = qFloor((temp_frame->sample_rate/WAVEFORM_RESOLUTION)/4)*4;
+					int interval = qFloor((temp_frame->sample_rate/config.waveform_resolution)/4)*4;
 
 					AVFrame* swr_frame = av_frame_alloc();
 					swr_frame->channel_layout = temp_frame->channel_layout;
