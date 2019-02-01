@@ -1,6 +1,7 @@
 #include "preferencesdialog.h"
 
 #include "io/config.h"
+#include "io/path.h"
 #include "playback/audio.h"
 #include "mainwindow.h"
 
@@ -140,7 +141,7 @@ void PreferencesDialog::save() {
 	bool reset_audio_required = (config.preferred_audio_output != audio_output_devices->currentData().toString()
 									|| config.preferred_audio_input != audio_input_devices->currentData().toString());
 	config.preferred_audio_output = audio_output_devices->currentData().toString();
-    config.preferred_audio_input = audio_input_devices->currentData().toString();
+	config.preferred_audio_input = audio_input_devices->currentData().toString();
 	config.audio_rate = audio_sample_rate->currentData().toInt();
 
 	// the following settings may require a restart of Olive to take effect:
@@ -149,18 +150,81 @@ void PreferencesDialog::save() {
 
 	if (config.effect_textbox_lines != effect_textbox_lines_field->value()) {
 		needs_restart = true;
-        config.effect_textbox_lines = effect_textbox_lines_field->value();
+		config.effect_textbox_lines = effect_textbox_lines_field->value();
 	}
 
 	if (config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()) {
 		needs_restart = true;
-        config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
+		config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
 	}
 
-    if (config.language_file != language_combobox->currentData().toString()) {
-        needs_restart = true;
-        config.language_file = language_combobox->currentData().toString();
-    }
+	if (config.language_file != language_combobox->currentData().toString()) {
+		needs_restart = true;
+		config.language_file = language_combobox->currentData().toString();
+	}
+
+	if (config.thumbnail_resolution != thumbnail_res_spinbox->value()
+			|| config.waveform_resolution != waveform_res_spinbox->value()) {
+		// we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
+
+		needs_restart = true;
+
+		// delete nothing
+		char delete_match = 0;
+
+		if (config.thumbnail_resolution != thumbnail_res_spinbox->value()) {
+			// delete existing thumbnails
+			config.thumbnail_resolution = thumbnail_res_spinbox->value();
+
+			// delete only thumbnails
+			delete_match = 't';
+		}
+
+		if (config.waveform_resolution != waveform_res_spinbox->value()) {
+			// delete existing waveforms
+			config.waveform_resolution = waveform_res_spinbox->value();
+
+			// if we're already deleting thumbnails
+			if (delete_match == 't') {
+				// delete all
+				delete_match = 1;
+			} else {
+				// just delete waveforms
+				delete_match = 'w';
+			}
+		}
+
+		if (delete_match != 0) {
+			QDir preview_path(get_data_path() + "/previews");
+
+			if (delete_match == 1) {
+				// indiscriminately delete everything
+				preview_path.removeRecursively();
+			} else {
+				QStringList preview_file_list = preview_path.entryList(QDir::Files | QDir::NoDotAndDotDot);
+				for (int i=0;i<preview_file_list.size();i++) {
+
+					const QString& preview_file_str = preview_file_list.at(i);
+
+					// use filename to determine whether this is a thumbnail or a waveform
+					int identifier_char_index = qMax(0, preview_file_str.size()-2);
+
+					// find identifier char
+					while (identifier_char_index >= 0
+						   && preview_file_str.at(identifier_char_index) >= 48
+						   && preview_file_str.at(identifier_char_index) <= 57) {
+						identifier_char_index--;
+					}
+
+					// thumbnails will have a 't' towards the end of the filenames, waveforms will have a 'w'
+					// if they match the type of preview we're deleting, remove them
+					if (preview_file_str.at(identifier_char_index) == delete_match) {
+						QFile::remove(preview_path.filePath(preview_file_str));
+					}
+				}
+			}
+		}
+	}
 
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
@@ -304,87 +368,107 @@ void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 	QTabWidget* tabWidget = new QTabWidget(this);
 
-    // row counter used to ease adding new rows
-    int row = 0;
+	// row counter used to ease adding new rows
+	int row = 0;
 
 	// General
 	QWidget* general_tab = new QWidget(this);
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
-    // General -> Language
-    general_layout->addWidget(new QLabel(tr("Language:")), row, 0, 1, 1);
+	// General -> Language
+	general_layout->addWidget(new QLabel(tr("Language:")), row, 0, 1, 1);
 
-    language_combobox = new QComboBox();
+	language_combobox = new QComboBox();
 
-    // add default language (en-US)
-    language_combobox->addItem(QLocale::languageToString(QLocale("en-US").language()));
+	// add default language (en-US)
+	language_combobox->addItem(QLocale::languageToString(QLocale("en-US").language()));
 
-    // add languages from file
-    QDir translation_dir(QApplication::applicationDirPath().append("/ts"));
-    QStringList translation_files = translation_dir.entryList({"*.qm"}, QDir::Files | QDir::NoDotAndDotDot);
-    for (int i=0;i<translation_files.size();i++) {
-        QString locale_full_path = translation_dir.filePath(translation_files.at(i));
-        QFileInfo locale_file(translation_files.at(i));
-        QString locale_file_basename = locale_file.baseName();
-        QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
-        language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_full_path);
+	// add languages from file
+	QDir translation_dir(QApplication::applicationDirPath().append("/ts"));
+	QStringList translation_files = translation_dir.entryList({"*.qm"}, QDir::Files | QDir::NoDotAndDotDot);
+	for (int i=0;i<translation_files.size();i++) {
+		QString locale_full_path = translation_dir.filePath(translation_files.at(i));
+		QFileInfo locale_file(translation_files.at(i));
+		QString locale_file_basename = locale_file.baseName();
+		QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
+		language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_full_path);
 
-        if (config.language_file == locale_full_path) {
-            language_combobox->setCurrentIndex(language_combobox->count() - 1);
-        }
-    }
+		if (config.language_file == locale_full_path) {
+			language_combobox->setCurrentIndex(language_combobox->count() - 1);
+		}
+	}
 
-    general_layout->addWidget(language_combobox, row, 1, 1, 2);
+	general_layout->addWidget(language_combobox, row, 1, 1, 3);
 
-    row++;
+	row++;
 
 	// General -> Custom CSS
-    general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0, 1, 1);
 
 	custom_css_fn = new QLineEdit(general_tab);
 	custom_css_fn->setText(config.css_path);
-    general_layout->addWidget(custom_css_fn, row, 1, 1, 1);
+	general_layout->addWidget(custom_css_fn, row, 1, 1, 2);
 
 	QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
 	connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
-    general_layout->addWidget(custom_css_browse, row, 2, 1, 1);
+	general_layout->addWidget(custom_css_browse, row, 3, 1, 1);
 
-    row++;
+	row++;
 
 	// General -> Image Sequence Formats
-    general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0, 1, 1);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-    general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 2);
+	general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 3);
 
-    row++;
+	row++;
 
 	// General -> Audio Recording
-    general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0, 1, 1);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem(tr("Mono"));
 	recordingComboBox->addItem(tr("Stereo"));
-    general_layout->addWidget(recordingComboBox, row, 1, 1, 2);
+	general_layout->addWidget(recordingComboBox, row, 1, 1, 3);
 
-    row++;
+	row++;
 
 	// General -> Effect Textbox Lines
-    general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0, 1, 1);
+	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0, 1, 1);
 
 	effect_textbox_lines_field = new QSpinBox(general_tab);
 	effect_textbox_lines_field->setMinimum(1);
 	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
-    general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 2);
+	general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 3);
 
-    row++;
+	row++;
+
+	// General -> Thumbnail and Waveform Resolution
+	general_layout->addWidget(new QLabel(tr("Thumbnail Resolution:"), this), row, 0, 1, 1);
+
+	thumbnail_res_spinbox = new QSpinBox(this);
+	thumbnail_res_spinbox->setMinimum(1);
+	thumbnail_res_spinbox->setMaximum(INT_MAX);
+	thumbnail_res_spinbox->setValue(config.thumbnail_resolution);
+	general_layout->addWidget(thumbnail_res_spinbox, row, 1, 1, 1);
+
+	general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2, 1, 1);
+
+	waveform_res_spinbox = new QSpinBox(this);
+	waveform_res_spinbox->setMinimum(1);
+	waveform_res_spinbox->setMaximum(INT_MAX);
+	waveform_res_spinbox->setValue(config.waveform_resolution);
+	general_layout->addWidget(waveform_res_spinbox, row, 3, 1, 1);
+
+
+	row++;
 
 	// General -> Use Software Fallbacks When Possible
 	use_software_fallbacks_checkbox = new QCheckBox(general_tab);
 	use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
 	use_software_fallbacks_checkbox->setChecked(config.use_software_fallback);
-    general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 1);
+	general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 4);
 
 	tabWidget->addTab(general_tab, tr("General"));
 
