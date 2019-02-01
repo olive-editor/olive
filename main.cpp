@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
                            "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
                            "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
                            "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
+                           "\t--translation <file>\tSet an external language file to use\n"
                            "\n", argv[0]);
 					return 0;
 				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
@@ -54,6 +55,16 @@ int main(int argc, char *argv[]) {
 					use_internal_logger = false;
 				} else if (!strcmp(argv[i], "--disable-blend-modes")) {
 					disable_blending = true;
+                } else if (!strcmp(argv[i], "--translation")) {
+                    if (i + 1 < argc && argv[i + 1][0] != '-') {
+                        // load translation file
+                        external_translation_file = argv[i + 1];
+
+                        i++;
+                    } else {
+                        printf("[ERROR] No translation file specified\n");
+                        return 1;
+                    }
 				} else {
 					printf("[ERROR] Unknown argument '%s'\n", argv[1]);
 					return 1;

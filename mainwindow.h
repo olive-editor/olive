@@ -213,4 +213,7 @@ private:
 
 extern MainWindow* mainWindow;
 
+// load external translation file
+extern QString external_translation_file;
+
 #endif // MAINWINDOW_H
