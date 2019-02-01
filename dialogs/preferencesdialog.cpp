@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QAudioDeviceInfo>
+#include <QApplication>
 
 #include "debug.h"
 
@@ -139,8 +140,7 @@ void PreferencesDialog::save() {
 	bool reset_audio_required = (config.preferred_audio_output != audio_output_devices->currentData().toString()
 									|| config.preferred_audio_input != audio_input_devices->currentData().toString());
 	config.preferred_audio_output = audio_output_devices->currentData().toString();
-	config.preferred_audio_input = audio_input_devices->currentData().toString();
-	qDebug() << "selected audio input" << audio_input_devices->currentData().toString();
+    config.preferred_audio_input = audio_input_devices->currentData().toString();
 	config.audio_rate = audio_sample_rate->currentData().toInt();
 
 	// the following settings may require a restart of Olive to take effect:
@@ -149,13 +149,18 @@ void PreferencesDialog::save() {
 
 	if (config.effect_textbox_lines != effect_textbox_lines_field->value()) {
 		needs_restart = true;
+        config.effect_textbox_lines = effect_textbox_lines_field->value();
 	}
-	config.effect_textbox_lines = effect_textbox_lines_field->value();
 
 	if (config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()) {
 		needs_restart = true;
+        config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
 	}
-	config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
+
+    if (config.language_file != language_combobox->currentData().toString()) {
+        needs_restart = true;
+        config.language_file = language_combobox->currentData().toString();
+    }
 
 	// save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
@@ -299,49 +304,87 @@ void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 	QTabWidget* tabWidget = new QTabWidget(this);
 
+    // row counter used to ease adding new rows
+    int row = 0;
+
 	// General
 	QWidget* general_tab = new QWidget(this);
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
+    // General -> Language
+    general_layout->addWidget(new QLabel(tr("Language:")), row, 0, 1, 1);
+
+    language_combobox = new QComboBox();
+
+    // add default language (en-US)
+    language_combobox->addItem(QLocale::languageToString(QLocale("en-US").language()));
+
+    // add languages from file
+    QDir translation_dir(QApplication::applicationDirPath().append("/ts"));
+    QStringList translation_files = translation_dir.entryList({"*.qm"}, QDir::Files | QDir::NoDotAndDotDot);
+    for (int i=0;i<translation_files.size();i++) {
+        QString locale_full_path = translation_dir.filePath(translation_files.at(i));
+        QFileInfo locale_file(translation_files.at(i));
+        QString locale_file_basename = locale_file.baseName();
+        QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
+        language_combobox->addItem(QLocale::languageToString(QLocale(locale_str).language()), locale_full_path);
+
+        if (config.language_file == locale_full_path) {
+            language_combobox->setCurrentIndex(language_combobox->count() - 1);
+        }
+    }
+
+    general_layout->addWidget(language_combobox, row, 1, 1, 2);
+
+    row++;
+
 	// General -> Custom CSS
-	general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), 0, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0, 1, 1);
 
 	custom_css_fn = new QLineEdit(general_tab);
 	custom_css_fn->setText(config.css_path);
-	general_layout->addWidget(custom_css_fn, 0, 1, 1, 1);
+    general_layout->addWidget(custom_css_fn, row, 1, 1, 1);
 
 	QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
 	connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
-	general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
+    general_layout->addWidget(custom_css_browse, row, 2, 1, 1);
+
+    row++;
 
 	// General -> Image Sequence Formats
-	general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), 1, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0, 1, 1);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-	general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
+    general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 2);
+
+    row++;
 
 	// General -> Audio Recording
-	general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), 2, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0, 1, 1);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem(tr("Mono"));
 	recordingComboBox->addItem(tr("Stereo"));
-	general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
+    general_layout->addWidget(recordingComboBox, row, 1, 1, 2);
+
+    row++;
 
 	// General -> Effect Textbox Lines
-	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), 3, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0, 1, 1);
 
 	effect_textbox_lines_field = new QSpinBox(general_tab);
 	effect_textbox_lines_field->setMinimum(1);
 	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
-	general_layout->addWidget(effect_textbox_lines_field, 3, 1, 1, 2);
+    general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 2);
+
+    row++;
 
 	// General -> Use Software Fallbacks When Possible
 	use_software_fallbacks_checkbox = new QCheckBox(general_tab);
 	use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
 	use_software_fallbacks_checkbox->setChecked(config.use_software_fallback);
-	general_layout->addWidget(use_software_fallbacks_checkbox, 4, 0, 1, 1);
+    general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 1);
 
 	tabWidget->addTab(general_tab, tr("General"));
 

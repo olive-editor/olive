@@ -50,6 +50,7 @@
 #include <QLayout>
 #include <QApplication>
 #include <QPushButton>
+#include <QTranslator>
 
 MainWindow* mainWindow;
 
@@ -205,10 +206,18 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 		}
 	}
 
+    // load preferred language from file
+    if (!config.language_file.isEmpty()
+            && QFileInfo::exists(config.language_file)) {
+        QTranslator* translator = new QTranslator(this);
+        translator->load(config.language_file);
+        QApplication::installTranslator(translator);
+    }
+
 	alloc_panels(this);
 
 	QStatusBar* statusBar = new QStatusBar(this);
-	statusBar->showMessage("Welcome to " + appName);
+    statusBar->showMessage(tr("Welcome to %1").arg(appName));
 	setStatusBar(statusBar);
 
 	setup_menus();

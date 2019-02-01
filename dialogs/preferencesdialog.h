@@ -65,6 +65,7 @@ private:
 	QComboBox* audio_output_devices;
 	QComboBox* audio_input_devices;
 	QComboBox* audio_sample_rate;
+    QComboBox* language_combobox;
 
 	QVector<QAction*> key_shortcut_actions;
 	QVector<QTreeWidgetItem*> key_shortcut_items;

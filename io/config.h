@@ -66,6 +66,7 @@ struct Config {
 	bool center_timeline_timecodes;
 	QString preferred_audio_output;
 	QString preferred_audio_input;
+    QString language_file;
 
 	void load(QString path);
 	void save(QString path);

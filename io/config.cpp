@@ -179,7 +179,10 @@ void Config::load(QString path) {
 				} else if (stream.name() == "PreferredAudioInput") {
 					stream.readNext();
 					preferred_audio_input = stream.text().toString();
-				}
+                } else if (stream.name() == "LanguageFile") {
+                    stream.readNext();
+                    language_file = stream.text().toString();
+                }
 			}
 		}
 		if (stream.hasError()) {
@@ -242,7 +245,8 @@ void Config::save(QString path) {
 	stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
 	stream.writeTextElement("CenterTimelineTimecodes", QString::number(center_timeline_timecodes));
 	stream.writeTextElement("PreferredAudioOutput", preferred_audio_output);
-	stream.writeTextElement("PreferredAudioInput", preferred_audio_input);
+    stream.writeTextElement("PreferredAudioInput", preferred_audio_input);
+    stream.writeTextElement("LanguageFile", language_file);
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc
