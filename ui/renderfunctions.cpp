@@ -513,8 +513,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 							full_blit();
 
-//							glColor4f(1.0, 1.0, 1.0, 1.0);
-
 							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 						} else {
 							// load background texture into texture unit 0

@@ -1426,14 +1426,14 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 				} else if (c->get_closing_transition() != nullptr
 						   && snap_to_point(c->timeline_out - c->get_closing_transition()->get_true_length(), l)) {
 					return true;
-                } else {
-                    // try to snap to clip markers
-                    for (int j=0;j<c->markers.size();j++) {
-                        if (snap_to_point(c->markers.at(j).frame + c->timeline_in - c->clip_in, l)) {
-                            return true;
-                        }
-                    }
-                }
+				} else {
+					// try to snap to clip markers
+					for (int j=0;j<c->markers.size();j++) {
+						if (snap_to_point(c->markers.at(j).frame + c->timeline_in - c->clip_in, l)) {
+							return true;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -1441,46 +1441,60 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 }
 
 void Timeline::set_marker() {
-    bool add_marker = !config.set_name_with_marker;
-    QString marker_name;
+	// add_marker is used to determine whether we're adding a marker, depending on whether the user input a marker name
+	// however if (config.set_name_with_marker) is true, we don't need a marker name so we just add
+	bool add_marker = !config.set_name_with_marker;
 
-    std::vector<Clip*> clips_selected;
-    bool clip_mode = false;
+	// determine if any clips are selected, and if so add markers to clips rather than the sequence
+	QVector<Clip*> clips_selected;
+	bool clip_mode = false;
 
-    for (int i=0;i<sequence->clips.size();i++) {
-        Clip* c = sequence->clips.at(i);
-        if (c != nullptr && is_clip_selected(c, true)) {
-            clips_selected.push_back(c);
-            clip_mode=true;
-        }
-    }
+	for (int i=0;i<sequence->clips.size();i++) {
+		Clip* c = sequence->clips.at(i);
+		if (c != nullptr
+				&& is_clip_selected(c, true)
+				&& sequence->playhead >= c->timeline_in
+				&& sequence->playhead <= c->timeline_out) {
+			clips_selected.append(c);
+			clip_mode = true;
+		}
+	}
 
-    ComboAction* ca = new ComboAction();
+	QString marker_name;
 
-    if (!add_marker) {
-        QInputDialog d(this);
-        d.setWindowTitle(tr("Set Marker"));
-        d.setLabelText(clip_mode? tr("Set clip marker name:"): tr("Set sequence marker name:"));
-        d.setInputMode(QInputDialog::TextInput);
-        add_marker = (d.exec() == QDialog::Accepted);
-        marker_name = d.textValue();
-    }
+	// if (config.set_name_with_marker) is false (set above), ask for a marker name
+	if (!add_marker) {
+		QInputDialog d(this);
+		d.setWindowTitle(tr("Set Marker"));
+		d.setLabelText(clip_mode? tr("Set clip marker name:"): tr("Set sequence marker name:"));
+		d.setInputMode(QInputDialog::TextInput);
+		add_marker = (d.exec() == QDialog::Accepted);
+		marker_name = d.textValue();
+	}
 
-    if (add_marker) {
-        foreach (Clip* c, clips_selected){
-            ca->append(new AddMarkerAction(false,
-                                           c,
-                                           sequence->playhead - c->timeline_in + c->clip_in,
-                                           marker_name));
-            }
-        // if no clips are selected, we're adding a marker to the sequence
-        if (!clip_mode) {
-            ca->append(new AddMarkerAction(true, sequence, sequence->playhead, marker_name));
-        }
+	// if we've decided to add a marker
+	if (add_marker) {
+		ComboAction* ca = new ComboAction();
 
-        undo_stack.push(ca);
-        repaint_timeline();
-    }
+		// add an action for each clip
+		foreach (Clip* c, clips_selected) {
+			ca->append(new AddMarkerAction(false,
+										   c,
+										   sequence->playhead - c->timeline_in + c->clip_in,
+										   marker_name));
+		}
+
+		// if no clips are selected, we're adding a marker to the sequence
+		if (!clip_mode) {
+			ca->append(new AddMarkerAction(true, sequence, sequence->playhead, marker_name));
+		}
+
+		// push action
+		undo_stack.push(ca);
+
+		// redraw timeline
+		repaint_timeline();
+	}
 }
 
 void Timeline::toggle_links() {
