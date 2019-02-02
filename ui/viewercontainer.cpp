@@ -20,9 +20,6 @@ ViewerContainer::ViewerContainer(QWidget *parent) :
 	horizontal_scrollbar = new QScrollBar(Qt::Horizontal, this);
 	vertical_scrollbar = new QScrollBar(Qt::Vertical, this);
 
-	horizontal_scrollbar->setVisible(false);
-	vertical_scrollbar->setVisible(false);
-
 	horizontal_scrollbar->setSingleStep(20);
 	vertical_scrollbar->setSingleStep(20);
 
@@ -112,6 +109,8 @@ void ViewerContainer::adjust() {
 
 					horizontal_scrollbar->setValue(horizontal_scrollbar->maximum()/2);
 					vertical_scrollbar->setValue(vertical_scrollbar->maximum()/2);
+
+					adjust_scrollbars();
 				}
 			} else {
 				// if the zoom size is smaller than the available area, scale the surface down
@@ -129,7 +128,7 @@ void ViewerContainer::adjust() {
 	}
 }
 
-void ViewerContainer::resizeEvent(QResizeEvent *event) {
+void ViewerContainer::adjust_scrollbars() {
 	horizontal_scrollbar->move(0, height()-horizontal_scrollbar->height());
 	horizontal_scrollbar->setFixedWidth(qMax(0, width()-vertical_scrollbar->width()));
 	horizontal_scrollbar->setPageStep(width());
@@ -137,7 +136,9 @@ void ViewerContainer::resizeEvent(QResizeEvent *event) {
 	vertical_scrollbar->move(width() - vertical_scrollbar->width(), 0);
 	vertical_scrollbar->setFixedHeight(qMax(0, height()-horizontal_scrollbar->height()));
 	vertical_scrollbar->setPageStep(height());
+}
 
+void ViewerContainer::resizeEvent(QResizeEvent *event) {
 	event->accept();
 	adjust();
 }

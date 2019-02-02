@@ -587,44 +587,46 @@ long Viewer::get_seq_out() {
 }
 
 void Viewer::setup_ui() {
-	QWidget* contents = new QWidget(this);
+	QWidget* contents = new QWidget();
 
 	QVBoxLayout* layout = new QVBoxLayout(contents);
 	layout->setSpacing(0);
 	layout->setMargin(0);
 
-	viewer_container = new ViewerContainer(contents);
+	setWidget(contents);
+
+	viewer_container = new ViewerContainer();
 	viewer_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	layout->addWidget(viewer_container);
 
-	headers = new TimelineHeader(contents);
+	headers = new TimelineHeader();
 	layout->addWidget(headers);
 
-	horizontal_bar = new ResizableScrollBar(contents);
+	horizontal_bar = new ResizableScrollBar();
 	horizontal_bar->setSingleStep(20);
 	horizontal_bar->setOrientation(Qt::Horizontal);
 	layout->addWidget(horizontal_bar);
 
-	QWidget* lower_controls = new QWidget(contents);
+	QWidget* lower_controls = new QWidget();
 
 	QHBoxLayout* lower_control_layout = new QHBoxLayout(lower_controls);
 	lower_control_layout->setMargin(0);
 
 	// current time code
-	QWidget* current_timecode_container = new QWidget(lower_controls);
+	QWidget* current_timecode_container = new QWidget();
 	QHBoxLayout* current_timecode_container_layout = new QHBoxLayout(current_timecode_container);
 	current_timecode_container_layout->setSpacing(0);
 	current_timecode_container_layout->setMargin(0);
-	current_timecode_slider = new LabelSlider(current_timecode_container);
+	current_timecode_slider = new LabelSlider();
 	lower_control_layout->addWidget(current_timecode_container);
 
-	QWidget* playback_controls = new QWidget(lower_controls);
+	QWidget* playback_controls = new QWidget();
 
 	QHBoxLayout* playback_control_layout = new QHBoxLayout(playback_controls);
 	playback_control_layout->setSpacing(0);
 	playback_control_layout->setMargin(0);
 
-	go_to_start_button = new QPushButton(playback_controls);
+	go_to_start_button = new QPushButton();
 	QIcon goToStartIcon;
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev.png"), QSize(), QIcon::Normal, QIcon::Off);
 	goToStartIcon.addFile(QStringLiteral(":/icons/prev-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -632,7 +634,7 @@ void Viewer::setup_ui() {
 	connect(go_to_start_button, SIGNAL(clicked(bool)), this, SLOT(go_to_in()));
 	playback_control_layout->addWidget(go_to_start_button);
 
-	prev_frame_button = new QPushButton(playback_controls);
+	prev_frame_button = new QPushButton();
 	QIcon rewindIcon;
 	rewindIcon.addFile(QStringLiteral(":/icons/rew.png"), QSize(), QIcon::Normal, QIcon::Off);
 	rewindIcon.addFile(QStringLiteral(":/icons/rew-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -640,14 +642,14 @@ void Viewer::setup_ui() {
 	connect(prev_frame_button, SIGNAL(clicked(bool)), this, SLOT(previous_frame()));
 	playback_control_layout->addWidget(prev_frame_button);
 
-	play_button = new QPushButton(playback_controls);
+	play_button = new QPushButton();
 	playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::On);
 	playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	play_button->setIcon(playIcon);
 	connect(play_button, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
 	playback_control_layout->addWidget(play_button);
 
-	next_frame_button = new QPushButton(playback_controls);
+	next_frame_button = new QPushButton();
 	QIcon ffIcon;
 	ffIcon.addFile(QStringLiteral(":/icons/ff.png"), QSize(), QIcon::Normal, QIcon::On);
 	ffIcon.addFile(QStringLiteral(":/icons/ff-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -655,7 +657,7 @@ void Viewer::setup_ui() {
 	connect(next_frame_button, SIGNAL(clicked(bool)), this, SLOT(next_frame()));
 	playback_control_layout->addWidget(next_frame_button);
 
-	go_to_end_frame = new QPushButton(playback_controls);
+	go_to_end_frame = new QPushButton();
 	QIcon nextIcon;
 	nextIcon.addFile(QStringLiteral(":/icons/next.png"), QSize(), QIcon::Normal, QIcon::Off);
 	nextIcon.addFile(QStringLiteral(":/icons/next-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
@@ -665,21 +667,19 @@ void Viewer::setup_ui() {
 
 	lower_control_layout->addWidget(playback_controls);
 
-	QWidget* end_timecode_container = new QWidget(lower_controls);
+	QWidget* end_timecode_container = new QWidget();
 
 	QHBoxLayout* end_timecode_layout = new QHBoxLayout(end_timecode_container);
 	end_timecode_layout->setSpacing(0);
 	end_timecode_layout->setMargin(0);
-	end_timecode = new QLabel(end_timecode_container);
-	end_timecode->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
+	end_timecode = new QLabel();
+	end_timecode->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 	end_timecode_layout->addWidget(end_timecode);
 
 	lower_control_layout->addWidget(end_timecode_container);
 
 	layout->addWidget(lower_controls);
-
-	setWidget(contents);
 }
 
 void Viewer::set_media(Media* m) {

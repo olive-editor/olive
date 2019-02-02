@@ -80,11 +80,6 @@ void MainWindow::setup_layout(bool reset) {
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 	panel_graph_editor->setFloating(true);
 
-// workaround for strange Qt dock bug (see https://bugreports.qt.io/browse/QTBUG-65592)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-	resizeDocks({panel_project}, {40}, Qt::Horizontal);
-#endif
-
 	// load panels from file
 	if (!reset) {
 		QFile panel_config(get_config_path() + "/layout");
@@ -209,22 +204,22 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 		}
 	}
 
-    // load preferred language from file
-    QString language_file = external_translation_file.isEmpty() ?
-                config.language_file :
-                external_translation_file;
+	// load preferred language from file
+	QString language_file = external_translation_file.isEmpty() ?
+				config.language_file :
+				external_translation_file;
 
-    if (!language_file.isEmpty()
-            && QFileInfo::exists(language_file)) {
-        QTranslator* translator = new QTranslator(this);
-        translator->load(language_file);
-        QApplication::installTranslator(translator);
-    }
+	if (!language_file.isEmpty()
+			&& QFileInfo::exists(language_file)) {
+		QTranslator* translator = new QTranslator(this);
+		translator->load(language_file);
+		QApplication::installTranslator(translator);
+	}
 
 	alloc_panels(this);
 
 	QStatusBar* statusBar = new QStatusBar(this);
-    statusBar->showMessage(tr("Welcome to %1").arg(appName));
+	statusBar->showMessage(tr("Welcome to %1").arg(appName));
 	setStatusBar(statusBar);
 
 	setup_menus();
@@ -752,7 +747,7 @@ void MainWindow::setup_menus() {
 	full_screen->setProperty("id", "fullscreen");
 	full_screen->setCheckable(true);
 
-    view_menu->addAction(tr("Full Screen Viewer"), this, SLOT(full_screen_viewer()))->setProperty("id", "fullscreenviewer");
+	view_menu->addAction(tr("Full Screen Viewer"), this, SLOT(full_screen_viewer()))->setProperty("id", "fullscreenviewer");
 
 	// INITIALIZE PLAYBACK MENU
 
@@ -817,11 +812,11 @@ void MainWindow::setup_menus() {
 	window_sequenceviewer_action->setCheckable(true);
 	window_sequenceviewer_action->setData(reinterpret_cast<quintptr>(panel_sequence_viewer));
 
-    window_menu->addSeparator();
+	window_menu->addSeparator();
 
-    window_menu->addAction(tr("Maximize Panel"), this, SLOT(maximize_panel()), QKeySequence("`"))->setProperty("id", "maximizepanel");
+	window_menu->addAction(tr("Maximize Panel"), this, SLOT(maximize_panel()), QKeySequence("`"))->setProperty("id", "maximizepanel");
 
-    window_menu->addSeparator();
+	window_menu->addSeparator();
 
 	window_menu->addAction(tr("Reset to Default Layout"), this, SLOT(reset_layout()))->setProperty("id", "resetdefaultlayout");
 
@@ -1207,34 +1202,34 @@ void MainWindow::next_cut() {
 	QDockWidget* focused_panel = get_focused_panel();
 	if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
 		panel_timeline->next_cut();
-    }
+	}
 }
 
 void MainWindow::maximize_panel() {
-    // toggles between normal state and a state of one panel being maximized
-    if (temp_panel_state.isEmpty()) {
-        // get currently hovered panel
-        QDockWidget* focused_panel = get_focused_panel(true);
+	// toggles between normal state and a state of one panel being maximized
+	if (temp_panel_state.isEmpty()) {
+		// get currently hovered panel
+		QDockWidget* focused_panel = get_focused_panel(true);
 
-        // if the mouse is in fact hovering over a panel
-        if (focused_panel != nullptr) {
-            // store the current state of panels
-            temp_panel_state = saveState();
+		// if the mouse is in fact hovering over a panel
+		if (focused_panel != nullptr) {
+			// store the current state of panels
+			temp_panel_state = saveState();
 
-            // remove all dock widgets (kind of painful having to do each individually)
-            if (focused_panel != panel_project) removeDockWidget(panel_project);
-            if (focused_panel != panel_effect_controls) removeDockWidget(panel_effect_controls);
-            if (focused_panel != panel_timeline) removeDockWidget(panel_timeline);
-            if (focused_panel != panel_sequence_viewer) removeDockWidget(panel_sequence_viewer);
-            if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
-        }
-    } else {
-        // we must be maximized, restore previous state
-        restoreState(temp_panel_state);
+			// remove all dock widgets (kind of painful having to do each individually)
+			if (focused_panel != panel_project) removeDockWidget(panel_project);
+			if (focused_panel != panel_effect_controls) removeDockWidget(panel_effect_controls);
+			if (focused_panel != panel_timeline) removeDockWidget(panel_timeline);
+			if (focused_panel != panel_sequence_viewer) removeDockWidget(panel_sequence_viewer);
+			if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
+		}
+	} else {
+		// we must be maximized, restore previous state
+		restoreState(temp_panel_state);
 
-        // clear temp panel state for next maximize call
-        temp_panel_state.clear();
-    }
+		// clear temp panel state for next maximize call
+		temp_panel_state.clear();
+	}
 }
 
 void MainWindow::preferences()
@@ -1249,15 +1244,15 @@ void MainWindow::zoom_in_tracks() {
 }
 
 void MainWindow::zoom_out_tracks() {
-    panel_timeline->decrease_track_height();
+	panel_timeline->decrease_track_height();
 }
 
 void MainWindow::full_screen_viewer() {
-    if (get_focused_panel() == panel_footage_viewer) {
-        panel_footage_viewer->viewer_widget->set_fullscreen();
-    } else {
-        panel_sequence_viewer->viewer_widget->set_fullscreen();
-    }
+	if (get_focused_panel() == panel_footage_viewer) {
+		panel_footage_viewer->viewer_widget->set_fullscreen();
+	} else {
+		panel_sequence_viewer->viewer_widget->set_fullscreen();
+	}
 }
 
 void MainWindow::windowMenu_About_To_Be_Shown() {
@@ -1643,9 +1638,9 @@ void MainWindow::toggle_panel_visibility() {
 	QDockWidget* w = reinterpret_cast<QDockWidget*>(action->data().value<quintptr>());
 	w->setVisible(!w->isVisible());
 
-    // layout has changed, we're no longer in maximized panel mode,
-    // so we clear this byte array
-    temp_panel_state.clear();
+	// layout has changed, we're no longer in maximized panel mode,
+	// so we clear this byte array
+	temp_panel_state.clear();
 }
 
 void MainWindow::set_timecode_view() {

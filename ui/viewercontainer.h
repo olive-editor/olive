@@ -24,6 +24,9 @@ public:
 	ViewerWidget* child;
 	void adjust();
 
+	// manually moves scrollbars into the correct position
+	void adjust_scrollbars();
+
 protected:
 	void resizeEvent(QResizeEvent *event);
 
