@@ -384,13 +384,17 @@ void SourcesCommon::clear_proxies_from_selected() {
 	if (sequence != nullptr) {
 		// close all clips so we can delete any proxies requested to be deleted
 		closeActiveClips(sequence);
+	}
 
-		// delete proxies requested to be deleted
-		for (int i=0;i<delete_list.size();i++) {
-			QFile::remove(delete_list.at(i));
-		}
+	// delete proxies requested to be deleted
+	for (int i=0;i<delete_list.size();i++) {
+		QFile::remove(delete_list.at(i));
+	}
 
+	if (sequence != nullptr) {
 		// update viewer (will re-open active clips with original media)
 		panel_sequence_viewer->viewer_widget->frame_update();
 	}
+
+	mainWindow->setWindowModified(true);
 }

@@ -114,6 +114,8 @@ void ProxyDialog::accept() {
 		proxy_generator.queue(info_list.at(i));
 	}
 
+	mainWindow->setWindowModified(true);
+
 	QDialog::accept();
 }
 
