@@ -1441,42 +1441,46 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 }
 
 void Timeline::set_marker() {
-	bool add_marker = !config.set_name_with_marker;
-	QString marker_name;
+    bool add_marker = !config.set_name_with_marker;
+    QString marker_name;
 
-	if (!add_marker) {
-		QInputDialog d(this);
-		d.setWindowTitle(tr("Set Marker"));
-		d.setLabelText(tr("Set marker name:"));
-		d.setInputMode(QInputDialog::TextInput);
-		add_marker = (d.exec() == QDialog::Accepted);
-		marker_name = d.textValue();
-	}
+    std::vector<Clip*> clips_selected;
+    bool clip_mode = false;
 
-	if (add_marker) {
-        ComboAction* ca = new ComboAction();
-
-        // see if any clips are selected, and if so add a marker to them
-        bool clip_mode = false;
-        for (int i=0;i<sequence->clips.size();i++) {
-            Clip* c = sequence->clips.at(i);
-            if (c != nullptr
-                    && is_clip_selected(c, true)) {
-                ca->append(new AddMarkerAction(false,
-                                               c,
-                                               sequence->playhead - c->timeline_in + c->clip_in,
-                                               marker_name));
-                clip_mode = true;
-            }
+    for (int i=0;i<sequence->clips.size();i++) {
+        Clip* c = sequence->clips.at(i);
+        if (c != nullptr && is_clip_selected(c, true)) {
+            clips_selected.push_back(c);
+            clip_mode=true;
         }
+    }
 
+    ComboAction* ca = new ComboAction();
+
+    if (!add_marker) {
+        QInputDialog d(this);
+        d.setWindowTitle(tr("Set Marker"));
+        d.setLabelText(clip_mode? tr("Set clip marker name:"): tr("Set sequence marker name:"));
+        d.setInputMode(QInputDialog::TextInput);
+        add_marker = (d.exec() == QDialog::Accepted);
+        marker_name = d.textValue();
+    }
+
+    if (add_marker) {
+        foreach (Clip* c, clips_selected){
+            ca->append(new AddMarkerAction(false,
+                                           c,
+                                           sequence->playhead - c->timeline_in + c->clip_in,
+                                           marker_name));
+            }
         // if no clips are selected, we're adding a marker to the sequence
         if (!clip_mode) {
             ca->append(new AddMarkerAction(true, sequence, sequence->playhead, marker_name));
         }
 
         undo_stack.push(ca);
-	}
+        repaint_timeline();
+    }
 }
 
 void Timeline::toggle_links() {
