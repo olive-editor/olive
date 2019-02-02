@@ -10,6 +10,7 @@
 #include "debug.h"
 
 Config config;
+RuntimeConfig runtime_config;
 
 Config::Config()
 	: saved_layout(false),
@@ -262,3 +263,8 @@ void Config::save(QString path) {
 	stream.writeEndDocument(); // doc
 	f.close();
 }
+
+RuntimeConfig::RuntimeConfig() :
+	shaders_are_enabled(true),
+	disable_blending(false)
+{}

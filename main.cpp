@@ -3,9 +3,7 @@
 
 #include "debug.h"
 
-// importing classes for certain command line args
-#include "project/effect.h"
-#include "ui/renderfunctions.h"
+#include "io/config.h"
 
 extern "C" {
 	#include <libavformat/avformat.h>
@@ -35,36 +33,36 @@ int main(int argc, char *argv[]) {
 					printf("%s\n", appName.toUtf8().constData());
 					return 0;
 				} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
-                    printf("Usage: %s [options] [filename]\n\n"
-                           "[filename] is the file to open on startup.\n\n"
-                           "Options:\n"
-                           "\t-v, --version\t\tShow version information\n"
-                           "\t-h, --help\t\tShow this help\n"
-                           "\t-f, --fullscreen\tStart in full screen mode\n"
-                           "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
-                           "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
-                           "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
-                           "\t--translation <file>\tSet an external language file to use\n"
-                           "\n", argv[0]);
+					printf("Usage: %s [options] [filename]\n\n"
+						   "[filename] is the file to open on startup.\n\n"
+						   "Options:\n"
+						   "\t-v, --version\t\tShow version information\n"
+						   "\t-h, --help\t\tShow this help\n"
+						   "\t-f, --fullscreen\tStart in full screen mode\n"
+						   "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
+						   "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
+						   "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
+						   "\t--translation <file>\tSet an external language file to use\n"
+						   "\n", argv[0]);
 					return 0;
 				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
 					launch_fullscreen = true;
 				} else if (!strcmp(argv[i], "--disable-shaders")) {
-					shaders_are_enabled = false;
+					runtime_config.shaders_are_enabled = false;
 				} else if (!strcmp(argv[i], "--no-debug")) {
 					use_internal_logger = false;
 				} else if (!strcmp(argv[i], "--disable-blend-modes")) {
-					disable_blending = true;
-                } else if (!strcmp(argv[i], "--translation")) {
-                    if (i + 1 < argc && argv[i + 1][0] != '-') {
-                        // load translation file
-                        external_translation_file = argv[i + 1];
+					runtime_config.disable_blending = true;
+				} else if (!strcmp(argv[i], "--translation")) {
+					if (i + 1 < argc && argv[i + 1][0] != '-') {
+						// load translation file
+						runtime_config.external_translation_file = argv[i + 1];
 
-                        i++;
-                    } else {
-                        printf("[ERROR] No translation file specified\n");
-                        return 1;
-                    }
+						i++;
+					} else {
+						printf("[ERROR] No translation file specified\n");
+						return 1;
+					}
 				} else {
 					printf("[ERROR] Unknown argument '%s'\n", argv[1]);
 					return 1;

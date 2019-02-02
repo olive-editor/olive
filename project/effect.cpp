@@ -17,6 +17,7 @@
 #include "mainwindow.h"
 #include "io/math.h"
 #include "io/clipboard.h"
+#include "io/config.h"
 #include "transition.h"
 
 #include "effects/internal/transformeffect.h"
@@ -45,7 +46,6 @@
 #include <QMenu>
 #include <QApplication>
 
-bool shaders_are_enabled = true;
 QVector<EffectMeta> effects;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
@@ -627,7 +627,7 @@ void Effect::open() {
 		qWarning() << "Tried to open an effect that was already open";
 		close();
 	}
-	if (shaders_are_enabled && enable_shader) {
+	if (runtime_config.shaders_are_enabled && enable_shader) {
 		if (QOpenGLContext::currentContext() == nullptr) {
 			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
@@ -685,7 +685,7 @@ void Effect::startEffect() {
 		open();
 		qWarning() << "Tried to start a closed effect - opening";
 	}
-	if (shaders_are_enabled
+	if (runtime_config.shaders_are_enabled
 			&& enable_shader
 			&& glslProgram->isLinked()) {
 		bound = glslProgram->bind();

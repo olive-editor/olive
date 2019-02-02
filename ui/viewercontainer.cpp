@@ -20,6 +20,9 @@ ViewerContainer::ViewerContainer(QWidget *parent) :
 	horizontal_scrollbar = new QScrollBar(Qt::Horizontal, this);
 	vertical_scrollbar = new QScrollBar(Qt::Vertical, this);
 
+	horizontal_scrollbar->setVisible(false);
+	vertical_scrollbar->setVisible(false);
+
 	horizontal_scrollbar->setSingleStep(20);
 	vertical_scrollbar->setSingleStep(20);
 

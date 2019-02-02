@@ -26,6 +26,7 @@
 
 struct Config {
 	Config();
+
 	bool saved_layout;
 	bool show_track_lines;
 	bool scroll_zooms;
@@ -74,6 +75,15 @@ struct Config {
 	void save(QString path);
 };
 
+struct RuntimeConfig {
+	RuntimeConfig();
+
+	bool shaders_are_enabled;
+	bool disable_blending;
+	QString external_translation_file;
+};
+
 extern Config config;
+extern RuntimeConfig runtime_config;
 
 #endif // CONFIG_H

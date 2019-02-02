@@ -57,9 +57,6 @@ MainWindow* mainWindow;
 #define DEFAULT_CSS "QPushButton::checked { background: rgb(25, 25, 25); }"
 #define OLIVE_FILE_FILTER "Olive Project (*.ove)"
 
-// load external translation file
-QString external_translation_file;
-
 QTimer autorecovery_timer;
 QString config_fn;
 bool demoNoticeShown = false;
@@ -205,9 +202,9 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	}
 
 	// load preferred language from file
-	QString language_file = external_translation_file.isEmpty() ?
+	QString language_file = runtime_config.external_translation_file.isEmpty() ?
 				config.language_file :
-				external_translation_file;
+				runtime_config.external_translation_file;
 
 	if (!language_file.isEmpty()
 			&& QFileInfo::exists(language_file)) {

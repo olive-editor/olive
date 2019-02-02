@@ -6,6 +6,7 @@
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
 #include "io/crossplatformlib.h"
+#include "io/config.h"
 
 #include <QDir>
 #include <QXmlStreamReader>
@@ -18,7 +19,7 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 #endif
 
 void load_internal_effects() {
-	if (!shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+	if (!runtime_config.shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
 
 	EffectMeta em;
 
