@@ -11,11 +11,14 @@
 
 class VoidEffect : public Effect {
 public:
-    VoidEffect(Clip* c, const QString& n);
-    void load(QXmlStreamReader &stream) override;
-    void save(QXmlStreamWriter &stream) override;
+	VoidEffect(Clip* c, const QString& n);
+
+	virtual Effect* copy(Clip* c) override;
+	virtual void load(QXmlStreamReader &stream) override;
+	virtual void save(QXmlStreamWriter &stream) override;
 private:
-    QByteArray bytes;
+	QByteArray bytes;
+	EffectMeta void_meta;
 };
 
 #endif // VOIDEFFECT_H

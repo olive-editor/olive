@@ -42,8 +42,8 @@ public slots:
 	void toggle_bool_action();
 
 protected:
-	void closeEvent(QCloseEvent *);
-	void paintEvent(QPaintEvent *event);
+	virtual void closeEvent(QCloseEvent *) override;
+	virtual void paintEvent(QPaintEvent *event) override;
 
 private slots:
 	void clear_undo_stack();

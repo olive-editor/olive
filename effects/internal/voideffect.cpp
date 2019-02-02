@@ -18,6 +18,16 @@ VoidEffect::VoidEffect(Clip *c, const QString& n) : Effect(c, nullptr) {
 	EffectRow* row = add_row(tr("Missing Effect"), false, false);
 	row->add_widget(new QLabel(display_name));
 	container->setText(display_name);
+
+	void_meta.type = EFFECT_TYPE_EFFECT;
+	meta = &void_meta;
+}
+
+Effect *VoidEffect::copy(Clip *c) {
+	Effect* copy = new VoidEffect(c, name);
+	copy->set_enabled(is_enabled());
+	copy_field_keyframes(copy);
+	return copy;
 }
 
 void VoidEffect::load(QXmlStreamReader &stream) {

@@ -1187,6 +1187,7 @@ void TimelineWidget::init_ghosts() {
 		}
 
 		// used for trim ops
+		c->recalculateMaxLength();
 		g.media_length = c->getMaximumLength();
 	}
 	for (int i=0;i<sequence->selections.size();i++) {

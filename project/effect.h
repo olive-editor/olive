@@ -165,7 +165,7 @@ public:
 
 	virtual void refresh();
 
-	Effect* copy(Clip* c);
+	virtual Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
 	virtual void load(QXmlStreamReader& stream);

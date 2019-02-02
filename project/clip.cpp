@@ -227,7 +227,7 @@ double Clip::getMediaFrameRate() {
 }
 
 void Clip::recalculateMaxLength() {
-	if (sequence != nullptr) {
+	if (this->sequence != nullptr) {
 		double fr = this->sequence->frame_rate;
 
 		fr /= speed;

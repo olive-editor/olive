@@ -12,11 +12,11 @@ public:
 	ViewerWindow(QOpenGLContext* share);
 	void set_texture(GLuint t, double iar, QMutex *imutex);
 protected:
-	void keyPressEvent(QKeyEvent*);
-	void mousePressEvent(QMouseEvent*);
-	void mouseMoveEvent(QMouseEvent*);
+	virtual void keyPressEvent(QKeyEvent*) override;
+	virtual void mousePressEvent(QMouseEvent*) override;
+	virtual void mouseMoveEvent(QMouseEvent*) override;
 private:
-	void paintGL();
+	virtual void paintGL() override;
 	GLuint texture;
 	double ar;
 	QMutex* mutex;

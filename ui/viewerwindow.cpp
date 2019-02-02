@@ -3,6 +3,12 @@
 #include <QMutex>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QApplication>
+#include <QMenuBar>
+
+#include <QDebug>
+
+#include "mainwindow.h"
 
 ViewerWindow::ViewerWindow(QOpenGLContext *share) :
 	QOpenGLWindow(share),
@@ -12,6 +18,8 @@ ViewerWindow::ViewerWindow(QOpenGLContext *share) :
 {
 	fullscreen_msg_timer.setInterval(2000);
 	connect(&fullscreen_msg_timer, SIGNAL(timeout()), this, SLOT(fullscreen_msg_timeout()));
+
+	installEventFilter(mainWindow);
 }
 
 void ViewerWindow::set_texture(GLuint t, double iar, QMutex* imutex) {
