@@ -9,7 +9,7 @@
 #include "ui/collapsiblewidget.h"
 
 PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-    EffectRow* pan_row = add_row(tr("Pan"));
+	EffectRow* pan_row = add_row(tr("Pan"));
 	pan_val = pan_row->add_field(EFFECT_FIELD_DOUBLE, "pan");
 	pan_val->set_double_minimum_value(-100);
 	pan_val->set_double_maximum_value(100);
@@ -21,21 +21,23 @@ PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
 void PanEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
 	double interval = (timecode_end - timecode_start)/nb_bytes;
 	for (int i=0;i<nb_bytes;i+=4) {
-		double pval = log_volume(pan_val->get_double_value(timecode_start+(interval*i), true)*0.01);
-		qint16 left_sample = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-		qint16 right_sample = (qint16) (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
+		double pan_field_val = pan_val->get_double_value(timecode_start+(interval*i), true);
+		double pval = log_volume(qAbs(pan_field_val)*0.01);
 
-		if (pval < 0) {
+		qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+		qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
+
+		if (pan_field_val < 0) {
 			// affect right channel
-			right_sample *= (1-std::abs(pval));
+			right_sample *= (1.0-pval);
 		} else {
 			// affect left channel
-			left_sample *= (1-pval);
+			left_sample *= (1.0-pval);
 		}
 
-		samples[i+3] = (quint8) (right_sample >> 8);
-		samples[i+2] = (quint8) right_sample;
-		samples[i+1] = (quint8) (left_sample >> 8);
-		samples[i] = (quint8) left_sample;
+		samples[i+3] = quint8(right_sample >> 8);
+		samples[i+2] = quint8(right_sample);
+		samples[i+1] = quint8(left_sample >> 8);
+		samples[i] = quint8(left_sample);
 	}
 }
