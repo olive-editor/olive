@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QWidget>
 #include <QtMath>
+#include <QDebug>
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
@@ -93,13 +94,13 @@ void TimecodeEffect::redraw(double timecode) {
 
 	text_x = offset_x + (width/2) - (text_width/2);
 	text_y = offset_y + height - height/10;
-	rect_y = text_y + fm.descent()/2 - text_height;
+	rect_y = text_y + fm.descent() - text_height;
 
 	path.addText(text_x, text_y, font, display_timecode);
 
 	p.setPen(Qt::NoPen);
 	p.setBrush(background_color);
-	p.drawRect(QRect(text_x-fm.descent()/2, rect_y, text_width+fm.descent(), text_height));
+	p.drawRect(QRect(text_x-fm.descent(), rect_y, text_width+fm.descent()*2, text_height));
 	p.setBrush(color_val->get_color_value(timecode));
 	p.drawPath(path);
 }
