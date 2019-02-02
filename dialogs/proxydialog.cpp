@@ -81,7 +81,10 @@ void ProxyDialog::accept() {
 		info.codec_type = 0;
 		info.size_multiplier = size_combobox->currentData().toDouble();
 
-		QString base_footage_fn = QFileInfo(selected_footage.at(i)->url).fileName();
+        QString base_footage_fn = QFileInfo(selected_footage.at(i)->url).baseName();
+
+        // TEMPORARILY hardcoded proxy format
+        base_footage_fn.append(".mov");
 
 		// determine path from input
 		if (custom_location.isEmpty()) {
