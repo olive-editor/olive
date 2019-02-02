@@ -1061,11 +1061,15 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 									}
 								}
 
-								// save markers
-                                for (int k=0;k<c->get_markers().size();k++) {
-                                    save_marker(stream, c->get_markers().at(k));
-								}
+                                // save markers
+                                // unnecessary for nested sequences since sequences have their own marker saving
+                                if (c->media == nullptr || c->media->get_type() != MEDIA_TYPE_SEQUENCE) {
+                                    for (int k=0;k<c->get_markers().size();k++) {
+                                        save_marker(stream, c->get_markers().at(k));
+                                    }
+                                }
 
+                                // save clip links
 								stream.writeStartElement("linked"); // linked
 								for (int k=0;k<c->linked.size();k++) {
 									stream.writeStartElement("link"); // link
