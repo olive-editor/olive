@@ -295,8 +295,10 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
 	info.footage->proxy_path = info.path;
 
 	qInfo() << "Finished creating proxy for" << info.footage->url;
-	mainWindow->statusBar()->showMessage(tr("Finished generating proxy for \"%1\"").arg(info.footage->url));
-
+    QMetaObject::invokeMethod(mainWindow->statusBar(),
+                              "showMessage",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, tr("Finished generating proxy for \"%1\"").arg(info.footage->url)));
 }
 
 // main proxy generating loop
