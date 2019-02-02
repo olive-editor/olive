@@ -144,15 +144,14 @@ void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const Q
 
 void Timeline::toggle_show_all() {
     if (sequence != nullptr) {
-
-    }
-	showing_all = !showing_all;
-	if (showing_all) {
-		old_zoom = zoom;
-		set_zoom_value(double(timeline_area->width() - 200) / double(sequence->getEndFrame()));
-	} else {
-		set_zoom_value(old_zoom);
-	}
+        showing_all = !showing_all;
+        if (showing_all) {
+            old_zoom = zoom;
+            set_zoom_value(double(timeline_area->width() - 200) / double(sequence->getEndFrame()));
+        } else {
+            set_zoom_value(old_zoom);
+        }
+    }	
 }
 
 void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<Media*>& media_list) {
