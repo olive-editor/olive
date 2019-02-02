@@ -143,6 +143,9 @@ void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const Q
 }
 
 void Timeline::toggle_show_all() {
+    if (sequence != nullptr) {
+
+    }
 	showing_all = !showing_all;
 	if (showing_all) {
 		old_zoom = zoom;
