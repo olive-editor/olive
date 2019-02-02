@@ -69,10 +69,8 @@ void close_clip(Clip* clip, bool wait) {
 	clip->finished_opening = false;
 
 	// destroy opengl texture in main thread
-	if (clip->texture != nullptr) {
-		delete clip->texture;
-		clip->texture = nullptr;
-	}
+	delete clip->texture;
+	clip->texture = nullptr;
 
 	for (int i=0;i<clip->effects.size();i++) {
 		if (clip->effects.at(i)->is_open()) clip->effects.at(i)->close();

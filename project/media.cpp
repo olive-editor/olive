@@ -52,8 +52,7 @@ Media::~Media() {
 	case MEDIA_TYPE_FOOTAGE: delete to_footage(); break;
 	case MEDIA_TYPE_SEQUENCE: if (object != nullptr) delete to_sequence(); break;
 	}
-	if (throbber != nullptr) delete throbber;
-//	qDeleteAll(children);
+	delete throbber;
 }
 
 Footage *Media::to_footage() {
