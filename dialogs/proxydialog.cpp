@@ -11,6 +11,7 @@
 
 #include "io/proxygenerator.h"
 #include "project/footage.h"
+#include "mainwindow.h"
 
 ProxyDialog::ProxyDialog(QWidget *parent, const QVector<Footage *> &footage) :
 	QDialog(parent),
