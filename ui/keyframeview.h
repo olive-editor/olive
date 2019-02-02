@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 
-struct Clip;
+class Clip;
 class Effect;
 class EffectRow;
 class EffectField;

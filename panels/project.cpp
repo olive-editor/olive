@@ -1062,8 +1062,8 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 								}
 
 								// save markers
-								for (int k=0;k<c->markers.size();k++) {
-									save_marker(stream, c->markers.at(k));
+                                for (int k=0;k<c->get_markers().size();k++) {
+                                    save_marker(stream, c->get_markers().at(k));
 								}
 
 								stream.writeStartElement("linked"); // linked

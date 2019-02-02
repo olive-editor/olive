@@ -4,7 +4,7 @@
 #include <QThread>
 #include <QVector>
 
-struct Clip;
+class Clip;
 
 class Cacher : public QThread
 {

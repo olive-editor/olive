@@ -17,7 +17,7 @@ class QGridLayout;
 class QPushButton;
 class QMouseEvent;
 
-struct Clip;
+class Clip;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 class Effect;

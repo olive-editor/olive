@@ -447,7 +447,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                                         m.name = attr.value().toString();
                                                     }
                                                 }
-                                                c->markers.append(m);
+                                                c->get_markers().append(m);
                                             }
 										}
 									}

@@ -4,7 +4,7 @@
 #include <QVector>
 #include <QMutex>
 
-struct Clip;
+class Clip;
 struct ClipCache;
 struct Sequence;
 struct AVFrame;

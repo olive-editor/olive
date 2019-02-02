@@ -6,7 +6,7 @@
 #include "project/marker.h"
 #include "project/selection.h"
 
-struct Clip;
+class Clip;
 class Transition;
 class Media;
 

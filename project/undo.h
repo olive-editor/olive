@@ -10,7 +10,7 @@ class EffectRow;
 class EffectField;
 class Transition;
 class EffectGizmo;
-struct Clip;
+class Clip;
 struct Sequence;
 struct Footage;
 struct EffectMeta;

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-struct Clip;
+class Clip;
 class LabelSlider;
 class QCheckBox;
 

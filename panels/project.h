@@ -10,7 +10,7 @@
 
 struct Footage;
 struct Sequence;
-struct Clip;
+class Clip;
 class Timeline;
 class Viewer;
 class SourceTable;

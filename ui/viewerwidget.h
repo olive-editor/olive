@@ -11,7 +11,7 @@
 #include <QOpenGLFunctions>
 
 class Viewer;
-struct Clip;
+class Clip;
 struct FootageStream;
 class QOpenGLFramebufferObject;
 class Effect;

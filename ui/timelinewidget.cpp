@@ -1267,8 +1267,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 			// if the ghost is attached to a clip, snap its markers too
 			if (panel_timeline->trim_target == -1 && g.clip >= 0) {
 				Clip* c = sequence->clips.at(g.clip);
-				for (int j=0;j<c->markers.size();j++) {
-					long marker_real_time = c->markers.at(j).frame + c->timeline_in - c->clip_in;
+                for (int j=0;j<c->get_markers().size();j++) {
+                    long marker_real_time = c->get_markers().at(j).frame + c->timeline_in - c->clip_in;
 					fm = marker_real_time + frame_diff;
 					if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
 						frame_diff = fm - marker_real_time;
@@ -2430,8 +2430,8 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 					}
 
 					// draw clip markers
-					for (int j=0;j<clip->markers.size();j++) {
-						const Marker& m = clip->markers.at(j);
+                    for (int j=0;j<clip->get_markers().size();j++) {
+                        const Marker& m = clip->get_markers().at(j);
 
 						// convert marker time (in clip time) to sequence time
 						long marker_time = m.frame + clip->timeline_in - clip->clip_in;
@@ -2440,6 +2440,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 							draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false, false);
 						}
 					}
+                    p.setBrush(Qt::NoBrush);
 
 					// draw clip transitions
 					draw_transition(p, clip, clip_rect, text_rect, TA_OPENING_TRANSITION);

@@ -31,7 +31,7 @@ class AudioMonitor;
 class QScrollBar;
 struct EffectMeta;
 struct Sequence;
-struct Clip;
+class Clip;
 struct Footage;
 struct FootageStream;
 

@@ -814,7 +814,7 @@ AddMarkerAction::AddMarkerAction(bool is_sequence, void* s, long t, QString n) :
 void AddMarkerAction::undo() {
     QVector<Marker>& markers = is_sequence_internal ?
                 static_cast<Sequence*>(target)->markers :
-                static_cast<Clip*>(target)->markers;
+                static_cast<Clip*>(target)->get_markers();
 
 	if (index == -1) {
         markers.removeLast();
@@ -830,7 +830,7 @@ void AddMarkerAction::redo() {
 
     QVector<Marker>& markers = is_sequence_internal ?
                 static_cast<Sequence*>(target)->markers :
-                static_cast<Clip*>(target)->markers;
+                static_cast<Clip*>(target)->get_markers();
 
     for (int i=0;i<markers.size();i++) {
         if (markers.at(i).frame == time) {

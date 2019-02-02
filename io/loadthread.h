@@ -10,7 +10,7 @@
 
 class Media;
 struct Footage;
-struct Clip;
+class Clip;
 struct Sequence;
 class LoadDialog;
 struct TransitionData;

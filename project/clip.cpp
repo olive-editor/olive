@@ -147,7 +147,14 @@ void Clip::queue_remove_earliest() {
 		}
 	}
 	av_frame_free(&queue[earliest_frame]);
-	queue.removeAt(earliest_frame);
+    queue.removeAt(earliest_frame);
+}
+
+QVector<Marker> &Clip::get_markers() {
+    if (media != nullptr && media->get_type() == MEDIA_TYPE_SEQUENCE) {
+        return media->to_sequence()->markers;
+    }
+    return markers;
 }
 
 Transition* Clip::get_opening_transition() {

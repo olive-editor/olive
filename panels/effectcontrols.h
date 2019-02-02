@@ -5,7 +5,7 @@
 #include <QUndoCommand>
 #include <QMutex>
 
-struct Clip;
+class Clip;
 class QMenu;
 class Effect;
 class TimelineHeader;

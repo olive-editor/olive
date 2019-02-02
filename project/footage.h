@@ -16,7 +16,7 @@ enum VideoInterlacingMode {
 };
 
 struct Sequence;
-struct Clip;
+class Clip;
 class PreviewGenerator;
 class MediaThrobber;
 

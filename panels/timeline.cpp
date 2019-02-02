@@ -1428,8 +1428,8 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 					return true;
 				} else {
 					// try to snap to clip markers
-					for (int j=0;j<c->markers.size();j++) {
-						if (snap_to_point(c->markers.at(j).frame + c->timeline_in - c->clip_in, l)) {
+                    for (int j=0;j<c->get_markers().size();j++) {
+                        if (snap_to_point(c->get_markers().at(j).frame + c->timeline_in - c->clip_in, l)) {
 							return true;
 						}
 					}
@@ -1452,13 +1452,25 @@ void Timeline::set_marker() {
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
 		if (c != nullptr
-				&& is_clip_selected(c, true)
-				&& sequence->playhead >= c->timeline_in
-				&& sequence->playhead <= c->timeline_out) {
-			clips_selected.append(c);
+				&& is_clip_selected(c, true)) {
+
+            // only add markers if the playhead is inside the clip
+            if (sequence->playhead >= c->timeline_in
+                    && sequence->playhead <= c->timeline_out) {
+                clips_selected.append(c);
+            }
+
+            // we are definitely adding markers to clips though
 			clip_mode = true;
+
 		}
 	}
+
+    // if we've selected clips but none of the clips are within the playhead,
+    // nothing to do here
+    if (clip_mode && clips_selected.size() == 0) {
+        return;
+    }
 
 	QString marker_name;
 

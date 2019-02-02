@@ -12,7 +12,7 @@
 #define TRACK_HEIGHT_INCREMENT 10
 
 struct Sequence;
-struct Clip;
+class Clip;
 struct FootageStream;
 class Timeline;
 class TimelineAction;

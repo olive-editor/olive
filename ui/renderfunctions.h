@@ -8,7 +8,7 @@ class Effect;
 class Viewer;
 class QOpenGLShaderProgram;
 struct Sequence;
-struct Clip;
+class Clip;
 
 struct ComposeSequenceParams {
 	Viewer* viewer;

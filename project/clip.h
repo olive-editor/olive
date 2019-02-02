@@ -33,8 +33,8 @@ struct AVFilterContext;
 struct AVDictionary;
 class QOpenGLTexture;
 
-struct Clip
-{
+class Clip {
+public:
 	Clip(Sequence* s);
 	~Clip();
 	Clip* copy(Sequence* s, bool duplicate_transitions = true);
@@ -76,7 +76,7 @@ struct Clip
 	bool autoscale;
 
     // markers
-    QVector<Marker> markers;
+    QVector<Marker>& get_markers();
 
 	// other variables (should be deep copied/duplicated in copy())
 	QList<Effect*> effects;
@@ -136,6 +136,8 @@ struct Clip
 	bool audio_reset;
 	bool audio_just_reset;
 	long audio_target_frame;
+private:
+    QVector<Marker> markers;
 };
 
 #endif // CLIP_H
