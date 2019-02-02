@@ -13,6 +13,7 @@
 #include "project/media.h"
 #include "io/config.h"
 #include "io/avtogl.h"
+#include "io/proxygenerator.h"
 #include "debug.h"
 
 extern "C" {
@@ -28,6 +29,8 @@ extern "C" {
 #include <QOpenGLTexture>
 #include <QOpenGLPixelTransferOptions>
 #include <QOpenGLFramebufferObject>
+#include <QPainter>
+#include <QCoreApplication>
 
 #ifdef QT_DEBUG
 //#define GCF_DEBUG
@@ -270,14 +273,55 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 			uint8_t* data_buffer_1 = target_frame->data[0];
 			uint8_t* data_buffer_2 = nullptr;
 
-			size_t frame_size;
+			size_t frame_size = size_t(target_frame->linesize[0])*size_t(target_frame->height);
+
+			// if proxy is currently being generated, show an on-screen message of its progress
+			if (c->media->to_footage()->proxy
+					&& c->media->to_footage()->proxy_path.isEmpty()) {
+				// create buffers to draw on
+				data_buffer_1 = new uint8_t[frame_size];
+				data_buffer_2 = new uint8_t[frame_size];
+
+				memcpy(data_buffer_1, target_frame->data[0], frame_size);
+
+				// wrap data in a QImage for painting
+				QImage img(data_buffer_1, target_frame->width, target_frame->height, QImage::Format_RGBA8888);
+
+				// create QPainter process
+				QPainter p(&img);
+
+				// set font color to white
+				p.setPen(Qt::white);
+
+				// set font size relative to frame size (divided by 12)
+				QFont overlay_font = p.font();
+				overlay_font.setPixelSize(target_frame->height/12);
+				p.setFont(overlay_font);
+
+				// generate overlay text
+				QString proxy_overlay_text = QCoreApplication::translate("Playback", "Generating Proxy: %1%").arg(proxy_generator.get_proxy_progress(c->media->to_footage()));
+
+				int text_height = p.fontMetrics().descent() + p.fontMetrics().height();
+
+				// draw semi-transparent black background
+				p.fillRect(QRect(0,
+								 target_frame->height-text_height,
+								 p.fontMetrics().width(proxy_overlay_text),
+								 text_height),
+						   QColor(0, 0, 0, 128)
+					);
+
+
+				// draw text
+				p.drawText(0,
+						   target_frame->height-p.fontMetrics().descent(),
+						   proxy_overlay_text);
+			}
 
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
 				if (e->enable_image && e->is_enabled()) {
 					if (data_buffer_1 == target_frame->data[0]) {
-						frame_size = size_t(target_frame->linesize[0])*size_t(target_frame->height);
-
 						data_buffer_1 = new uint8_t[frame_size];
 						data_buffer_2 = new uint8_t[frame_size];
 

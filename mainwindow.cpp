@@ -2,6 +2,7 @@
 
 #include "io/config.h"
 #include "io/path.h"
+#include "io/proxygenerator.h"
 
 #include "project/footage.h"
 #include "project/sequence.h"
@@ -219,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	statusBar->showMessage(tr("Welcome to %1").arg(appName));
 	setStatusBar(statusBar);
 
+	// populate menu bars
 	setup_menus();
 
 	if (!data_dir.isEmpty()) {
@@ -235,9 +237,14 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 		autorecovery_timer.start();
 	}
 
+	// set up panel layout
 	setup_layout(false);
 
+	// set up output audio device
 	init_audio();
+
+	// start omnipotent proxy generator process
+	proxy_generator.start();
 }
 
 MainWindow::~MainWindow() {
@@ -1002,6 +1009,9 @@ void MainWindow::updateTitle(const QString& url) {
 
 void MainWindow::closeEvent(QCloseEvent *e) {
 	if (can_close_project()) {
+		// stop proxy generator thread
+		proxy_generator.cancel();
+
 		panel_effect_controls->clear_effects(true);
 
 		set_sequence(nullptr);
@@ -1051,8 +1061,8 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 	if (!demoNoticeShown) {
 #ifndef QT_DEBUG
 		DemoNotice* d = new DemoNotice(this);
+		connect(d, SIGNAL(finished(int)), d, SLOT(deleteLater()));
 		d->open();
-		connect(d, SIGNAL(finished()), d, SLOT(deleteLater()));
 #endif
 
 		demoNoticeShown = true;

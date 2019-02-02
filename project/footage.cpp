@@ -18,7 +18,8 @@ Footage::Footage() :
 	in(0),
 	out(0),
 	speed(1.0),
-	alpha_is_premultiplied(false)
+	alpha_is_premultiplied(false),
+	proxy(false)
 {
 	ready_lock.lock();
 }

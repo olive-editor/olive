@@ -3,12 +3,15 @@
 
 #include <QModelIndexList>
 #include <QTimer>
+#include <QVector>
 
 class Project;
 class QMouseEvent;
 class Media;
 class QAbstractItemView;
 class QDropEvent;
+
+struct Footage;
 
 class SourcesCommon : public QObject {
 	Q_OBJECT
@@ -27,7 +30,10 @@ private slots:
 	void reveal_in_browser();
 	void rename_interval();
 	void item_renamed(Media *item);
+
+	// proxy functions
 	void open_create_proxy_dialog();
+	void clear_proxies_from_selected();
 private:
 	Media* editing_item;
 	QModelIndex editing_index;
@@ -35,6 +41,9 @@ private:
 	Project* project_parent;
 	void stop_rename_timer();
 	QTimer rename_timer;
+
+	// we cache the selected footage items for open_create_proxy_dialog()
+	QVector<Footage*> cached_selected_footage;
 };
 
 #endif // SOURCESCOMMON_H

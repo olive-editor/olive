@@ -8,4 +8,7 @@ QString get_data_path();
 QString get_config_path();
 QList<QString> get_effects_paths();
 
+// generate hash algorithm used to uniquely identify files
+QString get_file_hash(const QString& filename);
+
 #endif // PATH_H

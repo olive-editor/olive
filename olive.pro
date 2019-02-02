@@ -138,7 +138,8 @@ SOURCES += \
     io/crossplatformlib.cpp \
     effects/internal/vsthost.cpp \
     ui/flowlayout.cpp \
-    dialogs/proxydialog.cpp
+    dialogs/proxydialog.cpp \
+    io/proxygenerator.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -240,7 +241,8 @@ HEADERS += \
     io/crossplatformlib.h \
     effects/internal/vsthost.h \
     ui/flowlayout.h \
-    dialogs/proxydialog.h
+    dialogs/proxydialog.h \
+    io/proxygenerator.h
 
 FORMS +=
 

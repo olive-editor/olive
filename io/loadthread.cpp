@@ -250,6 +250,10 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									m->speed = attr.value().toDouble();
 								} else if (attr.name() == "alphapremul") {
 									m->alpha_is_premultiplied = (attr.value() == "1");
+								} else if (attr.name() == "proxy") {
+									m->proxy = (attr.value() == "1");
+								} else if (attr.name() == "proxypath") {
+									m->proxy_path = attr.value().toString();
 								}
 							}
 

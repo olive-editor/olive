@@ -58,7 +58,6 @@ void RenderThread::run() {
 					ctx->functions()->glGenFramebuffers(1, &back_buffer_2);
 				}
 
-
 				// gen texture
 				if (front_texture == 0 || tex_width != seq->width || tex_height != seq->height) {
 					// cache texture size

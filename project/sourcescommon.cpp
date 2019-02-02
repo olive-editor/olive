@@ -3,13 +3,17 @@
 #include "panels/panels.h"
 #include "project/media.h"
 #include "project/undo.h"
+#include "playback/playback.h"
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "project/footage.h"
 #include "panels/viewer.h"
 #include "project/projectfilter.h"
+#include "project/sequence.h"
 #include "io/config.h"
 #include "dialogs/proxydialog.h"
+#include "ui/viewerwidget.h"
+#include "io/proxygenerator.h"
 #include "mainwindow.h"
 
 #include <QProcess>
@@ -18,6 +22,8 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QDesktopServices>
+
+#include <QDebug>
 
 SourcesCommon::SourcesCommon(Project* parent) :
 	editing_item(nullptr),
@@ -76,11 +82,11 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	connect(show_sequences, SIGNAL(triggered(bool)), panel_project->sorter, SLOT(set_show_sequences(bool)));
 
 	if (items.size() > 0) {
-		Media* m = project_parent->item_to_media(items.at(0));
-
 		if (items.size() == 1) {
+			Media* first_media = project_parent->item_to_media(items.at(0));
+
 			// replace footage
-			int type = m->get_type();
+			int type = first_media->get_type();
 			if (type == MEDIA_TYPE_FOOTAGE) {
 				QAction* replace_action = menu.addAction(tr("Replace/Relink Media"));
 				QObject::connect(replace_action, SIGNAL(triggered(bool)), project_parent, SLOT(replace_selected_file()));
@@ -100,14 +106,19 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 			}
 		}
 
-		// duplicate item
+		// analyze selected footage types
 		bool all_sequences = true;
 		bool all_footage = true;
+
+		cached_selected_footage.clear();
 		for (int i=0;i<items.size();i++) {
+			Media* m = project_parent->item_to_media(items.at(i));
 			if (m->get_type() != MEDIA_TYPE_SEQUENCE) {
 				all_sequences = false;
 			}
-			if (m->get_type() != MEDIA_TYPE_FOOTAGE) {
+			if (m->get_type() == MEDIA_TYPE_FOOTAGE) {
+				cached_selected_footage.append(m->to_footage());
+			} else {
 				all_footage = false;
 			}
 		}
@@ -129,9 +140,52 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 			QObject::connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), project_parent, SLOT(delete_clips_using_selected_media()));
 
 			QMenu* proxies = menu.addMenu(tr("Proxy"));
-			proxies->addAction(tr("Create Proxy"), this, SLOT(open_create_proxy_dialog()));
-//			proxies->addAction(tr("Modify Proxy"));
-//			proxies->addAction(tr("Restore Original"));
+
+			// special case if one footage item is selected and its proxy is currently being generated
+			if (cached_selected_footage.size() == 1
+					&& cached_selected_footage.at(0)->proxy
+					&& cached_selected_footage.at(0)->proxy_path.isEmpty()) {
+				QAction* action = proxies->addAction(tr("Generating proxy: %1% complete").arg(proxy_generator.get_proxy_progress(cached_selected_footage.at(0))));
+				action->setEnabled(false);
+			} else {
+				// determine whether any selected footage has or doesn't have proxies
+				bool footage_without_proxies_exists = false;
+				bool footage_with_proxies_exists = false;
+
+				for (int i=0;i<cached_selected_footage.size();i++) {
+					if (cached_selected_footage.at(i)->proxy) {
+						footage_with_proxies_exists = true;
+					} else {
+						footage_without_proxies_exists = true;
+					}
+				}
+
+				// if footage was selected WITHOUT proxies
+				if (footage_without_proxies_exists) {
+					QString create_proxy_text;
+
+					if (footage_with_proxies_exists) {
+						// some of the footage already has proxies, so we use a different string
+						create_proxy_text = tr("Create/Modify Proxy");
+					} else {
+						// none of the footage has proxies
+						create_proxy_text = tr("Create Proxy");
+					}
+
+					proxies->addAction(create_proxy_text, this, SLOT(open_create_proxy_dialog()));
+				}
+
+				// if footage was selected WITH proxies
+				if (footage_with_proxies_exists) {
+
+					if (!footage_without_proxies_exists) {
+						// if all the footage has proxies, we didn't make a "Create/Modify" above, so we create one here (but only "modify")
+						proxies->addAction(tr("Modify Proxy"), this, SLOT(open_create_proxy_dialog()));
+					}
+
+					proxies->addAction(tr("Restore Original"), this, SLOT(clear_proxies_from_selected()));
+				}
+			}
 		}
 
 		// delete media
@@ -301,8 +355,46 @@ void SourcesCommon::item_renamed(Media* item) {
 }
 
 void SourcesCommon::open_create_proxy_dialog() {
-	QVector<Footage*> selected_footage;
-
-	ProxyDialog pd(mainWindow, selected_footage);
+	// open the proxy dialog and send it a list of currently selected footage
+	ProxyDialog pd(mainWindow, cached_selected_footage);
 	pd.exec();
+}
+
+void SourcesCommon::clear_proxies_from_selected() {
+	QList<QString> delete_list;
+
+	for (int i=0;i<cached_selected_footage.size();i++) {
+		Footage* f = cached_selected_footage.at(i);
+
+		if (f->proxy && !f->proxy_path.isEmpty()) {
+			if (QFileInfo::exists(f->proxy_path)) {
+				if (QMessageBox::question(mainWindow,
+									  tr("Delete proxy"),
+									  tr("Would you like to delete the proxy file \"%1\" as well?").arg(f->proxy_path),
+										  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+					delete_list.append(f->proxy_path);
+				}
+			}
+		}
+
+		f->proxy = false;
+		f->proxy_path.clear();
+	}
+
+	if (sequence != nullptr) {
+		// close all clips so we can delete any proxies requested to be deleted
+		closeActiveClips(sequence);
+	}
+
+	// delete proxies requested to be deleted
+	for (int i=0;i<delete_list.size();i++) {
+		QFile::remove(delete_list.at(i));
+	}
+
+	if (sequence != nullptr) {
+		// update viewer (will re-open active clips with original media)
+		panel_sequence_viewer->viewer_widget->frame_update();
+	}
+
+	mainWindow->setWindowModified(true);
 }
