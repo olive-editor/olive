@@ -211,8 +211,10 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
 		// rescale input frame timestamp to output timestamp
 		av_rescale_q(dec_frame->pts, input_fmt_ctx->streams[stream_index]->time_base, output_fmt_ctx->streams[stream_index]->time_base);
 
-		// determine if the pix_fmt is different, so if we need to convert
-		bool convert_pix_fmt = (output_streams.at(stream_index)->pix_fmt != input_streams.at(stream_index)->pix_fmt);
+        // determine if the pix_fmt, width, and/or height is different, so if we need to convert
+        bool convert_pix_fmt = (output_streams.at(stream_index)->pix_fmt != input_streams.at(stream_index)->pix_fmt
+                || output_streams.at(stream_index)->width != input_streams.at(stream_index)->width
+                || output_streams.at(stream_index)->height != input_streams.at(stream_index)->height);
 
 		// create reference to the frame to be sent to the encoder
 		AVFrame* enc_frame = dec_frame;
