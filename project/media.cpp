@@ -329,5 +329,18 @@ Media *Media::parentItem() {
 }
 
 void Media::removeChild(int i) {
-	children.removeAt(i);
+    children.removeAt(i);
+}
+
+QVector<Marker> &Media::get_markers() {
+    // returns the marker array from the internal object
+    //
+    // NOTE: if this media object is not footage or a sequence, the result is
+    // undefined - most likely a crash
+
+    if (get_type() == MEDIA_TYPE_FOOTAGE) {
+        return to_footage()->markers;
+    } else {
+        return to_sequence()->markers;
+    }
 }

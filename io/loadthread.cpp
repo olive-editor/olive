@@ -185,34 +185,34 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							int folder = 0;
 
 							Media* item = new Media(0);
-							Footage* m = new Footage();
+                            Footage* f = new Footage();
 
-							m->using_inout = false;
+                            f->using_inout = false;
 
 							for (int j=0;j<stream.attributes().size();j++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(j);
 								if (attr.name() == "id") {
-									m->save_id = attr.value().toInt();
+                                    f->save_id = attr.value().toInt();
 								} else if (attr.name() == "folder") {
 									folder = attr.value().toInt();
 								} else if (attr.name() == "name") {
-									m->name = attr.value().toString();
+                                    f->name = attr.value().toString();
 								} else if (attr.name() == "url") {
-									m->url = attr.value().toString();
+                                    f->url = attr.value().toString();
 
-									if (!QFileInfo::exists(m->url)) { // if path is not absolute
-										QString proj_dir_test = proj_dir.absoluteFilePath(m->url);
-										QString internal_proj_dir_test = internal_proj_dir.absoluteFilePath(m->url);
+                                    if (!QFileInfo::exists(f->url)) { // if path is not absolute
+                                        QString proj_dir_test = proj_dir.absoluteFilePath(f->url);
+                                        QString internal_proj_dir_test = internal_proj_dir.absoluteFilePath(f->url);
 
 										if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
-											m->url = proj_dir_test;
+                                            f->url = proj_dir_test;
 											qInfo() << "Matched" << attr.value().toString() << "relative to project's current directory";
 										} else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
-											m->url = internal_proj_dir_test;
+                                            f->url = internal_proj_dir_test;
 											qInfo() << "Matched" << attr.value().toString() << "relative to project's internal directory";
-										} else if (m->url.contains('%')) {
+                                        } else if (f->url.contains('%')) {
 											// hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
-											m->url = internal_proj_dir_test;
+                                            f->url = internal_proj_dir_test;
 											qInfo() << "Guess image sequence" << attr.value().toString() << "path to project's internal directory";
 										} else {
 											qInfo() << "Failed to match" << attr.value().toString() << "to file";
@@ -221,25 +221,41 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 										qInfo() << "Matched" << attr.value().toString() << "with absolute path";
 									}
 								} else if (attr.name() == "duration") {
-									m->length = attr.value().toLongLong();
+                                    f->length = attr.value().toLongLong();
 								} else if (attr.name() == "using_inout") {
-									m->using_inout = (attr.value() == "1");
+                                    f->using_inout = (attr.value() == "1");
 								} else if (attr.name() == "in") {
-									m->in = attr.value().toLong();
+                                    f->in = attr.value().toLong();
 								} else if (attr.name() == "out") {
-									m->out = attr.value().toLong();
+                                    f->out = attr.value().toLong();
 								} else if (attr.name() == "speed") {
-									m->speed = attr.value().toDouble();
+                                    f->speed = attr.value().toDouble();
 								} else if (attr.name() == "alphapremul") {
-									m->alpha_is_premultiplied = (attr.value() == "1");
+                                    f->alpha_is_premultiplied = (attr.value() == "1");
 								} else if (attr.name() == "proxy") {
-									m->proxy = (attr.value() == "1");
+                                    f->proxy = (attr.value() == "1");
 								} else if (attr.name() == "proxypath") {
-									m->proxy_path = attr.value().toString();
+                                    f->proxy_path = attr.value().toString();
 								}
-							}
+                            }
 
-							item->set_footage(m);
+                            while (!cancelled && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
+                                read_next_start_element(stream);
+                                if (stream.name() == "marker" && stream.isStartElement()) {
+                                    Marker m;
+                                    for (int j=0;j<stream.attributes().size();j++) {
+                                        const QXmlStreamAttribute& attr = stream.attributes().at(j);
+                                        if (attr.name() == "frame") {
+                                            m.frame = attr.value().toLong();
+                                        } else if (attr.name() == "name") {
+                                            m.name = attr.value().toString();
+                                        }
+                                    }
+                                    f->markers.append(m);
+                                }
+                            }
+
+                            item->set_footage(f);
 
 							if (folder == 0) {
 								project_model.appendChild(nullptr, item);

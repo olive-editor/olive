@@ -4,6 +4,8 @@
 #include <QList>
 #include <QVariant>
 
+#include "project/marker.h"
+
 #define MEDIA_TYPE_FOOTAGE 0
 #define MEDIA_TYPE_SEQUENCE 1
 #define MEDIA_TYPE_FOLDER 2
@@ -45,6 +47,9 @@ public:
     int row() const;
     Media *parentItem();
     void removeChild(int i);
+
+    // get markers from internal object
+    QVector<Marker>& get_markers();
 
     bool root;
     int temp_id;

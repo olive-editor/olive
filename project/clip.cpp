@@ -151,8 +151,8 @@ void Clip::queue_remove_earliest() {
 }
 
 QVector<Marker> &Clip::get_markers() {
-    if (media != nullptr && media->get_type() == MEDIA_TYPE_SEQUENCE) {
-        return media->to_sequence()->markers;
+    if (media != nullptr) {
+        return media->get_markers();
     }
     return markers;
 }

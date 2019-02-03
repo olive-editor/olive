@@ -9,6 +9,8 @@
 #include <QPixmap>
 #include <QIcon>
 
+#include "project/marker.h"
+
 enum VideoInterlacingMode {
 	VIDEO_PROGRESSIVE,
 	VIDEO_TOP_FIELD_FIRST,
@@ -45,6 +47,7 @@ struct Footage {
 	Footage();
 	~Footage();
 
+    // footage metadata
 	QString url;
 	QString name;
 	int64_t length;
@@ -60,13 +63,19 @@ struct Footage {
 	bool proxy;
 	QString proxy_path;
 
+    // thumbnail/waveform generation
 	PreviewGenerator* preview_gen;
 	QMutex ready_lock;
 
+    // in/out points
 	bool using_inout;
 	long in;
 	long out;
 
+    // markers
+    QVector<Marker> markers;
+
+    // functions
 	long get_length_in_frames(double frame_rate);
 	FootageStream *get_stream_from_file_index(bool video, int index);
 	void reset();

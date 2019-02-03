@@ -41,10 +41,11 @@ bool ProjectFilter::filterAcceptsRow(int source_row, const QModelIndex &source_p
         // search markers if media is a sequene
         bool marker_contains_search = false;
 
-        if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
-            Sequence* s = media->to_sequence();
-            for (int i=0;i<s->markers.size();i++) {
-                if (s->markers.at(i).name.contains(search_filter, Qt::CaseInsensitive)) {
+        if (media->get_type() == MEDIA_TYPE_SEQUENCE
+                || media->get_type() == MEDIA_TYPE_FOOTAGE) {
+            QVector<Marker>& markers = media->get_markers();
+            for (int i=0;i<markers.size();i++) {
+                if (markers.at(i).name.contains(search_filter, Qt::CaseInsensitive)) {
                     marker_contains_search = true;
                     break;
                 }
