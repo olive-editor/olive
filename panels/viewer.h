@@ -16,6 +16,8 @@ class LabelSlider;
 class QPushButton;
 class QLabel;
 
+#include "project/marker.h"
+
 bool frame_rate_is_droppable(float rate);
 long timecode_to_frame(const QString& s, int view, double frame_rate);
 QString frame_to_timecode(long f, int view, double frame_rate);
@@ -71,7 +73,8 @@ public:
 	ViewerWidget* viewer_widget;
 
 	Media* media;
-	Sequence* seq;
+    Sequence* seq;
+    QVector<Marker>* marker_ref;
 
 	void resizeEvent(QResizeEvent *event);
 

@@ -471,6 +471,7 @@ void Viewer::update_parents(bool reload_fx) {
 		update_ui(reload_fx);
 	} else {
 		update_viewer();
+        panel_timeline->repaint_timeline();
 	}
 }
 
@@ -685,13 +686,16 @@ void Viewer::setup_ui() {
 
 void Viewer::set_media(Media* m) {
 	main_sequence = false;
-	media = m;
-	clean_created_seq();
+    media = m;
+
+    clean_created_seq();
 	if (media != nullptr) {
 		switch (media->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
 			Footage* footage = media->to_footage();
+
+            marker_ref = &footage->markers;
 
 			seq = new Sequence();
 			created_sequence = true;
@@ -856,10 +860,15 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 		update_end_timecode();
 
 		viewer_container->adjust();
+
+        if (!created_sequence) {
+            marker_ref = &seq->markers;
+        }
 	} else {
 		update_playhead_timecode(0);
 		update_end_timecode();
 	}
+
 	update_window_title();
 
 	update_header_zoom();

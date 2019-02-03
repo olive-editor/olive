@@ -5,6 +5,7 @@
 #include "panels/timeline.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "project/media.h"
 #include "panels/viewer.h"
 #include "io/config.h"
 #include "debug.h"
@@ -142,8 +143,8 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			if (event->pos().y() > get_marker_offset()
 					&& (event->pos().x() < playhead_x-PLAYHEAD_SIZE
 					|| event->pos().x() > playhead_x+PLAYHEAD_SIZE)) {
-				for (int i=0;i<viewer->seq->markers.size();i++) {
-					int marker_pos = getHeaderScreenPointFromFrame(viewer->seq->markers.at(i).frame);
+                for (int i=0;i<viewer->marker_ref->size();i++) {
+                    int marker_pos = getHeaderScreenPointFromFrame(viewer->marker_ref->at(i).frame);
 					if (event->pos().x() > marker_pos - MARKER_SIZE && event->pos().x() < marker_pos + MARKER_SIZE) {
 						bool found = false;
 						for (int j=0;j<selected_markers.size();j++) {
@@ -171,7 +172,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			if (clicked_on_marker) {
 				selected_marker_original_times.resize(selected_markers.size());
 				for (int i=0;i<selected_markers.size();i++) {
-					selected_marker_original_times[i] = viewer->seq->markers.at(selected_markers.at(i)).frame;
+                    selected_marker_original_times[i] = viewer->marker_ref->at(selected_markers.at(i)).frame;
 				}
 				drag_start = event->pos().x();
 				dragging_markers = true;
@@ -224,7 +225,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 
 				// move markers
 				for (int i=0;i<selected_markers.size();i++) {
-					viewer->seq->markers[selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
+                    viewer->marker_ref[0][selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
 				}
 
 				update_parents();
@@ -263,7 +264,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 			bool moved = false;
 			ComboAction* ca = new ComboAction();
 			for (int i=0;i<selected_markers.size();i++) {
-				Marker* m = &viewer->seq->markers[selected_markers.at(i)];
+                Marker* m = &viewer->marker_ref[0][selected_markers.at(i)];
 				if (selected_marker_original_times.at(i) != m->frame) {
 					ca->append(new MoveMarkerAction(m, selected_marker_original_times.at(i), m->frame));
 					moved = true;
@@ -403,8 +404,8 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		}
 
 		// draw markers
-		for (int i=0;i<viewer->seq->markers.size();i++) {
-			const Marker& m = viewer->seq->markers.at(i);
+        for (int i=0;i<viewer->marker_ref->size();i++) {
+            const Marker& m = viewer->marker_ref->at(i);
 
 			int marker_x = getHeaderScreenPointFromFrame(m.frame);
 
