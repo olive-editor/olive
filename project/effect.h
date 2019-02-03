@@ -174,6 +174,9 @@ public:
 	virtual void custom_load(QXmlStreamReader& stream);
 	virtual void save(QXmlStreamWriter& stream);
 
+	void load_from_string(const QByteArray &s);
+	QByteArray save_to_string();
+
 	// glsl handling
 	bool is_open();
 	void open();
@@ -209,8 +212,8 @@ private slots:
 	void delete_self();
 	void move_up();
 	void move_down();
-    void save_to_file();
-    void load_from_file();
+	void save_to_file();
+	void load_from_file();
 protected:
 	// glsl effect
 	QOpenGLShaderProgram* glslProgram;

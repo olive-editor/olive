@@ -384,12 +384,12 @@ private:
 
 class AddMarkerAction : public QUndoCommand {
 public:
-    AddMarkerAction(bool is_sequence, void* s, long t, QString n);
+	AddMarkerAction(bool is_sequence, void* s, long t, QString n);
 	void undo();
 	void redo();
 private:
-    bool is_sequence_internal;
-    void* target;
+	bool is_sequence_internal;
+	void* target;
 	long time;
 	QString name;
 	QString old_name;
@@ -649,6 +649,17 @@ class UpdateViewer : public QUndoCommand {
 public:
 	void undo();
 	void redo();
+};
+
+class SetEffectData : public QUndoCommand {
+public:
+	SetEffectData(Effect* e, const QByteArray &s);
+	void undo();
+	void redo();
+private:
+	Effect* effect;
+	QByteArray data;
+	QByteArray old_data;
 };
 
 #endif // UNDO_H

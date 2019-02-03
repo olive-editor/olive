@@ -3,6 +3,7 @@
 #include <QTreeWidgetItem>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QXmlStreamWriter>
 
 #include "project/clip.h"
 #include "project/sequence.h"
@@ -804,22 +805,22 @@ void SetAutoscaleAction::redo() {
 }
 
 AddMarkerAction::AddMarkerAction(bool is_sequence, void* s, long t, QString n) :
-    is_sequence_internal(is_sequence),
-    target(s),
+	is_sequence_internal(is_sequence),
+	target(s),
 	time(t),
 	name(n),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void AddMarkerAction::undo() {
-    QVector<Marker>& markers = is_sequence_internal ?
-                static_cast<Sequence*>(target)->markers :
-                static_cast<Clip*>(target)->get_markers();
+	QVector<Marker>& markers = is_sequence_internal ?
+				static_cast<Sequence*>(target)->markers :
+				static_cast<Clip*>(target)->get_markers();
 
 	if (index == -1) {
-        markers.removeLast();
+		markers.removeLast();
 	} else {
-        markers[index].name = old_name;
+		markers[index].name = old_name;
 	}
 
 	mainWindow->setWindowModified(old_project_changed);
@@ -828,12 +829,12 @@ void AddMarkerAction::undo() {
 void AddMarkerAction::redo() {
 	index = -1;
 
-    QVector<Marker>& markers = is_sequence_internal ?
-                static_cast<Sequence*>(target)->markers :
-                static_cast<Clip*>(target)->get_markers();
+	QVector<Marker>& markers = is_sequence_internal ?
+				static_cast<Sequence*>(target)->markers :
+				static_cast<Clip*>(target)->get_markers();
 
-    for (int i=0;i<markers.size();i++) {
-        if (markers.at(i).frame == time) {
+	for (int i=0;i<markers.size();i++) {
+		if (markers.at(i).frame == time) {
 			index = i;
 			break;
 		}
@@ -842,11 +843,11 @@ void AddMarkerAction::redo() {
 	if (index == -1) {
 		Marker m;
 		m.frame = time;
-        m.name = name;
-        markers.append(m);
+		m.name = name;
+		markers.append(m);
 	} else {
-        old_name = markers.at(index).name;
-        markers[index].name = name;
+		old_name = markers.at(index).name;
+		markers[index].name = name;
 	}
 
 	mainWindow->setWindowModified(true);
@@ -1294,4 +1295,21 @@ void UpdateViewer::undo() {
 
 void UpdateViewer::redo() {
 	panel_sequence_viewer->viewer_widget->frame_update();
+}
+
+SetEffectData::SetEffectData(Effect *e, const QByteArray &s) :
+	effect(e),
+	data(s)
+{}
+
+void SetEffectData::undo() {
+	effect->load_from_string(old_data);
+
+	old_data.clear();
+}
+
+void SetEffectData::redo() {
+	old_data = effect->save_to_string();
+
+	effect->load_from_string(data);
 }
