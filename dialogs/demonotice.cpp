@@ -7,8 +7,7 @@
 DemoNotice::DemoNotice(QWidget *parent) :
 	QDialog(parent)
 {
-	setWindowTitle(tr("Welcome to Olive!"));
-	setMaximumWidth(600);
+    setWindowTitle(tr("Welcome to Olive!"));
 
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
 

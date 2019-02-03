@@ -502,27 +502,29 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 }
 
 void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
-	if (panel_timeline->tool == TIMELINE_TOOL_EDIT) {
-		int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
-		if (clip_index >= 0) {
-			Clip* clip = sequence->clips.at(clip_index);
-			if (!(event->modifiers() & Qt::ShiftModifier)) sequence->selections.clear();
-			Selection s;
-			s.in = clip->timeline_in;
-			s.out = clip->timeline_out;
-			s.track = clip->track;
-			sequence->selections.append(s);
-			update_ui(false);
-		}
-	} else if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
-		int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
-		if (clip_index >= 0) {
-			Clip* c = sequence->clips.at(clip_index);
-			if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
-				set_sequence(c->media->to_sequence());
-			}
-		}
-	}
+    if (sequence != nullptr) {
+        if (panel_timeline->tool == TIMELINE_TOOL_EDIT) {
+            int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+            if (clip_index >= 0) {
+                Clip* clip = sequence->clips.at(clip_index);
+                if (!(event->modifiers() & Qt::ShiftModifier)) sequence->selections.clear();
+                Selection s;
+                s.in = clip->timeline_in;
+                s.out = clip->timeline_out;
+                s.track = clip->track;
+                sequence->selections.append(s);
+                update_ui(false);
+            }
+        } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+            int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+            if (clip_index >= 0) {
+                Clip* c = sequence->clips.at(clip_index);
+                if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+                    set_sequence(c->media->to_sequence());
+                }
+            }
+        }
+    }
 }
 
 bool isLiveEditing() {

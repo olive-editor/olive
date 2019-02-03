@@ -7,8 +7,7 @@
 AboutDialog::AboutDialog(QWidget *parent) :
 	QDialog(parent)
 {
-	setWindowTitle("About Olive");
-	setMaximumWidth(360);
+    setWindowTitle("About Olive");
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setSpacing(20);
