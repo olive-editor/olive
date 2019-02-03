@@ -6,12 +6,12 @@
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="24"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation>Olive ist ein nicht-lineares Videoschnittprogramm. Diese Software ist frei und geschützt durch die GNU GPL.</translation>
+        <translation>Olive ist ein nicht-lineares Videoschnittprogramm. Diese Software ist frei und durch die GNU GPL geschützt.</translation>
     </message>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="26"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation>Das Olive Team is verpflichtet dazu, die Nutzer darüber zu informieren, das der Quellcode von der Webseite heruntergeladen werden kann.</translation>
+        <translation>Das Olive Team ist dazu verpflichtet, die Nutzer darüber zu informieren, dass der Quellcode von der Webseite heruntergeladen werden kann.</translation>
     </message>
 </context>
 <context>
@@ -19,7 +19,7 @@
     <message>
         <location filename="../dialogs/actionsearch.cpp" line="26"/>
         <source>Search for action...</source>
-        <translation>Suchen nach Aktion...</translation>
+        <translation>Nach Aktion suchen...</translation>
     </message>
 </context>
 <context>
@@ -41,7 +41,8 @@
     <message>
         <location filename="../effects/internal/audionoiseeffect.cpp" line="7"/>
         <source>Amount</source>
-        <translation>Menge</translation>
+        <translatorcomment>In this case the intensity is meant</translatorcomment>
+        <translation>Stärke</translation>
     </message>
     <message>
         <location filename="../effects/internal/audionoiseeffect.cpp" line="12"/>
@@ -129,22 +130,22 @@
         <location filename="../dialogs/demonotice.cpp" line="10"/>
         <location filename="../dialogs/demonotice.cpp" line="27"/>
         <source>Welcome to Olive!</source>
-        <translation>Willkommen zu Olive!</translation>
+        <translation>Willkommen in Olive!</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="29"/>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation>Olive ist ein freies, offenes Videoschnittprogramm welches unter der GNU GPL lizensiert ist. Wenn Sie für diese Software bezahlt haben, wurden Sie betrogen.</translation>
+        <translation>Olive ist ein freies, offenes Videoschnittprogramm welches unter der GNU GPL lizensiert ist. Sofern Sie für diese Software bezahlt haben, wurden Sie betrogen.</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="31"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Diese Software ist aktuell in einer ALPHA, was bedeutet, dass die Software instabil ist, abstürzen könnte, Fehler enthält und einige Funktionen fehlen.Wir leisten keine Garantie, die Benutzung der Software erfolgt auf eigenes Risiko. Bitte melden Sie Fehler oder Funktionswünsche auf %1</translation>
+        <translation>Diese Software ist aktuell in einem ALPHA-Stadium, was bedeutet, dass die Software instabil ist, abstürzen könnte, Fehler enthält und einige Funktionen fehlen. Wir leisten keine Garantie, die Benutzung der Software erfolgt auf eigenes Risiko. Bitte melden Sie Fehler oder Funktionswünsche auf %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="33"/>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation>Danke das Sie Olive ausprobieren! Wir hoffen es gefällt Ihnen!</translation>
+        <translation>Danke das Sie Olive ausprobieren, wir hoffen es gefällt Ihnen!</translation>
     </message>
 </context>
 <context>
@@ -244,7 +245,7 @@
     <message>
         <location filename="../project/effectrow.cpp" line="72"/>
         <source>Disabling keyframes will delete all current keyframes. Are you sure you want to do this?</source>
-        <translation>Deaktivieren von Keyframes löscht alle aktuellen Keyframes. Sind Sie sicher?</translation>
+        <translation>Ein Deaktivieren von Keyframes löscht alle aktuellen Keyframes. Sind Sie sicher?</translation>
     </message>
 </context>
 <context>
@@ -280,7 +281,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="348"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation>Breite und Höhe müssen Zahlen sein die durch 2 teilbar sind.</translation>
+        <translation>Breite und Höhe müssen Zahlen sein, die durch 2 teilbar sind.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="404"/>
@@ -341,7 +342,7 @@
 0 = verlustfrei (lossless)
 17-18 = optisch verlustfrei (komprimiert, aber nicht bemerkbar)
 23 = höchste Qualität
-51 = kleinstmöglichste Qualität</translation>
+51 = kleinstmögliche Qualität</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="593"/>
@@ -395,7 +396,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="645"/>
         <source>Frame Rate:</source>
-        <translation>Bildrate:</translation>
+        <translation>Bildfrequenz:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="651"/>
@@ -424,12 +425,12 @@
     <message>
         <location filename="../io/exportthread.cpp" line="66"/>
         <source>failed to receive packet from encoder (%1)</source>
-        <translation>Fehler beim empfangen des Pakets vom Encoder (%1)</translation>
+        <translation>Fehler beim Empfangen des Pakets vom Encoder (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="87"/>
         <source>could not video encoder for %1</source>
-        <translation>Video-Encoder für %1 konnte nicht gefunden werden.</translation>
+        <translation>Video-Encoder für %1 konnte nicht gefunden werden</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="96"/>
@@ -454,7 +455,7 @@
     <message>
         <location filename="../io/exportthread.cpp" line="197"/>
         <source>could not audio encoder for %1</source>
-        <translation>Audio-Encoder für %1 konnte nicht gefunden werden.</translation>
+        <translation>Audio-Encoder für %1 konnte nicht gefunden werden</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="206"/>
@@ -464,7 +465,7 @@
     <message>
         <location filename="../io/exportthread.cpp" line="215"/>
         <source>could not allocate audio encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio-Encoding-Kontext konnte nicht zugewiesen werden</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="240"/>
@@ -484,7 +485,7 @@
     <message>
         <location filename="../io/exportthread.cpp" line="300"/>
         <source>could not create output format context</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe-Format-Kontext konnte nicht erstellt werden</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="309"/>
@@ -512,12 +513,12 @@
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="9"/>
         <source>Fill Left with Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Linke Seite mit Rechter füllen</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="10"/>
         <source>Fill Right with Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechte Seite mit Linker füllen</translation>
     </message>
 </context>
 <context>
@@ -548,8 +549,7 @@
     <message>
         <location filename="../panels/grapheditor.cpp" line="23"/>
         <source>Graph Editor</source>
-        <translatorcomment>Same as in english</translatorcomment>
-        <translation>Graph Editor</translation>
+        <translation>Grafischer Editor</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="61"/>
@@ -566,7 +566,7 @@
     <message>
         <location filename="../panels/grapheditor.cpp" line="67"/>
         <source>Hold</source>
-        <translatorcomment>Does this make sense?</translatorcomment>
+        <translatorcomment>Does this make sense? (is a handle button meant?)</translatorcomment>
         <translation type="unfinished">Halten</translation>
     </message>
 </context>
@@ -575,12 +575,12 @@
     <message>
         <location filename="../ui/graphview.cpp" line="61"/>
         <source>Zoom to Selection</source>
-        <translation>In Auswahl zoomen</translation>
+        <translation>In die Auswahl zoomen</translation>
     </message>
     <message>
         <location filename="../ui/graphview.cpp" line="68"/>
         <source>Zoom to Show All</source>
-        <translation>Zommen um alles anzuzeigen</translation>
+        <translation>Zommen, um alles anzuzeigen</translation>
     </message>
     <message>
         <location filename="../ui/graphview.cpp" line="77"/>
@@ -646,7 +646,7 @@
         <location filename="../ui/labelslider.cpp" line="150"/>
         <location filename="../ui/labelslider.cpp" line="161"/>
         <source>Set Value</source>
-        <translation>Wert setzen</translation>
+        <translation>Wert ändern</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="151"/>
@@ -678,12 +678,12 @@
     <message>
         <location filename="../io/loadthread.cpp" line="166"/>
         <source>Version Mismatch</source>
-        <translation>Unterschiedliche Version</translation>
+        <translation>Unterschiedliche Versionen</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="167"/>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
-        <translation>Dieses Projekt wurde mit einer anderen Version von Olive gespeichert und ist möglicherweise nicht vollständig kompatible. Wollen Sie es trotzdem versuchen zu laden?</translation>
+        <translation>Dieses Projekt wurde mit einer anderen Version von Olive gespeichert und ist möglicherweise nicht vollständig kompatibel. Wollen Sie trotzdem versuchen, es zu laden?</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="461"/>
@@ -693,17 +693,18 @@
     <message>
         <location filename="../io/loadthread.cpp" line="462"/>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
-        <translation>Dieses Projekt enthält eine ungültige Verlinkung zu einem Clip. Das Projekt ist möglicherweise beschädigt. Wollen Sie es weiterhin versuchen?</translation>
+        <translatorcomment>Sounds better in German but has same sense</translatorcomment>
+        <translation>Dieses Projekt enthält eine ungültige Verlinkung zu einem Clip. Das Projekt ist möglicherweise beschädigt. Wollen Sie es dennoch versuchen?</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="623"/>
         <source>%1 - Line: %2 Col: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - Zeile: %2 Spalte: %3</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="648"/>
         <source>User aborted loading</source>
-        <translation>Nutzer hat Ladevorgang abgebrochen</translation>
+        <translation>Ladevorgang durch Nutzer abgebrochen</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="675"/>
@@ -719,7 +720,7 @@
     <message>
         <location filename="../io/loadthread.cpp" line="680"/>
         <source>Project Load Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektladefehler</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="681"/>
@@ -737,7 +738,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="220"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation>Olive wurde nicht richtig geschlossen und eine Wiederherstellungsdatei wurde gefunden. Möchten Sie diese öffnen?</translation>
+        <translation>Olive wurde nicht richtig beendet und eine Wiederherstellungsdatei wurde gefunden. Möchten Sie diese öffnen?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="247"/>
@@ -757,32 +758,33 @@
     <message>
         <location filename="../mainwindow.cpp" line="254"/>
         <source>Set In Point</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Also for following translations: Not sure if sense is matched</translatorcomment>
+        <translation type="unfinished">Anfangspunkt festlegen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="255"/>
         <source>Set Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Endpunkt festlegen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="256"/>
         <source>Enable/Disable In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anfangs-/Endpunkt aktivieren/deaktiviern</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="258"/>
         <source>Reset In Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anfangspunkt zurücksetzen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="259"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Endpunkt zurücksetzen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="260"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anfangs-/Endpunkt löschen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="431"/>
@@ -792,7 +794,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="431"/>
         <source>Please open the sequence you wish to export.</source>
-        <translation>Bitte öffnen Sie die Sequenz die Sie exportieren möchten.</translation>
+        <translation>Bitte öffnen Sie die Sequenz, die Sie exportieren möchten.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="529"/>
@@ -807,7 +809,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="555"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation>Wollen Sie die Änderungen speichern?</translation>
+        <translation>Das Projekt enthält ungespeicherte Änderungen. Wollen Sie diese jetzt speichern?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="576"/>
@@ -832,7 +834,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="588"/>
         <source>Open Recent</source>
-        <translation>Zuletzt geöffnet</translation>
+        <translation>Zuletzt Verwendete öffnen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="592"/>
@@ -928,7 +930,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="636"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardübergang einfügen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="637"/>
@@ -988,12 +990,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="663"/>
         <source>Zoom In</source>
-        <translation>Einzoomen</translation>
+        <translation>Hereinzoomen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="664"/>
         <source>Zoom Out</source>
-        <translation>Auszoomen</translation>
+        <translation>Herauszoomen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="665"/>
@@ -1028,12 +1030,14 @@
     <message>
         <location filename="../mainwindow.cpp" line="690"/>
         <source>Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Same word used in German</translatorcomment>
+        <translation>Drop Frame</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="694"/>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Same word used in German</translatorcomment>
+        <translation>Non-Drop Frame</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="698"/>
@@ -1043,7 +1047,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="705"/>
         <source>Title/Action Safe Area</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicherer Titelbereich</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="707"/>
@@ -1053,8 +1057,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="712"/>
         <source>Default</source>
-        <translatorcomment>Does not make sense to translate</translatorcomment>
-        <translation>Default</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="717"/>
@@ -1085,7 +1088,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="743"/>
         <source>Go to Start</source>
-        <translation>Gehe zum Start</translation>
+        <translation>Zum Start gehen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="744"/>
@@ -1101,7 +1104,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="746"/>
         <source>Play In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Anfang bis Ende wiedergeben</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="747"/>
@@ -1111,27 +1114,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="748"/>
         <source>Go to End</source>
-        <translation>Gehe zum Ende</translation>
+        <translation>Zum Ende springen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="750"/>
         <source>Go to Previous Cut</source>
-        <translation>Gehe zu vorherigem Schnitt</translation>
+        <translation>Zum vorherigen Schnitt springen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="751"/>
         <source>Go to Next Cut</source>
-        <translation>Gehe zum nächsten Schnitt</translation>
+        <translation>Zum nächsten Schnitt springen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="753"/>
         <source>Go to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Anfangspunkt springen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="754"/>
         <source>Go to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Endpunkt springen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="756"/>
@@ -1167,7 +1170,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="776"/>
         <source>Effect Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Effektsteuerung</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="781"/>
@@ -1178,8 +1181,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="786"/>
         <source>Graph Editor</source>
-        <translatorcomment>Same as in english</translatorcomment>
-        <translation>Graph Editor</translation>
+        <translation>Grafischer Editor</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="791"/>
@@ -1278,7 +1280,8 @@
     <message>
         <location filename="../mainwindow.cpp" line="884"/>
         <source>Scroll Wheel Zooms</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Could be better</translatorcomment>
+        <translation type="unfinished">Scrollrad zoomt</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="889"/>
@@ -1314,7 +1317,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="919"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation>Nach Namen fragen wenn Marker gesetzt wird</translation>
+        <translation>Nach Namen fragen, wenn Marker gesetzt wird</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="926"/>
@@ -1355,7 +1358,7 @@
         <location filename="../mainwindow.cpp" line="957"/>
         <source>Debug Log</source>
         <translatorcomment>Same as in english</translatorcomment>
-        <translation>Debug Log</translation>
+        <translation>Debug-Log</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="961"/>
@@ -1380,7 +1383,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1326"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation>Das Projekt &apos;%1&apos; existiert nicht mehr oder wurde verschoben. Möchten Sie aus der Liste entfernen?</translation>
+        <translation>Das Projekt &apos;%1&apos; existiert nicht mehr oder wurde verschoben. Möchten Sie es aus der Liste entfernen?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1446"/>
@@ -1400,7 +1403,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1449"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Geben Sie das Seitenverhältnis für den sicheren Bereich ein (z.B. 16:9):</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1518"/>
@@ -1464,7 +1467,7 @@ Frame Rate: %4
 Audio Frequency: %5
 Audio Layout: %6</source>
         <translation>Name: %1
-Dimensionen: %2x%3
+Video-Dimensionen: %2x%3
 Bildrate: %4
 Audiofrequenz: %5
 Audio Layout: %6</translation>
@@ -1698,17 +1701,17 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="156"/>
         <source>Some changed settings will require restarting Olive to take effect</source>
-        <translation>Einige Änderungen erfordern einen Neustart von Olive um angwendet zu werden</translation>
+        <translation>Einige Änderungen erfordern einen Neustart von Olive, um angwendet zu werden</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="173"/>
         <source>Confirm Reset All Shortcuts</source>
-        <translation>Bestätige Zurücksetzen aller Shortcuts</translation>
+        <translation>Bestätige das Zurücksetzen aller Shortcuts</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="174"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation>Sind Sie sicher das Sie alle Tastatur-Shortcuts zurücksetzen wollen?</translation>
+        <translation>Sind Sie sicher, dass Sie alle Tastatur-Shortcuts zurücksetzen wollen?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="224"/>
@@ -1811,19 +1814,21 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="349"/>
         <source>Seeking</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="352"/>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Genaue Suche
+Zeigt immer den richtigen Frame (kann optisch kurzzeitig anhalten, wenn Frame abgefragt wird)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="355"/>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnelle Suche
+Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf Plaback aus)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="361"/>
@@ -1840,7 +1845,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
         <location filename="../dialogs/preferencesdialog.cpp" line="377"/>
         <source>frames</source>
         <translatorcomment>Could also use &apos;Bilder&apos;</translatorcomment>
-        <translation type="unfinished">frames</translation>
+        <translation>Frames</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="369"/>
@@ -1851,7 +1856,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="372"/>
         <source>Previous Frame Queue:</source>
-        <translation>Vorherige Frame-Warteschleife:</translation>
+        <translation>Vorherige Frame-Warteschlange:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="383"/>
@@ -1861,7 +1866,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="390"/>
         <source>Search for action or shortcut</source>
-        <translation>Suchen nach Eintrag oder Shortcut</translation>
+        <translation>Nach Eintrag oder Shortcut suchen</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="397"/>
@@ -1886,7 +1891,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="413"/>
         <source>Reset Selected</source>
-        <translation>Setze ausgewählte zurück</translation>
+        <translation>Ausgewählte zurücksetzen</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="417"/>
@@ -1954,7 +1959,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/project.cpp" line="359"/>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenz kann nicht sich selbst zugewiesen werden, da es keine Medien enthalten würde.</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="390"/>
@@ -1969,7 +1974,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/project.cpp" line="510"/>
         <source>Delete media in use?</source>
-        <translation>Benutzte Datei löschen?</translation>
+        <translation>Verwendete Datei löschen?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="511"/>
@@ -2007,17 +2012,17 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="26"/>
         <source>Replace clips using &quot;%1&quot;</source>
-        <translation>Ersetze Clips using &quot;%1&quot;</translation>
+        <translation>Ersetze Clips unter Verwendung von &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="32"/>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie, welche Medien mit den Clips dieser Medien ersetzt werden sollen</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="38"/>
         <source>Keep the same media in-points</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfangspunkte der Medien behalten</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="46"/>
@@ -2037,7 +2042,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="69"/>
         <source>Please select a media to replace with or click &apos;Cancel&apos;.</source>
-        <translation>Bitten wählen Sie Medien zum ersetzen aus oder klicken Sie auf &apos;Abbrechen&apos;.</translation>
+        <translation>Bitten wählen Sie Medien zum Ersetzen aus oder klicken Sie auf &apos;Abbrechen&apos;.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="77"/>
@@ -2113,12 +2118,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="26"/>
         <source>SMPTE Bars</source>
-        <translation type="unfinished"></translation>
+        <translation>SMPTE Farbstreifen</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="27"/>
         <source>Checkerboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Schachbrettmuster</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="29"/>
@@ -2133,7 +2138,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="37"/>
         <source>Checkerboard Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe Schachbrettmuster</translation>
     </message>
 </context>
 <context>
@@ -2213,7 +2218,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/sourcescommon.cpp" line="127"/>
         <source>Delete All Clips Using This Media</source>
-        <translation>Alle Clips die diese Medien enthalten löschen</translation>
+        <translation>Alle Clips, die diese Medien enthalten löschen</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="132"/>
@@ -2233,7 +2238,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/sourcescommon.cpp" line="195"/>
         <source>You dropped a file onto &apos;%1&apos;. Would you like to replace it with the dropped file?</source>
-        <translation>Sie haben eine Datei auf &apos;%1&apos; gezogen.Möchten Sie diese ersetzen?</translation>
+        <translation>Sie haben eine Datei auf &apos;%1&apos; gezogen. Möchten Sie diese ersetzen?</translation>
     </message>
 </context>
 <context>
@@ -2261,13 +2266,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="50"/>
         <source>Reverse</source>
-        <translatorcomment>Translation needed?</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>Rückwärts</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="51"/>
         <source>Maintain Audio Pitch</source>
-        <translation>Audio Pitch behandeln</translation>
+        <translation>Tonhöhe erhalten</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="52"/>
@@ -2403,8 +2407,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="32"/>
         <source>Timecode</source>
-        <translatorcomment>Makes no sense to translate</translatorcomment>
-        <translation>Timecode</translation>
+        <translation>Zeitstempel</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="34"/>
@@ -2439,12 +2442,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="54"/>
         <source>Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Versatz</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="58"/>
         <source>Prepend</source>
-        <translation>Voranstellen</translation>
+        <translation>Voreinstellung</translation>
     </message>
 </context>
 <context>
@@ -2513,17 +2516,17 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="1541"/>
         <source>Bars...</source>
-        <translation type="unfinished"></translation>
+        <translation>Balken...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1548"/>
         <source>Tone...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ton...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1553"/>
         <source>Noise...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rauschen...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1576"/>
@@ -2533,17 +2536,17 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="1577"/>
         <source>You must save this project before you can record audio in it.</source>
-        <translation>Sie müssen dieses Projekt speichern before Sie Audio aufnehmen können.</translation>
+        <translation>Sie müssen das Projekt speichern, bevor Sie Audio aufnehmen können.</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1583"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
-        <translation>Klicken Sie auf die Timeline wo Sie mit der Aufnahme beginnen möchten (ziehen um das Limit der Aufnahme auf einen bestimmten Timeframe zu setzen)</translation>
+        <translation>Klicken Sie auf die Timeline, an welcher Stelle Sie mit der Aufnahme beginnen möchten (Ziehen, um das Limit der Aufnahme auf einen bestimmten Timeframe zu setzen)</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1665"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Pointer-Werkzeug</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1676"/>
@@ -2589,12 +2592,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="1762"/>
         <source>Zoom In</source>
-        <translation>Einzommen</translation>
+        <translation>Hereinzommen</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1771"/>
         <source>Zoom Out</source>
-        <translation>Auszoomen</translation>
+        <translation>Herauszoomen</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1780"/>
@@ -2604,7 +2607,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="1790"/>
         <source>Add title, solid, bars, etc.</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel, Solid, Balken, etc. Hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -2656,7 +2659,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="248"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
-        <translation>Konnte den Medienwrapper für diese Sequenz nicht finden</translation>
+        <translation>Konnte den Medienwrapper für diese Sequenz nicht finden.</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="808"/>
@@ -2671,17 +2674,17 @@ Dauer: %4</translation>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="817"/>
         <source>Bars</source>
-        <translation type="unfinished"></translation>
+        <translation>Balken</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="824"/>
         <source>Tone</source>
-        <translation type="unfinished"></translation>
+        <translation>Ton</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="828"/>
         <source>Noise</source>
-        <translation type="unfinished"></translation>
+        <translation>Rauschen</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1568"/>
@@ -2750,8 +2753,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="56"/>
         <source>Blend Mode</source>
-        <translatorcomment>Would not make sense to translate?</translatorcomment>
-        <translation type="unfinished">Blend Mode</translation>
+        <translation>Mischmodus</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="58"/>
@@ -2795,53 +2797,51 @@ Dauer: %4</translation>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="65"/>
         <source>Color Dodge</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Dodge</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="66"/>
         <source>Linear Dodge (Add)</source>
-        <translation type="unfinished"></translation>
+        <translation>Addieren</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="67"/>
         <source>Overlay</source>
-        <translatorcomment>Makes no sense to translate</translatorcomment>
-        <translation>Overlay</translation>
+        <translation>Überlagern</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="68"/>
         <source>Soft Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Weiches Licht</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="69"/>
         <source>Hard Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Hartes Licht</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="70"/>
         <source>Vivid Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebhaftes Licht</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="71"/>
         <source>Linear Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineares Licht</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="72"/>
         <source>Pin Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Scharfes Licht</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="73"/>
         <source>Hard Mix</source>
-        <translation type="unfinished"></translation>
+        <translation>Hartes Mischen</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="74"/>
         <source>Difference</source>
-        <translatorcomment>Could also be &apos;Unterschied&apos;</translatorcomment>
         <translation>Differenz</translation>
     </message>
     <message>
@@ -2857,23 +2857,22 @@ Dauer: %4</translation>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="78"/>
         <source>Substract</source>
-        <translation>Substrakt</translation>
+        <translation>Abziehen</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="80"/>
         <source>Average</source>
-        <translation>Durschnittlich</translation>
+        <translation>Durschnitt</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="81"/>
         <source>Glow</source>
-        <translatorcomment>Makes no sense to translate</translatorcomment>
-        <translation>Glow</translation>
+        <translation>Leuchten</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="82"/>
         <source>Negation</source>
-        <translation>Negierung</translation>
+        <translation>Negativ</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="83"/>
@@ -2896,7 +2895,7 @@ Dauer: %4</translation>
         <location filename="../effects/internal/vsthost.cpp" line="77"/>
         <location filename="../effects/internal/vsthost.cpp" line="124"/>
         <source>Error loading VST plugin</source>
-        <translation>Fehler beim laden des VST Plugins</translation>
+        <translation>Fehler beim Laden des VST Plugins</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="77"/>
@@ -2906,7 +2905,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="112"/>
         <source>Failed to load VST plugin &quot;%1&quot;: %2</source>
-        <translation>Fehler beim laden des VST Plugins &quot;%1&quot;:%2</translation>
+        <translation>Fehler beim Laden des VST Plugins &quot;%1&quot;:%2</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="117"/>
@@ -2937,8 +2936,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="220"/>
         <source>Interface</source>
-        <translatorcomment>Makes no sense to translate</translatorcomment>
-        <translation>Interface</translation>
+        <translation>Benutzeroberfläche</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="221"/>
@@ -3001,8 +2999,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="122"/>
         <source>Fit</source>
-        <translatorcomment>Makes no sense to translate</translatorcomment>
-        <translation type="unfinished">Fit</translation>
+        <translation>Einpassen</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="132"/>
@@ -3036,7 +3033,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../ui/viewerwindow.cpp" line="104"/>
         <source>Exit Fullscreen</source>
-        <translation>Vollbildschirm verlassen</translation>
+        <translation>Vollbild verlassen</translation>
     </message>
 </context>
 <context>
@@ -3070,7 +3067,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../project/transition.cpp" line="80"/>
         <source>No candidate for transition &apos;%1&apos;. This transition may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Kein Kandidat für Übergang &apos;%1&apos;. Dieser Übergang ist möglicherweise beschädigt. Eine Neuinstallation wird empfohlen.</translation>
+        <translation>Kein Kandidat für den Übergang &apos;%1&apos;. Der Übergang ist möglicherweise beschädigt. Eine Neuinstallation wird empfohlen.</translation>
     </message>
 </context>
 </TS>
