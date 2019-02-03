@@ -45,7 +45,7 @@ Config::Config()
 	  previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
 	  upcoming_queue_size(0.5),
 	  upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
-	  loop(true),
+      loop(false),
 	  seek_also_selects(false),
 	  effect_textbox_lines(3),
 	  use_software_fallback(false),
