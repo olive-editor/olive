@@ -76,6 +76,8 @@ public:
     Sequence* seq;
     QVector<Marker>* marker_ref;
 
+    void set_marker();
+
     TimelineHeader* headers;
 
 	void resizeEvent(QResizeEvent *event);

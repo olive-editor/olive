@@ -1443,12 +1443,8 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 }
 
 void Timeline::set_marker() {
-	// add_marker is used to determine whether we're adding a marker, depending on whether the user input a marker name
-	// however if (config.set_name_with_marker) is true, we don't need a marker name so we just add
-	bool add_marker = !config.set_name_with_marker;
-
 	// determine if any clips are selected, and if so add markers to clips rather than the sequence
-	QVector<Clip*> clips_selected;
+    QVector<int> clips_selected;
 	bool clip_mode = false;
 
 	for (int i=0;i<sequence->clips.size();i++) {
@@ -1459,7 +1455,7 @@ void Timeline::set_marker() {
             // only add markers if the playhead is inside the clip
             if (sequence->playhead >= c->timeline_in
                     && sequence->playhead <= c->timeline_out) {
-                clips_selected.append(c);
+                clips_selected.append(i);
             }
 
             // we are definitely adding markers to clips though
@@ -1474,41 +1470,9 @@ void Timeline::set_marker() {
         return;
     }
 
-	QString marker_name;
+    // pass off to internal set marker function
+    set_marker_internal(sequence, clips_selected);
 
-	// if (config.set_name_with_marker) is false (set above), ask for a marker name
-	if (!add_marker) {
-		QInputDialog d(this);
-		d.setWindowTitle(tr("Set Marker"));
-		d.setLabelText(clip_mode? tr("Set clip marker name:"): tr("Set sequence marker name:"));
-		d.setInputMode(QInputDialog::TextInput);
-		add_marker = (d.exec() == QDialog::Accepted);
-		marker_name = d.textValue();
-	}
-
-	// if we've decided to add a marker
-	if (add_marker) {
-		ComboAction* ca = new ComboAction();
-
-		// add an action for each clip
-		foreach (Clip* c, clips_selected) {
-			ca->append(new AddMarkerAction(false,
-										   c,
-										   sequence->playhead - c->timeline_in + c->clip_in,
-										   marker_name));
-		}
-
-		// if no clips are selected, we're adding a marker to the sequence
-		if (!clip_mode) {
-			ca->append(new AddMarkerAction(true, sequence, sequence->playhead, marker_name));
-		}
-
-		// push action
-		undo_stack.push(ca);
-
-		// redraw timeline
-		repaint_timeline();
-	}
 }
 
 void Timeline::toggle_links() {

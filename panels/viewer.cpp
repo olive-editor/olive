@@ -476,7 +476,11 @@ void Viewer::update_parents(bool reload_fx) {
 }
 
 int Viewer::get_playback_speed() {
-	return playback_speed;
+    return playback_speed;
+}
+
+void Viewer::set_marker() {
+    set_marker_internal(seq);
 }
 
 void Viewer::resizeEvent(QResizeEvent *) {
