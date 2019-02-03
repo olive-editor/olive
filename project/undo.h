@@ -411,12 +411,12 @@ private:
 
 class DeleteMarkerAction : public QUndoCommand {
 public:
-	DeleteMarkerAction(Sequence* s);
+    DeleteMarkerAction(QVector<Marker>* m);
 	void undo();
 	void redo();
 	QVector<int> markers;
 private:
-	Sequence* seq;
+    QVector<Marker>* active_array;
 	QVector<Marker> copies;
 	bool sorted;
 	bool old_project_changed;

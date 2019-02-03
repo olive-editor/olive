@@ -387,6 +387,10 @@ void MainWindow::show_debug_log() {
 void MainWindow::delete_slot() {
 	if (panel_timeline->headers->hasFocus()) {
 		panel_timeline->headers->delete_markers();
+    } else if (panel_footage_viewer->headers->hasFocus()) {
+        panel_footage_viewer->headers->delete_markers();
+    } else if (panel_sequence_viewer->headers->hasFocus()) {
+        panel_sequence_viewer->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(sequence->selections, false);
 	} else if (panel_effect_controls->is_focused()) {

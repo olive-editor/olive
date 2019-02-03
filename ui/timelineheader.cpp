@@ -305,7 +305,7 @@ double TimelineHeader::get_zoom() {
 
 void TimelineHeader::delete_markers() {
 	if (selected_markers.size() > 0) {
-		DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->seq);
+        DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->marker_ref);
 		for (int i=0;i<selected_markers.size();i++) {
 			dma->markers.append(selected_markers.at(i));
 		}

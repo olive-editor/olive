@@ -76,6 +76,8 @@ public:
     Sequence* seq;
     QVector<Marker>* marker_ref;
 
+    TimelineHeader* headers;
+
 	void resizeEvent(QResizeEvent *event);
 
 public slots:
@@ -120,7 +122,6 @@ private:
 
 	void setup_ui();
 
-	TimelineHeader* headers;
 	ResizableScrollBar* horizontal_bar;
 	ViewerContainer* viewer_container;
 	LabelSlider* current_timecode_slider;

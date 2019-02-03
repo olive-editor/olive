@@ -870,15 +870,15 @@ void MoveMarkerAction::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-DeleteMarkerAction::DeleteMarkerAction(Sequence* s) :
-	seq(s),
+DeleteMarkerAction::DeleteMarkerAction(QVector<Marker> *m) :
+    active_array(m),
 	sorted(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void DeleteMarkerAction::undo() {
 	for (int i=markers.size()-1;i>=0;i--) {
-		seq->markers.insert(markers.at(i), copies.at(i));
+        active_array->insert(markers.at(i), copies.at(i));
 	}
 	mainWindow->setWindowModified(old_project_changed);
 }
@@ -887,14 +887,14 @@ void DeleteMarkerAction::redo() {
 	for (int i=0;i<markers.size();i++) {
 		// correct future removals
 		if (!sorted) {
-			copies.append(seq->markers.at(markers.at(i)));
+            copies.append(active_array->at(markers.at(i)));
 			for (int j=i+1;j<markers.size();j++) {
 				if (markers.at(j) > markers.at(i)) {
 					markers[j]--;
 				}
 			}
 		}
-		seq->markers.removeAt(markers.at(i));
+        active_array->removeAt(markers.at(i));
 	}
 	sorted = true;
 	mainWindow->setWindowModified(true);
