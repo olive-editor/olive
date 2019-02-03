@@ -804,23 +804,18 @@ void SetAutoscaleAction::redo() {
 	mainWindow->setWindowModified(true);
 }
 
-AddMarkerAction::AddMarkerAction(bool is_sequence, void* s, long t, QString n) :
-	is_sequence_internal(is_sequence),
-	target(s),
+AddMarkerAction::AddMarkerAction(QVector<Marker>* m, long t, QString n) :
+	active_array(m),
 	time(t),
 	name(n),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void AddMarkerAction::undo() {
-	QVector<Marker>& markers = is_sequence_internal ?
-				static_cast<Sequence*>(target)->markers :
-				static_cast<Clip*>(target)->get_markers();
-
 	if (index == -1) {
-		markers.removeLast();
+		active_array->removeLast();
 	} else {
-		markers[index].name = old_name;
+		active_array[0][index].name = old_name;
 	}
 
 	mainWindow->setWindowModified(old_project_changed);
@@ -829,12 +824,8 @@ void AddMarkerAction::undo() {
 void AddMarkerAction::redo() {
 	index = -1;
 
-	QVector<Marker>& markers = is_sequence_internal ?
-				static_cast<Sequence*>(target)->markers :
-				static_cast<Clip*>(target)->get_markers();
-
-	for (int i=0;i<markers.size();i++) {
-		if (markers.at(i).frame == time) {
+	for (int i=0;i<active_array->size();i++) {
+		if (active_array->at(i).frame == time) {
 			index = i;
 			break;
 		}
@@ -844,10 +835,10 @@ void AddMarkerAction::redo() {
 		Marker m;
 		m.frame = time;
 		m.name = name;
-		markers.append(m);
+		active_array->append(m);
 	} else {
-		old_name = markers.at(index).name;
-		markers[index].name = name;
+		old_name = active_array->at(index).name;
+		active_array[0][index].name = name;
 	}
 
 	mainWindow->setWindowModified(true);
@@ -871,14 +862,14 @@ void MoveMarkerAction::redo() {
 }
 
 DeleteMarkerAction::DeleteMarkerAction(QVector<Marker> *m) :
-    active_array(m),
+	active_array(m),
 	sorted(false),
 	old_project_changed(mainWindow->isWindowModified())
 {}
 
 void DeleteMarkerAction::undo() {
 	for (int i=markers.size()-1;i>=0;i--) {
-        active_array->insert(markers.at(i), copies.at(i));
+		active_array->insert(markers.at(i), copies.at(i));
 	}
 	mainWindow->setWindowModified(old_project_changed);
 }
@@ -887,14 +878,14 @@ void DeleteMarkerAction::redo() {
 	for (int i=0;i<markers.size();i++) {
 		// correct future removals
 		if (!sorted) {
-            copies.append(active_array->at(markers.at(i)));
+			copies.append(active_array->at(markers.at(i)));
 			for (int j=i+1;j<markers.size();j++) {
 				if (markers.at(j) > markers.at(i)) {
 					markers[j]--;
 				}
 			}
 		}
-        active_array->removeAt(markers.at(i));
+		active_array->removeAt(markers.at(i));
 	}
 	sorted = true;
 	mainWindow->setWindowModified(true);

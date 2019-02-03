@@ -384,12 +384,11 @@ private:
 
 class AddMarkerAction : public QUndoCommand {
 public:
-	AddMarkerAction(bool is_sequence, void* s, long t, QString n);
+	AddMarkerAction(QVector<Marker>* m, long t, QString n);
 	void undo();
 	void redo();
 private:
-	bool is_sequence_internal;
-	void* target;
+	QVector<Marker>* active_array;
 	long time;
 	QString name;
 	QString old_name;
@@ -411,12 +410,12 @@ private:
 
 class DeleteMarkerAction : public QUndoCommand {
 public:
-    DeleteMarkerAction(QVector<Marker>* m);
+	DeleteMarkerAction(QVector<Marker>* m);
 	void undo();
 	void redo();
 	QVector<int> markers;
 private:
-    QVector<Marker>* active_array;
+	QVector<Marker>* active_array;
 	QVector<Marker> copies;
 	bool sorted;
 	bool old_project_changed;

@@ -387,10 +387,10 @@ void MainWindow::show_debug_log() {
 void MainWindow::delete_slot() {
 	if (panel_timeline->headers->hasFocus()) {
 		panel_timeline->headers->delete_markers();
-    } else if (panel_footage_viewer->headers->hasFocus()) {
-        panel_footage_viewer->headers->delete_markers();
-    } else if (panel_sequence_viewer->headers->hasFocus()) {
-        panel_sequence_viewer->headers->delete_markers();
+	} else if (panel_footage_viewer->headers->hasFocus()) {
+		panel_footage_viewer->headers->delete_markers();
+	} else if (panel_sequence_viewer->headers->hasFocus()) {
+		panel_sequence_viewer->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
 		panel_timeline->delete_selection(sequence->selections, false);
 	} else if (panel_effect_controls->is_focused()) {
@@ -775,9 +775,9 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
 	playback_menu->addSeparator();
-    playback_menu->addAction(tr("Shuttle Left"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
-    playback_menu->addAction(tr("Shuttle Stop"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
-    playback_menu->addAction(tr("Shuttle Right"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
+	playback_menu->addAction(tr("Shuttle Left"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
+	playback_menu->addAction(tr("Shuttle Stop"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
+	playback_menu->addAction(tr("Shuttle Right"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
 	playback_menu->addSeparator();
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
@@ -1523,7 +1523,17 @@ void MainWindow::set_tsa_custom() {
 }
 
 void MainWindow::set_marker() {
-	if (sequence != nullptr) panel_timeline->set_marker();
+	if (sequence != nullptr) {
+		QDockWidget* focused_panel = get_focused_panel();
+
+		if (focused_panel == panel_timeline) {
+			panel_timeline->set_marker();
+		} else if (focused_panel == panel_footage_viewer) {
+			panel_footage_viewer->set_marker();
+		} else if (focused_panel == panel_sequence_viewer) {
+			panel_sequence_viewer->set_marker();
+		}
+	}
 }
 
 void MainWindow::toggle_enable_clips() {
