@@ -135,6 +135,8 @@ struct GLTextureCoords {
 	float opacity;
 };
 
+const EffectMeta* get_meta_from_name(const QString& input);
+
 qint16 mix_audio_sample(qint16 a, qint16 b);
 
 #include "effectfield.h"
@@ -207,6 +209,8 @@ private slots:
 	void delete_self();
 	void move_up();
 	void move_down();
+    void save_to_file();
+    void load_from_file();
 protected:
 	// glsl effect
 	QOpenGLShaderProgram* glslProgram;

@@ -45,6 +45,7 @@
 #include <QtMath>
 #include <QMenu>
 #include <QApplication>
+#include <QFileDialog>
 
 QVector<EffectMeta> effects;
 
@@ -397,6 +398,12 @@ void Effect::show_context_menu(const QPoint& pos) {
 
 		menu.addAction(tr("D&elete"), this, SLOT(delete_self()));
 
+        menu.addSeparator();
+
+        menu.addAction(tr("Load Settings to File"), this, SLOT(load_from_file()));
+
+        menu.addAction(tr("Save Settings to File"), this, SLOT(save_to_file()));
+
 		menu.exec(container->title_bar->mapToGlobal(pos));
 	}
 }
@@ -426,7 +433,99 @@ void Effect::move_down() {
 	command->to = command->from + 1;
 	undo_stack.push(command);
 	panel_effect_controls->reload_clips();
-	panel_sequence_viewer->viewer_widget->frame_update();
+    panel_sequence_viewer->viewer_widget->frame_update();
+}
+
+void Effect::save_to_file() {
+    // save effect settings to file
+    QString file = QFileDialog::getSaveFileName(mainWindow,
+                                                tr("Save Effect Settings"),
+                                                QString(),
+                                                tr("Effect XML Settings %1").arg("(*.xml)"));
+
+    // if the user picked a file
+    if (!file.isEmpty()) {
+        QFile file_handle(file);
+        if (file_handle.open(QFile::WriteOnly)) {
+
+            // write settings with xml writer
+            QXmlStreamWriter stream(&file_handle);
+
+            stream.writeStartDocument();
+
+            stream.writeStartElement("effect");
+
+            // pass off to standard saving function
+            save(stream);
+
+            stream.writeEndElement(); // effect
+
+            stream.writeEndDocument();
+
+            file_handle.close();
+        } else {
+            QMessageBox::critical(mainWindow,
+                                  tr("Save Settings Failed"),
+                                  tr("Failed to open \"%1\" for writing.").arg(file),
+                                  QMessageBox::Ok);
+        }
+    }
+}
+
+void Effect::load_from_file() {
+    // load effect settings from file
+    QString file = QFileDialog::getOpenFileName(mainWindow,
+                                                tr("Load Effect Settings"),
+                                                QString(),
+                                                tr("Effect XML Settings %1").arg("(*.xml)"));
+
+    // if the user picked a file
+    if (!file.isEmpty()) {
+        QFile file_handle(file);
+        if (file_handle.open(QFile::ReadOnly)) {
+
+            // write settings with xml writer
+            QXmlStreamReader stream(&file_handle);
+
+            while (!stream.atEnd()) {
+                stream.readNext();
+
+                // find the effect opening tag
+                if (stream.name() == "effect" && stream.isStartElement()) {
+
+                    // check the name to see if it matches this effect
+                    const QXmlStreamAttributes& attributes = stream.attributes();
+                    for (int i=0;i<attributes.size();i++) {
+                        const QXmlStreamAttribute& attr = attributes.at(i);
+                        if (attr.name() == "name") {
+                            if (get_meta_from_name(attr.value().toString()) == meta) {
+                                // pass off to standard loading function
+                                load(stream);
+                            } else {
+                                QMessageBox::critical(mainWindow,
+                                                      tr("Load Settings Failed"),
+                                                      tr("This settings file doesn't match this effect."),
+                                                      QMessageBox::Ok);
+                            }
+                            break;
+                        }
+                    }
+
+                    // we've found what we're looking for
+                    break;
+                }
+            }
+
+            file_handle.close();
+
+            update_ui(false);
+        } else {
+            QMessageBox::critical(mainWindow,
+                                  tr("Load Settings Failed"),
+                                  tr("Failed to open \"%1\" for reading.").arg(file),
+                                  QMessageBox::Ok);
+        }
+    }
 }
 
 int Effect::get_index_in_clip() {
@@ -925,6 +1024,24 @@ void Effect::delete_texture() {
 		delete texture;
 		texture = nullptr;
 	}
+}
+
+const EffectMeta* get_meta_from_name(const QString& input) {
+    int split_index = input.indexOf('/');
+    QString category;
+    if (split_index > -1) {
+        category = input.left(split_index);
+    }
+    QString name = input.mid(split_index + 1);
+
+    for (int j=0;j<effects.size();j++) {
+        if (effects.at(j).name == name
+                && (effects.at(j).category == category
+                    || category.isEmpty())) {
+            return &effects.at(j);
+        }
+    }
+    return nullptr;
 }
 
 qint16 mix_audio_sample(qint16 a, qint16 b) {
