@@ -1239,8 +1239,10 @@ void MainWindow::maximize_panel() {
 	}
 }
 
-void MainWindow::preferences()
-{
+void MainWindow::preferences() {
+	panel_sequence_viewer->pause();
+	panel_footage_viewer->pause();
+
 	PreferencesDialog pd(this);
 	pd.setup_kbd_shortcuts(menuBar());
 	pd.exec();

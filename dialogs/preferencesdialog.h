@@ -31,7 +31,7 @@ class PreferencesDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit PreferencesDialog(QWidget *parent = 0);
+	explicit PreferencesDialog(QWidget *parent = nullptr);
 	~PreferencesDialog();
 
 	void setup_kbd_shortcuts(QMenuBar* menu);
