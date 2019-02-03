@@ -722,7 +722,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
 				if (is_img_sequence) {
 					// get the URL that we would pass to FFmpeg to force it to read the image as a sequence
-					QString new_filename = file.left(digit_test) + "%" + QString("%1").arg(digit_count, 2, 10, QChar('0')) + "d" + file.mid(lastcharindex);
+					QString new_filename = file.left(digit_test) + "%" + QString::number(digit_count) + "d" + file.mid(lastcharindex);
 
 					// add image sequence url to a vector in case the user imported several files that
 					// we're interpreting as a possible sequence
@@ -1061,15 +1061,15 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 									}
 								}
 
-                                // save markers
-                                // unnecessary for nested sequences since sequences have their own marker saving
-                                if (c->media == nullptr || c->media->get_type() != MEDIA_TYPE_SEQUENCE) {
-                                    for (int k=0;k<c->get_markers().size();k++) {
-                                        save_marker(stream, c->get_markers().at(k));
-                                    }
-                                }
+								// save markers
+								// unnecessary for nested sequences since sequences have their own marker saving
+								if (c->media == nullptr || c->media->get_type() != MEDIA_TYPE_SEQUENCE) {
+									for (int k=0;k<c->get_markers().size();k++) {
+										save_marker(stream, c->get_markers().at(k));
+									}
+								}
 
-                                // save clip links
+								// save clip links
 								stream.writeStartElement("linked"); // linked
 								for (int k=0;k<c->linked.size();k++) {
 									stream.writeStartElement("link"); // link
