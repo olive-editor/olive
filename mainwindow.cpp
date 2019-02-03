@@ -775,9 +775,9 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
 	playback_menu->addSeparator();
-	playback_menu->addAction(tr("Decrease Speed"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
-	playback_menu->addAction(tr("Pause"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
-	playback_menu->addAction(tr("Increase Speed"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
+    playback_menu->addAction(tr("Shuttle Left"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
+    playback_menu->addAction(tr("Shuttle Stop"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
+    playback_menu->addAction(tr("Shuttle Right"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
 	playback_menu->addSeparator();
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
