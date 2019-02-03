@@ -74,8 +74,8 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		QMenu menu(this);
 
-		QAction* undoAction = menu.addAction("&Undo");
-		QAction* redoAction = menu.addAction("&Redo");
+		QAction* undoAction = menu.addAction(tr("&Undo"));
+		QAction* redoAction = menu.addAction(tr("&Redo"));
 		connect(undoAction, SIGNAL(triggered(bool)), mainWindow, SLOT(undo()));
 		connect(redoAction, SIGNAL(triggered(bool)), mainWindow, SLOT(redo()));
 		undoAction->setEnabled(undo_stack.canUndo());
@@ -93,11 +93,11 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		if (!selected_clips.isEmpty()) {
 			// clips are selected
-			menu.addAction("C&ut", mainWindow, SLOT(cut()));
-			menu.addAction("Cop&y", mainWindow, SLOT(copy()));
+			menu.addAction(tr("C&ut"), mainWindow, SLOT(cut()));
+			menu.addAction(tr("Cop&y"), mainWindow, SLOT(copy()));
 		}
 
-		menu.addAction("&Paste", mainWindow, SLOT(paste()));
+		menu.addAction(tr("&Paste"), mainWindow, SLOT(paste()));
 
 		if (selected_clips.isEmpty()) {
 			// no clips are selected
@@ -107,26 +107,26 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 
 			if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
-				QAction* ripple_delete_action = menu.addAction("R&ipple Delete");
+				QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete"));
 				connect(ripple_delete_action, SIGNAL(triggered(bool)), panel_timeline, SLOT(ripple_delete_empty_space()));
 			}
 
-			QAction* seq_settings = menu.addAction("Sequence Settings");
+			QAction* seq_settings = menu.addAction(tr("Sequence Settings"));
 			connect(seq_settings, SIGNAL(triggered(bool)), this, SLOT(open_sequence_properties()));
 		}
 
 		if (!selected_clips.isEmpty()) {
 			menu.addSeparator();
-			menu.addAction("&Speed/Duration", mainWindow, SLOT(open_speed_dialog()));
+			menu.addAction(tr("&Speed/Duration"), mainWindow, SLOT(open_speed_dialog()));
 
-			QAction* autoscaleAction = menu.addAction("Auto-s&cale", this, SLOT(toggle_autoscale()));
+			QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
 			autoscaleAction->setCheckable(true);
 			// set autoscale to the first selected clip
 			autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 
 			menu.addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()));
 
-			menu.addAction("&Nest", mainWindow, SLOT(nest()));
+			menu.addAction(tr("&Nest"), mainWindow, SLOT(nest()));
 
 			// stabilizer option
 			/*int video_clip_count = 0;
@@ -156,11 +156,11 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			}
 
 			if (same_media) {
-				QAction* revealInProjectAction = menu.addAction("&Reveal in Project");
+				QAction* revealInProjectAction = menu.addAction(tr("&Reveal in Project"));
 				connect(revealInProjectAction, SIGNAL(triggered(bool)), this, SLOT(reveal_media()));
 			}
 
-			QAction* rename = menu.addAction("R&ename");
+			QAction* rename = menu.addAction(tr("R&ename"));
 			connect(rename, SIGNAL(triggered(bool)), this, SLOT(rename_clip()));
 		}
 
