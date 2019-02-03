@@ -6,12 +6,12 @@
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="23"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive je nelineární editor obrazového záznamu. Tento program je zdarma a chráněn GNU GPL.</translation>
     </message>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="25"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Družstvo Olive se dává na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
     </message>
 </context>
 <context>
@@ -108,7 +108,7 @@
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="27"/>
         <source>Perspective</source>
-        <translation type="unfinished"></translation>
+        <translation>Perspektiva</translation>
     </message>
 </context>
 <context>
@@ -130,17 +130,17 @@
     <message>
         <location filename="../dialogs/demonotice.cpp" line="28"/>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive je editor obrazového záznamu s otevřeným zdrojovým kódem vydaný pod GNU GPL.</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="30"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento program je v současnosti v Alfa verzi, což znamená, že je nestálý a velice pravděpodobně náchylný k pádům, má chyby a chybí mu funkce. Není poskytována žádná záruka, takže jej používejte na vlastní nebezpečí. Hlašte, prosím, jakékoli chyby nebo žádosti o funkce na %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="32"/>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation type="unfinished"></translation>
+        <translation>Děkujeme vám za zkoušení Olive. Přejeme si, aby vám dělal radost!</translation>
     </message>
 </context>
 <context>
@@ -153,7 +153,7 @@
     <message>
         <location filename="../project/effect.cpp" line="80"/>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný uchazeč pro efekt &apos;%1&apos;. Tento přechod může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="381"/>
@@ -173,7 +173,7 @@
     <message>
         <location filename="../project/effect.cpp" line="393"/>
         <source>Move &amp;Down</source>
-        <translation>Posunout &amp;dolu</translation>
+        <translation>Posunout &amp;dolů</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="398"/>
@@ -305,7 +305,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="566"/>
         <source>Quality-based (Constant Rate Factor)</source>
-        <translation type="unfinished">Založeno na kvalitě (faktor stálé rychlosti)</translation>
+        <translation>Kvalita (Constant Rate Factor)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="570"/>
@@ -879,7 +879,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="639"/>
         <source>Paste Insert</source>
-        <translation>Vložit vložku</translation>
+        <translation type="unfinished">Vložit vložku</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="640"/>
@@ -1004,7 +1004,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="696"/>
         <source>Rectified Waveforms</source>
-        <translation>Vyspravené vlny</translation>
+        <translation>Vlnový tvar odspodu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="703"/>
@@ -1029,7 +1029,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="722"/>
         <source>Title/Action Safe Area</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezpečná oblast</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="724"/>
@@ -1089,7 +1089,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="765"/>
         <source>Play In to Out</source>
-        <translation>Přehrát začátek po konec</translation>
+        <translation>Přehrát od začátku po konec</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="766"/>
@@ -1195,7 +1195,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="833"/>
         <source>Pointer Tool</source>
-        <translation>Nástroj ukazovátka</translation>
+        <translation>Ukazovátko</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="838"/>
@@ -1205,7 +1205,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="843"/>
         <source>Ripple Tool</source>
-        <translation>Nástroj pro vložení a posunutí</translation>
+        <translation>Vložení a posunutí</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="848"/>
@@ -1215,22 +1215,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="853"/>
         <source>Slip Tool</source>
-        <translation type="unfinished">Nástroj pro sklouznutí</translation>
+        <translation>Roztočení se ztotožněním</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="858"/>
         <source>Slide Tool</source>
-        <translation type="unfinished">Nástroj pro sklouznutí</translation>
+        <translation>Roztočení</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="863"/>
         <source>Hand Tool</source>
-        <translation>Nástroj ručičky</translation>
+        <translation>Ručička</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="868"/>
         <source>Transition Tool</source>
-        <translation>Nástroj pro přechod</translation>
+        <translation>Přechod</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="875"/>
@@ -1265,7 +1265,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="907"/>
         <source>Scroll Wheel Zooms</source>
-        <translation>Posunovací kolečko myši přibližuje</translation>
+        <translation>Kolečko myši přibližuje</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="912"/>
@@ -1285,7 +1285,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="927"/>
         <source>Audio Scrubbing</source>
-        <translation type="unfinished"></translation>
+        <translation>Přehrávání zvuku při tažení ukazatele</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="932"/>
@@ -1385,7 +1385,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1503"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
-        <translation>Zadejte poměr stran k použití pro název/bezpečná oblast činnosti (např. 16:9):</translation>
+        <translation>Zadejte poměr stran k použití pro bezpečnou oblast (např. 16:9):</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1572"/>
@@ -2628,7 +2628,7 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../panels/timeline.cpp" line="1568"/>
         <source>Bars...</source>
-        <translation type="unfinished">Takty...</translation>
+        <translation>Zkušební tabulka...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1575"/>
@@ -2678,12 +2678,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../panels/timeline.cpp" line="1737"/>
         <source>Slip Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Roztočení se ztotožněním</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1748"/>
         <source>Slide Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Roztočení</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1759"/>
@@ -2718,7 +2718,7 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../panels/timeline.cpp" line="1817"/>
         <source>Add title, solid, bars, etc.</source>
-        <translation type="unfinished">Přidat název, plný, takty atd.</translation>
+        <translation>Přidat název, plný, zkušební tabulky atd.</translation>
     </message>
 </context>
 <context>
@@ -2785,7 +2785,7 @@ Doba trvání: %4</translation>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="817"/>
         <source>Bars</source>
-        <translation type="unfinished">Takty</translation>
+        <translation>Zkušební tabulka</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="824"/>
@@ -2861,7 +2861,7 @@ Doba trvání: %4</translation>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="56"/>
         <source>Blend Mode</source>
-        <translation type="unfinished">Režim splynutí</translation>
+        <translation>Režim mísení</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="58"/>
