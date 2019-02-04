@@ -970,7 +970,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					stream.writeAttribute("proxy", QString::number(f->proxy));
 					stream.writeAttribute("proxypath", f->proxy_path);
 
-                    // save video stream metadata
+					// save video stream metadata
 					for (int j=0;j<f->video_tracks.size();j++) {
 						const FootageStream& ms = f->video_tracks.at(j);
 						stream.writeStartElement("video");
@@ -979,10 +979,10 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						stream.writeAttribute("height", QString::number(ms.video_height));
 						stream.writeAttribute("framerate", QString::number(ms.video_frame_rate, 'f', 10));
 						stream.writeAttribute("infinite", QString::number(ms.infinite_length));
-                        stream.writeEndElement(); // video
+						stream.writeEndElement(); // video
 					}
 
-                    // save audio stream metadata
+					// save audio stream metadata
 					for (int j=0;j<f->audio_tracks.size();j++) {
 						const FootageStream& ms = f->audio_tracks.at(j);
 						stream.writeStartElement("audio");
@@ -990,15 +990,15 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						stream.writeAttribute("channels", QString::number(ms.audio_channels));
 						stream.writeAttribute("layout", QString::number(ms.audio_layout));
 						stream.writeAttribute("frequency", QString::number(ms.audio_frequency));
-                        stream.writeEndElement(); // audio
+						stream.writeEndElement(); // audio
 					}
 
-                    // save footage markers
-                    for (int j=0;j<f->markers.size();j++) {
-                        save_marker(stream, f->markers.at(j));
-                    }
+					// save footage markers
+					for (int j=0;j<f->markers.size();j++) {
+						save_marker(stream, f->markers.at(j));
+					}
 
-                    stream.writeEndElement(); // footage
+					stream.writeEndElement(); // footage
 					media_id++;
 				} else if (type == MEDIA_TYPE_SEQUENCE) {
 					Sequence* s = m->to_sequence();
@@ -1019,7 +1019,6 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 							stream.writeAttribute("open", "1");
 						}
 						stream.writeAttribute("workarea", QString::number(s->using_workarea));
-						stream.writeAttribute("workareaEnabled", QString::number(s->enable_workarea));
 						stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
 						stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
 
@@ -1071,8 +1070,8 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 								}
 
 								// save markers
-                                // only necessary for null media clips, since media has its own markers
-                                if (c->media == nullptr) {
+								// only necessary for null media clips, since media has its own markers
+								if (c->media == nullptr) {
 									for (int k=0;k<c->get_markers().size();k++) {
 										save_marker(stream, c->get_markers().at(k));
 									}
@@ -1096,7 +1095,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 								stream.writeEndElement(); // clip
 							}
 						}
-                        for (int j=0;j<s->markers.size();j++) {
+						for (int j=0;j<s->markers.size();j++) {
 							save_marker(stream, s->markers.at(j));
 						}
 						stream.writeEndElement();

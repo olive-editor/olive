@@ -282,7 +282,7 @@ void Viewer::close_media() {
 
 void Viewer::go_to_in() {
 	if (seq != nullptr) {
-		if (seq->using_workarea && seq->enable_workarea) {
+		if (seq->using_workarea) {
 			seek(seq->workarea_in);
 		} else {
 			go_to_start();
@@ -300,7 +300,7 @@ void Viewer::next_frame() {
 
 void Viewer::go_to_out() {
 	if (seq != nullptr) {
-		if (seq->using_workarea && seq->enable_workarea) {
+		if (seq->using_workarea) {
 			seek(seq->workarea_out);
 		} else {
 			go_to_end();
@@ -363,7 +363,7 @@ void Viewer::play(bool in_to_out) {
 			uncue_recording();
 		}
 
-		bool seek_to_in = (seq->using_workarea && config.loop);
+		bool seek_to_in = (seq->using_workarea && (config.loop || playing_in_to_out));
 		if (!is_recording_cued()
 				&& (playing_in_to_out
 					|| seq->playhead >= seq->getEndFrame()
@@ -471,16 +471,16 @@ void Viewer::update_parents(bool reload_fx) {
 		update_ui(reload_fx);
 	} else {
 		update_viewer();
-        panel_timeline->repaint_timeline();
+		panel_timeline->repaint_timeline();
 	}
 }
 
 int Viewer::get_playback_speed() {
-    return playback_speed;
+	return playback_speed;
 }
 
 void Viewer::set_marker() {
-    set_marker_internal(seq);
+	set_marker_internal(seq);
 }
 
 void Viewer::resizeEvent(QResizeEvent *) {
@@ -514,13 +514,6 @@ void Viewer::clear_out() {
 void Viewer::clear_inout_point() {
 	if (seq->using_workarea) {
 		undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
-		update_parents();
-	}
-}
-
-void Viewer::toggle_enable_inout() {
-	if (seq != nullptr && seq->using_workarea) {
-		undo_stack.push(new SetBool(&seq->enable_workarea, !seq->enable_workarea));
 		update_parents();
 	}
 }
@@ -580,13 +573,13 @@ void Viewer::set_playback_speed(int s) {
 }
 
 long Viewer::get_seq_in() {
-	return ((config.loop || playing_in_to_out) && seq->using_workarea && seq->enable_workarea)
+	return ((config.loop || playing_in_to_out) && seq->using_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-	return ((config.loop || playing_in_to_out) && seq->using_workarea && seq->enable_workarea && previous_playhead < seq->workarea_out)
+	return ((config.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }
@@ -690,16 +683,16 @@ void Viewer::setup_ui() {
 
 void Viewer::set_media(Media* m) {
 	main_sequence = false;
-    media = m;
+	media = m;
 
-    clean_created_seq();
+	clean_created_seq();
 	if (media != nullptr) {
 		switch (media->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
 			Footage* footage = media->to_footage();
 
-            marker_ref = &footage->markers;
+			marker_ref = &footage->markers;
 
 			seq = new Sequence();
 			created_sequence = true;
@@ -865,9 +858,9 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 
 		viewer_container->adjust();
 
-        if (!created_sequence) {
-            marker_ref = &seq->markers;
-        }
+		if (!created_sequence) {
+			marker_ref = &seq->markers;
+		}
 	} else {
 		update_playhead_timecode(0);
 		update_end_timecode();

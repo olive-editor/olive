@@ -143,8 +143,8 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			if (event->pos().y() > get_marker_offset()
 					&& (event->pos().x() < playhead_x-PLAYHEAD_SIZE
 					|| event->pos().x() > playhead_x+PLAYHEAD_SIZE)) {
-                for (int i=0;i<viewer->marker_ref->size();i++) {
-                    int marker_pos = getHeaderScreenPointFromFrame(viewer->marker_ref->at(i).frame);
+				for (int i=0;i<viewer->marker_ref->size();i++) {
+					int marker_pos = getHeaderScreenPointFromFrame(viewer->marker_ref->at(i).frame);
 					if (event->pos().x() > marker_pos - MARKER_SIZE && event->pos().x() < marker_pos + MARKER_SIZE) {
 						bool found = false;
 						for (int j=0;j<selected_markers.size();j++) {
@@ -172,7 +172,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			if (clicked_on_marker) {
 				selected_marker_original_times.resize(selected_markers.size());
 				for (int i=0;i<selected_markers.size();i++) {
-                    selected_marker_original_times[i] = viewer->marker_ref->at(selected_markers.at(i)).frame;
+					selected_marker_original_times[i] = viewer->marker_ref->at(selected_markers.at(i)).frame;
 				}
 				drag_start = event->pos().x();
 				dragging_markers = true;
@@ -225,7 +225,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 
 				// move markers
 				for (int i=0;i<selected_markers.size();i++) {
-                    viewer->marker_ref[0][selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
+					viewer->marker_ref[0][selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
 				}
 
 				update_parents();
@@ -264,7 +264,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 			bool moved = false;
 			ComboAction* ca = new ComboAction();
 			for (int i=0;i<selected_markers.size();i++) {
-                Marker* m = &viewer->marker_ref[0][selected_markers.at(i)];
+				Marker* m = &viewer->marker_ref[0][selected_markers.at(i)];
 				if (selected_marker_original_times.at(i) != m->frame) {
 					ca->append(new MoveMarkerAction(m, selected_marker_original_times.at(i), m->frame));
 					moved = true;
@@ -305,7 +305,7 @@ double TimelineHeader::get_zoom() {
 
 void TimelineHeader::delete_markers() {
 	if (selected_markers.size() > 0) {
-        DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->marker_ref);
+		DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->marker_ref);
 		for (int i=0;i<selected_markers.size();i++) {
 			dma->markers.append(selected_markers.at(i));
 		}
@@ -397,27 +397,27 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		if (viewer->seq->using_workarea) {
 			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
 			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
-			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), viewer->seq->enable_workarea ? QColor(0, 192, 255, 128) : QColor(255, 255, 255, 64));
+			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
 			p.setPen(Qt::white);
 			p.drawLine(in_x, 0, in_x, height());
 			p.drawLine(out_x, 0, out_x, height());
 		}
 
 		// draw markers
-        for (int i=0;i<viewer->marker_ref->size();i++) {
-            const Marker& m = viewer->marker_ref->at(i);
+		for (int i=0;i<viewer->marker_ref->size();i++) {
+			const Marker& m = viewer->marker_ref->at(i);
 
 			int marker_x = getHeaderScreenPointFromFrame(m.frame);
 
-            bool selected = false;
-            for (int j=0;j<selected_markers.size();j++) {
-                if (selected_markers.at(j) == i) {
-                    selected = true;
-                    break;
-                }
-            }
+			bool selected = false;
+			for (int j=0;j<selected_markers.size();j++) {
+				if (selected_markers.at(j) == i) {
+					selected = true;
+					break;
+				}
+			}
 
-            draw_marker(p, marker_x, yoff, height()-1, selected, false);
+			draw_marker(p, marker_x, yoff, height()-1, selected, false);
 		}
 
 		// draw playhead triangle

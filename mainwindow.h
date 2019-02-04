@@ -115,7 +115,6 @@ private slots:
 	void clear_inout();
 	void delete_inout();
 	void ripple_delete_inout();
-	void enable_inout();
 
 	// title safe area functions
 	void set_tsa_disable();

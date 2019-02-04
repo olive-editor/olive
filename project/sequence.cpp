@@ -10,7 +10,6 @@
 Sequence::Sequence() :
 	playhead(0),
 	using_workarea(false),
-    enable_workarea(true),
 	workarea_in(0),
 	workarea_out(0),
 	wrapper_sequence(false)
@@ -26,7 +25,7 @@ Sequence::~Sequence() {
 
 Sequence* Sequence::copy() {
 	Sequence* s = new Sequence();
-    s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
+	s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
 	s->width = width;
 	s->height = height;
 	s->frame_rate = frame_rate;

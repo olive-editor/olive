@@ -143,15 +143,15 @@ void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const Q
 }
 
 void Timeline::toggle_show_all() {
-    if (sequence != nullptr) {
-        showing_all = !showing_all;
-        if (showing_all) {
-            old_zoom = zoom;
-            set_zoom_value(double(timeline_area->width() - 200) / double(sequence->getEndFrame()));
-        } else {
-            set_zoom_value(old_zoom);
-        }
-    }	
+	if (sequence != nullptr) {
+		showing_all = !showing_all;
+		if (showing_all) {
+			old_zoom = zoom;
+			set_zoom_value(double(timeline_area->width() - 200) / double(sequence->getEndFrame()));
+		} else {
+			set_zoom_value(old_zoom);
+		}
+	}
 }
 
 void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<Media*>& media_list) {
@@ -235,7 +235,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
 			case MEDIA_TYPE_SEQUENCE:
 				g.out = entry_point + sequence_length - default_clip_in;
 
-				if (s->using_workarea && s->enable_workarea) {
+				if (s->using_workarea) {
 					g.out -= (sequence_length - default_clip_out);
 				}
 
@@ -1430,8 +1430,8 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 					return true;
 				} else {
 					// try to snap to clip markers
-                    for (int j=0;j<c->get_markers().size();j++) {
-                        if (snap_to_point(c->get_markers().at(j).frame + c->timeline_in - c->clip_in, l)) {
+					for (int j=0;j<c->get_markers().size();j++) {
+						if (snap_to_point(c->get_markers().at(j).frame + c->timeline_in - c->clip_in, l)) {
 							return true;
 						}
 					}
@@ -1444,7 +1444,7 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
 
 void Timeline::set_marker() {
 	// determine if any clips are selected, and if so add markers to clips rather than the sequence
-    QVector<int> clips_selected;
+	QVector<int> clips_selected;
 	bool clip_mode = false;
 
 	for (int i=0;i<sequence->clips.size();i++) {
@@ -1452,26 +1452,26 @@ void Timeline::set_marker() {
 		if (c != nullptr
 				&& is_clip_selected(c, true)) {
 
-            // only add markers if the playhead is inside the clip
-            if (sequence->playhead >= c->timeline_in
-                    && sequence->playhead <= c->timeline_out) {
-                clips_selected.append(i);
-            }
+			// only add markers if the playhead is inside the clip
+			if (sequence->playhead >= c->timeline_in
+					&& sequence->playhead <= c->timeline_out) {
+				clips_selected.append(i);
+			}
 
-            // we are definitely adding markers to clips though
+			// we are definitely adding markers to clips though
 			clip_mode = true;
 
 		}
 	}
 
-    // if we've selected clips but none of the clips are within the playhead,
-    // nothing to do here
-    if (clip_mode && clips_selected.size() == 0) {
-        return;
-    }
+	// if we've selected clips but none of the clips are within the playhead,
+	// nothing to do here
+	if (clip_mode && clips_selected.size() == 0) {
+		return;
+	}
 
-    // pass off to internal set marker function
-    set_marker_internal(sequence, clips_selected);
+	// pass off to internal set marker function
+	set_marker_internal(sequence, clips_selected);
 
 }
 

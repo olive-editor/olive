@@ -63,7 +63,7 @@ ExportDialog::ExportDialog(QWidget *parent) :
 	rangeCombobox->setCurrentIndex(0);
 	if (sequence->using_workarea) {
 		rangeCombobox->setEnabled(true);
-		if (sequence->enable_workarea) rangeCombobox->setCurrentIndex(1);
+		rangeCombobox->setCurrentIndex(1);
 	}
 
 	format_strings.resize(FORMAT_SIZE);

@@ -42,7 +42,6 @@ public:
 	void clear_in();
 	void clear_out();
 	void clear_inout_point();
-	void toggle_enable_inout();
 	void set_in_point();
 	void set_out_point();
 	void set_zoom(bool in);
@@ -73,12 +72,12 @@ public:
 	ViewerWidget* viewer_widget;
 
 	Media* media;
-    Sequence* seq;
-    QVector<Marker>* marker_ref;
+	Sequence* seq;
+	QVector<Marker>* marker_ref;
 
-    void set_marker();
+	void set_marker();
 
-    TimelineHeader* headers;
+	TimelineHeader* headers;
 
 	void resizeEvent(QResizeEvent *event);
 
