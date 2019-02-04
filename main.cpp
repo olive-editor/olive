@@ -43,6 +43,11 @@ int main(int argc, char *argv[]) {
 						   "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
 						   "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
 						   "\t--translation <file>\tSet an external language file to use\n"
+						   "\n"
+						   "Environment Variables:\n"
+						   "\tOLIVE_EFFECTS_PATH\tSpecify a path to search for GLSL shader effects\n"
+						   "\tFREI0R_PATH\t\tSpecify a path to search for Frei0r effects\n"
+						   "\tOLIVE_LANG_PATH\t\tSpecify a path to search for translation files\n"
 						   "\n", argv[0]);
 					return 0;
 				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
