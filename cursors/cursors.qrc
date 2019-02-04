@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/cursors">
+        <file>Cursor_Left_Arrow.png</file>
+        <file>Cursor_Right_Arrow.png</file>
+    </qresource>
+</RCC>

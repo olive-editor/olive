@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "ui/rectangleselect.h"
 #include "playback/playback.h"
+#include "ui/cursors.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -1986,6 +1987,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			long mouse_frame_lower = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
 			long mouse_frame_upper = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
 			bool found = false;
+			bool left_arrow_cursor = false;
+			bool right_arrow_cursor = false;
 			bool cursor_contains_clip = false;
 			int closeness = INT_MAX;
 			int min_track = INT_MAX;
@@ -2017,6 +2020,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 								panel_timeline->trim_in_point = true;
 								closeness = nc;
 								found = true;
+								left_arrow_cursor = true;
 							}
 						}
 						if (c->timeline_out > mouse_frame_lower && c->timeline_out < mouse_frame_upper) {
@@ -2026,6 +2030,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 								panel_timeline->trim_in_point = false;
 								closeness = nc;
 								found = true;
+								right_arrow_cursor = true;
 							}
 						}
 						if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
@@ -2064,6 +2069,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 				QToolTip::showText(mapToGlobal(event->pos()), "HOVER OVER CLIP");
 			}*/
 			if (found) {
+				if (right_arrow_cursor && !panel_timeline->trim_in_point){
+					setCursor(OLIVE_CURSORS::right_arrow);
+				}else if (left_arrow_cursor && panel_timeline->trim_in_point){
+					setCursor(OLIVE_CURSORS::left_arrow);
+				}else
 				setCursor(Qt::SizeHorCursor);
 			} else {
 				panel_timeline->trim_target = -1;

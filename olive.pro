@@ -139,7 +139,8 @@ SOURCES += \
     effects/internal/vsthost.cpp \
     ui/flowlayout.cpp \
     dialogs/proxydialog.cpp \
-    io/proxygenerator.cpp
+    io/proxygenerator.cpp \
+    ui/cursors.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -242,7 +243,8 @@ HEADERS += \
     effects/internal/vsthost.h \
     ui/flowlayout.h \
     dialogs/proxydialog.h \
-    io/proxygenerator.h
+    io/proxygenerator.h \
+    ui/cursors.h
 
 FORMS +=
 
@@ -273,7 +275,8 @@ unix:!mac {
 
 RESOURCES += \
     icons/icons.qrc \
-    effects/internal/internalshaders.qrc
+    effects/internal/internalshaders.qrc \
+    cursors/cursors.qrc
 
 unix:!mac:isEmpty(PREFIX) {
     PREFIX = /usr/local

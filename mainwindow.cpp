@@ -15,6 +15,7 @@
 #include "ui/viewerwidget.h"
 #include "ui/sourceiconview.h"
 #include "ui/timelineheader.h"
+#include "ui/cursors.h"
 
 #include "panels/panels.h"
 #include "panels/project.h"
@@ -95,6 +96,8 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	enable_launch_with_project(false),
 	appName(an)
 {
+	initCustomCursors();
+
 	open_debug_file();
 
 	debug_dialog = new DebugDialog(this);
