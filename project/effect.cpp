@@ -445,6 +445,12 @@ void Effect::save_to_file() {
 
 	// if the user picked a file
 	if (!file.isEmpty()) {
+
+        // ensure file ends with .xml extension
+        if (!file.endsWith(".xml", Qt::CaseInsensitive)) {
+            file.append(".xml");
+        }
+
 		QFile file_handle(file);
 		if (file_handle.open(QFile::WriteOnly)) {
 
