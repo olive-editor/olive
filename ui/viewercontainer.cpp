@@ -82,8 +82,8 @@ void ViewerContainer::adjust() {
 				int widget_height = height();
 
 				if (!fit) {
-					widget_width -= vertical_scrollbar->width();
-					widget_height -= horizontal_scrollbar->height();
+                    widget_width -= vertical_scrollbar->sizeHint().width();
+                    widget_height -= horizontal_scrollbar->sizeHint().height();
 				}
 
 				double widget_ar = double(widget_width) / double(widget_height);
