@@ -585,12 +585,16 @@ void ViewerWidget::paintGL() {
 
 		glBegin(GL_QUADS);
 
+        double ar_diff = (double(viewer->seq->width)/double(viewer->seq->height)/(double(width())/double(height())));
 		double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
 		double zoom_size = (zoom_factor*2.0) - 2.0;
 		double zoom_left = -zoom_size*x_scroll - 1.0;
 		double zoom_right = zoom_size*(1.0-x_scroll) + 1.0;
 		double zoom_bottom = -zoom_size*(1.0-y_scroll) - 1.0;
 		double zoom_top = zoom_size*(y_scroll) + 1.0;
+
+        //zoom_left *= ar_diff;
+        //zoom_right *= ar_diff;
 
 		glVertex2d(zoom_left, zoom_bottom);
 		glTexCoord2d(0, 0);

@@ -84,24 +84,21 @@ void ViewerContainer::adjust() {
 				if (!fit) {
                     widget_width -= vertical_scrollbar->sizeHint().width();
                     widget_height -= horizontal_scrollbar->sizeHint().height();
-				}
-
-				double widget_ar = double(widget_width) / double(widget_height);
-
-				bool widget_is_wider_than_sequence = widget_ar > aspect_ratio;
-
-				if (widget_is_wider_than_sequence) {
-					widget_width = widget_height * aspect_ratio;
-					widget_x = (width() / 2) - (widget_width / 2);
-				} else {
-					widget_height = widget_width / aspect_ratio;
-					widget_y = (height() / 2) - (widget_height / 2);
-				}
-
-				child->move(widget_x, widget_y);
-				child->resize(widget_width, widget_height);
+                }
 
 				if (fit) {
+                    double widget_ar = double(widget_width) / double(widget_height);
+
+                    bool widget_is_wider_than_sequence = widget_ar > aspect_ratio;
+
+                    if (widget_is_wider_than_sequence) {
+                        widget_width = widget_height * aspect_ratio;
+                        widget_x = (width() / 2) - (widget_width / 2);
+                    } else {
+                        widget_height = widget_width / aspect_ratio;
+                        widget_y = (height() / 2) - (widget_height / 2);
+                    }
+
 					zoom = double(widget_width) / double(viewer->seq->width);
 				} else if (zoomed_width > width() || zoomed_height > height()) {
 					horizontal_scrollbar->setVisible(true);
@@ -115,6 +112,9 @@ void ViewerContainer::adjust() {
 
 					adjust_scrollbars();
 				}
+
+                child->move(widget_x, widget_y);
+                child->resize(widget_width, widget_height);
 			} else {
 				// if the zoom size is smaller than the available area, scale the surface down
 

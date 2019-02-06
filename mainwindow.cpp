@@ -1231,7 +1231,8 @@ void MainWindow::maximize_panel() {
 			if (focused_panel != panel_effect_controls) removeDockWidget(panel_effect_controls);
 			if (focused_panel != panel_timeline) removeDockWidget(panel_timeline);
 			if (focused_panel != panel_sequence_viewer) removeDockWidget(panel_sequence_viewer);
-			if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
+            if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
+            if (focused_panel != panel_graph_editor) removeDockWidget(panel_graph_editor);
 		}
 	} else {
 		// we must be maximized, restore previous state
