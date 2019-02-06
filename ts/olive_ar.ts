@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.1" language="ar_EG">
 <context>
     <name>AboutDialog</name>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="22"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished"></translation>
+        <translation>زيتون هو محرر فيديو غير خطي. هذا البرنامج حر ومحمي بموجب رخصة جنو العمومية.</translation>
     </message>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="24"/>
@@ -758,6 +758,11 @@
 <context>
     <name>MainWindow</name>
     <message>
+        <location filename="../mainwindow.cpp" line="220"/>
+        <source>Welcome to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="230"/>
         <source>Auto-recovery</source>
         <translation type="unfinished"></translation>
@@ -790,11 +795,6 @@
     <message>
         <location filename="../mainwindow.cpp" line="270"/>
         <source>Set Out Point</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="220"/>
-        <source>Welcome to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2446,11 +2446,6 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>SpeedDialog</name>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="22"/>
-        <source>Speed/Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../dialogs/speeddialog.ui" line="14"/>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
@@ -2471,6 +2466,11 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
         <location filename="../dialogs/speeddialog.ui" line="68"/>
         <location filename="../dialogs/speeddialog.cpp" line="41"/>
         <source>Duration:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/speeddialog.cpp" line="22"/>
+        <source>Speed/Duration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
