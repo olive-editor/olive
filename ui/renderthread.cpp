@@ -193,9 +193,22 @@ void RenderThread::paint() {
 	}
 
 	if (pixel_buffer != nullptr) {
-		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, front_buffer);
-		glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, pixel_buffer);
+
+        // set main framebuffer to the current read buffer
+        ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, front_buffer);
+
+        // store pixels in buffer
+        glReadPixels(0,
+                     0,
+                     pixel_buffer_linesize == 0 ? tex_width : pixel_buffer_linesize,
+                     tex_height,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     pixel_buffer);
+
+        // release current read buffer
 		ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
 		pixel_buffer = nullptr;
 	}
 
@@ -204,7 +217,7 @@ void RenderThread::paint() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int idivider) {
+void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int pixel_linesize, int idivider) {
 	seq = s;
 
 	// stall any dependent actions
@@ -222,6 +235,7 @@ void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QStrin
 
 	save_fn = save;
 	pixel_buffer = pixels;
+    pixel_buffer_linesize = pixel_linesize;
 
 	queued = true;
 

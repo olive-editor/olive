@@ -348,7 +348,7 @@ void ExportThread::run() {
 		if (video_enabled) {
 			do {
 				// TODO optimize by rendering the next frame while encoding the last
-				renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0]);
+                renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
 				waitCond.wait(&mutex);
 				if (!continueEncode) break;
 			} while (renderer->did_texture_fail());
@@ -371,11 +371,11 @@ void ExportThread::run() {
 			sws_frame = av_frame_alloc();
 			sws_frame->format = vcodec_ctx->pix_fmt;
 			sws_frame->width = video_width;
-			sws_frame->height = video_height;
+            sws_frame->height = video_height;
 			av_frame_get_buffer(sws_frame, 0);
 
 			// convert pixel format to format expected by the encoder
-			sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
+            sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
 			sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
 
 			// send converted frame to encoder
