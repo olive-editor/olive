@@ -1,9 +1,11 @@
 #include "keyframedrawing.h"
 
 #include "project/effect.h"
+#include "project/clip.h"
 
 #define KEYFRAME_POINT_COUNT 4
 
+// routine for drawing a keyframe onscreen
 void draw_keyframe(QPainter &p, int type, int x, int y, bool darker, int r, int g, int b) {
 	if (darker) {
 		r *= 0.625;
@@ -29,4 +31,9 @@ void draw_keyframe(QPainter &p, int type, int x, int y, bool darker, int r, int 
 	}
 
 	p.setBrush(Qt::NoBrush);
+}
+
+// adjusts keyframe's internal time (in clip time) to timeline time
+long adjust_row_keyframe(EffectRow* row, long time, long visible_in) {
+    return time-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
 }

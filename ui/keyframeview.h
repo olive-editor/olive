@@ -28,7 +28,6 @@ public slots:
 	void set_y_scroll(int);
 	void resize_move(double d);
 private:
-	long adjust_row_keyframe(EffectRow* row, long time);
 	QVector<EffectField*> selected_fields;
 	QVector<int> selected_keyframes;
 	QVector<int> rowY;
