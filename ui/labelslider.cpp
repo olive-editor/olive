@@ -106,7 +106,7 @@ void LabelSlider::set_maximum_value(double v) {
 }
 
 void LabelSlider::mousePressEvent(QMouseEvent *ev) {
-	if (ev->buttons() & Qt::LeftButton) {
+    if (ev->button() == Qt::LeftButton) {
 		drag_start_value = internal_value;
 		if (ev->modifiers() & Qt::AltModifier) {
 			if (internal_value != default_value && !qIsNaN(default_value)) {
@@ -136,8 +136,8 @@ void LabelSlider::mouseMoveEvent(QMouseEvent* event) {
 	}
 }
 
-void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
-	if (drag_start) {
+void LabelSlider::mouseReleaseEvent(QMouseEvent* ev) {
+    if (drag_start) {
 		qApp->restoreOverrideCursor();
 		drag_start = false;
 		if (drag_proc) {
