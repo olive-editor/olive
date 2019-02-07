@@ -567,7 +567,7 @@ void ViewerWidget::paintGL() {
 		makeCurrent();
 
 		// clear to solid black
-		glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// set color multipler to straight white

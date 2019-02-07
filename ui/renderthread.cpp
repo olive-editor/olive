@@ -144,10 +144,9 @@ void RenderThread::run() {
 void RenderThread::paint() {
 	glLoadIdentity();
 
-	glClearColor(0, 0, 0, 1);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glClearColor(0, 0, 0, 0);
 	glMatrixMode(GL_MODELVIEW);
 
 	glEnable(GL_TEXTURE_2D);
