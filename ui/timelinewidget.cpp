@@ -2070,9 +2070,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 			}*/
 			if (found) {
 				if (right_arrow_cursor && !panel_timeline->trim_in_point){
-					setCursor(OLIVE_CURSORS::right_arrow);
+					setCursor(Olive::right_side);
 				}else if (left_arrow_cursor && panel_timeline->trim_in_point){
-					setCursor(OLIVE_CURSORS::left_arrow);
+					setCursor(Olive::left_side);
 				}else
 				setCursor(Qt::SizeHorCursor);
 			} else {

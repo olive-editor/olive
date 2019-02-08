@@ -5,9 +5,9 @@
 
 void initCustomCursors();
 
-namespace OLIVE_CURSORS{
-	extern QCursor left_arrow;
-	extern QCursor right_arrow;
+namespace Olive{
+	extern QCursor left_side;
+	extern QCursor right_side;
 }
 
 #endif // CURSORS_H
