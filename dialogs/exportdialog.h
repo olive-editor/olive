@@ -12,6 +12,8 @@ class QLabel;
 class QProgressBar;
 class QGroupBox;
 
+#include "io/exportthread.h"
+
 class ExportDialog : public QDialog
 {
 	Q_OBJECT
@@ -28,16 +30,19 @@ private slots:
 	void render_thread_finished();
 	void vcodec_changed(int index);
 	void comp_type_changed(int index);
+    void open_advanced_video_dialog();
 
 private:
-	QVector<QString> format_strings;
-	QVector<int> format_vcodecs;
-	QVector<int> format_acodecs;
+    QVector<QString> format_strings;
 	void setup_ui();
 
 	ExportThread* et;
 	void prep_ui_for_render(bool r);
 	bool cancelled;
+
+    void add_codec_to_combobox(QComboBox* box, enum AVCodecID codec);
+
+    VideoCodecParams vcodec_params;
 
 	QComboBox* rangeCombobox;
 	QSpinBox* widthSpinbox;

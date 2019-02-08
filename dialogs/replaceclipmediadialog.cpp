@@ -39,7 +39,7 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media
 	use_same_media_in_points->setChecked(true);
 	layout->addWidget(use_same_media_in_points);
 
-	QHBoxLayout* buttons = new QHBoxLayout(this);
+    QHBoxLayout* buttons = new QHBoxLayout();
 
 	buttons->addStretch();
 

@@ -27,7 +27,11 @@ extern "C" {
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 
-ExportThread::ExportThread(QObject *parent) :
+ExportThread::ExportThread(const ExportParams &iparams,
+                           const VideoCodecParams& ivparams,
+                           QObject *parent) :
+    params(iparams),
+    vcodec_params(ivparams),
 	QThread(parent),
 	continueEncode(true)
 {
@@ -80,13 +84,13 @@ bool ExportThread::encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, 
 
 bool ExportThread::setupVideo() {
 	// if video is disabled, no setup necessary
-	if (!video_enabled) return true;
+    if (!params.video_enabled) return true;
 
 	// find video encoder
-	vcodec = avcodec_find_encoder(static_cast<enum AVCodecID>(video_codec));
-	if (!vcodec) {
+    vcodec = avcodec_find_encoder(static_cast<enum AVCodecID>(params.video_codec));
+    if (!vcodec) {
 		qCritical() << "Could not find video encoder";
-		ed->export_error = tr("could not video encoder for %1").arg(QString::number(video_codec));
+        ed->export_error = tr("could not video encoder for %1").arg(QString::number(params.video_codec));
 		return false;
 	}
 
@@ -109,14 +113,16 @@ bool ExportThread::setupVideo() {
 	}
 
 	// setup context
-	vcodec_ctx->codec_id = static_cast<enum AVCodecID>(video_codec);
+    vcodec_ctx->codec_id = static_cast<enum AVCodecID>(params.video_codec);
 	vcodec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
-	vcodec_ctx->width = video_width;
-	vcodec_ctx->height = video_height;
+    vcodec_ctx->width = params.video_width;
+    vcodec_ctx->height = params.video_height;
 	vcodec_ctx->sample_aspect_ratio = {1, 1};
-	vcodec_ctx->pix_fmt = vcodec->pix_fmts[0]; // maybe be breakable code
-	vcodec_ctx->framerate = av_d2q(video_frame_rate, INT_MAX);
-	if (video_compression_type == COMPRESSION_TYPE_CBR) vcodec_ctx->bit_rate = qRound(video_bitrate * 1000000);
+    vcodec_ctx->pix_fmt = static_cast<AVPixelFormat>(vcodec_params.pix_fmt);
+    vcodec_ctx->framerate = av_d2q(params.video_frame_rate, INT_MAX);
+    if (params.video_compression_type == COMPRESSION_TYPE_CBR) {
+        vcodec_ctx->bit_rate = qRound(params.video_bitrate * 1000000);
+    }
 	vcodec_ctx->time_base = av_inv_q(vcodec_ctx->framerate);
 	video_stream->time_base = vcodec_ctx->time_base;
 
@@ -126,9 +132,9 @@ bool ExportThread::setupVideo() {
 
 	switch (vcodec_ctx->codec_id) {
 	case AV_CODEC_ID_H264:
-		switch (video_compression_type) {
+        switch (params.video_compression_type) {
 		case COMPRESSION_TYPE_CFR:
-			av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(video_bitrate)).toUtf8(), AV_OPT_SEARCH_CHILDREN);
+            av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(params.video_bitrate)).toUtf8(), AV_OPT_SEARCH_CHILDREN);
 			break;
 		}
 		break;
@@ -166,8 +172,8 @@ bool ExportThread::setupVideo() {
 				sequence->width,
 				sequence->height,
 				AV_PIX_FMT_RGBA,
-				video_width,
-				video_height,
+                params.video_width,
+                params.video_height,
 				vcodec_ctx->pix_fmt,
 				SWS_FAST_BILINEAR,
 				nullptr,
@@ -180,13 +186,13 @@ bool ExportThread::setupVideo() {
 
 bool ExportThread::setupAudio() {
 	// if audio is disabled, no setup necessary
-	if (!audio_enabled) return true;
+    if (!params.audio_enabled) return true;
 
 	// find encoder
-	acodec = avcodec_find_encoder(static_cast<AVCodecID>(audio_codec));
+    acodec = avcodec_find_encoder(static_cast<AVCodecID>(params.audio_codec));
 	if (!acodec) {
 		qCritical() << "Could not find audio encoder";
-		ed->export_error = tr("could not audio encoder for %1").arg(QString::number(audio_codec));
+        ed->export_error = tr("could not audio encoder for %1").arg(QString::number(params.audio_codec));
 		return false;
 	}
 
@@ -209,16 +215,16 @@ bool ExportThread::setupAudio() {
 	}
 
 	// setup context
-	acodec_ctx->codec_id = static_cast<AVCodecID>(audio_codec);
+    acodec_ctx->codec_id = static_cast<AVCodecID>(params.audio_codec);
 	acodec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
-	acodec_ctx->sample_rate = audio_sampling_rate;
+    acodec_ctx->sample_rate = params.audio_sampling_rate;
 	acodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;  // change this to support surround/mono sound in the future (this is what the user sets the output audio to)
 	acodec_ctx->channels = av_get_channel_layout_nb_channels(acodec_ctx->channel_layout);
 	acodec_ctx->sample_fmt = acodec->sample_fmts[0];
-	acodec_ctx->bit_rate = audio_bitrate * 1000;
+    acodec_ctx->bit_rate = params.audio_bitrate * 1000;
 
 	acodec_ctx->time_base.num = 1;
-	acodec_ctx->time_base.den = audio_sampling_rate;
+    acodec_ctx->time_base.den = params.audio_sampling_rate;
 	audio_stream->time_base = acodec_ctx->time_base;
 
 	if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
@@ -307,18 +313,18 @@ bool ExportThread::setupContainer() {
 
 void ExportThread::run() {
 	panel_sequence_viewer->pause();
-	panel_sequence_viewer->seek(start_frame);
+    panel_sequence_viewer->seek(params.start_frame);
 
 	// copy filename
-	QByteArray ba = filename.toUtf8();
+    QByteArray ba = params.filename.toUtf8();
 	c_filename = new char[ba.size()+1];
 	strcpy(c_filename, ba.data());
 
 	continueEncode = setupContainer();
 
-	if (video_enabled && continueEncode) continueEncode = setupVideo();
+    if (params.video_enabled && continueEncode) continueEncode = setupVideo();
 
-	if (audio_enabled && continueEncode) continueEncode = setupAudio();
+    if (params.audio_enabled && continueEncode) continueEncode = setupAudio();
 
 	if (continueEncode) {
 		ret = avformat_write_header(fmt_ctx, nullptr);
@@ -339,13 +345,13 @@ void ExportThread::run() {
 
 	mutex.lock();
 
-	while (sequence->playhead <= end_frame && continueEncode) {
+    while (sequence->playhead <= params.end_frame && continueEncode) {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
-		if (audio_enabled) {
+        if (params.audio_enabled) {
 			compose_audio(nullptr, sequence, true, false);
 		}
-		if (video_enabled) {
+        if (params.video_enabled) {
 			do {
 				// TODO optimize by rendering the next frame while encoding the last
                 renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
@@ -356,8 +362,8 @@ void ExportThread::run() {
 		}
 
 		// encode last frame while rendering next frame
-		double timecode_secs = (double) (sequence->playhead-start_frame) / sequence->frame_rate;
-		if (video_enabled) {
+        double timecode_secs = double(sequence->playhead - params.start_frame) / sequence->frame_rate;
+        if (params.video_enabled) {
 			// create sws_frame for converting pixel format
 
 			//
@@ -370,8 +376,8 @@ void ExportThread::run() {
 
 			sws_frame = av_frame_alloc();
 			sws_frame->format = vcodec_ctx->pix_fmt;
-			sws_frame->width = video_width;
-            sws_frame->height = video_height;
+            sws_frame->width = params.video_width;
+            sws_frame->height = params.video_height;
 			av_frame_get_buffer(sws_frame, 0);
 
 			// convert pixel format to format expected by the encoder
@@ -383,10 +389,10 @@ void ExportThread::run() {
 
 			av_frame_free(&sws_frame);
 		}
-		if (audio_enabled) {
+        if (params.audio_enabled) {
 
 			// do we need to encode more audio samples?
-			while (continueEncode && file_audio_samples <= (timecode_secs*audio_sampling_rate)) {
+            while (continueEncode && file_audio_samples <= (timecode_secs*params.audio_sampling_rate)) {
 
 				// copy samples from audio buffer to AVFrame
 				int adjusted_read = audio_ibuffer_read%audio_ibuffer_size;
@@ -417,11 +423,11 @@ void ExportThread::run() {
 		// generating encoding statistics (time it took to encode this frame/estimated remaining time)
 		frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
 		total_time += frame_time;
-		remaining_frames = (end_frame-sequence->playhead);
+        remaining_frames = (params.end_frame - sequence->playhead);
 		avg_time = (total_time/frame_count);
 		eta = (remaining_frames*avg_time);
 
-		emit progress_changed(qRound((double(sequence->playhead-start_frame) / double(end_frame-start_frame)) * 100.0), eta);
+        emit progress_changed(qRound((double(sequence->playhead - params.start_frame) / double(params.end_frame - params.start_frame)) * 100.0), eta);
 		sequence->playhead++;
 		frame_count++;
 	}
@@ -432,13 +438,13 @@ void ExportThread::run() {
 	mutex.unlock();
 
 	if (continueEncode) {
-		if (video_enabled) vpkt_alloc = true;
-		if (audio_enabled) apkt_alloc = true;
+        if (params.video_enabled) vpkt_alloc = true;
+        if (params.audio_enabled) apkt_alloc = true;
 	}
 
 	mainWindow->set_rendering_state(false);
 
-	if (audio_enabled && continueEncode) {
+    if (params.audio_enabled && continueEncode) {
 		// flush swresample
 		do {
 			swr_convert_frame(swr_ctx, swr_frame, nullptr);
@@ -454,8 +460,8 @@ void ExportThread::run() {
 	if (continueEncode) {
 		// flush remaining packets
 		while (continueVideo && continueAudio) {
-			if (continueVideo && video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream, false);
-			if (continueAudio && audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, nullptr, &audio_pkt, audio_stream, true);
+            if (continueVideo && params.video_enabled) continueVideo = encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream, false);
+            if (continueAudio && params.audio_enabled) continueAudio = encode(fmt_ctx, acodec_ctx, nullptr, &audio_pkt, audio_stream, true);
 		}
 
 		ret = av_write_trailer(fmt_ctx);

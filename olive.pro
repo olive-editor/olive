@@ -139,7 +139,8 @@ SOURCES += \
     effects/internal/vsthost.cpp \
     ui/flowlayout.cpp \
     dialogs/proxydialog.cpp \
-    io/proxygenerator.cpp
+    io/proxygenerator.cpp \
+    dialogs/advancedvideodialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -242,7 +243,8 @@ HEADERS += \
     effects/internal/vsthost.h \
     ui/flowlayout.h \
     dialogs/proxydialog.h \
-    io/proxygenerator.h
+    io/proxygenerator.h \
+    dialogs/advancedvideodialog.h
 
 FORMS +=
 
