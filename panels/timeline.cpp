@@ -350,12 +350,13 @@ void Timeline::add_transition() {
 	for (int i=0;i<sequence->clips.size();i++) {
 		Clip* c = sequence->clips.at(i);
 		if (c != nullptr && is_clip_selected(c, true)) {
+            int transition_to_add = (c->track < 0) ? TRANSITION_INTERNAL_CROSSDISSOLVE : TRANSITION_INTERNAL_LINEARFADE;
 			if (c->get_opening_transition() == nullptr) {
-				ca->append(new AddTransitionCommand(c, nullptr, nullptr, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE, EFFECT_TYPE_TRANSITION), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, nullptr, nullptr, get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION), TA_OPENING_TRANSITION, 30));
 				adding = true;
 			}
 			if (c->get_closing_transition() == nullptr) {
-				ca->append(new AddTransitionCommand(c, nullptr, nullptr, get_internal_meta(TRANSITION_INTERNAL_LINEARFADE, EFFECT_TYPE_TRANSITION), TA_OPENING_TRANSITION, 30));
+                ca->append(new AddTransitionCommand(c, nullptr, nullptr, get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION), TA_CLOSING_TRANSITION, 30));
 				adding = true;
 			}
 		}
