@@ -88,7 +88,10 @@ void update_effect_controls() {
 		}
 	}
 
-	bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size());
+
+
+    bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size()
+                    && panel_effect_controls->get_mode() == mode);
 	if (same) {
 		for (int i=0;i<selected_clips.size();i++) {
 			if (selected_clips.at(i) != panel_effect_controls->selected_clips.at(i)) {

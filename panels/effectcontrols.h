@@ -35,6 +35,7 @@ class EffectControls : public QDockWidget
 public:
 	explicit EffectControls(QWidget *parent = 0);
 	~EffectControls();
+    int get_mode();
 	void set_clips(QVector<int>& clips, int mode);
 	void clear_effects(bool clear_cache);
 	void delete_effects();

@@ -64,6 +64,10 @@ EffectControls::EffectControls(QWidget *parent) :
 
 EffectControls::~EffectControls() {}
 
+int EffectControls::get_mode() {
+    return mode;
+}
+
 bool EffectControls::keyframe_focus() {
 	return headers->hasFocus() || keyframeView->hasFocus();
 }
