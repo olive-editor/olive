@@ -25,7 +25,7 @@ Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) :
 	Effect(c, em), secondary_clip(s),
 	length(30)
 {
-    length_field = add_row(tr("Length:"), false)->add_field(EFFECT_FIELD_DOUBLE, "length");
+    length_field = add_row(tr("Length"), false)->add_field(EFFECT_FIELD_DOUBLE, "length");
 	connect(length_field, SIGNAL(changed()), this, SLOT(set_length_from_slider()));
 	length_field->set_double_default_value(30);
 	length_field->set_double_minimum_value(0);
