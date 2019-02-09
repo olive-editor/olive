@@ -776,7 +776,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="230"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation type="unfinished"></translation>
+        <translation>زيتون لم يغلق بشكل سليم وتم التعرف على ملف اﻷستعادة التلقائة. هل تريد فتحه؟</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="262"/>
@@ -841,7 +841,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="573"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation type="unfinished"></translation>
+        <translation>هذا المشروع غُيِرَ منذ أخر مرة. أتريد حفظه قبل اﻹغلاق؟</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="595"/>
@@ -1032,12 +1032,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="684"/>
         <source>Increase Track Height</source>
-        <translation type="unfinished"></translation>
+        <translation>زدّ طول المسار</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="685"/>
         <source>Decrease Track Height</source>
-        <translation type="unfinished"></translation>
+        <translation>قلل طول المسار</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="687"/>
@@ -1052,27 +1052,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="698"/>
         <source>Rectified Waveforms</source>
-        <translation type="unfinished"></translation>
+        <translation>أشكال موجية متناوبة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="705"/>
         <source>Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>اﻹطارات</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="709"/>
         <source>Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>أفلت إطار</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="713"/>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>إطار غير مُفلت</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="717"/>
         <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>جزء من الثانية</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="724"/>
@@ -1082,12 +1082,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="726"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>مطفئ</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="731"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>إفتراضي</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="736"/>
@@ -1102,32 +1102,32 @@
     <message>
         <location filename="../mainwindow.cpp" line="746"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>مخصوص</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="753"/>
         <source>Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>ملء الشاشة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="757"/>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>عارض ملء الشاشة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="761"/>
         <source>&amp;Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;الترديد</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="764"/>
         <source>Go to Start</source>
-        <translation type="unfinished"></translation>
+        <translation>أذهب للبداية</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="765"/>
         <source>Previous Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>الإطار السابق</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="766"/>
@@ -1137,57 +1137,57 @@
     <message>
         <location filename="../mainwindow.cpp" line="767"/>
         <source>Play In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation>شغل من الإدخال إلى الإخراج</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="768"/>
         <source>Next Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>اﻹطار التالي</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="769"/>
         <source>Go to End</source>
-        <translation type="unfinished"></translation>
+        <translation>أذهب للنهاية</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="771"/>
         <source>Go to Previous Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>أذهب للقطعة السابقة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="772"/>
         <source>Go to Next Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>أذهب للقطعة التالية</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="774"/>
         <source>Go to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>أذهب لنقطة إدخال</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="775"/>
         <source>Go to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>أذهب لنقطة إخراج</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="777"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished"></translation>
+        <translation>توشع اليسار</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="778"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>إيقاف التوشع</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="779"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished"></translation>
+        <translation>توشع اليمين</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="782"/>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>حلقة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="789"/>
@@ -1202,7 +1202,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="797"/>
         <source>Effect Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>تحكمات المؤثر</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
@@ -1212,27 +1212,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="807"/>
         <source>Graph Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>محرر المخطط</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="812"/>
         <source>Media Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>عارض الوسائط</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="817"/>
         <source>Sequence Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>عارض المقطع</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="824"/>
         <source>Maximize Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>ضخّم اللائحة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="828"/>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>صفّر للتخطيط المبدئي</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="832"/>
@@ -1242,37 +1242,37 @@
     <message>
         <location filename="../mainwindow.cpp" line="835"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة المؤشر</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="840"/>
         <source>Edit Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة التحرير</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="845"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة الموجة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="850"/>
         <source>Razor Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة القطع</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="855"/>
         <source>Slip Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة المنزلقة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="860"/>
         <source>Slide Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة الشريحة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="865"/>
         <source>Hand Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة اليد</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="870"/>
@@ -1282,42 +1282,44 @@
     <message>
         <location filename="../mainwindow.cpp" line="877"/>
         <source>Enable Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>فعّل السحب</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="884"/>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>للمراجعة</translatorcomment>
+        <translation>تحديد العروضات إيضاً</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="889"/>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة التحرير تعرض إيضاً</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="894"/>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة التحرير تحدد الروابط</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="899"/>
         <source>Seek Also Selects</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>للمراجعة</translatorcomment>
+        <translation>العرض يحدد إيضاً</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="904"/>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished"></translation>
+        <translation>أعرض لنهاية الملصوقات</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="909"/>
         <source>Scroll Wheel Zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>العجلة الدوراة تُقرّب</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="914"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>أسمح بسحب الملفات للخط الزمني</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="919"/>
@@ -1327,7 +1329,8 @@
     <message>
         <location filename="../mainwindow.cpp" line="924"/>
         <source>Enable Seek to Import</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>للمراجعة</translatorcomment>
+        <translation>أسمح للعرض بالإستيراد</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="929"/>
@@ -1337,12 +1340,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="934"/>
         <source>Enable Drop on Media to Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>أسمح برمي الوسائط للأستبدال</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="939"/>
         <source>Enable Hover Focus</source>
-        <translation type="unfinished"></translation>
+        <translation>فعّل التركيز الحائم</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="944"/>
@@ -1352,32 +1355,32 @@
     <message>
         <location filename="../mainwindow.cpp" line="951"/>
         <source>No Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>لا أنزلاق التلقائي</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="956"/>
         <source>Page Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>أنزلاق الصفحة التلقائي</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="961"/>
         <source>Smooth Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>الأنزلاق التلقائي الناعم</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="968"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>التفضيلات</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="971"/>
         <source>Clear Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>أمسح التراجُعات</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="976"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;مساعدة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="978"/>
@@ -1387,7 +1390,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="982"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>سجل التنقيح</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="986"/>
@@ -1407,37 +1410,37 @@
     <message>
         <location filename="../mainwindow.cpp" line="1386"/>
         <source>Missing recent project</source>
-        <translation type="unfinished"></translation>
+        <translation>مشروع ماضي ضائع</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1387"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation type="unfinished"></translation>
+        <translation>المشروع &apos;%1&apos; غير بعد اﻷن. هل ترغب بحذفه من من قائمة مشاريع مؤخراً؟</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1499"/>
         <source>Invalid aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>معدل نسبة غير صالح</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1499"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>معدل النسبة &apos;%1&apos; غير صالح. حاول مجدداً.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1502"/>
         <source>Enter custom aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>أدخل نسبة معدل مخصصة</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1502"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
-        <translation type="unfinished"></translation>
+        <translation>أدخل معدل النسبة لأستعماله في العنوان/الإجراء المنطقة الآمنة (كــ. 16:9):</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1581"/>
         <source>Nested Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>مقطع متشعب</translation>
     </message>
 </context>
 <context>
@@ -2089,12 +2092,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/project.cpp" line="743"/>
         <source>Image sequence detected</source>
-        <translation type="unfinished"></translation>
+        <translation>تم التعرف على مقاطع صور</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="744"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
-        <translation type="unfinished"></translation>
+        <translation>الملف &apos;%1&apos; يبدو كأنه جزء من سلسلة صور. هل تريد أستيراده هكذا؟</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="849"/>
@@ -2104,7 +2107,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/project.cpp" line="862"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
-        <translation type="unfinished"></translation>
+        <translation>لا مقطع نشط, رجاءً أفتح المقطع المراد حذف جزء منه.</translation>
     </message>
 </context>
 <context>
