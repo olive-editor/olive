@@ -70,13 +70,13 @@ void MainWindow::setup_layout(bool reset) {
 	panel_timeline->show();
 	panel_graph_editor->hide();
 
-	addDockWidget(Qt::TopDockWidgetArea, panel_project);
+    addDockWidget(Qt::TopDockWidgetArea, panel_project);
+    addDockWidget(Qt::TopDockWidgetArea, panel_graph_editor);
 	addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
 	tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
 	panel_footage_viewer->raise();
 	addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
 	addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
-	panel_graph_editor->setFloating(true);
 
 	// load panels from file
 	if (!reset) {
@@ -1231,7 +1231,8 @@ void MainWindow::maximize_panel() {
 			if (focused_panel != panel_effect_controls) removeDockWidget(panel_effect_controls);
 			if (focused_panel != panel_timeline) removeDockWidget(panel_timeline);
 			if (focused_panel != panel_sequence_viewer) removeDockWidget(panel_sequence_viewer);
-			if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
+            if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
+            if (focused_panel != panel_graph_editor) removeDockWidget(panel_graph_editor);
 		}
 	} else {
 		// we must be maximized, restore previous state
@@ -1639,12 +1640,7 @@ void MainWindow::set_autoscroll() {
 }
 
 void MainWindow::menu_click_button() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline
-			|| focused_panel == panel_effect_controls
-			|| focused_panel == panel_footage_viewer
-			|| focused_panel == panel_sequence_viewer)
-		reinterpret_cast<QPushButton*>(static_cast<QAction*>(sender())->data().value<quintptr>())->click();
+    reinterpret_cast<QPushButton*>(static_cast<QAction*>(sender())->data().value<quintptr>())->click();
 }
 
 void MainWindow::toggle_panel_visibility() {

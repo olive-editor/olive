@@ -105,6 +105,10 @@ void GraphView::set_view_to_selection() {
 			min_dbl = qMin(key.data.toDouble(), min_dbl);
 			max_dbl = qMax(key.data.toDouble(), max_dbl);
 		}
+
+        min_time -= row->parent_effect->parent_clip->clip_in;
+        max_time -= row->parent_effect->parent_clip->clip_in;
+
 		set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
 	}
 }
@@ -128,6 +132,9 @@ void GraphView::set_view_to_all() {
 			}
 		}
 		if (can_set) {
+            min_time -= row->parent_effect->parent_clip->clip_in;
+            max_time -= row->parent_effect->parent_clip->clip_in;
+
 			set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
 		}
 	}
@@ -228,7 +235,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 					for (int j=0;j<sorted_keys.size();j++) {
 						const EffectKeyframe& key = field->keyframes.at(sorted_keys.at(j));
 
-						int key_x = get_screen_x(key.time);
+                        int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 
 						line_pen.setColor(get_curve_color(i, row->fieldCount()));
@@ -283,7 +290,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 					for (int j=0;j<sorted_keys.size();j++) {
 						const EffectKeyframe& key = field->keyframes.at(sorted_keys.at(j));
 
-						int key_x = get_screen_x(key.time);
+                        int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 
 						if (key.type == EFFECT_KEYFRAME_BEZIER) {
@@ -316,7 +323,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 
 		// draw playhead
 		p.setPen(Qt::red);
-		int playhead_x = get_screen_x(panel_sequence_viewer->seq->playhead - visible_in);
+        int playhead_x = qRound((double(panel_sequence_viewer->seq->playhead - visible_in)*zoom) - x_scroll);
 		p.drawLine(playhead_x, 0, playhead_x, height());
 
 		if (rect_select) {
@@ -362,7 +369,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 				if (field->type == EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
 					for (int j=0;j<field->keyframes.size();j++) {
 						const EffectKeyframe& key = field->keyframes.at(j);
-						int key_x = get_screen_x(key.time);
+                        int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 						if (event->pos().x() > key_x-KEYFRAME_SIZE
 								&& event->pos().x() < key_x+KEYFRAME_SIZE
@@ -544,7 +551,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 		for (int i=0;i<row->fieldCount();i++) {
 			for (int j=0;j<row->field(i)->keyframes.size();j++) {
 				const EffectKeyframe& key = row->field(i)->keyframes.at(j);
-				int key_x = get_screen_x(key.time);
+                int key_x = get_screen_x(key.time);
 				int key_y = get_screen_y(key.data.toDouble());
 				QRect test_rect(
 							key_x - KEYFRAME_SIZE,
@@ -812,11 +819,14 @@ void GraphView::set_scroll_y(int s) {
 
 void GraphView::set_zoom(double z) {
 	zoom = z;
-	emit zoom_changed(zoom);
+    emit zoom_changed(zoom);
 }
 
 int GraphView::get_screen_x(double d) {
-	return qRound((d*zoom) - x_scroll);
+    if (row != nullptr) {
+        d -= row->parent_effect->parent_clip->clip_in;
+    }
+    return qRound((d*zoom) - x_scroll);
 }
 
 int GraphView::get_screen_y(double d) {
@@ -824,7 +834,11 @@ int GraphView::get_screen_y(double d) {
 }
 
 long GraphView::get_value_x(int i) {
-	return qRound((i + x_scroll)/zoom);
+    long frame = qRound((i + x_scroll)/zoom);
+    if (row != nullptr) {
+        frame += row->parent_effect->parent_clip->clip_in;
+    }
+    return frame;
 }
 
 double GraphView::get_value_y(int i) {

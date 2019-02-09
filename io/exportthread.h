@@ -25,27 +25,35 @@ extern "C" {
 #define COMPRESSION_TYPE_TARGETSIZE 2
 #define COMPRESSION_TYPE_TARGETBR 3
 
+// structs that store parameters passed from the export dialogs to this thread
+
+struct ExportParams {
+    // export parameters
+    QString filename;
+    bool video_enabled;
+    int video_codec;
+    int video_width;
+    int video_height;
+    double video_frame_rate;
+    int video_compression_type;
+    double video_bitrate;
+    bool audio_enabled;
+    int audio_codec;
+    int audio_sampling_rate;
+    int audio_bitrate;
+    long start_frame;
+    long end_frame;
+};
+
+struct VideoCodecParams {
+    int pix_fmt;
+};
+
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
-	ExportThread(QObject* parent = nullptr);
+    ExportThread(const ExportParams& iparams, const VideoCodecParams& ivparams, QObject* parent = nullptr);
 	void run();
-
-	// export parameters
-	QString filename;
-	bool video_enabled;
-	int video_codec;
-	int video_width;
-	int video_height;
-	double video_frame_rate;
-	int video_compression_type;
-	double video_bitrate;
-	bool audio_enabled;
-	int audio_codec;
-	int audio_sampling_rate;
-	int audio_bitrate;
-	long start_frame;
-	long end_frame;
 
 	QOffscreenSurface surface;
 
@@ -61,6 +69,10 @@ private:
 	bool setupVideo();
 	bool setupAudio();
 	bool setupContainer();
+
+    // params imported from dialogs
+    ExportParams params;
+    VideoCodecParams vcodec_params;
 
 	AVFormatContext* fmt_ctx;
 	AVStream* video_stream;

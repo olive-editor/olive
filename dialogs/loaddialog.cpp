@@ -28,7 +28,7 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 	cancel_button = new QPushButton(tr("Cancel"), this);
 	connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(cancel()));
 
-	hboxLayout = new QHBoxLayout(this);
+    hboxLayout = new QHBoxLayout();
 	hboxLayout->addStretch();
 	hboxLayout->addWidget(cancel_button);
 	hboxLayout->addStretch();

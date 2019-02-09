@@ -54,7 +54,7 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 	opacity->set_double_maximum_value(100);
 
 	EffectRow* blend_mode_row = add_row(tr("Blend Mode"));
-	blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO, "blendmode"); // blend mode
+    blend_mode_box = blend_mode_row->add_field(EFFECT_FIELD_COMBO, "blendmode", 2); // blend mode
 	blend_mode_box->add_combo_item(tr("Normal"), BLEND_MODE_NORMAL);
 	blend_mode_box->add_combo_item(tr("Darken"), BLEND_MODE_DARKEN);
 	blend_mode_box->add_combo_item(tr("Multiply"), BLEND_MODE_MULTIPLY);

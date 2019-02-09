@@ -23,7 +23,7 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 
 	QVBoxLayout* main_layout = new QVBoxLayout(this);
 
-	QGridLayout* grid = new QGridLayout(this);
+    QGridLayout* grid = new QGridLayout();
 	grid->setSpacing(6);
 
 	grid->addWidget(new QLabel(tr("Speed:"), this), 0, 0);

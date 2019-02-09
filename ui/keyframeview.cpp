@@ -23,10 +23,6 @@
 #include <QtMath>
 #include <QMenu>
 
-long KeyframeView::adjust_row_keyframe(EffectRow* row, long time) {
-	return time-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
-}
-
 KeyframeView::KeyframeView(QWidget *parent) :
 	QWidget(parent),
 	visible_in(0),
@@ -113,7 +109,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 							for (int k=0;k<f->keyframes.size();k++) {
 								if (!key_times.contains(f->keyframes.at(k).time)) {
 									bool keyframe_selected = keyframeIsSelected(f, k);
-									long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time);
+                                    long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time, visible_in);
 
 									// see if any other keyframes have this time
 									int appearances = 0;
@@ -337,7 +333,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 					for (int k=0;k<row->fieldCount();k++) {
 						EffectField* field = row->field(k);
 						for (int j=0;j<field->keyframes.size();j++) {
-							long keyframe_frame = adjust_row_keyframe(row, field->keyframes.at(j).time);
+                            long keyframe_frame = adjust_row_keyframe(row, field->keyframes.at(j).time, visible_in);
 							if (!keyframeIsSelected(field, j) && keyframe_frame >= min_frame && keyframe_frame <= max_frame) {
 								selected_fields.append(field);
 								selected_keyframes.append(j);

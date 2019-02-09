@@ -23,7 +23,7 @@ public:
 	GLuint front_texture;
 	Effect* gizmos;
 	void paint();
-	void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int idivider = 0);
+    void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int pixel_linesize = 0, int idivider = 0);
 	bool did_texture_fail();
 	void cancel();
 
@@ -59,6 +59,7 @@ private:
 	bool running;
 	QString save_fn;
 	GLvoid *pixel_buffer;
+    int pixel_buffer_linesize;
 };
 
 #endif // RENDERTHREAD_H
