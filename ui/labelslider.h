@@ -52,6 +52,9 @@ private:
 	int display_type;
 
 	double frame_rate;
+
+    void set_default_cursor();
+    void set_active_cursor();
 signals:
 	void valueChanged();
 	void clicked();

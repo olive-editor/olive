@@ -19,7 +19,7 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
 	min_enabled = false;
 	max_enabled = false;
 	set_color();
-	setCursor(Qt::SizeHorCursor);
+    set_default_cursor();
 	internal_value = -1;
 	set = false;
 	display_type = LABELSLIDER_NORMAL;
@@ -109,7 +109,7 @@ void LabelSlider::set_maximum_value(double v) {
 
 void LabelSlider::mousePressEvent(QMouseEvent *ev) {
     // if primary button is clicked
-    if (ev->button() == Qt::LeftButton) {
+    if (ev->button() == Qt::LeftButton && !drag_start) {
 
         // store initial value to be compared while dragging
 		drag_start_value = internal_value;
@@ -134,7 +134,8 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 			if (qIsNaN(internal_value)) internal_value = 0;
 
             // hide the cursor and store information about it for dragging
-			qApp->setOverrideCursor(Qt::BlankCursor);
+            set_active_cursor();
+
 			drag_start = true;
 			drag_start_x = cursor().pos().x();
 			drag_start_y = cursor().pos().y();
@@ -180,7 +181,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
     if (drag_start) {
 
         // unhide cursor
-		qApp->restoreOverrideCursor();
+        set_default_cursor();
 
 		drag_start = false;
 
@@ -242,5 +243,13 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 				set_value(d, true);
 			}
 		}
-	}
+    }
+}
+
+void LabelSlider::set_default_cursor() {
+    setCursor(Qt::SizeHorCursor);
+}
+
+void LabelSlider::set_active_cursor() {
+    setCursor(Qt::BlankCursor);
 }
