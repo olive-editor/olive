@@ -341,7 +341,7 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 	if (waveform) {
 		seek_from_click(event->x());
 	} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
-		container->dragScrollPress(event->pos());
+        container->dragScrollPress(event->pos()*container->zoom);
 	} else if (event->buttons() & Qt::LeftButton) {
 		drag_start_x = event->pos().x();
 		drag_start_y = event->pos().y();
@@ -367,7 +367,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 		if (waveform) {
 			seek_from_click(event->x());
 		} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
-			container->dragScrollMove(event->pos());
+            container->dragScrollMove(event->pos()*container->zoom);
 		} else if (event->buttons() & Qt::LeftButton) {
 			if (gizmos == nullptr) {
 				QDrag* drag = new QDrag(this);
@@ -504,10 +504,18 @@ void ViewerWidget::draw_gizmos() {
 	float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
 	float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
 
+    double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+
 	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
-	float gizmo_z = 0.0f;
+    glLoadIdentity();
+
+    glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
+    glScaled(zoom_factor, zoom_factor, 0.0);
+    glTranslated(-(viewer->seq->width-(width()/container->zoom))*x_scroll,
+                 -((viewer->seq->height-(height()/container->zoom))*(1.0-y_scroll)),
+                 0);
+
+    float gizmo_z = 0.0f;
 	for (int j=0;j<gizmos->gizmo_count();j++) {
 		EffectGizmo* g = gizmos->gizmo(j);
 		glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
@@ -585,7 +593,7 @@ void ViewerWidget::paintGL() {
 
 		glBegin(GL_QUADS);
 
-        double ar_diff = (double(viewer->seq->width)/double(viewer->seq->height)/(double(width())/double(height())));
+//        double ar_diff = (double(viewer->seq->width)/double(viewer->seq->height)/(double(width())/double(height())));
 		double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
 		double zoom_size = (zoom_factor*2.0) - 2.0;
 		double zoom_left = -zoom_size*x_scroll - 1.0;

@@ -69,64 +69,64 @@ void ViewerContainer::adjust() {
 			vertical_scrollbar->setVisible(false);
 
 			int zoomed_width = qRound(double(viewer->seq->width)*zoom);
-			int zoomed_height = qRound(double(viewer->seq->height)*zoom);
+            int zoomed_height = qRound(double(viewer->seq->height)*zoom);
 
-			if (fit || zoomed_width > width() || zoomed_height > height()) {
-				// if the zoom size is greater than or equal to the available area, only use the available area
+            if (fit || zoomed_width > width() || zoomed_height > height()) {
+                // if the zoom size is greater than or equal to the available area, only use the available area
 
-				double aspect_ratio = double(viewer->seq->width)/double(viewer->seq->height);
+                double aspect_ratio = double(viewer->seq->width)/double(viewer->seq->height);
 
-				int widget_x = 0;
-				int widget_y = 0;
-				int widget_width = width();
-				int widget_height = height();
+                int widget_x = 0;
+                int widget_y = 0;
+                int widget_width = width();
+                int widget_height = height();
 
-				if (!fit) {
+                if (!fit) {
                     widget_width -= vertical_scrollbar->sizeHint().width();
                     widget_height -= horizontal_scrollbar->sizeHint().height();
                 }
 
-				if (fit) {
-                    double widget_ar = double(widget_width) / double(widget_height);
+                double widget_ar = double(widget_width) / double(widget_height);
 
-                    bool widget_is_wider_than_sequence = widget_ar > aspect_ratio;
+                bool widget_is_wider_than_sequence = widget_ar > aspect_ratio;
 
-                    if (widget_is_wider_than_sequence) {
-                        widget_width = widget_height * aspect_ratio;
-                        widget_x = (width() / 2) - (widget_width / 2);
-                    } else {
-                        widget_height = widget_width / aspect_ratio;
-                        widget_y = (height() / 2) - (widget_height / 2);
-                    }
-
-					zoom = double(widget_width) / double(viewer->seq->width);
-				} else if (zoomed_width > width() || zoomed_height > height()) {
-					horizontal_scrollbar->setVisible(true);
-					vertical_scrollbar->setVisible(true);
-
-					horizontal_scrollbar->setMaximum(zoomed_width - width());
-					vertical_scrollbar->setMaximum(zoomed_height - height());
-
-					horizontal_scrollbar->setValue(horizontal_scrollbar->maximum()/2);
-					vertical_scrollbar->setValue(vertical_scrollbar->maximum()/2);
-
-					adjust_scrollbars();
-				}
+                if (widget_is_wider_than_sequence) {
+                    widget_width = widget_height * aspect_ratio;
+                    widget_x = (width() / 2) - (widget_width / 2);
+                } else {
+                    widget_height = widget_width / aspect_ratio;
+                    widget_y = (height() / 2) - (widget_height / 2);
+                }
 
                 child->move(widget_x, widget_y);
                 child->resize(widget_width, widget_height);
-			} else {
-				// if the zoom size is smaller than the available area, scale the surface down
 
-				int zoomed_x = 0;
-				int zoomed_y = 0;
+                if (fit) {
+                    zoom = double(widget_width) / double(viewer->seq->width);
+                } else if (zoomed_width > width() || zoomed_height > height()) {
+                    horizontal_scrollbar->setVisible(true);
+                    vertical_scrollbar->setVisible(true);
 
-				if (zoomed_width < width()) zoomed_x = (width()>>1)-(zoomed_width>>1);
-				if (zoomed_height < height()) zoomed_y = (height()>>1)-(zoomed_height>>1);
+                    horizontal_scrollbar->setMaximum(zoomed_width - width());
+                    vertical_scrollbar->setMaximum(zoomed_height - height());
 
-				child->move(zoomed_x, zoomed_y);
-				child->resize(zoomed_width, zoomed_height);
-			}
+                    horizontal_scrollbar->setValue(horizontal_scrollbar->maximum()/2);
+                    vertical_scrollbar->setValue(vertical_scrollbar->maximum()/2);
+
+                    adjust_scrollbars();
+                }
+            } else {
+                // if the zoom size is smaller than the available area, scale the surface down
+
+                int zoomed_x = 0;
+                int zoomed_y = 0;
+
+                if (zoomed_width < width()) zoomed_x = (width()>>1)-(zoomed_width>>1);
+                if (zoomed_height < height()) zoomed_y = (height()>>1)-(zoomed_height>>1);
+
+                child->move(zoomed_x, zoomed_y);
+                child->resize(zoomed_width, zoomed_height);
+            }
 		}
 	}
 }
