@@ -37,6 +37,7 @@ KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 
 void KeySequenceEditor::set_action_shortcut() {
 	action->setShortcut(keySequence());
+    action->setShortcutContext(Qt::ApplicationShortcut);
 }
 
 void KeySequenceEditor::reset_to_default() {

@@ -363,17 +363,18 @@ void Viewer::play(bool in_to_out) {
 			uncue_recording();
 		}
 
+        if (playback_speed == 0) {
+            playback_speed = 1;
+        }
+
 		bool seek_to_in = (seq->using_workarea && (config.loop || playing_in_to_out));
 		if (!is_recording_cued()
+                && playback_speed > 0
 				&& (playing_in_to_out
-					|| seq->playhead >= seq->getEndFrame()
+                    || seq->playhead >= seq->getEndFrame()
 					|| (seek_to_in && seq->playhead >= seq->workarea_out))) {
 			seek(seek_to_in ? seq->workarea_in : 0);
-		}
-
-		if (playback_speed == 0) {
-			playback_speed = 1;
-		}
+        }
 
 		reset_all_audio();
 		if (is_recording_cued() && !start_recording()) {
@@ -781,7 +782,7 @@ void Viewer::timer_update() {
 			if (recording_start != recording_end && seq->playhead >= recording_end) {
 				pause();
 			}
-		} else {
+        } else if (playback_speed > 0) {
 			if (seq->playhead >= seq->getEndFrame()) {
 				pause();
 			}

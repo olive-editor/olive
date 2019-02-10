@@ -55,8 +55,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	waveform_scroll(0),
 	dragging(false),
 	gizmos(nullptr),
-	selected_gizmo(nullptr),
-	window(nullptr),
+    selected_gizmo(nullptr),
 	x_scroll(0),
 	y_scroll(0)
 {
@@ -74,13 +73,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	renderer->start(QThread::HighPriority);
 	connect(renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
 	connect(renderer, SIGNAL(finished()), renderer, SLOT(deleteLater()));
+
+    window = new ViewerWindow(this);
 }
 
 ViewerWidget::~ViewerWidget() {
-	if (window != nullptr) {
-		window->close();
-		delete window;
-	}
 	renderer->cancel();
 	delete renderer;
 }
@@ -100,10 +97,7 @@ void ViewerWidget::set_fullscreen(int screen) {
 	if (screen >= 0 && screen < QGuiApplication::screens().size()) {
 		QScreen* selected_screen = QGuiApplication::screens().at(screen);
 		window->showFullScreen();
-		window->setGeometry(selected_screen->geometry());
-
-		// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
-		QTimer::singleShot(100, window, SLOT(update()));
+        window->setGeometry(selected_screen->geometry());
 	} else {
 		qCritical() << "Failed to find requested screen" << screen << "to set fullscreen to";
 	}
@@ -119,7 +113,7 @@ void ViewerWidget::show_context_menu() {
 	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));*/
 	QMenu* fullscreen_menu = menu.addMenu(tr("Show Fullscreen"));
 	QList<QScreen*> screens = QGuiApplication::screens();
-	if (window != nullptr && window->isVisible()) {
+    if (window->isVisible()) {
 		fullscreen_menu->addAction(tr("Disable"));
 	}
 	for (int i=0;i<screens.size();i++) {
@@ -177,15 +171,11 @@ void ViewerWidget::queue_repaint() {
 }
 
 void ViewerWidget::fullscreen_menu_action(QAction *action) {
-	if (window == nullptr) {
-		QMessageBox::critical(this, "Error", "Failed to create viewer window");
-	} else {
-		if (action->data().isNull()) {
-			window->hide();
-		} else {
-			set_fullscreen(action->data().toInt());
-		}
-	}
+    if (action->data().isNull()) {
+        window->hide();
+    } else {
+        set_fullscreen(action->data().toInt());
+    }
 }
 
 void ViewerWidget::set_fit_zoom() {
@@ -222,9 +212,7 @@ void ViewerWidget::retry() {
 void ViewerWidget::initializeGL() {
 	initializeOpenGLFunctions();
 
-	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
-
-	window = new ViewerWindow(context());
+    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
 }
 
 void ViewerWidget::frame_update() {
@@ -254,16 +242,6 @@ void ViewerWidget::set_scroll(double x, double y) {
 	update();
 }
 
-//void ViewerWidget::resizeGL(int w, int h)
-//{
-//}
-
-/*void ViewerWidget::paintEvent(QPaintEvent *e) {
-	if (!rendering) {
-		QOpenGLWidget::paintEvent(e);
-	}
-}*/
-
 void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
 }
@@ -272,11 +250,7 @@ void ViewerWidget::context_destroy() {
 	makeCurrent();
 	if (viewer->seq != nullptr) {
 		closeActiveClips(viewer->seq);
-	}
-	if (window != nullptr) {
-		delete window;
-	}
-	//QMetaObject::invokeMethod(renderer, "delete_ctx", Qt::QueuedConnection);
+    }
 	renderer->delete_ctx();
 	doneCurrent();
 }
@@ -405,7 +379,7 @@ void ViewerWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void ViewerWidget::close_window() {
-	if (window != nullptr) window->hide();
+    window->hide();
 }
 
 void ViewerWidget::draw_waveform_func() {
@@ -629,7 +603,7 @@ void ViewerWidget::paintGL() {
 
 		glDisable(GL_TEXTURE_2D);
 
-		if (window != nullptr && window->isVisible()) {
+        if (window->isVisible()) {
 			window->set_texture(renderer->front_texture, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
 		}
 

@@ -5,28 +5,31 @@
 #include <QPainter>
 #include <QApplication>
 #include <QMenuBar>
+#include <QShortcut>
+#include <QOpenGLFunctions>
+#include <QOpenGLContext>
 
 #include <QDebug>
 
 #include "mainwindow.h"
 
-ViewerWindow::ViewerWindow(QOpenGLContext *share) :
-	QOpenGLWindow(share),
+ViewerWindow::ViewerWindow(QWidget *parent) :
+    QOpenGLWidget(parent, Qt::Window),
 	texture(0),
-	mutex(nullptr),
+    mutex(nullptr),
 	show_fullscreen_msg(false)
 {
-	fullscreen_msg_timer.setInterval(2000);
-	connect(&fullscreen_msg_timer, SIGNAL(timeout()), this, SLOT(fullscreen_msg_timeout()));
+    setMouseTracking(true);
 
-	installEventFilter(mainWindow);
+	fullscreen_msg_timer.setInterval(2000);
+    connect(&fullscreen_msg_timer, SIGNAL(timeout()), this, SLOT(fullscreen_msg_timeout()));
 }
 
 void ViewerWindow::set_texture(GLuint t, double iar, QMutex* imutex) {
 	texture = t;
 	ar = iar;
 	mutex = imutex;
-	update();
+    update();
 }
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e) {
@@ -46,14 +49,14 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *) {
 	if (!show_fullscreen_msg) {
 		show_fullscreen_msg = true;
 		update();
-	}
+    }
 }
 
 void ViewerWindow::paintGL() {
 	if (texture > 0) {
 		if (mutex != nullptr) mutex->lock();
 
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glEnable(GL_TEXTURE_2D);
@@ -63,7 +66,7 @@ void ViewerWindow::paintGL() {
 		glLoadIdentity();
 		glOrtho(0, 1, 0, 1, -1, 1);
 
-		glBegin(GL_QUADS);
+        glBegin(GL_QUADS);
 
 		double top = 0;
 		double left = 0;
@@ -85,17 +88,17 @@ void ViewerWindow::paintGL() {
 		glVertex2d(left, top);
 		glTexCoord2d(0, 0);
 		glVertex2d(left, bottom);
-		glTexCoord2d(1, 0);
+        glTexCoord2d(1, 0);
 		glVertex2d(right, bottom);
-		glTexCoord2d(1, 1);
+        glTexCoord2d(1, 1);
 		glVertex2d(right, top);
-		glTexCoord2d(0, 1);
+        glTexCoord2d(0, 1);
 
 		glEnd();
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glDisable(GL_TEXTURE_2D);
+        glDisable(GL_TEXTURE_2D);
 
 		if (mutex != nullptr) mutex->unlock();
 	}
@@ -128,7 +131,7 @@ void ViewerWindow::paintGL() {
 		p.drawRect(fullscreen_msg_rect);
 
 		p.drawText(text_x, text_y, fs_str);
-	}
+    }
 }
 
 void ViewerWindow::fullscreen_msg_timeout() {

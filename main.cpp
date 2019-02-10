@@ -86,6 +86,8 @@ int main(int argc, char *argv[]) {
 	av_register_all();
 	avfilter_register_all();
 
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
 	QApplication a(argc, argv);
 	a.setWindowIcon(QIcon(":/icons/olive64.png"));
 

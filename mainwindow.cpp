@@ -321,10 +321,11 @@ void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first
 						}
 						QKeySequence ks(shortcut);
 						if (!ks.isEmpty()) {
-							a->setShortcut(ks);
+                            a->setShortcut(ks);
 						}
 					}
 				}
+                a->setShortcutContext(Qt::ApplicationShortcut);
 			}
 		}
 	}
@@ -972,7 +973,7 @@ void MainWindow::setup_menus() {
 
 	tools_menu->addSeparator();
 
-	tools_menu->addAction(tr("Preferences"), this, SLOT(preferences()), QKeySequence("Ctrl+."))->setProperty("id", "prefs");
+    tools_menu->addAction(tr("Preferences"), this, SLOT(preferences()), QKeySequence("Ctrl+,"))->setProperty("id", "prefs");
 
 #ifdef QT_DEBUG
 	tools_menu->addAction(tr("Clear Undo"), this, SLOT(clear_undo_stack()))->setProperty("id", "clearundo");
