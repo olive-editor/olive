@@ -401,7 +401,7 @@ void PreferencesDialog::setup_ui() {
 				QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
                 language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_relative_path);
 
-				if (config.language_file == locale_full_path) {
+                if (config.language_file == locale_relative_path) {
 					language_combobox->setCurrentIndex(language_combobox->count() - 1);
 				}
 			}
@@ -458,7 +458,7 @@ void PreferencesDialog::setup_ui() {
 	general_layout->addWidget(new QLabel(tr("Thumbnail Resolution:"), this), row, 0, 1, 1);
 
 	thumbnail_res_spinbox = new QSpinBox(this);
-	thumbnail_res_spinbox->setMinimum(1);
+    thumbnail_res_spinbox->setMinimum(0);
 	thumbnail_res_spinbox->setMaximum(INT_MAX);
 	thumbnail_res_spinbox->setValue(config.thumbnail_resolution);
 	general_layout->addWidget(thumbnail_res_spinbox, row, 1, 1, 1);
@@ -466,7 +466,7 @@ void PreferencesDialog::setup_ui() {
 	general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2, 1, 1);
 
 	waveform_res_spinbox = new QSpinBox(this);
-	waveform_res_spinbox->setMinimum(1);
+    waveform_res_spinbox->setMinimum(0);
 	waveform_res_spinbox->setMaximum(INT_MAX);
 	waveform_res_spinbox->setValue(config.waveform_resolution);
 	general_layout->addWidget(waveform_res_spinbox, row, 3, 1, 1);
