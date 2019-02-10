@@ -831,7 +831,12 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 				}
 
 				// select item
-				tree_view->selectionModel()->select(sorted_index, QItemSelectionModel::Select);
+                QItemSelection row_select(
+                                sorter->index(sorted_index.row(), 0, sorted_index.parent()),
+                                sorter->index(sorted_index.row(), sorter->columnCount()-1, sorted_index.parent())
+                            );
+
+                tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
 			} else if (config.project_view_type == PROJECT_VIEW_ICON) {
 				icon_view->setRootIndex(hierarchy);
 				icon_view->selectionModel()->select(sorted_index, QItemSelectionModel::Select);
