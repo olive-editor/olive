@@ -3,7 +3,7 @@
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]
 then
 	wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-	upload.sh Olive*.zip
+	bash upload.sh Olive*.zip
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
 then
 	find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
@@ -14,5 +14,5 @@ then
 	then
 		export TRAVIS_EVENT_TYPE=pull_request
 	fi
-	upload.sh Olive*.AppImage*
+	bash upload.sh Olive*.AppImage*
 fi
