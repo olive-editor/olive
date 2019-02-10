@@ -15,16 +15,16 @@ matrix:
   - os: osx
 
 before_install:
-  - bash ./.travis/before_install.sh
+  - source ./.travis/before_install.sh
 
 install:
-  - bash ./.travis/install.sh
+  - source ./.travis/install.sh
 
 script:
-  - bash ./.travis/script.sh
+  - source ./.travis/script.sh
 
 after_success:
-  - bash ./.travis/after_success.sh
+  - source ./.travis/after_success.sh
   
 branches:
   except:
