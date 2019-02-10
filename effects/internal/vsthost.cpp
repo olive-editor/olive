@@ -144,10 +144,20 @@ void VSTHost::loadPlugin() {
 		return;
 	}
 
-	vstPluginFuncPtr mainEntryPoint =
-	reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
-	// Instantiate the plugin
-	plugin = mainEntryPoint(hostCallback);
+    vstPluginFuncPtr mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
+
+    if (mainEntryPoint == nullptr) {
+        // if there's no VSTPluginMain(), fallback to main()
+        mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "main"));
+    }
+
+    if (mainEntryPoint == nullptr) {
+        QMessageBox::critical(nullptr, tr("Error loading VST plugin"), tr("Failed to locate entry point for dynamic library."));
+        LibClose(modulePtr);
+    } else {
+        // Instantiate the plugin
+        plugin = mainEntryPoint(hostCallback);
+    }
 #endif
 }
 
