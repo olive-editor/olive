@@ -10,12 +10,12 @@ matrix:
 
 before_install:
   - sudo add-apt-repository ppa:beineri/opt-qt593-trusty -y
-  - sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
+  - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
   - sudo apt-get update -qq
 
 install:
-  - if [ "$ARCH" == "x86_64" ]; then sudo apt-get -y install qt59base qt59multimedia libavcodec58 libavfilter7 libavformat58 libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev libswresample-dev frei0r-plugins-dev frei0r-plugins fuse; fi
-  - if [ "$ARCH" == "i386" ]; then sudo apt-get -y install gcc-multilib g++-multilib qt59base:i386 qt59multimedia:i386 libavcodec58:i386 libavfilter7:i386 libavformat58:i386 libavformat-dev:i386 libavcodec-dev:i386 libavfilter-dev:i386 libavutil-dev:i386 libswscale-dev:i386 libswresample-dev:i386 frei0r-plugins-dev:i386 frei0r-plugins:i386 pkg-config:i386 libgl1-mesa-dev:i386 fuse:i386; fi
+  - if [ "$ARCH" == "x86_64" ]; then sudo apt-get -y install qt59base qt59multimedia libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev libswresample-dev frei0r-plugins-dev frei0r-plugins fuse; fi
+  - if [ "$ARCH" == "i386" ]; then sudo apt-get -y install gcc-multilib g++-multilib qt59base:i386 qt59multimedia:i386 libavformat-dev:i386 libavcodec-dev:i386 libavfilter-dev:i386 libavutil-dev:i386 libswscale-dev:i386 libswresample-dev:i386 frei0r-plugins-dev:i386 frei0r-plugins:i386 pkg-config:i386 libgl1-mesa-dev:i386 fuse:i386; fi
   - source /opt/qt*/bin/qt*-env.sh
 
 script:
