@@ -1,44 +1,30 @@
 language: cpp
-compiler: gcc
-sudo: require
-dist: trusty
 
 matrix:
   include:
-  - env: ARCH=x86_64
-  - env: ARCH=i386
+  - os: linux
+    env: ARCH=x86_64
+    compiler: gcc
+    sudo: require
+    dist: trusty
+  - os: linux
+    env: ARCH=i386
+    compiler: gcc
+    sudo: require
+    dist: trusty
+  - os: osx
 
 before_install:
-  - sudo add-apt-repository ppa:beineri/opt-qt593-trusty -y
-  - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
-  - sudo apt-get update -qq
+  - bash ./.travis/before_install.sh
 
 install:
-  - if [ "$ARCH" == "x86_64" ]; then sudo apt-get -y install qt59base qt59multimedia libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev libswresample-dev frei0r-plugins-dev frei0r-plugins fuse; fi
-  - if [ "$ARCH" == "i386" ]; then sudo apt-get -y install gcc-multilib g++-multilib qt59base:i386 qt59multimedia:i386 libavformat-dev:i386 libavcodec-dev:i386 libavfilter-dev:i386 libavutil-dev:i386 libswscale-dev:i386 libswresample-dev:i386 frei0r-plugins-dev:i386 frei0r-plugins:i386 pkg-config:i386 libgl1-mesa-dev:i386 fuse:i386; fi
-  - source /opt/qt*/bin/qt*-env.sh
+  - bash ./.travis/install.sh
 
 script:
-  - lrelease olive.pro
-  - if [ "$ARCH" == "x86_64" ]; then qmake CONFIG+=release PREFIX=/usr; fi
-  - if [ "$ARCH" == "i386" ]; then qmake CONFIG+=release "QMAKE_CFLAGS+=-m32" "QMAKE_CXXFLAGS+=-m32" "QMAKE_LFLAGS+=-m32" PREFIX=/usr -spec linux-g++-32; fi
-  - make -j$(nproc)
-  - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
-  - mkdir -p appdir/usr/bin/ ; cp olive-editor appdir/usr/bin/ # FIXME; "make install" should do this
-  - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-  - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-  - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
-  - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
-  - if [ "$ARCH" == "i386" ]; then rm Olive*.AppImage; wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-i686.AppImage"; chmod a+x appimagetool-i686.AppImage; ./appimagetool-i686.AppImage 'appdir' -n -g; fi
+  - bash ./.travis/script.sh
 
 after_success:
-  - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  - # curl --upload-file Olive*.AppImage https://transfer.sh/Olive-git.$(git rev-parse --short HEAD)-$ARCH.AppImage
-  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  # only create release for master
-  - if [ "$TRAVIS_BRANCH" != "master" ]; then export TRAVIS_EVENT_TYPE=pull_request; fi
-  - bash upload.sh Olive*.AppImage*
+  - bash ./.travis/after_success.sh
   
 branches:
   except:
