@@ -27,7 +27,7 @@
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="21"/>
         <source>Advanced Video Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Video-Einstellungen</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="33"/>
@@ -202,54 +202,54 @@
     <message>
         <location filename="../project/effect.cpp" line="403"/>
         <source>Load Settings From File</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen aus Datei laden</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="405"/>
         <source>Save Settings to File</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen in Datei speichern</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="442"/>
         <source>Save Effect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Einstellungen speichern</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="444"/>
         <location filename="../project/effect.cpp" line="474"/>
         <source>Effect XML Settings %1</source>
-        <translation type="unfinished"></translation>
+        <translation>XML Effekt-Einstellungen %1</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="462"/>
         <source>Save Settings Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern der Einstellungen fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="463"/>
         <source>Failed to open &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Öffnen von &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="472"/>
         <source>Load Effect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Einstellungen laden</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="488"/>
         <location filename="../project/effect.cpp" line="697"/>
         <source>Load Settings Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden von Einstellungen fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="489"/>
         <source>Failed to open &quot;%1&quot; for reading.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Öffnen von &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="698"/>
         <source>This settings file doesn&apos;t match this effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Einstellungsdatei stimmt nicht mit diesem Effekt überein.</translation>
     </message>
 </context>
 <context>
@@ -331,7 +331,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="113"/>
         <source>Unknown codec name %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Codec-Name %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="319"/>
@@ -393,7 +393,7 @@
         <location filename="../dialogs/exportdialog.cpp" line="576"/>
         <location filename="../dialogs/exportdialog.cpp" line="582"/>
         <source>Invalid Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Codec</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="577"/>
@@ -492,7 +492,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweitert</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="695"/>
@@ -864,7 +864,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="227"/>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Willkommen in %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="279"/>
@@ -1172,12 +1172,13 @@
     <message>
         <location filename="../mainwindow.cpp" line="760"/>
         <source>Full Screen</source>
-        <translation>Vollbild</translation>
+        <translation type="unfinished">Vollbild</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="764"/>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Does this make sense?</translatorcomment>
+        <translation type="unfinished">Vollbild-Viewer</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="768"/>
@@ -1310,7 +1311,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="831"/>
         <source>Maximize Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Panel maximieren</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="835"/>
@@ -1805,7 +1806,7 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="247"/>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
 </context>
 <context>
@@ -1821,7 +1822,7 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../playback/playback.cpp" line="302"/>
         <source>Generating Proxy: %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy wird generiert: %1%</translation>
     </message>
 </context>
 <context>
@@ -1905,7 +1906,7 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="379"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="416"/>
@@ -1947,7 +1948,7 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="458"/>
         <source>Thumbnail Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Thumbnail-Auflösung:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="466"/>
@@ -2029,18 +2030,18 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="541"/>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabegerät:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="544"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="563"/>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="560"/>
         <source>Input Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingabegerät:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="579"/>
@@ -2206,22 +2207,23 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="21"/>
         <source>Create Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy erstellen</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="24"/>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Same as in english</translatorcomment>
+        <translation>Proxy</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="30"/>
         <source>Dimensions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensionen:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="33"/>
         <source>Same Size as Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Selbe Größe wie Quelle</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="34"/>
@@ -2246,12 +2248,12 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="41"/>
         <source>Format:</source>
-        <translation type="unfinished">Format:</translation>
+        <translation>Format:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="44"/>
         <source>ProRes HQ</source>
-        <translation type="unfinished"></translation>
+        <translation>ProRes HQ</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="52"/>
@@ -2261,17 +2263,17 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="55"/>
         <source>Same as Source (in &quot;%1&quot; folder)</source>
-        <translation type="unfinished"></translation>
+        <translation>Genau wie Quelle (in Ordner &quot;%1&quot;)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="102"/>
         <source>Proxy file exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Datei existiert bereits</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="103"/>
         <source>The file &quot;%1&quot; already exists. Do you wish to replace it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; existiert bereits. Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="137"/>
@@ -2284,7 +2286,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../io/proxygenerator.cpp" line="303"/>
         <source>Finished generating proxy for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Generierung für &quot;%1&quot; wurde abgeschlossen</translation>
     </message>
 </context>
 <context>
@@ -2503,32 +2505,32 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../project/sourcescommon.cpp" line="142"/>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="148"/>
         <source>Generating proxy: %1% complete</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy wird generiert: %1% fertig</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="169"/>
         <source>Create/Modify Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle/Modifiziere Proxy</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="172"/>
         <source>Create Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy erstellen</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="183"/>
         <source>Modify Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy modifizieren</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="186"/>
         <source>Restore Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original wiederherstellen</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="192"/>
@@ -2553,12 +2555,12 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../project/sourcescommon.cpp" line="372"/>
         <source>Delete proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy löschen</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="373"/>
         <source>Would you like to delete the proxy file &quot;%1&quot; as well?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die Proxy-Datei &quot;%1&quot; ebenfalls löschen?</translation>
     </message>
 </context>
 <context>
@@ -2951,37 +2953,38 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../ui/timelinewidget.cpp" line="96"/>
         <source>C&amp;ut</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ausschneiden</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="97"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">&amp;Kopieren</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="100"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Einfügen</translation>
+        <translation>&amp;Einfügen</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="110"/>
         <source>R&amp;ipple Delete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Taken from Premiere</translatorcomment>
+        <translation>R&amp;ipple Delete</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="114"/>
         <source>Sequence Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenz-Einstellungen</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="120"/>
         <source>&amp;Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Geschwindigkeit/Dauer</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="122"/>
         <source>Auto-s&amp;cale</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto-&amp;Skalierung</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="127"/>
@@ -2996,12 +2999,12 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../ui/timelinewidget.cpp" line="159"/>
         <source>&amp;Reveal in Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Im Projekt anzeigen</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="163"/>
         <source>R&amp;ename</source>
-        <translation type="unfinished"></translation>
+        <translation>U&amp;mbenennen</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="192"/>
@@ -3268,7 +3271,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../project/transition.cpp" line="28"/>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Länge</translation>
     </message>
 </context>
 <context>
