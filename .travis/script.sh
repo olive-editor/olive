@@ -9,7 +9,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 	lrelease olive.pro
 	if [ "$ARCH" == "i386" ]; then
-		qmake CONFIG+=release "QMAKE_CFLAGS+=-m32" "QMAKE_CXXFLAGS+=-m32" "QMAKE_LFLAGS+=-m32" PREFIX=/usr -spec linux-g++-32; fi
+		qmake CONFIG+=release "QMAKE_CFLAGS+=-m32" "QMAKE_CXXFLAGS+=-m32" "QMAKE_LFLAGS+=-m32" PREFIX=/usr -spec linux-g++-32
 	else
 		qmake CONFIG+=release PREFIX=/usr
 	fi
@@ -27,4 +27,3 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 		./appimagetool-i686.AppImage "appdir" -n -g
 	fi
 fi
-
