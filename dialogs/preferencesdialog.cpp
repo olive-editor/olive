@@ -392,11 +392,14 @@ void PreferencesDialog::setup_ui() {
 		if (translation_dir.exists()) {
 			QStringList translation_files = translation_dir.entryList({"*.qm"}, QDir::Files | QDir::NoDotAndDotDot);
 			for (int i=0;i<translation_files.size();i++) {
+                // get path of translation relative to the application path
 				QString locale_full_path = translation_dir.filePath(translation_files.at(i));
+                QString locale_relative_path = QDir(get_app_dir()).relativeFilePath(locale_full_path);
+
 				QFileInfo locale_file(translation_files.at(i));
 				QString locale_file_basename = locale_file.baseName();
 				QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
-				language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_full_path);
+                language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_relative_path);
 
 				if (config.language_file == locale_full_path) {
 					language_combobox->setCurrentIndex(language_combobox->count() - 1);

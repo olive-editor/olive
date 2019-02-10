@@ -207,11 +207,18 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 				config.language_file :
 				runtime_config.external_translation_file;
 
-	if (!language_file.isEmpty()
-			&& QFileInfo::exists(language_file)) {
-		QTranslator* translator = new QTranslator(this);
-		translator->load(language_file);
-		QApplication::installTranslator(translator);
+    if (!language_file.isEmpty()) {
+
+        // translation files are stored relative to app path (see GitHub issue #454)
+        QString full_language_path = QDir(get_app_dir()).filePath(language_file);
+
+        if (QFileInfo::exists(full_language_path)) {
+            QTranslator* translator = new QTranslator(this);
+            translator->load(full_language_path);
+            QApplication::installTranslator(translator);
+        } else {
+            qWarning() << "Failed to load translation file" << full_language_path << ". No language will be loaded.";
+        }
 	}
 
 	alloc_panels(this);

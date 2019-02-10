@@ -14,7 +14,8 @@ public:
                         int encoding_codec,
                         VideoCodecParams& iparams);
 
-    void accept();
+public slots:
+    virtual void accept() override;
 private:
     VideoCodecParams& params;
 
