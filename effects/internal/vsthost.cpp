@@ -32,25 +32,43 @@ struct VSTRect {
 #define effGetChunk 23
 #define effSetChunk 24
 
+const char* productString = "OLIVETEAM";
+
 // C callbacks
 extern "C" {
 	// Main host callback
 	intptr_t hostCallback(AEffect* effect, int32_t opcode, int32_t index, intptr_t value, void* ptr, float opt) {
 		switch(opcode) {
+        case audioMasterAutomate:
+            effect->setParameter(effect, index, opt);
+            break;
 		case audioMasterVersion:
 			return 2400;
 		case audioMasterIdle:
 			effect->dispatcher(effect, effEditIdle, 0, 0, nullptr, 0);
-			break;
+            break;
+        case audioMasterWantMidi:
+            // no midi support, return 0
+            break;
+        case audioMasterGetSampleRate:
+            return current_audio_freq();
+        case audioMasterGetBlockSize:
+            return BLOCK_SIZE;
 		case audioMasterGetCurrentProcessLevel:
-			return 0;
-		// handle other opcodes here... there will be lots of them
+            // process level happens to be 0
+            break;
+        case audioMasterGetProductString:
+            strcpy(static_cast<char*>(ptr), "OLIVETEAM");
+            break;
+        case audioMasterBeginEdit:
+            // we don't really care about this
+            // but we are aware of it
+            break;
 		case audioMasterEndEdit: // change made
 			mainWindow->setWindowModified(true);
 			break;
 		default:
 			qInfo() << "Plugin requested unhandled opcode" << opcode;
-			break;
 		}
 		return 0;
 	}
@@ -331,8 +349,7 @@ void VSTHost::change_plugin() {
 			startPlugin();
 			VSTRect* eRect = nullptr;
 			plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
-			dialog->setFixedWidth(eRect->right);
-			dialog->setFixedHeight(eRect->bottom);
+            dialog->setFixedSize(eRect->right - eRect->left, eRect->bottom - eRect->top);
 		} else {
 #ifdef __APPLE__
 			CFBundleUnloadExecutable(bundle);
