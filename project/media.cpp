@@ -8,8 +8,8 @@
 #include "panels/project.h"
 #include "projectmodel.h"
 
-#include <QPainter>
 #include <QCoreApplication>
+#include <QtMath>
 
 #include "debug.h"
 
@@ -117,9 +117,12 @@ void Media::update_tooltip(const QString& error) {
 						if (f->video_tracks.at(i).video_interlacing == VIDEO_PROGRESSIVE) {
 							tooltip += QString::number(f->video_tracks.at(i).video_frame_rate * f->speed);
 						} else {
-							tooltip += QCoreApplication::translate("Media", "%1 fields (%2 frames)").arg(
-										QString::number(f->video_tracks.at(i).video_frame_rate * f->speed * 2),
-										QString::number(f->video_tracks.at(i).video_frame_rate * f->speed)
+                            double adjusted_rate = f->video_tracks.at(i).video_frame_rate * f->speed;
+                            tooltip += QString("%1 %2 (%3 %4)").arg(
+                                        QString::number(adjusted_rate * 2),
+                                        QCoreApplication::translate("Media", "field(s)", "", qCeil(adjusted_rate * 2)),
+                                        QString::number(adjusted_rate),
+                                        QCoreApplication::translate("Media", "frame(s)", "", qCeil(adjusted_rate))
 									);
 						}
 					}
