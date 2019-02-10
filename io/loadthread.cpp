@@ -218,6 +218,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 											qInfo() << "Failed to match" << attr.value().toString() << "to file";
 										}
 									} else {
+                                        f->url = QFileInfo(f->url).absoluteFilePath();
 										qInfo() << "Matched" << attr.value().toString() << "with absolute path";
 									}
 								} else if (attr.name() == "duration") {
