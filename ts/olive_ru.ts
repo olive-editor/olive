@@ -4,12 +4,12 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../dialogs/aboutdialog.cpp" line="23"/>
+        <location filename="../dialogs/aboutdialog.cpp" line="22"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
         <translation>Olive — нелинейный видеоредактор. Эта программа является свободной и защищена GNU GPL.</translation>
     </message>
     <message>
-        <location filename="../dialogs/aboutdialog.cpp" line="25"/>
+        <location filename="../dialogs/aboutdialog.cpp" line="24"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
         <translation>Исходный код Olive доступен для скачивания на сайте программы.</translation>
     </message>
@@ -20,6 +20,19 @@
         <location filename="../dialogs/actionsearch.cpp" line="26"/>
         <source>Search for action...</source>
         <translation>Найти действие…</translation>
+    </message>
+</context>
+<context>
+    <name>AdvancedVideoDialog</name>
+    <message>
+        <location filename="../dialogs/advancedvideodialog.cpp" line="21"/>
+        <source>Advanced Video Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/advancedvideodialog.cpp" line="33"/>
+        <source>Pixel Format:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -122,22 +135,22 @@
     <name>DemoNotice</name>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="10"/>
-        <location filename="../dialogs/demonotice.cpp" line="26"/>
+        <location filename="../dialogs/demonotice.cpp" line="25"/>
         <source>Welcome to Olive!</source>
         <translation>Приветствуем в Olive!</translation>
     </message>
     <message>
-        <location filename="../dialogs/demonotice.cpp" line="28"/>
+        <location filename="../dialogs/demonotice.cpp" line="27"/>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
         <translation>Это свободный нелинейный видеоредактор с открытым исходным кодом под лицензией GNU GPL. Если вы заплатили за эту программу, скорее всего вас обманули.</translation>
     </message>
     <message>
-        <location filename="../dialogs/demonotice.cpp" line="30"/>
+        <location filename="../dialogs/demonotice.cpp" line="29"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
         <translation>На текущий момент программа находится на стадии альфы, т.е. она нестабильна, может часто падать и не иметь нужных вам функций. Мы не даём никаких гарантий, используйте на свой страх и риск. Сообщения об ошибках и запросы на новые функции мы принимаем здесь: %1</translation>
     </message>
     <message>
-        <location filename="../dialogs/demonotice.cpp" line="32"/>
+        <location filename="../dialogs/demonotice.cpp" line="31"/>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
         <translation>Спасибо за интерес к Olive. Надеемся, что программа вам понравится!</translation>
     </message>
@@ -196,38 +209,38 @@
     </message>
     <message>
         <location filename="../project/effect.cpp" line="444"/>
-        <location filename="../project/effect.cpp" line="468"/>
+        <location filename="../project/effect.cpp" line="474"/>
         <source>Effect XML Settings %1</source>
         <translation>Файлы с параметрами эффектов %1</translation>
     </message>
     <message>
-        <location filename="../project/effect.cpp" line="456"/>
+        <location filename="../project/effect.cpp" line="462"/>
         <source>Save Settings Failed</source>
         <translation>Не удалось сохранить параметры</translation>
     </message>
     <message>
-        <location filename="../project/effect.cpp" line="457"/>
+        <location filename="../project/effect.cpp" line="463"/>
         <source>Failed to open &quot;%1&quot; for writing.</source>
         <translation>Не удалось открыть &quot;%1&quot; для записи.</translation>
     </message>
     <message>
-        <location filename="../project/effect.cpp" line="466"/>
+        <location filename="../project/effect.cpp" line="472"/>
         <source>Load Effect Settings</source>
         <translation>Загрузить параметры эффекта</translation>
     </message>
     <message>
-        <location filename="../project/effect.cpp" line="482"/>
-        <location filename="../project/effect.cpp" line="691"/>
+        <location filename="../project/effect.cpp" line="488"/>
+        <location filename="../project/effect.cpp" line="697"/>
         <source>Load Settings Failed</source>
         <translation>Не удалось загрузить параметры</translation>
     </message>
     <message>
-        <location filename="../project/effect.cpp" line="483"/>
+        <location filename="../project/effect.cpp" line="489"/>
         <source>Failed to open &quot;%1&quot; for reading.</source>
         <translation>Не удалось открыть &quot;%1&quot; для чтения.</translation>
     </message>
     <message>
-        <location filename="../project/effect.cpp" line="692"/>
+        <location filename="../project/effect.cpp" line="698"/>
         <source>This settings file doesn&apos;t match this effect.</source>
         <translation>Это файлс параметрами совсем другого эффекта.</translation>
     </message>
@@ -240,42 +253,42 @@
         <translation>Эффекты: </translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="154"/>
+        <location filename="../panels/effectcontrols.cpp" line="158"/>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="325"/>
+        <location filename="../panels/effectcontrols.cpp" line="329"/>
         <source>Add Video Effect</source>
         <translation>Добавить видеоэффект</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="336"/>
+        <location filename="../panels/effectcontrols.cpp" line="340"/>
         <source>VIDEO EFFECTS</source>
         <translation>ВИДЕОЭФФЕКТЫ</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="343"/>
+        <location filename="../panels/effectcontrols.cpp" line="347"/>
         <source>Add Video Transition</source>
         <translation>Добавить видеопереход</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="372"/>
+        <location filename="../panels/effectcontrols.cpp" line="376"/>
         <source>Add Audio Effect</source>
         <translation>Добавить аудиоэффект</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="381"/>
+        <location filename="../panels/effectcontrols.cpp" line="385"/>
         <source>AUDIO EFFECTS</source>
         <translation>АУДИОЭФФЕКТЫ</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="388"/>
+        <location filename="../panels/effectcontrols.cpp" line="392"/>
         <source>Add Audio Transition</source>
         <translation>Добавить аудиопереход</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="405"/>
+        <location filename="../panels/effectcontrols.cpp" line="409"/>
         <source>(Multiple clips selected)</source>
         <translation>(Выделено больше одного клипа)</translation>
     </message>
@@ -304,77 +317,98 @@
 <context>
     <name>ExportDialog</name>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="60"/>
+        <location filename="../dialogs/exportdialog.cpp" line="61"/>
         <source>Export &quot;%1&quot;</source>
         <translation>Экспортировать &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="325"/>
+        <location filename="../dialogs/exportdialog.cpp" line="113"/>
+        <source>Unknown codec name %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="319"/>
         <source>Export Failed</source>
         <translation>Не удалось экспортировать</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="326"/>
+        <location filename="../dialogs/exportdialog.cpp" line="320"/>
         <source>Export failed - %1</source>
         <translation>Не удалось экспортировать — %1</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="347"/>
+        <location filename="../dialogs/exportdialog.cpp" line="341"/>
         <source>Invalid dimensions</source>
         <translation>Некорректный размер кадра</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="348"/>
+        <location filename="../dialogs/exportdialog.cpp" line="342"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
         <translation>Ширина и высота кадра при экспорте должны делиться на 2 без остатка.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="404"/>
+        <location filename="../dialogs/exportdialog.cpp" line="398"/>
         <source>Invalid codec</source>
         <translation>Некорректный кодек</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="405"/>
+        <location filename="../dialogs/exportdialog.cpp" line="399"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="474"/>
+        <location filename="../dialogs/exportdialog.cpp" line="468"/>
         <source>Invalid format</source>
         <translation>Некорректный формат</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="475"/>
+        <location filename="../dialogs/exportdialog.cpp" line="469"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="482"/>
+        <location filename="../dialogs/exportdialog.cpp" line="476"/>
         <source>Export Media</source>
         <translation>Экспортировать проект</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="566"/>
+        <location filename="../dialogs/exportdialog.cpp" line="563"/>
         <source>Quality-based (Constant Rate Factor)</source>
         <translation>Качество (Constant Rate Factor)</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="570"/>
+        <location filename="../dialogs/exportdialog.cpp" line="567"/>
         <source>Constant Bitrate</source>
         <translation>Постоянная скорость потока</translation>
     </message>
     <message>
+        <location filename="../dialogs/exportdialog.cpp" line="576"/>
+        <location filename="../dialogs/exportdialog.cpp" line="582"/>
+        <source>Invalid Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="577"/>
+        <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../dialogs/exportdialog.cpp" line="583"/>
+        <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="596"/>
         <source>Bitrate (Mbps):</source>
         <translation>Скорость потока (Мбит/с):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="587"/>
+        <location filename="../dialogs/exportdialog.cpp" line="600"/>
         <source>Quality (CRF):</source>
         <translation>Качество (CRF):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="590"/>
+        <location filename="../dialogs/exportdialog.cpp" line="603"/>
         <source>Quality Factor:
 
 0 = lossless
@@ -389,68 +423,73 @@
 51 = самое низкое качество</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="593"/>
+        <location filename="../dialogs/exportdialog.cpp" line="606"/>
         <source>Target File Size (MB):</source>
         <translation>Конечный размер файла (Мб):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="604"/>
+        <location filename="../dialogs/exportdialog.cpp" line="622"/>
         <source>Format:</source>
         <translation>Формат:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="613"/>
+        <location filename="../dialogs/exportdialog.cpp" line="631"/>
         <source>Range:</source>
         <translation>Диапазон:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="616"/>
+        <location filename="../dialogs/exportdialog.cpp" line="634"/>
         <source>Entire Sequence</source>
         <translation>Вся последовательность</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="617"/>
+        <location filename="../dialogs/exportdialog.cpp" line="635"/>
         <source>In to Out</source>
         <translation>От входа от выхода</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="624"/>
+        <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Video</source>
         <translation>Видео</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="630"/>
-        <location filename="../dialogs/exportdialog.cpp" line="669"/>
+        <location filename="../dialogs/exportdialog.cpp" line="648"/>
+        <location filename="../dialogs/exportdialog.cpp" line="691"/>
         <source>Codec:</source>
         <translation>Кодек:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="634"/>
+        <location filename="../dialogs/exportdialog.cpp" line="652"/>
         <source>Width:</source>
         <translation>Ширина:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="639"/>
+        <location filename="../dialogs/exportdialog.cpp" line="657"/>
         <source>Height:</source>
         <translation>Высота:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="644"/>
+        <location filename="../dialogs/exportdialog.cpp" line="662"/>
         <source>Frame Rate:</source>
         <translation>Частота кадров:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="650"/>
+        <location filename="../dialogs/exportdialog.cpp" line="668"/>
         <source>Compression Type:</source>
         <translation>Тип сжатия:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="673"/>
+        <location filename="../dialogs/exportdialog.cpp" line="679"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="695"/>
         <source>Sampling Rate:</source>
         <translation>Частота дискретизации:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="679"/>
+        <location filename="../dialogs/exportdialog.cpp" line="701"/>
         <source>Bitrate (Kbps/CBR):</source>
         <translation>Скорость потока (Кбит/с / CBR):</translation>
     </message>
@@ -458,87 +497,87 @@
 <context>
     <name>ExportThread</name>
     <message>
-        <location filename="../io/exportthread.cpp" line="57"/>
+        <location filename="../io/exportthread.cpp" line="61"/>
         <source>failed to send frame to encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="68"/>
+        <location filename="../io/exportthread.cpp" line="72"/>
         <source>failed to receive packet from encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="89"/>
+        <location filename="../io/exportthread.cpp" line="93"/>
         <source>could not video encoder for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="98"/>
+        <location filename="../io/exportthread.cpp" line="102"/>
         <source>could not allocate video stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="107"/>
+        <location filename="../io/exportthread.cpp" line="111"/>
         <source>could not allocate video encoding context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="143"/>
+        <location filename="../io/exportthread.cpp" line="149"/>
         <source>could not open output video encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="151"/>
+        <location filename="../io/exportthread.cpp" line="157"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="189"/>
+        <location filename="../io/exportthread.cpp" line="195"/>
         <source>could not audio encoder for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="198"/>
+        <location filename="../io/exportthread.cpp" line="204"/>
         <source>could not allocate audio stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="207"/>
+        <location filename="../io/exportthread.cpp" line="213"/>
         <source>could not allocate audio encoding context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="232"/>
+        <location filename="../io/exportthread.cpp" line="238"/>
         <source>could not open output audio encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="240"/>
+        <location filename="../io/exportthread.cpp" line="246"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="270"/>
+        <location filename="../io/exportthread.cpp" line="276"/>
         <source>could not allocate audio buffer (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="292"/>
+        <location filename="../io/exportthread.cpp" line="298"/>
         <source>could not create output format context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="301"/>
+        <location filename="../io/exportthread.cpp" line="307"/>
         <source>could not open output file (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="327"/>
+        <location filename="../io/exportthread.cpp" line="333"/>
         <source>could not write output file header (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="464"/>
+        <location filename="../io/exportthread.cpp" line="470"/>
         <source>could not write output file trailer (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -659,17 +698,17 @@
 <context>
     <name>KeyframeView</name>
     <message>
-        <location filename="../ui/keyframeview.cpp" line="53"/>
+        <location filename="../ui/keyframeview.cpp" line="49"/>
         <source>Linear</source>
         <translation>Линейный</translation>
     </message>
     <message>
-        <location filename="../ui/keyframeview.cpp" line="55"/>
+        <location filename="../ui/keyframeview.cpp" line="51"/>
         <source>Bezier</source>
         <translation>Безье</translation>
     </message>
     <message>
-        <location filename="../ui/keyframeview.cpp" line="57"/>
+        <location filename="../ui/keyframeview.cpp" line="53"/>
         <source>Hold</source>
         <translation type="unfinished">Константа</translation>
     </message>
@@ -677,14 +716,14 @@
 <context>
     <name>LabelSlider</name>
     <message>
-        <location filename="../ui/labelslider.cpp" line="152"/>
-        <location filename="../ui/labelslider.cpp" line="163"/>
+        <location filename="../ui/labelslider.cpp" line="210"/>
+        <location filename="../ui/labelslider.cpp" line="228"/>
         <source>Set Value</source>
         <translation>Установить значение</translation>
     </message>
     <message>
-        <location filename="../ui/labelslider.cpp" line="153"/>
-        <location filename="../ui/labelslider.cpp" line="164"/>
+        <location filename="../ui/labelslider.cpp" line="211"/>
+        <location filename="../ui/labelslider.cpp" line="229"/>
         <source>New value:</source>
         <translation>Новое значение:</translation>
     </message>
@@ -720,42 +759,42 @@
         <translation>Этот проект был сохранён в другой версии Olive, которая неполностью совместима с установленной у вас. Всё-таки попробовать загрузить?</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="461"/>
+        <location filename="../io/loadthread.cpp" line="475"/>
         <source>Invalid Clip Link</source>
         <translation>Некорректная связь клипов</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="462"/>
+        <location filename="../io/loadthread.cpp" line="476"/>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
         <translation>В проекте обнаружена некорректная связь клипов. Всё-таки попробовать загрузить её?</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="623"/>
+        <location filename="../io/loadthread.cpp" line="637"/>
         <source>%1 - Line: %2 Col: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="648"/>
+        <location filename="../io/loadthread.cpp" line="662"/>
         <source>User aborted loading</source>
         <translation>Пользователь прервал загрузку</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="675"/>
+        <location filename="../io/loadthread.cpp" line="689"/>
         <source>XML Parsing Error</source>
         <translation>Ошибка разбора XML</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="676"/>
+        <location filename="../io/loadthread.cpp" line="690"/>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
         <translation>Не удалось загрузить &apos;%1&apos;. %2</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="680"/>
+        <location filename="../io/loadthread.cpp" line="694"/>
         <source>Project Load Error</source>
         <translation>Ошибка при загрузке проекта</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="681"/>
+        <location filename="../io/loadthread.cpp" line="695"/>
         <source>Error loading project: %1</source>
         <translation>Ошибка при загрузке проекта: %1</translation>
     </message>
@@ -763,684 +802,713 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="220"/>
+        <location filename="../mainwindow.cpp" line="227"/>
         <source>Welcome to %1</source>
         <translation>Приветствуем в %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="230"/>
+        <location filename="../mainwindow.cpp" line="237"/>
         <source>Auto-recovery</source>
         <translation>Автовосстановление</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="230"/>
+        <location filename="../mainwindow.cpp" line="237"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
         <translation>Olive аварийно завершил работу, обнаружен файл автовосстановления. Открыть его?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="262"/>
+        <location filename="../mainwindow.cpp" line="269"/>
         <source>&amp;Project</source>
         <translation>&amp;Проект</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="264"/>
+        <location filename="../mainwindow.cpp" line="271"/>
         <source>&amp;Sequence</source>
         <translation>П&amp;оследовательность</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="265"/>
+        <location filename="../mainwindow.cpp" line="272"/>
         <source>&amp;Folder</source>
         <translation>П&amp;апка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="269"/>
+        <location filename="../mainwindow.cpp" line="276"/>
         <source>Set In Point</source>
         <translation>Установить точку входа</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="270"/>
+        <location filename="../mainwindow.cpp" line="277"/>
         <source>Set Out Point</source>
         <translation>Установить точку выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="271"/>
         <source>Enable/Disable In/Out Point</source>
-        <translation>Переключить точку входа/выхода</translation>
+        <translation type="vanished">Переключить точку входа/выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="273"/>
+        <location filename="../mainwindow.cpp" line="279"/>
         <source>Reset In Point</source>
         <translation>Сбросить точку входа</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="274"/>
+        <location filename="../mainwindow.cpp" line="280"/>
         <source>Reset Out Point</source>
         <translation>Сбросить точку выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="275"/>
+        <location filename="../mainwindow.cpp" line="281"/>
         <source>Clear In/Out Point</source>
         <translation>Очистить точку входа/выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
+        <location filename="../mainwindow.cpp" line="456"/>
         <source>No active sequence</source>
         <translation>Нет активных последовательностей</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
+        <location filename="../mainwindow.cpp" line="456"/>
         <source>Please open the sequence you wish to export.</source>
         <translation>Откройте последовательность, которую хотите экспортировать</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="544"/>
+        <location filename="../mainwindow.cpp" line="554"/>
         <source>Save Project As...</source>
         <translation>Сохранить проект как…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="569"/>
+        <location filename="../mainwindow.cpp" line="579"/>
         <source>Unsaved Project</source>
         <translation>Несохранённый проект</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="570"/>
+        <location filename="../mainwindow.cpp" line="580"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
         <translation>Проект был изменён с момента последнего сохранения. Хотите сохранить его перед закрытием?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="592"/>
+        <location filename="../mainwindow.cpp" line="602"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="595"/>
+        <location filename="../mainwindow.cpp" line="605"/>
         <source>&amp;New</source>
         <translation>&amp;Создать</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="598"/>
+        <location filename="../mainwindow.cpp" line="608"/>
         <source>&amp;Open Project</source>
         <translation>&amp;Открыть проект</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="600"/>
+        <location filename="../mainwindow.cpp" line="610"/>
         <source>Clear Recent List</source>
         <translation>Очистить список</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="604"/>
+        <location filename="../mainwindow.cpp" line="614"/>
         <source>Open Recent</source>
         <translation>Открыть недавний</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="608"/>
+        <location filename="../mainwindow.cpp" line="618"/>
         <source>&amp;Save Project</source>
         <translation>Со&amp;хранить проект</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="609"/>
+        <location filename="../mainwindow.cpp" line="619"/>
         <source>Save Project &amp;As</source>
         <translation>Сохранить проект &amp;как</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="613"/>
+        <location filename="../mainwindow.cpp" line="623"/>
         <source>&amp;Import...</source>
         <translation>&amp;Импортировать…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="617"/>
+        <location filename="../mainwindow.cpp" line="627"/>
         <source>&amp;Export...</source>
         <translation>&amp;Экспортировать….</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="621"/>
+        <location filename="../mainwindow.cpp" line="631"/>
         <source>E&amp;xit</source>
         <translation>В&amp;ыход</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="625"/>
+        <location filename="../mainwindow.cpp" line="635"/>
         <source>&amp;Edit</source>
         <translation>&amp;Правка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="628"/>
+        <location filename="../mainwindow.cpp" line="638"/>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="630"/>
+        <location filename="../mainwindow.cpp" line="640"/>
         <source>Redo</source>
         <translation>Вернуть</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="635"/>
+        <location filename="../mainwindow.cpp" line="645"/>
         <source>Cu&amp;t</source>
         <translation>В&amp;ырезать</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="636"/>
+        <location filename="../mainwindow.cpp" line="646"/>
         <source>Cop&amp;y</source>
         <translation>С&amp;копировать</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="637"/>
+        <location filename="../mainwindow.cpp" line="647"/>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="638"/>
+        <location filename="../mainwindow.cpp" line="648"/>
         <source>Paste Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="639"/>
+        <location filename="../mainwindow.cpp" line="649"/>
         <source>Duplicate</source>
         <translation>Сделать копию</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="640"/>
+        <location filename="../mainwindow.cpp" line="650"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="641"/>
+        <location filename="../mainwindow.cpp" line="651"/>
         <source>Ripple Delete</source>
         <translation>Удалить со сдвигом</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="652"/>
         <source>Split</source>
         <translation>Разделить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="646"/>
+        <location filename="../mainwindow.cpp" line="656"/>
         <source>Select &amp;All</source>
         <translation>Выд&amp;елить всё</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="648"/>
+        <location filename="../mainwindow.cpp" line="658"/>
         <source>Deselect All</source>
         <translation>Снять выделение</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="652"/>
+        <location filename="../mainwindow.cpp" line="662"/>
         <source>Add Default Transition</source>
         <translation>Добавить переход по умолчанию</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="653"/>
+        <location filename="../mainwindow.cpp" line="663"/>
         <source>Link/Unlink</source>
         <translation>Связать/Убрать связь</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="654"/>
+        <location filename="../mainwindow.cpp" line="664"/>
         <source>Enable/Disable</source>
         <translation>Включить/Отключить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="655"/>
+        <location filename="../mainwindow.cpp" line="665"/>
         <source>Nest</source>
         <translation>Вложить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="659"/>
+        <location filename="../mainwindow.cpp" line="669"/>
         <source>Ripple to In Point</source>
         <translation>Сдвиг до точки входа</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="660"/>
+        <location filename="../mainwindow.cpp" line="670"/>
         <source>Ripple to Out Point</source>
         <translation>Сдвиг до точки выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="661"/>
+        <location filename="../mainwindow.cpp" line="671"/>
         <source>Edit to In Point</source>
         <translation>Правка до точки входа</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="662"/>
+        <location filename="../mainwindow.cpp" line="672"/>
         <source>Edit to Out Point</source>
         <translation>Правка до точки выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Delete In/Out Point</source>
         <translation>Удалить точку входа/выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="668"/>
+        <location filename="../mainwindow.cpp" line="678"/>
         <source>Ripple Delete In/Out Point</source>
         <translation>Удалить со сдвигом точку входа/выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="672"/>
+        <location filename="../mainwindow.cpp" line="682"/>
         <source>Set/Edit Marker</source>
         <translation>Установить/Изменить маркер</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="676"/>
+        <location filename="../mainwindow.cpp" line="686"/>
         <source>&amp;View</source>
         <translation>&amp;Вид</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="679"/>
+        <location filename="../mainwindow.cpp" line="689"/>
         <source>Zoom In</source>
         <translation>Приблизить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="680"/>
+        <location filename="../mainwindow.cpp" line="690"/>
         <source>Zoom Out</source>
         <translation>Отдалить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="681"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Increase Track Height</source>
         <translation>Увеличить высоту дорожки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="682"/>
+        <location filename="../mainwindow.cpp" line="692"/>
         <source>Decrease Track Height</source>
         <translation>Уменьшить высоту дорожки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="684"/>
+        <location filename="../mainwindow.cpp" line="694"/>
         <source>Toggle Show All</source>
         <translation>Показывать весь проект</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="690"/>
+        <location filename="../mainwindow.cpp" line="700"/>
         <source>Track Lines</source>
         <translation>Линии дорожек</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="695"/>
+        <location filename="../mainwindow.cpp" line="705"/>
         <source>Rectified Waveforms</source>
         <translation>Волновая форма от низа</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="702"/>
+        <location filename="../mainwindow.cpp" line="712"/>
         <source>Frames</source>
         <translation>Кадры</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="706"/>
+        <location filename="../mainwindow.cpp" line="716"/>
         <source>Drop Frame</source>
         <translation>С пропуском кадров</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="710"/>
+        <location filename="../mainwindow.cpp" line="720"/>
         <source>Non-Drop Frame</source>
         <translation>Без пропуска кадров</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="714"/>
+        <location filename="../mainwindow.cpp" line="724"/>
         <source>Milliseconds</source>
         <translation>Миллисекунды</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="721"/>
+        <location filename="../mainwindow.cpp" line="731"/>
         <source>Title/Action Safe Area</source>
         <translation>Безопасная область</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="723"/>
+        <location filename="../mainwindow.cpp" line="733"/>
         <source>Off</source>
         <translation>Выкл.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="728"/>
+        <location filename="../mainwindow.cpp" line="738"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="733"/>
+        <location filename="../mainwindow.cpp" line="743"/>
         <source>4:3</source>
         <translation>4:3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="738"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>16:9</source>
         <translation>16:9</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="743"/>
+        <location filename="../mainwindow.cpp" line="753"/>
         <source>Custom</source>
         <translation>Другая</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="750"/>
+        <location filename="../mainwindow.cpp" line="760"/>
         <source>Full Screen</source>
         <translation>Полноэкранный режим</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="754"/>
+        <location filename="../mainwindow.cpp" line="764"/>
         <source>Full Screen Viewer</source>
         <translation>Монитор в полноэкранном режиме</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="758"/>
+        <location filename="../mainwindow.cpp" line="768"/>
         <source>&amp;Playback</source>
         <translation>Вос&amp;произведение</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="761"/>
+        <location filename="../mainwindow.cpp" line="771"/>
         <source>Go to Start</source>
         <translation>К началу</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="762"/>
+        <location filename="../mainwindow.cpp" line="772"/>
         <source>Previous Frame</source>
         <translation>К предыдущему кадру</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="763"/>
+        <location filename="../mainwindow.cpp" line="773"/>
         <source>Play/Pause</source>
         <translation>Воспроизведение/Пауза</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="764"/>
+        <location filename="../mainwindow.cpp" line="774"/>
         <source>Play In to Out</source>
         <translation>Проиграть от входа до выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="765"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Next Frame</source>
         <translation>К следующему кадру</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="766"/>
+        <location filename="../mainwindow.cpp" line="776"/>
         <source>Go to End</source>
         <translation>В конец</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="768"/>
+        <location filename="../mainwindow.cpp" line="778"/>
         <source>Go to Previous Cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="769"/>
+        <location filename="../mainwindow.cpp" line="779"/>
         <source>Go to Next Cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="771"/>
+        <location filename="../mainwindow.cpp" line="781"/>
         <source>Go to In Point</source>
         <translation>К точке входа</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="772"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>Go to Out Point</source>
         <translation>К точке выхода</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="774"/>
+        <location filename="../mainwindow.cpp" line="784"/>
+        <source>Shuttle Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="785"/>
+        <source>Shuttle Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="786"/>
+        <source>Shuttle Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decrease Speed</source>
-        <translation>Уменьшить скорость</translation>
+        <translation type="vanished">Уменьшить скорость</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="775"/>
         <source>Pause</source>
-        <translation>Пауза</translation>
+        <translation type="vanished">Пауза</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="776"/>
         <source>Increase Speed</source>
-        <translation>Увеличить скорость</translation>
+        <translation type="vanished">Увеличить скорость</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="779"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>Loop</source>
         <translation>Петля</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="786"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>&amp;Window</source>
         <translation>&amp;Окно</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="789"/>
+        <location filename="../mainwindow.cpp" line="799"/>
         <source>Project</source>
         <translation>Проект</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="794"/>
+        <location filename="../mainwindow.cpp" line="804"/>
         <source>Effect Controls</source>
         <translation>Управление эффектами</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="799"/>
+        <location filename="../mainwindow.cpp" line="809"/>
         <source>Timeline</source>
         <translation>Таймлайн</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="804"/>
+        <location filename="../mainwindow.cpp" line="814"/>
         <source>Graph Editor</source>
         <translation>Редактор графов</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="809"/>
+        <location filename="../mainwindow.cpp" line="819"/>
         <source>Media Viewer</source>
         <translation>Монитор проекта</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="814"/>
+        <location filename="../mainwindow.cpp" line="824"/>
         <source>Sequence Viewer</source>
         <translation>Монитор последовательностей</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="821"/>
+        <location filename="../mainwindow.cpp" line="831"/>
         <source>Maximize Panel</source>
         <translation>Развернуть панель</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="825"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>Reset to Default Layout</source>
         <translation>Вернуть исходный вид панелей</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="829"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>&amp;Tools</source>
         <translation>&amp;Инструменты</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="832"/>
+        <location filename="../mainwindow.cpp" line="842"/>
         <source>Pointer Tool</source>
         <translation>Указатель</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="837"/>
+        <location filename="../mainwindow.cpp" line="847"/>
         <source>Edit Tool</source>
         <translation>Выделение</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="842"/>
+        <location filename="../mainwindow.cpp" line="852"/>
         <source>Ripple Tool</source>
         <translation>Монтаж со сдвигом</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="847"/>
+        <location filename="../mainwindow.cpp" line="857"/>
         <source>Razor Tool</source>
         <translation>Подрезка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="852"/>
+        <location filename="../mainwindow.cpp" line="862"/>
         <source>Slip Tool</source>
         <translation>Прокрутка с совмещением</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="857"/>
+        <location filename="../mainwindow.cpp" line="867"/>
         <source>Slide Tool</source>
         <translation>Прокрутка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="862"/>
+        <location filename="../mainwindow.cpp" line="872"/>
         <source>Hand Tool</source>
         <translation>Навигация</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="867"/>
+        <location filename="../mainwindow.cpp" line="877"/>
         <source>Transition Tool</source>
         <translation>Переход</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="874"/>
+        <location filename="../mainwindow.cpp" line="884"/>
         <source>Enable Snapping</source>
         <translation>Включить прилипание</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="881"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Selecting Also Seeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="886"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Edit Tool Also Seeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="891"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Edit Tool Selects Links</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="896"/>
+        <location filename="../mainwindow.cpp" line="906"/>
         <source>Seek Also Selects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="901"/>
+        <location filename="../mainwindow.cpp" line="911"/>
         <source>Seek to the End of Pastes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="906"/>
+        <location filename="../mainwindow.cpp" line="916"/>
         <source>Scroll Wheel Zooms</source>
         <translation>Колесо мыши масштабирует таймлайн</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="911"/>
+        <location filename="../mainwindow.cpp" line="921"/>
         <source>Enable Drag Files to Timeline</source>
         <translation>Разрешить перетаскивание файлов на таймлайн извне</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="916"/>
+        <location filename="../mainwindow.cpp" line="926"/>
         <source>Auto-Scale By Default</source>
         <translation>Автоматически масштабировать по умолчанию</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="921"/>
+        <location filename="../mainwindow.cpp" line="931"/>
         <source>Enable Seek to Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="926"/>
+        <location filename="../mainwindow.cpp" line="936"/>
         <source>Audio Scrubbing</source>
         <translation>Воспроизводить звук при прокрутке</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="931"/>
+        <location filename="../mainwindow.cpp" line="941"/>
         <source>Enable Drop on Media to Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="936"/>
+        <location filename="../mainwindow.cpp" line="946"/>
         <source>Enable Hover Focus</source>
         <translation>Включить фокус наводкой</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="941"/>
+        <location filename="../mainwindow.cpp" line="951"/>
         <source>Ask For Name When Setting Marker</source>
         <translation>Спрашивать имя маркера при добавлении</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="948"/>
+        <location filename="../mainwindow.cpp" line="958"/>
         <source>No Auto-Scroll</source>
         <translation>Без автопрокрутки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="953"/>
+        <location filename="../mainwindow.cpp" line="963"/>
         <source>Page Auto-Scroll</source>
         <translation>Прокручивать перелистыванием</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="958"/>
+        <location filename="../mainwindow.cpp" line="968"/>
         <source>Smooth Auto-Scroll</source>
         <translation>Прокручивать плавно</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="965"/>
+        <location filename="../mainwindow.cpp" line="975"/>
         <source>Preferences</source>
         <translation>Параметры</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="968"/>
+        <location filename="../mainwindow.cpp" line="978"/>
         <source>Clear Undo</source>
         <translation>Очистить историю изменений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="973"/>
+        <location filename="../mainwindow.cpp" line="983"/>
         <source>&amp;Help</source>
         <translation>&amp;Справка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="975"/>
+        <location filename="../mainwindow.cpp" line="985"/>
         <source>A&amp;ction Search</source>
         <translation>&amp;Найти команду</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="979"/>
+        <location filename="../mainwindow.cpp" line="989"/>
         <source>Debug Log</source>
         <translation>Журнал отладки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="983"/>
+        <location filename="../mainwindow.cpp" line="993"/>
         <source>&amp;About...</source>
         <translation>&amp;О программе…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1007"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>&lt;untitled&gt;</source>
         <translation>&lt;без названия&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1077"/>
+        <location filename="../mainwindow.cpp" line="1087"/>
         <source>Open Project...</source>
         <translation>Открыть проект…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1383"/>
+        <location filename="../mainwindow.cpp" line="1394"/>
         <source>Missing recent project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1384"/>
+        <location filename="../mainwindow.cpp" line="1395"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1504"/>
+        <location filename="../mainwindow.cpp" line="1507"/>
         <source>Invalid aspect ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1504"/>
+        <location filename="../mainwindow.cpp" line="1507"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1507"/>
+        <location filename="../mainwindow.cpp" line="1510"/>
         <source>Enter custom aspect ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1507"/>
+        <location filename="../mainwindow.cpp" line="1510"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1576"/>
+        <location filename="../mainwindow.cpp" line="1589"/>
         <source>Nested Sequence</source>
         <translation>Вложенная последовательность</translation>
+    </message>
+</context>
+<context>
+    <name>Marker</name>
+    <message>
+        <location filename="../project/marker.cpp" line="43"/>
+        <source>Set Marker</source>
+        <translation type="unfinished">Установить маркер</translation>
+    </message>
+    <message>
+        <location filename="../project/marker.cpp" line="45"/>
+        <source>Set clip marker name:</source>
+        <translation type="unfinished">Установить название маркера клипа:</translation>
+    </message>
+    <message>
+        <location filename="../project/marker.cpp" line="46"/>
+        <source>Set sequence marker name:</source>
+        <translation type="unfinished">Установить название маркера последовательности:</translation>
     </message>
 </context>
 <context>
@@ -1795,184 +1863,184 @@ Audio Layout: %6</source>
         <translation>Язык:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="406"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="416"/>
         <source>Custom CSS:</source>
         <translation>Свой CSS:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="412"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="422"/>
         <source>Browse</source>
         <translation>Просмотр</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="419"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="429"/>
         <source>Image sequence formats:</source>
         <translation>Форматы  изображений:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="428"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
         <source>Audio Recording:</source>
         <translation>Запись звука:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="431"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="441"/>
         <source>Mono</source>
         <translation>Моно</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="432"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="442"/>
         <source>Stereo</source>
         <translation>Стерео</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="448"/>
         <source>Effect Textbox Lines:</source>
         <translation>Строк в редакторе титров:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="448"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="458"/>
         <source>Thumbnail Resolution:</source>
         <translation>Разрешение миниатюр:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="456"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="466"/>
         <source>Waveform Resolution:</source>
         <translation>Разрешение волновой формы:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="469"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="479"/>
         <source>Use Software Fallbacks When Possible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="473"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="483"/>
         <source>General</source>
         <translation>Общие</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="477"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="487"/>
         <source>Behavior</source>
         <translation>Поведение</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="484"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="494"/>
         <source>Disable Multithreading on Images</source>
         <translation>Отключить многопоточность для изображений</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="490"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="500"/>
         <source>Seeking</source>
         <translation>Позиционирование</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="493"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="503"/>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
         <translation>Точное позиционирование
 Всегда показывать правильный кадр; на его получение может уходить немного времени</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="496"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="506"/>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
         <translation>Быстрое позиционирование
 Переходы без пауз, возможен кратковременный показ неправильного кадра в мониторе</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="502"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="512"/>
         <source>Memory Usage</source>
         <translation>Использование памяти</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="504"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="514"/>
         <source>Upcoming Frame Queue:</source>
         <translation>Очередь последующих кадров:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="509"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="518"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="528"/>
         <source>frames</source>
         <translation>кадров</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="510"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="520"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="529"/>
         <source>seconds</source>
         <translation>секунд</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="513"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="523"/>
         <source>Previous Frame Queue:</source>
         <translation>Очередь предыдущих кадров:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="524"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="534"/>
         <source>Playback</source>
         <translation>Воспроизведение</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="531"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="541"/>
         <source>Output Device:</source>
         <translation>Устройство выхода:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="534"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="544"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="563"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="550"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="560"/>
         <source>Input Device:</source>
         <translation>Устройство входа:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="569"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="579"/>
         <source>Sample Rate:</source>
         <translation>Частота дискретизации:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="582"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="592"/>
         <source>Audio</source>
         <translation>Звук</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="590"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="600"/>
         <source>Search for action or shortcut</source>
         <translation>Искать действие или комбинацию клавиш</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="597"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
         <source>Action</source>
         <translation>Действие</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="598"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="608"/>
         <source>Shortcut</source>
         <translation>Комбинация</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="603"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="613"/>
         <source>Import</source>
         <translation>Импортировать</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="617"/>
         <source>Export</source>
         <translation>Экспортировать</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="613"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
         <source>Reset Selected</source>
         <translation>Сбросить выбранное</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="617"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="627"/>
         <source>Reset All</source>
         <translation>Сбросить все</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="633"/>
         <source>Keyboard</source>
         <translation>Клавиатурные комбинации</translation>
     </message>
@@ -1980,12 +2048,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>PreviewGenerator</name>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="432"/>
+        <location filename="../io/previewgenerator.cpp" line="452"/>
         <source>Could not open file - %1</source>
         <translation>Не удалось открыть файл — %1</translation>
     </message>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="439"/>
+        <location filename="../io/previewgenerator.cpp" line="459"/>
         <source>Could not find stream information - %1</source>
         <translation>Не удалось найти информацию потока — %1</translation>
     </message>
@@ -2242,7 +2310,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>Sequence</name>
     <message>
-        <location filename="../project/sequence.cpp" line="29"/>
+        <location filename="../project/sequence.cpp" line="28"/>
         <source>%1 (copy)</source>
         <translation>%1 (копия)</translation>
     </message>
@@ -2652,162 +2720,159 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>Timeline</name>
     <message>
-        <location filename="../panels/timeline.cpp" line="398"/>
+        <location filename="../panels/timeline.cpp" line="399"/>
         <source>Timeline: </source>
         <translation>Таймлайн:</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="400"/>
+        <location filename="../panels/timeline.cpp" line="401"/>
         <source>&lt;none&gt;</source>
         <translation>&lt;нет&gt;</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1094"/>
+        <location filename="../panels/timeline.cpp" line="1095"/>
         <source>Effect already exists</source>
         <translation>Эффект уже добавлен</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1095"/>
+        <location filename="../panels/timeline.cpp" line="1096"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
         <translation>Клип &apos;%1&apos; уже содержит эффект &apos;%2&apos;. Хотите заменить его на вставляемый эффект или добавить вставляемый эффект как отдельный?</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1098"/>
+        <location filename="../panels/timeline.cpp" line="1099"/>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1099"/>
+        <location filename="../panels/timeline.cpp" line="1100"/>
         <source>Replace</source>
         <translation>Заменить</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1100"/>
+        <location filename="../panels/timeline.cpp" line="1101"/>
         <source>Skip</source>
         <translation>Пропустить</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1102"/>
+        <location filename="../panels/timeline.cpp" line="1103"/>
         <source>Do this for all conflicts found</source>
         <translation>Применить для всех конфликтов</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1482"/>
         <source>Set Marker</source>
-        <translation>Установить маркер</translation>
+        <translation type="vanished">Установить маркер</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1483"/>
         <source>Set clip marker name:</source>
-        <translation>Установить название маркера клипа:</translation>
+        <translation type="vanished">Установить название маркера клипа:</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1483"/>
         <source>Set sequence marker name:</source>
-        <translation>Установить название маркера последовательности:</translation>
+        <translation type="vanished">Установить название маркера последовательности:</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1590"/>
+        <location filename="../panels/timeline.cpp" line="1555"/>
         <source>Title...</source>
         <translation>Титры…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1595"/>
+        <location filename="../panels/timeline.cpp" line="1560"/>
         <source>Solid Color...</source>
         <translation>Цветная заливка…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1600"/>
+        <location filename="../panels/timeline.cpp" line="1565"/>
         <source>Bars...</source>
         <translation>Испытательная таблица…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1607"/>
+        <location filename="../panels/timeline.cpp" line="1572"/>
         <source>Tone...</source>
         <translation>Звуковой сигнал…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1612"/>
+        <location filename="../panels/timeline.cpp" line="1577"/>
         <source>Noise...</source>
         <translation>Шум…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1635"/>
+        <location filename="../panels/timeline.cpp" line="1600"/>
         <source>Unsaved Project</source>
         <translation>Несохранённый проект</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1636"/>
+        <location filename="../panels/timeline.cpp" line="1601"/>
         <source>You must save this project before you can record audio in it.</source>
         <translation>Перед записью звука необходимо сохранить проект.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1642"/>
+        <location filename="../panels/timeline.cpp" line="1607"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
         <translation>Щелкните на таймлайне в точке, от которой хотите начать запись звука. Перетащите курсор после щелчка, чтобы сразу задать длительность записи.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1725"/>
+        <location filename="../panels/timeline.cpp" line="1690"/>
         <source>Pointer Tool</source>
         <translation>Указатель</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1736"/>
+        <location filename="../panels/timeline.cpp" line="1701"/>
         <source>Edit Tool</source>
         <translation>Выделение</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1747"/>
+        <location filename="../panels/timeline.cpp" line="1712"/>
         <source>Ripple Tool</source>
         <translation>Монтаж со сдвигом</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1758"/>
+        <location filename="../panels/timeline.cpp" line="1723"/>
         <source>Razor Tool</source>
         <translation>Подрезка</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1769"/>
+        <location filename="../panels/timeline.cpp" line="1734"/>
         <source>Slip Tool</source>
         <translation>Прокрутка с совмещением</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1780"/>
+        <location filename="../panels/timeline.cpp" line="1745"/>
         <source>Slide Tool</source>
         <translation>Прокрутка</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1791"/>
+        <location filename="../panels/timeline.cpp" line="1756"/>
         <source>Hand Tool</source>
         <translation>Навигация</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1802"/>
+        <location filename="../panels/timeline.cpp" line="1767"/>
         <source>Transition Tool</source>
         <translation>Переход</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1813"/>
+        <location filename="../panels/timeline.cpp" line="1778"/>
         <source>Snapping</source>
         <translation>Прилипание</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1822"/>
+        <location filename="../panels/timeline.cpp" line="1787"/>
         <source>Zoom In</source>
         <translation>Приблизить</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1831"/>
+        <location filename="../panels/timeline.cpp" line="1796"/>
         <source>Zoom Out</source>
         <translation>Отдалить</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1840"/>
+        <location filename="../panels/timeline.cpp" line="1805"/>
         <source>Record audio</source>
         <translation>Записать звук</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1849"/>
+        <location filename="../panels/timeline.cpp" line="1814"/>
         <source>Add title, solid, bars, etc.</source>
         <translation>Добавить титры, заливку цветом, испытательную таблицу и т.д.</translation>
     </message>
@@ -2815,7 +2880,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>TimelineHeader</name>
     <message>
-        <location filename="../ui/timelineheader.cpp" line="442"/>
+        <location filename="../ui/timelineheader.cpp" line="443"/>
         <source>Center Timecodes</source>
         <translation>Центрировать тайм-код</translation>
     </message>
@@ -2924,32 +2989,32 @@ Duration: %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="808"/>
+        <location filename="../ui/timelinewidget.cpp" line="810"/>
         <source>Title</source>
         <translation>Титры</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="812"/>
+        <location filename="../ui/timelinewidget.cpp" line="814"/>
         <source>Solid Color</source>
         <translation>Цветная заливка</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="817"/>
+        <location filename="../ui/timelinewidget.cpp" line="819"/>
         <source>Bars</source>
         <translation>Испытательная таблица</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="824"/>
+        <location filename="../ui/timelinewidget.cpp" line="826"/>
         <source>Tone</source>
         <translation>Звуковой сигнал</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="828"/>
+        <location filename="../ui/timelinewidget.cpp" line="830"/>
         <source>Noise</source>
         <translation>Шум</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1586"/>
+        <location filename="../ui/timelinewidget.cpp" line="1588"/>
         <source>Duration:</source>
         <translation>Длительность:</translation>
     </message>
@@ -3138,9 +3203,13 @@ Duration: %4</source>
 <context>
     <name>Transition</name>
     <message>
-        <location filename="../project/transition.cpp" line="28"/>
         <source>Length:</source>
-        <translation>Длительность:</translation>
+        <translation type="vanished">Длительность:</translation>
+    </message>
+    <message>
+        <location filename="../project/transition.cpp" line="28"/>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3205,17 +3274,17 @@ Duration: %4</source>
 <context>
     <name>Viewer</name>
     <message>
-        <location filename="../panels/panels.cpp" line="157"/>
+        <location filename="../panels/panels.cpp" line="160"/>
         <source>Sequence Viewer</source>
         <translation>Монитор последовательностей</translation>
     </message>
     <message>
-        <location filename="../panels/panels.cpp" line="160"/>
+        <location filename="../panels/panels.cpp" line="163"/>
         <source>Media Viewer</source>
         <translation>Монитор проекта</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="545"/>
+        <location filename="../panels/viewer.cpp" line="543"/>
         <source>(none)</source>
         <translation>(нет)</translation>
     </message>
