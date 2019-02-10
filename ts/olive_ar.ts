@@ -23,6 +23,19 @@
     </message>
 </context>
 <context>
+    <name>AdvancedVideoDialog</name>
+    <message>
+        <location filename="../dialogs/advancedvideodialog.cpp" line="21"/>
+        <source>Advanced Video Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/advancedvideodialog.cpp" line="33"/>
+        <source>Pixel Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Audio</name>
     <message>
         <location filename="../playback/audio.cpp" line="311"/>
@@ -240,42 +253,42 @@
         <translation>المؤثرات: </translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="154"/>
+        <location filename="../panels/effectcontrols.cpp" line="158"/>
         <source>&amp;Paste</source>
         <translation>&amp;لصق</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="325"/>
+        <location filename="../panels/effectcontrols.cpp" line="329"/>
         <source>Add Video Effect</source>
         <translation>أضف موثر فيديو</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="336"/>
+        <location filename="../panels/effectcontrols.cpp" line="340"/>
         <source>VIDEO EFFECTS</source>
         <translation>موثرات الفيديو</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="343"/>
+        <location filename="../panels/effectcontrols.cpp" line="347"/>
         <source>Add Video Transition</source>
         <translation>أضف أنتقالة فيديو</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="372"/>
+        <location filename="../panels/effectcontrols.cpp" line="376"/>
         <source>Add Audio Effect</source>
         <translation>أضف موثر صوت</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="381"/>
+        <location filename="../panels/effectcontrols.cpp" line="385"/>
         <source>AUDIO EFFECTS</source>
         <translation>موثرات الصوت</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="388"/>
+        <location filename="../panels/effectcontrols.cpp" line="392"/>
         <source>Add Audio Transition</source>
         <translation>أضف أنتقالة صوت</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="405"/>
+        <location filename="../panels/effectcontrols.cpp" line="409"/>
         <source>(Multiple clips selected)</source>
         <translation>(مقاطع عديدة محددة)</translation>
     </message>
@@ -304,77 +317,98 @@
 <context>
     <name>ExportDialog</name>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="60"/>
+        <location filename="../dialogs/exportdialog.cpp" line="61"/>
         <source>Export &quot;%1&quot;</source>
         <translation>صدّر &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="325"/>
+        <location filename="../dialogs/exportdialog.cpp" line="113"/>
+        <source>Unknown codec name %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="319"/>
         <source>Export Failed</source>
         <translation>فشل التصدير</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="326"/>
+        <location filename="../dialogs/exportdialog.cpp" line="320"/>
         <source>Export failed - %1</source>
         <translation>فشل تصدير - %1</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="347"/>
+        <location filename="../dialogs/exportdialog.cpp" line="341"/>
         <source>Invalid dimensions</source>
         <translation>أبعاد خاطئة</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="348"/>
+        <location filename="../dialogs/exportdialog.cpp" line="342"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
         <translation>تصدير العرض والطول يجب أن يكون عدد زوجي/قابل للقسمة ب 2.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="404"/>
+        <location filename="../dialogs/exportdialog.cpp" line="398"/>
         <source>Invalid codec</source>
         <translation>مرماز غير صالح</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="405"/>
+        <location filename="../dialogs/exportdialog.cpp" line="399"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
         <translation>لم يتم التعرف على خيارات الإخراج للمرماز المحدد. هذه علة, رجاءً تواصل مع المطورين.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="474"/>
+        <location filename="../dialogs/exportdialog.cpp" line="468"/>
         <source>Invalid format</source>
         <translation>صيغة غير صالحة</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="475"/>
+        <location filename="../dialogs/exportdialog.cpp" line="469"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
         <translation>لم يتم التعرف على صيغة اﻹخراج. هذه علة, رجاءً تواصل مع المطورين.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="482"/>
+        <location filename="../dialogs/exportdialog.cpp" line="476"/>
         <source>Export Media</source>
         <translation>صدّر الوسائط</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="566"/>
+        <location filename="../dialogs/exportdialog.cpp" line="563"/>
         <source>Quality-based (Constant Rate Factor)</source>
         <translation>(عامل النسبة الثابت) أعتماداً-بالجودة</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="570"/>
+        <location filename="../dialogs/exportdialog.cpp" line="567"/>
         <source>Constant Bitrate</source>
         <translation>نسبة بت ثابتة</translation>
     </message>
     <message>
+        <location filename="../dialogs/exportdialog.cpp" line="576"/>
+        <location filename="../dialogs/exportdialog.cpp" line="582"/>
+        <source>Invalid Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="577"/>
+        <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../dialogs/exportdialog.cpp" line="583"/>
+        <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="596"/>
         <source>Bitrate (Mbps):</source>
         <translation>نسبة البت (مب/ث):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="587"/>
+        <location filename="../dialogs/exportdialog.cpp" line="600"/>
         <source>Quality (CRF):</source>
         <translation>الجودة (CRF):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="590"/>
+        <location filename="../dialogs/exportdialog.cpp" line="603"/>
         <source>Quality Factor:
 
 0 = lossless
@@ -389,68 +423,73 @@
 51 = أقل جودة ممكنة</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="593"/>
+        <location filename="../dialogs/exportdialog.cpp" line="606"/>
         <source>Target File Size (MB):</source>
         <translation>حجم الملف الهدف (مب):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="604"/>
+        <location filename="../dialogs/exportdialog.cpp" line="622"/>
         <source>Format:</source>
         <translation>صيغة:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="613"/>
+        <location filename="../dialogs/exportdialog.cpp" line="631"/>
         <source>Range:</source>
         <translation>المدى:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="616"/>
+        <location filename="../dialogs/exportdialog.cpp" line="634"/>
         <source>Entire Sequence</source>
         <translation>كل المقطع</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="617"/>
+        <location filename="../dialogs/exportdialog.cpp" line="635"/>
         <source>In to Out</source>
         <translation>الدخل إلى الخرج</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="624"/>
+        <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Video</source>
         <translation>فيديو</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="630"/>
-        <location filename="../dialogs/exportdialog.cpp" line="669"/>
+        <location filename="../dialogs/exportdialog.cpp" line="648"/>
+        <location filename="../dialogs/exportdialog.cpp" line="691"/>
         <source>Codec:</source>
         <translation>مرماز:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="634"/>
+        <location filename="../dialogs/exportdialog.cpp" line="652"/>
         <source>Width:</source>
         <translation>العرض:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="639"/>
+        <location filename="../dialogs/exportdialog.cpp" line="657"/>
         <source>Height:</source>
         <translation>الطول:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="644"/>
+        <location filename="../dialogs/exportdialog.cpp" line="662"/>
         <source>Frame Rate:</source>
         <translation>نسبة الإطارات:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="650"/>
+        <location filename="../dialogs/exportdialog.cpp" line="668"/>
         <source>Compression Type:</source>
         <translation>نوع الضغط:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="673"/>
+        <location filename="../dialogs/exportdialog.cpp" line="679"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/exportdialog.cpp" line="695"/>
         <source>Sampling Rate:</source>
         <translation>معدل الإعتيان:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="679"/>
+        <location filename="../dialogs/exportdialog.cpp" line="701"/>
         <source>Bitrate (Kbps/CBR):</source>
         <translation>نسبة البت (Kbps/CBR):</translation>
     </message>
@@ -458,88 +497,88 @@
 <context>
     <name>ExportThread</name>
     <message>
-        <location filename="../io/exportthread.cpp" line="57"/>
+        <location filename="../io/exportthread.cpp" line="61"/>
         <source>failed to send frame to encoder (%1)</source>
         <translation>فشل إرسال اﻹطار للمُرمز.(%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="68"/>
+        <location filename="../io/exportthread.cpp" line="72"/>
         <source>failed to receive packet from encoder (%1)</source>
         <translation>فشل إستلام الرزمة من المُرمز (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="89"/>
+        <location filename="../io/exportthread.cpp" line="93"/>
         <source>could not video encoder for %1</source>
         <translation>لم يجد مُرمز فيديو ل %1</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="98"/>
+        <location filename="../io/exportthread.cpp" line="102"/>
         <source>could not allocate video stream</source>
         <translation>لم يستطع تخصيص بث فيديو</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="107"/>
+        <location filename="../io/exportthread.cpp" line="111"/>
         <source>could not allocate video encoding context</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>لم يستطع تخصيص سياق ترميز فيديو</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="143"/>
+        <location filename="../io/exportthread.cpp" line="149"/>
         <source>could not open output video encoder (%1)</source>
         <translation>لم يتم فتح مرمّز مخرجات فيديو (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="151"/>
+        <location filename="../io/exportthread.cpp" line="157"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
         <translation>لم يتم نسخ عوامل مرمّز الفيديو لبث المخرجات (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="189"/>
+        <location filename="../io/exportthread.cpp" line="195"/>
         <source>could not audio encoder for %1</source>
         <translation>لم يستطع ترميز فيديو ل %1</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="198"/>
+        <location filename="../io/exportthread.cpp" line="204"/>
         <source>could not allocate audio stream</source>
         <translation>لم يستطع تخصيص بث صوت</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="207"/>
+        <location filename="../io/exportthread.cpp" line="213"/>
         <source>could not allocate audio encoding context</source>
         <translation>لم يستطع تخصيص سياق ترميز صوت</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="232"/>
+        <location filename="../io/exportthread.cpp" line="238"/>
         <source>could not open output audio encoder (%1)</source>
         <translation>لم يتم فتح مرمّز مخرجات صوت (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="240"/>
+        <location filename="../io/exportthread.cpp" line="246"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
         <translation>لم يتم نسخ عوامل مرمّز الصوت لبث المخرجات (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="270"/>
+        <location filename="../io/exportthread.cpp" line="276"/>
         <source>could not allocate audio buffer (%1)</source>
         <translation>لم يستطع تخصيص حافظة صوت (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="292"/>
+        <location filename="../io/exportthread.cpp" line="298"/>
         <source>could not create output format context</source>
         <translation>لم يستطع إنشاء سياق صيغة الصوت</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="301"/>
+        <location filename="../io/exportthread.cpp" line="307"/>
         <source>could not open output file (%1)</source>
         <translation>لم يستطع فتح ملف اﻹخراج (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="327"/>
+        <location filename="../io/exportthread.cpp" line="333"/>
         <source>could not write output file header (%1)</source>
         <translation>لم يستطع كتابة مخرجات ترويسة الملف (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="464"/>
+        <location filename="../io/exportthread.cpp" line="470"/>
         <source>could not write output file trailer (%1)</source>
         <translation>لم يستطع كتابة مخرجات ملحقة الملف (%1)</translation>
     </message>
@@ -660,17 +699,17 @@
 <context>
     <name>KeyframeView</name>
     <message>
-        <location filename="../ui/keyframeview.cpp" line="53"/>
+        <location filename="../ui/keyframeview.cpp" line="49"/>
         <source>Linear</source>
         <translation>خطي</translation>
     </message>
     <message>
-        <location filename="../ui/keyframeview.cpp" line="55"/>
+        <location filename="../ui/keyframeview.cpp" line="51"/>
         <source>Bezier</source>
         <translation>بيزير</translation>
     </message>
     <message>
-        <location filename="../ui/keyframeview.cpp" line="57"/>
+        <location filename="../ui/keyframeview.cpp" line="53"/>
         <source>Hold</source>
         <translation>أمسك</translation>
     </message>
@@ -678,14 +717,14 @@
 <context>
     <name>LabelSlider</name>
     <message>
-        <location filename="../ui/labelslider.cpp" line="152"/>
-        <location filename="../ui/labelslider.cpp" line="163"/>
+        <location filename="../ui/labelslider.cpp" line="210"/>
+        <location filename="../ui/labelslider.cpp" line="228"/>
         <source>Set Value</source>
         <translation>حدد القيمة</translation>
     </message>
     <message>
-        <location filename="../ui/labelslider.cpp" line="153"/>
-        <location filename="../ui/labelslider.cpp" line="164"/>
+        <location filename="../ui/labelslider.cpp" line="211"/>
+        <location filename="../ui/labelslider.cpp" line="229"/>
         <source>New value:</source>
         <translation>قيمة جديدة:</translation>
     </message>
@@ -764,681 +803,681 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="220"/>
+        <location filename="../mainwindow.cpp" line="227"/>
         <source>Welcome to %1</source>
         <translation>مرحباً في %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="230"/>
+        <location filename="../mainwindow.cpp" line="237"/>
         <source>Auto-recovery</source>
         <translation>اﻷستعادة التلقائية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="230"/>
+        <location filename="../mainwindow.cpp" line="237"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
         <translation>زيتون لم يغلق بشكل سليم وتم التعرف على ملف اﻷستعادة التلقائة. هل تريد فتحه؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="262"/>
+        <location filename="../mainwindow.cpp" line="269"/>
         <source>&amp;Project</source>
         <translation>&amp;المشروع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="264"/>
+        <location filename="../mainwindow.cpp" line="271"/>
         <source>&amp;Sequence</source>
         <translation>&amp;مقطع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="265"/>
+        <location filename="../mainwindow.cpp" line="272"/>
         <source>&amp;Folder</source>
         <translation>&amp;مجلد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="269"/>
+        <location filename="../mainwindow.cpp" line="276"/>
         <source>Set In Point</source>
         <translation>ضع في نقطة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="270"/>
+        <location filename="../mainwindow.cpp" line="277"/>
         <source>Set Out Point</source>
         <translation>ضع خارج نقطة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="272"/>
+        <location filename="../mainwindow.cpp" line="279"/>
         <source>Reset In Point</source>
         <translation>صفر في النقطة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="273"/>
+        <location filename="../mainwindow.cpp" line="280"/>
         <source>Reset Out Point</source>
         <translation>صفّر النقطة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="274"/>
+        <location filename="../mainwindow.cpp" line="281"/>
         <source>Clear In/Out Point</source>
         <translation>محو نقطة الدخل/الخرج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="449"/>
+        <location filename="../mainwindow.cpp" line="456"/>
         <source>No active sequence</source>
         <translation>لا مقاطع نشطة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="449"/>
+        <location filename="../mainwindow.cpp" line="456"/>
         <source>Please open the sequence you wish to export.</source>
         <translation>رجاءً أفتح المقطع المراد تصديره.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="547"/>
+        <location filename="../mainwindow.cpp" line="554"/>
         <source>Save Project As...</source>
         <translation>أحفظ المشروع ك...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="572"/>
+        <location filename="../mainwindow.cpp" line="579"/>
         <source>Unsaved Project</source>
         <translation>مشروع غير محفوظ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="573"/>
+        <location filename="../mainwindow.cpp" line="580"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
         <translation>هذا المشروع غُيِرَ منذ أخر مرة. أتريد حفظه قبل اﻹغلاق؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="595"/>
+        <location filename="../mainwindow.cpp" line="602"/>
         <source>&amp;File</source>
         <translation>&amp;ملف</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="598"/>
+        <location filename="../mainwindow.cpp" line="605"/>
         <source>&amp;New</source>
         <translation>&amp;جديد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="601"/>
+        <location filename="../mainwindow.cpp" line="608"/>
         <source>&amp;Open Project</source>
         <translation>&amp;أفتح مشروع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="603"/>
+        <location filename="../mainwindow.cpp" line="610"/>
         <source>Clear Recent List</source>
         <translation>أفرغ قائمة مؤخراً</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="607"/>
+        <location filename="../mainwindow.cpp" line="614"/>
         <source>Open Recent</source>
         <translation>أفتح مؤخراً</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="618"/>
         <source>&amp;Save Project</source>
         <translation>&amp;أحفظ المشروع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="612"/>
+        <location filename="../mainwindow.cpp" line="619"/>
         <source>Save Project &amp;As</source>
         <translation>أحفظ المشروع &amp;ك</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="616"/>
+        <location filename="../mainwindow.cpp" line="623"/>
         <source>&amp;Import...</source>
         <translation>&amp;أستيراد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="620"/>
+        <location filename="../mainwindow.cpp" line="627"/>
         <source>&amp;Export...</source>
         <translation>&amp;تصدير</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="624"/>
+        <location filename="../mainwindow.cpp" line="631"/>
         <source>E&amp;xit</source>
         <translation>خ&amp;روج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="628"/>
+        <location filename="../mainwindow.cpp" line="635"/>
         <source>&amp;Edit</source>
         <translation>&amp;تعديل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="631"/>
+        <location filename="../mainwindow.cpp" line="638"/>
         <source>&amp;Undo</source>
         <translation>&amp;تراجع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="633"/>
+        <location filename="../mainwindow.cpp" line="640"/>
         <source>Redo</source>
         <translation>أعد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="638"/>
+        <location filename="../mainwindow.cpp" line="645"/>
         <source>Cu&amp;t</source>
         <translation>قط&amp;ع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="639"/>
+        <location filename="../mainwindow.cpp" line="646"/>
         <source>Cop&amp;y</source>
         <translation>&amp;نسخ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="640"/>
+        <location filename="../mainwindow.cpp" line="647"/>
         <source>&amp;Paste</source>
         <translation>&amp;لصق</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="641"/>
+        <location filename="../mainwindow.cpp" line="648"/>
         <source>Paste Insert</source>
         <translation>ألصق أدرج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="649"/>
         <source>Duplicate</source>
         <translation>أستنساخ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="643"/>
+        <location filename="../mainwindow.cpp" line="650"/>
         <source>Delete</source>
         <translation>حذف</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="644"/>
+        <location filename="../mainwindow.cpp" line="651"/>
         <source>Ripple Delete</source>
         <translation>حذف موجة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="645"/>
+        <location filename="../mainwindow.cpp" line="652"/>
         <source>Split</source>
         <translation>أنقسام</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="649"/>
+        <location filename="../mainwindow.cpp" line="656"/>
         <source>Select &amp;All</source>
         <translation>تحديد &amp;الكل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="651"/>
+        <location filename="../mainwindow.cpp" line="658"/>
         <source>Deselect All</source>
         <translation>إلغاء تحديد الكل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="655"/>
+        <location filename="../mainwindow.cpp" line="662"/>
         <source>Add Default Transition</source>
         <translation>أضف اﻷنتقال الأفتراضي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="656"/>
+        <location filename="../mainwindow.cpp" line="663"/>
         <source>Link/Unlink</source>
         <translation>ربط/فصل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="657"/>
+        <location filename="../mainwindow.cpp" line="664"/>
         <source>Enable/Disable</source>
         <translation>تفعيل/تعطيل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="658"/>
+        <location filename="../mainwindow.cpp" line="665"/>
         <source>Nest</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>تداخل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="662"/>
+        <location filename="../mainwindow.cpp" line="669"/>
         <source>Ripple to In Point</source>
         <translation>موجة لنقطة إدخال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="663"/>
+        <location filename="../mainwindow.cpp" line="670"/>
         <source>Ripple to Out Point</source>
         <translation>موجة لنقطة إخراج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="664"/>
+        <location filename="../mainwindow.cpp" line="671"/>
         <source>Edit to In Point</source>
         <translation>عدّل لنقطة إدخال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="665"/>
+        <location filename="../mainwindow.cpp" line="672"/>
         <source>Edit to Out Point</source>
         <translation>عدّل لنقطة إخراج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="670"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Delete In/Out Point</source>
         <translation>محو نقطة الدخل/الخرج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="671"/>
+        <location filename="../mainwindow.cpp" line="678"/>
         <source>Ripple Delete In/Out Point</source>
         <translation>موجة حذف نقطة الإدخال/الإخراج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="675"/>
+        <location filename="../mainwindow.cpp" line="682"/>
         <source>Set/Edit Marker</source>
         <translation>حدد/عدّل اﻹشارات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="679"/>
+        <location filename="../mainwindow.cpp" line="686"/>
         <source>&amp;View</source>
         <translation>&amp;أظهر</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="682"/>
+        <location filename="../mainwindow.cpp" line="689"/>
         <source>Zoom In</source>
         <translation>تقريب</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="683"/>
+        <location filename="../mainwindow.cpp" line="690"/>
         <source>Zoom Out</source>
         <translation>أبتعاد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="684"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Increase Track Height</source>
         <translation>زدّ طول المسار</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="685"/>
+        <location filename="../mainwindow.cpp" line="692"/>
         <source>Decrease Track Height</source>
         <translation>قلل طول المسار</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="687"/>
+        <location filename="../mainwindow.cpp" line="694"/>
         <source>Toggle Show All</source>
         <translation>فعل إظهار الكل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="693"/>
+        <location filename="../mainwindow.cpp" line="700"/>
         <source>Track Lines</source>
         <translation>تعقب السطور</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="698"/>
+        <location filename="../mainwindow.cpp" line="705"/>
         <source>Rectified Waveforms</source>
         <translation>أشكال موجية متناوبة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="705"/>
+        <location filename="../mainwindow.cpp" line="712"/>
         <source>Frames</source>
         <translation>اﻹطارات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="709"/>
+        <location filename="../mainwindow.cpp" line="716"/>
         <source>Drop Frame</source>
         <translation>أفلت إطار</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="713"/>
+        <location filename="../mainwindow.cpp" line="720"/>
         <source>Non-Drop Frame</source>
         <translation>إطار غير مُفلت</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="717"/>
+        <location filename="../mainwindow.cpp" line="724"/>
         <source>Milliseconds</source>
         <translation>جزء من الثانية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="724"/>
+        <location filename="../mainwindow.cpp" line="731"/>
         <source>Title/Action Safe Area</source>
         <translation>عنوان/إجراء المنطقة الآمنة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="726"/>
+        <location filename="../mainwindow.cpp" line="733"/>
         <source>Off</source>
         <translation>مطفئ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="731"/>
+        <location filename="../mainwindow.cpp" line="738"/>
         <source>Default</source>
         <translation>إفتراضي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="736"/>
+        <location filename="../mainwindow.cpp" line="743"/>
         <source>4:3</source>
         <translation>4:3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="741"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>16:9</source>
         <translation>16:9</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="746"/>
+        <location filename="../mainwindow.cpp" line="753"/>
         <source>Custom</source>
         <translation>مخصوص</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="753"/>
+        <location filename="../mainwindow.cpp" line="760"/>
         <source>Full Screen</source>
         <translation>ملء الشاشة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="757"/>
+        <location filename="../mainwindow.cpp" line="764"/>
         <source>Full Screen Viewer</source>
         <translation>عارض ملء الشاشة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="761"/>
+        <location filename="../mainwindow.cpp" line="768"/>
         <source>&amp;Playback</source>
         <translation>&amp;الترديد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="764"/>
+        <location filename="../mainwindow.cpp" line="771"/>
         <source>Go to Start</source>
         <translation>أذهب للبداية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="765"/>
+        <location filename="../mainwindow.cpp" line="772"/>
         <source>Previous Frame</source>
         <translation>الإطار السابق</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="766"/>
+        <location filename="../mainwindow.cpp" line="773"/>
         <source>Play/Pause</source>
         <translation>تشغيل/أستئناف</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="767"/>
+        <location filename="../mainwindow.cpp" line="774"/>
         <source>Play In to Out</source>
         <translation>شغل من الإدخال إلى الإخراج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="768"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Next Frame</source>
         <translation>اﻹطار التالي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="769"/>
+        <location filename="../mainwindow.cpp" line="776"/>
         <source>Go to End</source>
         <translation>أذهب للنهاية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="771"/>
+        <location filename="../mainwindow.cpp" line="778"/>
         <source>Go to Previous Cut</source>
         <translation>أذهب للقطعة السابقة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="772"/>
+        <location filename="../mainwindow.cpp" line="779"/>
         <source>Go to Next Cut</source>
         <translation>أذهب للقطعة التالية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="774"/>
+        <location filename="../mainwindow.cpp" line="781"/>
         <source>Go to In Point</source>
         <translation>أذهب لنقطة إدخال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="775"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>Go to Out Point</source>
         <translation>أذهب لنقطة إخراج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="777"/>
+        <location filename="../mainwindow.cpp" line="784"/>
         <source>Shuttle Left</source>
         <translation>توشع اليسار</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="778"/>
+        <location filename="../mainwindow.cpp" line="785"/>
         <source>Shuttle Stop</source>
         <translation>إيقاف التوشع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="779"/>
+        <location filename="../mainwindow.cpp" line="786"/>
         <source>Shuttle Right</source>
         <translation>توشع اليمين</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="782"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>Loop</source>
         <translation>حلقة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="789"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>&amp;Window</source>
         <translation>&amp;نافذة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="792"/>
+        <location filename="../mainwindow.cpp" line="799"/>
         <source>Project</source>
         <translation>المشروع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="804"/>
         <source>Effect Controls</source>
         <translation>تحكمات المؤثر</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="802"/>
+        <location filename="../mainwindow.cpp" line="809"/>
         <source>Timeline</source>
         <translation>الخط الزمني</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="807"/>
+        <location filename="../mainwindow.cpp" line="814"/>
         <source>Graph Editor</source>
         <translation>محرر المخطط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="812"/>
+        <location filename="../mainwindow.cpp" line="819"/>
         <source>Media Viewer</source>
         <translation>عارض الوسائط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="817"/>
+        <location filename="../mainwindow.cpp" line="824"/>
         <source>Sequence Viewer</source>
         <translation>عارض المقطع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="824"/>
+        <location filename="../mainwindow.cpp" line="831"/>
         <source>Maximize Panel</source>
         <translation>ضخّم اللائحة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="828"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>Reset to Default Layout</source>
         <translation>صفّر للتخطيط المبدئي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="832"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>&amp;Tools</source>
         <translation>&amp;اﻷدوات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="835"/>
+        <location filename="../mainwindow.cpp" line="842"/>
         <source>Pointer Tool</source>
         <translation>أداة المؤشر</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="840"/>
+        <location filename="../mainwindow.cpp" line="847"/>
         <source>Edit Tool</source>
         <translation>أداة التحرير</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="845"/>
+        <location filename="../mainwindow.cpp" line="852"/>
         <source>Ripple Tool</source>
         <translation>أداة الموجة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="850"/>
+        <location filename="../mainwindow.cpp" line="857"/>
         <source>Razor Tool</source>
         <translation>أداة القطع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="855"/>
+        <location filename="../mainwindow.cpp" line="862"/>
         <source>Slip Tool</source>
         <translation>أداة المنزلقة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="860"/>
+        <location filename="../mainwindow.cpp" line="867"/>
         <source>Slide Tool</source>
         <translation>أداة الشريحة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="865"/>
+        <location filename="../mainwindow.cpp" line="872"/>
         <source>Hand Tool</source>
         <translation>أداة اليد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="870"/>
+        <location filename="../mainwindow.cpp" line="877"/>
         <source>Transition Tool</source>
         <translation>أداة اﻷنتقال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="877"/>
+        <location filename="../mainwindow.cpp" line="884"/>
         <source>Enable Snapping</source>
         <translation>فعّل السحب</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="884"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Selecting Also Seeks</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>تحديد العروضات إيضاً</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Edit Tool Also Seeks</source>
         <translation>أداة التحرير تعرض إيضاً</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="894"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Edit Tool Selects Links</source>
         <translation>أداة التحرير تحدد الروابط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="899"/>
+        <location filename="../mainwindow.cpp" line="906"/>
         <source>Seek Also Selects</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>العرض يحدد إيضاً</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="904"/>
+        <location filename="../mainwindow.cpp" line="911"/>
         <source>Seek to the End of Pastes</source>
         <translation>أعرض لنهاية الملصوقات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="909"/>
+        <location filename="../mainwindow.cpp" line="916"/>
         <source>Scroll Wheel Zooms</source>
         <translation>العجلة الدوراة تُقرّب</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="914"/>
+        <location filename="../mainwindow.cpp" line="921"/>
         <source>Enable Drag Files to Timeline</source>
         <translation>أسمح بسحب الملفات للخط الزمني</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="919"/>
+        <location filename="../mainwindow.cpp" line="926"/>
         <source>Auto-Scale By Default</source>
         <translation>التحجيم-التلقائي إفتراضياً</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="924"/>
+        <location filename="../mainwindow.cpp" line="931"/>
         <source>Enable Seek to Import</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>أسمح للعرض بالإستيراد</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="929"/>
+        <location filename="../mainwindow.cpp" line="936"/>
         <source>Audio Scrubbing</source>
         <translation>حكّ شريط الصوت</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="934"/>
+        <location filename="../mainwindow.cpp" line="941"/>
         <source>Enable Drop on Media to Replace</source>
         <translation>أسمح برمي الوسائط للأستبدال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="939"/>
+        <location filename="../mainwindow.cpp" line="946"/>
         <source>Enable Hover Focus</source>
         <translation>فعّل التركيز الحائم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="944"/>
+        <location filename="../mainwindow.cpp" line="951"/>
         <source>Ask For Name When Setting Marker</source>
         <translation>أسال عن اﻷسم حين وضع المؤشر</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="951"/>
+        <location filename="../mainwindow.cpp" line="958"/>
         <source>No Auto-Scroll</source>
         <translation>لا أنزلاق التلقائي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="956"/>
+        <location filename="../mainwindow.cpp" line="963"/>
         <source>Page Auto-Scroll</source>
         <translation>أنزلاق الصفحة التلقائي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="961"/>
+        <location filename="../mainwindow.cpp" line="968"/>
         <source>Smooth Auto-Scroll</source>
         <translation>الأنزلاق التلقائي الناعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="968"/>
+        <location filename="../mainwindow.cpp" line="975"/>
         <source>Preferences</source>
         <translation>التفضيلات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="971"/>
+        <location filename="../mainwindow.cpp" line="978"/>
         <source>Clear Undo</source>
         <translation>أمسح التراجُعات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="976"/>
+        <location filename="../mainwindow.cpp" line="983"/>
         <source>&amp;Help</source>
         <translation>&amp;مساعدة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="978"/>
+        <location filename="../mainwindow.cpp" line="985"/>
         <source>A&amp;ction Search</source>
         <translation>ب&amp;حث إجراء</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="982"/>
+        <location filename="../mainwindow.cpp" line="989"/>
         <source>Debug Log</source>
         <translation>سجل التنقيح</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="986"/>
+        <location filename="../mainwindow.cpp" line="993"/>
         <source>&amp;About...</source>
         <translation>&amp;حول...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1010"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>&lt;untitled&gt;</source>
         <translation>&lt;غير معنون&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1080"/>
+        <location filename="../mainwindow.cpp" line="1087"/>
         <source>Open Project...</source>
         <translation>أفتح مشروع...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1386"/>
+        <location filename="../mainwindow.cpp" line="1394"/>
         <source>Missing recent project</source>
         <translation>مشروع ماضي ضائع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1387"/>
+        <location filename="../mainwindow.cpp" line="1395"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
         <translation>المشروع &apos;%1&apos; غير بعد اﻷن. هل ترغب بحذفه من من قائمة مشاريع مؤخراً؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1499"/>
+        <location filename="../mainwindow.cpp" line="1507"/>
         <source>Invalid aspect ratio</source>
         <translation>معدل نسبة غير صالح</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1499"/>
+        <location filename="../mainwindow.cpp" line="1507"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
         <translation>معدل النسبة &apos;%1&apos; غير صالح. حاول مجدداً.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1502"/>
+        <location filename="../mainwindow.cpp" line="1510"/>
         <source>Enter custom aspect ratio</source>
         <translation>أدخل نسبة معدل مخصصة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1502"/>
+        <location filename="../mainwindow.cpp" line="1510"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
         <translation>أدخل معدل النسبة لأستعماله في العنوان/الإجراء المنطقة الآمنة (كــ. 16:9):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1581"/>
+        <location filename="../mainwindow.cpp" line="1589"/>
         <source>Nested Sequence</source>
         <translation>مقطع متشعب</translation>
     </message>
@@ -1815,79 +1854,79 @@ Audio Layout: %6</source>
         <translation>اللغة:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="413"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="416"/>
         <source>Custom CSS:</source>
         <translation>CSS مخصوص:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="419"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="422"/>
         <source>Browse</source>
         <translation>تصفّح</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="426"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="429"/>
         <source>Image sequence formats:</source>
         <translation>صيغ صور المقاطع:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="435"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
         <source>Audio Recording:</source>
         <translation>تسجيل الصوت:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="441"/>
         <source>Mono</source>
         <translation>اُحادي</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="439"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="442"/>
         <source>Stereo</source>
         <translation>مُجسم</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="445"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="448"/>
         <source>Effect Textbox Lines:</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>أثر بسطور صندوق النص:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="455"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="458"/>
         <source>Thumbnail Resolution:</source>
         <translation>دقّة الصورة المصغرة:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="463"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="466"/>
         <source>Waveform Resolution:</source>
         <translation>دقّة الشكل الموجي:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="476"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="479"/>
         <source>Use Software Fallbacks When Possible</source>
         <translation>أستعمل معالجة البرمجيات حين اﻹمكان</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="480"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="483"/>
         <source>General</source>
         <translation>عام</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="484"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="487"/>
         <source>Behavior</source>
         <translation>السلوك</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="491"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="494"/>
         <source>Disable Multithreading on Images</source>
         <translation>عطل تعدد المعالجات بالصور</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="497"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="500"/>
         <source>Seeking</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>التنزيل</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="500"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="503"/>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
         <translatorcomment>للمراجعة</translatorcomment>
@@ -1895,7 +1934,7 @@ Always show the correct frame (visual may pause briefly as correct frame is retr
 دوماً أظهر اﻹطار الصحيح (البصريات قد تتوقف بإيجاز كلما تستجلب اﻹطارات بدقة)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="503"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="506"/>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
         <translatorcomment>للمراجعة الشديدة</translatorcomment>
@@ -1903,101 +1942,101 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 أنقل بسرعة (قد يعمق روئية اﻹطارات غير الصحيحة - لا يؤثر الترديد/تصدير)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="509"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="512"/>
         <source>Memory Usage</source>
         <translation>أستعمال الذاكرة</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="511"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="514"/>
         <source>Upcoming Frame Queue:</source>
         <translation>إطار الصف القادم:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="516"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="525"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="528"/>
         <source>frames</source>
         <translation>اﻹطارات</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="517"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="526"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="520"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="529"/>
         <source>seconds</source>
         <translation>الثوان</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="520"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="523"/>
         <source>Previous Frame Queue:</source>
         <translation>إطار الصف السابق:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="531"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="534"/>
         <source>Playback</source>
         <translatorcomment>للمراجعة</translatorcomment>
         <translation>الترديد</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="538"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="541"/>
         <source>Output Device:</source>
         <translation>جهاز اﻹخراج:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="541"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="560"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="544"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="563"/>
         <source>Default</source>
         <translation>إفتراضي</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="557"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="560"/>
         <source>Input Device:</source>
         <translation>جهاز اﻹدخال:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="576"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="579"/>
         <source>Sample Rate:</source>
         <translation>معدل الإعتيان:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="589"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="592"/>
         <source>Audio</source>
         <translation>الصوت</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="597"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="600"/>
         <source>Search for action or shortcut</source>
         <translation>ابحث عن إجراء أو أختصار</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="604"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
         <source>Action</source>
         <translation>إجراء</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="605"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="608"/>
         <source>Shortcut</source>
         <translation>أختصار</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="610"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="613"/>
         <source>Import</source>
         <translation>أستيراد</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="614"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="617"/>
         <source>Export</source>
         <translation>تصدير</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="620"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
         <source>Reset Selected</source>
         <translation>صفّر المحدد</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="624"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="627"/>
         <source>Reset All</source>
         <translation>صفّر الجميع</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="630"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="633"/>
         <source>Keyboard</source>
         <translation>لوحة المفاتيح</translation>
     </message>
@@ -2005,12 +2044,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>PreviewGenerator</name>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="432"/>
+        <location filename="../io/previewgenerator.cpp" line="452"/>
         <source>Could not open file - %1</source>
         <translation>لا يمكن فتح الملف - %1</translation>
     </message>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="439"/>
+        <location filename="../io/previewgenerator.cpp" line="459"/>
         <source>Could not find stream information - %1</source>
         <translation>لم يتم العثور على ملومات التدفق - %1</translation>
     </message>
@@ -2470,24 +2509,20 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>SpeedDialog</name>
     <message>
-        <location filename="../dialogs/speeddialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation>الحوار</translation>
+        <translation type="vanished">الحوار</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.ui" line="42"/>
         <location filename="../dialogs/speeddialog.cpp" line="29"/>
         <source>Speed:</source>
         <translation>السرعة:</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.ui" line="55"/>
         <location filename="../dialogs/speeddialog.cpp" line="36"/>
         <source>Frame Rate:</source>
         <translation>معدل اﻹطارات:</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.ui" line="68"/>
         <location filename="../dialogs/speeddialog.cpp" line="41"/>
         <source>Duration:</source>
         <translation>المدة:</translation>
@@ -2688,150 +2723,150 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 <context>
     <name>Timeline</name>
     <message>
-        <location filename="../panels/timeline.cpp" line="398"/>
+        <location filename="../panels/timeline.cpp" line="399"/>
         <source>Timeline: </source>
         <translation>الخط الزمني: </translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="400"/>
+        <location filename="../panels/timeline.cpp" line="401"/>
         <source>&lt;none&gt;</source>
         <translation>&lt;لا شيء&gt;</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1094"/>
+        <location filename="../panels/timeline.cpp" line="1095"/>
         <source>Effect already exists</source>
         <translation>المؤثر موجود مسبقاً</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1095"/>
+        <location filename="../panels/timeline.cpp" line="1096"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
         <translation>المقطع &apos;%1&apos; يحتوي على المؤثر &apos;%2&apos;. هل تفضل أستبداله مع الملصوق أو إضافته كمؤثر منفصل؟</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1098"/>
+        <location filename="../panels/timeline.cpp" line="1099"/>
         <source>Add</source>
         <translation>أضف</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1099"/>
+        <location filename="../panels/timeline.cpp" line="1100"/>
         <source>Replace</source>
         <translation>أستبدل</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1100"/>
+        <location filename="../panels/timeline.cpp" line="1101"/>
         <source>Skip</source>
         <translation>تخطى</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1102"/>
+        <location filename="../panels/timeline.cpp" line="1103"/>
         <source>Do this for all conflicts found</source>
         <translation>أفعل هذا مع كل التعارضات الموجودة</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1554"/>
+        <location filename="../panels/timeline.cpp" line="1555"/>
         <source>Title...</source>
         <translation>العنوان...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1559"/>
+        <location filename="../panels/timeline.cpp" line="1560"/>
         <source>Solid Color...</source>
         <translatorcomment>بحاجة لمتابعة</translatorcomment>
         <translation>لون صلب...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1564"/>
+        <location filename="../panels/timeline.cpp" line="1565"/>
         <source>Bars...</source>
         <translation>ألواح...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1571"/>
+        <location filename="../panels/timeline.cpp" line="1572"/>
         <source>Tone...</source>
         <translation>نغّم...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1576"/>
+        <location filename="../panels/timeline.cpp" line="1577"/>
         <source>Noise...</source>
         <translation>ضجيج...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1599"/>
+        <location filename="../panels/timeline.cpp" line="1600"/>
         <source>Unsaved Project</source>
         <translation>مشروع غير محفوظ</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1600"/>
+        <location filename="../panels/timeline.cpp" line="1601"/>
         <source>You must save this project before you can record audio in it.</source>
         <translation>يجب عليك حفظ المشروع قبل تسجيل الصوت فيه.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1606"/>
+        <location filename="../panels/timeline.cpp" line="1607"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
         <translation>أنقر على الخط الزمني حيث تريد بدء التسجيل (أسحب لوضع حد للتسجيل في إطار وقت معين)</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1689"/>
+        <location filename="../panels/timeline.cpp" line="1690"/>
         <source>Pointer Tool</source>
         <translation>أداة المؤشر</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1700"/>
+        <location filename="../panels/timeline.cpp" line="1701"/>
         <source>Edit Tool</source>
         <translation>أداة التحرير</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1711"/>
+        <location filename="../panels/timeline.cpp" line="1712"/>
         <source>Ripple Tool</source>
         <translation>أداة الموجة</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1722"/>
+        <location filename="../panels/timeline.cpp" line="1723"/>
         <source>Razor Tool</source>
         <translation>أداة القطع</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1733"/>
+        <location filename="../panels/timeline.cpp" line="1734"/>
         <source>Slip Tool</source>
         <translatorcomment>بحاجة لمتابعة</translatorcomment>
         <translation>أداة المنزلقة</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1744"/>
+        <location filename="../panels/timeline.cpp" line="1745"/>
         <source>Slide Tool</source>
         <translation>أداة الشريحة</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1755"/>
+        <location filename="../panels/timeline.cpp" line="1756"/>
         <source>Hand Tool</source>
         <translation>أداة اليد</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1766"/>
+        <location filename="../panels/timeline.cpp" line="1767"/>
         <source>Transition Tool</source>
         <translation>أداة اﻷنتقال</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1777"/>
+        <location filename="../panels/timeline.cpp" line="1778"/>
         <source>Snapping</source>
         <translatorcomment>بحاجة لمتابعة</translatorcomment>
         <translation>الساحبة</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1786"/>
+        <location filename="../panels/timeline.cpp" line="1787"/>
         <source>Zoom In</source>
         <translation>تقريب</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1795"/>
+        <location filename="../panels/timeline.cpp" line="1796"/>
         <source>Zoom Out</source>
         <translation>أبتعاد</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1804"/>
+        <location filename="../panels/timeline.cpp" line="1805"/>
         <source>Record audio</source>
         <translation>سجّل الصوت</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1813"/>
+        <location filename="../panels/timeline.cpp" line="1814"/>
         <source>Add title, solid, bars, etc.</source>
         <translation>أضف عنوان, صلب, ألواح, إلخ.</translation>
     </message>
@@ -3166,9 +3201,13 @@ Duration: %4</source>
 <context>
     <name>Transition</name>
     <message>
-        <location filename="../project/transition.cpp" line="28"/>
         <source>Length:</source>
-        <translation>الطول:</translation>
+        <translation type="vanished">الطول:</translation>
+    </message>
+    <message>
+        <location filename="../project/transition.cpp" line="28"/>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3233,12 +3272,12 @@ Duration: %4</source>
 <context>
     <name>Viewer</name>
     <message>
-        <location filename="../panels/panels.cpp" line="157"/>
+        <location filename="../panels/panels.cpp" line="160"/>
         <source>Sequence Viewer</source>
         <translation>عارض المقطع</translation>
     </message>
     <message>
-        <location filename="../panels/panels.cpp" line="160"/>
+        <location filename="../panels/panels.cpp" line="163"/>
         <source>Media Viewer</source>
         <translation>عارض الوسائط</translation>
     </message>

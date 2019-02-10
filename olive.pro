@@ -254,6 +254,7 @@ TRANSLATIONS += \
     ts/olive_fr.ts \
     ts/olive_it.ts \
     ts/olive_cs.ts \
+    ts/olive_ar.ts \
     ts/olive_ru.ts
 
 win32 {
