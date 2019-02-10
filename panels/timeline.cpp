@@ -535,14 +535,27 @@ void Timeline::resizeEvent(QResizeEvent *) {
 
 	// resize tool button widget to its contents
 	QList<QWidget*> tool_button_children = tool_button_widget->findChildren<QWidget*>();
-	int total_client_height = 0;
-	int horizontal_spacing = static_cast<FlowLayout*>(tool_button_widget->layout())->horizontalSpacing();
-	int vertical_spacing = static_cast<FlowLayout*>(tool_button_widget->layout())->verticalSpacing();
-	for (int i=0;i<tool_button_children.size();i++) {
-		total_client_height += tool_button_children.at(i)->height() + vertical_spacing;
-	}
-	int comp_height = tool_button_widget->height();
-	int cols = qCeil(double(total_client_height)/double(comp_height));
+
+    int horizontal_spacing = static_cast<FlowLayout*>(tool_button_widget->layout())->horizontalSpacing();
+    int vertical_spacing = static_cast<FlowLayout*>(tool_button_widget->layout())->verticalSpacing();
+    int total_area = tool_button_widget->height();
+
+    int button_count = tool_button_children.size();
+    int button_height = tool_button_children.at(0)->sizeHint().height() + vertical_spacing;
+
+    int cols = 0;
+
+    int col_height;
+
+    if (button_height < total_area) {
+        do {
+            cols++;
+            col_height = (qCeil(double(button_count)/double(cols))*button_height)-vertical_spacing;
+        } while (col_height > total_area);
+    } else {
+        cols = button_count;
+    }
+
 	tool_button_widget->setFixedWidth((tool_button_children.at(0)->sizeHint().width())*cols + horizontal_spacing*(cols-1) + 1);
 }
 
