@@ -211,21 +211,31 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                         // tries to locate file using the file name directly in the project's current folder
                                         QString proj_dir_direct_test = proj_dir.filePath(QFileInfo(f->url).fileName());
 
-										if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
+                                        if (QFileInfo::exists(proj_dir_test)) {
+
 											f->url = proj_dir_test;
 											qInfo() << "Matched" << attr.value().toString() << "relative to project's current directory";
-										} else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
+
+                                        } else if (QFileInfo::exists(internal_proj_dir_test)) {
+
 											f->url = internal_proj_dir_test;
 											qInfo() << "Matched" << attr.value().toString() << "relative to project's internal directory";
-                                        } else if (QFileInfo::exists(proj_dir_direct_test))
+
+                                        } else if (QFileInfo::exists(proj_dir_direct_test)) {
+
                                             f->url = proj_dir_direct_test;
                                             qInfo() << "Matched" << attr.value().toString() << "directly to project's current directory";
+
 										} else if (f->url.contains('%')) {
+
 											// hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
-											f->url = internal_proj_dir_test;
+                                            f->url = internal_proj_dir_test;
 											qInfo() << "Guess image sequence" << attr.value().toString() << "path to project's internal directory";
+
 										} else {
+
 											qInfo() << "Failed to match" << attr.value().toString() << "to file";
+
 										}
 									} else {
                                         f->url = QFileInfo(f->url).absoluteFilePath();
