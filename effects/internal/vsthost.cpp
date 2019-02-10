@@ -32,8 +32,6 @@ struct VSTRect {
 #define effGetChunk 23
 #define effSetChunk 24
 
-const char* productString = "OLIVETEAM";
-
 // C callbacks
 extern "C" {
 	// Main host callback

@@ -89,7 +89,10 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
 	QApplication a(argc, argv);
-	a.setWindowIcon(QIcon(":/icons/olive64.png"));
+    a.setWindowIcon(QIcon(":/icons/olive64.png"));
+
+    QCoreApplication::setOrganizationName("olivevideoeditor.org");
+    QCoreApplication::setApplicationName("Olive");
 
 	MainWindow w(nullptr, appName);
 	w.updateTitle("");
