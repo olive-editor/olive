@@ -15,8 +15,8 @@ struct ProxyInfo {
 	QString path;
 };
 
-class ProxyGenerator : public QThread
-{
+class ProxyGenerator : public QThread {
+    Q_OBJECT
 public:
 	ProxyGenerator();
 	void run();

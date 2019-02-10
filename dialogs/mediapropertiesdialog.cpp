@@ -51,13 +51,12 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 		track_list->addItem(item);
 	}
 	for (int i=0;i<f->audio_tracks.size();i++) {
-		const FootageStream& fs = f->audio_tracks.at(i);
+        const FootageStream& fs = f->audio_tracks.at(i);
 		QListWidgetItem* item = new QListWidgetItem(
-                    tr("Audio %1: %2Hz %3 %4").arg(
+                    tr("Audio %1: %2Hz %3").arg(
 						QString::number(fs.file_index),
 						QString::number(fs.audio_frequency),
-                        QString::number(fs.audio_channels),
-                        tr("channel(s)", "", fs.audio_channels)
+                        tr("%n channel(s)", "", fs.audio_channels)
 					),
 					track_list
 				);

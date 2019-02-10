@@ -4,9 +4,12 @@
 #include <QLabel>
 #include <QUndoCommand>
 
-#define LABELSLIDER_NORMAL 0
-#define LABELSLIDER_FRAMENUMBER 1
-#define LABELSLIDER_PERCENT 2
+enum LabelSliderDisplayType {
+    LABELSLIDER_NORMAL,
+    LABELSLIDER_FRAMENUMBER,
+    LABELSLIDER_PERCENT,
+    LABELSLIDER_DECIBEL
+};
 
 class LabelSlider : public QLabel
 {

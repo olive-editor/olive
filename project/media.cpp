@@ -118,12 +118,11 @@ void Media::update_tooltip(const QString& error) {
 							tooltip += QString::number(f->video_tracks.at(i).video_frame_rate * f->speed);
 						} else {
                             double adjusted_rate = f->video_tracks.at(i).video_frame_rate * f->speed;
-                            tooltip += QString("%1 %2 (%3 %4)").arg(
-                                        QString::number(adjusted_rate * 2),
-                                        QCoreApplication::translate("Media", "field(s)", "", qCeil(adjusted_rate * 2)),
-                                        QString::number(adjusted_rate),
-                                        QCoreApplication::translate("Media", "frame(s)", "", qCeil(adjusted_rate))
-									);
+
+                            tooltip += QCoreApplication::translate("Media", "%1 field(s) (%2 frame(s))").arg(
+                                            QString::number(adjusted_rate*2.0),
+                                            QString::number(adjusted_rate)
+                                        );
 						}
 					}
 					tooltip += "\n";

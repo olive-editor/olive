@@ -3,6 +3,7 @@
 #include "project/undo.h"
 #include "panels/viewer.h"
 #include "io/config.h"
+#include "io/math.h"
 #include "debug.h"
 
 #include <QMouseEvent>
@@ -38,7 +39,7 @@ void LabelSlider::set_display_type(int type) {
 
 void LabelSlider::set_value(double v, bool userSet) {
 	set = true;
-	if (v != internal_value) {
+    if (!qFuzzyCompare(v, internal_value)) {
 		if (min_enabled && v < min_value) {
 			internal_value = min_value;
 		} else if (max_enabled && v > max_value) {
@@ -65,8 +66,27 @@ QString LabelSlider::valueToString(double v) {
 		return "---";
 	} else {
 		switch (display_type) {
-		case LABELSLIDER_FRAMENUMBER: return frame_to_timecode(v, config.timecode_view, frame_rate);
-		case LABELSLIDER_PERCENT: return QString::number((v*100), 'f', decimal_places) + "%";
+        case LABELSLIDER_FRAMENUMBER:
+            return frame_to_timecode(long(v), config.timecode_view, frame_rate);
+        case LABELSLIDER_PERCENT:
+            return QString::number((v*100), 'f', decimal_places).append("%");
+        case LABELSLIDER_DECIBEL:
+        {
+            QString db_str;
+
+            // -96 dB is considered -infinity
+            if (amplitude_to_db(v) <= -96) {
+                // hex sequence for -infinity
+                db_str = "-\xE2\x88\x9E";
+            } else {
+                db_str = QString::number(amplitude_to_db(v), 'f', decimal_places);
+            }
+
+            // add "dB" suffix
+            db_str.append(" dB");
+
+            return db_str;
+        }
 		}
 		return QString::number(v, 'f', decimal_places);
 	}
@@ -118,7 +138,8 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
 		if (ev->modifiers() & Qt::AltModifier) {            
 
             // if the value is not already default, and there is a default to set
-			if (internal_value != default_value && !qIsNaN(default_value)) {
+            if (!qFuzzyCompare(internal_value, default_value)
+                    && !qIsNaN(default_value)) {
 
                 // cache current value
 				set_previous_value();
@@ -166,11 +187,28 @@ void LabelSlider::mouseMoveEvent(QMouseEvent* event) {
         // ctrl + drag drags in smaller increments
 		if (event->modifiers() & Qt::ControlModifier) diff *= 0.01;
 
-        // we'll also need to drag in smaller increments for a percent value
-		if (display_type == LABELSLIDER_PERCENT) diff *= 0.01;
+        if (display_type == LABELSLIDER_PERCENT) {
+            // we'll also need to drag in smaller increments for a percent value
 
-        // sets the value
-		set_value(internal_value + diff, true);
+            diff *= 0.01;
+        }
+
+        // determine what the new value will be
+        double new_value;
+
+        if (display_type == LABELSLIDER_DECIBEL) {
+            // we move in terms of dB for decibel display
+
+            new_value = db_to_amplitude(amplitude_to_db(internal_value) + diff);
+
+        } else {
+            // for most display types, just add the mouse difference
+
+            new_value = internal_value + diff;
+        }
+
+        // set internal value
+        set_value(new_value, true);
 
         // keep the cursor in the same location while dragging
 		cursor().setPos(drag_start_x, drag_start_y);
@@ -222,23 +260,50 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
                 // ask the user to enter a normal number value
 				bool ok;
 
+                // value to show
+                double shown_value = internal_value;
+                if (display_type == LABELSLIDER_PERCENT) {
+                    shown_value *= 100;
+                } else if (display_type == LABELSLIDER_DECIBEL) {
+                    shown_value = amplitude_to_db(shown_value);
+                }
+
+                // set correct minimum value
+                double shown_minimum_value;
+                if (min_enabled) {
+                    // if this field has a minimum value set, use it
+                    shown_minimum_value = min_value;
+                } else if (display_type == LABELSLIDER_DECIBEL) {
+                    // minimum decibel amount is -96db
+                    shown_minimum_value = -96;
+                } else {
+                    // lowest possible minimum integer
+                    shown_minimum_value = INT_MIN;
+                }
+
                 // percentages are stored 0.0 - 1.0 but displayed as 0% - 100%
 				d = QInputDialog::getDouble(
 							this,
 							tr("Set Value"),
 							tr("New value:"),
-							(display_type == LABELSLIDER_PERCENT) ? internal_value * 100 : internal_value,
-							(min_enabled) ? min_value : INT_MIN,
+                            shown_value,
+                            shown_minimum_value,
 							(max_enabled) ? max_value : INT_MAX,
 							decimal_places,
 							&ok
 						);
 				if (!ok) return;
-				if (display_type == LABELSLIDER_PERCENT) d *= 0.01;
+
+                // convert shown value back to internal value
+                if (display_type == LABELSLIDER_PERCENT) {
+                    d *= 0.01;
+                } else if (display_type == LABELSLIDER_DECIBEL) {
+                    d = db_to_amplitude(d);
+                }
 			}
 
             // if the value actually changed, trigger a change event
-			if (d != internal_value) {
+            if (!qFuzzyCompare(d, internal_value)) {
 				set_previous_value();
 				set_value(d, true);
 			}

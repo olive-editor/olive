@@ -10,6 +10,7 @@
 #include "project/effect.h"
 
 class VoidEffect : public Effect {
+    Q_OBJECT
 public:
 	VoidEffect(Clip* c, const QString& n);
 
