@@ -53,8 +53,7 @@ struct Config {
 	bool hover_focus;
 	int project_view_type;
 	bool set_name_with_marker;
-	bool show_project_toolbar;
-	bool disable_multithreading_for_images;
+    bool show_project_toolbar;
 	double previous_queue_size;
 	int previous_queue_type;
 	double upcoming_queue_size;

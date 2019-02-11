@@ -80,11 +80,7 @@ int main(int argc, char *argv[]) {
 
 	if (use_internal_logger) {
 		qInstallMessageHandler(debug_message_handler);
-	}
-
-	// init ffmpeg subsystem
-	av_register_all();
-	avfilter_register_all();
+    }
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 

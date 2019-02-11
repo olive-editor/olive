@@ -89,7 +89,40 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 				key_shortcut_actions.append(a);
 			}
 		}
-	}
+    }
+}
+
+void PreferencesDialog::delete_previews(char type) {
+    if (type != 't' && type != 'w' && type != 1) return;
+
+    QDir preview_path(get_data_path() + "/previews");
+
+    if (type == 1) {
+        // indiscriminately delete everything
+        preview_path.removeRecursively();
+    } else {
+        QStringList preview_file_list = preview_path.entryList(QDir::Files | QDir::NoDotAndDotDot);
+        for (int i=0;i<preview_file_list.size();i++) {
+
+            const QString& preview_file_str = preview_file_list.at(i);
+
+            // use filename to determine whether this is a thumbnail or a waveform
+            int identifier_char_index = qMax(0, preview_file_str.size()-2);
+
+            // find identifier char
+            while (identifier_char_index >= 0
+                   && preview_file_str.at(identifier_char_index) >= 48
+                   && preview_file_str.at(identifier_char_index) <= 57) {
+                identifier_char_index--;
+            }
+
+            // thumbnails will have a 't' towards the end of the filenames, waveforms will have a 'w'
+            // if they match the type of preview we're deleting, remove them
+            if (preview_file_str.at(identifier_char_index) == type) {
+                QFile::remove(preview_path.filePath(preview_file_str));
+            }
+        }
+    }
 }
 
 void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
@@ -131,8 +164,7 @@ void PreferencesDialog::save() {
 	mainWindow->load_css_from_file(config.css_path);
 	config.recording_mode = recordingComboBox->currentIndex() + 1;
 	config.img_seq_formats = imgSeqFormatEdit->text();
-	config.fast_seeking = fastSeekButton->isChecked();
-	config.disable_multithreading_for_images = disable_img_multithread->isChecked();
+    config.fast_seeking = fastSeekButton->isChecked();
 	config.upcoming_queue_size = upcoming_queue_spinbox->value();
 	config.upcoming_queue_type = upcoming_queue_type->currentIndex();
 	config.previous_queue_size = previous_queue_spinbox->value();
@@ -195,36 +227,7 @@ void PreferencesDialog::save() {
 			}
 		}
 
-		if (delete_match != 0) {
-			QDir preview_path(get_data_path() + "/previews");
-
-			if (delete_match == 1) {
-				// indiscriminately delete everything
-				preview_path.removeRecursively();
-			} else {
-				QStringList preview_file_list = preview_path.entryList(QDir::Files | QDir::NoDotAndDotDot);
-				for (int i=0;i<preview_file_list.size();i++) {
-
-					const QString& preview_file_str = preview_file_list.at(i);
-
-					// use filename to determine whether this is a thumbnail or a waveform
-					int identifier_char_index = qMax(0, preview_file_str.size()-2);
-
-					// find identifier char
-					while (identifier_char_index >= 0
-						   && preview_file_str.at(identifier_char_index) >= 48
-						   && preview_file_str.at(identifier_char_index) <= 57) {
-						identifier_char_index--;
-					}
-
-					// thumbnails will have a 't' towards the end of the filenames, waveforms will have a 'w'
-					// if they match the type of preview we're deleting, remove them
-					if (preview_file_str.at(identifier_char_index) == delete_match) {
-						QFile::remove(preview_path.filePath(preview_file_str));
-					}
-				}
-			}
-		}
+        delete_previews(delete_match);
 	}
 
 	// save keyboard shortcuts
@@ -362,7 +365,20 @@ void PreferencesDialog::browse_css_file() {
 	QString fn = QFileDialog::getOpenFileName(this, tr("Browse for CSS file"));
 	if (!fn.isEmpty()) {
 		custom_css_fn->setText(fn);
-	}
+    }
+}
+
+void PreferencesDialog::delete_all_previews() {
+    if (QMessageBox::question(this,
+                              tr("Delete All Previews"),
+                              tr("Are you sure you want to delete all previews?"),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        delete_previews(1);
+        QMessageBox::information(this,
+                                 tr("Previews Deleted"),
+                                 tr("All previews deleted succesfully. You may have to re-open your current project for changes to take effect."),
+                                 QMessageBox::Ok);
+    }
 }
 
 void PreferencesDialog::setup_ui() {
@@ -377,7 +393,7 @@ void PreferencesDialog::setup_ui() {
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
 	// General -> Language
-	general_layout->addWidget(new QLabel(tr("Language:")), row, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Language:")), row, 0);
 
 	language_combobox = new QComboBox();
 
@@ -409,69 +425,72 @@ void PreferencesDialog::setup_ui() {
 		}
 	}
 
-	general_layout->addWidget(language_combobox, row, 1, 1, 3);
+    general_layout->addWidget(language_combobox, row, 1, 1, 4);
 
 	row++;
 
 	// General -> Custom CSS
-	general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0);
 
 	custom_css_fn = new QLineEdit(general_tab);
 	custom_css_fn->setText(config.css_path);
-	general_layout->addWidget(custom_css_fn, row, 1, 1, 2);
+    general_layout->addWidget(custom_css_fn, row, 1, 1, 3);
 
 	QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
 	connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
-	general_layout->addWidget(custom_css_browse, row, 3, 1, 1);
+    general_layout->addWidget(custom_css_browse, row, 4);
 
 	row++;
 
 	// General -> Image Sequence Formats
-	general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-	general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 3);
+    general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 4);
 
 	row++;
 
 	// General -> Audio Recording
-	general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem(tr("Mono"));
 	recordingComboBox->addItem(tr("Stereo"));
-	general_layout->addWidget(recordingComboBox, row, 1, 1, 3);
+    general_layout->addWidget(recordingComboBox, row, 1, 1, 4);
 
 	row++;
 
 	// General -> Effect Textbox Lines
-	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0);
 
 	effect_textbox_lines_field = new QSpinBox(general_tab);
 	effect_textbox_lines_field->setMinimum(1);
 	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
-	general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 3);
+    general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 4);
 
 	row++;
 
 	// General -> Thumbnail and Waveform Resolution
-	general_layout->addWidget(new QLabel(tr("Thumbnail Resolution:"), this), row, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Thumbnail Resolution:"), this), row, 0);
 
 	thumbnail_res_spinbox = new QSpinBox(this);
     thumbnail_res_spinbox->setMinimum(0);
 	thumbnail_res_spinbox->setMaximum(INT_MAX);
 	thumbnail_res_spinbox->setValue(config.thumbnail_resolution);
-	general_layout->addWidget(thumbnail_res_spinbox, row, 1, 1, 1);
+    general_layout->addWidget(thumbnail_res_spinbox, row, 1);
 
-	general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2);
 
 	waveform_res_spinbox = new QSpinBox(this);
     waveform_res_spinbox->setMinimum(0);
 	waveform_res_spinbox->setMaximum(INT_MAX);
 	waveform_res_spinbox->setValue(config.waveform_resolution);
-	general_layout->addWidget(waveform_res_spinbox, row, 3, 1, 1);
+    general_layout->addWidget(waveform_res_spinbox, row, 3);
 
+    QPushButton* delete_preview_btn = new QPushButton(tr("Delete Previews"));
+    general_layout->addWidget(delete_preview_btn, row, 4);
+    connect(delete_preview_btn, SIGNAL(clicked(bool)), this, SLOT(delete_all_previews()));
 
 	row++;
 
@@ -489,12 +508,7 @@ void PreferencesDialog::setup_ui() {
 
 	// Playback
 	QWidget* playback_tab = new QWidget(this);
-	QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
-
-	// Playback -> Disable Multithreading on Images
-	disable_img_multithread = new QCheckBox(tr("Disable Multithreading on Images"), playback_tab);
-	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
-	playback_tab_layout->addWidget(disable_img_multithread);
+    QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
 
 	// Playback -> Seeking
 	QGroupBox* seeking_group = new QGroupBox(playback_tab);

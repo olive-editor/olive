@@ -44,18 +44,22 @@ private slots:
 	void load_shortcut_file();
 	void save_shortcut_file();
 	void browse_css_file();
+    void delete_all_previews();
 
 private:
 	void setup_ui();
 	void setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent);
+
+    // used to delete previews
+    // type can be: 't' for thumbnails, 'w' for waveforms, or 1 for all
+    void delete_previews(char type);
 
 	QLineEdit* custom_css_fn;
 	QLineEdit* imgSeqFormatEdit;
 	QComboBox* recordingComboBox;
 	QRadioButton* accurateSeekButton;
 	QRadioButton* fastSeekButton;
-	QTreeWidget* keyboard_tree;
-	QCheckBox* disable_img_multithread;
+    QTreeWidget* keyboard_tree;
 	QDoubleSpinBox* upcoming_queue_spinbox;
 	QComboBox* upcoming_queue_type;
 	QDoubleSpinBox* previous_queue_spinbox;

@@ -737,14 +737,10 @@ void open_clip_worker(Clip* clip) {
 
 		clip->opts = nullptr;
 
-		// optimized decoding settings
-		if ((clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
-			 clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
-			 clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
-			 clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD)
-				|| !config.disable_multithreading_for_images) {
-			av_dict_set(&clip->opts, "threads", "auto", 0);
-		}
+        // enable multithreading on decoding
+        av_dict_set(&clip->opts, "threads", "auto", 0);
+
+        // enable extra optimization code on h264 (not even sure if they help)
 		if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {
 			av_dict_set(&clip->opts, "tune", "fastdecode", 0);
 			av_dict_set(&clip->opts, "tune", "zerolatency", 0);

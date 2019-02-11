@@ -39,8 +39,7 @@ Config::Config()
 	  hover_focus(false),
 	  project_view_type(PROJECT_VIEW_TREE),
 	  set_name_with_marker(true),
-	  show_project_toolbar(false),
-	  disable_multithreading_for_images(false),
+      show_project_toolbar(false),
 	  previous_queue_size(3),
 	  previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
 	  upcoming_queue_size(0.5),
@@ -142,10 +141,7 @@ void Config::load(QString path) {
 					set_name_with_marker = (stream.text() == "1");
 				} else if (stream.name() == "ShowProjectToolbar") {
 					stream.readNext();
-					show_project_toolbar = (stream.text() == "1");
-				} else if (stream.name() == "DisableMultithreadedImages") {
-					stream.readNext();
-					disable_multithreading_for_images = (stream.text() == "1");
+                    show_project_toolbar = (stream.text() == "1");
 				} else if (stream.name() == "PreviousFrameQueueSize") {
 					stream.readNext();
 					previous_queue_size = stream.text().toDouble();
@@ -241,8 +237,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("HoverFocus", QString::number(hover_focus));
 	stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
 	stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
-	stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
-	stream.writeTextElement("DisableMultithreadedImages", QString::number(disable_multithreading_for_images));
+    stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
 	stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
 	stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
 	stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
