@@ -13,11 +13,11 @@ matrix:
     sudo: require
     dist: trusty
   - os: osx
-  - os: windows
-    env: ARCH=x86_64
+  # Can't build on Windows - affected by https://travis-ci.community/t/current-known-issues-please-read-this-before-posting-a-new-topic/264/10
+  # - os: windows
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install msys2 -y; else source ./.travis/before_install.sh; fi
+  - source ./.travis/before_install.sh
 
 install:
   - source ./.travis/install.sh
