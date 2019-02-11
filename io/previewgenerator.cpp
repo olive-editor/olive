@@ -207,14 +207,25 @@ void PreviewGenerator::generate_waveform() {
 	SwsContext* sws_ctx;
 	SwrContext* swr_ctx;
 	AVFrame* temp_frame = av_frame_alloc();
+
+    // stores codec contexts for format's streams
 	AVCodecContext** codec_ctx = new AVCodecContext* [fmt_ctx->nb_streams];
+
+    // stores media lengths while scanning in case the format has no duration metadata
 	int64_t* media_lengths = new int64_t[fmt_ctx->nb_streams]{0};
+
+    // stores samples while scanning before they get sent to preview file
+    qint16*** waveform_cache_data = new qint16** [fmt_ctx->nb_streams];
+    int waveform_cache_count = 0;
 
     // defaults to false, sets to true if we find a valid stream to make a preview of
     bool create_previews = false;
 
 	for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
+
+        // default to nullptr values for easier memory management later
 		codec_ctx[i] = nullptr;
+        waveform_cache_data[i] = nullptr;
 
         // we only generate previews for video and audio
         // and only if the thumbnail and waveform sizes are > 0
@@ -222,12 +233,33 @@ void PreviewGenerator::generate_waveform() {
                 || (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && config.waveform_resolution > 0)) {
 			AVCodec* codec = avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id);
 			if (codec != nullptr) {
+
+                // alloc the context and load the params into it
 				codec_ctx[i] = avcodec_alloc_context3(codec);
 				avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
+
+                // open the decoder
 				avcodec_open2(codec_ctx[i], codec, nullptr);
-				if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && codec_ctx[i]->channel_layout == 0) {
-					codec_ctx[i]->channel_layout = av_get_default_channel_layout(fmt_ctx->streams[i]->codecpar->channels);
+
+                // audio specific functions
+                if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+
+                    // allocate sample cache for this stream
+                    waveform_cache_data[i] = new qint16* [fmt_ctx->streams[i]->codecpar->channels];
+
+                    // each channel gets a min and a max value so we allocate two ints for each one
+                    for (int j=0;j<fmt_ctx->streams[i]->codecpar->channels;j++) {
+                        waveform_cache_data[i][j] = new qint16[2];
+                    }
+
+                    // if codec context has no defined channel layout, guess it from the channel count
+                    if (codec_ctx[i]->channel_layout == 0) {
+                        codec_ctx[i]->channel_layout = av_get_default_channel_layout(fmt_ctx->streams[i]->codecpar->channels);
+                    }
+
 				}
+
+                // enable next step of process
                 create_previews = true;
 			}
 		}
@@ -312,8 +344,6 @@ void PreviewGenerator::generate_waveform() {
                         }
                         media_lengths[packet->stream_index]++;
                     } else if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-                        int interval = qFloor((temp_frame->sample_rate/config.waveform_resolution)/4)*4;
-
                         AVFrame* swr_frame = av_frame_alloc();
                         swr_frame->channel_layout = temp_frame->channel_layout;
                         swr_frame->sample_rate = temp_frame->sample_rate;
@@ -335,34 +365,61 @@ void PreviewGenerator::generate_waveform() {
 
                         swr_convert_frame(swr_ctx, swr_frame, temp_frame);
 
-                        // TODO implement a way to terminate this if the user suddenly closes the project while the waveform is being generated
+                        // `config.waveform_resolution` determines how many samples per second are stored in waveform.
+                        // `sample_rate` is samples per second, so `interval` is how many samples are averaged in
+                        // each "point" of the waveform
+                        int interval = qFloor((temp_frame->sample_rate/config.waveform_resolution)/4)*4;
+
+                        // get the amount of bytes in an audio sample
                         int sample_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(swr_frame->format));
+
+                        // total amount of data in this frame
                         int nb_bytes = swr_frame->nb_samples * sample_size;
-                        int byte_interval = interval * sample_size;
-                        for (int i=0;i<nb_bytes;i+=byte_interval) {
-                            for (int j=0;j<swr_frame->channels;j++) {
-                                qint16 min = 0;
-                                qint16 max = 0;
-                                for (int k=0;k<byte_interval;k+=sample_size) {
-                                    if (i+k < nb_bytes) {
-                                        qint16 sample = ((swr_frame->data[j][i+k+1] << 8) | swr_frame->data[j][i+k]);
-                                        if (sample > max) {
-                                            max = sample;
-                                        } else if (sample < min) {
-                                            min = sample;
-                                        }
-                                    } else {
-                                        break;
-                                    }
+
+                        // loop through entire frame
+                        for (int i=0;i<nb_bytes;i+=sample_size) {
+
+                            // check if we've hit sample threshold
+                            if (waveform_cache_count == interval) {
+
+                                // if so, we dump our cached values into the preview and reset them
+                                // for the next interval
+                                for (int j=0;j<swr_frame->channels;j++) {
+                                    qint16& min = waveform_cache_data[packet->stream_index][j][0];
+                                    qint16& max = waveform_cache_data[packet->stream_index][j][1];
+
+                                    s->audio_preview.append(min >> 8);
+                                    s->audio_preview.append(max >> 8);
                                 }
-                                s->audio_preview.append(min >> 8);
-                                s->audio_preview.append(max >> 8);
-                                if (cancelled) break;
+
+                                waveform_cache_count = 0;
+                            }
+
+                            // standard processing for each channel of information
+                            for (int j=0;j<swr_frame->channels;j++) {
+                                qint16& min = waveform_cache_data[packet->stream_index][j][0];
+                                qint16& max = waveform_cache_data[packet->stream_index][j][1];
+
+                                // if we're starting over, reset cache to zero
+                                if (waveform_cache_count == 0) {
+                                    min = 0;
+                                    max = 0;
+                                }
+
+                                // store most minimum and most maximum samples of this interval
+                                qint16 sample = qint16((swr_frame->data[j][i+1] << 8) | swr_frame->data[j][i]);
+                                min = qMin(min, sample);
+                                max = qMax(max, sample);
+                            }
+
+                            waveform_cache_count++;
+
+                            if (cancelled) {
+                                break;
                             }
                         }
 
                         swr_free(&swr_ctx);
-                        av_frame_unref(swr_frame);
                         av_frame_free(&swr_frame);
 
                         if (cancelled) {
@@ -396,6 +453,13 @@ void PreviewGenerator::generate_waveform() {
         av_packet_free(&packet);
 
         for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
+            if (waveform_cache_data[i] != nullptr) {
+                for (int j=0;j<codec_ctx[i]->channels;j++) {
+                    delete [] waveform_cache_data[i][j];
+                }
+                delete [] waveform_cache_data[i];
+            }
+
             if (codec_ctx[i] != nullptr) {
                 avcodec_close(codec_ctx[i]);
                 avcodec_free_context(&codec_ctx[i]);
@@ -423,6 +487,7 @@ void PreviewGenerator::generate_waveform() {
         finalize_media();
 	}
 
+    delete [] waveform_cache_data;
 	delete [] media_lengths;
 	delete [] codec_ctx;
 }
@@ -468,22 +533,26 @@ void PreviewGenerator::run() {
 			if (retrieve_preview(hash)) {
 				sem.acquire();
 
-				generate_waveform();
+                if (!cancelled) {
+                    generate_waveform();
 
-				// save preview to file
-				for (int i=0;i<footage->video_tracks.size();i++) {
-					FootageStream& ms = footage->video_tracks[i];
-					ms.video_preview.save(get_thumbnail_path(hash, ms), "PNG");
-					//dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
-				}
-				for (int i=0;i<footage->audio_tracks.size();i++) {
-					FootageStream& ms = footage->audio_tracks[i];
-					QFile f(get_waveform_path(hash, ms));
-					f.open(QFile::WriteOnly);
-					f.write(ms.audio_preview.constData(), ms.audio_preview.size());
-					f.close();
-					//dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
-				}
+                    if (!cancelled) {
+                        // save preview to file
+                        for (int i=0;i<footage->video_tracks.size();i++) {
+                            FootageStream& ms = footage->video_tracks[i];
+                            ms.video_preview.save(get_thumbnail_path(hash, ms), "PNG");
+                            //dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
+                        }
+                        for (int i=0;i<footage->audio_tracks.size();i++) {
+                            FootageStream& ms = footage->audio_tracks[i];
+                            QFile f(get_waveform_path(hash, ms));
+                            f.open(QFile::WriteOnly);
+                            f.write(ms.audio_preview.constData(), ms.audio_preview.size());
+                            f.close();
+                            //dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
+                        }
+                    }
+                }
 
 				sem.release();
 			}
@@ -491,14 +560,16 @@ void PreviewGenerator::run() {
 		avformat_close_input(&fmt_ctx);
 	}
 
-	if (error) {
-		media->update_tooltip(errorStr);
-		emit set_icon(ICON_TYPE_ERROR, replace);
-		footage->invalid = true;
-		footage->ready_lock.unlock();
-	} else {
-		media->update_tooltip();
-	}
+    if (!cancelled) {
+        if (error) {
+            media->update_tooltip(errorStr);
+            emit set_icon(ICON_TYPE_ERROR, replace);
+            footage->invalid = true;
+            footage->ready_lock.unlock();
+        } else {
+            media->update_tooltip();
+        }
+    }
 
 	delete [] filename;
 	footage->preview_gen = nullptr;
@@ -506,4 +577,5 @@ void PreviewGenerator::run() {
 
 void PreviewGenerator::cancel() {
 	cancelled = true;
+    wait();
 }

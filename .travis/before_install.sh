@@ -15,6 +15,6 @@ elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
 
 	# install msys2 for mingw package installation
 	# (chocolatey is seemingly missing a recent version of Qt)
-	choco install msys2
+	choco install msys2 -y
 
 fi

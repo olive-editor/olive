@@ -31,7 +31,6 @@ Footage::~Footage() {
 void Footage::reset() {
 	if (preview_gen != nullptr) {
 		preview_gen->cancel();
-		preview_gen->wait();
 	}
 	video_tracks.clear();
 	audio_tracks.clear();
