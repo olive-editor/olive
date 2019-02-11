@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#if [[ "$TRAVIS_OS_NAME" == "osx" ]]
-#then
-	# do nothing
-#elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
 	# install apt repos necessary for Olive
