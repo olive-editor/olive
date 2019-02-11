@@ -13,6 +13,8 @@ matrix:
     sudo: require
     dist: trusty
   - os: osx
+  - os: windows
+    env: ARCH=x86_64
 
 before_install:
   - source ./.travis/before_install.sh

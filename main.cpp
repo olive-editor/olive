@@ -11,7 +11,7 @@ extern "C" {
 }
 
 int main(int argc, char *argv[]) {
-	QString appName = "Olive (January 2019 | Alpha";
+    QString appName = "Olive (February 2019 | Alpha";
 #ifdef GITHASH
 	appName += " | ";
 	appName += GITHASH;

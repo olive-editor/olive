@@ -65,4 +65,11 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 		chmod a+x appimagetool-i686.AppImage
 		./appimagetool-i686.AppImage "appdir" -n -g
 	fi
+elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+	/c/msys64/mingw64/bin/qmake CONFIG+=release
+	/c/msys64/mingw64/bin/mingw32-make -f Makefile.Debug
+	mkdir olive-editor
+	mv olive-editor.exe olive-editor/
+	/c/msys64/mingw64/bin/windeployqt olive-editor/olive-editor.exe
+	7z a Olive-$(git rev-parse --short HEAD)-w64p.zip olive-editor
 fi
