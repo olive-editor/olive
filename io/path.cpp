@@ -31,12 +31,24 @@ QString get_config_path() {
 }
 
 QList<QString> get_effects_paths() {
+    // returns a list of the effects paths to search
+
 	QList<QString> effects_paths;
-	effects_paths.append(get_app_dir() + "/effects");
+
+    // "effects" subfolder in program folder - best for Windows
+    effects_paths.append(get_app_dir() + "/effects");
+
+    // "Effects" folder one level above the program's directory - best for Mac
+    effects_paths.append(get_app_dir() + "/../Effects");
+
+    // folder in share folder - best for Linux
 	effects_paths.append(get_app_dir() + "/../share/olive-editor/effects");
+
+    // Olive will also accept a manually provided folder with an environment variable
 	QString env_path(qgetenv("OLIVE_EFFECTS_PATH"));
 	if (!env_path.isEmpty()) effects_paths.append(env_path);
-	return effects_paths;
+
+    return effects_paths;
 }
 
 QString get_file_hash(const QString& filename) {
@@ -47,9 +59,19 @@ QString get_file_hash(const QString& filename) {
 
 QList<QString> get_language_paths() {
 	QList<QString> language_paths;
+
+    // subfolder in program folder - best for Windows (or compiling+running from source dir)
 	language_paths.append(get_app_dir() + "/ts");
+
+    // folder one level above the program's directory - best for Mac
+    language_paths.append(get_app_dir() + "/../Translations");
+
+    // folder in share folder - best for Linux
 	language_paths.append(get_app_dir() + "/../share/olive-editor/ts");
+
+    // Olive will also accept a manually provided folder with an environment variable
 	QString env_path(qgetenv("OLIVE_LANG_PATH"));
 	if (!env_path.isEmpty()) language_paths.append(env_path);
+
 	return language_paths;
 }
