@@ -140,7 +140,8 @@ SOURCES += \
     ui/flowlayout.cpp \
     dialogs/proxydialog.cpp \
     io/proxygenerator.cpp \
-    dialogs/advancedvideodialog.cpp
+    dialogs/advancedvideodialog.cpp \
+    ui/cursors.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -244,7 +245,8 @@ HEADERS += \
     ui/flowlayout.h \
     dialogs/proxydialog.h \
     io/proxygenerator.h \
-    dialogs/advancedvideodialog.h
+    dialogs/advancedvideodialog.h \
+    ui/cursors.h
 
 FORMS +=
 
@@ -276,7 +278,8 @@ unix:!mac {
 
 RESOURCES += \
     icons/icons.qrc \
-    effects/internal/internalshaders.qrc
+    effects/internal/internalshaders.qrc \
+    cursors/cursors.qrc
 
 unix:!mac:isEmpty(PREFIX) {
     PREFIX = /usr/local
@@ -311,7 +314,5 @@ unix:!mac {
     icon256.path = $$PREFIX/share/icons/hicolor/256x256/apps
     icon512.files = $$PWD/packaging/linux/icons/512x512/org.olivevideoeditor.Olive.png
     icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
-    icon1024.files = $$PWD/packaging/linux/icons/1024x1024/org.olivevideoeditor.Olive.png
-    icon1024.path = $$PREFIX/share/icons/hicolor/1024x1024/apps
-    INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512 icon1024
+    INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512
 }
