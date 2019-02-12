@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="cs_CZ">
+<TS version="2.0" language="cs_CZ">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -27,12 +27,12 @@
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="21"/>
         <source>Advanced Video Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokročilá nastavení obrazu</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="33"/>
         <source>Pixel Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formát pixelu:</translation>
     </message>
 </context>
 <context>
@@ -196,54 +196,54 @@
     <message>
         <location filename="../project/effect.cpp" line="403"/>
         <source>Load Settings From File</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrát nastavení ze souboru</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="405"/>
         <source>Save Settings to File</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit nastavení do souboru</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="442"/>
         <source>Save Effect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit nastavení efektu</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="444"/>
         <location filename="../project/effect.cpp" line="474"/>
         <source>Effect XML Settings %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení XML efektu %1</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="462"/>
         <source>Save Settings Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení se nepodařilo uložit</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="463"/>
         <source>Failed to open &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít &quot;%1&quot; pro zápis.</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="472"/>
         <source>Load Effect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrát nastavení efektu</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="488"/>
         <location filename="../project/effect.cpp" line="697"/>
         <source>Load Settings Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení se nepodařilo nahrát</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="489"/>
         <source>Failed to open &quot;%1&quot; for reading.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít &quot;%1&quot; pro čtení.</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="698"/>
         <source>This settings file doesn&apos;t match this effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento soubor s nastavením neodpovídá tomuto efektu.</translation>
     </message>
 </context>
 <context>
@@ -325,7 +325,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="113"/>
         <source>Unknown codec name %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý název kodeku %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="319"/>
@@ -386,17 +386,17 @@
         <location filename="../dialogs/exportdialog.cpp" line="576"/>
         <location filename="../dialogs/exportdialog.cpp" line="582"/>
         <source>Invalid Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatný kodek</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="577"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se najít vhodný kodér pro tento kodek. Vyvedení pravděpodobně selže.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="583"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se najít formát pixelu pro tento kodér. Vyvedení pravděpodobně selže.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="596"/>
@@ -482,7 +482,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokročilé</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="695"/>
@@ -844,7 +844,7 @@
     </message>
     <message>
         <source>Enable/Disable In/Out Point</source>
-        <translation type="vanished">Povolit/Zakázat bod začátku/konce</translation>
+        <translation>Povolit/Zakázat bod začátku/konce</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="279"/>
@@ -869,7 +869,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="457"/>
         <source>Please open the sequence you wish to export.</source>
-        <translation>Otevřete, prosím, sekvence, již chcete vyvést.</translation>
+        <translation>Otevřete, prosím, sekvenci, již chcete vyvést.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="555"/>
@@ -1214,29 +1214,29 @@
     <message>
         <location filename="../mainwindow.cpp" line="785"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Jezdit tam a zpět vlevo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="786"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastavit pendlování</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="787"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Jezdit tam a zpět vpravo</translation>
     </message>
     <message>
         <source>Decrease Speed</source>
-        <translation type="vanished">Snížit rychlost</translation>
+        <translation>Snížit rychlost</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="vanished">Pozastavit</translation>
+        <translation>Pozastavit</translation>
     </message>
     <message>
         <source>Increase Speed</source>
-        <translation type="vanished">Zvýšit rychlost</translation>
+        <translation>Zvýšit rychlost</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="790"/>
@@ -1281,8 +1281,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="832"/>
         <source>Maximize Panel</source>
-        <translatorcomment>Zvětšit panel</translatorcomment>
-        <translation></translation>
+        <translation>Zvětšit panel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="836"/>
@@ -1500,17 +1499,17 @@
     <message>
         <location filename="../project/marker.cpp" line="43"/>
         <source>Set Marker</source>
-        <translation type="unfinished">Nastavit značku</translation>
+        <translation>Nastavit značku</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="45"/>
         <source>Set clip marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit název značky záběru:</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="46"/>
         <source>Set sequence marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit název značky sekvence:</translation>
     </message>
 </context>
 <context>
@@ -1542,12 +1541,12 @@
     </message>
     <message>
         <source>%1 fields (%2 frames)</source>
-        <translation type="vanished">%1 polí (%2 snímků)</translation>
+        <translation>%1 polí (%2 snímků)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="122"/>
         <source>%1 field(s) (%2 frame(s))</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 pole(í) (%2 snímek(y))</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="131"/>
@@ -1612,20 +1611,20 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Audio %1: %2Hz %3 channels</source>
-        <translation type="vanished">Zvuk %1: %2Hz %3 kanálů</translation>
+        <translation>Zvuk %1: %2Hz %3 kanálů</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="56"/>
         <source>Audio %1: %2Hz %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Zvuk %1: %2Hz %3</translation>
     </message>
     <message numerus="yes">
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="59"/>
         <source>%n channel(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n kanál</numerusform>
+            <numerusform>%n kanály</numerusform>
+            <numerusform>%n kanálů</numerusform>
         </translation>
     </message>
     <message>
@@ -1795,7 +1794,7 @@ Rozložení zvuku: %6</translation>
     <message>
         <location filename="../playback/playback.cpp" line="302"/>
         <source>Generating Proxy: %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvoření proxy: %1%</translation>
     </message>
 </context>
 <context>
@@ -1879,22 +1878,22 @@ Rozložení zvuku: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="373"/>
         <source>Delete All Previews</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat všechny náhledy</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="374"/>
         <source>Are you sure you want to delete all previews?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravdu chcete smazat všechny náhledy?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="378"/>
         <source>Previews Deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhledy smazány</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="379"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Všechny náhledy byly úspěšně smazány. Možná budete muset nynější projekt otevřít znovu, aby se změny projevily.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="396"/>
@@ -1949,7 +1948,7 @@ Rozložení zvuku: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="491"/>
         <source>Delete Previews</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat náhledy</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="499"/>
@@ -1968,7 +1967,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Disable Multithreading on Images</source>
-        <translation type="vanished">Zakázat vytvoření více vláken v jednom procesu na obrázky</translation>
+        <translation>Zakázat vytvoření více vláken v jednom procesu na obrázky</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="515"/>
@@ -2250,19 +2249,19 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     </message>
     <message>
         <source>ProRes SQ</source>
-        <translation type="vanished">ProRes SQ</translation>
+        <translation>ProRes SQ</translation>
     </message>
     <message>
         <source>ProRes LT</source>
-        <translation type="vanished">ProRes LT</translation>
+        <translation>ProRes LT</translation>
     </message>
     <message>
         <source>DNxHD</source>
-        <translation type="vanished">DNxHD</translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <source>H.264</source>
-        <translation type="vanished">H.264</translation>
+        <translation>H.264</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="52"/>
@@ -2277,12 +2276,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="102"/>
         <source>Proxy file exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor proxy existuje</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="103"/>
         <source>The file &quot;%1&quot; already exists. Do you wish to replace it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor &quot;%1&quot; již existuje. Chcete jej nahradit?</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="137"/>
@@ -2295,7 +2294,7 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../io/proxygenerator.cpp" line="303"/>
         <source>Finished generating proxy for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokončeno vytvoření proxy pro &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -2515,12 +2514,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../project/sourcescommon.cpp" line="148"/>
         <source>Generating proxy: %1% complete</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvoření proxy: %1% hotovo</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="169"/>
         <source>Create/Modify Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit/Změnit proxy</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="172"/>
@@ -2530,12 +2529,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../project/sourcescommon.cpp" line="183"/>
         <source>Modify Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Změnit proxy</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="186"/>
         <source>Restore Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovit původní</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="192"/>
@@ -2560,12 +2559,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../project/sourcescommon.cpp" line="372"/>
         <source>Delete proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat proxy</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="373"/>
         <source>Would you like to delete the proxy file &quot;%1&quot; as well?</source>
-        <translation type="unfinished"></translation>
+        <translation>Chcete smazat i soubor proxy &quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -2820,11 +2819,11 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     </message>
     <message>
         <source>Set Marker</source>
-        <translation type="vanished">Nastavit značku</translation>
+        <translation>Nastavit značku</translation>
     </message>
     <message>
         <source>Set marker name:</source>
-        <translation type="vanished">Nastavit název značky:</translation>
+        <translation>Nastavit název značky:</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1568"/>
@@ -2945,47 +2944,47 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../ui/timelinewidget.cpp" line="77"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Zpět</translation>
+        <translation>&amp;Zpět</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="78"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Znovu</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="96"/>
         <source>C&amp;ut</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyj&amp;mout</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="97"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">&amp;Kopírovat</translation>
+        <translation>&amp;Kopírovat</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="100"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Vložit</translation>
+        <translation>&amp;Vložit</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="110"/>
         <source>R&amp;ipple Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vytáhnout (smazat a posunout)</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="114"/>
         <source>Sequence Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení sekvence</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="120"/>
         <source>&amp;Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rychlost/Doba trvání</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="122"/>
         <source>Auto-s&amp;cale</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatická &amp;změna velikosti</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="127"/>
@@ -2995,17 +2994,17 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     <message>
         <location filename="../ui/timelinewidget.cpp" line="129"/>
         <source>&amp;Nest</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vnořovat</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="159"/>
         <source>&amp;Reveal in Project</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Odkrýt v projektu</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="163"/>
         <source>R&amp;ename</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Přejmenovat</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="192"/>
@@ -3259,12 +3258,12 @@ Doba trvání: %4</translation>
     <name>Transition</name>
     <message>
         <source>Length:</source>
-        <translation type="vanished">Délka:</translation>
+        <translation>Délka:</translation>
     </message>
     <message>
         <location filename="../project/transition.cpp" line="28"/>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Délka</translation>
     </message>
 </context>
 <context>
@@ -3299,7 +3298,7 @@ Doba trvání: %4</translation>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="153"/>
         <source>Failed to locate entry point for dynamic library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se najít vstupní bod pro dynamickou knihovnu.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="181"/>
