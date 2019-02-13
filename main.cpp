@@ -87,8 +87,10 @@ int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icons/olive64.png"));
 
+    QCoreApplication::setOrganizationName("olivevideoeditor.org");
     QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
     QCoreApplication::setApplicationName("Olive");
+    QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 
 	MainWindow w(nullptr, appName);
 	w.updateTitle("");

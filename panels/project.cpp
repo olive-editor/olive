@@ -817,20 +817,28 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 		Media* m = project_model.getItem(item);
 
 		if (m->get_type() == MEDIA_TYPE_FOLDER) {
+
+            // if this item is a folder, recursively run this function to search it too
 			if (reveal_media(media, item)) return true;
+
 		} else if (m == media) {
-			// expand all folders leading to this media
+            // if m == media, then we found the media object we were looking for
+
+            // get sorter proxy item (the item that's "visible")
 			QModelIndex sorted_index = sorter->mapFromSource(item);
 
+            // retrieve its parent item
 			QModelIndex hierarchy = sorted_index.parent();
 
 			if (config.project_view_type == PROJECT_VIEW_TREE) {
+
+                // if we're in tree view, expand every folder in the hierarchy containing the media
 				while (hierarchy.isValid()) {
 					tree_view->setExpanded(hierarchy, true);
 					hierarchy = hierarchy.parent();
 				}
 
-				// select item
+                // select item (requires a QItemSelection object to select the whole row)
                 QItemSelection row_select(
                                 sorter->index(sorted_index.row(), 0, sorted_index.parent()),
                                 sorter->index(sorted_index.row(), sorter->columnCount()-1, sorted_index.parent())
@@ -838,9 +846,16 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 
                 tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
 			} else if (config.project_view_type == PROJECT_VIEW_ICON) {
+
+                // if we're in icon view, we just "browse" to the parent folder
 				icon_view->setRootIndex(hierarchy);
+
+                // select item in this folder
 				icon_view->selectionModel()->select(sorted_index, QItemSelectionModel::Select);
+
+                // update the "up" button state
 				set_up_dir_enabled();
+
 			}
 
 			return true;

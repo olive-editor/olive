@@ -27,12 +27,12 @@
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="21"/>
         <source>Advanced Video Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительные параметры видео</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="33"/>
         <source>Pixel Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Формат пикселей:</translation>
     </message>
 </context>
 <context>
@@ -385,12 +385,12 @@
         <location filename="../dialogs/exportdialog.cpp" line="576"/>
         <location filename="../dialogs/exportdialog.cpp" line="582"/>
         <source>Invalid Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректный кодек</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="577"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось найти подходящий кодировщик для этого кодека. Экспорт не гарантирован.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="583"/>
@@ -481,7 +481,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительно</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="695"/>
@@ -1213,17 +1213,17 @@
     <message>
         <location filename="../mainwindow.cpp" line="785"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Уменьшить скорость</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="786"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Пауза</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="787"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Увеличить скорость</translation>
     </message>
     <message>
         <source>Decrease Speed</source>
@@ -1340,27 +1340,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="892"/>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Выделение с перемоткой</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="897"/>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Выделение с перемоткой</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="902"/>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Выделение выбирает связи</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="907"/>
         <source>Seek Also Selects</source>
-        <translation type="unfinished"></translation>
+        <translation>Перемотка с выделением</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="912"/>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished"></translation>
+        <translation>Перемотка до конца вставок</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="917"/>
@@ -1370,7 +1370,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="922"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation>Разрешить перетаскивание файлов на таймлайн извне</translation>
+        <translation>Разрешить перетаскивание на таймлайн извне</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="927"/>
@@ -1460,17 +1460,17 @@
     <message>
         <location filename="../mainwindow.cpp" line="1395"/>
         <source>Missing recent project</source>
-        <translation type="unfinished"></translation>
+        <translation>Отсутствует недавний проект</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1396"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Проект &apos;%1&apos; больше не существует. Удалить его из списка недавних?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1508"/>
         <source>Invalid aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректное соотношение сторон</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1508"/>
@@ -1480,7 +1480,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1511"/>
         <source>Enter custom aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите другое соотношение сторон</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1511"/>
@@ -1498,17 +1498,17 @@
     <message>
         <location filename="../project/marker.cpp" line="43"/>
         <source>Set Marker</source>
-        <translation type="unfinished">Установить маркер</translation>
+        <translation>Установить маркер</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="45"/>
         <source>Set clip marker name:</source>
-        <translation type="unfinished">Установить название маркера клипа:</translation>
+        <translation>Название маркера клипа:</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="46"/>
         <source>Set sequence marker name:</source>
-        <translation type="unfinished">Установить название маркера последовательности:</translation>
+        <translation>Название маркера последовательности:</translation>
     </message>
 </context>
 <context>
@@ -1545,7 +1545,7 @@
     <message>
         <location filename="../project/media.cpp" line="122"/>
         <source>%1 field(s) (%2 frame(s))</source>
-        <translation type="unfinished"></translation>
+        <translation>полей: %1 (кадров: %2)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="131"/>
@@ -1620,10 +1620,10 @@ Audio Layout: %6</source>
     <message numerus="yes">
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="59"/>
         <source>%n channel(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n канал</numerusform>
+            <numerusform>%n канала</numerusform>
+            <numerusform>%n каналов</numerusform>
         </translation>
     </message>
     <message>
@@ -1639,7 +1639,7 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="93"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Авто (%1)</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="106"/>
@@ -1877,22 +1877,22 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="373"/>
         <source>Delete All Previews</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить все миниатюры</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="374"/>
         <source>Are you sure you want to delete all previews?</source>
-        <translation type="unfinished"></translation>
+        <translation>Действительно удалить все миниатюры?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="378"/>
         <source>Previews Deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Миниатюры удалены</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="379"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Все миниатюры успешно удалены. Возможно, понадобится заново открыть проект, чтобы изменения вступили в силу.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="396"/>
@@ -1947,12 +1947,12 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="491"/>
         <source>Delete Previews</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить миниатюры</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="499"/>
         <source>Use Software Fallbacks When Possible</source>
-        <translation type="unfinished"></translation>
+        <translation>По возможности использовать программную реализацию вместо аппаратной</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="503"/>
@@ -2547,7 +2547,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/sourcescommon.cpp" line="373"/>
         <source>Would you like to delete the proxy file &quot;%1&quot; as well?</source>
-        <translation type="unfinished"></translation>
+        <translation>Заодно удалить прокси-файл &quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -3250,7 +3250,7 @@ Duration: %4</source>
     <message>
         <location filename="../project/transition.cpp" line="28"/>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Длительность</translation>
     </message>
 </context>
 <context>

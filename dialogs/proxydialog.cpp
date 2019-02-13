@@ -71,6 +71,9 @@ ProxyDialog::ProxyDialog(QWidget *parent, const QVector<Footage *> &footage) :
 void ProxyDialog::accept() {
 	QVector<ProxyInfo> info_list;
 
+    // set to TRUE if any existing proxies exist and the user chooses to overwrite all of them
+    bool overwrite_all_existing = false;
+
 	for (int i=0;i<selected_footage.size();i++) {
 		// loop through selected footage and send info to the proxy queue
 
@@ -97,13 +100,25 @@ void ProxyDialog::accept() {
 			info.path = QDir(custom_location).filePath(base_footage_fn);
 		}
 
-		// if the proposed proxy file already exists
-		if (QFileInfo::exists(info.path) && QMessageBox::warning(this,
-																 tr("Proxy file exists"),
-																 tr("The file \"%1\" already exists. Do you wish to replace it?").arg(info.path),
-																 QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
-			// return to dialog without closing or starting any proxy generation
-			return;
+		// if the proposed proxy file already exists & user didn't select YesToAll box
+        if (QFileInfo::exists(info.path) && !overwrite_all_existing){
+			int rtn = QMessageBox::warning(	this,
+								tr("Proxy file exists"),
+								tr("The file \"%1\" already exists. Do you wish to replace it?").arg(info.path),
+								QMessageBox::YesToAll | QMessageBox::Yes | QMessageBox::No);
+
+			switch (rtn){
+            case QMessageBox::Yes:
+                // continue as normal, proxy generator will automatically overwrite this file
+                break;
+            case QMessageBox::YesToAll:
+                // continue as normal, also set variable so that above messagebox is not shown again
+                overwrite_all_existing = true;
+                break;
+            case QMessageBox::No:
+                // return to dialog without closing or starting any proxy generation
+                return;
+			}
 		}
 
 		// send to proxy generator thread
