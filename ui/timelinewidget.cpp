@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "ui/rectangleselect.h"
 #include "playback/playback.h"
+#include "ui/cursors.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -1977,62 +1978,132 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 		} else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
 				   panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
 				   panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
+
+            // hide any tooltip that may be currently showing
 			QToolTip::hideText();
 
+            // cache cursor position
 			QPoint pos = event->pos();
 
+            //
+            // check to see if the cursor is on a clip edge
+            //
+
+            // threshold around a trim point that the cursor can be within and still considered "trimming"
 			int lim = 5;
+            long mouse_frame_lower = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
+            long mouse_frame_upper = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
+
+            // current track that the cursor is on
 			int mouse_track = getTrackFromScreenPoint(pos.y());
-			long mouse_frame_lower = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
-			long mouse_frame_upper = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
-			bool found = false;
+
+            // used to determine whether we the cursor found a trim point or not
+            bool found = false;
+
+            // used to determine whether the cursor is within the rect of a clip
 			bool cursor_contains_clip = false;
+
+            // used to determine how close the cursor is to a trim point
+            // (and more specifically, whether another point is closer or not)
 			int closeness = INT_MAX;
+
+            // while we loop through the clips, we cache the maximum/minimum tracks in this sequence
 			int min_track = INT_MAX;
 			int max_track = INT_MIN;
+
+            // we default to selecting no transition, but set this accordingly if the cursor is on a transition
 			panel_timeline->transition_select = TA_NO_TRANSITION;
+
+            // set currently trimming clip to -1 (aka null)
+            panel_timeline->trim_target = -1;
+
+            // loop through current clips in the sequence
 			for (int i=0;i<sequence->clips.size();i++) {
 				Clip* c = sequence->clips.at(i);
 				if (c != nullptr) {
+
+                    // cache track range
 					min_track = qMin(min_track, c->track);
 					max_track = qMax(max_track, c->track);
+
+                    // if this clip is on the same track the mouse is
 					if (c->track == mouse_track) {
+
+                        // if this cursor is inside the boundaries of this clip (hovering over the clip)
 						if (panel_timeline->cursor_frame >= c->timeline_in &&
 								panel_timeline->cursor_frame <= c->timeline_out) {
+
+                            // acknowledge that we are hovering over a clip
 							cursor_contains_clip = true;
 
+                            // start a timer to show a tooltip about this clip
 							tooltip_timer.start();
 							tooltip_clip = i;
 
-							if (c->get_opening_transition() != nullptr && panel_timeline->cursor_frame <= c->timeline_in + c->get_opening_transition()->get_true_length()) {
+                            // check if the cursor is specifically hovering over one of the clip's transitions
+                            if (c->get_opening_transition() != nullptr
+                                    && panel_timeline->cursor_frame <= c->timeline_in + c->get_opening_transition()->get_true_length()) {
+
 								panel_timeline->transition_select = TA_OPENING_TRANSITION;
-							} else if (c->get_closing_transition() != nullptr && panel_timeline->cursor_frame >= c->timeline_out - c->get_closing_transition()->get_true_length()) {
+
+                            } else if (c->get_closing_transition() != nullptr
+                                       && panel_timeline->cursor_frame >= c->timeline_out - c->get_closing_transition()->get_true_length()) {
+
 								panel_timeline->transition_select = TA_CLOSING_TRANSITION;
+
 							}
 						}
+
+                        // is the cursor hovering around the clip's IN point?
 						if (c->timeline_in > mouse_frame_lower && c->timeline_in < mouse_frame_upper) {
+
+                            // test how close this IN point is to the cursor
 							int nc = qAbs(c->timeline_in + 1 - panel_timeline->cursor_frame);
+
+                            // and test whether it's closer than the last in/out point we found
 							if (nc < closeness) {
+
+                                // if so, this is the point we'll make active for now (unless we find a closer one later)
 								panel_timeline->trim_target = i;
 								panel_timeline->trim_in_point = true;
 								closeness = nc;
-								found = true;
+                                found = true;
+
 							}
 						}
+
+                        // is the cursor hovering around the clip's OUT point?
 						if (c->timeline_out > mouse_frame_lower && c->timeline_out < mouse_frame_upper) {
+
+                            // test how close this OUT point is to the cursor
 							int nc = qAbs(c->timeline_out - 1 - panel_timeline->cursor_frame);
+
+                            // and test whether it's closer than the last in/out point we found
 							if (nc < closeness) {
+
+                                // if so, this is the point we'll make active for now (unless we find a closer one later)
 								panel_timeline->trim_target = i;
 								panel_timeline->trim_in_point = false;
 								closeness = nc;
-								found = true;
+                                found = true;
+
 							}
 						}
+
+                        // the pointer can be used to resize/trim transitions, here we test if the
+                        // cursor is within the trim point of one of the clip's transitions
 						if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+
+                            // if the clip has an opening transition
 							if (c->get_opening_transition() != nullptr) {
+
+                                // cache the timeline frame where the transition ends
 								long transition_point = c->timeline_in + c->get_opening_transition()->get_true_length();
 
+                                // check if the cursor is hovering around it (within the threshold)
 								if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
+
+                                    // similar to above, test how close it is and if it's closer, make this active
 									int nc = qAbs(transition_point - 1 - panel_timeline->cursor_frame);
 									if (nc < closeness) {
 										panel_timeline->trim_target = i;
@@ -2043,9 +2114,17 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 									}
 								}
 							}
+
+                            // if the clip has a closing transition
 							if (c->get_closing_transition() != nullptr) {
+
+                                // cache the timeline frame where the transition starts
 								long transition_point = c->timeline_out - c->get_closing_transition()->get_true_length();
+
+                                // check if the cursor is hovering around it (within the threshold)
 								if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
+
+                                    // similar to above, test how close it is and if it's closer, make this active
 									int nc = qAbs(transition_point + 1 - panel_timeline->cursor_frame);
 									if (nc < closeness) {
 										panel_timeline->trim_target = i;
@@ -2059,16 +2138,22 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 						}
 					}
 				}
-			}
-			/*if (cursor_contains_clip) {
-				QToolTip::showText(mapToGlobal(event->pos()), "HOVER OVER CLIP");
-			}*/
-			if (found) {
-				setCursor(Qt::SizeHorCursor);
-			} else {
-				panel_timeline->trim_target = -1;
+            }
 
-				// look for track heights
+            // if the cursor is indeed on a clip edge, we set the cursor accordingly
+			if (found) {
+
+                if (panel_timeline->trim_in_point) { // if we're trimming an IN point
+                    setCursor(Olive::Cursor_LeftTrim);
+                } else { // if we're trimming an OUT point
+                    setCursor(Olive::Cursor_RightTrim);
+                }
+
+			} else {
+                // we didn't find a trim target, so we must be doing something else
+                // (e.g. dragging a clip or resizing the track heights)
+
+                // check to see if we're resizing a track height
 				int track_y = 0;
 				for (int i=0;i<panel_timeline->get_track_height_size(bottom_align);i++) {
 					int track = (bottom_align) ? -1-i : i;
