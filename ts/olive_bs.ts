@@ -129,7 +129,7 @@
     <message>
         <location filename="../dialogs/debugdialog.cpp" line="12"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapis za debugiranje</translation>
     </message>
 </context>
 <context>
@@ -138,22 +138,22 @@
         <location filename="../dialogs/demonotice.cpp" line="10"/>
         <location filename="../dialogs/demonotice.cpp" line="25"/>
         <source>Welcome to Olive!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dobrodošli u Olive!</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="27"/>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive je slobodan video uređivač sa otvorenim izvornim kodom izdan pod GNU GPL-om. Ako ste platili za ovaj software, vi ste bili prevareni.</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="29"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ovaj software je trenutno u ALFA stanju, što znači da je nestabilan i veoma je vjerovatno da će se srušiti, imati greške i da ne dostaje nekih mogućnosti. Mi ne dajemo nikakvu garanciju, tako da koristite na svoj sopstveni rizik. Molimo da prijavite sve greške i željene funkcije na %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="31"/>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvala što isprobavate Olive i nadamo se da ćete uživati u njemu!</translation>
     </message>
 </context>
 <context>
