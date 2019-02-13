@@ -3,11 +3,11 @@
 
 #include <QCursor>
 
-void initCustomCursors();
+void init_custom_cursors();
 
 namespace Olive{
-	extern QCursor left_side;
-	extern QCursor right_side;
+    extern QCursor Cursor_LeftTrim;
+    extern QCursor Cursor_RightTrim;
 }
 
 #endif // CURSORS_H

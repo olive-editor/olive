@@ -5,18 +5,25 @@
 
 #include <QDebug>
 
-QCursor Olive::left_side;
-QCursor Olive::right_side;
+QCursor Olive::Cursor_LeftTrim;
+QCursor Olive::Cursor_RightTrim;
 
-QCursor load_cursor(QString file, const int hotX, const int hotY, const bool right_aligned){
-	int hotX_out;
-	QPixmap temp = QPixmap(file);
-	right_aligned? hotX_out = temp.width() : hotX_out = hotX;
-	return QCursor(temp,hotX_out,hotY);
+QCursor load_cursor(const QString& file, int hotX, int hotY, const bool& right_aligned){
+    // load specified file into a pixmap
+    QPixmap temp(file);
+
+    // set cursor's horizontal hotspot
+    if (right_aligned) {
+        hotX = temp.width() - hotX;
+    }
+
+    // return cursor
+    return QCursor(temp, hotX, hotY);
 }
 
-void initCustomCursors(){
-	qInfo() << "Loading Custom Cursors";
-	Olive::left_side = load_cursor(":/cursors/left_side.png", 0,-1, false);
-	Olive::right_side = load_cursor(":/cursors/right_side.png", 0,-1, true);
+void init_custom_cursors(){
+    qInfo() << "Initializing custom cursors";
+    Olive::Cursor_LeftTrim = load_cursor(":/cursors/left_side.png", 0, -1, false);
+    Olive::Cursor_RightTrim = load_cursor(":/cursors/right_side.png", 0, -1, true);
+    qInfo() << "Finished initializing custom cursors";
 }

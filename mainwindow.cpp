@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	enable_launch_with_project(false),
 	appName(an)
 {
-	initCustomCursors();
+	init_custom_cursors();
 
 	open_debug_file();
 
