@@ -257,7 +257,9 @@ TRANSLATIONS += \
     ts/olive_it.ts \
     ts/olive_cs.ts \
     ts/olive_ar.ts \
-    ts/olive_ru.ts
+    ts/olive_ru.ts \
+    ts/olive_bs.ts \
+    ts/olive_sr.ts
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
