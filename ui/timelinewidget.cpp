@@ -125,7 +125,9 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			// set autoscale to the first selected clip
 			autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 
-			menu.addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()));
+            menu.addAction(tr("Enable/Disable"), mainWindow, SLOT(toggle_enable_clips()));
+
+            menu.addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()));
 
 			menu.addAction(tr("&Nest"), mainWindow, SLOT(nest()));
 
