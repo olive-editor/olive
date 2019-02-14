@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="cs_CZ">
+<TS version="2.1" language="cs_CZ">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -803,693 +803,693 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="227"/>
+        <location filename="../mainwindow.cpp" line="230"/>
         <source>Welcome to %1</source>
         <translation>Vítejte v %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="237"/>
+        <location filename="../mainwindow.cpp" line="240"/>
         <source>Auto-recovery</source>
         <translation>Automatické obnovení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="237"/>
+        <location filename="../mainwindow.cpp" line="240"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
         <translation>Olive nebyl zavřen řádně a byl zjištěn soubor pro automatické obnovení. Chcete jej otevřít?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="269"/>
+        <location filename="../mainwindow.cpp" line="272"/>
         <source>&amp;Project</source>
         <translation>&amp;Projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="271"/>
+        <location filename="../mainwindow.cpp" line="274"/>
         <source>&amp;Sequence</source>
         <translation>&amp;Sekvence</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="272"/>
+        <location filename="../mainwindow.cpp" line="275"/>
         <source>&amp;Folder</source>
         <translation>&amp;Složka</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="276"/>
+        <location filename="../mainwindow.cpp" line="279"/>
         <source>Set In Point</source>
         <translation>Nastavit bod začátku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="277"/>
+        <location filename="../mainwindow.cpp" line="280"/>
         <source>Set Out Point</source>
         <translation>Nastavit bod konce</translation>
     </message>
     <message>
         <source>Enable/Disable In/Out Point</source>
-        <translation>Povolit/Zakázat bod začátku/konce</translation>
+        <translation type="vanished">Povolit/Zakázat bod začátku/konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="279"/>
+        <location filename="../mainwindow.cpp" line="282"/>
         <source>Reset In Point</source>
         <translation>Obnovit výchozí bod začátku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="280"/>
+        <location filename="../mainwindow.cpp" line="283"/>
         <source>Reset Out Point</source>
         <translation>Obnovit výchozí bod konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="281"/>
+        <location filename="../mainwindow.cpp" line="284"/>
         <source>Clear In/Out Point</source>
         <translation>Vymazat bod začátku/konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="457"/>
+        <location filename="../mainwindow.cpp" line="460"/>
         <source>No active sequence</source>
         <translation>Žádná činná sekvence</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="457"/>
+        <location filename="../mainwindow.cpp" line="460"/>
         <source>Please open the sequence you wish to export.</source>
         <translation>Otevřete, prosím, sekvenci, již chcete vyvést.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="555"/>
+        <location filename="../mainwindow.cpp" line="558"/>
         <source>Save Project As...</source>
         <translation>Uložit projekt jako...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="580"/>
+        <location filename="../mainwindow.cpp" line="583"/>
         <source>Unsaved Project</source>
         <translation>Neuložený projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="581"/>
+        <location filename="../mainwindow.cpp" line="584"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
         <translation>Tento projekt se od doby, kdy byl naposledy uložen, změnil. Chcete jej před zavřením uložit?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="603"/>
+        <location filename="../mainwindow.cpp" line="606"/>
         <source>&amp;File</source>
         <translation>&amp;Soubor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="606"/>
+        <location filename="../mainwindow.cpp" line="609"/>
         <source>&amp;New</source>
         <translation>&amp;Nový</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="609"/>
+        <location filename="../mainwindow.cpp" line="612"/>
         <source>&amp;Open Project</source>
         <translation>&amp;Otevřít projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="614"/>
         <source>Clear Recent List</source>
         <translation>Vyprázdnit seznam naposledy otevřených souborů</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="615"/>
+        <location filename="../mainwindow.cpp" line="618"/>
         <source>Open Recent</source>
         <translation>Otevřít nedávné</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="619"/>
+        <location filename="../mainwindow.cpp" line="622"/>
         <source>&amp;Save Project</source>
         <translation>&amp;Uložit projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="620"/>
+        <location filename="../mainwindow.cpp" line="623"/>
         <source>Save Project &amp;As</source>
         <translation>Uložit projekt j&amp;ako</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="624"/>
+        <location filename="../mainwindow.cpp" line="627"/>
         <source>&amp;Import...</source>
         <translation>&amp;Zavést...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="628"/>
+        <location filename="../mainwindow.cpp" line="631"/>
         <source>&amp;Export...</source>
         <translation>&amp;Vyvést...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="632"/>
+        <location filename="../mainwindow.cpp" line="635"/>
         <source>E&amp;xit</source>
         <translation>&amp;Ukončit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="636"/>
+        <location filename="../mainwindow.cpp" line="639"/>
         <source>&amp;Edit</source>
         <translation>Úp&amp;ravy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="639"/>
+        <location filename="../mainwindow.cpp" line="642"/>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="641"/>
+        <location filename="../mainwindow.cpp" line="644"/>
         <source>Redo</source>
         <translation>Znovu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="646"/>
+        <location filename="../mainwindow.cpp" line="649"/>
         <source>Cu&amp;t</source>
         <translation>Vyjmou&amp;t</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="647"/>
+        <location filename="../mainwindow.cpp" line="650"/>
         <source>Cop&amp;y</source>
         <translation>&amp;Kopírovat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="648"/>
+        <location filename="../mainwindow.cpp" line="651"/>
         <source>&amp;Paste</source>
         <translation>&amp;Vložit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="649"/>
+        <location filename="../mainwindow.cpp" line="652"/>
         <source>Paste Insert</source>
         <translation type="unfinished">Vložit vložku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="650"/>
+        <location filename="../mainwindow.cpp" line="653"/>
         <source>Duplicate</source>
         <translation>Zdvojit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="651"/>
+        <location filename="../mainwindow.cpp" line="654"/>
         <source>Delete</source>
         <translation>Smazat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="652"/>
+        <location filename="../mainwindow.cpp" line="655"/>
         <source>Ripple Delete</source>
         <translation>Vytáhnout</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="653"/>
+        <location filename="../mainwindow.cpp" line="656"/>
         <source>Split</source>
         <translation>Rozdělit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="657"/>
+        <location filename="../mainwindow.cpp" line="660"/>
         <source>Select &amp;All</source>
         <translation>Vybrat &amp;vše</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="659"/>
+        <location filename="../mainwindow.cpp" line="662"/>
         <source>Deselect All</source>
         <translation>Zrušit výběr všeho</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="663"/>
+        <location filename="../mainwindow.cpp" line="666"/>
         <source>Add Default Transition</source>
         <translation>Přidat výchozí přechod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="664"/>
+        <location filename="../mainwindow.cpp" line="667"/>
         <source>Link/Unlink</source>
         <translation>Spojit/Oddělit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="665"/>
+        <location filename="../mainwindow.cpp" line="668"/>
         <source>Enable/Disable</source>
         <translation>Povolit/Zakázat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="666"/>
+        <location filename="../mainwindow.cpp" line="669"/>
         <source>Nest</source>
         <translation>Vnořovat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="670"/>
+        <location filename="../mainwindow.cpp" line="673"/>
         <source>Ripple to In Point</source>
         <translation>Vložit a posunout k bodu začátku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="671"/>
+        <location filename="../mainwindow.cpp" line="674"/>
         <source>Ripple to Out Point</source>
         <translation>Vložit a posunout k bodu konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="672"/>
+        <location filename="../mainwindow.cpp" line="675"/>
         <source>Edit to In Point</source>
         <translation>Upravit po bod začátku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="673"/>
+        <location filename="../mainwindow.cpp" line="676"/>
         <source>Edit to Out Point</source>
         <translation>Upravit po bod konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="678"/>
+        <location filename="../mainwindow.cpp" line="681"/>
         <source>Delete In/Out Point</source>
         <translation>Smazat bod začátku/konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="679"/>
+        <location filename="../mainwindow.cpp" line="682"/>
         <source>Ripple Delete In/Out Point</source>
         <translation>Vytáhnout bod začátku/konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="683"/>
+        <location filename="../mainwindow.cpp" line="686"/>
         <source>Set/Edit Marker</source>
         <translation>Nastavit/Upravit značku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="687"/>
+        <location filename="../mainwindow.cpp" line="690"/>
         <source>&amp;View</source>
         <translation>&amp;Pohled</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="690"/>
+        <location filename="../mainwindow.cpp" line="693"/>
         <source>Zoom In</source>
         <translation>Přiblížit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="691"/>
+        <location filename="../mainwindow.cpp" line="694"/>
         <source>Zoom Out</source>
         <translation>Oddálit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="692"/>
+        <location filename="../mainwindow.cpp" line="695"/>
         <source>Increase Track Height</source>
         <translation>Zvětšit výšku stopy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="693"/>
+        <location filename="../mainwindow.cpp" line="696"/>
         <source>Decrease Track Height</source>
         <translation>Zmenšit výšku stopy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="695"/>
+        <location filename="../mainwindow.cpp" line="698"/>
         <source>Toggle Show All</source>
         <translation>Přepnout ukázání všeho</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="701"/>
+        <location filename="../mainwindow.cpp" line="704"/>
         <source>Track Lines</source>
         <translation>Řádky stop</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="706"/>
+        <location filename="../mainwindow.cpp" line="709"/>
         <source>Rectified Waveforms</source>
         <translation>Vlnový tvar odspodu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="713"/>
+        <location filename="../mainwindow.cpp" line="716"/>
         <source>Frames</source>
         <translation>Snímky</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="717"/>
+        <location filename="../mainwindow.cpp" line="720"/>
         <source>Drop Frame</source>
         <translation>Zahodit snímek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="721"/>
+        <location filename="../mainwindow.cpp" line="724"/>
         <source>Non-Drop Frame</source>
         <translation>Nezahodit snímek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="725"/>
+        <location filename="../mainwindow.cpp" line="728"/>
         <source>Milliseconds</source>
         <translation>Milisekundy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="732"/>
+        <location filename="../mainwindow.cpp" line="735"/>
         <source>Title/Action Safe Area</source>
         <translation>Bezpečná oblast</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="734"/>
+        <location filename="../mainwindow.cpp" line="737"/>
         <source>Off</source>
         <translation>Vypnuto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="739"/>
+        <location filename="../mainwindow.cpp" line="742"/>
         <source>Default</source>
         <translation>Výchozí</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="744"/>
+        <location filename="../mainwindow.cpp" line="747"/>
         <source>4:3</source>
         <translation>4:3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="749"/>
+        <location filename="../mainwindow.cpp" line="752"/>
         <source>16:9</source>
         <translation>16:9</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="754"/>
+        <location filename="../mainwindow.cpp" line="757"/>
         <source>Custom</source>
         <translation>Vlastní</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="761"/>
+        <location filename="../mainwindow.cpp" line="764"/>
         <source>Full Screen</source>
         <translation>Celá obrazovka</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="765"/>
+        <location filename="../mainwindow.cpp" line="768"/>
         <source>Full Screen Viewer</source>
         <translation>Prohlížeč na celou obrazovku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="769"/>
+        <location filename="../mainwindow.cpp" line="772"/>
         <source>&amp;Playback</source>
         <translation>&amp;Přehrávání</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="772"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Go to Start</source>
         <translation>Jít na začátek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="773"/>
+        <location filename="../mainwindow.cpp" line="776"/>
         <source>Previous Frame</source>
         <translation>Předchozí snímek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="774"/>
+        <location filename="../mainwindow.cpp" line="777"/>
         <source>Play/Pause</source>
         <translation>Přehrát/Pozastavit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="775"/>
+        <location filename="../mainwindow.cpp" line="778"/>
         <source>Play In to Out</source>
         <translation>Přehrát od začátku po konec</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="776"/>
+        <location filename="../mainwindow.cpp" line="779"/>
         <source>Next Frame</source>
         <translation>Další snímek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="777"/>
+        <location filename="../mainwindow.cpp" line="780"/>
         <source>Go to End</source>
         <translation>Jít na konec</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="779"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>Go to Previous Cut</source>
         <translation>Jít na předchozí záběr</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="780"/>
+        <location filename="../mainwindow.cpp" line="783"/>
         <source>Go to Next Cut</source>
         <translation>Jít na další záběr</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="782"/>
+        <location filename="../mainwindow.cpp" line="785"/>
         <source>Go to In Point</source>
         <translation>Jít na bod začátku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="783"/>
+        <location filename="../mainwindow.cpp" line="786"/>
         <source>Go to Out Point</source>
         <translation>Jít na bod konce</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="785"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>Shuttle Left</source>
         <translation>Jezdit tam a zpět vlevo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="786"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>Shuttle Stop</source>
         <translation>Zastavit pendlování</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="787"/>
+        <location filename="../mainwindow.cpp" line="790"/>
         <source>Shuttle Right</source>
         <translation>Jezdit tam a zpět vpravo</translation>
     </message>
     <message>
         <source>Decrease Speed</source>
-        <translation>Snížit rychlost</translation>
+        <translation type="vanished">Snížit rychlost</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation>Pozastavit</translation>
+        <translation type="vanished">Pozastavit</translation>
     </message>
     <message>
         <source>Increase Speed</source>
-        <translation>Zvýšit rychlost</translation>
+        <translation type="vanished">Zvýšit rychlost</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="790"/>
+        <location filename="../mainwindow.cpp" line="793"/>
         <source>Loop</source>
         <translation>Smyčka</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="800"/>
         <source>&amp;Window</source>
         <translation>&amp;Okno</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="800"/>
+        <location filename="../mainwindow.cpp" line="803"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="805"/>
+        <location filename="../mainwindow.cpp" line="808"/>
         <source>Effect Controls</source>
         <translation>Ovládání efektů</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="810"/>
+        <location filename="../mainwindow.cpp" line="813"/>
         <source>Timeline</source>
         <translation>Časová osa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="815"/>
+        <location filename="../mainwindow.cpp" line="818"/>
         <source>Graph Editor</source>
         <translation>Editor grafu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="820"/>
+        <location filename="../mainwindow.cpp" line="823"/>
         <source>Media Viewer</source>
         <translation>Prohlížeč záznamu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="825"/>
+        <location filename="../mainwindow.cpp" line="828"/>
         <source>Sequence Viewer</source>
         <translation>Prohlížeč řady</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="832"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>Maximize Panel</source>
         <translation>Zvětšit panel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="836"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>Reset to Default Layout</source>
         <translation>Obnovit výchozí rozvržení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="840"/>
+        <location filename="../mainwindow.cpp" line="843"/>
         <source>&amp;Tools</source>
         <translation>&amp;Nástroje</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="843"/>
+        <location filename="../mainwindow.cpp" line="846"/>
         <source>Pointer Tool</source>
         <translation>Ukazovátko</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="848"/>
+        <location filename="../mainwindow.cpp" line="851"/>
         <source>Edit Tool</source>
         <translation>Nástroj pro úpravy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="853"/>
+        <location filename="../mainwindow.cpp" line="856"/>
         <source>Ripple Tool</source>
         <translation>Vložení a posunutí</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="858"/>
+        <location filename="../mainwindow.cpp" line="861"/>
         <source>Razor Tool</source>
         <translation>Nástroj břitvy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="863"/>
+        <location filename="../mainwindow.cpp" line="866"/>
         <source>Slip Tool</source>
         <translation>Roztočení se ztotožněním</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="868"/>
+        <location filename="../mainwindow.cpp" line="871"/>
         <source>Slide Tool</source>
         <translation>Roztočení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="873"/>
+        <location filename="../mainwindow.cpp" line="876"/>
         <source>Hand Tool</source>
         <translation>Ručička</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="878"/>
+        <location filename="../mainwindow.cpp" line="881"/>
         <source>Transition Tool</source>
         <translation>Přechod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="885"/>
+        <location filename="../mainwindow.cpp" line="888"/>
         <source>Enable Snapping</source>
         <translation>Povolit přichytávání</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="892"/>
+        <location filename="../mainwindow.cpp" line="895"/>
         <source>Selecting Also Seeks</source>
         <translation>Výběr také vyhledává</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="897"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Edit Tool Also Seeks</source>
         <translation>Nástroj pro úpravy také vyhledává</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="902"/>
+        <location filename="../mainwindow.cpp" line="905"/>
         <source>Edit Tool Selects Links</source>
         <translation>Nástroj pro úpravy vybírá odkazy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="907"/>
+        <location filename="../mainwindow.cpp" line="910"/>
         <source>Seek Also Selects</source>
         <translation>Vyhledávání také vybírá</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="912"/>
+        <location filename="../mainwindow.cpp" line="915"/>
         <source>Seek to the End of Pastes</source>
         <translation>Vyhledávat po konec vložení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="917"/>
+        <location filename="../mainwindow.cpp" line="920"/>
         <source>Scroll Wheel Zooms</source>
         <translation>Kolečko myši přibližuje</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="922"/>
+        <location filename="../mainwindow.cpp" line="925"/>
         <source>Enable Drag Files to Timeline</source>
         <translation>Povolit tažení souborů na časovou osu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="927"/>
+        <location filename="../mainwindow.cpp" line="930"/>
         <source>Auto-Scale By Default</source>
         <translation>Automaticky měnit velikost</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="932"/>
+        <location filename="../mainwindow.cpp" line="935"/>
         <source>Enable Seek to Import</source>
         <translation>Povolit vyhledávání k zavedení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="937"/>
+        <location filename="../mainwindow.cpp" line="940"/>
         <source>Audio Scrubbing</source>
         <translation>Přehrávání zvuku při tažení ukazatele</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="942"/>
+        <location filename="../mainwindow.cpp" line="945"/>
         <source>Enable Drop on Media to Replace</source>
         <translation>Povolit upuštění na záznam pro nahrazení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="947"/>
+        <location filename="../mainwindow.cpp" line="950"/>
         <source>Enable Hover Focus</source>
         <translation>Povolit zaměření při přejetí</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="952"/>
+        <location filename="../mainwindow.cpp" line="955"/>
         <source>Ask For Name When Setting Marker</source>
         <translation>Požádat o název při nastavení značky</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="959"/>
+        <location filename="../mainwindow.cpp" line="962"/>
         <source>No Auto-Scroll</source>
         <translation>Žádné automatické projíždění</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="964"/>
+        <location filename="../mainwindow.cpp" line="967"/>
         <source>Page Auto-Scroll</source>
         <translation>Stránkové automatické projíždění</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="969"/>
+        <location filename="../mainwindow.cpp" line="972"/>
         <source>Smooth Auto-Scroll</source>
         <translation>Jemné automatické projíždění</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="976"/>
+        <location filename="../mainwindow.cpp" line="979"/>
         <source>Preferences</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="979"/>
+        <location filename="../mainwindow.cpp" line="982"/>
         <source>Clear Undo</source>
         <translation>Vyprázdnit minulost kroků zpět</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="984"/>
+        <location filename="../mainwindow.cpp" line="987"/>
         <source>&amp;Help</source>
         <translation>Nápo&amp;věda</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="986"/>
+        <location filename="../mainwindow.cpp" line="989"/>
         <source>A&amp;ction Search</source>
         <translation>Hledání č&amp;inností</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="990"/>
+        <location filename="../mainwindow.cpp" line="993"/>
         <source>Debug Log</source>
         <translation>Zápis ladění</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="994"/>
+        <location filename="../mainwindow.cpp" line="997"/>
         <source>&amp;About...</source>
         <translation>&amp;O programu...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1018"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>&lt;untitled&gt;</source>
         <translation>&lt;bez názvu&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1088"/>
+        <location filename="../mainwindow.cpp" line="1091"/>
         <source>Open Project...</source>
         <translation>Otevřít projekt...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1395"/>
+        <location filename="../mainwindow.cpp" line="1398"/>
         <source>Missing recent project</source>
         <translation>Chybí nedávný projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1396"/>
+        <location filename="../mainwindow.cpp" line="1399"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
         <translation>Projekt &apos;%1&apos; už neexistuje. Chcete jej odstranit ze seznamu nedávných projektů?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1508"/>
+        <location filename="../mainwindow.cpp" line="1511"/>
         <source>Invalid aspect ratio</source>
         <translation>Neplatný poměr stran</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1508"/>
+        <location filename="../mainwindow.cpp" line="1511"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
         <translation>Poměr stran &apos;%1&apos; je neplatný. Zkuste to, prosím, znovu.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1511"/>
+        <location filename="../mainwindow.cpp" line="1514"/>
         <source>Enter custom aspect ratio</source>
         <translation>Zadat vlastní poměr stran</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1511"/>
+        <location filename="../mainwindow.cpp" line="1514"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
         <translation>Zadejte poměr stran k použití pro bezpečnou oblast (např. 16:9):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1590"/>
+        <location filename="../mainwindow.cpp" line="1593"/>
         <source>Nested Sequence</source>
         <translation>Vnořená řada</translation>
     </message>
@@ -1541,7 +1541,7 @@
     </message>
     <message>
         <source>%1 fields (%2 frames)</source>
-        <translation>%1 polí (%2 snímků)</translation>
+        <translation type="vanished">%1 polí (%2 snímků)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="122"/>
@@ -1611,7 +1611,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Audio %1: %2Hz %3 channels</source>
-        <translation>Zvuk %1: %2Hz %3 kanálů</translation>
+        <translation type="vanished">Zvuk %1: %2Hz %3 kanálů</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="56"/>
@@ -1967,7 +1967,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Disable Multithreading on Images</source>
-        <translation>Zakázat vytvoření více vláken v jednom procesu na obrázky</translation>
+        <translation type="vanished">Zakázat vytvoření více vláken v jednom procesu na obrázky</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="515"/>
@@ -2124,13 +2124,13 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     </message>
     <message>
         <location filename="../panels/project.cpp" line="343"/>
-        <location filename="../panels/project.cpp" line="854"/>
+        <location filename="../panels/project.cpp" line="869"/>
         <source>All Files</source>
         <translation>Všechny soubory</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="354"/>
-        <location filename="../panels/project.cpp" line="866"/>
+        <location filename="../panels/project.cpp" line="881"/>
         <source>No active sequence</source>
         <translation>Žádná činná řada</translation>
     </message>
@@ -2185,12 +2185,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
         <translation>Soubor &apos;%1&apos; se zdá být součástí obrázkové řady. Chcete ji zavést jako takovou?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="854"/>
+        <location filename="../panels/project.cpp" line="869"/>
         <source>Import media...</source>
         <translation>Zavést záznam...</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="867"/>
+        <location filename="../panels/project.cpp" line="882"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
         <translation>Žádná řada není činná. Otevřete, prosím, řadu, ve které chcete smazat záběry.</translation>
     </message>
@@ -2249,19 +2249,19 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     </message>
     <message>
         <source>ProRes SQ</source>
-        <translation>ProRes SQ</translation>
+        <translation type="vanished">ProRes SQ</translation>
     </message>
     <message>
         <source>ProRes LT</source>
-        <translation>ProRes LT</translation>
+        <translation type="vanished">ProRes LT</translation>
     </message>
     <message>
         <source>DNxHD</source>
-        <translation>DNxHD</translation>
+        <translation type="vanished">DNxHD</translation>
     </message>
     <message>
         <source>H.264</source>
-        <translation>H.264</translation>
+        <translation type="vanished">H.264</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="52"/>
@@ -2274,17 +2274,17 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
         <translation>Stejné jako zdroj (ve složce &quot;%1&quot;)</translation>
     </message>
     <message>
-        <location filename="../dialogs/proxydialog.cpp" line="102"/>
+        <location filename="../dialogs/proxydialog.cpp" line="106"/>
         <source>Proxy file exists</source>
         <translation>Soubor proxy existuje</translation>
     </message>
     <message>
-        <location filename="../dialogs/proxydialog.cpp" line="103"/>
+        <location filename="../dialogs/proxydialog.cpp" line="107"/>
         <source>The file &quot;%1&quot; already exists. Do you wish to replace it?</source>
         <translation>Soubor &quot;%1&quot; již existuje. Chcete jej nahradit?</translation>
     </message>
     <message>
-        <location filename="../dialogs/proxydialog.cpp" line="137"/>
+        <location filename="../dialogs/proxydialog.cpp" line="152"/>
         <source>Custom Location</source>
         <translation>Vlastní umístění</translation>
     </message>
@@ -2819,11 +2819,11 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
     </message>
     <message>
         <source>Set Marker</source>
-        <translation>Nastavit značku</translation>
+        <translation type="vanished">Nastavit značku</translation>
     </message>
     <message>
         <source>Set marker name:</source>
-        <translation>Nastavit název značky:</translation>
+        <translation type="vanished">Nastavit název značky:</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1568"/>
@@ -2942,72 +2942,77 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>TimelineWidget</name>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="77"/>
+        <location filename="../ui/timelinewidget.cpp" line="78"/>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="78"/>
+        <location filename="../ui/timelinewidget.cpp" line="79"/>
         <source>&amp;Redo</source>
         <translation>&amp;Znovu</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="96"/>
+        <location filename="../ui/timelinewidget.cpp" line="97"/>
         <source>C&amp;ut</source>
         <translation>Vyj&amp;mout</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="97"/>
+        <location filename="../ui/timelinewidget.cpp" line="98"/>
         <source>Cop&amp;y</source>
         <translation>&amp;Kopírovat</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="100"/>
+        <location filename="../ui/timelinewidget.cpp" line="101"/>
         <source>&amp;Paste</source>
         <translation>&amp;Vložit</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="110"/>
+        <location filename="../ui/timelinewidget.cpp" line="111"/>
         <source>R&amp;ipple Delete</source>
         <translation>&amp;Vytáhnout (smazat a posunout)</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="114"/>
+        <location filename="../ui/timelinewidget.cpp" line="115"/>
         <source>Sequence Settings</source>
         <translation>Nastavení sekvence</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="120"/>
+        <location filename="../ui/timelinewidget.cpp" line="121"/>
         <source>&amp;Speed/Duration</source>
         <translation>&amp;Rychlost/Doba trvání</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="122"/>
+        <location filename="../ui/timelinewidget.cpp" line="123"/>
         <source>Auto-s&amp;cale</source>
         <translation>Automatická &amp;změna velikosti</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="127"/>
+        <location filename="../ui/timelinewidget.cpp" line="128"/>
+        <source>Enable/Disable</source>
+        <translation type="unfinished">Povolit/Zakázat</translation>
+    </message>
+    <message>
+        <location filename="../ui/timelinewidget.cpp" line="130"/>
         <source>Link/Unlink</source>
         <translation>Spojit/Oddělit</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="129"/>
+        <location filename="../ui/timelinewidget.cpp" line="132"/>
         <source>&amp;Nest</source>
         <translation>&amp;Vnořovat</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="159"/>
+        <location filename="../ui/timelinewidget.cpp" line="162"/>
         <source>&amp;Reveal in Project</source>
         <translation>&amp;Odkrýt v projektu</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="163"/>
+        <location filename="../ui/timelinewidget.cpp" line="166"/>
         <source>R&amp;ename</source>
         <translation>&amp;Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="192"/>
+        <location filename="../ui/timelinewidget.cpp" line="195"/>
         <source>%1
 Start: %2
 End: %3
@@ -3018,57 +3023,57 @@ Konec: %3
 Doba trvání: %4</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="214"/>
+        <location filename="../ui/timelinewidget.cpp" line="217"/>
         <source>Rename &apos;%1&apos;</source>
         <translation>Přejmenovat &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="214"/>
+        <location filename="../ui/timelinewidget.cpp" line="217"/>
         <source>Rename multiple clips</source>
         <translation>Přejmenovat více záběrů</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="215"/>
+        <location filename="../ui/timelinewidget.cpp" line="218"/>
         <source>Enter a new name for this clip:</source>
         <translation>zadejte nový název pro tento záběr:</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="248"/>
+        <location filename="../ui/timelinewidget.cpp" line="251"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="248"/>
+        <location filename="../ui/timelinewidget.cpp" line="251"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
         <translation>Nepodařilo se najít obal záznamu pro tuto řadu.</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="810"/>
+        <location filename="../ui/timelinewidget.cpp" line="813"/>
         <source>Title</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="814"/>
+        <location filename="../ui/timelinewidget.cpp" line="817"/>
         <source>Solid Color</source>
         <translation>Plná barva</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="819"/>
+        <location filename="../ui/timelinewidget.cpp" line="822"/>
         <source>Bars</source>
         <translation>Zkušební tabulka</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="826"/>
+        <location filename="../ui/timelinewidget.cpp" line="829"/>
         <source>Tone</source>
         <translation>Tón</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="830"/>
+        <location filename="../ui/timelinewidget.cpp" line="833"/>
         <source>Noise</source>
         <translation>Šum</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1588"/>
+        <location filename="../ui/timelinewidget.cpp" line="1591"/>
         <source>Duration:</source>
         <translation>Doba trvání:</translation>
     </message>
@@ -3258,7 +3263,7 @@ Doba trvání: %4</translation>
     <name>Transition</name>
     <message>
         <source>Length:</source>
-        <translation>Délka:</translation>
+        <translation type="vanished">Délka:</translation>
     </message>
     <message>
         <location filename="../project/transition.cpp" line="28"/>
