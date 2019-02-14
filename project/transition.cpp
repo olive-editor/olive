@@ -75,7 +75,7 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
 		}
 	} else {
 		qCritical() << "Invalid transition data";
-        QMessageBox::critical(mainWindow,
+        QMessageBox::critical(Olive::MainWindow,
                               QCoreApplication::translate("transition", "Invalid transition"),
                               QCoreApplication::translate("transition", "No candidate for transition '%1'. This transition may be corrupt. Try reinstalling it or Olive.").arg(em->name)
                         );

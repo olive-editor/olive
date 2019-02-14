@@ -7,9 +7,6 @@
 
 #include "marker.h"
 
-#define SKIP_TYPE_DISCARD 0
-#define SKIP_TYPE_SEEK 1
-
 class Cacher;
 class Effect;
 class Transition;

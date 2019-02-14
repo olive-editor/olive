@@ -1,14 +1,15 @@
 ﻿#include "mainwindow.h"
 
+#include "oliveglobal.h"
+
+#include "ui/menuhelper.h"
+
+#include "project/projectelements.h"
+
 #include "io/config.h"
 #include "io/path.h"
 #include "io/proxygenerator.h"
 
-#include "project/footage.h"
-#include "project/sequence.h"
-#include "project/clip.h"
-#include "project/undo.h"
-#include "project/media.h"
 #include "project/projectfilter.h"
 
 #include "ui/sourcetable.h"
@@ -54,14 +55,9 @@
 #include <QPushButton>
 #include <QTranslator>
 
-MainWindow* mainWindow;
+MainWindow* Olive::MainWindow;
 
 #define DEFAULT_CSS "QPushButton::checked { background: rgb(25, 25, 25); }"
-#define OLIVE_FILE_FILTER "Olive Project (*.ove)"
-
-QTimer autorecovery_timer;
-QString config_fn;
-bool demoNoticeShown = false;
 
 void MainWindow::setup_layout(bool reset) {
 	panel_project->show();
@@ -81,7 +77,7 @@ void MainWindow::setup_layout(bool reset) {
 
 	// load panels from file
 	if (!reset) {
-		QFile panel_config(get_config_path() + "/layout");
+        QFile panel_config(get_config_path() + "/layout");
 		if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
 			restoreState(panel_config.readAll(), 0);
 			panel_config.close();
@@ -91,10 +87,9 @@ void MainWindow::setup_layout(bool reset) {
 	layout()->update();
 }
 
-MainWindow::MainWindow(QWidget *parent, const QString &an) :
-	QMainWindow(parent),
-	enable_launch_with_project(false),
-	appName(an)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    first_show(true)
 {
 	init_custom_cursors();
 
@@ -102,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 
 	debug_dialog = new DebugDialog(this);
 
-	mainWindow = this;
+    Olive::MainWindow = this;
 
 	// set up style?
 
@@ -160,12 +155,12 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 			if (deleted_ars > 0) qInfo() << "Deleted" << deleted_ars << "autorecovery" << ((deleted_ars == 1) ? "file that was" : "files that were") << "older than 7 days";
 
 			// delete previews older than 30 days
-			QDir preview_dir = QDir(data_dir + "/previews");
+            QDir preview_dir = QDir(dir.filePath("previews"));
 			if (preview_dir.exists()) {
 				deleted_ars = 0;
 				QStringList old_prevs = preview_dir.entryList(QDir::Files);
 				for (int i=0;i<old_prevs.size();i++) {
-					QString file_name = preview_dir.absolutePath() + "/" + old_prevs.at(i);
+                    QString file_name = preview_dir.filePath(old_prevs.at(i));
 					qint64 file_time = QFileInfo(file_name).lastRead().toMSecsSinceEpoch();
 					if (file_time < a_month_ago) {
 						if (QFile(file_name).remove()) deleted_ars++;
@@ -175,7 +170,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 			}
 
 			// search for open recents list
-			recent_proj_file = data_dir + "/recents";
+            recent_proj_file = dir.filePath("recents");
 			QFile f(recent_proj_file);
 			if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
 				QTextStream text_stream(&f);
@@ -195,7 +190,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	if (!config_path.isEmpty()) {
 		QDir config_dir(config_path);
 		config_dir.mkpath(".");
-		config_fn = config_path + "/config.xml";
+        QString config_fn = config_dir.filePath("config.xml");
 		if (QFileInfo::exists(config_fn)) {
 			config.load(config_fn);
 
@@ -213,7 +208,7 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
     if (!language_file.isEmpty()) {
 
         // translation files are stored relative to app path (see GitHub issue #454)
-        QString full_language_path = QDir(get_app_dir()).filePath(language_file);
+        QString full_language_path = QDir(get_app_path()).filePath(language_file);
 
         if (QFileInfo::exists(full_language_path)) {
             QTranslator* translator = new QTranslator(this);
@@ -227,25 +222,13 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 	alloc_panels(this);
 
 	QStatusBar* statusBar = new QStatusBar(this);
-	statusBar->showMessage(tr("Welcome to %1").arg(appName));
+    statusBar->showMessage(tr("Welcome to %1").arg(Olive::AppName));
 	setStatusBar(statusBar);
 
 	// populate menu bars
 	setup_menus();
 
-	if (!data_dir.isEmpty()) {
-		// detect auto-recovery file
-		autorecovery_filename = data_dir + "/autorecovery.ove";
-		if (QFile::exists(autorecovery_filename)) {
-			if (QMessageBox::question(nullptr, tr("Auto-recovery"), tr("Olive didn't close properly and an autorecovery file was detected. Would you like to open it?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-				enable_launch_with_project = false;
-				open_project_worker(autorecovery_filename, true);
-			}
-		}
-		autorecovery_timer.setInterval(60000);
-		QObject::connect(&autorecovery_timer, SIGNAL(timeout()), this, SLOT(autorecover_interval()));
-		autorecovery_timer.start();
-	}
+    Olive::Global.data()->check_for_autorecovery_file();
 
 	// set up panel layout
 	setup_layout(false);
@@ -255,33 +238,14 @@ MainWindow::MainWindow(QWidget *parent, const QString &an) :
 
 	// start omnipotent proxy generator process
 	proxy_generator.start();
+
+    // set default window title
+    updateTitle();
 }
 
 MainWindow::~MainWindow() {
 	free_panels();
 	close_debug_file();
-}
-
-void MainWindow::launch_with_project(const QString& s) {
-	project_url = s;
-	enable_launch_with_project = true;
-	demoNoticeShown = true;
-}
-
-void MainWindow::make_new_menu(QMenu *parent) {
-	parent->addAction(tr("&Project"), this, SLOT(new_project()), QKeySequence("Ctrl+N"))->setProperty("id", "newproj");
-	parent->addSeparator();
-	parent->addAction(tr("&Sequence"), this, SLOT(new_sequence()), QKeySequence("Ctrl+Shift+N"))->setProperty("id", "newseq");
-	parent->addAction(tr("&Folder"), this, SLOT(new_folder()))->setProperty("id", "newfolder");
-}
-
-void MainWindow::make_inout_menu(QMenu *parent) {
-	parent->addAction(tr("Set In Point"), this, SLOT(set_in_point()), QKeySequence("I"))->setProperty("id", "setinpoint");
-	parent->addAction(tr("Set Out Point"), this, SLOT(set_out_point()), QKeySequence("O"))->setProperty("id", "setoutpoint");
-	parent->addSeparator();
-	parent->addAction(tr("Reset In Point"), this, SLOT(clear_in()))->setProperty("id", "resetin");
-	parent->addAction(tr("Reset Out Point"), this, SLOT(clear_out()))->setProperty("id", "resetout");
-	parent->addAction(tr("Clear In/Out Point"), this, SLOT(clear_inout()), QKeySequence("G"))->setProperty("id", "clearinout");
 }
 
 void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first) {
@@ -376,15 +340,6 @@ void MainWindow::load_css_from_file(const QString &fn) {
 	}
 }
 
-void MainWindow::set_rendering_state(bool rendering) {
-	audio_rendering = rendering;
-	if (rendering) {
-		autorecovery_timer.stop();
-	} else {
-		autorecovery_timer.start();
-	}
-}
-
 void MainWindow::show_about() {
 	AboutDialog a(this);
 	a.exec();
@@ -402,7 +357,7 @@ void MainWindow::delete_slot() {
 	} else if (panel_sequence_viewer->headers->hasFocus()) {
 		panel_sequence_viewer->headers->delete_markers();
 	} else if (panel_timeline->focused()) {
-		panel_timeline->delete_selection(sequence->selections, false);
+		panel_timeline->delete_selection(Olive::ActiveSequence->selections, false);
 	} else if (panel_effect_controls->is_focused()) {
 		panel_effect_controls->delete_effects();
 	} else if (panel_project->is_focused()) {
@@ -456,7 +411,7 @@ void MainWindow::zoom_out() {
 }
 
 void MainWindow::export_dialog() {
-	if (sequence == nullptr) {
+	if (Olive::ActiveSequence == nullptr) {
 		QMessageBox::information(this, tr("No active sequence"), tr("Please open the sequence you wish to export."), QMessageBox::Ok);
 	} else {
 		ExportDialog e(this);
@@ -465,9 +420,9 @@ void MainWindow::export_dialog() {
 }
 
 void MainWindow::ripple_delete() {
-	if (sequence != nullptr) {
-		if (sequence->selections.size() > 0) {
-			panel_timeline->delete_selection(sequence->selections, true);
+	if (Olive::ActiveSequence != nullptr) {
+		if (Olive::ActiveSequence->selections.size() > 0) {
+			panel_timeline->delete_selection(Olive::ActiveSequence->selections, true);
 		} else if (config.hover_focus && get_focused_panel() == panel_timeline) {
 			if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
 				panel_timeline->ripple_delete_empty_space();
@@ -494,10 +449,10 @@ void MainWindow::redo() {
 }
 
 void MainWindow::open_speed_dialog() {
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		SpeedDialog s(this);
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* c = sequence->clips.at(i);
+		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+			Clip* c = Olive::ActiveSequence->clips.at(i);
 			if (c != nullptr && is_clip_selected(c, true)) {
 				s.clips.append(c);
 			}
@@ -507,7 +462,7 @@ void MainWindow::open_speed_dialog() {
 }
 
 void MainWindow::cut() {
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		QDockWidget* focused_panel = get_focused_panel();
 		if (panel_timeline == focused_panel) {
 			panel_timeline->copy(true);
@@ -518,7 +473,7 @@ void MainWindow::cut() {
 }
 
 void MainWindow::copy() {
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		QDockWidget* focused_panel = get_focused_panel();
 		if (panel_timeline == focused_panel) {
 			panel_timeline->copy(false);
@@ -530,71 +485,9 @@ void MainWindow::copy() {
 
 void MainWindow::paste() {
 	QDockWidget* focused_panel = get_focused_panel();
-	if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && sequence != nullptr) {
+	if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && Olive::ActiveSequence != nullptr) {
 		panel_timeline->paste(false);
 	}
-}
-
-void MainWindow::new_project() {
-	if (can_close_project()) {
-		panel_effect_controls->clear_effects(true);
-		undo_stack.clear();
-		project_url.clear();
-		panel_project->new_project();
-		updateTitle("");
-		update_ui(false);
-		panel_project->tree_view->update();
-	}
-}
-
-void MainWindow::autorecover_interval() {
-	if (isWindowModified()) {
-		panel_project->save_project(true);
-		qInfo() << "Auto-recovery project saved";
-	}
-}
-
-bool MainWindow::save_project_as() {
-	QString fn = QFileDialog::getSaveFileName(this, tr("Save Project As..."), "", OLIVE_FILE_FILTER);
-	if (!fn.isEmpty()) {
-		if (!fn.endsWith(".ove", Qt::CaseInsensitive)) {
-			fn += ".ove";
-		}
-		updateTitle(fn);
-		panel_project->save_project(false);
-		return true;
-	}
-	return false;
-}
-
-bool MainWindow::save_project() {
-	if (project_url.isEmpty()) {
-		return save_project_as();
-	} else {
-		panel_project->save_project(false);
-		return true;
-	}
-}
-
-bool MainWindow::can_close_project() {
-	if (isWindowModified()) {
-		QMessageBox* m = new QMessageBox(
-					QMessageBox::Question,
-					tr("Unsaved Project"),
-					tr("This project has changed since it was last saved. Would you like to save it before closing?"),
-					QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
-					this
-				);
-		m->setWindowModality(Qt::WindowModal);
-		int r = m->exec();
-		delete m;
-		if (r == QMessageBox::Yes) {
-			return save_project();
-		} else if (r == QMessageBox::Cancel) {
-			return false;
-		}
-	}
-	return true;
 }
 
 void MainWindow::setup_menus() {
@@ -607,9 +500,9 @@ void MainWindow::setup_menus() {
 	connect(file_menu, SIGNAL(aboutToShow()), this, SLOT(fileMenu_About_To_Be_Shown()));
 
 	QMenu* new_menu = file_menu->addMenu(tr("&New"));
-	make_new_menu(new_menu);
+    Olive::MenuHelper.make_new_menu(new_menu);
 
-	file_menu->addAction(tr("&Open Project"), this, SLOT(open_project()), QKeySequence("Ctrl+O"))->setProperty("id", "openproj");
+    file_menu->addAction(tr("&Open Project"), Olive::Global.data(), SLOT(open_project()), QKeySequence("Ctrl+O"))->setProperty("id", "openproj");
 
 	clear_open_recent_action = new QAction(tr("Clear Recent List"), menuBar);
 	clear_open_recent_action->setProperty("id", "clearopenrecent");
@@ -619,8 +512,8 @@ void MainWindow::setup_menus() {
 
 	open_recent->addAction(clear_open_recent_action);
 
-	file_menu->addAction(tr("&Save Project"), this, SLOT(save_project()), QKeySequence("Ctrl+S"))->setProperty("id", "saveproj");
-	file_menu->addAction(tr("Save Project &As"), this, SLOT(save_project_as()), QKeySequence("Ctrl+Shift+S"))->setProperty("id", "saveprojas");
+    file_menu->addAction(tr("&Save Project"), Olive::Global.data(), SLOT(save_project()), QKeySequence("Ctrl+S"))->setProperty("id", "saveproj");
+    file_menu->addAction(tr("Save Project &As"), Olive::Global.data(), SLOT(save_project_as()), QKeySequence("Ctrl+Shift+S"))->setProperty("id", "saveprojas");
 
 	file_menu->addSeparator();
 
@@ -677,7 +570,7 @@ void MainWindow::setup_menus() {
 
 	edit_menu->addSeparator();
 
-	make_inout_menu(edit_menu);
+    Olive::MenuHelper.make_inout_menu(edit_menu);
 	edit_menu->addAction(tr("Delete In/Out Point"), this, SLOT(delete_inout()), QKeySequence(";"))->setProperty("id", "deleteinout");
 	edit_menu->addAction(tr("Ripple Delete In/Out Point"), this, SLOT(ripple_delete_inout()), QKeySequence("'"))->setProperty("id", "rippledeleteinout");
 
@@ -1016,13 +909,15 @@ void MainWindow::set_button_action_checked(QAction *a) {
 	a->setChecked(reinterpret_cast<QPushButton*>(a->data().value<quintptr>())->isChecked());
 }
 
-void MainWindow::updateTitle(const QString& url) {
-	project_url = url;
-	setWindowTitle(appName + " - " + ((project_url.isEmpty()) ? tr("<untitled>") : project_url) + "[*]");
+void MainWindow::updateTitle() {
+    setWindowTitle(QString("%1 - %2[*]").arg(Olive::AppName,
+                                             (Olive::ActiveProjectFilename.isEmpty()) ?
+                                                  tr("<untitled>") : Olive::ActiveProjectFilename)
+                                            );
 }
 
 void MainWindow::closeEvent(QCloseEvent *e) {
-	if (can_close_project()) {
+    if (Olive::Global.data()->can_close_project()) {
 		// stop proxy generator thread
 		proxy_generator.cancel();
 
@@ -1036,18 +931,22 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 		panel_footage_viewer->set_main_sequence();
 
 		QString data_dir = get_data_path();
-		QString config_dir = get_config_path();
+        QString config_path = get_config_path();
 		if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
 			if (QFile::exists(autorecovery_filename)) {
 				QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
 			}
 		}
-		if (!config_dir.isEmpty() && !config_fn.isEmpty()) {
+        if (!config_path.isEmpty()) {
+            QDir config_dir = QDir(config_path);
+
+            QString config_fn = config_dir.filePath("config.xml");
+
 			// save settings
 			config.save(config_fn);
 
 			// save panel layout
-			QFile panel_config(config_dir + "/layout");
+            QFile panel_config(config_path + "/layout");
 			if (panel_config.open(QFile::WriteOnly)) {
 				panel_config.write(saveState(0));
 				panel_config.close();
@@ -1055,7 +954,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 				qCritical() << "Failed to save layout";
 			}
 
-			save_shortcuts(config_dir + "/shortcuts");
+            save_shortcuts(config_path + "/shortcuts");
 		}
 
 		stop_audio();
@@ -1068,40 +967,15 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 void MainWindow::paintEvent(QPaintEvent *event) {
 	QMainWindow::paintEvent(event);
-	if (enable_launch_with_project) {
-		QTimer::singleShot(10, this, SLOT(load_with_launch()));
-		enable_launch_with_project = false;
-	}
-	if (!demoNoticeShown) {
-#ifndef QT_DEBUG
-		DemoNotice* d = new DemoNotice(this);
-		connect(d, SIGNAL(finished(int)), d, SLOT(deleteLater()));
-		d->open();
-#endif
 
-		demoNoticeShown = true;
-	}
+    if (first_show) {
+        emit finished_first_paint();
+        first_show = false;
+    }
 }
 
 void MainWindow::clear_undo_stack() {
 	undo_stack.clear();
-}
-
-void MainWindow::open_project() {
-	QString fn = QFileDialog::getOpenFileName(this, tr("Open Project..."), "", OLIVE_FILE_FILTER);
-	if (!fn.isEmpty() && can_close_project()) {
-		open_project_worker(fn, false);
-	}
-}
-
-void MainWindow::open_project_worker(const QString& fn, bool autorecovery) {
-	updateTitle(fn);
-	panel_project->load_project(autorecovery);
-	undo_stack.clear();
-}
-
-void MainWindow::load_with_launch() {
-	open_project_worker(project_url, false);
 }
 
 void MainWindow::show_action_search() {
@@ -1214,14 +1088,14 @@ void MainWindow::decrease_speed() {
 
 void MainWindow::prev_cut() {
 	QDockWidget* focused_panel = get_focused_panel();
-	if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
+	if (Olive::ActiveSequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
 		panel_timeline->previous_cut();
 	}
 }
 
 void MainWindow::next_cut() {
 	QDockWidget* focused_panel = get_focused_panel();
-	if (sequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
+	if (Olive::ActiveSequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
 		panel_timeline->next_cut();
 	}
 }
@@ -1376,33 +1250,13 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 			QAction* action = open_recent->addAction(recent_projects.at(i));
 			action->setProperty("keyignore", true);
 			action->setData(i);
-			connect(action, SIGNAL(triggered()), this, SLOT(load_recent_project()));
+            connect(action, SIGNAL(triggered()), Olive::Global.data(), SLOT(open_recent()));
 		}
 		open_recent->addSeparator();
 
 		open_recent->addAction(clear_open_recent_action);
 	} else {
 		open_recent->setEnabled(false);
-	}
-}
-
-void MainWindow::fileMenu_About_To_Hide() {
-}
-
-void MainWindow::load_recent_project() {
-	int index = static_cast<QAction*>(sender())->data().toInt();
-	QString recent_url = recent_projects.at(index);
-	if (!QFile::exists(recent_url)) {
-		if (QMessageBox::question(
-						this,
-						tr("Missing recent project"),
-						tr("The project '%1' no longer exists. Would you like to remove it from the recent projects list?").arg(recent_url),
-						QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-			recent_projects.removeAt(index);
-			panel_project->save_recent_projects();
-		}
-	} else if (can_close_project()) {
-		open_project_worker(recent_url, false);
 	}
 }
 
@@ -1526,7 +1380,7 @@ void MainWindow::set_tsa_custom() {
 }
 
 void MainWindow::set_marker() {
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		QDockWidget* focused_panel = get_focused_panel();
 
 		if (focused_panel == panel_timeline) {
@@ -1540,11 +1394,11 @@ void MainWindow::set_marker() {
 }
 
 void MainWindow::toggle_enable_clips() {
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		ComboAction* ca = new ComboAction();
 		bool push_undo = false;
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* c = sequence->clips.at(i);
+		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+			Clip* c = Olive::ActiveSequence->clips.at(i);
 			if (c != nullptr && is_clip_selected(c, true)) {
 				ca->append(new SetEnableCommand(c, !c->enabled));
 				push_undo = true;
@@ -1570,13 +1424,13 @@ void MainWindow::edit_to_out_point() {
 }
 
 void MainWindow::nest() {
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		QVector<int> selected_clips;
 		long earliest_point = LONG_MAX;
 
 		// get selected clips
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* c = sequence->clips.at(i);
+		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+			Clip* c = Olive::ActiveSequence->clips.at(i);
 			if (c != nullptr && is_clip_selected(c, true)) {
 				selected_clips.append(i);
 				earliest_point = qMin(c->timeline_in, earliest_point);
@@ -1591,19 +1445,19 @@ void MainWindow::nest() {
 
 			// create "nest" sequence
 			s->name = panel_project->get_next_sequence_name(tr("Nested Sequence"));
-			s->width = sequence->width;
-			s->height = sequence->height;
-			s->frame_rate = sequence->frame_rate;
-			s->audio_frequency = sequence->audio_frequency;
-			s->audio_layout = sequence->audio_layout;
+			s->width = Olive::ActiveSequence->width;
+			s->height = Olive::ActiveSequence->height;
+			s->frame_rate = Olive::ActiveSequence->frame_rate;
+			s->audio_frequency = Olive::ActiveSequence->audio_frequency;
+			s->audio_layout = Olive::ActiveSequence->audio_layout;
 
 			// copy all selected clips to the nest
 			for (int i=0;i<selected_clips.size();i++) {
 				// delete clip from old sequence
-				ca->append(new DeleteClipAction(sequence, selected_clips.at(i)));
+				ca->append(new DeleteClipAction(Olive::ActiveSequence, selected_clips.at(i)));
 
 				// copy to new
-				Clip* copy = sequence->clips.at(selected_clips.at(i))->copy(s);
+				Clip* copy = Olive::ActiveSequence->clips.at(selected_clips.at(i))->copy(s);
 				copy->timeline_in -= earliest_point;
 				copy->timeline_out -= earliest_point;
 				s->clips.append(copy);
@@ -1618,11 +1472,11 @@ void MainWindow::nest() {
 			// add nested sequence to active sequence
 			QVector<Media*> media_list;
 			media_list.append(m);
-			panel_timeline->create_ghosts_from_media(sequence, earliest_point, media_list);
-			panel_timeline->add_clips_from_ghosts(ca, sequence);
+			panel_timeline->create_ghosts_from_media(Olive::ActiveSequence, earliest_point, media_list);
+			panel_timeline->add_clips_from_ghosts(ca, Olive::ActiveSequence);
 
 			panel_effect_controls->clear_effects(true);
-			sequence->selections.clear();
+			Olive::ActiveSequence->selections.clear();
 
 			undo_stack.push(ca);
 
@@ -1633,7 +1487,7 @@ void MainWindow::nest() {
 
 void MainWindow::paste_insert() {
 	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline && sequence != nullptr) {
+	if (focused_panel == panel_timeline && Olive::ActiveSequence != nullptr) {
 		panel_timeline->paste(true);
 	}
 }

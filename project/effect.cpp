@@ -76,7 +76,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		return new Effect(c, em);
 	} else {
 		qCritical() << "Invalid effect data";
-		QMessageBox::critical(mainWindow,
+        QMessageBox::critical(Olive::MainWindow,
 							  QCoreApplication::translate("Effect", "Invalid effect"),
 							  QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
 	}
@@ -375,7 +375,7 @@ void Effect::field_changed() {
 
 void Effect::show_context_menu(const QPoint& pos) {
 	if (meta->type == EFFECT_TYPE_EFFECT) {
-		QMenu menu(mainWindow);
+        QMenu menu(Olive::MainWindow);
 
 		int index = get_index_in_clip();
 
@@ -438,7 +438,7 @@ void Effect::move_down() {
 
 void Effect::save_to_file() {
 	// save effect settings to file
-	QString file = QFileDialog::getSaveFileName(mainWindow,
+    QString file = QFileDialog::getSaveFileName(Olive::MainWindow,
 												tr("Save Effect Settings"),
 												QString(),
 												tr("Effect XML Settings %1").arg("(*.xml)"));
@@ -458,7 +458,7 @@ void Effect::save_to_file() {
 
 			file_handle.close();
 		} else {
-			QMessageBox::critical(mainWindow,
+            QMessageBox::critical(Olive::MainWindow,
 								  tr("Save Settings Failed"),
 								  tr("Failed to open \"%1\" for writing.").arg(file),
 								  QMessageBox::Ok);
@@ -468,7 +468,7 @@ void Effect::save_to_file() {
 
 void Effect::load_from_file() {
 	// load effect settings from file
-	QString file = QFileDialog::getOpenFileName(mainWindow,
+    QString file = QFileDialog::getOpenFileName(Olive::MainWindow,
 												tr("Load Effect Settings"),
 												QString(),
 												tr("Effect XML Settings %1").arg("(*.xml)"));
@@ -484,7 +484,7 @@ void Effect::load_from_file() {
 
 			update_ui(false);
 		} else {
-			QMessageBox::critical(mainWindow,
+            QMessageBox::critical(Olive::MainWindow,
 								  tr("Load Settings Failed"),
 								  tr("Failed to open \"%1\" for reading.").arg(file),
 								  QMessageBox::Ok);
@@ -693,7 +693,7 @@ void Effect::load_from_string(const QByteArray &s) {
 						// pass off to standard loading function
 						load(stream);
 					} else {
-						QMessageBox::critical(mainWindow,
+                        QMessageBox::critical(Olive::MainWindow,
 											  tr("Load Settings Failed"),
 											  tr("This settings file doesn't match this effect."),
 											  QMessageBox::Ok);

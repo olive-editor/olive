@@ -96,7 +96,7 @@ bool Viewer::is_main_sequence() {
 
 void Viewer::set_main_sequence() {
 	clean_created_seq();
-	set_sequence(true, sequence);
+	set_sequence(true, Olive::ActiveSequence);
 }
 
 void Viewer::reset_all_audio() {
@@ -835,7 +835,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	}
 
 	main_sequence = main;
-	seq = (main) ? sequence : s;
+	seq = (main) ? Olive::ActiveSequence : s;
 
 	bool null_sequence = (seq == nullptr);
 

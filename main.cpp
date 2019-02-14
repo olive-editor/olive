@@ -3,6 +3,8 @@
 
 #include "debug.h"
 
+#include "oliveglobal.h"
+
 #include "io/config.h"
 
 extern "C" {
@@ -11,12 +13,7 @@ extern "C" {
 }
 
 int main(int argc, char *argv[]) {
-    QString appName = "Olive (February 2019 | Alpha";
-#ifdef GITHASH
-	appName += " | ";
-	appName += GITHASH;
-#endif
-	appName += ")";
+    Olive::Global = QSharedPointer<OliveGlobal>(new OliveGlobal);
 
 	bool launch_fullscreen = false;
 	QString load_proj;
@@ -30,7 +27,7 @@ int main(int argc, char *argv[]) {
 #ifndef GITHASH
 					qWarning() << "No Git commit information found";
 #endif
-					printf("%s\n", appName.toUtf8().constData());
+                    printf("%s\n", Olive::AppName.toUtf8().constData());
 					return 0;
 				} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 					printf("Usage: %s [options] [filename]\n\n"
@@ -96,11 +93,13 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName("Olive");
     QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 
-	MainWindow w(nullptr, appName);
-	w.updateTitle("");
+    MainWindow w(nullptr);
 
-	if (!load_proj.isEmpty()) {
-		w.launch_with_project(load_proj);
+    // connect main window's first paint to global's init finished function
+    QObject::connect(&w, SIGNAL(finished_first_paint()), Olive::Global.data(), SLOT(finished_initialize()));
+
+    if (!load_proj.isEmpty()) {
+        Olive::Global.data()->load_project_on_launch(load_proj);
 	}
 	if (launch_fullscreen) {
 		w.showFullScreen();

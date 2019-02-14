@@ -6,9 +6,11 @@
 
 #include "project/marker.h"
 
-#define MEDIA_TYPE_FOOTAGE 0
-#define MEDIA_TYPE_SEQUENCE 1
-#define MEDIA_TYPE_FOLDER 2
+enum MediaType {
+    MEDIA_TYPE_FOOTAGE,
+    MEDIA_TYPE_SEQUENCE,
+    MEDIA_TYPE_FOLDER
+};
 
 struct Footage;
 class MediaThrobber;

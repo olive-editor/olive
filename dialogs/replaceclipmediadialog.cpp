@@ -2,15 +2,11 @@
 
 #include "ui/sourcetable.h"
 #include "panels/panels.h"
-#include "panels/timeline.h"
-#include "panels/project.h"
-#include "project/sequence.h"
-#include "project/clip.h"
+#include "project/projectelements.h"
+
 #include "playback/playback.h"
 #include "playback/cacher.h"
-#include "project/footage.h"
 #include "project/undo.h"
-#include "project/media.h"
 
 #include <QVBoxLayout>
 #include <QTreeView>
@@ -84,7 +80,7 @@ void ReplaceClipMediaDialog::replace() {
 						QMessageBox::Ok
 					);
 		} else {
-			if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && sequence == new_item->to_sequence()) {
+			if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && Olive::ActiveSequence == new_item->to_sequence()) {
 				QMessageBox::critical(
 							this,
 							tr("Active sequence selected"),
@@ -98,8 +94,8 @@ void ReplaceClipMediaDialog::replace() {
 							use_same_media_in_points->isChecked()
 						);
 
-				for (int i=0;i<sequence->clips.size();i++) {
-					Clip* c = sequence->clips.at(i);
+				for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+					Clip* c = Olive::ActiveSequence->clips.at(i);
 					if (c != nullptr && c->media == media) {
 						rcmc->clips.append(c);
 					}

@@ -8,6 +8,7 @@
 #include "project/media.h"
 #include "panels/viewer.h"
 #include "io/config.h"
+#include "ui/menuhelper.h"
 #include "debug.h"
 
 #include <QPainter>
@@ -436,11 +437,11 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 void TimelineHeader::show_context_menu(const QPoint &pos) {
 	QMenu menu(this);
 
-	mainWindow->make_inout_menu(&menu);
+    Olive::MenuHelper.make_inout_menu(&menu);
 
 	menu.addSeparator();
 
-	QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), mainWindow, SLOT(toggle_bool_action()));
+    QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), Olive::MainWindow, SLOT(toggle_bool_action()));
 	center_timecodes->setCheckable(true);
 	center_timecodes->setChecked(config.center_timeline_timecodes);
 	center_timecodes->setData(reinterpret_cast<quintptr>(&config.center_timeline_timecodes));

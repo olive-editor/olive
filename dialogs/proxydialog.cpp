@@ -6,7 +6,6 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include <QMessageBox>
-
 #include <QDebug>
 
 #include "io/proxygenerator.h"
@@ -133,7 +132,7 @@ void ProxyDialog::accept() {
 		proxy_generator.queue(info_list.at(i));
 	}
 
-	mainWindow->setWindowModified(true);
+    Olive::MainWindow->setWindowModified(true);
 
 	QDialog::accept();
 }

@@ -1,12 +1,12 @@
 #include "audio.h"
 
+#include "oliveglobal.h"
+
 #include "project/sequence.h"
 
-#include "io/config.h"
-#include "panels/project.h"
 #include "panels/panels.h"
-#include "panels/timeline.h"
-#include "panels/viewer.h"
+
+#include "io/config.h"
 #include "ui/audiomonitor.h"
 #include "playback/playback.h"
 #include "debug.h"
@@ -132,7 +132,7 @@ void clear_audio_ibuffer() {
 }
 
 int current_audio_freq() {
-	return audio_rendering ? sequence->audio_frequency : audio_output->format().sampleRate();
+    return audio_rendering ? Olive::ActiveSequence->audio_frequency : audio_output->format().sampleRate();
 }
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {
@@ -303,26 +303,31 @@ void write_wave_trailer(QFile& f) {
 }
 
 bool start_recording() {
-	if (sequence == nullptr) {
+    if (Olive::ActiveSequence == nullptr) {
 		qCritical() << "No active sequence to record into";
 		return false;
 	}
 
-	QString audio_path = project_url + " " + QCoreApplication::translate("Audio", "Audio");
+    QString audio_path = QCoreApplication::translate("Audio", "%1 Audio").arg(Olive::ActiveProjectFilename);
 	QDir audio_dir(audio_path);
 	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
 		qCritical() << "Failed to create audio directory";
 		return false;
 	}
 
-	QString audio_filename;
+    QString audio_file_path;
 	int file_number = 0;
 	do {
 		file_number++;
-		audio_filename = audio_path + "/" + QCoreApplication::translate("Audio", "Recording") + " " + QString::number(file_number) + ".wav";
-	} while (QFile(audio_filename).exists());
 
-	output_recording.setFileName(audio_filename);
+        QString audio_filename = QString("%1.wav").arg(
+                        QCoreApplication::translate("Audio", "Recording %1").arg(QString::number(file_number))
+                    );
+
+        audio_file_path = audio_dir.filePath(audio_filename);
+    } while (QFile(audio_file_path).exists());
+
+    output_recording.setFileName(audio_file_path);
 	if (!output_recording.open(QFile::WriteOnly)) {
 		qCritical() << "Failed to open output file. Does Olive have permission to write to this directory?";
 		return false;

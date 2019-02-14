@@ -277,11 +277,13 @@ int Clip::getWidth() {
 		const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
 		if (ms != nullptr) return ms->video_width;
 		if (sequence != nullptr) return sequence->width;
+        break;
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
 		Sequence* s = media->to_sequence();
 		return s->width;
+        break;
 	}
 	}
 	return 0;

@@ -1,10 +1,11 @@
 #include "exportthread.h"
 
+#include "oliveglobal.h"
+
 #include "project/sequence.h"
 
 #include "panels/panels.h"
-#include "panels/timeline.h"
-#include "panels/viewer.h"
+
 #include "ui/viewerwidget.h"
 #include "ui/renderthread.h"
 #include "ui/renderfunctions.h"
@@ -162,15 +163,15 @@ bool ExportThread::setupVideo() {
 	video_frame = av_frame_alloc();
 	av_frame_make_writable(video_frame);
 	video_frame->format = AV_PIX_FMT_RGBA;
-	video_frame->width = sequence->width;
-	video_frame->height = sequence->height;
+	video_frame->width = Olive::ActiveSequence->width;
+	video_frame->height = Olive::ActiveSequence->height;
 	av_frame_get_buffer(video_frame, 0);
 
 	av_init_packet(&video_pkt);
 
 	sws_ctx = sws_getContext(
-				sequence->width,
-				sequence->height,
+				Olive::ActiveSequence->width,
+				Olive::ActiveSequence->height,
 				AV_PIX_FMT_RGBA,
                 params.video_width,
                 params.video_height,
@@ -253,9 +254,9 @@ bool ExportThread::setupAudio() {
 			acodec_ctx->channel_layout,
 			acodec_ctx->sample_fmt,
 			acodec_ctx->sample_rate,
-			sequence->audio_layout,
+			Olive::ActiveSequence->audio_layout,
 			AV_SAMPLE_FMT_S16,
-			sequence->audio_frequency,
+			Olive::ActiveSequence->audio_frequency,
 			0,
 			nullptr
 		);
@@ -263,7 +264,7 @@ bool ExportThread::setupAudio() {
 
 	// initialize raw audio frame
 	audio_frame = av_frame_alloc();
-	audio_frame->sample_rate = sequence->audio_frequency;
+	audio_frame->sample_rate = Olive::ActiveSequence->audio_frequency;
 	audio_frame->nb_samples = acodec_ctx->frame_size;
 	if (audio_frame->nb_samples == 0) audio_frame->nb_samples = 256; // should possibly be smaller?
 	audio_frame->format = AV_SAMPLE_FMT_S16;
@@ -345,16 +346,16 @@ void ExportThread::run() {
 
 	mutex.lock();
 
-    while (sequence->playhead <= params.end_frame && continueEncode) {
+    while (Olive::ActiveSequence->playhead <= params.end_frame && continueEncode) {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
         if (params.audio_enabled) {
-			compose_audio(nullptr, sequence, true, false);
+			compose_audio(nullptr, Olive::ActiveSequence, true, false);
 		}
         if (params.video_enabled) {
 			do {
 				// TODO optimize by rendering the next frame while encoding the last
-                renderer->start_render(nullptr, sequence, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
+                renderer->start_render(nullptr, Olive::ActiveSequence, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
 				waitCond.wait(&mutex);
 				if (!continueEncode) break;
 			} while (renderer->did_texture_fail());
@@ -362,7 +363,7 @@ void ExportThread::run() {
 		}
 
 		// encode last frame while rendering next frame
-        double timecode_secs = double(sequence->playhead - params.start_frame) / sequence->frame_rate;
+        double timecode_secs = double(Olive::ActiveSequence->playhead - params.start_frame) / Olive::ActiveSequence->frame_rate;
         if (params.video_enabled) {
 			// create sws_frame for converting pixel format
 
@@ -423,12 +424,12 @@ void ExportThread::run() {
 		// generating encoding statistics (time it took to encode this frame/estimated remaining time)
 		frame_time = (QDateTime::currentMSecsSinceEpoch()-start_time);
 		total_time += frame_time;
-        remaining_frames = (params.end_frame - sequence->playhead);
+        remaining_frames = (params.end_frame - Olive::ActiveSequence->playhead);
 		avg_time = (total_time/frame_count);
 		eta = (remaining_frames*avg_time);
 
-        emit progress_changed(qRound((double(sequence->playhead - params.start_frame) / double(params.end_frame - params.start_frame)) * 100.0), eta);
-		sequence->playhead++;
+        emit progress_changed(qRound((double(Olive::ActiveSequence->playhead - params.start_frame) / double(params.end_frame - params.start_frame)) * 100.0), eta);
+		Olive::ActiveSequence->playhead++;
 		frame_count++;
 	}
 
@@ -442,7 +443,7 @@ void ExportThread::run() {
         if (params.audio_enabled) apkt_alloc = true;
 	}
 
-	mainWindow->set_rendering_state(false);
+    Olive::Global.data()->set_rendering_state(false);
 
     if (params.audio_enabled && continueEncode) {
 		// flush swresample

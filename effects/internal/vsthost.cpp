@@ -63,7 +63,7 @@ extern "C" {
             // but we are aware of it
             break;
 		case audioMasterEndEdit: // change made
-			mainWindow->setWindowModified(true);
+            Olive::MainWindow->setWindowModified(true);
 			break;
 		default:
 			qInfo() << "Plugin requested unhandled opcode" << opcode;
@@ -178,7 +178,7 @@ bool VSTHost::configurePluginCallbacks() {
 	// real VST plugin, or is otherwise corrupt.
 	if(plugin->magic != kEffectMagic) {
 		qCritical() << "Plugin's magic number is bad";
-		QMessageBox::critical(mainWindow, tr("VST Error"), tr("Plugin's magic number is invalid"));
+        QMessageBox::critical(Olive::MainWindow, tr("VST Error"), tr("Plugin's magic number is invalid"));
 		return false;
 	}
 
@@ -250,7 +250,7 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	connect(show_interface_btn, SIGNAL(toggled(bool)), this, SLOT(show_interface(bool)));
 	interface_row->add_widget(show_interface_btn);
 
-	dialog = new QDialog(mainWindow);
+    dialog = new QDialog(Olive::MainWindow);
 	dialog->setWindowTitle(tr("VST Plugin"));
 	dialog->setAttribute(Qt::WA_NativeWindow, true);
 	dialog->setWindowFlags(dialog->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);

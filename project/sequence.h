@@ -41,6 +41,8 @@ struct Sequence {
 };
 
 // static variable for the currently active sequence
-extern Sequence* sequence;
+namespace Olive {
+    extern Sequence* ActiveSequence;
+}
 
 #endif // SEQUENCE_H

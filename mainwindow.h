@@ -11,21 +11,17 @@ class Timeline;
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
-	explicit MainWindow(QWidget *parent, const QString& an);
-	void updateTitle(const QString &url);
-	~MainWindow();
+    explicit MainWindow(QWidget *parent);
+    virtual ~MainWindow() override;
+
+    void updateTitle();
 
 	void launch_with_project(const QString& s);
-
-	void make_new_menu(QMenu* parent);
-	void make_inout_menu(QMenu* parent);
 
 	void load_shortcuts(const QString &fn, bool first = false);
 	void save_shortcuts(const QString &fn);
 
 	void load_css_from_file(const QString& fn);
-
-	void set_rendering_state(bool rendering);
 
 public slots:
 	void undo();
@@ -33,13 +29,14 @@ public slots:
 	void open_speed_dialog();
 	void cut();
 	void copy();
-	void paste();
-	void new_project();
-	void autorecover_interval();
+    void paste();
 	void nest();
 	void toggle_full_screen();
 
 	void toggle_bool_action();
+
+signals:
+    void finished_first_paint();
 
 protected:
 	virtual void closeEvent(QCloseEvent *) override;
@@ -59,10 +56,6 @@ private slots:
 	void zoom_out();
 	void export_dialog();
 	void ripple_delete();
-
-	void open_project();
-	bool save_project_as();
-	bool save_project();
 
 	void go_to_in();
 	void go_to_out();
@@ -88,8 +81,7 @@ private slots:
 
 	void full_screen_viewer();
 
-	void fileMenu_About_To_Be_Shown();
-	void fileMenu_About_To_Hide();
+    void fileMenu_About_To_Be_Shown();
 	void editMenu_About_To_Be_Shown();
 	void windowMenu_About_To_Be_Shown();
 	void playbackMenu_About_To_Be_Shown();
@@ -100,9 +92,7 @@ private slots:
 
 	void add_default_transition();
 
-	void new_folder();
-
-	void load_recent_project();
+    void new_folder();
 
 	void ripple_to_in_point();
 	void ripple_to_out_point();
@@ -132,16 +122,12 @@ private slots:
 	void set_autoscroll();
 	void menu_click_button();
 	void toggle_panel_visibility();
-	void set_timecode_view();
-	void open_project_worker(const QString &fn, bool autorecovery);
-
-	void load_with_launch();
+    void set_timecode_view();
 
 	void show_action_search();
 
 private:
 	void setup_layout(bool reset);
-	bool can_close_project();
 	void setup_menus();
 
 	void set_bool_action_checked(QAction* a);
@@ -202,14 +188,15 @@ private:
 	QAction* undo_action;
 	QAction* redo_action;
 
-	bool enable_launch_with_project;
-
-	QString appName;
-
 	// used to store the panel state when one panel is maximized
 	QByteArray temp_panel_state;
+
+    // used in paintEvent() to determine the first paintEvent() performed
+    bool first_show;
 };
 
-extern MainWindow* mainWindow;
+namespace Olive {
+    extern MainWindow* MainWindow;
+}
 
 #endif // MAINWINDOW_H

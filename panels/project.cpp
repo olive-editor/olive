@@ -1,15 +1,12 @@
 ﻿#include "project.h"
-#include "project/footage.h"
+
+#include "oliveglobal.h"
+
+#include "project/projectelements.h"
 
 #include "panels/panels.h"
-#include "panels/timeline.h"
-#include "panels/viewer.h"
+
 #include "playback/playback.h"
-#include "project/effect.h"
-#include "project/transition.h"
-#include "panels/timeline.h"
-#include "project/sequence.h"
-#include "project/clip.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
 #include "mainwindow.h"
@@ -21,9 +18,9 @@
 #include "dialogs/mediapropertiesdialog.h"
 #include "dialogs/loaddialog.h"
 #include "io/clipboard.h"
-#include "project/media.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
+#include "ui/menuhelper.h"
 #include "project/sourcescommon.h"
 #include "project/projectfilter.h"
 #include "debug.h"
@@ -54,7 +51,6 @@ extern "C" {
 ProjectModel project_model;
 
 QString autorecovery_filename;
-QString project_url = "";
 QStringList recent_projects;
 QString recent_proj_file;
 
@@ -100,7 +96,7 @@ Project::Project(QWidget *parent) :
 	icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	toolbar_open->setIcon(icon2);
 	toolbar_open->setToolTip("Open Project");
-	connect(toolbar_open, SIGNAL(clicked(bool)), mainWindow, SLOT(open_project()));
+    connect(toolbar_open, SIGNAL(clicked(bool)), Olive::Global.data(), SLOT(open_project()));
 	toolbar->addWidget(toolbar_open);
 
 	QPushButton* toolbar_save = new QPushButton();
@@ -109,7 +105,7 @@ Project::Project(QWidget *parent) :
 	icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	toolbar_save->setIcon(icon3);
 	toolbar_save->setToolTip("Save Project");
-	connect(toolbar_save, SIGNAL(clicked(bool)), mainWindow, SLOT(save_project()));
+    connect(toolbar_save, SIGNAL(clicked(bool)), Olive::Global.data(), SLOT(save_project()));
 	toolbar->addWidget(toolbar_save);
 
 	QPushButton* toolbar_undo = new QPushButton();
@@ -118,7 +114,7 @@ Project::Project(QWidget *parent) :
 	icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	toolbar_undo->setIcon(icon4);
 	toolbar_undo->setToolTip("Undo");
-	connect(toolbar_undo, SIGNAL(clicked(bool)), mainWindow, SLOT(undo()));
+    connect(toolbar_undo, SIGNAL(clicked(bool)), Olive::MainWindow, SLOT(undo()));
 	toolbar->addWidget(toolbar_undo);
 
 	QPushButton* toolbar_redo = new QPushButton();
@@ -127,7 +123,7 @@ Project::Project(QWidget *parent) :
 	icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	toolbar_redo->setIcon(icon5);
 	toolbar_redo->setToolTip("Redo");
-	connect(toolbar_redo, SIGNAL(clicked(bool)), mainWindow, SLOT(redo()));
+    connect(toolbar_redo, SIGNAL(clicked(bool)), Olive::MainWindow, SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
 	QLineEdit* toolbar_search = new QLineEdit();
@@ -349,7 +345,7 @@ void Project::replace_media(Media* item, QString filename) {
 }
 
 void Project::replace_clip_media() {
-	if (sequence == nullptr) {
+	if (Olive::ActiveSequence == nullptr) {
 		QMessageBox::critical(this,
 							  tr("No active sequence"),
 							  tr("No sequence is active, please open the sequence you want to replace clips from."),
@@ -358,7 +354,7 @@ void Project::replace_clip_media() {
 		QModelIndexList selected_items = get_current_selected();
 		if (selected_items.size() == 1) {
 			Media* item = item_to_media(selected_items.at(0));
-			if (item->get_type() == MEDIA_TYPE_SEQUENCE && sequence == item->to_sequence()) {
+			if (item->get_type() == MEDIA_TYPE_SEQUENCE && Olive::ActiveSequence == item->to_sequence()) {
 				QMessageBox::critical(this,
 									  tr("Active sequence selected"),
 									  tr("You cannot insert a sequence into itself, so no clips of this media would be in this sequence."),
@@ -573,7 +569,7 @@ void Project::delete_selected_media() {
 	// remove
 	if (remove) {
 		panel_effect_controls->clear_effects(true);
-		if (sequence != nullptr) sequence->selections.clear();
+		if (Olive::ActiveSequence != nullptr) Olive::ActiveSequence->selections.clear();
 
 		// remove media and parents
 		for (int m=0;m<parents.size();m++) {
@@ -593,7 +589,7 @@ void Project::delete_selected_media() {
 
 				Sequence* s = items.at(i)->to_sequence();
 
-				if (s == sequence) {
+				if (s == Olive::ActiveSequence) {
 					ca->append(new ChangeSequenceAction(nullptr));
 				}
 
@@ -876,7 +872,7 @@ void Project::import_dialog() {
 }
 
 void Project::delete_clips_using_selected_media() {
-	if (sequence == nullptr) {
+	if (Olive::ActiveSequence == nullptr) {
 		QMessageBox::critical(this,
 							  tr("No active sequence"),
 							  tr("No sequence is active, please open the sequence you want to delete clips from."),
@@ -885,13 +881,13 @@ void Project::delete_clips_using_selected_media() {
 		ComboAction* ca = new ComboAction();
 		bool deleted = false;
 		QModelIndexList items = get_current_selected();
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* c = sequence->clips.at(i);
+		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+			Clip* c = Olive::ActiveSequence->clips.at(i);
 			if (c != nullptr) {
 				for (int j=0;j<items.size();j++) {
 					Media* m = item_to_media(items.at(j));
 					if (c->media == m) {
-						ca->append(new DeleteClipAction(sequence, i));
+						ca->append(new DeleteClipAction(Olive::ActiveSequence, i));
 						deleted = true;
 					}
 				}
@@ -923,6 +919,9 @@ void Project::clear() {
 
 	// delete everything else
 	project_model.clear();
+
+    // update tree view (sometimes this doesn't seem to update reliably)
+    panel_project->tree_view->update();
 }
 
 void Project::new_project() {
@@ -930,7 +929,7 @@ void Project::new_project() {
 	set_sequence(nullptr);
 	panel_footage_viewer->set_media(nullptr);
 	clear();
-	mainWindow->setWindowModified(false);
+    Olive::MainWindow->setWindowModified(false);
 }
 
 void Project::load_project(bool autorecovery) {
@@ -1035,7 +1034,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						stream.writeAttribute("framerate", QString::number(s->frame_rate, 'f', 10));
 						stream.writeAttribute("afreq", QString::number(s->audio_frequency));
 						stream.writeAttribute("alayout", QString::number(s->audio_layout));
-						if (s == sequence) {
+						if (s == Olive::ActiveSequence) {
 							stream.writeAttribute("open", "1");
 						}
 						stream.writeAttribute("workarea", QString::number(s->using_workarea));
@@ -1135,7 +1134,7 @@ void Project::save_project(bool autorecovery) {
 	media_id = 1;
 	sequence_id = 1;
 
-	QFile file(autorecovery ? autorecovery_filename : project_url);
+    QFile file(autorecovery ? autorecovery_filename : Olive::ActiveProjectFilename);
 	if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
 		qCritical() << "Could not open file";
 		return;
@@ -1149,8 +1148,8 @@ void Project::save_project(bool autorecovery) {
 
 	stream.writeTextElement("version", QString::number(SAVE_VERSION));
 
-	stream.writeTextElement("url", project_url);
-	proj_dir = QFileInfo(project_url).absoluteDir();
+    stream.writeTextElement("url", Olive::ActiveProjectFilename);
+    proj_dir = QFileInfo(Olive::ActiveProjectFilename).absoluteDir();
 
 	save_folder(stream, MEDIA_TYPE_FOLDER, true);
 
@@ -1175,8 +1174,8 @@ void Project::save_project(bool autorecovery) {
 	file.close();
 
 	if (!autorecovery) {
-		add_recent_project(project_url);
-		mainWindow->setWindowModified(false);
+        add_recent_project(Olive::ActiveProjectFilename);
+        Olive::MainWindow->setWindowModified(false);
 	}
 }
 
@@ -1241,7 +1240,7 @@ void Project::go_up_dir() {
 
 void Project::make_new_menu() {
 	QMenu new_menu(this);
-	mainWindow->make_new_menu(&new_menu);
+    Olive::MenuHelper.make_new_menu(&new_menu);
 	new_menu.exec(QCursor::pos());
 }
 

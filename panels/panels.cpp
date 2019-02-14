@@ -1,26 +1,22 @@
 #include "panels.h"
 
-#include "timeline.h"
-#include "effectcontrols.h"
-#include "viewer.h"
-#include "project.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "project/transition.h"
 #include "io/config.h"
-#include "grapheditor.h"
+
 #include "project/effectloaders.h"
 #include "debug.h"
 
 #include <QScrollBar>
 #include <QCoreApplication>
 
-Project* panel_project = 0;
-EffectControls* panel_effect_controls = 0;
-Viewer* panel_sequence_viewer = 0;
-Viewer* panel_footage_viewer = 0;
-Timeline* panel_timeline = 0;
-GraphEditor* panel_graph_editor = 0;
+Project* panel_project = nullptr;
+EffectControls* panel_effect_controls = nullptr;
+Viewer* panel_sequence_viewer = nullptr;
+Viewer* panel_footage_viewer = nullptr;
+Timeline* panel_timeline = nullptr;
+GraphEditor* panel_graph_editor = nullptr;
 
 void update_effect_controls() {
 	// SEND CLIPS TO EFFECT CONTROLS
@@ -32,12 +28,12 @@ void update_effect_controls() {
 	int aclip = -1;
 	QVector<int> selected_clips;
 	int mode = TA_NO_TRANSITION;
-	if (sequence != nullptr) {
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* clip = sequence->clips.at(i);
+	if (Olive::ActiveSequence != nullptr) {
+		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+			Clip* clip = Olive::ActiveSequence->clips.at(i);
 			if (clip != nullptr) {
-				for (int j=0;j<sequence->selections.size();j++) {
-					const Selection& s = sequence->selections.at(j);
+				for (int j=0;j<Olive::ActiveSequence->selections.size();j++) {
+					const Selection& s = Olive::ActiveSequence->selections.at(j);
 					bool add = true;
 					if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
 						mode = TA_NO_TRANSITION;
@@ -72,7 +68,7 @@ void update_effect_controls() {
 			if (aclip >= 0) selected_clips.append(aclip);
 			if (vclip >= 0 && aclip >= 0) {
 				bool found = false;
-				Clip* vclip_ref = sequence->clips.at(vclip);
+				Clip* vclip_ref = Olive::ActiveSequence->clips.at(vclip);
 				for (int i=0;i<vclip_ref->linked.size();i++) {
 					if (vclip_ref->linked.at(i) == aclip) {
 						found = true;

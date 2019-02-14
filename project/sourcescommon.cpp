@@ -13,6 +13,7 @@
 #include "io/config.h"
 #include "dialogs/proxydialog.h"
 #include "ui/viewerwidget.h"
+#include "ui/menuhelper.h"
 #include "io/proxygenerator.h"
 #include "mainwindow.h"
 
@@ -61,7 +62,7 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
 
 	QMenu* new_menu = menu.addMenu(tr("New"));
-	mainWindow->make_new_menu(new_menu);
+    Olive::MenuHelper.make_new_menu(new_menu);
 
 	QMenu* view_menu = menu.addMenu(tr("View"));
 
@@ -356,7 +357,7 @@ void SourcesCommon::item_renamed(Media* item) {
 
 void SourcesCommon::open_create_proxy_dialog() {
 	// open the proxy dialog and send it a list of currently selected footage
-	ProxyDialog pd(mainWindow, cached_selected_footage);
+    ProxyDialog pd(Olive::MainWindow, cached_selected_footage);
 	pd.exec();
 }
 
@@ -368,7 +369,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 
 		if (f->proxy && !f->proxy_path.isEmpty()) {
 			if (QFileInfo::exists(f->proxy_path)) {
-				if (QMessageBox::question(mainWindow,
+                if (QMessageBox::question(Olive::MainWindow,
 									  tr("Delete proxy"),
 									  tr("Would you like to delete the proxy file \"%1\" as well?").arg(f->proxy_path),
 										  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
@@ -381,9 +382,9 @@ void SourcesCommon::clear_proxies_from_selected() {
 		f->proxy_path.clear();
 	}
 
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		// close all clips so we can delete any proxies requested to be deleted
-		closeActiveClips(sequence);
+		closeActiveClips(Olive::ActiveSequence);
 	}
 
 	// delete proxies requested to be deleted
@@ -391,10 +392,10 @@ void SourcesCommon::clear_proxies_from_selected() {
 		QFile::remove(delete_list.at(i));
 	}
 
-	if (sequence != nullptr) {
+	if (Olive::ActiveSequence != nullptr) {
 		// update viewer (will re-open active clips with original media)
 		panel_sequence_viewer->viewer_widget->frame_update();
 	}
 
-	mainWindow->setWindowModified(true);
+    Olive::MainWindow->setWindowModified(true);
 }

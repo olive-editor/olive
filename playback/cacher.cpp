@@ -117,7 +117,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int play
 	}
 
 	if (temp_reverse) {
-		long seq_end = sequence->getEndFrame();
+		long seq_end = Olive::ActiveSequence->getEndFrame();
 		timeline_in = seq_end - timeline_in;
 		timeline_out = seq_end - timeline_out;
 		target_frame = seq_end - target_frame;

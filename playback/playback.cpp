@@ -432,7 +432,7 @@ bool is_clip_active(Clip* c, long playhead) {
 
 void set_sequence(Sequence* s) {
 	panel_effect_controls->clear_effects(true);
-	sequence = s;
+	Olive::ActiveSequence = s;
 	panel_sequence_viewer->set_main_sequence();
 	panel_timeline->update_sequence();
 	panel_timeline->setFocus();

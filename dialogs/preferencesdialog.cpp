@@ -26,8 +26,7 @@
 #include <QMessageBox>
 #include <QAudioDeviceInfo>
 #include <QApplication>
-
-#include "debug.h"
+#include <QDebug>
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 	: QKeySequenceEdit(parent), action(a) {
@@ -161,7 +160,7 @@ void PreferencesDialog::save() {
 	// save settings from UI to backend
 
 	config.css_path = custom_css_fn->text();
-	mainWindow->load_css_from_file(config.css_path);
+    Olive::MainWindow->load_css_from_file(config.css_path);
 	config.recording_mode = recordingComboBox->currentIndex() + 1;
 	config.img_seq_formats = imgSeqFormatEdit->text();
     config.fast_seeking = fastSeekButton->isChecked();
@@ -411,7 +410,7 @@ void PreferencesDialog::setup_ui() {
 			for (int i=0;i<translation_files.size();i++) {
                 // get path of translation relative to the application path
 				QString locale_full_path = translation_dir.filePath(translation_files.at(i));
-                QString locale_relative_path = QDir(get_app_dir()).relativeFilePath(locale_full_path);
+                QString locale_relative_path = QDir(get_app_path()).relativeFilePath(locale_full_path);
 
 				QFileInfo locale_file(translation_files.at(i));
 				QString locale_file_basename = locale_file.baseName();

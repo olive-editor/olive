@@ -7,6 +7,7 @@
 #include <QDir>
 
 #include "project/projectmodel.h"
+#include "project/projectfilter.h"
 
 struct Footage;
 struct Sequence;
@@ -28,7 +29,6 @@ class SourcesCommon;
 #define LOAD_TYPE_URL 70
 
 extern QString autorecovery_filename;
-extern QString project_url;
 extern QStringList recent_projects;
 extern QString recent_proj_file;
 

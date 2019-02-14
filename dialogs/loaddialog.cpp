@@ -6,8 +6,10 @@
 #include <QProgressBar>
 #include <QPushButton>
 
+#include "oliveglobal.h"
+
 #include "panels/panels.h"
-#include "panels/project.h"
+
 #include "io/loadthread.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
@@ -19,7 +21,7 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 
-	layout->addWidget(new QLabel(tr("Loading '%1'...").arg(project_url.mid(project_url.lastIndexOf('/')+1)), this));
+	layout->addWidget(new QLabel(tr("Loading '%1'...").arg(Olive::ActiveProjectFilename.mid(Olive::ActiveProjectFilename.lastIndexOf('/')+1)), this));
 
 	bar = new QProgressBar(this);
 	bar->setValue(0);
@@ -51,7 +53,7 @@ void LoadDialog::cancel() {
 }
 
 void LoadDialog::die() {
-	mainWindow->new_project();
+    Olive::Global.data()->new_project();
 	reject();
 }
 

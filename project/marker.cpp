@@ -39,7 +39,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 	// if (config.set_name_with_marker) is false (set above), ask for a marker name
 	if (!add_marker) {
-		QInputDialog d(mainWindow);
+        QInputDialog d(Olive::MainWindow);
 		d.setWindowTitle(QCoreApplication::translate("Marker", "Set Marker"));
 		d.setLabelText(clips.size() > 0
 					   ? QCoreApplication::translate("Marker", "Set clip marker name:")

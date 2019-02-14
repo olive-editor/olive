@@ -141,7 +141,9 @@ SOURCES += \
     dialogs/proxydialog.cpp \
     io/proxygenerator.cpp \
     dialogs/advancedvideodialog.cpp \
-    ui/cursors.cpp
+    ui/cursors.cpp \
+    ui/menuhelper.cpp \
+    oliveglobal.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -246,7 +248,10 @@ HEADERS += \
     dialogs/proxydialog.h \
     io/proxygenerator.h \
     dialogs/advancedvideodialog.h \
-    ui/cursors.h
+    ui/cursors.h \
+    ui/menuhelper.h \
+    oliveglobal.h \
+    project/projectelements.h
 
 FORMS +=
 

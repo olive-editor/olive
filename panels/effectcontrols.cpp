@@ -80,7 +80,7 @@ void EffectControls::set_zoom(bool in) {
 void EffectControls::menu_select(QAction* q) {
 	ComboAction* ca = new ComboAction();
 	for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->clips.at(selected_clips.at(i));
+		Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 		if ((c->track < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
 			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
 			if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
@@ -120,7 +120,7 @@ void EffectControls::copy(bool del) {
 		ComboAction* ca = new ComboAction();
 		EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : nullptr;
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->clips.at(selected_clips.at(i));
+			Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 			for (int j=0;j<c->effects.size();j++) {
 				Effect* effect = c->effects.at(j);
 				if (effect->container->selected) {
@@ -262,7 +262,7 @@ void EffectControls::clear_effects(bool clear_cache) {
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
 	for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->clips.at(selected_clips.at(i));
+		Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 		for (int j=0;j<c->effects.size();j++) {
 			if (c->effects.at(j)->container != sender) {
 				c->effects.at(j)->container->header_click(false, false);
@@ -485,7 +485,7 @@ void EffectControls::load_effects() {
 	if (!multiple) {
 		// load in new clips
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->clips.at(selected_clips.at(i));
+			Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 			QVBoxLayout* layout;
 			if (c->track < 0) {
 				vcontainer->setVisible(true);
@@ -505,7 +505,7 @@ void EffectControls::load_effects() {
 			}
 		}
 		if (selected_clips.size() > 0) {
-			setWindowTitle(panel_name + sequence->clips.at(selected_clips.at(0))->name);
+			setWindowTitle(panel_name + Olive::ActiveSequence->clips.at(selected_clips.at(0))->name);
 			keyframeView->setEnabled(true);
 			headers->setVisible(true);
 
@@ -519,7 +519,7 @@ void EffectControls::delete_effects() {
 	if (mode == TA_NO_TRANSITION) {
 		EffectDeleteCommand* command = new EffectDeleteCommand();
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->clips.at(selected_clips.at(i));
+			Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 			for (int j=0;j<c->effects.size();j++) {
 				Effect* effect = c->effects.at(j);
 				if (effect->container->selected) {
@@ -575,7 +575,7 @@ void EffectControls::resizeEvent(QResizeEvent*) {
 bool EffectControls::is_focused() {
 	if (this->hasFocus()) return true;
 	for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->clips.at(selected_clips.at(i));
+		Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 		if (c != nullptr) {
 			for (int j=0;j<c->effects.size();j++) {
 				if (c->effects.at(j)->container->is_focused()) {

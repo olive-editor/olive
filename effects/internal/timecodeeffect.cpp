@@ -62,7 +62,7 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
 
 void TimecodeEffect::redraw(double timecode) {
 	if (tc_select->get_combo_data(timecode).toBool()){
-		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);}
+		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(Olive::ActiveSequence->playhead, config.timecode_view, Olive::ActiveSequence->frame_rate);}
 	else {
 		double media_rate = parent_clip->getMediaFrameRate();
 		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(timecode * media_rate, config.timecode_view, media_rate);}

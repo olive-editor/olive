@@ -1,11 +1,11 @@
 #ifndef PANELS_H
 #define PANELS_H
 
-class Project;
-class EffectControls;
-class Viewer;
-class Timeline;
-class GraphEditor;
+#include "timeline.h"
+#include "effectcontrols.h"
+#include "viewer.h"
+#include "grapheditor.h"
+#include "project.h"
 
 class QWidget;
 class QDockWidget;

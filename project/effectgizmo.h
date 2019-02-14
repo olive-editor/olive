@@ -1,9 +1,11 @@
 #ifndef EFFECTGIZMO_H
 #define EFFECTGIZMO_H
 
-#define GIZMO_TYPE_DOT 0
-#define GIZMO_TYPE_POLY 1
-#define GIZMO_TYPE_TARGET 2
+enum GizmoType {
+    GIZMO_TYPE_DOT,
+    GIZMO_TYPE_POLY,
+    GIZMO_TYPE_TARGET
+};
 
 #define GIZMO_DOT_SIZE 2.5
 #define GIZMO_TARGET_SIZE 5.0
