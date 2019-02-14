@@ -499,87 +499,87 @@
     <message>
         <location filename="../io/exportthread.cpp" line="61"/>
         <source>failed to send frame to encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Слање оквира кодеру није успело (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="72"/>
         <source>failed to receive packet from encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Примање пакета од кодера није успело (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="93"/>
         <source>could not video encoder for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Није могао видео кодер за %1</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="102"/>
         <source>could not allocate video stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Видео ток се није могао заузети</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="111"/>
         <source>could not allocate video encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>Контекст видео кодирања се није могао заузети</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="149"/>
         <source>could not open output video encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Излазни видео кодер се није могао отворити (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="157"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри видео кодера се нису могли копирати у излазни ток (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="195"/>
         <source>could not audio encoder for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Није могао аудио кодер за %1</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="204"/>
         <source>could not allocate audio stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Аудио ток се није могао заузети</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="213"/>
         <source>could not allocate audio encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>Контекст аудио кодирања се није могао заузети</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="238"/>
         <source>could not open output audio encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Излаз аудио кодера се није могао отворити (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="246"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри аудио кодера се нису могли копирати у излазни ток (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="276"/>
         <source>could not allocate audio buffer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Аудио међуспремник се није могао заузети (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="298"/>
         <source>could not create output format context</source>
-        <translation type="unfinished"></translation>
+        <translation>Контекст излазног формата се није могао створити</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="307"/>
         <source>could not open output file (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Излазна датотека се није могла отворити (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="333"/>
         <source>could not write output file header (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Заглавље излазне датотеке се није могло исписати (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="470"/>
         <source>could not write output file trailer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Подножје излазне датотеке се није могло исписати (%1)</translation>
     </message>
 </context>
 <context>
