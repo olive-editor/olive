@@ -70,7 +70,7 @@ void KeyframeView::menu_set_key_type(QAction* a) {
 			EffectField* f = selected_fields.at(i);
 			ca->append(new SetInt(&f->keyframes[selected_keyframes.at(i)].type, a->data().toInt()));
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 		update_ui(false);
 	}
 }
@@ -405,7 +405,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
 						   selected_fields.at(i)->keyframes.at(selected_keyframes.at(i)).time
 						));
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 
 	select_rect = false;

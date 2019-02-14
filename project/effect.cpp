@@ -412,7 +412,7 @@ void Effect::delete_self() {
 	EffectDeleteCommand* command = new EffectDeleteCommand();
 	command->clips.append(parent_clip);
 	command->fx.append(get_index_in_clip());
-	undo_stack.push(command);
+	Olive::UndoStack.push(command);
 	update_ui(true);
 }
 
@@ -421,7 +421,7 @@ void Effect::move_up() {
 	command->clip = parent_clip;
 	command->from = get_index_in_clip();
 	command->to = command->from - 1;
-	undo_stack.push(command);
+	Olive::UndoStack.push(command);
 	panel_effect_controls->reload_clips();
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
@@ -431,7 +431,7 @@ void Effect::move_down() {
 	command->clip = parent_clip;
 	command->from = get_index_in_clip();
 	command->to = command->from + 1;
-	undo_stack.push(command);
+	Olive::UndoStack.push(command);
 	panel_effect_controls->reload_clips();
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
@@ -478,7 +478,7 @@ void Effect::load_from_file() {
 		QFile file_handle(file);
 		if (file_handle.open(QFile::ReadOnly)) {
 
-			undo_stack.push(new SetEffectData(this, file_handle.readAll()));
+			Olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
 
 			file_handle.close();
 
@@ -942,7 +942,7 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
 				gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
 				gizmo->y_field2->make_key_from_change(ca);
 			}
-			if (done) undo_stack.push(ca);
+			if (done) Olive::UndoStack.push(ca);
 			break;
 		}
 	}

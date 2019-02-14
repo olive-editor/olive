@@ -12,7 +12,6 @@
 #include "panels/effectcontrols.h"
 #include "project/media.h"
 #include "io/config.h"
-#include "io/avtogl.h"
 #include "io/proxygenerator.h"
 #include "debug.h"
 
@@ -35,8 +34,6 @@ extern "C" {
 #ifdef QT_DEBUG
 //#define GCF_DEBUG
 #endif
-
-bool rendering = false;
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
 	return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
@@ -327,12 +324,16 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 
 						memcpy(data_buffer_1, target_frame->data[0], frame_size);
 					}
-					e->process_image(get_timecode(c, playhead), using_db_1 ? data_buffer_1 : data_buffer_2, using_db_1 ? data_buffer_2 : data_buffer_1, frame_size);
+                    e->process_image(get_timecode(c, playhead),
+                                     using_db_1 ? data_buffer_1 : data_buffer_2,
+                                     using_db_1 ? data_buffer_2 : data_buffer_1,
+                                     frame_size
+                                 );
 					using_db_1 = !using_db_1;
 				}
 			}
 
-			c->texture->setData(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8, const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
+            c->texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
 
 			if (data_buffer_1 != target_frame->data[0]) {
 				delete [] data_buffer_1;

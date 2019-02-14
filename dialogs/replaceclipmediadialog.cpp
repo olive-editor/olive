@@ -101,7 +101,7 @@ void ReplaceClipMediaDialog::replace() {
 					}
 				}
 
-				undo_stack.push(rcmc);
+				Olive::UndoStack.push(rcmc);
 
 				close();
 			}

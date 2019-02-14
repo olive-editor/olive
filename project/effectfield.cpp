@@ -329,7 +329,7 @@ void EffectField::ui_element_change() {
 	ComboAction* ca = nullptr;
 	if (!dragging_double) ca = new ComboAction();
 	make_key_from_change(ca);
-	if (!dragging_double) undo_stack.push(ca);
+	if (!dragging_double) Olive::UndoStack.push(ca);
 	emit changed();
 }
 

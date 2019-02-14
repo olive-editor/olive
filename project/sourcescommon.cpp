@@ -49,7 +49,7 @@ void SourcesCommon::create_seq_from_selected() {
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
 		project_parent->new_sequence(ca, s, true, nullptr);
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 }
 
@@ -227,7 +227,7 @@ void SourcesCommon::mouseDoubleClickEvent(QMouseEvent *, const QModelIndexList& 
 			panel_footage_viewer->setFocus();
 			break;
 		case MEDIA_TYPE_SEQUENCE:
-			undo_stack.push(new ChangeSequenceAction(item->to_sequence()));
+			Olive::UndoStack.push(new ChangeSequenceAction(item->to_sequence()));
 			break;
 		}
 	}
@@ -306,7 +306,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 				MediaMove* mm = new MediaMove();
 				mm->to = m;
 				mm->items = move_items;
-				undo_stack.push(mm);
+				Olive::UndoStack.push(mm);
 			}
 		}
 	}
@@ -350,7 +350,7 @@ void SourcesCommon::rename_interval() {
 void SourcesCommon::item_renamed(Media* item) {
 	if (editing_item == item) {
 		MediaRename* mr = new MediaRename(item, "idk");
-		undo_stack.push(mr);
+		Olive::UndoStack.push(mr);
 		editing_item = nullptr;
 	}
 }

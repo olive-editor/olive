@@ -86,7 +86,7 @@ void OliveGlobal::new_project() {
         panel_project->new_project();
 
         // clear undo stack
-        undo_stack.clear();
+        Olive::UndoStack.clear();
 
         // empty current project filename
         update_project_filename("");
@@ -188,5 +188,5 @@ void OliveGlobal::save_autorecovery_file() {
 void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
     update_project_filename(fn);
     panel_project->load_project(autorecovery);
-    undo_stack.clear();
+    Olive::UndoStack.clear();
 }

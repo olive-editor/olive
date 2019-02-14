@@ -432,20 +432,24 @@ void MainWindow::ripple_delete() {
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {
-	undo_action->setEnabled(undo_stack.canUndo());
-	redo_action->setEnabled(undo_stack.canRedo());
+    undo_action->setEnabled(Olive::UndoStack.canUndo());
+    redo_action->setEnabled(Olive::UndoStack.canRedo());
 }
 
 void MainWindow::undo() {
-	if (!panel_timeline->importing) { // workaround to prevent crash (and also users should never need to do this)
-		undo_stack.undo();
+    // workaround to prevent crash (and also users should never need to do this)
+    if (!panel_timeline->importing) {
+        Olive::UndoStack.undo();
 		update_ui(true);
 	}
 }
 
 void MainWindow::redo() {
-	undo_stack.redo();
-	update_ui(true);
+    // workaround to prevent crash (and also users should never need to do this)
+    if (!panel_timeline->importing) {
+        Olive::UndoStack.redo();
+        update_ui(true);
+    }
 }
 
 void MainWindow::open_speed_dialog() {
@@ -558,7 +562,7 @@ void MainWindow::setup_menus() {
 
 	edit_menu->addAction(tr("Add Default Transition"), this, SLOT(add_default_transition()), QKeySequence("Ctrl+Shift+D"))->setProperty("id", "deftransition");
 	edit_menu->addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()), QKeySequence("Ctrl+L"))->setProperty("id", "linkunlink");
-	edit_menu->addAction(tr("Enable/Disable"), this, SLOT(toggle_enable_clips()), QKeySequence("Shift+E"))->setProperty("id", "enabledisable");
+    edit_menu->addAction(tr("Enable/Disable"), panel_timeline, SLOT(toggle_enable_on_selected_clips()), QKeySequence("Shift+E"))->setProperty("id", "enabledisable");
 	edit_menu->addAction(tr("Nest"), this, SLOT(nest()))->setProperty("id", "nest");
 
 	edit_menu->addSeparator();
@@ -585,8 +589,8 @@ void MainWindow::setup_menus() {
 
 	view_menu->addAction(tr("Zoom In"), this, SLOT(zoom_in()), QKeySequence("="))->setProperty("id", "zoomin");
 	view_menu->addAction(tr("Zoom Out"), this, SLOT(zoom_out()), QKeySequence("-"))->setProperty("id", "zoomout");
-	view_menu->addAction(tr("Increase Track Height"), this, SLOT(zoom_in_tracks()), QKeySequence("Ctrl+="))->setProperty("id", "vzoomin");
-	view_menu->addAction(tr("Decrease Track Height"), this, SLOT(zoom_out_tracks()), QKeySequence("Ctrl+-"))->setProperty("id", "vzoomout");
+    view_menu->addAction(tr("Increase Track Height"), panel_timeline, SLOT(increase_track_height()), QKeySequence("Ctrl+="))->setProperty("id", "vzoomin");
+    view_menu->addAction(tr("Decrease Track Height"), panel_timeline, SLOT(decrease_track_height()), QKeySequence("Ctrl+-"))->setProperty("id", "vzoomout");
 
 	show_all = view_menu->addAction(tr("Toggle Show All"), panel_timeline, SLOT(toggle_show_all()), QKeySequence("\\"));
 	show_all->setProperty("id", "showall");
@@ -672,8 +676,8 @@ void MainWindow::setup_menus() {
 	playback_menu->addAction(tr("Next Frame"), this, SLOT(next_frame()), QKeySequence("Right"))->setProperty("id", "nextframe");
 	playback_menu->addAction(tr("Go to End"), this, SLOT(go_to_end()), QKeySequence("End"))->setProperty("id", "gotoend");
 	playback_menu->addSeparator();
-	playback_menu->addAction(tr("Go to Previous Cut"), this, SLOT(prev_cut()), QKeySequence("Up"))->setProperty("id", "prevcut");
-	playback_menu->addAction(tr("Go to Next Cut"), this, SLOT(next_cut()), QKeySequence("Down"))->setProperty("id", "nextcut");
+    playback_menu->addAction(tr("Go to Previous Cut"), panel_timeline, SLOT(previous_cut()), QKeySequence("Up"))->setProperty("id", "prevcut");
+    playback_menu->addAction(tr("Go to Next Cut"), panel_timeline, SLOT(next_cut()), QKeySequence("Down"))->setProperty("id", "nextcut");
 	playback_menu->addSeparator();
 	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
 	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
@@ -975,7 +979,7 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 }
 
 void MainWindow::clear_undo_stack() {
-	undo_stack.clear();
+    Olive::UndoStack.clear();
 }
 
 void MainWindow::show_action_search() {
@@ -1086,20 +1090,6 @@ void MainWindow::decrease_speed() {
 	}
 }
 
-void MainWindow::prev_cut() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (Olive::ActiveSequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
-		panel_timeline->previous_cut();
-	}
-}
-
-void MainWindow::next_cut() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (Olive::ActiveSequence != nullptr && (panel_timeline == focused_panel || panel_sequence_viewer == focused_panel)) {
-		panel_timeline->next_cut();
-	}
-}
-
 void MainWindow::maximize_panel() {
 	// toggles between normal state and a state of one panel being maximized
 	if (temp_panel_state.isEmpty()) {
@@ -1135,14 +1125,6 @@ void MainWindow::preferences() {
 	PreferencesDialog pd(this);
 	pd.setup_kbd_shortcuts(menuBar());
 	pd.exec();
-}
-
-void MainWindow::zoom_in_tracks() {
-	panel_timeline->increase_track_height();
-}
-
-void MainWindow::zoom_out_tracks() {
-	panel_timeline->decrease_track_height();
 }
 
 void MainWindow::full_screen_viewer() {
@@ -1229,7 +1211,7 @@ void MainWindow::add_default_transition() {
 
 void MainWindow::new_folder() {
 	Media* m = panel_project->new_folder(nullptr);
-	undo_stack.push(new AddMediaCommand(m, panel_project->get_selected_folder()));
+    Olive::UndoStack.push(new AddMediaCommand(m, panel_project->get_selected_folder()));
 
 	QModelIndex index = project_model.create_index(m->row(), 0, m);
 	switch (config.project_view_type) {
@@ -1393,26 +1375,6 @@ void MainWindow::set_marker() {
 	}
 }
 
-void MainWindow::toggle_enable_clips() {
-	if (Olive::ActiveSequence != nullptr) {
-		ComboAction* ca = new ComboAction();
-		bool push_undo = false;
-		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-			Clip* c = Olive::ActiveSequence->clips.at(i);
-			if (c != nullptr && is_clip_selected(c, true)) {
-				ca->append(new SetEnableCommand(c, !c->enabled));
-				push_undo = true;
-			}
-		}
-		if (push_undo) {
-			undo_stack.push(ca);
-			update_ui(true);
-		} else {
-			delete ca;
-		}
-	}
-}
-
 void MainWindow::edit_to_in_point() {
 	QDockWidget* focused_panel = get_focused_panel();
 	if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(true, false);
@@ -1478,7 +1440,7 @@ void MainWindow::nest() {
 			panel_effect_controls->clear_effects(true);
 			Olive::ActiveSequence->selections.clear();
 
-			undo_stack.push(ca);
+            Olive::UndoStack.push(ca);
 
 			update_ui(true);
 		}

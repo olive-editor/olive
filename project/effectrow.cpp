@@ -71,7 +71,7 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 		ComboAction* ca = new ComboAction();
 		ca->append(new SetKeyframing(this, true));
 		set_keyframe_now(ca);
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	} else {
 		if (QMessageBox::question(panel_effect_controls,
 								  tr("Disable Keyframes"),
@@ -86,7 +86,7 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 				}
 			}
 			ca->append(new SetKeyframing(this, false));
-			undo_stack.push(ca);
+			Olive::UndoStack.push(ca);
 			panel_effect_controls->update_keyframes();
 		} else {
 			setKeyframing(true);
@@ -133,7 +133,7 @@ void EffectRow::toggle_key() {
 			ca->append(new KeyframeDelete(key_fields.at(i), key_field_index.at(i)));
 		}
 	}
-	undo_stack.push(ca);
+	Olive::UndoStack.push(ca);
 	update_ui(false);
 }
 

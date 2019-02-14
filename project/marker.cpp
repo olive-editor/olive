@@ -11,7 +11,7 @@
 #include <QInputDialog>
 #include <QCoreApplication>
 
-void draw_marker(QPainter &p, int x, int y, int bottom, bool selected, bool flipped) {
+void draw_marker(QPainter &p, int x, int y, int bottom, bool selected) {
 	const QPoint points[5] = {
 		QPoint(x, bottom),
 		QPoint(x + MARKER_SIZE, bottom - MARKER_SIZE),
@@ -90,7 +90,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 
 		// push action
-		undo_stack.push(ca);
+        Olive::UndoStack.push(ca);
 
 		// redraw UI for new markers
 		update_ui(false);

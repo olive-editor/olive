@@ -679,7 +679,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *) {
 	if (click_add_proc) {
-		undo_stack.push(new KeyframeFieldSet(click_add_field, click_add_key));
+		Olive::UndoStack.push(new KeyframeFieldSet(click_add_field, click_add_key));
 	} else if (moved_keys && selected_keys.size() > 0) {
 		ComboAction* ca = new ComboAction();
 		switch (current_handle) {
@@ -701,7 +701,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
 		}
 			break;
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 	moved_keys = false;
 	mousedown = false;
@@ -772,7 +772,7 @@ void GraphView::set_selected_keyframe_type(int type) {
 			EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
 			ca->append(new SetInt(&key.type, type));
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 		update_ui(false);
 	}
 }

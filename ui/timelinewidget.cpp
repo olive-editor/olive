@@ -79,8 +79,8 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 		QAction* redoAction = menu.addAction(tr("&Redo"));
         connect(undoAction, SIGNAL(triggered(bool)), Olive::MainWindow, SLOT(undo()));
         connect(redoAction, SIGNAL(triggered(bool)), Olive::MainWindow, SLOT(redo()));
-		undoAction->setEnabled(undo_stack.canUndo());
-		redoAction->setEnabled(undo_stack.canRedo());
+        undoAction->setEnabled(Olive::UndoStack.canUndo());
+        redoAction->setEnabled(Olive::UndoStack.canRedo());
 		menu.addSeparator();
 
 		// collect all the selected clips
@@ -180,7 +180,7 @@ void TimelineWidget::toggle_autoscale() {
 		}
 	}
 	if (action->clips.size() > 0) {
-		undo_stack.push(action);
+        Olive::UndoStack.push(action);
 	} else {
 		delete action;
 	}
@@ -223,7 +223,7 @@ void TimelineWidget::rename_clip() {
 			RenameClipCommand* rcc = new RenameClipCommand();
 			rcc->new_name = s;
 			rcc->clips = selected_clips;
-			undo_stack.push(rcc);
+            Olive::UndoStack.push(rcc);
 			update_ui(true);
 		}
 	}
@@ -302,7 +302,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
 			}
 
 			if (media_list.isEmpty()) {
-				undo_stack.undo();
+                Olive::UndoStack.undo();
 			} else {
 				import_init = true;
 				panel_timeline->importing_files = true;
@@ -369,7 +369,7 @@ void TimelineWidget::dragLeaveEvent(QDragLeaveEvent* event) {
 	event->accept();
 	if (panel_timeline->importing) {
 		if (panel_timeline->importing_files) {
-			undo_stack.undo();
+            Olive::UndoStack.undo();
 		}
 		panel_timeline->importing_files = false;
 		panel_timeline->ghosts.clear();
@@ -496,7 +496,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
-		undo_stack.push(ca);
+        Olive::UndoStack.push(ca);
 
 		setFocus();
 
@@ -1133,7 +1133,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 			}
 
 			if (push_undo) {
-				undo_stack.push(ca);
+                Olive::UndoStack.push(ca);
 			} else {
 				delete ca;
 			}
@@ -2257,7 +2257,7 @@ void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPain
 	int last_waveform_index = -1;
 
 	for (int i=waveform_start;i<waveform_limit;i++) {
-		int waveform_index = qFloor((((clip->clip_in + ((double) i/zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
+        int waveform_index = qFloor((((clip->clip_in + (double(i)/zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
 		if (last_waveform_index < 0) last_waveform_index = waveform_index;
 
 		if (clip->reverse) {
@@ -2455,13 +2455,23 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 										space_for_thumb -= getScreenPointFromFrame(panel_timeline->zoom, clip->get_closing_transition()->get_true_length());
 									}
 									int thumb_height = clip_rect.height()-thumb_y;
-									int thumb_width = (thumb_height*((double)ms->video_preview.width()/(double)ms->video_preview.height()));
+                                    int thumb_width = qRound(thumb_height*(double(ms->video_preview.width())/double(ms->video_preview.height())));
 									if (thumb_x + thumb_width >= 0
 											&& thumb_height > thumb_y
 											&& thumb_y + thumb_height >= 0
 											&& space_for_thumb > MAX_TEXT_WIDTH) {
 										int thumb_clip_width = qMin(thumb_width, space_for_thumb);
-										p.drawImage(QRect(thumb_x, clip_rect.y()+thumb_y, thumb_clip_width, thumb_height), ms->video_preview, QRect(0, 0, thumb_clip_width*((double)ms->video_preview.width()/(double)thumb_width), ms->video_preview.height()));
+                                        p.drawImage(QRect(thumb_x,
+                                                          clip_rect.y()+thumb_y,
+                                                          thumb_clip_width,
+                                                          thumb_height),
+                                                    ms->video_preview,
+                                                    QRect(0,
+                                                          0,
+                                                          qRound(thumb_clip_width*(double(ms->video_preview.width())/double(thumb_width))),
+                                                          ms->video_preview.height()
+                                                          )
+                                                    );
 									}
 								}
 								if (clip->timeline_out - clip->timeline_in + clip->clip_in > clip->getMaximumLength()) {
@@ -2526,7 +2536,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
 						long marker_time = m.frame + clip->timeline_in - clip->clip_in;
 						int marker_x = panel_timeline->getTimelineScreenPointFromFrame(marker_time);
 						if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
-							draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false, false);
+                            draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false);
 						}
 					}
                     p.setBrush(Qt::NoBrush);

@@ -357,7 +357,7 @@ void Timeline::add_transition() {
 	}
 
 	if (adding) {
-		undo_stack.push(ca);
+        Olive::UndoStack.push(ca);
 	} else {
 		delete ca;
 	}
@@ -569,9 +569,29 @@ void Timeline::delete_in_out(bool ripple) {
 		delete_areas_and_relink(ca, areas, true);
 		if (ripple) ripple_clips(ca, Olive::ActiveSequence, Olive::ActiveSequence->workarea_in, Olive::ActiveSequence->workarea_in - Olive::ActiveSequence->workarea_out);
 		ca->append(new SetTimelineInOutCommand(Olive::ActiveSequence, false, 0, 0));
-		undo_stack.push(ca);
+        Olive::UndoStack.push(ca);
 		update_ui(true);
-	}
+    }
+}
+
+void Timeline::toggle_enable_on_selected_clips() {
+    if (Olive::ActiveSequence != nullptr) {
+        ComboAction* ca = new ComboAction();
+        bool push_undo = false;
+        for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+            Clip* c = Olive::ActiveSequence->clips.at(i);
+            if (c != nullptr && is_clip_selected(c, true)) {
+                ca->append(new SetBool(&c->enabled, !c->enabled));
+                push_undo = true;
+            }
+        }
+        if (push_undo) {
+            Olive::UndoStack.push(ca);
+            update_ui(true);
+        } else {
+            delete ca;
+        }
+    }
 }
 
 void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_delete) {
@@ -631,7 +651,7 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 			}
 		}
 
-		undo_stack.push(ca);
+        Olive::UndoStack.push(ca);
 
 		update_ui(true);
 	}
@@ -1065,7 +1085,7 @@ void Timeline::paste(bool insert) {
 
 			ca->append(new AddClipCommand(Olive::ActiveSequence, pasted_clips));
 
-			undo_stack.push(ca);
+            Olive::UndoStack.push(ca);
 
 			update_ui(true);
 
@@ -1139,8 +1159,8 @@ void Timeline::paste(bool insert) {
 				}
 			}
 			if (push) {
-				ca->appendPost(new ReloadEffectsCommand());
-				undo_stack.push(ca);
+                ca->appendPost(new ReloadEffectsCommand());
+                Olive::UndoStack.push(ca);
 			} else {
 				delete ca;
 			}
@@ -1244,7 +1264,7 @@ void Timeline::ripple_to_in_point(bool in, bool ripple) {
 			}
 
 			if (push_undo) {
-				undo_stack.push(ca);
+                Olive::UndoStack.push(ca);
 
 				update_ui(true);
 
@@ -1353,7 +1373,7 @@ void Timeline::split_at_playhead() {
 	}
 
 	if (split_selected) {
-		undo_stack.push(ca);
+        Olive::UndoStack.push(ca);
 		update_ui(true);
 	} else {
 		delete ca;
@@ -1501,7 +1521,7 @@ void Timeline::toggle_links() {
 		}
 	}
 	if (command->clips.size() > 0) {
-		undo_stack.push(command);
+        Olive::UndoStack.push(command);
 		repaint_timeline();
 	} else {
 		delete command;

@@ -314,7 +314,7 @@ void Project::duplicate_selected() {
 		}
 	}
 	if (duped) {
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	} else {
 		delete ca;
 	}
@@ -340,7 +340,7 @@ void Project::replace_media(Media* item, QString filename) {
 	}
 	if (!filename.isEmpty()) {
 		ReplaceMediaCommand* rmc = new ReplaceMediaCommand(item, filename);
-		undo_stack.push(rmc);
+		Olive::UndoStack.push(rmc);
 	}
 }
 
@@ -394,7 +394,7 @@ void Project::open_properties() {
 													 item->get_name());
 			if (!new_name.isEmpty()) {
 				MediaRename* mr = new MediaRename(item, new_name);
-				undo_stack.push(mr);
+				Olive::UndoStack.push(mr);
 			}
 		}
 		}
@@ -608,7 +608,7 @@ void Project::delete_selected_media() {
 				}
 			}
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 
 		// redraw clips
 		if (redraw) {
@@ -785,7 +785,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 	}
 	if (create_undo_action) {
 		if (imported) {
-			undo_stack.push(ca);
+			Olive::UndoStack.push(ca);
 
 			for (int i=0;i<last_imported_media.size();i++) {
 				// generate waveform/thumbnail in another thread
@@ -898,7 +898,7 @@ void Project::delete_clips_using_selected_media() {
 			if (delete_clips_in_clipboard_with_media(ca, m)) deleted = true;
 		}
 		if (deleted) {
-			undo_stack.push(ca);
+			Olive::UndoStack.push(ca);
 			update_ui(true);
 		} else {
 			delete ca;

@@ -440,7 +440,7 @@ void Viewer::pause() {
 
 			QVector<Clip*> add_clips;
 			add_clips.append(c);
-			undo_stack.push(new AddClipCommand(seq, add_clips)); // add clip
+			Olive::UndoStack.push(new AddClipCommand(seq, add_clips)); // add clip
 		}
 	}
 }
@@ -500,21 +500,21 @@ void Viewer::update_viewer() {
 
 void Viewer::clear_in() {
 	if (seq->using_workarea) {
-		undo_stack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
+		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
 		update_parents();
 	}
 }
 
 void Viewer::clear_out() {
 	if (seq->using_workarea) {
-		undo_stack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
+		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
 		update_parents();
 	}
 }
 
 void Viewer::clear_inout_point() {
 	if (seq->using_workarea) {
-		undo_stack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
+		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
 		update_parents();
 	}
 }

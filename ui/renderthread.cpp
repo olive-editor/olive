@@ -217,6 +217,8 @@ void RenderThread::paint() {
 }
 
 void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int pixel_linesize, int idivider) {
+    Q_UNUSED(idivider);
+
 	seq = s;
 
 	// stall any dependent actions

@@ -25,14 +25,16 @@ struct EffectMeta;
 #include <QVariant>
 #include <QModelIndex>
 
-extern QUndoStack undo_stack;
+namespace Olive {
+    extern QUndoStack UndoStack;
+}
 
 class ComboAction : public QUndoCommand {
 public:
 	ComboAction();
-	~ComboAction();
-	void undo();
-	void redo();
+    virtual ~ComboAction() override;
+    virtual void undo() override;
+    virtual void redo() override;
 	void append(QUndoCommand* u);
 	void appendPost(QUndoCommand* u);
 private:
@@ -40,11 +42,33 @@ private:
 	QVector<QUndoCommand*> post_commands;
 };
 
-class MoveClipAction : public QUndoCommand {
+class OliveAction : public QUndoCommand {
+public:
+    OliveAction(bool iset_window_modified = true);
+    virtual ~OliveAction() override;
+
+    virtual void undo() override;
+    virtual void redo() override;
+
+    virtual void doUndo() = 0;
+    virtual void doRedo() = 0;
+private:
+    /**
+     * @brief Setting whether to change the windowModified state of MainWindow
+     */
+    bool set_window_modified;
+
+    /**
+     * @brief Cache previous window modified value to return to if the user undoes this action
+     */
+    bool old_window_modified;
+};
+
+class MoveClipAction : public OliveAction {
 public:
 	MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack, bool irelative);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Clip* clip;
 
@@ -58,16 +82,14 @@ private:
 	long new_clip_in;
 	int new_track;
 
-	bool relative;
-
-	bool old_project_changed;
+    bool relative;
 };
 
-class RippleAction : public QUndoCommand {
+class RippleAction : public OliveAction {
 public:
 	RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int>& iignore);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Sequence *s;
 	long point;
@@ -76,12 +98,12 @@ private:
 	ComboAction* ca;
 };
 
-class DeleteClipAction : public QUndoCommand {
+class DeleteClipAction : public OliveAction {
 public:
 	DeleteClipAction(Sequence* s, int clip);
-	~DeleteClipAction();
-	void undo();
-	void redo();
+    virtual ~DeleteClipAction() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Sequence* seq;
 	Clip* ref;
@@ -91,86 +113,80 @@ private:
 	int closing_transition;
 
 	QVector<int> linkClipIndex;
-	QVector<int> linkLinkIndex;
-
-	bool old_project_changed;
+    QVector<int> linkLinkIndex;
 };
 
-class ChangeSequenceAction : public QUndoCommand {
+class ChangeSequenceAction : public OliveAction {
 public:
 	ChangeSequenceAction(Sequence* s);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Sequence* old_sequence;
 	Sequence* new_sequence;
 };
 
-class AddEffectCommand : public QUndoCommand {
+class AddEffectCommand : public OliveAction {
 public:
 	AddEffectCommand(Clip* c, Effect *e, const EffectMeta* m, int insert_pos = -1);
-	~AddEffectCommand();
-	void undo();
-	void redo();
+    virtual ~AddEffectCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Clip* clip;
 	const EffectMeta* meta;
 	Effect* ref;
 	int pos;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class AddTransitionCommand : public QUndoCommand {
+class AddTransitionCommand : public OliveAction {
 public:
 	AddTransitionCommand(Clip* c, Clip* s, Transition *copy, const EffectMeta* itransition, int itype, int ilength);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Clip* clip;
 	Clip* secondary;
 	Transition* transition_to_copy;
 	const EffectMeta* transition;
 	int type;
-	int length;
-	bool old_project_changed;
+    int length;
 	int old_ptransition;
 	int old_stransition;
 };
 
-class ModifyTransitionCommand : public QUndoCommand {
+class ModifyTransitionCommand : public OliveAction {
 public:
 	ModifyTransitionCommand(Clip* c, int itype, long ilength);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Clip* clip;
 	int type;
 	long new_length;
-	long old_length;
-	bool old_project_changed;
+    long old_length;
 };
 
-class DeleteTransitionCommand : public QUndoCommand {
+class DeleteTransitionCommand : public OliveAction {
 public:
 	DeleteTransitionCommand(Sequence* s, int transition_index);
-	~DeleteTransitionCommand();
-	void undo();
-	void redo();
+    virtual ~DeleteTransitionCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Sequence* seq;
 	int index;
 	Transition* transition;
 	Clip* otc;
-	Clip* ctc;
-	bool old_project_changed;
+    Clip* ctc;
 };
 
-class SetTimelineInOutCommand : public QUndoCommand {
+class SetTimelineInOutCommand : public OliveAction {
 public:
 	SetTimelineInOutCommand(Sequence* s, bool enabled, long in, long out);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Sequence* seq;
 
@@ -180,299 +196,263 @@ private:
 
 	bool new_enabled;
 	long new_in;
-	long new_out;
-
-	bool old_project_changed;
+    long new_out;
 };
 
-class NewSequenceCommand : public QUndoCommand {
+class NewSequenceCommand : public OliveAction {
 public:
 	NewSequenceCommand(Media *s, Media* iparent);
-	~NewSequenceCommand();
-	void undo();
-	void redo();
+    virtual ~NewSequenceCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Media* seq;
 	Media* parent;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class AddMediaCommand : public QUndoCommand {
+class AddMediaCommand : public OliveAction {
 public:
 	AddMediaCommand(Media* iitem, Media* iparent);
-	~AddMediaCommand();
-	void undo();
-	void redo();
+    virtual ~AddMediaCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Media* item;
 	Media* parent;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class DeleteMediaCommand : public QUndoCommand {
+class DeleteMediaCommand : public OliveAction {
 public:
 	DeleteMediaCommand(Media *i);
-	~DeleteMediaCommand();
-	void undo();
-	void redo();
+    virtual ~DeleteMediaCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Media* item;
-	Media* parent;
-	bool old_project_changed;
+    Media* parent;
 	bool done;
 };
 
-class AddClipCommand : public QUndoCommand {
+class AddClipCommand : public OliveAction {
 public:
 	AddClipCommand(Sequence* s, QVector<Clip*>& add);
-	~AddClipCommand();
-	void undo();
-	void redo();
+    virtual ~AddClipCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Sequence* seq;
 	QVector<Clip*> clips;
-	QVector<Clip*> undone_clips;
-	bool old_project_changed;
+    QVector<Clip*> undone_clips;
 };
 
-class LinkCommand : public QUndoCommand {
+class LinkCommand : public OliveAction {
 public:
 	LinkCommand();
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	Sequence* s;
 	QVector<int> clips;
 	bool link;
 private:
-	QVector< QVector<int> > old_links;
-	bool old_project_changed;
+    QVector< QVector<int> > old_links;
 };
 
-class CheckboxCommand : public QUndoCommand {
+class CheckboxCommand : public OliveAction {
 public:
 	CheckboxCommand(QCheckBox* b);
-	~CheckboxCommand();
-	void undo();
-	void redo();
+    virtual ~CheckboxCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	QCheckBox* box;
 	bool checked;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class ReplaceMediaCommand : public QUndoCommand {
+class ReplaceMediaCommand : public OliveAction {
 public:
 	ReplaceMediaCommand(Media*, QString);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Media *item;
 	QString old_filename;
-	QString new_filename;
-	bool old_project_changed;
+    QString new_filename;
 	void replace(QString& filename);
 };
 
-class ReplaceClipMediaCommand : public QUndoCommand {
+class ReplaceClipMediaCommand : public OliveAction {
 public:
 	ReplaceClipMediaCommand(Media *, Media *, bool);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	QVector<Clip*> clips;
 private:
 	Media* old_media;
 	Media* new_media;
-	bool preserve_clip_ins;
-	bool old_project_changed;
+    bool preserve_clip_ins;
 	QVector<int> old_clip_ins;
 	void replace(bool undo);
 };
 
-class EffectDeleteCommand : public QUndoCommand {
+class EffectDeleteCommand : public OliveAction {
 public:
 	EffectDeleteCommand();
-	~EffectDeleteCommand();
-	void undo();
-	void redo();
+    virtual ~EffectDeleteCommand() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	QVector<Clip*> clips;
 	QVector<int> fx;
 private:
-	bool done;
-	bool old_project_changed;
+    bool done;
 	QVector<Effect*> deleted_objects;
 };
 
-class MediaMove : public QUndoCommand {
+class MediaMove : public OliveAction {
 public:
 	MediaMove();
 	QVector<Media*> items;
 	Media* to;
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
-	QVector<Media*> froms;
-	bool old_project_changed;
+    QVector<Media*> froms;
 };
 
-class MediaRename : public QUndoCommand {
+class MediaRename : public OliveAction {
 public:
 	MediaRename(Media* iitem, QString to);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
-	bool old_project_changed;
 	Media* item;
 	QString from;
 	QString to;
 };
 
-class KeyframeDelete : public QUndoCommand {
+class KeyframeDelete : public OliveAction {
 public:
 	KeyframeDelete(EffectField* ifield, int iindex);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	EffectField* field;
 	int index;
 	bool done;
-	EffectKeyframe deleted_key;
-	bool old_project_changed;
+    EffectKeyframe deleted_key;
 };
 
 // a more modern version of the above, could probably replace it
 // assumes the keyframe already exists
-class KeyframeFieldSet : public QUndoCommand {
+class KeyframeFieldSet : public OliveAction {
 public:
 	KeyframeFieldSet(EffectField* ifield, int ii);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	EffectField* field;
 	int index;
 	EffectKeyframe key;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class EffectFieldUndo : public QUndoCommand {
+class EffectFieldUndo : public OliveAction {
 public:
 	EffectFieldUndo(EffectField* field);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	EffectField* field;
 	QVariant old_val;
 	QVariant new_val;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class SetAutoscaleAction : public QUndoCommand {
+class SetAutoscaleAction : public OliveAction {
 public:
 	SetAutoscaleAction();
-	void undo();
-	void redo();
-	QVector<Clip*> clips;
-private:
-	bool old_project_changed;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
+    QVector<Clip*> clips;
 };
 
-class AddMarkerAction : public QUndoCommand {
+class AddMarkerAction : public OliveAction {
 public:
 	AddMarkerAction(QVector<Marker>* m, long t, QString n);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	QVector<Marker>* active_array;
 	long time;
 	QString name;
-	QString old_name;
-	bool old_project_changed;
+    QString old_name;
 	int index;
 };
 
-class MoveMarkerAction : public QUndoCommand {
+class MoveMarkerAction : public OliveAction {
 public:
 	MoveMarkerAction(Marker* m, long o, long n);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Marker* marker;
 	long old_time;
-	long new_time;
-	bool old_project_changed;
+    long new_time;
 };
 
-class DeleteMarkerAction : public QUndoCommand {
+class DeleteMarkerAction : public OliveAction {
 public:
 	DeleteMarkerAction(QVector<Marker>* m);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	QVector<int> markers;
 private:
 	QVector<Marker>* active_array;
 	QVector<Marker> copies;
-	bool sorted;
-	bool old_project_changed;
+    bool sorted;
 };
 
-class SetSpeedAction : public QUndoCommand {
+class SetSpeedAction : public OliveAction {
 public:
 	SetSpeedAction(Clip* c, double speed);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Clip* clip;
 	double old_speed;
-	double new_speed;
-	bool old_project_changed;
+    double new_speed;
 };
 
-class SetBool : public QUndoCommand {
+class SetBool : public OliveAction {
 public:
 	SetBool(bool* b, bool setting);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	bool* boolean;
 	bool old_setting;
-	bool new_setting;
-	bool old_project_changed;
+    bool new_setting;
 };
 
-class SetSelectionsCommand : public QUndoCommand {
+class SetSelectionsCommand : public OliveAction {
 public:
 	SetSelectionsCommand(Sequence *s);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	QVector<Selection> old_data;
 	QVector<Selection> new_data;
 private:
 	Sequence* seq;
-	bool done;
-	bool old_project_changed;
+    bool done;
 };
 
-class SetEnableCommand : public QUndoCommand {
-public:
-	SetEnableCommand(Clip* c, bool enable);
-	void undo();
-	void redo();
-private:
-	Clip* clip;
-	bool old_val;
-	bool new_val;
-	bool old_project_changed;
-};
-
-class EditSequenceCommand : public QUndoCommand {
+class EditSequenceCommand : public OliveAction {
 public:
 	EditSequenceCommand(Media *i, Sequence* s);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	void update();
 
 	QString name;
@@ -483,8 +463,7 @@ public:
 	int audio_layout;
 private:
 	Media* item;
-	Sequence* seq;
-	bool old_project_changed;
+    Sequence* seq;
 
 	QString old_name;
 	int old_width;
@@ -494,111 +473,103 @@ private:
 	int old_audio_layout;
 };
 
-class SetInt : public QUndoCommand {
+class SetInt : public OliveAction {
 public:
 	SetInt(int* pointer, int new_value);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	int* p;
 	int oldval;
-	int newval;
-	bool old_project_changed;
+    int newval;
 };
 
-class SetLong : public QUndoCommand {
+class SetLong : public OliveAction {
 public:
 	SetLong(long* pointer, long old_value, long new_value);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	long* p;
 	long oldval;
-	long newval;
-	bool old_project_changed;
+    long newval;
 };
 
-class SetDouble : public QUndoCommand {
+class SetDouble : public OliveAction {
 public:
 	SetDouble(double* pointer, double old_value, double new_value);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	double* p;
 	double oldval;
-	double newval;
-	bool old_project_changed;
+    double newval;
 };
 
-class SetString : public QUndoCommand {
+class SetString : public OliveAction {
 public:
 	SetString(QString* pointer, QString new_value);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	QString* p;
 	QString oldval;
-	QString newval;
-	bool old_project_changed;
+    QString newval;
 };
 
-class CloseAllClipsCommand : public QUndoCommand {
+class CloseAllClipsCommand : public OliveAction {
 public:
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 };
 
-class UpdateFootageTooltip : public QUndoCommand {
+class UpdateFootageTooltip : public OliveAction {
 public:
 	UpdateFootageTooltip(Media* i);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Media* item;
 };
 
-class MoveEffectCommand : public QUndoCommand {
+class MoveEffectCommand : public OliveAction {
 public:
 	MoveEffectCommand();
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 	Clip* clip;
 	int from;
-	int to;
-private:
-	bool old_project_changed;
+    int to;
 };
 
-class RemoveClipsFromClipboard : public QUndoCommand {
+class RemoveClipsFromClipboard : public OliveAction {
 public:
 	RemoveClipsFromClipboard(int index);
-	~RemoveClipsFromClipboard();
-	void undo();
-	void redo();
+    virtual ~RemoveClipsFromClipboard() override;
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	int pos;
-	Clip* clip;
-	bool old_project_changed;
+    Clip* clip;
 	bool done;
 };
 
-class RenameClipCommand : public QUndoCommand {
+class RenameClipCommand : public OliveAction {
 public:
 	RenameClipCommand();
 	QVector<Clip*> clips;
 	QString new_name;
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
-	QVector<QString> old_names;
-	bool old_project_changed;
+    QVector<QString> old_names;
 };
 
-class SetPointer : public QUndoCommand {
+class SetPointer : public OliveAction {
 public:
 	SetPointer(void** pointer, void* data);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	bool old_changed;
 	void** p;
@@ -606,53 +577,53 @@ private:
 	void* old_data;
 };
 
-class ReloadEffectsCommand : public QUndoCommand {
+class ReloadEffectsCommand : public OliveAction {
 public:
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 };
 
-class SetQVariant : public QUndoCommand {
+class SetQVariant : public OliveAction {
 public:
 	SetQVariant(QVariant* itarget, const QVariant& iold, const QVariant& inew);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	QVariant* target;
 	QVariant old_val;
 	QVariant new_val;
 };
 
-class SetKeyframing : public QUndoCommand {
+class SetKeyframing : public OliveAction {
 public:
 	SetKeyframing(EffectRow* irow, bool ib);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	EffectRow* row;
 	bool b;
 };
 
-class RefreshClips : public QUndoCommand {
+class RefreshClips : public OliveAction {
 public:
 	RefreshClips(Media* m);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Media* media;
 };
 
-class UpdateViewer : public QUndoCommand {
+class UpdateViewer : public OliveAction {
 public:
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 };
 
-class SetEffectData : public QUndoCommand {
+class SetEffectData : public OliveAction {
 public:
 	SetEffectData(Effect* e, const QByteArray &s);
-	void undo();
-	void redo();
+    virtual void doUndo() override;
+    virtual void doRedo() override;
 private:
 	Effect* effect;
 	QByteArray data;

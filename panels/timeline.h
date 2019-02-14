@@ -95,8 +95,6 @@ public:
 	bool has_clip_been_split(int c);
 	void ripple_to_in_point(bool in, bool ripple);
 	void delete_in_out(bool ripple);
-	void previous_cut();
-	void next_cut();
 
 	void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
 	void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
@@ -215,6 +213,10 @@ public slots:
 	void toggle_links();
 	void split_at_playhead();
 	void ripple_delete_empty_space();
+    void toggle_enable_on_selected_clips();
+
+    void previous_cut();
+    void next_cut();
 
 private slots:
 	void zoom_in();

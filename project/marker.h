@@ -13,7 +13,7 @@ struct Marker {
     QString name;
 };
 
-void draw_marker(QPainter& p, int x, int y, int bottom, bool selected, bool flipped);
+void draw_marker(QPainter& p, int x, int y, int bottom, bool selected);
 
 void set_marker_internal(Sequence* seq, const QVector<int>& clips);
 void set_marker_internal(Sequence* seq);

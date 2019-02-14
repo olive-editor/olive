@@ -19,7 +19,6 @@
 #include "project/undo.h"
 #include "project/media.h"
 #include "ui/viewercontainer.h"
-#include "io/avtogl.h"
 #include "ui/timelinewidget.h"
 #include "ui/renderfunctions.h"
 #include "ui/renderthread.h"

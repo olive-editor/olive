@@ -16,8 +16,6 @@ public:
 
     void updateTitle();
 
-	void launch_with_project(const QString& s);
-
 	void load_shortcuts(const QString &fn, bool first = false);
 	void save_shortcuts(const QString &fn);
 
@@ -74,10 +72,7 @@ private slots:
 	void maximize_panel();
 	void reset_layout();
 
-	void preferences();
-
-	void zoom_in_tracks();
-	void zoom_out_tracks();
+    void preferences();
 
 	void full_screen_viewer();
 

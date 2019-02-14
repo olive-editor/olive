@@ -19,7 +19,6 @@
 
 #include "io/math.h"
 #include "io/config.h"
-#include "io/avtogl.h"
 
 #include "panels/timeline.h"
 #include "panels/viewer.h"
@@ -281,10 +280,10 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 						c->texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 						c->texture->setSize(c->stream->codecpar->width, c->stream->codecpar->height);
-						c->texture->setFormat(get_gl_tex_fmt_from_av(c->pix_fmt));
+                        c->texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 						c->texture->setMipLevels(c->texture->maximumMipLevels());
 						c->texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-						c->texture->allocateStorage(get_gl_pix_fmt_from_av(c->pix_fmt), QOpenGLTexture::UInt8);
+                        c->texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 					}
 
 					// retrieve video frame from cache and store it in c->texture
@@ -304,7 +303,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					// create 3 fbos for nested sequences, 2 for most clips
 					int fbo_count = (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
 
-					c->fbo = new QOpenGLFramebufferObject* [fbo_count];
+                    c->fbo = new QOpenGLFramebufferObject* [size_t(fbo_count)];
 
 					for (int j=0;j<fbo_count;j++) {
 						c->fbo[j] = new QOpenGLFramebufferObject(video_width, video_height);

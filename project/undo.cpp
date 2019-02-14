@@ -26,7 +26,7 @@
 #include "project/media.h"
 #include "debug.h"
 
-QUndoStack undo_stack;
+QUndoStack Olive::UndoStack;
 
 ComboAction::ComboAction() {}
 
@@ -62,37 +62,37 @@ void ComboAction::appendPost(QUndoCommand* u) {
 	post_commands.append(u);
 }
 
-MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) :
-	clip(c),
-	old_in(c->timeline_in),
-	old_out(c->timeline_out),
-	old_clip_in(c->clip_in),
-	old_track(c->track),
-	new_in(iin),
-	new_out(iout),
-	new_clip_in(iclip_in),
-	new_track(itrack),
-	relative(irelative),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
+    clip = c;
 
-void MoveClipAction::undo() {
+    old_in = c->timeline_in;
+    old_out = c->timeline_out;
+    old_clip_in = c->clip_in;
+    old_track = c->track;
+
+    new_in = iin;
+    new_out = iout;
+    new_clip_in = iclip_in;
+    new_track = itrack;
+
+    relative = irelative;
+}
+
+void MoveClipAction::doUndo() {
 	if (relative) {
 		clip->timeline_in -= new_in;
 		clip->timeline_out -= new_out;
-		clip->clip_in -= new_clip_in;
+        clip->clip_in -= new_clip_in;
 		clip->track -= new_track;
 	} else {
 		clip->timeline_in = old_in;
 		clip->timeline_out = old_out;
 		clip->clip_in = old_clip_in;
 		clip->track = old_track;
-	}
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    }
 }
 
-void MoveClipAction::redo() {
+void MoveClipAction::doRedo() {
 	if (relative) {
 		clip->timeline_in += new_in;
 		clip->timeline_out += new_out;
@@ -103,24 +103,21 @@ void MoveClipAction::redo() {
 		clip->timeline_out = new_out;
 		clip->clip_in = new_clip_in;
 		clip->track = new_track;
-	}
-
-    Olive::MainWindow->setWindowModified(true);
+    }
 }
 
-DeleteClipAction::DeleteClipAction(Sequence* s, int clip) :
-	seq(s),
-	index(clip),
-	opening_transition(-1),
-	closing_transition(-1),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+DeleteClipAction::DeleteClipAction(Sequence* s, int clip) {
+    seq = s;
+    index = clip;
+    opening_transition = -1;
+    closing_transition = -1;
+}
 
 DeleteClipAction::~DeleteClipAction() {
 	if (ref != nullptr) delete ref;
 }
 
-void DeleteClipAction::undo() {
+void DeleteClipAction::doUndo() {
 	// restore ref to clip
 	seq->clips[index] = ref;
 
@@ -142,12 +139,10 @@ void DeleteClipAction::undo() {
 		seq->clips.at(linkClipIndex.at(i))->linked.insert(linkLinkIndex.at(i), index);
 	}
 
-	ref = nullptr;
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    ref = nullptr;
 }
 
-void DeleteClipAction::redo() {
+void DeleteClipAction::doRedo() {
 	// remove ref to clip
 	ref = seq->clips.at(index);
 	if (ref->open) {
@@ -182,33 +177,30 @@ void DeleteClipAction::redo() {
 				}
 			}
 		}
-	}
-
-    Olive::MainWindow->setWindowModified(true);
+    }
 }
 
-ChangeSequenceAction::ChangeSequenceAction(Sequence* s) :
-	new_sequence(s)
-{}
+ChangeSequenceAction::ChangeSequenceAction(Sequence* s) {
+    new_sequence = s;
+}
 
-void ChangeSequenceAction::undo() {
+void ChangeSequenceAction::doUndo() {
 	set_sequence(old_sequence);
 }
 
-void ChangeSequenceAction::redo() {
+void ChangeSequenceAction::doRedo() {
 	old_sequence = Olive::ActiveSequence;
 	set_sequence(new_sequence);
 }
 
-SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long in, long out) :
-	seq(s),
-	new_enabled(enabled),
-	new_in(in),
-	new_out(out),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long in, long out) {
+    seq = s;
+    new_enabled = enabled;
+    new_in = in;
+    new_out = out;
+}
 
-void SetTimelineInOutCommand::undo() {
+void SetTimelineInOutCommand::doUndo() {
 	seq->using_workarea = old_enabled;
 	seq->workarea_in = old_in;
 	seq->workarea_out = old_out;
@@ -219,12 +211,10 @@ void SetTimelineInOutCommand::undo() {
 		m->using_inout = old_enabled;
 		m->in = old_in;
 		m->out = old_out;
-	}
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    }
 }
 
-void SetTimelineInOutCommand::redo() {
+void SetTimelineInOutCommand::doRedo() {
 	old_enabled = seq->using_workarea;
 	old_in = seq->workarea_in;
 	old_out = seq->workarea_out;
@@ -239,36 +229,32 @@ void SetTimelineInOutCommand::redo() {
 		m->using_inout = new_enabled;
 		m->in = new_in;
 		m->out = new_out;
-	}
-
-    Olive::MainWindow->setWindowModified(true);
+    }
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m, int insert_pos) :
-	clip(c),
-	meta(m),
-	ref(e),
-	pos(insert_pos),
-	done(false),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m, int insert_pos) {
+    clip = c;
+    ref = e;
+    meta = m;
+    pos = insert_pos;
+    done = false;
+}
 
 AddEffectCommand::~AddEffectCommand() {
 	if (!done && ref != nullptr) delete ref;
 }
 
-void AddEffectCommand::undo() {
+void AddEffectCommand::doUndo() {
 	clip->effects.last()->close();
 	if (pos < 0) {
 		clip->effects.removeLast();
 	} else {
 		clip->effects.removeAt(pos);
 	}
-	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    done = false;
 }
 
-void AddEffectCommand::redo() {
+void AddEffectCommand::doRedo() {
 	if (ref == nullptr) {
 		ref = create_effect(clip, meta);
 	}
@@ -278,20 +264,23 @@ void AddEffectCommand::redo() {
 		clip->effects.insert(pos, ref);
 	}
 	done = true;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c, Clip *s, Transition* copy, const EffectMeta *itransition, int itype, int ilength) :
-	clip(c),
-	secondary(s),
-	transition_to_copy(copy),
-	transition(itransition),
-	type(itype),
-	length(ilength),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+AddTransitionCommand::AddTransitionCommand(Clip* c,
+                                           Clip *s,
+                                           Transition* copy,
+                                           const EffectMeta *itransition,
+                                           int itype,
+                                           int ilength) {
+    clip = c;
+    secondary = s;
+    transition_to_copy = copy;
+    transition = itransition;
+    type = itype;
+    length = ilength;
+}
 
-void AddTransitionCommand::undo() {
+void AddTransitionCommand::doUndo() {
 	clip->sequence->hard_delete_transition(clip, type);
 	if (secondary != nullptr) secondary->sequence->hard_delete_transition(secondary, (type == TA_OPENING_TRANSITION) ? TA_CLOSING_TRANSITION : TA_OPENING_TRANSITION);
 
@@ -301,12 +290,10 @@ void AddTransitionCommand::undo() {
 	} else {
 		clip->closing_transition = old_ptransition;
 		if (secondary != nullptr) secondary->opening_transition = old_stransition;
-	}
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    }
 }
 
-void AddTransitionCommand::redo() {
+void AddTransitionCommand::doRedo() {
 	if (type == TA_OPENING_TRANSITION) {
 		old_ptransition = clip->opening_transition;
 		clip->opening_transition = (transition_to_copy == nullptr) ? create_transition(clip, secondary, transition) : transition_to_copy->copy(clip, nullptr);
@@ -327,54 +314,48 @@ void AddTransitionCommand::redo() {
 		if (length > 0) {
 			clip->get_closing_transition()->set_length(length);
 		}
-	}
-    Olive::MainWindow->setWindowModified(true);
+    }
 }
 
-ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilength) :
-	clip(c),
-	type(itype),
-	new_length(ilength),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilength) {
+    clip = c;
+    type = itype;
+    new_length = ilength;
+}
 
-void ModifyTransitionCommand::undo() {
+void ModifyTransitionCommand::doUndo() {
 	Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
-	t->set_length(old_length);
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    t->set_length(old_length);
 }
 
-void ModifyTransitionCommand::redo() {
+void ModifyTransitionCommand::doRedo() {
 	Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
 	old_length = t->get_true_length();
-	t->set_length(new_length);
-    Olive::MainWindow->setWindowModified(true);
+    t->set_length(new_length);
 }
 
-DeleteTransitionCommand::DeleteTransitionCommand(Sequence* s, int transition_index) :
-	seq(s),
-	index(transition_index),
-	transition(nullptr),
-	otc(nullptr),
-	ctc(nullptr),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+DeleteTransitionCommand::DeleteTransitionCommand(Sequence* s, int transition_index) {
+    seq = s;
+    index = transition_index;
+    transition = nullptr;
+    otc = nullptr;
+    ctc = nullptr;
+}
 
 DeleteTransitionCommand::~DeleteTransitionCommand() {
 	if (transition != nullptr) delete transition;
 }
 
-void DeleteTransitionCommand::undo() {
+void DeleteTransitionCommand::doUndo() {
 	seq->transitions[index] = transition;
 
 	if (otc != nullptr) otc->opening_transition = index;
 	if (ctc != nullptr) ctc->closing_transition = index;
 
-	transition = nullptr;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    transition = nullptr;
 }
 
-void DeleteTransitionCommand::redo() {
+void DeleteTransitionCommand::doRedo() {
 	for (int i=0;i<seq->clips.size();i++) {
 		Clip* c = seq->clips.at(i);
 		if (c != nullptr) {
@@ -390,17 +371,14 @@ void DeleteTransitionCommand::redo() {
 	}
 
 	transition = seq->transitions.at(index);
-	seq->transitions[index] = nullptr;
-
-    Olive::MainWindow->setWindowModified(true);
+    seq->transitions[index] = nullptr;
 }
 
-NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) :
-	seq(s),
-	parent(iparent),
-	done(false),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{
+NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) {
+    seq = s;
+    parent = iparent;
+    done = false;
+
 	if (parent == nullptr) parent = project_model.get_root();
 }
 
@@ -408,26 +386,23 @@ NewSequenceCommand::~NewSequenceCommand() {
 	if (!done) delete seq;
 }
 
-void NewSequenceCommand::undo() {
+void NewSequenceCommand::doUndo() {
 	project_model.removeChild(parent, seq);
 
-	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    done = false;
 }
 
-void NewSequenceCommand::redo() {
+void NewSequenceCommand::doRedo() {
 	project_model.appendChild(parent, seq);
 
-	done = true;
-    Olive::MainWindow->setWindowModified(true);
+    done = true;
 }
 
-AddMediaCommand::AddMediaCommand(Media* iitem, Media *iparent) :
-	item(iitem),
-	parent(iparent),
-	done(false),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+AddMediaCommand::AddMediaCommand(Media* iitem, Media *iparent) {
+    item = iitem;
+    parent = iparent;
+    done = false;
+}
 
 AddMediaCommand::~AddMediaCommand() {
 	if (!done) {
@@ -435,24 +410,22 @@ AddMediaCommand::~AddMediaCommand() {
 	}
 }
 
-void AddMediaCommand::undo() {
+void AddMediaCommand::doUndo() {
 	project_model.removeChild(parent, item);
 	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void AddMediaCommand::redo() {
+void AddMediaCommand::doRedo() {
 	project_model.appendChild(parent, item);
 
 	done = true;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-DeleteMediaCommand::DeleteMediaCommand(Media* i) :
-	item(i),
-	parent(i->parentItem()),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+DeleteMediaCommand::DeleteMediaCommand(Media* i) {
+    item = i;
+    parent = i->parentItem();
+}
 
 DeleteMediaCommand::~DeleteMediaCommand() {
 	if (done) {
@@ -460,25 +433,23 @@ DeleteMediaCommand::~DeleteMediaCommand() {
 	}
 }
 
-void DeleteMediaCommand::undo() {
+void DeleteMediaCommand::doUndo() {
 	project_model.appendChild(parent, item);
 
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 	done = false;
 }
 
-void DeleteMediaCommand::redo() {
+void DeleteMediaCommand::doRedo() {
 	project_model.removeChild(parent, item);
 
-    Olive::MainWindow->setWindowModified(true);
 	done = true;
 }
 
-AddClipCommand::AddClipCommand(Sequence* s, QVector<Clip*>& add) :
-	seq(s),
-	clips(add),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+AddClipCommand::AddClipCommand(Sequence* s, QVector<Clip*>& add) {
+    seq = s;
+    clips = add;
+}
 
 AddClipCommand::~AddClipCommand() {
 	for (int i=0;i<clips.size();i++) {
@@ -489,7 +460,7 @@ AddClipCommand::~AddClipCommand() {
 	}
 }
 
-void AddClipCommand::undo() {
+void AddClipCommand::doUndo() {
 	panel_effect_controls->clear_effects(true);
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = seq->clips.last();
@@ -498,10 +469,10 @@ void AddClipCommand::undo() {
 		if (c->open) close_clip(c, true);
 		seq->clips.removeLast();
 	}
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void AddClipCommand::redo() {
+void AddClipCommand::doRedo() {
 	if (undone_clips.size() > 0) {
 		for (int i=0;i<undone_clips.size();i++) {
 			seq->clips.append(undone_clips.at(i));
@@ -525,12 +496,13 @@ void AddClipCommand::redo() {
 			}
 		}
 	}
-    Olive::MainWindow->setWindowModified(true);
 }
 
-LinkCommand::LinkCommand() : link(true), old_project_changed(Olive::MainWindow->isWindowModified()) {}
+LinkCommand::LinkCommand() {
+    link = true;
+}
 
-void LinkCommand::undo() {
+void LinkCommand::doUndo() {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = s->clips.at(clips.at(i));
 		if (link) {
@@ -539,10 +511,10 @@ void LinkCommand::undo() {
 			c->linked = old_links.at(i);
 		}
 	}
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void LinkCommand::redo() {
+void LinkCommand::doRedo() {
 	old_links.clear();
 	for (int i=0;i<clips.size();i++) {
 		dout << clips.at(i);
@@ -558,31 +530,31 @@ void LinkCommand::redo() {
 			c->linked.clear();
 		}
 	}
-    Olive::MainWindow->setWindowModified(true);
 }
 
-CheckboxCommand::CheckboxCommand(QCheckBox* b) : box(b), checked(box->isChecked()), done(true), old_project_changed(Olive::MainWindow->isWindowModified()) {}
+CheckboxCommand::CheckboxCommand(QCheckBox* b) {
+    box = b;
+    checked = box->isChecked();
+    done = true;
+}
 
 CheckboxCommand::~CheckboxCommand() {}
 
-void CheckboxCommand::undo() {
+void CheckboxCommand::doUndo() {
 	box->setChecked(!checked);
 	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void CheckboxCommand::redo() {
+void CheckboxCommand::doRedo() {
 	if (!done) {
 		box->setChecked(checked);
 	}
-    Olive::MainWindow->setWindowModified(true);
 }
 
-ReplaceMediaCommand::ReplaceMediaCommand(Media* i, QString s) :
-	item(i),
-	new_filename(s),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{
+ReplaceMediaCommand::ReplaceMediaCommand(Media* i, QString s) {
+    item = i;
+    new_filename = s;
 	old_filename = item->to_footage()->url;
 }
 
@@ -607,24 +579,21 @@ void ReplaceMediaCommand::replace(QString& filename) {
 	panel_project->process_file_list(files, false, item, nullptr);
 }
 
-void ReplaceMediaCommand::undo() {
+void ReplaceMediaCommand::doUndo() {
 	replace(old_filename);
 
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void ReplaceMediaCommand::redo() {
+void ReplaceMediaCommand::doRedo() {
 	replace(new_filename);
-
-    Olive::MainWindow->setWindowModified(true);
 }
 
-ReplaceClipMediaCommand::ReplaceClipMediaCommand(Media *a, Media *b, bool e) :
-	old_media(a),
-	new_media(b),
-	preserve_clip_ins(e),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+ReplaceClipMediaCommand::ReplaceClipMediaCommand(Media *a, Media *b, bool e) {
+    old_media = a;
+    new_media = b;
+    preserve_clip_ins = e;
+}
 
 void ReplaceClipMediaCommand::replace(bool undo) {
 	if (!undo) {
@@ -657,20 +626,19 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 	}
 }
 
-void ReplaceClipMediaCommand::undo() {
-	replace(true);
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+void ReplaceClipMediaCommand::doUndo() {
+    replace(true);
 }
 
-void ReplaceClipMediaCommand::redo() {
+void ReplaceClipMediaCommand::doRedo() {
 	replace(false);
 
 	update_ui(true);
-    Olive::MainWindow->setWindowModified(true);
 }
 
-EffectDeleteCommand::EffectDeleteCommand() : done(false), old_project_changed(Olive::MainWindow->isWindowModified()) {}
+EffectDeleteCommand::EffectDeleteCommand() {
+    done = false;
+}
 
 EffectDeleteCommand::~EffectDeleteCommand() {
 	if (done) {
@@ -680,17 +648,17 @@ EffectDeleteCommand::~EffectDeleteCommand() {
 	}
 }
 
-void EffectDeleteCommand::undo() {
+void EffectDeleteCommand::doUndo() {
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
 		c->effects.insert(fx.at(i), deleted_objects.at(i));
 	}
 	panel_effect_controls->reload_clips();
 	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void EffectDeleteCommand::redo() {
+void EffectDeleteCommand::doRedo() {
 	deleted_objects.clear();
 	for (int i=0;i<clips.size();i++) {
 		Clip* c = clips.at(i);
@@ -702,19 +670,18 @@ void EffectDeleteCommand::redo() {
 	}
 	panel_effect_controls->reload_clips();
 	done = true;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-MediaMove::MediaMove() : old_project_changed(Olive::MainWindow->isWindowModified()) {}
+MediaMove::MediaMove() {}
 
-void MediaMove::undo() {
+void MediaMove::doUndo() {
 	for (int i=0;i<items.size();i++) {
 		project_model.moveChild(items.at(i), froms.at(i));
 	}
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void MediaMove::redo() {
+void MediaMove::doRedo() {
 	if (to == nullptr) to = project_model.get_root();
 	froms.resize(items.size());
 	for (int i=0;i<items.size();i++) {
@@ -722,103 +689,89 @@ void MediaMove::redo() {
 		froms[i] = parent;
 		project_model.moveChild(items.at(i), to);
 	}
-    Olive::MainWindow->setWindowModified(true);
 }
 
-MediaRename::MediaRename(Media* iitem, QString ito) :
-	item(iitem),
-	from(iitem->get_name()),
-	to(ito),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+MediaRename::MediaRename(Media* iitem, QString ito) {
+    item = iitem;
+    from = iitem->get_name();
+    to = ito;
+}
 
-void MediaRename::undo() {
+void MediaRename::doUndo() {
 	item->set_name(from);
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void MediaRename::redo() {
+void MediaRename::doRedo() {
 	item->set_name(to);
-    Olive::MainWindow->setWindowModified(true);
 }
 
-KeyframeDelete::KeyframeDelete(EffectField *ifield, int iindex) :
-	field(ifield),
-	index(iindex),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+KeyframeDelete::KeyframeDelete(EffectField *ifield, int iindex) {
+    field = ifield;
+    index = iindex;
+}
 
-void KeyframeDelete::undo() {
+void KeyframeDelete::doUndo() {
 	field->keyframes.insert(index, deleted_key);
-    Olive::MainWindow->setWindowModified(old_project_changed);
 }
 
-void KeyframeDelete::redo() {
+void KeyframeDelete::doRedo() {
 	deleted_key = field->keyframes.at(index);
 	field->keyframes.removeAt(index);
-    Olive::MainWindow->setWindowModified(true);
 }
 
-EffectFieldUndo::EffectFieldUndo(EffectField* f) :
-	field(f),
-	done(true),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{
+EffectFieldUndo::EffectFieldUndo(EffectField* f) {
+    field = f;
+    done = true;
+
 	old_val = field->get_previous_data();
 	new_val = field->get_current_data();
 }
 
-void EffectFieldUndo::undo() {
+void EffectFieldUndo::doUndo() {
 	field->set_current_data(old_val);
 	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void EffectFieldUndo::redo() {
+void EffectFieldUndo::doRedo() {
 	if (!done) {
 		field->set_current_data(new_val);
 	}
-    Olive::MainWindow->setWindowModified(true);
 }
 
-SetAutoscaleAction::SetAutoscaleAction() :
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetAutoscaleAction::SetAutoscaleAction() {}
 
-void SetAutoscaleAction::undo() {
+void SetAutoscaleAction::doUndo() {
 	for (int i=0;i<clips.size();i++) {
 		clips.at(i)->autoscale = !clips.at(i)->autoscale;
 	}
 	panel_sequence_viewer->viewer_widget->frame_update();
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void SetAutoscaleAction::redo() {
+void SetAutoscaleAction::doRedo() {
 	for (int i=0;i<clips.size();i++) {
 		clips.at(i)->autoscale = !clips.at(i)->autoscale;
 	}
 	panel_sequence_viewer->viewer_widget->frame_update();
-    Olive::MainWindow->setWindowModified(true);
 }
 
-AddMarkerAction::AddMarkerAction(QVector<Marker>* m, long t, QString n) :
-	active_array(m),
-	time(t),
-	name(n),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+AddMarkerAction::AddMarkerAction(QVector<Marker>* m, long t, QString n) {
+    active_array = m;
+    time = t;
+    name = n;
+}
 
-void AddMarkerAction::undo() {
+void AddMarkerAction::doUndo() {
 	if (index == -1) {
 		active_array->removeLast();
 	} else {
 		active_array[0][index].name = old_name;
-	}
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    }
 }
 
-void AddMarkerAction::redo() {
+void AddMarkerAction::doRedo() {
 	index = -1;
 
 	for (int i=0;i<active_array->size();i++) {
@@ -837,41 +790,36 @@ void AddMarkerAction::redo() {
 		old_name = active_array->at(index).name;
 		active_array[0][index].name = name;
 	}
-
-    Olive::MainWindow->setWindowModified(true);
 }
 
-MoveMarkerAction::MoveMarkerAction(Marker* m, long o, long n) :
-	marker(m),
-	old_time(o),
-	new_time(n),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+MoveMarkerAction::MoveMarkerAction(Marker* m, long o, long n) {
+    marker = m;
+    old_time = o;
+    new_time = n;
+}
 
-void MoveMarkerAction::undo() {
+void MoveMarkerAction::doUndo() {
 	marker->frame = old_time;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void MoveMarkerAction::redo() {
+void MoveMarkerAction::doRedo() {
 	marker->frame = new_time;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-DeleteMarkerAction::DeleteMarkerAction(QVector<Marker> *m) :
-	active_array(m),
-	sorted(false),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+DeleteMarkerAction::DeleteMarkerAction(QVector<Marker> *m) {
+    active_array = m;
+    sorted = false;
+}
 
-void DeleteMarkerAction::undo() {
+void DeleteMarkerAction::doUndo() {
 	for (int i=markers.size()-1;i>=0;i--) {
 		active_array->insert(markers.at(i), copies.at(i));
 	}
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void DeleteMarkerAction::redo() {
+void DeleteMarkerAction::doRedo() {
 	for (int i=0;i<markers.size();i++) {
 		// correct future removals
 		if (!sorted) {
@@ -885,116 +833,85 @@ void DeleteMarkerAction::redo() {
 		active_array->removeAt(markers.at(i));
 	}
 	sorted = true;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-SetSpeedAction::SetSpeedAction(Clip* c, double speed) :
-	clip(c),
-	old_speed(c->speed),
-	new_speed(speed),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetSpeedAction::SetSpeedAction(Clip* c, double speed) {
+    clip = c;
+    old_speed = c->speed;
+    new_speed = speed;
+}
 
-void SetSpeedAction::undo() {
+void SetSpeedAction::doUndo() {
 	clip->speed = old_speed;
 	clip->recalculateMaxLength();
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void SetSpeedAction::redo() {
+void SetSpeedAction::doRedo() {
 	clip->speed = new_speed;
 	clip->recalculateMaxLength();
-    Olive::MainWindow->setWindowModified(true);
 }
 
-SetBool::SetBool(bool* b, bool setting) :
-	boolean(b),
-	old_setting(*b),
-	new_setting(setting),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
-
-void SetBool::undo() {
-	*boolean = old_setting;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+SetBool::SetBool(bool* b, bool setting) {
+    boolean = b;
+    old_setting = *b;
+    new_setting = setting;
 }
 
-void SetBool::redo() {
+void SetBool::doUndo() {
+	*boolean = old_setting;    
+}
+
+void SetBool::doRedo() {
 	*boolean = new_setting;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-SetSelectionsCommand::SetSelectionsCommand(Sequence* s) :
-	seq(s),
-	done(true),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetSelectionsCommand::SetSelectionsCommand(Sequence* s) {
+    seq = s;
+    done = true;
+}
 
-void SetSelectionsCommand::undo() {
+void SetSelectionsCommand::doUndo() {
 	seq->selections = old_data;
-	done = false;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+	done = false;    
 }
 
-void SetSelectionsCommand::redo() {
+void SetSelectionsCommand::doRedo() {
 	if (!done) {
 		seq->selections = new_data;
 		done = true;
 	}
-    Olive::MainWindow->setWindowModified(true);
 }
 
-SetEnableCommand::SetEnableCommand(Clip* c, bool enable) :
-	clip(c),
-	old_val(c->enabled),
-	new_val(enable),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
-
-void SetEnableCommand::undo() {
-	clip->enabled = old_val;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+EditSequenceCommand::EditSequenceCommand(Media* i, Sequence *s) {
+    item = i;
+    seq = s;
+    old_name = s->name;
+    old_width = s->width;
+    old_height = s->height;
+    old_frame_rate = s->frame_rate;
+    old_audio_frequency = s->audio_frequency;
+    old_audio_layout = s->audio_layout;
 }
 
-void SetEnableCommand::redo() {
-	clip->enabled = new_val;
-    Olive::MainWindow->setWindowModified(true);
-}
-
-EditSequenceCommand::EditSequenceCommand(Media* i, Sequence *s) :
-	item(i),
-	seq(s),
-    old_project_changed(Olive::MainWindow->isWindowModified()),
-	old_name(s->name),
-	old_width(s->width),
-	old_height(s->height),
-	old_frame_rate(s->frame_rate),
-	old_audio_frequency(s->audio_frequency),
-	old_audio_layout(s->audio_layout)
-{}
-
-void EditSequenceCommand::undo() {
+void EditSequenceCommand::doUndo() {
 	seq->name = old_name;
 	seq->width = old_width;
 	seq->height = old_height;
 	seq->frame_rate = old_frame_rate;
 	seq->audio_frequency = old_audio_frequency;
 	seq->audio_layout = old_audio_layout;
-	update();
-
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    update();
 }
 
-void EditSequenceCommand::redo() {
+void EditSequenceCommand::doRedo() {
 	seq->name = name;
 	seq->width = width;
 	seq->height = height;
 	seq->frame_rate = frame_rate;
 	seq->audio_frequency = audio_frequency;
 	seq->audio_layout = audio_layout;
-	update();
-
-    Olive::MainWindow->setWindowModified(true);
+    update();
 }
 
 void EditSequenceCommand::update() {
@@ -1010,79 +927,71 @@ void EditSequenceCommand::update() {
 	}
 }
 
-SetInt::SetInt(int* pointer, int new_value) :
-	p(pointer),
-	oldval(*pointer),
-	newval(new_value),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetInt::SetInt(int* pointer, int new_value) {
+    p = pointer;
+    oldval = *pointer;
+    newval = new_value;
+}
 
-void SetInt::undo() {
+void SetInt::doUndo() {
 	*p = oldval;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void SetInt::redo() {
+void SetInt::doRedo() {
 	*p = newval;
-    Olive::MainWindow->setWindowModified(true);
 }
 
-SetString::SetString(QString* pointer, QString new_value) :
-	p(pointer),
-	oldval(*pointer),
-	newval(new_value),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetString::SetString(QString* pointer, QString new_value) {
+    p = pointer;
+    oldval = *pointer;
+    newval = new_value;
+}
 
-void SetString::undo() {
+void SetString::doUndo() {
 	*p = oldval;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void SetString::redo() {
-	*p = newval;
-    Olive::MainWindow->setWindowModified(true);
+void SetString::doRedo() {
+    *p = newval;
 }
 
-void CloseAllClipsCommand::undo() {
+void CloseAllClipsCommand::doUndo() {
 	redo();
 }
 
-void CloseAllClipsCommand::redo() {
+void CloseAllClipsCommand::doRedo() {
 	closeActiveClips(Olive::ActiveSequence);
 }
 
-UpdateFootageTooltip::UpdateFootageTooltip(Media *i) :
-	item(i)
-{}
+UpdateFootageTooltip::UpdateFootageTooltip(Media *i) {
+    item = i;
+}
 
-void UpdateFootageTooltip::undo() {
+void UpdateFootageTooltip::doUndo() {
 	redo();
 }
 
-void UpdateFootageTooltip::redo() {
+void UpdateFootageTooltip::doRedo() {
 	item->update_tooltip();
 }
 
-MoveEffectCommand::MoveEffectCommand() :
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+MoveEffectCommand::MoveEffectCommand() {}
 
-void MoveEffectCommand::undo() {
+void MoveEffectCommand::doUndo() {
 	clip->effects.move(to, from);
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void MoveEffectCommand::redo() {
-	clip->effects.move(from, to);
-    Olive::MainWindow->setWindowModified(true);
+void MoveEffectCommand::doRedo() {
+    clip->effects.move(from, to);
 }
 
-RemoveClipsFromClipboard::RemoveClipsFromClipboard(int index) :
-	pos(index),
-    old_project_changed(Olive::MainWindow->isWindowModified()),
-	done(false)
-{}
+RemoveClipsFromClipboard::RemoveClipsFromClipboard(int index) {
+    pos = index;
+    done = false;
+}
 
 RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
 	if (done) {
@@ -1090,28 +999,26 @@ RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
 	}
 }
 
-void RemoveClipsFromClipboard::undo() {
+void RemoveClipsFromClipboard::doUndo() {
 	clipboard.insert(pos, clip);
 	done = false;
 }
 
-void RemoveClipsFromClipboard::redo() {
+void RemoveClipsFromClipboard::doRedo() {
 	clip = static_cast<Clip*>(clipboard.at(pos));
 	clipboard.removeAt(pos);
 	done = true;
 }
 
-RenameClipCommand::RenameClipCommand() :
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+RenameClipCommand::RenameClipCommand() {}
 
-void RenameClipCommand::undo() {
+void RenameClipCommand::doUndo() {
 	for (int i=0;i<clips.size();i++) {
 		clips.at(i)->name = old_names.at(i);
 	}
 }
 
-void RenameClipCommand::redo() {
+void RenameClipCommand::doRedo() {
 	old_names.resize(clips.size());
 	for (int i=0;i<clips.size();i++) {
 		old_names[i] = clips.at(i)->name;
@@ -1119,44 +1026,41 @@ void RenameClipCommand::redo() {
 	}
 }
 
-SetPointer::SetPointer(void **pointer, void *data) :
-	p(pointer),
-	new_data(data),
-    old_changed(Olive::MainWindow->isWindowModified())
-{}
-
-void SetPointer::undo() {
-	*p = old_data;
-    Olive::MainWindow->setWindowModified(old_changed);
+SetPointer::SetPointer(void **pointer, void *data) {
+    p = pointer;
+    new_data = data;
 }
 
-void SetPointer::redo() {
+void SetPointer::doUndo() {
+    *p = old_data;
+}
+
+void SetPointer::doRedo() {
 	old_data = *p;
-	*p = new_data;
-    Olive::MainWindow->setWindowModified(true);
+    *p = new_data;
 }
 
-void ReloadEffectsCommand::undo() {
+void ReloadEffectsCommand::doUndo() {
 	redo();
 }
 
-void ReloadEffectsCommand::redo() {
+void ReloadEffectsCommand::doRedo() {
 	panel_effect_controls->reload_clips();
 }
 
-RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) :
-	s(is),
-	point(ipoint),
-	length(ilength),
-	ignore(iignore)
-{}
+RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) {
+    s = is;
+    point = ipoint;
+    length = ilength;
+    ignore = iignore;
+}
 
-void RippleAction::undo() {
+void RippleAction::doUndo() {
 	ca->undo();
 	delete ca;
 }
 
-void RippleAction::redo() {
+void RippleAction::doRedo() {
 	ca = new ComboAction();
 	for (int i=0;i<s->clips.size();i++) {
 		if (!ignore.contains(i)) {
@@ -1171,98 +1075,92 @@ void RippleAction::redo() {
 	ca->redo();
 }
 
-SetDouble::SetDouble(double* pointer, double old_value, double new_value) :
-	p(pointer),
-	oldval(old_value),
-	newval(new_value),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetDouble::SetDouble(double* pointer, double old_value, double new_value) {
+    p = pointer;
+    oldval = old_value;
+    newval = new_value;
+}
 
-void SetDouble::undo() {
+void SetDouble::doUndo() {
 	*p = oldval;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void SetDouble::redo() {
-	*p = newval;
-    Olive::MainWindow->setWindowModified(true);
+void SetDouble::doRedo() {
+    *p = newval;
 }
 
-SetQVariant::SetQVariant(QVariant *itarget, const QVariant &iold, const QVariant &inew) :
-	target(itarget),
-	old_val(iold),
-	new_val(inew)
-{}
+SetQVariant::SetQVariant(QVariant *itarget, const QVariant &iold, const QVariant &inew) {
+    target = itarget;
+    old_val = iold;
+    new_val = inew;
+}
 
-void SetQVariant::undo() {
+void SetQVariant::doUndo() {
 	*target = old_val;
 }
 
-void SetQVariant::redo() {
+void SetQVariant::doRedo() {
 	*target = new_val;
 }
 
-SetLong::SetLong(long *pointer, long old_value, long new_value) :
-	p(pointer),
-	oldval(old_value),
-	newval(new_value),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+SetLong::SetLong(long *pointer, long old_value, long new_value) {
+    p = pointer;
+    oldval = old_value;
+    newval = new_value;
+}
 
-void SetLong::undo() {
+void SetLong::doUndo() {
 	*p = oldval;
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 }
 
-void SetLong::redo() {
-	*p = newval;
-    Olive::MainWindow->setWindowModified(true);
+void SetLong::doRedo() {
+    *p = newval;
 }
 
-KeyframeFieldSet::KeyframeFieldSet(EffectField *ifield, int ii) :
-	field(ifield),
-	index(ii),
-	key(ifield->keyframes.at(ii)),
-	done(true),
-    old_project_changed(Olive::MainWindow->isWindowModified())
-{}
+KeyframeFieldSet::KeyframeFieldSet(EffectField *ifield, int ii) {
+    field = ifield;
+    index = ii;
+    key = ifield->keyframes.at(ii);
+    done = true;
+}
 
-void KeyframeFieldSet::undo() {
+void KeyframeFieldSet::doUndo() {
 	field->keyframes.removeAt(index);
-    Olive::MainWindow->setWindowModified(old_project_changed);
+    
 	done = false;
 }
 
-void KeyframeFieldSet::redo() {
+void KeyframeFieldSet::doRedo() {
 	if (!done) {
 		field->keyframes.insert(index, key);
-        Olive::MainWindow->setWindowModified(true);
 	}
 	done = true;
 }
 
-SetKeyframing::SetKeyframing(EffectRow *irow, bool ib) :
-	row(irow),
-	b(ib)
-{}
+SetKeyframing::SetKeyframing(EffectRow *irow, bool ib) {
+    row = irow;
+    b = ib;
+}
 
-void SetKeyframing::undo() {
+void SetKeyframing::doUndo() {
 	row->setKeyframing(!b);
 }
 
-void SetKeyframing::redo() {
+void SetKeyframing::doRedo() {
 	row->setKeyframing(b);
 }
 
-RefreshClips::RefreshClips(Media *m) :
-	media(m)
-{}
+RefreshClips::RefreshClips(Media *m) {
+    media = m;
+}
 
-void RefreshClips::undo() {
+void RefreshClips::doUndo() {
 	redo();
 }
 
-void RefreshClips::redo() {
+void RefreshClips::doRedo() {
 	// close any clips currently using this media
 	QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<all_sequences.size();i++) {
@@ -1277,27 +1175,55 @@ void RefreshClips::redo() {
 	}
 }
 
-void UpdateViewer::undo() {
+void UpdateViewer::doUndo() {
 	redo();
 }
 
-void UpdateViewer::redo() {
+void UpdateViewer::doRedo() {
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
 
-SetEffectData::SetEffectData(Effect *e, const QByteArray &s) :
-	effect(e),
-	data(s)
-{}
+SetEffectData::SetEffectData(Effect *e, const QByteArray &s) {
+    effect = e;
+    data = s;
+}
 
-void SetEffectData::undo() {
+void SetEffectData::doUndo() {
 	effect->load_from_string(old_data);
 
 	old_data.clear();
 }
 
-void SetEffectData::redo() {
+void SetEffectData::doRedo() {
 	old_data = effect->save_to_string();
 
 	effect->load_from_string(data);
+}
+
+OliveAction::OliveAction(bool iset_window_modified) {
+    set_window_modified = iset_window_modified;
+}
+
+OliveAction::~OliveAction() {}
+
+void OliveAction::undo() {
+    doUndo();
+
+    if (set_window_modified) {
+        Olive::MainWindow->setWindowModified(old_window_modified);
+    }
+}
+
+void OliveAction::redo() {
+    doRedo();
+
+    if (set_window_modified) {
+
+        // store current modified state
+        old_window_modified = Olive::MainWindow->isWindowModified();
+
+        // set modified to true
+        Olive::MainWindow->setWindowModified(true);
+
+    }
 }

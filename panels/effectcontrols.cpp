@@ -95,7 +95,7 @@ void EffectControls::menu_select(QAction* q) {
 			}
 		}
 	}
-	undo_stack.push(ca);
+	Olive::UndoStack.push(ca);
 	if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
 		update_ui(true);
 	} else {
@@ -146,7 +146,7 @@ void EffectControls::copy(bool del) {
 				delete del_com;
 			}
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 }
 
@@ -529,7 +529,7 @@ void EffectControls::delete_effects() {
 			}
 		}
 		if (command->clips.size() > 0) {
-			undo_stack.push(command);
+			Olive::UndoStack.push(command);
 			panel_sequence_viewer->viewer_widget->frame_update();
 		} else {
 			delete command;

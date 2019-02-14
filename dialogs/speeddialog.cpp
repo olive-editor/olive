@@ -405,7 +405,7 @@ void SpeedDialog::accept() {
 	sel_command->new_data = Olive::ActiveSequence->selections;
 	ca->append(sel_command);
 
-	undo_stack.push(ca);
+    Olive::UndoStack.push(ca);
 
 	update_ui(true);
 	QDialog::accept();

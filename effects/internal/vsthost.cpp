@@ -36,6 +36,8 @@ struct VSTRect {
 extern "C" {
 	// Main host callback
 	intptr_t hostCallback(AEffect* effect, int32_t opcode, int32_t index, intptr_t value, void* ptr, float opt) {
+        Q_UNUSED(value)
+
 		switch(opcode) {
         case audioMasterAutomate:
             effect->setParameter(effect, index, opt);
