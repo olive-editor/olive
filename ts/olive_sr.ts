@@ -265,7 +265,7 @@
     <message>
         <location filename="../panels/effectcontrols.cpp" line="340"/>
         <source>VIDEO EFFECTS</source>
-        <translation>ВИДЕО ЕФЕКТИ</translation>
+        <translation>Видео ефекти</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="347"/>
@@ -280,7 +280,7 @@
     <message>
         <location filename="../panels/effectcontrols.cpp" line="385"/>
         <source>AUDIO EFFECTS</source>
-        <translation>АУДИО ЕФЕКТИ</translation>
+        <translation>Аудио ефекти</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="392"/>
@@ -319,93 +319,93 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="61"/>
         <source>Export &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Извоз &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="113"/>
         <source>Unknown codec name %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Непознато име кодека %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="319"/>
         <source>Export Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Извоз неуспешан</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="320"/>
         <source>Export failed - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Извоз неуспешан - %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="341"/>
         <source>Invalid dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Неважеће димензије</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="342"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Висина и ширина извоза обе морају бити парни бројеви/дељиве са два.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="398"/>
         <source>Invalid codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Неважећи кодек</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="399"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри одабраног кодека се нису могли одредити. Ово је грешка, молимо да контактирате девелопере.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="468"/>
         <source>Invalid format</source>
-        <translation type="unfinished"></translation>
+        <translation>Неважећи формат</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="469"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Излазни формат се није могао одредити. Ово је грешка, молимо да контактирате девелопере.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="476"/>
         <source>Export Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Извоз медија</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="563"/>
         <source>Quality-based (Constant Rate Factor)</source>
-        <translation type="unfinished"></translation>
+        <translation>Базирано на квалитети (Фактор сталне стопе/Constant Rate Factor)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="567"/>
         <source>Constant Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Стална стопа битова</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="576"/>
         <location filename="../dialogs/exportdialog.cpp" line="582"/>
         <source>Invalid Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Неважећи кодек</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="577"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Трагање за пркладним кодером за овај кодек није успело. Извоз највероватније неће успети.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="583"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Трагање за прикладним форматом пиксела за овај кодек није успело. Извоз највероватније неће успети.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="596"/>
         <source>Bitrate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Стопа битова (Mbps):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="600"/>
         <source>Quality (CRF):</source>
-        <translation type="unfinished"></translation>
+        <translation>Квалитета (CRF):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="603"/>
@@ -415,78 +415,83 @@
 17-18 = visually lossless (compressed, but unnoticeable)
 23 = high quality
 51 = lowest quality possible</source>
-        <translation type="unfinished"></translation>
+        <translation>Фактор квалитете:
+
+0 = беспрекорно
+17-18 = оку беспрекорно (компримирано, али неприметљиво)
+23 = висока квалитета
+51 = најнижа квалитета могућа</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="606"/>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished"></translation>
+        <translation>Жељена величина датотеке (MB):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="622"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Формат:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="631"/>
         <source>Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>Распон:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="634"/>
         <source>Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Читава секвенца</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="635"/>
         <source>In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Од почетка до краја</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Видео</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="648"/>
         <location filename="../dialogs/exportdialog.cpp" line="691"/>
         <source>Codec:</source>
-        <translation type="unfinished"></translation>
+        <translation>Кодек:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="652"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ширина:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="657"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Висина:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="662"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Оквирна стопа:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="668"/>
         <source>Compression Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип компримације:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Напредно</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="695"/>
         <source>Sampling Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Стопа узорака:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="701"/>
         <source>Bitrate (Kbps/CBR):</source>
-        <translation type="unfinished"></translation>
+        <translation>Стопа битова (Kbps/CBR):</translation>
     </message>
 </context>
 <context>
@@ -944,7 +949,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="649"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Режи</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="650"/>
@@ -954,7 +959,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="651"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Залепи</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="652"/>
@@ -1515,7 +1520,7 @@
     <message>
         <location filename="../project/media.cpp" line="112"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Оквирна стопа:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="122"/>
@@ -1694,22 +1699,22 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="182"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видео</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="186"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ширина:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="192"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Висина:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="198"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Оквирна стопа:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="214"/>
@@ -2200,7 +2205,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="41"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Формат:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="44"/>
@@ -2526,7 +2531,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="36"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Оквирна стопа:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="41"/>
@@ -2900,7 +2905,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="101"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Залепи</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="111"/>
