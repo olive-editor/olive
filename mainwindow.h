@@ -53,21 +53,7 @@ private slots:
 	void zoom_in();
 	void zoom_out();
 	void export_dialog();
-	void ripple_delete();
-
-	void go_to_in();
-	void go_to_out();
-	void go_to_start();
-	void prev_frame();
-	void play_in_to_out();
-	void playpause();
-	void pause();
-	void increase_speed();
-	void decrease_speed();
-	void next_frame();
-	void go_to_end();
-	void prev_cut();
-	void next_cut();
+    void ripple_delete();
 
 	void maximize_panel();
 	void reset_layout();
@@ -110,7 +96,6 @@ private slots:
 
 	void set_marker();
 
-	void toggle_enable_clips();
 	void edit_to_in_point();
 	void edit_to_out_point();
 	void paste_insert();

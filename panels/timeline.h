@@ -88,8 +88,7 @@ public:
 	void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);
 	void relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips);
 	void update_sequence();
-	void increase_track_height();
-	void decrease_track_height();
+
 	void add_transition();
 	QVector<int> get_tracks_of_linked_clips(int i);
 	bool has_clip_been_split(int c);
@@ -214,6 +213,9 @@ public slots:
 	void split_at_playhead();
 	void ripple_delete_empty_space();
     void toggle_enable_on_selected_clips();
+
+    void increase_track_height();
+    void decrease_track_height();
 
     void previous_cut();
     void next_cut();

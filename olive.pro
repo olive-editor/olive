@@ -142,7 +142,8 @@ SOURCES += \
     dialogs/advancedvideodialog.cpp \
     ui/cursors.cpp \
     ui/menuhelper.cpp \
-    oliveglobal.cpp
+    oliveglobal.cpp \
+    ui/focusfilter.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -249,7 +250,8 @@ HEADERS += \
     ui/cursors.h \
     ui/menuhelper.h \
     oliveglobal.h \
-    project/projectelements.h
+    project/projectelements.h \
+    ui/focusfilter.h
 
 FORMS +=
 

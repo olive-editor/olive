@@ -17,6 +17,7 @@
 #include "ui/sourceiconview.h"
 #include "ui/timelineheader.h"
 #include "ui/cursors.h"
+#include "ui/focusfilter.h"
 
 #include "panels/panels.h"
 #include "panels/project.h"
@@ -669,22 +670,22 @@ void MainWindow::setup_menus() {
 	QMenu* playback_menu = menuBar->addMenu(tr("&Playback"));
 	connect(playback_menu, SIGNAL(aboutToShow()), this, SLOT(playbackMenu_About_To_Be_Shown()));
 
-	playback_menu->addAction(tr("Go to Start"), this, SLOT(go_to_start()), QKeySequence("Home"))->setProperty("id", "gotostart");
-	playback_menu->addAction(tr("Previous Frame"), this, SLOT(prev_frame()), QKeySequence("Left"))->setProperty("id", "prevframe");
-	playback_menu->addAction(tr("Play/Pause"), this, SLOT(playpause()), QKeySequence("Space"))->setProperty("id", "playpause");
-	playback_menu->addAction(tr("Play In to Out"), this, SLOT(play_in_to_out()), QKeySequence("Shift+Space"))->setProperty("id", "playintoout");
-	playback_menu->addAction(tr("Next Frame"), this, SLOT(next_frame()), QKeySequence("Right"))->setProperty("id", "nextframe");
-	playback_menu->addAction(tr("Go to End"), this, SLOT(go_to_end()), QKeySequence("End"))->setProperty("id", "gotoend");
+    playback_menu->addAction(tr("Go to Start"), &Olive::FocusFilter, SLOT(go_to_start()), QKeySequence("Home"))->setProperty("id", "gotostart");
+    playback_menu->addAction(tr("Previous Frame"), &Olive::FocusFilter, SLOT(prev_frame()), QKeySequence("Left"))->setProperty("id", "prevframe");
+    playback_menu->addAction(tr("Play/Pause"), &Olive::FocusFilter, SLOT(playpause()), QKeySequence("Space"))->setProperty("id", "playpause");
+    playback_menu->addAction(tr("Play In to Out"), &Olive::FocusFilter, SLOT(play_in_to_out()), QKeySequence("Shift+Space"))->setProperty("id", "playintoout");
+    playback_menu->addAction(tr("Next Frame"), &Olive::FocusFilter, SLOT(next_frame()), QKeySequence("Right"))->setProperty("id", "nextframe");
+    playback_menu->addAction(tr("Go to End"), &Olive::FocusFilter, SLOT(go_to_end()), QKeySequence("End"))->setProperty("id", "gotoend");
 	playback_menu->addSeparator();
     playback_menu->addAction(tr("Go to Previous Cut"), panel_timeline, SLOT(previous_cut()), QKeySequence("Up"))->setProperty("id", "prevcut");
     playback_menu->addAction(tr("Go to Next Cut"), panel_timeline, SLOT(next_cut()), QKeySequence("Down"))->setProperty("id", "nextcut");
 	playback_menu->addSeparator();
-	playback_menu->addAction(tr("Go to In Point"), this, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
-	playback_menu->addAction(tr("Go to Out Point"), this, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
+    playback_menu->addAction(tr("Go to In Point"), &Olive::FocusFilter, SLOT(go_to_in()), QKeySequence("Shift+I"))->setProperty("id", "gotoin");
+    playback_menu->addAction(tr("Go to Out Point"), &Olive::FocusFilter, SLOT(go_to_out()), QKeySequence("Shift+O"))->setProperty("id", "gotoout");
 	playback_menu->addSeparator();
-	playback_menu->addAction(tr("Shuttle Left"), this, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
-	playback_menu->addAction(tr("Shuttle Stop"), this, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
-	playback_menu->addAction(tr("Shuttle Right"), this, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
+    playback_menu->addAction(tr("Shuttle Left"), &Olive::FocusFilter, SLOT(decrease_speed()), QKeySequence("J"))->setProperty("id", "decspeed");
+    playback_menu->addAction(tr("Shuttle Stop"), &Olive::FocusFilter, SLOT(pause()), QKeySequence("K"))->setProperty("id", "pause");
+    playback_menu->addAction(tr("Shuttle Right"), &Olive::FocusFilter, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
 	playback_menu->addSeparator();
 
 	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
@@ -991,104 +992,7 @@ void MainWindow::reset_layout() {
 	setup_layout(true);
 }
 
-void MainWindow::go_to_in() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->go_to_in();
-	} else {
-		panel_sequence_viewer->go_to_in();
-	}
-}
 
-void MainWindow::go_to_out() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->go_to_out();
-	} else {
-		panel_sequence_viewer->go_to_out();
-	}
-}
-
-void MainWindow::go_to_start() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->go_to_start();
-	} else {
-		panel_sequence_viewer->go_to_start();
-	}
-}
-
-void MainWindow::prev_frame() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->previous_frame();
-	} else {
-		panel_sequence_viewer->previous_frame();
-	}
-}
-
-void MainWindow::play_in_to_out() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->play(true);
-	} else {
-		panel_sequence_viewer->play(true);
-	}
-}
-
-void MainWindow::next_frame() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->next_frame();
-	} else {
-		panel_sequence_viewer->next_frame();
-	}
-}
-
-void MainWindow::go_to_end() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->go_to_end();
-	} else {
-		panel_sequence_viewer->go_to_end();
-	}
-}
-
-void MainWindow::playpause() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->toggle_play();
-	} else {
-		panel_sequence_viewer->toggle_play();
-	}
-}
-
-void MainWindow::pause() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->pause();
-	} else {
-		panel_sequence_viewer->pause();
-	}
-}
-
-void MainWindow::increase_speed() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->increase_speed();
-	} else {
-		panel_sequence_viewer->increase_speed();
-	}
-}
-
-void MainWindow::decrease_speed() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->decrease_speed();
-	} else {
-		panel_sequence_viewer->decrease_speed();
-	}
-}
 
 void MainWindow::maximize_panel() {
 	// toggles between normal state and a state of one panel being maximized
