@@ -232,9 +232,10 @@ public slots:
 
     void nest();
 
+    void zoom_in();
+    void zoom_out();
+
 private slots:
-	void zoom_in();
-	void zoom_out();
 	void snapping_clicked(bool checked);
 	void add_btn_click();
 	void add_menu_item(QAction*);

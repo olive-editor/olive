@@ -213,7 +213,7 @@ void FocusFilter::zoom_in() {
     } else if (focused_panel == panel_sequence_viewer) {
         panel_sequence_viewer->set_zoom(true);
     } else {
-        panel_timeline->multiply_zoom(true);
+        panel_timeline->zoom_in();
     }
 }
 
@@ -226,7 +226,7 @@ void FocusFilter::zoom_out() {
     } else if (focused_panel == panel_sequence_viewer) {
         panel_sequence_viewer->set_zoom(false);
     } else {
-        panel_timeline->multiply_zoom(false);
+        panel_timeline->zoom_out();
     }
 }
 

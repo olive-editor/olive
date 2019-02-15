@@ -752,11 +752,11 @@ QVector<int> Timeline::get_tracks_of_linked_clips(int i) {
 }
 
 void Timeline::zoom_in() {
-    multiply_zoom(true);
+    multiply_zoom(2.0);
 }
 
 void Timeline::zoom_out() {
-    multiply_zoom(false);
+    multiply_zoom(0.5);
 }
 
 bool is_clip_selected(Clip* clip, bool containing) {

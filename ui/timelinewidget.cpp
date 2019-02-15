@@ -341,21 +341,46 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void TimelineWidget::wheelEvent(QWheelEvent *event) {
-	bool alt = (event->modifiers() & Qt::AltModifier);
-	int scroll_amount = alt ? (event->angleDelta().x()) : (event->angleDelta().y());
-	if (scroll_amount != 0) {
-		bool shift = (event->modifiers() & Qt::ShiftModifier);
-		bool in = (scroll_amount > 0);
-		if (config.scroll_zooms != shift) {
-            panel_timeline->multiply_zoom(in);
-		} else {
-			QScrollBar* bar = alt ? scrollBar : panel_timeline->horizontalScrollBar;
+    // shift used to toggle zooming instead of scrolling
+    bool shift = (event->modifiers() & Qt::ShiftModifier);
 
-			int step = bar->singleStep();
-			if (in) step = -step;
-			bar->setValue(bar->value() + step);
-		}
-	}
+    if (!event->pixelDelta().isNull()) {
+        // if we got pixel scrolling data, prefer it over the angleDelta data
+
+        QScrollBar* horiz_bar = panel_timeline->horizontalScrollBar;
+        QScrollBar* vert_bar = scrollBar;
+
+        horiz_bar->setValue(horiz_bar->value() + event->pixelDelta().x());
+        vert_bar->setValue(vert_bar->value() + event->pixelDelta().y());
+
+    } else if (!event->angleDelta().isNull()) {
+
+        // alt is used to swap horizontal and vertical scrolling
+        bool alt = (event->modifiers() & Qt::AltModifier);
+
+        int scroll_amount = alt ? (event->angleDelta().x()) : (event->angleDelta().y());
+
+        bool in = (scroll_amount > 0);
+        if (config.scroll_zooms != shift) {
+
+            // if config.scroll_zooms is enabled or shift is held, zoom instead of scrolling
+            if (in) {
+                panel_timeline->multiply_zoom(1.5);
+            } else {
+                panel_timeline->multiply_zoom(0.75);
+            }
+
+        } else {
+            // pass the scrolling to the Timeline's main scrollbar for horizontal scrolling, or this widget's
+            // scrollbar for vertical scrolling
+
+            QScrollBar* bar = alt ? scrollBar : panel_timeline->horizontalScrollBar;
+
+            int step = bar->singleStep();
+            if (in) step = -step;
+            bar->setValue(bar->value() + step);
+        }
+    }
 }
 
 void TimelineWidget::dragLeaveEvent(QDragLeaveEvent* event) {
