@@ -286,7 +286,7 @@ void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first
 	}
 }
 
-void MainWindow::load_shortcuts(const QString& fn, bool first) {
+void MainWindow::load_shortcuts(const QString& fn) {
 	QByteArray shortcut_bytes;
 	QFile shortcut_path(fn);
 	if (shortcut_path.exists() && shortcut_path.open(QFile::ReadOnly)) {
@@ -296,7 +296,7 @@ void MainWindow::load_shortcuts(const QString& fn, bool first) {
 	QList<QAction*> menus = menuBar()->actions();
 	for (int i=0;i<menus.size();i++) {
 		QMenu* menu = menus.at(i)->menu();
-		kbd_shortcut_processor(shortcut_bytes, menu, false, first);
+        kbd_shortcut_processor(shortcut_bytes, menu, false, true);
 	}
 }
 
@@ -727,7 +727,7 @@ void MainWindow::setup_menus() {
 
     help_menu->addAction(tr("&About..."), Olive::Global.data(), SLOT(open_about_dialog()))->setProperty("id", "about");
 
-	load_shortcuts(get_config_path() + "/shortcuts", true);
+    load_shortcuts(get_config_path() + "/shortcuts");
 }
 
 void MainWindow::updateTitle() {
@@ -919,7 +919,7 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 			QAction* action = open_recent->addAction(recent_projects.at(i));
 			action->setProperty("keyignore", true);
 			action->setData(i);
-            connect(action, SIGNAL(triggered()), Olive::Global.data(), SLOT(open_recent()));
+            connect(action, SIGNAL(triggered()), &Olive::MenuHelper, SLOT(open_recent_from_menu()));
 		}
 		open_recent->addSeparator();
 

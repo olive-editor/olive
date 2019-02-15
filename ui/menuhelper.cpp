@@ -146,3 +146,8 @@ void MenuHelper::set_timecode_view() {
     config.timecode_view = action->data().toInt();
     update_ui(false);
 }
+
+void MenuHelper::open_recent_from_menu() {
+    int index = static_cast<QAction*>(sender())->data().toInt();
+    Olive::Global.data()->open_recent(index);
+}

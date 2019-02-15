@@ -6,10 +6,7 @@
 
 FocusFilter Olive::FocusFilter;
 
-FocusFilter::FocusFilter()
-{
-
-}
+FocusFilter::FocusFilter() {}
 
 void FocusFilter::go_to_in() {
     QDockWidget* focused_panel = get_focused_panel();

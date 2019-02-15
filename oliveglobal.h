@@ -6,21 +6,86 @@
 #include <QTimer>
 #include <QFile>
 
+/**
+ * @brief The Olive Global class
+ *
+ * A resource for various global functions used throughout Olive.
+ */
 class OliveGlobal : public QObject {
     Q_OBJECT
 public:
+    /**
+     * @brief OliveGlobal Constructor
+     *
+     * Creates Olive Global object. Also sets some default runtime settings and the application name.
+     */
     OliveGlobal();
 
+    /**
+     * @brief Returns the file dialog filter used when interfacing with Olive project files.
+     *
+     * @return The file filter string used by QFileDialog to limit the files shown to Olive (*.ove) files.
+     */
     const QString& get_project_file_filter();
 
+    /**
+     * @brief Change the current active project filename
+     *
+     * Triggered to change the current active project filename. Call this before calling any internal project
+     * saving or loading functions in order to set which file to work with (OliveGlobal::open_project() and
+     * OliveGlobal::save_project_as() do this automatically). Also updates the main window title to reflect the
+     * project filename.
+     *
+     * @param s
+     *
+     * The URL of the project file to work with. Can be an empty string, in which case Olive will treat the project
+     * as an unsaved project.
+     */
     void update_project_filename(const QString& s);
 
+    /**
+     * @brief Check whether an auto-recovery file exists and ask the user if they want to load it.
+     *
+     * Usually called on initialization. Checks if an auto-recovery file exists (meaning the last session of Olive
+     * didn't close correctly). If it finds one, asks the user if they want to load it. If so, loads the auto-recovery
+     * project.
+     */
     void check_for_autorecovery_file();
 
+    /**
+     * @brief Set the application state depending on if the user is exporting a video
+     *
+     * Some background functions shouldn't run while Olive is exporting a video. This function will disable/enable them
+     * as necessary.
+     *
+     * The current functions are as follows:
+     * * Auto-recovery interval. Olive saves an auto-recovery just before exporting anyway and seeing as the user
+     * cannot make changes while rendering, there's no reason to continue saving auto-recovery files.
+     * * Audio device playback. Olive uses the same internal audio buffer for exporting as it does for playback, but
+     * this buffer does not need to be forwarded to the output device when exporting.
+     *
+     * @param rendering
+     *
+     * **TRUE** if Olive is about to export a video. **FALSE** if Olive has finished exporting.
+     */
     void set_rendering_state(bool rendering);
 
+    /**
+     * @brief Set a project to load just after launching
+     *
+     * Called by main() if Olive was called with a project file as a running argument. Sets up Olive to load the
+     * specified project once its finished initializing.
+     *
+     * @param s
+     *
+     * The URL of the project file to load.
+     */
     void load_project_on_launch(const QString& s);
 
+    /**
+     * @brief Retrieves the URL of the config file containing the autorecovery projects
+     * @return The URL as a string
+     */
     QString get_recent_project_list_file();
 
 public slots:
@@ -53,21 +118,101 @@ public slots:
      */
     void paste_insert();
 
-
+    /**
+     * @brief Create new project.
+     *
+     * Confirms whether the current project can be closed, and if so, clears all current project data and resets
+     * program state. Standard `File > New` behavior.
+     */
     void new_project();
+
+    /**
+     * @brief Open a project from file.
+     *
+     * Confirms whether the current project can be closed, and if so, shows an open file dialog to allow the user to
+     * select a project file and then triggers a project load with it.
+     */
     void open_project();
-    void open_recent();
+
+    /**
+     * @brief Open recent project from list
+     *
+     * Triggers a project load from the internal recent projects list.
+     *
+     * @param index
+     *
+     * Index in the list of the project fille to load
+     */
+    void open_recent(int index);
+
+    /**
+     * @brief Shows a save file dialog and saves the project as the resulting filename
+     *
+     * Shows a save file dialog for the user to save their current project as a different filename from the current
+     * one. Also triggered by save_project() if the file hasn't been saved yet.
+     *
+     * @return **TRUE** if the user saved the project. **FALSE** if they cancelled out of the save file dialog. Useful
+     * if a user is closing an unsaved project, clicks "Yes" to save, we know if they actually saved or not and won't
+     * continue closing the project if they didn't.
+     */
     bool save_project_as();
+
+    /**
+     * @brief Saves the current project to file
+     *
+     * If the project has been saved already, this function will overwrite the project file with the current project
+     * data. Calls save_project_as() if the file has not been saved before.
+     *
+     * @return **TRUE** if the project has been saved before and was successfully overwritten. Otherwise returns the
+     * value of save_project_as(). Useful if the user closing an unsaved project, clicks "Yes" to save, we know if they
+     * actually saved or not and won't continue closing the project if they didn't.
+     */
     bool save_project();
 
+    /**
+     * @brief Determine whether the current project can be closed.
+     *
+     * Queried any time the current project is going to be closed (e.g. starting a new project, loading a project,
+     * exiting Olive, etc.) If the project has unsaved changes, this function asks the user whether they want to save or
+     * not. If the user does, calls save_project() (which may in turn call save_project_as() if the project has never
+     * been saved).
+     *
+     * @return **TRUE** if the project can be closed. FALSE if not. If the project does NOT have unsaved changes, always
+     * returns **TRUE**. If it does and the user clicks YES, this returns the result of save_project(). If the user
+     * clicks NO, this returns **TRUE**. If the user clicks CANCEL, this returns **FALSE**.
+     */
     bool can_close_project();
 
+    /**
+     * @brief Open the Export dialog to trigger an export of the current sequence.
+     */
     void open_export_dialog();
+
+    /**
+     * @brief Open the About Olive dialog.
+     */
     void open_about_dialog();
+
+    /**
+     * @brief Open the Debug Log window.
+     */
     void open_debug_log();
+
+    /**
+     * @brief Open the Speed/Duration dialog.
+     */
     void open_speed_dialog();
+
+    /**
+     * @brief Open the Action Search overlay.
+     */
     void open_action_search();
 
+    /**
+     * @brief Clears the current undo stack.
+     *
+     * Clears all current commands in the undo stack. Mostly used for debugging.
+     */
     void clear_undo_stack();
 
     /**

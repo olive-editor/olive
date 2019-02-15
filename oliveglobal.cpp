@@ -115,8 +115,7 @@ void OliveGlobal::open_project() {
     }
 }
 
-void OliveGlobal::open_recent() {
-    int index = static_cast<QAction*>(sender())->data().toInt();
+void OliveGlobal::open_recent(int index) {
     QString recent_url = recent_projects.at(index);
     if (!QFile::exists(recent_url)) {
         if (QMessageBox::question(
