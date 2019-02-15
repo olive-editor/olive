@@ -731,9 +731,9 @@ void Timeline::set_zoom_value(double v) {
 		center_scroll_to_playhead(horizontalScrollBar, zoom, Olive::ActiveSequence->playhead);
 }
 
-void Timeline::set_zoom(bool in) {
+void Timeline::multiply_zoom(double m) {
 	showing_all = false;
-	set_zoom_value(zoom * ((in) ? 2 : 0.5));
+    set_zoom_value(zoom * m);
 }
 
 void Timeline::decheck_tool_buttons(QObject* sender) {
@@ -752,11 +752,11 @@ QVector<int> Timeline::get_tracks_of_linked_clips(int i) {
 }
 
 void Timeline::zoom_in() {
-	set_zoom(true);
+    multiply_zoom(true);
 }
 
 void Timeline::zoom_out() {
-	set_zoom(false);
+    multiply_zoom(false);
 }
 
 bool is_clip_selected(Clip* clip, bool containing) {

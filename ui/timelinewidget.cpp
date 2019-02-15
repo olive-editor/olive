@@ -1,5 +1,6 @@
 #include "timelinewidget.h"
 
+#include "oliveglobal.h"
 #include "panels/panels.h"
 #include "project/projectelements.h"
 
@@ -17,6 +18,7 @@
 #include "playback/playback.h"
 #include "ui/cursors.h"
 #include "ui/menuhelper.h"
+#include "ui/focusfilter.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -68,10 +70,12 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		QMenu menu(this);
 
+        // TODO replace with Olive::MenuHelper::make_edit_functions_menu() without losing functionality
+
 		QAction* undoAction = menu.addAction(tr("&Undo"));
 		QAction* redoAction = menu.addAction(tr("&Redo"));
-        connect(undoAction, SIGNAL(triggered(bool)), Olive::MainWindow, SLOT(undo()));
-        connect(redoAction, SIGNAL(triggered(bool)), Olive::MainWindow, SLOT(redo()));
+        connect(undoAction, SIGNAL(triggered(bool)), Olive::Global.data(), SLOT(undo()));
+        connect(redoAction, SIGNAL(triggered(bool)), Olive::Global.data(), SLOT(redo()));
         undoAction->setEnabled(Olive::UndoStack.canUndo());
         redoAction->setEnabled(Olive::UndoStack.canRedo());
 		menu.addSeparator();
@@ -87,11 +91,11 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		if (!selected_clips.isEmpty()) {
 			// clips are selected
-            menu.addAction(tr("C&ut"), Olive::MainWindow, SLOT(cut()));
-            menu.addAction(tr("Cop&y"), Olive::MainWindow, SLOT(copy()));
+            menu.addAction(tr("C&ut"), &Olive::FocusFilter, SLOT(cut()));
+            menu.addAction(tr("Cop&y"), &Olive::FocusFilter, SLOT(copy()));
 		}
 
-        menu.addAction(tr("&Paste"), Olive::MainWindow, SLOT(paste()));
+        menu.addAction(tr("&Paste"), Olive::Global.data(), SLOT(paste()));
 
 		if (selected_clips.isEmpty()) {
 			// no clips are selected
@@ -111,7 +115,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
 		if (!selected_clips.isEmpty()) {
 			menu.addSeparator();
-            menu.addAction(tr("&Speed/Duration"), Olive::MainWindow, SLOT(open_speed_dialog()));
+            menu.addAction(tr("&Speed/Duration"), Olive::Global.data(), SLOT(open_speed_dialog()));
 
 			QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
 			autoscaleAction->setCheckable(true);
@@ -343,7 +347,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 		bool shift = (event->modifiers() & Qt::ShiftModifier);
 		bool in = (scroll_amount > 0);
 		if (config.scroll_zooms != shift) {
-			panel_timeline->set_zoom(in);
+            panel_timeline->multiply_zoom(in);
 		} else {
 			QScrollBar* bar = alt ? scrollBar : panel_timeline->horizontalScrollBar;
 

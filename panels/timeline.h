@@ -76,7 +76,7 @@ public:
 	~Timeline();
 
 	bool focused();
-	void set_zoom(bool in);
+    void multiply_zoom(double m);
 	void copy(bool del);
 	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame);
 	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);

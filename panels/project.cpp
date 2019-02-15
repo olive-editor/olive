@@ -157,6 +157,12 @@ Project::Project(QWidget *parent) :
 	tree_view->setModel(sorter);
 	verticalLayout->addWidget(tree_view);
 
+    // Set the first column width
+    // I'm not sure if there's a better way to do this, default behavior seems to have all columns fixed width
+    // and let the last column fill up the remainder when really the opposite would be preferable (having the
+    // first column fill up the majority of the space). Anyway, this will probably do for now.
+    tree_view->setColumnWidth(0, tree_view->width()/2);
+
 	// icon view
 	icon_view_container = new QWidget();
 
@@ -202,7 +208,6 @@ Project::Project(QWidget *parent) :
 	connect(directory_up, SIGNAL(clicked(bool)), this, SLOT(go_up_dir()));
 	connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
 
-	//retranslateUi(Project);
 	setWindowTitle(tr("Project"));
 
 	update_view_type();
