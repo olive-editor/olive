@@ -6,7 +6,6 @@
 #include <QIcon>
 
 class Timeline;
-class ViewerWidget;
 class Media;
 struct Sequence;
 class TimelineHeader;
@@ -17,6 +16,7 @@ class QPushButton;
 class QLabel;
 
 #include "project/marker.h"
+#include "ui/viewerwidget.h"
 
 bool frame_rate_is_droppable(float rate);
 long timecode_to_frame(const QString& s, int view, double frame_rate);
@@ -27,7 +27,7 @@ class Viewer : public QDockWidget
 	Q_OBJECT
 
 public:
-	explicit Viewer(QWidget *parent = 0);
+    explicit Viewer(QWidget *parent = nullptr);
 	~Viewer();
 
 	bool is_focused();

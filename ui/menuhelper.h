@@ -58,6 +58,17 @@ public:
     void set_bool_action_checked(QAction* a);
     void set_int_action_checked(QAction* a, const int& i);
     void set_button_action_checked(QAction* a);
+
+public slots:
+
+    void toggle_bool_action();
+
+    void set_titlesafe_from_menu();
+
+    void set_autoscroll();
+    void menu_click_button();
+    void set_timecode_view();
+
 private slots:
 
 

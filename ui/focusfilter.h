@@ -26,6 +26,10 @@ public slots:
     void next_frame();
     void go_to_end();
 
+    void set_viewer_fullscreen();
+
+    void set_marker();
+
     void set_in_point();
     void set_out_point();
     void clear_in();

@@ -6,7 +6,7 @@
 
 #include "debug.h"
 
-DebugDialog* debug_dialog = nullptr;
+DebugDialog* Olive::DebugDialog = nullptr;
 
 DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
 	setWindowTitle(tr("Debug Log"));

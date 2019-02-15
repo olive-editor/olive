@@ -52,7 +52,6 @@ ProjectModel project_model;
 
 QString autorecovery_filename;
 QStringList recent_projects;
-QString recent_proj_file;
 
 Project::Project(QWidget *parent) :
 	QDockWidget(parent)
@@ -1226,7 +1225,7 @@ void Project::set_tree_view() {
 
 void Project::save_recent_projects() {
 	// save to file
-	QFile f(recent_proj_file);
+    QFile f(Olive::Global->get_recent_project_list_file());
 	if (f.open(QFile::WriteOnly | QFile::Truncate | QFile::Text)) {
 		QTextStream out(&f);
 		for (int i=0;i<recent_projects.size();i++) {
@@ -1262,7 +1261,7 @@ void Project::go_up_dir() {
 void Project::make_new_menu() {
 	QMenu new_menu(this);
     Olive::MenuHelper.make_new_menu(&new_menu);
-	new_menu.exec(QCursor::pos());
+    new_menu.exec(QCursor::pos());
 }
 
 void Project::add_recent_project(QString url) {

@@ -74,6 +74,28 @@ void FocusFilter::go_to_end() {
     }
 }
 
+void FocusFilter::set_viewer_fullscreen() {
+    if (get_focused_panel() == panel_footage_viewer) {
+        panel_footage_viewer->viewer_widget->set_fullscreen();
+    } else {
+        panel_sequence_viewer->viewer_widget->set_fullscreen();
+    }
+}
+
+void FocusFilter::set_marker() {
+    if (Olive::ActiveSequence != nullptr) {
+        QDockWidget* focused_panel = get_focused_panel();
+
+        if (focused_panel == panel_footage_viewer) {
+            panel_footage_viewer->set_marker();
+        } else if (focused_panel == panel_sequence_viewer) {
+            panel_sequence_viewer->set_marker();
+        } else {
+            panel_timeline->set_marker();
+        }
+    }
+}
+
 void FocusFilter::playpause() {
     QDockWidget* focused_panel = get_focused_panel();
     if (focused_panel == panel_footage_viewer) {

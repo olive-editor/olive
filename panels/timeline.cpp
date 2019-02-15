@@ -615,7 +615,7 @@ void Timeline::resizeEvent(QResizeEvent *) {
 	tool_button_widget->setFixedWidth((tool_button_children.at(0)->sizeHint().width())*cols + horizontal_spacing*(cols-1) + 1);
 }
 
-void Timeline::delete_in_out(bool ripple) {
+void Timeline::delete_in_out_internal(bool ripple) {
 	if (Olive::ActiveSequence != nullptr && Olive::ActiveSequence->using_workarea) {
 		QVector<Selection> areas;
 		int video_tracks = 0, audio_tracks = 0;
@@ -1231,7 +1231,7 @@ void Timeline::paste(bool insert) {
 	}
 }
 
-void Timeline::ripple_to_in_point(bool in, bool ripple) {
+void Timeline::edit_to_point_internal(bool in, bool ripple) {
 	if (Olive::ActiveSequence != nullptr) {
 		if (Olive::ActiveSequence->clips.size() > 0) {
 			// get track count
@@ -1439,7 +1439,19 @@ void Timeline::split_at_playhead() {
 		update_ui(true);
 	} else {
 		delete ca;
-	}
+    }
+}
+
+void Timeline::ripple_delete() {
+    if (Olive::ActiveSequence != nullptr) {
+        if (Olive::ActiveSequence->selections.size() > 0) {
+            panel_timeline->delete_selection(Olive::ActiveSequence->selections, true);
+        } else if (config.hover_focus && get_focused_panel() == panel_timeline) {
+            if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
+                panel_timeline->ripple_delete_empty_space();
+            }
+        }
+    }
 }
 
 void Timeline::deselect_area(long in, long out, int track) {
@@ -1563,6 +1575,30 @@ void Timeline::set_marker() {
 	// pass off to internal set marker function
 	set_marker_internal(Olive::ActiveSequence, clips_selected);
 
+}
+
+void Timeline::delete_inout() {
+    panel_timeline->delete_in_out_internal(false);
+}
+
+void Timeline::ripple_delete_inout() {
+    panel_timeline->delete_in_out_internal(true);
+}
+
+void Timeline::ripple_to_in_point() {
+    panel_timeline->edit_to_point_internal(true, true);
+}
+
+void Timeline::ripple_to_out_point() {
+    panel_timeline->edit_to_point_internal(false, true);
+}
+
+void Timeline::edit_to_in_point() {
+    panel_timeline->edit_to_point_internal(true, false);
+}
+
+void Timeline::edit_to_out_point() {
+    panel_timeline->edit_to_point_internal(false, false);
 }
 
 void Timeline::toggle_links() {

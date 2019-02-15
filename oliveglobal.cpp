@@ -10,6 +10,11 @@
 
 #include "dialogs/demonotice.h"
 #include "dialogs/preferencesdialog.h"
+#include "dialogs/exportdialog.h"
+#include "dialogs/debugdialog.h"
+#include "dialogs/aboutdialog.h"
+#include "dialogs/speeddialog.h"
+#include "dialogs/actionsearch.h"
 
 #include "project/sequence.h"
 
@@ -78,6 +83,10 @@ void OliveGlobal::set_rendering_state(bool rendering) {
 void OliveGlobal::load_project_on_launch(const QString& s) {
     Olive::ActiveProjectFilename = s;
     enable_load_project_on_init = true;
+}
+
+QString OliveGlobal::get_recent_project_list_file() {
+    return get_data_dir().filePath("recents");
 }
 
 void OliveGlobal::new_project() {
@@ -166,6 +175,18 @@ bool OliveGlobal::can_close_project() {
     return true;
 }
 
+void OliveGlobal::open_export_dialog() {
+    if (Olive::ActiveSequence == nullptr) {
+        QMessageBox::information(Olive::MainWindow,
+                                 tr("No active sequence"),
+                                 tr("Please open the sequence you wish to export."),
+                                 QMessageBox::Ok);
+    } else {
+        ExportDialog e(Olive::MainWindow);
+        e.exec();
+    }
+}
+
 void OliveGlobal::finished_initialize() {
     // if a project was set as a command line argument, we load it here
     if (enable_load_project_on_init) {
@@ -229,4 +250,35 @@ void OliveGlobal::paste_insert() {
     if (Olive::ActiveSequence != nullptr) {
         panel_timeline->paste(true);
     }
+}
+
+void OliveGlobal::open_about_dialog() {
+    AboutDialog a(Olive::MainWindow);
+    a.exec();
+}
+
+void OliveGlobal::open_debug_log() {
+    Olive::DebugDialog->show();
+}
+
+void OliveGlobal::open_speed_dialog() {
+    if (Olive::ActiveSequence != nullptr) {
+        SpeedDialog s(Olive::MainWindow);
+        for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+            Clip* c = Olive::ActiveSequence->clips.at(i);
+            if (c != nullptr && is_clip_selected(c, true)) {
+                s.clips.append(c);
+            }
+        }
+        if (s.clips.size() > 0) s.run();
+    }
+}
+
+void OliveGlobal::clear_undo_stack() {
+    Olive::UndoStack.clear();
+}
+
+void OliveGlobal::open_action_search() {
+    ActionSearch as(Olive::MainWindow);
+    as.exec();
 }

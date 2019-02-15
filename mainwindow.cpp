@@ -20,17 +20,7 @@
 #include "ui/focusfilter.h"
 
 #include "panels/panels.h"
-#include "panels/project.h"
-#include "panels/effectcontrols.h"
-#include "panels/viewer.h"
-#include "panels/timeline.h"
-#include "panels/grapheditor.h"
 
-#include "dialogs/aboutdialog.h"
-#include "dialogs/newsequencedialog.h"
-#include "dialogs/exportdialog.h"
-#include "dialogs/speeddialog.h"
-#include "dialogs/actionsearch.h"
 #include "dialogs/debugdialog.h"
 
 #include "playback/audio.h"
@@ -94,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	open_debug_file();
 
-	debug_dialog = new DebugDialog(this);
+    Olive::DebugDialog = new DebugDialog(this);
 
     Olive::MainWindow = this;
 
@@ -168,9 +158,8 @@ MainWindow::MainWindow(QWidget *parent) :
 				if (deleted_ars > 0) qInfo() << "Deleted" << deleted_ars << "preview" << ((deleted_ars == 1) ? "file that was" : "files that were") << "last read over 30 days ago";
 			}
 
-			// search for open recents list
-            recent_proj_file = dir.filePath("recents");
-			QFile f(recent_proj_file);
+            // search for open recents list
+            QFile f(Olive::Global.data()->get_recent_project_list_file());
 			if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
 				QTextStream text_stream(&f);
 				while (true) {
@@ -339,52 +328,9 @@ void MainWindow::load_css_from_file(const QString &fn) {
 	}
 }
 
-void MainWindow::show_about() {
-	AboutDialog a(this);
-	a.exec();
-}
-
-void MainWindow::show_debug_log() {
-	debug_dialog->show();
-}
-
-void MainWindow::export_dialog() {
-	if (Olive::ActiveSequence == nullptr) {
-		QMessageBox::information(this, tr("No active sequence"), tr("Please open the sequence you wish to export."), QMessageBox::Ok);
-	} else {
-		ExportDialog e(this);
-		e.exec();
-	}
-}
-
-void MainWindow::ripple_delete() {
-	if (Olive::ActiveSequence != nullptr) {
-		if (Olive::ActiveSequence->selections.size() > 0) {
-			panel_timeline->delete_selection(Olive::ActiveSequence->selections, true);
-		} else if (config.hover_focus && get_focused_panel() == panel_timeline) {
-			if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
-				panel_timeline->ripple_delete_empty_space();
-			}
-		}
-	}
-}
-
 void MainWindow::editMenu_About_To_Be_Shown() {
     undo_action->setEnabled(Olive::UndoStack.canUndo());
     redo_action->setEnabled(Olive::UndoStack.canRedo());
-}
-
-void MainWindow::open_speed_dialog() {
-	if (Olive::ActiveSequence != nullptr) {
-		SpeedDialog s(this);
-		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-			Clip* c = Olive::ActiveSequence->clips.at(i);
-			if (c != nullptr && is_clip_selected(c, true)) {
-				s.clips.append(c);
-			}
-		}
-		if (s.clips.size() > 0) s.run();
-	}
 }
 
 void MainWindow::setup_menus() {
@@ -418,7 +364,7 @@ void MainWindow::setup_menus() {
 
 	file_menu->addSeparator();
 
-	file_menu->addAction(tr("&Export..."), this, SLOT(export_dialog()), QKeySequence("Ctrl+M"))->setProperty("id", "export");
+    file_menu->addAction(tr("&Export..."), Olive::Global.data(), SLOT(open_export_dialog()), QKeySequence("Ctrl+M"))->setProperty("id", "export");
 
 	file_menu->addSeparator();
 
@@ -450,20 +396,20 @@ void MainWindow::setup_menus() {
 
 	edit_menu->addSeparator();
 
-	edit_menu->addAction(tr("Ripple to In Point"), this, SLOT(ripple_to_in_point()), QKeySequence("Q"))->setProperty("id", "rippletoin");
-	edit_menu->addAction(tr("Ripple to Out Point"), this, SLOT(ripple_to_out_point()), QKeySequence("W"))->setProperty("id", "rippletoout");
-	edit_menu->addAction(tr("Edit to In Point"), this, SLOT(edit_to_in_point()), QKeySequence("Ctrl+Alt+Q"))->setProperty("id", "edittoin");
-	edit_menu->addAction(tr("Edit to Out Point"), this, SLOT(edit_to_out_point()), QKeySequence("Ctrl+Alt+W"))->setProperty("id", "edittoout");
+    edit_menu->addAction(tr("Ripple to In Point"), panel_timeline, SLOT(ripple_to_in_point()), QKeySequence("Q"))->setProperty("id", "rippletoin");
+    edit_menu->addAction(tr("Ripple to Out Point"), panel_timeline, SLOT(ripple_to_out_point()), QKeySequence("W"))->setProperty("id", "rippletoout");
+    edit_menu->addAction(tr("Edit to In Point"), panel_timeline, SLOT(edit_to_in_point()), QKeySequence("Ctrl+Alt+Q"))->setProperty("id", "edittoin");
+    edit_menu->addAction(tr("Edit to Out Point"), panel_timeline, SLOT(edit_to_out_point()), QKeySequence("Ctrl+Alt+W"))->setProperty("id", "edittoout");
 
 	edit_menu->addSeparator();
 
     Olive::MenuHelper.make_inout_menu(edit_menu);
-	edit_menu->addAction(tr("Delete In/Out Point"), this, SLOT(delete_inout()), QKeySequence(";"))->setProperty("id", "deleteinout");
-	edit_menu->addAction(tr("Ripple Delete In/Out Point"), this, SLOT(ripple_delete_inout()), QKeySequence("'"))->setProperty("id", "rippledeleteinout");
+    edit_menu->addAction(tr("Delete In/Out Point"), panel_timeline, SLOT(delete_inout()), QKeySequence(";"))->setProperty("id", "deleteinout");
+    edit_menu->addAction(tr("Ripple Delete In/Out Point"), panel_timeline, SLOT(ripple_delete_inout()), QKeySequence("'"))->setProperty("id", "rippledeleteinout");
 
 	edit_menu->addSeparator();
 
-	edit_menu->addAction(tr("Set/Edit Marker"), this, SLOT(set_marker()), QKeySequence("M"))->setProperty("id", "marker");
+    edit_menu->addAction(tr("Set/Edit Marker"), &Olive::FocusFilter, SLOT(set_marker()), QKeySequence("M"))->setProperty("id", "marker");
 
 	// INITIALIZE VIEW MENU
 
@@ -481,31 +427,31 @@ void MainWindow::setup_menus() {
 
 	view_menu->addSeparator();
 
-	track_lines = view_menu->addAction(tr("Track Lines"), this, SLOT(toggle_bool_action()));
+    track_lines = view_menu->addAction(tr("Track Lines"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	track_lines->setProperty("id", "tracklines");
 	track_lines->setCheckable(true);
 	track_lines->setData(reinterpret_cast<quintptr>(&config.show_track_lines));
 
-	rectified_waveforms = view_menu->addAction(tr("Rectified Waveforms"), this, SLOT(toggle_bool_action()));
+    rectified_waveforms = view_menu->addAction(tr("Rectified Waveforms"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	rectified_waveforms->setProperty("id", "rectifiedwaveforms");
 	rectified_waveforms->setCheckable(true);
 	rectified_waveforms->setData(reinterpret_cast<quintptr>(&config.rectified_waveforms));
 
 	view_menu->addSeparator();
 
-	frames_action = view_menu->addAction(tr("Frames"), this, SLOT(set_timecode_view()));
+    frames_action = view_menu->addAction(tr("Frames"), &Olive::MenuHelper, SLOT(set_timecode_view()));
 	frames_action->setProperty("id", "modeframes");
 	frames_action->setData(TIMECODE_FRAMES);
 	frames_action->setCheckable(true);
-	drop_frame_action = view_menu->addAction(tr("Drop Frame"), this, SLOT(set_timecode_view()));
+    drop_frame_action = view_menu->addAction(tr("Drop Frame"), &Olive::MenuHelper, SLOT(set_timecode_view()));
 	drop_frame_action->setProperty("id", "modedropframe");
 	drop_frame_action->setData(TIMECODE_DROP);
 	drop_frame_action->setCheckable(true);
-	nondrop_frame_action = view_menu->addAction(tr("Non-Drop Frame"), this, SLOT(set_timecode_view()));
+    nondrop_frame_action = view_menu->addAction(tr("Non-Drop Frame"), &Olive::MenuHelper, SLOT(set_timecode_view()));
 	nondrop_frame_action->setProperty("id", "modenondropframe");
 	nondrop_frame_action->setData(TIMECODE_NONDROP);
 	nondrop_frame_action->setCheckable(true);
-	milliseconds_action = view_menu->addAction(tr("Milliseconds"), this, SLOT(set_timecode_view()));
+    milliseconds_action = view_menu->addAction(tr("Milliseconds"), &Olive::MenuHelper, SLOT(set_timecode_view()));
 	milliseconds_action->setProperty("id", "milliseconds");
 	milliseconds_action->setData(TIMECODE_MILLISECONDS);
 	milliseconds_action->setCheckable(true);
@@ -517,27 +463,32 @@ void MainWindow::setup_menus() {
 	title_safe_off = title_safe_area_menu->addAction(tr("Off"));
 	title_safe_off->setProperty("id", "titlesafeoff");
 	title_safe_off->setCheckable(true);
-	connect(title_safe_off, SIGNAL(triggered(bool)), this, SLOT(set_tsa_disable()));
+    title_safe_off->setData(qSNaN());
+    connect(title_safe_off, SIGNAL(triggered(bool)), &Olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
 
 	title_safe_default = title_safe_area_menu->addAction(tr("Default"));
 	title_safe_default->setProperty("id", "titlesafedefault");
 	title_safe_default->setCheckable(true);
-	connect(title_safe_default, SIGNAL(triggered(bool)), this, SLOT(set_tsa_default()));
+    title_safe_default->setData(0.0);
+    connect(title_safe_default, SIGNAL(triggered(bool)), &Olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
 
 	title_safe_43 = title_safe_area_menu->addAction(tr("4:3"));
 	title_safe_43->setProperty("id", "titlesafe43");
 	title_safe_43->setCheckable(true);
-	connect(title_safe_43, SIGNAL(triggered(bool)), this, SLOT(set_tsa_43()));
+    title_safe_43->setData(4.0/3.0);
+    connect(title_safe_43, SIGNAL(triggered(bool)), &Olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
 
 	title_safe_169 = title_safe_area_menu->addAction(tr("16:9"));
 	title_safe_169->setProperty("id", "titlesafe169");
 	title_safe_169->setCheckable(true);
-	connect(title_safe_169, SIGNAL(triggered(bool)), this, SLOT(set_tsa_169()));
+    title_safe_169->setData(16.0/9.0);
+    connect(title_safe_169, SIGNAL(triggered(bool)), &Olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
 
 	title_safe_custom = title_safe_area_menu->addAction(tr("Custom"));
 	title_safe_custom->setProperty("id", "titlesafecustom");
 	title_safe_custom->setCheckable(true);
-	connect(title_safe_custom, SIGNAL(triggered(bool)), this, SLOT(set_tsa_custom()));
+    title_safe_custom->setData(-1.0);
+    connect(title_safe_custom, SIGNAL(triggered(bool)), &Olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
 
 	view_menu->addSeparator();
 
@@ -545,7 +496,7 @@ void MainWindow::setup_menus() {
 	full_screen->setProperty("id", "fullscreen");
 	full_screen->setCheckable(true);
 
-	view_menu->addAction(tr("Full Screen Viewer"), this, SLOT(full_screen_viewer()))->setProperty("id", "fullscreenviewer");
+    view_menu->addAction(tr("Full Screen Viewer"), &Olive::FocusFilter, SLOT(set_viewer_fullscreen()))->setProperty("id", "fullscreenviewer");
 
 	// INITIALIZE PLAYBACK MENU
 
@@ -570,7 +521,7 @@ void MainWindow::setup_menus() {
     playback_menu->addAction(tr("Shuttle Right"), &Olive::FocusFilter, SLOT(increase_speed()), QKeySequence("L"))->setProperty("id", "incspeed");
 	playback_menu->addSeparator();
 
-	loop_action = playback_menu->addAction(tr("Loop"), this, SLOT(toggle_bool_action()));
+    loop_action = playback_menu->addAction(tr("Loop"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	loop_action->setProperty("id", "loop");
 	loop_action->setCheckable(true);
 	loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
@@ -580,32 +531,32 @@ void MainWindow::setup_menus() {
 	window_menu = menuBar->addMenu(tr("&Window"));
 	connect(window_menu, SIGNAL(aboutToShow()), this, SLOT(windowMenu_About_To_Be_Shown()));
 
-	QAction* window_project_action = window_menu->addAction(tr("Project"), this, SLOT(toggle_panel_visibility()));
+    QAction* window_project_action = window_menu->addAction(tr("Project"), this, SLOT(toggle_panel_visibility()));
 	window_project_action->setProperty("id", "panelproject");
 	window_project_action->setCheckable(true);
 	window_project_action->setData(reinterpret_cast<quintptr>(panel_project));
 
-	QAction* window_effectcontrols_action = window_menu->addAction(tr("Effect Controls"), this, SLOT(toggle_panel_visibility()));
+    QAction* window_effectcontrols_action = window_menu->addAction(tr("Effect Controls"), this, SLOT(toggle_panel_visibility()));
 	window_effectcontrols_action->setProperty("id", "paneleffectcontrols");
 	window_effectcontrols_action->setCheckable(true);
 	window_effectcontrols_action->setData(reinterpret_cast<quintptr>(panel_effect_controls));
 
-	QAction* window_timeline_action = window_menu->addAction(tr("Timeline"), this, SLOT(toggle_panel_visibility()));
+    QAction* window_timeline_action = window_menu->addAction(tr("Timeline"), this, SLOT(toggle_panel_visibility()));
 	window_timeline_action->setProperty("id", "paneltimeline");
 	window_timeline_action->setCheckable(true);
 	window_timeline_action->setData(reinterpret_cast<quintptr>(panel_timeline));
 
-	QAction* window_graph_editor_action = window_menu->addAction(tr("Graph Editor"), this, SLOT(toggle_panel_visibility()));
+    QAction* window_graph_editor_action = window_menu->addAction(tr("Graph Editor"), this, SLOT(toggle_panel_visibility()));
 	window_graph_editor_action->setProperty("id", "panelgrapheditor");
 	window_graph_editor_action->setCheckable(true);
 	window_graph_editor_action->setData(reinterpret_cast<quintptr>(panel_graph_editor));
 
-	QAction* window_footageviewer_action = window_menu->addAction(tr("Media Viewer"), this, SLOT(toggle_panel_visibility()));
+    QAction* window_footageviewer_action = window_menu->addAction(tr("Media Viewer"), this, SLOT(toggle_panel_visibility()));
 	window_footageviewer_action->setProperty("id", "panelfootageviewer");
 	window_footageviewer_action->setCheckable(true);
 	window_footageviewer_action->setData(reinterpret_cast<quintptr>(panel_footage_viewer));
 
-	QAction* window_sequenceviewer_action = window_menu->addAction(tr("Sequence Viewer"), this, SLOT(toggle_panel_visibility()));
+    QAction* window_sequenceviewer_action = window_menu->addAction(tr("Sequence Viewer"), this, SLOT(toggle_panel_visibility()));
 	window_sequenceviewer_action->setProperty("id", "panelsequenceviewer");
 	window_sequenceviewer_action->setCheckable(true);
 	window_sequenceviewer_action->setData(reinterpret_cast<quintptr>(panel_sequence_viewer));
@@ -623,133 +574,133 @@ void MainWindow::setup_menus() {
 	QMenu* tools_menu = menuBar->addMenu(tr("&Tools"));
 	connect(tools_menu, SIGNAL(aboutToShow()), this, SLOT(toolMenu_About_To_Be_Shown()));
 
-	pointer_tool_action = tools_menu->addAction(tr("Pointer Tool"), this, SLOT(menu_click_button()), QKeySequence("V"));
+    pointer_tool_action = tools_menu->addAction(tr("Pointer Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("V"));
 	pointer_tool_action->setProperty("id", "pointertool");
 	pointer_tool_action->setCheckable(true);
 	pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolArrowButton));
 
-	edit_tool_action = tools_menu->addAction(tr("Edit Tool"), this, SLOT(menu_click_button()), QKeySequence("X"));
+    edit_tool_action = tools_menu->addAction(tr("Edit Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("X"));
 	edit_tool_action->setProperty("id", "edittool");
 	edit_tool_action->setCheckable(true);
 	edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolEditButton));
 
-	ripple_tool_action = tools_menu->addAction(tr("Ripple Tool"), this, SLOT(menu_click_button()), QKeySequence("B"));
+    ripple_tool_action = tools_menu->addAction(tr("Ripple Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("B"));
 	ripple_tool_action->setProperty("id", "rippletool");
 	ripple_tool_action->setCheckable(true);
 	ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRippleButton));
 
-	razor_tool_action = tools_menu->addAction(tr("Razor Tool"), this, SLOT(menu_click_button()), QKeySequence("C"));
+    razor_tool_action = tools_menu->addAction(tr("Razor Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("C"));
 	razor_tool_action->setProperty("id", "razortool");
 	razor_tool_action->setCheckable(true);
 	razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRazorButton));
 
-	slip_tool_action = tools_menu->addAction(tr("Slip Tool"), this, SLOT(menu_click_button()), QKeySequence("Y"));
+    slip_tool_action = tools_menu->addAction(tr("Slip Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("Y"));
 	slip_tool_action->setProperty("id", "sliptool");
 	slip_tool_action->setCheckable(true);
 	slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlipButton));
 
-	slide_tool_action = tools_menu->addAction(tr("Slide Tool"), this, SLOT(menu_click_button()), QKeySequence("U"));
+    slide_tool_action = tools_menu->addAction(tr("Slide Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("U"));
 	slide_tool_action->setProperty("id", "slidetool");
 	slide_tool_action->setCheckable(true);
 	slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlideButton));
 
-	hand_tool_action = tools_menu->addAction(tr("Hand Tool"), this, SLOT(menu_click_button()), QKeySequence("H"));
+    hand_tool_action = tools_menu->addAction(tr("Hand Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("H"));
 	hand_tool_action->setProperty("id", "handtool");
 	hand_tool_action->setCheckable(true);
 	hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolHandButton));
 
-	transition_tool_action = tools_menu->addAction(tr("Transition Tool"), this, SLOT(menu_click_button()), QKeySequence("T"));
+    transition_tool_action = tools_menu->addAction(tr("Transition Tool"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("T"));
 	transition_tool_action->setProperty("id", "transitiontool");
 	transition_tool_action->setCheckable(true);
 	transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolTransitionButton));
 
 	tools_menu->addSeparator();
 
-	snap_toggle = tools_menu->addAction(tr("Enable Snapping"), this, SLOT(menu_click_button()), QKeySequence("S"));
+    snap_toggle = tools_menu->addAction(tr("Enable Snapping"), &Olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("S"));
 	snap_toggle->setProperty("id", "snapping");
 	snap_toggle->setCheckable(true);
 	snap_toggle->setData(reinterpret_cast<quintptr>(panel_timeline->snappingButton));
 
 	tools_menu->addSeparator();
 
-	selecting_also_seeks = tools_menu->addAction(tr("Selecting Also Seeks"), this, SLOT(toggle_bool_action()));
+    selecting_also_seeks = tools_menu->addAction(tr("Selecting Also Seeks"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	selecting_also_seeks->setProperty("id", "selectingalsoseeks");
 	selecting_also_seeks->setCheckable(true);
 	selecting_also_seeks->setData(reinterpret_cast<quintptr>(&config.select_also_seeks));
 
-	edit_tool_also_seeks = tools_menu->addAction(tr("Edit Tool Also Seeks"), this, SLOT(toggle_bool_action()));
+    edit_tool_also_seeks = tools_menu->addAction(tr("Edit Tool Also Seeks"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	edit_tool_also_seeks->setProperty("id", "editalsoseeks");
 	edit_tool_also_seeks->setCheckable(true);
 	edit_tool_also_seeks->setData(reinterpret_cast<quintptr>(&config.edit_tool_also_seeks));
 
-	edit_tool_selects_links = tools_menu->addAction(tr("Edit Tool Selects Links"), this, SLOT(toggle_bool_action()));
+    edit_tool_selects_links = tools_menu->addAction(tr("Edit Tool Selects Links"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	edit_tool_selects_links->setProperty("id", "editselectslinks");
 	edit_tool_selects_links->setCheckable(true);
 	edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&config.edit_tool_selects_links));
 
-	seek_also_selects = tools_menu->addAction(tr("Seek Also Selects"), this, SLOT(toggle_bool_action()));
+    seek_also_selects = tools_menu->addAction(tr("Seek Also Selects"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	seek_also_selects->setProperty("id", "seekalsoselects");
 	seek_also_selects->setCheckable(true);
 	seek_also_selects->setData(reinterpret_cast<quintptr>(&config.seek_also_selects));
 
-	seek_to_end_of_pastes = tools_menu->addAction(tr("Seek to the End of Pastes"), this, SLOT(toggle_bool_action()));
+    seek_to_end_of_pastes = tools_menu->addAction(tr("Seek to the End of Pastes"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	seek_to_end_of_pastes->setProperty("id", "seektoendofpastes");
 	seek_to_end_of_pastes->setCheckable(true);
 	seek_to_end_of_pastes->setData(reinterpret_cast<quintptr>(&config.paste_seeks));
 
-	scroll_wheel_zooms = tools_menu->addAction(tr("Scroll Wheel Zooms"), this, SLOT(toggle_bool_action()));
+    scroll_wheel_zooms = tools_menu->addAction(tr("Scroll Wheel Zooms"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	scroll_wheel_zooms->setProperty("id", "scrollwheelzooms");
 	scroll_wheel_zooms->setCheckable(true);
 	scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&config.scroll_zooms));
 
-	enable_drag_files_to_timeline = tools_menu->addAction(tr("Enable Drag Files to Timeline"), this, SLOT(toggle_bool_action()));
+    enable_drag_files_to_timeline = tools_menu->addAction(tr("Enable Drag Files to Timeline"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_drag_files_to_timeline->setProperty("id", "enabledragfilestotimeline");
 	enable_drag_files_to_timeline->setCheckable(true);
 	enable_drag_files_to_timeline->setData(reinterpret_cast<quintptr>(&config.enable_drag_files_to_timeline));
 
-	autoscale_by_default = tools_menu->addAction(tr("Auto-Scale By Default"), this, SLOT(toggle_bool_action()));
+    autoscale_by_default = tools_menu->addAction(tr("Auto-Scale By Default"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	autoscale_by_default->setProperty("id", "autoscalebydefault");
 	autoscale_by_default->setCheckable(true);
 	autoscale_by_default->setData(reinterpret_cast<quintptr>(&config.autoscale_by_default));
 
-	enable_seek_to_import = tools_menu->addAction(tr("Enable Seek to Import"), this, SLOT(toggle_bool_action()));
+    enable_seek_to_import = tools_menu->addAction(tr("Enable Seek to Import"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_seek_to_import->setProperty("id", "enableseektoimport");
 	enable_seek_to_import->setCheckable(true);
 	enable_seek_to_import->setData(reinterpret_cast<quintptr>(&config.enable_seek_to_import));
 
-	enable_audio_scrubbing = tools_menu->addAction(tr("Audio Scrubbing"), this, SLOT(toggle_bool_action()));
+    enable_audio_scrubbing = tools_menu->addAction(tr("Audio Scrubbing"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_audio_scrubbing->setProperty("id", "audioscrubbing");
 	enable_audio_scrubbing->setCheckable(true);
 	enable_audio_scrubbing->setData(reinterpret_cast<quintptr>(&config.enable_audio_scrubbing));
 
-	enable_drop_on_media_to_replace = tools_menu->addAction(tr("Enable Drop on Media to Replace"), this, SLOT(toggle_bool_action()));
+    enable_drop_on_media_to_replace = tools_menu->addAction(tr("Enable Drop on Media to Replace"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_drop_on_media_to_replace->setProperty("id", "enabledropmediareplace");
 	enable_drop_on_media_to_replace->setCheckable(true);
 	enable_drop_on_media_to_replace->setData(reinterpret_cast<quintptr>(&config.drop_on_media_to_replace));
 
-	enable_hover_focus = tools_menu->addAction(tr("Enable Hover Focus"), this, SLOT(toggle_bool_action()));
+    enable_hover_focus = tools_menu->addAction(tr("Enable Hover Focus"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_hover_focus->setProperty("id", "hoverfocus");
 	enable_hover_focus->setCheckable(true);
 	enable_hover_focus->setData(reinterpret_cast<quintptr>(&config.hover_focus));
 
-	set_name_and_marker = tools_menu->addAction(tr("Ask For Name When Setting Marker"), this, SLOT(toggle_bool_action()));
+    set_name_and_marker = tools_menu->addAction(tr("Ask For Name When Setting Marker"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	set_name_and_marker->setProperty("id", "asknamemarkerset");
 	set_name_and_marker->setCheckable(true);
 	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
 
 	tools_menu->addSeparator();
 
-	no_autoscroll = tools_menu->addAction(tr("No Auto-Scroll"), this, SLOT(set_autoscroll()));
+    no_autoscroll = tools_menu->addAction(tr("No Auto-Scroll"), &Olive::MenuHelper, SLOT(set_autoscroll()));
 	no_autoscroll->setProperty("id", "autoscrollno");
 	no_autoscroll->setData(AUTOSCROLL_NO_SCROLL);
 	no_autoscroll->setCheckable(true);
 
-	page_autoscroll = tools_menu->addAction(tr("Page Auto-Scroll"), this, SLOT(set_autoscroll()));
+    page_autoscroll = tools_menu->addAction(tr("Page Auto-Scroll"), &Olive::MenuHelper, SLOT(set_autoscroll()));
 	page_autoscroll->setProperty("id", "autoscrollpage");
 	page_autoscroll->setData(AUTOSCROLL_PAGE_SCROLL);
 	page_autoscroll->setCheckable(true);
 
-	smooth_autoscroll = tools_menu->addAction(tr("Smooth Auto-Scroll"), this, SLOT(set_autoscroll()));
+    smooth_autoscroll = tools_menu->addAction(tr("Smooth Auto-Scroll"), &Olive::MenuHelper, SLOT(set_autoscroll()));
 	smooth_autoscroll->setProperty("id", "autoscrollsmooth");
 	smooth_autoscroll->setData(AUTOSCROLL_SMOOTH_SCROLL);
 	smooth_autoscroll->setCheckable(true);
@@ -759,22 +710,22 @@ void MainWindow::setup_menus() {
     tools_menu->addAction(tr("Preferences"), Olive::Global.data(), SLOT(open_preferences()), QKeySequence("Ctrl+,"))->setProperty("id", "prefs");
 
 #ifdef QT_DEBUG
-	tools_menu->addAction(tr("Clear Undo"), this, SLOT(clear_undo_stack()))->setProperty("id", "clearundo");
+    tools_menu->addAction(tr("Clear Undo"), Olive::Global.data(), SLOT(clear_undo_stack()))->setProperty("id", "clearundo");
 #endif
 
 	// INITIALIZE HELP MENU
 
 	QMenu* help_menu = menuBar->addMenu(tr("&Help"));
 
-	help_menu->addAction(tr("A&ction Search"), this, SLOT(show_action_search()), QKeySequence("/"))->setProperty("id", "actionsearch");
+    help_menu->addAction(tr("A&ction Search"), Olive::Global.data(), SLOT(open_action_search()), QKeySequence("/"))->setProperty("id", "actionsearch");
 
 	help_menu->addSeparator();
 
-	help_menu->addAction(tr("Debug Log"), this, SLOT(show_debug_log()))->setProperty("id", "debuglog");
+    help_menu->addAction(tr("Debug Log"), Olive::Global.data(), SLOT(open_debug_log()))->setProperty("id", "debuglog");
 
 	help_menu->addSeparator();
 
-	help_menu->addAction(tr("&About..."), this, SLOT(show_about()))->setProperty("id", "about");
+    help_menu->addAction(tr("&About..."), Olive::Global.data(), SLOT(open_about_dialog()))->setProperty("id", "about");
 
 	load_shortcuts(get_config_path() + "/shortcuts", true);
 }
@@ -844,15 +795,6 @@ void MainWindow::paintEvent(QPaintEvent *event) {
     }
 }
 
-void MainWindow::clear_undo_stack() {
-    Olive::UndoStack.clear();
-}
-
-void MainWindow::show_action_search() {
-	ActionSearch as(this);
-	as.exec();
-}
-
 void MainWindow::reset_layout() {
 	setup_layout(true);
 }
@@ -887,14 +829,6 @@ void MainWindow::maximize_panel() {
 	}
 }
 
-void MainWindow::full_screen_viewer() {
-	if (get_focused_panel() == panel_footage_viewer) {
-		panel_footage_viewer->viewer_widget->set_fullscreen();
-	} else {
-		panel_sequence_viewer->viewer_widget->set_fullscreen();
-	}
-}
-
 void MainWindow::windowMenu_About_To_Be_Shown() {
 	QList<QAction*> window_actions = window_menu->actions();
 	for (int i=0;i<window_actions.size();i++) {
@@ -918,10 +852,18 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
     Olive::MenuHelper.set_int_action_checked(milliseconds_action, config.timecode_view);
 
 	title_safe_off->setChecked(!config.show_title_safe_area);
-	title_safe_default->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
-	title_safe_43->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && qFuzzyCompare(config.custom_title_safe_ratio, 4.0/3.0));
-	title_safe_169->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && qFuzzyCompare(config.custom_title_safe_ratio, 16.0/9.0));
-	title_safe_custom->setChecked(config.show_title_safe_area && config.use_custom_title_safe_ratio && !title_safe_43->isChecked() && !title_safe_169->isChecked());
+    title_safe_default->setChecked(config.show_title_safe_area
+                                   && !config.use_custom_title_safe_ratio);
+    title_safe_43->setChecked(config.show_title_safe_area
+                              && config.use_custom_title_safe_ratio
+                              && qFuzzyCompare(config.custom_title_safe_ratio, title_safe_43->data().toDouble()));
+    title_safe_169->setChecked(config.show_title_safe_area
+                               && config.use_custom_title_safe_ratio
+                               && qFuzzyCompare(config.custom_title_safe_ratio, title_safe_169->data().toDouble()));
+    title_safe_custom->setChecked(config.show_title_safe_area
+                                  && config.use_custom_title_safe_ratio
+                                  && !title_safe_43->isChecked()
+                                  && !title_safe_169->isChecked());
 
 	full_screen->setChecked(windowState() == Qt::WindowFullScreen);
 
@@ -959,6 +901,16 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     Olive::MenuHelper.set_int_action_checked(smooth_autoscroll, config.autoscroll);
 }
 
+void MainWindow::toggle_panel_visibility() {
+    QAction* action = static_cast<QAction*>(sender());
+    QDockWidget* w = reinterpret_cast<QDockWidget*>(action->data().value<quintptr>());
+    w->setVisible(!w->isVisible());
+
+    // layout has changed, we're no longer in maximized panel mode,
+    // so we clear this byte array
+    temp_panel_state.clear();
+}
+
 void MainWindow::fileMenu_About_To_Be_Shown() {
 	if (recent_projects.size() > 0) {
 		open_recent->clear();
@@ -977,14 +929,6 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 	}
 }
 
-void MainWindow::ripple_to_in_point() {
-    panel_timeline->ripple_to_in_point(true, true);
-}
-
-void MainWindow::ripple_to_out_point() {
-    panel_timeline->ripple_to_in_point(false, true);
-}
-
 void MainWindow::toggle_full_screen() {
 	if (windowState() == Qt::WindowFullScreen) {
 		setWindowState(Qt::WindowNoState); // seems to be necessary for it to return to Maximized correctly on Linux
@@ -992,115 +936,4 @@ void MainWindow::toggle_full_screen() {
 	} else {
 		setWindowState(Qt::WindowFullScreen);
 	}
-}
-
-void MainWindow::delete_inout() {
-    panel_timeline->delete_in_out(false);
-}
-
-void MainWindow::ripple_delete_inout() {
-    panel_timeline->delete_in_out(true);
-}
-
-void MainWindow::set_tsa_default() {
-	config.show_title_safe_area = true;
-	config.use_custom_title_safe_ratio = false;
-	panel_sequence_viewer->viewer_widget->update();
-}
-
-void MainWindow::set_tsa_disable() {
-	config.show_title_safe_area = false;
-	panel_sequence_viewer->viewer_widget->update();
-}
-
-void MainWindow::set_tsa_43() {
-	config.show_title_safe_area = true;
-	config.use_custom_title_safe_ratio = true;
-	config.custom_title_safe_ratio = 4.0/3.0;
-	panel_sequence_viewer->viewer_widget->update();
-}
-
-void MainWindow::set_tsa_169() {
-	config.show_title_safe_area = true;
-	config.use_custom_title_safe_ratio = true;
-	config.custom_title_safe_ratio = 16.0/9.0;
-	panel_sequence_viewer->viewer_widget->update();
-}
-
-void MainWindow::set_tsa_custom() {
-	QString input;
-	bool invalid = false;
-	QRegExp arTest("[0-9.]+:[0-9.]+");
-
-	do {
-		if (invalid) {
-			QMessageBox::critical(this, tr("Invalid aspect ratio"), tr("The aspect ratio '%1' is invalid. Please try again.").arg(input));
-		}
-
-		input = QInputDialog::getText(this, tr("Enter custom aspect ratio"), tr("Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):"));
-		invalid = !arTest.exactMatch(input) && !input.isEmpty();
-	} while (invalid);
-
-	if (!input.isEmpty()) {
-		QStringList inputList = input.split(':');
-
-		config.show_title_safe_area = true;
-		config.use_custom_title_safe_ratio = true;
-		config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
-		panel_sequence_viewer->viewer_widget->update();
-	}
-}
-
-void MainWindow::set_marker() {
-	if (Olive::ActiveSequence != nullptr) {
-		QDockWidget* focused_panel = get_focused_panel();
-
-		if (focused_panel == panel_timeline) {
-			panel_timeline->set_marker();
-		} else if (focused_panel == panel_footage_viewer) {
-			panel_footage_viewer->set_marker();
-		} else if (focused_panel == panel_sequence_viewer) {
-			panel_sequence_viewer->set_marker();
-		}
-	}
-}
-
-void MainWindow::edit_to_in_point() {
-    panel_timeline->ripple_to_in_point(true, false);
-}
-
-void MainWindow::edit_to_out_point() {
-    panel_timeline->ripple_to_in_point(false, false);
-}
-
-void MainWindow::toggle_bool_action() {
-	QAction* action = static_cast<QAction*>(sender());
-	bool* variable = reinterpret_cast<bool*>(action->data().value<quintptr>());
-	*variable = !(*variable);
-	update_ui(false);
-}
-
-void MainWindow::set_autoscroll() {
-	QAction* action = static_cast<QAction*>(sender());
-	config.autoscroll = action->data().toInt();
-}
-
-void MainWindow::menu_click_button() {
-    reinterpret_cast<QPushButton*>(static_cast<QAction*>(sender())->data().value<quintptr>())->click();
-}
-
-void MainWindow::toggle_panel_visibility() {
-	QAction* action = static_cast<QAction*>(sender());
-	QDockWidget* w = reinterpret_cast<QDockWidget*>(action->data().value<quintptr>());
-	w->setVisible(!w->isVisible());
-
-	// layout has changed, we're no longer in maximized panel mode,
-	// so we clear this byte array
-	temp_panel_state.clear();
-}
-
-void MainWindow::set_timecode_view() {
-	QAction* action = static_cast<QAction*>(sender());
-	config.timecode_view = action->data().toInt();
-	update_ui(false);
 }

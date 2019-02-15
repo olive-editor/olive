@@ -30,8 +30,6 @@ class SourcesCommon;
 
 extern QString autorecovery_filename;
 extern QStringList recent_projects;
-extern QString recent_proj_file;
-
 extern ProjectModel project_model;
 
 Sequence* create_sequence_from_media(QVector<Media *> &media_list);
@@ -107,7 +105,7 @@ private slots:
 	void set_icon_view_size(int);
 	void set_up_dir_enabled();
 	void go_up_dir();
-	void make_new_menu();
+    void make_new_menu();
 };
 
 class MediaThrobber : public QObject {

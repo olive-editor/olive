@@ -4,6 +4,7 @@
 #include "project/undo.h"
 
 #include <QTimer>
+#include <QFile>
 
 class OliveGlobal : public QObject {
     Q_OBJECT
@@ -20,12 +21,38 @@ public:
 
     void load_project_on_launch(const QString& s);
 
+    QString get_recent_project_list_file();
+
 public slots:
+    /**
+     * @brief Undo user's last action
+     */
     void undo();
+
+    /**
+     * @brief Redo user's last action
+     */
     void redo();
 
+    /**
+     * @brief Paste contents of clipboard
+     *
+     * Pastes contents of clipboard. Seeing as several types of data can be copied into the clipboard, this
+     * function will automatically determine what type of data is in the clipboard and paste it in the correct
+     * location (e.g. clip data will go to the Timeline, effect data will go to Effect Controls).
+     */
     void paste();
+
+    /**
+     * @brief Paste contents of clipboard, making space for it when possible
+     *
+     * Pastes contents of clipboard (same as paste()). If the clipboard contains clip data, the clips are cut at the
+     * current playhead and ripple forward to make space for the clips in the clipboard. Can be considered
+     * semi-non-destructive as a result (as opposed to paste() overwriting clips). If the clipboard contains effect
+     * data, the functionality is identical to paste().
+     */
     void paste_insert();
+
 
     void new_project();
     void open_project();
@@ -34,6 +61,14 @@ public slots:
     bool save_project();
 
     bool can_close_project();
+
+    void open_export_dialog();
+    void open_about_dialog();
+    void open_debug_log();
+    void open_speed_dialog();
+    void open_action_search();
+
+    void clear_undo_stack();
 
     /**
      * @brief Function called when Olive has finished starting up

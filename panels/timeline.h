@@ -91,8 +91,8 @@ public:
 
 	QVector<int> get_tracks_of_linked_clips(int i);
 	bool has_clip_been_split(int c);
-	void ripple_to_in_point(bool in, bool ripple);
-	void delete_in_out(bool ripple);
+    void edit_to_point_internal(bool in, bool ripple);
+    void delete_in_out_internal(bool ripple);
 
 	void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
 	void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
@@ -210,8 +210,17 @@ public slots:
 	void deselect();
 	void toggle_links();
 	void split_at_playhead();
+    void ripple_delete();
 	void ripple_delete_empty_space();
     void toggle_enable_on_selected_clips();
+
+    void delete_inout();
+    void ripple_delete_inout();
+
+    void ripple_to_in_point();
+    void ripple_to_out_point();
+    void edit_to_in_point();
+    void edit_to_out_point();
 
     void increase_track_height();
     void decrease_track_height();

@@ -22,11 +22,7 @@ public:
 	void load_css_from_file(const QString& fn);
 
 public slots:
-    void open_speed_dialog();
-
     void toggle_full_screen();
-
-	void toggle_bool_action();
 
 signals:
     void finished_first_paint();
@@ -36,18 +32,8 @@ protected:
 	virtual void paintEvent(QPaintEvent *event) override;
 
 private slots:
-	void clear_undo_stack();
-
-	void show_about();
-	void show_debug_log();
-
-	void export_dialog();
-    void ripple_delete();
-
 	void maximize_panel();
 	void reset_layout();
-
-	void full_screen_viewer();
 
     void fileMenu_About_To_Be_Shown();
 	void editMenu_About_To_Be_Shown();
@@ -56,29 +42,7 @@ private slots:
 	void viewMenu_About_To_Be_Shown();
     void toolMenu_About_To_Be_Shown();
 
-	void ripple_to_in_point();
-	void ripple_to_out_point();
-
-	void delete_inout();
-	void ripple_delete_inout();
-
-	// title safe area functions
-	void set_tsa_disable();
-	void set_tsa_default();
-	void set_tsa_43();
-	void set_tsa_169();
-	void set_tsa_custom();
-
-	void set_marker();
-
-	void edit_to_in_point();
-	void edit_to_out_point();
-	void set_autoscroll();
-	void menu_click_button();
-	void toggle_panel_visibility();
-    void set_timecode_view();
-
-	void show_action_search();
+    void toggle_panel_visibility();
 
 private:
 	void setup_layout(bool reset);

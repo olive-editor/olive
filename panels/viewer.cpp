@@ -13,7 +13,6 @@
 #include "project/undo.h"
 #include "ui/audiomonitor.h"
 #include "playback/playback.h"
-#include "ui/viewerwidget.h"
 #include "ui/viewercontainer.h"
 #include "ui/labelslider.h"
 #include "ui/timelineheader.h"
