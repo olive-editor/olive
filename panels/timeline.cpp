@@ -118,7 +118,8 @@ Timeline::Timeline(QWidget *parent) :
 Timeline::~Timeline() {}
 
 void Timeline::previous_cut() {
-	if (Olive::ActiveSequence->playhead > 0) {
+    if (Olive::ActiveSequence != nullptr
+            && Olive::ActiveSequence->playhead > 0) {
 		long p_cut = 0;
 		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
 			Clip* c = Olive::ActiveSequence->clips.at(i);
@@ -135,21 +136,23 @@ void Timeline::previous_cut() {
 }
 
 void Timeline::next_cut() {
-	bool seek_enabled = false;
-	long n_cut = LONG_MAX;
-	for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-		Clip* c = Olive::ActiveSequence->clips.at(i);
-		if (c != nullptr) {
-			if (c->timeline_in < n_cut && c->timeline_in > Olive::ActiveSequence->playhead) {
-				n_cut = c->timeline_in;
-				seek_enabled = true;
-			} else if (c->timeline_out < n_cut && c->timeline_out > Olive::ActiveSequence->playhead) {
-				n_cut = c->timeline_out;
-				seek_enabled = true;
-			}
-		}
-	}
-	if (seek_enabled) panel_sequence_viewer->seek(n_cut);
+    if (Olive::ActiveSequence != nullptr) {
+        bool seek_enabled = false;
+        long n_cut = LONG_MAX;
+        for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+            Clip* c = Olive::ActiveSequence->clips.at(i);
+            if (c != nullptr) {
+                if (c->timeline_in < n_cut && c->timeline_in > Olive::ActiveSequence->playhead) {
+                    n_cut = c->timeline_in;
+                    seek_enabled = true;
+                } else if (c->timeline_out < n_cut && c->timeline_out > Olive::ActiveSequence->playhead) {
+                    n_cut = c->timeline_out;
+                    seek_enabled = true;
+                }
+            }
+        }
+        if (seek_enabled) panel_sequence_viewer->seek(n_cut);
+    }
 }
 
 void ripple_clips(ComboAction* ca, Sequence *s, long point, long length, const QVector<int>& ignore) {
@@ -512,17 +515,18 @@ void Timeline::repaint_timeline() {
 			}
 		}
 
-		zoom_just_changed = false;
-
 		if (draw) {
 			headers->update();
 			video_area->update();
 			audio_area->update();
 
-			if (Olive::ActiveSequence != nullptr) {
+            if (Olive::ActiveSequence != nullptr
+                    && !zoom_just_changed) {
 				set_sb_max();
 			}
 		}
+
+        zoom_just_changed = false;
 	}
 }
 
@@ -740,15 +744,26 @@ void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_dele
 }
 
 void Timeline::set_zoom_value(double v) {
+    // set zoom value
 	zoom = v;
-	zoom_just_changed = true;
-	headers->update_zoom(zoom);
 
-	repaint_timeline();
+    // update header zoom to match
+    headers->update_zoom(zoom);
 
-	// TODO find a way to gradually move towards target_scroll instead of just centering it?
-	if (!horizontalScrollBar->is_resizing())
+    // set flag that zoom has just changed to prevent auto-scrolling since we change the scroll below
+    zoom_just_changed = true;
+
+    // set scrollbar to center the playhead
+    if (Olive::ActiveSequence != nullptr
+            && !horizontalScrollBar->is_resizing()) {
+        // update scrollbar maximum value for new zoom
+        set_sb_max();
+
 		center_scroll_to_playhead(horizontalScrollBar, zoom, Olive::ActiveSequence->playhead);
+    }
+
+    // repaint the timeline for the new zoom/location
+    repaint_timeline();
 }
 
 void Timeline::multiply_zoom(double m) {

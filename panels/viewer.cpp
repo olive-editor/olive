@@ -514,37 +514,46 @@ void Viewer::resizeEvent(QResizeEvent *e) {
 void Viewer::update_viewer() {
 	update_header_zoom();
 	viewer_widget->frame_update();
-	if (seq != nullptr) update_playhead_timecode(seq->playhead);
+    if (seq != nullptr) {
+        update_playhead_timecode(seq->playhead);
+    }
 	update_end_timecode();
 }
 
 void Viewer::clear_in() {
-	if (seq->using_workarea) {
+    if (seq != nullptr
+            && seq->using_workarea) {
 		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
 		update_parents();
 	}
 }
 
 void Viewer::clear_out() {
-	if (seq->using_workarea) {
+    if (seq != nullptr
+            && seq->using_workarea) {
 		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
 		update_parents();
 	}
 }
 
 void Viewer::clear_inout_point() {
-	if (seq->using_workarea) {
+    if (seq != nullptr
+            && seq->using_workarea) {
 		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
 		update_parents();
 	}
 }
 
 void Viewer::set_in_point() {
-	headers->set_in_point(seq->playhead);
+    if (seq != nullptr) {
+        headers->set_in_point(seq->playhead);
+    }
 }
 
 void Viewer::set_out_point() {
-	headers->set_out_point(seq->playhead);
+    if (seq != nullptr) {
+        headers->set_out_point(seq->playhead);
+    }
 }
 
 void Viewer::set_zoom(bool in) {

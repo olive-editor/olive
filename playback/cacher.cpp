@@ -676,6 +676,8 @@ Cacher::Cacher(Clip* c) : clip(c) {}
 AVSampleFormat sample_format = AV_SAMPLE_FMT_S16;
 
 void open_clip_worker(Clip* clip) {
+    qint64 time_start = QDateTime::currentMSecsSinceEpoch();
+
 	if (clip->media == nullptr) {
 		if (clip->track >= 0) {
 			clip->frame = av_frame_alloc();
@@ -942,7 +944,7 @@ void open_clip_worker(Clip* clip) {
 
 	clip->finished_opening = true;
 
-	qInfo() << "Clip opened on track" << clip->track;
+    qInfo() << "Clip opened on track" << clip->track << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
 }
 
 void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests, int playback_speed) {
