@@ -483,7 +483,8 @@ void Viewer::set_marker() {
 	set_marker_internal(seq);
 }
 
-void Viewer::resizeEvent(QResizeEvent *) {
+void Viewer::resizeEvent(QResizeEvent *e) {
+    QDockWidget::resizeEvent(e);
 	if (seq != nullptr) {
 		set_sb_max();
 		viewer_widget->update();

@@ -34,7 +34,7 @@ void LabelSlider::set_frame_rate(double d) {
 
 void LabelSlider::set_display_type(int type) {
 	display_type = type;
-	setText(valueToString(internal_value));
+    setText(valueToString());
 }
 
 void LabelSlider::set_value(double v, bool userSet) {
@@ -48,7 +48,7 @@ void LabelSlider::set_value(double v, bool userSet) {
 			internal_value = v;
 		}
 
-		setText(valueToString(internal_value));
+        setText(valueToString());
 		if (userSet) emit valueChanged();
 	}
 }
@@ -61,7 +61,8 @@ bool LabelSlider::is_dragging() {
 	return drag_proc;
 }
 
-QString LabelSlider::valueToString(double v) {
+QString LabelSlider::valueToString() {
+    double v = internal_value;
 	if (qIsNaN(v)) {
 		return "---";
 	} else {
@@ -248,7 +249,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 							tr("Set Value"),
 							tr("New value:"),
 							QLineEdit::Normal,
-							valueToString(internal_value)
+                            valueToString()
 						);
 				if (s.isEmpty()) return;
 

@@ -237,6 +237,22 @@ public slots:
     void open_preferences();
 
 private:
+    /**
+     * @brief Internal function to handle loading a project from file
+     *
+     * Start loading a project. Doesn't check if the current project can be closed, doesn't check if the project exists.
+     * In most cases, you'll want open_project() to be end-user friendly.
+     *
+     * @param fn
+     *
+     * The URL to the project to load.
+     *
+     * @param autorecovery
+     *
+     * Whether this file is an autorecovery file. If it is, after the load Olive will set the project URL to a new file
+     * beside the original project file so that it does not overwrite the original and so that the user is not working
+     * on the autorecovery project in Olive's application data directory.
+     */
     void open_project_worker(const QString& fn, bool autorecovery);
 
     /**
