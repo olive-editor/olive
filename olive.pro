@@ -89,7 +89,6 @@ SOURCES += \
     project/marker.cpp \
     dialogs/speeddialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
-    io/crc32.cpp \
     project/projectmodel.cpp \
     io/loadthread.cpp \
     dialogs/loaddialog.cpp \
@@ -196,7 +195,6 @@ HEADERS += \
     project/selection.h \
     dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
-    io/crc32.h \
     project/projectmodel.h \
     io/loadthread.h \
     dialogs/loaddialog.h \
