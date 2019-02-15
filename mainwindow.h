@@ -22,14 +22,9 @@ public:
 	void load_css_from_file(const QString& fn);
 
 public slots:
-	void undo();
-	void redo();
-	void open_speed_dialog();
-	void cut();
-	void copy();
-    void paste();
-	void nest();
-	void toggle_full_screen();
+    void open_speed_dialog();
+
+    void toggle_full_screen();
 
 	void toggle_bool_action();
 
@@ -45,20 +40,12 @@ private slots:
 
 	void show_about();
 	void show_debug_log();
-	void delete_slot();
-	void select_all();
 
-	void new_sequence();
-
-	void zoom_in();
-	void zoom_out();
 	void export_dialog();
     void ripple_delete();
 
 	void maximize_panel();
 	void reset_layout();
-
-    void preferences();
 
 	void full_screen_viewer();
 
@@ -67,23 +54,11 @@ private slots:
 	void windowMenu_About_To_Be_Shown();
 	void playbackMenu_About_To_Be_Shown();
 	void viewMenu_About_To_Be_Shown();
-	void toolMenu_About_To_Be_Shown();
-
-	void duplicate();
-
-	void add_default_transition();
-
-    void new_folder();
+    void toolMenu_About_To_Be_Shown();
 
 	void ripple_to_in_point();
 	void ripple_to_out_point();
 
-	void set_in_point();
-	void set_out_point();
-
-	void clear_in();
-	void clear_out();
-	void clear_inout();
 	void delete_inout();
 	void ripple_delete_inout();
 
@@ -98,7 +73,6 @@ private slots:
 
 	void edit_to_in_point();
 	void edit_to_out_point();
-	void paste_insert();
 	void set_autoscroll();
 	void menu_click_button();
 	void toggle_panel_visibility();
@@ -109,10 +83,6 @@ private slots:
 private:
 	void setup_layout(bool reset);
 	void setup_menus();
-
-	void set_bool_action_checked(QAction* a);
-	void set_int_action_checked(QAction* a, const int& i);
-	void set_button_action_checked(QAction* a);
 
 	// menu bar menus
 	QMenu* window_menu;

@@ -75,7 +75,7 @@ void NewSequenceDialog::create() {
 		s->audio_layout = AV_CH_LAYOUT_STEREO;
 
 		ComboAction* ca = new ComboAction();
-		panel_project->new_sequence(ca, s, true, nullptr);
+		panel_project->create_sequence_internal(ca, s, true, nullptr);
 		Olive::UndoStack.push(ca);
 	} else {
 		ComboAction* ca = new ComboAction();

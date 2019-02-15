@@ -21,6 +21,12 @@ public:
     void load_project_on_launch(const QString& s);
 
 public slots:
+    void undo();
+    void redo();
+
+    void paste();
+    void paste_insert();
+
     void new_project();
     void open_project();
     void open_recent();
@@ -44,6 +50,11 @@ public slots:
      * `autorecovery_timer`.
      */
     void save_autorecovery_file();
+
+    /**
+     * @brief Opens the Preferences dialog
+     */
+    void open_preferences();
 
 private:
     void open_project_worker(const QString& fn, bool autorecovery);

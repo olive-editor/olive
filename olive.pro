@@ -30,6 +30,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # Tries to get the current Git short hash
 system("which git") {
     GITHASHVAR = $$system(git --git-dir $$PWD/.git --work-tree $$PWD log -1 --format=%h)
+
+    # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
+    # (see https://answers.launchpad.net/launchpad/+question/678556)
+    isEmpty(GITHASHVAR) {
+        GITHASHVAR = $$system(grep -Po '(?<=-)(([a-z0-9])\w+)(?=\+)' debian/changelog)
+    }
+
     DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
 }
 

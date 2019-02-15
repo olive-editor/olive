@@ -163,7 +163,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 						switch (type) {
 						case MEDIA_TYPE_FOLDER:
 						{
-							Media* folder = panel_project->new_folder(nullptr);
+							Media* folder = panel_project->create_folder_internal(nullptr);
 							folder->temp_id2 = 0;
 							for (int j=0;j<stream.attributes().size();j++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -543,7 +543,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 								}
 							}
 
-							Media* m = panel_project->new_sequence(nullptr, s, false, parent);
+							Media* m = panel_project->create_sequence_internal(nullptr, s, false, parent);
 
 							loaded_sequences.append(m);
 						}

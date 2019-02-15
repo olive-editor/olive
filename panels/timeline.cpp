@@ -324,9 +324,9 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 	if (config.enable_seek_to_import) {
 		panel_sequence_viewer->seek(earliest_point);
 	}
-	panel_timeline->ghosts.clear();
-	panel_timeline->importing = false;
-	panel_timeline->snapped = false;
+    ghosts.clear();
+    importing = false;
+    snapped = false;
 }
 
 int Timeline::get_track_height_size(bool video) {
@@ -362,7 +362,69 @@ void Timeline::add_transition() {
 		delete ca;
 	}
 
-	update_ui(true);
+    update_ui(true);
+}
+
+void Timeline::nest() {
+    if (Olive::ActiveSequence != nullptr) {
+        QVector<int> selected_clips;
+        long earliest_point = LONG_MAX;
+
+        // get selected clips
+        for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+            Clip* c = Olive::ActiveSequence->clips.at(i);
+            if (c != nullptr && is_clip_selected(c, true)) {
+                selected_clips.append(i);
+                earliest_point = qMin(c->timeline_in, earliest_point);
+            }
+        }
+
+        // nest them
+        if (!selected_clips.isEmpty()) {
+            ComboAction* ca = new ComboAction();
+
+            Sequence* s = new Sequence();
+
+            // create "nest" sequence
+            s->name = panel_project->get_next_sequence_name(tr("Nested Sequence"));
+            s->width = Olive::ActiveSequence->width;
+            s->height = Olive::ActiveSequence->height;
+            s->frame_rate = Olive::ActiveSequence->frame_rate;
+            s->audio_frequency = Olive::ActiveSequence->audio_frequency;
+            s->audio_layout = Olive::ActiveSequence->audio_layout;
+
+            // copy all selected clips to the nest
+            for (int i=0;i<selected_clips.size();i++) {
+                // delete clip from old sequence
+                ca->append(new DeleteClipAction(Olive::ActiveSequence, selected_clips.at(i)));
+
+                // copy to new
+                Clip* copy = Olive::ActiveSequence->clips.at(selected_clips.at(i))->copy(s);
+                copy->timeline_in -= earliest_point;
+                copy->timeline_out -= earliest_point;
+                s->clips.append(copy);
+            }
+
+            // relink clips in new nested sequences
+            relink_clips_using_ids(selected_clips, s->clips);
+
+            // add sequence to project
+            Media* m = panel_project->create_sequence_internal(ca, s, false, nullptr);
+
+            // add nested sequence to active sequence
+            QVector<Media*> media_list;
+            media_list.append(m);
+            create_ghosts_from_media(Olive::ActiveSequence, earliest_point, media_list);
+            add_clips_from_ghosts(ca, Olive::ActiveSequence);
+
+            panel_effect_controls->clear_effects(true);
+            Olive::ActiveSequence->selections.clear();
+
+            Olive::UndoStack.push(ca);
+
+            update_ui(true);
+        }
+    }
 }
 
 int Timeline::calculate_track_height(int track, int value) {
@@ -418,7 +480,7 @@ void Timeline::repaint_timeline() {
 				&& !zoom_just_changed) {
 			// auto scroll
 			if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
-				int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(Olive::ActiveSequence->playhead);
+                int playhead_x = getTimelineScreenPointFromFrame(Olive::ActiveSequence->playhead);
 				if (playhead_x < 0 || playhead_x > (editAreas->width() - videoScrollbar->width())) {
 					horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, Olive::ActiveSequence->playhead));
 					draw = false;
@@ -515,11 +577,11 @@ void Timeline::ripple_delete_empty_space() {
 	Selection s;
 	s.in = rc_ripple_min;
 	s.out = rc_ripple_max;
-	s.track = panel_timeline->cursor_track;
+    s.track = cursor_track;
 
 	sels.append(s);
 
-	panel_timeline->delete_selection(sels, true);
+    delete_selection(sels, true);
 }
 
 void Timeline::resizeEvent(QResizeEvent *) {

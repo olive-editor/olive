@@ -30,6 +30,34 @@ public:
      * The menu to add items to.
      */
     void make_inout_menu(QMenu* parent);
+
+    /**
+     * @brief Creates a menu of clip functions
+     *
+     * Adds a set of clip functions including:
+     * * Add Default Transition
+     * * Link/Unlink
+     * * Enable/Disable
+     * * Nest
+     *
+     * @param parent
+     *
+     * The menu to add items to.
+     */
+    void make_clip_functions_menu(QMenu* parent);
+
+    /**
+     * @brief Creates standard edit menu (cut, copy, paste, etc.)
+     *
+     * @param parent
+     *
+     * The menu to add items to.
+     */
+    void make_edit_functions_menu(QMenu* parent);
+
+    void set_bool_action_checked(QAction* a);
+    void set_int_action_checked(QAction* a, const int& i);
+    void set_button_action_checked(QAction* a);
 private slots:
 
 

@@ -1,6 +1,8 @@
 #include "focusfilter.h"
 
 #include "panels/panels.h"
+#include "project/sequence.h"
+#include "ui/timelineheader.h"
 
 FocusFilter Olive::FocusFilter;
 
@@ -105,5 +107,128 @@ void FocusFilter::decrease_speed() {
         panel_footage_viewer->decrease_speed();
     } else {
         panel_sequence_viewer->decrease_speed();
+    }
+}
+
+void FocusFilter::set_in_point() {
+    if (get_focused_panel() == panel_footage_viewer) {
+        panel_footage_viewer->set_in_point();
+    } else {
+        panel_sequence_viewer->set_in_point();
+    }
+}
+
+void FocusFilter::set_out_point() {
+    if (get_focused_panel() == panel_footage_viewer) {
+        panel_footage_viewer->set_out_point();
+    } else {
+        panel_sequence_viewer->set_out_point();
+    }
+}
+
+void FocusFilter::clear_in() {
+    if (get_focused_panel() == panel_footage_viewer) {
+        panel_footage_viewer->clear_in();
+    } else {
+        panel_sequence_viewer->clear_in();
+    }
+}
+
+void FocusFilter::clear_out() {
+    if (get_focused_panel() == panel_footage_viewer) {
+        panel_footage_viewer->clear_out();
+    } else {
+        panel_sequence_viewer->clear_out();
+    }
+}
+
+void FocusFilter::clear_inout() {
+    if (get_focused_panel() == panel_footage_viewer) {
+        panel_footage_viewer->clear_inout_point();
+    } else {
+        panel_sequence_viewer->clear_inout_point();
+    }
+}
+
+void FocusFilter::delete_function() {
+    if (panel_timeline->headers->hasFocus()) {
+        panel_timeline->headers->delete_markers();
+    } else if (panel_footage_viewer->headers->hasFocus()) {
+        panel_footage_viewer->headers->delete_markers();
+    } else if (panel_sequence_viewer->headers->hasFocus()) {
+        panel_sequence_viewer->headers->delete_markers();
+    } else if (panel_effect_controls->is_focused()) {
+        panel_effect_controls->delete_effects();
+    } else if (panel_project->is_focused()) {
+        panel_project->delete_selected_media();
+    } else if (panel_effect_controls->keyframe_focus()) {
+        panel_effect_controls->delete_selected_keyframes();
+    } else if (panel_graph_editor->view_is_focused()) {
+        panel_graph_editor->delete_selected_keys();
+    } else {
+        panel_timeline->delete_selection(Olive::ActiveSequence->selections, false);
+    }
+}
+
+void FocusFilter::duplicate() {
+    if (panel_project->is_focused()) {
+        panel_project->duplicate_selected();
+    }
+}
+
+void FocusFilter::select_all() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_graph_editor) {
+        panel_graph_editor->select_all();
+    } else {
+        panel_timeline->select_all();
+    }
+}
+
+void FocusFilter::zoom_in() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_effect_controls) {
+        panel_effect_controls->set_zoom(true);
+    } else if (focused_panel == panel_footage_viewer) {
+        panel_footage_viewer->set_zoom(true);
+    } else if (focused_panel == panel_sequence_viewer) {
+        panel_sequence_viewer->set_zoom(true);
+    } else {
+        panel_timeline->set_zoom(true);
+    }
+}
+
+void FocusFilter::zoom_out() {
+    QDockWidget* focused_panel = get_focused_panel();
+    if (focused_panel == panel_effect_controls) {
+        panel_effect_controls->set_zoom(false);
+    } else if (focused_panel == panel_footage_viewer) {
+        panel_footage_viewer->set_zoom(false);
+    } else if (focused_panel == panel_sequence_viewer) {
+        panel_sequence_viewer->set_zoom(false);
+    } else {
+        panel_timeline->set_zoom(false);
+    }
+}
+
+void FocusFilter::cut() {
+    if (Olive::ActiveSequence != nullptr) {
+        QDockWidget* focused_panel = get_focused_panel();
+        if (panel_effect_controls == focused_panel) {
+            panel_effect_controls->copy(true);
+        } else {
+            panel_timeline->copy(true);
+        }
+    }
+}
+
+void FocusFilter::copy() {
+    if (Olive::ActiveSequence != nullptr) {
+        QDockWidget* focused_panel = get_focused_panel();
+        if (panel_effect_controls == focused_panel) {
+            panel_effect_controls->copy(false);
+        } else {
+            panel_timeline->copy(false);
+        }
     }
 }

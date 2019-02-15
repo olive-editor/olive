@@ -46,7 +46,7 @@ public:
 	~Project();
 	bool is_focused();
 	void clear();
-	Media* new_sequence(ComboAction *ca, Sequence* s, bool open, Media* parent);
+    Media* create_sequence_internal(ComboAction *ca, Sequence* s, bool open, Media* parent);
 	QString get_next_sequence_name(QString start = 0);
 	void process_file_list(QStringList& files, bool recursive = false, Media* replace = nullptr, Media *parent = nullptr);
 	void replace_media(Media* item, QString filename);
@@ -58,7 +58,7 @@ public:
 	void load_project(bool autorecovery);
 	void save_project(bool autorecovery);
 
-	Media* new_folder(QString name);
+	Media* create_folder_internal(QString name);
 	Media* item_to_media(const QModelIndex& index);
 
 	void save_recent_projects();
@@ -87,6 +87,8 @@ public slots:
 	void replace_selected_file();
 	void replace_clip_media();
 	void open_properties();
+    void new_folder();
+    void new_sequence();
 private:
 	void save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex &parent = QModelIndex());
 	int folder_id;

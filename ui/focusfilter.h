@@ -9,6 +9,11 @@ public:
     FocusFilter();
 
 public slots:
+    void cut();
+    void copy();
+
+    void duplicate();
+
     void go_to_in();
     void go_to_out();
     void go_to_start();
@@ -20,6 +25,18 @@ public slots:
     void decrease_speed();
     void next_frame();
     void go_to_end();
+
+    void set_in_point();
+    void set_out_point();
+    void clear_in();
+    void clear_out();
+    void clear_inout();
+
+    void delete_function();
+    void select_all();
+
+    void zoom_in();
+    void zoom_out();
 };
 
 namespace Olive {

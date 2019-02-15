@@ -114,7 +114,7 @@ Project::Project(QWidget *parent) :
 	icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	toolbar_undo->setIcon(icon4);
 	toolbar_undo->setToolTip("Undo");
-    connect(toolbar_undo, SIGNAL(clicked(bool)), Olive::MainWindow, SLOT(undo()));
+    connect(toolbar_undo, SIGNAL(clicked(bool)), Olive::Global.data(), SLOT(undo()));
 	toolbar->addWidget(toolbar_undo);
 
 	QPushButton* toolbar_redo = new QPushButton();
@@ -123,7 +123,7 @@ Project::Project(QWidget *parent) :
 	icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
 	toolbar_redo->setIcon(icon5);
 	toolbar_redo->setToolTip("Redo");
-    connect(toolbar_redo, SIGNAL(clicked(bool)), Olive::MainWindow, SLOT(redo()));
+    connect(toolbar_redo, SIGNAL(clicked(bool)), Olive::Global.data(), SLOT(redo()));
 	toolbar->addWidget(toolbar_redo);
 
 	QLineEdit* toolbar_search = new QLineEdit();
@@ -309,7 +309,7 @@ void Project::duplicate_selected() {
 	for (int j=0;j<items.size();j++) {
 		Media* i = item_to_media(items.at(j));
 		if (i->get_type() == MEDIA_TYPE_SEQUENCE) {
-			new_sequence(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
+            create_sequence_internal(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
 			duped = true;
 		}
 	}
@@ -398,10 +398,31 @@ void Project::open_properties() {
 			}
 		}
 		}
-	}
+    }
 }
 
-Media* Project::new_sequence(ComboAction *ca, Sequence *s, bool open, Media* parent) {
+void Project::new_folder() {
+    Media* m = create_folder_internal(nullptr);
+    Olive::UndoStack.push(new AddMediaCommand(m, get_selected_folder()));
+
+    QModelIndex index = project_model.create_index(m->row(), 0, m);
+    switch (config.project_view_type) {
+    case PROJECT_VIEW_TREE:
+        tree_view->edit(sorter->mapFromSource(index));
+        break;
+    case PROJECT_VIEW_ICON:
+        icon_view->edit(sorter->mapFromSource(index));
+        break;
+    }
+}
+
+void Project::new_sequence() {
+    NewSequenceDialog nsd(this);
+    nsd.set_sequence_name(panel_project->get_next_sequence_name());
+    nsd.exec();
+}
+
+Media* Project::create_sequence_internal(ComboAction *ca, Sequence *s, bool open, Media* parent) {
 	if (parent == nullptr) parent = project_model.get_root();
 	Media* item = new Media(parent);
 	item->set_sequence(s);
@@ -434,7 +455,7 @@ bool Project::is_focused() {
 	return tree_view->hasFocus() || icon_view->hasFocus();
 }
 
-Media* Project::new_folder(QString name) {
+Media* Project::create_folder_internal(QString name) {
 	Media* item = new Media(nullptr);
 	item->set_folder();
 	item->set_name(name);
@@ -648,7 +669,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 	for (int i=0;i<files.size();i++) {
 		if (QFileInfo(files.at(i)).isDir()) {
 			QString folder_name = get_file_name_from_path(files.at(i));
-			Media* folder = new_folder(folder_name);
+			Media* folder = create_folder_internal(folder_name);
 
 			QDir directory(files.at(i));
 			directory.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);

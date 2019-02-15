@@ -29,8 +29,6 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/exportdialog.h"
-#include "dialogs/preferencesdialog.h"
-#include "dialogs/demonotice.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
 #include "dialogs/debugdialog.h"
@@ -350,67 +348,6 @@ void MainWindow::show_debug_log() {
 	debug_dialog->show();
 }
 
-void MainWindow::delete_slot() {
-	if (panel_timeline->headers->hasFocus()) {
-		panel_timeline->headers->delete_markers();
-	} else if (panel_footage_viewer->headers->hasFocus()) {
-		panel_footage_viewer->headers->delete_markers();
-	} else if (panel_sequence_viewer->headers->hasFocus()) {
-		panel_sequence_viewer->headers->delete_markers();
-	} else if (panel_timeline->focused()) {
-		panel_timeline->delete_selection(Olive::ActiveSequence->selections, false);
-	} else if (panel_effect_controls->is_focused()) {
-		panel_effect_controls->delete_effects();
-	} else if (panel_project->is_focused()) {
-		panel_project->delete_selected_media();
-	} else if (panel_effect_controls->keyframe_focus()) {
-		panel_effect_controls->delete_selected_keyframes();
-	} else if (panel_graph_editor->view_is_focused()) {
-		panel_graph_editor->delete_selected_keys();
-	}
-}
-
-void MainWindow::select_all() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline) {
-		panel_timeline->select_all();
-	} else if (focused_panel == panel_graph_editor) {
-		panel_graph_editor->select_all();
-	}
-}
-
-void MainWindow::new_sequence() {
-	NewSequenceDialog nsd(this);
-	nsd.set_sequence_name(panel_project->get_next_sequence_name());
-	nsd.exec();
-}
-
-void MainWindow::zoom_in() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline) {
-		panel_timeline->set_zoom(true);
-	} else if (focused_panel == panel_effect_controls) {
-		panel_effect_controls->set_zoom(true);
-	} else if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->set_zoom(true);
-	} else if (focused_panel == panel_sequence_viewer) {
-		panel_sequence_viewer->set_zoom(true);
-	}
-}
-
-void MainWindow::zoom_out() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline) {
-		panel_timeline->set_zoom(false);
-	} else if (focused_panel == panel_effect_controls) {
-		panel_effect_controls->set_zoom(false);
-	} else if (focused_panel == panel_footage_viewer) {
-		panel_footage_viewer->set_zoom(false);
-	} else if (focused_panel == panel_sequence_viewer) {
-		panel_sequence_viewer->set_zoom(false);
-	}
-}
-
 void MainWindow::export_dialog() {
 	if (Olive::ActiveSequence == nullptr) {
 		QMessageBox::information(this, tr("No active sequence"), tr("Please open the sequence you wish to export."), QMessageBox::Ok);
@@ -437,22 +374,6 @@ void MainWindow::editMenu_About_To_Be_Shown() {
     redo_action->setEnabled(Olive::UndoStack.canRedo());
 }
 
-void MainWindow::undo() {
-    // workaround to prevent crash (and also users should never need to do this)
-    if (!panel_timeline->importing) {
-        Olive::UndoStack.undo();
-		update_ui(true);
-	}
-}
-
-void MainWindow::redo() {
-    // workaround to prevent crash (and also users should never need to do this)
-    if (!panel_timeline->importing) {
-        Olive::UndoStack.redo();
-        update_ui(true);
-    }
-}
-
 void MainWindow::open_speed_dialog() {
 	if (Olive::ActiveSequence != nullptr) {
 		SpeedDialog s(this);
@@ -463,35 +384,6 @@ void MainWindow::open_speed_dialog() {
 			}
 		}
 		if (s.clips.size() > 0) s.run();
-	}
-}
-
-void MainWindow::cut() {
-	if (Olive::ActiveSequence != nullptr) {
-		QDockWidget* focused_panel = get_focused_panel();
-		if (panel_timeline == focused_panel) {
-			panel_timeline->copy(true);
-		} else if (panel_effect_controls == focused_panel) {
-			panel_effect_controls->copy(true);
-		}
-	}
-}
-
-void MainWindow::copy() {
-	if (Olive::ActiveSequence != nullptr) {
-		QDockWidget* focused_panel = get_focused_panel();
-		if (panel_timeline == focused_panel) {
-			panel_timeline->copy(false);
-		} else if (panel_effect_controls == focused_panel) {
-			panel_effect_controls->copy(false);
-		}
-	}
-}
-
-void MainWindow::paste() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if ((panel_timeline == focused_panel || panel_effect_controls == focused_panel) && Olive::ActiveSequence != nullptr) {
-		panel_timeline->paste(false);
 	}
 }
 
@@ -537,34 +429,24 @@ void MainWindow::setup_menus() {
 	QMenu* edit_menu = menuBar->addMenu(tr("&Edit"));
 	connect(edit_menu, SIGNAL(aboutToShow()), this, SLOT(editMenu_About_To_Be_Shown()));
 
-	undo_action = edit_menu->addAction(tr("&Undo"), this, SLOT(undo()), QKeySequence("Ctrl+Z"));
+    undo_action = edit_menu->addAction(tr("&Undo"), Olive::Global.data(), SLOT(undo()), QKeySequence("Ctrl+Z"));
 	undo_action->setProperty("id", "undo");
-	redo_action = edit_menu->addAction(tr("Redo"), this, SLOT(redo()), QKeySequence("Ctrl+Shift+Z"));
+    redo_action = edit_menu->addAction(tr("Redo"), Olive::Global.data(), SLOT(redo()), QKeySequence("Ctrl+Shift+Z"));
 	redo_action->setProperty("id", "redo");
 
 	edit_menu->addSeparator();
 
-	edit_menu->addAction(tr("Cu&t"), this, SLOT(cut()), QKeySequence("Ctrl+X"))->setProperty("id", "cut");
-	edit_menu->addAction(tr("Cop&y"), this, SLOT(copy()), QKeySequence("Ctrl+C"))->setProperty("id", "copy");
-	edit_menu->addAction(tr("&Paste"), this, SLOT(paste()), QKeySequence("Ctrl+V"))->setProperty("id", "paste");
-	edit_menu->addAction(tr("Paste Insert"), this, SLOT(paste_insert()), QKeySequence("Ctrl+Shift+V"))->setProperty("id", "pasteinsert");
-	edit_menu->addAction(tr("Duplicate"), this, SLOT(duplicate()), QKeySequence("Ctrl+D"))->setProperty("id", "duplicate");
-	edit_menu->addAction(tr("Delete"), this, SLOT(delete_slot()), QKeySequence("Del"))->setProperty("id", "delete");
-	edit_menu->addAction(tr("Ripple Delete"), this, SLOT(ripple_delete()), QKeySequence("Shift+Del"))->setProperty("id", "rippledelete");
-	edit_menu->addAction(tr("Split"), panel_timeline, SLOT(split_at_playhead()), QKeySequence("Ctrl+K"))->setProperty("id", "split");
+    Olive::MenuHelper.make_edit_functions_menu(edit_menu);
 
 	edit_menu->addSeparator();
 
-	edit_menu->addAction(tr("Select &All"), this, SLOT(select_all()), QKeySequence("Ctrl+A"))->setProperty("id", "selectall");
+    edit_menu->addAction(tr("Select &All"), &Olive::FocusFilter, SLOT(select_all()), QKeySequence("Ctrl+A"))->setProperty("id", "selectall");
 
 	edit_menu->addAction(tr("Deselect All"), panel_timeline, SLOT(deselect()), QKeySequence("Ctrl+Shift+A"))->setProperty("id", "deselectall");
 
 	edit_menu->addSeparator();
 
-	edit_menu->addAction(tr("Add Default Transition"), this, SLOT(add_default_transition()), QKeySequence("Ctrl+Shift+D"))->setProperty("id", "deftransition");
-	edit_menu->addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()), QKeySequence("Ctrl+L"))->setProperty("id", "linkunlink");
-    edit_menu->addAction(tr("Enable/Disable"), panel_timeline, SLOT(toggle_enable_on_selected_clips()), QKeySequence("Shift+E"))->setProperty("id", "enabledisable");
-	edit_menu->addAction(tr("Nest"), this, SLOT(nest()))->setProperty("id", "nest");
+    Olive::MenuHelper.make_clip_functions_menu(edit_menu);
 
 	edit_menu->addSeparator();
 
@@ -588,8 +470,8 @@ void MainWindow::setup_menus() {
 	QMenu* view_menu = menuBar->addMenu(tr("&View"));
 	connect(view_menu, SIGNAL(aboutToShow()), this, SLOT(viewMenu_About_To_Be_Shown()));
 
-	view_menu->addAction(tr("Zoom In"), this, SLOT(zoom_in()), QKeySequence("="))->setProperty("id", "zoomin");
-	view_menu->addAction(tr("Zoom Out"), this, SLOT(zoom_out()), QKeySequence("-"))->setProperty("id", "zoomout");
+    view_menu->addAction(tr("Zoom In"), &Olive::FocusFilter, SLOT(zoom_in()), QKeySequence("="))->setProperty("id", "zoomin");
+    view_menu->addAction(tr("Zoom Out"), &Olive::FocusFilter, SLOT(zoom_out()), QKeySequence("-"))->setProperty("id", "zoomout");
     view_menu->addAction(tr("Increase Track Height"), panel_timeline, SLOT(increase_track_height()), QKeySequence("Ctrl+="))->setProperty("id", "vzoomin");
     view_menu->addAction(tr("Decrease Track Height"), panel_timeline, SLOT(decrease_track_height()), QKeySequence("Ctrl+-"))->setProperty("id", "vzoomout");
 
@@ -874,7 +756,7 @@ void MainWindow::setup_menus() {
 
 	tools_menu->addSeparator();
 
-    tools_menu->addAction(tr("Preferences"), this, SLOT(preferences()), QKeySequence("Ctrl+,"))->setProperty("id", "prefs");
+    tools_menu->addAction(tr("Preferences"), Olive::Global.data(), SLOT(open_preferences()), QKeySequence("Ctrl+,"))->setProperty("id", "prefs");
 
 #ifdef QT_DEBUG
 	tools_menu->addAction(tr("Clear Undo"), this, SLOT(clear_undo_stack()))->setProperty("id", "clearundo");
@@ -895,23 +777,6 @@ void MainWindow::setup_menus() {
 	help_menu->addAction(tr("&About..."), this, SLOT(show_about()))->setProperty("id", "about");
 
 	load_shortcuts(get_config_path() + "/shortcuts", true);
-}
-
-void MainWindow::set_bool_action_checked(QAction *a) {
-	if (!a->data().isNull()) {
-		bool* variable = reinterpret_cast<bool*>(a->data().value<quintptr>());
-		a->setChecked(*variable);
-	}
-}
-
-void MainWindow::set_int_action_checked(QAction *a, const int& i) {
-	if (!a->data().isNull()) {
-		a->setChecked(a->data() == i);
-	}
-}
-
-void MainWindow::set_button_action_checked(QAction *a) {
-	a->setChecked(reinterpret_cast<QPushButton*>(a->data().value<quintptr>())->isChecked());
 }
 
 void MainWindow::updateTitle() {
@@ -1022,15 +887,6 @@ void MainWindow::maximize_panel() {
 	}
 }
 
-void MainWindow::preferences() {
-	panel_sequence_viewer->pause();
-	panel_footage_viewer->pause();
-
-	PreferencesDialog pd(this);
-	pd.setup_kbd_shortcuts(menuBar());
-	pd.exec();
-}
-
 void MainWindow::full_screen_viewer() {
 	if (get_focused_panel() == panel_footage_viewer) {
 		panel_footage_viewer->viewer_widget->set_fullscreen();
@@ -1050,16 +906,16 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::playbackMenu_About_To_Be_Shown() {
-	set_bool_action_checked(loop_action);
+    Olive::MenuHelper.set_bool_action_checked(loop_action);
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
-	set_bool_action_checked(track_lines);
+    Olive::MenuHelper.set_bool_action_checked(track_lines);
 
-	set_int_action_checked(frames_action, config.timecode_view);
-	set_int_action_checked(drop_frame_action, config.timecode_view);
-	set_int_action_checked(nondrop_frame_action, config.timecode_view);
-	set_int_action_checked(milliseconds_action, config.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(frames_action, config.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(drop_frame_action, config.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(nondrop_frame_action, config.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(milliseconds_action, config.timecode_view);
 
 	title_safe_off->setChecked(!config.show_title_safe_area);
 	title_safe_default->setChecked(config.show_title_safe_area && !config.use_custom_title_safe_ratio);
@@ -1073,59 +929,34 @@ void MainWindow::viewMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::toolMenu_About_To_Be_Shown() {
-	set_button_action_checked(pointer_tool_action);
-	set_button_action_checked(edit_tool_action);
-	set_button_action_checked(ripple_tool_action);
-	set_button_action_checked(razor_tool_action);
-	set_button_action_checked(slip_tool_action);
-	set_button_action_checked(slide_tool_action);
-	set_button_action_checked(hand_tool_action);
-	set_button_action_checked(transition_tool_action);
-	set_button_action_checked(snap_toggle);
+    Olive::MenuHelper.set_button_action_checked(pointer_tool_action);
+    Olive::MenuHelper.set_button_action_checked(edit_tool_action);
+    Olive::MenuHelper.set_button_action_checked(ripple_tool_action);
+    Olive::MenuHelper.set_button_action_checked(razor_tool_action);
+    Olive::MenuHelper.set_button_action_checked(slip_tool_action);
+    Olive::MenuHelper.set_button_action_checked(slide_tool_action);
+    Olive::MenuHelper.set_button_action_checked(hand_tool_action);
+    Olive::MenuHelper.set_button_action_checked(transition_tool_action);
+    Olive::MenuHelper.set_button_action_checked(snap_toggle);
 
-	set_bool_action_checked(selecting_also_seeks);
-	set_bool_action_checked(edit_tool_also_seeks);
-	set_bool_action_checked(edit_tool_selects_links);
-	set_bool_action_checked(seek_to_end_of_pastes);
-	set_bool_action_checked(scroll_wheel_zooms);
-	set_bool_action_checked(rectified_waveforms);
-	set_bool_action_checked(enable_drag_files_to_timeline);
-	set_bool_action_checked(autoscale_by_default);
-	set_bool_action_checked(enable_seek_to_import);
-	set_bool_action_checked(enable_audio_scrubbing);
-	set_bool_action_checked(enable_drop_on_media_to_replace);
-	set_bool_action_checked(enable_hover_focus);
-	set_bool_action_checked(set_name_and_marker);
-	set_bool_action_checked(seek_also_selects);
+    Olive::MenuHelper.set_bool_action_checked(selecting_also_seeks);
+    Olive::MenuHelper.set_bool_action_checked(edit_tool_also_seeks);
+    Olive::MenuHelper.set_bool_action_checked(edit_tool_selects_links);
+    Olive::MenuHelper.set_bool_action_checked(seek_to_end_of_pastes);
+    Olive::MenuHelper.set_bool_action_checked(scroll_wheel_zooms);
+    Olive::MenuHelper.set_bool_action_checked(rectified_waveforms);
+    Olive::MenuHelper.set_bool_action_checked(enable_drag_files_to_timeline);
+    Olive::MenuHelper.set_bool_action_checked(autoscale_by_default);
+    Olive::MenuHelper.set_bool_action_checked(enable_seek_to_import);
+    Olive::MenuHelper.set_bool_action_checked(enable_audio_scrubbing);
+    Olive::MenuHelper.set_bool_action_checked(enable_drop_on_media_to_replace);
+    Olive::MenuHelper.set_bool_action_checked(enable_hover_focus);
+    Olive::MenuHelper.set_bool_action_checked(set_name_and_marker);
+    Olive::MenuHelper.set_bool_action_checked(seek_also_selects);
 
-	set_int_action_checked(no_autoscroll, config.autoscroll);
-	set_int_action_checked(page_autoscroll, config.autoscroll);
-	set_int_action_checked(smooth_autoscroll, config.autoscroll);
-}
-
-void MainWindow::duplicate() {
-	if (panel_project->is_focused()) {
-		panel_project->duplicate_selected();
-	}
-}
-
-void MainWindow::add_default_transition() {
-	if (panel_timeline->focused()) panel_timeline->add_transition();
-}
-
-void MainWindow::new_folder() {
-	Media* m = panel_project->new_folder(nullptr);
-    Olive::UndoStack.push(new AddMediaCommand(m, panel_project->get_selected_folder()));
-
-	QModelIndex index = project_model.create_index(m->row(), 0, m);
-	switch (config.project_view_type) {
-	case PROJECT_VIEW_TREE:
-		panel_project->tree_view->edit(panel_project->sorter->mapFromSource(index));
-		break;
-	case PROJECT_VIEW_ICON:
-		panel_project->icon_view->edit(panel_project->sorter->mapFromSource(index));
-		break;
-	}
+    Olive::MenuHelper.set_int_action_checked(no_autoscroll, config.autoscroll);
+    Olive::MenuHelper.set_int_action_checked(page_autoscroll, config.autoscroll);
+    Olive::MenuHelper.set_int_action_checked(smooth_autoscroll, config.autoscroll);
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {
@@ -1147,51 +978,11 @@ void MainWindow::fileMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::ripple_to_in_point() {
-	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(true, true);
+    panel_timeline->ripple_to_in_point(true, true);
 }
 
 void MainWindow::ripple_to_out_point() {
-	if (panel_timeline->focused()) panel_timeline->ripple_to_in_point(false, true);
-}
-
-void MainWindow::set_in_point() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
-		panel_sequence_viewer->set_in_point();
-	} else if (panel_footage_viewer->is_focused()) {
-		panel_footage_viewer->set_in_point();
-	}
-}
-
-void MainWindow::set_out_point() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
-		panel_sequence_viewer->set_out_point();
-	} else if (panel_footage_viewer->is_focused()) {
-		panel_footage_viewer->set_out_point();
-	}
-}
-
-void MainWindow::clear_in() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
-		panel_sequence_viewer->clear_in();
-	} else if (panel_footage_viewer->is_focused()) {
-		panel_footage_viewer->clear_in();
-	}
-}
-
-void MainWindow::clear_out() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
-		panel_sequence_viewer->clear_out();
-	} else if (panel_footage_viewer->is_focused()) {
-		panel_footage_viewer->clear_out();
-	}
-}
-
-void MainWindow::clear_inout() {
-	if (panel_timeline->focused() || panel_sequence_viewer->is_focused()) {
-		panel_sequence_viewer->clear_inout_point();
-	} else if (panel_footage_viewer->is_focused()) {
-		panel_footage_viewer->clear_inout_point();
-	}
+    panel_timeline->ripple_to_in_point(false, true);
 }
 
 void MainWindow::toggle_full_screen() {
@@ -1204,16 +995,11 @@ void MainWindow::toggle_full_screen() {
 }
 
 void MainWindow::delete_inout() {
-	if (panel_timeline->focused()) {
-		panel_timeline->delete_in_out(false);
-	}
+    panel_timeline->delete_in_out(false);
 }
 
-void MainWindow::ripple_delete_inout()
-{
-	if (panel_timeline->focused()) {
-		panel_timeline->delete_in_out(true);
-	}
+void MainWindow::ripple_delete_inout() {
+    panel_timeline->delete_in_out(true);
 }
 
 void MainWindow::set_tsa_default() {
@@ -1280,82 +1066,11 @@ void MainWindow::set_marker() {
 }
 
 void MainWindow::edit_to_in_point() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(true, false);
+    panel_timeline->ripple_to_in_point(true, false);
 }
 
 void MainWindow::edit_to_out_point() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline) panel_timeline->ripple_to_in_point(false, false);
-}
-
-void MainWindow::nest() {
-	if (Olive::ActiveSequence != nullptr) {
-		QVector<int> selected_clips;
-		long earliest_point = LONG_MAX;
-
-		// get selected clips
-		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-			Clip* c = Olive::ActiveSequence->clips.at(i);
-			if (c != nullptr && is_clip_selected(c, true)) {
-				selected_clips.append(i);
-				earliest_point = qMin(c->timeline_in, earliest_point);
-			}
-		}
-
-		// nest them
-		if (!selected_clips.isEmpty()) {
-			ComboAction* ca = new ComboAction();
-
-			Sequence* s = new Sequence();
-
-			// create "nest" sequence
-			s->name = panel_project->get_next_sequence_name(tr("Nested Sequence"));
-			s->width = Olive::ActiveSequence->width;
-			s->height = Olive::ActiveSequence->height;
-			s->frame_rate = Olive::ActiveSequence->frame_rate;
-			s->audio_frequency = Olive::ActiveSequence->audio_frequency;
-			s->audio_layout = Olive::ActiveSequence->audio_layout;
-
-			// copy all selected clips to the nest
-			for (int i=0;i<selected_clips.size();i++) {
-				// delete clip from old sequence
-				ca->append(new DeleteClipAction(Olive::ActiveSequence, selected_clips.at(i)));
-
-				// copy to new
-				Clip* copy = Olive::ActiveSequence->clips.at(selected_clips.at(i))->copy(s);
-				copy->timeline_in -= earliest_point;
-				copy->timeline_out -= earliest_point;
-				s->clips.append(copy);
-			}
-
-			// relink clips in new nested sequences
-			panel_timeline->relink_clips_using_ids(selected_clips, s->clips);
-
-			// add sequence to project
-			Media* m = panel_project->new_sequence(ca, s, false, nullptr);
-
-			// add nested sequence to active sequence
-			QVector<Media*> media_list;
-			media_list.append(m);
-			panel_timeline->create_ghosts_from_media(Olive::ActiveSequence, earliest_point, media_list);
-			panel_timeline->add_clips_from_ghosts(ca, Olive::ActiveSequence);
-
-			panel_effect_controls->clear_effects(true);
-			Olive::ActiveSequence->selections.clear();
-
-            Olive::UndoStack.push(ca);
-
-			update_ui(true);
-		}
-	}
-}
-
-void MainWindow::paste_insert() {
-	QDockWidget* focused_panel = get_focused_panel();
-	if (focused_panel == panel_timeline && Olive::ActiveSequence != nullptr) {
-		panel_timeline->paste(true);
-	}
+    panel_timeline->ripple_to_in_point(false, false);
 }
 
 void MainWindow::toggle_bool_action() {

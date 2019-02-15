@@ -89,7 +89,6 @@ public:
 	void relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips);
 	void update_sequence();
 
-	void add_transition();
 	QVector<int> get_tracks_of_linked_clips(int i);
 	bool has_clip_been_split(int c);
 	void ripple_to_in_point(bool in, bool ripple);
@@ -219,6 +218,10 @@ public slots:
 
     void previous_cut();
     void next_cut();
+
+    void add_transition();
+
+    void nest();
 
 private slots:
 	void zoom_in();

@@ -48,7 +48,7 @@ void SourcesCommon::create_seq_from_selected() {
 		panel_timeline->create_ghosts_from_media(s, 0, media_list);
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
-		project_parent->new_sequence(ca, s, true, nullptr);
+		project_parent->create_sequence_internal(ca, s, true, nullptr);
 		Olive::UndoStack.push(ca);
 	}
 }

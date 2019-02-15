@@ -9,6 +9,9 @@
 #include "playback/audio.h"
 
 #include "dialogs/demonotice.h"
+#include "dialogs/preferencesdialog.h"
+
+#include "project/sequence.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -185,8 +188,45 @@ void OliveGlobal::save_autorecovery_file() {
     }
 }
 
+void OliveGlobal::open_preferences() {
+    panel_sequence_viewer->pause();
+    panel_footage_viewer->pause();
+
+    PreferencesDialog pd(Olive::MainWindow);
+    pd.setup_kbd_shortcuts(Olive::MainWindow->menuBar());
+    pd.exec();
+}
+
 void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
     update_project_filename(fn);
     panel_project->load_project(autorecovery);
     Olive::UndoStack.clear();
+}
+
+void OliveGlobal::undo() {
+    // workaround to prevent crash (and also users should never need to do this)
+    if (!panel_timeline->importing) {
+        Olive::UndoStack.undo();
+        update_ui(true);
+    }
+}
+
+void OliveGlobal::redo() {
+    // workaround to prevent crash (and also users should never need to do this)
+    if (!panel_timeline->importing) {
+        Olive::UndoStack.redo();
+        update_ui(true);
+    }
+}
+
+void OliveGlobal::paste() {
+    if (Olive::ActiveSequence != nullptr) {
+        panel_timeline->paste(false);
+    }
+}
+
+void OliveGlobal::paste_insert() {
+    if (Olive::ActiveSequence != nullptr) {
+        panel_timeline->paste(true);
+    }
 }

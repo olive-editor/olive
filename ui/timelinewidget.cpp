@@ -1,29 +1,22 @@
 #include "timelinewidget.h"
 
-#include "playback/audio.h"
 #include "panels/panels.h"
+#include "project/projectelements.h"
+
+#include "playback/audio.h"
 #include "io/config.h"
-#include "project/sequence.h"
-#include "project/transition.h"
-#include "project/clip.h"
-#include "panels/project.h"
-#include "panels/timeline.h"
-#include "project/footage.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
-#include "panels/effectcontrols.h"
-#include "panels/viewer.h"
 #include "project/undo.h"
-#include "mainwindow.h"
 #include "ui/viewerwidget.h"
 #include "dialogs/stabilizerdialog.h"
-#include "project/media.h"
 #include "ui/resizablescrollbar.h"
 #include "dialogs/newsequencedialog.h"
 #include "mainwindow.h"
 #include "ui/rectangleselect.h"
 #include "playback/playback.h"
 #include "ui/cursors.h"
+#include "ui/menuhelper.h"
 #include "debug.h"
 
 #include "project/effect.h"
@@ -123,13 +116,9 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 			QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
 			autoscaleAction->setCheckable(true);
 			// set autoscale to the first selected clip
-			autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
+            autoscaleAction->setChecked(selected_clips.at(0)->autoscale);
 
-            menu.addAction(tr("Enable/Disable"), Olive::MainWindow, SLOT(toggle_enable_clips()));
-
-            menu.addAction(tr("Link/Unlink"), panel_timeline, SLOT(toggle_links()));
-
-            menu.addAction(tr("&Nest"), Olive::MainWindow, SLOT(nest()));
+            Olive::MenuHelper.make_clip_functions_menu(&menu);
 
 			// stabilizer option
 			/*int video_clip_count = 0;
@@ -486,7 +475,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 		// if we're dropping into nothing, create a new sequences based on the clip being dragged
 		if (s == nullptr) {
 			s = self_created_sequence;
-			panel_project->new_sequence(ca, self_created_sequence, true, nullptr);
+			panel_project->create_sequence_internal(ca, self_created_sequence, true, nullptr);
 			self_created_sequence = nullptr;
 		} else if (event->keyboardModifiers() & Qt::ControlModifier) {
 			insert_clips(ca);
