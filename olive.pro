@@ -34,7 +34,7 @@ system("which git") {
     # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
     # (see https://answers.launchpad.net/launchpad/+question/678556)
     isEmpty(GITHASHVAR) {
-        GITHASHVAR = $$system(grep -Po '(?<=-)(([a-z0-9])\w+)(?=\+)' debian/changelog)
+        GITHASHVAR = $$system(sh $$PWD/debian/gitfromlog.sh $$PWD/debian/changelog)
     }
 
     DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
