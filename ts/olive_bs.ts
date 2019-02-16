@@ -321,93 +321,93 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="61"/>
         <source>Export &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvoz &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="113"/>
         <source>Unknown codec name %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepoznato ime kodeka %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="319"/>
         <source>Export Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvoz neuspješan</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="320"/>
         <source>Export failed - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvoz neuspješan - %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="341"/>
         <source>Invalid dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Nevažeće dimenzije</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="342"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visina i širina izvoza obje moraju biti parni brojevi/djeljive sa dva.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="398"/>
         <source>Invalid codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Nevažeći kodek</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="399"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametri odabranog kodeka se nisu mogli odrediti. Ovo je greška, molimo da kontaktirate developere.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="468"/>
         <source>Invalid format</source>
-        <translation type="unfinished"></translation>
+        <translation>Nevažeći format</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="469"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Izlazni format se nije mogao odrediti. Ovo je greška, molimo da kontaktirate developere.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="476"/>
         <source>Export Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvoz medija</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="563"/>
         <source>Quality-based (Constant Rate Factor)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bazirano na kvaliteti (Faktor stalne stope/Constant Rate Factor)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="567"/>
         <source>Constant Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Stalna stopa bitova</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="576"/>
         <location filename="../dialogs/exportdialog.cpp" line="582"/>
         <source>Invalid Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Nevažeći kodek</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="577"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Traganje za prikladnim koderom za ovaj kodek nije uspjelo. Izvoz najvjerovatnije neće uspjeti.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="583"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Traganje za prikladnim formatom piksela za ovaj kodek nije uspjelo. Izvoz najvjerovatnije neće uspjeti.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="596"/>
         <source>Bitrate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopa bitova (Mbps):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="600"/>
         <source>Quality (CRF):</source>
-        <translation type="unfinished"></translation>
+        <translation>Kvaliteta (CRF):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="603"/>
@@ -417,78 +417,84 @@
 17-18 = visually lossless (compressed, but unnoticeable)
 23 = high quality
 51 = lowest quality possible</source>
-        <translation type="unfinished"></translation>
+        <translation>Faktor kvalitete:
+
+0 = besprijekorno
+17-18 = oku besprijekorno (komprimirano, ali neprimjetno)
+23 = visoka kvaliteta
+51 = najniža kvaliteta moguća</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="606"/>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished"></translation>
+        <translation>Željena veličina datoteke (MB):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="622"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Format:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="631"/>
         <source>Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>Raspon:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="634"/>
         <source>Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Čitava sekvenca</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="635"/>
         <source>In to Out</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>I have no clue what to call this really, it only plays sound, but that&apos;s not in the name, so I can&apos;t mention sound, so I assume that &quot;in&quot; and &quot;out&quot; reference the in and out points respectively.</translatorcomment>
+        <translation>Od početka do kraja</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="648"/>
         <location filename="../dialogs/exportdialog.cpp" line="691"/>
         <source>Codec:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kodek:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="652"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Širina:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="657"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Visina:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="662"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Okvirna stopa:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="668"/>
         <source>Compression Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tip komprimacije:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Napredno</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="695"/>
         <source>Sampling Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopa uzoraka:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="701"/>
         <source>Bitrate (Kbps/CBR):</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopa bitova (Kbps/CBR):</translation>
     </message>
 </context>
 <context>
@@ -496,87 +502,88 @@
     <message>
         <location filename="../io/exportthread.cpp" line="61"/>
         <source>failed to send frame to encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Slanje okvira koderu nije uspjelo (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="72"/>
         <source>failed to receive packet from encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Primanje paketa od kodera nije uspjelo (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="93"/>
         <source>could not video encoder for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nije mogao video koder za %1</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="102"/>
         <source>could not allocate video stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Video tok se nije mogao zauzeti</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="111"/>
         <source>could not allocate video encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontekst video kodiranja se nije moago zauzeti</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="149"/>
         <source>could not open output video encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Izlazni video koder se nije moago otvoriti (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="157"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametri video kodera se nisu mogli kopirati u izlazni tok (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="195"/>
         <source>could not audio encoder for %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Not sure if there should be anything in between &quot;not&quot; and &quot;audio&quot;</translatorcomment>
+        <translation>Nije mogao audio koder za %1</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="204"/>
         <source>could not allocate audio stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio tok se nije mogao zauzeti</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="213"/>
         <source>could not allocate audio encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontekst audio kodiranja se nije mogao zauzeti</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="238"/>
         <source>could not open output audio encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Izlaz audio kodera se nije mogao otvoriti (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="246"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametri audio kodera se nisu mogli kopirati u izlazni tok (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="276"/>
         <source>could not allocate audio buffer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio međuspremnik se nije mogao zauzeti (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="298"/>
         <source>could not create output format context</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontekst izlaznog formata se nije mogao stvoriti</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="307"/>
         <source>could not open output file (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Izlazna datoteka se nije mogla otvoriti (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="333"/>
         <source>could not write output file header (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaglavlje izlazne datoteke se nije moglo ispisati (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="470"/>
         <source>could not write output file trailer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaglavlje izlazne datoteke se nije moglo ispisati (%1)</translation>
     </message>
 </context>
 <context>
@@ -946,7 +953,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="649"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Reži</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="650"/>
@@ -956,7 +963,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="651"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Zalijepi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="652"/>
@@ -1517,7 +1524,7 @@
     <message>
         <location filename="../project/media.cpp" line="112"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Okvirna stopa:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="122"/>
@@ -1696,22 +1703,22 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="182"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Video</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="186"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Širina:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="192"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Visina:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="198"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Okvirna stopa:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="214"/>
@@ -2202,7 +2209,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="41"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Format:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="44"/>
@@ -2528,7 +2535,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="36"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Okvirna stopa:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="41"/>
@@ -2902,7 +2909,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="101"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Zalijepi</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="111"/>
