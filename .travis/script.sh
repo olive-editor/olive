@@ -31,14 +31,6 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
-	# get, compile, and install GTK style plugin
-	git clone http://code.qt.io/qt/qtstyleplugins.git
-	cd qtstyleplugins
-	qmake
-	make -j$(nproc)
-	make install
-	cd -
-
 	# generate translation files
 	lrelease olive.pro
 
@@ -66,7 +58,7 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 	export VERSION=$(git rev-parse --short HEAD)
 
 	# use linuxdeployqt to set up dependencies
-	./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage -extra-plugins=platformthemes/libqgtk2.so,styles/libqgtk2style.so
+	./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
 
 	# 64-bit linuxdeployqt can only generate a 64-bit AppImage
 	# to generate a 32-bit one, we need to download and run 32-bit AppImageTool

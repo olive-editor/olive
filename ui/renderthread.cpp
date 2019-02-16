@@ -29,12 +29,6 @@
 #include "playback/playback.h"
 #include "project/sequence.h"
 
-// copied from source code to OCIODisplay
-#define LUT3D_EDGE_SIZE 32
-
-// copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
-#define NUM_3D_ENTRIES 98304
-
 RenderThread::RenderThread() :
 	front_buffer(0),
 	front_texture(0),
