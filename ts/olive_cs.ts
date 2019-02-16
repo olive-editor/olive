@@ -326,98 +326,98 @@
 <context>
     <name>ExportDialog</name>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="79"/>
+        <location filename="../dialogs/exportdialog.cpp" line="73"/>
         <source>Export &quot;%1&quot;</source>
         <translation>Vyvést &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="131"/>
+        <location filename="../dialogs/exportdialog.cpp" line="125"/>
         <source>Unknown codec name %1</source>
         <translation>Neznámý název kodeku %1</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="337"/>
+        <location filename="../dialogs/exportdialog.cpp" line="331"/>
         <source>Export Failed</source>
         <translation>Nepodařilo se vyvést</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="338"/>
+        <location filename="../dialogs/exportdialog.cpp" line="332"/>
         <source>Export failed - %1</source>
         <translation>Nepodařilo se vyvést - %1</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="359"/>
+        <location filename="../dialogs/exportdialog.cpp" line="354"/>
         <source>Invalid dimensions</source>
         <translation>Neplatné rozměry</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="360"/>
+        <location filename="../dialogs/exportdialog.cpp" line="355"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
         <translation>Šířka a výška pro vyvedení musí být sudá čísla dělitelná 2.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="416"/>
+        <location filename="../dialogs/exportdialog.cpp" line="411"/>
         <source>Invalid codec</source>
         <translation>Neplatný kodek</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="417"/>
+        <location filename="../dialogs/exportdialog.cpp" line="412"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
         <translation>Nepodařilo se určit výstupní parametry pro vybraný kodek. Toto je chyba. Spojte se, prosím, s vývojáři.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="486"/>
+        <location filename="../dialogs/exportdialog.cpp" line="481"/>
         <source>Invalid format</source>
         <translation>Neplatný formát</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="487"/>
+        <location filename="../dialogs/exportdialog.cpp" line="482"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
         <translation>Nepodařilo se určit výstupní formát. Toto je chyba. Spojte se, prosím, s vývojáři.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="494"/>
+        <location filename="../dialogs/exportdialog.cpp" line="489"/>
         <source>Export Media</source>
         <translation>Vyvést záznam</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="581"/>
+        <location filename="../dialogs/exportdialog.cpp" line="574"/>
         <source>Quality-based (Constant Rate Factor)</source>
         <translation>Kvalita (Constant Rate Factor)</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="585"/>
+        <location filename="../dialogs/exportdialog.cpp" line="578"/>
         <source>Constant Bitrate</source>
         <translation>Stálý datový tok</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="594"/>
-        <location filename="../dialogs/exportdialog.cpp" line="600"/>
+        <location filename="../dialogs/exportdialog.cpp" line="587"/>
+        <location filename="../dialogs/exportdialog.cpp" line="593"/>
         <source>Invalid Codec</source>
         <translation>Neplatný kodek</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="595"/>
+        <location filename="../dialogs/exportdialog.cpp" line="588"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
         <translation>Nepodařilo se najít vhodný kodér pro tento kodek. Vyvedení pravděpodobně selže.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="601"/>
+        <location filename="../dialogs/exportdialog.cpp" line="594"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
         <translation>Nepodařilo se najít formát pixelu pro tento kodér. Vyvedení pravděpodobně selže.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="614"/>
+        <location filename="../dialogs/exportdialog.cpp" line="607"/>
         <source>Bitrate (Mbps):</source>
         <translation>Datový tok (MB/s):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="618"/>
+        <location filename="../dialogs/exportdialog.cpp" line="611"/>
         <source>Quality (CRF):</source>
         <translation>Kvalita (CRF):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="621"/>
+        <location filename="../dialogs/exportdialog.cpp" line="614"/>
         <source>Quality Factor:
 
 0 = lossless
@@ -432,73 +432,73 @@
 51 = nejnižší možná jakost</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="624"/>
+        <location filename="../dialogs/exportdialog.cpp" line="617"/>
         <source>Target File Size (MB):</source>
         <translation>Velikost cílového souboru (MB):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="640"/>
+        <location filename="../dialogs/exportdialog.cpp" line="633"/>
         <source>Format:</source>
         <translation>Formát:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="649"/>
+        <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Range:</source>
         <translation>Rozsah:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="652"/>
+        <location filename="../dialogs/exportdialog.cpp" line="645"/>
         <source>Entire Sequence</source>
         <translation>Celá sekvence</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="653"/>
+        <location filename="../dialogs/exportdialog.cpp" line="646"/>
         <source>In to Out</source>
         <translation>Vstup do výstupu</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="660"/>
+        <location filename="../dialogs/exportdialog.cpp" line="653"/>
         <source>Video</source>
         <translation>Obraz</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="666"/>
-        <location filename="../dialogs/exportdialog.cpp" line="709"/>
+        <location filename="../dialogs/exportdialog.cpp" line="659"/>
+        <location filename="../dialogs/exportdialog.cpp" line="702"/>
         <source>Codec:</source>
         <translation>Kodek:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="670"/>
+        <location filename="../dialogs/exportdialog.cpp" line="663"/>
         <source>Width:</source>
         <translation>Šířka:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="675"/>
+        <location filename="../dialogs/exportdialog.cpp" line="668"/>
         <source>Height:</source>
         <translation>Výška:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="680"/>
+        <location filename="../dialogs/exportdialog.cpp" line="673"/>
         <source>Frame Rate:</source>
         <translation>Snímkování:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="686"/>
+        <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Compression Type:</source>
         <translation>Typ komprese:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="697"/>
+        <location filename="../dialogs/exportdialog.cpp" line="690"/>
         <source>Advanced</source>
         <translation>Pokročilé</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="713"/>
+        <location filename="../dialogs/exportdialog.cpp" line="706"/>
         <source>Sampling Rate:</source>
         <translation>Rychlost vzorkování:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="719"/>
+        <location filename="../dialogs/exportdialog.cpp" line="712"/>
         <source>Bitrate (Kbps/CBR):</source>
         <translation>Datový tok (KB/s/stálý datový tok):</translation>
     </message>
@@ -658,17 +658,17 @@
 <context>
     <name>GraphView</name>
     <message>
-        <location filename="../ui/graphview.cpp" line="81"/>
+        <location filename="../ui/graphview.cpp" line="82"/>
         <source>Zoom to Selection</source>
         <translation>Přiblížit na výběr</translation>
     </message>
     <message>
-        <location filename="../ui/graphview.cpp" line="88"/>
+        <location filename="../ui/graphview.cpp" line="89"/>
         <source>Zoom to Show All</source>
         <translation>Přiblížit pro ukázání všeho</translation>
     </message>
     <message>
-        <location filename="../ui/graphview.cpp" line="97"/>
+        <location filename="../ui/graphview.cpp" line="98"/>
         <source>Reset View</source>
         <translation>Obnovit výchozí zvětšení</translation>
     </message>
@@ -740,17 +740,17 @@
 <context>
     <name>LoadDialog</name>
     <message>
-        <location filename="../dialogs/loaddialog.cpp" line="39"/>
+        <location filename="../dialogs/loaddialog.cpp" line="36"/>
         <source>Loading...</source>
         <translation>Nahrává se...</translation>
     </message>
     <message>
-        <location filename="../dialogs/loaddialog.cpp" line="44"/>
+        <location filename="../dialogs/loaddialog.cpp" line="41"/>
         <source>Loading &apos;%1&apos;...</source>
         <translation>Nahrává se &apos;%1&apos;...</translation>
     </message>
     <message>
-        <location filename="../dialogs/loaddialog.cpp" line="50"/>
+        <location filename="../dialogs/loaddialog.cpp" line="47"/>
         <source>Cancel</source>
         <translation>Zrušit</translation>
     </message>
@@ -758,52 +758,52 @@
 <context>
     <name>LoadThread</name>
     <message>
-        <location filename="../io/loadthread.cpp" line="166"/>
+        <location filename="../io/loadthread.cpp" line="157"/>
         <source>Version Mismatch</source>
         <translation>Rozdílná verze</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="167"/>
+        <location filename="../io/loadthread.cpp" line="158"/>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
         <translation>Tento projekt byl uložen v jiné verzi Olive a nemusí být plně slučitelný s touto verzí. Přesto se jej chcete pokusit nahrát?</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="514"/>
+        <location filename="../io/loadthread.cpp" line="505"/>
         <source>Invalid Clip Link</source>
         <translation>Neplatný odkaz na záběr</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="515"/>
+        <location filename="../io/loadthread.cpp" line="506"/>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
         <translation>Tento projekt obsahuje neplatný odkaz na záběr. Tento může být poškozen. Chcete pokračovat v jeho nahrávání?</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="676"/>
+        <location filename="../io/loadthread.cpp" line="667"/>
         <source>%1 - Line: %2 Col: %3</source>
         <translation>%1 - Řádek: %2 Sloupec: %3</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="702"/>
+        <location filename="../io/loadthread.cpp" line="693"/>
         <source>User aborted loading</source>
         <translation>Uživatelem přerušené nahrávání</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="731"/>
+        <location filename="../io/loadthread.cpp" line="724"/>
         <source>XML Parsing Error</source>
         <translation>Chyba při zpracování XML</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="732"/>
+        <location filename="../io/loadthread.cpp" line="725"/>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
         <translation>Nepodařilo se nahrát &apos;%1&apos;. %2</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="736"/>
+        <location filename="../io/loadthread.cpp" line="729"/>
         <source>Project Load Error</source>
         <translation>Chyba při nahrávání projektu</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="737"/>
+        <location filename="../io/loadthread.cpp" line="730"/>
         <source>Error loading project: %1</source>
         <translation>Chyba při nahrávání projektu: %1</translation>
     </message>
@@ -1934,6 +1934,16 @@ Rozložení zvuku: %6</translation>
         <source>Please open the sequence you wish to export.</source>
         <translation type="unfinished">Otevřete, prosím, sekvenci, již chcete vyvést.</translation>
     </message>
+    <message>
+        <location filename="../oliveglobal.cpp" line="217"/>
+        <source>Missing Project File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../oliveglobal.cpp" line="218"/>
+        <source>Specified project &apos;%1&apos; does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PanEffect</name>
@@ -1954,17 +1964,17 @@ Rozložení zvuku: %6</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="82"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="83"/>
         <source>Preferences</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="179"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="180"/>
         <source>Invalid CSS File</source>
         <translation>Neplatný soubor CSS</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="180"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="181"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
         <translation>Soubor CSS &apos;%1&apos; neexistuje.</translation>
     </message>
@@ -1977,143 +1987,143 @@ Rozložení zvuku: %6</translation>
         <translation type="vanished">Některá změněná nastavení budou, aby se projevila, vyžadovat opětovné spuštění Olive</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="300"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="310"/>
         <source>Confirm Reset All Shortcuts</source>
         <translation>Potvrdit obnovení výchozího nastavení všech klávesových zkratek</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="301"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="311"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
         <translation>Jste si jistý, že chcete vrátit nastavení všech klávesových zkratek do jejich výchozího stavu?</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="351"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="361"/>
         <source>Import Keyboard Shortcuts</source>
         <translation>Zavést klávesové zkratky</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="375"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="399"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="385"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="409"/>
         <source>Error saving shortcuts</source>
         <translation>Chyba při ukládání klávesových zkratek</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="376"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="386"/>
         <source>Failed to open file for reading</source>
         <translation>Soubor se nepodařilo otevřít pro čtení</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="383"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="393"/>
         <source>Export Keyboard Shortcuts</source>
         <translation>Vyvést klávesové zkratky</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="397"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="407"/>
         <source>Export Shortcuts</source>
         <translation>Vyvést zkratky</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="397"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="407"/>
         <source>Shortcuts exported successfully</source>
         <translation>Zkratky úspěšně vyvedeny</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="399"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="409"/>
         <source>Failed to open file for writing</source>
         <translation>Soubor se nepodařilo otevřít pro zápis</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="405"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="415"/>
         <source>Browse for CSS file</source>
         <translation>Hledat soubor CSS</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="413"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="423"/>
         <source>Delete All Previews</source>
         <translation>Smazat všechny náhledy</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="414"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="424"/>
         <source>Are you sure you want to delete all previews?</source>
         <translation>Opravdu chcete smazat všechny náhledy?</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="418"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="428"/>
         <source>Previews Deleted</source>
         <translation>Náhledy smazány</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="419"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="429"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
         <translation>Všechny náhledy byly úspěšně smazány. Možná budete muset nynější projekt otevřít znovu, aby se změny projevily.</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="436"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="446"/>
         <source>Language:</source>
         <translation>Jazyk:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="473"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="483"/>
         <source>Custom CSS:</source>
         <translation>Vlastní CSS:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="479"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="489"/>
         <source>Browse</source>
         <translation>Procházet</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="486"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="496"/>
         <source>Image sequence formats:</source>
         <translation>Formáty obrázkové řady:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="495"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="505"/>
         <source>Audio Recording:</source>
         <translation>Nahrávání zvuku:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="498"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="508"/>
         <source>Mono</source>
         <translation>Mono</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="499"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="509"/>
         <source>Stereo</source>
         <translation>Stereo</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="505"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="515"/>
         <source>Effect Textbox Lines:</source>
         <translation>Řádky textového pole efektu:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="515"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="525"/>
         <source>Thumbnail Resolution:</source>
         <translation>Rozlišení náhledu:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="523"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="533"/>
         <source>Waveform Resolution:</source>
         <translation>Rozlišení tvaru vlny:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="531"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="541"/>
         <source>Delete Previews</source>
         <translation>Smazat náhledy</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="539"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="549"/>
         <source>Use Software Fallbacks When Possible</source>
         <translation>Zajištění skrze softwarovou zálohu</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="543"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
         <source>General</source>
         <translation>Obecné</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="547"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="557"/>
         <source>Behavior</source>
         <translation>Chování</translation>
     </message>
@@ -2122,119 +2132,119 @@ Rozložení zvuku: %6</translation>
         <translation type="vanished">Zakázat vytvoření více vláken v jednom procesu na obrázky</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="561"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="571"/>
         <source>Seeking</source>
         <translation>Vyhledávání</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="564"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="574"/>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
         <translation>Přesné vyhledávání
 Vždy ukazovat správný snímek (obraz se při získávání správného snímku může na krátkou dobu pozastavit)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="567"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="577"/>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
         <translation>Rychlé vyhledávání
 Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky - neovlivňuje přehrávání/vyvádění)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="573"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
         <source>Memory Usage</source>
         <translation>Využití paměti</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="575"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="585"/>
         <source>Upcoming Frame Queue:</source>
         <translation>Nadcházející řada snímků:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="580"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="589"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="590"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="599"/>
         <source>frames</source>
         <translation>snímků</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="581"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="590"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="591"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="600"/>
         <source>seconds</source>
         <translation>sekund</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="584"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="594"/>
         <source>Previous Frame Queue:</source>
         <translation>Předchozí řada snímků:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="595"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="605"/>
         <source>Playback</source>
         <translation>Přehrávání</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="602"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="612"/>
         <source>Output Device:</source>
         <translation>Výstupní zařízení:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="605"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="624"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="615"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="634"/>
         <source>Default</source>
         <translation>Výchozí</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="621"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="631"/>
         <source>Input Device:</source>
         <translation>Vstupní zařízení:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="650"/>
         <source>Sample Rate:</source>
         <translation>Vzorkovací kmitočet:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="653"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="663"/>
         <source>Audio</source>
         <translation>Zvuk</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="661"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="671"/>
         <source>Search for action or shortcut</source>
         <translation>Hledat činnosti nebo klávesové zkratky</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="668"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="678"/>
         <source>Action</source>
         <translation>Činnost</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="669"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="679"/>
         <source>Shortcut</source>
         <translation>Zkratka</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="684"/>
         <source>Import</source>
         <translation>Zavést</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="678"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="688"/>
         <source>Export</source>
         <translation>Vyvést</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="684"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="694"/>
         <source>Reset Selected</source>
         <translation>Obnovit výchozí hodnotu u vybraného</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="688"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="698"/>
         <source>Reset All</source>
         <translation>Obnovit výchozí hodnotu u všeho</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="694"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="704"/>
         <source>Keyboard</source>
         <translation>Klávesnice</translation>
     </message>
@@ -2242,12 +2252,12 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>PreviewGenerator</name>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="537"/>
+        <location filename="../io/previewgenerator.cpp" line="530"/>
         <source>Could not open file - %1</source>
         <translation>Nepodařilo se otevřít soubor - %1</translation>
     </message>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="544"/>
+        <location filename="../io/previewgenerator.cpp" line="537"/>
         <source>Could not find stream information - %1</source>
         <translation>Nepodařilo se najít údaje o proudu - %1</translation>
     </message>
@@ -2255,94 +2265,94 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>Project</name>
     <message>
-        <location filename="../panels/project.cpp" line="150"/>
+        <location filename="../panels/project.cpp" line="146"/>
         <source>Search media, markers, etc.</source>
         <translation>Hledat záznam, značky atd.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="231"/>
+        <location filename="../panels/project.cpp" line="227"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="241"/>
+        <location filename="../panels/project.cpp" line="237"/>
         <source>Sequence</source>
         <translation>Řada</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="361"/>
+        <location filename="../panels/project.cpp" line="357"/>
         <source>Replace &apos;%1&apos;</source>
         <translation>Nahradit &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="363"/>
-        <location filename="../panels/project.cpp" line="910"/>
+        <location filename="../panels/project.cpp" line="359"/>
+        <location filename="../panels/project.cpp" line="906"/>
         <source>All Files</source>
         <translation>Všechny soubory</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="374"/>
-        <location filename="../panels/project.cpp" line="922"/>
+        <location filename="../panels/project.cpp" line="370"/>
+        <location filename="../panels/project.cpp" line="918"/>
         <source>No active sequence</source>
         <translation>Žádná činná řada</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="375"/>
+        <location filename="../panels/project.cpp" line="371"/>
         <source>No sequence is active, please open the sequence you want to replace clips from.</source>
         <translation>Žádná řada není činná. Otevřete, prosím, řadu, ve které chcete nahradit záběry.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="383"/>
+        <location filename="../panels/project.cpp" line="379"/>
         <source>Active sequence selected</source>
         <translation>Vybrána činná řada</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="384"/>
+        <location filename="../panels/project.cpp" line="380"/>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
         <translation>Sekvenci nemůžete vložit do ní samé, aby žádné záběry z tohoto záznamu nebyly v této sekvenci.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="415"/>
+        <location filename="../panels/project.cpp" line="411"/>
         <source>Rename &apos;%1&apos;</source>
         <translation>Přejmenovat &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="416"/>
+        <location filename="../panels/project.cpp" line="412"/>
         <source>Enter new name:</source>
         <translation>Zadat nový název:</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="556"/>
+        <location filename="../panels/project.cpp" line="552"/>
         <source>Delete media in use?</source>
         <translation>Smazat používaný záznam?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="557"/>
+        <location filename="../panels/project.cpp" line="553"/>
         <source>The media &apos;%1&apos; is currently used in &apos;%2&apos;. Deleting it will remove all instances in the sequence. Are you sure you want to do this?</source>
         <translation>Záznam &apos;%1&apos; se nyní používá v &apos;%2&apos;. Jeho smazání odstraní všechny instance v řadě. Opravdu to chcete udělat?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="560"/>
+        <location filename="../panels/project.cpp" line="556"/>
         <source>Skip</source>
         <translation>Přeskočit</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="784"/>
+        <location filename="../panels/project.cpp" line="780"/>
         <source>Image sequence detected</source>
         <translation>Zjištěna obrázková řada</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="785"/>
+        <location filename="../panels/project.cpp" line="781"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
         <translation>Soubor &apos;%1&apos; se zdá být součástí obrázkové řady. Chcete ji zavést jako takovou?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="910"/>
+        <location filename="../panels/project.cpp" line="906"/>
         <source>Import media...</source>
         <translation>Zavést záznam...</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="923"/>
+        <location filename="../panels/project.cpp" line="919"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
         <translation>Žádná řada není činná. Otevřete, prosím, řadu, ve které chcete smazat záběry.</translation>
     </message>
@@ -2444,7 +2454,7 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>ProxyGenerator</name>
     <message>
-        <location filename="../io/proxygenerator.cpp" line="323"/>
+        <location filename="../io/proxygenerator.cpp" line="322"/>
         <source>Finished generating proxy for &quot;%1&quot;</source>
         <translation>Dokončeno vytvoření proxy pro &quot;%1&quot;</translation>
     </message>
@@ -2452,67 +2462,67 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>ReplaceClipMediaDialog</name>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="42"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="38"/>
         <source>Replace clips using &quot;%1&quot;</source>
         <translation>Nahradit záběry pomocí &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="48"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="44"/>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
         <translation>Vyberte, kterým záznamem chcete nahradit záběry tohoto záznamu:</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="54"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="50"/>
         <source>Keep the same media in-points</source>
         <translation>Zachovat stejné začáteční body záznamu</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="62"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="58"/>
         <source>Replace</source>
         <translation>Nahradit</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="66"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="62"/>
         <source>Cancel</source>
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="82"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="78"/>
         <source>No media selected</source>
         <translation>Nevybrán žádný záznam</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="83"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="79"/>
         <source>Please select a media to replace with or click &apos;Cancel&apos;.</source>
         <translation>Vyberte, prosím, záznam k nahrazení nebo klepněte na Zrušit.</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="91"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
         <source>Same media selected</source>
         <translation>Vybrán stejný záznam</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="92"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="88"/>
         <source>You selected the same media that you&apos;re replacing. Please select a different one or click &apos;Cancel&apos;.</source>
         <translation>Vybral jste stejný záznam, jejž chcete nahradit. Vyberte, prosím, jiný nebo klepněte na Zrušit.</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="98"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="94"/>
         <source>Folder selected</source>
         <translation>Složka vybrána</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="99"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="95"/>
         <source>You cannot replace footage with a folder.</source>
         <translation>Záběry nemůžete nahradit složkou.</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="106"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="102"/>
         <source>Active sequence selected</source>
         <translation>Vybrána činná řada</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="107"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="103"/>
         <source>You cannot insert a sequence into itself.</source>
         <translation>Nemůžete vložit řadu do ní samé.</translation>
     </message>
@@ -2722,37 +2732,37 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>SpeedDialog</name>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="42"/>
+        <location filename="../dialogs/speeddialog.cpp" line="39"/>
         <source>Speed/Duration</source>
         <translation>Rychlost/Doba trvání</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="49"/>
+        <location filename="../dialogs/speeddialog.cpp" line="46"/>
         <source>Speed:</source>
         <translation>Rychlost:</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="56"/>
+        <location filename="../dialogs/speeddialog.cpp" line="53"/>
         <source>Frame Rate:</source>
         <translation>Snímkování:</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="61"/>
+        <location filename="../dialogs/speeddialog.cpp" line="58"/>
         <source>Duration:</source>
         <translation>Doba trvání:</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="69"/>
+        <location filename="../dialogs/speeddialog.cpp" line="66"/>
         <source>Reverse</source>
         <translation>Obrátit</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="70"/>
+        <location filename="../dialogs/speeddialog.cpp" line="67"/>
         <source>Maintain Audio Pitch</source>
         <translation>Udržovat výšku tónu zvuku</translation>
     </message>
     <message>
-        <location filename="../dialogs/speeddialog.cpp" line="71"/>
+        <location filename="../dialogs/speeddialog.cpp" line="68"/>
         <source>Ripple Changes</source>
         <translation>Změny vytažení</translation>
     </message>
@@ -2760,7 +2770,7 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>TextEditDialog</name>
     <message>
-        <location filename="../dialogs/texteditdialog.cpp" line="30"/>
+        <location filename="../dialogs/texteditdialog.cpp" line="29"/>
         <source>Edit Text</source>
         <translation>Upravit text</translation>
     </message>
@@ -3099,47 +3109,47 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
 <context>
     <name>TimelineWidget</name>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="95"/>
+        <location filename="../ui/timelinewidget.cpp" line="94"/>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="96"/>
+        <location filename="../ui/timelinewidget.cpp" line="95"/>
         <source>&amp;Redo</source>
         <translation>&amp;Znovu</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="114"/>
+        <location filename="../ui/timelinewidget.cpp" line="113"/>
         <source>C&amp;ut</source>
         <translation>Vyj&amp;mout</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="115"/>
+        <location filename="../ui/timelinewidget.cpp" line="114"/>
         <source>Cop&amp;y</source>
         <translation>&amp;Kopírovat</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="118"/>
+        <location filename="../ui/timelinewidget.cpp" line="117"/>
         <source>&amp;Paste</source>
         <translation>&amp;Vložit</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="128"/>
+        <location filename="../ui/timelinewidget.cpp" line="127"/>
         <source>R&amp;ipple Delete</source>
         <translation>&amp;Vytáhnout (smazat a posunout)</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="132"/>
+        <location filename="../ui/timelinewidget.cpp" line="131"/>
         <source>Sequence Settings</source>
         <translation>Nastavení sekvence</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="138"/>
+        <location filename="../ui/timelinewidget.cpp" line="137"/>
         <source>&amp;Speed/Duration</source>
         <translation>&amp;Rychlost/Doba trvání</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="140"/>
+        <location filename="../ui/timelinewidget.cpp" line="139"/>
         <source>Auto-s&amp;cale</source>
         <translation>Automatická &amp;změna velikosti</translation>
     </message>
@@ -3156,17 +3166,17 @@ Vyhledávat rychle (při hledání se mohou krátce ukázat nepřesné snímky -
         <translation type="vanished">&amp;Vnořovat</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="175"/>
+        <location filename="../ui/timelinewidget.cpp" line="174"/>
         <source>&amp;Reveal in Project</source>
         <translation>&amp;Odkrýt v projektu</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="179"/>
+        <location filename="../ui/timelinewidget.cpp" line="178"/>
         <source>R&amp;ename</source>
         <translation>&amp;Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="208"/>
+        <location filename="../ui/timelinewidget.cpp" line="207"/>
         <source>%1
 Start: %2
 End: %3
@@ -3177,57 +3187,57 @@ Konec: %3
 Doba trvání: %4</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="230"/>
+        <location filename="../ui/timelinewidget.cpp" line="229"/>
         <source>Rename &apos;%1&apos;</source>
         <translation>Přejmenovat &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="230"/>
+        <location filename="../ui/timelinewidget.cpp" line="229"/>
         <source>Rename multiple clips</source>
         <translation>Přejmenovat více záběrů</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="231"/>
+        <location filename="../ui/timelinewidget.cpp" line="230"/>
         <source>Enter a new name for this clip:</source>
         <translation>zadejte nový název pro tento záběr:</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="264"/>
+        <location filename="../ui/timelinewidget.cpp" line="258"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="264"/>
+        <location filename="../ui/timelinewidget.cpp" line="258"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
         <translation>Nepodařilo se najít obal záznamu pro tuto řadu.</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="850"/>
+        <location filename="../ui/timelinewidget.cpp" line="848"/>
         <source>Title</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="854"/>
+        <location filename="../ui/timelinewidget.cpp" line="852"/>
         <source>Solid Color</source>
         <translation>Plná barva</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="859"/>
+        <location filename="../ui/timelinewidget.cpp" line="857"/>
         <source>Bars</source>
         <translation>Zkušební tabulka</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="866"/>
+        <location filename="../ui/timelinewidget.cpp" line="864"/>
         <source>Tone</source>
         <translation>Tón</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="870"/>
+        <location filename="../ui/timelinewidget.cpp" line="868"/>
         <source>Noise</source>
         <translation>Šum</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1628"/>
+        <location filename="../ui/timelinewidget.cpp" line="1626"/>
         <source>Duration:</source>
         <translation>Doba trvání:</translation>
     </message>
