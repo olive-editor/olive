@@ -810,8 +810,8 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 	QMainWindow::paintEvent(event);
 
     if (first_show) {
-        emit finished_first_paint();
         first_show = false;
+        emit finished_first_paint();
     }
 }
 

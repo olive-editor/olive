@@ -47,6 +47,7 @@
 #include <QMessageBox>
 #include <QAudioDeviceInfo>
 #include <QApplication>
+#include <QProcess>
 #include <QDebug>
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
@@ -193,8 +194,8 @@ void PreferencesDialog::save() {
 
         int ret = QMessageBox::question(this,
                                         "Restart Required",
-                                        "Some of the changed settings will require a restart of Olive. Would you like to"
-                                        "restart now?",
+                                        "Some of the changed settings will require a restart of Olive. Would you like "
+                                        "to restart now?",
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
         if (ret == QMessageBox::Cancel) {
@@ -283,7 +284,16 @@ void PreferencesDialog::save() {
 		init_audio();
     }
 
-	accept();
+    accept();
+
+    if (restart_after_saving) {
+        // since we already ran can_close_project(), bypass checking again by running setWindowModified(false)
+        Olive::MainWindow->setWindowModified(false);
+
+        Olive::MainWindow->close();
+
+        QProcess::startDetached(QApplication::applicationFilePath(), { Olive::ActiveProjectFilename });
+    }
 }
 
 void PreferencesDialog::reset_default_shortcut() {
