@@ -716,11 +716,13 @@ void LoadThread::cancel() {
 }
 
 void LoadThread::question_func(const QString &title, const QString &text, int buttons) {
+    mutex.lock();
 	question_btn = QMessageBox::warning(
                     Olive::MainWindow,
 					title,
 					text,
 					static_cast<enum QMessageBox::StandardButton>(buttons));
+    mutex.unlock();
 	waitCond.wakeAll();
 }
 
@@ -795,6 +797,9 @@ void LoadThread::create_effect_ui(
 	 * Sorry. I'll fix it one day.
 	 */
 
+    // lock mutex - ensures the load thread is suspended while this happens
+    mutex.lock();
+
 	if (cancelled) return;
 	if (type == TA_NO_TRANSITION) {
 		if (meta == nullptr) {
@@ -824,13 +829,22 @@ void LoadThread::create_effect_ui(
 		}
 	}
 
+    mutex.unlock();
+
 	waitCond.wakeAll();
 }
 
 void LoadThread::create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta) {
+    // lock mutex - ensures the load thread is suspended while this happens
+    mutex.lock();
+
 	int transition_index = create_transition(primary, secondary, meta);
 	primary->sequence->transitions.at(transition_index)->set_length(td->length);
 	if (td->otc != nullptr) td->otc->opening_transition = transition_index;
 	if (td->ctc != nullptr) td->ctc->closing_transition = transition_index;
+
+    mutex.unlock();
+
+    // resume load thread
 	waitCond.wakeAll();
 }
