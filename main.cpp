@@ -99,7 +99,8 @@ int main(int argc, char *argv[]) {
 		qInstallMessageHandler(debug_message_handler);
     }
 
-    // init ffmpeg subsystem
+    // Initialize ffmpeg subsystem
+    // (these have been deprecated in FFmpeg 4, but are still necessary for FFmpeg 3)
     av_register_all();
     avfilter_register_all();
 

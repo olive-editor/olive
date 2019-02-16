@@ -121,7 +121,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	current_row_desc->setAlignment(Qt::AlignCenter);
 	layout->addWidget(current_row_desc);
 
-	connect(view, SIGNAL(zoom_changed(double)), header, SLOT(update_zoom(double)));
+    connect(view, SIGNAL(zoom_changed(double, double)), header, SLOT(update_zoom(double)));
 	connect(view, SIGNAL(x_scroll_changed(int)), header, SLOT(set_scroll(int)));
 	connect(view, SIGNAL(selection_changed(bool, int)), this, SLOT(set_key_button_enabled(bool, int)));
 
