@@ -22,20 +22,20 @@
 #define GRAPHEDITOR_H
 
 #include <QDockWidget>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QLabel>
 
-class GraphView;
-class TimelineHeader;
-class QPushButton;
-class EffectRow;
-class QHBoxLayout;
-class LabelSlider;
-class QLabel;
-class KeyframeNavigator;
+#include "ui/graphview.h"
+#include "ui/timelineheader.h"
+#include "ui/labelslider.h"
+#include "ui/keyframenavigator.h"
+#include "project/effectrow.h"
 
 class GraphEditor : public QDockWidget {
 	Q_OBJECT
 public:
-	GraphEditor(QWidget* parent = 0);
+    GraphEditor(QWidget* parent = nullptr);
 	void update_panel();
 	void set_row(EffectRow* r);
 	bool view_is_focused();

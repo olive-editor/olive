@@ -335,7 +335,7 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 			}
 		}
 
-        if (config.add_default_effects_to_clips) {
+        if (Olive::CurrentConfig.add_default_effects_to_clips) {
             if (c->track < 0) {
                 // add default video effects
                 c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
@@ -346,7 +346,7 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
             }
         }
 	}
-	if (config.enable_seek_to_import) {
+	if (Olive::CurrentConfig.enable_seek_to_import) {
 		panel_sequence_viewer->seek(earliest_point);
 	}
     ghosts.clear();
@@ -504,13 +504,13 @@ void Timeline::repaint_timeline() {
 				&& panel_sequence_viewer->playing
 				&& !zoom_just_changed) {
 			// auto scroll
-			if (config.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
+			if (Olive::CurrentConfig.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
                 int playhead_x = getTimelineScreenPointFromFrame(Olive::ActiveSequence->playhead);
 				if (playhead_x < 0 || playhead_x > (editAreas->width() - videoScrollbar->width())) {
 					horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, Olive::ActiveSequence->playhead));
 					draw = false;
 				}
-			} else if (config.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
+			} else if (Olive::CurrentConfig.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
 				if (center_scroll_to_playhead(horizontalScrollBar, zoom, Olive::ActiveSequence->playhead)) {
 					draw = false;
 				}
@@ -1188,7 +1188,7 @@ void Timeline::paste(bool insert) {
 
 			update_ui(true);
 
-			if (config.paste_seeks) {
+			if (Olive::CurrentConfig.paste_seeks) {
 				panel_sequence_viewer->seek(paste_end);
 			}
 		} else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
@@ -1483,7 +1483,7 @@ void Timeline::ripple_delete() {
     if (Olive::ActiveSequence != nullptr) {
         if (Olive::ActiveSequence->selections.size() > 0) {
             panel_timeline->delete_selection(Olive::ActiveSequence->selections, true);
-        } else if (config.hover_focus && get_focused_panel() == panel_timeline) {
+        } else if (Olive::CurrentConfig.hover_focus && get_focused_panel() == panel_timeline) {
             if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
                 panel_timeline->ripple_delete_empty_space();
             }

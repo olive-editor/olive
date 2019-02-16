@@ -25,25 +25,21 @@
 #include <QVector>
 #include <QTimer>
 #include <QDir>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QFile>
+#include <QPushButton>
 
 #include "project/projectmodel.h"
 #include "project/projectfilter.h"
+#include "project/projectelements.h"
+#include "project/undo.h"
+#include "project/sourcescommon.h"
+#include "ui/sourceiconview.h"
 
-struct Footage;
-struct Sequence;
-class Clip;
-class Timeline;
-class Viewer;
-class SourceTable;
-class Media;
-class QXmlStreamWriter;
-class QXmlStreamReader;
-class QFile;
-class ProjectFilter;
-class ComboAction;
-class SourceIconView;
-class QPushButton;
-class SourcesCommon;
+#include "panels.h"
+
+#include "ui/sourcetable.h"
 
 #define LOAD_TYPE_VERSION 69
 #define LOAD_TYPE_URL 70

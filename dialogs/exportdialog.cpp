@@ -28,18 +28,12 @@
 #include <QtMath>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
-#include <QGroupBox>
-#include <QComboBox>
-#include <QSpinBox>
 #include <QPushButton>
-#include <QProgressBar>
 
 #include "oliveglobal.h"
 #include "dialogs/advancedvideodialog.h"
 #include "panels/panels.h"
 #include "ui/viewerwidget.h"
-#include "project/sequence.h"
 #include "io/exportthread.h"
 #include "playback/playback.h"
 #include "mainwindow.h"
@@ -343,6 +337,7 @@ void ExportDialog::render_thread_finished() {
 	panel_sequence_viewer->viewer_widget->makeCurrent();
 	panel_sequence_viewer->viewer_widget->initializeGL();
 	update_ui(false);
+    et->deleteLater();
 	if (progressBar->value() == 100) accept();
 }
 
@@ -537,7 +532,6 @@ void ExportDialog::export_action() {
 
         et = new ExportThread(params, vcodec_params, this);
 
-		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
 		connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
@@ -549,7 +543,6 @@ void ExportDialog::export_action() {
 
         prep_ui_for_render(true);
 
-		et->ed = this;
 		cancelled = false;
 
 		et->start();

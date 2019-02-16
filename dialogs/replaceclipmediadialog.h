@@ -22,11 +22,11 @@
 #define REPLACECLIPMEDIADIALOG_H
 
 #include <QDialog>
+#include <QTreeView>
+#include <QCheckBox>
 
-class SourceTable;
-class QTreeView;
-class Media;
-class QCheckBox;
+#include "ui/sourcetable.h"
+#include "project/projectelements.h"
 
 class ReplaceClipMediaDialog : public QDialog {
 	Q_OBJECT

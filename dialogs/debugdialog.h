@@ -22,7 +22,7 @@
 #define DEBUGDIALOG_H
 
 #include <QDialog>
-class QTextEdit;
+#include <QTextEdit>
 
 class DebugDialog : public QDialog {
 	Q_OBJECT

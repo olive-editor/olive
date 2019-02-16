@@ -31,22 +31,13 @@
 #include "io/config.h"
 #include "playback/playback.h"
 #include "io/previewgenerator.h"
-#include "dialogs/loaddialog.h"
 #include "effects/internal/voideffect.h"
 #include "debug.h"
 
 #include <QFile>
 #include <QTreeWidgetItem>
 
-struct TransitionData {
-	int id;
-	QString name;
-	long length;
-	Clip* otc;
-	Clip* ctc;
-};
-
-LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelled(false) {
+LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
 	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 	connect(this, SIGNAL(success()), this, SLOT(success_func()));
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));

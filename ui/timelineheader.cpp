@@ -372,14 +372,14 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 			// draw text
 			bool draw_text = false;
 			if (text_enabled && lineX-textWidth > lastTextBoundary) {
-				timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
+				timecode = frame_to_timecode(frame + in_visible, Olive::CurrentConfig.timecode_view, viewer->seq->frame_rate);
 				fullTextWidth = fm.width(timecode);
 				textWidth = fullTextWidth>>1;
 
 				text_x = lineX;
 
 				// centers the text to that point on the timeline, LEFT aligns it if not
-				if (config.center_timeline_timecodes) {
+				if (Olive::CurrentConfig.center_timeline_timecodes) {
 					text_x -= textWidth;
 				} else {
 					text_x += TEXT_PADDING_FROM_LINE;
@@ -399,7 +399,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 				// draw line markers
 				p.setPen(Qt::gray);
-				p.drawLine(lineX, (!config.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
+				p.drawLine(lineX, (!Olive::CurrentConfig.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
 
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
@@ -463,8 +463,8 @@ void TimelineHeader::show_context_menu(const QPoint &pos) {
 
     QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), Olive::MainWindow, SLOT(toggle_bool_action()));
 	center_timecodes->setCheckable(true);
-	center_timecodes->setChecked(config.center_timeline_timecodes);
-	center_timecodes->setData(reinterpret_cast<quintptr>(&config.center_timeline_timecodes));
+	center_timecodes->setChecked(Olive::CurrentConfig.center_timeline_timecodes);
+	center_timecodes->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.center_timeline_timecodes));
 
 	menu.exec(mapToGlobal(pos));
 }

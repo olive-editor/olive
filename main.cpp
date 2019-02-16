@@ -70,15 +70,15 @@ int main(int argc, char *argv[]) {
 				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
 					launch_fullscreen = true;
 				} else if (!strcmp(argv[i], "--disable-shaders")) {
-					runtime_config.shaders_are_enabled = false;
+					Olive::CurrentRuntimeConfig.shaders_are_enabled = false;
 				} else if (!strcmp(argv[i], "--no-debug")) {
 					use_internal_logger = false;
 				} else if (!strcmp(argv[i], "--disable-blend-modes")) {
-					runtime_config.disable_blending = true;
+					Olive::CurrentRuntimeConfig.disable_blending = true;
 				} else if (!strcmp(argv[i], "--translation")) {
 					if (i + 1 < argc && argv[i + 1][0] != '-') {
 						// load translation file
-						runtime_config.external_translation_file = argv[i + 1];
+						Olive::CurrentRuntimeConfig.external_translation_file = argv[i + 1];
 
 						i++;
 					} else {

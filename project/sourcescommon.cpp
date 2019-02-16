@@ -269,7 +269,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 					&& drop_item.isValid()
 					&& m->get_type() == MEDIA_TYPE_FOOTAGE
 					&& !QFileInfo(paths.at(0)).isDir()
-					&& config.drop_on_media_to_replace
+					&& Olive::CurrentConfig.drop_on_media_to_replace
 					&& QMessageBox::question(
 						parent,
 						tr("Replace Media"),

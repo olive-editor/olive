@@ -24,9 +24,7 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QListWidget>
-
-class QListWidget;
-class QMenu;
+#include <QMenu>
 
 class ActionSearchList : public QListWidget {
 	Q_OBJECT

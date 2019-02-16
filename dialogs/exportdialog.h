@@ -22,15 +22,14 @@
 #define EXPORTDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QLabel>
+#include <QProgressBar>
+#include <QGroupBox>
 
-struct Sequence;
-class ExportThread;
-class QComboBox;
-class QSpinBox;
-class QDoubleSpinBox;
-class QLabel;
-class QProgressBar;
-class QGroupBox;
+#include "project/sequence.h"
 
 #include "io/exportthread.h"
 

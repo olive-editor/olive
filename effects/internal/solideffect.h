@@ -23,7 +23,6 @@
 
 #include "project/effect.h"
 
-class QOpenGLTexture;
 #include <QImage>
 
 class SolidEffect : public Effect {

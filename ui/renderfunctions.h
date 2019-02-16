@@ -42,7 +42,7 @@ struct ComposeSequenceParams {
      *
      * Primarily used for calling Viewer::play_wake() when appropriate.
      */
-	Viewer* viewer;
+    Viewer* viewer;
 
     /**
      * @brief The OpenGL context to use while rendering.
@@ -51,7 +51,7 @@ struct ComposeSequenceParams {
      *
      * \see ComposeSequenceParams::video
      */
-	QOpenGLContext* ctx;
+    QOpenGLContext* ctx;
 
     /**
      * @brief The sequence to compose
@@ -59,7 +59,7 @@ struct ComposeSequenceParams {
      * In addition to clips, sequences also contain the playhead position so compose_sequence() knows which frame
      * to render.
      */
-	Sequence* seq;
+    Sequence* seq;
 
     /**
      * @brief Array to store the nested sequence hierarchy
@@ -67,7 +67,7 @@ struct ComposeSequenceParams {
      * Should be left empty. This array gets passed around compose_sequence() as it calls itself recursively to
      * handle nested sequences.
      */
-	QVector<Clip*> nests;
+    QVector<Clip*> nests;
 
     /**
      * @brief Set compose mode to video or audio
@@ -82,7 +82,7 @@ struct ComposeSequenceParams {
      * A pointer to a pointer that will be set to the Effect whose gizmos are being rendered and should therefore
      * be interacted with if the user uses them.
      */
-	Effect** gizmos;
+    Effect** gizmos;
 
     /**
      * @brief A variable that compose_sequence() will set to **TRUE** if any of the clips couldn't be shown.
@@ -104,7 +104,7 @@ struct ComposeSequenceParams {
      * This may be preferable. See ComposeSequenceParams::single_threaded for a similar function that could be
      * removed.
      */
-	bool texture_failed;
+    bool texture_failed;
 
     /**
      * @brief Run all cachers in the same thread that compose_sequence() is in
@@ -129,7 +129,7 @@ struct ComposeSequenceParams {
      *
      * \see ComposeSequenceParams::video
      */
-	int playback_speed;
+    int playback_speed;
 
     /**
      * @brief Blending mode shader
@@ -142,7 +142,7 @@ struct ComposeSequenceParams {
      *
      * \see ComposeSequenceParams::video
      */
-	QOpenGLShaderProgram* blend_mode_program;
+    QOpenGLShaderProgram* blend_mode_program;
 
     /**
      * @brief Premultiply alpha shader
@@ -154,7 +154,7 @@ struct ComposeSequenceParams {
      * premultiplied (see Footage::alpha_is_premultiplied) using this shader. Must be compiled and linked beforehand.
      * See RenderThread::premultiply_program for how this is properly set up.
      */
-	QOpenGLShaderProgram* premultiply_program;
+    QOpenGLShaderProgram* premultiply_program;
 
     /**
      * @brief The OpenGL framebuffer object that the final texture to be shown is rendered to.
@@ -163,7 +163,7 @@ struct ComposeSequenceParams {
      *
      * When compose_sequence() is rendering the final image, this framebuffer will be bound.
      */
-	GLuint main_buffer;
+    GLuint main_buffer;
 
     /**
      * @brief The attachment to the framebuffer in main_buffer
@@ -172,7 +172,7 @@ struct ComposeSequenceParams {
      *
      * The OpenGL texture attached to the framebuffer referenced by main_buffer.
      */
-	GLuint main_attachment;
+    GLuint main_attachment;
 
     /**
      * @brief Backend OpenGL framebuffer 1 used for further processing before rendering to main_buffer
@@ -180,7 +180,7 @@ struct ComposeSequenceParams {
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"
      * between framebuffers. backend_buffer1 and backend_buffer2 are used for this purpose.
      */
-	GLuint backend_buffer1;
+    GLuint backend_buffer1;
 
     /**
      * @brief Backend OpenGL framebuffer 1's texture attachment
@@ -188,7 +188,7 @@ struct ComposeSequenceParams {
      * The texture that ComposeSequenceParams::backend_buffer1 renders to. Bound and drawn to
      * ComposeSequenceParams::backend_buffer2 to "ping-pong" between them and various shaders.
      */
-	GLuint backend_attachment1;
+    GLuint backend_attachment1;
 
     /**
      * @brief Backend OpenGL framebuffer 2 used for further processing before rendering to main_buffer
@@ -196,7 +196,7 @@ struct ComposeSequenceParams {
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"
      * between framebuffers. backend_buffer1 and backend_buffer2 are used for this purpose.
      */
-	GLuint backend_buffer2;
+    GLuint backend_buffer2;
 
     /**
      * @brief Backend OpenGL framebuffer 2's texture attachment
@@ -204,7 +204,17 @@ struct ComposeSequenceParams {
      * The texture that ComposeSequenceParams::backend_buffer2 renders to. Bound and drawn to
      * ComposeSequenceParams::backend_buffer1 to "ping-pong" between them and various shaders.
      */
-	GLuint backend_attachment2;
+    GLuint backend_attachment2;
+
+    /**
+     * @brief OpenGL shader containing OpenColorIO shader information
+     */
+    QOpenGLShaderProgram* ocio_shader;
+
+    /**
+     * @brief OpenGL texture containing LUT obtained form OpenColorIO
+     */
+    GLuint ocio_lut_texture;
 };
 
 /**

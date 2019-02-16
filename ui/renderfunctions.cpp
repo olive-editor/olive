@@ -112,7 +112,7 @@ void process_effect(Clip* c,
 		if (e->enable_coords) {
 			e->process_coords(timecode, coords, data);
 		}
-		bool can_process_shaders = (e->enable_shader && runtime_config.shaders_are_enabled);
+		bool can_process_shaders = (e->enable_shader && Olive::CurrentRuntimeConfig.shaders_are_enabled);
 		if (can_process_shaders || e->enable_superimpose) {
 			e->startEffect();
 			if (can_process_shaders && e->is_glsl_linked()) {
@@ -506,7 +506,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 						// copy front buffer to back buffer (only if we're using blending modes - which we usually will be)
-						if (!runtime_config.disable_blending) {
+						if (!Olive::CurrentRuntimeConfig.disable_blending) {
 							if (params.nests.size() > 0) {
 								draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
 							} else {
@@ -523,7 +523,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 						// bind front buffer as draw buffer
 						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
-						if (runtime_config.disable_blending) {
+						if (Olive::CurrentRuntimeConfig.disable_blending) {
 							// some GPUs don't like the blending shader, so we provide a pure GL fallback here
 
 							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);

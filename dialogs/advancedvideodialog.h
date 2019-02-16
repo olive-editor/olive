@@ -22,10 +22,9 @@
 #define ADVANCEDVIDEODIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
 
 #include "io/exportthread.h"
-
-class QComboBox;
 
 class AdvancedVideoDialog : public QDialog {
     Q_OBJECT

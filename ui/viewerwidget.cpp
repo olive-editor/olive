@@ -426,11 +426,11 @@ void ViewerWidget::draw_title_safe_area() {
 	double viewportAr = (double) width() / (double) height();
 	double halfAr = viewportAr*0.5;
 
-	if (config.use_custom_title_safe_ratio && config.custom_title_safe_ratio > 0) {
-		if (config.custom_title_safe_ratio > viewportAr) {
-			halfHeight = (config.custom_title_safe_ratio/viewportAr)*0.5;
+	if (Olive::CurrentConfig.use_custom_title_safe_ratio && Olive::CurrentConfig.custom_title_safe_ratio > 0) {
+		if (Olive::CurrentConfig.custom_title_safe_ratio > viewportAr) {
+			halfHeight = (Olive::CurrentConfig.custom_title_safe_ratio/viewportAr)*0.5;
 		} else {
-			halfWidth = (viewportAr/config.custom_title_safe_ratio)*0.5;
+			halfWidth = (viewportAr/Olive::CurrentConfig.custom_title_safe_ratio)*0.5;
 		}
 	}
 
@@ -609,7 +609,7 @@ void ViewerWidget::paintGL() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// draw title/action safe area
-		if (config.show_title_safe_area) {
+		if (Olive::CurrentConfig.show_title_safe_area) {
 			draw_title_safe_area();
 		}
 

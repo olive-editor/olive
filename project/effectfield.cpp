@@ -70,7 +70,7 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 		TextEditEx* edit = new TextEditEx();
 
 		// TODO magic number 2 - i'm not sure how to make this work otherwise though
-		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*config.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
+		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*Olive::CurrentConfig.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
 
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;

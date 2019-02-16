@@ -26,7 +26,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-class ExportDialog;
 struct AVFormatContext;
 struct AVCodecContext;
 struct AVFrame;
@@ -75,9 +74,9 @@ public:
     ExportThread(const ExportParams& iparams, const VideoCodecParams& ivparams, QObject* parent = nullptr);
 	void run();
 
-	QOffscreenSurface surface;
+    const QString& getError();
 
-	ExportDialog* ed;
+    QOffscreenSurface surface;
 
 	bool continueEncode;
 signals:
@@ -119,6 +118,8 @@ private:
 
 	QMutex mutex;
 	QWaitCondition waitCond;
+
+    QString export_error;
 };
 
 #endif // EXPORTTHREAD_H
