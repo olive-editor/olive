@@ -4,3 +4,10 @@ Makefile
 effects/frei0r
 ts/*.qm
 
+/bw-output/
+/app/build/
+/app/main/build/
+/snap/parts/
+/snap/snap/
+/snap/stage/
+/snap/prime/
