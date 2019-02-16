@@ -25,16 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 #TODO: make a libfile from app object files to link to instead of manually including each src file
 SOURCES += \
-    main.cpp \
-    ../app/project/UnitTest/sequenceitemtest.cpp \
-    ../app/project/UnitTest/sequencetest.cpp
+    main.cpp
 
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
-HEADERS += \
-    ../app/project/UnitTest/sequenceitemtest.h \
-    ../app/project/UnitTest/sequencetest.h
+HEADERS +=
 
 INCLUDEPATH += ../app/
 #PRE_TARGETDEPS += ../app/$${DESTDIR}/oliveeditor.a
