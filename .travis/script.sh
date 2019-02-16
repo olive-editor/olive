@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+
 	# generate translation files
 	lrelease olive.pro
 
@@ -27,7 +28,17 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
 	# distribute in zip
 	zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip Olive.app
+
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+
+	# get, compile, and install GTK style plugin
+	git clone http://code.qt.io/qt/qtstyleplugins.git
+	cd qtstyleplugins
+	qmake
+	make -j$(nproc)
+	make install
+	cd -
+
 	# generate translation files
 	lrelease olive.pro
 
@@ -55,7 +66,7 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 	export VERSION=$(git rev-parse --short HEAD)
 
 	# use linuxdeployqt to set up dependencies
-	./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
+	./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage -extra-plugins=platformthemes/libqgtk2.so,styles/libqgtk2style.so
 
 	# 64-bit linuxdeployqt can only generate a 64-bit AppImage
 	# to generate a 32-bit one, we need to download and run 32-bit AppImageTool
@@ -65,11 +76,14 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 		chmod a+x appimagetool-i686.AppImage
 		./appimagetool-i686.AppImage "appdir" -n -g
 	fi
+
 elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+
 	/c/msys64/mingw64/bin/qmake CONFIG+=release
 	/c/msys64/mingw64/bin/mingw32-make -f Makefile.Debug
 	mkdir olive-editor
 	mv olive-editor.exe olive-editor/
 	/c/msys64/mingw64/bin/windeployqt olive-editor/olive-editor.exe
 	7z a Olive-$(git rev-parse --short HEAD)-w64p.zip olive-editor
+
 fi

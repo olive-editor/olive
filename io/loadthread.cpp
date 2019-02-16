@@ -698,7 +698,10 @@ void LoadThread::run() {
 			panel_project->start_preview_generator(loaded_media_items.at(i), true);
 		}
 	} else {
-		error_str = tr("User aborted loading");
+        if (error_str.isEmpty()) {
+            error_str = tr("User aborted loading");
+        }
+
 		emit error();
 	}
 
