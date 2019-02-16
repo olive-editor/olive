@@ -85,8 +85,8 @@ void debug_message_handler(QtMsgType type, const QMessageLogContext &context, co
 		fflush(stderr);
 //		abort();
 	}
-    if (Olive::DebugDialog != nullptr && Olive::DebugDialog->isVisible()) {
-        QMetaObject::invokeMethod(Olive::DebugDialog, "update_log", Qt::QueuedConnection);
+    if (olive::DebugDialog != nullptr && olive::DebugDialog->isVisible()) {
+        QMetaObject::invokeMethod(olive::DebugDialog, "update_log", Qt::QueuedConnection);
 	}
 	debug_mutex.unlock();
 }

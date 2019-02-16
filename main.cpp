@@ -33,7 +33,7 @@ extern "C" {
 }
 
 int main(int argc, char *argv[]) {
-    Olive::Global = QSharedPointer<OliveGlobal>(new OliveGlobal);
+    olive::Global = std::unique_ptr<OliveGlobal>(new OliveGlobal);
 
 	bool launch_fullscreen = false;
 	QString load_proj;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 #ifndef GITHASH
 					qWarning() << "No Git commit information found";
 #endif
-                    printf("%s\n", Olive::AppName.toUtf8().constData());
+                    printf("%s\n", olive::AppName.toUtf8().constData());
 					return 0;
 				} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 					printf("Usage: %s [options] [filename]\n\n"
@@ -70,15 +70,15 @@ int main(int argc, char *argv[]) {
 				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
 					launch_fullscreen = true;
 				} else if (!strcmp(argv[i], "--disable-shaders")) {
-					Olive::CurrentRuntimeConfig.shaders_are_enabled = false;
+                    olive::CurrentRuntimeConfig.shaders_are_enabled = false;
 				} else if (!strcmp(argv[i], "--no-debug")) {
 					use_internal_logger = false;
 				} else if (!strcmp(argv[i], "--disable-blend-modes")) {
-					Olive::CurrentRuntimeConfig.disable_blending = true;
+                    olive::CurrentRuntimeConfig.disable_blending = true;
 				} else if (!strcmp(argv[i], "--translation")) {
 					if (i + 1 < argc && argv[i + 1][0] != '-') {
 						// load translation file
-						Olive::CurrentRuntimeConfig.external_translation_file = argv[i + 1];
+                        olive::CurrentRuntimeConfig.external_translation_file = argv[i + 1];
 
 						i++;
 					} else {
@@ -117,10 +117,10 @@ int main(int argc, char *argv[]) {
     MainWindow w(nullptr);
 
     // connect main window's first paint to global's init finished function
-    QObject::connect(&w, SIGNAL(finished_first_paint()), Olive::Global.data(), SLOT(finished_initialize()));
+    QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()));
 
     if (!load_proj.isEmpty()) {
-        Olive::Global.data()->load_project_on_launch(load_proj);
+        olive::Global->load_project_on_launch(load_proj);
 	}
 	if (launch_fullscreen) {
 		w.showFullScreen();

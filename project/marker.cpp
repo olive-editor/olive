@@ -53,13 +53,13 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 	// add_marker is used to determine whether we're adding a marker, depending on whether the user input a marker name
 	// however if (config.set_name_with_marker) is true, we don't need a marker name so we just add
-	bool add_marker = !Olive::CurrentConfig.set_name_with_marker;
+	bool add_marker = !olive::CurrentConfig.set_name_with_marker;
 
 	QString marker_name;
 
 	// if (config.set_name_with_marker) is false (set above), ask for a marker name
 	if (!add_marker) {
-        QInputDialog d(Olive::MainWindow);
+        QInputDialog d(olive::MainWindow);
 		d.setWindowTitle(QCoreApplication::translate("Marker", "Set Marker"));
 		d.setLabelText(clips.size() > 0
 					   ? QCoreApplication::translate("Marker", "Set clip marker name:")
@@ -110,7 +110,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 
 		// push action
-        Olive::UndoStack.push(ca);
+        olive::UndoStack.push(ca);
 
 		// redraw UI for new markers
 		update_ui(false);

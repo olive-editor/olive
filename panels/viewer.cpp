@@ -115,7 +115,7 @@ bool Viewer::is_main_sequence() {
 
 void Viewer::set_main_sequence() {
 	clean_created_seq();
-	set_sequence(true, Olive::ActiveSequence);
+	set_sequence(true, olive::ActiveSequence);
 }
 
 void Viewer::reset_all_audio() {
@@ -276,7 +276,7 @@ void Viewer::seek(long p) {
 	if (main_sequence) {
 		panel_timeline->scroll_to_frame(p);
 		panel_effect_controls->scroll_to_frame(p);
-		if (Olive::CurrentConfig.seek_also_selects) {
+		if (olive::CurrentConfig.seek_also_selects) {
 			panel_timeline->select_from_playhead();
 			update_fx = true;
 		}
@@ -386,7 +386,7 @@ void Viewer::play(bool in_to_out) {
             playback_speed = 1;
         }
 
-		bool seek_to_in = (seq->using_workarea && (Olive::CurrentConfig.loop || playing_in_to_out));
+		bool seek_to_in = (seq->using_workarea && (olive::CurrentConfig.loop || playing_in_to_out));
 		if (!is_recording_cued()
                 && playback_speed > 0
 				&& (playing_in_to_out
@@ -459,7 +459,7 @@ void Viewer::pause() {
 
 			QVector<Clip*> add_clips;
 			add_clips.append(c);
-			Olive::UndoStack.push(new AddClipCommand(seq, add_clips)); // add clip
+			olive::UndoStack.push(new AddClipCommand(seq, add_clips)); // add clip
 		}
 	}
 }
@@ -469,7 +469,7 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-	end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, Olive::CurrentConfig.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), Olive::CurrentConfig.timecode_view, seq->frame_rate));
+	end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::CurrentConfig.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), olive::CurrentConfig.timecode_view, seq->frame_rate));
 }
 
 void Viewer::update_header_zoom() {
@@ -523,7 +523,7 @@ void Viewer::update_viewer() {
 void Viewer::clear_in() {
     if (seq != nullptr
             && seq->using_workarea) {
-		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
+		olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
 		update_parents();
 	}
 }
@@ -531,7 +531,7 @@ void Viewer::clear_in() {
 void Viewer::clear_out() {
     if (seq != nullptr
             && seq->using_workarea) {
-		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
+		olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
 		update_parents();
 	}
 }
@@ -539,7 +539,7 @@ void Viewer::clear_out() {
 void Viewer::clear_inout_point() {
     if (seq != nullptr
             && seq->using_workarea) {
-		Olive::UndoStack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
+		olive::UndoStack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
 		update_parents();
 	}
 }
@@ -603,13 +603,13 @@ void Viewer::set_playback_speed(int s) {
 }
 
 long Viewer::get_seq_in() {
-	return ((Olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea)
+	return ((olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-	return ((Olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
+	return ((olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }
@@ -801,8 +801,8 @@ void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
 	seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed)));
-	if (Olive::CurrentConfig.seek_also_selects) panel_timeline->select_from_playhead();
-	update_parents(Olive::CurrentConfig.seek_also_selects);
+	if (olive::CurrentConfig.seek_also_selects) panel_timeline->select_from_playhead();
+	update_parents(olive::CurrentConfig.seek_also_selects);
 
 	if (playing) {
 		if (playback_speed < 0 && seq->playhead == 0) {
@@ -816,7 +816,7 @@ void Viewer::timer_update() {
 				pause();
 			}
 			if (seq->using_workarea && seq->playhead >= seq->workarea_out) {
-				if (Olive::CurrentConfig.loop) {
+				if (olive::CurrentConfig.loop) {
 					// loop
 					play();
 				} else if (playing_in_to_out) {
@@ -864,7 +864,7 @@ void Viewer::set_sequence(bool main, Sequence *s) {
 	}
 
 	main_sequence = main;
-	seq = (main) ? Olive::ActiveSequence : s;
+	seq = (main) ? olive::ActiveSequence : s;
 
 	bool null_sequence = (seq == nullptr);
 

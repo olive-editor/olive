@@ -152,7 +152,7 @@ void ProxyDialog::accept() {
 		proxy_generator.queue(info_list.at(i));
 	}
 
-    Olive::MainWindow->setWindowModified(true);
+    olive::MainWindow->setWindowModified(true);
 
 	QDialog::accept();
 }

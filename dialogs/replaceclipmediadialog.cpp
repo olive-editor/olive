@@ -96,7 +96,7 @@ void ReplaceClipMediaDialog::replace() {
 						QMessageBox::Ok
 					);
 		} else {
-			if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && Olive::ActiveSequence == new_item->to_sequence()) {
+			if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && olive::ActiveSequence == new_item->to_sequence()) {
 				QMessageBox::critical(
 							this,
 							tr("Active sequence selected"),
@@ -110,14 +110,14 @@ void ReplaceClipMediaDialog::replace() {
 							use_same_media_in_points->isChecked()
 						);
 
-				for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-					Clip* c = Olive::ActiveSequence->clips.at(i);
+				for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
+					Clip* c = olive::ActiveSequence->clips.at(i);
 					if (c != nullptr && c->media == media) {
 						rcmc->clips.append(c);
 					}
 				}
 
-				Olive::UndoStack.push(rcmc);
+				olive::UndoStack.push(rcmc);
 
 				close();
 			}

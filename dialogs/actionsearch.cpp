@@ -63,7 +63,7 @@ ActionSearch::ActionSearch(QWidget *parent) :
 void ActionSearch::search_update(const QString &s, const QString &p, QMenu *parent) {
 	if (parent == nullptr) {
 		list_widget->clear();
-        QList<QAction*> menus = Olive::MainWindow->menuBar()->actions();
+        QList<QAction*> menus = olive::MainWindow->menuBar()->actions();
 		for (int i=0;i<menus.size();i++) {
 			QMenu* menu = menus.at(i)->menu();
 			search_update(s, p, menu);

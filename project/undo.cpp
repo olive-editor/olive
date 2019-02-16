@@ -46,7 +46,7 @@
 #include "project/media.h"
 #include "debug.h"
 
-QUndoStack Olive::UndoStack;
+QUndoStack olive::UndoStack;
 
 ComboAction::ComboAction() {}
 
@@ -209,7 +209,7 @@ void ChangeSequenceAction::doUndo() {
 }
 
 void ChangeSequenceAction::doRedo() {
-	old_sequence = Olive::ActiveSequence;
+	old_sequence = olive::ActiveSequence;
 	set_sequence(new_sequence);
 }
 
@@ -942,7 +942,7 @@ void EditSequenceCommand::update() {
 		if (seq->clips.at(i) != nullptr) seq->clips.at(i)->refresh();
 	}
 
-	if (Olive::ActiveSequence == seq) {
+	if (olive::ActiveSequence == seq) {
 		set_sequence(seq);
 	}
 }
@@ -982,7 +982,7 @@ void CloseAllClipsCommand::doUndo() {
 }
 
 void CloseAllClipsCommand::doRedo() {
-	closeActiveClips(Olive::ActiveSequence);
+	closeActiveClips(olive::ActiveSequence);
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) {
@@ -1230,7 +1230,7 @@ void OliveAction::undo() {
     doUndo();
 
     if (set_window_modified) {
-        Olive::MainWindow->setWindowModified(old_window_modified);
+        olive::MainWindow->setWindowModified(old_window_modified);
     }
 }
 
@@ -1240,10 +1240,10 @@ void OliveAction::redo() {
     if (set_window_modified) {
 
         // store current modified state
-        old_window_modified = Olive::MainWindow->isWindowModified();
+        old_window_modified = olive::MainWindow->isWindowModified();
 
         // set modified to true
-        Olive::MainWindow->setWindowModified(true);
+        olive::MainWindow->setWindowModified(true);
 
     }
 }

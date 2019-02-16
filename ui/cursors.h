@@ -25,7 +25,7 @@
 
 void init_custom_cursors();
 
-namespace Olive{
+namespace olive{
     extern QCursor Cursor_LeftTrim;
     extern QCursor Cursor_RightTrim;
 }

@@ -69,7 +69,7 @@ void SourcesCommon::create_seq_from_selected() {
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
 		project_parent->create_sequence_internal(ca, s, true, nullptr);
-		Olive::UndoStack.push(ca);
+		olive::UndoStack.push(ca);
 	}
 }
 
@@ -82,7 +82,7 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
 
 	QMenu* new_menu = menu.addMenu(tr("New"));
-    Olive::MenuHelper.make_new_menu(new_menu);
+    olive::MenuHelper.make_new_menu(new_menu);
 
 	QMenu* view_menu = menu.addMenu(tr("View"));
 
@@ -247,7 +247,7 @@ void SourcesCommon::mouseDoubleClickEvent(QMouseEvent *, const QModelIndexList& 
 			panel_footage_viewer->setFocus();
 			break;
 		case MEDIA_TYPE_SEQUENCE:
-			Olive::UndoStack.push(new ChangeSequenceAction(item->to_sequence()));
+			olive::UndoStack.push(new ChangeSequenceAction(item->to_sequence()));
 			break;
 		}
 	}
@@ -269,7 +269,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 					&& drop_item.isValid()
 					&& m->get_type() == MEDIA_TYPE_FOOTAGE
 					&& !QFileInfo(paths.at(0)).isDir()
-					&& Olive::CurrentConfig.drop_on_media_to_replace
+					&& olive::CurrentConfig.drop_on_media_to_replace
 					&& QMessageBox::question(
 						parent,
 						tr("Replace Media"),
@@ -326,7 +326,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 				MediaMove* mm = new MediaMove();
 				mm->to = m;
 				mm->items = move_items;
-				Olive::UndoStack.push(mm);
+				olive::UndoStack.push(mm);
 			}
 		}
 	}
@@ -370,14 +370,14 @@ void SourcesCommon::rename_interval() {
 void SourcesCommon::item_renamed(Media* item) {
 	if (editing_item == item) {
 		MediaRename* mr = new MediaRename(item, "idk");
-		Olive::UndoStack.push(mr);
+		olive::UndoStack.push(mr);
 		editing_item = nullptr;
 	}
 }
 
 void SourcesCommon::open_create_proxy_dialog() {
 	// open the proxy dialog and send it a list of currently selected footage
-    ProxyDialog pd(Olive::MainWindow, cached_selected_footage);
+    ProxyDialog pd(olive::MainWindow, cached_selected_footage);
 	pd.exec();
 }
 
@@ -389,7 +389,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 
 		if (f->proxy && !f->proxy_path.isEmpty()) {
 			if (QFileInfo::exists(f->proxy_path)) {
-                if (QMessageBox::question(Olive::MainWindow,
+                if (QMessageBox::question(olive::MainWindow,
 									  tr("Delete proxy"),
 									  tr("Would you like to delete the proxy file \"%1\" as well?").arg(f->proxy_path),
 										  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
@@ -402,9 +402,9 @@ void SourcesCommon::clear_proxies_from_selected() {
 		f->proxy_path.clear();
 	}
 
-	if (Olive::ActiveSequence != nullptr) {
+	if (olive::ActiveSequence != nullptr) {
 		// close all clips so we can delete any proxies requested to be deleted
-		closeActiveClips(Olive::ActiveSequence);
+		closeActiveClips(olive::ActiveSequence);
 	}
 
 	// delete proxies requested to be deleted
@@ -412,10 +412,10 @@ void SourcesCommon::clear_proxies_from_selected() {
 		QFile::remove(delete_list.at(i));
 	}
 
-	if (Olive::ActiveSequence != nullptr) {
+	if (olive::ActiveSequence != nullptr) {
 		// update viewer (will re-open active clips with original media)
 		panel_sequence_viewer->viewer_widget->frame_update();
 	}
 
-    Olive::MainWindow->setWindowModified(true);
+    olive::MainWindow->setWindowModified(true);
 }

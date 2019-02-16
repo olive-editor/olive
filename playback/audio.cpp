@@ -68,7 +68,7 @@ QAudioDeviceInfo get_audio_device(QAudio::Mode mode) {
 	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(mode);
 
 	// try to retrieve preferred device from config
-	QString preferred_device = (mode == QAudio::AudioOutput) ? Olive::CurrentConfig.preferred_audio_output : Olive::CurrentConfig.preferred_audio_input;
+	QString preferred_device = (mode == QAudio::AudioOutput) ? olive::CurrentConfig.preferred_audio_output : olive::CurrentConfig.preferred_audio_input;
 	if (!preferred_device.isEmpty()) {
 		for (int i=0;i<devs.size();i++) {
 			// try to match available devices with preferred device
@@ -97,7 +97,7 @@ void init_audio() {
 	stop_audio();
 
 	QAudioFormat audio_format;
-	audio_format.setSampleRate(Olive::CurrentConfig.audio_rate);
+	audio_format.setSampleRate(olive::CurrentConfig.audio_rate);
 	audio_format.setChannelCount(2);
 	audio_format.setSampleSize(16);
 	audio_format.setCodec("audio/pcm");
@@ -152,7 +152,7 @@ void clear_audio_ibuffer() {
 }
 
 int current_audio_freq() {
-    return audio_rendering ? Olive::ActiveSequence->audio_frequency : audio_output->format().sampleRate();
+    return audio_rendering ? olive::ActiveSequence->audio_frequency : audio_output->format().sampleRate();
 }
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {
@@ -323,12 +323,12 @@ void write_wave_trailer(QFile& f) {
 }
 
 bool start_recording() {
-    if (Olive::ActiveSequence == nullptr) {
+    if (olive::ActiveSequence == nullptr) {
 		qCritical() << "No active sequence to record into";
 		return false;
 	}
 
-    QString audio_path = QCoreApplication::translate("Audio", "%1 Audio").arg(Olive::ActiveProjectFilename);
+    QString audio_path = QCoreApplication::translate("Audio", "%1 Audio").arg(olive::ActiveProjectFilename);
 	QDir audio_dir(audio_path);
 	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
 		qCritical() << "Failed to create audio directory";
@@ -354,8 +354,8 @@ bool start_recording() {
 	}
 
 	QAudioFormat audio_format = audio_output->format();
-	if (Olive::CurrentConfig.recording_mode != audio_format.channelCount()) {
-		audio_format.setChannelCount(Olive::CurrentConfig.recording_mode);
+	if (olive::CurrentConfig.recording_mode != audio_format.channelCount()) {
+		audio_format.setChannelCount(olive::CurrentConfig.recording_mode);
 	}
 
 	QAudioDeviceInfo info = get_audio_device(QAudio::AudioInput);

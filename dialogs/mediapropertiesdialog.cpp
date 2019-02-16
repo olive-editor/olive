@@ -205,7 +205,7 @@ void MediaPropertiesDialog::accept() {
 	}
 	ca->appendPost(new UpdateViewer());
 
-	Olive::UndoStack.push(ca);
+	olive::UndoStack.push(ca);
 
 	QDialog::accept();
 }

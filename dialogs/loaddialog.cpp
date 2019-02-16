@@ -38,7 +38,7 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 
-	layout->addWidget(new QLabel(tr("Loading '%1'...").arg(Olive::ActiveProjectFilename.mid(Olive::ActiveProjectFilename.lastIndexOf('/')+1)), this));
+    layout->addWidget(new QLabel(tr("Loading '%1'...").arg(olive::ActiveProjectFilename.mid(olive::ActiveProjectFilename.lastIndexOf('/')+1)), this));
 
 	bar = new QProgressBar(this);
 	bar->setValue(0);
@@ -70,7 +70,7 @@ void LoadDialog::cancel() {
 }
 
 void LoadDialog::die() {
-    Olive::Global.data()->new_project();
+    olive::Global->new_project();
 	reject();
 }
 

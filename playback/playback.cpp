@@ -200,8 +200,8 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 				int64_t minimum_ts = target_frame->pts;
 
 				int previous_frame_count = 0;
-				if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
-					minimum_ts -= (second_pts*Olive::CurrentConfig.previous_queue_size);
+				if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+					minimum_ts -= (second_pts*olive::CurrentConfig.previous_queue_size);
 				}
 
 				//dout << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
@@ -210,7 +210,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 						next_pts = c->queue.at(i)->pts;
 					}
 					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
-						if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+						if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
 							//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
 							av_frame_free(&c->queue[i]); // may be a little heavy for the main thread?
 							c->queue.removeAt(i);
@@ -222,8 +222,8 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 					}
 				}
 
-				if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
-					while (previous_frame_count > qCeil(Olive::CurrentConfig.previous_queue_size)) {
+				if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+					while (previous_frame_count > qCeil(olive::CurrentConfig.previous_queue_size)) {
 						int smallest = 0;
 						for (int i=1;i<c->queue.size();i++) {
 							if (c->queue.at(i)->pts < c->queue.at(smallest)->pts) {
@@ -257,7 +257,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
-							if (!Olive::CurrentConfig.fast_seeking) target_frame = nullptr;
+							if (!olive::CurrentConfig.fast_seeking) target_frame = nullptr;
 							reset = true;
 							c->last_invalid_ts = target_pts;
 						} else {
@@ -453,7 +453,7 @@ bool is_clip_active(Clip* c, long playhead) {
 
 void set_sequence(Sequence* s) {
 	panel_effect_controls->clear_effects(true);
-	Olive::ActiveSequence = s;
+	olive::ActiveSequence = s;
 	panel_sequence_viewer->set_main_sequence();
 	panel_timeline->update_sequence();
 	panel_timeline->setFocus();

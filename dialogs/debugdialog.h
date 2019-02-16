@@ -36,7 +36,7 @@ private:
 	QTextEdit* textEdit;
 };
 
-namespace Olive {
+namespace olive {
     extern DebugDialog* DebugDialog;
 }
 

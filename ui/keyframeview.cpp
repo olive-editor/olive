@@ -90,7 +90,7 @@ void KeyframeView::menu_set_key_type(QAction* a) {
 			EffectField* f = selected_fields.at(i);
 			ca->append(new SetInt(&f->keyframes[selected_keyframes.at(i)].type, a->data().toInt()));
 		}
-		Olive::UndoStack.push(ca);
+		olive::UndoStack.push(ca);
 		update_ui(false);
 	}
 }
@@ -106,13 +106,13 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		visible_out = 0;
 
 		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-			Clip* c = Olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
+			Clip* c = olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
 			visible_in = qMin(visible_in, c->timeline_in);
 			visible_out = qMax(visible_out, c->timeline_out);
 		}
 
 		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-			Clip* c = Olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
+			Clip* c = olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
 				if (e->container->is_expanded()) {
@@ -168,7 +168,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		panel_effect_controls->horizontalScrollBar->setMaximum(qMax(max_width - width(), 0));
 		header->set_visible_in(visible_in);
 
-		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, Olive::ActiveSequence->playhead-visible_in) - x_scroll;
+		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, olive::ActiveSequence->playhead-visible_in) - x_scroll;
 		if (dragging && panel_timeline->snapped) {
 			p.setPen(Qt::white);
 		} else {
@@ -376,7 +376,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 					Clip* c = field->parent_row->parent_effect->parent_clip;
 					long key_time = old_key_vals.at(i) + frame_diff - c->clip_in + c->timeline_in;
 					long key_eval = key_time;
-					if (panel_timeline->snap_to_point(Olive::ActiveSequence->playhead, &key_eval)) {
+					if (panel_timeline->snap_to_point(olive::ActiveSequence->playhead, &key_eval)) {
 						frame_diff += (key_eval - key_time);
 						break;
 					}
@@ -425,7 +425,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
 						   selected_fields.at(i)->keyframes.at(selected_keyframes.at(i)).time
 						));
 		}
-		Olive::UndoStack.push(ca);
+		olive::UndoStack.push(ca);
 	}
 
 	select_rect = false;

@@ -45,7 +45,7 @@ struct EffectMeta;
 #include <QVariant>
 #include <QModelIndex>
 
-namespace Olive {
+namespace olive {
     extern QUndoStack UndoStack;
 }
 

@@ -96,7 +96,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		return new Effect(c, em);
 	} else {
 		qCritical() << "Invalid effect data";
-        QMessageBox::critical(Olive::MainWindow,
+        QMessageBox::critical(olive::MainWindow,
 							  QCoreApplication::translate("Effect", "Invalid effect"),
 							  QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
 	}
@@ -395,7 +395,7 @@ void Effect::field_changed() {
 
 void Effect::show_context_menu(const QPoint& pos) {
 	if (meta->type == EFFECT_TYPE_EFFECT) {
-        QMenu menu(Olive::MainWindow);
+        QMenu menu(olive::MainWindow);
 
 		int index = get_index_in_clip();
 
@@ -432,7 +432,7 @@ void Effect::delete_self() {
 	EffectDeleteCommand* command = new EffectDeleteCommand();
 	command->clips.append(parent_clip);
 	command->fx.append(get_index_in_clip());
-	Olive::UndoStack.push(command);
+	olive::UndoStack.push(command);
 	update_ui(true);
 }
 
@@ -441,7 +441,7 @@ void Effect::move_up() {
 	command->clip = parent_clip;
 	command->from = get_index_in_clip();
 	command->to = command->from - 1;
-	Olive::UndoStack.push(command);
+	olive::UndoStack.push(command);
 	panel_effect_controls->reload_clips();
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
@@ -451,14 +451,14 @@ void Effect::move_down() {
 	command->clip = parent_clip;
 	command->from = get_index_in_clip();
 	command->to = command->from + 1;
-	Olive::UndoStack.push(command);
+	olive::UndoStack.push(command);
 	panel_effect_controls->reload_clips();
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
 
 void Effect::save_to_file() {
 	// save effect settings to file
-    QString file = QFileDialog::getSaveFileName(Olive::MainWindow,
+    QString file = QFileDialog::getSaveFileName(olive::MainWindow,
 												tr("Save Effect Settings"),
 												QString(),
 												tr("Effect XML Settings %1").arg("(*.xml)"));
@@ -478,7 +478,7 @@ void Effect::save_to_file() {
 
 			file_handle.close();
 		} else {
-            QMessageBox::critical(Olive::MainWindow,
+            QMessageBox::critical(olive::MainWindow,
 								  tr("Save Settings Failed"),
 								  tr("Failed to open \"%1\" for writing.").arg(file),
 								  QMessageBox::Ok);
@@ -488,7 +488,7 @@ void Effect::save_to_file() {
 
 void Effect::load_from_file() {
 	// load effect settings from file
-    QString file = QFileDialog::getOpenFileName(Olive::MainWindow,
+    QString file = QFileDialog::getOpenFileName(olive::MainWindow,
 												tr("Load Effect Settings"),
 												QString(),
 												tr("Effect XML Settings %1").arg("(*.xml)"));
@@ -498,13 +498,13 @@ void Effect::load_from_file() {
 		QFile file_handle(file);
 		if (file_handle.open(QFile::ReadOnly)) {
 
-			Olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
+			olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
 
 			file_handle.close();
 
 			update_ui(false);
 		} else {
-            QMessageBox::critical(Olive::MainWindow,
+            QMessageBox::critical(olive::MainWindow,
 								  tr("Load Settings Failed"),
 								  tr("Failed to open \"%1\" for reading.").arg(file),
 								  QMessageBox::Ok);
@@ -713,7 +713,7 @@ void Effect::load_from_string(const QByteArray &s) {
 						// pass off to standard loading function
 						load(stream);
 					} else {
-                        QMessageBox::critical(Olive::MainWindow,
+                        QMessageBox::critical(olive::MainWindow,
 											  tr("Load Settings Failed"),
 											  tr("This settings file doesn't match this effect."),
 											  QMessageBox::Ok);
@@ -774,7 +774,7 @@ void Effect::open() {
 		qWarning() << "Tried to open an effect that was already open";
 		close();
 	}
-	if (Olive::CurrentRuntimeConfig.shaders_are_enabled && enable_shader) {
+	if (olive::CurrentRuntimeConfig.shaders_are_enabled && enable_shader) {
 		if (QOpenGLContext::currentContext() == nullptr) {
 			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
@@ -832,7 +832,7 @@ void Effect::startEffect() {
 		open();
 		qWarning() << "Tried to start a closed effect - opening";
 	}
-	if (Olive::CurrentRuntimeConfig.shaders_are_enabled
+	if (olive::CurrentRuntimeConfig.shaders_are_enabled
 			&& enable_shader
 			&& glslProgram->isLinked()) {
 		bound = glslProgram->bind();
@@ -962,7 +962,7 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
 				gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
 				gizmo->y_field2->make_key_from_change(ca);
 			}
-			if (done) Olive::UndoStack.push(ca);
+			if (done) olive::UndoStack.push(ca);
 			break;
 		}
 	}

@@ -584,7 +584,7 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
 void LoadThread::run() {
 	mutex.lock();
 
-	QFile file(Olive::ActiveProjectFilename);
+    QFile file(olive::ActiveProjectFilename);
 	if (!file.open(QIODevice::ReadOnly)) {
 		qCritical() << "Could not open file";
 		return;
@@ -595,9 +595,9 @@ void LoadThread::run() {
 	 * case the project file has moved without the footage,
 	 * we check both
 	 */
-	proj_dir = QFileInfo(Olive::ActiveProjectFilename).absoluteDir();
-	internal_proj_dir = QFileInfo(Olive::ActiveProjectFilename).absoluteDir();
-	internal_proj_url = Olive::ActiveProjectFilename;
+    proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
+    internal_proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
+    internal_proj_url = olive::ActiveProjectFilename;
 
 	QXmlStreamReader stream(&file);
 
@@ -709,7 +709,7 @@ void LoadThread::cancel() {
 void LoadThread::question_func(const QString &title, const QString &text, int buttons) {
     mutex.lock();
 	question_btn = QMessageBox::warning(
-                    Olive::MainWindow,
+                    olive::MainWindow,
 					title,
 					text,
 					static_cast<enum QMessageBox::StandardButton>(buttons));
@@ -720,12 +720,12 @@ void LoadThread::question_func(const QString &title, const QString &text, int bu
 void LoadThread::error_func() {
 	if (xml_error) {
 		qCritical() << "Error parsing XML." << error_str;
-        QMessageBox::critical(Olive::MainWindow,
+        QMessageBox::critical(olive::MainWindow,
 							  tr("XML Parsing Error"),
-							  tr("Couldn't load '%1'. %2").arg(Olive::ActiveProjectFilename, error_str),
+                              tr("Couldn't load '%1'. %2").arg(olive::ActiveProjectFilename, error_str),
 							  QMessageBox::Ok);
 	} else {
-        QMessageBox::critical(Olive::MainWindow,
+        QMessageBox::critical(olive::MainWindow,
 							  tr("Project Load Error"),
 							  tr("Error loading project: %1").arg(error_str),
 							  QMessageBox::Ok);
@@ -748,12 +748,12 @@ void LoadThread::success_func() {
 			counter++;
 		}
 
-        Olive::Global.data()->update_project_filename(orig_filename);
+        olive::Global->update_project_filename(orig_filename);
 	} else {
-		panel_project->add_recent_project(Olive::ActiveProjectFilename);
+        panel_project->add_recent_project(olive::ActiveProjectFilename);
 	}
 
-    Olive::MainWindow->setWindowModified(autorecovery);
+    olive::MainWindow->setWindowModified(autorecovery);
 	if (open_seq != nullptr) set_sequence(open_seq);
 	update_ui(false);
 }

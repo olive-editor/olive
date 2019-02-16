@@ -31,17 +31,17 @@
 class ComboBoxExCommand : public QUndoCommand {
 public:
     ComboBoxExCommand(ComboBoxEx* obj, int old_index, int new_index) :
-        combobox(obj), old_val(old_index), new_val(new_index), done(true), old_project_changed(Olive::MainWindow->isWindowModified()) {}
+        combobox(obj), old_val(old_index), new_val(new_index), done(true), old_project_changed(olive::MainWindow->isWindowModified()) {}
     void undo() {
         combobox->setCurrentIndex(old_val);
         done = false;
-        Olive::MainWindow->setWindowModified(old_project_changed);
+        olive::MainWindow->setWindowModified(old_project_changed);
     }
     void redo() {
         if (!done) {
             combobox->setCurrentIndex(new_val);
         }
-        Olive::MainWindow->setWindowModified(true);
+        olive::MainWindow->setWindowModified(true);
     }
 private:
     ComboBoxEx* combobox;

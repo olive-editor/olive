@@ -96,7 +96,7 @@ void NewSequenceDialog::create() {
 
 		ComboAction* ca = new ComboAction();
 		panel_project->create_sequence_internal(ca, s, true, nullptr);
-		Olive::UndoStack.push(ca);
+		olive::UndoStack.push(ca);
 	} else {
 		ComboAction* ca = new ComboAction();
 
@@ -118,7 +118,7 @@ void NewSequenceDialog::create() {
 			}
 		}
 
-		Olive::UndoStack.push(ca);
+		olive::UndoStack.push(ca);
 	}
 
 	accept();

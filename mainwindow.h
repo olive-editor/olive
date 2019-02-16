@@ -259,7 +259,7 @@ private:
     bool first_show;
 };
 
-namespace Olive {
+namespace olive {
     extern MainWindow* MainWindow;
 }
 

@@ -48,12 +48,12 @@ void update_effect_controls() {
 	int aclip = -1;
 	QVector<int> selected_clips;
 	int mode = TA_NO_TRANSITION;
-	if (Olive::ActiveSequence != nullptr) {
-		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-			Clip* clip = Olive::ActiveSequence->clips.at(i);
+	if (olive::ActiveSequence != nullptr) {
+		for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
+			Clip* clip = olive::ActiveSequence->clips.at(i);
 			if (clip != nullptr) {
-				for (int j=0;j<Olive::ActiveSequence->selections.size();j++) {
-					const Selection& s = Olive::ActiveSequence->selections.at(j);
+				for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
+					const Selection& s = olive::ActiveSequence->selections.at(j);
 					bool add = true;
 					if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
 						mode = TA_NO_TRANSITION;
@@ -88,7 +88,7 @@ void update_effect_controls() {
 			if (aclip >= 0) selected_clips.append(aclip);
 			if (vclip >= 0 && aclip >= 0) {
 				bool found = false;
-				Clip* vclip_ref = Olive::ActiveSequence->clips.at(vclip);
+				Clip* vclip_ref = olive::ActiveSequence->clips.at(vclip);
 				for (int i=0;i<vclip_ref->linked.size();i++) {
 					if (vclip_ref->linked.at(i) == aclip) {
 						found = true;
@@ -136,7 +136,7 @@ void update_ui(bool modified) {
 
 QDockWidget *get_focused_panel(bool force_hover) {
 	QDockWidget* w = nullptr;
-    if (Olive::CurrentConfig.hover_focus || force_hover) {
+    if (olive::CurrentConfig.hover_focus || force_hover) {
 		if (panel_project->underMouse()) {
 			w = panel_project;
 		} else if (panel_effect_controls->underMouse()) {

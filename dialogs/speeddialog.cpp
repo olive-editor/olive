@@ -58,7 +58,7 @@ SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
 	grid->addWidget(new QLabel(tr("Duration:"), this), 2, 0);
 	duration = new LabelSlider(this);
 	duration->set_display_type(LABELSLIDER_FRAMENUMBER);
-	duration->set_frame_rate(Olive::ActiveSequence->frame_rate);
+	duration->set_frame_rate(olive::ActiveSequence->frame_rate);
 	grid->addWidget(duration, 2, 1);
 
 	main_layout->addLayout(grid);
@@ -339,14 +339,14 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	sel.in = c->timeline_in;
 	sel.out = proposed_out;
 	sel.track = c->track;
-	Olive::ActiveSequence->selections.append(sel);
+	olive::ActiveSequence->selections.append(sel);
 }
 
 void SpeedDialog::accept() {
 	ComboAction* ca = new ComboAction();
 
-	SetSelectionsCommand* sel_command = new SetSelectionsCommand(Olive::ActiveSequence);
-	sel_command->old_data = Olive::ActiveSequence->selections;
+	SetSelectionsCommand* sel_command = new SetSelectionsCommand(olive::ActiveSequence);
+	sel_command->old_data = olive::ActiveSequence->selections;
 
 	long earliest_point = LONG_MAX;
 	long longest_ripple = LONG_MIN;
@@ -419,10 +419,10 @@ void SpeedDialog::accept() {
 		ripple_clips(ca, clips.at(0)->sequence, earliest_point, longest_ripple);
 	}
 
-	sel_command->new_data = Olive::ActiveSequence->selections;
+	sel_command->new_data = olive::ActiveSequence->selections;
 	ca->append(sel_command);
 
-    Olive::UndoStack.push(ca);
+    olive::UndoStack.push(ca);
 
 	update_ui(true);
 	QDialog::accept();

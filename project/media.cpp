@@ -264,7 +264,7 @@ bool Media::setData(int col, const QVariant &value) {
 	if (col == 0) {
 		QString n = value.toString();
 		if (!n.isEmpty() && get_name() != n) {
-			Olive::UndoStack.push(new MediaRename(this, value.toString()));
+			olive::UndoStack.push(new MediaRename(this, value.toString()));
 			return true;
 		}
 	}
@@ -305,7 +305,7 @@ QVariant Media::data(int column, int role) {
 			if (root) return QCoreApplication::translate("Media", "Duration");
 			if (get_type() == MEDIA_TYPE_SEQUENCE) {
 				Sequence* s = to_sequence();
-				return frame_to_timecode(s->getEndFrame(), Olive::CurrentConfig.timecode_view, s->frame_rate);
+				return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
 			}
 			if (get_type() == MEDIA_TYPE_FOOTAGE) {
 				Footage* f = to_footage();
@@ -315,7 +315,7 @@ QVariant Media::data(int column, int role) {
 					r = f->video_tracks.at(0).video_frame_rate * f->speed;
 
 				long len = f->get_length_in_frames(r);
-				if (len > 0) return frame_to_timecode(len, Olive::CurrentConfig.timecode_view, r);
+				if (len > 0) return frame_to_timecode(len, olive::CurrentConfig.timecode_view, r);
 			}
 			break;
 		case 2:

@@ -103,7 +103,7 @@ struct RuntimeConfig {
 	QString external_translation_file;
 };
 
-namespace Olive {
+namespace olive {
     extern Config CurrentConfig;
     extern RuntimeConfig CurrentRuntimeConfig;
 }

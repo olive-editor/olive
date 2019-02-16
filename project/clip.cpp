@@ -49,7 +49,7 @@ Clip::Clip(Sequence* s) :
 	speed(1.0),
 	reverse(false),
 	maintain_audio_pitch(false),
-	autoscale(Olive::CurrentConfig.autoscale_by_default),
+	autoscale(olive::CurrentConfig.autoscale_by_default),
 	opening_transition(-1),
 	closing_transition(-1),
 	undeletable(false),

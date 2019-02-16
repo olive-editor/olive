@@ -295,11 +295,11 @@ private slots:
 
 };
 
-namespace Olive {
+namespace olive {
     /**
      * @brief Object resource for various global functions used throughout Olive
      */
-    extern QSharedPointer<OliveGlobal> Global;
+    extern std::unique_ptr<OliveGlobal> Global;
 
     /**
      * @brief Currently active project filename
