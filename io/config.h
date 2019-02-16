@@ -89,6 +89,7 @@ struct Config {
 	QString language_file;
 	int waveform_resolution;
 	int thumbnail_resolution;
+    bool add_default_effects_to_clips;
 
 	void load(QString path);
 	void save(QString path);

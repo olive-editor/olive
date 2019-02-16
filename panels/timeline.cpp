@@ -335,14 +335,16 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
 			}
 		}
 
-		if (c->track < 0) {
-			// add default video effects
-			c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
-		} else {
-			// add default audio effects
-			c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
-			c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
-		}
+        if (config.add_default_effects_to_clips) {
+            if (c->track < 0) {
+                // add default video effects
+                c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
+            } else {
+                // add default audio effects
+                c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
+                c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
+            }
+        }
 	}
 	if (config.enable_seek_to_import) {
 		panel_sequence_viewer->seek(earliest_point);

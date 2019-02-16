@@ -840,10 +840,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 						add.append(c);
 						ca->append(new AddClipCommand(Olive::ActiveSequence, add));
 
-						if (c->track < 0) {
+                        if (c->track < 0 && config.add_default_effects_to_clips) {
 							// default video effects (before custom effects)
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
-							//c->media_type = MEDIA_TYPE_SOLID;
 						}
 
 						switch (panel_timeline->creating_object) {
@@ -873,7 +872,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 							break;
 						}
 
-						if (c->track >= 0) {
+                        if (c->track >= 0 && config.add_default_effects_to_clips) {
 							// default audio effects (after custom effects)
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
 							c->effects.append(create_effect(c, get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));

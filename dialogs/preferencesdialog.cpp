@@ -20,6 +20,7 @@
 
 #include "preferencesdialog.h"
 
+#include "oliveglobal.h"
 #include "io/config.h"
 #include "io/path.h"
 #include "playback/audio.h"
@@ -168,6 +169,10 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 }
 
 void PreferencesDialog::save() {
+    bool restart_after_saving = false;
+    bool reinit_audio = false;
+
+    // Validate whether the specified CSS file exists
 	if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
 		QMessageBox::critical(
 					this,
@@ -177,10 +182,48 @@ void PreferencesDialog::save() {
 		return;
 	}
 
-	// save settings from UI to backend
+    // Check if any settings will require a restart of Olive
+    if (config.effect_textbox_lines != effect_textbox_lines_field->value()
+            || config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
+            || config.language_file != language_combobox->currentData().toString()
+            || config.thumbnail_resolution != thumbnail_res_spinbox->value()
+            || config.waveform_resolution != waveform_res_spinbox->value()) {
 
+        // any changes to these settings will require a restart - ask the user if we should do one now or later
+
+        int ret = QMessageBox::question(this,
+                                        "Restart Required",
+                                        "Some of the changed settings will require a restart of Olive. Would you like to"
+                                        "restart now?",
+                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        if (ret == QMessageBox::Cancel) {
+            // Return to Preferences dialog without saving any settings
+            return;
+        } else if (ret == QMessageBox::Yes) {
+
+            // Check if we can close the current project. If not, we'll treat it as if the user clicked "Cancel".
+            if (Olive::Global->can_close_project()) {
+                restart_after_saving = true;
+            } else {
+                return;
+            }
+        }
+        // Selecting "No" will save the settings and not restart. They will become active next time Olive opens.
+
+    }
+
+    // Audio settings may require the audio device to be re-initiated.
+    if (config.preferred_audio_output != audio_output_devices->currentData().toString()
+            || config.preferred_audio_input != audio_input_devices->currentData().toString()
+            || config.audio_rate != audio_sample_rate->currentData().toInt()) {
+        reinit_audio = true;
+    }
+
+	// save settings from UI to backend
 	config.css_path = custom_css_fn->text();
     Olive::MainWindow->load_css_from_file(config.css_path);
+
 	config.recording_mode = recordingComboBox->currentIndex() + 1;
 	config.img_seq_formats = imgSeqFormatEdit->text();
     config.fast_seeking = fastSeekButton->isChecked();
@@ -188,38 +231,19 @@ void PreferencesDialog::save() {
 	config.upcoming_queue_type = upcoming_queue_type->currentIndex();
 	config.previous_queue_size = previous_queue_spinbox->value();
 	config.previous_queue_type = previous_queue_type->currentIndex();
+    config.add_default_effects_to_clips = add_default_effects_to_clips->isChecked();
 
-	// audio preferences
-	bool reset_audio_required = (config.preferred_audio_output != audio_output_devices->currentData().toString()
-									|| config.preferred_audio_input != audio_input_devices->currentData().toString());
 	config.preferred_audio_output = audio_output_devices->currentData().toString();
 	config.preferred_audio_input = audio_input_devices->currentData().toString();
 	config.audio_rate = audio_sample_rate->currentData().toInt();
 
-	// the following settings may require a restart of Olive to take effect:
-
-	bool needs_restart = false;
-
-	if (config.effect_textbox_lines != effect_textbox_lines_field->value()) {
-		needs_restart = true;
-		config.effect_textbox_lines = effect_textbox_lines_field->value();
-	}
-
-	if (config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()) {
-		needs_restart = true;
-		config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
-	}
-
-	if (config.language_file != language_combobox->currentData().toString()) {
-		needs_restart = true;
-		config.language_file = language_combobox->currentData().toString();
-	}
+    config.effect_textbox_lines = effect_textbox_lines_field->value();
+    config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
+    config.language_file = language_combobox->currentData().toString();
 
 	if (config.thumbnail_resolution != thumbnail_res_spinbox->value()
 			|| config.waveform_resolution != waveform_res_spinbox->value()) {
-		// we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
-
-		needs_restart = true;
+        // we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
 
 		// delete nothing
 		char delete_match = 0;
@@ -249,18 +273,15 @@ void PreferencesDialog::save() {
         delete_previews(delete_match);
 	}
 
-	// save keyboard shortcuts
+    // Save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
 		key_shortcut_fields.at(i)->set_action_shortcut();
 	}
 
-	if (reset_audio_required) {
+    // Audio settings may require the audio device to be re-initiated.
+    if (reinit_audio) {
 		init_audio();
-	}
-
-	if (needs_restart) {
-		QMessageBox::information(this, tr("Warning"), tr("Some changed settings will require restarting Olive to take effect"));
-	}
+    }
 
 	accept();
 }
@@ -524,6 +545,12 @@ void PreferencesDialog::setup_ui() {
 	// Behavior
 	QWidget* behavior_tab = new QWidget(this);
 	tabWidget->addTab(behavior_tab, tr("Behavior"));
+
+    QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
+
+    add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
+    add_default_effects_to_clips->setChecked(config.add_default_effects_to_clips);
+    behavior_tab_layout->addWidget(add_default_effects_to_clips);
 
 	// Playback
 	QWidget* playback_tab = new QWidget(this);

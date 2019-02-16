@@ -70,7 +70,8 @@ Config::Config()
 	  use_software_fallback(false),
 	  center_timeline_timecodes(true),
 	  waveform_resolution(64),
-	  thumbnail_resolution(120)
+      thumbnail_resolution(120),
+      add_default_effects_to_clips(true)
 {}
 
 void Config::load(QString path) {
@@ -207,7 +208,10 @@ void Config::load(QString path) {
 				} else if (stream.name() == "WaveformResolution") {
 					stream.readNext();
 					waveform_resolution = stream.text().toInt();
-				}
+                } else if (stream.name() == "AddDefaultEffectsToClips") {
+                    stream.readNext();
+                    add_default_effects_to_clips = (stream.text() == "1");
+                }
 			}
 		}
 		if (stream.hasError()) {
@@ -272,7 +276,8 @@ void Config::save(QString path) {
 	stream.writeTextElement("PreferredAudioInput", preferred_audio_input);
 	stream.writeTextElement("LanguageFile", language_file);
 	stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
-	stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
+    stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
+    stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc
