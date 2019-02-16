@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Hue/Saturation/Brightness" category="Color">
+	<row name="Hue">
+		<field type="double" default="0" id="hue"/>
+	</row>
+	<row name="Saturation">
+		<field type="double" min="0" default="100" id="saturation"/>
+	</row>
+	<row name="Brightness">
+		<field type="double" min="0" default="100" id="brightness"/>
+	</row>
+	<shader vert="common.vert" frag="huesatbri.frag"/>
+</effect>

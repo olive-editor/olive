@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Toonify" category="Stylize">
+	<row name="Colors">
+		<field type="double" min="0" default="12" max="360" id="colors"/>
+	</row>
+	<row name="Saturation Levels">
+		<field type="double" min="0" default="4" id="sat_levels"/>
+	</row>
+	<row name="Brightness Levels">
+		<field type="double" min="0" default="4" id="bri_levels"/>
+	</row>
+	<row name="Edge Tolerance">
+		<field type="double" default="20" id="edge_thres"/>
+	</row>
+	<row name="Edge Strength">
+		<field type="double" default="5" id="edge_thres2"/>
+	</row>
+	<shader vert="common.vert" frag="toonify.frag"/>
+</effect>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Sphere" category="Distort">
+	<row name="Center">
+		<field type="double" default="0" id="xoff"/>
+		<field type="double" default="0" id="yoff"/>
+	</row>
+	<row name="Scale">
+		<field type="double" default="75" max="150" id="scale"/>
+	</row>
+	<row name="Tile">
+		<field type="bool" default="1" id="tile"/>
+	</row>
+	<row name="Hide Edges">
+		<field type="bool" default="0" id="hide_edges"/>
+	</row>
+	<row name="Stretch">
+		<field type="bool" default="1" id="stretch"/>
+	</row>
+	<shader vert="common.vert" frag="sphere.frag"/>
+</effect>

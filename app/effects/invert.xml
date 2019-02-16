@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Invert" category="Color">
+	<row name="Amount">
+		<field type="double" min="0" default="100" max="100" id="amount"/>
+	</row>
+	<shader vert="common.vert" frag="invert.frag"/>
+</effect>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Find Edges" category="Color">
+	<row name="Bypass">
+		<field type="bool" default="0" id="amount"/>
+	</row>
+	<shader vert="common.vert" frag="findedges.frag"/>
+</effect>

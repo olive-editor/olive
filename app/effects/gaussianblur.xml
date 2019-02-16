@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Gaussian Blur" category="Blur">
+	<!-- <row name="Radius">
+		<field type="double" min="0" default="10" id="radius"/>
+	</row> -->
+	<row name="Sigma">
+		<field type="double" min="0" default="5.5" id="sigma"/>
+	</row>
+	<row name="Horizontal">
+		<field type="bool" default="1" id="horiz_blur"/>
+	</row>
+	<row name="Vertical">
+		<field type="bool" default="1" id="vert_blur"/>
+	</row>
+	<shader vert="common.vert" frag="gaussianblur.frag" iterations="2"/>
+</effect>

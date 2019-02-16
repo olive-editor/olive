@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Bulge" category="Distort">
+	<row name="Amount">
+		<field type="double" default="100" id="amount"/>
+	</row>
+	<row name="Center">
+		<field type="double" default="0" id="xoff"/>
+		<field type="double" default="0" id="yoff"/>
+	</row>
+	<shader vert="common.vert" frag="bulge.frag"/>
+</effect>
