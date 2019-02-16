@@ -807,7 +807,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 }
 
 void MainWindow::paintEvent(QPaintEvent *event) {
-	QMainWindow::paintEvent(event);
+    QMainWindow::paintEvent(event);
 
     if (first_show) {
         first_show = false;
