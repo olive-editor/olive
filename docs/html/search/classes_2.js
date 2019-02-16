@@ -17,7 +17,6 @@ var searchData=
   ['composesequenceparams',['ComposeSequenceParams',['../struct_compose_sequence_params.html',1,'']]],
   ['config',['Config',['../struct_config.html',1,'']]],
   ['cornerpineffect',['CornerPinEffect',['../class_corner_pin_effect.html',1,'']]],
-  ['crc32',['Crc32',['../class_crc32.html',1,'']]],
   ['crossdissolvetransition',['CrossDissolveTransition',['../class_cross_dissolve_transition.html',1,'']]],
   ['cubetransition',['CubeTransition',['../class_cube_transition.html',1,'']]]
 ];

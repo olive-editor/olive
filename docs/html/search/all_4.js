@@ -1,22 +1,13 @@
 var searchData=
 [
-  ['editmenu_5fabout_5fto_5fbe_5fshown',['editMenu_About_To_Be_Shown',['../class_main_window.html#a5f23bbfaed3c23ea97640411e09cafc5',1,'MainWindow']]],
-  ['editsequencecommand',['EditSequenceCommand',['../class_edit_sequence_command.html',1,'']]],
-  ['effect',['Effect',['../class_effect.html',1,'']]],
-  ['effectcontrols',['EffectControls',['../class_effect_controls.html',1,'']]],
-  ['effectdeletecommand',['EffectDeleteCommand',['../class_effect_delete_command.html',1,'']]],
-  ['effectfield',['EffectField',['../class_effect_field.html',1,'']]],
-  ['effectfieldundo',['EffectFieldUndo',['../class_effect_field_undo.html',1,'']]],
-  ['effectgizmo',['EffectGizmo',['../class_effect_gizmo.html',1,'']]],
-  ['effectinit',['EffectInit',['../class_effect_init.html',1,'']]],
-  ['effectkeyframe',['EffectKeyframe',['../class_effect_keyframe.html',1,'']]],
-  ['effectmeta',['EffectMeta',['../struct_effect_meta.html',1,'']]],
-  ['effectrow',['EffectRow',['../class_effect_row.html',1,'']]],
-  ['effectsarea',['EffectsArea',['../class_effects_area.html',1,'']]],
-  ['embeddedfilechooser',['EmbeddedFileChooser',['../class_embedded_file_chooser.html',1,'']]],
-  ['enable_5fload_5fproject_5fon_5finit',['enable_load_project_on_init',['../class_olive_global.html#a41a11e816954dbc44e2b24c1d7fe0398',1,'OliveGlobal']]],
-  ['exponentialfadetransition',['ExponentialFadeTransition',['../class_exponential_fade_transition.html',1,'']]],
-  ['exportdialog',['ExportDialog',['../class_export_dialog.html',1,'']]],
-  ['exportparams',['ExportParams',['../struct_export_params.html',1,'']]],
-  ['exportthread',['ExportThread',['../class_export_thread.html',1,'']]]
+  ['debugdialog',['DebugDialog',['../class_debug_dialog.html',1,'']]],
+  ['decimal_5fplaces',['decimal_places',['../class_label_slider.html#afc2a71530cff38dfe586e73dabe99be9',1,'LabelSlider']]],
+  ['decrease_5fspeed',['decrease_speed',['../class_focus_filter.html#a7df3eede8f25fde514142046b3352c09',1,'FocusFilter']]],
+  ['delete_5ffunction',['delete_function',['../class_focus_filter.html#a7d9dbfa4b9595a4e83b01c54f123b3a7',1,'FocusFilter']]],
+  ['deleteclipaction',['DeleteClipAction',['../class_delete_clip_action.html',1,'']]],
+  ['deletemarkeraction',['DeleteMarkerAction',['../class_delete_marker_action.html',1,'']]],
+  ['deletemediacommand',['DeleteMediaCommand',['../class_delete_media_command.html',1,'']]],
+  ['deletetransitioncommand',['DeleteTransitionCommand',['../class_delete_transition_command.html',1,'']]],
+  ['demonotice',['DemoNotice',['../class_demo_notice.html',1,'']]],
+  ['duplicate',['duplicate',['../class_focus_filter.html#a603997516bd2e5954e8cb49fa87c8bad',1,'FocusFilter']]]
 ];

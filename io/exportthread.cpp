@@ -51,11 +51,12 @@ extern "C" {
 ExportThread::ExportThread(const ExportParams &iparams,
                            const VideoCodecParams& ivparams,
                            QObject *parent) :
-    params(iparams),
-    vcodec_params(ivparams),
-	QThread(parent),
-	continueEncode(true)
+    QThread(parent)
 {
+    params = iparams;
+    vcodec_params = ivparams;
+    continueEncode = true;
+
 	surface.create();
 
 	fmt_ctx = nullptr;
@@ -370,7 +371,7 @@ void ExportThread::run() {
 		start_time = QDateTime::currentMSecsSinceEpoch();
 
         if (params.audio_enabled) {
-			compose_audio(nullptr, Olive::ActiveSequence, true, false);
+            compose_audio(nullptr, Olive::ActiveSequence, 1);
 		}
         if (params.video_enabled) {
 			do {

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['project_5ffile_5ffilter',['project_file_filter',['../class_olive_global.html#a053f4de79194655e0a51b538e0bb0d95',1,'OliveGlobal']]]
+  ['enable_5fload_5fproject_5fon_5finit',['enable_load_project_on_init',['../class_olive_global.html#a41a11e816954dbc44e2b24c1d7fe0398',1,'OliveGlobal']]]
 ];

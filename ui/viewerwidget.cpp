@@ -235,9 +235,7 @@ void ViewerWidget::initializeGL() {
 }
 
 void ViewerWidget::frame_update() {
-	if (viewer->seq != nullptr) {
-		bool render_audio = (viewer->playing || audio_rendering);
-
+    if (viewer->seq != nullptr) {
 		// send context to other thread for drawing
 		if (waveform) {
 			update();
@@ -247,7 +245,7 @@ void ViewerWidget::frame_update() {
 		}
 
 		// render the audio
-		compose_audio(viewer, viewer->seq, render_audio, viewer->get_playback_speed());
+        compose_audio(viewer, viewer->seq, viewer->get_playback_speed());
 	}
 }
 
@@ -628,7 +626,7 @@ void ViewerWidget::paintGL() {
 
 		renderer->mutex.unlock();
 
-		if (renderer->did_texture_fail()) {
+        if (renderer->did_texture_fail() && !viewer->playing) {
 			doneCurrent();
 			renderer->start_render(context(), viewer->seq);
 		}

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['set_5fwindow_5fmodified',['set_window_modified',['../class_olive_action.html#a029f9d31c03e2ec38ad8c72ff1279746',1,'OliveAction']]]
+  ['gizmos',['gizmos',['../struct_compose_sequence_params.html#aa72c5ce883c42734fc86f841e78a6c7f',1,'ComposeSequenceParams']]]
 ];

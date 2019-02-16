@@ -1,21 +1,12 @@
 var searchData=
 [
-  ['mainwindow',['MainWindow',['../class_main_window.html',1,'']]],
-  ['make_5fclip_5ffunctions_5fmenu',['make_clip_functions_menu',['../class_menu_helper.html#ad7cc7086317b2ea8bb1774f2b749a9fd',1,'MenuHelper']]],
-  ['make_5fedit_5ffunctions_5fmenu',['make_edit_functions_menu',['../class_menu_helper.html#a0138f049061657ff93a41708e1e06718',1,'MenuHelper']]],
-  ['make_5finout_5fmenu',['make_inout_menu',['../class_menu_helper.html#aa6bb56c91cb0980a16e447dd34074fe2',1,'MenuHelper']]],
-  ['make_5fnew_5fmenu',['make_new_menu',['../class_menu_helper.html#ad4c34ddfd794f642f42ea08bf76124cc',1,'MenuHelper']]],
-  ['marker',['Marker',['../struct_marker.html',1,'']]],
-  ['maximize_5fpanel',['maximize_panel',['../class_main_window.html#af1779e3b578dd30f41e9dc59d7e0553f',1,'MainWindow']]],
-  ['media',['Media',['../class_media.html',1,'']]],
-  ['mediamove',['MediaMove',['../class_media_move.html',1,'']]],
-  ['mediapropertiesdialog',['MediaPropertiesDialog',['../class_media_properties_dialog.html',1,'']]],
-  ['mediarename',['MediaRename',['../class_media_rename.html',1,'']]],
-  ['mediathrobber',['MediaThrobber',['../class_media_throbber.html',1,'']]],
-  ['menu_5fclick_5fbutton',['menu_click_button',['../class_menu_helper.html#a508f997ac25f7c5830b03161fda1b25f',1,'MenuHelper']]],
-  ['menuhelper',['MenuHelper',['../class_menu_helper.html',1,'']]],
-  ['modifytransitioncommand',['ModifyTransitionCommand',['../class_modify_transition_command.html',1,'']]],
-  ['moveclipaction',['MoveClipAction',['../class_move_clip_action.html',1,'']]],
-  ['moveeffectcommand',['MoveEffectCommand',['../class_move_effect_command.html',1,'']]],
-  ['movemarkeraction',['MoveMarkerAction',['../class_move_marker_action.html',1,'']]]
+  ['labelslider',['LabelSlider',['../class_label_slider.html',1,'']]],
+  ['linearfadetransition',['LinearFadeTransition',['../class_linear_fade_transition.html',1,'']]],
+  ['linkcommand',['LinkCommand',['../class_link_command.html',1,'']]],
+  ['load_5fcss_5ffrom_5ffile',['load_css_from_file',['../class_main_window.html#a281ed536e019361da2b5a780dd48e6b2',1,'MainWindow']]],
+  ['load_5fproject_5fon_5flaunch',['load_project_on_launch',['../class_olive_global.html#a457ad9d7f5d716b0f23a7aa01187da5d',1,'OliveGlobal']]],
+  ['load_5fshortcuts',['load_shortcuts',['../class_main_window.html#a9f173804b8c478a35eaad1938e289947',1,'MainWindow']]],
+  ['loaddialog',['LoadDialog',['../class_load_dialog.html',1,'']]],
+  ['loadthread',['LoadThread',['../class_load_thread.html',1,'']]],
+  ['logarithmicfadetransition',['LogarithmicFadeTransition',['../class_logarithmic_fade_transition.html',1,'']]]
 ];

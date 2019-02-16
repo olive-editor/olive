@@ -1,16 +1,8 @@
 var searchData=
 [
-  ['value',['value',['../class_label_slider.html#a5736dbba98a0eb8958eed03046f77f8f',1,'LabelSlider']]],
-  ['valuechanged',['valueChanged',['../class_label_slider.html#a9be91d45b50e409325332d441f3edf7d',1,'LabelSlider']]],
-  ['valuetostring',['valueToString',['../class_label_slider.html#a8009482f1461ae35500fb5956e723f2c',1,'LabelSlider']]],
-  ['videocodecparams',['VideoCodecParams',['../struct_video_codec_params.html',1,'']]],
-  ['viewer',['Viewer',['../class_viewer.html',1,'']]],
-  ['viewercontainer',['ViewerContainer',['../class_viewer_container.html',1,'']]],
-  ['viewerwidget',['ViewerWidget',['../class_viewer_widget.html',1,'']]],
-  ['viewerwindow',['ViewerWindow',['../class_viewer_window.html',1,'']]],
-  ['viewmenu_5fabout_5fto_5fbe_5fshown',['viewMenu_About_To_Be_Shown',['../class_main_window.html#a2e4fd4ecc5e0487ca2d98735b01ccf41',1,'MainWindow']]],
-  ['voideffect',['VoidEffect',['../class_void_effect.html',1,'']]],
-  ['volumeeffect',['VolumeEffect',['../class_volume_effect.html',1,'']]],
-  ['vsthost',['VSTHost',['../class_v_s_t_host.html',1,'']]],
-  ['vstrect',['VSTRect',['../struct_v_s_t_rect.html',1,'']]]
+  ['undo',['undo',['../class_olive_global.html#ac5c7fc8e77040c8260e2e817e3e7b165',1,'OliveGlobal']]],
+  ['update_5fproject_5ffilename',['update_project_filename',['../class_olive_global.html#af3ef4cb94078beb905eb916a160fe826',1,'OliveGlobal']]],
+  ['updatefootagetooltip',['UpdateFootageTooltip',['../class_update_footage_tooltip.html',1,'']]],
+  ['updatetitle',['updateTitle',['../class_main_window.html#ac62839f0a6f642f68f06729f351893e3',1,'MainWindow']]],
+  ['updateviewer',['UpdateViewer',['../class_update_viewer.html',1,'']]]
 ];

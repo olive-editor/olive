@@ -364,7 +364,11 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
     // shift used to toggle zooming instead of scrolling
     bool shift = (event->modifiers() & Qt::ShiftModifier);
 
-    if (!event->pixelDelta().isNull()) {
+    //
+    // NOTE/FIXME: CURRENTLY disabling pixel scrolling because it needs more testing
+    //
+
+    /*if (!event->pixelDelta().isNull()) {
         // if we got pixel scrolling data, prefer it over the angleDelta data
 
         QScrollBar* horiz_bar = panel_timeline->horizontalScrollBar;
@@ -373,7 +377,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
         horiz_bar->setValue(horiz_bar->value() + event->pixelDelta().x());
         vert_bar->setValue(vert_bar->value() + event->pixelDelta().y());
 
-    } else if (!event->angleDelta().isNull()) {
+    } else*/ if (!event->angleDelta().isNull()) {
 
         // alt is used to swap horizontal and vertical scrolling
         bool alt = (event->modifiers() & Qt::AltModifier);

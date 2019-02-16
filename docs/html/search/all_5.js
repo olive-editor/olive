@@ -1,13 +1,22 @@
 var searchData=
 [
-  ['filemenu_5fabout_5fto_5fbe_5fshown',['fileMenu_About_To_Be_Shown',['../class_main_window.html#a20044854458738b479d85d5291257105',1,'MainWindow']]],
-  ['fillleftrighteffect',['FillLeftRightEffect',['../class_fill_left_right_effect.html',1,'']]],
-  ['finished_5ffirst_5fpaint',['finished_first_paint',['../class_main_window.html#ad87af70df9998f4a30b5c5bba7eace41',1,'MainWindow']]],
-  ['finished_5finitialize',['finished_initialize',['../class_olive_global.html#a60dbd750a5eedea296cbe40bc8d4051e',1,'OliveGlobal']]],
-  ['flowlayout',['FlowLayout',['../class_flow_layout.html',1,'']]],
-  ['focusfilter',['FocusFilter',['../class_focus_filter.html',1,'FocusFilter'],['../class_focus_filter.html#ac1b7def442c41825dd1fc31f5cbf9fe9',1,'FocusFilter::FocusFilter()']]],
-  ['fontcombobox',['FontCombobox',['../class_font_combobox.html',1,'']]],
-  ['footage',['Footage',['../struct_footage.html',1,'']]],
-  ['footagestream',['FootageStream',['../struct_footage_stream.html',1,'']]],
-  ['frei0reffect',['Frei0rEffect',['../class_frei0r_effect.html',1,'']]]
+  ['editmenu_5fabout_5fto_5fbe_5fshown',['editMenu_About_To_Be_Shown',['../class_main_window.html#a5f23bbfaed3c23ea97640411e09cafc5',1,'MainWindow']]],
+  ['editsequencecommand',['EditSequenceCommand',['../class_edit_sequence_command.html',1,'']]],
+  ['effect',['Effect',['../class_effect.html',1,'']]],
+  ['effectcontrols',['EffectControls',['../class_effect_controls.html',1,'']]],
+  ['effectdeletecommand',['EffectDeleteCommand',['../class_effect_delete_command.html',1,'']]],
+  ['effectfield',['EffectField',['../class_effect_field.html',1,'']]],
+  ['effectfieldundo',['EffectFieldUndo',['../class_effect_field_undo.html',1,'']]],
+  ['effectgizmo',['EffectGizmo',['../class_effect_gizmo.html',1,'']]],
+  ['effectinit',['EffectInit',['../class_effect_init.html',1,'']]],
+  ['effectkeyframe',['EffectKeyframe',['../class_effect_keyframe.html',1,'']]],
+  ['effectmeta',['EffectMeta',['../struct_effect_meta.html',1,'']]],
+  ['effectrow',['EffectRow',['../class_effect_row.html',1,'']]],
+  ['effectsarea',['EffectsArea',['../class_effects_area.html',1,'']]],
+  ['embeddedfilechooser',['EmbeddedFileChooser',['../class_embedded_file_chooser.html',1,'']]],
+  ['enable_5fload_5fproject_5fon_5finit',['enable_load_project_on_init',['../class_olive_global.html#a41a11e816954dbc44e2b24c1d7fe0398',1,'OliveGlobal']]],
+  ['exponentialfadetransition',['ExponentialFadeTransition',['../class_exponential_fade_transition.html',1,'']]],
+  ['exportdialog',['ExportDialog',['../class_export_dialog.html',1,'']]],
+  ['exportparams',['ExportParams',['../struct_export_params.html',1,'']]],
+  ['exportthread',['ExportThread',['../class_export_thread.html',1,'']]]
 ];

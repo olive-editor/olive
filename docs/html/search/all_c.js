@@ -1,18 +1,8 @@
 var searchData=
 [
-  ['olive_20video_20editor',['Olive Video Editor',['../md__r_e_a_d_m_e.html',1,'']]],
-  ['old_5fwindow_5fmodified',['old_window_modified',['../class_olive_action.html#a2ad0d3899c37dce7caed1b9d22a6c892',1,'OliveAction']]],
-  ['oliveaction',['OliveAction',['../class_olive_action.html',1,'']]],
-  ['oliveglobal',['OliveGlobal',['../class_olive_global.html',1,'OliveGlobal'],['../class_olive_global.html#a8ee567e30178cd747396c6222970de1b',1,'OliveGlobal::OliveGlobal()']]],
-  ['open_5fabout_5fdialog',['open_about_dialog',['../class_olive_global.html#a161a4b6f88441f82f0e90331f39044fb',1,'OliveGlobal']]],
-  ['open_5faction_5fsearch',['open_action_search',['../class_olive_global.html#a9a255c3b943eca104abb777243d32dee',1,'OliveGlobal']]],
-  ['open_5fdebug_5flog',['open_debug_log',['../class_olive_global.html#a0c142bf5d9f0ab9753154b3926b08d37',1,'OliveGlobal']]],
-  ['open_5fexport_5fdialog',['open_export_dialog',['../class_olive_global.html#abb20f21708320f258d99a2737640129e',1,'OliveGlobal']]],
-  ['open_5fpreferences',['open_preferences',['../class_olive_global.html#a481765a0b424ca37c50326dbe97fb204',1,'OliveGlobal']]],
-  ['open_5fproject',['open_project',['../class_olive_global.html#aaa945027c0f85fe2b65ad7be5997e02f',1,'OliveGlobal']]],
-  ['open_5fproject_5fworker',['open_project_worker',['../class_olive_global.html#a59e4870f994af018fb71d3871872fd7e',1,'OliveGlobal']]],
-  ['open_5frecent',['open_recent',['../class_olive_global.html#a7eaad3e9ab9637f48f2a3cbcb1628a42',1,'OliveGlobal']]],
-  ['open_5frecent_5ffrom_5fmenu',['open_recent_from_menu',['../class_menu_helper.html#ae46d3ef4f566734c6d38512933cb353b',1,'MenuHelper']]],
-  ['open_5fspeed_5fdialog',['open_speed_dialog',['../class_olive_global.html#abc5fb406d67e5f62602b3806fcab04f2',1,'OliveGlobal']]],
-  ['otreeview',['OTreeView',['../class_o_tree_view.html',1,'']]]
+  ['nests',['nests',['../struct_compose_sequence_params.html#abfe01c624fc05291c00b1b62a7e858f7',1,'ComposeSequenceParams']]],
+  ['new_5fproject',['new_project',['../class_olive_global.html#a96005523cb0a1ba0c4647ce2f2791331',1,'OliveGlobal']]],
+  ['newsequencecommand',['NewSequenceCommand',['../class_new_sequence_command.html',1,'']]],
+  ['newsequencedialog',['NewSequenceDialog',['../class_new_sequence_dialog.html',1,'']]],
+  ['next_5fframe',['next_frame',['../class_focus_filter.html#a65943730d91348720430b2c5ba10e21f',1,'FocusFilter']]]
 ];

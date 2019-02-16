@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['old_5fwindow_5fmodified',['old_window_modified',['../class_olive_action.html#a2ad0d3899c37dce7caed1b9d22a6c892',1,'OliveAction']]]
+  ['decimal_5fplaces',['decimal_places',['../class_label_slider.html#afc2a71530cff38dfe586e73dabe99be9',1,'LabelSlider']]]
 ];
