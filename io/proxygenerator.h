@@ -26,7 +26,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-struct Footage;
+#include "project/footage.h"
 
 struct ProxyInfo {
 	Footage* footage;

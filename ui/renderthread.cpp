@@ -180,10 +180,9 @@ void RenderThread::paint() {
 	params.ctx = ctx;
 	params.seq = seq;
 	params.video = true;
-	params.texture_failed = false;
-	params.render_audio = false;
+    params.texture_failed = false;
 	params.gizmos = &gizmos;
-	params.rendering = false;
+    params.single_threaded = false;
 	params.playback_speed = 1;
 	params.blend_mode_program = blend_mode_program;
 	params.premultiply_program = premultiply_program;

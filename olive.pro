@@ -34,7 +34,7 @@ system("which git") {
     # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
     # (see https://answers.launchpad.net/launchpad/+question/678556)
     isEmpty(GITHASHVAR) {
-        GITHASHVAR = $$system(grep -Po '(?<=-)(([a-z0-9])\w+)(?=\+)' debian/changelog)
+        GITHASHVAR = $$system(sh $$PWD/debian/gitfromlog.sh $$PWD/debian/changelog)
     }
 
     DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
@@ -117,7 +117,6 @@ SOURCES += \
     effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
     io/clipboard.cpp \
-    dialogs/stabilizerdialog.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp \
@@ -223,7 +222,6 @@ HEADERS += \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
     io/clipboard.h \
-    dialogs/stabilizerdialog.h \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h \

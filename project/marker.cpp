@@ -53,7 +53,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 	// add_marker is used to determine whether we're adding a marker, depending on whether the user input a marker name
 	// however if (config.set_name_with_marker) is true, we don't need a marker name so we just add
-	bool add_marker = !config.set_name_with_marker;
+	bool add_marker = !Olive::CurrentConfig.set_name_with_marker;
 
 	QString marker_name;
 

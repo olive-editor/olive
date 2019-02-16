@@ -20,7 +20,6 @@
 
 #include "proxygenerator.h"
 
-#include "project/footage.h"
 #include "io/path.h"
 #include "mainwindow.h"
 

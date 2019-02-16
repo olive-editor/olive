@@ -21,7 +21,6 @@
 #include "texteditdialog.h"
 
 #include <QVBoxLayout>
-#include <QPlainTextEdit>
 #include <QDialogButtonBox>
 
 TextEditDialog::TextEditDialog(QWidget *parent, const QString &s) :

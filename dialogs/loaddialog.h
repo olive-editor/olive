@@ -22,13 +22,11 @@
 #define LOADDIALOG_H
 
 #include <QDialog>
+#include <QProgressBar>
+#include <QHBoxLayout>
 
-class QProgressBar;
-struct Sequence;
-class Media;
-struct Footage;
-class QHBoxLayout;
-class LoadThread;
+#include "project/projectelements.h"
+#include "io/loadthread.h"
 
 class LoadDialog : public QDialog
 {

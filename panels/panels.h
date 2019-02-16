@@ -27,10 +27,6 @@
 #include "grapheditor.h"
 #include "project.h"
 
-class QWidget;
-class QDockWidget;
-class QScrollBar;
-
 extern Project* panel_project;
 extern EffectControls* panel_effect_controls;
 extern Viewer* panel_sequence_viewer;

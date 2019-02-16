@@ -23,16 +23,16 @@
 
 #include <QDialog>
 #include <QKeySequenceEdit>
-class QMenuBar;
-class QLineEdit;
-class QComboBox;
-class QRadioButton;
-class QTreeWidget;
-class QTreeWidgetItem;
-class QMenu;
-class QCheckBox;
-class QDoubleSpinBox;
-class QSpinBox;
+#include <QMenuBar>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QRadioButton>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QMenu>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 
 class KeySequenceEditor : public QKeySequenceEdit {
 	Q_OBJECT

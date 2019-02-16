@@ -31,10 +31,15 @@ enum IconType {
 	ICON_TYPE_ERROR
 };
 
-struct Footage;
-struct FootageStream;
-struct AVFormatContext;
-class Media;
+#include "project/footage.h"
+#include "project/media.h"
+
+extern "C" {
+    #include <libavformat/avformat.h>
+    #include <libavcodec/avcodec.h>
+    #include <libswscale/swscale.h>
+    #include <libswresample/swresample.h>
+}
 
 class PreviewGenerator : public QThread
 {

@@ -23,7 +23,7 @@
 
 #include <QVector>
 
-class Transition;
+#include <project/transition.h>
 
 #define CLIPBOARD_TYPE_CLIP 0
 #define CLIPBOARD_TYPE_EFFECT 1

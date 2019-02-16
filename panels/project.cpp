@@ -22,10 +22,6 @@
 
 #include "oliveglobal.h"
 
-#include "project/projectelements.h"
-
-#include "panels/panels.h"
-
 #include "playback/playback.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
@@ -93,7 +89,7 @@ Project::Project(QWidget *parent) :
 
 	// optional toolbar
 	toolbar_widget = new QWidget();
-	toolbar_widget->setVisible(config.show_project_toolbar);
+	toolbar_widget->setVisible(Olive::CurrentConfig.show_project_toolbar);
 	toolbar_widget->setObjectName("project_toolbar");
 
 	QHBoxLayout* toolbar = new QHBoxLayout(toolbar_widget);
@@ -430,7 +426,7 @@ void Project::new_folder() {
     Olive::UndoStack.push(new AddMediaCommand(m, get_selected_folder()));
 
     QModelIndex index = project_model.create_index(m->row(), 0, m);
-    switch (config.project_view_type) {
+    switch (Olive::CurrentConfig.project_view_type) {
     case PROJECT_VIEW_TREE:
         tree_view->edit(sorter->mapFromSource(index));
         break;
@@ -682,7 +678,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
 	QVector<QString> image_sequence_urls;
 	QVector<bool> image_sequence_importassequence;
-	QStringList image_sequence_formats = config.img_seq_formats.split("|");
+	QStringList image_sequence_formats = Olive::CurrentConfig.img_seq_formats.split("|");
 
 	if (!recursive) last_imported_media.clear();
 
@@ -871,7 +867,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
             // retrieve its parent item
 			QModelIndex hierarchy = sorted_index.parent();
 
-			if (config.project_view_type == PROJECT_VIEW_TREE) {
+			if (Olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE) {
 
                 // if we're in tree view, expand every folder in the hierarchy containing the media
 				while (hierarchy.isValid()) {
@@ -886,7 +882,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
                             );
 
                 tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
-			} else if (config.project_view_type == PROJECT_VIEW_ICON) {
+			} else if (Olive::CurrentConfig.project_view_type == PROJECT_VIEW_ICON) {
 
                 // if we're in icon view, we just "browse" to the parent folder
 				icon_view->setRootIndex(hierarchy);
@@ -1225,10 +1221,10 @@ void Project::save_project(bool autorecovery) {
 }
 
 void Project::update_view_type() {
-	tree_view->setVisible(config.project_view_type == PROJECT_VIEW_TREE);
-	icon_view_container->setVisible(config.project_view_type == PROJECT_VIEW_ICON);
+	tree_view->setVisible(Olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE);
+	icon_view_container->setVisible(Olive::CurrentConfig.project_view_type == PROJECT_VIEW_ICON);
 
-	switch (config.project_view_type) {
+	switch (Olive::CurrentConfig.project_view_type) {
 	case PROJECT_VIEW_TREE:
 		sources_common->view = tree_view;
 		break;
@@ -1239,12 +1235,12 @@ void Project::update_view_type() {
 }
 
 void Project::set_icon_view() {
-	config.project_view_type = PROJECT_VIEW_ICON;
+	Olive::CurrentConfig.project_view_type = PROJECT_VIEW_ICON;
 	update_view_type();
 }
 
 void Project::set_tree_view() {
-	config.project_view_type = PROJECT_VIEW_TREE;
+	Olive::CurrentConfig.project_view_type = PROJECT_VIEW_TREE;
 	update_view_type();
 }
 
@@ -1328,7 +1324,7 @@ QVector<Media*> Project::list_all_project_sequences() {
 }
 
 QModelIndexList Project::get_current_selected() {
-	if (config.project_view_type == PROJECT_VIEW_TREE) {
+	if (Olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE) {
 		return panel_project->tree_view->selectionModel()->selectedRows();
 	}
 	return panel_project->icon_view->selectionModel()->selectedIndexes();

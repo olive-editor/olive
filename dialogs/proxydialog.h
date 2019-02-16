@@ -25,7 +25,7 @@
 #include <QVector>
 #include <QComboBox>
 
-struct Footage;
+#include "project/footage.h"
 
 class ProxyDialog : public QDialog {
 	Q_OBJECT

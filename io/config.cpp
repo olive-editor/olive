@@ -29,8 +29,8 @@
 
 #include "debug.h"
 
-Config config;
-RuntimeConfig runtime_config;
+Config Olive::CurrentConfig;
+RuntimeConfig Olive::CurrentRuntimeConfig;
 
 Config::Config()
 	: saved_layout(false),

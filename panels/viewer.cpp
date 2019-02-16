@@ -276,7 +276,7 @@ void Viewer::seek(long p) {
 	if (main_sequence) {
 		panel_timeline->scroll_to_frame(p);
 		panel_effect_controls->scroll_to_frame(p);
-		if (config.seek_also_selects) {
+		if (Olive::CurrentConfig.seek_also_selects) {
 			panel_timeline->select_from_playhead();
 			update_fx = true;
 		}
@@ -386,7 +386,7 @@ void Viewer::play(bool in_to_out) {
             playback_speed = 1;
         }
 
-		bool seek_to_in = (seq->using_workarea && (config.loop || playing_in_to_out));
+		bool seek_to_in = (seq->using_workarea && (Olive::CurrentConfig.loop || playing_in_to_out));
 		if (!is_recording_cued()
                 && playback_speed > 0
 				&& (playing_in_to_out
@@ -469,7 +469,7 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-	end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, config.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), config.timecode_view, seq->frame_rate));
+	end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, Olive::CurrentConfig.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), Olive::CurrentConfig.timecode_view, seq->frame_rate));
 }
 
 void Viewer::update_header_zoom() {
@@ -603,13 +603,13 @@ void Viewer::set_playback_speed(int s) {
 }
 
 long Viewer::get_seq_in() {
-	return ((config.loop || playing_in_to_out) && seq->using_workarea)
+	return ((Olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea)
 			? seq->workarea_in
 			: 0;
 }
 
 long Viewer::get_seq_out() {
-	return ((config.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
+	return ((Olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
 			? seq->workarea_out
 			: seq->getEndFrame();
 }
@@ -801,8 +801,8 @@ void Viewer::timer_update() {
 	previous_playhead = seq->playhead;
 
 	seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed)));
-	if (config.seek_also_selects) panel_timeline->select_from_playhead();
-	update_parents(config.seek_also_selects);
+	if (Olive::CurrentConfig.seek_also_selects) panel_timeline->select_from_playhead();
+	update_parents(Olive::CurrentConfig.seek_also_selects);
 
 	if (playing) {
 		if (playback_speed < 0 && seq->playhead == 0) {
@@ -816,7 +816,7 @@ void Viewer::timer_update() {
 				pause();
 			}
 			if (seq->using_workarea && seq->playhead >= seq->workarea_out) {
-				if (config.loop) {
+				if (Olive::CurrentConfig.loop) {
 					// loop
 					play();
 				} else if (playing_in_to_out) {

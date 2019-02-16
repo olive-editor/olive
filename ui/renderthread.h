@@ -29,6 +29,12 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 
+// copied from source code to OCIODisplay
+#define LUT3D_EDGE_SIZE 32
+
+// copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
+#define NUM_3D_ENTRIES 98304
+
 struct Sequence;
 class Effect;
 
@@ -69,6 +75,8 @@ private:
 	GLuint back_buffer_2;
 	GLuint back_texture_1;
 	GLuint back_texture_2;
+
+    float ocio_lut_data[NUM_3D_ENTRIES];
 
 	Sequence* seq;
 	int divider;

@@ -200,18 +200,18 @@ MainWindow::MainWindow(QWidget *parent) :
 		config_dir.mkpath(".");
         QString config_fn = config_dir.filePath("config.xml");
 		if (QFileInfo::exists(config_fn)) {
-			config.load(config_fn);
+			Olive::CurrentConfig.load(config_fn);
 
-			if (!config.css_path.isEmpty()) {
-				load_css_from_file(config.css_path);
+			if (!Olive::CurrentConfig.css_path.isEmpty()) {
+				load_css_from_file(Olive::CurrentConfig.css_path);
 			}
 		}
 	}
 
 	// load preferred language from file
-	QString language_file = runtime_config.external_translation_file.isEmpty() ?
-				config.language_file :
-				runtime_config.external_translation_file;
+	QString language_file = Olive::CurrentRuntimeConfig.external_translation_file.isEmpty() ?
+				Olive::CurrentConfig.language_file :
+				Olive::CurrentRuntimeConfig.external_translation_file;
 
     if (!language_file.isEmpty()) {
 
@@ -450,12 +450,12 @@ void MainWindow::setup_menus() {
     track_lines = view_menu->addAction(tr("Track Lines"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	track_lines->setProperty("id", "tracklines");
 	track_lines->setCheckable(true);
-	track_lines->setData(reinterpret_cast<quintptr>(&config.show_track_lines));
+	track_lines->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.show_track_lines));
 
     rectified_waveforms = view_menu->addAction(tr("Rectified Waveforms"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	rectified_waveforms->setProperty("id", "rectifiedwaveforms");
 	rectified_waveforms->setCheckable(true);
-	rectified_waveforms->setData(reinterpret_cast<quintptr>(&config.rectified_waveforms));
+	rectified_waveforms->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.rectified_waveforms));
 
 	view_menu->addSeparator();
 
@@ -544,7 +544,7 @@ void MainWindow::setup_menus() {
     loop_action = playback_menu->addAction(tr("Loop"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	loop_action->setProperty("id", "loop");
 	loop_action->setCheckable(true);
-	loop_action->setData(reinterpret_cast<quintptr>(&config.loop));
+	loop_action->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.loop));
 
 	// INITIALIZE WINDOW MENU
 
@@ -646,67 +646,67 @@ void MainWindow::setup_menus() {
     selecting_also_seeks = tools_menu->addAction(tr("Selecting Also Seeks"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	selecting_also_seeks->setProperty("id", "selectingalsoseeks");
 	selecting_also_seeks->setCheckable(true);
-	selecting_also_seeks->setData(reinterpret_cast<quintptr>(&config.select_also_seeks));
+	selecting_also_seeks->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.select_also_seeks));
 
     edit_tool_also_seeks = tools_menu->addAction(tr("Edit Tool Also Seeks"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	edit_tool_also_seeks->setProperty("id", "editalsoseeks");
 	edit_tool_also_seeks->setCheckable(true);
-	edit_tool_also_seeks->setData(reinterpret_cast<quintptr>(&config.edit_tool_also_seeks));
+	edit_tool_also_seeks->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.edit_tool_also_seeks));
 
     edit_tool_selects_links = tools_menu->addAction(tr("Edit Tool Selects Links"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	edit_tool_selects_links->setProperty("id", "editselectslinks");
 	edit_tool_selects_links->setCheckable(true);
-	edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&config.edit_tool_selects_links));
+	edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.edit_tool_selects_links));
 
     seek_also_selects = tools_menu->addAction(tr("Seek Also Selects"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	seek_also_selects->setProperty("id", "seekalsoselects");
 	seek_also_selects->setCheckable(true);
-	seek_also_selects->setData(reinterpret_cast<quintptr>(&config.seek_also_selects));
+	seek_also_selects->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.seek_also_selects));
 
     seek_to_end_of_pastes = tools_menu->addAction(tr("Seek to the End of Pastes"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	seek_to_end_of_pastes->setProperty("id", "seektoendofpastes");
 	seek_to_end_of_pastes->setCheckable(true);
-	seek_to_end_of_pastes->setData(reinterpret_cast<quintptr>(&config.paste_seeks));
+	seek_to_end_of_pastes->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.paste_seeks));
 
     scroll_wheel_zooms = tools_menu->addAction(tr("Scroll Wheel Zooms"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	scroll_wheel_zooms->setProperty("id", "scrollwheelzooms");
 	scroll_wheel_zooms->setCheckable(true);
-	scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&config.scroll_zooms));
+	scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.scroll_zooms));
 
     enable_drag_files_to_timeline = tools_menu->addAction(tr("Enable Drag Files to Timeline"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_drag_files_to_timeline->setProperty("id", "enabledragfilestotimeline");
 	enable_drag_files_to_timeline->setCheckable(true);
-	enable_drag_files_to_timeline->setData(reinterpret_cast<quintptr>(&config.enable_drag_files_to_timeline));
+	enable_drag_files_to_timeline->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.enable_drag_files_to_timeline));
 
     autoscale_by_default = tools_menu->addAction(tr("Auto-Scale By Default"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	autoscale_by_default->setProperty("id", "autoscalebydefault");
 	autoscale_by_default->setCheckable(true);
-	autoscale_by_default->setData(reinterpret_cast<quintptr>(&config.autoscale_by_default));
+	autoscale_by_default->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.autoscale_by_default));
 
     enable_seek_to_import = tools_menu->addAction(tr("Enable Seek to Import"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_seek_to_import->setProperty("id", "enableseektoimport");
 	enable_seek_to_import->setCheckable(true);
-	enable_seek_to_import->setData(reinterpret_cast<quintptr>(&config.enable_seek_to_import));
+	enable_seek_to_import->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.enable_seek_to_import));
 
     enable_audio_scrubbing = tools_menu->addAction(tr("Audio Scrubbing"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_audio_scrubbing->setProperty("id", "audioscrubbing");
 	enable_audio_scrubbing->setCheckable(true);
-	enable_audio_scrubbing->setData(reinterpret_cast<quintptr>(&config.enable_audio_scrubbing));
+	enable_audio_scrubbing->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.enable_audio_scrubbing));
 
     enable_drop_on_media_to_replace = tools_menu->addAction(tr("Enable Drop on Media to Replace"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_drop_on_media_to_replace->setProperty("id", "enabledropmediareplace");
 	enable_drop_on_media_to_replace->setCheckable(true);
-	enable_drop_on_media_to_replace->setData(reinterpret_cast<quintptr>(&config.drop_on_media_to_replace));
+	enable_drop_on_media_to_replace->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.drop_on_media_to_replace));
 
     enable_hover_focus = tools_menu->addAction(tr("Enable Hover Focus"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	enable_hover_focus->setProperty("id", "hoverfocus");
 	enable_hover_focus->setCheckable(true);
-	enable_hover_focus->setData(reinterpret_cast<quintptr>(&config.hover_focus));
+	enable_hover_focus->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.hover_focus));
 
     set_name_and_marker = tools_menu->addAction(tr("Ask For Name When Setting Marker"), &Olive::MenuHelper, SLOT(toggle_bool_action()));
 	set_name_and_marker->setProperty("id", "asknamemarkerset");
 	set_name_and_marker->setCheckable(true);
-	set_name_and_marker->setData(reinterpret_cast<quintptr>(&config.set_name_with_marker));
+	set_name_and_marker->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.set_name_with_marker));
 
 	tools_menu->addSeparator();
 
@@ -784,7 +784,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
             QString config_fn = config_dir.filePath("config.xml");
 
 			// save settings
-			config.save(config_fn);
+			Olive::CurrentConfig.save(config_fn);
 
 			// save panel layout
             QFile panel_config(config_path + "/layout");
@@ -807,11 +807,11 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 }
 
 void MainWindow::paintEvent(QPaintEvent *event) {
-	QMainWindow::paintEvent(event);
+    QMainWindow::paintEvent(event);
 
     if (first_show) {
-        emit finished_first_paint();
         first_show = false;
+        emit finished_first_paint();
     }
 }
 
@@ -866,22 +866,22 @@ void MainWindow::playbackMenu_About_To_Be_Shown() {
 void MainWindow::viewMenu_About_To_Be_Shown() {
     Olive::MenuHelper.set_bool_action_checked(track_lines);
 
-    Olive::MenuHelper.set_int_action_checked(frames_action, config.timecode_view);
-    Olive::MenuHelper.set_int_action_checked(drop_frame_action, config.timecode_view);
-    Olive::MenuHelper.set_int_action_checked(nondrop_frame_action, config.timecode_view);
-    Olive::MenuHelper.set_int_action_checked(milliseconds_action, config.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(frames_action, Olive::CurrentConfig.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(drop_frame_action, Olive::CurrentConfig.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(nondrop_frame_action, Olive::CurrentConfig.timecode_view);
+    Olive::MenuHelper.set_int_action_checked(milliseconds_action, Olive::CurrentConfig.timecode_view);
 
-	title_safe_off->setChecked(!config.show_title_safe_area);
-    title_safe_default->setChecked(config.show_title_safe_area
-                                   && !config.use_custom_title_safe_ratio);
-    title_safe_43->setChecked(config.show_title_safe_area
-                              && config.use_custom_title_safe_ratio
-                              && qFuzzyCompare(config.custom_title_safe_ratio, title_safe_43->data().toDouble()));
-    title_safe_169->setChecked(config.show_title_safe_area
-                               && config.use_custom_title_safe_ratio
-                               && qFuzzyCompare(config.custom_title_safe_ratio, title_safe_169->data().toDouble()));
-    title_safe_custom->setChecked(config.show_title_safe_area
-                                  && config.use_custom_title_safe_ratio
+	title_safe_off->setChecked(!Olive::CurrentConfig.show_title_safe_area);
+    title_safe_default->setChecked(Olive::CurrentConfig.show_title_safe_area
+                                   && !Olive::CurrentConfig.use_custom_title_safe_ratio);
+    title_safe_43->setChecked(Olive::CurrentConfig.show_title_safe_area
+                              && Olive::CurrentConfig.use_custom_title_safe_ratio
+                              && qFuzzyCompare(Olive::CurrentConfig.custom_title_safe_ratio, title_safe_43->data().toDouble()));
+    title_safe_169->setChecked(Olive::CurrentConfig.show_title_safe_area
+                               && Olive::CurrentConfig.use_custom_title_safe_ratio
+                               && qFuzzyCompare(Olive::CurrentConfig.custom_title_safe_ratio, title_safe_169->data().toDouble()));
+    title_safe_custom->setChecked(Olive::CurrentConfig.show_title_safe_area
+                                  && Olive::CurrentConfig.use_custom_title_safe_ratio
                                   && !title_safe_43->isChecked()
                                   && !title_safe_169->isChecked());
 
@@ -916,9 +916,9 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
     Olive::MenuHelper.set_bool_action_checked(set_name_and_marker);
     Olive::MenuHelper.set_bool_action_checked(seek_also_selects);
 
-    Olive::MenuHelper.set_int_action_checked(no_autoscroll, config.autoscroll);
-    Olive::MenuHelper.set_int_action_checked(page_autoscroll, config.autoscroll);
-    Olive::MenuHelper.set_int_action_checked(smooth_autoscroll, config.autoscroll);
+    Olive::MenuHelper.set_int_action_checked(no_autoscroll, Olive::CurrentConfig.autoscroll);
+    Olive::MenuHelper.set_int_action_checked(page_autoscroll, Olive::CurrentConfig.autoscroll);
+    Olive::MenuHelper.set_int_action_checked(smooth_autoscroll, Olive::CurrentConfig.autoscroll);
 }
 
 void MainWindow::toggle_panel_visibility() {

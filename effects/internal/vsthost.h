@@ -32,7 +32,7 @@
 // Plugin's dispatcher function
 typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t index, int32_t value, void *ptr, float opt);
 
-class QDialog;
+#include <QDialog>
 
 class VSTHost : public Effect {
 	Q_OBJECT

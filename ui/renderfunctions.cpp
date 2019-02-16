@@ -112,7 +112,7 @@ void process_effect(Clip* c,
 		if (e->enable_coords) {
 			e->process_coords(timecode, coords, data);
 		}
-		bool can_process_shaders = (e->enable_shader && runtime_config.shaders_are_enabled);
+		bool can_process_shaders = (e->enable_shader && Olive::CurrentRuntimeConfig.shaders_are_enabled);
 		if (can_process_shaders || e->enable_superimpose) {
 			e->startEffect();
 			if (can_process_shaders && e->is_glsl_linked()) {
@@ -200,7 +200,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 								// open if not open
 								if (!c->open) {
-									open_clip(c, !params.rendering);
+                                    open_clip(c, !params.single_threaded);
 								}
 
 								clip_is_active = true;
@@ -225,7 +225,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					// if the clip is a nested sequence or null clip, just open it
 
 					if (is_clip_active(c, playhead)) {
-						if (!c->open) open_clip(c, !params.rendering);
+                        if (!c->open) open_clip(c, !params.single_threaded);
 						clip_is_active = true;
 					} else if (c->finished_opening) {
 						close_clip(c, false);
@@ -506,7 +506,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 						// copy front buffer to back buffer (only if we're using blending modes - which we usually will be)
-						if (!runtime_config.disable_blending) {
+						if (!Olive::CurrentRuntimeConfig.disable_blending) {
 							if (params.nests.size() > 0) {
 								draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
 							} else {
@@ -523,7 +523,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 						// bind front buffer as draw buffer
 						params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
-						if (runtime_config.disable_blending) {
+						if (Olive::CurrentRuntimeConfig.disable_blending) {
 							// some GPUs don't like the blending shader, so we provide a pure GL fallback here
 
 							params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
@@ -584,19 +584,18 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					glPopMatrix();
 				}
 			} else {
-				if (params.render_audio || (config.enable_audio_scrubbing && audio_scrub && params.seq->playhead > c->timeline_in)) {
-					if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
-						params.nests.append(c);
-						compose_sequence(params);
-						params.nests.removeLast();
-					} else {
-						if (c->lock.tryLock()) {
-							// clip is not caching, start caching audio
-							cache_clip(c, playhead, c->audio_reset, !params.render_audio, params.nests, params.playback_speed);
-							c->lock.unlock();
-						}
-					}
-				}
+                if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
+                    params.nests.append(c);
+                    compose_sequence(params);
+                    params.nests.removeLast();
+                } else {
+                    if (c->lock.tryLock()) {
+                        // Check whether cacher is currently active, if not activate it now
+
+                        cache_clip(c, playhead, c->audio_reset, (params.viewer != nullptr && !params.viewer->playing), params.nests, params.playback_speed);
+                        c->lock.unlock();
+                    }
+                }
 
 				// visually update all the keyframe values
 				if (c->sequence == params.seq) { // only if you can currently see them
@@ -631,15 +630,14 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 	return 0;
 }
 
-void compose_audio(Viewer* viewer, Sequence* seq, bool render_audio, int playback_speed) {
+void compose_audio(Viewer* viewer, Sequence* seq, int playback_speed) {
 	ComposeSequenceParams params;
 	params.viewer = viewer;
 	params.ctx = nullptr;
 	params.seq = seq;
-	params.video = false;
-	params.render_audio = render_audio;
+    params.video = false;
 	params.gizmos = nullptr;
-	params.rendering = audio_rendering;
+    params.single_threaded = audio_rendering;
 	params.playback_speed = playback_speed;
 	params.blend_mode_program = nullptr;
 	compose_sequence(params);

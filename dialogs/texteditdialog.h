@@ -22,13 +22,12 @@
 #define TEXTEDITDIALOG_H
 
 #include <QDialog>
-
-class QPlainTextEdit;
+#include <QPlainTextEdit>
 
 class TextEditDialog : public QDialog {
 	Q_OBJECT
 public:
-	TextEditDialog(QWidget* parent = 0, const QString& s = 0);
+    TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr);
 	const QString& get_string();
 private slots:
 	void save();

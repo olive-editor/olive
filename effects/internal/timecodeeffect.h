@@ -25,7 +25,6 @@
 
 #include <QFont>
 #include <QImage>
-class QOpenGLTexture;
 
 class TimecodeEffect : public Effect {
 	Q_OBJECT

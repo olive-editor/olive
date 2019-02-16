@@ -50,7 +50,7 @@ public:
 signals:
 	void x_scroll_changed(int);
 	void y_scroll_changed(int);
-	void zoom_changed(double);
+    void zoom_changed(double, double);
 	void selection_changed(bool, int);
 private:
 	int x_scroll;
@@ -58,11 +58,13 @@ private:
 	bool mousedown;
 	int start_x;
 	int start_y;
-	double zoom;
+
+    double x_zoom;
+    double y_zoom;
 
 	void set_scroll_x(int s);
 	void set_scroll_y(int s);
-	void set_zoom(double z);
+    void set_zoom(double xz, double yz);
 
 	int get_screen_x(double);
 	int get_screen_y(double);

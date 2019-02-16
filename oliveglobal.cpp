@@ -207,10 +207,21 @@ void OliveGlobal::open_export_dialog() {
 }
 
 void OliveGlobal::finished_initialize() {
-    // if a project was set as a command line argument, we load it here
     if (enable_load_project_on_init) {
-        open_project_worker(Olive::ActiveProjectFilename, false);
+
+        // if a project was set as a command line argument, we load it here
+        if (QFileInfo::exists(Olive::ActiveProjectFilename)) {
+            open_project_worker(Olive::ActiveProjectFilename, false);
+        } else {
+            QMessageBox::critical(Olive::MainWindow,
+                                  tr("Missing Project File"),
+                                  tr("Specified project '%1' does not exist.").arg(Olive::ActiveProjectFilename),
+                                  QMessageBox::Ok);
+            update_project_filename(nullptr);
+        }
+
         enable_load_project_on_init = false;
+
     } else {
         // if we are not loading a project on launch and are running a release build, open the demo notice dialog
 #ifndef QT_DEBUG

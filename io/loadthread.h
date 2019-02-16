@@ -28,19 +28,21 @@
 #include <QWaitCondition>
 #include <QMessageBox>
 
-class Media;
-struct Footage;
-class Clip;
-struct Sequence;
-class LoadDialog;
-struct TransitionData;
-struct EffectMeta;
+#include "project/projectelements.h"
+
+struct TransitionData {
+    int id;
+    QString name;
+    long length;
+    Clip* otc;
+    Clip* ctc;
+};
 
 class LoadThread : public QThread
 {
 	Q_OBJECT
 public:
-	LoadThread(LoadDialog* l, bool a);
+    LoadThread(bool a);
 	void run();
 	void cancel();
 signals:
@@ -57,7 +59,6 @@ private slots:
 	void create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
 	void create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
 private:
-	LoadDialog* ld;
 	bool autorecovery;
 
 	bool load_worker(QFile& f, QXmlStreamReader& stream, int type);

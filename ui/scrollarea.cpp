@@ -30,7 +30,7 @@
 ScrollArea::ScrollArea(QWidget* parent) : QScrollArea(parent) {}
 
 void ScrollArea::wheelEvent(QWheelEvent *e) {
-    if (config.scroll_zooms) {
+    if (Olive::CurrentConfig.scroll_zooms) {
         e->ignore();
 
         if (e->angleDelta().y() > 0) {

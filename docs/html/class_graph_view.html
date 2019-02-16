@@ -87,9 +87,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>x_scroll_changed</b> 
 <tr class="memitem:a147dfccbfed4c487f870b5a161cd3b0b"><td class="memItemLeft" align="right" valign="top"><a id="a147dfccbfed4c487f870b5a161cd3b0b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>y_scroll_changed</b> (int)</td></tr>
 <tr class="separator:a147dfccbfed4c487f870b5a161cd3b0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ac3dea126b4c99047644ac4dc957f1c"><td class="memItemLeft" align="right" valign="top"><a id="a1ac3dea126b4c99047644ac4dc957f1c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>zoom_changed</b> (double)</td></tr>
-<tr class="separator:a1ac3dea126b4c99047644ac4dc957f1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d3763d4c41a3636155142141cb22eb8"><td class="memItemLeft" align="right" valign="top"><a id="a5d3763d4c41a3636155142141cb22eb8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>zoom_changed</b> (double, double)</td></tr>
+<tr class="separator:a5d3763d4c41a3636155142141cb22eb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cb67b62b179dac2470935337245a3cf"><td class="memItemLeft" align="right" valign="top"><a id="a9cb67b62b179dac2470935337245a3cf"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>selection_changed</b> (bool, int)</td></tr>
 <tr class="separator:a9cb67b62b179dac2470935337245a3cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -156,9 +156,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_scroll_x</b> (int
 <tr class="memitem:a5cd477311ae5cd11874b5daeb68b775e"><td class="memItemLeft" align="right" valign="top"><a id="a5cd477311ae5cd11874b5daeb68b775e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_scroll_y</b> (int s)</td></tr>
 <tr class="separator:a5cd477311ae5cd11874b5daeb68b775e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c1f812c7bfe34b5ae44d5805973627e"><td class="memItemLeft" align="right" valign="top"><a id="a8c1f812c7bfe34b5ae44d5805973627e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_zoom</b> (double z)</td></tr>
-<tr class="separator:a8c1f812c7bfe34b5ae44d5805973627e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd4f79fee3b6cae324228b73afb5de59"><td class="memItemLeft" align="right" valign="top"><a id="acd4f79fee3b6cae324228b73afb5de59"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_zoom</b> (double xz, double yz)</td></tr>
+<tr class="separator:acd4f79fee3b6cae324228b73afb5de59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3f55352a5099e603593dbb8c9a38239"><td class="memItemLeft" align="right" valign="top"><a id="ac3f55352a5099e603593dbb8c9a38239"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>get_screen_x</b> (double)</td></tr>
 <tr class="separator:ac3f55352a5099e603593dbb8c9a38239"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,9 +198,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>start_x</b></td></tr>
 <tr class="memitem:aa0d54828264ed89452695c2913b5880a"><td class="memItemLeft" align="right" valign="top"><a id="aa0d54828264ed89452695c2913b5880a"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>start_y</b></td></tr>
 <tr class="separator:aa0d54828264ed89452695c2913b5880a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72f1a22fa1d40466afa35fccdbfb52c6"><td class="memItemLeft" align="right" valign="top"><a id="a72f1a22fa1d40466afa35fccdbfb52c6"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>zoom</b></td></tr>
-<tr class="separator:a72f1a22fa1d40466afa35fccdbfb52c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cb6a9531c75b3d7f5bacdc607cdaffc"><td class="memItemLeft" align="right" valign="top"><a id="a3cb6a9531c75b3d7f5bacdc607cdaffc"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>x_zoom</b></td></tr>
+<tr class="separator:a3cb6a9531c75b3d7f5bacdc607cdaffc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3a0090481974bb472729982d03fee9c"><td class="memItemLeft" align="right" valign="top"><a id="ae3a0090481974bb472729982d03fee9c"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>y_zoom</b></td></tr>
+<tr class="separator:ae3a0090481974bb472729982d03fee9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3481fc8ebd9fb66fe74d6b157289b91b"><td class="memItemLeft" align="right" valign="top"><a id="a3481fc8ebd9fb66fe74d6b157289b91b"></a>
 QVector&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>field_visibility</b></td></tr>
 <tr class="separator:a3481fc8ebd9fb66fe74d6b157289b91b"><td class="memSeparator" colspan="2">&#160;</td></tr>

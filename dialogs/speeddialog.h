@@ -22,10 +22,10 @@
 #define SPEEDDIALOG_H
 
 #include <QDialog>
+#include <QCheckBox>
 
-class Clip;
-class LabelSlider;
-class QCheckBox;
+#include "project/clip.h"
+#include "ui/labelslider.h"
 
 class SpeedDialog : public QDialog
 {

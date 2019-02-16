@@ -22,13 +22,13 @@
 #define NEWSEQUENCEDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QLineEdit>
 
-class Project;
-class Media;
-class QComboBox;
-class QSpinBox;
-class QLineEdit;
-struct Sequence;
+#include "panels/project.h"
+#include "project/media.h"
+#include "project/sequence.h"
 
 class NewSequenceDialog : public QDialog
 {

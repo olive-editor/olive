@@ -23,12 +23,9 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
-#include <QCheckBox>
 #include <QPushButton>
 #include <QDialogButtonBox>
 
-#include "ui/labelslider.h"
-#include "project/clip.h"
 #include "project/sequence.h"
 #include "project/footage.h"
 #include "playback/playback.h"

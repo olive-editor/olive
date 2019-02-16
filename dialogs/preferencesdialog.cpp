@@ -47,6 +47,7 @@
 #include <QMessageBox>
 #include <QAudioDeviceInfo>
 #include <QApplication>
+#include <QProcess>
 #include <QDebug>
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
@@ -82,10 +83,10 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 	setWindowTitle(tr("Preferences"));
 	setup_ui();
 
-	accurateSeekButton->setChecked(!config.fast_seeking);
-	fastSeekButton->setChecked(config.fast_seeking);
-	recordingComboBox->setCurrentIndex(config.recording_mode - 1);
-	imgSeqFormatEdit->setText(config.img_seq_formats);
+	accurateSeekButton->setChecked(!Olive::CurrentConfig.fast_seeking);
+	fastSeekButton->setChecked(Olive::CurrentConfig.fast_seeking);
+	recordingComboBox->setCurrentIndex(Olive::CurrentConfig.recording_mode - 1);
+	imgSeqFormatEdit->setText(Olive::CurrentConfig.img_seq_formats);
 }
 
 PreferencesDialog::~PreferencesDialog() {}
@@ -183,18 +184,18 @@ void PreferencesDialog::save() {
 	}
 
     // Check if any settings will require a restart of Olive
-    if (config.effect_textbox_lines != effect_textbox_lines_field->value()
-            || config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
-            || config.language_file != language_combobox->currentData().toString()
-            || config.thumbnail_resolution != thumbnail_res_spinbox->value()
-            || config.waveform_resolution != waveform_res_spinbox->value()) {
+    if (Olive::CurrentConfig.effect_textbox_lines != effect_textbox_lines_field->value()
+            || Olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
+            || Olive::CurrentConfig.language_file != language_combobox->currentData().toString()
+            || Olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
+            || Olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
 
         // any changes to these settings will require a restart - ask the user if we should do one now or later
 
         int ret = QMessageBox::question(this,
                                         "Restart Required",
-                                        "Some of the changed settings will require a restart of Olive. Would you like to"
-                                        "restart now?",
+                                        "Some of the changed settings will require a restart of Olive. Would you like "
+                                        "to restart now?",
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
         if (ret == QMessageBox::Cancel) {
@@ -214,51 +215,51 @@ void PreferencesDialog::save() {
     }
 
     // Audio settings may require the audio device to be re-initiated.
-    if (config.preferred_audio_output != audio_output_devices->currentData().toString()
-            || config.preferred_audio_input != audio_input_devices->currentData().toString()
-            || config.audio_rate != audio_sample_rate->currentData().toInt()) {
+    if (Olive::CurrentConfig.preferred_audio_output != audio_output_devices->currentData().toString()
+            || Olive::CurrentConfig.preferred_audio_input != audio_input_devices->currentData().toString()
+            || Olive::CurrentConfig.audio_rate != audio_sample_rate->currentData().toInt()) {
         reinit_audio = true;
     }
 
 	// save settings from UI to backend
-	config.css_path = custom_css_fn->text();
-    Olive::MainWindow->load_css_from_file(config.css_path);
+	Olive::CurrentConfig.css_path = custom_css_fn->text();
+    Olive::MainWindow->load_css_from_file(Olive::CurrentConfig.css_path);
 
-	config.recording_mode = recordingComboBox->currentIndex() + 1;
-	config.img_seq_formats = imgSeqFormatEdit->text();
-    config.fast_seeking = fastSeekButton->isChecked();
-	config.upcoming_queue_size = upcoming_queue_spinbox->value();
-	config.upcoming_queue_type = upcoming_queue_type->currentIndex();
-	config.previous_queue_size = previous_queue_spinbox->value();
-	config.previous_queue_type = previous_queue_type->currentIndex();
-    config.add_default_effects_to_clips = add_default_effects_to_clips->isChecked();
+	Olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
+	Olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
+    Olive::CurrentConfig.fast_seeking = fastSeekButton->isChecked();
+	Olive::CurrentConfig.upcoming_queue_size = upcoming_queue_spinbox->value();
+	Olive::CurrentConfig.upcoming_queue_type = upcoming_queue_type->currentIndex();
+	Olive::CurrentConfig.previous_queue_size = previous_queue_spinbox->value();
+	Olive::CurrentConfig.previous_queue_type = previous_queue_type->currentIndex();
+    Olive::CurrentConfig.add_default_effects_to_clips = add_default_effects_to_clips->isChecked();
 
-	config.preferred_audio_output = audio_output_devices->currentData().toString();
-	config.preferred_audio_input = audio_input_devices->currentData().toString();
-	config.audio_rate = audio_sample_rate->currentData().toInt();
+	Olive::CurrentConfig.preferred_audio_output = audio_output_devices->currentData().toString();
+	Olive::CurrentConfig.preferred_audio_input = audio_input_devices->currentData().toString();
+	Olive::CurrentConfig.audio_rate = audio_sample_rate->currentData().toInt();
 
-    config.effect_textbox_lines = effect_textbox_lines_field->value();
-    config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
-    config.language_file = language_combobox->currentData().toString();
+    Olive::CurrentConfig.effect_textbox_lines = effect_textbox_lines_field->value();
+    Olive::CurrentConfig.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
+    Olive::CurrentConfig.language_file = language_combobox->currentData().toString();
 
-	if (config.thumbnail_resolution != thumbnail_res_spinbox->value()
-			|| config.waveform_resolution != waveform_res_spinbox->value()) {
+	if (Olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
+			|| Olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
         // we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
 
 		// delete nothing
 		char delete_match = 0;
 
-		if (config.thumbnail_resolution != thumbnail_res_spinbox->value()) {
+		if (Olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()) {
 			// delete existing thumbnails
-			config.thumbnail_resolution = thumbnail_res_spinbox->value();
+			Olive::CurrentConfig.thumbnail_resolution = thumbnail_res_spinbox->value();
 
 			// delete only thumbnails
 			delete_match = 't';
 		}
 
-		if (config.waveform_resolution != waveform_res_spinbox->value()) {
+		if (Olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
 			// delete existing waveforms
-			config.waveform_resolution = waveform_res_spinbox->value();
+			Olive::CurrentConfig.waveform_resolution = waveform_res_spinbox->value();
 
 			// if we're already deleting thumbnails
 			if (delete_match == 't') {
@@ -283,7 +284,16 @@ void PreferencesDialog::save() {
 		init_audio();
     }
 
-	accept();
+    accept();
+
+    if (restart_after_saving) {
+        // since we already ran can_close_project(), bypass checking again by running setWindowModified(false)
+        Olive::MainWindow->setWindowModified(false);
+
+        Olive::MainWindow->close();
+
+        QProcess::startDetached(QApplication::applicationFilePath(), { Olive::ActiveProjectFilename });
+    }
 }
 
 void PreferencesDialog::reset_default_shortcut() {
@@ -458,7 +468,7 @@ void PreferencesDialog::setup_ui() {
 				QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
                 language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_relative_path);
 
-                if (config.language_file == locale_relative_path) {
+                if (Olive::CurrentConfig.language_file == locale_relative_path) {
 					language_combobox->setCurrentIndex(language_combobox->count() - 1);
 				}
 			}
@@ -473,7 +483,7 @@ void PreferencesDialog::setup_ui() {
     general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0);
 
 	custom_css_fn = new QLineEdit(general_tab);
-	custom_css_fn->setText(config.css_path);
+	custom_css_fn->setText(Olive::CurrentConfig.css_path);
     general_layout->addWidget(custom_css_fn, row, 1, 1, 3);
 
 	QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
@@ -506,7 +516,7 @@ void PreferencesDialog::setup_ui() {
 
 	effect_textbox_lines_field = new QSpinBox(general_tab);
 	effect_textbox_lines_field->setMinimum(1);
-	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
+	effect_textbox_lines_field->setValue(Olive::CurrentConfig.effect_textbox_lines);
     general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 4);
 
 	row++;
@@ -517,7 +527,7 @@ void PreferencesDialog::setup_ui() {
 	thumbnail_res_spinbox = new QSpinBox(this);
     thumbnail_res_spinbox->setMinimum(0);
 	thumbnail_res_spinbox->setMaximum(INT_MAX);
-	thumbnail_res_spinbox->setValue(config.thumbnail_resolution);
+	thumbnail_res_spinbox->setValue(Olive::CurrentConfig.thumbnail_resolution);
     general_layout->addWidget(thumbnail_res_spinbox, row, 1);
 
     general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2);
@@ -525,7 +535,7 @@ void PreferencesDialog::setup_ui() {
 	waveform_res_spinbox = new QSpinBox(this);
     waveform_res_spinbox->setMinimum(0);
 	waveform_res_spinbox->setMaximum(INT_MAX);
-	waveform_res_spinbox->setValue(config.waveform_resolution);
+	waveform_res_spinbox->setValue(Olive::CurrentConfig.waveform_resolution);
     general_layout->addWidget(waveform_res_spinbox, row, 3);
 
     QPushButton* delete_preview_btn = new QPushButton(tr("Delete Previews"));
@@ -537,7 +547,7 @@ void PreferencesDialog::setup_ui() {
 	// General -> Use Software Fallbacks When Possible
 	use_software_fallbacks_checkbox = new QCheckBox(general_tab);
 	use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
-	use_software_fallbacks_checkbox->setChecked(config.use_software_fallback);
+	use_software_fallbacks_checkbox->setChecked(Olive::CurrentConfig.use_software_fallback);
 	general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 4);
 
 	tabWidget->addTab(general_tab, tr("General"));
@@ -549,7 +559,7 @@ void PreferencesDialog::setup_ui() {
     QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
 
     add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
-    add_default_effects_to_clips->setChecked(config.add_default_effects_to_clips);
+    add_default_effects_to_clips->setChecked(Olive::CurrentConfig.add_default_effects_to_clips);
     behavior_tab_layout->addWidget(add_default_effects_to_clips);
 
 	// Playback
@@ -574,21 +584,21 @@ void PreferencesDialog::setup_ui() {
 	QGridLayout* memory_usage_layout = new QGridLayout(memory_usage_group);
 	memory_usage_layout->addWidget(new QLabel(tr("Upcoming Frame Queue:"), playback_tab), 0, 0);
 	upcoming_queue_spinbox = new QDoubleSpinBox(playback_tab);
-	upcoming_queue_spinbox->setValue(config.upcoming_queue_size);
+	upcoming_queue_spinbox->setValue(Olive::CurrentConfig.upcoming_queue_size);
 	memory_usage_layout->addWidget(upcoming_queue_spinbox, 0, 1);
 	upcoming_queue_type = new QComboBox(playback_tab);
 	upcoming_queue_type->addItem(tr("frames"));
 	upcoming_queue_type->addItem(tr("seconds"));
-	upcoming_queue_type->setCurrentIndex(config.upcoming_queue_type);
+	upcoming_queue_type->setCurrentIndex(Olive::CurrentConfig.upcoming_queue_type);
 	memory_usage_layout->addWidget(upcoming_queue_type, 0, 2);
 	memory_usage_layout->addWidget(new QLabel(tr("Previous Frame Queue:"), playback_tab), 1, 0);
 	previous_queue_spinbox = new QDoubleSpinBox(playback_tab);
-	previous_queue_spinbox->setValue(config.previous_queue_size);
+	previous_queue_spinbox->setValue(Olive::CurrentConfig.previous_queue_size);
 	memory_usage_layout->addWidget(previous_queue_spinbox, 1, 1);
 	previous_queue_type = new QComboBox(playback_tab);
 	previous_queue_type->addItem(tr("frames"));
 	previous_queue_type->addItem(tr("seconds"));
-	previous_queue_type->setCurrentIndex(config.previous_queue_type);
+	previous_queue_type->setCurrentIndex(Olive::CurrentConfig.previous_queue_type);
 	memory_usage_layout->addWidget(previous_queue_type, 1, 2);
 	playback_tab_layout->addWidget(memory_usage_group);
 
@@ -610,7 +620,7 @@ void PreferencesDialog::setup_ui() {
 	for (int i=0;i<devs.size();i++) {
 		audio_output_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
 		if (!found_preferred_device
-				&& devs.at(i).deviceName() == config.preferred_audio_output) {
+				&& devs.at(i).deviceName() == Olive::CurrentConfig.preferred_audio_output) {
 			audio_output_devices->setCurrentIndex(audio_output_devices->count()-1);
 			found_preferred_device = true;
 		}
@@ -629,7 +639,7 @@ void PreferencesDialog::setup_ui() {
 	for (int i=0;i<devs.size();i++) {
 		audio_input_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
 		if (!found_preferred_device
-				&& devs.at(i).deviceName() == config.preferred_audio_input) {
+				&& devs.at(i).deviceName() == Olive::CurrentConfig.preferred_audio_input) {
 			audio_input_devices->setCurrentIndex(audio_input_devices->count()-1);
 			found_preferred_device = true;
 		}
@@ -642,7 +652,7 @@ void PreferencesDialog::setup_ui() {
 	audio_sample_rate = new QComboBox();
 	combobox_audio_sample_rates(audio_sample_rate);
 	for (int i=0;i<audio_sample_rate->count();i++) {
-		if (audio_sample_rate->itemData(i).toInt() == config.audio_rate) {
+		if (audio_sample_rate->itemData(i).toInt() == Olive::CurrentConfig.audio_rate) {
 			audio_sample_rate->setCurrentIndex(i);
 			break;
 		}

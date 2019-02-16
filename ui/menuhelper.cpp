@@ -100,23 +100,23 @@ void MenuHelper::set_titlesafe_from_menu() {
     if (qIsNaN(tsa)) {
 
         // disable title safe area
-        config.show_title_safe_area = false;
+        Olive::CurrentConfig.show_title_safe_area = false;
 
     } else {
 
         // using title safe area
-        config.show_title_safe_area = true;
+        Olive::CurrentConfig.show_title_safe_area = true;
 
         // are we using the default area aspect ratio, or a specific one
         if (qIsNull(tsa)) {
 
             // default title safe area
-            config.use_custom_title_safe_ratio = false;
+            Olive::CurrentConfig.use_custom_title_safe_ratio = false;
 
         } else {
 
             // using a specific aspect ratio
-            config.use_custom_title_safe_ratio = true;
+            Olive::CurrentConfig.use_custom_title_safe_ratio = true;
 
             if (tsa < 0.0) {
 
@@ -136,13 +136,13 @@ void MenuHelper::set_titlesafe_from_menu() {
 
                if (!input.isEmpty()) {
                    QStringList inputList = input.split(':');
-                   config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
+                   Olive::CurrentConfig.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
                }
 
            } else {
 
                // specified tsa is a specific custom aspect ratio
-               config.custom_title_safe_ratio = tsa;
+               Olive::CurrentConfig.custom_title_safe_ratio = tsa;
            }
 
         }
@@ -154,7 +154,7 @@ void MenuHelper::set_titlesafe_from_menu() {
 
 void MenuHelper::set_autoscroll() {
     QAction* action = static_cast<QAction*>(sender());
-    config.autoscroll = action->data().toInt();
+    Olive::CurrentConfig.autoscroll = action->data().toInt();
 }
 
 void MenuHelper::menu_click_button() {
@@ -163,7 +163,7 @@ void MenuHelper::menu_click_button() {
 
 void MenuHelper::set_timecode_view() {
     QAction* action = static_cast<QAction*>(sender());
-    config.timecode_view = action->data().toInt();
+    Olive::CurrentConfig.timecode_view = action->data().toInt();
     update_ui(false);
 }
 

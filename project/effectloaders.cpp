@@ -39,7 +39,7 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 #endif
 
 void load_internal_effects() {
-	if (!runtime_config.shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+	if (!Olive::CurrentRuntimeConfig.shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
 
 	EffectMeta em;
 

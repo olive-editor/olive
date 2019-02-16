@@ -24,19 +24,18 @@
 #include <QDockWidget>
 #include <QUndoCommand>
 #include <QMutex>
+#include <QMenu>
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QScrollBar>
+#include <QHBoxLayout>
 
-class Clip;
-class QMenu;
-class Effect;
-class TimelineHeader;
-class QScrollArea;
-class KeyframeView;
-class QVBoxLayout;
-class ResizableScrollBar;
-class QLabel;
-class KeyframeView;
-class QScrollBar;
-class QHBoxLayout;
+#include "project/projectelements.h"
+#include "ui/timelineheader.h"
+#include "ui/keyframeview.h"
+#include "ui/resizablescrollbar.h"
+#include "ui/keyframeview.h"
 
 class EffectsArea : public QWidget {
 	Q_OBJECT

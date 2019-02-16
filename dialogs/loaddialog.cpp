@@ -20,17 +20,14 @@
 
 #include "loaddialog.h"
 
-#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QProgressBar>
 #include <QPushButton>
 
 #include "oliveglobal.h"
 
 #include "panels/panels.h"
 
-#include "io/loadthread.h"
 #include "playback/playback.h"
 #include "ui/sourcetable.h"
 #include "mainwindow.h"
@@ -59,7 +56,7 @@ LoadDialog::LoadDialog(QWidget *parent, bool autorecovery) : QDialog(parent) {
 
 	update();
 
-	lt = new LoadThread(this, autorecovery);
+    lt = new LoadThread(autorecovery);
 	QObject::connect(lt, SIGNAL(success()), this, SLOT(thread_done()));
 	QObject::connect(lt, SIGNAL(error()), this, SLOT(die()));
 	QObject::connect(lt, SIGNAL(report_progress(int)), bar, SLOT(setValue(int)));

@@ -103,8 +103,7 @@ private slots:
 	void show_context_menu(const QPoint& pos);
 	void toggle_autoscale();
 	void tooltip_timer_timeout();
-	void rename_clip();
-	void show_stabilizer_diag();
+    void rename_clip();
 	void open_sequence_properties();
 };
 

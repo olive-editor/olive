@@ -22,14 +22,14 @@
 #define MEDIAPROPERTIESDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QDoubleSpinBox>
+#include <QCheckBox>
 
-struct Footage;
-class QComboBox;
-class QLineEdit;
-class Media;
-class QListWidget;
-class QDoubleSpinBox;
-class QCheckBox;
+#include "project/footage.h"
+#include "project/media.h"
 
 class MediaPropertiesDialog : public QDialog {
 	Q_OBJECT

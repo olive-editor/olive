@@ -20,20 +20,16 @@
 
 #include "replaceclipmediadialog.h"
 
-#include "ui/sourcetable.h"
 #include "panels/panels.h"
-#include "project/projectelements.h"
 
 #include "playback/playback.h"
 #include "playback/cacher.h"
 #include "project/undo.h"
 
 #include <QVBoxLayout>
-#include <QTreeView>
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
-#include <QCheckBox>
 
 ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media) :
 	QDialog(parent),
