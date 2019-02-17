@@ -79,7 +79,7 @@ void apply_audio_effects(ClipPtr c, double timecode_start, AVFrame* frame, int n
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-				c->get_opening_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TA_OPENING_TRANSITION);
+				c->get_opening_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionOpening);
 			}
 		}
 	}
@@ -92,7 +92,7 @@ void apply_audio_effects(ClipPtr c, double timecode_start, AVFrame* frame, int n
 				double adjustment = transition_end - transition_start;
 				double adjusted_range_start = (timecode_start - transition_start) / adjustment;
 				double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-				c->get_closing_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, TA_CLOSING_TRANSITION);
+				c->get_closing_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionClosing);
 			}
 		}
 	}

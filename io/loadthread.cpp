@@ -80,11 +80,11 @@ void LoadThread::load_effect(QXmlStreamReader& stream, ClipPtr c) {
 
 	int type;
 	if (tag == "opening") {
-		type = TA_OPENING_TRANSITION;
+		type = kTransitionOpening;
 	} else if (tag == "closing") {
-		type = TA_CLOSING_TRANSITION;
+		type = kTransitionClosing;
 	} else {
-		type = TA_NO_TRANSITION;
+		type = kTransitionNone;
 	}
 
 	emit start_create_effect_ui(&stream, c, type, &effect_name, meta, effect_length, effect_enabled);
@@ -391,11 +391,11 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 										} else if (attr.name() == "track") {
 											c->track = attr.value().toInt();
 										} else if (attr.name() == "r") {
-											c->color_r = attr.value().toInt();
+                      c->color_r = quint8(attr.value().toInt());
 										} else if (attr.name() == "g") {
-											c->color_g = attr.value().toInt();
+                      c->color_g = quint8(attr.value().toInt());
 										} else if (attr.name() == "b") {
-											c->color_b = attr.value().toInt();
+                      c->color_b = quint8(attr.value().toInt());
 										} else if (attr.name() == "autoscale") {
 											c->autoscale = (attr.value() == "1");
 										} else if (attr.name() == "media") {
@@ -409,10 +409,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 											c->maintain_audio_pitch = (attr.value() == "1");
 										} else if (attr.name() == "reverse") {
 											c->reverse = (attr.value() == "1");
+                      /*
 										} else if (attr.name() == "opening") {
 											c->opening_transition = attr.value().toInt();
 										} else if (attr.name() == "closing") {
 											c->closing_transition = attr.value().toInt();
+                      */
 										} else if (attr.name() == "sequence") {
 											media_type = MEDIA_TYPE_SEQUENCE;
 
@@ -514,6 +516,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									}
 								}
 
+                /*
 								// re-link clips to transitions
 								if (correct_clip->opening_transition > -1) {
 									for (int j=0;j<transition_data.size();j++) {
@@ -552,6 +555,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 										waitCond.wait(&mutex);
 									}
 								}
+              */
 							}
 
 							Media* m = panel_project->create_sequence_internal(nullptr, s, false, parent);
@@ -792,7 +796,7 @@ void LoadThread::create_effect_ui(
     mutex.lock();
 
 	if (cancelled) return;
-	if (type == TA_NO_TRANSITION) {
+	if (type == kTransitionNone) {
 		if (meta == nullptr) {
 			// create void effect
             EffectPtr ve(new VoidEffect(c, *effect_name));
@@ -807,17 +811,19 @@ void LoadThread::create_effect_ui(
 			c->effects.append(e);
 		}
 	} else {
+    /*
 		int transition_index = create_transition(c, nullptr, meta);
         TransitionPtr t = c->sequence->transitions.at(transition_index);
 		if (effect_length > -1) t->set_length(effect_length);
 		t->set_enabled(effect_enabled);
 		t->load(*stream);
 
-		if (type == TA_OPENING_TRANSITION) {
+		if (type == kTransitionOpening) {
 			c->opening_transition = transition_index;
 		} else {
 			c->closing_transition = transition_index;
 		}
+    */
 	}
 
     mutex.unlock();
@@ -829,10 +835,12 @@ void LoadThread::create_dual_transition(const TransitionData* td, ClipPtr primar
     // lock mutex - ensures the load thread is suspended while this happens
     mutex.lock();
 
+    /*
 	int transition_index = create_transition(primary, secondary, meta);
 	primary->sequence->transitions.at(transition_index)->set_length(td->length);
 	if (td->otc != nullptr) td->otc->opening_transition = transition_index;
 	if (td->ctc != nullptr) td->ctc->closing_transition = transition_index;
+    */
 
     mutex.unlock();
 

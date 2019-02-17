@@ -67,42 +67,6 @@ long Sequence::getEndFrame() {
 	return end;
 }
 
-void Sequence::hard_delete_transition(ClipPtr c, int type) {
-	int transition_index = (type == TA_OPENING_TRANSITION) ? c->opening_transition : c->closing_transition;
-	if (transition_index > -1) {
-		bool del = true;
-
-        TransitionPtr t = transitions.at(transition_index);
-		if (t->secondary_clip != nullptr) {
-			for (int i=0;i<clips.size();i++) {
-                ClipPtr comp = clips.at(i);
-				if (comp != nullptr
-						&& c != comp
-						&& (c->opening_transition == transition_index
-						|| c->closing_transition == transition_index)) {
-					if (type == TA_OPENING_TRANSITION) {
-						// convert to closing transition
-						t->parent_clip = t->secondary_clip;
-					}
-
-					del = false;
-					t->secondary_clip = nullptr;
-				}
-			}
-		}
-
-        if (del) {
-            transitions[transition_index].reset();
-		}
-
-		if (type == TA_OPENING_TRANSITION) {
-			c->opening_transition = -1;
-		} else {
-			c->closing_transition = -1;
-		}
-	}
-}
-
 void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 	int vt = 0;
 	int at = 0;

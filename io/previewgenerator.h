@@ -29,34 +29,34 @@
 #include "project/media.h"
 
 extern "C" {
-    #include <libavformat/avformat.h>
-    #include <libavcodec/avcodec.h>
-    #include <libswscale/swscale.h>
-    #include <libswresample/swresample.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 class PreviewGenerator : public QThread
 {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    PreviewGenerator(Media*, FootagePtr, bool);
-	void run();
-    void cancel();
+  PreviewGenerator(Media*, FootagePtr, bool);
+  void run();
+  void cancel();
 private:
-	void parse_media();
-	bool retrieve_preview(const QString &hash);
-	void generate_waveform();
-	void finalize_media();
-	AVFormatContext* fmt_ctx;
-	Media* media;
-    FootagePtr footage;
-	bool retrieve_duration;
-	bool contains_still_image;
-	bool replace;
-    bool cancelled;
-    QDir data_dir;
-	QString get_thumbnail_path(const QString &hash, const FootageStream &ms);
-	QString get_waveform_path(const QString& hash, const FootageStream &ms);
+  void parse_media();
+  bool retrieve_preview(const QString &hash);
+  void generate_waveform();
+  void finalize_media();
+  AVFormatContext* fmt_ctx;
+  Media* media;
+  FootagePtr footage;
+  bool retrieve_duration;
+  bool contains_still_image;
+  bool replace;
+  bool cancelled;
+  QDir data_dir;
+  QString get_thumbnail_path(const QString &hash, const FootageStream &ms);
+  QString get_waveform_path(const QString& hash, const FootageStream &ms);
 };
 
 #endif // PREVIEWGENERATOR_H

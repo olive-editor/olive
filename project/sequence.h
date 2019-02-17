@@ -35,8 +35,7 @@ public:
     SequencePtr copy();
 	QString name;
 	void getTrackLimits(int* video_tracks, int* audio_tracks);
-	long getEndFrame();
-    void hard_delete_transition(ClipPtr c, int type);
+  long getEndFrame();
 	int width;
 	int height;
 	double frame_rate;
@@ -56,7 +55,6 @@ public:
 
 	QVector<Marker> markers;
     QVector<ClipPtr> clips;
-    QVector<TransitionPtr> transitions;
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;

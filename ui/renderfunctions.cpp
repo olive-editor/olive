@@ -401,7 +401,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					// run through all of the clip's effects
 					for (int j=0;j<c->effects.size();j++) {
                         EffectPtr e = c->effects.at(j);
-						process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, TA_NO_TRANSITION);
+						process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
 						// retrieve gizmo data from effect
 						if (e->are_gizmos_enabled()) {
@@ -421,7 +421,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					if (c->get_opening_transition() != nullptr) {
 						int transition_progress = playhead - c->get_timeline_in_with_transition();
 						if (transition_progress < c->get_opening_transition()->get_length()) {
-							process_effect(c, c->get_opening_transition(), double(transition_progress)/double(c->get_opening_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, TA_OPENING_TRANSITION);
+							process_effect(c, c->get_opening_transition(), double(transition_progress)/double(c->get_opening_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionOpening);
 						}
 					}
 
@@ -429,7 +429,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					if (c->get_closing_transition() != nullptr) {
 						int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
 						if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
-							process_effect(c, c->get_closing_transition(), double(transition_progress)/double(c->get_closing_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, TA_CLOSING_TRANSITION);
+							process_effect(c, c->get_closing_transition(), double(transition_progress)/double(c->get_closing_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionClosing);
 						}
 					}
 

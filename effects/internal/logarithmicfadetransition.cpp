@@ -31,10 +31,10 @@ void LogarithmicFadeTransition::process_audio(double timecode_start, double time
 		qint16 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
 
 		switch (type) {
-        case TA_OPENING_TRANSITION:
+        case kTransitionOpening:
 			samp *= qSqrt(timecode_start + (interval * i));
 			break;
-        case TA_CLOSING_TRANSITION:
+        case kTransitionClosing:
 			samp *= qSqrt(1 - (timecode_start + (interval * i)));
 			break;
 		}

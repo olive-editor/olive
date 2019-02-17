@@ -47,7 +47,7 @@ void update_effect_controls() {
 	int vclip = -1;
 	int aclip = -1;
 	QVector<int> selected_clips;
-	int mode = TA_NO_TRANSITION;
+	int mode = kTransitionNone;
 	if (olive::ActiveSequence != nullptr) {
 		for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
             ClipPtr clip = olive::ActiveSequence->clips.at(i);
@@ -56,11 +56,11 @@ void update_effect_controls() {
 					const Selection& s = olive::ActiveSequence->selections.at(j);
 					bool add = true;
 					if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
-						mode = TA_NO_TRANSITION;
-					} else if (selection_contains_transition(s, clip, TA_OPENING_TRANSITION)) {
-						mode = TA_OPENING_TRANSITION;
-					} else if (selection_contains_transition(s, clip, TA_CLOSING_TRANSITION)) {
-						mode = TA_CLOSING_TRANSITION;
+						mode = kTransitionNone;
+					} else if (selection_contains_transition(s, clip, kTransitionOpening)) {
+						mode = kTransitionOpening;
+					} else if (selection_contains_transition(s, clip, kTransitionClosing)) {
+						mode = kTransitionClosing;
 					} else {
 						add = false;
 					}

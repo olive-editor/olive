@@ -38,8 +38,8 @@
 #include "marker.h"
 
 extern "C" {
-    #include <libavformat/avformat.h>
-    #include <libavfilter/avfilter.h>
+#include <libavformat/avformat.h>
+#include <libavfilter/avfilter.h>
 }
 
 using ClipPtr = std::shared_ptr<Clip>;
@@ -49,109 +49,109 @@ using SequencePtr = std::shared_ptr<Sequence>;
 
 class Clip {
 public:
-    Clip(SequencePtr s);
-	~Clip();
-    ClipPtr copy(SequencePtr s, bool duplicate_transitions = true);
-	void reset_audio();
-	void reset();
-	void refresh();
-	long get_clip_in_with_transition();
-	long get_timeline_in_with_transition();
-	long get_timeline_out_with_transition();
-	long getLength();
-	double getMediaFrameRate();
-	long getMaximumLength();
-	void recalculateMaxLength();
-	int getWidth();
-	int getHeight();
-	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
-    SequencePtr sequence;
+  Clip(SequencePtr s);
+  ~Clip();
+  ClipPtr copy(SequencePtr s, bool duplicate_transitions = true);
+  void reset_audio();
+  void reset();
+  void refresh();
+  long get_clip_in_with_transition();
+  long get_timeline_in_with_transition();
+  long get_timeline_out_with_transition();
+  long getLength();
+  double getMediaFrameRate();
+  long getMaximumLength();
+  void recalculateMaxLength();
+  int getWidth();
+  int getHeight();
+  void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
+  SequencePtr sequence;
 
-	// queue functions
-	void queue_clear();
-	void queue_remove_earliest();
+  // queue functions
+  void queue_clear();
+  void queue_remove_earliest();
 
-	// timeline variables (should be copied in copy())
-	bool enabled;
-	long clip_in;
-	long timeline_in;
-	long timeline_out;
-	int track;
-	QString name;
-	quint8 color_r;
-	quint8 color_g;
-	quint8 color_b;
-    Media* media;
-	int media_stream;
-	double speed;
-	double cached_fr;
-	bool reverse;
-	bool maintain_audio_pitch;
-	bool autoscale;
+  // timeline variables (should be copied in copy())
+  bool enabled;
+  long clip_in;
+  long timeline_in;
+  long timeline_out;
+  int track;
+  QString name;
+  quint8 color_r;
+  quint8 color_g;
+  quint8 color_b;
+  Media* media;
+  int media_stream;
+  double speed;
+  double cached_fr;
+  bool reverse;
+  bool maintain_audio_pitch;
+  bool autoscale;
 
-    // markers
-    QVector<Marker>& get_markers();
+  // markers
+  QVector<Marker>& get_markers();
 
-	// other variables (should be deep copied/duplicated in copy())
-    QList<EffectPtr> effects;
-	QVector<int> linked;
-	int opening_transition;
-    TransitionPtr get_opening_transition();
-	int closing_transition;
-    TransitionPtr get_closing_transition();
+  // other variables (should be deep copied/duplicated in copy())
+  QList<EffectPtr> effects;
+  QVector<int> linked;
+  TransitionPtr opening_transition;
+  TransitionPtr get_opening_transition();
+  TransitionPtr closing_transition;
+  TransitionPtr get_closing_transition();
 
-	// media handling
-	AVFormatContext* formatCtx;
-	AVStream* stream;
-	AVCodec* codec;
-	AVCodecContext* codecCtx;
-	AVPacket* pkt;
-	AVFrame* frame;
-	AVDictionary* opts;
-	long calculated_length;
+  // media handling
+  AVFormatContext* formatCtx;
+  AVStream* stream;
+  AVCodec* codec;
+  AVCodecContext* codecCtx;
+  AVPacket* pkt;
+  AVFrame* frame;
+  AVDictionary* opts;
+  long calculated_length;
 
-	// temporary variables
-	int load_id;
-	bool undeletable;
-	bool reached_end;
-	bool pkt_written;
-	bool open;
-	bool finished_opening;
-	bool replaced;
-	bool ignore_reverse;
-	int pix_fmt;
+  // temporary variables
+  int load_id;
+  bool undeletable;
+  bool reached_end;
+  bool pkt_written;
+  bool open;
+  bool finished_opening;
+  bool replaced;
+  bool ignore_reverse;
+  int pix_fmt;
 
-	// caching functions
-	bool use_existing_frame;
-	bool multithreaded;
-	Cacher* cacher;
-	QWaitCondition can_cache;
-	int max_queue_size;
-	QVector<AVFrame*> queue;
-	QMutex queue_lock;
-	QMutex lock;
-	QMutex open_lock;
-	int64_t last_invalid_ts;
+  // caching functions
+  bool use_existing_frame;
+  bool multithreaded;
+  Cacher* cacher;
+  QWaitCondition can_cache;
+  int max_queue_size;
+  QVector<AVFrame*> queue;
+  QMutex queue_lock;
+  QMutex lock;
+  QMutex open_lock;
+  int64_t last_invalid_ts;
 
-	// converters/filters
-	AVFilterGraph* filter_graph;
-	AVFilterContext* buffersink_ctx;
-	AVFilterContext* buffersrc_ctx;
+  // converters/filters
+  AVFilterGraph* filter_graph;
+  AVFilterContext* buffersink_ctx;
+  AVFilterContext* buffersrc_ctx;
 
-	// video playback variables
-	QOpenGLFramebufferObject** fbo;
-	QOpenGLTexture* texture;
-	long texture_frame;
+  // video playback variables
+  QOpenGLFramebufferObject** fbo;
+  QOpenGLTexture* texture;
+  long texture_frame;
 
-	// audio playback variables
-	int64_t reverse_target;
-	int frame_sample_index;
-	qint64 audio_buffer_write;
-	bool audio_reset;
-	bool audio_just_reset;
-	long audio_target_frame;
+  // audio playback variables
+  int64_t reverse_target;
+  int frame_sample_index;
+  qint64 audio_buffer_write;
+  bool audio_reset;
+  bool audio_just_reset;
+  long audio_target_frame;
 private:
-    QVector<Marker> markers;
+  QVector<Marker> markers;
 };
 
 #endif // CLIP_H
