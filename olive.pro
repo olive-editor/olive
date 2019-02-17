@@ -149,7 +149,8 @@ SOURCES += \
     ui/menuhelper.cpp \
     oliveglobal.cpp \
     ui/focusfilter.cpp \
-    project/comboaction.cpp
+    project/comboaction.cpp \
+    ui/mediaiconservice.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -256,7 +257,8 @@ HEADERS += \
     oliveglobal.h \
     project/projectelements.h \
     ui/focusfilter.h \
-    project/comboaction.h
+    project/comboaction.h \
+    ui/mediaiconservice.h
 
 FORMS +=
 

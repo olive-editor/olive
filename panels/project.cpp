@@ -38,6 +38,7 @@
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
 #include "ui/menuhelper.h"
+#include "ui/mediaiconservice.h"
 #include "project/sourcescommon.h"
 #include "project/projectfilter.h"
 #include "debug.h"
@@ -63,9 +64,7 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 }
 
-#define MAXIMUM_RECENT_PROJECTS 10
-
-ProjectModel project_model;
+#define MAXIMUM_RECENT_PROJECTS 10 // FIXME: should be configurable
 
 QString autorecovery_filename;
 QStringList recent_projects;
@@ -86,7 +85,7 @@ Project::Project(QWidget *parent) :
 	sources_common = new SourcesCommon(this);
 
 	sorter = new ProjectFilter(this);
-	sorter->setSourceModel(&project_model);
+    sorter->setSourceModel(&olive::project_model);
 
 	// optional toolbar
 	toolbar_widget = new QWidget();
@@ -223,7 +222,7 @@ Project::Project(QWidget *parent) :
 	verticalLayout->addWidget(icon_view_container);
 
 	connect(directory_up, SIGNAL(clicked(bool)), this, SLOT(go_up_dir()));
-	connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
+    connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
 
 	setWindowTitle(tr("Project"));
 
@@ -247,8 +246,8 @@ QString Project::get_next_sequence_name(QString start) {
 			name += "0";
 		}
 		name += QString::number(n);
-		for (int i=0;i<project_model.childCount();i++) {
-			if (QString::compare(project_model.child(i)->get_name(), name, Qt::CaseInsensitive) == 0) {
+        for (int i=0;i<olive::project_model.childCount();i++) {
+            if (QString::compare(olive::project_model.child(i)->get_name(), name, Qt::CaseInsensitive) == 0) {
 				found = true;
 				n++;
 				break;
@@ -426,7 +425,7 @@ void Project::new_folder() {
     Media* m = create_folder_internal(nullptr);
     olive::UndoStack.push(new AddMediaCommand(m, get_selected_folder()));
 
-    QModelIndex index = project_model.create_index(m->row(), 0, m);
+    QModelIndex index = olive::project_model.create_index(m->row(), 0, m);
     switch (olive::CurrentConfig.project_view_type) {
     case PROJECT_VIEW_TREE:
         tree_view->edit(sorter->mapFromSource(index));
@@ -445,7 +444,7 @@ void Project::new_sequence() {
 
 Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
     if (parent == nullptr) {
-        parent = project_model.get_root();
+        parent = olive::project_model.get_root();
     }
 
     Media* item(new Media(parent));
@@ -455,8 +454,8 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
 		ca->append(new NewSequenceCommand(item, parent));
 		if (open) ca->append(new ChangeSequenceAction(s));
 	} else {
-		if (parent == project_model.get_root()) {
-			project_model.appendChild(parent, item);
+        if (parent == olive::project_model.get_root()) {
+            olive::project_model.appendChild(parent, item);
 		} else {
 			parent->appendChild(item);
 		}
@@ -534,8 +533,8 @@ void Project::delete_selected_media() {
     QVector<Media*> parents;
     QList<Media*> sequence_items;
     QList<Media*> all_top_level_items;
-	for (int i=0;i<project_model.childCount();i++) {
-		all_top_level_items.append(project_model.child(i));
+    for (int i=0;i<olive::project_model.childCount();i++) {
+        all_top_level_items.append(olive::project_model.child(i));
 	}
 	get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
 	if (sequence_items.size() > 0) {
@@ -665,15 +664,11 @@ void Project::delete_selected_media() {
 }
 
 void Project::start_preview_generator(Media* item, bool replacing) {
-	// set up throbber animation
-	MediaThrobber* throbber = new MediaThrobber(item);
-	throbber->moveToThread(QApplication::instance()->thread());
-	item->throbber = throbber;
-	QMetaObject::invokeMethod(throbber, "start", Qt::QueuedConnection);
+    // set up throbber animation
+    olive::media_icon_service->SetMediaIcon(item, ICON_TYPE_LOADING);
 
 	PreviewGenerator* pg = new PreviewGenerator(item, item->to_footage(), replacing);
-	item->to_footage()->preview_gen = pg;
-	connect(pg, SIGNAL(set_icon(int, bool)), throbber, SLOT(stop(int, bool)));
+    item->to_footage()->preview_gen = pg;
 	pg->start(QThread::LowPriority);
 }
 
@@ -710,7 +705,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 			if (create_undo_action) {
 				ca->append(new AddMediaCommand(folder, parent));
 			} else {
-				project_model.appendChild(parent, folder);
+                olive::project_model.appendChild(parent, folder);
 			}
 
 			imported = true;
@@ -853,9 +848,9 @@ Media* Project::get_selected_folder() {
 }
 
 bool Project::reveal_media(Media *media, QModelIndex parent) {
-	for (int i=0;i<project_model.rowCount(parent);i++) {
-		const QModelIndex& item = project_model.index(i, 0, parent);
-        Media* m = project_model.getItem(item);
+    for (int i=0;i<olive::project_model.rowCount(parent);i++) {
+        const QModelIndex& item = olive::project_model.index(i, 0, parent);
+        Media* m = olive::project_model.getItem(item);
 
 		if (m->get_type() == MEDIA_TYPE_FOLDER) {
 
@@ -963,7 +958,7 @@ void Project::clear() {
 	}
 
 	// delete everything else
-	project_model.clear();
+    olive::project_model.clear();
 
     // update tree view (sometimes this doesn't seem to update reliably)
     tree_view->update();
@@ -992,9 +987,9 @@ void save_marker(QXmlStreamWriter& stream, const Marker& m) {
 }
 
 void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
-	for (int i=0;i<project_model.rowCount(parent);i++) {
-		const QModelIndex& item = project_model.index(i, 0, parent);
-        Media* m = project_model.getItem(item);
+    for (int i=0;i<olive::project_model.rowCount(parent);i++) {
+        const QModelIndex& item = olive::project_model.index(i, 0, parent);
+        Media* m = olive::project_model.getItem(item);
 
 		if (type == m->get_type()) {
 			if (m->get_type() == MEDIA_TYPE_FOLDER) {
@@ -1009,7 +1004,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					if (!item.parent().isValid()) {
 						stream.writeAttribute("parent", "0");
 					} else {
-						stream.writeAttribute("parent", QString::number(project_model.getItem(item.parent())->temp_id));
+                        stream.writeAttribute("parent", QString::number(olive::project_model.getItem(item.parent())->temp_id));
 					}
 					stream.writeEndElement();
 				}
@@ -1308,8 +1303,8 @@ void Project::add_recent_project(QString url) {
 }
 
 void Project::list_all_sequences_worker(QVector<Media*>* list, Media* parent) {
-	for (int i=0;i<project_model.childCount(parent);i++) {
-        Media* item = project_model.child(i, parent);
+    for (int i=0;i<olive::project_model.childCount(parent);i++) {
+        Media* item = olive::project_model.child(i, parent);
 		switch (item->get_type()) {
 		case MEDIA_TYPE_SEQUENCE:
 			list->append(item);
@@ -1332,59 +1327,4 @@ QModelIndexList Project::get_current_selected() {
         return tree_view->selectionModel()->selectedRows();
 	}
     return icon_view->selectionModel()->selectedIndexes();
-}
-
-#define THROBBER_LIMIT 20
-#define THROBBER_SIZE 50
-
-MediaThrobber::MediaThrobber(Media *i) : pixmap(":/icons/throbber.png"), animation(0), item(i), animator(nullptr) {}
-
-void MediaThrobber::start() {
-	// set up throbber
-	animation_update();
-	animator = new QTimer(this);
-	animator->setInterval(20);
-	connect(animator, SIGNAL(timeout()), this, SLOT(animation_update()));
-	animator->start();
-}
-
-void MediaThrobber::animation_update() {
-	if (animation == THROBBER_LIMIT) {
-		animation = 0;
-	}
-	project_model.set_icon(item, QIcon(pixmap.copy(THROBBER_SIZE*animation, 0, THROBBER_SIZE, THROBBER_SIZE)));
-	animation++;
-}
-
-void MediaThrobber::stop(int icon_type, bool replace) {
-	if (animator != nullptr) {
-		animator->stop();
-		delete animator;
-	}
-
-	switch (icon_type) {
-	case ICON_TYPE_VIDEO: project_model.set_icon(item, QIcon(":/icons/videosource.png")); break;
-	case ICON_TYPE_AUDIO: project_model.set_icon(item, QIcon(":/icons/audiosource.png")); break;
-	case ICON_TYPE_IMAGE: project_model.set_icon(item, QIcon(":/icons/imagesource.png")); break;
-	case ICON_TYPE_ERROR: project_model.set_icon(item, QIcon(":/icons/error.png")); break;
-	}
-
-	// refresh all clips
-    QVector<Media*> sequences = panel_project->list_all_project_sequences();
-	for (int i=0;i<sequences.size();i++) {
-        SequencePtr s = sequences.at(i)->to_sequence();
-		for (int j=0;j<s->clips.size();j++) {
-            const ClipPtr& c = s->clips.at(j);
-			if (c != nullptr) {
-				c->refresh();
-			}
-		}
-	}
-
-	// redraw clips
-	update_ui(replace);
-
-    panel_project->tree_view->viewport()->update();
-	item->throbber = nullptr;
-	deleteLater();
 }

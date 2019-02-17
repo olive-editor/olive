@@ -244,8 +244,8 @@ void TimelineWidget::rename_clip() {
 void TimelineWidget::open_sequence_properties() {
 	QList<Media*> sequence_items;
 	QList<Media*> all_top_level_items;
-	for (int i=0;i<project_model.childCount();i++) {
-		all_top_level_items.append(project_model.child(i));
+    for (int i=0;i<olive::project_model.childCount();i++) {
+        all_top_level_items.append(olive::project_model.child(i));
 	}
 	panel_project->get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
 	for (int i=0;i<sequence_items.size();i++) {

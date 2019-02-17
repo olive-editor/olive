@@ -24,6 +24,7 @@
 #include "debug.h"
 
 #include "oliveglobal.h"
+#include "ui/mediaiconservice.h"
 
 #include "io/config.h"
 
@@ -108,6 +109,8 @@ int main(int argc, char *argv[]) {
 
 	QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icons/olive64.png"));
+
+    olive::media_icon_service = std::unique_ptr<MediaIconService>(new MediaIconService());
 
     QCoreApplication::setOrganizationName("olivevideoeditor.org");
     QCoreApplication::setOrganizationDomain("olivevideoeditor.org");

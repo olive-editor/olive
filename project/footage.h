@@ -40,7 +40,6 @@ enum VideoInterlacingMode {
 class Sequence;
 class Clip;
 class PreviewGenerator;
-class MediaThrobber;
 
 struct FootageStream {
 	int file_index;

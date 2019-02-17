@@ -39,8 +39,6 @@ using SequencePtr = std::shared_ptr<Sequence>;
 
 using VoidPtr = std::shared_ptr<void>;
 
-class MediaThrobber;
-
 class Media
 {
 public:
@@ -58,7 +56,6 @@ public:
     int get_type();
     const QString& get_name();
     void set_name(const QString& n);
-    MediaThrobber* throbber;
 
 	double get_frame_rate(int stream = -1);
 	int get_sampling_rate(int stream = -1);

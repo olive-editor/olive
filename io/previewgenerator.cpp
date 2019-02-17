@@ -20,6 +20,7 @@
 
 #include "previewgenerator.h"
 
+#include "ui/mediaiconservice.h"
 #include "project/media.h"
 #include "project/footage.h"
 #include "panels/viewer.h"
@@ -189,12 +190,12 @@ void PreviewGenerator::finalize_media() {
 	footage->ready = true;
 
 	if (!cancelled) {
-		if (footage->video_tracks.size() == 0) {
-			emit set_icon(ICON_TYPE_AUDIO, replace);
+        if (footage->video_tracks.size() == 0) {
+            olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_AUDIO);
 		} else if (contains_still_image) {
-			emit set_icon(ICON_TYPE_IMAGE, replace);
+            olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_IMAGE);
 		} else {
-			emit set_icon(ICON_TYPE_VIDEO, replace);
+            olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_VIDEO);
 		}
 
 		/*if (!contains_still_image || media->audio_tracks.size() > 0) {
@@ -575,7 +576,7 @@ void PreviewGenerator::run() {
     if (!cancelled) {
         if (error) {
             media->update_tooltip(errorStr);
-            emit set_icon(ICON_TYPE_ERROR, replace);
+            olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_ERROR);
             footage->invalid = true;
             footage->ready_lock.unlock();
         } else {

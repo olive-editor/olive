@@ -60,4 +60,8 @@ private:
     Media* root_item;
 };
 
+namespace olive {
+    extern ProjectModel project_model;
+}
+
 #endif // PROJECTMODEL_H

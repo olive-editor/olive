@@ -44,7 +44,6 @@
 
 extern QString autorecovery_filename;
 extern QStringList recent_projects;
-extern ProjectModel project_model;
 
 SequencePtr create_sequence_from_media(QVector<Media *> &media_list);
 
@@ -120,22 +119,6 @@ private slots:
 	void set_up_dir_enabled();
 	void go_up_dir();
     void make_new_menu();
-};
-
-class MediaThrobber : public QObject {
-	Q_OBJECT
-public:
-    MediaThrobber(Media*);
-public slots:
-	void start();
-	void stop(int, bool replace);
-private slots:
-	void animation_update();
-private:
-	QPixmap pixmap;
-	int animation;
-    Media* item;
-	QTimer* animator;
 };
 
 #endif // PROJECT_H

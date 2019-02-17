@@ -25,13 +25,6 @@
 #include <QSemaphore>
 #include <QDir>
 
-enum IconType {
-	ICON_TYPE_VIDEO,
-	ICON_TYPE_AUDIO,
-	ICON_TYPE_IMAGE,
-	ICON_TYPE_ERROR
-};
-
 #include "project/footage.h"
 #include "project/media.h"
 
@@ -48,9 +41,7 @@ class PreviewGenerator : public QThread
 public:
     PreviewGenerator(Media*, FootagePtr, bool);
 	void run();
-	void cancel();
-signals:
-	void set_icon(int, bool);
+    void cancel();
 private:
 	void parse_media();
 	bool retrieve_preview(const QString &hash);

@@ -67,7 +67,7 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media* old_media
 
 	layout->addLayout(buttons);
 
-	tree->setModel(&project_model);
+	tree->setModel(&olive::project_model);
 }
 
 void ReplaceClipMediaDialog::replace() {

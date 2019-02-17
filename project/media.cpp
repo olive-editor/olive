@@ -61,8 +61,7 @@ QString get_channel_layout_name(int channels, uint64_t layout) {
 }
 
 Media::Media(Media* iparent) :
-	parent(iparent),
-	throbber(nullptr),
+    parent(iparent),
 	root(false),
 	type(-1)
 {}
@@ -71,7 +70,6 @@ Media::~Media() {
     for (int i=0;i<children.size();i++) {
         delete children.at(i);
     }
-	delete throbber;
 }
 
 FootagePtr Media::to_footage() {

@@ -357,7 +357,7 @@ NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) {
     parent = iparent;
     done = false;
 
-	if (parent == nullptr) parent = project_model.get_root();
+	if (parent == nullptr) parent = olive::project_model.get_root();
 }
 
 NewSequenceCommand::~NewSequenceCommand() {
@@ -365,13 +365,13 @@ NewSequenceCommand::~NewSequenceCommand() {
 }
 
 void NewSequenceCommand::doUndo() {
-	project_model.removeChild(parent, seq);
+	olive::project_model.removeChild(parent, seq);
 
     done = false;
 }
 
 void NewSequenceCommand::doRedo() {
-	project_model.appendChild(parent, seq);
+	olive::project_model.appendChild(parent, seq);
 
     done = true;
 }
@@ -389,13 +389,13 @@ AddMediaCommand::~AddMediaCommand() {
 }
 
 void AddMediaCommand::doUndo() {
-	project_model.removeChild(parent, item);
+	olive::project_model.removeChild(parent, item);
 	done = false;
     
 }
 
 void AddMediaCommand::doRedo() {
-	project_model.appendChild(parent, item);
+	olive::project_model.appendChild(parent, item);
 
 	done = true;
 }
@@ -412,14 +412,14 @@ DeleteMediaCommand::~DeleteMediaCommand() {
 }
 
 void DeleteMediaCommand::doUndo() {
-	project_model.appendChild(parent, item);
+	olive::project_model.appendChild(parent, item);
 
     
 	done = false;
 }
 
 void DeleteMediaCommand::doRedo() {
-	project_model.removeChild(parent, item);
+	olive::project_model.removeChild(parent, item);
 
 	done = true;
 }
@@ -641,18 +641,18 @@ MediaMove::MediaMove() {}
 
 void MediaMove::doUndo() {
 	for (int i=0;i<items.size();i++) {
-		project_model.moveChild(items.at(i), froms.at(i));
+		olive::project_model.moveChild(items.at(i), froms.at(i));
 	}
     
 }
 
 void MediaMove::doRedo() {
-	if (to == nullptr) to = project_model.get_root();
+	if (to == nullptr) to = olive::project_model.get_root();
 	froms.resize(items.size());
 	for (int i=0;i<items.size();i++) {
         Media* parent = items.at(i)->parentItem();
 		froms[i] = parent;
-		project_model.moveChild(items.at(i), to);
+		olive::project_model.moveChild(items.at(i), to);
 	}
 }
 
