@@ -24,13 +24,12 @@
 
 #include "debug.h"
 
-Sequence::Sequence() :
-	playhead(0),
-	using_workarea(false),
-	workarea_in(0),
-	workarea_out(0),
-	wrapper_sequence(false)
-{
+Sequence::Sequence() {
+    playhead = 0;
+    using_workarea = false;
+    workarea_in = 0;
+    workarea_out = 0;
+    wrapper_sequence = false;
 }
 
 Sequence::~Sequence() {}

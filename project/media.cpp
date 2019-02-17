@@ -60,11 +60,11 @@ QString get_channel_layout_name(int channels, uint64_t layout) {
 	}
 }
 
-Media::Media(Media* iparent) :
-    parent(iparent),
-	root(false),
-	type(-1)
-{}
+Media::Media(Media* iparent) {
+    parent = iparent;
+    root = false;
+    type = -1;
+}
 
 Media::~Media() {
     for (int i=0;i<children.size();i++) {
