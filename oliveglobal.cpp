@@ -119,13 +119,16 @@ void OliveGlobal::load_translation_from_config() {
         olive::CurrentConfig.language_file :
         olive::CurrentRuntimeConfig.external_translation_file;
 
+  // clear runtime language file so if the user sets a different language, we won't load it next time
+  olive::CurrentRuntimeConfig.external_translation_file.clear();
+
+  // remove current translation if there is one
+  QApplication::removeTranslator(translator.get());
+
   if (!language_file.isEmpty()) {
 
     // translation files are stored relative to app path (see GitHub issue #454)
     QString full_language_path = QDir(get_app_path()).filePath(language_file);
-
-    // remove translation
-    QApplication::removeTranslator(translator.get());
 
     // load translation file
     if (QFileInfo::exists(full_language_path)

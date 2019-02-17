@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QMutex>
 
 #include "project/media.h"
 
@@ -49,6 +50,7 @@ private:
     QVector<Media*> throbber_items_;
     QTimer throbber_animator_;
     QPixmap throbber_pixmap_;
+    QMutex throbber_lock_;
 };
 
 namespace olive {
