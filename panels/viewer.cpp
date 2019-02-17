@@ -56,7 +56,7 @@ extern "C" {
 #include <QPushButton>
 
 Viewer::Viewer(QWidget *parent) :
-	QDockWidget(parent),
+  Panel(parent),
 	playing(false),
 	just_played(false),
 	media(nullptr),
@@ -98,6 +98,10 @@ Viewer::Viewer(QWidget *parent) :
 }
 
 Viewer::~Viewer() {}
+
+void Viewer::Retranslate() {
+  update_window_title();
+}
 
 bool Viewer::is_focused() {
 	return headers->hasFocus()

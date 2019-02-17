@@ -52,15 +52,13 @@
 #include "debug.h"
 
 EffectControls::EffectControls(QWidget *parent) :
-  QDockWidget(parent),
+  Panel(parent),
   multiple(false),
   zoom(1),
-  panel_name(tr("Effects: ")),
   mode(kTransitionNone)
 {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
   setup_ui();
+  Retranslate();
 
   clear_effects(false);
   headers->viewer = panel_sequence_viewer;
@@ -277,7 +275,7 @@ void EffectControls::clear_effects(bool clear_cache) {
   headers->setVisible(false);
   keyframeView->setEnabled(false);
   if (clear_cache) selected_clips.clear();
-  setWindowTitle(panel_name + "(none)");
+  UpdateTitle();
 }
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
@@ -296,6 +294,14 @@ void EffectControls::open_effect(QVBoxLayout* layout, EffectPtr e) {
   CollapsibleWidget* container = e->container;
   layout->addWidget(container);
   connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+}
+
+void EffectControls::UpdateTitle() {
+  if (selected_clips.empty()) {
+    setWindowTitle(panel_name + tr("(none)"));
+  } else {
+    setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name);
+  }
 }
 
 void EffectControls::setup_ui() {
@@ -344,27 +350,24 @@ void EffectControls::setup_ui() {
   veHeaderLayout->setSpacing(0);
   veHeaderLayout->setMargin(0);
 
-  QPushButton* btnAddVideoEffect = new QPushButton();
+  btnAddVideoEffect = new QPushButton();
   btnAddVideoEffect->setIcon(QIcon(":/icons/add-effect.png"));
-  btnAddVideoEffect->setToolTip(tr("Add Video Effect"));
   veHeaderLayout->addWidget(btnAddVideoEffect);
   connect(btnAddVideoEffect, SIGNAL(clicked(bool)), this, SLOT(video_effect_click()));
 
   veHeaderLayout->addStretch();
 
-  QLabel* lblVideoEffects = new QLabel();
+  lblVideoEffects = new QLabel();
   QFont font;
   font.setPointSize(9);
   lblVideoEffects->setFont(font);
   lblVideoEffects->setAlignment(Qt::AlignCenter);
-  lblVideoEffects->setText(tr("VIDEO EFFECTS"));
   veHeaderLayout->addWidget(lblVideoEffects);
 
   veHeaderLayout->addStretch();
 
-  QPushButton* btnAddVideoTransition = new QPushButton();
+  btnAddVideoTransition = new QPushButton();
   btnAddVideoTransition->setIcon(QIcon(":/icons/add-transition.png"));
-  btnAddVideoTransition->setToolTip(tr("Add Video Transition"));
   connect(btnAddVideoTransition, SIGNAL(clicked(bool)), this, SLOT(video_transition_click()));
   veHeaderLayout->addWidget(btnAddVideoTransition);
 
@@ -391,25 +394,22 @@ void EffectControls::setup_ui() {
   aeHeaderLayout->setSpacing(0);
   aeHeaderLayout->setMargin(0);
 
-  QPushButton* btnAddAudioEffect = new QPushButton();
+  btnAddAudioEffect = new QPushButton();
   btnAddAudioEffect->setIcon(QIcon(":/icons/add-effect.png"));
-  btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
   connect(btnAddAudioEffect, SIGNAL(clicked(bool)), this, SLOT(audio_effect_click()));
   aeHeaderLayout->addWidget(btnAddAudioEffect);
 
   aeHeaderLayout->addStretch();
 
-  QLabel* lblAudioEffects = new QLabel();
+  lblAudioEffects = new QLabel();
   lblAudioEffects->setFont(font);
   lblAudioEffects->setAlignment(Qt::AlignCenter);
-  lblAudioEffects->setText(tr("AUDIO EFFECTS"));
   aeHeaderLayout->addWidget(lblAudioEffects);
 
   aeHeaderLayout->addStretch();
 
-  QPushButton* btnAddAudioTransition = new QPushButton();
+  btnAddAudioTransition = new QPushButton();
   btnAddAudioTransition->setIcon(QIcon(":/icons/add-transition.png"));
-  btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
   connect(btnAddAudioTransition, SIGNAL(clicked(bool)), this, SLOT(audio_transition_click()));
   aeHeaderLayout->addWidget(btnAddAudioTransition);
 
@@ -426,7 +426,6 @@ void EffectControls::setup_ui() {
 
   lblMultipleClipsSelected = new QLabel();
   lblMultipleClipsSelected->setAlignment(Qt::AlignCenter);
-  lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
   effects_area_layout->addWidget(lblMultipleClipsSelected);
 
   effects_area_layout->addStretch();
@@ -481,6 +480,20 @@ void EffectControls::setup_ui() {
   setWidget(contents);
 }
 
+void EffectControls::Retranslate() {
+  panel_name = tr("Effects: ");
+
+  btnAddVideoEffect->setToolTip(tr("Add Video Effect"));
+  lblVideoEffects->setText(tr("VIDEO EFFECTS"));
+  btnAddVideoTransition->setToolTip(tr("Add Video Transition"));
+  btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
+  lblAudioEffects->setText(tr("AUDIO EFFECTS"));
+  btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
+  lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
+
+  UpdateTitle();
+}
+
 void EffectControls::update_scrollbar() {
   verticalScrollBar->setMaximum(qMax(0, effects_area->height() - keyframeView->height() - headers->height()));
   verticalScrollBar->setPageStep(verticalScrollBar->height());
@@ -525,13 +538,14 @@ void EffectControls::load_effects() {
       }
     }
     if (selected_clips.size() > 0) {
-      setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name);
       keyframeView->setEnabled(true);
       headers->setVisible(true);
 
       QTimer::singleShot(50, this, SLOT(queue_post_update()));
     }
   }
+
+  UpdateTitle();
 }
 
 void EffectControls::delete_effects() {

@@ -21,7 +21,6 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include <QDockWidget>
 #include <QTimer>
 #include <QIcon>
 #include <QLabel>
@@ -30,6 +29,7 @@
 #include "project/marker.h"
 #include "project/media.h"
 
+#include "ui/panel.h"
 #include "ui/viewerwidget.h"
 #include "ui/timelinewidget.h"
 #include "ui/timelineheader.h"
@@ -40,123 +40,127 @@ bool frame_rate_is_droppable(float rate);
 long timecode_to_frame(const QString& s, int view, double frame_rate);
 QString frame_to_timecode(long f, int view, double frame_rate);
 
-class Viewer : public QDockWidget
+class Viewer : public Panel
 {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit Viewer(QWidget *parent = nullptr);
-	~Viewer();
+  explicit Viewer(QWidget *parent = nullptr);
+  ~Viewer();
 
-	bool is_focused();
-	bool is_main_sequence();
-	void set_main_sequence();
-	void set_media(Media *m);
-	void compose();
-	void set_playpause_icon(bool play);
-	void update_playhead_timecode(long p);
-	void update_end_timecode();
-	void update_header_zoom();
-	void clear_in();
-	void clear_out();
-	void clear_inout_point();
-	void set_in_point();
-	void set_out_point();
-	void set_zoom(bool in);
-	void set_panel_name(const QString& n);
+  bool is_focused();
+  bool is_main_sequence();
+  void set_main_sequence();
+  void set_media(Media *m);
+  void compose();
+  void set_playpause_icon(bool play);
+  void update_playhead_timecode(long p);
+  void update_end_timecode();
+  void update_header_zoom();
+  void clear_in();
+  void clear_out();
+  void clear_inout_point();
+  void set_in_point();
+  void set_out_point();
+  void set_zoom(bool in);
+  void set_panel_name(const QString& n);
 
-	// playback functions
-	void seek(long p);
-	void play(bool in_to_out = false);
-	void pause();
-	bool playing;
-	long playhead_start;
-	qint64 start_msecs;
-	QTimer playback_updater;
-	bool just_played;
+  // playback functions
+  void seek(long p);
+  void play(bool in_to_out = false);
+  void pause();
+  bool playing;
+  long playhead_start;
+  qint64 start_msecs;
+  QTimer playback_updater;
+  bool just_played;
 
-	void cue_recording(long start, long end, int track);
-	void uncue_recording();
-	bool is_recording_cued();
-	long recording_start;
-	long recording_end;
-	int recording_track;
+  void cue_recording(long start, long end, int track);
+  void uncue_recording();
+  bool is_recording_cued();
+  long recording_start;
+  long recording_end;
+  int recording_track;
 
-	void reset_all_audio();
-	void update_parents(bool reload_fx = false);
+  void reset_all_audio();
+  void update_parents(bool reload_fx = false);
 
-	int get_playback_speed();
+  int get_playback_speed();
 
-	ViewerWidget* viewer_widget;
+  ViewerWidget* viewer_widget;
 
-	Media* media;
-    SequencePtr seq;
-	QVector<Marker>* marker_ref;
+  Media* media;
+  SequencePtr seq;
+  QVector<Marker>* marker_ref;
 
-	void set_marker();
+  void set_marker();
 
-	TimelineHeader* headers;
+  TimelineHeader* headers;
 
-	void resizeEvent(QResizeEvent *event);
+  void resizeEvent(QResizeEvent *event);
+
+protected:
+  virtual void Retranslate() override;
 
 public slots:
-	void play_wake();
-	void go_to_start();
-	void go_to_in();
-	void previous_frame();
-	void toggle_play();
-	void increase_speed();
-	void decrease_speed();
-	void next_frame();
-	void go_to_out();
-	void go_to_end();
-	void close_media();
-	void update_viewer();
+  void play_wake();
+  void go_to_start();
+  void go_to_in();
+  void previous_frame();
+  void toggle_play();
+  void increase_speed();
+  void decrease_speed();
+  void next_frame();
+  void go_to_out();
+  void go_to_end();
+  void close_media();
+  void update_viewer();
 
 private slots:
-	void update_playhead();
-	void timer_update();
-	void recording_flasher_update();
-	void resize_move(double d);
+  void update_playhead();
+  void timer_update();
+  void recording_flasher_update();
+  void resize_move(double d);
 
 private:
-	void update_window_title();
-	void clean_created_seq();
-    void set_sequence(bool main, SequencePtr s);
-	bool main_sequence;
-	bool created_sequence;
-	long cached_end_frame;
-	QString panel_name;
-	double minimum_zoom;
-	bool playing_in_to_out;
-	long last_playhead;
-	void set_zoom_value(double d);
-	void set_sb_max();
-	void set_playback_speed(int s);
 
-	long get_seq_in();
-	long get_seq_out();
+  void update_window_title();
+  void clean_created_seq();
+  void set_sequence(bool main, SequencePtr s);
+  bool main_sequence;
+  bool created_sequence;
+  long cached_end_frame;
+  QString panel_name;
+  double minimum_zoom;
+  bool playing_in_to_out;
+  long last_playhead;
+  void set_zoom_value(double d);
+  void set_sb_max();
+  void set_playback_speed(int s);
 
-	QIcon playIcon;
+  long get_seq_in();
+  long get_seq_out();
 
-	void setup_ui();
+  QIcon playIcon;
 
-	ResizableScrollBar* horizontal_bar;
-	ViewerContainer* viewer_container;
-	LabelSlider* current_timecode_slider;
-	QLabel* end_timecode;
+  void setup_ui();
 
-	QPushButton* go_to_start_button;
-	QPushButton* prev_frame_button;
-	QPushButton* play_button;
-	QPushButton* next_frame_button;
-	QPushButton* go_to_end_frame;
+  ResizableScrollBar* horizontal_bar;
+  ViewerContainer* viewer_container;
+  LabelSlider* current_timecode_slider;
+  QLabel* end_timecode;
 
-	bool cue_recording_internal;
-	QTimer recording_flasher;
+  QPushButton* go_to_start_button;
+  QPushButton* prev_frame_button;
+  QPushButton* play_button;
+  QPushButton* next_frame_button;
+  QPushButton* go_to_end_frame;
 
-	long previous_playhead;
-	int playback_speed;
+  bool cue_recording_internal;
+  QTimer recording_flasher;
+
+  long previous_playhead;
+  int playback_speed;
 };
 
 #endif // VIEWER_H

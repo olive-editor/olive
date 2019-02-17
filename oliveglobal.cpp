@@ -25,6 +25,7 @@
 #include "panels/panels.h"
 
 #include "io/path.h"
+#include "io/config.h"
 
 #include "playback/audio.h"
 
@@ -41,6 +42,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QAction>
+#include <QApplication>
 #include <QDebug>
 
 std::unique_ptr<OliveGlobal> olive::Global;
@@ -60,6 +62,9 @@ OliveGlobal::OliveGlobal() {
 
     // set default value
     enable_load_project_on_init = false;
+
+    // alloc QTranslator
+    translator = std::unique_ptr<QTranslator>(new QTranslator());
 }
 
 const QString &OliveGlobal::get_project_file_filter() {
@@ -106,7 +111,30 @@ void OliveGlobal::load_project_on_launch(const QString& s) {
 }
 
 QString OliveGlobal::get_recent_project_list_file() {
-    return get_data_dir().filePath("recents");
+  return get_data_dir().filePath("recents");
+}
+
+void OliveGlobal::load_translation_from_config() {
+  QString language_file = olive::CurrentRuntimeConfig.external_translation_file.isEmpty() ?
+        olive::CurrentConfig.language_file :
+        olive::CurrentRuntimeConfig.external_translation_file;
+
+  if (!language_file.isEmpty()) {
+
+    // translation files are stored relative to app path (see GitHub issue #454)
+    QString full_language_path = QDir(get_app_path()).filePath(language_file);
+
+    // remove translation
+    QApplication::removeTranslator(translator.get());
+
+    // load translation file
+    if (QFileInfo::exists(full_language_path)
+        && translator->load(full_language_path)) {
+      QApplication::installTranslator(translator.get());
+    } else {
+      qWarning() << "Failed to load translation file" << full_language_path << ". No language will be loaded.";
+    }
+  }
 }
 
 void OliveGlobal::new_project() {

@@ -25,6 +25,7 @@
 
 #include <QTimer>
 #include <QFile>
+#include <QTranslator>
 
 /**
  * @brief The Olive Global class
@@ -107,6 +108,11 @@ public:
      * @return The URL as a string
      */
     QString get_recent_project_list_file();
+
+    /**
+     * @brief (Re)load translation file from olive::config
+     */
+    void load_translation_from_config();
 
 public slots:
     /**
@@ -289,6 +295,11 @@ private:
      * @brief Internal variable set to **TRUE** by main() if a project file was set as an argument
      */
     bool enable_load_project_on_init;
+
+    /**
+     * @brief Internal translator object that interfaces with the currently loaded language file
+     */
+    std::unique_ptr<QTranslator> translator;
 
 
 private slots:
