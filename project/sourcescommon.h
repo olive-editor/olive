@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QVector>
 
+#include "project/footage.h"
+
 class Project;
 class QMouseEvent;
 class Media;
@@ -63,7 +65,7 @@ private:
 	QTimer rename_timer;
 
 	// we cache the selected footage items for open_create_proxy_dialog()
-	QVector<Footage*> cached_selected_footage;
+    QVector<FootagePtr> cached_selected_footage;
 };
 
 #endif // SOURCESCOMMON_H

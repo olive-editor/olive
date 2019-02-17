@@ -123,7 +123,7 @@ void Viewer::reset_all_audio() {
 	if (seq != nullptr) {
 		long last_frame = 0;
 		for (int i=0;i<seq->clips.size();i++) {
-			Clip* c = seq->clips.at(i);
+            ClipPtr c = seq->clips.at(i);
 			if (c != nullptr) {
 				c->reset_audio();
 				last_frame = qMax(last_frame, c->timeline_out);
@@ -438,9 +438,9 @@ void Viewer::pause() {
 			panel_project->process_file_list(file_list);
 
 			// add it to the sequence
-			Clip* c = new Clip(seq);
+            ClipPtr c = ClipPtr(new Clip(seq));
 			Media* m = panel_project->last_imported_media.at(0);
-			Footage* f = m->to_footage();
+            FootagePtr f = m->to_footage();
 
 			f->ready_lock.lock();
 
@@ -457,7 +457,7 @@ void Viewer::pause() {
 
 			f->ready_lock.unlock();
 
-			QVector<Clip*> add_clips;
+            QVector<ClipPtr> add_clips;
 			add_clips.append(c);
 			olive::UndoStack.push(new AddClipCommand(seq, add_clips)); // add clip
 		}
@@ -720,11 +720,11 @@ void Viewer::set_media(Media* m) {
 		switch (media->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
-			Footage* footage = media->to_footage();
+            FootagePtr footage = media->to_footage();
 
 			marker_ref = &footage->markers;
 
-			seq = new Sequence();
+            seq = SequencePtr(new Sequence());
 			created_sequence = true;
 			seq->wrapper_sequence = true;
 			seq->name = footage->name;
@@ -743,7 +743,7 @@ void Viewer::set_media(Media* m) {
 				seq->height = video_stream.video_height;
 				if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate * footage->speed;
 
-				Clip* c = new Clip(seq);
+                ClipPtr c = ClipPtr(new Clip(seq));
 				c->media = media;
 				c->media_stream = video_stream.file_index;
 				c->timeline_in = 0;
@@ -762,7 +762,7 @@ void Viewer::set_media(Media* m) {
 				const FootageStream& audio_stream = footage->audio_tracks.at(0);
 				seq->audio_frequency = audio_stream.audio_frequency;
 
-				Clip* c = new Clip(seq);
+                ClipPtr c = ClipPtr(new Clip(seq));
 				c->media = media;
 				c->media_stream = audio_stream.file_index;
 				c->timeline_in = 0;
@@ -848,13 +848,12 @@ void Viewer::clean_created_seq() {
 			undo_stack.command(i)
 		}*/
 
-		delete seq;
-		seq = nullptr;
+        seq.reset();
 		created_sequence = false;
 	}
 }
 
-void Viewer::set_sequence(bool main, Sequence *s) {
+void Viewer::set_sequence(bool main, SequencePtr s) {
 	pause();
 
 	reset_all_audio();

@@ -99,8 +99,8 @@ QModelIndex ProjectModel::index(int row, int column, const QModelIndex &parent) 
 		return QModelIndex();
 }
 
-QModelIndex ProjectModel::create_index(int arow, int acolumn, void* aid) {
-	return createIndex(arow, acolumn, aid);
+QModelIndex ProjectModel::create_index(int arow, int acolumn, void* adata) {
+    return createIndex(arow, acolumn, adata);
 }
 
 QModelIndex ProjectModel::parent(const QModelIndex &index) const {

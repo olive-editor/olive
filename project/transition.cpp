@@ -41,7 +41,7 @@
 #include <QMessageBox>
 #include <QCoreApplication>
 
-Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) :
+Transition::Transition(ClipPtr c, ClipPtr s, const EffectMeta* em) :
 	Effect(c, em), secondary_clip(s),
 	length(30)
 {
@@ -55,7 +55,7 @@ Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) :
 	length_ui_ele->set_frame_rate(parent_clip->sequence == nullptr ? parent_clip->cached_fr : parent_clip->sequence->frame_rate);
 }
 
-int Transition::copy(Clip *c, Clip* s) {
+int Transition::copy(ClipPtr c, ClipPtr s) {
 	return create_transition(c, s, meta, length);
 }
 
@@ -80,18 +80,18 @@ void Transition::set_length_from_slider() {
 	update_ui(false);
 }
 
-Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
+TransitionPtr get_transition_from_meta(ClipPtr c, ClipPtr s, const EffectMeta* em) {
 	if (!em->filename.isEmpty()) {
 		// load effect from file
-		return new Transition(c, s, em);
+        return TransitionPtr(new Transition(c, s, em));
 	} else if (em->internal >= 0 && em->internal < TRANSITION_INTERNAL_COUNT) {
 		// must be an internal effect
 		switch (em->internal) {
-		case TRANSITION_INTERNAL_CROSSDISSOLVE: return new CrossDissolveTransition(c, s, em);
-		case TRANSITION_INTERNAL_LINEARFADE: return new LinearFadeTransition(c, s, em);
-		case TRANSITION_INTERNAL_EXPONENTIALFADE: return new ExponentialFadeTransition(c, s, em);
-		case TRANSITION_INTERNAL_LOGARITHMICFADE: return new LogarithmicFadeTransition(c, s, em);
-		case TRANSITION_INTERNAL_CUBE: return new CubeTransition(c, s, em);
+        case TRANSITION_INTERNAL_CROSSDISSOLVE: return TransitionPtr(new CrossDissolveTransition(c, s, em));
+        case TRANSITION_INTERNAL_LINEARFADE: return TransitionPtr(new LinearFadeTransition(c, s, em));
+        case TRANSITION_INTERNAL_EXPONENTIALFADE: return TransitionPtr(new ExponentialFadeTransition(c, s, em));
+        case TRANSITION_INTERNAL_LOGARITHMICFADE: return TransitionPtr(new LogarithmicFadeTransition(c, s, em));
+        case TRANSITION_INTERNAL_CUBE: return TransitionPtr(new CubeTransition(c, s, em));
 		}
 	} else {
 		qCritical() << "Invalid transition data";
@@ -103,11 +103,11 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
 	return nullptr;
 }
 
-int create_transition(Clip* c, Clip* s, const EffectMeta* em, long length) {
-	Transition* t = get_transition_from_meta(c, s, em);
+int create_transition(ClipPtr c, ClipPtr s, const EffectMeta* em, long length) {
+    TransitionPtr t(get_transition_from_meta(c, s, em));
 	if (t != nullptr) {
 		if (length >= 0) t->set_length(length);
-		QVector<Transition*>& transition_list = (c->sequence == nullptr) ? clipboard_transitions : c->sequence->transitions;
+        QVector<TransitionPtr>& transition_list = (c->sequence == nullptr) ? clipboard_transitions : c->sequence->transitions;
 		transition_list.append(t);
 		return transition_list.size() - 1;
 	}

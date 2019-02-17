@@ -38,7 +38,7 @@
 
 QSemaphore sem(5); // only 5 preview generators can run at one time
 
-PreviewGenerator::PreviewGenerator(Media* i, Footage* m, bool r) :
+PreviewGenerator::PreviewGenerator(Media* i, FootagePtr m, bool r) :
 	QThread(nullptr),
 	fmt_ctx(nullptr),
 	media(i),
@@ -48,8 +48,7 @@ PreviewGenerator::PreviewGenerator(Media* i, Footage* m, bool r) :
 	replace(r),
 	cancelled(false)
 {
-	data_path = get_data_path() + "/previews";
-	QDir data_dir(data_path);
+    data_dir = QDir(get_data_dir().filePath("previews"));
 	if (!data_dir.exists()) {
 		data_dir.mkpath(".");
 	}
@@ -506,11 +505,11 @@ void PreviewGenerator::generate_waveform() {
 }
 
 QString PreviewGenerator::get_thumbnail_path(const QString& hash, const FootageStream& ms) {
-	return data_path + "/" + hash + "t" + QString::number(ms.file_index);
+    return data_dir.filePath(QString("%1t%2").arg(hash, QString::number(ms.file_index)));
 }
 
 QString PreviewGenerator::get_waveform_path(const QString& hash, const FootageStream& ms) {
-	return data_path + "/" + hash + "w" + QString::number(ms.file_index);
+    return data_dir.filePath(QString("%1w%2").arg(hash, QString::number(ms.file_index)));
 }
 
 void PreviewGenerator::run() {

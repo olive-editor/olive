@@ -48,7 +48,7 @@ void draw_marker(QPainter &p, int x, int y, int bottom, bool selected) {
 	p.drawPolygon(points, 5);
 }
 
-void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
+void set_marker_internal(SequencePtr seq, const QVector<int>& clips) {
 	// if clips is empty, the marker is being added to the sequence
 
 	// add_marker is used to determine whether we're adding a marker, depending on whether the user input a marker name
@@ -78,7 +78,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 			// add a marker action for each clip
 			foreach (int i, clips) {
-				Clip* c = seq->clips.at(i);
+                ClipPtr c = seq->clips.at(i);
 				ca->append(new AddMarkerAction(&c->get_markers(),
 											   seq->playhead - c->timeline_in + c->clip_in,
 											   marker_name));
@@ -119,7 +119,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 	}
 }
 
-void set_marker_internal(Sequence* seq) {
+void set_marker_internal(SequencePtr seq) {
 	// create empty clip array
 	QVector<int> clips;
 

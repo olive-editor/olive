@@ -22,6 +22,7 @@
 
 #include "oliveglobal.h"
 
+#include "panels.h"
 #include "playback/playback.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
@@ -257,10 +258,10 @@ QString Project::get_next_sequence_name(QString start) {
 	return name;
 }
 
-Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
-	Sequence* s = new Sequence();
+SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
+    SequencePtr s(new Sequence());
 
-	s->name = panel_project->get_next_sequence_name();
+    s->name = panel_project->get_next_sequence_name();
 
 	// shitty hardcoded default values
 	s->width = 1920;
@@ -272,11 +273,11 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 	bool got_video_values = false;
 	bool got_audio_values = false;
 	for (int i=0;i<media_list.size();i++) {
-		Media* media = media_list.at(i);
+        Media* media = media_list.at(i);
 		switch (media->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
-			Footage* m = media->to_footage();
+            FootagePtr m = media->to_footage();
 			if (m->ready) {
 				if (!got_video_values) {
 					for (int j=0;j<m->video_tracks.size();j++) {
@@ -304,7 +305,7 @@ Sequence* create_sequence_from_media(QVector<Media*>& media_list) {
 			break;
 		case MEDIA_TYPE_SEQUENCE:
 		{
-			Sequence* seq = media->to_sequence();
+            SequencePtr seq = media->to_sequence();
 			s->width = seq->width;
 			s->height = seq->height;
 			s->frame_rate = seq->frame_rate;
@@ -327,7 +328,7 @@ void Project::duplicate_selected() {
 	bool duped = false;
 	ComboAction* ca = new ComboAction();
 	for (int j=0;j<items.size();j++) {
-		Media* i = item_to_media(items.at(j));
+        Media* i = item_to_media(items.at(j));
 		if (i->get_type() == MEDIA_TYPE_SEQUENCE) {
             create_sequence_internal(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
 			duped = true;
@@ -343,7 +344,7 @@ void Project::duplicate_selected() {
 void Project::replace_selected_file() {
 	QModelIndexList selected_items = get_current_selected();
 	if (selected_items.size() == 1) {
-		Media* item = item_to_media(selected_items.at(0));
+        Media* item = item_to_media(selected_items.at(0));
 		if (item->get_type() == MEDIA_TYPE_FOOTAGE) {
 			replace_media(item, nullptr);
 		}
@@ -373,7 +374,7 @@ void Project::replace_clip_media() {
 	} else {
 		QModelIndexList selected_items = get_current_selected();
 		if (selected_items.size() == 1) {
-			Media* item = item_to_media(selected_items.at(0));
+            Media* item = item_to_media(selected_items.at(0));
             if (item->get_type() == MEDIA_TYPE_SEQUENCE && olive::ActiveSequence == item->to_sequence()) {
 				QMessageBox::critical(this,
 									  tr("Active sequence selected"),
@@ -390,7 +391,7 @@ void Project::replace_clip_media() {
 void Project::open_properties() {
 	QModelIndexList selected_items = get_current_selected();
 	if (selected_items.size() == 1) {
-		Media* item = item_to_media(selected_items.at(0));
+        Media* item = item_to_media(selected_items.at(0));
 		switch (item->get_type()) {
 		case MEDIA_TYPE_FOOTAGE:
 		{
@@ -438,13 +439,16 @@ void Project::new_folder() {
 
 void Project::new_sequence() {
     NewSequenceDialog nsd(this);
-    nsd.set_sequence_name(panel_project->get_next_sequence_name());
+    nsd.set_sequence_name(get_next_sequence_name());
     nsd.exec();
 }
 
-Media* Project::create_sequence_internal(ComboAction *ca, Sequence *s, bool open, Media* parent) {
-	if (parent == nullptr) parent = project_model.get_root();
-	Media* item = new Media(parent);
+Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
+    if (parent == nullptr) {
+        parent = project_model.get_root();
+    }
+
+    Media* item(new Media(parent));
 	item->set_sequence(s);
 
 	if (ca != nullptr) {
@@ -466,7 +470,7 @@ QString Project::get_file_name_from_path(const QString& path) {
 }
 
 /*Media* Project::new_item() {
-	Media* item = new Media(0);
+    Media* item = new Media(0);
 	//item->setFlags(item->flags() | Qt::ItemIsEditable);
 	return item;
 }*/
@@ -476,22 +480,22 @@ bool Project::is_focused() {
 }
 
 Media* Project::create_folder_internal(QString name) {
-	Media* item = new Media(nullptr);
+    Media* item = new Media(nullptr);
 	item->set_folder();
 	item->set_name(name);
 	return item;
 }
 
 Media *Project::item_to_media(const QModelIndex &index) {
-	return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
+    return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
 //    return static_cast<Media*>(index.internalPointer());
 }
 
 void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list, int search_type) {
 	for (int i=0;i<items.size();i++) {
-		Media* item = items.at(i);
+        Media* item = items.at(i);
 		if (item->get_type() == MEDIA_TYPE_FOLDER) {
-			QList<Media*> children;
+            QList<Media*> children;
 			for (int j=0;j<item->childCount();j++) {
 				children.append(item->child(j));
 			}
@@ -505,8 +509,8 @@ void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list
 bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
 	int delete_count = 0;
 	if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
-		for (int i=0;i<clipboard.size();i++) {
-			Clip* c = static_cast<Clip*>(clipboard.at(i));
+        for (int i=0;i<clipboard.size();i++) {
+            ClipPtr c = std::static_pointer_cast<Clip>(clipboard.at(i));
 			if (c->media == m) {
 				ca->append(new RemoveClipsFromClipboard(i-delete_count));
 				delete_count++;
@@ -519,7 +523,7 @@ bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
 void Project::delete_selected_media() {
 	ComboAction* ca = new ComboAction();
 	QModelIndexList selected_items = get_current_selected();
-	QList<Media*> items;
+    QList<Media*> items;
 	for (int i=0;i<selected_items.size();i++) {
 		items.append(item_to_media(selected_items.at(i)));
 	}
@@ -527,25 +531,25 @@ void Project::delete_selected_media() {
 	bool redraw = false;
 
 	// check if media is in use
-	QVector<Media*> parents;
-	QList<Media*> sequence_items;
-	QList<Media*> all_top_level_items;
+    QVector<Media*> parents;
+    QList<Media*> sequence_items;
+    QList<Media*> all_top_level_items;
 	for (int i=0;i<project_model.childCount();i++) {
 		all_top_level_items.append(project_model.child(i));
 	}
 	get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
 	if (sequence_items.size() > 0) {
-		QList<Media*> media_items;
+        QList<Media*> media_items;
 		get_all_media_from_table(items, media_items, MEDIA_TYPE_FOOTAGE);
 		for (int i=0;i<media_items.size();i++) {
-			Media* item = media_items.at(i);
-			Footage* media = item->to_footage();
+            Media* item = media_items.at(i);
+            FootagePtr media = item->to_footage();
 			bool confirm_delete = false;
 			for (int j=0;j<sequence_items.size();j++) {
-				Sequence* s = sequence_items.at(j)->to_sequence();
+                SequencePtr s = sequence_items.at(j)->to_sequence();
 				for (int k=0;k<s->clips.size();k++) {
-					Clip* c = s->clips.at(k);
-					if (c != nullptr && c->media == item) {
+                    ClipPtr c = s->clips.at(k);
+                    if (c != nullptr && c->media == item) {
 						if (!confirm_delete) {
 							// we found a reference, so we know we'll need to ask if the user wants to delete it
 							QMessageBox confirm(this);
@@ -562,13 +566,13 @@ void Project::delete_selected_media() {
 								redraw = true;
 							} else if (confirm.clickedButton() == skip_button) {
 								// remove media item and any folders containing it from the remove list
-								Media* parent = item;
+                                Media* parent = item;
 								while (parent != nullptr) {
 									parents.append(parent);
 
 									// re-add item's siblings
 									for (int m=0;m<parent->childCount();m++) {
-										Media* child = parent->child(m);
+                                        Media* child = parent->child(m);
 										bool found = false;
 										for (int n=0;n<items.size();n++) {
 											if (items.at(n) == child) {
@@ -628,7 +632,7 @@ void Project::delete_selected_media() {
 			if (items.at(i)->get_type() == MEDIA_TYPE_SEQUENCE) {
 				redraw = true;
 
-				Sequence* s = items.at(i)->to_sequence();
+                SequencePtr s = items.at(i)->to_sequence();
 
                 if (s == olive::ActiveSequence) {
 					ca->append(new ChangeSequenceAction(nullptr));
@@ -640,8 +644,8 @@ void Project::delete_selected_media() {
 			} else if (items.at(i)->get_type() == MEDIA_TYPE_FOOTAGE) {
 				if (panel_footage_viewer->seq != nullptr) {
 					for (int j=0;j<panel_footage_viewer->seq->clips.size();j++) {
-						Clip* c = panel_footage_viewer->seq->clips.at(j);
-						if (c != nullptr && c->media == items.at(i)) {
+                        ClipPtr c = panel_footage_viewer->seq->clips.at(j);
+                        if (c != nullptr && c->media == items.at(i)) {
 							panel_footage_viewer->set_media(nullptr);
 							break;
 						}
@@ -689,7 +693,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 	for (int i=0;i<files.size();i++) {
 		if (QFileInfo(files.at(i)).isDir()) {
 			QString folder_name = get_file_name_from_path(files.at(i));
-			Media* folder = create_folder_internal(folder_name);
+            Media* folder = create_folder_internal(folder_name);
 
 			QDir directory(files.at(i));
 			directory.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
@@ -714,7 +718,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 			QString file(files.at(i));
 			bool skip = false;
 
-			/* Heuristic to determine whether file is part of an image sequence */
+            /* Heuristic to determine whether file is part of an image sequence */
 
 			// check file extension (assume it's not a
 
@@ -791,8 +795,8 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 			}
 
 			if (!skip) {
-				Media* item;
-				Footage* m;
+                Media* item;
+                FootagePtr m;
 
 				if (replace != nullptr) {
 					item = replace;
@@ -800,7 +804,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 					m->reset();
 				} else {
 					item = new Media(parent);
-					m = new Footage();
+                    m = FootagePtr(new Footage());
 				}
 
 				m->using_inout = false;
@@ -842,7 +846,7 @@ Media* Project::get_selected_folder() {
 	// if one item is selected and it's a folder, return it
 	QModelIndexList selected_items = get_current_selected();
 	if (selected_items.size() == 1) {
-		Media* m = item_to_media(selected_items.at(0));
+        Media* m = item_to_media(selected_items.at(0));
 		if (m->get_type() == MEDIA_TYPE_FOLDER) return m;
 	}
 	return nullptr;
@@ -851,7 +855,7 @@ Media* Project::get_selected_folder() {
 bool Project::reveal_media(Media *media, QModelIndex parent) {
 	for (int i=0;i<project_model.rowCount(parent);i++) {
 		const QModelIndex& item = project_model.index(i, 0, parent);
-		Media* m = project_model.getItem(item);
+        Media* m = project_model.getItem(item);
 
 		if (m->get_type() == MEDIA_TYPE_FOLDER) {
 
@@ -923,10 +927,10 @@ void Project::delete_clips_using_selected_media() {
 		bool deleted = false;
 		QModelIndexList items = get_current_selected();
         for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-            Clip* c = olive::ActiveSequence->clips.at(i);
+            const ClipPtr& c = olive::ActiveSequence->clips.at(i);
 			if (c != nullptr) {
 				for (int j=0;j<items.size();j++) {
-					Media* m = item_to_media(items.at(j));
+                    Media* m = item_to_media(items.at(j));
 					if (c->media == m) {
                         ca->append(new DeleteClipAction(olive::ActiveSequence, i));
 						deleted = true;
@@ -935,7 +939,7 @@ void Project::delete_clips_using_selected_media() {
 			}
 		}
 		for (int j=0;j<items.size();j++) {
-			Media* m = item_to_media(items.at(j));
+            Media* m = item_to_media(items.at(j));
 			if (delete_clips_in_clipboard_with_media(ca, m)) deleted = true;
 		}
 		if (deleted) {
@@ -952,9 +956,9 @@ void Project::clear() {
 	panel_effect_controls->clear_effects(true);
 
 	// delete sequences first because it's important to close all the clips before deleting the media
-	QVector<Media*> sequences = list_all_project_sequences();
+    QVector<Media*> sequences = list_all_project_sequences();
 	for (int i=0;i<sequences.size();i++) {
-		delete sequences.at(i)->to_sequence();
+        sequences.at(i)->to_sequence().reset();
 		sequences.at(i)->set_sequence(nullptr);
 	}
 
@@ -962,7 +966,7 @@ void Project::clear() {
 	project_model.clear();
 
     // update tree view (sometimes this doesn't seem to update reliably)
-    panel_project->tree_view->update();
+    tree_view->update();
 }
 
 void Project::new_project() {
@@ -990,7 +994,7 @@ void save_marker(QXmlStreamWriter& stream, const Marker& m) {
 void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
 	for (int i=0;i<project_model.rowCount(parent);i++) {
 		const QModelIndex& item = project_model.index(i, 0, parent);
-		Media* m = project_model.getItem(item);
+        Media* m = project_model.getItem(item);
 
 		if (type == m->get_type()) {
 			if (m->get_type() == MEDIA_TYPE_FOLDER) {
@@ -1013,7 +1017,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 			} else {
 				int folder = m->parentItem()->temp_id;
 				if (type == MEDIA_TYPE_FOOTAGE) {
-					Footage* f = m->to_footage();
+                    FootagePtr f = m->to_footage();
 					f->save_id = media_id;
 					stream.writeStartElement("footage");
 					stream.writeAttribute("id", QString::number(media_id));
@@ -1061,7 +1065,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 					stream.writeEndElement(); // footage
 					media_id++;
 				} else if (type == MEDIA_TYPE_SEQUENCE) {
-					Sequence* s = m->to_sequence();
+                    SequencePtr s = m->to_sequence();
 					if (set_ids_only) {
 						s->save_id = sequence_id;
 						sequence_id++;
@@ -1083,7 +1087,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
 
 						for (int j=0;j<s->transitions.size();j++) {
-							Transition* t = s->transitions.at(j);
+                            TransitionPtr t = s->transitions.at(j);
 							if (t != nullptr) {
 								stream.writeStartElement("transition");
 								stream.writeAttribute("id", QString::number(j));
@@ -1094,7 +1098,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 						}
 
 						for (int j=0;j<s->clips.size();j++) {
-							Clip* c = s->clips.at(j);
+                            const ClipPtr& c = s->clips.at(j);
 							if (c != nullptr) {
 								stream.writeStartElement("clip"); // clip
 								stream.writeAttribute("id", QString::number(j));
@@ -1305,7 +1309,7 @@ void Project::add_recent_project(QString url) {
 
 void Project::list_all_sequences_worker(QVector<Media*>* list, Media* parent) {
 	for (int i=0;i<project_model.childCount(parent);i++) {
-		Media* item = project_model.child(i, parent);
+        Media* item = project_model.child(i, parent);
 		switch (item->get_type()) {
 		case MEDIA_TYPE_SEQUENCE:
 			list->append(item);
@@ -1318,16 +1322,16 @@ void Project::list_all_sequences_worker(QVector<Media*>* list, Media* parent) {
 }
 
 QVector<Media*> Project::list_all_project_sequences() {
-	QVector<Media*> list;
+    QVector<Media*> list;
 	list_all_sequences_worker(&list, nullptr);
 	return list;
 }
 
 QModelIndexList Project::get_current_selected() {
     if (olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE) {
-		return panel_project->tree_view->selectionModel()->selectedRows();
+        return tree_view->selectionModel()->selectedRows();
 	}
-	return panel_project->icon_view->selectionModel()->selectedIndexes();
+    return icon_view->selectionModel()->selectedIndexes();
 }
 
 #define THROBBER_LIMIT 20
@@ -1366,11 +1370,11 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 	}
 
 	// refresh all clips
-	QVector<Media*> sequences = panel_project->list_all_project_sequences();
+    QVector<Media*> sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<sequences.size();i++) {
-		Sequence* s = sequences.at(i)->to_sequence();
+        SequencePtr s = sequences.at(i)->to_sequence();
 		for (int j=0;j<s->clips.size();j++) {
-			Clip* c = s->clips.at(j);
+            const ClipPtr& c = s->clips.at(j);
 			if (c != nullptr) {
 				c->refresh();
 			}
@@ -1380,7 +1384,7 @@ void MediaThrobber::stop(int icon_type, bool replace) {
 	// redraw clips
 	update_ui(replace);
 
-	panel_project->tree_view->viewport()->update();
+    panel_project->tree_view->viewport()->update();
 	item->throbber = nullptr;
 	deleteLater();
 }

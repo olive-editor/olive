@@ -31,7 +31,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media) :
+ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media* old_media) :
 	QDialog(parent),
 	media(old_media)
 {
@@ -80,7 +80,7 @@ void ReplaceClipMediaDialog::replace() {
 					QMessageBox::Ok
 				);
 	} else {
-		Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
 		if (media == new_item) {
 			QMessageBox::critical(
 						this,
@@ -111,7 +111,7 @@ void ReplaceClipMediaDialog::replace() {
 						);
 
 				for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-					Clip* c = olive::ActiveSequence->clips.at(i);
+                    ClipPtr c = olive::ActiveSequence->clips.at(i);
 					if (c != nullptr && c->media == media) {
 						rcmc->clips.append(c);
 					}

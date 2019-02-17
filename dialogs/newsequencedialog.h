@@ -35,7 +35,7 @@ class NewSequenceDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit NewSequenceDialog(QWidget *parent = 0, Media* existing = 0);
+    explicit NewSequenceDialog(QWidget *parent = nullptr, Media* existing = nullptr);
 	~NewSequenceDialog();
 
 	void set_sequence_name(const QString& s);
@@ -45,8 +45,8 @@ private slots:
 	void preset_changed(int index);
 
 private:
-	Sequence* existing_sequence;
-	Media* existing_item;
+    SequencePtr existing_sequence;
+    Media* existing_item;
 
 	void setup_ui();
 

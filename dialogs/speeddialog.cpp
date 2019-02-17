@@ -94,7 +94,7 @@ void SpeedDialog::run() {
 	current_length = -1;
 
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 
 		double clip_percent;
 
@@ -103,7 +103,7 @@ void SpeedDialog::run() {
 		if (c->track < 0) {
 			bool process_video = true;
 			if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
-				Footage* m = c->media->to_footage();
+                FootagePtr m = c->media->to_footage();
 				FootageStream* ms = m->get_stream_from_file_index(true, c->media_stream);
 				if (ms != nullptr && ms->infinite_length) {
 					process_video = false;
@@ -187,7 +187,7 @@ void SpeedDialog::percent_update() {
 	long len_val = -1;
 
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 
 		// get frame rate
 		if (frame_rate->isEnabled() && c->track < 0) {
@@ -222,7 +222,7 @@ void SpeedDialog::duration_update() {
 	double fr_val = qSNaN();
 
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 
 		// get percent
 		long clip_default_length = qRound(c->getLength() * c->speed);
@@ -265,7 +265,7 @@ void SpeedDialog::frame_rate_update() {
 
 	// analyze video clips
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 
 		// check if all selected clips are currently the same speed
 		if (i == 0) {
@@ -297,7 +297,7 @@ void SpeedDialog::frame_rate_update() {
 
 	// analyze audio clips
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 
 		if (c->track >= 0) {
 			long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ? c->getLength() : ((c->getLength() * c->speed) / pc_val);
@@ -312,7 +312,7 @@ void SpeedDialog::frame_rate_update() {
 	duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
 }
 
-void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, long& lr) {
+void set_speed(ComboAction* ca, ClipPtr c, double speed, bool ripple, long& ep, long& lr) {
 	panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 
 	long proposed_out = c->timeline_out;
@@ -321,7 +321,7 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	ca->append(new SetSpeedAction(c, speed));
 	if (!ripple && proposed_out > c->timeline_out) {
 		for (int i=0;i<c->sequence->clips.size();i++) {
-			Clip* compare = c->sequence->clips.at(i);
+            ClipPtr compare = c->sequence->clips.at(i);
 			if (compare != nullptr
 					&& compare->track == c->track
 					&& compare->timeline_in >= c->timeline_out && compare->timeline_in < proposed_out) {
@@ -352,7 +352,7 @@ void SpeedDialog::accept() {
 	long longest_ripple = LONG_MIN;
 
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 		if (c->open) close_clip(c, true);
 
 		if (c->track >= 0
@@ -372,7 +372,7 @@ void SpeedDialog::accept() {
 	if (!qIsNaN(percent->value())) {
 		// simply set speed
 		for (int i=0;i<clips.size();i++) {
-			Clip* c = clips.at(i);
+            ClipPtr c = clips.at(i);
 			set_speed(ca, c, percent->value(), ripple->isChecked(), earliest_point, longest_ripple);
 		}
 	} else if (!qIsNaN(frame_rate->value())) {
@@ -382,7 +382,7 @@ void SpeedDialog::accept() {
 
 		// see if we can use the frame rate to change all the speeds
 		for (int i=0;i<clips.size();i++) {
-			Clip* c = clips.at(i);
+            ClipPtr c = clips.at(i);
 			if (i == 0) {
 				cached_speed = c->speed;
 			} else if (!qFuzzyCompare(cached_speed, c->speed)) {
@@ -400,7 +400,7 @@ void SpeedDialog::accept() {
 
 		// make changes
 		for (int i=0;i<clips.size();i++) {
-			Clip* c = clips.at(i);
+            ClipPtr c = clips.at(i);
 			if (c->track < 0) {
 				set_speed(ca, c, frame_rate->value() / c->getMediaFrameRate(), ripple->isChecked(), earliest_point, longest_ripple);
 			} else if (can_change_all) {
@@ -410,7 +410,7 @@ void SpeedDialog::accept() {
 	} else if (!qIsNaN(duration->value())) {
 		// simply set duration
 		for (int i=0;i<clips.size();i++) {
-			Clip* c = clips.at(i);
+            ClipPtr c = clips.at(i);
 			set_speed(ca, c, (c->getLength() * c->speed) / duration->value(), ripple->isChecked(), earliest_point, longest_ripple);
 		}
 	}

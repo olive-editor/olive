@@ -399,7 +399,7 @@ void ProxyGenerator::cancel() {
 	wait();
 }
 
-double ProxyGenerator::get_proxy_progress(Footage *f) {
+double ProxyGenerator::get_proxy_progress(FootagePtr f) {
 	if (proxy_queue.first().footage == f) {
 		return current_progress;
 	}

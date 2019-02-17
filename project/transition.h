@@ -34,14 +34,14 @@
 #define TRANSITION_INTERNAL_CUBE 4
 #define TRANSITION_INTERNAL_COUNT 5
 
-int create_transition(Clip* c, Clip* s, const EffectMeta* em, long length = -1);
+int create_transition(ClipPtr c, ClipPtr s, const EffectMeta* em, long length = -1);
 
 class Transition : public Effect {
 	Q_OBJECT
 public:
-	Transition(Clip* c, Clip* s, const EffectMeta* em);
-	int copy(Clip* c, Clip* s);
-	Clip* secondary_clip;
+    Transition(ClipPtr c, ClipPtr s, const EffectMeta* em);
+    int copy(ClipPtr c, ClipPtr s);
+    ClipPtr secondary_clip;
 	void set_length(long l);
 	long get_true_length();
 	long get_length();
@@ -51,5 +51,7 @@ private:
 	long length; // used only for transitions
 	EffectField* length_field;
 };
+
+using TransitionPtr = std::shared_ptr<Transition>;
 
 #endif // TRANSITION_H

@@ -30,16 +30,16 @@
 #include <QWaitCondition>
 #include <QOpenGLFunctions>
 
+#include "project/clip.h"
+#include "project/footage.h"
+#include "project/effect.h"
+#include "ui/viewerwindow.h"
+#include "ui/viewercontainer.h"
+#include "ui/renderthread.h"
+
 class Viewer;
-class Clip;
-struct FootageStream;
 class QOpenGLFramebufferObject;
-class Effect;
-class EffectGizmo;
-class ViewerContainer;
 struct GLTextureCoords;
-class RenderThread;
-class ViewerWindow;
 
 class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
 {
@@ -57,7 +57,7 @@ public:
 	ViewerContainer* container;
 
 	bool waveform;
-	Clip* waveform_clip;
+    ClipPtr waveform_clip;
 	const FootageStream* waveform_ms;
 	double waveform_zoom;
 	int waveform_scroll;
@@ -81,7 +81,7 @@ private:
 	void move_gizmos(QMouseEvent *event, bool done);
 	bool dragging;
 	void seek_from_click(int x);
-	Effect* gizmos;
+    EffectPtr gizmos;
 	int drag_start_x;
 	int drag_start_y;
 	int gizmo_x_mvmt;

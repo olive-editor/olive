@@ -41,12 +41,12 @@ LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
 	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 	connect(this, SIGNAL(success()), this, SLOT(success_func()));
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));
-	connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)));
-	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
+    connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,ClipPtr,ClipPtr,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,ClipPtr,ClipPtr,const EffectMeta*)));
+    connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, ClipPtr, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, ClipPtr, int, const QString*, const EffectMeta*, long, bool)));
 	connect(this, SIGNAL(start_question(const QString&, const QString &, int)), this, SLOT(question_func(const QString &, const QString &, int)));
 }
 
-void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
+void LoadThread::load_effect(QXmlStreamReader& stream, ClipPtr c) {
 	int effect_id = -1;
 	QString effect_name;
 	bool effect_enabled = true;
@@ -194,7 +194,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							int folder = 0;
 
 							Media* item = new Media(0);
-							Footage* f = new Footage();
+                            FootagePtr f(new Footage());
 
 							f->using_inout = false;
 
@@ -300,7 +300,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 						case MEDIA_TYPE_SEQUENCE:
 						{
 							Media* parent = nullptr;
-							Sequence* s = new Sequence();
+                            SequencePtr s(new Sequence());
 
 							// load attributes about sequence
 							for (int j=0;j<stream.attributes().size();j++) {
@@ -367,7 +367,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 								} else if (stream.name() == "clip" && stream.isStartElement()) {
 									int media_type = -1;
 									int media_id, stream_id;
-									Clip* c = new Clip(s);
+                                    ClipPtr c(new Clip(s));
 
 									// backwards compatibility code
 									c->autoscale = false;
@@ -428,7 +428,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									case MEDIA_TYPE_FOOTAGE:
 										if (media_id >= 0) {
 											for (int j=0;j<loaded_media_items.size();j++) {
-												Footage* m = loaded_media_items.at(j)->to_footage();
+                                                FootagePtr m = loaded_media_items.at(j)->to_footage();
 												if (m->save_id == media_id) {
 													c->media = loaded_media_items.at(j);
 													c->media_stream = stream_id;
@@ -487,7 +487,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							// correct links, clip IDs, transitions
 							for (int i=0;i<s->clips.size();i++) {
 								// correct links
-								Clip* correct_clip = s->clips.at(i);
+                                ClipPtr correct_clip = s->clips.at(i);
 								for (int j=0;j<correct_clip->linked.size();j++) {
 									bool found = false;
 									for (int k=0;k<s->clips.size();k++) {
@@ -508,7 +508,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 													);
 										waitCond.wait(&mutex);
 										if (question_btn == QMessageBox::No) {
-											delete s;
+                                            s.reset();
 											return false;
 										}
 									}
@@ -534,8 +534,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							// create transitions
 							for (int i=0;i<transition_data.size();i++) {
 								const TransitionData& td = transition_data.at(i);
-								Clip* primary = td.otc;
-								Clip* secondary = td.ctc;
+                                ClipPtr primary = td.otc;
+                                ClipPtr secondary = td.ctc;
 								if (primary != nullptr || secondary != nullptr) {
 									if (primary == nullptr) {
 										primary = secondary;
@@ -760,7 +760,7 @@ void LoadThread::success_func() {
 
 void LoadThread::create_effect_ui(
 		QXmlStreamReader* stream,
-		Clip* c,
+        ClipPtr c,
 		int type,
 		const QString* effect_name,
 		const EffectMeta* meta,
@@ -795,12 +795,12 @@ void LoadThread::create_effect_ui(
 	if (type == TA_NO_TRANSITION) {
 		if (meta == nullptr) {
 			// create void effect
-			VoidEffect* ve = new VoidEffect(c, *effect_name);
+            EffectPtr ve(new VoidEffect(c, *effect_name));
 			ve->set_enabled(effect_enabled);
 			ve->load(*stream);
 			c->effects.append(ve);
 		} else {
-			Effect* e = create_effect(c, meta);
+            EffectPtr e(create_effect(c, meta));
 			e->set_enabled(effect_enabled);
 			e->load(*stream);
 
@@ -808,7 +808,7 @@ void LoadThread::create_effect_ui(
 		}
 	} else {
 		int transition_index = create_transition(c, nullptr, meta);
-		Transition* t = c->sequence->transitions.at(transition_index);
+        TransitionPtr t = c->sequence->transitions.at(transition_index);
 		if (effect_length > -1) t->set_length(effect_length);
 		t->set_enabled(effect_enabled);
 		t->load(*stream);
@@ -825,7 +825,7 @@ void LoadThread::create_effect_ui(
 	waitCond.wakeAll();
 }
 
-void LoadThread::create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta) {
+void LoadThread::create_dual_transition(const TransitionData* td, ClipPtr primary, ClipPtr secondary, const EffectMeta* meta) {
     // lock mutex - ensures the load thread is suspended while this happens
     mutex.lock();
 

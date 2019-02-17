@@ -69,31 +69,31 @@
 
 QVector<EffectMeta> effects;
 
-Effect* create_effect(Clip* c, const EffectMeta* em) {
+EffectPtr create_effect(ClipPtr c, const EffectMeta* em) {
 	if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
 		// must be an internal effect
 		switch (em->internal) {
-		case EFFECT_INTERNAL_TRANSFORM: return new TransformEffect(c, em);
-		case EFFECT_INTERNAL_TEXT: return new TextEffect(c, em);
-		case EFFECT_INTERNAL_TIMECODE: return new TimecodeEffect(c, em);
-		case EFFECT_INTERNAL_SOLID: return new SolidEffect(c, em);
-		case EFFECT_INTERNAL_NOISE: return new AudioNoiseEffect(c, em);
-		case EFFECT_INTERNAL_VOLUME: return new VolumeEffect(c, em);
-		case EFFECT_INTERNAL_PAN: return new PanEffect(c, em);
-		case EFFECT_INTERNAL_TONE: return new ToneEffect(c, em);
-		case EFFECT_INTERNAL_SHAKE: return new ShakeEffect(c, em);
-		case EFFECT_INTERNAL_CORNERPIN: return new CornerPinEffect(c, em);
-		case EFFECT_INTERNAL_FILLLEFTRIGHT: return new FillLeftRightEffect(c, em);
+        case EFFECT_INTERNAL_TRANSFORM: return EffectPtr(new TransformEffect(c, em));
+        case EFFECT_INTERNAL_TEXT: return EffectPtr(new TextEffect(c, em));
+        case EFFECT_INTERNAL_TIMECODE: return EffectPtr(new TimecodeEffect(c, em));
+        case EFFECT_INTERNAL_SOLID: return EffectPtr(new SolidEffect(c, em));
+        case EFFECT_INTERNAL_NOISE: return EffectPtr(new AudioNoiseEffect(c, em));
+        case EFFECT_INTERNAL_VOLUME: return EffectPtr(new VolumeEffect(c, em));
+        case EFFECT_INTERNAL_PAN: return EffectPtr(new PanEffect(c, em));
+        case EFFECT_INTERNAL_TONE: return EffectPtr(new ToneEffect(c, em));
+        case EFFECT_INTERNAL_SHAKE: return EffectPtr(new ShakeEffect(c, em));
+        case EFFECT_INTERNAL_CORNERPIN: return EffectPtr(new CornerPinEffect(c, em));
+        case EFFECT_INTERNAL_FILLLEFTRIGHT: return EffectPtr(new FillLeftRightEffect(c, em));
 #ifndef NOVST
-		case EFFECT_INTERNAL_VST: return new VSTHost(c, em);
+        case EFFECT_INTERNAL_VST: return EffectPtr(new VSTHost(c, em));
 #endif
 #ifndef NOFREI0R
-		case EFFECT_INTERNAL_FREI0R: return new Frei0rEffect(c, em);
+        case EFFECT_INTERNAL_FREI0R: return EffectPtr(new Frei0rEffect(c, em));
 #endif
 		}
 	} else if (!em->filename.isEmpty()) {
 		// load effect from file
-		return new Effect(c, em);
+        return EffectPtr(new Effect(c, em));
 	} else {
 		qCritical() << "Invalid effect data";
         QMessageBox::critical(olive::MainWindow,
@@ -112,7 +112,7 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 	return nullptr;
 }
 
-Effect::Effect(Clip* c, const EffectMeta *em) :
+Effect::Effect(ClipPtr c, const EffectMeta *em) :
 	parent_clip(c),
 	meta(em),
 	enable_shader(false),
@@ -344,7 +344,7 @@ Effect::~Effect() {
 	}
 }
 
-void Effect::copy_field_keyframes(Effect* e) {
+void Effect::copy_field_keyframes(EffectPtr e) {
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
 		EffectRow* copy_row = e->rows.at(i);
@@ -498,7 +498,7 @@ void Effect::load_from_file() {
 		QFile file_handle(file);
 		if (file_handle.open(QFile::ReadOnly)) {
 
-			olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
+            olive::UndoStack.push(new SetEffectData(EffectPtr(this), file_handle.readAll()));
 
 			file_handle.close();
 
@@ -515,7 +515,7 @@ void Effect::load_from_file() {
 int Effect::get_index_in_clip() {
 	if (parent_clip != nullptr) {
 		for (int i=0;i<parent_clip->effects.size();i++) {
-			if (parent_clip->effects.at(i) == this) {
+            if (parent_clip->effects.at(i).get() == this) {
 				return i;
 			}
 		}
@@ -854,8 +854,8 @@ void Effect::setIterations(int i) {
 
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
-Effect* Effect::copy(Clip* c) {
-	Effect* copy = create_effect(c, meta);
+EffectPtr Effect::copy(ClipPtr c) {
+    EffectPtr copy = create_effect(c, meta);
 	copy->set_enabled(is_enabled());
 	copy_field_keyframes(copy);
 	return copy;

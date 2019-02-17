@@ -25,15 +25,11 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
+#include <QIODevice>
+#include <QAudioOutput>
+#include <QComboBox>
 
-//#define INT16_MAX 0x7fff
-//#define INT16_MIN (-INT16_MAX-1)
-
-class QIODevice;
-class QAudioOutput;
-class QComboBox;
-
-struct Sequence;
+#include "project/sequence.h"
 
 class AudioSenderThread : public QThread {
 	Q_OBJECT

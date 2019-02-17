@@ -64,6 +64,8 @@
 #include <QPushButton>
 #include <QTranslator>
 
+Q_DECLARE_METATYPE(ClipPtr);
+
 MainWindow* olive::MainWindow;
 
 #define DEFAULT_CSS "QPushButton::checked { background: rgb(25, 25, 25); }"
@@ -100,6 +102,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     first_show(true)
 {
+    qRegisterMetaType<ClipPtr>();
+
 	init_custom_cursors();
 
 	open_debug_file();

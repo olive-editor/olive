@@ -62,7 +62,7 @@ void SourcesCommon::create_seq_from_selected() {
 		}
 
 		ComboAction* ca = new ComboAction();
-		Sequence* s = create_sequence_from_media(media_list);
+        SequencePtr s = create_sequence_from_media(media_list);
 
 		// add clips to it
 		panel_timeline->create_ghosts_from_media(s, 0, media_list);
@@ -334,7 +334,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 
 void SourcesCommon::reveal_in_browser() {
 	Media* media = project_parent->item_to_media(selected_items.at(0));
-	Footage* m = media->to_footage();
+    FootagePtr m = media->to_footage();
 
 #if defined(Q_OS_WIN)
 	QStringList args;
@@ -385,7 +385,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 	QList<QString> delete_list;
 
 	for (int i=0;i<cached_selected_footage.size();i++) {
-		Footage* f = cached_selected_footage.at(i);
+        FootagePtr f = cached_selected_footage.at(i);
 
 		if (f->proxy && !f->proxy_path.isEmpty()) {
 			if (QFileInfo::exists(f->proxy_path)) {

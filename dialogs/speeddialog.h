@@ -32,7 +32,7 @@ class SpeedDialog : public QDialog
 	Q_OBJECT
 public:
 	SpeedDialog(QWidget* parent = 0);
-	QVector<Clip*> clips;
+    QVector<ClipPtr> clips;
 
 	void run();
 private slots:

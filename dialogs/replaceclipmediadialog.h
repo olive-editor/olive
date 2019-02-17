@@ -31,11 +31,11 @@
 class ReplaceClipMediaDialog : public QDialog {
 	Q_OBJECT
 public:
-	ReplaceClipMediaDialog(QWidget* parent, Media *old_media);
+    ReplaceClipMediaDialog(QWidget* parent, Media* old_media);
 private slots:
 	void replace();
 private:
-	Media* media;
+    Media* media;
 	QTreeView* tree;
 	QCheckBox* use_same_media_in_points;
 };

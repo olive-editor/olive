@@ -34,11 +34,11 @@
 class MediaPropertiesDialog : public QDialog {
 	Q_OBJECT
 public:
-	MediaPropertiesDialog(QWidget *parent, Media* i);
+    MediaPropertiesDialog(QWidget *parent, Media* i);
 private:
 	QComboBox* interlacing_box;
 	QLineEdit* name_box;
-	Media* item;
+    Media* item;
 	QListWidget* track_list;
 	QDoubleSpinBox* conform_fr;
 	QCheckBox* premultiply_alpha_setting;

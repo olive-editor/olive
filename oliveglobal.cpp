@@ -295,7 +295,7 @@ void OliveGlobal::open_speed_dialog() {
     if (olive::ActiveSequence != nullptr) {
         SpeedDialog s(olive::MainWindow);
         for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-            Clip* c = olive::ActiveSequence->clips.at(i);
+            ClipPtr c = olive::ActiveSequence->clips.at(i);
             if (c != nullptr && is_clip_selected(c, true)) {
                 s.clips.append(c);
             }

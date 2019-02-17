@@ -50,7 +50,7 @@ void update_effect_controls() {
 	int mode = TA_NO_TRANSITION;
 	if (olive::ActiveSequence != nullptr) {
 		for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-			Clip* clip = olive::ActiveSequence->clips.at(i);
+            ClipPtr clip = olive::ActiveSequence->clips.at(i);
 			if (clip != nullptr) {
 				for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
 					const Selection& s = olive::ActiveSequence->selections.at(j);
@@ -88,7 +88,7 @@ void update_effect_controls() {
 			if (aclip >= 0) selected_clips.append(aclip);
 			if (vclip >= 0 && aclip >= 0) {
 				bool found = false;
-				Clip* vclip_ref = olive::ActiveSequence->clips.at(vclip);
+                ClipPtr vclip_ref = olive::ActiveSequence->clips.at(vclip);
 				for (int i=0;i<vclip_ref->linked.size();i++) {
 					if (vclip_ref->linked.at(i) == aclip) {
 						found = true;

@@ -22,7 +22,7 @@
 
 #include <QOpenGLFunctions>
 
-CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {
+CrossDissolveTransition::CrossDissolveTransition(ClipPtr c, ClipPtr s, const EffectMeta* em) : Transition(c, s, em) {
 	enable_coords = true;
 
 //    add_row("Smooth")->add_field(EFFECT_FIELD_BOOL, "smooth");

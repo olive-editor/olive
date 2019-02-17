@@ -100,8 +100,8 @@ GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 	return fbo->texture();
 }
 
-void process_effect(Clip* c,
-					Effect* e,
+void process_effect(ClipPtr c,
+                    EffectPtr e,
 					double timecode,
 					GLTextureCoords& coords,
 					GLuint& composite_texture,
@@ -151,7 +151,7 @@ void process_effect(Clip* c,
 GLuint compose_sequence(ComposeSequenceParams &params) {
 	GLuint final_fbo = params.main_buffer;
 
-	Sequence* s = params.seq;
+    SequencePtr s = params.seq;
 	long playhead = s->playhead;
 
 	if (!params.nests.isEmpty()) {
@@ -170,12 +170,12 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 	int audio_track_count = 0;
 
-	QVector<Clip*> current_clips;
+    QVector<ClipPtr> current_clips;
 
 	// loop through clips, find currently active, and sort by track
 	for (int i=0;i<s->clips.size();i++) {
 
-		Clip* c = s->clips.at(i);
+        ClipPtr c = s->clips.at(i);
 
 		if (c != nullptr) {
 
@@ -186,7 +186,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 				// is the clip a "footage" clip?
 				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
-					Footage* m = c->media->to_footage();
+                    FootagePtr m = c->media->to_footage();
 
 					// does the clip have a valid media source?
 					if (!m->invalid && !(c->track >= 0 && !is_audio_device_set())) {
@@ -273,7 +273,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 	// loop through current clips
 	for (int i=0;i<current_clips.size();i++) {
-		Clip* c = current_clips.at(i);
+        ClipPtr c = current_clips.at(i);
 
 		// check if this clip was successfully opened by earlier function
 		if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->finished_opening) {
@@ -395,12 +395,12 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 					double timecode = get_timecode(c, playhead);
 
 					// set up variables for gizmos later
-					Effect* first_gizmo_effect = nullptr;
-					Effect* selected_effect = nullptr;
+                    EffectPtr first_gizmo_effect = nullptr;
+                    EffectPtr selected_effect = nullptr;
 
 					// run through all of the clip's effects
 					for (int j=0;j<c->effects.size();j++) {
-						Effect* e = c->effects.at(j);
+                        EffectPtr e = c->effects.at(j);
 						process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, TA_NO_TRANSITION);
 
 						// retrieve gizmo data from effect
@@ -601,7 +601,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 				if (c->sequence == params.seq) { // only if you can currently see them
 					double ts = (playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition())/s->frame_rate;
 					for (int i=0;i<c->effects.size();i++) {
-						Effect* e = c->effects.at(i);
+                        EffectPtr e = c->effects.at(i);
 						for (int j=0;j<e->row_count();j++) {
 							EffectRow* r = e->row(j);
 							for (int k=0;k<r->fieldCount();k++) {
@@ -630,7 +630,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 	return 0;
 }
 
-void compose_audio(Viewer* viewer, Sequence* seq, int playback_speed) {
+void compose_audio(Viewer* viewer, SequencePtr seq, int playback_speed) {
 	ComposeSequenceParams params;
 	params.viewer = viewer;
 	params.ctx = nullptr;

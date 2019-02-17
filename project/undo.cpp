@@ -48,41 +48,7 @@
 
 QUndoStack olive::UndoStack;
 
-ComboAction::ComboAction() {}
-
-ComboAction::~ComboAction() {
-	for (int i=0;i<commands.size();i++) {
-		delete commands.at(i);
-	}
-}
-
-void ComboAction::undo() {
-	for (int i=commands.size()-1;i>=0;i--) {
-		commands.at(i)->undo();
-	}
-	for (int i=0;i<post_commands.size();i++) {
-		post_commands.at(i)->undo();
-	}
-}
-
-void ComboAction::redo() {
-	for (int i=0;i<commands.size();i++) {
-		commands.at(i)->redo();
-	}
-	for (int i=0;i<post_commands.size();i++) {
-		post_commands.at(i)->redo();
-	}
-}
-
-void ComboAction::append(QUndoCommand* u) {
-	commands.append(u);
-}
-
-void ComboAction::appendPost(QUndoCommand* u) {
-	post_commands.append(u);
-}
-
-MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
+MoveClipAction::MoveClipAction(ClipPtr c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
     clip = c;
 
     old_in = c->timeline_in;
@@ -126,16 +92,14 @@ void MoveClipAction::doRedo() {
     }
 }
 
-DeleteClipAction::DeleteClipAction(Sequence* s, int clip) {
+DeleteClipAction::DeleteClipAction(SequencePtr s, int clip) {
     seq = s;
     index = clip;
     opening_transition = -1;
     closing_transition = -1;
 }
 
-DeleteClipAction::~DeleteClipAction() {
-	if (ref != nullptr) delete ref;
-}
+DeleteClipAction::~DeleteClipAction() {}
 
 void DeleteClipAction::doUndo() {
 	// restore ref to clip
@@ -187,7 +151,7 @@ void DeleteClipAction::doRedo() {
 	linkClipIndex.clear();
 	linkLinkIndex.clear();
 	for (int i=0;i<seq->clips.size();i++) {
-		Clip* c = seq->clips.at(i);
+        ClipPtr c = seq->clips.at(i);
 		if (c != nullptr) {
 			for (int j=0;j<c->linked.size();j++) {
 				if (c->linked.at(j) == index) {
@@ -200,7 +164,7 @@ void DeleteClipAction::doRedo() {
     }
 }
 
-ChangeSequenceAction::ChangeSequenceAction(Sequence* s) {
+ChangeSequenceAction::ChangeSequenceAction(SequencePtr s) {
     new_sequence = s;
 }
 
@@ -213,7 +177,7 @@ void ChangeSequenceAction::doRedo() {
 	set_sequence(new_sequence);
 }
 
-SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence *s, bool enabled, long in, long out) {
+SetTimelineInOutCommand::SetTimelineInOutCommand(SequencePtr s, bool enabled, long in, long out) {
     seq = s;
     new_enabled = enabled;
     new_in = in;
@@ -227,7 +191,7 @@ void SetTimelineInOutCommand::doUndo() {
 
 	// footage viewer functions
 	if (seq->wrapper_sequence) {
-		Footage* m = seq->clips.at(0)->media->to_footage();
+        FootagePtr m = seq->clips.at(0)->media->to_footage();
 		m->using_inout = old_enabled;
 		m->in = old_in;
 		m->out = old_out;
@@ -245,23 +209,19 @@ void SetTimelineInOutCommand::doRedo() {
 
 	// footage viewer functions
 	if (seq->wrapper_sequence) {
-		Footage* m = seq->clips.at(0)->media->to_footage();
+        FootagePtr m = seq->clips.at(0)->media->to_footage();
 		m->using_inout = new_enabled;
 		m->in = new_in;
 		m->out = new_out;
     }
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, Effect* e, const EffectMeta *m, int insert_pos) {
+AddEffectCommand::AddEffectCommand(ClipPtr c, EffectPtr e, const EffectMeta *m, int insert_pos) {
     clip = c;
     ref = e;
     meta = m;
     pos = insert_pos;
     done = false;
-}
-
-AddEffectCommand::~AddEffectCommand() {
-	if (!done && ref != nullptr) delete ref;
 }
 
 void AddEffectCommand::doUndo() {
@@ -286,9 +246,9 @@ void AddEffectCommand::doRedo() {
 	done = true;
 }
 
-AddTransitionCommand::AddTransitionCommand(Clip* c,
-                                           Clip *s,
-                                           Transition* copy,
+AddTransitionCommand::AddTransitionCommand(ClipPtr c,
+                                           ClipPtr s,
+                                           TransitionPtr copy,
                                            const EffectMeta *itransition,
                                            int itype,
                                            int ilength) {
@@ -337,24 +297,24 @@ void AddTransitionCommand::doRedo() {
     }
 }
 
-ModifyTransitionCommand::ModifyTransitionCommand(Clip* c, int itype, long ilength) {
+ModifyTransitionCommand::ModifyTransitionCommand(ClipPtr c, int itype, long ilength) {
     clip = c;
     type = itype;
     new_length = ilength;
 }
 
 void ModifyTransitionCommand::doUndo() {
-	Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
+    TransitionPtr t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
     t->set_length(old_length);
 }
 
 void ModifyTransitionCommand::doRedo() {
-	Transition* t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
+    TransitionPtr t = (type == TA_OPENING_TRANSITION) ? clip->get_opening_transition() : clip->get_closing_transition();
 	old_length = t->get_true_length();
     t->set_length(new_length);
 }
 
-DeleteTransitionCommand::DeleteTransitionCommand(Sequence* s, int transition_index) {
+DeleteTransitionCommand::DeleteTransitionCommand(SequencePtr s, int transition_index) {
     seq = s;
     index = transition_index;
     transition = nullptr;
@@ -362,9 +322,7 @@ DeleteTransitionCommand::DeleteTransitionCommand(Sequence* s, int transition_ind
     ctc = nullptr;
 }
 
-DeleteTransitionCommand::~DeleteTransitionCommand() {
-	if (transition != nullptr) delete transition;
-}
+DeleteTransitionCommand::~DeleteTransitionCommand() {}
 
 void DeleteTransitionCommand::doUndo() {
 	seq->transitions[index] = transition;
@@ -377,7 +335,7 @@ void DeleteTransitionCommand::doUndo() {
 
 void DeleteTransitionCommand::doRedo() {
 	for (int i=0;i<seq->clips.size();i++) {
-		Clip* c = seq->clips.at(i);
+        ClipPtr c = seq->clips.at(i);
 		if (c != nullptr) {
 			if (c->opening_transition == index) {
 				otc = c;
@@ -466,24 +424,17 @@ void DeleteMediaCommand::doRedo() {
 	done = true;
 }
 
-AddClipCommand::AddClipCommand(Sequence* s, QVector<Clip*>& add) {
+AddClipCommand::AddClipCommand(SequencePtr s, QVector<ClipPtr>& add) {
     seq = s;
     clips = add;
 }
 
-AddClipCommand::~AddClipCommand() {
-	for (int i=0;i<clips.size();i++) {
-		delete clips.at(i);
-	}
-	for (int i=0;i<undone_clips.size();i++) {
-		delete undone_clips.at(i);
-	}
-}
+AddClipCommand::~AddClipCommand() {}
 
 void AddClipCommand::doUndo() {
 	panel_effect_controls->clear_effects(true);
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = seq->clips.last();
+        ClipPtr c = seq->clips.last();
 		panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
 		undone_clips.prepend(c);
 		if (c->open) close_clip(c, true);
@@ -501,9 +452,9 @@ void AddClipCommand::doRedo() {
 	} else {
 		int linkOffset = seq->clips.size();
 		for (int i=0;i<clips.size();i++) {
-			Clip* original = clips.at(i);
+            ClipPtr original = clips.at(i);
 			if (original != nullptr) {
-				Clip* copy = original->copy(seq);
+                ClipPtr copy = original->copy(seq);
 				copy->linked.resize(original->linked.size());
 				for (int j=0;j<original->linked.size();j++) {
 					copy->linked[j] = original->linked.at(j) + linkOffset;
@@ -524,7 +475,7 @@ LinkCommand::LinkCommand() {
 
 void LinkCommand::doUndo() {
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = s->clips.at(clips.at(i));
+        ClipPtr c = s->clips.at(clips.at(i));
 		if (link) {
 			c->linked.clear();
 		} else {
@@ -538,7 +489,7 @@ void LinkCommand::doRedo() {
 	old_links.clear();
 	for (int i=0;i<clips.size();i++) {
 		dout << clips.at(i);
-		Clip* c = s->clips.at(clips.at(i));
+        ClipPtr c = s->clips.at(clips.at(i));
 		if (link) {
 			for (int j=0;j<clips.size();j++) {
 				if (i != j) {
@@ -580,11 +531,11 @@ ReplaceMediaCommand::ReplaceMediaCommand(Media* i, QString s) {
 
 void ReplaceMediaCommand::replace(QString& filename) {
 	// close any clips currently using this media
-	QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
+    QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<all_sequences.size();i++) {
-		Sequence* s = all_sequences.at(i)->to_sequence();
+        SequencePtr s = all_sequences.at(i)->to_sequence();
 		for (int j=0;j<s->clips.size();j++) {
-			Clip* c = s->clips.at(j);
+            ClipPtr c = s->clips.at(j);
 			if (c != nullptr && c->media == item && c->open) {
 				close_clip(c, true);
 				c->replaced = true;
@@ -621,7 +572,7 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 	}
 
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 		if (c->open) {
 			close_clip(c, true);
 		}
@@ -660,17 +611,11 @@ EffectDeleteCommand::EffectDeleteCommand() {
     done = false;
 }
 
-EffectDeleteCommand::~EffectDeleteCommand() {
-	if (done) {
-		for (int i=0;i<deleted_objects.size();i++) {
-			delete deleted_objects.at(i);
-		}
-	}
-}
+EffectDeleteCommand::~EffectDeleteCommand() {}
 
 void EffectDeleteCommand::doUndo() {
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 		c->effects.insert(fx.at(i), deleted_objects.at(i));
 	}
 	panel_effect_controls->reload_clips();
@@ -681,9 +626,9 @@ void EffectDeleteCommand::doUndo() {
 void EffectDeleteCommand::doRedo() {
 	deleted_objects.clear();
 	for (int i=0;i<clips.size();i++) {
-		Clip* c = clips.at(i);
+        ClipPtr c = clips.at(i);
 		int fx_id = fx.at(i) - i;
-		Effect* e = c->effects.at(fx_id);
+        EffectPtr e = c->effects.at(fx_id);
 		e->close();
 		deleted_objects.append(e);
 		c->effects.removeAt(fx_id);
@@ -705,7 +650,7 @@ void MediaMove::doRedo() {
 	if (to == nullptr) to = project_model.get_root();
 	froms.resize(items.size());
 	for (int i=0;i<items.size();i++) {
-		Media* parent = items.at(i)->parentItem();
+        Media* parent = items.at(i)->parentItem();
 		froms[i] = parent;
 		project_model.moveChild(items.at(i), to);
 	}
@@ -855,7 +800,7 @@ void DeleteMarkerAction::doRedo() {
 	sorted = true;
 }
 
-SetSpeedAction::SetSpeedAction(Clip* c, double speed) {
+SetSpeedAction::SetSpeedAction(ClipPtr c, double speed) {
     clip = c;
     old_speed = c->speed;
     new_speed = speed;
@@ -886,7 +831,7 @@ void SetBool::doRedo() {
 	*boolean = new_setting;
 }
 
-SetSelectionsCommand::SetSelectionsCommand(Sequence* s) {
+SetSelectionsCommand::SetSelectionsCommand(SequencePtr s) {
     seq = s;
     done = true;
 }
@@ -903,7 +848,7 @@ void SetSelectionsCommand::doRedo() {
 	}
 }
 
-EditSequenceCommand::EditSequenceCommand(Media* i, Sequence *s) {
+EditSequenceCommand::EditSequenceCommand(Media* i, SequencePtr s) {
     item = i;
     seq = s;
     old_name = s->name;
@@ -1013,11 +958,7 @@ RemoveClipsFromClipboard::RemoveClipsFromClipboard(int index) {
     done = false;
 }
 
-RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {
-	if (done) {
-		delete clip;
-	}
-}
+RemoveClipsFromClipboard::~RemoveClipsFromClipboard() {}
 
 void RemoveClipsFromClipboard::doUndo() {
 	clipboard.insert(pos, clip);
@@ -1025,7 +966,7 @@ void RemoveClipsFromClipboard::doUndo() {
 }
 
 void RemoveClipsFromClipboard::doRedo() {
-	clip = static_cast<Clip*>(clipboard.at(pos));
+    clip = std::static_pointer_cast<Clip>(clipboard.at(pos));
 	clipboard.removeAt(pos);
 	done = true;
 }
@@ -1068,7 +1009,7 @@ void ReloadEffectsCommand::doRedo() {
 	panel_effect_controls->reload_clips();
 }
 
-RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) {
+RippleAction::RippleAction(SequencePtr is, long ipoint, long ilength, const QVector<int> &iignore) {
     s = is;
     point = ipoint;
     length = ilength;
@@ -1084,7 +1025,7 @@ void RippleAction::doRedo() {
 	ca = new ComboAction();
 	for (int i=0;i<s->clips.size();i++) {
 		if (!ignore.contains(i)) {
-			Clip* c = s->clips.at(i);
+            ClipPtr c = s->clips.at(i);
 			if (c != nullptr) {
 				if (c->timeline_in >= point) {
 					move_clip(ca, c, length, length, 0, 0, true, true);
@@ -1182,11 +1123,11 @@ void RefreshClips::doUndo() {
 
 void RefreshClips::doRedo() {
 	// close any clips currently using this media
-	QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
+    QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
 	for (int i=0;i<all_sequences.size();i++) {
-		Sequence* s = all_sequences.at(i)->to_sequence();
+        SequencePtr s = all_sequences.at(i)->to_sequence();
 		for (int j=0;j<s->clips.size();j++) {
-			Clip* c = s->clips.at(j);
+            ClipPtr c = s->clips.at(j);
 			if (c != nullptr && c->media == media) {
 				c->replaced = true;
 				c->refresh();
@@ -1203,7 +1144,7 @@ void UpdateViewer::doRedo() {
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
 
-SetEffectData::SetEffectData(Effect *e, const QByteArray &s) {
+SetEffectData::SetEffectData(EffectPtr e, const QByteArray &s) {
     effect = e;
     data = s;
 }

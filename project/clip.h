@@ -24,37 +24,34 @@
 #include <QWaitCondition>
 #include <QMutex>
 #include <QVector>
+#include <QOpenGLFramebufferObject>
+#include <QOpenGLTexture>
+
+#include "playback/cacher.h"
+
+#include "project/effect.h"
+#include "project/transition.h"
+#include "project/comboaction.h"
+#include "project/media.h"
+#include "footage.h"
 
 #include "marker.h"
 
-class Cacher;
-class Effect;
-class Transition;
-class QOpenGLFramebufferObject;
-class ComboAction;
-class Media;
-struct Sequence;
-struct Footage;
-struct FootageStream;
+extern "C" {
+    #include <libavformat/avformat.h>
+    #include <libavfilter/avfilter.h>
+}
 
-struct AVFormatContext;
-struct AVStream;
-struct AVCodec;
-struct AVCodecContext;
-struct AVFrame;
-struct AVPacket;
-struct SwsContext;
-struct SwrContext;
-struct AVFilterGraph;
-struct AVFilterContext;
-struct AVDictionary;
-class QOpenGLTexture;
+using ClipPtr = std::shared_ptr<Clip>;
+
+class Sequence;
+using SequencePtr = std::shared_ptr<Sequence>;
 
 class Clip {
 public:
-	Clip(Sequence* s);
+    Clip(SequencePtr s);
 	~Clip();
-	Clip* copy(Sequence* s, bool duplicate_transitions = true);
+    ClipPtr copy(SequencePtr s, bool duplicate_transitions = true);
 	void reset_audio();
 	void reset();
 	void refresh();
@@ -68,7 +65,7 @@ public:
 	int getWidth();
 	int getHeight();
 	void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
-	Sequence* sequence;
+    SequencePtr sequence;
 
 	// queue functions
 	void queue_clear();
@@ -84,7 +81,7 @@ public:
 	quint8 color_r;
 	quint8 color_g;
 	quint8 color_b;
-	Media* media;
+    Media* media;
 	int media_stream;
 	double speed;
 	double cached_fr;
@@ -96,12 +93,12 @@ public:
     QVector<Marker>& get_markers();
 
 	// other variables (should be deep copied/duplicated in copy())
-	QList<Effect*> effects;
+    QList<EffectPtr> effects;
 	QVector<int> linked;
 	int opening_transition;
-	Transition* get_opening_transition();
+    TransitionPtr get_opening_transition();
 	int closing_transition;
-	Transition* get_closing_transition();
+    TransitionPtr get_closing_transition();
 
 	// media handling
 	AVFormatContext* formatCtx;

@@ -32,7 +32,7 @@ extern "C" {
 	#include <libavfilter/avfilter.h>
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {   
     olive::Global = std::unique_ptr<OliveGlobal>(new OliveGlobal);
 
 	bool launch_fullscreen = false;

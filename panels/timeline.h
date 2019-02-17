@@ -23,10 +23,17 @@
 
 #include "ui/timelinetools.h"
 #include "project/selection.h"
+#include "project/clip.h"
+#include "project/undo.h"
+#include "ui/timelineheader.h"
+#include "ui/resizablescrollbar.h"
+#include "ui/audiomonitor.h"
+#include "ui/timelinewidget.h"
 
 #include <QDockWidget>
 #include <QVector>
 #include <QTime>
+#include <QPushButton>
 
 #define TRACK_DEFAULT_HEIGHT 40
 
@@ -37,30 +44,12 @@
 #define ADD_OBJ_NOISE 4
 #define ADD_OBJ_AUDIO 5
 
-class QPushButton;
-class SourceTable;
-class ViewerWidget;
-class ComboAction;
-class Effect;
-class Media;
-class Transition;
-class TimelineHeader;
-class TimelineWidget;
-class ResizableScrollBar;
-class AudioMonitor;
-class QScrollBar;
-struct EffectMeta;
-struct Sequence;
-class Clip;
-struct Footage;
-struct FootageStream;
-
-bool is_clip_selected(Clip* clip, bool containing);
+bool is_clip_selected(ClipPtr clip, bool containing);
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
-bool selection_contains_transition(const Selection& s, Clip* c, int type);
-void move_clip(ComboAction *ca, Clip *c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions = true, bool relative = false);
-void ripple_clips(ComboAction *ca, Sequence* s, long point, long length, const QVector<int>& ignore = QVector<int>());
+bool selection_contains_transition(const Selection& s, ClipPtr c, int type);
+void move_clip(ComboAction *ca, ClipPtr c, long iin, long iout, long iclip_in, int itrack, bool verify_transitions = true, bool relative = false);
+void ripple_clips(ComboAction *ca, SequencePtr s, long point, long length, const QVector<int>& ignore = QVector<int>());
 
 struct Ghost {
 	int clip;
@@ -85,7 +74,7 @@ struct Ghost {
 	bool trimming;
 
 	// transition trimming
-	Transition* transition;
+    TransitionPtr transition;
 };
 
 class Timeline : public QDockWidget
@@ -98,15 +87,15 @@ public:
 	bool focused();
     void multiply_zoom(double m);
 	void copy(bool del);
-	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame);
-	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
+    ClipPtr split_clip(ComboAction* ca, bool transitions, int p, long frame);
+    ClipPtr split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
 	bool split_selection(ComboAction* ca);
 	bool split_all_clips_at_point(ComboAction *ca, long point);
 	bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
 	void clean_up_selections(QVector<Selection>& areas);
 	void deselect_area(long in, long out, int track);
 	void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);
-	void relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips);
+    void relink_clips_using_ids(QVector<int>& old_clips, QVector<ClipPtr>& new_clips);
 	void update_sequence();
 
 	QVector<int> get_tracks_of_linked_clips(int i);
@@ -114,8 +103,8 @@ public:
     void edit_to_point_internal(bool in, bool ripple);
     void delete_in_out_internal(bool ripple);
 
-	void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
-	void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
+    void create_ghosts_from_media(SequencePtr seq, long entry_point, QVector<Media *> &media_list);
+    void add_clips_from_ghosts(ComboAction *ca, SequencePtr s);
 
 	int getTimelineScreenPointFromFrame(long frame);
 	long getTimelineFrameFromScreenPoint(int x);

@@ -85,7 +85,7 @@ void NewSequenceDialog::set_sequence_name(const QString& s) {
 
 void NewSequenceDialog::create() {
 	if (existing_sequence == nullptr) {
-		Sequence* s = new Sequence();
+        SequencePtr s(new Sequence());
 
 		s->name = sequence_name_edit->text();
 		s->width = width_numeric->value();
@@ -112,7 +112,7 @@ void NewSequenceDialog::create() {
 		ca->append(esc);
 
 		for (int i=0;i<existing_sequence->clips.size();i++) {
-			Clip* c = existing_sequence->clips.at(i);
+            ClipPtr c = existing_sequence->clips.at(i);
 			if (c != nullptr) {
 				c->refactor_frame_rate(ca, multiplier, true);
 			}

@@ -44,7 +44,7 @@
 #include "io/config.h"
 #include "playback/playback.h"
 
-TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
+TimecodeEffect::TimecodeEffect(ClipPtr c, const EffectMeta* em) :
 	Effect(c, em)
 {
 	enable_always_update = true;

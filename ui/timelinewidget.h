@@ -23,26 +23,30 @@
 
 #include <QTimer>
 #include <QWidget>
+#include <QScrollBar>
+#include <QPainter>
+
+#include "project/sequence.h"
+#include "project/clip.h"
+#include "project/footage.h"
+#include "project/media.h"
+#include "project/undo.h"
 #include "timelinetools.h"
 
-#define GHOST_THICKNESS 2 // thiccccc
-#define CLIP_TEXT_PADDING 3
-
-#define TRACK_MIN_HEIGHT 30
-#define TRACK_HEIGHT_INCREMENT 10
-
-struct Sequence;
-class Clip;
-struct FootageStream;
 class Timeline;
-class TimelineAction;
-class QScrollBar;
-class SetSelectionsCommand;
-class QPainter;
-class Media;
+
+namespace olive {
+    namespace timeline {
+        const int kGhostThickness = 2;
+        const int kClipTextPadding = 3;
+
+        const int kTrackMinHeight = 30;
+        const int kTrackHeightIncrement = 10;
+    }
+}
 
 bool same_sign(int a, int b);
-void draw_waveform(Clip* clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
+void draw_waveform(ClipPtr clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
 
 class TimelineWidget : public QWidget {
 	Q_OBJECT
@@ -80,12 +84,12 @@ private:
 	bool track_resizing;
 	int track_target;
 
-	QVector<Clip*> pre_clips;
-	QVector<Clip*> post_clips;
+    QVector<ClipPtr> pre_clips;
+    QVector<ClipPtr> post_clips;
 
 	Media* rc_reveal_media;
 
-	Sequence* self_created_sequence;
+    SequencePtr self_created_sequence;
 
 	QTimer tooltip_timer;
 	int tooltip_clip;

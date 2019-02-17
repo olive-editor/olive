@@ -37,8 +37,6 @@
 #include "project/sourcescommon.h"
 #include "ui/sourceiconview.h"
 
-#include "panels.h"
-
 #include "ui/sourcetable.h"
 
 #define LOAD_TYPE_VERSION 69
@@ -48,7 +46,7 @@ extern QString autorecovery_filename;
 extern QStringList recent_projects;
 extern ProjectModel project_model;
 
-Sequence* create_sequence_from_media(QVector<Media *> &media_list);
+SequencePtr create_sequence_from_media(QVector<Media *> &media_list);
 
 QString get_channel_layout_name(int channels, uint64_t layout);
 QString get_interlacing_name(int interlacing);
@@ -56,15 +54,15 @@ QString get_interlacing_name(int interlacing);
 class Project : public QDockWidget {
 	Q_OBJECT
 public:
-	explicit Project(QWidget *parent = 0);
+    explicit Project(QWidget *parent = nullptr);
 	~Project();
 	bool is_focused();
 	void clear();
-    Media* create_sequence_internal(ComboAction *ca, Sequence* s, bool open, Media* parent);
-	QString get_next_sequence_name(QString start = 0);
-	void process_file_list(QStringList& files, bool recursive = false, Media* replace = nullptr, Media *parent = nullptr);
-	void replace_media(Media* item, QString filename);
-	Media *get_selected_folder();
+    Media* create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent);
+    QString get_next_sequence_name(QString start = nullptr);
+    void process_file_list(QStringList& files, bool recursive = false, Media* replace = nullptr, Media *parent = nullptr);
+    void replace_media(Media* item, QString filename);
+    Media* get_selected_folder();
 	bool reveal_media(Media *media, QModelIndex parent = QModelIndex());
 	void add_recent_project(QString url);
 
@@ -72,12 +70,12 @@ public:
 	void load_project(bool autorecovery);
 	void save_project(bool autorecovery);
 
-	Media* create_folder_internal(QString name);
-	Media* item_to_media(const QModelIndex& index);
+    Media* create_folder_internal(QString name);
+    Media* item_to_media(const QModelIndex& index);
 
 	void save_recent_projects();
 
-	QVector<Media*> list_all_project_sequences();
+    QVector<Media*> list_all_project_sequences();
 
 	SourceTable* tree_view;
 	SourceIconView* icon_view;
@@ -85,11 +83,11 @@ public:
 
 	ProjectFilter* sorter;
 
-	QVector<Media*> last_imported_media;
+    QVector<Media*> last_imported_media;
 
 	QModelIndexList get_current_selected();
 
-	void start_preview_generator(Media* item, bool replacing);
+    void start_preview_generator(Media* item, bool replacing);
 	void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
 
 	QWidget* toolbar_widget;
@@ -108,7 +106,7 @@ private:
 	int folder_id;
 	int media_id;
 	int sequence_id;
-	void list_all_sequences_worker(QVector<Media *> *list, Media* parent);
+    void list_all_sequences_worker(QVector<Media *> *list, Media* parent);
 	QString get_file_name_from_path(const QString &path);
 	QDir proj_dir;
 	QWidget* icon_view_container;
@@ -127,7 +125,7 @@ private slots:
 class MediaThrobber : public QObject {
 	Q_OBJECT
 public:
-	MediaThrobber(Media*);
+    MediaThrobber(Media*);
 public slots:
 	void start();
 	void stop(int, bool replace);
@@ -136,7 +134,7 @@ private slots:
 private:
 	QPixmap pixmap;
 	int animation;
-	Media* item;
+    Media* item;
 	QTimer* animator;
 };
 

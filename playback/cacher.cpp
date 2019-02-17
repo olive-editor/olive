@@ -62,13 +62,13 @@ double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
 	return ((double) (nb_bytes >> 1) / nb_channels / sample_rate);
 }
 
-void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
+void apply_audio_effects(ClipPtr c, double timecode_start, AVFrame* frame, int nb_bytes, QVector<ClipPtr> nests) {
 	// perform all audio effects
 	double timecode_end;
 	timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
 
 	for (int j=0;j<c->effects.size();j++) {
-		Effect* e = c->effects.at(j);
+        EffectPtr e = c->effects.at(j);
 		if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
 	}
 	if (c->get_opening_transition() != nullptr) {
@@ -98,7 +98,7 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 	}
 
 	if (!nests.isEmpty()) {
-		Clip* next_nest = nests.last();
+        ClipPtr next_nest = nests.last();
 		nests.removeLast();
 		apply_audio_effects(next_nest, timecode_start + (((double)c->get_timeline_in_with_transition()-c->get_clip_in_with_transition())/c->sequence->frame_rate), frame, nb_bytes, nests);
 	}
@@ -106,7 +106,7 @@ void apply_audio_effects(Clip* c, double timecode_start, AVFrame* frame, int nb_
 
 #define AUDIO_BUFFER_PADDING 2048
 
-void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int playback_speed) {
+void cache_audio_worker(ClipPtr c, bool scrubbing, QVector<ClipPtr>& nests, int playback_speed) {
 	long timeline_in = c->get_timeline_in_with_transition();
 	long timeline_out = c->get_timeline_out_with_transition();
 	long target_frame = c->audio_target_frame;
@@ -460,7 +460,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int play
 	QMetaObject::invokeMethod(panel_sequence_viewer, "play_wake", Qt::QueuedConnection);
 }
 
-void cache_video_worker(Clip* c, long playhead) {
+void cache_video_worker(ClipPtr c, long playhead) {
 	int read_ret, send_ret, retr_ret;
 
 	int64_t target_pts = seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
@@ -498,7 +498,7 @@ void cache_video_worker(Clip* c, long playhead) {
 		while (true) {
 			AVFrame* frame = av_frame_alloc();
 
-			Footage* media = c->media->to_footage();
+            FootagePtr media = c->media->to_footage();
 			const FootageStream* ms = media->get_stream_from_file_index(true, c->media_stream);
 
 			while ((retr_ret = av_buffersink_get_frame(c->buffersink_ctx, frame)) == AVERROR(EAGAIN)) {
@@ -585,7 +585,7 @@ void cache_video_worker(Clip* c, long playhead) {
 	}
 }
 
-void reset_cache(Clip* c, long target_frame, int playback_speed) {
+void reset_cache(ClipPtr c, long target_frame, int playback_speed) {
 	// if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
 	if (c->media == nullptr) {
 		if (c->track >= 0) {
@@ -671,11 +671,11 @@ void reset_cache(Clip* c, long target_frame, int playback_speed) {
 	}
 }
 
-Cacher::Cacher(Clip* c) : clip(c) {}
+Cacher::Cacher(ClipPtr c) : clip(c) {}
 
 AVSampleFormat sample_format = AV_SAMPLE_FMT_S16;
 
-void open_clip_worker(Clip* clip) {
+void open_clip_worker(ClipPtr clip) {
     qint64 time_start = QDateTime::currentMSecsSinceEpoch();
 
 	if (clip->media == nullptr) {
@@ -694,7 +694,7 @@ void open_clip_worker(Clip* clip) {
 		}
 	} else if (clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		// opens file resource for FFmpeg and prepares Clip struct for playback
-		Footage* m = clip->media->to_footage();
+        FootagePtr m = clip->media->to_footage();
 
 		// byte array for retriving raw bytes from QString URL
 		QByteArray ba;
@@ -947,7 +947,7 @@ void open_clip_worker(Clip* clip) {
     qInfo() << "Clip opened on track" << clip->track << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
 }
 
-void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests, int playback_speed) {
+void cache_clip_worker(ClipPtr clip, long playhead, bool reset, bool scrubbing, QVector<ClipPtr> nests, int playback_speed) {
 	if (reset) {
 		// note: for video, playhead is in "internal clip" frames - for audio, it's the timeline playhead
 		reset_cache(clip, playhead, playback_speed);
@@ -967,7 +967,7 @@ void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QV
 	}
 }
 
-void close_clip_worker(Clip* clip) {
+void close_clip_worker(ClipPtr clip) {
 	clip->finished_opening = false;
 
 	if (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {

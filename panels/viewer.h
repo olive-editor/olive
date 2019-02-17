@@ -24,19 +24,17 @@
 #include <QDockWidget>
 #include <QTimer>
 #include <QIcon>
-
-class Timeline;
-class Media;
-struct Sequence;
-class TimelineHeader;
-class ResizableScrollBar;
-class ViewerContainer;
-class LabelSlider;
-class QPushButton;
-class QLabel;
+#include <QLabel>
+#include <QPushButton>
 
 #include "project/marker.h"
+#include "project/media.h"
+
 #include "ui/viewerwidget.h"
+#include "ui/timelinewidget.h"
+#include "ui/timelineheader.h"
+#include "ui/labelslider.h"
+#include "ui/resizablescrollbar.h"
 
 bool frame_rate_is_droppable(float rate);
 long timecode_to_frame(const QString& s, int view, double frame_rate);
@@ -92,7 +90,7 @@ public:
 	ViewerWidget* viewer_widget;
 
 	Media* media;
-	Sequence* seq;
+    SequencePtr seq;
 	QVector<Marker>* marker_ref;
 
 	void set_marker();
@@ -124,7 +122,7 @@ private slots:
 private:
 	void update_window_title();
 	void clean_created_seq();
-	void set_sequence(bool main, Sequence* s);
+    void set_sequence(bool main, SequencePtr s);
 	bool main_sequence;
 	bool created_sequence;
 	long cached_end_frame;

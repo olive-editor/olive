@@ -23,21 +23,20 @@
 
 #include <QVector>
 
+#include "project/clip.h"
 #include "project/marker.h"
+#include "project/transition.h"
 #include "project/selection.h"
 
-class Clip;
-class Transition;
-class Media;
-
-struct Sequence {
+class Sequence {
+public:
 	Sequence();
 	~Sequence();
-	Sequence* copy();
+    SequencePtr copy();
 	QString name;
 	void getTrackLimits(int* video_tracks, int* audio_tracks);
 	long getEndFrame();
-	void hard_delete_transition(Clip *c, int type);
+    void hard_delete_transition(ClipPtr c, int type);
 	int width;
 	int height;
 	double frame_rate;
@@ -56,13 +55,15 @@ struct Sequence {
 	int save_id;
 
 	QVector<Marker> markers;
-	QVector<Clip*> clips;
-	QVector<Transition*> transitions;
+    QVector<ClipPtr> clips;
+    QVector<TransitionPtr> transitions;
 };
+
+using SequencePtr = std::shared_ptr<Sequence>;
 
 // static variable for the currently active sequence
 namespace olive {
-    extern Sequence* ActiveSequence;
+    extern SequencePtr ActiveSequence;
 }
 
 #endif // SEQUENCE_H

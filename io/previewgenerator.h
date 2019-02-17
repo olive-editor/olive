@@ -23,6 +23,7 @@
 
 #include <QThread>
 #include <QSemaphore>
+#include <QDir>
 
 enum IconType {
 	ICON_TYPE_VIDEO,
@@ -45,7 +46,7 @@ class PreviewGenerator : public QThread
 {
 	Q_OBJECT
 public:
-	PreviewGenerator(Media*, Footage*, bool);
+    PreviewGenerator(Media*, FootagePtr, bool);
 	void run();
 	void cancel();
 signals:
@@ -57,12 +58,12 @@ private:
 	void finalize_media();
 	AVFormatContext* fmt_ctx;
 	Media* media;
-	Footage* footage;
+    FootagePtr footage;
 	bool retrieve_duration;
 	bool contains_still_image;
 	bool replace;
-	bool cancelled;
-	QString data_path;
+    bool cancelled;
+    QDir data_dir;
 	QString get_thumbnail_path(const QString &hash, const FootageStream &ms);
 	QString get_waveform_path(const QString& hash, const FootageStream &ms);
 };

@@ -34,11 +34,7 @@
 #include "undo.h"
 #include "debug.h"
 
-extern "C" {
-	#include <libavformat/avformat.h>
-}
-
-Clip::Clip(Sequence* s) :
+Clip::Clip(SequencePtr s) :
 	sequence(s),
 	enabled(true),
 	clip_in(0),
@@ -64,8 +60,8 @@ Clip::Clip(Sequence* s) :
 	reset();
 }
 
-Clip* Clip::copy(Sequence* s, bool duplicate_transitions) {
-	Clip* copy = new Clip(s);
+ClipPtr Clip::copy(SequencePtr s, bool duplicate_transitions) {
+    ClipPtr copy(new Clip(s));
 
 	copy->enabled = enabled;
 	copy->name = QString(name);
@@ -122,9 +118,9 @@ void Clip::reset_audio() {
 		frame_sample_index = -1;
 		audio_buffer_write = 0;
 	} else if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
-		Sequence* nested_sequence = media->to_sequence();
+        SequencePtr nested_sequence = media->to_sequence();
 		for (int i=0;i<nested_sequence->clips.size();i++) {
-			Clip* c = nested_sequence->clips.at(i);
+            ClipPtr c = nested_sequence->clips.at(i);
 			if (c != nullptr) c->reset_audio();
 		}
 	}
@@ -133,7 +129,7 @@ void Clip::reset_audio() {
 void Clip::refresh() {
 	// validates media if it was replaced
 	if (replaced && media != nullptr && media->get_type() == MEDIA_TYPE_FOOTAGE) {
-		Footage* m = media->to_footage();
+        FootagePtr m = media->to_footage();
 
 		if (track < 0 && m->video_tracks.size() > 0)  {
 			media_stream = m->video_tracks.at(0).file_index;
@@ -177,7 +173,7 @@ QVector<Marker> &Clip::get_markers() {
     return markers;
 }
 
-Transition* Clip::get_opening_transition() {
+TransitionPtr Clip::get_opening_transition() {
 	if (opening_transition > -1) {
 		if (this->sequence == nullptr) {
 			return clipboard_transitions.at(opening_transition);
@@ -188,7 +184,7 @@ Transition* Clip::get_opening_transition() {
 	return nullptr;
 }
 
-Transition* Clip::get_closing_transition() {
+TransitionPtr Clip::get_closing_transition() {
 	if (closing_transition > -1) {
 		if (this->sequence == nullptr) {
 			return clipboard_transitions.at(closing_transition);
@@ -201,15 +197,13 @@ Transition* Clip::get_closing_transition() {
 
 Clip::~Clip() {
 	if (open) {
-		close_clip(this, true);
+        close_clip(ClipPtr(this), true);
 	}
 
-	if (opening_transition != -1) this->sequence->hard_delete_transition(this, TA_OPENING_TRANSITION);
-	if (closing_transition != -1) this->sequence->hard_delete_transition(this, TA_CLOSING_TRANSITION);
+    if (opening_transition != -1) this->sequence->hard_delete_transition(ClipPtr(this), TA_OPENING_TRANSITION);
+    if (closing_transition != -1) this->sequence->hard_delete_transition(ClipPtr(this), TA_CLOSING_TRANSITION);
 
-	for (int i=0;i<effects.size();i++) {
-		delete effects.at(i);
-	}
+    effects.clear();
 	av_packet_free(&pkt);
 }
 
@@ -265,7 +259,7 @@ void Clip::recalculateMaxLength() {
 			switch (media->get_type()) {
 			case MEDIA_TYPE_FOOTAGE:
 			{
-				Footage* m = media->to_footage();
+                FootagePtr m = media->to_footage();
 				const FootageStream* ms = m->get_stream_from_file_index(track < 0, media_stream);
 				if (ms != nullptr && ms->infinite_length) {
 					calculated_length = LONG_MAX;
@@ -276,7 +270,7 @@ void Clip::recalculateMaxLength() {
 				break;
 			case MEDIA_TYPE_SEQUENCE:
 			{
-				Sequence* s = media->to_sequence();
+                SequencePtr s = media->to_sequence();
 				calculated_length = refactor_frame_number(s->getEndFrame(), s->frame_rate, fr);
 			}
 				break;
@@ -301,7 +295,7 @@ int Clip::getWidth() {
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
-		Sequence* s = media->to_sequence();
+        SequencePtr s = media->to_sequence();
 		return s->width;
         break;
 	}
@@ -320,7 +314,7 @@ int Clip::getHeight() {
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
-		Sequence* s = media->to_sequence();
+        SequencePtr s = media->to_sequence();
 		return s->height;
 	}
 	}
@@ -329,7 +323,7 @@ int Clip::getHeight() {
 
 void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points) {
 	if (change_timeline_points) {
-		move_clip(ca, this,
+        move_clip(ca, ClipPtr(this),
 				  qRound((double) timeline_in * multiplier),
 				  qRound((double) timeline_out * multiplier),
 				  qRound((double) clip_in * multiplier),
@@ -338,7 +332,7 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
 
 	// move keyframes
 	for (int i=0;i<effects.size();i++) {
-		Effect* e = effects.at(i);
+        EffectPtr e = effects.at(i);
 		for (int j=0;j<e->row_count();j++) {
 			EffectRow* r = e->row(j);
 			for (int l=0;l<r->fieldCount();l++) {

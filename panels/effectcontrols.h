@@ -100,7 +100,7 @@ private:
 	void show_effect_menu(int type, int subtype);
 	void load_effects();
 	void load_keyframes();
-	void open_effect(QVBoxLayout* hlayout, Effect* e);
+    void open_effect(QVBoxLayout* hlayout, EffectPtr e);
 
 	void setup_ui();
 

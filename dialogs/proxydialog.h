@@ -30,7 +30,7 @@
 class ProxyDialog : public QDialog {
 	Q_OBJECT
 public:
-	ProxyDialog(QWidget* parent, const QVector<Footage*>& footage);
+    ProxyDialog(QWidget* parent, const QVector<FootagePtr>& footage);
 public slots:
 	// called if user clicks "OK" on the dialog
 	virtual void accept() override;
@@ -51,7 +51,7 @@ private:
 	QString proxy_folder_name;
 
 	// list of footage to make proxies for
-	QVector<Footage*> selected_footage;
+    QVector<FootagePtr> selected_footage;
 private slots:
 	// triggered when the user changes the index in the location combobox
 	void location_changed(int i);
