@@ -1845,7 +1845,7 @@ void Timeline::set_sb_max() {
 void Timeline::UpdateTitle() {
   QString title = tr("Timeline: ");
   if (olive::ActiveSequence == nullptr) {
-    setWindowTitle(title + tr("<none>"));
+    setWindowTitle(title + tr("(none)"));
   } else {
     setWindowTitle(title + olive::ActiveSequence->name);
     update_ui(false);
