@@ -30,40 +30,40 @@
 
 class Sequence {
 public:
-	Sequence();
-	~Sequence();
-    SequencePtr copy();
-	QString name;
-	void getTrackLimits(int* video_tracks, int* audio_tracks);
+  Sequence();
+  ~Sequence();
+  SequencePtr copy();
+  QString name;
+  void getTrackLimits(int* video_tracks, int* audio_tracks);
   long getEndFrame();
-	int width;
-	int height;
-	double frame_rate;
-	int audio_frequency;
-	int audio_layout;
+  int width;
+  int height;
+  double frame_rate;
+  int audio_frequency;
+  int audio_layout;
 
   void RefreshClips(Media* m = nullptr);
 
-	QVector<Selection> selections;
-	long playhead;
+  QVector<Selection> selections;
+  long playhead;
 
-	bool using_workarea;
-	long workarea_in;
-	long workarea_out;
+  bool using_workarea;
+  long workarea_in;
+  long workarea_out;
 
-	bool wrapper_sequence;
+  bool wrapper_sequence;
 
-	int save_id;
+  int save_id;
 
-	QVector<Marker> markers;
-    QVector<ClipPtr> clips;
+  QVector<Marker> markers;
+  QVector<ClipPtr> clips;
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;
 
 // static variable for the currently active sequence
 namespace olive {
-    extern SequencePtr ActiveSequence;
+extern SequencePtr ActiveSequence;
 }
 
 #endif // SEQUENCE_H

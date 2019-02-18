@@ -673,7 +673,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 // if the user clicks a selected clip while holding shift, deselect the clip
                 panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
 
-                // if the user isn't holding alt, also deselect all of its links
+                // if the user isn't holding alt, also deselect all of its links as well
                 if (!alt) {
                   for (int i=0;i<clip->linked.size();i++) {
                     ClipPtr link = olive::ActiveSequence->clips.at(clip->linked.at(i));
@@ -681,9 +681,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                   }
                 }
 
-              } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER && panel_timeline->transition_select != kTransitionNone) {
+              } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER
+                          && panel_timeline->transition_select != kTransitionNone) {
 
-
+                // if the clip was selected by then the user clicked a transition, de-select the clip and its links
+                // and select the transition only
 
                 panel_timeline->deselect_area(clip->timeline_in, clip->timeline_out, clip->track);
 
@@ -695,14 +697,22 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                 Selection s;
                 s.track = clip->track;
 
+                // select the transition only
                 if (panel_timeline->transition_select == kTransitionOpening && clip->get_opening_transition() != nullptr) {
                   s.in = clip->timeline_in;
-                  if (clip->get_opening_transition()->secondary_clip != nullptr) s.in -= clip->get_opening_transition()->get_true_length();
+
+                  if (clip->get_opening_transition()->secondary_clip != nullptr) {
+                    s.in -= clip->get_opening_transition()->get_true_length();
+                  }
+
                   s.out = clip->timeline_in + clip->get_opening_transition()->get_true_length();
                 } else if (panel_timeline->transition_select == kTransitionClosing && clip->get_closing_transition() != nullptr) {
                   s.in = clip->timeline_out - clip->get_closing_transition()->get_true_length();
                   s.out = clip->timeline_out;
-                  if (clip->get_closing_transition()->secondary_clip != nullptr) s.out += clip->get_closing_transition()->get_true_length();
+
+                  if (clip->get_closing_transition()->secondary_clip != nullptr) {
+                    s.out += clip->get_closing_transition()->get_true_length();
+                  }
                 }
                 olive::ActiveSequence->selections.append(s);
               }
@@ -1150,9 +1160,13 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
       } else if (panel_timeline->transition_tool_proc) {
         const Ghost& g = panel_timeline->ghosts.at(0);
 
+        // if the transition is greater than 0 length (if it is 0, we make nothing)
         if (g.in != g.out) {
+
+          // get transition length
           long transition_start = qMin(g.in, g.out);
           long transition_end = qMax(g.in, g.out);
+
 
           ClipPtr pre = olive::ActiveSequence->clips.at(g.clip);
           ClipPtr post = pre;
@@ -1160,8 +1174,15 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
           make_room_for_transition(ca, pre, panel_timeline->transition_tool_type, transition_start, transition_end, true);
 
           if (panel_timeline->transition_tool_post_clip > -1) {
+            // post_clip == -1 means this will be just one transition on one clip rather than a shared transition
+            // between two clips
+
             post = olive::ActiveSequence->clips.at(panel_timeline->transition_tool_post_clip);
-            int opposite_type = (panel_timeline->transition_tool_type == kTransitionOpening) ? kTransitionClosing : kTransitionOpening;
+
+            // get opposite transition type
+            int opposite_type = (panel_timeline->transition_tool_type == kTransitionOpening) ?
+                  kTransitionClosing : kTransitionOpening;
+
             make_room_for_transition(
                   ca,
                   post,
@@ -1180,7 +1201,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
           }
 
           if (transition_start < post->timeline_in || transition_end > pre->timeline_out) {
-            // delete shit over there and extend timeline in
+            // if the user extended the transition beyond the clip's boundaries, delete the content there and extend
+            // the clip to fill these new boundaries
+
             QVector<Selection> areas;
             Selection s;
             s.track = post->track;
@@ -2111,17 +2134,13 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
           panel_timeline->rect_select_rect.setBottom(event->pos().y());
         }
 
-        long frame_start = panel_timeline->drag_frame_start;
-        long frame_end = panel_timeline->cursor_frame;
-        long frame_min = qMin(frame_start, frame_end);
-        long frame_max = qMax(frame_start, frame_end);
+        long frame_min = qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
+        long frame_max = qMax(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
 
-        int track_start = panel_timeline->drag_track_start;
-        int track_end = panel_timeline->cursor_track;
+        int track_min = qMin(panel_timeline->drag_track_start, panel_timeline->cursor_track);
+        int track_max = qMax(panel_timeline->drag_track_start, panel_timeline->cursor_track);
 
-        int track_min = qMin(track_start, track_end);
-        int track_max = qMax(track_start, track_end);
-
+        // determine which clips are in this rectangular selection
         QVector<ClipPtr> selected_clips;
         for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
           ClipPtr clip = olive::ActiveSequence->clips.at(i);
@@ -2130,6 +2149,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
               clip->track <= track_max &&
               !(clip->timeline_in < frame_min && clip->timeline_out < frame_min) &&
               !(clip->timeline_in > frame_max && clip->timeline_out > frame_max)) {
+
+            // create a group of the clip (and its links if alt is not pressed)
             QVector<ClipPtr> session_clips;
             session_clips.append(clip);
 
@@ -2139,9 +2160,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
               }
             }
 
+            // for each of these clips, see if clip has already been added -
+            // this can easily happen due to adding linked clips
             for (int j=0;j<session_clips.size();j++) {
-              // see if clip has already been added - this can easily happen due to adding linked clips
               bool found = false;
+
               ClipPtr c = session_clips.at(j);
               for (int k=0;k<selected_clips.size();k++) {
                 if (selected_clips.at(k) == c) {
@@ -2149,6 +2172,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                   break;
                 }
               }
+
+              // if the clip isn't already in the selection add it
               if (!found) {
                 selected_clips.append(c);
               }
@@ -2156,6 +2181,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
           }
         }
 
+        // add each of the selected clips to the main sequence's selections
         olive::ActiveSequence->selections.resize(selected_clips.size() + panel_timeline->selection_offset);
         for (int i=0;i<selected_clips.size();i++) {
           Selection& s = olive::ActiveSequence->selections[i+panel_timeline->selection_offset];
@@ -2167,9 +2193,12 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
         panel_timeline->repaint_timeline();
       } else {
+
+        // set up rectangle selecting
         panel_timeline->rect_select_rect.setX(event->pos().x());
 
         if (bottom_align) {
+          // bottom aligned widgets start with 0 at the bottom and go down to a negative number
           panel_timeline->rect_select_rect.setY(event->pos().y() - height());
         } else {
           panel_timeline->rect_select_rect.setY(event->pos().y());
@@ -2179,10 +2208,13 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         panel_timeline->rect_select_rect.setHeight(0);
 
         panel_timeline->rect_select_proc = true;
+
       }
     } else if (current_tool_shows_cursor()) {
-      // redraw because we have a cursor
+
+      // we're not currently performing an action (click is not pressed), but redraw because we have an on-screen cursor
       panel_timeline->repaint_timeline();
+
     } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
                panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
                panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
@@ -2386,21 +2418,37 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         }
       }
     } else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+
+      // we're not currently performing any slipping, all we do here is set the cursor if mouse is hovering over a
+      // cursor
       if (getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track) > -1) {
         setCursor(Qt::SizeHorCursor);
       } else {
         unsetCursor();
       }
+
     } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+
       if (panel_timeline->transition_tool_init) {
+
+        // the transition tool has started
+
         if (panel_timeline->transition_tool_proc) {
+
+          // ghosts have been set up, so just run update
           update_ghosts(event->pos(), event->modifiers() & Qt::ShiftModifier);
+
         } else {
+
+          // transition tool is being used but ghosts haven't been set up yet, set them up now
           ClipPtr c = olive::ActiveSequence->clips.at(panel_timeline->transition_tool_pre_clip);
 
           Ghost g;
 
-          g.in = g.old_in = g.out = g.old_out = (panel_timeline->transition_tool_type == kTransitionOpening) ? c->timeline_in : c->timeline_out;
+          g.in = g.old_in = g.out = g.old_out = (panel_timeline->transition_tool_type == kTransitionOpening) ?
+                                                  c->timeline_in
+                                                : c->timeline_out;
+
           g.track = c->track;
           g.clip = panel_timeline->transition_tool_pre_clip;
           g.media_stream = panel_timeline->transition_tool_type;
@@ -2410,31 +2458,59 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
           panel_timeline->transition_tool_proc = true;
         }
-      } else {
-        int mouse_clip = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
-        if (mouse_clip > -1) {
-          ClipPtr c = olive::ActiveSequence->clips.at(mouse_clip);
-          if (same_sign(c->track, panel_timeline->transition_tool_side)) {
-            panel_timeline->transition_tool_pre_clip = mouse_clip;
-            long halfway = c->timeline_in + (c->getLength()/2);
-            long between_range = getFrameFromScreenPoint(panel_timeline->zoom, TRANSITION_BETWEEN_RANGE) + 1;
 
-            if (panel_timeline->cursor_frame > halfway) {
+      } else {
+
+        // transition tool has been selected but is not yet active, so we show screen feedback to the user on
+        // possible transitions
+
+        int mouse_clip = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+
+        // set default transition tool references to no clip
+        panel_timeline->transition_tool_pre_clip = -1;
+        panel_timeline->transition_tool_post_clip = -1;
+
+        if (mouse_clip > -1) {
+
+          // cursor is hovering over a clip
+
+          ClipPtr c = olive::ActiveSequence->clips.at(mouse_clip);
+
+          // check if the clip and transition are both the same sign (meaning video/audio are the same)
+          if (same_sign(c->track, panel_timeline->transition_tool_side)) {
+
+            // set "pre" clip to the hovered clip
+            panel_timeline->transition_tool_pre_clip = mouse_clip;
+
+            // set whether the transition is opening or closing based on whether the cursor is on the left half
+            // or right half of the clip
+            if (panel_timeline->cursor_frame > (c->timeline_in + (c->getLength()/2))) {
               panel_timeline->transition_tool_type = kTransitionClosing;
             } else {
               panel_timeline->transition_tool_type = kTransitionOpening;
             }
 
-            panel_timeline->transition_tool_post_clip = -1;
+            // the range within which the transition tool will assume the user wants to make a shared transition
+            // between two clips rather than just one transition on one clip
+            long between_range = getFrameFromScreenPoint(panel_timeline->zoom, TRANSITION_BETWEEN_RANGE) + 1;
+
+            // if the cursor is within this range, set the post_clip to be the next clip touching
+            //
+            // getClipIndexFromCoords() will automatically set to -1 if there's no clip there which means the
+            // end result will be the same as not setting a clip here at all
             if (panel_timeline->cursor_frame < c->timeline_in + between_range) {
+
+              // get clip touching to the left
               panel_timeline->transition_tool_post_clip = getClipIndexFromCoords(c->timeline_in-1, c->track);
+
             } else if (panel_timeline->cursor_frame > c->timeline_out - between_range) {
+
+              // get clip touching to the right
               panel_timeline->transition_tool_post_clip = getClipIndexFromCoords(c->timeline_out+1, c->track);
+
             }
+
           }
-        } else {
-          panel_timeline->transition_tool_pre_clip = -1;
-          panel_timeline->transition_tool_post_clip = -1;
         }
       }
 
