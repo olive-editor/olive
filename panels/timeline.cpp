@@ -78,8 +78,8 @@ Timeline::Timeline(QWidget *parent) :
   creating(false),
   transition_tool_init(false),
   transition_tool_proc(false),
-  transition_tool_pre_clip(-1),
-  transition_tool_post_clip(-1),
+  transition_tool_open_clip(-1),
+  transition_tool_close_clip(-1),
   hand_moving(false),
   block_repaints(false),
   scroll(0)
@@ -379,11 +379,19 @@ void Timeline::add_transition() {
     if (c != nullptr && is_clip_selected(c, true)) {
       int transition_to_add = (c->track < 0) ? TRANSITION_INTERNAL_CROSSDISSOLVE : TRANSITION_INTERNAL_LINEARFADE;
       if (c->get_opening_transition() == nullptr) {
-        ca->append(new AddTransitionCommand(c, nullptr, nullptr, get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION), kTransitionOpening, 30));
+        ca->append(new AddTransitionCommand(c,
+                                            nullptr,
+                                            nullptr,
+                                            get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION),
+                                            olive::CurrentConfig.default_transition_length));
         adding = true;
       }
       if (c->get_closing_transition() == nullptr) {
-        ca->append(new AddTransitionCommand(c, nullptr, nullptr, get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION), kTransitionClosing, 30));
+        ca->append(new AddTransitionCommand(nullptr,
+                                            c,
+                                            nullptr,
+                                            get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION),
+                                            olive::CurrentConfig.default_transition_length));
         adding = true;
       }
     }
@@ -2047,16 +2055,30 @@ void move_clip(ComboAction* ca, ClipPtr c, long iin, long iout, long iclip_in, i
   ca->append(new MoveClipAction(c, iin, iout, iclip_in, itrack, relative));
 
   if (verify_transitions) {
-    if (c->get_opening_transition() != nullptr && c->get_opening_transition()->secondary_clip != nullptr && c->get_opening_transition()->secondary_clip->timeline_out != iin) {
+
+    // if this is a shared transition, and the corresponding clip will be moved away somehow
+    if (c->get_opening_transition() != nullptr
+        && c->get_opening_transition()->secondary_clip != nullptr
+        && c->get_opening_transition()->secondary_clip->timeline_out != iin) {
       // separate transition
       ca->append(new SetPointer(reinterpret_cast<void**>(&c->get_opening_transition()->secondary_clip), nullptr));
-      ca->append(new AddTransitionCommand(c->get_opening_transition()->secondary_clip, nullptr, c->get_opening_transition(), nullptr, kTransitionClosing, 0));
+      ca->append(new AddTransitionCommand(nullptr,
+                                          c->get_opening_transition()->secondary_clip,
+                                          c->get_opening_transition(),
+                                          nullptr,
+                                          0));
     }
 
-    if (c->get_closing_transition() != nullptr && c->get_closing_transition()->secondary_clip != nullptr && c->get_closing_transition()->parent_clip->timeline_in != iout) {
+    if (c->get_closing_transition() != nullptr
+        && c->get_closing_transition()->secondary_clip != nullptr
+        && c->get_closing_transition()->parent_clip->timeline_in != iout) {
       // separate transition
       ca->append(new SetPointer(reinterpret_cast<void**>(&c->get_closing_transition()->secondary_clip), nullptr));
-      ca->append(new AddTransitionCommand(c, nullptr, c->get_closing_transition(), nullptr, kTransitionClosing, 0));
+      ca->append(new AddTransitionCommand(nullptr,
+                                          c,
+                                          c->get_closing_transition(),
+                                          nullptr,
+                                          0));
     }
   }
 }

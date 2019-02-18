@@ -177,9 +177,8 @@ public:
   // transition variables
   bool transition_tool_init;
   bool transition_tool_proc;
-  int transition_tool_pre_clip;
-  int transition_tool_post_clip;
-  int transition_tool_type;
+  int transition_tool_open_clip;
+  int transition_tool_close_clip;
   const EffectMeta* transition_tool_meta;
   int transition_tool_side;
 

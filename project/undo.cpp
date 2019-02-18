@@ -220,55 +220,64 @@ void AddEffectCommand::doRedo() {
   done = true;
 }
 
-AddTransitionCommand::AddTransitionCommand(ClipPtr c,
-                                           ClipPtr s,
+AddTransitionCommand::AddTransitionCommand(ClipPtr iopen,
+                                           ClipPtr iclose,
                                            TransitionPtr copy,
                                            const EffectMeta *itransition,
-                                           int itype,
                                            int ilength) {
-  primary = c;
-  secondary = s;
-  transition_to_copy = copy;
+  open_ = iopen;
+  close_ = iclose;
+  transition_to_copy_ = copy;
   transition_meta_ = itransition;
-  type = itype;
-  length = ilength;
+  length_ = ilength;
+  new_transition_ref_ = nullptr;
 }
 
 void AddTransitionCommand::doUndo() {
-  if (type == kTransitionOpening) {
-    primary->opening_transition = old_ptransition;
-    if (secondary != nullptr) secondary->closing_transition = old_stransition;
-  } else {
-    primary->closing_transition = old_ptransition;
-    if (secondary != nullptr) secondary->opening_transition = old_stransition;
+  if (open_ != nullptr) {
+    open_->opening_transition = old_open_transition_;
+  }
+
+  if (close_ != nullptr)  {
+    close_->closing_transition = old_close_transition_;
   }
 }
 
 void AddTransitionCommand::doRedo() {
-  // store old transition of primary clip
-  old_ptransition = primary->opening_transition;
-
-  // create new transition object
-  TransitionPtr new_transition;
-  if (transition_to_copy == nullptr) {
-    new_transition = get_transition_from_meta(primary, secondary, transition_meta_);
-  } else {
-    new_transition = transition_to_copy->copy(primary, nullptr);
+  // convert open/close clips to primary/secondary for transition object
+  ClipPtr primary = open_;
+  ClipPtr secondary = close_;
+  if (primary == nullptr) {
+    primary = secondary;
+    secondary = nullptr;
   }
 
-  primary->opening_transition = new_transition;
+  // create new transition object
+  if (new_transition_ref_ == nullptr) {
+    if (transition_to_copy_ == nullptr) {
+      new_transition_ref_ = get_transition_from_meta(primary, secondary, transition_meta_);
+    } else {
+      new_transition_ref_ = transition_to_copy_->copy(primary, nullptr);
+    }
+  }
 
-  if (secondary != nullptr) {
-    // store old secondary transition
-    old_stransition = secondary->closing_transition;
+  // set opening clip's opening transition to this and store the old one
+  if (open_ != nullptr) {
+    old_open_transition_ = open_->opening_transition;
 
-    // set secondary transition to the same transition
-    secondary->closing_transition = new_transition;
+    open_->opening_transition = new_transition_ref_;
+  }
+
+  // set closing clip's closing transition to this and store the old one
+  if (close_ != nullptr) {
+    old_close_transition_ = close_->closing_transition;
+
+    close_->closing_transition = new_transition_ref_;
   }
 
   // if a length was specified, set it now
-  if (length > 0) {
-    new_transition->set_length(length);
+  if (length_ > 0) {
+    new_transition_ref_->set_length(length_);
   }
 }
 

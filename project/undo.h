@@ -138,18 +138,18 @@ private:
 
 class AddTransitionCommand : public OliveAction {
 public:
-  AddTransitionCommand(ClipPtr c, ClipPtr s, TransitionPtr copy, const EffectMeta* itransition, int itype, int ilength);
+  AddTransitionCommand(ClipPtr iopen, ClipPtr iclose, TransitionPtr copy, const EffectMeta* itransition, int ilength);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  ClipPtr primary;
-  ClipPtr secondary;
-  TransitionPtr transition_to_copy;
+  ClipPtr open_;
+  ClipPtr close_;
+  TransitionPtr transition_to_copy_;
   const EffectMeta* transition_meta_;
-  int type;
-  int length;
-  TransitionPtr old_ptransition;
-  TransitionPtr old_stransition;
+  int length_;
+  TransitionPtr old_open_transition_;
+  TransitionPtr old_close_transition_;
+  TransitionPtr new_transition_ref_;
 };
 
 class ModifyTransitionCommand : public OliveAction {

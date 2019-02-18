@@ -46,6 +46,7 @@
 #include "panels/grapheditor.h"
 #include "ui/viewerwidget.h"
 #include "io/clipboard.h"
+#include "io/config.h"
 #include "ui/timelineheader.h"
 #include "ui/keyframeview.h"
 #include "ui/resizablescrollbar.h"
@@ -103,10 +104,18 @@ void EffectControls::menu_select(QAction* q) {
       const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
         if (c->opening_transition == nullptr) {
-          ca->append(new AddTransitionCommand(c, nullptr, nullptr, meta, kTransitionOpening, 30));
+          ca->append(new AddTransitionCommand(c,
+                                              nullptr,
+                                              nullptr,
+                                              meta,
+                                              olive::CurrentConfig.default_transition_length));
         }
         if (c->closing_transition == nullptr) {
-          ca->append(new AddTransitionCommand(c, nullptr, nullptr, meta, kTransitionClosing, 30));
+          ca->append(new AddTransitionCommand(nullptr,
+                                              c,
+                                              nullptr,
+                                              meta,
+                                              olive::CurrentConfig.default_transition_length));
         }
       } else {
         ca->append(new AddEffectCommand(c, nullptr, meta));
