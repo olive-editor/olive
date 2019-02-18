@@ -42,6 +42,8 @@ public:
 	int audio_frequency;
 	int audio_layout;
 
+  void RefreshClips(Media* m = nullptr);
+
 	QVector<Selection> selections;
 	long playhead;
 

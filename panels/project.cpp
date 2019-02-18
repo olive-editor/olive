@@ -221,6 +221,9 @@ Project::Project(QWidget *parent) :
   connect(directory_up, SIGNAL(clicked(bool)), this, SLOT(go_up_dir()));
   connect(icon_view, SIGNAL(changed_root()), this, SLOT(set_up_dir_enabled()));
 
+  connect(olive::media_icon_service.get(), SIGNAL(IconChanged()), icon_view->viewport(), SLOT(update()));
+  connect(olive::media_icon_service.get(), SIGNAL(IconChanged()), tree_view->viewport(), SLOT(update()));
+
   update_view_type();
 
   Retranslate();

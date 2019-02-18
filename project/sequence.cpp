@@ -64,7 +64,18 @@ long Sequence::getEndFrame() {
 			end = c->timeline_out;
 		}
 	}
-	return end;
+  return end;
+}
+
+void Sequence::RefreshClips(Media *m) {
+  for (int i=0;i<clips.size();i++) {
+    ClipPtr c = clips.at(i);
+
+    if (c != nullptr
+        && (m == nullptr || c->media == m)) {
+      c->refresh();
+    }
+  }
 }
 
 void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {

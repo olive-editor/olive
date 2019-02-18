@@ -197,6 +197,10 @@ void PreviewGenerator::finalize_media() {
     } else {
       olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_VIDEO);
     }
+
+    if (olive::ActiveSequence != nullptr) {
+      olive::ActiveSequence->RefreshClips(media);
+    }
   }
 }
 
