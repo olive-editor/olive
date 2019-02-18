@@ -35,14 +35,20 @@
 #include "ui/audiomonitor.h"
 #include "ui/panel.h"
 
-#define TRACK_DEFAULT_HEIGHT 40
+enum CreateObjects {
+  ADD_OBJ_TITLE,
+  ADD_OBJ_SOLID,
+  ADD_OBJ_BARS,
+  ADD_OBJ_TONE,
+  ADD_OBJ_NOISE,
+  ADD_OBJ_AUDIO
+};
 
-#define ADD_OBJ_TITLE 0
-#define ADD_OBJ_SOLID 1
-#define ADD_OBJ_BARS 2
-#define ADD_OBJ_TONE 3
-#define ADD_OBJ_NOISE 4
-#define ADD_OBJ_AUDIO 5
+enum TrimType {
+  TRIM_NONE,
+  TRIM_IN,
+  TRIM_OUT
+};
 
 bool is_clip_selected(ClipPtr clip, bool containing);
 int getScreenPointFromFrame(double zoom, long frame);
@@ -70,8 +76,7 @@ struct Ghost {
   // other variables
   long ghost_length;
   long media_length;
-  bool trim_in;
-  bool trimming;
+  TrimType trim_type;
 
   // transition trimming
   TransitionPtr transition;
@@ -82,7 +87,7 @@ class Timeline : public Panel
   Q_OBJECT
 public:
   explicit Timeline(QWidget *parent = nullptr);
-  ~Timeline();
+  virtual ~Timeline() override;
 
   bool focused();
   void multiply_zoom(double m);
@@ -98,8 +103,6 @@ public:
   void relink_clips_using_ids(QVector<int>& old_clips, QVector<ClipPtr>& new_clips);
   void update_sequence();
 
-  QVector<int> get_tracks_of_linked_clips(int i);
-  bool has_clip_been_split(int c);
   void edit_to_point_internal(bool in, bool ripple);
   void delete_in_out_internal(bool ripple);
 
@@ -128,10 +131,8 @@ public:
   bool showing_all;
   double old_zoom;
 
-  QVector<int> video_track_heights;
-  QVector<int> audio_track_heights;
-  int get_track_height_size(bool video);
-  int calculate_track_height(int track, int height);
+  int GetTrackHeight(int track);
+  void SetTrackHeight(int track, int height);
 
   // snapping
   bool snapping;
@@ -145,10 +146,7 @@ public:
   void select_all();
   bool rect_select_init;
   bool rect_select_proc;
-  int rect_select_x;
-  int rect_select_y;
-  int rect_select_w;
-  int rect_select_h;
+  QRect rect_select_rect;
 
   // moving
   bool moving_init;
@@ -160,7 +158,7 @@ public:
 
   // trimming
   int trim_target;
-  bool trim_in_point;
+  TrimType trim_type;
   int transition_select;
 
   // splitting
@@ -211,8 +209,8 @@ public:
 
   bool can_ripple_empty_space(long frame, int track);
 
-  void resizeEvent(QResizeEvent *event);
 protected:
+  virtual void resizeEvent(QResizeEvent *event) override;
   virtual void Retranslate() override;
 public slots:
   void paste(bool insert = false);
@@ -233,8 +231,8 @@ public slots:
   void edit_to_in_point();
   void edit_to_out_point();
 
-  void increase_track_height();
-  void decrease_track_height();
+  void IncreaseTrackHeight();
+  void DecreaseTrackHeight();
 
   void previous_cut();
   void next_cut();
@@ -268,11 +266,11 @@ private:
 
   void setup_ui();
 
-  int default_track_height;
-
   // ripple delete empty space variables
   long rc_ripple_min;
   long rc_ripple_max;
+
+  QVector<TimelineTrackHeight> track_heights;
 
   QWidget* timeline_area;
   TimelineWidget* video_area;

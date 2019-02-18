@@ -38,8 +38,6 @@
 #include "debug.h"
 
 GraphEditor::GraphEditor(QWidget* parent) : Panel(parent), row(nullptr) {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
   resize(720, 480);
 
   QWidget* main_widget = new QWidget(this);

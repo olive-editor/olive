@@ -66,8 +66,6 @@ Viewer::Viewer(QWidget *parent) :
 	cue_recording_internal(false),
 	playback_speed(0)
 {
-	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
 	setup_ui();
 
 	headers->viewer = this;

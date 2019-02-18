@@ -426,8 +426,8 @@ void MainWindow::setup_menus() {
 
   view_menu->addAction(tr("Zoom In"), &olive::FocusFilter, SLOT(zoom_in()), QKeySequence("="))->setProperty("id", "zoomin");
   view_menu->addAction(tr("Zoom Out"), &olive::FocusFilter, SLOT(zoom_out()), QKeySequence("-"))->setProperty("id", "zoomout");
-  view_menu->addAction(tr("Increase Track Height"), panel_timeline, SLOT(increase_track_height()), QKeySequence("Ctrl+="))->setProperty("id", "vzoomin");
-  view_menu->addAction(tr("Decrease Track Height"), panel_timeline, SLOT(decrease_track_height()), QKeySequence("Ctrl+-"))->setProperty("id", "vzoomout");
+  view_menu->addAction(tr("Increase Track Height"), panel_timeline, SLOT(IncreaseTrackHeight()), QKeySequence("Ctrl+="))->setProperty("id", "vzoomin");
+  view_menu->addAction(tr("Decrease Track Height"), panel_timeline, SLOT(DecreaseTrackHeight()), QKeySequence("Ctrl+-"))->setProperty("id", "vzoomout");
 
   show_all = view_menu->addAction(tr("Toggle Show All"), panel_timeline, SLOT(toggle_show_all()), QKeySequence("\\"));
   show_all->setProperty("id", "showall");

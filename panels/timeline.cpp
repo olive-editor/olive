@@ -71,7 +71,7 @@ Timeline::Timeline(QWidget *parent) :
   moving_proc(false),
   move_insert(false),
   trim_target(-1),
-  trim_in_point(false),
+  trim_type(TRIM_NONE),
   splitting(false),
   importing(false),
   importing_files(false),
@@ -84,11 +84,7 @@ Timeline::Timeline(QWidget *parent) :
   block_repaints(false),
   scroll(0)
 {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
   setup_ui();
-
-  default_track_height = qRound((QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96) * TRACK_DEFAULT_HEIGHT);
 
   headers->viewer = panel_sequence_viewer;
 
@@ -233,7 +229,7 @@ void Timeline::create_ghosts_from_media(SequencePtr seq, long entry_point, QVect
     if (can_import) {
       Ghost g;
       g.clip = -1;
-      g.trimming = false;
+      g.trim_type = TRIM_NONE;
       g.old_clip_in = g.clip_in = default_clip_in;
       g.media = medium;
       g.in = entry_point;
@@ -374,14 +370,6 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, SequencePtr s) {
   snapped = false;
 }
 
-int Timeline::get_track_height_size(bool video) {
-  if (video) {
-    return video_track_heights.size();
-  } else {
-    return audio_track_heights.size();
-  }
-}
-
 void Timeline::add_transition() {
   ComboAction* ca = new ComboAction();
   bool adding = false;
@@ -470,18 +458,6 @@ void Timeline::nest() {
       update_ui(true);
     }
   }
-}
-
-int Timeline::calculate_track_height(int track, int value) {
-  int index = (track < 0) ? qAbs(track + 1) : track;
-  QVector<int>& vector = (track < 0) ? video_track_heights : audio_track_heights;
-  while (vector.size() < index+1) {
-    vector.append(default_track_height);
-  }
-  if (value > -1) {
-    vector[index] = value;
-  }
-  return vector.at(index);
 }
 
 void Timeline::update_sequence() {
@@ -793,21 +769,51 @@ void Timeline::decheck_tool_buttons(QObject* sender) {
   }
 }
 
-QVector<int> Timeline::get_tracks_of_linked_clips(int i) {
-  QVector<int> tracks;
-  ClipPtr clip = olive::ActiveSequence->clips.at(i);
-  for (int j=0;j<clip->linked.size();j++) {
-    tracks.append(olive::ActiveSequence->clips.at(clip->linked.at(j))->track);
-  }
-  return tracks;
-}
-
 void Timeline::zoom_in() {
   multiply_zoom(2.0);
 }
 
 void Timeline::zoom_out() {
   multiply_zoom(0.5);
+}
+
+int Timeline::GetTrackHeight(int track) {
+  for (int i=0;i<track_heights.size();i++) {
+    if (track_heights.at(i).index == track) {
+      return track_heights.at(i).height;
+    }
+  }
+  return olive::timeline::kTrackDefaultHeight;
+}
+
+void Timeline::SetTrackHeight(int track, int height) {
+  for (int i=0;i<track_heights.size();i++) {
+    if (track_heights.at(i).index == track) {
+      track_heights[i].height = height;
+      return;
+    }
+  }
+
+  // we don't have a track height, so set a new one
+  TimelineTrackHeight t;
+  t.index = track;
+  t.height = height;
+  track_heights.append(t);
+}
+
+void Timeline::IncreaseTrackHeight() {
+  for (int i=0;i<track_heights.size();i++) {
+    track_heights[i].height += olive::timeline::kTrackHeightIncrement;
+  }
+  repaint_timeline();
+}
+
+void Timeline::DecreaseTrackHeight() {
+  for (int i=0;i<track_heights.size();i++) {
+    track_heights[i].height = qMax(track_heights[i].height - olive::timeline::kTrackHeightIncrement,
+                                   olive::timeline::kTrackDefaultHeight);
+  }
+  repaint_timeline();
 }
 
 bool is_clip_selected(ClipPtr clip, bool containing) {
@@ -886,18 +892,9 @@ ClipPtr Timeline::split_clip(ComboAction* ca, bool transitions, int p, long fram
   return nullptr;
 }
 
-bool Timeline::has_clip_been_split(int c) {
-  for (int i=0;i<split_cache.size();i++) {
-    if (split_cache.at(i) == c) {
-      return true;
-    }
-  }
-  return false;
-}
-
 bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool relink) {
   // see if we split this clip before
-  if (has_clip_been_split(clip)) {
+  if (split_cache.contains(clip)) {
     return false;
   }
 
@@ -923,7 +920,7 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
         // find linked clips of old clip
         for (int i=0;i<c->linked.size();i++) {
           int l = c->linked.at(i);
-          if (!has_clip_been_split(l)) {
+          if (!split_cache.contains(l)) {
             ClipPtr link = olive::ActiveSequence->clips.at(l);
             if ((original_clip_is_selected && is_clip_selected(link, true)) || !original_clip_is_selected) {
               split_cache.append(l);
@@ -1673,32 +1670,6 @@ void Timeline::toggle_links() {
   } else {
     delete command;
   }
-}
-
-void Timeline::increase_track_height() {
-  for (int i=0;i<video_track_heights.size();i++) {
-    video_track_heights[i] += olive::timeline::kTrackHeightIncrement;
-  }
-  for (int i=0;i<audio_track_heights.size();i++) {
-    audio_track_heights[i] += olive::timeline::kTrackHeightIncrement;
-  }
-  repaint_timeline();
-}
-
-void Timeline::decrease_track_height() {
-  for (int i=0;i<video_track_heights.size();i++) {
-    video_track_heights[i] = qMax(
-          video_track_heights[i] - olive::timeline::kTrackHeightIncrement,
-          olive::timeline::kTrackMinHeight
-          );
-  }
-  for (int i=0;i<audio_track_heights.size();i++) {
-    audio_track_heights[i] = qMax(
-          audio_track_heights[i] - olive::timeline::kTrackHeightIncrement,
-          olive::timeline::kTrackMinHeight
-          );
-  }
-  repaint_timeline();
 }
 
 void Timeline::deselect() {

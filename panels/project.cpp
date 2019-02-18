@@ -72,8 +72,6 @@ QStringList recent_projects;
 Project::Project(QWidget *parent) :
   Panel(parent)
 {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
   QWidget* dockWidgetContents = new QWidget(this);
 
   QVBoxLayout* verticalLayout = new QVBoxLayout(dockWidgetContents);
