@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "timelineheader.h"
 
 #include "mainwindow.h"
@@ -5,8 +25,10 @@
 #include "panels/timeline.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "project/media.h"
 #include "panels/viewer.h"
 #include "io/config.h"
+#include "ui/menuhelper.h"
 #include "debug.h"
 
 #include <QPainter>
@@ -20,7 +42,9 @@
 #define PLAYHEAD_SIZE 6
 #define LINE_MIN_PADDING 50
 #define SUBLINE_MIN_PADDING 50 // TODO play with this
-#define MARKER_SIZE 4
+
+// used only if center_timeline_timecodes is FALSE
+#define TEXT_PADDING_FROM_LINE 4
 
 bool center_scroll_to_playhead(QScrollBar* bar, double zoom, long playhead) {
 	// returns true is the scroll was changed, false if not
@@ -91,7 +115,7 @@ void TimelineHeader::set_in_point(long new_in) {
 		new_out = viewer->seq->getEndFrame();
 	}
 
-	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+    Olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
 }
 
@@ -103,7 +127,7 @@ void TimelineHeader::set_out_point(long new_out) {
 		new_in = 0;
 	}
 
-	undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+    Olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
 }
 
@@ -140,8 +164,8 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			if (event->pos().y() > get_marker_offset()
 					&& (event->pos().x() < playhead_x-PLAYHEAD_SIZE
 					|| event->pos().x() > playhead_x+PLAYHEAD_SIZE)) {
-				for (int i=0;i<viewer->seq->markers.size();i++) {
-					int marker_pos = getHeaderScreenPointFromFrame(viewer->seq->markers.at(i).frame);
+				for (int i=0;i<viewer->marker_ref->size();i++) {
+					int marker_pos = getHeaderScreenPointFromFrame(viewer->marker_ref->at(i).frame);
 					if (event->pos().x() > marker_pos - MARKER_SIZE && event->pos().x() < marker_pos + MARKER_SIZE) {
 						bool found = false;
 						for (int j=0;j<selected_markers.size();j++) {
@@ -169,7 +193,7 @@ void TimelineHeader::mousePressEvent(QMouseEvent* event) {
 			if (clicked_on_marker) {
 				selected_marker_original_times.resize(selected_markers.size());
 				for (int i=0;i<selected_markers.size();i++) {
-					selected_marker_original_times[i] = viewer->seq->markers.at(selected_markers.at(i)).frame;
+					selected_marker_original_times[i] = viewer->marker_ref->at(selected_markers.at(i)).frame;
 				}
 				drag_start = event->pos().x();
 				dragging_markers = true;
@@ -222,7 +246,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
 
 				// move markers
 				for (int i=0;i<selected_markers.size();i++) {
-					viewer->seq->markers[selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
+					viewer->marker_ref[0][selected_markers.at(i)].frame = selected_marker_original_times.at(i) + frame_movement;
 				}
 
 				update_parents();
@@ -256,19 +280,19 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 	if (viewer->seq != nullptr) {
 		dragging = false;
 		if (resizing_workarea) {
-			undo_stack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
+            Olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
 		} else if (dragging_markers && selected_markers.size() > 0) {
 			bool moved = false;
 			ComboAction* ca = new ComboAction();
 			for (int i=0;i<selected_markers.size();i++) {
-				Marker* m = &viewer->seq->markers[selected_markers.at(i)];
+				Marker* m = &viewer->marker_ref[0][selected_markers.at(i)];
 				if (selected_marker_original_times.at(i) != m->frame) {
 					ca->append(new MoveMarkerAction(m, selected_marker_original_times.at(i), m->frame));
 					moved = true;
 				}
 			}
 			if (moved) {
-				undo_stack.push(ca);
+                Olive::UndoStack.push(ca);
 			} else {
 				delete ca;
 			}
@@ -302,11 +326,11 @@ double TimelineHeader::get_zoom() {
 
 void TimelineHeader::delete_markers() {
 	if (selected_markers.size() > 0) {
-		DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->seq);
+		DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->marker_ref);
 		for (int i=0;i<selected_markers.size();i++) {
 			dma->markers.append(selected_markers.at(i));
 		}
-		undo_stack.push(dma);
+        Olive::UndoStack.push(dma);
 		update_parents();
 	}
 }
@@ -348,10 +372,19 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 			// draw text
 			bool draw_text = false;
 			if (text_enabled && lineX-textWidth > lastTextBoundary) {
-				timecode = frame_to_timecode(frame + in_visible, config.timecode_view, viewer->seq->frame_rate);
+				timecode = frame_to_timecode(frame + in_visible, Olive::CurrentConfig.timecode_view, viewer->seq->frame_rate);
 				fullTextWidth = fm.width(timecode);
 				textWidth = fullTextWidth>>1;
-				text_x = lineX-textWidth;
+
+				text_x = lineX;
+
+				// centers the text to that point on the timeline, LEFT aligns it if not
+				if (Olive::CurrentConfig.center_timeline_timecodes) {
+					text_x -= textWidth;
+				} else {
+					text_x += TEXT_PADDING_FROM_LINE;
+				}
+
 				lastTextBoundary = lineX+textWidth;
 				if (lastTextBoundary >= 0) {
 					draw_text = true;
@@ -366,7 +399,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 				// draw line markers
 				p.setPen(Qt::gray);
-				p.drawLine(lineX, yoff, lineX, height());
+				p.drawLine(lineX, (!Olive::CurrentConfig.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
 
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
@@ -385,31 +418,18 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 		if (viewer->seq->using_workarea) {
 			in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
 			int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
-			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), viewer->seq->enable_workarea ? QColor(0, 192, 255, 128) : QColor(255, 255, 255, 64));
+			p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
 			p.setPen(Qt::white);
 			p.drawLine(in_x, 0, in_x, height());
 			p.drawLine(out_x, 0, out_x, height());
 		}
 
 		// draw markers
-		for (int i=0;i<viewer->seq->markers.size();i++) {
-			const Marker& m = viewer->seq->markers.at(i);
+		for (int i=0;i<viewer->marker_ref->size();i++) {
+			const Marker& m = viewer->marker_ref->at(i);
+
 			int marker_x = getHeaderScreenPointFromFrame(m.frame);
-			const QPoint points[5] = {
-				QPoint(marker_x, height()-1),
-				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
-				QPoint(marker_x + MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
-			};
-			/*const QPoint points[5] = {
-				QPoint(marker_x, height()-1),
-				QPoint(marker_x + MARKER_SIZE, height() - MARKER_SIZE - 1),
-				QPoint(marker_x + MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, yoff),
-				QPoint(marker_x - MARKER_SIZE, height() - MARKER_SIZE - 1)
-			};*/
-			p.setPen(Qt::black);
+
 			bool selected = false;
 			for (int j=0;j<selected_markers.size();j++) {
 				if (selected_markers.at(j) == i) {
@@ -417,12 +437,8 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 					break;
 				}
 			}
-			if (selected) {
-				p.setBrush(QColor(208, 255, 208));
-			} else {
-				p.setBrush(QColor(128, 224, 128));
-			}
-			p.drawPolygon(points, 5);
+
+            draw_marker(p, marker_x, yoff, height()-1, selected);
 		}
 
 		// draw playhead triangle
@@ -441,7 +457,14 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 void TimelineHeader::show_context_menu(const QPoint &pos) {
 	QMenu menu(this);
 
-	mainWindow->make_inout_menu(&menu);
+    Olive::MenuHelper.make_inout_menu(&menu);
+
+	menu.addSeparator();
+
+    QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), Olive::MainWindow, SLOT(toggle_bool_action()));
+	center_timecodes->setCheckable(true);
+	center_timecodes->setChecked(Olive::CurrentConfig.center_timeline_timecodes);
+	center_timecodes->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.center_timeline_timecodes));
 
 	menu.exec(mapToGlobal(pos));
 }

@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "effect.h"
 
 #include "panels/panels.h"
@@ -17,6 +37,7 @@
 #include "mainwindow.h"
 #include "io/math.h"
 #include "io/clipboard.h"
+#include "io/config.h"
 #include "transition.h"
 
 #include "effects/internal/transformeffect.h"
@@ -29,9 +50,7 @@
 #include "effects/internal/paneffect.h"
 #include "effects/internal/shakeeffect.h"
 #include "effects/internal/cornerpineffect.h"
-#ifndef NOVST
 #include "effects/internal/vsthost.h"
-#endif
 #include "effects/internal/fillleftrighteffect.h"
 #include "effects/internal/frei0reffect.h"
 
@@ -46,8 +65,8 @@
 #include <QtMath>
 #include <QMenu>
 #include <QApplication>
+#include <QFileDialog>
 
-bool shaders_are_enabled = true;
 QVector<EffectMeta> effects;
 
 Effect* create_effect(Clip* c, const EffectMeta* em) {
@@ -77,7 +96,7 @@ Effect* create_effect(Clip* c, const EffectMeta* em) {
 		return new Effect(c, em);
 	} else {
 		qCritical() << "Invalid effect data";
-		QMessageBox::critical(mainWindow,
+        QMessageBox::critical(Olive::MainWindow,
 							  QCoreApplication::translate("Effect", "Invalid effect"),
 							  QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
 	}
@@ -104,15 +123,15 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 	texture(nullptr),
 	enable_always_update(false),
 	isOpen(false),
-	bound(false)
+	bound(false),
+	iterations(1)
 {
 	// set up base UI
 	container = new CollapsibleWidget();
 	connect(container->enabled_check, SIGNAL(clicked(bool)), this, SLOT(field_changed()));
-	ui = new QWidget();
-	ui_layout = new QGridLayout();
+	ui = new QWidget(container);
+	ui_layout = new QGridLayout(ui);
 	ui_layout->setSpacing(4);
-	ui->setLayout(ui_layout);
 	container->setContents(ui);
 
 	connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
@@ -278,6 +297,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 								vertPath = attr.value().toString();
 							} else if (attr.name() == "frag") {
 								fragPath = attr.value().toString();
+							} else if (attr.name() == "iterations") {
+								setIterations(attr.value().toInt());
 							}
 						}
 					}/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
@@ -313,7 +334,7 @@ Effect::~Effect() {
 		close();
 	}
 
-	//delete container;
+	delete container;
 
 	for (int i=0;i<rows.size();i++) {
 		delete rows.at(i);
@@ -374,7 +395,7 @@ void Effect::field_changed() {
 
 void Effect::show_context_menu(const QPoint& pos) {
 	if (meta->type == EFFECT_TYPE_EFFECT) {
-		QMenu menu(mainWindow);
+        QMenu menu(Olive::MainWindow);
 
 		int index = get_index_in_clip();
 
@@ -397,6 +418,12 @@ void Effect::show_context_menu(const QPoint& pos) {
 
 		menu.addAction(tr("D&elete"), this, SLOT(delete_self()));
 
+		menu.addSeparator();
+
+		menu.addAction(tr("Load Settings From File"), this, SLOT(load_from_file()));
+
+		menu.addAction(tr("Save Settings to File"), this, SLOT(save_to_file()));
+
 		menu.exec(container->title_bar->mapToGlobal(pos));
 	}
 }
@@ -405,7 +432,7 @@ void Effect::delete_self() {
 	EffectDeleteCommand* command = new EffectDeleteCommand();
 	command->clips.append(parent_clip);
 	command->fx.append(get_index_in_clip());
-	undo_stack.push(command);
+	Olive::UndoStack.push(command);
 	update_ui(true);
 }
 
@@ -414,7 +441,7 @@ void Effect::move_up() {
 	command->clip = parent_clip;
 	command->from = get_index_in_clip();
 	command->to = command->from - 1;
-	undo_stack.push(command);
+	Olive::UndoStack.push(command);
 	panel_effect_controls->reload_clips();
 	panel_sequence_viewer->viewer_widget->frame_update();
 }
@@ -424,9 +451,65 @@ void Effect::move_down() {
 	command->clip = parent_clip;
 	command->from = get_index_in_clip();
 	command->to = command->from + 1;
-	undo_stack.push(command);
+	Olive::UndoStack.push(command);
 	panel_effect_controls->reload_clips();
 	panel_sequence_viewer->viewer_widget->frame_update();
+}
+
+void Effect::save_to_file() {
+	// save effect settings to file
+    QString file = QFileDialog::getSaveFileName(Olive::MainWindow,
+												tr("Save Effect Settings"),
+												QString(),
+												tr("Effect XML Settings %1").arg("(*.xml)"));
+
+	// if the user picked a file
+	if (!file.isEmpty()) {
+
+        // ensure file ends with .xml extension
+        if (!file.endsWith(".xml", Qt::CaseInsensitive)) {
+            file.append(".xml");
+        }
+
+		QFile file_handle(file);
+		if (file_handle.open(QFile::WriteOnly)) {
+
+			file_handle.write(save_to_string());
+
+			file_handle.close();
+		} else {
+            QMessageBox::critical(Olive::MainWindow,
+								  tr("Save Settings Failed"),
+								  tr("Failed to open \"%1\" for writing.").arg(file),
+								  QMessageBox::Ok);
+		}
+	}
+}
+
+void Effect::load_from_file() {
+	// load effect settings from file
+    QString file = QFileDialog::getOpenFileName(Olive::MainWindow,
+												tr("Load Effect Settings"),
+												QString(),
+												tr("Effect XML Settings %1").arg("(*.xml)"));
+
+	// if the user picked a file
+	if (!file.isEmpty()) {
+		QFile file_handle(file);
+		if (file_handle.open(QFile::ReadOnly)) {
+
+			Olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
+
+			file_handle.close();
+
+			update_ui(false);
+		} else {
+            QMessageBox::critical(Olive::MainWindow,
+								  tr("Load Settings Failed"),
+								  tr("Failed to open \"%1\" for reading.").arg(file),
+								  QMessageBox::Ok);
+		}
+	}
 }
 
 int Effect::get_index_in_clip() {
@@ -502,7 +585,7 @@ void Effect::load(QXmlStreamReader& stream) {
 									for (int l=0;l<row->fieldCount();l++) {
 										if (row->field(l)->id == attr.value()) {
 											field_number = l;
-											qInfo() << "Found field by ID";
+//											qInfo() << "Found field by ID";
 											break;
 										}
 									}
@@ -601,6 +684,70 @@ void Effect::save(QXmlStreamWriter& stream) {
 	}
 }
 
+void Effect::load_from_string(const QByteArray &s) {
+	// clear existing keyframe data
+	for (int i=0;i<rows.size();i++) {
+		EffectRow* row = rows.at(i);
+		row->setKeyframing(false);
+		for (int j=0;j<row->fieldCount();j++) {
+			EffectField* field = row->field(j);
+			field->keyframes.clear();
+		}
+	}
+
+	// write settings with xml writer
+	QXmlStreamReader stream(s);
+
+	while (!stream.atEnd()) {
+		stream.readNext();
+
+		// find the effect opening tag
+		if (stream.name() == "effect" && stream.isStartElement()) {
+
+			// check the name to see if it matches this effect
+			const QXmlStreamAttributes& attributes = stream.attributes();
+			for (int i=0;i<attributes.size();i++) {
+				const QXmlStreamAttribute& attr = attributes.at(i);
+				if (attr.name() == "name") {
+					if (get_meta_from_name(attr.value().toString()) == meta) {
+						// pass off to standard loading function
+						load(stream);
+					} else {
+                        QMessageBox::critical(Olive::MainWindow,
+											  tr("Load Settings Failed"),
+											  tr("This settings file doesn't match this effect."),
+											  QMessageBox::Ok);
+					}
+					break;
+				}
+			}
+
+			// we've found what we're looking for
+			break;
+		}
+	}
+}
+
+QByteArray Effect::save_to_string() {
+	QByteArray save_data;
+
+	// write settings to string with xml writer
+	QXmlStreamWriter stream(&save_data);
+
+	stream.writeStartDocument();
+
+	stream.writeStartElement("effect");
+
+	// pass off to standard saving function
+	save(stream);
+
+	stream.writeEndElement(); // effect
+
+	stream.writeEndDocument();
+
+	return save_data;
+}
+
 bool Effect::is_open() {
 	return isOpen;
 }
@@ -627,7 +774,7 @@ void Effect::open() {
 		qWarning() << "Tried to open an effect that was already open";
 		close();
 	}
-	if (shaders_are_enabled && enable_shader) {
+	if (Olive::CurrentRuntimeConfig.shaders_are_enabled && enable_shader) {
 		if (QOpenGLContext::currentContext() == nullptr) {
 			qWarning() << "No current context to create a shader program for - will retry next repaint";
 		} else {
@@ -662,10 +809,6 @@ void Effect::open() {
 	} else {
 		isOpen = true;
 	}
-
-	if (enable_superimpose) {
-		texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-	}
 }
 
 void Effect::close() {
@@ -689,7 +832,7 @@ void Effect::startEffect() {
 		open();
 		qWarning() << "Tried to start a closed effect - opening";
 	}
-	if (shaders_are_enabled
+	if (Olive::CurrentRuntimeConfig.shaders_are_enabled
 			&& enable_shader
 			&& glslProgram->isLinked()) {
 		bound = glslProgram->bind();
@@ -701,6 +844,14 @@ void Effect::endEffect() {
 	bound = false;
 }
 
+int Effect::getIterations() {
+	return iterations;
+}
+
+void Effect::setIterations(int i) {
+	iterations = i;
+}
+
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
 Effect* Effect::copy(Clip* c) {
@@ -710,9 +861,10 @@ Effect* Effect::copy(Clip* c) {
 	return copy;
 }
 
-void Effect::process_shader(double timecode, GLTextureCoords&) {
+void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
 	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
 	glslProgram->setUniformValue("time", GLfloat(timecode));
+	glslProgram->setUniformValue("iteration", iteration);
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);
@@ -749,30 +901,40 @@ void Effect::process_shader(double timecode, GLTextureCoords&) {
 void Effect::process_coords(double, GLTextureCoords&, int) {}
 
 GLuint Effect::process_superimpose(double timecode) {
-	bool recreate_texture = false;
+	bool dimensions_changed = false;
+	bool redrew_image = false;
+
 	int width = parent_clip->getWidth();
 	int height = parent_clip->getHeight();
 
 	if (width != img.width() || height != img.height()) {
-		img = QImage(width, height, QImage::Format_RGBA8888);
-		recreate_texture = true;
+		img = QImage(width, height, QImage::Format_RGBA8888_Premultiplied);
+		dimensions_changed = true;
 	}
 
-	if (valueHasChanged(timecode) || recreate_texture || enable_always_update) {
+	if (valueHasChanged(timecode) || dimensions_changed || enable_always_update) {
 		redraw(timecode);
+		redrew_image = true;
 	}
 
-	if (texture != nullptr) {
-		if (recreate_texture || texture->width() != img.width() || texture->height() != img.height()) {
-			delete_texture();
-			texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-			texture->setData(img);
-		} else {
-			texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, img.constBits());
-		}
-		return texture->textureId();
+	if (texture == nullptr || texture->width() != img.width() || texture->height() != img.height()) {
+		delete_texture();
+
+		texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+		texture->setSize(img.width(), img.height());
+		texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+		texture->setMipLevels(texture->maximumMipLevels());
+		texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+		texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+
+		redrew_image = true;
 	}
-	return 0;
+
+	if (redrew_image) {
+		texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, img.constBits());
+	}
+
+	return texture->textureId();
 }
 
 void Effect::process_audio(double, double, quint8*, int, int) {}
@@ -800,7 +962,7 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
 				gizmo->y_field2->set_double_value(gizmo->y_field2->get_double_value(timecode) + y_movement*gizmo->y_field_multi2);
 				gizmo->y_field2->make_key_from_change(ca);
 			}
-			if (done) undo_stack.push(ca);
+			if (done) Olive::UndoStack.push(ca);
 			break;
 		}
 	}
@@ -910,6 +1072,24 @@ void Effect::delete_texture() {
 		delete texture;
 		texture = nullptr;
 	}
+}
+
+const EffectMeta* get_meta_from_name(const QString& input) {
+	int split_index = input.indexOf('/');
+	QString category;
+	if (split_index > -1) {
+		category = input.left(split_index);
+	}
+	QString name = input.mid(split_index + 1);
+
+	for (int j=0;j<effects.size();j++) {
+		if (effects.at(j).name == name
+				&& (effects.at(j).category == category
+					|| category.isEmpty())) {
+			return &effects.at(j);
+		}
+	}
+	return nullptr;
 }
 
 qint16 mix_audio_sample(qint16 a, qint16 b) {

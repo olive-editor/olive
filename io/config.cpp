@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "config.h"
 
 #include <QFile>
@@ -9,7 +29,8 @@
 
 #include "debug.h"
 
-Config config;
+Config Olive::CurrentConfig;
+RuntimeConfig Olive::CurrentRuntimeConfig;
 
 Config::Config()
 	: saved_layout(false),
@@ -38,16 +59,19 @@ Config::Config()
 	  hover_focus(false),
 	  project_view_type(PROJECT_VIEW_TREE),
 	  set_name_with_marker(true),
-	  show_project_toolbar(false),
-	  disable_multithreading_for_images(false),
+      show_project_toolbar(false),
 	  previous_queue_size(3),
 	  previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
 	  upcoming_queue_size(0.5),
 	  upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
-	  loop(true),
+      loop(false),
 	  seek_also_selects(false),
 	  effect_textbox_lines(3),
-	  use_software_fallback(false)
+	  use_software_fallback(false),
+	  center_timeline_timecodes(true),
+	  waveform_resolution(64),
+      thumbnail_resolution(120),
+      add_default_effects_to_clips(true)
 {}
 
 void Config::load(QString path) {
@@ -138,10 +162,7 @@ void Config::load(QString path) {
 					set_name_with_marker = (stream.text() == "1");
 				} else if (stream.name() == "ShowProjectToolbar") {
 					stream.readNext();
-					show_project_toolbar = (stream.text() == "1");
-				} else if (stream.name() == "DisableMultithreadedImages") {
-					stream.readNext();
-					disable_multithreading_for_images = (stream.text() == "1");
+                    show_project_toolbar = (stream.text() == "1");
 				} else if (stream.name() == "PreviousFrameQueueSize") {
 					stream.readNext();
 					previous_queue_size = stream.text().toDouble();
@@ -169,7 +190,28 @@ void Config::load(QString path) {
 				} else if (stream.name() == "UseSoftwareFallback") {
 					stream.readNext();
 					use_software_fallback = (stream.text() == "1");
-				}
+				} else if (stream.name() == "CenterTimelineTimecodes") {
+					stream.readNext();
+					center_timeline_timecodes =  (stream.text() == "1");
+				} else if (stream.name() == "PreferredAudioOutput") {
+					stream.readNext();
+					preferred_audio_output = stream.text().toString();
+				} else if (stream.name() == "PreferredAudioInput") {
+					stream.readNext();
+					preferred_audio_input = stream.text().toString();
+				} else if (stream.name() == "LanguageFile") {
+					stream.readNext();
+					language_file = stream.text().toString();
+				} else if (stream.name() == "ThumbnailResolution") {
+					stream.readNext();
+					thumbnail_resolution = stream.text().toInt();
+				} else if (stream.name() == "WaveformResolution") {
+					stream.readNext();
+					waveform_resolution = stream.text().toInt();
+                } else if (stream.name() == "AddDefaultEffectsToClips") {
+                    stream.readNext();
+                    add_default_effects_to_clips = (stream.text() == "1");
+                }
 			}
 		}
 		if (stream.hasError()) {
@@ -219,8 +261,7 @@ void Config::save(QString path) {
 	stream.writeTextElement("HoverFocus", QString::number(hover_focus));
 	stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
 	stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
-	stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
-	stream.writeTextElement("DisableMultithreadedImages", QString::number(disable_multithreading_for_images));
+    stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
 	stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
 	stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
 	stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
@@ -230,8 +271,20 @@ void Config::save(QString path) {
 	stream.writeTextElement("CSSPath", css_path);
 	stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
 	stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
+	stream.writeTextElement("CenterTimelineTimecodes", QString::number(center_timeline_timecodes));
+	stream.writeTextElement("PreferredAudioOutput", preferred_audio_output);
+	stream.writeTextElement("PreferredAudioInput", preferred_audio_input);
+	stream.writeTextElement("LanguageFile", language_file);
+	stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
+    stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
+    stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
 
 	stream.writeEndElement(); // configuration
 	stream.writeEndDocument(); // doc
 	f.close();
 }
+
+RuntimeConfig::RuntimeConfig() :
+	shaders_are_enabled(true),
+	disable_blending(false)
+{}

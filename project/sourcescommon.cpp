@@ -1,14 +1,40 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "sourcescommon.h"
 
 #include "panels/panels.h"
 #include "project/media.h"
 #include "project/undo.h"
+#include "playback/playback.h"
 #include "panels/timeline.h"
 #include "panels/project.h"
 #include "project/footage.h"
 #include "panels/viewer.h"
 #include "project/projectfilter.h"
+#include "project/sequence.h"
 #include "io/config.h"
+#include "dialogs/proxydialog.h"
+#include "ui/viewerwidget.h"
+#include "ui/menuhelper.h"
+#include "io/proxygenerator.h"
 #include "mainwindow.h"
 
 #include <QProcess>
@@ -17,6 +43,8 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QDesktopServices>
+
+#include <QDebug>
 
 SourcesCommon::SourcesCommon(Project* parent) :
 	editing_item(nullptr),
@@ -40,8 +68,8 @@ void SourcesCommon::create_seq_from_selected() {
 		panel_timeline->create_ghosts_from_media(s, 0, media_list);
 		panel_timeline->add_clips_from_ghosts(ca, s);
 
-		project_parent->new_sequence(ca, s, true, nullptr);
-		undo_stack.push(ca);
+		project_parent->create_sequence_internal(ca, s, true, nullptr);
+		Olive::UndoStack.push(ca);
 	}
 }
 
@@ -54,14 +82,32 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 	QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
 
 	QMenu* new_menu = menu.addMenu(tr("New"));
-	mainWindow->make_new_menu(new_menu);
+    Olive::MenuHelper.make_new_menu(new_menu);
+
+	QMenu* view_menu = menu.addMenu(tr("View"));
+
+	QAction* tree_view_action = view_menu->addAction(tr("Tree View"));
+	connect(tree_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_tree_view()));
+
+	QAction* icon_view_action = view_menu->addAction(tr("Icon View"));
+	connect(icon_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_icon_view()));
+
+	QAction* toolbar_action = view_menu->addAction(tr("Show Toolbar"));
+	toolbar_action->setCheckable(true);
+	toolbar_action->setChecked(project_parent->toolbar_widget->isVisible());
+	connect(toolbar_action, SIGNAL(triggered(bool)), project_parent->toolbar_widget, SLOT(setVisible(bool)));
+
+	QAction* show_sequences = view_menu->addAction(tr("Show Sequences"));
+	show_sequences->setCheckable(true);
+	show_sequences->setChecked(panel_project->sorter->get_show_sequences());
+	connect(show_sequences, SIGNAL(triggered(bool)), panel_project->sorter, SLOT(set_show_sequences(bool)));
 
 	if (items.size() > 0) {
-		Media* m = project_parent->item_to_media(items.at(0));
-
 		if (items.size() == 1) {
+			Media* first_media = project_parent->item_to_media(items.at(0));
+
 			// replace footage
-			int type = m->get_type();
+			int type = first_media->get_type();
 			if (type == MEDIA_TYPE_FOOTAGE) {
 				QAction* replace_action = menu.addAction(tr("Replace/Relink Media"));
 				QObject::connect(replace_action, SIGNAL(triggered(bool)), project_parent, SLOT(replace_selected_file()));
@@ -81,14 +127,19 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 			}
 		}
 
-		// duplicate item
+		// analyze selected footage types
 		bool all_sequences = true;
 		bool all_footage = true;
+
+		cached_selected_footage.clear();
 		for (int i=0;i<items.size();i++) {
+			Media* m = project_parent->item_to_media(items.at(i));
 			if (m->get_type() != MEDIA_TYPE_SEQUENCE) {
 				all_sequences = false;
 			}
-			if (m->get_type() != MEDIA_TYPE_FOOTAGE) {
+			if (m->get_type() == MEDIA_TYPE_FOOTAGE) {
+				cached_selected_footage.append(m->to_footage());
+			} else {
 				all_footage = false;
 			}
 		}
@@ -108,6 +159,54 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 		if (all_footage) {
 			QAction* delete_footage_from_sequences = menu.addAction(tr("Delete All Clips Using This Media"));
 			QObject::connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), project_parent, SLOT(delete_clips_using_selected_media()));
+
+			QMenu* proxies = menu.addMenu(tr("Proxy"));
+
+			// special case if one footage item is selected and its proxy is currently being generated
+			if (cached_selected_footage.size() == 1
+					&& cached_selected_footage.at(0)->proxy
+					&& cached_selected_footage.at(0)->proxy_path.isEmpty()) {
+				QAction* action = proxies->addAction(tr("Generating proxy: %1% complete").arg(proxy_generator.get_proxy_progress(cached_selected_footage.at(0))));
+				action->setEnabled(false);
+			} else {
+				// determine whether any selected footage has or doesn't have proxies
+				bool footage_without_proxies_exists = false;
+				bool footage_with_proxies_exists = false;
+
+				for (int i=0;i<cached_selected_footage.size();i++) {
+					if (cached_selected_footage.at(i)->proxy) {
+						footage_with_proxies_exists = true;
+					} else {
+						footage_without_proxies_exists = true;
+					}
+				}
+
+				// if footage was selected WITHOUT proxies
+				if (footage_without_proxies_exists) {
+					QString create_proxy_text;
+
+					if (footage_with_proxies_exists) {
+						// some of the footage already has proxies, so we use a different string
+						create_proxy_text = tr("Create/Modify Proxy");
+					} else {
+						// none of the footage has proxies
+						create_proxy_text = tr("Create Proxy");
+					}
+
+					proxies->addAction(create_proxy_text, this, SLOT(open_create_proxy_dialog()));
+				}
+
+				// if footage was selected WITH proxies
+				if (footage_with_proxies_exists) {
+
+					if (!footage_without_proxies_exists) {
+						// if all the footage has proxies, we didn't make a "Create/Modify" above, so we create one here (but only "modify")
+						proxies->addAction(tr("Modify Proxy"), this, SLOT(open_create_proxy_dialog()));
+					}
+
+					proxies->addAction(tr("Restore Original"), this, SLOT(clear_proxies_from_selected()));
+				}
+			}
 		}
 
 		// delete media
@@ -119,24 +218,6 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 			QObject::connect(properties_action, SIGNAL(triggered(bool)), project_parent, SLOT(open_properties()));
 		}
 	}
-
-	menu.addSeparator();
-
-	QAction* tree_view_action = menu.addAction(tr("Tree View"));
-	connect(tree_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_tree_view()));
-
-	QAction* icon_view_action = menu.addAction(tr("Icon View"));
-	connect(icon_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_icon_view()));
-
-	QAction* toolbar_action = menu.addAction(tr("Show Toolbar"));
-	toolbar_action->setCheckable(true);
-	toolbar_action->setChecked(project_parent->toolbar_widget->isVisible());
-	connect(toolbar_action, SIGNAL(triggered(bool)), project_parent->toolbar_widget, SLOT(setVisible(bool)));
-
-	QAction* show_sequences = menu.addAction(tr("Show Sequences"));
-	show_sequences->setCheckable(true);
-	show_sequences->setChecked(panel_project->sorter->get_show_sequences());
-	connect(show_sequences, SIGNAL(triggered(bool)), panel_project->sorter, SLOT(set_show_sequences(bool)));
 
 	menu.exec(QCursor::pos());
 }
@@ -166,7 +247,7 @@ void SourcesCommon::mouseDoubleClickEvent(QMouseEvent *, const QModelIndexList& 
 			panel_footage_viewer->setFocus();
 			break;
 		case MEDIA_TYPE_SEQUENCE:
-			undo_stack.push(new ChangeSequenceAction(item->to_sequence()));
+			Olive::UndoStack.push(new ChangeSequenceAction(item->to_sequence()));
 			break;
 		}
 	}
@@ -188,7 +269,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 					&& drop_item.isValid()
 					&& m->get_type() == MEDIA_TYPE_FOOTAGE
 					&& !QFileInfo(paths.at(0)).isDir()
-					&& config.drop_on_media_to_replace
+					&& Olive::CurrentConfig.drop_on_media_to_replace
 					&& QMessageBox::question(
 						parent,
 						tr("Replace Media"),
@@ -245,7 +326,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 				MediaMove* mm = new MediaMove();
 				mm->to = m;
 				mm->items = move_items;
-				undo_stack.push(mm);
+				Olive::UndoStack.push(mm);
 			}
 		}
 	}
@@ -289,7 +370,52 @@ void SourcesCommon::rename_interval() {
 void SourcesCommon::item_renamed(Media* item) {
 	if (editing_item == item) {
 		MediaRename* mr = new MediaRename(item, "idk");
-		undo_stack.push(mr);
+		Olive::UndoStack.push(mr);
 		editing_item = nullptr;
 	}
+}
+
+void SourcesCommon::open_create_proxy_dialog() {
+	// open the proxy dialog and send it a list of currently selected footage
+    ProxyDialog pd(Olive::MainWindow, cached_selected_footage);
+	pd.exec();
+}
+
+void SourcesCommon::clear_proxies_from_selected() {
+	QList<QString> delete_list;
+
+	for (int i=0;i<cached_selected_footage.size();i++) {
+		Footage* f = cached_selected_footage.at(i);
+
+		if (f->proxy && !f->proxy_path.isEmpty()) {
+			if (QFileInfo::exists(f->proxy_path)) {
+                if (QMessageBox::question(Olive::MainWindow,
+									  tr("Delete proxy"),
+									  tr("Would you like to delete the proxy file \"%1\" as well?").arg(f->proxy_path),
+										  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+					delete_list.append(f->proxy_path);
+				}
+			}
+		}
+
+		f->proxy = false;
+		f->proxy_path.clear();
+	}
+
+	if (Olive::ActiveSequence != nullptr) {
+		// close all clips so we can delete any proxies requested to be deleted
+		closeActiveClips(Olive::ActiveSequence);
+	}
+
+	// delete proxies requested to be deleted
+	for (int i=0;i<delete_list.size();i++) {
+		QFile::remove(delete_list.at(i));
+	}
+
+	if (Olive::ActiveSequence != nullptr) {
+		// update viewer (will re-open active clips with original media)
+		panel_sequence_viewer->viewer_widget->frame_update();
+	}
+
+    Olive::MainWindow->setWindowModified(true);
 }

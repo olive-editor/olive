@@ -1,16 +1,37 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef EXPORTDIALOG_H
 #define EXPORTDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QLabel>
+#include <QProgressBar>
+#include <QGroupBox>
 
-struct Sequence;
-class ExportThread;
-class QComboBox;
-class QSpinBox;
-class QDoubleSpinBox;
-class QLabel;
-class QProgressBar;
-class QGroupBox;
+#include "project/sequence.h"
+
+#include "io/exportthread.h"
 
 class ExportDialog : public QDialog
 {
@@ -28,16 +49,19 @@ private slots:
 	void render_thread_finished();
 	void vcodec_changed(int index);
 	void comp_type_changed(int index);
+    void open_advanced_video_dialog();
 
 private:
-	QVector<QString> format_strings;
-	QVector<int> format_vcodecs;
-	QVector<int> format_acodecs;
+    QVector<QString> format_strings;
 	void setup_ui();
 
 	ExportThread* et;
 	void prep_ui_for_render(bool r);
 	bool cancelled;
+
+    void add_codec_to_combobox(QComboBox* box, enum AVCodecID codec);
+
+    VideoCodecParams vcodec_params;
 
 	QComboBox* rangeCombobox;
 	QSpinBox* widthSpinbox;

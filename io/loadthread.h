@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef LOADTHREAD_H
 #define LOADTHREAD_H
 
@@ -8,19 +28,21 @@
 #include <QWaitCondition>
 #include <QMessageBox>
 
-class Media;
-struct Footage;
-struct Clip;
-struct Sequence;
-class LoadDialog;
-struct TransitionData;
-struct EffectMeta;
+#include "project/projectelements.h"
+
+struct TransitionData {
+    int id;
+    QString name;
+    long length;
+    Clip* otc;
+    Clip* ctc;
+};
 
 class LoadThread : public QThread
 {
 	Q_OBJECT
 public:
-	LoadThread(LoadDialog* l, bool a);
+    LoadThread(bool a);
 	void run();
 	void cancel();
 signals:
@@ -37,7 +59,6 @@ private slots:
 	void create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
 	void create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
 private:
-	LoadDialog* ld;
 	bool autorecovery;
 
 	bool load_worker(QFile& f, QXmlStreamReader& stream, int type);

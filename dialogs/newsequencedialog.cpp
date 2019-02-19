@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "newsequencedialog.h"
 
 #include "panels/panels.h"
@@ -8,6 +28,7 @@
 #include "panels/timeline.h"
 #include "playback/playback.h"
 #include "project/media.h"
+#include "playback/audio.h"
 
 #include <QVariant>
 #include <QVBoxLayout>
@@ -74,8 +95,8 @@ void NewSequenceDialog::create() {
 		s->audio_layout = AV_CH_LAYOUT_STEREO;
 
 		ComboAction* ca = new ComboAction();
-		panel_project->new_sequence(ca, s, true, nullptr);
-		undo_stack.push(ca);
+		panel_project->create_sequence_internal(ca, s, true, nullptr);
+		Olive::UndoStack.push(ca);
 	} else {
 		ComboAction* ca = new ComboAction();
 
@@ -97,14 +118,13 @@ void NewSequenceDialog::create() {
 			}
 		}
 
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 
 	accept();
 }
 
-void NewSequenceDialog::preset_changed(int index)
-{
+void NewSequenceDialog::preset_changed(int index) {
 	switch (index) {
 	case 0: // FILM 4K
 		width_numeric->setValue(4096);
@@ -157,7 +177,7 @@ void NewSequenceDialog::setup_ui() {
 	QHBoxLayout* preset_layout = new QHBoxLayout(widget);
 	preset_layout->setContentsMargins(0, 0, 0, 0);
 
-	preset_layout->addWidget(new QLabel(tr("Preset:")));
+	preset_layout->addWidget(new QLabel(tr("Preset:"), this));
 
 	preset_combobox = new QComboBox(widget);
 
@@ -183,19 +203,19 @@ void NewSequenceDialog::setup_ui() {
 
 	QGridLayout* videoLayout = new QGridLayout(videoGroupBox);
 
-	videoLayout->addWidget(new QLabel(tr("Width:")), 0, 0, 1, 1);
+	videoLayout->addWidget(new QLabel(tr("Width:"), this), 0, 0, 1, 1);
 	width_numeric = new QSpinBox(videoGroupBox);
 	width_numeric->setMaximum(9999);
 	width_numeric->setValue(1920);
 	videoLayout->addWidget(width_numeric, 0, 2, 1, 2);
 
-	videoLayout->addWidget(new QLabel(tr("Height:")), 1, 0, 1, 2);
+	videoLayout->addWidget(new QLabel(tr("Height:"), this), 1, 0, 1, 2);
 	height_numeric = new QSpinBox(videoGroupBox);
 	height_numeric->setMaximum(9999);
 	height_numeric->setValue(1080);
 	videoLayout->addWidget(height_numeric, 1, 2, 1, 2);
 
-	videoLayout->addWidget(new QLabel(tr("Frame Rate:")), 2, 0, 1, 1);
+	videoLayout->addWidget(new QLabel(tr("Frame Rate:"), this), 2, 0, 1, 1);
 	frame_rate_combobox = new QComboBox(videoGroupBox);
 	frame_rate_combobox->addItem("10 FPS", 10.0);
 	frame_rate_combobox->addItem("12.5 FPS", 12.5);
@@ -211,12 +231,12 @@ void NewSequenceDialog::setup_ui() {
 	frame_rate_combobox->setCurrentIndex(6);
 	videoLayout->addWidget(frame_rate_combobox, 2, 2, 1, 2);
 
-	videoLayout->addWidget(new QLabel(tr("Pixel Aspect Ratio:")), 4, 0, 1, 1);
+	videoLayout->addWidget(new QLabel(tr("Pixel Aspect Ratio:"), this), 4, 0, 1, 1);
 	par_combobox = new QComboBox(videoGroupBox);
 	par_combobox->addItem(tr("Square Pixels (1.0)"));
 	videoLayout->addWidget(par_combobox, 4, 2, 1, 2);
 
-	videoLayout->addWidget(new QLabel(tr("Interlacing:")), 6, 0, 1, 1);
+	videoLayout->addWidget(new QLabel(tr("Interlacing:"), this), 6, 0, 1, 1);
 	interlacing_combobox = new QComboBox(videoGroupBox);
 	interlacing_combobox->addItem(tr("None (Progressive)"));
 //	interlacing_combobox->addItem("Upper Field First");
@@ -230,16 +250,10 @@ void NewSequenceDialog::setup_ui() {
 
 	QGridLayout* audioLayout = new QGridLayout(audioGroupBox);
 
-	audioLayout->addWidget(new QLabel(tr("Sample Rate: ")), 0, 0, 1, 1);
+	audioLayout->addWidget(new QLabel(tr("Sample Rate: "), this), 0, 0, 1, 1);
 
 	audio_frequency_combobox = new QComboBox(audioGroupBox);
-	audio_frequency_combobox->addItem("22050 Hz", 22050);
-	audio_frequency_combobox->addItem("24000 Hz", 24000);
-	audio_frequency_combobox->addItem("32000 Hz", 32000);
-	audio_frequency_combobox->addItem("44100 Hz", 44100);
-	audio_frequency_combobox->addItem("48000 Hz", 48000);
-	audio_frequency_combobox->addItem("88200 Hz", 88200);
-	audio_frequency_combobox->addItem("96000 Hz", 96000);
+	combobox_audio_sample_rates(audio_frequency_combobox);
 	audio_frequency_combobox->setCurrentIndex(4);
 
 	audioLayout->addWidget(audio_frequency_combobox, 0, 1, 1, 1);
@@ -250,7 +264,7 @@ void NewSequenceDialog::setup_ui() {
 	QHBoxLayout* nameLayout = new QHBoxLayout(nameWidget);
 	nameLayout->setContentsMargins(0, 0, 0, 0);
 
-	nameLayout->addWidget(new QLabel("Name:"));
+	nameLayout->addWidget(new QLabel(tr("Name:"), this));
 
 	sequence_name_edit = new QLineEdit(nameWidget);
 

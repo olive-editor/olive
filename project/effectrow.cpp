@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "effectrow.h"
 
 #include <QHBoxLayout>
@@ -47,6 +67,12 @@ EffectRow::EffectRow(Effect *parent, bool save, QGridLayout *uilayout, const QSt
 	}
 }
 
+EffectRow::~EffectRow() {
+	for (int i=0;i<fields.size();i++) {
+		delete fields.at(i);
+	}
+}
+
 bool EffectRow::isKeyframing() {
 	return keyframing;
 }
@@ -65,7 +91,7 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 		ComboAction* ca = new ComboAction();
 		ca->append(new SetKeyframing(this, true));
 		set_keyframe_now(ca);
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	} else {
 		if (QMessageBox::question(panel_effect_controls,
 								  tr("Disable Keyframes"),
@@ -80,7 +106,7 @@ void EffectRow::set_keyframe_enabled(bool enabled) {
 				}
 			}
 			ca->append(new SetKeyframing(this, false));
-			undo_stack.push(ca);
+			Olive::UndoStack.push(ca);
 			panel_effect_controls->update_keyframes();
 		} else {
 			setKeyframing(true);
@@ -95,7 +121,7 @@ void EffectRow::goto_previous_key() {
 		EffectField* f = field(i);
 		for (int j=0;j<f->keyframes.size();j++) {
 			long comp = f->keyframes.at(j).time - c->clip_in + c->timeline_in;
-			if (comp < sequence->playhead) {
+			if (comp < Olive::ActiveSequence->playhead) {
 				key = qMax(comp, key);
 			}
 		}
@@ -111,7 +137,7 @@ void EffectRow::toggle_key() {
 		EffectField* f = field(j);
 		for (int i=0;i<f->keyframes.size();i++) {
 			long comp = c->timeline_in - c->clip_in + f->keyframes.at(i).time;
-			if (comp == sequence->playhead) {
+			if (comp == Olive::ActiveSequence->playhead) {
 				key_fields.append(f);
 				key_field_index.append(i);
 			}
@@ -127,7 +153,7 @@ void EffectRow::toggle_key() {
 			ca->append(new KeyframeDelete(key_fields.at(i), key_field_index.at(i)));
 		}
 	}
-	undo_stack.push(ca);
+	Olive::UndoStack.push(ca);
 	update_ui(false);
 }
 
@@ -138,7 +164,7 @@ void EffectRow::goto_next_key() {
 		EffectField* f = field(i);
 		for (int j=0;j<f->keyframes.size();j++) {
 			long comp = f->keyframes.at(j).time - c->clip_in + c->timeline_in;
-			if (comp > sequence->playhead) {
+			if (comp > Olive::ActiveSequence->playhead) {
 				key = qMin(comp, key);
 			}
 		}
@@ -162,18 +188,13 @@ EffectField* EffectRow::add_field(int type, const QString& id, int colspan) {
 }
 
 void EffectRow::add_widget(QWidget* w) {
+	widgets.append(w);
 	ui->addWidget(w, ui_row, column_count);
 	column_count++;
 }
 
-EffectRow::~EffectRow() {
-	for (int i=0;i<fields.size();i++) {
-		delete fields.at(i);
-	}
-}
-
 void EffectRow::set_keyframe_now(ComboAction* ca) {
-	long time = sequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
+	long time = Olive::ActiveSequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
 
 	if (!just_made_unsafe_keyframe) {
 		EffectKeyframe key;

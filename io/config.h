@@ -1,9 +1,29 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
 #include <QString>
 
-#define SAVE_VERSION 190120 // YYMMDD
+#define SAVE_VERSION 190201 // YYMMDD
 #define MIN_SAVE_VERSION 190104 // lowest compatible project version
 
 #define TIMECODE_DROP 0
@@ -26,6 +46,7 @@
 
 struct Config {
 	Config();
+
 	bool saved_layout;
 	bool show_track_lines;
 	bool scroll_zooms;
@@ -52,8 +73,7 @@ struct Config {
 	bool hover_focus;
 	int project_view_type;
 	bool set_name_with_marker;
-	bool show_project_toolbar;
-	bool disable_multithreading_for_images;
+    bool show_project_toolbar;
 	double previous_queue_size;
 	int previous_queue_type;
 	double upcoming_queue_size;
@@ -63,11 +83,29 @@ struct Config {
 	QString css_path;
 	int effect_textbox_lines;
 	bool use_software_fallback;
+	bool center_timeline_timecodes;
+	QString preferred_audio_output;
+	QString preferred_audio_input;
+	QString language_file;
+	int waveform_resolution;
+	int thumbnail_resolution;
+    bool add_default_effects_to_clips;
 
 	void load(QString path);
 	void save(QString path);
 };
 
-extern Config config;
+struct RuntimeConfig {
+	RuntimeConfig();
+
+	bool shaders_are_enabled;
+	bool disable_blending;
+	QString external_translation_file;
+};
+
+namespace Olive {
+    extern Config CurrentConfig;
+    extern RuntimeConfig CurrentRuntimeConfig;
+}
 
 #endif // CONFIG_H

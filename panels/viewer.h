@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef VIEWER_H
 #define VIEWER_H
 
@@ -6,7 +26,6 @@
 #include <QIcon>
 
 class Timeline;
-class ViewerWidget;
 class Media;
 struct Sequence;
 class TimelineHeader;
@@ -15,6 +34,9 @@ class ViewerContainer;
 class LabelSlider;
 class QPushButton;
 class QLabel;
+
+#include "project/marker.h"
+#include "ui/viewerwidget.h"
 
 bool frame_rate_is_droppable(float rate);
 long timecode_to_frame(const QString& s, int view, double frame_rate);
@@ -25,7 +47,7 @@ class Viewer : public QDockWidget
 	Q_OBJECT
 
 public:
-	explicit Viewer(QWidget *parent = 0);
+    explicit Viewer(QWidget *parent = nullptr);
 	~Viewer();
 
 	bool is_focused();
@@ -37,11 +59,9 @@ public:
 	void update_playhead_timecode(long p);
 	void update_end_timecode();
 	void update_header_zoom();
-	void update_viewer();
 	void clear_in();
 	void clear_out();
 	void clear_inout_point();
-	void toggle_enable_inout();
 	void set_in_point();
 	void set_out_point();
 	void set_zoom(bool in);
@@ -73,6 +93,11 @@ public:
 
 	Media* media;
 	Sequence* seq;
+	QVector<Marker>* marker_ref;
+
+	void set_marker();
+
+	TimelineHeader* headers;
 
 	void resizeEvent(QResizeEvent *event);
 
@@ -88,6 +113,7 @@ public slots:
 	void go_to_out();
 	void go_to_end();
 	void close_media();
+	void update_viewer();
 
 private slots:
 	void update_playhead();
@@ -105,6 +131,7 @@ private:
 	QString panel_name;
 	double minimum_zoom;
 	bool playing_in_to_out;
+	long last_playhead;
 	void set_zoom_value(double d);
 	void set_sb_max();
 	void set_playback_speed(int s);
@@ -116,7 +143,6 @@ private:
 
 	void setup_ui();
 
-	TimelineHeader* headers;
 	ResizableScrollBar* horizontal_bar;
 	ViewerContainer* viewer_container;
 	LabelSlider* current_timecode_slider;

@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef EXPORTTHREAD_H
 #define EXPORTTHREAD_H
 
@@ -6,7 +26,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-class ExportDialog;
 struct AVFormatContext;
 struct AVCodecContext;
 struct AVFrame;
@@ -25,31 +44,39 @@ extern "C" {
 #define COMPRESSION_TYPE_TARGETSIZE 2
 #define COMPRESSION_TYPE_TARGETBR 3
 
+// structs that store parameters passed from the export dialogs to this thread
+
+struct ExportParams {
+    // export parameters
+    QString filename;
+    bool video_enabled;
+    int video_codec;
+    int video_width;
+    int video_height;
+    double video_frame_rate;
+    int video_compression_type;
+    double video_bitrate;
+    bool audio_enabled;
+    int audio_codec;
+    int audio_sampling_rate;
+    int audio_bitrate;
+    long start_frame;
+    long end_frame;
+};
+
+struct VideoCodecParams {
+    int pix_fmt;
+};
+
 class ExportThread : public QThread {
 	Q_OBJECT
 public:
-	ExportThread();
+    ExportThread(const ExportParams& iparams, const VideoCodecParams& ivparams, QObject* parent = nullptr);
 	void run();
 
-	// export parameters
-	QString filename;
-	bool video_enabled;
-	int video_codec;
-	int video_width;
-	int video_height;
-	double video_frame_rate;
-	int video_compression_type;
-	double video_bitrate;
-	bool audio_enabled;
-	int audio_codec;
-	int audio_sampling_rate;
-	int audio_bitrate;
-	long start_frame;
-	long end_frame;
+    const QString& getError();
 
-	QOffscreenSurface surface;
-
-	ExportDialog* ed;
+    QOffscreenSurface surface;
 
 	bool continueEncode;
 signals:
@@ -61,6 +88,10 @@ private:
 	bool setupVideo();
 	bool setupAudio();
 	bool setupContainer();
+
+    // params imported from dialogs
+    ExportParams params;
+    VideoCodecParams vcodec_params;
 
 	AVFormatContext* fmt_ctx;
 	AVStream* video_stream;
@@ -87,6 +118,8 @@ private:
 
 	QMutex mutex;
 	QWaitCondition waitCond;
+
+    QString export_error;
 };
 
 #endif // EXPORTTHREAD_H

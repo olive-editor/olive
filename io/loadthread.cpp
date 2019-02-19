@@ -1,58 +1,49 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "loadthread.h"
 
+#include "oliveglobal.h"
+
 #include "mainwindow.h"
+
 #include "panels/panels.h"
-#include "panels/effectcontrols.h"
-#include "panels/project.h"
-#include "project/footage.h"
+
+#include "project/projectelements.h"
+
 #include "io/config.h"
-#include "project/clip.h"
-#include "project/sequence.h"
-#include "project/transition.h"
-#include "project/effect.h"
 #include "playback/playback.h"
 #include "io/previewgenerator.h"
-#include "dialogs/loaddialog.h"
-#include "project/media.h"
 #include "effects/internal/voideffect.h"
 #include "debug.h"
 
 #include <QFile>
 #include <QTreeWidgetItem>
 
-struct TransitionData {
-	int id;
-	QString name;
-	long length;
-	Clip* otc;
-	Clip* ctc;
-};
-
-LoadThread::LoadThread(LoadDialog* l, bool a) : ld(l), autorecovery(a), cancelled(false) {
+LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
 	connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 	connect(this, SIGNAL(success()), this, SLOT(success_func()));
 	connect(this, SIGNAL(error()), this, SLOT(error_func()));
 	connect(this, SIGNAL(start_create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)), this, SLOT(create_dual_transition(const TransitionData*,Clip*,Clip*,const EffectMeta*)));
 	connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
 	connect(this, SIGNAL(start_question(const QString&, const QString &, int)), this, SLOT(question_func(const QString &, const QString &, int)));
-}
-
-const EffectMeta* get_meta_from_name(const QString& input) {
-	int split_index = input.indexOf('/');
-	QString category;
-	if (split_index > -1) {
-		category = input.left(split_index);
-	}
-	QString name = input.mid(split_index + 1);
-
-	for (int j=0;j<effects.size();j++) {
-		if (effects.at(j).name == name
-				&& (effects.at(j).category == category
-					|| category.isEmpty())) {
-			return &effects.at(j);
-		}
-	}
-	return nullptr;
 }
 
 void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
@@ -183,7 +174,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 						switch (type) {
 						case MEDIA_TYPE_FOLDER:
 						{
-							Media* folder = panel_project->new_folder(nullptr);
+							Media* folder = panel_project->create_folder_internal(nullptr);
 							folder->temp_id2 = 0;
 							for (int j=0;j<stream.attributes().size();j++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -203,55 +194,98 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 							int folder = 0;
 
 							Media* item = new Media(0);
-							Footage* m = new Footage();
+							Footage* f = new Footage();
 
-							m->using_inout = false;
+							f->using_inout = false;
 
 							for (int j=0;j<stream.attributes().size();j++) {
 								const QXmlStreamAttribute& attr = stream.attributes().at(j);
 								if (attr.name() == "id") {
-									m->save_id = attr.value().toInt();
+									f->save_id = attr.value().toInt();
 								} else if (attr.name() == "folder") {
 									folder = attr.value().toInt();
 								} else if (attr.name() == "name") {
-									m->name = attr.value().toString();
+									f->name = attr.value().toString();
 								} else if (attr.name() == "url") {
-									m->url = attr.value().toString();
+									f->url = attr.value().toString();
 
-									if (!QFileInfo::exists(m->url)) { // if path is not absolute
-										QString proj_dir_test = proj_dir.absoluteFilePath(m->url);
-										QString internal_proj_dir_test = internal_proj_dir.absoluteFilePath(m->url);
+									if (!QFileInfo::exists(f->url)) { // if path is not absolute
+                                        // tries to locate file using a file path relative to the project's current folder
+										QString proj_dir_test = proj_dir.absoluteFilePath(f->url);
 
-										if (QFileInfo::exists(proj_dir_test)) { // if path is relative to the project's current dir
-											m->url = proj_dir_test;
+                                        // tries to locate file using a file path relative to the folder the project was saved in
+                                        // (unaffected by moving the project file)
+										QString internal_proj_dir_test = internal_proj_dir.absoluteFilePath(f->url);
+
+                                        // tries to locate file using the file name directly in the project's current folder
+                                        QString proj_dir_direct_test = proj_dir.filePath(QFileInfo(f->url).fileName());
+
+                                        if (QFileInfo::exists(proj_dir_test)) {
+
+											f->url = proj_dir_test;
 											qInfo() << "Matched" << attr.value().toString() << "relative to project's current directory";
-										} else if (QFileInfo::exists(internal_proj_dir_test)) { // if path is relative to the last directory the project was saved in
-											m->url = internal_proj_dir_test;
+
+                                        } else if (QFileInfo::exists(internal_proj_dir_test)) {
+
+											f->url = internal_proj_dir_test;
 											qInfo() << "Matched" << attr.value().toString() << "relative to project's internal directory";
-										} else if (m->url.contains('%')) {
+
+                                        } else if (QFileInfo::exists(proj_dir_direct_test)) {
+
+                                            f->url = proj_dir_direct_test;
+                                            qInfo() << "Matched" << attr.value().toString() << "directly to project's current directory";
+
+										} else if (f->url.contains('%')) {
+
 											// hack for image sequences (qt won't be able to find the URL with %, but ffmpeg may)
-											m->url = internal_proj_dir_test;
+                                            f->url = internal_proj_dir_test;
 											qInfo() << "Guess image sequence" << attr.value().toString() << "path to project's internal directory";
+
 										} else {
+
 											qInfo() << "Failed to match" << attr.value().toString() << "to file";
+
 										}
 									} else {
+                                        f->url = QFileInfo(f->url).absoluteFilePath();
 										qInfo() << "Matched" << attr.value().toString() << "with absolute path";
 									}
 								} else if (attr.name() == "duration") {
-									m->length = attr.value().toLongLong();
+									f->length = attr.value().toLongLong();
 								} else if (attr.name() == "using_inout") {
-									m->using_inout = (attr.value() == "1");
+									f->using_inout = (attr.value() == "1");
 								} else if (attr.name() == "in") {
-									m->in = attr.value().toLong();
+									f->in = attr.value().toLong();
 								} else if (attr.name() == "out") {
-									m->out = attr.value().toLong();
+									f->out = attr.value().toLong();
 								} else if (attr.name() == "speed") {
-									m->speed = attr.value().toDouble();
+									f->speed = attr.value().toDouble();
+								} else if (attr.name() == "alphapremul") {
+									f->alpha_is_premultiplied = (attr.value() == "1");
+								} else if (attr.name() == "proxy") {
+									f->proxy = (attr.value() == "1");
+								} else if (attr.name() == "proxypath") {
+									f->proxy_path = attr.value().toString();
 								}
 							}
 
-							item->set_footage(m);
+							while (!cancelled && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
+								read_next_start_element(stream);
+								if (stream.name() == "marker" && stream.isStartElement()) {
+									Marker m;
+									for (int j=0;j<stream.attributes().size();j++) {
+										const QXmlStreamAttribute& attr = stream.attributes().at(j);
+										if (attr.name() == "frame") {
+											m.frame = attr.value().toLong();
+										} else if (attr.name() == "name") {
+											m.name = attr.value().toString();
+										}
+									}
+									f->markers.append(m);
+								}
+							}
+
+							item->set_footage(f);
 
 							if (folder == 0) {
 								project_model.appendChild(nullptr, item);
@@ -292,8 +326,6 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 									open_seq = s;
 								} else if (attr.name() == "workarea") {
 									s->using_workarea = (attr.value() == "1");
-								} else if (attr.name() == "workareaEnabled") {
-									s->enable_workarea = (attr.value() == "1");
 								} else if (attr.name() == "workareaIn") {
 									s->workarea_in = attr.value().toLong();
 								} else if (attr.name() == "workareaOut") {
@@ -425,9 +457,23 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 													}
 												}
 												if (cancelled) return false;
-											} else if (stream.isStartElement() && (stream.name() == "effect" || stream.name() == "opening" || stream.name() == "closing")) {
+											} else if (stream.isStartElement()
+														   && (stream.name() == "effect"
+															   || stream.name() == "opening"
+															   || stream.name() == "closing")) {
 												// "opening" and "closing" are backwards compatibility code
 												load_effect(stream, c);
+											} else if (stream.name() == "marker" && stream.isStartElement()) {
+												Marker m;
+												for (int j=0;j<stream.attributes().size();j++) {
+													const QXmlStreamAttribute& attr = stream.attributes().at(j);
+													if (attr.name() == "frame") {
+														m.frame = attr.value().toLong();
+													} else if (attr.name() == "name") {
+														m.name = attr.value().toString();
+													}
+												}
+												c->get_markers().append(m);
 											}
 										}
 									}
@@ -508,7 +554,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 								}
 							}
 
-							Media* m = panel_project->new_sequence(nullptr, s, false, parent);
+							Media* m = panel_project->create_sequence_internal(nullptr, s, false, parent);
 
 							loaded_sequences.append(m);
 						}
@@ -538,7 +584,7 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
 void LoadThread::run() {
 	mutex.lock();
 
-	QFile file(project_url);
+	QFile file(Olive::ActiveProjectFilename);
 	if (!file.open(QIODevice::ReadOnly)) {
 		qCritical() << "Could not open file";
 		return;
@@ -549,9 +595,9 @@ void LoadThread::run() {
 	 * case the project file has moved without the footage,
 	 * we check both
 	 */
-	proj_dir = QFileInfo(project_url).absoluteDir();
-	internal_proj_dir = QFileInfo(project_url).absoluteDir();
-	internal_proj_url = project_url;
+	proj_dir = QFileInfo(Olive::ActiveProjectFilename).absoluteDir();
+	internal_proj_dir = QFileInfo(Olive::ActiveProjectFilename).absoluteDir();
+	internal_proj_url = Olive::ActiveProjectFilename;
 
 	QXmlStreamReader stream(&file);
 
@@ -643,7 +689,10 @@ void LoadThread::run() {
 			panel_project->start_preview_generator(loaded_media_items.at(i), true);
 		}
 	} else {
-		error_str = tr("User aborted loading");
+        if (error_str.isEmpty()) {
+            error_str = tr("User aborted loading");
+        }
+
 		emit error();
 	}
 
@@ -658,23 +707,25 @@ void LoadThread::cancel() {
 }
 
 void LoadThread::question_func(const QString &title, const QString &text, int buttons) {
+    mutex.lock();
 	question_btn = QMessageBox::warning(
-					mainWindow,
+                    Olive::MainWindow,
 					title,
 					text,
 					static_cast<enum QMessageBox::StandardButton>(buttons));
+    mutex.unlock();
 	waitCond.wakeAll();
 }
 
 void LoadThread::error_func() {
 	if (xml_error) {
 		qCritical() << "Error parsing XML." << error_str;
-		QMessageBox::critical(mainWindow,
+        QMessageBox::critical(Olive::MainWindow,
 							  tr("XML Parsing Error"),
-							  tr("Couldn't load '%1'. %2").arg(project_url, error_str),
+							  tr("Couldn't load '%1'. %2").arg(Olive::ActiveProjectFilename, error_str),
 							  QMessageBox::Ok);
 	} else {
-		QMessageBox::critical(mainWindow,
+        QMessageBox::critical(Olive::MainWindow,
 							  tr("Project Load Error"),
 							  tr("Error loading project: %1").arg(error_str),
 							  QMessageBox::Ok);
@@ -696,12 +747,13 @@ void LoadThread::success_func() {
 			orig_filename.insert(insert_index, " (" + recover_text + ")");
 			counter++;
 		}
-		mainWindow->updateTitle(orig_filename);
+
+        Olive::Global.data()->update_project_filename(orig_filename);
 	} else {
-		panel_project->add_recent_project(project_url);
+		panel_project->add_recent_project(Olive::ActiveProjectFilename);
 	}
 
-	mainWindow->setWindowModified(autorecovery);
+    Olive::MainWindow->setWindowModified(autorecovery);
 	if (open_seq != nullptr) set_sequence(open_seq);
 	update_ui(false);
 }
@@ -736,6 +788,9 @@ void LoadThread::create_effect_ui(
 	 * Sorry. I'll fix it one day.
 	 */
 
+    // lock mutex - ensures the load thread is suspended while this happens
+    mutex.lock();
+
 	if (cancelled) return;
 	if (type == TA_NO_TRANSITION) {
 		if (meta == nullptr) {
@@ -765,13 +820,22 @@ void LoadThread::create_effect_ui(
 		}
 	}
 
+    mutex.unlock();
+
 	waitCond.wakeAll();
 }
 
 void LoadThread::create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta) {
+    // lock mutex - ensures the load thread is suspended while this happens
+    mutex.lock();
+
 	int transition_index = create_transition(primary, secondary, meta);
 	primary->sequence->transitions.at(transition_index)->set_length(td->length);
 	if (td->otc != nullptr) td->otc->opening_transition = transition_index;
 	if (td->ctc != nullptr) td->ctc->closing_transition = transition_index;
+
+    mutex.unlock();
+
+    // resume load thread
 	waitCond.wakeAll();
 }

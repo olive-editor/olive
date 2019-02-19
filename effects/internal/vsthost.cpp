@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "vsthost.h"
 
 #ifndef NOVST
@@ -36,21 +56,39 @@ struct VSTRect {
 extern "C" {
 	// Main host callback
 	intptr_t hostCallback(AEffect* effect, int32_t opcode, int32_t index, intptr_t value, void* ptr, float opt) {
+        Q_UNUSED(value)
+
 		switch(opcode) {
+        case audioMasterAutomate:
+            effect->setParameter(effect, index, opt);
+            break;
 		case audioMasterVersion:
 			return 2400;
 		case audioMasterIdle:
 			effect->dispatcher(effect, effEditIdle, 0, 0, nullptr, 0);
-			break;
+            break;
+        case audioMasterWantMidi:
+            // no midi support, return 0
+            break;
+        case audioMasterGetSampleRate:
+            return current_audio_freq();
+        case audioMasterGetBlockSize:
+            return BLOCK_SIZE;
 		case audioMasterGetCurrentProcessLevel:
-			return 0;
-		// handle other opcodes here... there will be lots of them
+            // process level happens to be 0
+            break;
+        case audioMasterGetProductString:
+            strcpy(static_cast<char*>(ptr), "OLIVETEAM");
+            break;
+        case audioMasterBeginEdit:
+            // we don't really care about this
+            // but we are aware of it
+            break;
 		case audioMasterEndEdit: // change made
-			mainWindow->setWindowModified(true);
+            Olive::MainWindow->setWindowModified(true);
 			break;
 		default:
 			qInfo() << "Plugin requested unhandled opcode" << opcode;
-			break;
 		}
 		return 0;
 	}
@@ -126,10 +164,20 @@ void VSTHost::loadPlugin() {
 		return;
 	}
 
-	vstPluginFuncPtr mainEntryPoint =
-	reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
-	// Instantiate the plugin
-	plugin = mainEntryPoint(hostCallback);
+    vstPluginFuncPtr mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
+
+    if (mainEntryPoint == nullptr) {
+        // if there's no VSTPluginMain(), fallback to main()
+        mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "main"));
+    }
+
+    if (mainEntryPoint == nullptr) {
+        QMessageBox::critical(nullptr, tr("Error loading VST plugin"), tr("Failed to locate entry point for dynamic library."));
+        LibClose(modulePtr);
+    } else {
+        // Instantiate the plugin
+        plugin = mainEntryPoint(hostCallback);
+    }
 #endif
 }
 
@@ -152,7 +200,7 @@ bool VSTHost::configurePluginCallbacks() {
 	// real VST plugin, or is otherwise corrupt.
 	if(plugin->magic != kEffectMagic) {
 		qCritical() << "Plugin's magic number is bad";
-		QMessageBox::critical(mainWindow, tr("VST Error"), tr("Plugin's magic number is invalid"));
+        QMessageBox::critical(Olive::MainWindow, tr("VST Error"), tr("Plugin's magic number is invalid"));
 		return false;
 	}
 
@@ -224,7 +272,7 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	connect(show_interface_btn, SIGNAL(toggled(bool)), this, SLOT(show_interface(bool)));
 	interface_row->add_widget(show_interface_btn);
 
-	dialog = new QDialog(mainWindow);
+    dialog = new QDialog(Olive::MainWindow);
 	dialog->setWindowTitle(tr("VST Plugin"));
 	dialog->setAttribute(Qt::WA_NativeWindow, true);
 	dialog->setWindowFlags(dialog->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
@@ -240,6 +288,9 @@ VSTHost::~VSTHost() {
 	delete [] inputs;
 
 	freePlugin();
+
+	delete show_interface_btn;
+	delete dialog;
 }
 
 void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) {
@@ -281,9 +332,9 @@ void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) 
 void VSTHost::custom_load(QXmlStreamReader &stream) {
 	if (stream.name() == "plugindata") {
 		stream.readNext();
-		QByteArray b = QByteArray::fromBase64(stream.text().toUtf8());
+		data_cache = QByteArray::fromBase64(stream.text().toUtf8());
 		if (plugin != nullptr) {
-			dispatcher(plugin, effSetChunk, 0, int32_t(b.size()), static_cast<void*>(b.data()), 0);
+			dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
 		}
 	}
 }
@@ -293,25 +344,27 @@ void VSTHost::save(QXmlStreamWriter &stream) {
 	if (plugin != nullptr) {
 		char* p = nullptr;
 		int32_t length = int32_t(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));
-		QByteArray b(p, length);
-		stream.writeTextElement("plugindata", b.toBase64());
+		data_cache = QByteArray(p, length);
+	}
+	if (data_cache.size() > 0) {
+		stream.writeTextElement("plugindata", data_cache.toBase64());
 	}
 }
 
 void VSTHost::show_interface(bool show) {
-    dialog->setVisible(show);
+	dialog->setVisible(show);
 
-    if (show) {
+	if (show) {
 #if defined(_WIN32)
-        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
 #elif defined(__APPLE__)
-        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
 #elif defined(__linux__)
-        dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
+		dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
 #endif
-    } else {
-        dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
-    }
+	} else {
+		dispatcher(plugin, effEditClose, 0, 0, nullptr, 0);
+	}
 }
 
 void VSTHost::uncheck_show_button() {
@@ -326,8 +379,7 @@ void VSTHost::change_plugin() {
 			startPlugin();
 			VSTRect* eRect = nullptr;
 			plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
-			dialog->setFixedWidth(eRect->right);
-			dialog->setFixedHeight(eRect->bottom);
+            dialog->setFixedSize(eRect->right - eRect->left, eRect->bottom - eRect->top);
 		} else {
 #ifdef __APPLE__
 			CFBundleUnloadExecutable(bundle);

@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "cacher.h"
 
 #include "project/clip.h"
@@ -117,7 +137,7 @@ void cache_audio_worker(Clip* c, bool scrubbing, QVector<Clip*>& nests, int play
 	}
 
 	if (temp_reverse) {
-		long seq_end = sequence->getEndFrame();
+		long seq_end = Olive::ActiveSequence->getEndFrame();
 		timeline_in = seq_end - timeline_in;
 		timeline_out = seq_end - timeline_out;
 		target_frame = seq_end - target_frame;
@@ -656,6 +676,8 @@ Cacher::Cacher(Clip* c) : clip(c) {}
 AVSampleFormat sample_format = AV_SAMPLE_FMT_S16;
 
 void open_clip_worker(Clip* clip) {
+    qint64 time_start = QDateTime::currentMSecsSinceEpoch();
+
 	if (clip->media == nullptr) {
 		if (clip->track >= 0) {
 			clip->frame = av_frame_alloc();
@@ -673,7 +695,19 @@ void open_clip_worker(Clip* clip) {
 	} else if (clip->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 		// opens file resource for FFmpeg and prepares Clip struct for playback
 		Footage* m = clip->media->to_footage();
-		QByteArray ba = m->url.toUtf8();
+
+		// byte array for retriving raw bytes from QString URL
+		QByteArray ba;
+
+		// do we have a proxy?
+		if (m->proxy
+				&& !m->proxy_path.isEmpty()
+				&& QFileInfo::exists(m->proxy_path)) {
+			ba = m->proxy_path.toUtf8();
+		} else {
+			ba = m->url.toUtf8();
+		}
+
 		const char* filename = ba.constData();
 		const FootageStream* ms = m->get_stream_from_file_index(clip->track < 0, clip->media_stream);
 
@@ -709,15 +743,15 @@ void open_clip_worker(Clip* clip) {
 			clip->max_queue_size = 1;
 		} else {
 			clip->max_queue_size = 0;
-			if (config.upcoming_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
-				clip->max_queue_size += qCeil(config.upcoming_queue_size);
+			if (Olive::CurrentConfig.upcoming_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+				clip->max_queue_size += qCeil(Olive::CurrentConfig.upcoming_queue_size);
 			} else {
-				clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * config.upcoming_queue_size);
+				clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * Olive::CurrentConfig.upcoming_queue_size);
 			}
-			if (config.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
-				clip->max_queue_size += qCeil(config.previous_queue_size);
+			if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+				clip->max_queue_size += qCeil(Olive::CurrentConfig.previous_queue_size);
 			} else {
-				clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * config.previous_queue_size);
+				clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * Olive::CurrentConfig.previous_queue_size);
 			}
 		}
 
@@ -725,14 +759,10 @@ void open_clip_worker(Clip* clip) {
 
 		clip->opts = nullptr;
 
-		// optimized decoding settings
-		if ((clip->stream->codecpar->codec_id != AV_CODEC_ID_PNG &&
-			 clip->stream->codecpar->codec_id != AV_CODEC_ID_APNG &&
-			 clip->stream->codecpar->codec_id != AV_CODEC_ID_TIFF &&
-			 clip->stream->codecpar->codec_id != AV_CODEC_ID_PSD)
-				|| !config.disable_multithreading_for_images) {
-			av_dict_set(&clip->opts, "threads", "auto", 0);
-		}
+        // enable multithreading on decoding
+        av_dict_set(&clip->opts, "threads", "auto", 0);
+
+        // enable extra optimization code on h264 (not even sure if they help)
 		if (clip->stream->codecpar->codec_id == AV_CODEC_ID_H264) {
 			av_dict_set(&clip->opts, "tune", "fastdecode", 0);
 			av_dict_set(&clip->opts, "tune", "zerolatency", 0);
@@ -766,15 +796,28 @@ void open_clip_worker(Clip* clip) {
 
 			AVFilterContext* last_filter = clip->buffersrc_ctx;
 
+			char filter_args[100];
+
 			if (ms->video_interlacing != VIDEO_PROGRESSIVE) {
 				AVFilterContext* yadif_filter;
-				char yadif_args[100];
-				snprintf(yadif_args, sizeof(yadif_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
-				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", yadif_args, nullptr, clip->filter_graph);
+				snprintf(filter_args, sizeof(filter_args), "mode=3:parity=%d", ((ms->video_interlacing == VIDEO_TOP_FIELD_FIRST) ? 0 : 1)); // there's a CUDA version if we start using nvdec/nvenc
+				avfilter_graph_create_filter(&yadif_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, clip->filter_graph);
 
 				avfilter_link(last_filter, 0, yadif_filter, 0);
 				last_filter = yadif_filter;
 			}
+
+			// ffmpeg premultiplier
+			/*
+			if (!clip->media->to_footage()->alpha_is_premultiplied) {
+				AVFilterContext* premultiply_filter;
+				snprintf(filter_args, sizeof(filter_args), "inplace=1");
+				avfilter_graph_create_filter(&premultiply_filter, avfilter_get_by_name("premultiply"), "premultiply", filter_args, nullptr, clip->filter_graph);
+
+				avfilter_link(last_filter, 0, premultiply_filter, 0);
+				last_filter = premultiply_filter;
+			}
+			*/
 
 			/* stabilization code */
 			/*bool stabilize = false;
@@ -791,19 +834,12 @@ void open_clip_worker(Clip* clip) {
 				}
 			}*/
 
-			enum AVPixelFormat valid_pix_fmts[] = {
-//				AV_PIX_FMT_RGB24,
-				AV_PIX_FMT_RGBA,
-				AV_PIX_FMT_NONE
-			};
-
-			clip->pix_fmt = avcodec_find_best_pix_fmt_of_list(valid_pix_fmts, static_cast<enum AVPixelFormat>(clip->stream->codecpar->format), 1, nullptr);
+			clip->pix_fmt = AV_PIX_FMT_RGBA;
 			const char* chosen_format = av_get_pix_fmt_name(static_cast<enum AVPixelFormat>(clip->pix_fmt));
-			char format_args[100];
-			snprintf(format_args, sizeof(format_args), "pix_fmts=%s", chosen_format);
+			snprintf(filter_args, sizeof(filter_args), "pix_fmts=%s", chosen_format);
 
 			AVFilterContext* format_conv;
-			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", format_args, nullptr, clip->filter_graph);
+			avfilter_graph_create_filter(&format_conv, avfilter_get_by_name("format"), "fmt", filter_args, nullptr, clip->filter_graph);
 			avfilter_link(last_filter, 0, format_conv, 0);
 
 			avfilter_link(format_conv, 0, clip->buffersink_ctx, 0);
@@ -908,7 +944,7 @@ void open_clip_worker(Clip* clip) {
 
 	clip->finished_opening = true;
 
-	qInfo() << "Clip opened on track" << clip->track;
+    qInfo() << "Clip opened on track" << clip->track << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
 }
 
 void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*> nests, int playback_speed) {

@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "graphview.h"
 
 #include <QPainter>
@@ -41,7 +61,8 @@ GraphView::GraphView(QWidget* parent) :
 	x_scroll(0),
 	y_scroll(0),
 	mousedown(false),
-	zoom(1.0),
+    x_zoom(1.0),
+    y_zoom(1.0),
 	row(nullptr),
 	moved_keys(false),
 	current_handle(BEZIER_HANDLE_NONE),
@@ -85,10 +106,11 @@ void GraphView::show_context_menu(const QPoint& pos) {
 }
 
 void GraphView::reset_view() {
-	zoom = 1.0;
+    x_zoom = 1.0;
+    y_zoom = 1.0;
 	set_scroll_x(0);
 	set_scroll_y(0);
-	emit zoom_changed(zoom);
+    emit zoom_changed(x_zoom, y_zoom);
 	update();
 }
 
@@ -105,6 +127,10 @@ void GraphView::set_view_to_selection() {
 			min_dbl = qMin(key.data.toDouble(), min_dbl);
 			max_dbl = qMax(key.data.toDouble(), max_dbl);
 		}
+
+        min_time -= row->parent_effect->parent_clip->clip_in;
+        max_time -= row->parent_effect->parent_clip->clip_in;
+
 		set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
 	}
 }
@@ -128,6 +154,9 @@ void GraphView::set_view_to_all() {
 			}
 		}
 		if (can_set) {
+            min_time -= row->parent_effect->parent_clip->clip_in;
+            max_time -= row->parent_effect->parent_clip->clip_in;
+
 			set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
 		}
 	}
@@ -139,10 +168,10 @@ void GraphView::set_view_to_rect(int x1, double y1, int x2, double y2) {
 	double y_diff = (y2 - y1);
 	double x_diff_padded = (x_diff+10)*padding;
 	double y_diff_padded = (y_diff+10)*padding;
-	set_zoom(qMin(double(width()) / x_diff_padded, double(height()) / y_diff_padded));
+    set_zoom(double(width()) / x_diff_padded, double(height()) / y_diff_padded);
 
-	set_scroll_x(qRound((double(x1) - ((x_diff_padded-x_diff)/2))*zoom));
-	set_scroll_y(qRound((double(y1) - ((y_diff_padded-y_diff)/2))*zoom));
+    set_scroll_x(qRound((double(x1) - ((x_diff_padded-x_diff)/2))*x_zoom));
+    set_scroll_y(qRound((double(y1) - ((y_diff_padded-y_diff)/2))*y_zoom));
 }
 
 void GraphView::draw_line_text(QPainter &p, bool vert, int line_no, int line_pos, int next_line_pos) {
@@ -162,7 +191,7 @@ void GraphView::draw_lines(QPainter& p, bool vert) {
 	int scroll = vert ? y_scroll : x_scroll;
 	for (int i=0;i<lim;i++) {
 		int scroll_offs = vert ? height() - i + scroll : i + scroll;
-		int this_line = qFloor(scroll_offs/(GRAPH_SIZE*zoom));
+        int this_line = qFloor(scroll_offs/(GRAPH_SIZE*(vert ? y_zoom : x_zoom)));
 		if (vert) this_line++;
 		if (this_line != last_line) {
 			if (vert) {
@@ -228,7 +257,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 					for (int j=0;j<sorted_keys.size();j++) {
 						const EffectKeyframe& key = field->keyframes.at(sorted_keys.at(j));
 
-						int key_x = get_screen_x(key.time);
+                        int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 
 						line_pen.setColor(get_curve_color(i, row->fieldCount()));
@@ -251,20 +280,20 @@ void GraphView::paintEvent(QPaintEvent *) {
 								if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
 									// cubic bezier
 									bezier_path.cubicTo(
-												QPointF(last_key_x+last_post_handle*zoom, last_key_y-last_key.post_handle_y*zoom),
-												QPointF(key_x+pre_handle*zoom, key_y-key.pre_handle_y*zoom),
+                                                QPointF(last_key_x+last_post_handle*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
+                                                QPointF(key_x+pre_handle*x_zoom, key_y-key.pre_handle_y*y_zoom),
 												QPointF(key_x, key_y)
 											);
 								} else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 									// last keyframe is the bezier one
 									bezier_path.quadTo(
-												QPointF(last_key_x+last_post_handle*zoom, last_key_y-last_key.post_handle_y*zoom),
+                                                QPointF(last_key_x+last_post_handle*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
 												QPointF(key_x, key_y)
 											);
 								} else {
 									// this keyframe is the bezier one
 									bezier_path.quadTo(
-												QPointF(key_x+pre_handle*zoom, key_y-key.pre_handle_y*zoom),
+                                                QPointF(key_x+pre_handle*x_zoom, key_y-key.pre_handle_y*y_zoom),
 												QPointF(key_x, key_y)
 											);
 								}
@@ -283,19 +312,19 @@ void GraphView::paintEvent(QPaintEvent *) {
 					for (int j=0;j<sorted_keys.size();j++) {
 						const EffectKeyframe& key = field->keyframes.at(sorted_keys.at(j));
 
-						int key_x = get_screen_x(key.time);
+                        int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 
 						if (key.type == EFFECT_KEYFRAME_BEZIER) {
 							p.setPen(Qt::gray);
 
 							// pre handle line
-							QPointF pre_point(key_x + key.pre_handle_x*zoom, key_y - key.pre_handle_y*zoom);
+                            QPointF pre_point(key_x + key.pre_handle_x*x_zoom, key_y - key.pre_handle_y*y_zoom);
 							p.drawLine(pre_point, QPointF(key_x, key_y));
 							p.drawEllipse(pre_point, BEZIER_HANDLE_SIZE, BEZIER_HANDLE_SIZE);
 
 							// post handle line
-							QPointF post_point(key_x + key.post_handle_x*zoom, key_y - key.post_handle_y*zoom);
+                            QPointF post_point(key_x + key.post_handle_x*x_zoom, key_y - key.post_handle_y*y_zoom);
 							p.drawLine(post_point, QPointF(key_x, key_y));
 							p.drawEllipse(post_point, BEZIER_HANDLE_SIZE, BEZIER_HANDLE_SIZE);
 						}
@@ -316,7 +345,7 @@ void GraphView::paintEvent(QPaintEvent *) {
 
 		// draw playhead
 		p.setPen(Qt::red);
-		int playhead_x = get_screen_x(panel_sequence_viewer->seq->playhead - visible_in);
+        int playhead_x = qRound((double(panel_sequence_viewer->seq->playhead - visible_in)*x_zoom) - x_scroll);
 		p.drawLine(playhead_x, 0, playhead_x, height());
 
 		if (rect_select) {
@@ -362,7 +391,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 				if (field->type == EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
 					for (int j=0;j<field->keyframes.size();j++) {
 						const EffectKeyframe& key = field->keyframes.at(j);
-						int key_x = get_screen_x(key.time);
+                        int key_x = get_screen_x(key.time);
 						int key_y = get_screen_y(key.data.toDouble());
 						if (event->pos().x() > key_x-KEYFRAME_SIZE
 								&& event->pos().x() < key_x+KEYFRAME_SIZE
@@ -373,8 +402,8 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 							break;
 						} else {
 							// selecting a handle
-							QPointF pre_point(key_x + key.pre_handle_x*zoom, key_y - key.pre_handle_y*zoom);
-							QPointF post_point(key_x + key.post_handle_x*zoom, key_y - key.post_handle_y*zoom);
+                            QPointF pre_point(key_x + key.pre_handle_x*x_zoom, key_y - key.pre_handle_y*y_zoom);
+                            QPointF post_point(key_x + key.post_handle_x*x_zoom, key_y - key.post_handle_y*y_zoom);
 							if (event->pos().x() > pre_point.x()-BEZIER_HANDLE_SIZE
 									&& event->pos().x() < pre_point.x()+BEZIER_HANDLE_SIZE
 									&& event->pos().y() > pre_point.y()-BEZIER_HANDLE_SIZE
@@ -486,11 +515,11 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 			switch (current_handle) {
 			case BEZIER_HANDLE_NONE:
 				for (int i=0;i<selected_keys.size();i++) {
-					row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].time = qRound(selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/zoom));
+                    row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].time = qRound(selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/x_zoom));
 					if (event->modifiers() & Qt::ShiftModifier) {
 						row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = selected_keys_old_doubles.at(i);
 					} else {
-						row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = qRound(selected_keys_old_doubles.at(i) + (double(start_y - event->pos().y())/zoom));
+                        row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = qRound(selected_keys_old_doubles.at(i) + (double(start_y - event->pos().y())/y_zoom));
 					}
 				}
 				moved_keys = true;
@@ -504,8 +533,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				double new_post_handle_x = old_post_handle_x;
 				double new_post_handle_y = old_post_handle_y;
 
-				double x_diff = double(event->pos().x() - start_x)/zoom;
-				double y_diff = double(start_y - event->pos().y())/zoom;
+                double x_diff = double(event->pos().x() - start_x)/x_zoom;
+                double y_diff = double(start_y - event->pos().y())/y_zoom;
 
 				if (current_handle == BEZIER_HANDLE_PRE) {
 					new_pre_handle_x += x_diff;
@@ -524,9 +553,9 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				}
 
 				EffectKeyframe& key = row->field(handle_field)->keyframes[handle_index];
-				key.pre_handle_x = new_pre_handle_x;
+				key.pre_handle_x = qMin(0.0, new_pre_handle_x);
 				key.pre_handle_y = new_pre_handle_y;
-				key.post_handle_x = new_post_handle_x;
+				key.post_handle_x = qMax(0.0, new_post_handle_x);
 				key.post_handle_y = new_post_handle_y;
 
 				moved_keys = true;
@@ -544,7 +573,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 		for (int i=0;i<row->fieldCount();i++) {
 			for (int j=0;j<row->field(i)->keyframes.size();j++) {
 				const EffectKeyframe& key = row->field(i)->keyframes.at(j);
-				int key_x = get_screen_x(key.time);
+                int key_x = get_screen_x(key.time);
 				int key_y = get_screen_y(key.data.toDouble());
 				QRect test_rect(
 							key_x - KEYFRAME_SIZE,
@@ -553,14 +582,14 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 							KEYFRAME_SIZE+KEYFRAME_SIZE
 						);
 				QRect pre_rect(
-							qRound(key_x + key.pre_handle_x*zoom - BEZIER_HANDLE_SIZE),
-							qRound(key_y + key.pre_handle_y*zoom - BEZIER_HANDLE_SIZE),
+                            qRound(key_x + key.pre_handle_x*x_zoom - BEZIER_HANDLE_SIZE),
+                            qRound(key_y + key.pre_handle_y*y_zoom - BEZIER_HANDLE_SIZE),
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE,
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE
 						);
 				QRect post_rect(
-							qRound(key_x + key.post_handle_x*zoom - BEZIER_HANDLE_SIZE),
-							qRound(key_y + key.post_handle_y*zoom - BEZIER_HANDLE_SIZE),
+                            qRound(key_x + key.post_handle_x*x_zoom - BEZIER_HANDLE_SIZE),
+                            qRound(key_y + key.post_handle_y*y_zoom - BEZIER_HANDLE_SIZE),
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE,
 							BEZIER_HANDLE_SIZE+BEZIER_HANDLE_SIZE
 						);
@@ -625,20 +654,20 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 									if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
 										// cubic bezier
 										bezier_path.cubicTo(
-													QPointF(last_key_x+last_key.post_handle_x*zoom, last_key_y-last_key.post_handle_y*zoom),
-													QPointF(key_x+key.pre_handle_x*zoom, key_y-key.pre_handle_y*zoom),
+                                                    QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
+                                                    QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
 													QPointF(key_x, key_y)
 												);
 									} else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 										// last keyframe is the bezier one
 										bezier_path.quadTo(
-													QPointF(last_key_x+last_key.post_handle_x*zoom, last_key_y-last_key.post_handle_y*zoom),
+                                                    QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
 													QPointF(key_x, key_y)
 												);
 									} else {
 										// this keyframe is the bezier one
 										bezier_path.quadTo(
-													QPointF(key_x+key.pre_handle_x*zoom, key_y-key.pre_handle_y*zoom),
+                                                    QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
 													QPointF(key_x, key_y)
 												);
 									}
@@ -672,7 +701,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *) {
 	if (click_add_proc) {
-		undo_stack.push(new KeyframeFieldSet(click_add_field, click_add_key));
+		Olive::UndoStack.push(new KeyframeFieldSet(click_add_field, click_add_key));
 	} else if (moved_keys && selected_keys.size() > 0) {
 		ComboAction* ca = new ComboAction();
 		switch (current_handle) {
@@ -694,7 +723,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
 		}
 			break;
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 	moved_keys = false;
 	mousedown = false;
@@ -718,18 +747,36 @@ void GraphView::wheelEvent(QWheelEvent *event) {
 		redraw = true;
 	} else {
 		// set zoom
-		if (event->angleDelta().y() != 0) {
-			double zoom_diff = (GRAPH_ZOOM_SPEED*zoom);
-			double new_zoom = (event->angleDelta().y() < 0) ? zoom - zoom_diff : zoom + zoom_diff;
+        double new_x_zoom = x_zoom;
+        double new_y_zoom = y_zoom;
 
-			// center zoom on screen
-			set_scroll_x(qRound((double(x_scroll)/zoom*new_zoom) + double(event->pos().x())*new_zoom - double(event->pos().x())*zoom));
-			set_scroll_y(qRound((double(y_scroll)/zoom*new_zoom) + double(height()-event->pos().y())*new_zoom - double(height()-event->pos().y())*zoom));
+        int y_delta = event->angleDelta().y();
 
-			set_zoom(new_zoom);
+        // holding CONTROL will zoom horizontal and vertical axes separately
+        int x_delta = (event->modifiers() & Qt::ControlModifier) ? event->angleDelta().x() : y_delta;
 
-			redraw = true;
-		}
+        if (y_delta != 0) {
+            double zoom_diff = (GRAPH_ZOOM_SPEED*y_zoom);
+            new_y_zoom = (y_delta < 0) ? y_zoom - zoom_diff : y_zoom + zoom_diff;
+
+            // center zoom on screen
+            set_scroll_y(qRound((double(y_scroll)/y_zoom*new_y_zoom) + double(height()-event->pos().y())*new_y_zoom - double(height()-event->pos().y())*y_zoom));
+
+            redraw = true;
+        }
+
+        if (x_delta != 0) {
+            double zoom_diff = (GRAPH_ZOOM_SPEED*x_zoom);
+            new_x_zoom = (x_delta < 0) ? x_zoom - zoom_diff : x_zoom + zoom_diff;
+
+            set_scroll_x(qRound((double(x_scroll)/x_zoom*new_x_zoom) + double(event->pos().x())*new_x_zoom - double(event->pos().x())*x_zoom));
+
+            redraw = true;
+        }
+
+        if (redraw) {
+            set_zoom(new_x_zoom, new_y_zoom);
+        }
 	}
 
 	if (redraw) {
@@ -765,7 +812,7 @@ void GraphView::set_selected_keyframe_type(int type) {
 			EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
 			ca->append(new SetInt(&key.type, type));
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 		update_ui(false);
 	}
 }
@@ -810,25 +857,33 @@ void GraphView::set_scroll_y(int s) {
 	emit y_scroll_changed(y_scroll);
 }
 
-void GraphView::set_zoom(double z) {
-	zoom = z;
-	emit zoom_changed(zoom);
+void GraphView::set_zoom(double xz, double yz) {
+    x_zoom = xz;
+    y_zoom = yz;
+    emit zoom_changed(x_zoom, y_zoom);
 }
 
 int GraphView::get_screen_x(double d) {
-	return qRound((d*zoom) - x_scroll);
+    if (row != nullptr) {
+        d -= row->parent_effect->parent_clip->clip_in;
+    }
+    return qRound((d*x_zoom) - x_scroll);
 }
 
 int GraphView::get_screen_y(double d) {
-	return qRound(height() + y_scroll - d*zoom);
+    return qRound(height() + y_scroll - d*y_zoom);
 }
 
 long GraphView::get_value_x(int i) {
-	return qRound((i + x_scroll)/zoom);
+    long frame = qRound((i + x_scroll)/x_zoom);
+    if (row != nullptr) {
+        frame += row->parent_effect->parent_clip->clip_in;
+    }
+    return frame;
 }
 
 double GraphView::get_value_y(int i) {
-	return double(height() + y_scroll - i)/zoom;
+    return double(height() + y_scroll - i)/y_zoom;
 }
 
 void GraphView::selection_update() {

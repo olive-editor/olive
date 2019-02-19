@@ -1,4 +1,24 @@
-﻿#ifndef VIEWERWIDGET_H
+﻿/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#ifndef VIEWERWIDGET_H
 #define VIEWERWIDGET_H
 
 #include <QOpenGLWidget>
@@ -11,7 +31,7 @@
 #include <QOpenGLFunctions>
 
 class Viewer;
-struct Clip;
+class Clip;
 struct FootageStream;
 class QOpenGLFramebufferObject;
 class Effect;
@@ -25,7 +45,7 @@ class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
 {
 	Q_OBJECT
 public:
-	ViewerWidget(QWidget *parent = 0);
+	ViewerWidget(QWidget *parent = nullptr);
 	~ViewerWidget();
 
 	void delete_function();
@@ -44,12 +64,15 @@ public:
 
 	void frame_update();
 	RenderThread* get_renderer();
+	void set_scroll(double x, double y);
 public slots:
 	void set_waveform_scroll(int s);
+    void set_fullscreen(int screen = 0);
 protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+	void wheelEvent(QWheelEvent* event);
 private:
 	void draw_waveform_func();
 	void draw_title_safe_area();
@@ -66,6 +89,8 @@ private:
 	EffectGizmo* selected_gizmo;
 	RenderThread* renderer;
 	ViewerWindow* window;
+	double x_scroll;
+	double y_scroll;
 private slots:
 	void context_destroy();
 	void retry();

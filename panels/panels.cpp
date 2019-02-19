@@ -1,26 +1,42 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "panels.h"
 
-#include "timeline.h"
-#include "effectcontrols.h"
-#include "viewer.h"
-#include "project.h"
 #include "project/sequence.h"
 #include "project/clip.h"
 #include "project/transition.h"
 #include "io/config.h"
-#include "grapheditor.h"
+
 #include "project/effectloaders.h"
 #include "debug.h"
 
 #include <QScrollBar>
 #include <QCoreApplication>
 
-Project* panel_project = 0;
-EffectControls* panel_effect_controls = 0;
-Viewer* panel_sequence_viewer = 0;
-Viewer* panel_footage_viewer = 0;
-Timeline* panel_timeline = 0;
-GraphEditor* panel_graph_editor = 0;
+Project* panel_project = nullptr;
+EffectControls* panel_effect_controls = nullptr;
+Viewer* panel_sequence_viewer = nullptr;
+Viewer* panel_footage_viewer = nullptr;
+Timeline* panel_timeline = nullptr;
+GraphEditor* panel_graph_editor = nullptr;
 
 void update_effect_controls() {
 	// SEND CLIPS TO EFFECT CONTROLS
@@ -32,12 +48,12 @@ void update_effect_controls() {
 	int aclip = -1;
 	QVector<int> selected_clips;
 	int mode = TA_NO_TRANSITION;
-	if (sequence != nullptr) {
-		for (int i=0;i<sequence->clips.size();i++) {
-			Clip* clip = sequence->clips.at(i);
+	if (Olive::ActiveSequence != nullptr) {
+		for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
+			Clip* clip = Olive::ActiveSequence->clips.at(i);
 			if (clip != nullptr) {
-				for (int j=0;j<sequence->selections.size();j++) {
-					const Selection& s = sequence->selections.at(j);
+				for (int j=0;j<Olive::ActiveSequence->selections.size();j++) {
+					const Selection& s = Olive::ActiveSequence->selections.at(j);
 					bool add = true;
 					if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
 						mode = TA_NO_TRANSITION;
@@ -72,7 +88,7 @@ void update_effect_controls() {
 			if (aclip >= 0) selected_clips.append(aclip);
 			if (vclip >= 0 && aclip >= 0) {
 				bool found = false;
-				Clip* vclip_ref = sequence->clips.at(vclip);
+				Clip* vclip_ref = Olive::ActiveSequence->clips.at(vclip);
 				for (int i=0;i<vclip_ref->linked.size();i++) {
 					if (vclip_ref->linked.at(i) == aclip) {
 						found = true;
@@ -88,7 +104,10 @@ void update_effect_controls() {
 		}
 	}
 
-	bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size());
+
+
+    bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size()
+                    && panel_effect_controls->get_mode() == mode);
 	if (same) {
 		for (int i=0;i<selected_clips.size();i++) {
 			if (selected_clips.at(i) != panel_effect_controls->selected_clips.at(i)) {
@@ -100,6 +119,7 @@ void update_effect_controls() {
 
 	if (panel_effect_controls->multiple != multiple || !same) {
 		panel_effect_controls->multiple = multiple;
+
 		panel_effect_controls->set_clips(selected_clips, mode);
 	}
 }
@@ -114,9 +134,9 @@ void update_ui(bool modified) {
 	panel_graph_editor->update_panel();
 }
 
-QDockWidget *get_focused_panel() {
+QDockWidget *get_focused_panel(bool force_hover) {
 	QDockWidget* w = nullptr;
-	if (config.hover_focus) {
+    if (Olive::CurrentConfig.hover_focus || force_hover) {
 		if (panel_project->underMouse()) {
 			w = panel_project;
 		} else if (panel_effect_controls->underMouse()) {

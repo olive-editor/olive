@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "grapheditor.h"
 
 #include <QVBoxLayout>
@@ -23,36 +43,31 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	setWindowTitle(tr("Graph Editor"));
 	resize(720, 480);
 
-	QWidget* main_widget = new QWidget();
+	QWidget* main_widget = new QWidget(this);
+	QVBoxLayout* layout = new QVBoxLayout(main_widget);
 	setWidget(main_widget);
-	QVBoxLayout* layout = new QVBoxLayout();
-	main_widget->setLayout(layout);
 
 	QWidget* tool_widget = new QWidget();
 	tool_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-	QHBoxLayout* tools = new QHBoxLayout();
-	tool_widget->setLayout(tools);
+	QHBoxLayout* tools = new QHBoxLayout(tool_widget);
 
 	QWidget* left_tool_widget = new QWidget();
-	QHBoxLayout* left_tool_layout = new QHBoxLayout();
+	QHBoxLayout* left_tool_layout = new QHBoxLayout(left_tool_widget);
 	left_tool_layout->setSpacing(0);
 	left_tool_layout->setMargin(0);
-	left_tool_widget->setLayout(left_tool_layout);
 	tools->addWidget(left_tool_widget);
 	QWidget* center_tool_widget = new QWidget();
-	QHBoxLayout* center_tool_layout = new QHBoxLayout();
+	QHBoxLayout* center_tool_layout = new QHBoxLayout(center_tool_widget);
 	center_tool_layout->setSpacing(0);
 	center_tool_layout->setMargin(0);
-	center_tool_widget->setLayout(center_tool_layout);
 	tools->addWidget(center_tool_widget);
 	QWidget* right_tool_widget = new QWidget();
-	QHBoxLayout* right_tool_layout = new QHBoxLayout();
+	QHBoxLayout* right_tool_layout = new QHBoxLayout(right_tool_widget);
 	right_tool_layout->setSpacing(0);
 	right_tool_layout->setMargin(0);
-	right_tool_widget->setLayout(right_tool_layout);
 	tools->addWidget(right_tool_widget);
 
-	keyframe_nav = new KeyframeNavigator(0, false);
+	keyframe_nav = new KeyframeNavigator(nullptr, false);
 	keyframe_nav->enable_keyframes(true);
 	keyframe_nav->enable_keyframe_toggle(false);
 	left_tool_layout->addWidget(keyframe_nav);
@@ -76,8 +91,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	layout->addWidget(tool_widget);
 
 	QWidget* central_widget = new QWidget();
-	QVBoxLayout* central_layout = new QVBoxLayout();
-	central_widget->setLayout(central_layout);
+	QVBoxLayout* central_layout = new QVBoxLayout(central_widget);
 	central_layout->setSpacing(0);
 	central_layout->setMargin(0);
 	header = new TimelineHeader();
@@ -90,15 +104,13 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 
 	QWidget* value_widget = new QWidget();
 	value_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-	QHBoxLayout* values = new QHBoxLayout();
-	value_widget->setLayout(values);
+	QHBoxLayout* values = new QHBoxLayout(value_widget);
 	values->addStretch();
 
 	QWidget* central_value_widget = new QWidget();
-	value_layout = new QHBoxLayout();
+	value_layout = new QHBoxLayout(central_value_widget);
 	value_layout->setMargin(0);
 	value_layout->addWidget(new QLabel("")); // a spacer so the layout doesn't jump
-	central_value_widget->setLayout(value_layout);
 	values->addWidget(central_value_widget);
 
 	values->addStretch();
@@ -109,7 +121,7 @@ GraphEditor::GraphEditor(QWidget* parent) : QDockWidget(parent), row(nullptr) {
 	current_row_desc->setAlignment(Qt::AlignCenter);
 	layout->addWidget(current_row_desc);
 
-	connect(view, SIGNAL(zoom_changed(double)), header, SLOT(update_zoom(double)));
+    connect(view, SIGNAL(zoom_changed(double, double)), header, SLOT(update_zoom(double)));
 	connect(view, SIGNAL(x_scroll_changed(int)), header, SLOT(set_scroll(int)));
 	connect(view, SIGNAL(selection_changed(bool, int)), this, SLOT(set_key_button_enabled(bool, int)));
 
@@ -191,7 +203,7 @@ void GraphEditor::set_row(EffectRow *r) {
 		connect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(goto_next_key()));
 	} else {
 		row = nullptr;
-		current_row_desc->setText(0);
+		current_row_desc->setText(nullptr);
 	}
 	view->set_row(row);
 	update_panel();

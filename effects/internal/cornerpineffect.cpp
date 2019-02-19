@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "cornerpineffect.h"
 
 #include "io/path.h"
@@ -8,23 +28,23 @@ CornerPinEffect::CornerPinEffect(Clip *c, const EffectMeta *em) : Effect(c, em) 
 	enable_coords = true;
 	enable_shader = true;
 
-    EffectRow* top_left = add_row(tr("Top Left"));
+	EffectRow* top_left = add_row(tr("Top Left"));
 	top_left_x = top_left->add_field(EFFECT_FIELD_DOUBLE, "topleftx");
 	top_left_y = top_left->add_field(EFFECT_FIELD_DOUBLE, "toplefty");
 
-    EffectRow* top_right = add_row(tr("Top Right"));
+	EffectRow* top_right = add_row(tr("Top Right"));
 	top_right_x = top_right->add_field(EFFECT_FIELD_DOUBLE, "toprightx");
 	top_right_y = top_right->add_field(EFFECT_FIELD_DOUBLE, "toprighty");
 
-    EffectRow* bottom_left = add_row(tr("Bottom Left"));
+	EffectRow* bottom_left = add_row(tr("Bottom Left"));
 	bottom_left_x = bottom_left->add_field(EFFECT_FIELD_DOUBLE, "bottomleftx");
 	bottom_left_y = bottom_left->add_field(EFFECT_FIELD_DOUBLE, "bottomlefty");
 
-    EffectRow* bottom_right = add_row(tr("Bottom Right"));
+	EffectRow* bottom_right = add_row(tr("Bottom Right"));
 	bottom_right_x = bottom_right->add_field(EFFECT_FIELD_DOUBLE, "bottomrightx");
 	bottom_right_y = bottom_right->add_field(EFFECT_FIELD_DOUBLE, "bottomrighty");
 
-    perspective = add_row(tr("Perspective"))->add_field(EFFECT_FIELD_BOOL, "perspective");
+	perspective = add_row(tr("Perspective"))->add_field(EFFECT_FIELD_BOOL, "perspective");
 	perspective->set_bool_value(true);
 
 	top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
@@ -61,11 +81,11 @@ void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, i
 	coords.vertexBottomRightY += bottom_right_y->get_double_value(timecode);
 }
 
-void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords) {
-	glslProgram->setUniformValue("p0", (GLfloat) coords.vertexBottomLeftX, (GLfloat) coords.vertexBottomLeftY);
-	glslProgram->setUniformValue("p1", (GLfloat) coords.vertexBottomRightX, (GLfloat) coords.vertexBottomRightY);
-	glslProgram->setUniformValue("p2", (GLfloat) coords.vertexTopLeftX, (GLfloat) coords.vertexTopLeftY);
-	glslProgram->setUniformValue("p3", (GLfloat) coords.vertexTopRightX, (GLfloat) coords.vertexTopRightY);
+void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords, int) {
+	glslProgram->setUniformValue("p0", GLfloat(coords.vertexBottomLeftX), GLfloat(coords.vertexBottomLeftY));
+	glslProgram->setUniformValue("p1", GLfloat(coords.vertexBottomRightX), GLfloat(coords.vertexBottomRightY));
+	glslProgram->setUniformValue("p2", GLfloat(coords.vertexTopLeftX), GLfloat(coords.vertexTopLeftY));
+	glslProgram->setUniformValue("p3", GLfloat(coords.vertexTopRightX), GLfloat(coords.vertexTopRightY));
 	glslProgram->setUniformValue("perspective", perspective->get_bool_value(timecode));
 }
 

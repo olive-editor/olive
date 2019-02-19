@@ -1,22 +1,41 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef EFFECTCONTROLS_H
 #define EFFECTCONTROLS_H
 
 #include <QDockWidget>
 #include <QUndoCommand>
 #include <QMutex>
+#include <QMenu>
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QScrollBar>
+#include <QHBoxLayout>
 
-struct Clip;
-class QMenu;
-class Effect;
-class TimelineHeader;
-class QScrollArea;
-class KeyframeView;
-class QVBoxLayout;
-class ResizableScrollBar;
-class QLabel;
-class KeyframeView;
-class QScrollBar;
-class QHBoxLayout;
+#include "project/projectelements.h"
+#include "ui/timelineheader.h"
+#include "ui/keyframeview.h"
+#include "ui/resizablescrollbar.h"
+#include "ui/keyframeview.h"
 
 class EffectsArea : public QWidget {
 	Q_OBJECT
@@ -35,6 +54,7 @@ class EffectControls : public QDockWidget
 public:
 	explicit EffectControls(QWidget *parent = 0);
 	~EffectControls();
+    int get_mode();
 	void set_clips(QVector<int>& clips, int mode);
 	void clear_effects(bool clear_cache);
 	void delete_effects();

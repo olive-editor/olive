@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "keyframeview.h"
 
 #include "project/effect.h"
@@ -22,10 +42,6 @@
 #include <QMouseEvent>
 #include <QtMath>
 #include <QMenu>
-
-long KeyframeView::adjust_row_keyframe(EffectRow* row, long time) {
-	return time-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
-}
 
 KeyframeView::KeyframeView(QWidget *parent) :
 	QWidget(parent),
@@ -74,7 +90,7 @@ void KeyframeView::menu_set_key_type(QAction* a) {
 			EffectField* f = selected_fields.at(i);
 			ca->append(new SetInt(&f->keyframes[selected_keyframes.at(i)].type, a->data().toInt()));
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 		update_ui(false);
 	}
 }
@@ -90,13 +106,13 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		visible_out = 0;
 
 		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-			Clip* c = sequence->clips.at(panel_effect_controls->selected_clips.at(j));
+			Clip* c = Olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
 			visible_in = qMin(visible_in, c->timeline_in);
 			visible_out = qMax(visible_out, c->timeline_out);
 		}
 
 		for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-			Clip* c = sequence->clips.at(panel_effect_controls->selected_clips.at(j));
+			Clip* c = Olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
 			for (int i=0;i<c->effects.size();i++) {
 				Effect* e = c->effects.at(i);
 				if (e->container->is_expanded()) {
@@ -113,7 +129,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 							for (int k=0;k<f->keyframes.size();k++) {
 								if (!key_times.contains(f->keyframes.at(k).time)) {
 									bool keyframe_selected = keyframeIsSelected(f, k);
-									long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time);
+                                    long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time, visible_in);
 
 									// see if any other keyframes have this time
 									int appearances = 0;
@@ -152,7 +168,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 		panel_effect_controls->horizontalScrollBar->setMaximum(qMax(max_width - width(), 0));
 		header->set_visible_in(visible_in);
 
-		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, sequence->playhead-visible_in) - x_scroll;
+		int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, Olive::ActiveSequence->playhead-visible_in) - x_scroll;
 		if (dragging && panel_timeline->snapped) {
 			p.setPen(Qt::white);
 		} else {
@@ -337,7 +353,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 					for (int k=0;k<row->fieldCount();k++) {
 						EffectField* field = row->field(k);
 						for (int j=0;j<field->keyframes.size();j++) {
-							long keyframe_frame = adjust_row_keyframe(row, field->keyframes.at(j).time);
+                            long keyframe_frame = adjust_row_keyframe(row, field->keyframes.at(j).time, visible_in);
 							if (!keyframeIsSelected(field, j) && keyframe_frame >= min_frame && keyframe_frame <= max_frame) {
 								selected_fields.append(field);
 								selected_keyframes.append(j);
@@ -360,7 +376,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 					Clip* c = field->parent_row->parent_effect->parent_clip;
 					long key_time = old_key_vals.at(i) + frame_diff - c->clip_in + c->timeline_in;
 					long key_eval = key_time;
-					if (panel_timeline->snap_to_point(sequence->playhead, &key_eval)) {
+					if (panel_timeline->snap_to_point(Olive::ActiveSequence->playhead, &key_eval)) {
 						frame_diff += (key_eval - key_time);
 						break;
 					}
@@ -409,7 +425,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
 						   selected_fields.at(i)->keyframes.at(selected_keyframes.at(i)).time
 						));
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 
 	select_rect = false;

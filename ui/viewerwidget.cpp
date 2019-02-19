@@ -1,4 +1,24 @@
-﻿#include "viewerwidget.h"
+﻿/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#include "viewerwidget.h"
 
 #include "panels/panels.h"
 #include "panels/viewer.h"
@@ -19,7 +39,6 @@
 #include "project/undo.h"
 #include "project/media.h"
 #include "ui/viewercontainer.h"
-#include "io/avtogl.h"
 #include "ui/timelinewidget.h"
 #include "ui/renderfunctions.h"
 #include "ui/renderthread.h"
@@ -55,8 +74,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	waveform_scroll(0),
 	dragging(false),
 	gizmos(nullptr),
-	selected_gizmo(nullptr),
-	window(nullptr)
+    selected_gizmo(nullptr),
+	x_scroll(0),
+	y_scroll(0)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
@@ -72,13 +92,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 	renderer->start(QThread::HighPriority);
 	connect(renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
 	connect(renderer, SIGNAL(finished()), renderer, SLOT(deleteLater()));
+
+    window = new ViewerWindow(this);
 }
 
 ViewerWidget::~ViewerWidget() {
-	if (window != nullptr) {
-		window->close();
-		delete window;
-	}
 	renderer->cancel();
 	delete renderer;
 }
@@ -94,6 +112,16 @@ void ViewerWidget::set_waveform_scroll(int s) {
 	}
 }
 
+void ViewerWidget::set_fullscreen(int screen) {
+	if (screen >= 0 && screen < QGuiApplication::screens().size()) {
+		QScreen* selected_screen = QGuiApplication::screens().at(screen);
+		window->showFullScreen();
+        window->setGeometry(selected_screen->geometry());
+	} else {
+		qCritical() << "Failed to find requested screen" << screen << "to set fullscreen to";
+	}
+}
+
 void ViewerWidget::show_context_menu() {
 	QMenu menu(this);
 
@@ -104,7 +132,7 @@ void ViewerWidget::show_context_menu() {
 	connect(show_fullscreen_action, SIGNAL(triggered()), this, SLOT(show_fullscreen()));*/
 	QMenu* fullscreen_menu = menu.addMenu(tr("Show Fullscreen"));
 	QList<QScreen*> screens = QGuiApplication::screens();
-	if (window != nullptr && window->isVisible()) {
+    if (window->isVisible()) {
 		fullscreen_menu->addAction(tr("Disable"));
 	}
 	for (int i=0;i<screens.size();i++) {
@@ -162,20 +190,11 @@ void ViewerWidget::queue_repaint() {
 }
 
 void ViewerWidget::fullscreen_menu_action(QAction *action) {
-	if (window == nullptr) {
-		QMessageBox::critical(this, "Error", "Failed to create viewer window");
-	} else {
-		if (action->data().isNull()) {
-			window->hide();
-		} else {
-			QScreen* selected_screen = QGuiApplication::screens().at(action->data().toInt());
-			window->showFullScreen();
-			window->setGeometry(selected_screen->geometry());
-
-			// HACK: window seems to show with distorted texture on first showing, so we queue an update after it's shown
-			QTimer::singleShot(100, window, SLOT(update()));
-		}
-	}
+    if (action->data().isNull()) {
+        window->hide();
+    } else {
+        set_fullscreen(action->data().toInt());
+    }
 }
 
 void ViewerWidget::set_fit_zoom() {
@@ -212,15 +231,11 @@ void ViewerWidget::retry() {
 void ViewerWidget::initializeGL() {
 	initializeOpenGLFunctions();
 
-	connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
-
-	window = new ViewerWindow(context());
+    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
 }
 
 void ViewerWidget::frame_update() {
-	if (viewer->seq != nullptr) {
-		bool render_audio = (viewer->playing || audio_rendering);
-
+    if (viewer->seq != nullptr) {
 		// send context to other thread for drawing
 		if (waveform) {
 			update();
@@ -230,7 +245,7 @@ void ViewerWidget::frame_update() {
 		}
 
 		// render the audio
-		compose_audio(viewer, viewer->seq, render_audio, viewer->get_playback_speed());
+        compose_audio(viewer, viewer->seq, viewer->get_playback_speed());
 	}
 }
 
@@ -238,15 +253,11 @@ RenderThread *ViewerWidget::get_renderer() {
 	return renderer;
 }
 
-//void ViewerWidget::resizeGL(int w, int h)
-//{
-//}
-
-/*void ViewerWidget::paintEvent(QPaintEvent *e) {
-	if (!rendering) {
-		QOpenGLWidget::paintEvent(e);
-	}
-}*/
+void ViewerWidget::set_scroll(double x, double y) {
+	x_scroll = x;
+	y_scroll = y;
+	update();
+}
 
 void ViewerWidget::seek_from_click(int x) {
 	viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
@@ -256,11 +267,7 @@ void ViewerWidget::context_destroy() {
 	makeCurrent();
 	if (viewer->seq != nullptr) {
 		closeActiveClips(viewer->seq);
-	}
-	if (window != nullptr) {
-		delete window;
-	}
-	//QMetaObject::invokeMethod(renderer, "delete_ctx", Qt::QueuedConnection);
+    }
 	renderer->delete_ctx();
 	doneCurrent();
 }
@@ -325,7 +332,7 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 	if (waveform) {
 		seek_from_click(event->x());
 	} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
-		container->dragScrollPress(event->pos());
+        container->dragScrollPress(event->pos()*container->zoom);
 	} else if (event->buttons() & Qt::LeftButton) {
 		drag_start_x = event->pos().x();
 		drag_start_y = event->pos().y();
@@ -351,7 +358,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
 		if (waveform) {
 			seek_from_click(event->x());
 		} else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
-			container->dragScrollMove(event->pos());
+            container->dragScrollMove(event->pos()*container->zoom);
 		} else if (event->buttons() & Qt::LeftButton) {
 			if (gizmos == nullptr) {
 				QDrag* drag = new QDrag(this);
@@ -384,8 +391,12 @@ void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
 	dragging = false;
 }
 
+void ViewerWidget::wheelEvent(QWheelEvent *event) {
+	container->parseWheelEvent(event);
+}
+
 void ViewerWidget::close_window() {
-	if (window != nullptr) window->hide();
+    window->hide();
 }
 
 void ViewerWidget::draw_waveform_func() {
@@ -415,11 +426,11 @@ void ViewerWidget::draw_title_safe_area() {
 	double viewportAr = (double) width() / (double) height();
 	double halfAr = viewportAr*0.5;
 
-	if (config.use_custom_title_safe_ratio && config.custom_title_safe_ratio > 0) {
-		if (config.custom_title_safe_ratio > viewportAr) {
-			halfHeight = (config.custom_title_safe_ratio/viewportAr)*0.5;
+	if (Olive::CurrentConfig.use_custom_title_safe_ratio && Olive::CurrentConfig.custom_title_safe_ratio > 0) {
+		if (Olive::CurrentConfig.custom_title_safe_ratio > viewportAr) {
+			halfHeight = (Olive::CurrentConfig.custom_title_safe_ratio/viewportAr)*0.5;
 		} else {
-			halfWidth = (viewportAr/config.custom_title_safe_ratio)*0.5;
+			halfWidth = (viewportAr/Olive::CurrentConfig.custom_title_safe_ratio)*0.5;
 		}
 	}
 
@@ -484,10 +495,18 @@ void ViewerWidget::draw_gizmos() {
 	float dot_size = GIZMO_DOT_SIZE / width() * viewer->seq->width;
 	float target_size = GIZMO_TARGET_SIZE / width() * viewer->seq->width;
 
+    double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+
 	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
-	float gizmo_z = 0.0f;
+    glLoadIdentity();
+
+    glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
+    glScaled(zoom_factor, zoom_factor, 0.0);
+    glTranslated(-(viewer->seq->width-(width()/container->zoom))*x_scroll,
+                 -((viewer->seq->height-(height()/container->zoom))*(1.0-y_scroll)),
+                 0);
+
+    float gizmo_z = 0.0f;
 	for (int j=0;j<gizmos->gizmo_count();j++) {
 		EffectGizmo* g = gizmos->gizmo(j);
 		glColor4f(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
@@ -547,8 +566,7 @@ void ViewerWidget::paintGL() {
 		makeCurrent();
 
 		// clear to solid black
-
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// set color multipler to straight white
@@ -558,29 +576,40 @@ void ViewerWidget::paintGL() {
 
 		// set screen coords to widget size
 		glLoadIdentity();
-		glOrtho(0, 1, 0, 1, -1, 1);
+		glOrtho(-1, 1, -1, 1, -1, 1);
 
 		// draw texture from render thread
 
-		glBindTexture(GL_TEXTURE_2D, renderer->texColorBuffer);
+		glBindTexture(GL_TEXTURE_2D, renderer->front_texture);
 
 		glBegin(GL_QUADS);
 
-		glVertex2f(0, 0);
-		glTexCoord2f(0, 0);
-		glVertex2f(0, 1);
-		glTexCoord2f(1, 0);
-		glVertex2f(1, 1);
-		glTexCoord2f(1, 1);
-		glVertex2f(1, 0);
-		glTexCoord2f(0, 1);
+//        double ar_diff = (double(viewer->seq->width)/double(viewer->seq->height)/(double(width())/double(height())));
+		double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+		double zoom_size = (zoom_factor*2.0) - 2.0;
+		double zoom_left = -zoom_size*x_scroll - 1.0;
+		double zoom_right = zoom_size*(1.0-x_scroll) + 1.0;
+		double zoom_bottom = -zoom_size*(1.0-y_scroll) - 1.0;
+		double zoom_top = zoom_size*(y_scroll) + 1.0;
+
+        //zoom_left *= ar_diff;
+        //zoom_right *= ar_diff;
+
+		glVertex2d(zoom_left, zoom_bottom);
+		glTexCoord2d(0, 0);
+		glVertex2d(zoom_left, zoom_top);
+		glTexCoord2d(1, 0);
+		glVertex2d(zoom_right, zoom_top);
+		glTexCoord2d(1, 1);
+		glVertex2d(zoom_right, zoom_bottom);
+		glTexCoord2d(0, 1);
 
 		glEnd();
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// draw title/action safe area
-		if (config.show_title_safe_area) {
+		if (Olive::CurrentConfig.show_title_safe_area) {
 			draw_title_safe_area();
 		}
 
@@ -591,13 +620,13 @@ void ViewerWidget::paintGL() {
 
 		glDisable(GL_TEXTURE_2D);
 
-		if (window != nullptr && window->isVisible()) {
-			window->set_texture(renderer->texColorBuffer, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
+        if (window->isVisible()) {
+			window->set_texture(renderer->front_texture, double(viewer->seq->width)/double(viewer->seq->height), &renderer->mutex);
 		}
 
 		renderer->mutex.unlock();
 
-		if (renderer->did_texture_fail()) {
+        if (renderer->did_texture_fail() && !viewer->playing) {
 			doneCurrent();
 			renderer->start_render(context(), viewer->seq);
 		}

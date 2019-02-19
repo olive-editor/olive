@@ -1,12 +1,32 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "audio.h"
+
+#include "oliveglobal.h"
 
 #include "project/sequence.h"
 
-#include "io/config.h"
-#include "panels/project.h"
 #include "panels/panels.h"
-#include "panels/timeline.h"
-#include "panels/viewer.h"
+
+#include "io/config.h"
 #include "ui/audiomonitor.h"
 #include "playback/playback.h"
 #include "debug.h"
@@ -17,6 +37,7 @@
 #include <QtMath>
 #include <QFile>
 #include <QDir>
+#include <QComboBox>
 
 extern "C" {
 	#include <libavcodec/avcodec.h>
@@ -43,29 +64,49 @@ bool is_audio_device_set() {
 	return audio_device_set;
 }
 
+QAudioDeviceInfo get_audio_device(QAudio::Mode mode) {
+	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(mode);
+
+	// try to retrieve preferred device from config
+	QString preferred_device = (mode == QAudio::AudioOutput) ? Olive::CurrentConfig.preferred_audio_output : Olive::CurrentConfig.preferred_audio_input;
+	if (!preferred_device.isEmpty()) {
+		for (int i=0;i<devs.size();i++) {
+			// try to match available devices with preferred device
+			if (devs.at(i).deviceName() == preferred_device) {
+				return devs.at(i);
+			}
+		}
+	}
+
+	// if no preferred output is set, try to get the default device
+	QAudioDeviceInfo default_device = (mode == QAudio::AudioOutput) ? QAudioDeviceInfo::defaultOutputDevice() : QAudioDeviceInfo::defaultInputDevice();
+	if (!default_device.isNull()) {
+		return default_device;
+	}
+
+	// if no default output could be retrieved, just use the first in the list
+	if (devs.size() > 0) {
+		return devs.at(0);
+	}
+
+	// couldn't find any audio devices, return null device
+	return QAudioDeviceInfo();
+}
+
 void init_audio() {
 	stop_audio();
 
 	QAudioFormat audio_format;
-	audio_format.setSampleRate(config.audio_rate);
+	audio_format.setSampleRate(Olive::CurrentConfig.audio_rate);
 	audio_format.setChannelCount(2);
 	audio_format.setSampleSize(16);
 	audio_format.setCodec("audio/pcm");
 	audio_format.setByteOrder(QAudioFormat::LittleEndian);
 	audio_format.setSampleType(QAudioFormat::SignedInt);
 
-	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-	qInfo() << "Found the following audio devices:";
-	for (int i=0;i<devs.size();i++) {
-		dout << "    " << devs.at(i).deviceName();
-	}
-	if (info.isNull() && devs.size() > 0) {
-		qWarning() << "Default audio returned nullptr, attempting to use first device found...";
-		info = devs.at(0);
-	}
-	qInfo() << "Using audio device" << info.deviceName();
+	QAudioDeviceInfo info = get_audio_device(QAudio::AudioOutput);
 
+	// see if desired format can be used by the device, use nearest if not
 	if (!info.isFormatSupported(audio_format)) {
 		qWarning() << "Audio format is not supported by backend, using nearest";
 		audio_format = info.nearestFormat(audio_format);
@@ -111,7 +152,7 @@ void clear_audio_ibuffer() {
 }
 
 int current_audio_freq() {
-	return audio_rendering ? sequence->audio_frequency : audio_output->format().sampleRate();
+    return audio_rendering ? Olive::ActiveSequence->audio_frequency : audio_output->format().sampleRate();
 }
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {
@@ -282,42 +323,49 @@ void write_wave_trailer(QFile& f) {
 }
 
 bool start_recording() {
-	if (sequence == nullptr) {
+    if (Olive::ActiveSequence == nullptr) {
 		qCritical() << "No active sequence to record into";
 		return false;
 	}
 
-	QString audio_path = project_url + " " + QCoreApplication::translate("Audio", "Audio");
+    QString audio_path = QCoreApplication::translate("Audio", "%1 Audio").arg(Olive::ActiveProjectFilename);
 	QDir audio_dir(audio_path);
 	if (!audio_dir.exists() && !audio_dir.mkpath(".")) {
 		qCritical() << "Failed to create audio directory";
 		return false;
 	}
 
-	QString audio_filename;
+    QString audio_file_path;
 	int file_number = 0;
 	do {
 		file_number++;
-		audio_filename = audio_path + "/" + QCoreApplication::translate("Audio", "Recording") + " " + QString::number(file_number) + ".wav";
-	} while (QFile(audio_filename).exists());
 
-	output_recording.setFileName(audio_filename);
+        QString audio_filename = QString("%1.wav").arg(
+                        QCoreApplication::translate("Audio", "Recording %1").arg(QString::number(file_number))
+                    );
+
+        audio_file_path = audio_dir.filePath(audio_filename);
+    } while (QFile(audio_file_path).exists());
+
+    output_recording.setFileName(audio_file_path);
 	if (!output_recording.open(QFile::WriteOnly)) {
 		qCritical() << "Failed to open output file. Does Olive have permission to write to this directory?";
 		return false;
 	}
 
 	QAudioFormat audio_format = audio_output->format();
-	if (config.recording_mode != audio_format.channelCount()) {
-		audio_format.setChannelCount(config.recording_mode);
+	if (Olive::CurrentConfig.recording_mode != audio_format.channelCount()) {
+		audio_format.setChannelCount(Olive::CurrentConfig.recording_mode);
 	}
-	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
+
+	QAudioDeviceInfo info = get_audio_device(QAudio::AudioInput);
+
 	if (!info.isFormatSupported(audio_format)) {
 		qWarning() << "Default format not supported, using nearest";
 		audio_format = info.nearestFormat(audio_format);
 	}
 	write_wave_header(output_recording, audio_format);
-	audio_input = new QAudioInput(audio_format);
+	audio_input = new QAudioInput(info, audio_format);
 	audio_input->start(&output_recording);
 	recording = true;
 
@@ -340,4 +388,14 @@ void stop_recording() {
 
 QString get_recorded_audio_filename() {
 	return output_recording.fileName();
+}
+
+void combobox_audio_sample_rates(QComboBox *combobox) {
+	combobox->addItem("22050 Hz", 22050);
+	combobox->addItem("24000 Hz", 24000);
+	combobox->addItem("32000 Hz", 32000);
+	combobox->addItem("44100 Hz", 44100);
+	combobox->addItem("48000 Hz", 48000);
+	combobox->addItem("88200 Hz", 88200);
+	combobox->addItem("96000 Hz", 96000);
 }

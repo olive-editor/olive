@@ -1,12 +1,36 @@
-﻿#ifndef MEDIA_H
+﻿/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#ifndef MEDIA_H
 #define MEDIA_H
 
 #include <QList>
 #include <QVariant>
 
-#define MEDIA_TYPE_FOOTAGE 0
-#define MEDIA_TYPE_SEQUENCE 1
-#define MEDIA_TYPE_FOLDER 2
+#include "project/marker.h"
+
+enum MediaType {
+    MEDIA_TYPE_FOOTAGE,
+    MEDIA_TYPE_SEQUENCE,
+    MEDIA_TYPE_FOLDER
+};
 
 struct Footage;
 class MediaThrobber;
@@ -45,6 +69,9 @@ public:
     int row() const;
     Media *parentItem();
     void removeChild(int i);
+
+    // get markers from internal object
+    QVector<Marker>& get_markers();
 
     bool root;
     int temp_id;

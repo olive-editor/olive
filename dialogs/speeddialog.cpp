@@ -1,14 +1,31 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "speeddialog.h"
 
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
-#include <QCheckBox>
 #include <QPushButton>
 #include <QDialogButtonBox>
 
-#include "ui/labelslider.h"
-#include "project/clip.h"
 #include "project/sequence.h"
 #include "project/footage.h"
 #include "playback/playback.h"
@@ -19,43 +36,42 @@
 #include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle(tr("Speed/Duration"));
+	setWindowTitle(tr("Speed/Duration"));
 
-	QVBoxLayout* main_layout = new QVBoxLayout();
-	setLayout(main_layout);
+	QVBoxLayout* main_layout = new QVBoxLayout(this);
 
-	QGridLayout* grid = new QGridLayout();
+    QGridLayout* grid = new QGridLayout();
 	grid->setSpacing(6);
 
-    grid->addWidget(new QLabel(tr("Speed:")), 0, 0);
-	percent = new LabelSlider();
+	grid->addWidget(new QLabel(tr("Speed:"), this), 0, 0);
+	percent = new LabelSlider(this);
 	percent->decimal_places = 2;
 	percent->set_display_type(LABELSLIDER_PERCENT);
 	percent->set_default_value(1);
 	grid->addWidget(percent, 0, 1);
 
-    grid->addWidget(new QLabel(tr("Frame Rate:")), 1, 0);
-	frame_rate = new LabelSlider();
+	grid->addWidget(new QLabel(tr("Frame Rate:"), this), 1, 0);
+	frame_rate = new LabelSlider(this);
 	frame_rate->decimal_places = 3;
 	grid->addWidget(frame_rate, 1, 1);
 
-    grid->addWidget(new QLabel(tr("Duration:")), 2, 0);
-	duration = new LabelSlider();
+	grid->addWidget(new QLabel(tr("Duration:"), this), 2, 0);
+	duration = new LabelSlider(this);
 	duration->set_display_type(LABELSLIDER_FRAMENUMBER);
-	duration->set_frame_rate(sequence->frame_rate);
+	duration->set_frame_rate(Olive::ActiveSequence->frame_rate);
 	grid->addWidget(duration, 2, 1);
 
 	main_layout->addLayout(grid);
 
-    reverse = new QCheckBox(tr("Reverse"));
-    maintain_pitch = new QCheckBox(tr("Maintain Audio Pitch"));
-    ripple = new QCheckBox(tr("Ripple Changes"));
+	reverse = new QCheckBox(tr("Reverse"), this);
+	maintain_pitch = new QCheckBox(tr("Maintain Audio Pitch"), this);
+	ripple = new QCheckBox(tr("Ripple Changes"), this);
 
 	main_layout->addWidget(reverse);
 	main_layout->addWidget(maintain_pitch);
 	main_layout->addWidget(ripple);
 
-	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 	buttonBox->setCenterButtons(true);
 	main_layout->addWidget(buttonBox);
 	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -323,14 +339,14 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 	sel.in = c->timeline_in;
 	sel.out = proposed_out;
 	sel.track = c->track;
-	sequence->selections.append(sel);
+	Olive::ActiveSequence->selections.append(sel);
 }
 
 void SpeedDialog::accept() {
 	ComboAction* ca = new ComboAction();
 
-	SetSelectionsCommand* sel_command = new SetSelectionsCommand(sequence);
-	sel_command->old_data = sequence->selections;
+	SetSelectionsCommand* sel_command = new SetSelectionsCommand(Olive::ActiveSequence);
+	sel_command->old_data = Olive::ActiveSequence->selections;
 
 	long earliest_point = LONG_MAX;
 	long longest_ripple = LONG_MIN;
@@ -403,10 +419,10 @@ void SpeedDialog::accept() {
 		ripple_clips(ca, clips.at(0)->sequence, earliest_point, longest_ripple);
 	}
 
-	sel_command->new_data = sequence->selections;
+	sel_command->new_data = Olive::ActiveSequence->selections;
 	ca->append(sel_command);
 
-	undo_stack.push(ca);
+    Olive::UndoStack.push(ca);
 
 	update_ui(true);
 	QDialog::accept();

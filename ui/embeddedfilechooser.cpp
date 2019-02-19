@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "embeddedfilechooser.h"
 
 #include <QHBoxLayout>
@@ -7,13 +27,12 @@
 #include <QFileDialog>
 
 EmbeddedFileChooser::EmbeddedFileChooser(QWidget* parent) : QWidget(parent) {
-	QHBoxLayout* layout = new QHBoxLayout();
+	QHBoxLayout* layout = new QHBoxLayout(this);
 	layout->setMargin(0);
-	setLayout(layout);
-	file_label = new QLabel();
+	file_label = new QLabel(this);
 	update_label();
 	layout->addWidget(file_label);
-	QPushButton* browse_button = new QPushButton("...");
+	QPushButton* browse_button = new QPushButton("...", this);
 	browse_button->setFixedWidth(25);
 	layout->addWidget(browse_button);
 	connect(browse_button, SIGNAL(clicked(bool)), this, SLOT(browse()));
@@ -35,7 +54,7 @@ void EmbeddedFileChooser::setFilename(const QString &s) {
 }
 
 void EmbeddedFileChooser::update_label() {
-    QString l = "<html>" + tr("File:") + " ";
+	QString l = "<html>" + tr("File:") + " ";
 	if (filename.isEmpty()) {
 		l += "(none)";
 	} else {

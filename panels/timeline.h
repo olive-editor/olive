@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
@@ -31,7 +51,7 @@ class AudioMonitor;
 class QScrollBar;
 struct EffectMeta;
 struct Sequence;
-struct Clip;
+class Clip;
 struct Footage;
 struct FootageStream;
 
@@ -72,11 +92,11 @@ class Timeline : public QDockWidget
 {
 	Q_OBJECT
 public:
-	explicit Timeline(QWidget *parent = 0);
+	explicit Timeline(QWidget *parent = nullptr);
 	~Timeline();
 
 	bool focused();
-	void set_zoom(bool in);
+    void multiply_zoom(double m);
 	void copy(bool del);
 	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame);
 	Clip* split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
@@ -85,18 +105,14 @@ public:
 	bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
 	void clean_up_selections(QVector<Selection>& areas);
 	void deselect_area(long in, long out, int track);
-	void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas);
+	void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);
 	void relink_clips_using_ids(QVector<int>& old_clips, QVector<Clip*>& new_clips);
 	void update_sequence();
-	void increase_track_height();
-	void decrease_track_height();
-	void add_transition();
+
 	QVector<int> get_tracks_of_linked_clips(int i);
 	bool has_clip_been_split(int c);
-	void ripple_to_in_point(bool in, bool ripple);
-	void delete_in_out(bool ripple);
-	void previous_cut();
-	void next_cut();
+    void edit_to_point_internal(bool in, bool ripple);
+    void delete_in_out_internal(bool ripple);
 
 	void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
 	void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
@@ -204,6 +220,8 @@ public:
 	void scroll_to_frame(long frame);
 	void select_from_playhead();
 
+	bool can_ripple_empty_space(long frame, int track);
+
 	void resizeEvent(QResizeEvent *event);
 public slots:
 	void paste(bool insert = false);
@@ -212,10 +230,32 @@ public slots:
 	void deselect();
 	void toggle_links();
 	void split_at_playhead();
+    void ripple_delete();
+	void ripple_delete_empty_space();
+    void toggle_enable_on_selected_clips();
+
+    void delete_inout();
+    void ripple_delete_inout();
+
+    void ripple_to_in_point();
+    void ripple_to_out_point();
+    void edit_to_in_point();
+    void edit_to_out_point();
+
+    void increase_track_height();
+    void decrease_track_height();
+
+    void previous_cut();
+    void next_cut();
+
+    void add_transition();
+
+    void nest();
+
+    void zoom_in();
+    void zoom_out();
 
 private slots:
-	void zoom_in();
-	void zoom_out();
 	void snapping_clicked(bool checked);
 	void add_btn_click();
 	void add_menu_item(QAction*);
@@ -237,6 +277,10 @@ private:
 	void setup_ui();
 
 	int default_track_height;
+
+	// ripple delete empty space variables
+	long rc_ripple_min;
+	long rc_ripple_max;
 
 	QWidget* timeline_area;
 	TimelineWidget* video_area;

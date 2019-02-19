@@ -1,13 +1,35 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef EFFECTFIELD_H
 #define EFFECTFIELD_H
 
-#define EFFECT_FIELD_DOUBLE 0
-#define EFFECT_FIELD_COLOR 1
-#define EFFECT_FIELD_STRING 2
-#define EFFECT_FIELD_BOOL 3
-#define EFFECT_FIELD_COMBO 4
-#define EFFECT_FIELD_FONT 5
-#define EFFECT_FIELD_FILE 6
+enum EffectFieldType {
+    EFFECT_FIELD_DOUBLE,
+    EFFECT_FIELD_COLOR,
+    EFFECT_FIELD_STRING,
+    EFFECT_FIELD_BOOL,
+    EFFECT_FIELD_COMBO,
+    EFFECT_FIELD_FONT,
+    EFFECT_FIELD_FILE
+};
 
 #include <QObject>
 #include <QVariant>
@@ -22,11 +44,13 @@ class EffectField : public QObject {
 	Q_OBJECT
 public:
 	EffectField(EffectRow* parent, int t, const QString& i);
+	~EffectField();
+
 	EffectRow* parent_row;
 	int type;
 	QString id;
 
-    double get_validated_keyframe_handle(int key, bool post);
+	double get_validated_keyframe_handle(int key, bool post);
 
 	QVariant get_previous_data();
 	QVariant get_current_data();

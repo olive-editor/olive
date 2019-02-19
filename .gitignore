@@ -2,4 +2,5 @@
 Makefile
 .qmake.stash
 effects/frei0r
+ts/*.qm
 

@@ -23,6 +23,7 @@ apps:
       - pulseaudio
       - home
       - removable-media
+      - unity7
 
 parts:
   olive:

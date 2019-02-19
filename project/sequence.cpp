@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "sequence.h"
 
 #include "clip.h"
@@ -10,7 +30,6 @@
 Sequence::Sequence() :
 	playhead(0),
 	using_workarea(false),
-    enable_workarea(true),
 	workarea_in(0),
 	workarea_out(0),
 	wrapper_sequence(false)
@@ -26,7 +45,7 @@ Sequence::~Sequence() {
 
 Sequence* Sequence::copy() {
 	Sequence* s = new Sequence();
-    s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
+	s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
 	s->width = width;
 	s->height = height;
 	s->frame_rate = frame_rate;
@@ -112,4 +131,4 @@ void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 }
 
 // static variable for the currently active sequence
-Sequence* sequence = nullptr;
+Sequence* Olive::ActiveSequence = nullptr;

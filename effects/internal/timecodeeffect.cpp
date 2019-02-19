@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "timecodeeffect.h"
 
 #include <QGridLayout>
@@ -11,6 +31,7 @@
 #include <QComboBox>
 #include <QWidget>
 #include <QtMath>
+#include <QDebug>
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
@@ -61,10 +82,10 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
 
 void TimecodeEffect::redraw(double timecode) {
 	if (tc_select->get_combo_data(timecode).toBool()){
-		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(sequence->playhead, config.timecode_view, sequence->frame_rate);}
+		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(Olive::ActiveSequence->playhead, Olive::CurrentConfig.timecode_view, Olive::ActiveSequence->frame_rate);}
 	else {
 		double media_rate = parent_clip->getMediaFrameRate();
-		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(timecode * media_rate, config.timecode_view, media_rate);}
+		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(timecode * media_rate, Olive::CurrentConfig.timecode_view, media_rate);}
 	img.fill(Qt::transparent);
 
 	QPainter p(&img);
@@ -93,13 +114,13 @@ void TimecodeEffect::redraw(double timecode) {
 
 	text_x = offset_x + (width/2) - (text_width/2);
 	text_y = offset_y + height - height/10;
-	rect_y = text_y + fm.descent()/2 - text_height;
+	rect_y = text_y + fm.descent() - text_height;
 
 	path.addText(text_x, text_y, font, display_timecode);
 
 	p.setPen(Qt::NoPen);
 	p.setBrush(background_color);
-	p.drawRect(QRect(text_x-fm.descent()/2, rect_y, text_width+fm.descent(), text_height));
+	p.drawRect(QRect(text_x-fm.descent(), rect_y, text_width+fm.descent()*2, text_height));
 	p.setBrush(color_val->get_color_value(timecode));
 	p.drawPath(path);
 }

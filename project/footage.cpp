@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "footage.h"
 
 #include <QDebug>
@@ -11,7 +31,16 @@ extern "C" {
 
 #include "project/clip.h"
 
-Footage::Footage() : ready(false), preview_gen(nullptr), invalid(false), in(0), out(0), speed(1.0) {
+Footage::Footage() :
+	ready(false),
+	preview_gen(nullptr),
+	invalid(false),
+	in(0),
+	out(0),
+	speed(1.0),
+	alpha_is_premultiplied(false),
+	proxy(false)
+{
 	ready_lock.lock();
 }
 
@@ -22,7 +51,6 @@ Footage::~Footage() {
 void Footage::reset() {
 	if (preview_gen != nullptr) {
 		preview_gen->cancel();
-		preview_gen->wait();
 	}
 	video_tracks.clear();
 	audio_tracks.clear();
@@ -61,5 +89,6 @@ void FootageStream::make_square_thumb() {
 	int sqx = (diff < 0) ? -diff : 0;
 	int sqy = (diff > 0) ? diff : 0;
 	p.drawImage(sqx, sqy, video_preview);
+	p.end();
 	video_preview_square = QIcon(pixmap);
 }

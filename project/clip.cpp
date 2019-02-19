@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "clip.h"
 
 #include "project/effect.h"
@@ -29,7 +49,7 @@ Clip::Clip(Sequence* s) :
 	speed(1.0),
 	reverse(false),
 	maintain_audio_pitch(false),
-	autoscale(config.autoscale_by_default),
+	autoscale(Olive::CurrentConfig.autoscale_by_default),
 	opening_transition(-1),
 	closing_transition(-1),
 	undeletable(false),
@@ -147,7 +167,14 @@ void Clip::queue_remove_earliest() {
 		}
 	}
 	av_frame_free(&queue[earliest_frame]);
-	queue.removeAt(earliest_frame);
+    queue.removeAt(earliest_frame);
+}
+
+QVector<Marker> &Clip::get_markers() {
+    if (media != nullptr) {
+        return media->get_markers();
+    }
+    return markers;
 }
 
 Transition* Clip::get_opening_transition() {
@@ -227,7 +254,7 @@ double Clip::getMediaFrameRate() {
 }
 
 void Clip::recalculateMaxLength() {
-	if (sequence != nullptr) {
+	if (this->sequence != nullptr) {
 		double fr = this->sequence->frame_rate;
 
 		fr /= speed;
@@ -270,11 +297,13 @@ int Clip::getWidth() {
 		const FootageStream* ms = media->to_footage()->get_stream_from_file_index(track < 0, media_stream);
 		if (ms != nullptr) return ms->video_width;
 		if (sequence != nullptr) return sequence->width;
+        break;
 	}
 	case MEDIA_TYPE_SEQUENCE:
 	{
 		Sequence* s = media->to_sequence();
 		return s->width;
+        break;
 	}
 	}
 	return 0;

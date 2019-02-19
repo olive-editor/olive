@@ -1,4 +1,24 @@
-﻿#ifndef EFFECT_H
+﻿/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#ifndef EFFECT_H
 #define EFFECT_H
 
 #include <QObject>
@@ -17,7 +37,7 @@ class QGridLayout;
 class QPushButton;
 class QMouseEvent;
 
-struct Clip;
+class Clip;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 class Effect;
@@ -34,8 +54,6 @@ struct EffectMeta {
 	int type;
 	int subtype;
 };
-
-extern bool shaders_are_enabled;
 extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
@@ -74,6 +92,36 @@ enum EffectInternal {
 	EFFECT_INTERNAL_COUNT
 };
 
+enum EffectBlendMode {
+	BLEND_MODE_ADD,
+	BLEND_MODE_AVERAGE,
+	BLEND_MODE_COLORBURN,
+	BLEND_MODE_COLORDODGE,
+	BLEND_MODE_DARKEN,
+	BLEND_MODE_DIFFERENCE,
+	BLEND_MODE_EXCLUSION,
+	BLEND_MODE_GLOW,
+	BLEND_MODE_HARDLIGHT,
+	BLEND_MODE_HARDMIX,
+	BLEND_MODE_LIGHTEN,
+	BLEND_MODE_LINEARBURN,
+	BLEND_MODE_LINEARDODGE,
+	BLEND_MODE_LINEARLIGHT,
+	BLEND_MODE_MULTIPLY,
+	BLEND_MODE_NEGATION,
+	BLEND_MODE_NORMAL,
+	BLEND_MODE_OVERLAY,
+	BLEND_MODE_PHOENIX,
+	BLEND_MODE_PINLIGHT,
+	BLEND_MODE_REFLECT,
+	BLEND_MODE_SCREEN,
+	BLEND_MODE_SOFTLIGHT,
+	BLEND_MODE_SUBSTRACT,
+	BLEND_MODE_SUBTRACT,
+	BLEND_MODE_VIVIDLIGHT,
+	BLEND_MODE_COUNT
+};
+
 struct GLTextureCoords {
 	int grid_size;
 
@@ -102,7 +150,12 @@ struct GLTextureCoords {
 	float textureBottomLeftX;
 	float textureBottomLeftY;
 	float textureBottomLeftQ;
+
+	int blendmode;
+	float opacity;
 };
+
+const EffectMeta* get_meta_from_name(const QString& input);
 
 qint16 mix_audio_sample(qint16 a, qint16 b);
 
@@ -134,12 +187,15 @@ public:
 
 	virtual void refresh();
 
-	Effect* copy(Clip* c);
+	virtual Effect* copy(Clip* c);
 	void copy_field_keyframes(Effect *e);
 
 	virtual void load(QXmlStreamReader& stream);
 	virtual void custom_load(QXmlStreamReader& stream);
 	virtual void save(QXmlStreamWriter& stream);
+
+	void load_from_string(const QByteArray &s);
+	QByteArray save_to_string();
 
 	// glsl handling
 	bool is_open();
@@ -159,8 +215,8 @@ public:
 
 	const char* ffmpeg_filter;
 
-    virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
-	virtual void process_shader(double timecode, GLTextureCoords&);
+	virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
+	virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
 	virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
 	virtual GLuint process_superimpose(double timecode);
 	virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
@@ -176,6 +232,8 @@ private slots:
 	void delete_self();
 	void move_up();
 	void move_down();
+	void save_to_file();
+	void load_from_file();
 protected:
 	// glsl effect
 	QOpenGLShaderProgram* glslProgram;
@@ -198,6 +256,7 @@ private:
 	QGridLayout* ui_layout;
 	QWidget* ui;
 	bool bound;
+	int iterations;
 
 	// superimpose functions
 	virtual void redraw(double timecode);

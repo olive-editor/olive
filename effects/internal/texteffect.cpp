@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "texteffect.h"
 
 #include <QGridLayout>
@@ -94,67 +114,67 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 }
 
 void blurred2(QImage& result, const QRect& rect, int radius, bool alphaOnly = false) {
-    int tab[] = { 14, 10, 8, 6, 5, 5, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2 };
-    int alpha = (radius < 1)  ? 16 : (radius > 17) ? 1 : tab[radius-1];
+	int tab[] = { 14, 10, 8, 6, 5, 5, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2 };
+	int alpha = (radius < 1)  ? 16 : (radius > 17) ? 1 : tab[radius-1];
 
-    int r1 = rect.top();
-    int r2 = rect.bottom();
-    int c1 = rect.left();
-    int c2 = rect.right();
+	int r1 = rect.top();
+	int r2 = rect.bottom();
+	int c1 = rect.left();
+	int c2 = rect.right();
 
-    int bpl = result.bytesPerLine();
-    int rgba[4];
-    unsigned char* p;
+	int bpl = result.bytesPerLine();
+	int rgba[4];
+	unsigned char* p;
 
-    int i1 = 0;
-    int i2 = 3;
+	int i1 = 0;
+	int i2 = 3;
 
-    if (alphaOnly)
-        i1 = i2 = (QSysInfo::ByteOrder == QSysInfo::BigEndian ? 0 : 3);
+	if (alphaOnly)
+		i1 = i2 = (QSysInfo::ByteOrder == QSysInfo::BigEndian ? 0 : 3);
 
-    for (int col = c1; col <= c2; col++) {
-        p = result.scanLine(r1) + col * 4;
-        for (int i = i1; i <= i2; i++)
-            rgba[i] = p[i] << 4;
+	for (int col = c1; col <= c2; col++) {
+		p = result.scanLine(r1) + col * 4;
+		for (int i = i1; i <= i2; i++)
+			rgba[i] = p[i] << 4;
 
-        p += bpl;
-        for (int j = r1; j < r2; j++, p += bpl)
-            for (int i = i1; i <= i2; i++)
-                p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
-    }
+		p += bpl;
+		for (int j = r1; j < r2; j++, p += bpl)
+			for (int i = i1; i <= i2; i++)
+				p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
+	}
 
-    for (int row = r1; row <= r2; row++) {
-        p = result.scanLine(row) + c1 * 4;
-        for (int i = i1; i <= i2; i++)
-            rgba[i] = p[i] << 4;
+	for (int row = r1; row <= r2; row++) {
+		p = result.scanLine(row) + c1 * 4;
+		for (int i = i1; i <= i2; i++)
+			rgba[i] = p[i] << 4;
 
-        p += 4;
-        for (int j = c1; j < c2; j++, p += 4)
-            for (int i = i1; i <= i2; i++)
-                p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
-    }
+		p += 4;
+		for (int j = c1; j < c2; j++, p += 4)
+			for (int i = i1; i <= i2; i++)
+				p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
+	}
 
-    for (int col = c1; col <= c2; col++) {
-        p = result.scanLine(r2) + col * 4;
-        for (int i = i1; i <= i2; i++)
-            rgba[i] = p[i] << 4;
+	for (int col = c1; col <= c2; col++) {
+		p = result.scanLine(r2) + col * 4;
+		for (int i = i1; i <= i2; i++)
+			rgba[i] = p[i] << 4;
 
-        p -= bpl;
-        for (int j = r1; j < r2; j++, p -= bpl)
-            for (int i = i1; i <= i2; i++)
-                p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
-    }
+		p -= bpl;
+		for (int j = r1; j < r2; j++, p -= bpl)
+			for (int i = i1; i <= i2; i++)
+				p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
+	}
 
-    for (int row = r1; row <= r2; row++) {
-        p = result.scanLine(row) + c2 * 4;
-        for (int i = i1; i <= i2; i++)
-            rgba[i] = p[i] << 4;
+	for (int row = r1; row <= r2; row++) {
+		p = result.scanLine(row) + c2 * 4;
+		for (int i = i1; i <= i2; i++)
+			rgba[i] = p[i] << 4;
 
-        p -= 4;
-        for (int j = c1; j < c2; j++, p -= 4)
-            for (int i = i1; i <= i2; i++)
-                p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
-    }
+		p -= 4;
+		for (int j = c1; j < c2; j++, p -= 4)
+			for (int i = i1; i <= i2; i++)
+				p[i] = (rgba[i] += ((p[i] << 4) - rgba[i]) * alpha / 16) >> 4;
+	}
 }
 
 void TextEffect::redraw(double timecode) {
@@ -254,25 +274,25 @@ void TextEffect::redraw(double timecode) {
 		path.addText(text_x, text_y, font, lines.at(i));
 	}
 
-    // draw software shadow
-    if (!enable_shader && shadow_bool->get_bool_value(timecode)) {
-        p.setPen(Qt::NoPen);
-        int shadow_offset = shadow_distance->get_double_value(timecode);
+	// draw software shadow
+	if (shadow_bool->get_bool_value(timecode)) {
+		p.setPen(Qt::NoPen);
+		int shadow_offset = shadow_distance->get_double_value(timecode);
 
-        QPainterPath shadow_path(path);
-        shadow_path.translate(shadow_offset, shadow_offset);
+		QPainterPath shadow_path(path);
+		shadow_path.translate(shadow_offset, shadow_offset);
 
-        QColor col = shadow_color->get_color_value(timecode);
-        col.setAlpha(0);
-        img.fill(col);
+		QColor col = shadow_color->get_color_value(timecode);
+		col.setAlpha(0);
+		img.fill(col);
 
-        col.setAlphaF(shadow_opacity->get_double_value(timecode)*0.01);
-        p.setBrush(col);
-        p.drawPath(shadow_path);
+		col.setAlphaF(shadow_opacity->get_double_value(timecode)*0.01);
+		p.setBrush(col);
+		p.drawPath(shadow_path);
 
-        int blurSoftness = shadow_softness->get_double_value(timecode);
-        if (blurSoftness > 0) blurred2(img, img.rect(), blurSoftness, false);
-    }
+		int blurSoftness = shadow_softness->get_double_value(timecode);
+		if (blurSoftness > 0) blurred2(img, img.rect(), blurSoftness, false);
+	}
 
 	// draw outline
 	int outline_width_val = outline_width->get_double_value(timecode);
@@ -288,10 +308,11 @@ void TextEffect::redraw(double timecode) {
 	p.setPen(Qt::NoPen);
 	p.setBrush(set_color_button->get_color_value(timecode));
 	p.drawPath(path);
+
+	p.end();
 }
 
 void TextEffect::shadow_enable(bool e) {
-    enable_shader = (e && !config.use_software_fallback);
 	close();
 
 	shadow_color->set_enabled(e);
@@ -309,7 +330,7 @@ void TextEffect::text_edit_menu() {
 }
 
 void TextEffect::open_text_edit() {
-	TextEditDialog ted(mainWindow, text_val->get_current_data().toString());
+    TextEditDialog ted(Olive::MainWindow, text_val->get_current_data().toString());
 	ted.exec();
 	QString result = ted.get_string();
 	if (!result.isEmpty()) {

@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "transition.h"
 
 #include "mainwindow.h"
@@ -25,7 +45,7 @@ Transition::Transition(Clip* c, Clip* s, const EffectMeta* em) :
 	Effect(c, em), secondary_clip(s),
 	length(30)
 {
-    length_field = add_row(tr("Length:"), false)->add_field(EFFECT_FIELD_DOUBLE, "length");
+    length_field = add_row(tr("Length"), false)->add_field(EFFECT_FIELD_DOUBLE, "length");
 	connect(length_field, SIGNAL(changed()), this, SLOT(set_length_from_slider()));
 	length_field->set_double_default_value(30);
 	length_field->set_double_minimum_value(0);
@@ -75,7 +95,7 @@ Transition* get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
 		}
 	} else {
 		qCritical() << "Invalid transition data";
-        QMessageBox::critical(mainWindow,
+        QMessageBox::critical(Olive::MainWindow,
                               QCoreApplication::translate("transition", "Invalid transition"),
                               QCoreApplication::translate("transition", "No candidate for transition '%1'. This transition may be corrupt. Try reinstalling it or Olive.").arg(em->name)
                         );

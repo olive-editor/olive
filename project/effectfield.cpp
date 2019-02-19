@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "effectfield.h"
 
 #include "ui/labelslider.h"
@@ -50,7 +70,7 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 		TextEditEx* edit = new TextEditEx();
 
 		// TODO magic number 2 - i'm not sure how to make this work otherwise though
-		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*config.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
+		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*Olive::CurrentConfig.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
 
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
@@ -88,6 +108,8 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 		break;
 	}
 }
+
+EffectField::~EffectField() {}
 
 double EffectField::get_validated_keyframe_handle(int key, bool post) {
 	int comp_key = -1;
@@ -327,7 +349,7 @@ void EffectField::ui_element_change() {
 	ComboAction* ca = nullptr;
 	if (!dragging_double) ca = new ComboAction();
 	make_key_from_change(ca);
-	if (!dragging_double) undo_stack.push(ca);
+	if (!dragging_double) Olive::UndoStack.push(ca);
 	emit changed();
 }
 

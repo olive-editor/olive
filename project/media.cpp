@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "media.h"
 
 #include "footage.h"
@@ -8,8 +28,8 @@
 #include "panels/project.h"
 #include "projectmodel.h"
 
-#include <QPainter>
 #include <QCoreApplication>
+#include <QtMath>
 
 #include "debug.h"
 
@@ -52,8 +72,7 @@ Media::~Media() {
 	case MEDIA_TYPE_FOOTAGE: delete to_footage(); break;
 	case MEDIA_TYPE_SEQUENCE: if (object != nullptr) delete to_sequence(); break;
 	}
-	if (throbber != nullptr) delete throbber;
-	qDeleteAll(children);
+	delete throbber;
 }
 
 Footage *Media::to_footage() {
@@ -118,10 +137,12 @@ void Media::update_tooltip(const QString& error) {
 						if (f->video_tracks.at(i).video_interlacing == VIDEO_PROGRESSIVE) {
 							tooltip += QString::number(f->video_tracks.at(i).video_frame_rate * f->speed);
 						} else {
-							tooltip += QCoreApplication::translate("Media", "%1 fields (%2 frames)").arg(
-										QString::number(f->video_tracks.at(i).video_frame_rate * f->speed * 2),
-										QString::number(f->video_tracks.at(i).video_frame_rate * f->speed)
-									);
+                            double adjusted_rate = f->video_tracks.at(i).video_frame_rate * f->speed;
+
+                            tooltip += QCoreApplication::translate("Media", "%1 field(s) (%2 frame(s))").arg(
+                                            QString::number(adjusted_rate*2.0),
+                                            QString::number(adjusted_rate)
+                                        );
 						}
 					}
 					tooltip += "\n";
@@ -243,7 +264,7 @@ bool Media::setData(int col, const QVariant &value) {
 	if (col == 0) {
 		QString n = value.toString();
 		if (!n.isEmpty() && get_name() != n) {
-			undo_stack.push(new MediaRename(this, value.toString()));
+			Olive::UndoStack.push(new MediaRename(this, value.toString()));
 			return true;
 		}
 	}
@@ -284,7 +305,7 @@ QVariant Media::data(int column, int role) {
 			if (root) return QCoreApplication::translate("Media", "Duration");
 			if (get_type() == MEDIA_TYPE_SEQUENCE) {
 				Sequence* s = to_sequence();
-				return frame_to_timecode(s->getEndFrame(), config.timecode_view, s->frame_rate);
+				return frame_to_timecode(s->getEndFrame(), Olive::CurrentConfig.timecode_view, s->frame_rate);
 			}
 			if (get_type() == MEDIA_TYPE_FOOTAGE) {
 				Footage* f = to_footage();
@@ -294,7 +315,7 @@ QVariant Media::data(int column, int role) {
 					r = f->video_tracks.at(0).video_frame_rate * f->speed;
 
 				long len = f->get_length_in_frames(r);
-				if (len > 0) return frame_to_timecode(len, config.timecode_view, r);
+				if (len > 0) return frame_to_timecode(len, Olive::CurrentConfig.timecode_view, r);
 			}
 			break;
 		case 2:
@@ -330,5 +351,18 @@ Media *Media::parentItem() {
 }
 
 void Media::removeChild(int i) {
-	children.removeAt(i);
+    children.removeAt(i);
+}
+
+QVector<Marker> &Media::get_markers() {
+    // returns the marker array from the internal object
+    //
+    // NOTE: if this media object is not footage or a sequence, the result is
+    // undefined - most likely a crash
+
+    if (get_type() == MEDIA_TYPE_FOOTAGE) {
+        return to_footage()->markers;
+    } else {
+        return to_sequence()->markers;
+    }
 }

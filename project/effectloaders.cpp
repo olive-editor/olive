@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "effectloaders.h"
 
 #include "project/effect.h"
@@ -6,6 +26,7 @@
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
 #include "io/crossplatformlib.h"
+#include "io/config.h"
 
 #include <QDir>
 #include <QXmlStreamReader>
@@ -18,11 +39,13 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 #endif
 
 void load_internal_effects() {
-	if (!shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+	if (!Olive::CurrentRuntimeConfig.shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
 
 	EffectMeta em;
 
-	// internal effects
+	// load internal effects
+	em.path = ":/internalshaders";
+
 	em.type = EFFECT_TYPE_EFFECT;
 	em.subtype = EFFECT_TYPE_AUDIO;
 

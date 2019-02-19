@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "exportdialog.h"
 
 #include <QOpenGLWidget>
@@ -8,19 +28,12 @@
 #include <QtMath>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
-#include <QGroupBox>
-#include <QComboBox>
-#include <QSpinBox>
 #include <QPushButton>
-#include <QProgressBar>
 
-#include "debug.h"
+#include "oliveglobal.h"
+#include "dialogs/advancedvideodialog.h"
 #include "panels/panels.h"
-#include "panels/viewer.h"
-#include "panels/timeline.h"
 #include "ui/viewerwidget.h"
-#include "project/sequence.h"
 #include "io/exportthread.h"
 #include "playback/playback.h"
 #include "mainwindow.h"
@@ -57,13 +70,13 @@ enum ExportFormats {
 ExportDialog::ExportDialog(QWidget *parent) :
 	QDialog(parent)
 {
-	setWindowTitle(tr("Export \"%1\"").arg(sequence->name));
+	setWindowTitle(tr("Export \"%1\"").arg(Olive::ActiveSequence->name));
 	setup_ui();
 
 	rangeCombobox->setCurrentIndex(0);
-	if (sequence->using_workarea) {
+	if (Olive::ActiveSequence->using_workarea) {
 		rangeCombobox->setEnabled(true);
-		if (sequence->enable_workarea) rangeCombobox->setCurrentIndex(1);
+		rangeCombobox->setCurrentIndex(1);
 	}
 
 	format_strings.resize(FORMAT_SIZE);
@@ -94,19 +107,30 @@ ExportDialog::ExportDialog(QWidget *parent) :
 	}
 	formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
-	widthSpinbox->setValue(sequence->width);
-	heightSpinbox->setValue(sequence->height);
-	samplingRateSpinbox->setValue(sequence->audio_frequency);
-	framerateSpinbox->setValue(sequence->frame_rate);
+	widthSpinbox->setValue(Olive::ActiveSequence->width);
+	heightSpinbox->setValue(Olive::ActiveSequence->height);
+	samplingRateSpinbox->setValue(Olive::ActiveSequence->audio_frequency);
+	framerateSpinbox->setValue(Olive::ActiveSequence->frame_rate);
 }
 
 ExportDialog::~ExportDialog()
 {}
 
-void ExportDialog::format_changed(int index)
-{
-	format_vcodecs.clear();
-	format_acodecs.clear();
+void ExportDialog::add_codec_to_combobox(QComboBox* box, enum AVCodecID codec) {
+    QString codec_name;
+
+    AVCodec* codec_info = avcodec_find_encoder(codec);
+
+    if (codec_info == nullptr) {
+        codec_name = tr("Unknown codec name %1").arg(static_cast<int>(codec));
+    } else {
+        codec_name = codec_info->long_name;
+    }
+
+    box->addItem(codec_name, codec);
+}
+
+void ExportDialog::format_changed(int index) {
 	vcodecCombobox->clear();
 	acodecCombobox->clear();
 
@@ -114,204 +138,186 @@ void ExportDialog::format_changed(int index)
 	int default_acodec = 0;
 
 	switch (index) {
-	case FORMAT_3GPP:
-		format_vcodecs.append(AV_CODEC_ID_MPEG4);
-		format_vcodecs.append(AV_CODEC_ID_H264);
+    case FORMAT_3GPP:
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
 
-		format_acodecs.append(AV_CODEC_ID_AAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
 
 		default_vcodec = 1;
 		break;
 	case FORMAT_AIFF:
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 		break;
 	case FORMAT_APNG:
-		format_vcodecs.append(AV_CODEC_ID_APNG);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_APNG);
 		break;
 	case FORMAT_AVI:
-		format_vcodecs.append(AV_CODEC_ID_H264);
-		format_vcodecs.append(AV_CODEC_ID_MPEG4);
-		format_vcodecs.append(AV_CODEC_ID_MJPEG);
-		format_vcodecs.append(AV_CODEC_ID_MSVIDEO1);
-		format_vcodecs.append(AV_CODEC_ID_RAWVIDEO);
-		format_vcodecs.append(AV_CODEC_ID_HUFFYUV);
-		format_vcodecs.append(AV_CODEC_ID_DVVIDEO);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MJPEG);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MSVIDEO1);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_RAWVIDEO);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_HUFFYUV);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_DVVIDEO);
 
-		format_acodecs.append(AV_CODEC_ID_AAC);
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_FLAC);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_FLAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 
 		default_vcodec = 3;
 		default_acodec = 5;
 		break;
 	case FORMAT_DNXHD:
-		format_vcodecs.append(AV_CODEC_ID_DNXHD);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_DNXHD);
 
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 		break;
 	case FORMAT_AC3:
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_EAC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_EAC3);
 		break;
 	case FORMAT_FLV:
-		format_vcodecs.append(AV_CODEC_ID_FLV1);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_FLV1);
 
-		format_acodecs.append(AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
 		break;
 	case FORMAT_GIF:
-		format_vcodecs.append(AV_CODEC_ID_GIF);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_GIF);
 		break;
 	case FORMAT_IMG:
-		format_vcodecs.append(AV_CODEC_ID_BMP);
-		format_vcodecs.append(AV_CODEC_ID_MJPEG);
-		format_vcodecs.append(AV_CODEC_ID_JPEG2000);
-		format_vcodecs.append(AV_CODEC_ID_PSD);
-		format_vcodecs.append(AV_CODEC_ID_PNG);
-		format_vcodecs.append(AV_CODEC_ID_TIFF);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_BMP);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MJPEG);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_JPEG2000);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_PSD);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_PNG);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_TIFF);
 
 		default_vcodec = 4;
 		break;
 	case FORMAT_MP2:
-		format_acodecs.append(AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
 		break;
 	case FORMAT_MP3:
-		format_acodecs.append(AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
 		break;
 	case FORMAT_MPEG1:
-		format_vcodecs.append(AV_CODEC_ID_MPEG1VIDEO);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG1VIDEO);
 
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 
 		default_acodec = 1;
 		break;
 	case FORMAT_MPEG2:
-		format_vcodecs.append(AV_CODEC_ID_MPEG2VIDEO);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG2VIDEO);
 
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 
 		default_acodec = 1;
 		break;
 	case FORMAT_MPEG4:
-		format_vcodecs.append(AV_CODEC_ID_MPEG4);
-		format_vcodecs.append(AV_CODEC_ID_H264);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
 
-		format_acodecs.append(AV_CODEC_ID_AAC);
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
 
 		default_vcodec = 1;
 		break;
 	case FORMAT_MPEGTS:
-		format_vcodecs.append(AV_CODEC_ID_MPEG2VIDEO);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG2VIDEO);
 
-		format_acodecs.append(AV_CODEC_ID_AAC);
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
 
 		default_acodec = 2;
 		break;
 	case FORMAT_MKV:
-		format_vcodecs.append(AV_CODEC_ID_MPEG4);
-		format_vcodecs.append(AV_CODEC_ID_H264);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
 
-		format_acodecs.append(AV_CODEC_ID_AAC);
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_EAC3);
-		format_acodecs.append(AV_CODEC_ID_FLAC);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
-		format_acodecs.append(AV_CODEC_ID_OPUS);
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
-		format_acodecs.append(AV_CODEC_ID_VORBIS);
-		format_acodecs.append(AV_CODEC_ID_WAVPACK);
-		format_acodecs.append(AV_CODEC_ID_WMAV1);
-		format_acodecs.append(AV_CODEC_ID_WMAV2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_EAC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_FLAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_OPUS);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_VORBIS);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_WAVPACK);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_WMAV1);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_WMAV2);
 
 		default_vcodec = 1;
 		break;
 	case FORMAT_OGG:
-		format_vcodecs.append(AV_CODEC_ID_THEORA);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_THEORA);
 
-		format_acodecs.append(AV_CODEC_ID_OPUS);
-		format_acodecs.append(AV_CODEC_ID_VORBIS);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_OPUS);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_VORBIS);
 
 		default_acodec = 1;
 		break;
 	case FORMAT_MOV:
-		format_vcodecs.append(AV_CODEC_ID_QTRLE);
-		format_vcodecs.append(AV_CODEC_ID_MPEG4);
-		format_vcodecs.append(AV_CODEC_ID_H264);
-		format_vcodecs.append(AV_CODEC_ID_MJPEG);
-		format_vcodecs.append(AV_CODEC_ID_PRORES);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_QTRLE);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MJPEG);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_PRORES);
 
-		format_acodecs.append(AV_CODEC_ID_AAC);
-		format_acodecs.append(AV_CODEC_ID_AC3);
-		format_acodecs.append(AV_CODEC_ID_MP2);
-		format_acodecs.append(AV_CODEC_ID_MP3);
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_MP3);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 
 		default_vcodec = 2;
 		break;
 	case FORMAT_WAV:
-		format_acodecs.append(AV_CODEC_ID_PCM_S16LE);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_PCM_S16LE);
 		break;
 	case FORMAT_WEBM:
-		format_vcodecs.append(AV_CODEC_ID_VP8);
-		format_vcodecs.append(AV_CODEC_ID_VP9);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_VP8);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_VP9);
 
-		format_acodecs.append(AV_CODEC_ID_OPUS);
-		format_acodecs.append(AV_CODEC_ID_VORBIS);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_OPUS);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_VORBIS);
 
 		default_vcodec = 1;
 		break;
 	case FORMAT_WMV:
-		format_vcodecs.append(AV_CODEC_ID_WMV1);
-		format_vcodecs.append(AV_CODEC_ID_WMV2);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_WMV1);
+        add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_WMV2);
 
-		format_acodecs.append(AV_CODEC_ID_WMAV1);
-		format_acodecs.append(AV_CODEC_ID_WMAV2);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_WMAV1);
+        add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_WMAV2);
 
 		default_vcodec = 1;
 		default_acodec = 1;
 		break;
 	default:
 		qCritical() << "Invalid format selection - this is a bug, please inform the developers";
-	}
-
-	AVCodec* codec_info;
-	for (int i=0;i<format_vcodecs.size();i++) {
-		codec_info = avcodec_find_encoder((enum AVCodecID) format_vcodecs.at(i));
-		if (codec_info == nullptr) {
-			vcodecCombobox->addItem("nullptr");
-		} else {
-			vcodecCombobox->addItem(codec_info->long_name);
-		}
-	}
-	for (int i=0;i<format_acodecs.size();i++) {
-		codec_info = avcodec_find_encoder((enum AVCodecID) format_acodecs.at(i));
-		if (codec_info == nullptr) {
-			acodecCombobox->addItem("nullptr");
-		} else {
-			acodecCombobox->addItem(codec_info->long_name);
-		}
-	}
+    }
 
 	vcodecCombobox->setCurrentIndex(default_vcodec);
 	acodecCombobox->setCurrentIndex(default_acodec);
 
-	bool video_enabled = format_vcodecs.size() != 0;
-	bool audio_enabled = format_acodecs.size() != 0;
+    bool video_enabled = vcodecCombobox->count() != 0;
+    bool audio_enabled = acodecCombobox->count() != 0;
 	videoGroupbox->setChecked(video_enabled);
 	audioGroupbox->setChecked(audio_enabled);
 	videoGroupbox->setEnabled(video_enabled);
@@ -331,6 +337,7 @@ void ExportDialog::render_thread_finished() {
 	panel_sequence_viewer->viewer_widget->makeCurrent();
 	panel_sequence_viewer->viewer_widget->initializeGL();
 	update_ui(false);
+    et->deleteLater();
 	if (progressBar->value() == 100) accept();
 }
 
@@ -378,7 +385,7 @@ void ExportDialog::export_action() {
 		ext = "gif";
 		break;
 	case FORMAT_IMG:
-		switch (format_vcodecs.at(vcodecCombobox->currentIndex())) {
+        switch (vcodecCombobox->currentData().toInt()) {
 		case AV_CODEC_ID_BMP:
 			ext = "bmp";
 			break;
@@ -498,45 +505,44 @@ void ExportDialog::export_action() {
 			}
 		}
 
-		et = new ExportThread();
+        ExportParams params;
+        params.filename = filename;
+        params.video_enabled = videoGroupbox->isChecked();
+        if (params.video_enabled) {
+            params.video_codec = vcodecCombobox->currentData().toInt();
+            params.video_width = widthSpinbox->value();
+            params.video_height = heightSpinbox->value();
+            params.video_frame_rate = framerateSpinbox->value();
+            params.video_compression_type = compressionTypeCombobox->currentData().toInt();
+            params.video_bitrate = videobitrateSpinbox->value();
+        }
+        params.audio_enabled = audioGroupbox->isChecked();
+        if (params.audio_enabled) {
+            params.audio_codec = acodecCombobox->currentData().toInt();
+            params.audio_sampling_rate = samplingRateSpinbox->value();
+            params.audio_bitrate = audiobitrateSpinbox->value();
+        }
 
-		connect(et, SIGNAL(finished()), et, SLOT(deleteLater()));
+        params.start_frame = 0;
+        params.end_frame = Olive::ActiveSequence->getEndFrame(); // entire sequence
+        if (rangeCombobox->currentIndex() == 1) {
+            params.start_frame = qMax(Olive::ActiveSequence->workarea_in, params.start_frame);
+            params.end_frame = qMin(Olive::ActiveSequence->workarea_out, params.end_frame);
+        }
+
+        et = new ExportThread(params, vcodec_params, this);
+
 		connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
-		closeActiveClips(sequence);
+		closeActiveClips(Olive::ActiveSequence);
 
-		mainWindow->set_rendering_state(true);
+        Olive::Global.data()->set_rendering_state(true);
 
-		mainWindow->autorecover_interval();
+        Olive::Global.data()->save_autorecovery_file();
 
-		prep_ui_for_render(true);
+        prep_ui_for_render(true);
 
-		et->filename = filename;
-		et->video_enabled = videoGroupbox->isChecked();
-		if (et->video_enabled) {
-			et->video_codec = format_vcodecs.at(vcodecCombobox->currentIndex());
-			et->video_width = widthSpinbox->value();
-			et->video_height = heightSpinbox->value();
-			et->video_frame_rate = framerateSpinbox->value();
-			et->video_compression_type = compressionTypeCombobox->currentData().toInt();
-			et->video_bitrate = videobitrateSpinbox->value();
-		}
-		et->audio_enabled = audioGroupbox->isChecked();
-		if (et->audio_enabled) {
-			et->audio_codec = format_acodecs.at(acodecCombobox->currentIndex());
-			et->audio_sampling_rate = samplingRateSpinbox->value();
-			et->audio_bitrate = audiobitrateSpinbox->value();
-		}
-
-		et->start_frame = 0;
-		et->end_frame = sequence->getEndFrame(); // entire sequence
-		if (rangeCombobox->currentIndex() == 1) {
-			et->start_frame = qMax(sequence->workarea_in, et->start_frame);
-			et->end_frame = qMin(sequence->workarea_out, et->end_frame);
-		}
-
-		et->ed = this;
 		cancelled = false;
 
 		et->start();
@@ -561,16 +567,34 @@ void ExportDialog::cancel_render() {
 
 void ExportDialog::vcodec_changed(int index) {
 	compressionTypeCombobox->clear();
-	if ((format_vcodecs.size() > 0 && format_vcodecs.at(index) == AV_CODEC_ID_H264)) {
-		compressionTypeCombobox->setEnabled(true);
-		compressionTypeCombobox->addItem(tr("Quality-based (Constant Rate Factor)"), COMPRESSION_TYPE_CFR);
-//		compressionTypeCombobox->addItem("File size-based (Two-Pass)", COMPRESSION_TYPE_TARGETSIZE);
-//		compressionTypeCombobox->addItem("Average bitrate (Two-Pass)", COMPRESSION_TYPE_TARGETBR);
-	} else {
-		compressionTypeCombobox->addItem(tr("Constant Bitrate"), COMPRESSION_TYPE_CBR);
-		compressionTypeCombobox->setCurrentIndex(0);
-		compressionTypeCombobox->setEnabled(false);
-	}
+
+    if (vcodecCombobox->count() > 0) {
+        if (vcodecCombobox->itemData(index) == AV_CODEC_ID_H264) {
+            compressionTypeCombobox->setEnabled(true);
+            compressionTypeCombobox->addItem(tr("Quality-based (Constant Rate Factor)"), COMPRESSION_TYPE_CFR);
+    //		compressionTypeCombobox->addItem("File size-based (Two-Pass)", COMPRESSION_TYPE_TARGETSIZE);
+    //		compressionTypeCombobox->addItem("Average bitrate (Two-Pass)", COMPRESSION_TYPE_TARGETBR);
+        } else {
+            compressionTypeCombobox->addItem(tr("Constant Bitrate"), COMPRESSION_TYPE_CBR);
+            compressionTypeCombobox->setCurrentIndex(0);
+            compressionTypeCombobox->setEnabled(false);
+        }
+
+        // set default pix_fmt for this codec
+        AVCodec* codec_info = avcodec_find_encoder(static_cast<AVCodecID>(vcodecCombobox->itemData(index).toInt()));
+        if (codec_info == nullptr) {
+            QMessageBox::critical(this,
+                                  tr("Invalid Codec"),
+                                  tr("Failed to find a suitable encoder for this codec. Export will likely fail."));
+        } else {
+            vcodec_params.pix_fmt = codec_info->pix_fmts[0];
+            if (vcodec_params.pix_fmt == -1) {
+                QMessageBox::critical(this,
+                                      tr("Invalid Codec"),
+                                      tr("Failed to find pixel format for this encoder. Export will likely fail."));
+            }
+        }
+    }
 }
 
 void ExportDialog::comp_type_changed(int) {
@@ -581,7 +605,7 @@ void ExportDialog::comp_type_changed(int) {
 	case COMPRESSION_TYPE_CBR:
 	case COMPRESSION_TYPE_TARGETBR:
 		videoBitrateLabel->setText(tr("Bitrate (Mbps):"));
-		videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence->height) - 4.5)));
+		videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * Olive::ActiveSequence->height) - 4.5)));
 		break;
 	case COMPRESSION_TYPE_CFR:
 		videoBitrateLabel->setText(tr("Quality (CRF):"));
@@ -593,7 +617,12 @@ void ExportDialog::comp_type_changed(int) {
 		videoBitrateLabel->setText(tr("Target File Size (MB):"));
 		videobitrateSpinbox->setValue(100);
 		break;
-	}
+    }
+}
+
+void ExportDialog::open_advanced_video_dialog() {
+    AdvancedVideoDialog avd(this, vcodecCombobox->currentData().toInt(), vcodec_params);
+    avd.exec();
 }
 
 void ExportDialog::setup_ui() {
@@ -601,17 +630,16 @@ void ExportDialog::setup_ui() {
 
 	QHBoxLayout* format_layout = new QHBoxLayout();
 
-	format_layout->addWidget(new QLabel(tr("Format:")));
+	format_layout->addWidget(new QLabel(tr("Format:"), this));
 
-	formatCombobox = new QComboBox(this);
-
+	formatCombobox = new QComboBox();
 	format_layout->addWidget(formatCombobox);
 
 	verticalLayout->addLayout(format_layout);
 
 	QHBoxLayout* range_layout = new QHBoxLayout();
 
-	range_layout->addWidget(new QLabel(tr("Range:")));
+	range_layout->addWidget(new QLabel(tr("Range:"), this));
 
 	rangeCombobox = new QComboBox(this);
 	rangeCombobox->addItem(tr("Entire Sequence"));
@@ -628,27 +656,27 @@ void ExportDialog::setup_ui() {
 
 	QGridLayout* videoGridLayout = new QGridLayout(videoGroupbox);
 
-	videoGridLayout->addWidget(new QLabel(tr("Codec:")), 0, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Codec:"), this), 0, 0, 1, 1);
 	vcodecCombobox = new QComboBox(videoGroupbox);
 	videoGridLayout->addWidget(vcodecCombobox, 0, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Width:")), 1, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Width:"), this), 1, 0, 1, 1);
 	widthSpinbox = new QSpinBox(videoGroupbox);
 	widthSpinbox->setMaximum(16777216);
 	videoGridLayout->addWidget(widthSpinbox, 1, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Height:")), 2, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Height:"), this), 2, 0, 1, 1);
 	heightSpinbox = new QSpinBox(videoGroupbox);
 	heightSpinbox->setMaximum(16777216);
 	videoGridLayout->addWidget(heightSpinbox, 2, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Frame Rate:")), 3, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Frame Rate:"), this), 3, 0, 1, 1);
 	framerateSpinbox = new QDoubleSpinBox(videoGroupbox);
 	framerateSpinbox->setMaximum(60);
 	framerateSpinbox->setValue(0);
 	videoGridLayout->addWidget(framerateSpinbox, 3, 1, 1, 1);
 
-	videoGridLayout->addWidget(new QLabel(tr("Compression Type:")), 4, 0, 1, 1);
+	videoGridLayout->addWidget(new QLabel(tr("Compression Type:"), this), 4, 0, 1, 1);
 	compressionTypeCombobox = new QComboBox(videoGroupbox);
 	videoGridLayout->addWidget(compressionTypeCombobox, 4, 1, 1, 1);
 
@@ -659,25 +687,29 @@ void ExportDialog::setup_ui() {
 	videobitrateSpinbox->setValue(2);
 	videoGridLayout->addWidget(videobitrateSpinbox, 5, 1, 1, 1);
 
+    QPushButton* advanced_video_button = new QPushButton(tr("Advanced"));
+    connect(advanced_video_button, SIGNAL(clicked(bool)), this, SLOT(open_advanced_video_dialog()));
+    videoGridLayout->addWidget(advanced_video_button, 6, 1);
+
 	verticalLayout->addWidget(videoGroupbox);
 
 	audioGroupbox = new QGroupBox(this);
-	audioGroupbox->setTitle("Audio");
+	audioGroupbox->setTitle(tr("Audio"));
 	audioGroupbox->setCheckable(true);
 
 	QGridLayout* audioGridLayout = new QGridLayout(audioGroupbox);
 
-	audioGridLayout->addWidget(new QLabel(tr("Codec:")), 0, 0, 1, 1);
+	audioGridLayout->addWidget(new QLabel(tr("Codec:"), this), 0, 0, 1, 1);
 	acodecCombobox = new QComboBox(audioGroupbox);
 	audioGridLayout->addWidget(acodecCombobox, 0, 1, 1, 1);
 
-	audioGridLayout->addWidget(new QLabel(tr("Sampling Rate:")), 1, 0, 1, 1);
+	audioGridLayout->addWidget(new QLabel(tr("Sampling Rate:"), this), 1, 0, 1, 1);
 	samplingRateSpinbox = new QSpinBox(audioGroupbox);
 	samplingRateSpinbox->setMaximum(96000);
 	samplingRateSpinbox->setValue(0);
 	audioGridLayout->addWidget(samplingRateSpinbox, 1, 1, 1, 1);
 
-	audioGridLayout->addWidget(new QLabel(tr("Bitrate (Kbps/CBR):")), 3, 0, 1, 1);
+	audioGridLayout->addWidget(new QLabel(tr("Bitrate (Kbps/CBR):"), this), 3, 0, 1, 1);
 	audiobitrateSpinbox = new QSpinBox(audioGroupbox);
 	audiobitrateSpinbox->setMaximum(320);
 	audiobitrateSpinbox->setValue(256);

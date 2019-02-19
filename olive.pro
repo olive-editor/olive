@@ -30,10 +30,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # Tries to get the current Git short hash
 system("which git") {
     GITHASHVAR = $$system(git --git-dir $$PWD/.git --work-tree $$PWD log -1 --format=%h)
+
+    # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
+    # (see https://answers.launchpad.net/launchpad/+question/678556)
+    isEmpty(GITHASHVAR) {
+        GITHASHVAR = $$system(sh $$PWD/debian/gitfromlog.sh $$PWD/debian/changelog)
+    }
+
     DEFINES += GITHASH=\\"\"$$GITHASHVAR\\"\"
 }
 
 CONFIG += c++11
+
+CONFIG(debug, debug|release) {
+    CONFIG += console
+}
 
 SOURCES += \
         main.cpp \
@@ -78,7 +89,6 @@ SOURCES += \
     project/marker.cpp \
     dialogs/speeddialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
-    io/crc32.cpp \
     project/projectmodel.cpp \
     io/loadthread.cpp \
     dialogs/loaddialog.cpp \
@@ -107,8 +117,6 @@ SOURCES += \
     effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
     io/clipboard.cpp \
-    dialogs/stabilizerdialog.cpp \
-    io/avtogl.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp \
@@ -133,7 +141,14 @@ SOURCES += \
     project/effectloaders.cpp \
     io/crossplatformlib.cpp \
     effects/internal/vsthost.cpp \
-    ui/flowlayout.cpp
+    ui/flowlayout.cpp \
+    dialogs/proxydialog.cpp \
+    io/proxygenerator.cpp \
+    dialogs/advancedvideodialog.cpp \
+    ui/cursors.cpp \
+    ui/menuhelper.cpp \
+    oliveglobal.cpp \
+    ui/focusfilter.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -179,7 +194,6 @@ HEADERS += \
     project/selection.h \
     dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
-    io/crc32.h \
     project/projectmodel.h \
     io/loadthread.h \
     dialogs/loaddialog.h \
@@ -208,8 +222,6 @@ HEADERS += \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
     io/clipboard.h \
-    dialogs/stabilizerdialog.h \
-    io/avtogl.h \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h \
@@ -234,9 +246,28 @@ HEADERS += \
     project/effectloaders.h \
     io/crossplatformlib.h \
     effects/internal/vsthost.h \
-    ui/flowlayout.h
+    ui/flowlayout.h \
+    dialogs/proxydialog.h \
+    io/proxygenerator.h \
+    dialogs/advancedvideodialog.h \
+    ui/cursors.h \
+    ui/menuhelper.h \
+    oliveglobal.h \
+    project/projectelements.h \
+    ui/focusfilter.h
 
 FORMS +=
+
+TRANSLATIONS += \
+    ts/olive_de.ts \
+    ts/olive_es.ts \
+    ts/olive_fr.ts \
+    ts/olive_it.ts \
+    ts/olive_cs.ts \
+    ts/olive_ar.ts \
+    ts/olive_ru.ts \
+    ts/olive_bs.ts \
+    ts/olive_sr.ts
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
@@ -256,7 +287,9 @@ unix:!mac {
 }
 
 RESOURCES += \
-    icons/icons.qrc
+    icons/icons.qrc \
+    effects/internal/internalshaders.qrc \
+    cursors/cursors.qrc
 
 unix:!mac:isEmpty(PREFIX) {
     PREFIX = /usr/local
@@ -266,6 +299,9 @@ unix:!mac:target.path = $$PREFIX/bin
 
 effects.files = $$PWD/effects/*.frag $$PWD/effects/*.xml $$PWD/effects/*.vert
 unix:!mac:effects.path = $$PREFIX/share/olive-editor/effects
+
+translations.files = $$PWD/ts/*.qm
+unix:!mac:translations.path = $$PREFIX/share/olive-editor/ts
 
 unix:!mac {
     metainfo.files = $$PWD/packaging/linux/org.olivevideoeditor.Olive.appdata.xml
@@ -288,7 +324,5 @@ unix:!mac {
     icon256.path = $$PREFIX/share/icons/hicolor/256x256/apps
     icon512.files = $$PWD/packaging/linux/icons/512x512/org.olivevideoeditor.Olive.png
     icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
-    icon1024.files = $$PWD/packaging/linux/icons/1024x1024/org.olivevideoeditor.Olive.png
-    icon1024.path = $$PREFIX/share/icons/hicolor/1024x1024/apps
-    INSTALLS += target effects metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512 icon1024
+    INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512
 }

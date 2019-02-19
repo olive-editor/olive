@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef TIMELINEWIDGET_H
 #define TIMELINEWIDGET_H
 
@@ -12,7 +32,7 @@
 #define TRACK_HEIGHT_INCREMENT 10
 
 struct Sequence;
-struct Clip;
+class Clip;
 struct FootageStream;
 class Timeline;
 class TimelineAction;
@@ -63,12 +83,9 @@ private:
 	QVector<Clip*> pre_clips;
 	QVector<Clip*> post_clips;
 
-	Sequence* self_created_sequence;
-
-	// used for "right click ripple"
-	long rc_ripple_min;
-	long rc_ripple_max;
 	Media* rc_reveal_media;
+
+	Sequence* self_created_sequence;
 
 	QTimer tooltip_timer;
 	int tooltip_clip;
@@ -83,12 +100,10 @@ public slots:
 
 private slots:
 	void reveal_media();
-	void right_click_ripple();
 	void show_context_menu(const QPoint& pos);
 	void toggle_autoscale();
 	void tooltip_timer_timeout();
-	void rename_clip();
-	void show_stabilizer_diag();
+    void rename_clip();
 	void open_sequence_properties();
 };
 

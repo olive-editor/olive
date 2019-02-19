@@ -1,6 +1,29 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "preferencesdialog.h"
 
+#include "oliveglobal.h"
 #include "io/config.h"
+#include "io/path.h"
+#include "playback/audio.h"
 #include "mainwindow.h"
 
 #include <QMenuBar>
@@ -22,8 +45,10 @@
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QMessageBox>
-
-#include "debug.h"
+#include <QAudioDeviceInfo>
+#include <QApplication>
+#include <QProcess>
+#include <QDebug>
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 	: QKeySequenceEdit(parent), action(a) {
@@ -33,6 +58,7 @@ KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
 
 void KeySequenceEditor::set_action_shortcut() {
 	action->setShortcut(keySequence());
+    action->setShortcutContext(Qt::ApplicationShortcut);
 }
 
 void KeySequenceEditor::reset_to_default() {
@@ -57,10 +83,10 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 	setWindowTitle(tr("Preferences"));
 	setup_ui();
 
-	accurateSeekButton->setChecked(!config.fast_seeking);
-	fastSeekButton->setChecked(config.fast_seeking);
-	recordingComboBox->setCurrentIndex(config.recording_mode - 1);
-	imgSeqFormatEdit->setText(config.img_seq_formats);
+	accurateSeekButton->setChecked(!Olive::CurrentConfig.fast_seeking);
+	fastSeekButton->setChecked(Olive::CurrentConfig.fast_seeking);
+	recordingComboBox->setCurrentIndex(Olive::CurrentConfig.recording_mode - 1);
+	imgSeqFormatEdit->setText(Olive::CurrentConfig.img_seq_formats);
 }
 
 PreferencesDialog::~PreferencesDialog() {}
@@ -71,7 +97,7 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 		QAction* a = actions.at(i);
 
 		if (!a->isSeparator() && a->property("keyignore").isNull()) {
-			QTreeWidgetItem* item = new QTreeWidgetItem();
+			QTreeWidgetItem* item = new QTreeWidgetItem(parent);
 			item->setText(0, a->text().replace("&", ""));
 
 			parent->addChild(item);
@@ -84,7 +110,40 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
 				key_shortcut_actions.append(a);
 			}
 		}
-	}
+    }
+}
+
+void PreferencesDialog::delete_previews(char type) {
+    if (type != 't' && type != 'w' && type != 1) return;
+
+    QDir preview_path(get_data_path() + "/previews");
+
+    if (type == 1) {
+        // indiscriminately delete everything
+        preview_path.removeRecursively();
+    } else {
+        QStringList preview_file_list = preview_path.entryList(QDir::Files | QDir::NoDotAndDotDot);
+        for (int i=0;i<preview_file_list.size();i++) {
+
+            const QString& preview_file_str = preview_file_list.at(i);
+
+            // use filename to determine whether this is a thumbnail or a waveform
+            int identifier_char_index = qMax(0, preview_file_str.size()-2);
+
+            // find identifier char
+            while (identifier_char_index >= 0
+                   && preview_file_str.at(identifier_char_index) >= 48
+                   && preview_file_str.at(identifier_char_index) <= 57) {
+                identifier_char_index--;
+            }
+
+            // thumbnails will have a 't' towards the end of the filenames, waveforms will have a 'w'
+            // if they match the type of preview we're deleting, remove them
+            if (preview_file_str.at(identifier_char_index) == type) {
+                QFile::remove(preview_path.filePath(preview_file_str));
+            }
+        }
+    }
 }
 
 void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
@@ -93,7 +152,7 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 	for (int i=0;i<menus.size();i++) {
 		QMenu* menu = menus.at(i)->menu();
 
-		QTreeWidgetItem* item = new QTreeWidgetItem();
+		QTreeWidgetItem* item = new QTreeWidgetItem(keyboard_tree);
 		item->setText(0, menu->title().replace("&", ""));
 
 		keyboard_tree->addTopLevelItem(item);
@@ -111,6 +170,10 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
 }
 
 void PreferencesDialog::save() {
+    bool restart_after_saving = false;
+    bool reinit_audio = false;
+
+    // Validate whether the specified CSS file exists
 	if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
 		QMessageBox::critical(
 					this,
@@ -120,39 +183,117 @@ void PreferencesDialog::save() {
 		return;
 	}
 
-    bool needs_restart = false;
+    // Check if any settings will require a restart of Olive
+    if (Olive::CurrentConfig.effect_textbox_lines != effect_textbox_lines_field->value()
+            || Olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
+            || Olive::CurrentConfig.language_file != language_combobox->currentData().toString()
+            || Olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
+            || Olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
 
-	config.css_path = custom_css_fn->text();
-	mainWindow->load_css_from_file(config.css_path);
-	config.recording_mode = recordingComboBox->currentIndex() + 1;
-	config.img_seq_formats = imgSeqFormatEdit->text();
-	config.fast_seeking = fastSeekButton->isChecked();
-	config.disable_multithreading_for_images = disable_img_multithread->isChecked();
-	config.upcoming_queue_size = upcoming_queue_spinbox->value();
-	config.upcoming_queue_type = upcoming_queue_type->currentIndex();
-	config.previous_queue_size = previous_queue_spinbox->value();
-	config.previous_queue_type = previous_queue_type->currentIndex();
+        // any changes to these settings will require a restart - ask the user if we should do one now or later
 
-    if (config.effect_textbox_lines != effect_textbox_lines_field->value()) {
-        needs_restart = true;
+        int ret = QMessageBox::question(this,
+                                        "Restart Required",
+                                        "Some of the changed settings will require a restart of Olive. Would you like "
+                                        "to restart now?",
+                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        if (ret == QMessageBox::Cancel) {
+            // Return to Preferences dialog without saving any settings
+            return;
+        } else if (ret == QMessageBox::Yes) {
+
+            // Check if we can close the current project. If not, we'll treat it as if the user clicked "Cancel".
+            if (Olive::Global->can_close_project()) {
+                restart_after_saving = true;
+            } else {
+                return;
+            }
+        }
+        // Selecting "No" will save the settings and not restart. They will become active next time Olive opens.
+
     }
-	config.effect_textbox_lines = effect_textbox_lines_field->value();
 
-    if (config.use_software_fallback != use_software_fallbacks_checkbox->isChecked()) {
-        needs_restart = true;
+    // Audio settings may require the audio device to be re-initiated.
+    if (Olive::CurrentConfig.preferred_audio_output != audio_output_devices->currentData().toString()
+            || Olive::CurrentConfig.preferred_audio_input != audio_input_devices->currentData().toString()
+            || Olive::CurrentConfig.audio_rate != audio_sample_rate->currentData().toInt()) {
+        reinit_audio = true;
     }
-    config.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
 
-	// save keyboard shortcuts
+	// save settings from UI to backend
+	Olive::CurrentConfig.css_path = custom_css_fn->text();
+    Olive::MainWindow->load_css_from_file(Olive::CurrentConfig.css_path);
+
+	Olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
+	Olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
+    Olive::CurrentConfig.fast_seeking = fastSeekButton->isChecked();
+	Olive::CurrentConfig.upcoming_queue_size = upcoming_queue_spinbox->value();
+	Olive::CurrentConfig.upcoming_queue_type = upcoming_queue_type->currentIndex();
+	Olive::CurrentConfig.previous_queue_size = previous_queue_spinbox->value();
+	Olive::CurrentConfig.previous_queue_type = previous_queue_type->currentIndex();
+    Olive::CurrentConfig.add_default_effects_to_clips = add_default_effects_to_clips->isChecked();
+
+	Olive::CurrentConfig.preferred_audio_output = audio_output_devices->currentData().toString();
+	Olive::CurrentConfig.preferred_audio_input = audio_input_devices->currentData().toString();
+	Olive::CurrentConfig.audio_rate = audio_sample_rate->currentData().toInt();
+
+    Olive::CurrentConfig.effect_textbox_lines = effect_textbox_lines_field->value();
+    Olive::CurrentConfig.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
+    Olive::CurrentConfig.language_file = language_combobox->currentData().toString();
+
+	if (Olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
+			|| Olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
+        // we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
+
+		// delete nothing
+		char delete_match = 0;
+
+		if (Olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()) {
+			// delete existing thumbnails
+			Olive::CurrentConfig.thumbnail_resolution = thumbnail_res_spinbox->value();
+
+			// delete only thumbnails
+			delete_match = 't';
+		}
+
+		if (Olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
+			// delete existing waveforms
+			Olive::CurrentConfig.waveform_resolution = waveform_res_spinbox->value();
+
+			// if we're already deleting thumbnails
+			if (delete_match == 't') {
+				// delete all
+				delete_match = 1;
+			} else {
+				// just delete waveforms
+				delete_match = 'w';
+			}
+		}
+
+        delete_previews(delete_match);
+	}
+
+    // Save keyboard shortcuts
 	for (int i=0;i<key_shortcut_fields.size();i++) {
 		key_shortcut_fields.at(i)->set_action_shortcut();
 	}
 
-    if (needs_restart) {
-        QMessageBox::information(this, tr("Warning"), tr("Some changed settings will require restarting Olive to take effect"));
+    // Audio settings may require the audio device to be re-initiated.
+    if (reinit_audio) {
+		init_audio();
     }
 
-	accept();
+    accept();
+
+    if (restart_after_saving) {
+        // since we already ran can_close_project(), bypass checking again by running setWindowModified(false)
+        Olive::MainWindow->setWindowModified(false);
+
+        Olive::MainWindow->close();
+
+        QProcess::startDetached(QApplication::applicationFilePath(), { Olive::ActiveProjectFilename });
+    }
 }
 
 void PreferencesDialog::reset_default_shortcut() {
@@ -274,71 +415,156 @@ void PreferencesDialog::browse_css_file() {
 	QString fn = QFileDialog::getOpenFileName(this, tr("Browse for CSS file"));
 	if (!fn.isEmpty()) {
 		custom_css_fn->setText(fn);
-	}
+    }
+}
+
+void PreferencesDialog::delete_all_previews() {
+    if (QMessageBox::question(this,
+                              tr("Delete All Previews"),
+                              tr("Are you sure you want to delete all previews?"),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        delete_previews(1);
+        QMessageBox::information(this,
+                                 tr("Previews Deleted"),
+                                 tr("All previews deleted succesfully. You may have to re-open your current project for changes to take effect."),
+                                 QMessageBox::Ok);
+    }
 }
 
 void PreferencesDialog::setup_ui() {
 	QVBoxLayout* verticalLayout = new QVBoxLayout(this);
 	QTabWidget* tabWidget = new QTabWidget(this);
 
+	// row counter used to ease adding new rows
+	int row = 0;
+
 	// General
-	QTabWidget* general_tab = new QTabWidget();
+	QWidget* general_tab = new QWidget(this);
 	QGridLayout* general_layout = new QGridLayout(general_tab);
 
+	// General -> Language
+    general_layout->addWidget(new QLabel(tr("Language:")), row, 0);
+
+	language_combobox = new QComboBox();
+
+	// add default language (en-US)
+	language_combobox->addItem(QLocale::languageToString(QLocale("en-US").language()));
+
+	// add languages from file
+	QList<QString> translation_paths = get_language_paths();
+
+	// iterate through all language search paths
+	for (int j=0;j<translation_paths.size();j++) {
+		QDir translation_dir(translation_paths.at(j));
+		if (translation_dir.exists()) {
+			QStringList translation_files = translation_dir.entryList({"*.qm"}, QDir::Files | QDir::NoDotAndDotDot);
+			for (int i=0;i<translation_files.size();i++) {
+                // get path of translation relative to the application path
+				QString locale_full_path = translation_dir.filePath(translation_files.at(i));
+                QString locale_relative_path = QDir(get_app_path()).relativeFilePath(locale_full_path);
+
+				QFileInfo locale_file(translation_files.at(i));
+				QString locale_file_basename = locale_file.baseName();
+				QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
+                language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_relative_path);
+
+                if (Olive::CurrentConfig.language_file == locale_relative_path) {
+					language_combobox->setCurrentIndex(language_combobox->count() - 1);
+				}
+			}
+		}
+	}
+
+    general_layout->addWidget(language_combobox, row, 1, 1, 4);
+
+	row++;
+
 	// General -> Custom CSS
-	general_layout->addWidget(new QLabel(tr("Custom CSS:")), 0, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0);
 
 	custom_css_fn = new QLineEdit(general_tab);
-	custom_css_fn->setText(config.css_path);
-	general_layout->addWidget(custom_css_fn, 0, 1, 1, 1);
+	custom_css_fn->setText(Olive::CurrentConfig.css_path);
+    general_layout->addWidget(custom_css_fn, row, 1, 1, 3);
 
 	QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
 	connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
-	general_layout->addWidget(custom_css_browse, 0, 2, 1, 1);
+    general_layout->addWidget(custom_css_browse, row, 4);
+
+	row++;
 
 	// General -> Image Sequence Formats
-	general_layout->addWidget(new QLabel(tr("Image sequence formats:")), 1, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0);
 
 	imgSeqFormatEdit = new QLineEdit(general_tab);
 
-	general_layout->addWidget(imgSeqFormatEdit, 1, 1, 1, 2);
+    general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 4);
+
+	row++;
 
 	// General -> Audio Recording
-	general_layout->addWidget(new QLabel(tr("Audio Recording:")), 2, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0);
 
 	recordingComboBox = new QComboBox(general_tab);
 	recordingComboBox->addItem(tr("Mono"));
 	recordingComboBox->addItem(tr("Stereo"));
-	general_layout->addWidget(recordingComboBox, 2, 1, 1, 2);
+    general_layout->addWidget(recordingComboBox, row, 1, 1, 4);
+
+	row++;
 
 	// General -> Effect Textbox Lines
-	general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:")), 3, 0, 1, 1);
+    general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0);
 
 	effect_textbox_lines_field = new QSpinBox(general_tab);
 	effect_textbox_lines_field->setMinimum(1);
-	effect_textbox_lines_field->setValue(config.effect_textbox_lines);
-	general_layout->addWidget(effect_textbox_lines_field, 3, 1, 1, 2);
+	effect_textbox_lines_field->setValue(Olive::CurrentConfig.effect_textbox_lines);
+    general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 4);
 
-    // General -> Use Software Fallbacks When Possible
-    use_software_fallbacks_checkbox = new QCheckBox(general_tab);
-    use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
-    use_software_fallbacks_checkbox->setChecked(config.use_software_fallback);
-    general_layout->addWidget(use_software_fallbacks_checkbox, 4, 0, 1, 1);
+	row++;
+
+	// General -> Thumbnail and Waveform Resolution
+    general_layout->addWidget(new QLabel(tr("Thumbnail Resolution:"), this), row, 0);
+
+	thumbnail_res_spinbox = new QSpinBox(this);
+    thumbnail_res_spinbox->setMinimum(0);
+	thumbnail_res_spinbox->setMaximum(INT_MAX);
+	thumbnail_res_spinbox->setValue(Olive::CurrentConfig.thumbnail_resolution);
+    general_layout->addWidget(thumbnail_res_spinbox, row, 1);
+
+    general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2);
+
+	waveform_res_spinbox = new QSpinBox(this);
+    waveform_res_spinbox->setMinimum(0);
+	waveform_res_spinbox->setMaximum(INT_MAX);
+	waveform_res_spinbox->setValue(Olive::CurrentConfig.waveform_resolution);
+    general_layout->addWidget(waveform_res_spinbox, row, 3);
+
+    QPushButton* delete_preview_btn = new QPushButton(tr("Delete Previews"));
+    general_layout->addWidget(delete_preview_btn, row, 4);
+    connect(delete_preview_btn, SIGNAL(clicked(bool)), this, SLOT(delete_all_previews()));
+
+	row++;
+
+	// General -> Use Software Fallbacks When Possible
+	use_software_fallbacks_checkbox = new QCheckBox(general_tab);
+	use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
+	use_software_fallbacks_checkbox->setChecked(Olive::CurrentConfig.use_software_fallback);
+	general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 4);
 
 	tabWidget->addTab(general_tab, tr("General"));
 
 	// Behavior
-	QWidget* behavior_tab = new QWidget();
+	QWidget* behavior_tab = new QWidget(this);
 	tabWidget->addTab(behavior_tab, tr("Behavior"));
 
-	// Playback
-	QWidget* playback_tab = new QWidget();
-	QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
+    QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
 
-	// Playback -> Disable Multithreading on Images
-	disable_img_multithread = new QCheckBox(tr("Disable Multithreading on Images"));
-	disable_img_multithread->setChecked(config.disable_multithreading_for_images);
-	playback_tab_layout->addWidget(disable_img_multithread);
+    add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
+    add_default_effects_to_clips->setChecked(Olive::CurrentConfig.add_default_effects_to_clips);
+    behavior_tab_layout->addWidget(add_default_effects_to_clips);
+
+	// Playback
+	QWidget* playback_tab = new QWidget(this);
+    QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
 
 	// Playback -> Seeking
 	QGroupBox* seeking_group = new QGroupBox(playback_tab);
@@ -356,61 +582,120 @@ void PreferencesDialog::setup_ui() {
 	QGroupBox* memory_usage_group = new QGroupBox(playback_tab);
 	memory_usage_group->setTitle(tr("Memory Usage"));
 	QGridLayout* memory_usage_layout = new QGridLayout(memory_usage_group);
-	memory_usage_layout->addWidget(new QLabel(tr("Upcoming Frame Queue:")), 0, 0);
-	upcoming_queue_spinbox = new QDoubleSpinBox();
-	upcoming_queue_spinbox->setValue(config.upcoming_queue_size);
+	memory_usage_layout->addWidget(new QLabel(tr("Upcoming Frame Queue:"), playback_tab), 0, 0);
+	upcoming_queue_spinbox = new QDoubleSpinBox(playback_tab);
+	upcoming_queue_spinbox->setValue(Olive::CurrentConfig.upcoming_queue_size);
 	memory_usage_layout->addWidget(upcoming_queue_spinbox, 0, 1);
-	upcoming_queue_type = new QComboBox();
+	upcoming_queue_type = new QComboBox(playback_tab);
 	upcoming_queue_type->addItem(tr("frames"));
 	upcoming_queue_type->addItem(tr("seconds"));
-	upcoming_queue_type->setCurrentIndex(config.upcoming_queue_type);
+	upcoming_queue_type->setCurrentIndex(Olive::CurrentConfig.upcoming_queue_type);
 	memory_usage_layout->addWidget(upcoming_queue_type, 0, 2);
-	memory_usage_layout->addWidget(new QLabel(tr("Previous Frame Queue:")), 1, 0);
-	previous_queue_spinbox = new QDoubleSpinBox();
-	previous_queue_spinbox->setValue(config.previous_queue_size);
+	memory_usage_layout->addWidget(new QLabel(tr("Previous Frame Queue:"), playback_tab), 1, 0);
+	previous_queue_spinbox = new QDoubleSpinBox(playback_tab);
+	previous_queue_spinbox->setValue(Olive::CurrentConfig.previous_queue_size);
 	memory_usage_layout->addWidget(previous_queue_spinbox, 1, 1);
-	previous_queue_type = new QComboBox();
+	previous_queue_type = new QComboBox(playback_tab);
 	previous_queue_type->addItem(tr("frames"));
 	previous_queue_type->addItem(tr("seconds"));
-	previous_queue_type->setCurrentIndex(config.previous_queue_type);
+	previous_queue_type->setCurrentIndex(Olive::CurrentConfig.previous_queue_type);
 	memory_usage_layout->addWidget(previous_queue_type, 1, 2);
 	playback_tab_layout->addWidget(memory_usage_group);
 
 	tabWidget->addTab(playback_tab, tr("Playback"));
 
-	QWidget* shortcut_tab = new QWidget();
+	// Audio
+	QWidget* audio_tab = new QWidget(this);
+
+	QGridLayout* audio_tab_layout = new QGridLayout(audio_tab);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), 0, 0);
+
+	audio_output_devices = new QComboBox();
+	audio_output_devices->addItem(tr("Default"), "");
+
+	// list all available audio output devices
+	QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+	bool found_preferred_device = false;
+	for (int i=0;i<devs.size();i++) {
+		audio_output_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
+		if (!found_preferred_device
+				&& devs.at(i).deviceName() == Olive::CurrentConfig.preferred_audio_output) {
+			audio_output_devices->setCurrentIndex(audio_output_devices->count()-1);
+			found_preferred_device = true;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_output_devices, 0, 1);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), 1, 0);
+
+	audio_input_devices = new QComboBox();
+	audio_input_devices->addItem(tr("Default"), "");
+
+	// list all available audio input devices
+	devs = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+	found_preferred_device = false;
+	for (int i=0;i<devs.size();i++) {
+		audio_input_devices->addItem(devs.at(i).deviceName(), devs.at(i).deviceName());
+		if (!found_preferred_device
+				&& devs.at(i).deviceName() == Olive::CurrentConfig.preferred_audio_input) {
+			audio_input_devices->setCurrentIndex(audio_input_devices->count()-1);
+			found_preferred_device = true;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_input_devices, 1, 1);
+
+	audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), 2, 0);
+
+	audio_sample_rate = new QComboBox();
+	combobox_audio_sample_rates(audio_sample_rate);
+	for (int i=0;i<audio_sample_rate->count();i++) {
+		if (audio_sample_rate->itemData(i).toInt() == Olive::CurrentConfig.audio_rate) {
+			audio_sample_rate->setCurrentIndex(i);
+			break;
+		}
+	}
+
+	audio_tab_layout->addWidget(audio_sample_rate, 2, 1);
+
+	tabWidget->addTab(audio_tab, tr("Audio"));
+
+	// Shortcuts
+	QWidget* shortcut_tab = new QWidget(this);
 
 	QVBoxLayout* shortcut_layout = new QVBoxLayout(shortcut_tab);
 
-	QLineEdit* key_search_line = new QLineEdit();
+	QLineEdit* key_search_line = new QLineEdit(shortcut_tab);
 	key_search_line->setPlaceholderText(tr("Search for action or shortcut"));
 	connect(key_search_line, SIGNAL(textChanged(const QString &)), this, SLOT(refine_shortcut_list(const QString &)));
 
 	shortcut_layout->addWidget(key_search_line);
 
-	keyboard_tree = new QTreeWidget();
+	keyboard_tree = new QTreeWidget(shortcut_tab);
 	QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
 	tree_header->setText(0, tr("Action"));
 	tree_header->setText(1, tr("Shortcut"));
 	shortcut_layout->addWidget(keyboard_tree);
 
-	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
+	QHBoxLayout* reset_shortcut_layout = new QHBoxLayout(shortcut_tab);
 
-	QPushButton* import_shortcut_button = new QPushButton(tr("Import"));
+	QPushButton* import_shortcut_button = new QPushButton(tr("Import"), shortcut_tab);
 	reset_shortcut_layout->addWidget(import_shortcut_button);
 	connect(import_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(load_shortcut_file()));
 
-	QPushButton* export_shortcut_button = new QPushButton(tr("Export"));
+	QPushButton* export_shortcut_button = new QPushButton(tr("Export"), shortcut_tab);
 	reset_shortcut_layout->addWidget(export_shortcut_button);
 	connect(export_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(save_shortcut_file()));
 
 	reset_shortcut_layout->addStretch();
 
-	QPushButton* reset_selected_shortcut_button = new QPushButton(tr("Reset Selected"));
+	QPushButton* reset_selected_shortcut_button = new QPushButton(tr("Reset Selected"), shortcut_tab);
 	reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
 	connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
 
-	QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"));
+	QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"), shortcut_tab);
 	reset_shortcut_layout->addWidget(reset_all_shortcut_button);
 	connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
 
@@ -428,6 +713,4 @@ void PreferencesDialog::setup_ui() {
 
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(save()));
 	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-	tabWidget->setCurrentIndex(2);
 }

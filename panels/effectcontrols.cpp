@@ -1,3 +1,23 @@
+/***
+
+    Olive - Non-Linear Video Editor
+    Copyright (C) 2019  Olive Team
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "effectcontrols.h"
 
 #include <QMenu>
@@ -64,6 +84,10 @@ EffectControls::EffectControls(QWidget *parent) :
 
 EffectControls::~EffectControls() {}
 
+int EffectControls::get_mode() {
+    return mode;
+}
+
 bool EffectControls::keyframe_focus() {
 	return headers->hasFocus() || keyframeView->hasFocus();
 }
@@ -76,7 +100,7 @@ void EffectControls::set_zoom(bool in) {
 void EffectControls::menu_select(QAction* q) {
 	ComboAction* ca = new ComboAction();
 	for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->clips.at(selected_clips.at(i));
+		Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 		if ((c->track < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
 			const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
 			if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
@@ -91,7 +115,7 @@ void EffectControls::menu_select(QAction* q) {
 			}
 		}
 	}
-	undo_stack.push(ca);
+	Olive::UndoStack.push(ca);
 	if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
 		update_ui(true);
 	} else {
@@ -116,7 +140,7 @@ void EffectControls::copy(bool del) {
 		ComboAction* ca = new ComboAction();
 		EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : nullptr;
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->clips.at(selected_clips.at(i));
+			Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 			for (int j=0;j<c->effects.size();j++) {
 				Effect* effect = c->effects.at(j);
 				if (effect->container->selected) {
@@ -142,7 +166,7 @@ void EffectControls::copy(bool del) {
 				delete del_com;
 			}
 		}
-		undo_stack.push(ca);
+		Olive::UndoStack.push(ca);
 	}
 }
 
@@ -160,70 +184,70 @@ void EffectControls::cut() {
 }
 
 void EffectControls::show_effect_menu(int type, int subtype) {
-	effect_menu_type = type;
-	effect_menu_subtype = subtype;
+    effect_menu_type = type;
+    effect_menu_subtype = subtype;
 
-	effects_loaded.lock();
+    effects_loaded.lock();
 
-	QMenu effects_menu(this);
-	effects_menu.setToolTipsVisible(true);
+    QMenu effects_menu(this);
+    effects_menu.setToolTipsVisible(true);
 
-	for (int i=0;i<effects.size();i++) {
-		const EffectMeta& em = effects.at(i);
+    for (int i=0;i<effects.size();i++) {
+        const EffectMeta& em = effects.at(i);
 
-		if (em.type == type && em.subtype == subtype) {
-			QAction* action = new QAction(&effects_menu);
-			action->setText(em.name);
-			action->setData(reinterpret_cast<quintptr>(&em));
-			if (!em.tooltip.isEmpty()) {
-				action->setToolTip(em.tooltip);
-			}
+        if (em.type == type && em.subtype == subtype) {
+            QAction* action = new QAction(&effects_menu);
+            action->setText(em.name);
+            action->setData(reinterpret_cast<quintptr>(&em));
+            if (!em.tooltip.isEmpty()) {
+                action->setToolTip(em.tooltip);
+            }
 
-			QMenu* parent = &effects_menu;
-			if (!em.category.isEmpty()) {
-				bool found = false;
-				for (int j=0;j<effects_menu.actions().size();j++) {
-					QAction* action = effects_menu.actions().at(j);
-					if (action->menu() != nullptr) {
-						if (action->menu()->title() == em.category) {
-							parent = action->menu();
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
-					parent = new QMenu(&effects_menu);
-					parent->setToolTipsVisible(true);
-					parent->setTitle(em.category);
+            QMenu* parent = &effects_menu;
+            if (!em.category.isEmpty()) {
+                bool found = false;
+                for (int j=0;j<effects_menu.actions().size();j++) {
+                    QAction* action = effects_menu.actions().at(j);
+                    if (action->menu() != nullptr) {
+                        if (action->menu()->title() == em.category) {
+                            parent = action->menu();
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    parent = new QMenu(&effects_menu);
+                    parent->setToolTipsVisible(true);
+                    parent->setTitle(em.category);
 
-					bool found = false;
-					for (int i=0;i<effects_menu.actions().size();i++) {
-						QAction* comp_action = effects_menu.actions().at(i);
-						if (comp_action->text() > em.category) {
-							effects_menu.insertMenu(comp_action, parent);
-							found = true;
-							break;
-						}
-					}
-					if (!found) effects_menu.addMenu(parent);
-				}
-			}
+                    bool found = false;
+                    for (int i=0;i<effects_menu.actions().size();i++) {
+                        QAction* comp_action = effects_menu.actions().at(i);
+                        if (comp_action->text() > em.category) {
+                            effects_menu.insertMenu(comp_action, parent);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) effects_menu.addMenu(parent);
+                }
+            }
 
-			bool found = false;
-			for (int i=0;i<parent->actions().size();i++) {
-				QAction* comp_action = parent->actions().at(i);
-				if (comp_action->text() > action->text()) {
-					parent->insertAction(comp_action, action);
-					found = true;
-					break;
-				}
-			}
-			if (!found) parent->addAction(action);
-		}
-	}
+            bool found = false;
+            for (int i=0;i<parent->actions().size();i++) {
+                QAction* comp_action = parent->actions().at(i);
+                if (comp_action->text() > action->text()) {
+                    parent->insertAction(comp_action, action);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) parent->addAction(action);
+        }
+    }
 
-	effects_loaded.unlock();
+    effects_loaded.unlock();
 
 	connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
 	effects_menu.exec(QCursor::pos());
@@ -258,7 +282,7 @@ void EffectControls::clear_effects(bool clear_cache) {
 
 void EffectControls::deselect_all_effects(QWidget* sender) {
 	for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->clips.at(selected_clips.at(i));
+		Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 		for (int j=0;j<c->effects.size();j++) {
 			if (c->effects.at(j)->container != sender) {
 				c->effects.at(j)->container->header_click(false, false);
@@ -275,17 +299,17 @@ void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
 }
 
 void EffectControls::setup_ui() {
-	QWidget* contents = new QWidget();
+	QWidget* contents = new QWidget(this);
 
 	QHBoxLayout* hlayout = new QHBoxLayout(contents);
 	hlayout->setSpacing(0);
 	hlayout->setMargin(0);
 
-	QSplitter* splitter = new QSplitter(contents);
+	QSplitter* splitter = new QSplitter();
 	splitter->setOrientation(Qt::Horizontal);
 	splitter->setChildrenCollapsible(false);
 
-	scrollArea = new QScrollArea(splitter);
+	scrollArea = new QScrollArea();
 	scrollArea->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 	scrollArea->setFrameShape(QFrame::NoFrame);
 	scrollArea->setFrameShadow(QFrame::Plain);
@@ -299,7 +323,7 @@ void EffectControls::setup_ui() {
 	scrollAreaLayout->setSpacing(0);
 	scrollAreaLayout->setMargin(0);
 
-	effects_area = new EffectsArea(scrollAreaWidgetContents);
+	effects_area = new EffectsArea();
 	effects_area->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(effects_area, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(effects_area_context_menu()));
 
@@ -307,12 +331,12 @@ void EffectControls::setup_ui() {
 	effects_area_layout->setSpacing(0);
 	effects_area_layout->setMargin(0);
 
-	vcontainer = new QWidget(effects_area);
+	vcontainer = new QWidget();
 	QVBoxLayout* vcontainerLayout = new QVBoxLayout(vcontainer);
 	vcontainerLayout->setSpacing(0);
 	vcontainerLayout->setMargin(0);
 
-	QWidget* veHeader = new QWidget(vcontainer);
+	QWidget* veHeader = new QWidget();
 	veHeader->setObjectName(QStringLiteral("veHeader"));
 	veHeader->setStyleSheet(QLatin1String("#veHeader { background: rgba(0, 0, 0, 0.25); }"));
 
@@ -320,7 +344,7 @@ void EffectControls::setup_ui() {
 	veHeaderLayout->setSpacing(0);
 	veHeaderLayout->setMargin(0);
 
-	QPushButton* btnAddVideoEffect = new QPushButton(veHeader);
+	QPushButton* btnAddVideoEffect = new QPushButton();
 	btnAddVideoEffect->setIcon(QIcon(":/icons/add-effect.png"));
 	btnAddVideoEffect->setToolTip(tr("Add Video Effect"));
 	veHeaderLayout->addWidget(btnAddVideoEffect);
@@ -328,7 +352,7 @@ void EffectControls::setup_ui() {
 
 	veHeaderLayout->addStretch();
 
-	QLabel* lblVideoEffects = new QLabel(veHeader);
+	QLabel* lblVideoEffects = new QLabel();
 	QFont font;
 	font.setPointSize(9);
 	lblVideoEffects->setFont(font);
@@ -338,16 +362,15 @@ void EffectControls::setup_ui() {
 
 	veHeaderLayout->addStretch();
 
-	QPushButton* btnAddVideoTransition = new QPushButton(veHeader);
+	QPushButton* btnAddVideoTransition = new QPushButton();
 	btnAddVideoTransition->setIcon(QIcon(":/icons/add-transition.png"));
 	btnAddVideoTransition->setToolTip(tr("Add Video Transition"));
 	connect(btnAddVideoTransition, SIGNAL(clicked(bool)), this, SLOT(video_transition_click()));
-
 	veHeaderLayout->addWidget(btnAddVideoTransition);
 
 	vcontainerLayout->addWidget(veHeader);
 
-	video_effect_area = new QWidget(vcontainer);
+	video_effect_area = new QWidget();
 	QVBoxLayout* veAreaLayout = new QVBoxLayout(video_effect_area);
 	veAreaLayout->setSpacing(0);
 	veAreaLayout->setMargin(0);
@@ -356,11 +379,11 @@ void EffectControls::setup_ui() {
 
 	effects_area_layout->addWidget(vcontainer);
 
-	acontainer = new QWidget(effects_area);
+	acontainer = new QWidget();
 	QVBoxLayout* acontainerLayout = new QVBoxLayout(acontainer);
 	acontainerLayout->setSpacing(0);
 	acontainerLayout->setMargin(0);
-	QWidget* aeHeader = new QWidget(acontainer);
+	QWidget* aeHeader = new QWidget();
 	aeHeader->setObjectName(QStringLiteral("aeHeader"));
 	aeHeader->setStyleSheet(QLatin1String("#aeHeader { background: rgba(0, 0, 0, 0.25); }"));
 
@@ -368,7 +391,7 @@ void EffectControls::setup_ui() {
 	aeHeaderLayout->setSpacing(0);
 	aeHeaderLayout->setMargin(0);
 
-	QPushButton* btnAddAudioEffect = new QPushButton(aeHeader);
+	QPushButton* btnAddAudioEffect = new QPushButton();
 	btnAddAudioEffect->setIcon(QIcon(":/icons/add-effect.png"));
 	btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
 	connect(btnAddAudioEffect, SIGNAL(clicked(bool)), this, SLOT(audio_effect_click()));
@@ -376,7 +399,7 @@ void EffectControls::setup_ui() {
 
 	aeHeaderLayout->addStretch();
 
-	QLabel* lblAudioEffects = new QLabel(aeHeader);
+	QLabel* lblAudioEffects = new QLabel();
 	lblAudioEffects->setFont(font);
 	lblAudioEffects->setAlignment(Qt::AlignCenter);
 	lblAudioEffects->setText(tr("AUDIO EFFECTS"));
@@ -384,7 +407,7 @@ void EffectControls::setup_ui() {
 
 	aeHeaderLayout->addStretch();
 
-	QPushButton* btnAddAudioTransition = new QPushButton(aeHeader);
+	QPushButton* btnAddAudioTransition = new QPushButton();
 	btnAddAudioTransition->setIcon(QIcon(":/icons/add-transition.png"));
 	btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
 	connect(btnAddAudioTransition, SIGNAL(clicked(bool)), this, SLOT(audio_transition_click()));
@@ -392,7 +415,7 @@ void EffectControls::setup_ui() {
 
 	acontainerLayout->addWidget(aeHeader);
 
-	audio_effect_area = new QWidget(acontainer);
+	audio_effect_area = new QWidget();
 	QVBoxLayout* aeAreaLayout = new QVBoxLayout(audio_effect_area);
 	aeAreaLayout->setSpacing(0);
 	aeAreaLayout->setMargin(0);
@@ -401,7 +424,7 @@ void EffectControls::setup_ui() {
 
 	effects_area_layout->addWidget(acontainer);
 
-	lblMultipleClipsSelected = new QLabel(effects_area);
+	lblMultipleClipsSelected = new QLabel();
 	lblMultipleClipsSelected->setAlignment(Qt::AlignCenter);
 	lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
 	effects_area_layout->addWidget(lblMultipleClipsSelected);
@@ -412,30 +435,33 @@ void EffectControls::setup_ui() {
 
 	scrollArea->setWidget(scrollAreaWidgetContents);
 	splitter->addWidget(scrollArea);
-	QWidget* keyframeArea = new QWidget(splitter);
+
+	QWidget* keyframeArea = new QWidget();
+
 	QSizePolicy keyframe_sp;
 	keyframe_sp.setHorizontalPolicy(QSizePolicy::Minimum);
 	keyframe_sp.setVerticalPolicy(QSizePolicy::Preferred);
 	keyframe_sp.setHorizontalStretch(1);
 	keyframeArea->setSizePolicy(keyframe_sp);
+
 	QVBoxLayout* keyframeAreaLayout = new QVBoxLayout(keyframeArea);
 	keyframeAreaLayout->setSpacing(0);
 	keyframeAreaLayout->setMargin(0);
-	headers = new TimelineHeader(keyframeArea);
 
+	headers = new TimelineHeader();
 	keyframeAreaLayout->addWidget(headers);
 
-	QWidget* keyframeCenterWidget = new QWidget(keyframeArea);
+	QWidget* keyframeCenterWidget = new QWidget();
 
 	QHBoxLayout* keyframeCenterLayout = new QHBoxLayout(keyframeCenterWidget);
 	keyframeCenterLayout->setSpacing(0);
 	keyframeCenterLayout->setMargin(0);
 
-	keyframeView = new KeyframeView(keyframeCenterWidget);
+	keyframeView = new KeyframeView();
 
 	keyframeCenterLayout->addWidget(keyframeView);
 
-	verticalScrollBar = new QScrollBar(keyframeCenterWidget);
+	verticalScrollBar = new QScrollBar();
 	verticalScrollBar->setOrientation(Qt::Vertical);
 
 	keyframeCenterLayout->addWidget(verticalScrollBar);
@@ -443,7 +469,7 @@ void EffectControls::setup_ui() {
 
 	keyframeAreaLayout->addWidget(keyframeCenterWidget);
 
-	horizontalScrollBar = new ResizableScrollBar(keyframeArea);
+	horizontalScrollBar = new ResizableScrollBar();
 	horizontalScrollBar->setOrientation(Qt::Horizontal);
 
 	keyframeAreaLayout->addWidget(horizontalScrollBar);
@@ -479,7 +505,7 @@ void EffectControls::load_effects() {
 	if (!multiple) {
 		// load in new clips
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->clips.at(selected_clips.at(i));
+			Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 			QVBoxLayout* layout;
 			if (c->track < 0) {
 				vcontainer->setVisible(true);
@@ -499,7 +525,7 @@ void EffectControls::load_effects() {
 			}
 		}
 		if (selected_clips.size() > 0) {
-			setWindowTitle(panel_name + sequence->clips.at(selected_clips.at(0))->name);
+			setWindowTitle(panel_name + Olive::ActiveSequence->clips.at(selected_clips.at(0))->name);
 			keyframeView->setEnabled(true);
 			headers->setVisible(true);
 
@@ -513,7 +539,7 @@ void EffectControls::delete_effects() {
 	if (mode == TA_NO_TRANSITION) {
 		EffectDeleteCommand* command = new EffectDeleteCommand();
 		for (int i=0;i<selected_clips.size();i++) {
-			Clip* c = sequence->clips.at(selected_clips.at(i));
+			Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 			for (int j=0;j<c->effects.size();j++) {
 				Effect* effect = c->effects.at(j);
 				if (effect->container->selected) {
@@ -523,7 +549,7 @@ void EffectControls::delete_effects() {
 			}
 		}
 		if (command->clips.size() > 0) {
-			undo_stack.push(command);
+			Olive::UndoStack.push(command);
 			panel_sequence_viewer->viewer_widget->frame_update();
 		} else {
 			delete command;
@@ -569,7 +595,7 @@ void EffectControls::resizeEvent(QResizeEvent*) {
 bool EffectControls::is_focused() {
 	if (this->hasFocus()) return true;
 	for (int i=0;i<selected_clips.size();i++) {
-		Clip* c = sequence->clips.at(selected_clips.at(i));
+		Clip* c = Olive::ActiveSequence->clips.at(selected_clips.at(i));
 		if (c != nullptr) {
 			for (int j=0;j<c->effects.size();j++) {
 				if (c->effects.at(j)->container->is_focused()) {
