@@ -21,6 +21,7 @@
 #ifndef EFFECT_H
 #define EFFECT_H
 
+#include <memory>
 #include <QObject>
 #include <QString>
 #include <QVector>

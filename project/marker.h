@@ -25,6 +25,7 @@
 
 #include <QString>
 #include <QPainter>
+#include <memory>
 
 class Sequence;
 using SequencePtr = std::shared_ptr<Sequence>;

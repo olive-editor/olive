@@ -256,7 +256,7 @@ void OliveGlobal::finished_initialize() {
     } else {
         // if we are not loading a project on launch and are running a release build, open the demo notice dialog
 #ifndef QT_DEBUG
-        DemoNotice* d = new DemoNotice(Olive::MainWindow);
+        DemoNotice* d = new DemoNotice(olive::MainWindow);
         connect(d, SIGNAL(finished(int)), d, SLOT(deleteLater()));
         d->open();
 #endif

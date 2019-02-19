@@ -21,6 +21,7 @@
 #ifndef OLIVEGLOBAL_H
 #define OLIVEGLOBAL_H
 
+#include <memory>
 #include "project/undo.h"
 
 #include <QTimer>

@@ -21,6 +21,7 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
+#include <memory>
 #include <QVector>
 
 #include "project/clip.h"

@@ -21,6 +21,7 @@
 #ifndef FOOTAGE_H
 #define FOOTAGE_H
 
+#include <memory>
 #include <QString>
 #include <QVector>
 #include <QMetaType>

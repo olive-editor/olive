@@ -21,6 +21,7 @@
 #ifndef CLIP_H
 #define CLIP_H
 
+#include <memory>
 #include <QWaitCondition>
 #include <QMutex>
 #include <QVector>
