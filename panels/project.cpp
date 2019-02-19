@@ -1086,21 +1086,8 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
             stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
             stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
 
-            /*
             QVector<TransitionPtr> transition_save_cache;
             QVector<int> transition_clip_save_cache;
-            QVector<TransitionType> transition_type_save_cache;
-            for (int j=0;j<s->transitions.size();j++) {
-                            TransitionPtr t = s->transitions.at(j);
-              if (t != nullptr) {
-                stream.writeStartElement("transition");
-                stream.writeAttribute("id", QString::number(j));
-                stream.writeAttribute("length", QString::number(t->get_true_length()));
-                t->save(stream);
-                stream.writeEndElement(); // transition
-              }
-            }
-            */
 
             for (int j=0;j<s->clips.size();j++) {
               const ClipPtr& c = s->clips.at(j);
@@ -1152,6 +1139,31 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
                   stream.writeEndElement(); // link
                 }
                 stream.writeEndElement(); // linked
+
+                // save opening and closing transitions
+                for (int t=kTransitionOpening;t<=kTransitionClosing;t++) {
+                  TransitionPtr transition = (t == kTransitionOpening) ? c->opening_transition : c->closing_transition;
+
+                  if (transition != nullptr) {
+                    stream.writeStartElement((t == kTransitionOpening) ? "opening" : "closing");
+
+                    // check if this is a shared transition and the transition has already been saved
+                    int transition_cache_index = transition_save_cache.indexOf(transition);
+
+                    if (transition_cache_index > -1) {
+                      // if so, just save a reference to the other clip
+                      stream.writeAttribute("shared",
+                                            QString::number(transition_clip_save_cache.at(transition_cache_index)));
+                    } else {
+                      // otherwise save the whole transition
+                      transition->save(stream);
+                      transition_save_cache.append(transition);
+                      transition_clip_save_cache.append(j);
+                    }
+
+                    stream.writeEndElement(); // opening
+                  }
+                }
 
                 for (int k=0;k<c->effects.size();k++) {
                   stream.writeStartElement("effect"); // effect

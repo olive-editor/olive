@@ -59,6 +59,11 @@ TransitionPtr Transition::copy(ClipPtr c, ClipPtr s) {
   return create_transition(c, s, meta, length);
 }
 
+void Transition::save(QXmlStreamWriter &stream) {
+  stream.writeAttribute("length", QString::number(get_true_length()));
+  Effect::save(stream);
+}
+
 void Transition::set_length(long l) {
   length = l;
   length_field->set_double_value(l);

@@ -23,26 +23,36 @@
 
 #include <QString>
 
-#define SAVE_VERSION 190201 // YYMMDD
-#define MIN_SAVE_VERSION 190104 // lowest compatible project version
+#define SAVE_VERSION 190219 // YYMMDD
+#define MIN_SAVE_VERSION 190219 // lowest compatible project version
 
-#define TIMECODE_DROP 0
-#define TIMECODE_NONDROP 1
-#define TIMECODE_FRAMES 2
-#define TIMECODE_MILLISECONDS 3
+enum TimecodeType {
+  TIMECODE_DROP,
+  TIMECODE_NONDROP,
+  TIMECODE_FRAMES,
+  TIMECODE_MILLISECONDS
+};
 
-#define RECORD_MODE_MONO 1
-#define RECORD_MODE_STEREO 2
+enum RecordingMode {
+  RECORD_MODE_MONO,
+  RECORD_MODE_STEREO
+};
 
-#define AUTOSCROLL_NO_SCROLL 0
-#define AUTOSCROLL_PAGE_SCROLL 1
-#define AUTOSCROLL_SMOOTH_SCROLL 2
+enum AutoScrollMode {
+  AUTOSCROLL_NO_SCROLL,
+  AUTOSCROLL_PAGE_SCROLL,
+  AUTOSCROLL_SMOOTH_SCROLL
+};
 
-#define PROJECT_VIEW_TREE 0
-#define PROJECT_VIEW_ICON 1
+enum ProjectView {
+  PROJECT_VIEW_TREE,
+  PROJECT_VIEW_ICON
+};
 
-#define FRAME_QUEUE_TYPE_FRAMES 0
-#define FRAME_QUEUE_TYPE_SECONDS 1
+enum FrameQueueType {
+  FRAME_QUEUE_TYPE_FRAMES,
+  FRAME_QUEUE_TYPE_SECONDS
+};
 
 struct Config {
   Config();

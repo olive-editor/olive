@@ -51,6 +51,9 @@ public:
   Transition(ClipPtr c, ClipPtr s, const EffectMeta* em);
   virtual TransitionPtr copy(ClipPtr c, ClipPtr s);
   ClipPtr secondary_clip;
+
+  virtual void save(QXmlStreamWriter& stream) override;
+
   void set_length(long l);
   long get_true_length();
   long get_length();
