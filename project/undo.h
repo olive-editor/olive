@@ -236,7 +236,7 @@ public:
 private:
   SequencePtr seq;
   QVector<ClipPtr> clips;
-  QVector<ClipPtr> undone_clips;
+  int link_offset_;
 };
 
 class LinkCommand : public OliveAction {

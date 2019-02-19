@@ -1087,6 +1087,9 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
             stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
 
             /*
+            QVector<TransitionPtr> transition_save_cache;
+            QVector<int> transition_clip_save_cache;
+            QVector<TransitionType> transition_type_save_cache;
             for (int j=0;j<s->transitions.size();j++) {
                             TransitionPtr t = s->transitions.at(j);
               if (t != nullptr) {
@@ -1097,7 +1100,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
                 stream.writeEndElement(); // transition
               }
             }
-                        */
+            */
 
             for (int j=0;j<s->clips.size();j++) {
               const ClipPtr& c = s->clips.at(j);
@@ -1110,10 +1113,6 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
                 stream.writeAttribute("in", QString::number(c->timeline_in));
                 stream.writeAttribute("out", QString::number(c->timeline_out));
                 stream.writeAttribute("track", QString::number(c->track));
-                /*
-                stream.writeAttribute("opening", QString::number(c->opening_transition));
-                stream.writeAttribute("closing", QString::number(c->closing_transition));
-                */
 
                 stream.writeAttribute("r", QString::number(c->color_r));
                 stream.writeAttribute("g", QString::number(c->color_g));

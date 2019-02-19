@@ -284,6 +284,7 @@ void AddTransitionCommand::doRedo() {
 ModifyTransitionCommand::ModifyTransitionCommand(TransitionPtr t, long ilength) {
   transition_ref_ = t;
   new_length_ = ilength;
+  old_length_ = transition_ref_->get_true_length();
 }
 
 void ModifyTransitionCommand::doUndo() {
@@ -291,7 +292,7 @@ void ModifyTransitionCommand::doUndo() {
 }
 
 void ModifyTransitionCommand::doRedo() {
-  old_length_ = transition_ref_->get_true_length();
+
   transition_ref_->set_length(new_length_);
 }
 
@@ -395,6 +396,7 @@ void DeleteMediaCommand::doRedo() {
 }
 
 AddClipCommand::AddClipCommand(SequencePtr s, QVector<ClipPtr>& add) {
+  link_offset_ = 0;
   seq = s;
   clips = add;
 }
@@ -402,44 +404,48 @@ AddClipCommand::AddClipCommand(SequencePtr s, QVector<ClipPtr>& add) {
 AddClipCommand::~AddClipCommand() {}
 
 void AddClipCommand::doUndo() {
+  // clear effects panel
   panel_effect_controls->clear_effects(true);
+
   for (int i=0;i<clips.size();i++) {
     ClipPtr c = seq->clips.last();
-    panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
-    undone_clips.prepend(c);
-    if (c->open) close_clip(c, true);
+
+    if (c != nullptr) {
+      // un-offset all the clips
+      for (int j=0;j<c->linked.size();j++) {
+        c->linked[j] -= link_offset_;
+      }
+
+      // deselect the area occupied by this clip
+      panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
+
+      // if the clip is open, close it
+      if (c->open) {
+        close_clip(c, true);
+      }
+    }
+
+    // remove it from the sequence
     seq->clips.removeLast();
   }
 
 }
 
 void AddClipCommand::doRedo() {
-  if (undone_clips.size() > 0) {
-    for (int i=0;i<undone_clips.size();i++) {
-      seq->clips.append(undone_clips.at(i));
-    }
-    undone_clips.clear();
-  } else {
-    int linkOffset = seq->clips.size();
-    for (int i=0;i<clips.size();i++) {
-      ClipPtr original = clips.at(i);
-      if (original != nullptr) {
-        ClipPtr copy = original->copy(seq);
-        copy->linked.resize(original->linked.size());
-        for (int j=0;j<original->linked.size();j++) {
-          copy->linked[j] = original->linked.at(j) + linkOffset;
-        }
-        if (original->opening_transition != nullptr) {
-          copy->opening_transition = original->get_opening_transition()->copy(copy, nullptr);
-        }
-        if (original->closing_transition != nullptr) {
-          copy->closing_transition = original->get_closing_transition()->copy(copy, nullptr);
-        }
-        seq->clips.append(copy);
-      } else {
-        seq->clips.append(nullptr);
+  link_offset_ = seq->clips.size();
+  for (int i=0;i<clips.size();i++) {
+    ClipPtr original = clips.at(i);
+
+    if (original != nullptr) {
+
+      // offset all links by the current clip size
+      for (int j=0;j<original->linked.size();j++) {
+        original->linked[j] += link_offset_;
       }
+
     }
+
+    seq->clips.append(original);
   }
 }
 

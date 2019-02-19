@@ -848,7 +848,22 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
   }
 }
 
-void make_room_for_transition(ComboAction* ca, ClipPtr c, int type, long transition_start, long transition_end, bool delete_old_transitions) {
+void make_room_for_transition(ComboAction* ca,
+                              ClipPtr c,
+                              int type,
+                              long transition_start,
+                              long transition_end,
+                              bool delete_old_transitions,
+                              long timeline_in = -1,
+                              long timeline_out = -1) {
+  // it's possible to specify other in/out points for the clip, but default behavior is to use the ones existing
+  if (timeline_in < 0) {
+    timeline_in = c->timeline_in;
+  }
+  if (timeline_out < 0) {
+    timeline_out = c->timeline_out;
+  }
+
   // make room for transition
   if (type == kTransitionOpening) {
     if (delete_old_transitions && c->get_opening_transition() != nullptr) {
@@ -870,6 +885,97 @@ void make_room_for_transition(ComboAction* ca, ClipPtr c, int type, long transit
         ca->append(new DeleteTransitionCommand(c->opening_transition));
       } else if (transition_start < c->timeline_in + c->get_opening_transition()->get_true_length()) {
         ca->append(new ModifyTransitionCommand(c->opening_transition, transition_start - c->timeline_in));
+      }
+    }
+  }
+}
+
+void VerifyTransitionsAfterCreating(ComboAction* ca, ClipPtr open, ClipPtr close, long transition_start, long transition_end) {
+  // in case the user made the transition larger than the clips, we're going to delete everything under
+  // the transition ghost and extend the clips to the transition's coordinates as necessary
+
+  if (open == nullptr && close == nullptr) {
+    qWarning() << "VerifyTransitionsAfterCreating() called with two null clips";
+    return;
+  }
+
+  // determine whether this is a "shared" transition between to clips or not
+  bool shared_transition = (open != nullptr && close != nullptr);
+
+  int track = 0;
+
+  // first we set the clips to "undeletable" so they aren't affected by delete_areas_and_relink()
+  if (open != nullptr) {
+    open->undeletable = true;
+    track = open->track;
+  }
+  if (close != nullptr) {
+    close->undeletable = true;
+    track = close->track;
+  }
+
+  // set the area to delete to the transition's coordinates and clear it
+  QVector<Selection> areas;
+  Selection s;
+  s.in = transition_start;
+  s.out = transition_end;
+  s.track = track;
+  areas.append(s);
+  panel_timeline->delete_areas_and_relink(ca, areas, false);
+
+  // set the clips back to undeletable now that we're done
+  if (open != nullptr) {
+    open->undeletable = false;
+  }
+  if (close != nullptr) {
+    close->undeletable = false;
+  }
+
+  // loop through both kinds of transition
+  for (int t=kTransitionOpening;t<=kTransitionClosing;t++) {
+
+    ClipPtr clip_ref = (t == kTransitionOpening) ? open : close;
+
+    // if we have an opening transition:
+    if (clip_ref != nullptr) {
+
+      // make_room_for_transition will adjust the opposite transition to make space for this one,
+      // for example if the user makes an opening transition that overlaps the closing transition, it'll resize
+      // or even delete the closing transition if necessary (and vice versa)
+
+      make_room_for_transition(ca, clip_ref, t, transition_start, transition_end, true);
+
+      // check if the transition coordinates require the clip to be resized
+      if (transition_start < clip_ref->timeline_in || transition_end > clip_ref->timeline_out) {
+
+        long new_in, new_out;
+
+        if (t == kTransitionOpening) {
+
+          // if the transition is shared, it doesn't matter if the transition extend beyond the in point since
+          // that'll be "absorbed" by the other clip
+          new_in = (shared_transition) ? open->timeline_in : qMin(transition_start, open->timeline_in);
+
+          new_out = qMax(transition_end, open->timeline_out);
+
+        } else {
+
+          new_in = qMin(transition_start, close->timeline_in);
+
+          // if the transition is shared, it doesn't matter if the transition extend beyond the out point since
+          // that'll be "absorbed" by the other clip
+          new_out = (shared_transition) ? close->timeline_out : qMax(transition_end, close->timeline_out);
+
+        }
+
+
+
+        move_clip(ca,
+                  clip_ref,
+                  new_in,
+                  new_out,
+                  clip_ref->clip_in - (clip_ref->timeline_in - new_in),
+                  clip_ref->track);
       }
     }
   }
@@ -967,6 +1073,10 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
           }
         }
       } else if (panel_timeline->moving_proc) {
+
+        // see if any clips actually moved, otherwise we don't need to do any processing
+        // (perhaps this could be moved further up to cover more actions?)
+
         bool process_moving = false;
 
         for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -983,54 +1093,70 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (process_moving) {
           const Ghost& first_ghost = panel_timeline->ghosts.at(0);
 
-          // if we were RIPPLING, move all the clips
+          // start a ripple movement
           if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
-            long ripple_length, ripple_point;
 
             // ripple_length becomes the length/number of frames we trimmed
-            // ripple point becomes the point to ripple (i.e. the point after or before which we move every clip)
-            if (panel_timeline->trim_type == TRIM_IN) {
-              ripple_length = first_ghost.old_in - first_ghost.in;
-              ripple_point = first_ghost.old_in;
+            // ripple_point is the "axis" around which we move all the clips, any clips after it get moved
+            long ripple_length;
+            long ripple_point = LONG_MAX;
 
+            if (panel_timeline->trim_type == TRIM_IN) {
+
+              // it's assumed that all the ghosts rippled by the same length, so we just take the difference of the
+              // first ghost here
+              ripple_length = first_ghost.old_in - first_ghost.in;
+
+              // for in trimming movements we also move the selections forward (unnecessary for out trimming since
+              // the selected clips more or less stay in the same place)
               for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
                 olive::ActiveSequence->selections[i].in += ripple_length;
                 olive::ActiveSequence->selections[i].out += ripple_length;
               }
             } else {
-              // if we're trimming an out-point
+
+              // use the out points for length if the user trimmed the out point
               ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
-              ripple_point = first_ghost.old_out;
+
             }
+
+            // build a list of "ignore clips" that won't get affected by ripple_clips() below
             QVector<int> ignore_clips;
             for (int i=0;i<panel_timeline->ghosts.size();i++) {
               const Ghost& g = panel_timeline->ghosts.at(i);
 
-              // push rippled clips forward if necessary
+              // for the same reason that we pushed selections forward above, for in trimming,
+              // we push the ghosts forward here
               if (panel_timeline->trim_type == TRIM_IN) {
                 ignore_clips.append(g.clip);
                 panel_timeline->ghosts[i].in += ripple_length;
                 panel_timeline->ghosts[i].out += ripple_length;
               }
 
+              // find the earliest ripple point
               long comp_point = (panel_timeline->trim_type == TRIM_IN) ? g.old_in : g.old_out;
               ripple_point = qMin(ripple_point, comp_point);
             }
+
+            // if this was out trimming, flip the direction of the ripple
             if (panel_timeline->trim_type == TRIM_OUT) ripple_length = -ripple_length;
 
+            // finally, ripple everything
             ripple_clips(ca, olive::ActiveSequence, ripple_point, ripple_length, ignore_clips);
           }
 
           if (panel_timeline->tool == TIMELINE_TOOL_POINTER
               && (event->modifiers() & Qt::AltModifier)
-              && panel_timeline->trim_target == -1) { // if holding alt (and not trimming), duplicate rather than move
-            // duplicate clips
+              && panel_timeline->trim_target == -1) {
+
+            // if the user was holding alt (and not trimming), we duplicate clips rather than move them
             QVector<int> old_clips;
             QVector<ClipPtr> new_clips;
             QVector<Selection> delete_areas;
             for (int i=0;i<panel_timeline->ghosts.size();i++) {
               const Ghost& g = panel_timeline->ghosts.at(i);
               if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
+
                 // create copy of clip
                 ClipPtr c(olive::ActiveSequence->clips.at(g.clip)->copy(olive::ActiveSequence));
 
@@ -1046,111 +1172,277 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
                 old_clips.append(g.clip);
                 new_clips.append(c);
+
               }
             }
+
             if (new_clips.size() > 0) {
+
+              // delete anything under the new clips
               panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
 
               // relink duplicated clips
               panel_timeline->relink_clips_using_ids(old_clips, new_clips);
 
+              // add them
               ca->append(new AddClipCommand(olive::ActiveSequence, new_clips));
+
             }
+
           } else {
-            // INSERT if holding ctrl
+
+            // if we're not holding alt, this will just be a move
+
+            // if the user is holding ctrl, perform an insert rather than an overwrite
             if (panel_timeline->tool == TIMELINE_TOOL_POINTER && ctrl) {
+
               insert_clips(ca);
+
             } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
-              // move clips
+
+              // if the user is not holding ctrl, we start standard clip movement
+
+              // delete everything under the new clips
               QVector<Selection> delete_areas;
               for (int i=0;i<panel_timeline->ghosts.size();i++) {
                 // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
                 const Ghost& g = panel_timeline->ghosts.at(i);
 
+                // set clip to undeletable so it's unaffected by delete_areas_and_relink() below
                 olive::ActiveSequence->clips.at(g.clip)->undeletable = true;
+
+                // if the user was moving a transition make sure they're undeletable too
                 if (g.transition != nullptr) {
                   g.transition->parent_clip->undeletable = true;
-                  if (g.transition->secondary_clip != nullptr) g.transition->secondary_clip->undeletable = true;
+                  if (g.transition->secondary_clip != nullptr) {
+                    g.transition->secondary_clip->undeletable = true;
+                  }
                 }
 
+                // set area to delete
                 Selection s;
                 s.in = g.in;
                 s.out = g.out;
                 s.track = g.track;
                 delete_areas.append(s);
               }
+
               panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
+
+              // clean up, i.e. make everything not undeletable again
               for (int i=0;i<panel_timeline->ghosts.size();i++) {
                 const Ghost& g = panel_timeline->ghosts.at(i);
                 olive::ActiveSequence->clips.at(g.clip)->undeletable = false;
+
                 if (g.transition != nullptr) {
                   g.transition->parent_clip->undeletable = false;
-                  if (g.transition->secondary_clip != nullptr) g.transition->secondary_clip->undeletable = false;
+                  if (g.transition->secondary_clip != nullptr) {
+                    g.transition->secondary_clip->undeletable = false;
+                  }
                 }
-              }
+              }              
             }
+
+            // finally, perform actual movement of clips
             for (int i=0;i<panel_timeline->ghosts.size();i++) {
               Ghost& g = panel_timeline->ghosts[i];
 
-              // step 3 - move clips
               ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
-              if (g.transition == nullptr) {
-                move_clip(ca, c, (g.in - g.old_in), (g.out - g.old_out), (g.clip_in - g.old_clip_in), (g.track - g.old_track), true, true);
 
-                // adjust transitions if we need to
-                long new_clip_length = (g.out - g.in);
-                if (c->get_opening_transition() != nullptr) {
-                  long max_open_length = new_clip_length;
-                  if (c->get_closing_transition() != nullptr && panel_timeline->trim_type == TRIM_OUT) {
-                    max_open_length -= c->get_closing_transition()->get_true_length();
-                  }
-                  if (max_open_length <= 0) {
-                    ca->append(new DeleteTransitionCommand(c->opening_transition));
-                  } else if (c->get_opening_transition()->get_true_length() > max_open_length) {
-                    ca->append(new ModifyTransitionCommand(c->opening_transition, max_open_length));
-                  }
-                }
-                if (c->get_closing_transition() != nullptr) {
-                  long max_open_length = new_clip_length;
-                  if (c->get_opening_transition() != nullptr && panel_timeline->trim_type == TRIM_IN) {
-                    max_open_length -= c->get_opening_transition()->get_true_length();
-                  }
-                  if (max_open_length <= 0) {
-                    ca->append(new DeleteTransitionCommand(c->closing_transition));
-                  } else if (c->get_closing_transition()->get_true_length() > max_open_length) {
-                    ca->append(new ModifyTransitionCommand(c->closing_transition, max_open_length));
-                  }
-                }
+              if (g.transition == nullptr) {
+
+                // if this was a clip rather than a transition
+
+                move_clip(ca, c, (g.in - g.old_in), (g.out - g.old_out), (g.clip_in - g.old_clip_in), (g.track - g.old_track), false, true);
+
               } else {
+
+                // if the user was moving a transition
+
                 bool is_opening_transition = (g.transition == c->get_opening_transition());
                 long new_transition_length = g.out - g.in;
                 if (g.transition->secondary_clip != nullptr) new_transition_length >>= 1;
-                ca->append(new ModifyTransitionCommand(is_opening_transition ? c->opening_transition : c->closing_transition, new_transition_length));
+                ca->append(
+                      new ModifyTransitionCommand(is_opening_transition ? c->opening_transition : c->closing_transition,
+                                                       new_transition_length)
+                      );
 
                 long clip_length = c->getLength();
 
                 if (g.transition->secondary_clip != nullptr) {
+
+                  // if this is a shared transition
                   if (g.in != g.old_in && g.trim_type == TRIM_NONE) {
                     long movement = g.in - g.old_in;
-                    move_clip(ca, g.transition->parent_clip, movement, 0, movement, 0, false, true);
-                    move_clip(ca, g.transition->secondary_clip, 0, movement, 0, 0, false, true);
+
+                    // check if the transition is going to extend the out point (opening clip)
+                    long timeline_out_movement = 0;
+                    if (g.out > g.transition->parent_clip->timeline_out) {
+                      timeline_out_movement = g.out - g.transition->parent_clip->timeline_out;
+                    }
+
+                    // check if the transition is going to extend the in point (closing clip)
+                    long timeline_in_movement = 0;
+                    if (g.in < g.transition->secondary_clip->timeline_in) {
+                      timeline_in_movement = g.in - g.transition->secondary_clip->timeline_in;
+                    }
+
+                    move_clip(ca, g.transition->parent_clip, movement, timeline_out_movement, movement, 0, false, true);
+                    move_clip(ca, g.transition->secondary_clip, timeline_in_movement, movement, timeline_in_movement, 0, false, true);
+
+                    make_room_for_transition(ca, g.transition->parent_clip, kTransitionOpening, g.in, g.out, false);
+                    make_room_for_transition(ca, g.transition->secondary_clip, kTransitionClosing, g.in, g.out, false);
+
                   }
+
                 } else if (is_opening_transition) {
+
                   if (g.in != g.old_in) {
                     // if transition is going to make the clip bigger, make the clip bigger
-                    move_clip(ca, c, (g.in - g.old_in), 0, (g.clip_in - g.old_clip_in), 0, true, true);
+
+                    // check if the transition is going to extend the out point
+                    long timeline_out_movement = 0;
+                    if (g.out > g.transition->parent_clip->timeline_out) {
+                      timeline_out_movement = g.out - g.transition->parent_clip->timeline_out;
+                    }
+
+                    move_clip(ca, c, (g.in - g.old_in), timeline_out_movement, (g.clip_in - g.old_clip_in), 0, false, true);
                     clip_length -= (g.in - g.old_in);
                   }
 
                   make_room_for_transition(ca, c, kTransitionOpening, g.in, g.out, false);
+
                 } else {
+
                   if (g.out != g.old_out) {
+
+                    // check if the transition is going to extend the in point
+                    long timeline_in_movement = 0;
+                    if (g.in < g.transition->parent_clip->timeline_in) {
+                      timeline_in_movement = g.in - g.transition->parent_clip->timeline_in;
+                    }
+
                     // if transition is going to make the clip bigger, make the clip bigger
-                    move_clip(ca, c, 0, (g.out - g.old_out), 0, 0, true, true);
+                    move_clip(ca, c, timeline_in_movement, (g.out - g.old_out), timeline_in_movement, 0, false, true);
                     clip_length += (g.out - g.old_out);
                   }
 
                   make_room_for_transition(ca, c, kTransitionClosing, g.in, g.out, false);
+
+                }
+              }
+            }
+
+            // time to verify the transitions of moved clips
+            for (int i=0;i<panel_timeline->ghosts.size();i++) {
+              const Ghost& g = panel_timeline->ghosts.at(i);
+
+              // only applies to moving clips, transitions are verified above instead
+              if (g.transition == nullptr) {
+                ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
+
+                long new_clip_length = g.out - g.in;
+
+                // using a for loop between constants to repeat the same steps for the opening and closing transitions
+                for (int t=kTransitionOpening;t<=kTransitionClosing;t++) {
+
+                  TransitionPtr transition = (t == kTransitionOpening) ? c->opening_transition : c->closing_transition;
+
+                  // check the whether the clip has a transition here
+                  if (transition != nullptr) {
+
+                    // if the new clip size exceeds the opening transition's length, resize the transition
+                    if (new_clip_length < transition->get_true_length()) {
+                      ca->append(new ModifyTransitionCommand(transition, new_clip_length));
+                    }
+
+                    // check if the transition is a shared transition (it'll never have a secondary clip if it isn't)
+                    if (transition->secondary_clip != nullptr) {
+
+                      // check if the transition's "edge" is going to move
+                      if ((t == kTransitionOpening && g.in != g.old_in)
+                          || (t == kTransitionClosing && g.out != g.old_out)) {
+
+                        // if we're here, this clip shares its opening transition as the closing transition of another
+                        // clip (or vice versa), and the in point is moving, so we may have to account for this
+
+                        // the other clip sharing this transition may be moving as well, meaning we don't have to do
+                        // anything
+
+                        bool split = true;
+
+                        // loop through ghosts to find out
+
+                        // for a shared transition, the secondary_clip will always be the closing transition side and
+                        // the parent_clip will always be the opening transition side
+                        ClipPtr search_clip = (t == kTransitionOpening)
+                                                      ? transition->secondary_clip : transition->parent_clip;
+
+                        for (int j=0;j<panel_timeline->ghosts.size();j++) {
+                          const Ghost& other_clip_ghost = panel_timeline->ghosts.at(j);
+
+                          if (olive::ActiveSequence->clips.at(other_clip_ghost.clip) == search_clip) {
+
+                            // we found the other clip in the current ghosts/selections
+
+                            // see if it's destination edge will be equal to this ghost's edge (in which case the
+                            // transition doesn't need to change)
+                            //
+                            // also only do this if j is less than i, because it only needs to happen once and chances are
+                            // the other clip already
+
+                            bool edges_still_touch;
+                            if (t == kTransitionOpening) {
+                              edges_still_touch = (other_clip_ghost.out == g.in);
+                            } else {
+                              edges_still_touch = (other_clip_ghost.in == g.out);
+                            }
+
+                            if (edges_still_touch || j < i) {
+                              split = false;
+                            }
+
+                            break;
+                          }
+                        }
+
+                        if (split) {
+                          // separate shared transition into one transition for each clip
+
+                          if (t == kTransitionOpening) {
+
+                            // set transition to single-clip mode
+                            ca->append(new SetPointer(reinterpret_cast<void**>(&transition->secondary_clip),
+                                                      nullptr));
+
+                            // create duplicate transition for other clip
+                            ca->append(new AddTransitionCommand(nullptr,
+                                                                transition->secondary_clip,
+                                                                transition,
+                                                                nullptr,
+                                                                0));
+
+                          } else {
+
+                            // set transition to single-clip mode
+                            ca->append(new SetPointer(reinterpret_cast<void**>(&transition->secondary_clip),
+                                                      nullptr));
+
+                            // that transition will now attach to the other clip, so we duplicate it for this one
+
+                            // create duplicate transition for this clip
+                            ca->append(new AddTransitionCommand(nullptr,
+                                                                transition->secondary_clip,
+                                                                transition,
+                                                                nullptr,
+                                                                0));
+
+                          }
+                        }
+
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1164,10 +1456,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         // if the transition is greater than 0 length (if it is 0, we make nothing)
         if (g.in != g.out) {
 
-          // get transition length
+          // get transition coordinates on the timeline
           long transition_start = qMin(g.in, g.out);
           long transition_end = qMax(g.in, g.out);
 
+          // get clip references from tool's cached data
           ClipPtr open = (panel_timeline->transition_tool_open_clip > -1)
               ? olive::ActiveSequence->clips.at(panel_timeline->transition_tool_open_clip)
               : nullptr;
@@ -1176,71 +1469,17 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
               ? olive::ActiveSequence->clips.at(panel_timeline->transition_tool_close_clip)
               : nullptr;
 
-          bool shared_transition = (open != nullptr && close != nullptr);
-
-          if (open != nullptr) {
-            open->undeletable = true;
-          }
-          if (close != nullptr) {
-            close->undeletable = true;
-          }
-
-          // delete everything under this new transition
-          QVector<Selection> areas;
-          Selection s;
-          s.in = transition_start;
-          s.out = transition_end;
-          s.track = g.track;
-          areas.append(s);
-          panel_timeline->delete_areas_and_relink(ca, areas, false);
-
-          if (open != nullptr) {
-            open->undeletable = false;
-          }
-          if (close != nullptr) {
-            close->undeletable = false;
-          }
 
 
-          if (open != nullptr) {
-            make_room_for_transition(ca, open, kTransitionOpening, transition_start, transition_end, true);
-
-            if (transition_start < open->timeline_in || transition_end > open->timeline_out) {
-//              long effective_out = (close != nullptr) ? close->timeline_out : open->timeline_out;
-              long new_in = qMin(transition_start, open->timeline_in);
-              long new_out = qMax(transition_end, open->timeline_out);
-
-              move_clip(ca,
-                        open,
-                        new_in,
-                        new_out,
-                        open->clip_in - (open->timeline_in - new_in),
-                        open->track);
-            }
-          }
-
-          if (close != nullptr) {
-            make_room_for_transition(ca, close, kTransitionClosing, transition_start, transition_end, true);
-
-            if (transition_start < close->timeline_in || transition_end > close->timeline_out) {
-//              long effective_in = (open != nullptr) ? open->timeline_in : close->timeline_in;
-              long new_in = qMin(transition_start, close->timeline_in);
-              long new_out = qMax(transition_end, close->timeline_out);
-
-              move_clip(ca,
-                        close,
-                        new_in,
-                        new_out,
-                        close->clip_in - (close->timeline_in - new_in),
-                        close->track);
-            }
-          }
-
+          // if it's shared, the transition length is halved (one half for each clip will result in the full length)
           long transition_length = transition_end - transition_start;
-          if (shared_transition) {
+          if (open != nullptr && close != nullptr) {
             transition_length /= 2;
           }
 
+          VerifyTransitionsAfterCreating(ca, open, close, transition_start, transition_end);
+
+          // finally, add the transition to these clips
           ca->append(new AddTransitionCommand(open,
                                               close,
                                               nullptr,
@@ -1393,7 +1632,9 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       const Ghost& g = panel_timeline->ghosts.at(i);
 
       // snap ghost's in point
-      if (panel_timeline->trim_target == -1 || g.trim_type == TRIM_IN) {
+      if ((panel_timeline->tool != TIMELINE_TOOL_TRANSITION && panel_timeline->trim_target == -1)
+          || g.trim_type == TRIM_IN
+          || panel_timeline->transition_tool_open_clip > -1) {
         fm = g.old_in + frame_diff;
         if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
           frame_diff = fm - g.old_in;
@@ -1402,7 +1643,9 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
 
       // snap ghost's out point
-      if (panel_timeline->trim_target == -1 || g.trim_type == TRIM_OUT) {
+      if ((panel_timeline->tool != TIMELINE_TOOL_TRANSITION && panel_timeline->trim_target == -1)
+          || g.trim_type == TRIM_OUT
+          || panel_timeline->transition_tool_close_clip > -1) {
         fm = g.old_out + frame_diff;
         if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
           frame_diff = fm - g.old_out;
@@ -1411,7 +1654,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
 
       // if the ghost is attached to a clip, snap its markers too
-      if (panel_timeline->trim_target == -1 && g.clip >= 0) {
+      if (panel_timeline->trim_target == -1 && g.clip >= 0 && panel_timeline->tool != TIMELINE_TOOL_TRANSITION) {
         ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
         for (int j=0;j<c->get_markers().size();j++) {
           long marker_real_time = c->get_markers().at(j).frame + c->timeline_in - c->clip_in;
@@ -1652,7 +1895,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       g.in = g.old_in + frame_diff;
       g.out = g.old_out + frame_diff;
 
-      if (g.transition != nullptr && g.transition == olive::ActiveSequence->clips.at(g.clip)->get_opening_transition()) {
+      if (g.transition != nullptr
+          && g.transition == olive::ActiveSequence->clips.at(g.clip)->get_opening_transition()) {
         g.clip_in = g.old_clip_in + frame_diff;
       }
 
@@ -1913,12 +2157,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
             g.transition = nullptr;
 
             // check if whole clip is added
-            bool add = is_clip_selected(c, true);
+            bool add = false;
 
-            // if a whole clip is not selected, maybe just a transition is
+            // check if a transition is selected (prioritize transition selection)
             // (only the pointer tool supports moving transitions)
-            if (!add
-                && panel_timeline->tool == TIMELINE_TOOL_POINTER
+            if (panel_timeline->tool == TIMELINE_TOOL_POINTER
                 && (c->get_opening_transition() != nullptr || c->get_closing_transition() != nullptr)) {
 
               // check if any selections contain a whole transition
@@ -1944,6 +2187,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
               }
 
+            }
+
+            // if a transition isn't selected, check if the whole clip is
+            if (!add) {
+              add = is_clip_selected(c, true);
             }
 
             if (add) {

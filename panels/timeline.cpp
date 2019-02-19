@@ -845,57 +845,73 @@ ClipPtr Timeline::split_clip(ComboAction* ca, bool transitions, int p, long fram
 
 ClipPtr Timeline::split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in) {
   ClipPtr pre = olive::ActiveSequence->clips.at(p);
-  if (pre != nullptr && pre->timeline_in < frame && pre->timeline_out > frame) { // guard against attempts to split at in/out points
-    bool splitting_closing_dual_transition = false;
+  if (pre != nullptr) {
 
-    if (transitions
-        && pre->get_closing_transition() != nullptr
-        && pre->get_closing_transition()->secondary_clip != nullptr) {
-      splitting_closing_dual_transition = true;
-    }
+    if (pre->timeline_in < frame && pre->timeline_out > frame) {
+      // duplicate clip without duplicating its transitions, we'll restore them later
 
-    ClipPtr post = ClipPtr(pre->copy(olive::ActiveSequence, transitions && !splitting_closing_dual_transition));
+      ClipPtr post = ClipPtr(pre->copy(olive::ActiveSequence, false));
 
-    long new_clip_length = frame - pre->timeline_in;
+      long new_clip_length = frame - pre->timeline_in;
 
-    post->timeline_in = post_in;
-    post->clip_in = pre->clip_in + (post->timeline_in - pre->timeline_in);
+      post->timeline_in = post_in;
+      post->clip_in = pre->clip_in + (post->timeline_in - pre->timeline_in);
 
-    move_clip(ca, pre, pre->timeline_in, frame, pre->clip_in, pre->track);
+      move_clip(ca, pre, pre->timeline_in, frame, pre->clip_in, pre->track, false);
 
-    if (pre->get_opening_transition() != nullptr) {
-      //			if (frame < pre->timeline_in + pre->get_opening_transition()->length && pre->get_opening_transition()->secondary_clip != nullptr) {
-      // separate shared transition
-      //				ca->append(new SetPointer((void**) &pre->get_opening_transition()->secondary_clip, nullptr));
-      //				pre->get_opening_transition()->secondary_clip->closing_transition = pre->get_opening_transition()->copy(pre->get_opening_transition()->secondary_clip, nullptr);
-      //			}
+      if (transitions) {
 
-      if (pre->get_opening_transition()->get_true_length() > new_clip_length) {
-        ca->append(new ModifyTransitionCommand(pre->get_opening_transition(), new_clip_length));
-      }
-    }
-    if (pre->get_closing_transition() != nullptr) {
-      if (splitting_closing_dual_transition) {
-        // just move closing transition to post clip
+        // check if this clip has a closing transition
+        if (pre->closing_transition != nullptr) {
 
-        // WORKAROUND
-        ca->append(new DeleteTransitionCommand(pre->closing_transition));
-      } else {
-        ca->append(new DeleteTransitionCommand(pre->closing_transition));
+          // if so, move closing transition to the post clip
+          post->closing_transition = pre->closing_transition;
 
-        if (post->get_closing_transition() != nullptr) {
-          if (pre->get_closing_transition()->secondary_clip == nullptr) {
-            post->get_closing_transition()->set_length(qMin(long(post->get_closing_transition()->get_true_length()), post->getLength()));
+          // and set the original clip's closing transition to nothing
+          ca->append(new SetPointer(reinterpret_cast<void**>(&pre->closing_transition), nullptr));
+
+          // and set the transition's reference to the post clip
+          if (post->closing_transition->parent_clip == pre) {
+            ca->append(new SetPointer(reinterpret_cast<void**>(&post->closing_transition->parent_clip), post.get()));
+          }
+          if (post->closing_transition->secondary_clip == pre) {
+            ca->append(new SetPointer(reinterpret_cast<void**>(&post->closing_transition->secondary_clip), post.get()));
           }
 
-          if (post->get_closing_transition()->get_length() > post->getLength()) {
-            post->get_closing_transition()->set_length(post->getLength());
+          // and make sure it's at the correct size to the closing clip
+          if (post->closing_transition != nullptr && post->closing_transition->get_true_length() > post->getLength()) {
+            ca->append(new ModifyTransitionCommand(post->closing_transition, post->getLength()));
+            post->closing_transition->set_length(post->getLength());
           }
+
+        }
+
+        // we're keeping the opening clip, so ensure that's a correct size too
+        if (pre->opening_transition != nullptr && pre->opening_transition->get_true_length() > new_clip_length) {
+          ca->append(new ModifyTransitionCommand(pre->opening_transition, new_clip_length));
         }
       }
+
+      return post;
+
+    } else if (frame == pre->timeline_in
+               && pre->opening_transition != nullptr
+               && pre->opening_transition->secondary_clip != nullptr) {
+      // special case for shared transitions to split it into two
+
+      // set transition to single-clip mode
+      ca->append(new SetPointer(reinterpret_cast<void**>(&pre->opening_transition->secondary_clip), nullptr));
+
+      // clone transition for other clip
+      ca->append(new AddTransitionCommand(nullptr,
+                                          pre->opening_transition->secondary_clip,
+                                          pre->opening_transition,
+                                          nullptr,
+                                          0)
+                 );
+
     }
 
-    return post;
   }
   return nullptr;
 }
@@ -915,11 +931,12 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
 
     ClipPtr post = split_clip(ca, true, clip, frame);
 
-    // if alt is not down, split clips links too
     if (post == nullptr) {
       return false;
     } else {
       post_clips.append(post);
+
+      // if alt is not down, split clips links too
       if (relink) {
         pre_clips.append(clip);
 
@@ -1410,7 +1427,8 @@ bool Timeline::split_selection(ComboAction* ca) {
         const Selection& s = olive::ActiveSequence->selections.at(i);
         if (s.track == clip->track) {
           ClipPtr post_b = split_clip(ca, true, j, s.out);
-          ClipPtr post_a = split_clip(ca, post_b == nullptr, j, s.in);
+          ClipPtr post_a = split_clip(ca, true, j, s.in);
+
           pre_splits.append(j);
           post_splits.append(post_a);
           secondary_post_splits.append(post_b);

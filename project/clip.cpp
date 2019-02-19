@@ -85,15 +85,6 @@ ClipPtr Clip::copy(SequencePtr s, bool duplicate_transitions) {
 
   copy->cached_fr = (this->sequence == nullptr) ? cached_fr : this->sequence->frame_rate;
 
-  if (duplicate_transitions) {
-    if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip == nullptr) {
-      copy->opening_transition = get_opening_transition()->copy(copy, nullptr);
-    }
-    if (get_closing_transition() != nullptr && get_closing_transition()->secondary_clip == nullptr) {
-      copy->closing_transition = get_closing_transition()->copy(copy, nullptr);
-    }
-  }
-
   copy->recalculateMaxLength();
 
   return copy;

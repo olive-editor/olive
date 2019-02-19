@@ -129,6 +129,7 @@ public:
   int max_queue_size;
   QVector<AVFrame*> queue;
   QMutex queue_lock;
+  QMutex render_lock;
   QMutex lock;
   QMutex open_lock;
   int64_t last_invalid_ts;

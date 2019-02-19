@@ -85,6 +85,9 @@ void open_clip(ClipPtr clip, bool multithreaded) {
 }
 
 void close_clip(ClipPtr clip, bool wait) {
+  // render lock prevents crashes if this function tries to delete a texture while the RenderThread is rendering it
+  clip->render_lock.lock();
+
 	clip->finished_opening = false;
 
 	// destroy opengl texture in main thread
@@ -126,6 +129,8 @@ void close_clip(ClipPtr clip, bool wait) {
 
 		clip->open = false;
 	}
+
+  clip->render_lock.unlock();
 }
 
 void cache_clip(ClipPtr clip, long playhead, bool reset, bool scrubbing, QVector<ClipPtr>& nests, int playback_speed) {

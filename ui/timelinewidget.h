@@ -90,6 +90,8 @@ private:
   int getScreenPointFromTrack(int track);
   int getClipIndexFromCoords(long frame, int track);
 
+  void VerifyTransitionHelper();
+
   bool track_resizing;
   int track_target;
 
