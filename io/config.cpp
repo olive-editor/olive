@@ -33,8 +33,7 @@ Config olive::CurrentConfig;
 RuntimeConfig olive::CurrentRuntimeConfig;
 
 Config::Config()
-  : saved_layout(false),
-    show_track_lines(true),
+  : show_track_lines(true),
     scroll_zooms(false),
     edit_tool_selects_links(false),
     edit_tool_also_seeks(false),
@@ -82,10 +81,7 @@ void Config::load(QString path) {
     while (!stream.atEnd()) {
       stream.readNext();
       if (stream.isStartElement()) {
-        if (stream.name() == "SavedLayout") {
-          stream.readNext();
-          saved_layout = (stream.text() == "1");
-        } else if (stream.name() == "ShowTrackLines") {
+        if (stream.name() == "ShowTrackLines") {
           stream.readNext();
           show_track_lines = (stream.text() == "1");
         } else if (stream.name() == "ScrollZooms") {
@@ -235,7 +231,6 @@ void Config::save(QString path) {
   stream.writeStartElement("Configuration"); // configuration
 
   stream.writeTextElement("Version", QString::number(olive::kSaveVersion));
-  stream.writeTextElement("SavedLayout", QString::number(saved_layout));
   stream.writeTextElement("ShowTrackLines", QString::number(show_track_lines));
   stream.writeTextElement("ScrollZooms", QString::number(scroll_zooms));
   stream.writeTextElement("EditToolSelectsLinks", QString::number(edit_tool_selects_links));

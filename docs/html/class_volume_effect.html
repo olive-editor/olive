@@ -69,6 +69,8 @@ $(function() {
 <div class="title">VolumeEffect Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="volumeeffect_8h_source.html">volumeeffect.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for VolumeEffect:</div>
 <div class="dyncontent">
@@ -81,179 +83,229 @@ Inheritance diagram for VolumeEffect:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5df95c1b1f44efd5d156517c0d4ea5a3"><td class="memItemLeft" align="right" valign="top"><a id="a5df95c1b1f44efd5d156517c0d4ea5a3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>VolumeEffect</b> (<a class="el" href="class_clip.html">Clip</a> *c, const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *em)</td></tr>
-<tr class="separator:a5df95c1b1f44efd5d156517c0d4ea5a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac18226afd50d9141dd9fe59b03cd3979"><td class="memItemLeft" align="right" valign="top"><a id="ac18226afd50d9141dd9fe59b03cd3979"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>process_audio</b> (double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int channel_count)</td></tr>
+<tr class="memitem:a2a5eb33d0784c03ac2e9c331d3c4065f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_volume_effect.html#a2a5eb33d0784c03ac2e9c331d3c4065f">VolumeEffect</a> (<a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> c, const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *em)</td></tr>
+<tr class="separator:a2a5eb33d0784c03ac2e9c331d3c4065f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac18226afd50d9141dd9fe59b03cd3979"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_volume_effect.html#ac18226afd50d9141dd9fe59b03cd3979">process_audio</a> (double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int channel_count)</td></tr>
 <tr class="separator:ac18226afd50d9141dd9fe59b03cd3979"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_effect"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_effect')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_effect.html">Effect</a></td></tr>
-<tr class="memitem:a8c3d683e0bd8a8d5cebef100a32859c8 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a8c3d683e0bd8a8d5cebef100a32859c8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Effect</b> (<a class="el" href="class_clip.html">Clip</a> *c, const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *em)</td></tr>
-<tr class="separator:a8c3d683e0bd8a8d5cebef100a32859c8 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a709c3ae69fd83451551a2dc73b6c8639 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a709c3ae69fd83451551a2dc73b6c8639"></a>
-<a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>add_row</b> (const QString &amp;name, bool savable=true, bool keyframable=true)</td></tr>
+<tr class="memitem:a1a931bb09832db8a5ad3e70ac60ba3a6 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a1a931bb09832db8a5ad3e70ac60ba3a6">Effect</a> (<a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> c, const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *em)</td></tr>
+<tr class="separator:a1a931bb09832db8a5ad3e70ac60ba3a6 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac26c0a394247e14c9081f875522b5b66 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ac26c0a394247e14c9081f875522b5b66">~Effect</a> ()</td></tr>
+<tr class="separator:ac26c0a394247e14c9081f875522b5b66 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a709c3ae69fd83451551a2dc73b6c8639 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a709c3ae69fd83451551a2dc73b6c8639">add_row</a> (const QString &amp;<a class="el" href="class_effect.html#a8c818cb5ecb263bdca1cb13cfeb60021">name</a>, bool savable=true, bool keyframable=true)</td></tr>
 <tr class="separator:a709c3ae69fd83451551a2dc73b6c8639 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6237d1b74587106f499ee8e8b87a6bc inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ac6237d1b74587106f499ee8e8b87a6bc"></a>
-<a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>row</b> (int i)</td></tr>
+<tr class="memitem:ac6237d1b74587106f499ee8e8b87a6bc inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ac6237d1b74587106f499ee8e8b87a6bc">row</a> (int i)</td></tr>
 <tr class="separator:ac6237d1b74587106f499ee8e8b87a6bc inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5bfbca882f6951d45e585cfe485ae3bd inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a5bfbca882f6951d45e585cfe485ae3bd"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>row_count</b> ()</td></tr>
+<tr class="memitem:a5bfbca882f6951d45e585cfe485ae3bd inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a5bfbca882f6951d45e585cfe485ae3bd">row_count</a> ()</td></tr>
 <tr class="separator:a5bfbca882f6951d45e585cfe485ae3bd inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6fd23ae16230595f63e00b94158764e inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ab6fd23ae16230595f63e00b94158764e"></a>
-<a class="el" href="class_effect_gizmo.html">EffectGizmo</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>add_gizmo</b> (int type)</td></tr>
+<tr class="memitem:ab6fd23ae16230595f63e00b94158764e inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_effect_gizmo.html">EffectGizmo</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ab6fd23ae16230595f63e00b94158764e">add_gizmo</a> (int type)</td></tr>
 <tr class="separator:ab6fd23ae16230595f63e00b94158764e inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aedb6c82d3d0ee5981e24f3026297b248 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="aedb6c82d3d0ee5981e24f3026297b248"></a>
-<a class="el" href="class_effect_gizmo.html">EffectGizmo</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>gizmo</b> (int i)</td></tr>
+<tr class="memitem:aedb6c82d3d0ee5981e24f3026297b248 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_effect_gizmo.html">EffectGizmo</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#aedb6c82d3d0ee5981e24f3026297b248">gizmo</a> (int i)</td></tr>
 <tr class="separator:aedb6c82d3d0ee5981e24f3026297b248 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a63f0ddaa131f1c3bb99c5b2aac6f59 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a6a63f0ddaa131f1c3bb99c5b2aac6f59"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>gizmo_count</b> ()</td></tr>
+<tr class="memitem:a6a63f0ddaa131f1c3bb99c5b2aac6f59 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a6a63f0ddaa131f1c3bb99c5b2aac6f59">gizmo_count</a> ()</td></tr>
 <tr class="separator:a6a63f0ddaa131f1c3bb99c5b2aac6f59 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5229fedfc15287cca2e98ae538298343 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a5229fedfc15287cca2e98ae538298343"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_enabled</b> ()</td></tr>
+<tr class="memitem:a5229fedfc15287cca2e98ae538298343 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a5229fedfc15287cca2e98ae538298343">is_enabled</a> ()</td></tr>
 <tr class="separator:a5229fedfc15287cca2e98ae538298343 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaff5e9c516c6e7c295e7d30c5da1cb2c inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="aaff5e9c516c6e7c295e7d30c5da1cb2c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_enabled</b> (bool b)</td></tr>
+<tr class="memitem:aaff5e9c516c6e7c295e7d30c5da1cb2c inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#aaff5e9c516c6e7c295e7d30c5da1cb2c">set_enabled</a> (bool b)</td></tr>
 <tr class="separator:aaff5e9c516c6e7c295e7d30c5da1cb2c inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c6cc1192ee9712e5139f4c341fcb733 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a8c6cc1192ee9712e5139f4c341fcb733"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>refresh</b> ()</td></tr>
+<tr class="memitem:a8c6cc1192ee9712e5139f4c341fcb733 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a8c6cc1192ee9712e5139f4c341fcb733">refresh</a> ()</td></tr>
 <tr class="separator:a8c6cc1192ee9712e5139f4c341fcb733 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6453363414b2098862224b0fbd7f0a16 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a6453363414b2098862224b0fbd7f0a16"></a>
-virtual <a class="el" href="class_effect.html">Effect</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (<a class="el" href="class_clip.html">Clip</a> *c)</td></tr>
-<tr class="separator:a6453363414b2098862224b0fbd7f0a16 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a184d97ba7b572a3a2c5ee5b9907ec2c6 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a184d97ba7b572a3a2c5ee5b9907ec2c6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>copy_field_keyframes</b> (<a class="el" href="class_effect.html">Effect</a> *e)</td></tr>
-<tr class="separator:a184d97ba7b572a3a2c5ee5b9907ec2c6 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79f987c22eb3b63a259094c9fcf2a82c inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a79f987c22eb3b63a259094c9fcf2a82c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (QXmlStreamReader &amp;stream)</td></tr>
+<tr class="memitem:aa091dbb374dacb45423ebdb487cb8d91 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="effect_8h.html#a76f90640a8579a0d9d52d40f7147f969">EffectPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#aa091dbb374dacb45423ebdb487cb8d91">copy</a> (<a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> c)</td></tr>
+<tr class="separator:aa091dbb374dacb45423ebdb487cb8d91 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3426fe55f9081f8ba0e6a6e019d24e83 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a3426fe55f9081f8ba0e6a6e019d24e83">copy_field_keyframes</a> (<a class="el" href="effect_8h.html#a76f90640a8579a0d9d52d40f7147f969">EffectPtr</a> e)</td></tr>
+<tr class="separator:a3426fe55f9081f8ba0e6a6e019d24e83 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79f987c22eb3b63a259094c9fcf2a82c inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a79f987c22eb3b63a259094c9fcf2a82c">load</a> (QXmlStreamReader &amp;stream)</td></tr>
 <tr class="separator:a79f987c22eb3b63a259094c9fcf2a82c inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae14621c5d5bdb0ef41c6ea7dffcb8762 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ae14621c5d5bdb0ef41c6ea7dffcb8762"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>custom_load</b> (QXmlStreamReader &amp;stream)</td></tr>
+<tr class="memitem:ae14621c5d5bdb0ef41c6ea7dffcb8762 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ae14621c5d5bdb0ef41c6ea7dffcb8762">custom_load</a> (QXmlStreamReader &amp;stream)</td></tr>
 <tr class="separator:ae14621c5d5bdb0ef41c6ea7dffcb8762 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1d54acbddc9b6e4373e4f53f6379c30 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ae1d54acbddc9b6e4373e4f53f6379c30"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>save</b> (QXmlStreamWriter &amp;stream)</td></tr>
+<tr class="memitem:ae1d54acbddc9b6e4373e4f53f6379c30 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ae1d54acbddc9b6e4373e4f53f6379c30">save</a> (QXmlStreamWriter &amp;stream)</td></tr>
 <tr class="separator:ae1d54acbddc9b6e4373e4f53f6379c30 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8153a062ec90403fc9cf943169d994cb inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a8153a062ec90403fc9cf943169d994cb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>load_from_string</b> (const QByteArray &amp;s)</td></tr>
+<tr class="memitem:a8153a062ec90403fc9cf943169d994cb inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a8153a062ec90403fc9cf943169d994cb">load_from_string</a> (const QByteArray &amp;s)</td></tr>
 <tr class="separator:a8153a062ec90403fc9cf943169d994cb inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af89725f1966ade1ac299ba53fe32b981 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="af89725f1966ade1ac299ba53fe32b981"></a>
-QByteArray&#160;</td><td class="memItemRight" valign="bottom"><b>save_to_string</b> ()</td></tr>
+<tr class="memitem:af89725f1966ade1ac299ba53fe32b981 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">QByteArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#af89725f1966ade1ac299ba53fe32b981">save_to_string</a> ()</td></tr>
 <tr class="separator:af89725f1966ade1ac299ba53fe32b981 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a987ccfac600abd4f1814f3b01ec15758 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a987ccfac600abd4f1814f3b01ec15758"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_open</b> ()</td></tr>
+<tr class="memitem:a987ccfac600abd4f1814f3b01ec15758 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a987ccfac600abd4f1814f3b01ec15758">is_open</a> ()</td></tr>
 <tr class="separator:a987ccfac600abd4f1814f3b01ec15758 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c8aa2a3c1181418f1e7d93d11cf69dd inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a3c8aa2a3c1181418f1e7d93d11cf69dd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>open</b> ()</td></tr>
+<tr class="memitem:a3c8aa2a3c1181418f1e7d93d11cf69dd inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a3c8aa2a3c1181418f1e7d93d11cf69dd">open</a> ()</td></tr>
 <tr class="separator:a3c8aa2a3c1181418f1e7d93d11cf69dd inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af39cb182d07d61beab596f6f55dbedff inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="af39cb182d07d61beab596f6f55dbedff"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>close</b> ()</td></tr>
+<tr class="memitem:af39cb182d07d61beab596f6f55dbedff inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#af39cb182d07d61beab596f6f55dbedff">close</a> ()</td></tr>
 <tr class="separator:af39cb182d07d61beab596f6f55dbedff inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02ecf4b85463b385d395cf7c4af43b26 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a02ecf4b85463b385d395cf7c4af43b26"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_glsl_linked</b> ()</td></tr>
+<tr class="memitem:a02ecf4b85463b385d395cf7c4af43b26 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a02ecf4b85463b385d395cf7c4af43b26">is_glsl_linked</a> ()</td></tr>
 <tr class="separator:a02ecf4b85463b385d395cf7c4af43b26 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0571fe65293da45736f5f6c52ddaf77c inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a0571fe65293da45736f5f6c52ddaf77c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>startEffect</b> ()</td></tr>
+<tr class="memitem:a0571fe65293da45736f5f6c52ddaf77c inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a0571fe65293da45736f5f6c52ddaf77c">startEffect</a> ()</td></tr>
 <tr class="separator:a0571fe65293da45736f5f6c52ddaf77c inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbc1b82884bfd340ab89c96bd32cf772 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="adbc1b82884bfd340ab89c96bd32cf772"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>endEffect</b> ()</td></tr>
+<tr class="memitem:adbc1b82884bfd340ab89c96bd32cf772 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#adbc1b82884bfd340ab89c96bd32cf772">endEffect</a> ()</td></tr>
 <tr class="separator:adbc1b82884bfd340ab89c96bd32cf772 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afaf5c401c556fb3662b172a073acaf44 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="afaf5c401c556fb3662b172a073acaf44"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getIterations</b> ()</td></tr>
+<tr class="memitem:afaf5c401c556fb3662b172a073acaf44 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#afaf5c401c556fb3662b172a073acaf44">getIterations</a> ()</td></tr>
 <tr class="separator:afaf5c401c556fb3662b172a073acaf44 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20dab6e1c68621b8172737a48df9c40a inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a20dab6e1c68621b8172737a48df9c40a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setIterations</b> (int i)</td></tr>
+<tr class="memitem:a20dab6e1c68621b8172737a48df9c40a inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a20dab6e1c68621b8172737a48df9c40a">setIterations</a> (int i)</td></tr>
 <tr class="separator:a20dab6e1c68621b8172737a48df9c40a inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0592e2ed92d28b6c9a3fbe436b04a879 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a0592e2ed92d28b6c9a3fbe436b04a879"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>process_image</b> (double timecode, uint8_t *input, uint8_t *output, int size)</td></tr>
+<tr class="memitem:a0592e2ed92d28b6c9a3fbe436b04a879 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a0592e2ed92d28b6c9a3fbe436b04a879">process_image</a> (double timecode, uint8_t *input, uint8_t *output, int size)</td></tr>
 <tr class="separator:a0592e2ed92d28b6c9a3fbe436b04a879 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab76c54c12d93ee5f5d8c633cf17a8354 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ab76c54c12d93ee5f5d8c633cf17a8354"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>process_shader</b> (double timecode, <a class="el" href="struct_g_l_texture_coords.html">GLTextureCoords</a> &amp;, int iteration)</td></tr>
+<tr class="memitem:ab76c54c12d93ee5f5d8c633cf17a8354 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ab76c54c12d93ee5f5d8c633cf17a8354">process_shader</a> (double timecode, <a class="el" href="struct_g_l_texture_coords.html">GLTextureCoords</a> &amp;, int iteration)</td></tr>
 <tr class="separator:ab76c54c12d93ee5f5d8c633cf17a8354 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5a78838a09bed4f8ca11d6b23f2df98 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ae5a78838a09bed4f8ca11d6b23f2df98"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>process_coords</b> (double timecode, <a class="el" href="struct_g_l_texture_coords.html">GLTextureCoords</a> &amp;coords, int data)</td></tr>
+<tr class="memitem:ae5a78838a09bed4f8ca11d6b23f2df98 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ae5a78838a09bed4f8ca11d6b23f2df98">process_coords</a> (double timecode, <a class="el" href="struct_g_l_texture_coords.html">GLTextureCoords</a> &amp;coords, int data)</td></tr>
 <tr class="separator:ae5a78838a09bed4f8ca11d6b23f2df98 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfc5eb9b1ddbdbcc586d4bd0f7b97c37 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="adfc5eb9b1ddbdbcc586d4bd0f7b97c37"></a>
-virtual GLuint&#160;</td><td class="memItemRight" valign="bottom"><b>process_superimpose</b> (double timecode)</td></tr>
+<tr class="memitem:adfc5eb9b1ddbdbcc586d4bd0f7b97c37 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual GLuint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#adfc5eb9b1ddbdbcc586d4bd0f7b97c37">process_superimpose</a> (double timecode)</td></tr>
 <tr class="separator:adfc5eb9b1ddbdbcc586d4bd0f7b97c37 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6b38acadf4bcd929576a8552e36341a inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ab6b38acadf4bcd929576a8552e36341a"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>gizmo_draw</b> (double timecode, <a class="el" href="struct_g_l_texture_coords.html">GLTextureCoords</a> &amp;coords)</td></tr>
+<tr class="memitem:ab6b38acadf4bcd929576a8552e36341a inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ab6b38acadf4bcd929576a8552e36341a">gizmo_draw</a> (double timecode, <a class="el" href="struct_g_l_texture_coords.html">GLTextureCoords</a> &amp;coords)</td></tr>
 <tr class="separator:ab6b38acadf4bcd929576a8552e36341a inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06c599ea93d436db67f659203dc11ac2 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a06c599ea93d436db67f659203dc11ac2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>gizmo_move</b> (<a class="el" href="class_effect_gizmo.html">EffectGizmo</a> *sender, int x_movement, int y_movement, double timecode, bool done)</td></tr>
+<tr class="memitem:a06c599ea93d436db67f659203dc11ac2 inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a06c599ea93d436db67f659203dc11ac2">gizmo_move</a> (<a class="el" href="class_effect_gizmo.html">EffectGizmo</a> *sender, int x_movement, int y_movement, double timecode, bool done)</td></tr>
 <tr class="separator:a06c599ea93d436db67f659203dc11ac2 inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ad209135a8f446f1ecbbfe51a4c7a5e inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a3ad209135a8f446f1ecbbfe51a4c7a5e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>gizmo_world_to_screen</b> ()</td></tr>
+<tr class="memitem:a3ad209135a8f446f1ecbbfe51a4c7a5e inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a3ad209135a8f446f1ecbbfe51a4c7a5e">gizmo_world_to_screen</a> ()</td></tr>
 <tr class="separator:a3ad209135a8f446f1ecbbfe51a4c7a5e inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1e6e6d88937b5f568ba2e78e761401b inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="ab1e6e6d88937b5f568ba2e78e761401b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>are_gizmos_enabled</b> ()</td></tr>
+<tr class="memitem:ab1e6e6d88937b5f568ba2e78e761401b inherit pub_methods_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#ab1e6e6d88937b5f568ba2e78e761401b">are_gizmos_enabled</a> ()</td></tr>
 <tr class="separator:ab1e6e6d88937b5f568ba2e78e761401b inherit pub_methods_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aa4ac139a39cdbcc23cd71b341fb5a5ba"><td class="memItemLeft" align="right" valign="top"><a id="aa4ac139a39cdbcc23cd71b341fb5a5ba"></a>
-<a class="el" href="class_effect_field.html">EffectField</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>volume_val</b></td></tr>
+<tr class="memitem:aa4ac139a39cdbcc23cd71b341fb5a5ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_effect_field.html">EffectField</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_volume_effect.html#aa4ac139a39cdbcc23cd71b341fb5a5ba">volume_val</a></td></tr>
 <tr class="separator:aa4ac139a39cdbcc23cd71b341fb5a5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_class_effect"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_class_effect')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="class_effect.html">Effect</a></td></tr>
-<tr class="memitem:a888bfea468af7eecf80bdc36c226e837 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a888bfea468af7eecf80bdc36c226e837"></a>
-<a class="el" href="class_clip.html">Clip</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>parent_clip</b></td></tr>
-<tr class="separator:a888bfea468af7eecf80bdc36c226e837 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62d3967301d9527c7fdb3cc7593f106f inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a62d3967301d9527c7fdb3cc7593f106f"></a>
-const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>meta</b></td></tr>
+<tr class="memitem:af70534fc435d8f31d040e26412e5bf92 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#af70534fc435d8f31d040e26412e5bf92">parent_clip</a></td></tr>
+<tr class="separator:af70534fc435d8f31d040e26412e5bf92 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62d3967301d9527c7fdb3cc7593f106f inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a62d3967301d9527c7fdb3cc7593f106f">meta</a></td></tr>
 <tr class="separator:a62d3967301d9527c7fdb3cc7593f106f inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a524b94918381a664531d2686cd743fad inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a524b94918381a664531d2686cd743fad"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>id</b></td></tr>
+<tr class="memitem:a524b94918381a664531d2686cd743fad inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a524b94918381a664531d2686cd743fad">id</a></td></tr>
 <tr class="separator:a524b94918381a664531d2686cd743fad inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c818cb5ecb263bdca1cb13cfeb60021 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a8c818cb5ecb263bdca1cb13cfeb60021"></a>
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="memitem:a8c818cb5ecb263bdca1cb13cfeb60021 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a8c818cb5ecb263bdca1cb13cfeb60021">name</a></td></tr>
 <tr class="separator:a8c818cb5ecb263bdca1cb13cfeb60021 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2bccc43a3ac268cae6f81f24f0d4c73 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="af2bccc43a3ac268cae6f81f24f0d4c73"></a>
-<a class="el" href="class_collapsible_widget.html">CollapsibleWidget</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>container</b></td></tr>
+<tr class="memitem:af2bccc43a3ac268cae6f81f24f0d4c73 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_collapsible_widget.html">CollapsibleWidget</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#af2bccc43a3ac268cae6f81f24f0d4c73">container</a></td></tr>
 <tr class="separator:af2bccc43a3ac268cae6f81f24f0d4c73 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71b2f2394049eb84d8a20a202ca8f057 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a71b2f2394049eb84d8a20a202ca8f057"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_shader</b></td></tr>
+<tr class="memitem:a71b2f2394049eb84d8a20a202ca8f057 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a71b2f2394049eb84d8a20a202ca8f057">enable_shader</a></td></tr>
 <tr class="separator:a71b2f2394049eb84d8a20a202ca8f057 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ae7110ec96749a4beffb4415ebc1916 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a0ae7110ec96749a4beffb4415ebc1916"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_coords</b></td></tr>
+<tr class="memitem:a0ae7110ec96749a4beffb4415ebc1916 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a0ae7110ec96749a4beffb4415ebc1916">enable_coords</a></td></tr>
 <tr class="separator:a0ae7110ec96749a4beffb4415ebc1916 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7166a2b7bd2cee3aedf7e1b2800b203 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="af7166a2b7bd2cee3aedf7e1b2800b203"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_superimpose</b></td></tr>
+<tr class="memitem:af7166a2b7bd2cee3aedf7e1b2800b203 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#af7166a2b7bd2cee3aedf7e1b2800b203">enable_superimpose</a></td></tr>
 <tr class="separator:af7166a2b7bd2cee3aedf7e1b2800b203 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc4a5e6086b53d568ae0e9623fb6e364 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="afc4a5e6086b53d568ae0e9623fb6e364"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_image</b></td></tr>
+<tr class="memitem:afc4a5e6086b53d568ae0e9623fb6e364 inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#afc4a5e6086b53d568ae0e9623fb6e364">enable_image</a></td></tr>
 <tr class="separator:afc4a5e6086b53d568ae0e9623fb6e364 inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adeeefa9fcc3c1f8fcd0ca7b4c3a80faa inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="adeeefa9fcc3c1f8fcd0ca7b4c3a80faa"></a>
-const char *&#160;</td><td class="memItemRight" valign="bottom"><b>ffmpeg_filter</b></td></tr>
+<tr class="memitem:adeeefa9fcc3c1f8fcd0ca7b4c3a80faa inherit pub_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#adeeefa9fcc3c1f8fcd0ca7b4c3a80faa">ffmpeg_filter</a></td></tr>
 <tr class="separator:adeeefa9fcc3c1f8fcd0ca7b4c3a80faa inherit pub_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_slots_class_effect"><td colspan="2" onclick="javascript:toggleInherit('pub_slots_class_effect')"><img src="closed.png" alt="-"/>&#160;Public Slots inherited from <a class="el" href="class_effect.html">Effect</a></td></tr>
-<tr class="memitem:a7216ae29b0278b5a8f4d94a6fd104cd4 inherit pub_slots_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a7216ae29b0278b5a8f4d94a6fd104cd4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>field_changed</b> ()</td></tr>
+<tr class="memitem:a7216ae29b0278b5a8f4d94a6fd104cd4 inherit pub_slots_class_effect"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a7216ae29b0278b5a8f4d94a6fd104cd4">field_changed</a> ()</td></tr>
 <tr class="separator:a7216ae29b0278b5a8f4d94a6fd104cd4 inherit pub_slots_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_class_effect"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_class_effect')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="class_effect.html">Effect</a></td></tr>
-<tr class="memitem:afad1a793aebc117f8e7ca44e93fb0f62 inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="afad1a793aebc117f8e7ca44e93fb0f62"></a>
-QOpenGLShaderProgram *&#160;</td><td class="memItemRight" valign="bottom"><b>glslProgram</b></td></tr>
+<tr class="memitem:afad1a793aebc117f8e7ca44e93fb0f62 inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">QOpenGLShaderProgram *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#afad1a793aebc117f8e7ca44e93fb0f62">glslProgram</a></td></tr>
 <tr class="separator:afad1a793aebc117f8e7ca44e93fb0f62 inherit pro_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a9608c969ad18c2c5238e89ff6a9ae3 inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a4a9608c969ad18c2c5238e89ff6a9ae3"></a>
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>vertPath</b></td></tr>
+<tr class="memitem:a4a9608c969ad18c2c5238e89ff6a9ae3 inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a4a9608c969ad18c2c5238e89ff6a9ae3">vertPath</a></td></tr>
 <tr class="separator:a4a9608c969ad18c2c5238e89ff6a9ae3 inherit pro_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af64fc534af72a12362850a0d24906565 inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="af64fc534af72a12362850a0d24906565"></a>
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>fragPath</b></td></tr>
+<tr class="memitem:af64fc534af72a12362850a0d24906565 inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#af64fc534af72a12362850a0d24906565">fragPath</a></td></tr>
 <tr class="separator:af64fc534af72a12362850a0d24906565 inherit pro_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a132f7ac32faeda01f27f5bdb2f81685c inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a132f7ac32faeda01f27f5bdb2f81685c"></a>
-QImage&#160;</td><td class="memItemRight" valign="bottom"><b>img</b></td></tr>
+<tr class="memitem:a132f7ac32faeda01f27f5bdb2f81685c inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">QImage&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a132f7ac32faeda01f27f5bdb2f81685c">img</a></td></tr>
 <tr class="separator:a132f7ac32faeda01f27f5bdb2f81685c inherit pro_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0268b161503df8d8fb180dd266686bfa inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a0268b161503df8d8fb180dd266686bfa"></a>
-QOpenGLTexture *&#160;</td><td class="memItemRight" valign="bottom"><b>texture</b></td></tr>
+<tr class="memitem:a0268b161503df8d8fb180dd266686bfa inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">QOpenGLTexture *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a0268b161503df8d8fb180dd266686bfa">texture</a></td></tr>
 <tr class="separator:a0268b161503df8d8fb180dd266686bfa inherit pro_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a74c104e615408286a9d1ad6ce7da9c inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top"><a id="a0a74c104e615408286a9d1ad6ce7da9c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_always_update</b></td></tr>
+<tr class="memitem:a0a74c104e615408286a9d1ad6ce7da9c inherit pro_attribs_class_effect"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_effect.html#a0a74c104e615408286a9d1ad6ce7da9c">enable_always_update</a></td></tr>
 <tr class="separator:a0a74c104e615408286a9d1ad6ce7da9c inherit pro_attribs_class_effect"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a2a5eb33d0784c03ac2e9c331d3c4065f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a5eb33d0784c03ac2e9c331d3c4065f">&#9670;&nbsp;</a></span>VolumeEffect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">VolumeEffect::VolumeEffect </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td>
+          <td class="paramname"><em>em</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac18226afd50d9141dd9fe59b03cd3979"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac18226afd50d9141dd9fe59b03cd3979">&#9670;&nbsp;</a></span>process_audio()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void VolumeEffect::process_audio </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>timecode_start</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>timecode_end</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">quint8 *&#160;</td>
+          <td class="paramname"><em>samples</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nb_bytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>channel_count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="class_effect.html#a77a6eea699072b8ecbbe9e19b22ab449">Effect</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="aa4ac139a39cdbcc23cd71b341fb5a5ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4ac139a39cdbcc23cd71b341fb5a5ba">&#9670;&nbsp;</a></span>volume_val</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_effect_field.html">EffectField</a>* VolumeEffect::volume_val</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>effects/internal/<a class="el" href="volumeeffect_8h_source.html">volumeeffect.h</a></li>
-<li>effects/internal/volumeeffect.cpp</li>
+<li>effects/internal/<a class="el" href="volumeeffect_8cpp.html">volumeeffect.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -69,6 +69,8 @@ $(function() {
 <div class="title">AddEffectCommand Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="undo_8h_source.html">undo.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AddEffectCommand:</div>
 <div class="dyncontent">
@@ -81,47 +83,245 @@ Inheritance diagram for AddEffectCommand:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4786ed6ccbd23b13106fca1719370cf8"><td class="memItemLeft" align="right" valign="top"><a id="a4786ed6ccbd23b13106fca1719370cf8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>AddEffectCommand</b> (<a class="el" href="class_clip.html">Clip</a> *c, <a class="el" href="class_effect.html">Effect</a> *e, const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *m, int insert_pos=-1)</td></tr>
-<tr class="separator:a4786ed6ccbd23b13106fca1719370cf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab367dccb77d7451d5dadb5cd3abb29b7"><td class="memItemLeft" align="right" valign="top"><a id="ab367dccb77d7451d5dadb5cd3abb29b7"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doUndo</b> () override</td></tr>
+<tr class="memitem:a9656a70ae5490a61589358c3cf228214"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a9656a70ae5490a61589358c3cf228214">AddEffectCommand</a> (<a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> c, <a class="el" href="effect_8h.html#a76f90640a8579a0d9d52d40f7147f969">EffectPtr</a> e, const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *m, int insert_pos=-1)</td></tr>
+<tr class="separator:a9656a70ae5490a61589358c3cf228214"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab367dccb77d7451d5dadb5cd3abb29b7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#ab367dccb77d7451d5dadb5cd3abb29b7">doUndo</a> () override</td></tr>
 <tr class="separator:ab367dccb77d7451d5dadb5cd3abb29b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5341c8963a398eebde7229f48f3dba54"><td class="memItemLeft" align="right" valign="top"><a id="a5341c8963a398eebde7229f48f3dba54"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doRedo</b> () override</td></tr>
+<tr class="memitem:a5341c8963a398eebde7229f48f3dba54"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a5341c8963a398eebde7229f48f3dba54">doRedo</a> () override</td></tr>
 <tr class="separator:a5341c8963a398eebde7229f48f3dba54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_olive_action"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_olive_action')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_olive_action.html">OliveAction</a></td></tr>
-<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="ae90cf762a471f704e9ee4c30fd13b05f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OliveAction</b> (bool iset_window_modified=true)</td></tr>
+<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#ae90cf762a471f704e9ee4c30fd13b05f">OliveAction</a> (bool iset_window_modified=true)</td></tr>
 <tr class="separator:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a6e14775c35e9c0acbef06b104c98a10c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>undo</b> () override</td></tr>
+<tr class="memitem:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a62bcbe2d4297e05349ceff9e406ef02e">~OliveAction</a> () override</td></tr>
+<tr class="separator:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a6e14775c35e9c0acbef06b104c98a10c">undo</a> () override</td></tr>
 <tr class="separator:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a4bdc5f2f1d644b02f5bce1f025698bfe"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>redo</b> () override</td></tr>
+<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a4bdc5f2f1d644b02f5bce1f025698bfe">redo</a> () override</td></tr>
 <tr class="separator:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a81405c092e3890b90385a5699a487674"><td class="memItemLeft" align="right" valign="top"><a id="a81405c092e3890b90385a5699a487674"></a>
-<a class="el" href="class_clip.html">Clip</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>clip</b></td></tr>
-<tr class="separator:a81405c092e3890b90385a5699a487674"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08b850c3ae0fa4b7b02b37652540997e"><td class="memItemLeft" align="right" valign="top"><a id="a08b850c3ae0fa4b7b02b37652540997e"></a>
-const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>meta</b></td></tr>
+<tr class="memitem:a8c7c7b5a3d3be222eac4aec4193ce998"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a8c7c7b5a3d3be222eac4aec4193ce998">clip</a></td></tr>
+<tr class="separator:a8c7c7b5a3d3be222eac4aec4193ce998"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08b850c3ae0fa4b7b02b37652540997e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a08b850c3ae0fa4b7b02b37652540997e">meta</a></td></tr>
 <tr class="separator:a08b850c3ae0fa4b7b02b37652540997e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacce164b17602da5aa9acf6462fdec9a"><td class="memItemLeft" align="right" valign="top"><a id="aacce164b17602da5aa9acf6462fdec9a"></a>
-<a class="el" href="class_effect.html">Effect</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ref</b></td></tr>
-<tr class="separator:aacce164b17602da5aa9acf6462fdec9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4056623484e1607f7dba50468c0518a1"><td class="memItemLeft" align="right" valign="top"><a id="a4056623484e1607f7dba50468c0518a1"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>pos</b></td></tr>
+<tr class="memitem:a42f36a1c35729cf0bbabd05d17f3503e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="effect_8h.html#a76f90640a8579a0d9d52d40f7147f969">EffectPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a42f36a1c35729cf0bbabd05d17f3503e">ref</a></td></tr>
+<tr class="separator:a42f36a1c35729cf0bbabd05d17f3503e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4056623484e1607f7dba50468c0518a1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a4056623484e1607f7dba50468c0518a1">pos</a></td></tr>
 <tr class="separator:a4056623484e1607f7dba50468c0518a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dd7c8fac2073f81351cb0d47bd1866d"><td class="memItemLeft" align="right" valign="top"><a id="a8dd7c8fac2073f81351cb0d47bd1866d"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>done</b></td></tr>
+<tr class="memitem:a8dd7c8fac2073f81351cb0d47bd1866d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_effect_command.html#a8dd7c8fac2073f81351cb0d47bd1866d">done</a></td></tr>
 <tr class="separator:a8dd7c8fac2073f81351cb0d47bd1866d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a9656a70ae5490a61589358c3cf228214"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9656a70ae5490a61589358c3cf228214">&#9670;&nbsp;</a></span>AddEffectCommand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AddEffectCommand::AddEffectCommand </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="effect_8h.html#a76f90640a8579a0d9d52d40f7147f969">EffectPtr</a>&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>insert_pos</em> = <code>-1</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a5341c8963a398eebde7229f48f3dba54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5341c8963a398eebde7229f48f3dba54">&#9670;&nbsp;</a></span>doRedo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AddEffectCommand::doRedo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ad2558014854156e81631f395db38a697">OliveAction</a>.</p>
+
+</div>
+</div>
+<a id="ab367dccb77d7451d5dadb5cd3abb29b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab367dccb77d7451d5dadb5cd3abb29b7">&#9670;&nbsp;</a></span>doUndo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AddEffectCommand::doUndo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ae5c9247751022c35aebd477718113cc4">OliveAction</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a8c7c7b5a3d3be222eac4aec4193ce998"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c7c7b5a3d3be222eac4aec4193ce998">&#9670;&nbsp;</a></span>clip</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> AddEffectCommand::clip</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8dd7c8fac2073f81351cb0d47bd1866d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dd7c8fac2073f81351cb0d47bd1866d">&#9670;&nbsp;</a></span>done</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool AddEffectCommand::done</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a08b850c3ae0fa4b7b02b37652540997e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08b850c3ae0fa4b7b02b37652540997e">&#9670;&nbsp;</a></span>meta</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="struct_effect_meta.html">EffectMeta</a>* AddEffectCommand::meta</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4056623484e1607f7dba50468c0518a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4056623484e1607f7dba50468c0518a1">&#9670;&nbsp;</a></span>pos</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int AddEffectCommand::pos</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a42f36a1c35729cf0bbabd05d17f3503e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42f36a1c35729cf0bbabd05d17f3503e">&#9670;&nbsp;</a></span>ref</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="effect_8h.html#a76f90640a8579a0d9d52d40f7147f969">EffectPtr</a> AddEffectCommand::ref</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>project/<a class="el" href="undo_8h_source.html">undo.h</a></li>
-<li>project/undo.cpp</li>
+<li>project/<a class="el" href="undo_8cpp.html">undo.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

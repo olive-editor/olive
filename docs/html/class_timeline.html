@@ -65,6 +65,7 @@ $(function() {
 <a href="#pub-slots">Public Slots</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pri-slots">Private Slots</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
@@ -73,487 +74,3336 @@ $(function() {
 <div class="title">Timeline Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="timeline_8h_source.html">timeline.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Timeline:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="class_timeline.png" alt=""/>
- </div></div>
+  <img src="class_timeline.png" usemap="#Timeline_map" alt=""/>
+  <map id="Timeline_map" name="Timeline_map">
+<area href="class_panel.html" alt="Panel" shape="rect" coords="0,56,89,80"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr class="memitem:a12baf65f35637a36b57df7bae702b1a3"><td class="memItemLeft" align="right" valign="top"><a id="a12baf65f35637a36b57df7bae702b1a3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paste</b> (bool insert=false)</td></tr>
+<tr class="memitem:a12baf65f35637a36b57df7bae702b1a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a12baf65f35637a36b57df7bae702b1a3">paste</a> (bool insert=false)</td></tr>
 <tr class="separator:a12baf65f35637a36b57df7bae702b1a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf3ab106e6ddd6a41b19adb9d7313c5f"><td class="memItemLeft" align="right" valign="top"><a id="aaf3ab106e6ddd6a41b19adb9d7313c5f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>repaint_timeline</b> ()</td></tr>
+<tr class="memitem:aaf3ab106e6ddd6a41b19adb9d7313c5f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aaf3ab106e6ddd6a41b19adb9d7313c5f">repaint_timeline</a> ()</td></tr>
 <tr class="separator:aaf3ab106e6ddd6a41b19adb9d7313c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a724f665aa4dab0f3b8a6a1a9466a88eb"><td class="memItemLeft" align="right" valign="top"><a id="a724f665aa4dab0f3b8a6a1a9466a88eb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>toggle_show_all</b> ()</td></tr>
+<tr class="memitem:a724f665aa4dab0f3b8a6a1a9466a88eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a724f665aa4dab0f3b8a6a1a9466a88eb">toggle_show_all</a> ()</td></tr>
 <tr class="separator:a724f665aa4dab0f3b8a6a1a9466a88eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a189f90a7538c3469428d2a905265ca6e"><td class="memItemLeft" align="right" valign="top"><a id="a189f90a7538c3469428d2a905265ca6e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>deselect</b> ()</td></tr>
+<tr class="memitem:a189f90a7538c3469428d2a905265ca6e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a189f90a7538c3469428d2a905265ca6e">deselect</a> ()</td></tr>
 <tr class="separator:a189f90a7538c3469428d2a905265ca6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92fca9db81bb36cb2cc6a66850d05da3"><td class="memItemLeft" align="right" valign="top"><a id="a92fca9db81bb36cb2cc6a66850d05da3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>toggle_links</b> ()</td></tr>
+<tr class="memitem:a92fca9db81bb36cb2cc6a66850d05da3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a92fca9db81bb36cb2cc6a66850d05da3">toggle_links</a> ()</td></tr>
 <tr class="separator:a92fca9db81bb36cb2cc6a66850d05da3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89fe8ed5541d1bc49a67030a92022d4c"><td class="memItemLeft" align="right" valign="top"><a id="a89fe8ed5541d1bc49a67030a92022d4c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>split_at_playhead</b> ()</td></tr>
+<tr class="memitem:a89fe8ed5541d1bc49a67030a92022d4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a89fe8ed5541d1bc49a67030a92022d4c">split_at_playhead</a> ()</td></tr>
 <tr class="separator:a89fe8ed5541d1bc49a67030a92022d4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7523787d44855bf87fccc7c43dbf436e"><td class="memItemLeft" align="right" valign="top"><a id="a7523787d44855bf87fccc7c43dbf436e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ripple_delete</b> ()</td></tr>
+<tr class="memitem:a7523787d44855bf87fccc7c43dbf436e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a7523787d44855bf87fccc7c43dbf436e">ripple_delete</a> ()</td></tr>
 <tr class="separator:a7523787d44855bf87fccc7c43dbf436e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61faea6126026f04918d7c3e98dfda4c"><td class="memItemLeft" align="right" valign="top"><a id="a61faea6126026f04918d7c3e98dfda4c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ripple_delete_empty_space</b> ()</td></tr>
+<tr class="memitem:a61faea6126026f04918d7c3e98dfda4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a61faea6126026f04918d7c3e98dfda4c">ripple_delete_empty_space</a> ()</td></tr>
 <tr class="separator:a61faea6126026f04918d7c3e98dfda4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4cb7175aab3569267adf3190471f3338"><td class="memItemLeft" align="right" valign="top"><a id="a4cb7175aab3569267adf3190471f3338"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>toggle_enable_on_selected_clips</b> ()</td></tr>
+<tr class="memitem:a4cb7175aab3569267adf3190471f3338"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a4cb7175aab3569267adf3190471f3338">toggle_enable_on_selected_clips</a> ()</td></tr>
 <tr class="separator:a4cb7175aab3569267adf3190471f3338"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a3ce85179228f291265e7b0aea34fd3"><td class="memItemLeft" align="right" valign="top"><a id="a3a3ce85179228f291265e7b0aea34fd3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_inout</b> ()</td></tr>
+<tr class="memitem:a3a3ce85179228f291265e7b0aea34fd3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a3a3ce85179228f291265e7b0aea34fd3">delete_inout</a> ()</td></tr>
 <tr class="separator:a3a3ce85179228f291265e7b0aea34fd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94a4a80fd046ca4a454b72c00babf22c"><td class="memItemLeft" align="right" valign="top"><a id="a94a4a80fd046ca4a454b72c00babf22c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ripple_delete_inout</b> ()</td></tr>
+<tr class="memitem:a94a4a80fd046ca4a454b72c00babf22c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a94a4a80fd046ca4a454b72c00babf22c">ripple_delete_inout</a> ()</td></tr>
 <tr class="separator:a94a4a80fd046ca4a454b72c00babf22c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a587f225fa880ad516f1b9bab4f0dbfc8"><td class="memItemLeft" align="right" valign="top"><a id="a587f225fa880ad516f1b9bab4f0dbfc8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ripple_to_in_point</b> ()</td></tr>
+<tr class="memitem:a587f225fa880ad516f1b9bab4f0dbfc8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a587f225fa880ad516f1b9bab4f0dbfc8">ripple_to_in_point</a> ()</td></tr>
 <tr class="separator:a587f225fa880ad516f1b9bab4f0dbfc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ac73dc6d30437f342a090fc930b460b"><td class="memItemLeft" align="right" valign="top"><a id="a6ac73dc6d30437f342a090fc930b460b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ripple_to_out_point</b> ()</td></tr>
+<tr class="memitem:a6ac73dc6d30437f342a090fc930b460b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a6ac73dc6d30437f342a090fc930b460b">ripple_to_out_point</a> ()</td></tr>
 <tr class="separator:a6ac73dc6d30437f342a090fc930b460b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29bfab6b1643de9cbfa61508f086eabb"><td class="memItemLeft" align="right" valign="top"><a id="a29bfab6b1643de9cbfa61508f086eabb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>edit_to_in_point</b> ()</td></tr>
+<tr class="memitem:a29bfab6b1643de9cbfa61508f086eabb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a29bfab6b1643de9cbfa61508f086eabb">edit_to_in_point</a> ()</td></tr>
 <tr class="separator:a29bfab6b1643de9cbfa61508f086eabb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acde9d38b634aeeaa82197aa72ae66d0c"><td class="memItemLeft" align="right" valign="top"><a id="acde9d38b634aeeaa82197aa72ae66d0c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>edit_to_out_point</b> ()</td></tr>
+<tr class="memitem:acde9d38b634aeeaa82197aa72ae66d0c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#acde9d38b634aeeaa82197aa72ae66d0c">edit_to_out_point</a> ()</td></tr>
 <tr class="separator:acde9d38b634aeeaa82197aa72ae66d0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af56d891e61f692dda37edb7cc1745aea"><td class="memItemLeft" align="right" valign="top"><a id="af56d891e61f692dda37edb7cc1745aea"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>increase_track_height</b> ()</td></tr>
-<tr class="separator:af56d891e61f692dda37edb7cc1745aea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79345dea5fe952a0ef0c5e7a3a3f3241"><td class="memItemLeft" align="right" valign="top"><a id="a79345dea5fe952a0ef0c5e7a3a3f3241"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>decrease_track_height</b> ()</td></tr>
-<tr class="separator:a79345dea5fe952a0ef0c5e7a3a3f3241"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6957271bef74259de99ec7f3ed5a890e"><td class="memItemLeft" align="right" valign="top"><a id="a6957271bef74259de99ec7f3ed5a890e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>previous_cut</b> ()</td></tr>
+<tr class="memitem:a79bd245c8e9e508dda6161b158e22d0a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a79bd245c8e9e508dda6161b158e22d0a">IncreaseTrackHeight</a> ()</td></tr>
+<tr class="separator:a79bd245c8e9e508dda6161b158e22d0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13210599ae8a12dabfe27da3751387eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a13210599ae8a12dabfe27da3751387eb">DecreaseTrackHeight</a> ()</td></tr>
+<tr class="separator:a13210599ae8a12dabfe27da3751387eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6957271bef74259de99ec7f3ed5a890e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a6957271bef74259de99ec7f3ed5a890e">previous_cut</a> ()</td></tr>
 <tr class="separator:a6957271bef74259de99ec7f3ed5a890e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6de1a9fd358a2d961641e9484a21e4f"><td class="memItemLeft" align="right" valign="top"><a id="aa6de1a9fd358a2d961641e9484a21e4f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>next_cut</b> ()</td></tr>
+<tr class="memitem:aa6de1a9fd358a2d961641e9484a21e4f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aa6de1a9fd358a2d961641e9484a21e4f">next_cut</a> ()</td></tr>
 <tr class="separator:aa6de1a9fd358a2d961641e9484a21e4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75c07b4a600cc2a436ccfe8ea12b249a"><td class="memItemLeft" align="right" valign="top"><a id="a75c07b4a600cc2a436ccfe8ea12b249a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>add_transition</b> ()</td></tr>
+<tr class="memitem:a75c07b4a600cc2a436ccfe8ea12b249a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a75c07b4a600cc2a436ccfe8ea12b249a">add_transition</a> ()</td></tr>
 <tr class="separator:a75c07b4a600cc2a436ccfe8ea12b249a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ef72ebfaff2d2a2d7cb1ffc8cb956d3"><td class="memItemLeft" align="right" valign="top"><a id="a8ef72ebfaff2d2a2d7cb1ffc8cb956d3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>nest</b> ()</td></tr>
+<tr class="memitem:a8ef72ebfaff2d2a2d7cb1ffc8cb956d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a8ef72ebfaff2d2a2d7cb1ffc8cb956d3">nest</a> ()</td></tr>
 <tr class="separator:a8ef72ebfaff2d2a2d7cb1ffc8cb956d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3dc94dfcf38bb0c62391d6157fb803d1"><td class="memItemLeft" align="right" valign="top"><a id="a3dc94dfcf38bb0c62391d6157fb803d1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>zoom_in</b> ()</td></tr>
+<tr class="memitem:a3dc94dfcf38bb0c62391d6157fb803d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a3dc94dfcf38bb0c62391d6157fb803d1">zoom_in</a> ()</td></tr>
 <tr class="separator:a3dc94dfcf38bb0c62391d6157fb803d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4286a9444e2af2c14ac71c02ff067b97"><td class="memItemLeft" align="right" valign="top"><a id="a4286a9444e2af2c14ac71c02ff067b97"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>zoom_out</b> ()</td></tr>
+<tr class="memitem:a4286a9444e2af2c14ac71c02ff067b97"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a4286a9444e2af2c14ac71c02ff067b97">zoom_out</a> ()</td></tr>
 <tr class="separator:a4286a9444e2af2c14ac71c02ff067b97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a52c06629ecbc4aeecc94120469f7144b"><td class="memItemLeft" align="right" valign="top"><a id="a52c06629ecbc4aeecc94120469f7144b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Timeline</b> (QWidget *parent=nullptr)</td></tr>
+<tr class="memitem:a52c06629ecbc4aeecc94120469f7144b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a52c06629ecbc4aeecc94120469f7144b">Timeline</a> (QWidget *parent=nullptr)</td></tr>
 <tr class="separator:a52c06629ecbc4aeecc94120469f7144b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a705a012f3e56baa610c58732e08de8c4"><td class="memItemLeft" align="right" valign="top"><a id="a705a012f3e56baa610c58732e08de8c4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>focused</b> ()</td></tr>
+<tr class="memitem:a02265431700e1ed876221c68da2ae005"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a02265431700e1ed876221c68da2ae005">~Timeline</a> () override</td></tr>
+<tr class="separator:a02265431700e1ed876221c68da2ae005"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a705a012f3e56baa610c58732e08de8c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a705a012f3e56baa610c58732e08de8c4">focused</a> ()</td></tr>
 <tr class="separator:a705a012f3e56baa610c58732e08de8c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f79958d70e239f1e8910cb37b64f3e2"><td class="memItemLeft" align="right" valign="top"><a id="a6f79958d70e239f1e8910cb37b64f3e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>multiply_zoom</b> (double m)</td></tr>
+<tr class="memitem:a6f79958d70e239f1e8910cb37b64f3e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a6f79958d70e239f1e8910cb37b64f3e2">multiply_zoom</a> (double m)</td></tr>
 <tr class="separator:a6f79958d70e239f1e8910cb37b64f3e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f54973a48568b533caa5e15e8effc3d"><td class="memItemLeft" align="right" valign="top"><a id="a8f54973a48568b533caa5e15e8effc3d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (bool del)</td></tr>
+<tr class="memitem:a8f54973a48568b533caa5e15e8effc3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a8f54973a48568b533caa5e15e8effc3d">copy</a> (bool del)</td></tr>
 <tr class="separator:a8f54973a48568b533caa5e15e8effc3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2732c4b0305841034b4fe320bdd7191b"><td class="memItemLeft" align="right" valign="top"><a id="a2732c4b0305841034b4fe320bdd7191b"></a>
-<a class="el" href="class_clip.html">Clip</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>split_clip</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, bool transitions, int p, long frame)</td></tr>
-<tr class="separator:a2732c4b0305841034b4fe320bdd7191b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38dbda0b3e8bd003951ff85b6818b441"><td class="memItemLeft" align="right" valign="top"><a id="a38dbda0b3e8bd003951ff85b6818b441"></a>
-<a class="el" href="class_clip.html">Clip</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>split_clip</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, bool transitions, int p, long frame, long post_in)</td></tr>
-<tr class="separator:a38dbda0b3e8bd003951ff85b6818b441"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae95a359ddafd02725f90d5eadd32ee94"><td class="memItemLeft" align="right" valign="top"><a id="ae95a359ddafd02725f90d5eadd32ee94"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>split_selection</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca)</td></tr>
+<tr class="memitem:a73220f6b8e173fbfb1a957a007de4698"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a73220f6b8e173fbfb1a957a007de4698">split_clip</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, bool transitions, int p, long frame)</td></tr>
+<tr class="separator:a73220f6b8e173fbfb1a957a007de4698"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e07895282df3c413100b15bb09fb813"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a3e07895282df3c413100b15bb09fb813">split_clip</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, bool transitions, int p, long frame, long post_in)</td></tr>
+<tr class="separator:a3e07895282df3c413100b15bb09fb813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae95a359ddafd02725f90d5eadd32ee94"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ae95a359ddafd02725f90d5eadd32ee94">split_selection</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca)</td></tr>
 <tr class="separator:ae95a359ddafd02725f90d5eadd32ee94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20d8a064e587ff2c9fe6a0e76464b0a4"><td class="memItemLeft" align="right" valign="top"><a id="a20d8a064e587ff2c9fe6a0e76464b0a4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>split_all_clips_at_point</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, long point)</td></tr>
+<tr class="memitem:a20d8a064e587ff2c9fe6a0e76464b0a4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a20d8a064e587ff2c9fe6a0e76464b0a4">split_all_clips_at_point</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, long point)</td></tr>
 <tr class="separator:a20d8a064e587ff2c9fe6a0e76464b0a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6362765b69afe9dd80187124ee2074c"><td class="memItemLeft" align="right" valign="top"><a id="ad6362765b69afe9dd80187124ee2074c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>split_clip_and_relink</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, int clip, long frame, bool relink)</td></tr>
+<tr class="memitem:ad6362765b69afe9dd80187124ee2074c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ad6362765b69afe9dd80187124ee2074c">split_clip_and_relink</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, int clip, long frame, bool relink)</td></tr>
 <tr class="separator:ad6362765b69afe9dd80187124ee2074c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27b879f4e0915d04eeaf9f2311d4e6fe"><td class="memItemLeft" align="right" valign="top"><a id="a27b879f4e0915d04eeaf9f2311d4e6fe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clean_up_selections</b> (QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;areas)</td></tr>
+<tr class="memitem:a27b879f4e0915d04eeaf9f2311d4e6fe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a27b879f4e0915d04eeaf9f2311d4e6fe">clean_up_selections</a> (QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;areas)</td></tr>
 <tr class="separator:a27b879f4e0915d04eeaf9f2311d4e6fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98386e82ef4b7370d854cf6d42a4e2c9"><td class="memItemLeft" align="right" valign="top"><a id="a98386e82ef4b7370d854cf6d42a4e2c9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>deselect_area</b> (long in, long out, int track)</td></tr>
+<tr class="memitem:a98386e82ef4b7370d854cf6d42a4e2c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a98386e82ef4b7370d854cf6d42a4e2c9">deselect_area</a> (long in, long out, int track)</td></tr>
 <tr class="separator:a98386e82ef4b7370d854cf6d42a4e2c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed9dec65c0ea386c661191b90ff85687"><td class="memItemLeft" align="right" valign="top"><a id="aed9dec65c0ea386c661191b90ff85687"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_areas_and_relink</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;areas, bool deselect_areas)</td></tr>
+<tr class="memitem:aed9dec65c0ea386c661191b90ff85687"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aed9dec65c0ea386c661191b90ff85687">delete_areas_and_relink</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;areas, bool deselect_areas)</td></tr>
 <tr class="separator:aed9dec65c0ea386c661191b90ff85687"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa391ba287478a8aa76e52e32d441bf51"><td class="memItemLeft" align="right" valign="top"><a id="aa391ba287478a8aa76e52e32d441bf51"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>relink_clips_using_ids</b> (QVector&lt; int &gt; &amp;old_clips, QVector&lt; <a class="el" href="class_clip.html">Clip</a> * &gt; &amp;new_clips)</td></tr>
-<tr class="separator:aa391ba287478a8aa76e52e32d441bf51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac76affc01e3d26a484afce87692229ab"><td class="memItemLeft" align="right" valign="top"><a id="ac76affc01e3d26a484afce87692229ab"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>update_sequence</b> ()</td></tr>
+<tr class="memitem:a9dda22fa2558deeb51c4b5b94883a54a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a9dda22fa2558deeb51c4b5b94883a54a">relink_clips_using_ids</a> (QVector&lt; int &gt; &amp;old_clips, QVector&lt; <a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> &gt; &amp;new_clips)</td></tr>
+<tr class="separator:a9dda22fa2558deeb51c4b5b94883a54a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac76affc01e3d26a484afce87692229ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ac76affc01e3d26a484afce87692229ab">update_sequence</a> ()</td></tr>
 <tr class="separator:ac76affc01e3d26a484afce87692229ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a246aaf5620b0a33e99e7fa7fbd57981b"><td class="memItemLeft" align="right" valign="top"><a id="a246aaf5620b0a33e99e7fa7fbd57981b"></a>
-QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_tracks_of_linked_clips</b> (int i)</td></tr>
-<tr class="separator:a246aaf5620b0a33e99e7fa7fbd57981b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2c38d037443f358c7093c3efacee1d6"><td class="memItemLeft" align="right" valign="top"><a id="af2c38d037443f358c7093c3efacee1d6"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>has_clip_been_split</b> (int c)</td></tr>
-<tr class="separator:af2c38d037443f358c7093c3efacee1d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c55cec8b0ece590e8b10acb35a264b4"><td class="memItemLeft" align="right" valign="top"><a id="a0c55cec8b0ece590e8b10acb35a264b4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>edit_to_point_internal</b> (bool in, bool ripple)</td></tr>
+<tr class="memitem:a0c55cec8b0ece590e8b10acb35a264b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0c55cec8b0ece590e8b10acb35a264b4">edit_to_point_internal</a> (bool in, bool ripple)</td></tr>
 <tr class="separator:a0c55cec8b0ece590e8b10acb35a264b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0db2f4cafdf8b0290b6b71989fcdf825"><td class="memItemLeft" align="right" valign="top"><a id="a0db2f4cafdf8b0290b6b71989fcdf825"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_in_out_internal</b> (bool ripple)</td></tr>
+<tr class="memitem:a0db2f4cafdf8b0290b6b71989fcdf825"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0db2f4cafdf8b0290b6b71989fcdf825">delete_in_out_internal</a> (bool ripple)</td></tr>
 <tr class="separator:a0db2f4cafdf8b0290b6b71989fcdf825"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae08664e8a924e7b955d6453c7d45b96"><td class="memItemLeft" align="right" valign="top"><a id="aae08664e8a924e7b955d6453c7d45b96"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>create_ghosts_from_media</b> (<a class="el" href="struct_sequence.html">Sequence</a> *seq, long entry_point, QVector&lt; <a class="el" href="class_media.html">Media</a> * &gt; &amp;media_list)</td></tr>
-<tr class="separator:aae08664e8a924e7b955d6453c7d45b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae349f80dbd5a95b810b043c42616a359"><td class="memItemLeft" align="right" valign="top"><a id="ae349f80dbd5a95b810b043c42616a359"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>add_clips_from_ghosts</b> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, <a class="el" href="struct_sequence.html">Sequence</a> *s)</td></tr>
-<tr class="separator:ae349f80dbd5a95b810b043c42616a359"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc20960f8e5daf9ff5c9e35bbbce70db"><td class="memItemLeft" align="right" valign="top"><a id="abc20960f8e5daf9ff5c9e35bbbce70db"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getTimelineScreenPointFromFrame</b> (long frame)</td></tr>
+<tr class="memitem:adf0909bb3a7f1909a792e7bb1521bd3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#adf0909bb3a7f1909a792e7bb1521bd3e">create_ghosts_from_media</a> (<a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a> seq, long entry_point, QVector&lt; <a class="el" href="class_media.html">Media</a> * &gt; &amp;media_list)</td></tr>
+<tr class="separator:adf0909bb3a7f1909a792e7bb1521bd3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45c72c51a0dfb5bba5ec22b855d6ca17"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a45c72c51a0dfb5bba5ec22b855d6ca17">add_clips_from_ghosts</a> (<a class="el" href="class_combo_action.html">ComboAction</a> *ca, <a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a> s)</td></tr>
+<tr class="separator:a45c72c51a0dfb5bba5ec22b855d6ca17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc20960f8e5daf9ff5c9e35bbbce70db"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#abc20960f8e5daf9ff5c9e35bbbce70db">getTimelineScreenPointFromFrame</a> (long frame)</td></tr>
 <tr class="separator:abc20960f8e5daf9ff5c9e35bbbce70db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c3a95618e89ad83170f0a09c59e9e6b"><td class="memItemLeft" align="right" valign="top"><a id="a4c3a95618e89ad83170f0a09c59e9e6b"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>getTimelineFrameFromScreenPoint</b> (int x)</td></tr>
+<tr class="memitem:a4c3a95618e89ad83170f0a09c59e9e6b"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a4c3a95618e89ad83170f0a09c59e9e6b">getTimelineFrameFromScreenPoint</a> (int x)</td></tr>
 <tr class="separator:a4c3a95618e89ad83170f0a09c59e9e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65a6e04ecaef74ea5fe37a5ca866b7e7"><td class="memItemLeft" align="right" valign="top"><a id="a65a6e04ecaef74ea5fe37a5ca866b7e7"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getDisplayScreenPointFromFrame</b> (long frame)</td></tr>
+<tr class="memitem:a65a6e04ecaef74ea5fe37a5ca866b7e7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a65a6e04ecaef74ea5fe37a5ca866b7e7">getDisplayScreenPointFromFrame</a> (long frame)</td></tr>
 <tr class="separator:a65a6e04ecaef74ea5fe37a5ca866b7e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0941a196b60d5ff710d41767003a3981"><td class="memItemLeft" align="right" valign="top"><a id="a0941a196b60d5ff710d41767003a3981"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>getDisplayFrameFromScreenPoint</b> (int x)</td></tr>
+<tr class="memitem:a0941a196b60d5ff710d41767003a3981"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0941a196b60d5ff710d41767003a3981">getDisplayFrameFromScreenPoint</a> (int x)</td></tr>
 <tr class="separator:a0941a196b60d5ff710d41767003a3981"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba8c20bd49982f3f0c68ce460da38e94"><td class="memItemLeft" align="right" valign="top"><a id="aba8c20bd49982f3f0c68ce460da38e94"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>get_snap_range</b> ()</td></tr>
+<tr class="memitem:aba8c20bd49982f3f0c68ce460da38e94"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aba8c20bd49982f3f0c68ce460da38e94">get_snap_range</a> ()</td></tr>
 <tr class="separator:aba8c20bd49982f3f0c68ce460da38e94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb930fc8648119d747f56ab86874731f"><td class="memItemLeft" align="right" valign="top"><a id="afb930fc8648119d747f56ab86874731f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>snap_to_point</b> (long point, long *l)</td></tr>
+<tr class="memitem:afb930fc8648119d747f56ab86874731f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#afb930fc8648119d747f56ab86874731f">snap_to_point</a> (long point, long *l)</td></tr>
 <tr class="separator:afb930fc8648119d747f56ab86874731f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc358e2916180252996726c0c103bf32"><td class="memItemLeft" align="right" valign="top"><a id="afc358e2916180252996726c0c103bf32"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>snap_to_timeline</b> (long *l, bool use_playhead, bool use_markers, bool use_workarea)</td></tr>
+<tr class="memitem:afc358e2916180252996726c0c103bf32"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#afc358e2916180252996726c0c103bf32">snap_to_timeline</a> (long *l, bool use_playhead, bool use_markers, bool use_workarea)</td></tr>
 <tr class="separator:afc358e2916180252996726c0c103bf32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6643fb435ab7d4b958fe055fcc5a5dfd"><td class="memItemLeft" align="right" valign="top"><a id="a6643fb435ab7d4b958fe055fcc5a5dfd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_marker</b> ()</td></tr>
+<tr class="memitem:a6643fb435ab7d4b958fe055fcc5a5dfd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a6643fb435ab7d4b958fe055fcc5a5dfd">set_marker</a> ()</td></tr>
 <tr class="separator:a6643fb435ab7d4b958fe055fcc5a5dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c8507378d8f0f23ac3a9eeda1a1d84c"><td class="memItemLeft" align="right" valign="top"><a id="a4c8507378d8f0f23ac3a9eeda1a1d84c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>update_effect_controls</b> ()</td></tr>
+<tr class="memitem:a4c8507378d8f0f23ac3a9eeda1a1d84c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a4c8507378d8f0f23ac3a9eeda1a1d84c">update_effect_controls</a> ()</td></tr>
 <tr class="separator:a4c8507378d8f0f23ac3a9eeda1a1d84c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13ecb45ef8dff86e4b4967e54727cd40"><td class="memItemLeft" align="right" valign="top"><a id="a13ecb45ef8dff86e4b4967e54727cd40"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>get_track_height_size</b> (bool video)</td></tr>
-<tr class="separator:a13ecb45ef8dff86e4b4967e54727cd40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afdec15a137632d7f723af8deb052a5ea"><td class="memItemLeft" align="right" valign="top"><a id="afdec15a137632d7f723af8deb052a5ea"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>calculate_track_height</b> (int track, int height)</td></tr>
-<tr class="separator:afdec15a137632d7f723af8deb052a5ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24721c0863116ca4e062e1449542775a"><td class="memItemLeft" align="right" valign="top"><a id="a24721c0863116ca4e062e1449542775a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_selection</b> (QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;selections, bool ripple)</td></tr>
+<tr class="memitem:a3324c971f0f4a1e585f00517b7f13eb4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a3324c971f0f4a1e585f00517b7f13eb4">GetTrackHeight</a> (int track)</td></tr>
+<tr class="separator:a3324c971f0f4a1e585f00517b7f13eb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adba34f5c274d7794d1fe9daf7b7386f3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#adba34f5c274d7794d1fe9daf7b7386f3">SetTrackHeight</a> (int track, int height)</td></tr>
+<tr class="separator:adba34f5c274d7794d1fe9daf7b7386f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24721c0863116ca4e062e1449542775a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a24721c0863116ca4e062e1449542775a">delete_selection</a> (QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;selections, bool ripple)</td></tr>
 <tr class="separator:a24721c0863116ca4e062e1449542775a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba9815734309a5ea108ea3263536fc32"><td class="memItemLeft" align="right" valign="top"><a id="aba9815734309a5ea108ea3263536fc32"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>select_all</b> ()</td></tr>
+<tr class="memitem:aba9815734309a5ea108ea3263536fc32"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aba9815734309a5ea108ea3263536fc32">select_all</a> ()</td></tr>
 <tr class="separator:aba9815734309a5ea108ea3263536fc32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d39ab87fb04ac91410c0a0565c97046"><td class="memItemLeft" align="right" valign="top"><a id="a1d39ab87fb04ac91410c0a0565c97046"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>scroll_to_frame</b> (long frame)</td></tr>
+<tr class="memitem:a1d39ab87fb04ac91410c0a0565c97046"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a1d39ab87fb04ac91410c0a0565c97046">scroll_to_frame</a> (long frame)</td></tr>
 <tr class="separator:a1d39ab87fb04ac91410c0a0565c97046"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5451b044adf5f2c919e46848e797baaf"><td class="memItemLeft" align="right" valign="top"><a id="a5451b044adf5f2c919e46848e797baaf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>select_from_playhead</b> ()</td></tr>
+<tr class="memitem:a5451b044adf5f2c919e46848e797baaf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a5451b044adf5f2c919e46848e797baaf">select_from_playhead</a> ()</td></tr>
 <tr class="separator:a5451b044adf5f2c919e46848e797baaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1be8a3b81178a4535baf6ae241bf926b"><td class="memItemLeft" align="right" valign="top"><a id="a1be8a3b81178a4535baf6ae241bf926b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>can_ripple_empty_space</b> (long frame, int track)</td></tr>
+<tr class="memitem:a1be8a3b81178a4535baf6ae241bf926b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a1be8a3b81178a4535baf6ae241bf926b">can_ripple_empty_space</a> (long frame, int track)</td></tr>
 <tr class="separator:a1be8a3b81178a4535baf6ae241bf926b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e9b158de12be6b8875e0f6b9af3d235"><td class="memItemLeft" align="right" valign="top"><a id="a4e9b158de12be6b8875e0f6b9af3d235"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resizeEvent</b> (QResizeEvent *event)</td></tr>
-<tr class="separator:a4e9b158de12be6b8875e0f6b9af3d235"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_panel"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_panel')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_panel.html">Panel</a></td></tr>
+<tr class="memitem:a40f24f4c425c7c02a67381f54c038375 inherit pub_methods_class_panel"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_panel.html#a40f24f4c425c7c02a67381f54c038375">Panel</a> (QWidget *parent=nullptr)</td></tr>
+<tr class="separator:a40f24f4c425c7c02a67381f54c038375 inherit pub_methods_class_panel"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b8a5a275be1cb26e0ef8668cef662f6 inherit pub_methods_class_panel"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_panel.html#a4b8a5a275be1cb26e0ef8668cef662f6">event</a> (QEvent *e) override</td></tr>
+<tr class="separator:a4b8a5a275be1cb26e0ef8668cef662f6 inherit pub_methods_class_panel"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a5bcd297b6b4cfc08fe4999e2daf745a3"><td class="memItemLeft" align="right" valign="top"><a id="a5bcd297b6b4cfc08fe4999e2daf745a3"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>tool</b></td></tr>
+<tr class="memitem:a5bcd297b6b4cfc08fe4999e2daf745a3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a5bcd297b6b4cfc08fe4999e2daf745a3">tool</a></td></tr>
 <tr class="separator:a5bcd297b6b4cfc08fe4999e2daf745a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40c124875f6fc15d84a37776e586f359"><td class="memItemLeft" align="right" valign="top"><a id="a40c124875f6fc15d84a37776e586f359"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>cursor_frame</b></td></tr>
+<tr class="memitem:a40c124875f6fc15d84a37776e586f359"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a40c124875f6fc15d84a37776e586f359">cursor_frame</a></td></tr>
 <tr class="separator:a40c124875f6fc15d84a37776e586f359"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e30132d34c1563c8a07c7fb3949f353"><td class="memItemLeft" align="right" valign="top"><a id="a2e30132d34c1563c8a07c7fb3949f353"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>cursor_track</b></td></tr>
+<tr class="memitem:a2e30132d34c1563c8a07c7fb3949f353"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a2e30132d34c1563c8a07c7fb3949f353">cursor_track</a></td></tr>
 <tr class="separator:a2e30132d34c1563c8a07c7fb3949f353"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac3b8b136fa0c42f3a781aa973077a921"><td class="memItemLeft" align="right" valign="top"><a id="ac3b8b136fa0c42f3a781aa973077a921"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>zoom</b></td></tr>
+<tr class="memitem:ac3b8b136fa0c42f3a781aa973077a921"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ac3b8b136fa0c42f3a781aa973077a921">zoom</a></td></tr>
 <tr class="separator:ac3b8b136fa0c42f3a781aa973077a921"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0da4feeb231f86e23c4e3311f8a56fc"><td class="memItemLeft" align="right" valign="top"><a id="ab0da4feeb231f86e23c4e3311f8a56fc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>zoom_just_changed</b></td></tr>
+<tr class="memitem:ab0da4feeb231f86e23c4e3311f8a56fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ab0da4feeb231f86e23c4e3311f8a56fc">zoom_just_changed</a></td></tr>
 <tr class="separator:ab0da4feeb231f86e23c4e3311f8a56fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ab4f0a32449b84a413fe1ac61d68d1d"><td class="memItemLeft" align="right" valign="top"><a id="a4ab4f0a32449b84a413fe1ac61d68d1d"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>drag_frame_start</b></td></tr>
+<tr class="memitem:a4ab4f0a32449b84a413fe1ac61d68d1d"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a4ab4f0a32449b84a413fe1ac61d68d1d">drag_frame_start</a></td></tr>
 <tr class="separator:a4ab4f0a32449b84a413fe1ac61d68d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0bba8ad9abcd7540697171dba273eb43"><td class="memItemLeft" align="right" valign="top"><a id="a0bba8ad9abcd7540697171dba273eb43"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>drag_track_start</b></td></tr>
+<tr class="memitem:a0bba8ad9abcd7540697171dba273eb43"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0bba8ad9abcd7540697171dba273eb43">drag_track_start</a></td></tr>
 <tr class="separator:a0bba8ad9abcd7540697171dba273eb43"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e68f624863c1fecb9e4348abf7fac8e"><td class="memItemLeft" align="right" valign="top"><a id="a0e68f624863c1fecb9e4348abf7fac8e"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>showing_all</b></td></tr>
+<tr class="memitem:a0e68f624863c1fecb9e4348abf7fac8e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0e68f624863c1fecb9e4348abf7fac8e">showing_all</a></td></tr>
 <tr class="separator:a0e68f624863c1fecb9e4348abf7fac8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51f95ea0689ee7cd4d15e618be91145a"><td class="memItemLeft" align="right" valign="top"><a id="a51f95ea0689ee7cd4d15e618be91145a"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>old_zoom</b></td></tr>
+<tr class="memitem:a51f95ea0689ee7cd4d15e618be91145a"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a51f95ea0689ee7cd4d15e618be91145a">old_zoom</a></td></tr>
 <tr class="separator:a51f95ea0689ee7cd4d15e618be91145a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a999fc7657d295c0ef49473c0266bad"><td class="memItemLeft" align="right" valign="top"><a id="a9a999fc7657d295c0ef49473c0266bad"></a>
-QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>video_track_heights</b></td></tr>
-<tr class="separator:a9a999fc7657d295c0ef49473c0266bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0871dd04fa6ed08b454dced2aef41fd7"><td class="memItemLeft" align="right" valign="top"><a id="a0871dd04fa6ed08b454dced2aef41fd7"></a>
-QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>audio_track_heights</b></td></tr>
-<tr class="separator:a0871dd04fa6ed08b454dced2aef41fd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a6c7e2b4ee7829c2707b844a0e2aa08"><td class="memItemLeft" align="right" valign="top"><a id="a1a6c7e2b4ee7829c2707b844a0e2aa08"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>snapping</b></td></tr>
+<tr class="memitem:a1a6c7e2b4ee7829c2707b844a0e2aa08"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a1a6c7e2b4ee7829c2707b844a0e2aa08">snapping</a></td></tr>
 <tr class="separator:a1a6c7e2b4ee7829c2707b844a0e2aa08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab999a31e89f51e359ec7b57ade792d88"><td class="memItemLeft" align="right" valign="top"><a id="ab999a31e89f51e359ec7b57ade792d88"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>snapped</b></td></tr>
+<tr class="memitem:ab999a31e89f51e359ec7b57ade792d88"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ab999a31e89f51e359ec7b57ade792d88">snapped</a></td></tr>
 <tr class="separator:ab999a31e89f51e359ec7b57ade792d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad927d85e616749d642f9dad63d782637"><td class="memItemLeft" align="right" valign="top"><a id="ad927d85e616749d642f9dad63d782637"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>snap_point</b></td></tr>
+<tr class="memitem:ad927d85e616749d642f9dad63d782637"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ad927d85e616749d642f9dad63d782637">snap_point</a></td></tr>
 <tr class="separator:ad927d85e616749d642f9dad63d782637"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02974e0e12b6246454a75bc2f4c6c2e3"><td class="memItemLeft" align="right" valign="top"><a id="a02974e0e12b6246454a75bc2f4c6c2e3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>selecting</b></td></tr>
+<tr class="memitem:a02974e0e12b6246454a75bc2f4c6c2e3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a02974e0e12b6246454a75bc2f4c6c2e3">selecting</a></td></tr>
 <tr class="separator:a02974e0e12b6246454a75bc2f4c6c2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a845c5da10b038613db097a41841a1553"><td class="memItemLeft" align="right" valign="top"><a id="a845c5da10b038613db097a41841a1553"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>selection_offset</b></td></tr>
+<tr class="memitem:a845c5da10b038613db097a41841a1553"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a845c5da10b038613db097a41841a1553">selection_offset</a></td></tr>
 <tr class="separator:a845c5da10b038613db097a41841a1553"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a009b82529555f521690de66d6d32689a"><td class="memItemLeft" align="right" valign="top"><a id="a009b82529555f521690de66d6d32689a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>rect_select_init</b></td></tr>
+<tr class="memitem:a009b82529555f521690de66d6d32689a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a009b82529555f521690de66d6d32689a">rect_select_init</a></td></tr>
 <tr class="separator:a009b82529555f521690de66d6d32689a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ac7211e336311314a53f5a642447234"><td class="memItemLeft" align="right" valign="top"><a id="a1ac7211e336311314a53f5a642447234"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>rect_select_proc</b></td></tr>
+<tr class="memitem:a1ac7211e336311314a53f5a642447234"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a1ac7211e336311314a53f5a642447234">rect_select_proc</a></td></tr>
 <tr class="separator:a1ac7211e336311314a53f5a642447234"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3058b5608e7e86fbdf53b098980a0ce"><td class="memItemLeft" align="right" valign="top"><a id="ad3058b5608e7e86fbdf53b098980a0ce"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>rect_select_x</b></td></tr>
-<tr class="separator:ad3058b5608e7e86fbdf53b098980a0ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a356a3188d5a454d4ae875359acd7cef9"><td class="memItemLeft" align="right" valign="top"><a id="a356a3188d5a454d4ae875359acd7cef9"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>rect_select_y</b></td></tr>
-<tr class="separator:a356a3188d5a454d4ae875359acd7cef9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae01c3aa485c1e2991fb4bed6914650b4"><td class="memItemLeft" align="right" valign="top"><a id="ae01c3aa485c1e2991fb4bed6914650b4"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>rect_select_w</b></td></tr>
-<tr class="separator:ae01c3aa485c1e2991fb4bed6914650b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e59048f24a01f672d758eb77c00d0da"><td class="memItemLeft" align="right" valign="top"><a id="a6e59048f24a01f672d758eb77c00d0da"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>rect_select_h</b></td></tr>
-<tr class="separator:a6e59048f24a01f672d758eb77c00d0da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6e5a2b1d0f22833e913240e4e2517f7"><td class="memItemLeft" align="right" valign="top"><a id="ae6e5a2b1d0f22833e913240e4e2517f7"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>moving_init</b></td></tr>
+<tr class="memitem:adb549777afc5eeaffef499afc9bd66f4"><td class="memItemLeft" align="right" valign="top">QRect&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#adb549777afc5eeaffef499afc9bd66f4">rect_select_rect</a></td></tr>
+<tr class="separator:adb549777afc5eeaffef499afc9bd66f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6e5a2b1d0f22833e913240e4e2517f7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ae6e5a2b1d0f22833e913240e4e2517f7">moving_init</a></td></tr>
 <tr class="separator:ae6e5a2b1d0f22833e913240e4e2517f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba3c6d4f7ce850a66ac548699939e4f9"><td class="memItemLeft" align="right" valign="top"><a id="aba3c6d4f7ce850a66ac548699939e4f9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>moving_proc</b></td></tr>
+<tr class="memitem:aba3c6d4f7ce850a66ac548699939e4f9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aba3c6d4f7ce850a66ac548699939e4f9">moving_proc</a></td></tr>
 <tr class="separator:aba3c6d4f7ce850a66ac548699939e4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8385381e9aded5cc35eccbefad26c264"><td class="memItemLeft" align="right" valign="top"><a id="a8385381e9aded5cc35eccbefad26c264"></a>
-QVector&lt; <a class="el" href="struct_ghost.html">Ghost</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ghosts</b></td></tr>
+<tr class="memitem:a8385381e9aded5cc35eccbefad26c264"><td class="memItemLeft" align="right" valign="top">QVector&lt; <a class="el" href="struct_ghost.html">Ghost</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a8385381e9aded5cc35eccbefad26c264">ghosts</a></td></tr>
 <tr class="separator:a8385381e9aded5cc35eccbefad26c264"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad889a2d6eb633374326be645277cf9ea"><td class="memItemLeft" align="right" valign="top"><a id="ad889a2d6eb633374326be645277cf9ea"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>video_ghosts</b></td></tr>
+<tr class="memitem:ad889a2d6eb633374326be645277cf9ea"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ad889a2d6eb633374326be645277cf9ea">video_ghosts</a></td></tr>
 <tr class="separator:ad889a2d6eb633374326be645277cf9ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6043d57e301be5e5e6a77d1e65098e6"><td class="memItemLeft" align="right" valign="top"><a id="af6043d57e301be5e5e6a77d1e65098e6"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>audio_ghosts</b></td></tr>
+<tr class="memitem:af6043d57e301be5e5e6a77d1e65098e6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#af6043d57e301be5e5e6a77d1e65098e6">audio_ghosts</a></td></tr>
 <tr class="separator:af6043d57e301be5e5e6a77d1e65098e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa31225e9f4b2fa11323b5d68f136d05e"><td class="memItemLeft" align="right" valign="top"><a id="aa31225e9f4b2fa11323b5d68f136d05e"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>move_insert</b></td></tr>
+<tr class="memitem:aa31225e9f4b2fa11323b5d68f136d05e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aa31225e9f4b2fa11323b5d68f136d05e">move_insert</a></td></tr>
 <tr class="separator:aa31225e9f4b2fa11323b5d68f136d05e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abefa5bda6a497bb3d5131a3d283bc7fc"><td class="memItemLeft" align="right" valign="top"><a id="abefa5bda6a497bb3d5131a3d283bc7fc"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>trim_target</b></td></tr>
+<tr class="memitem:abefa5bda6a497bb3d5131a3d283bc7fc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#abefa5bda6a497bb3d5131a3d283bc7fc">trim_target</a></td></tr>
 <tr class="separator:abefa5bda6a497bb3d5131a3d283bc7fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a13b1c63500ea67089a8b73cc73b173"><td class="memItemLeft" align="right" valign="top"><a id="a3a13b1c63500ea67089a8b73cc73b173"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>trim_in_point</b></td></tr>
-<tr class="separator:a3a13b1c63500ea67089a8b73cc73b173"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5518b21518367ffecc3a148e68edd300"><td class="memItemLeft" align="right" valign="top"><a id="a5518b21518367ffecc3a148e68edd300"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>transition_select</b></td></tr>
+<tr class="memitem:a0df4abb3e1cccdd409964cee26b7b604"><td class="memItemLeft" align="right" valign="top"><a class="el" href="timeline_8h.html#a3b8761f40035433d3f9bdec33a076b30">TrimType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0df4abb3e1cccdd409964cee26b7b604">trim_type</a></td></tr>
+<tr class="separator:a0df4abb3e1cccdd409964cee26b7b604"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5518b21518367ffecc3a148e68edd300"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a5518b21518367ffecc3a148e68edd300">transition_select</a></td></tr>
 <tr class="separator:a5518b21518367ffecc3a148e68edd300"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a429e16260f5dc7822ef4ef575b0333b4"><td class="memItemLeft" align="right" valign="top"><a id="a429e16260f5dc7822ef4ef575b0333b4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>splitting</b></td></tr>
+<tr class="memitem:a429e16260f5dc7822ef4ef575b0333b4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a429e16260f5dc7822ef4ef575b0333b4">splitting</a></td></tr>
 <tr class="separator:a429e16260f5dc7822ef4ef575b0333b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d2ecb3699190da79c8c2b8428ea44d4"><td class="memItemLeft" align="right" valign="top"><a id="a4d2ecb3699190da79c8c2b8428ea44d4"></a>
-QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>split_tracks</b></td></tr>
+<tr class="memitem:a4d2ecb3699190da79c8c2b8428ea44d4"><td class="memItemLeft" align="right" valign="top">QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a4d2ecb3699190da79c8c2b8428ea44d4">split_tracks</a></td></tr>
 <tr class="separator:a4d2ecb3699190da79c8c2b8428ea44d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad920d274cf7d20dca40579a3b03421a0"><td class="memItemLeft" align="right" valign="top"><a id="ad920d274cf7d20dca40579a3b03421a0"></a>
-QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>split_cache</b></td></tr>
+<tr class="memitem:ad920d274cf7d20dca40579a3b03421a0"><td class="memItemLeft" align="right" valign="top">QVector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ad920d274cf7d20dca40579a3b03421a0">split_cache</a></td></tr>
 <tr class="separator:ad920d274cf7d20dca40579a3b03421a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9710142e063bc614fff1fd4bacbd20e5"><td class="memItemLeft" align="right" valign="top"><a id="a9710142e063bc614fff1fd4bacbd20e5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>importing</b></td></tr>
+<tr class="memitem:a9710142e063bc614fff1fd4bacbd20e5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a9710142e063bc614fff1fd4bacbd20e5">importing</a></td></tr>
 <tr class="separator:a9710142e063bc614fff1fd4bacbd20e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04afd33fc672a07a6b0ddd7c66d71237"><td class="memItemLeft" align="right" valign="top"><a id="a04afd33fc672a07a6b0ddd7c66d71237"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>importing_files</b></td></tr>
+<tr class="memitem:a04afd33fc672a07a6b0ddd7c66d71237"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a04afd33fc672a07a6b0ddd7c66d71237">importing_files</a></td></tr>
 <tr class="separator:a04afd33fc672a07a6b0ddd7c66d71237"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54322f55256409408b2dcbde40ab4cc9"><td class="memItemLeft" align="right" valign="top"><a id="a54322f55256409408b2dcbde40ab4cc9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>creating</b></td></tr>
+<tr class="memitem:a54322f55256409408b2dcbde40ab4cc9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a54322f55256409408b2dcbde40ab4cc9">creating</a></td></tr>
 <tr class="separator:a54322f55256409408b2dcbde40ab4cc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abac137a4612743e71d4bd341c418dca1"><td class="memItemLeft" align="right" valign="top"><a id="abac137a4612743e71d4bd341c418dca1"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>creating_object</b></td></tr>
+<tr class="memitem:abac137a4612743e71d4bd341c418dca1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#abac137a4612743e71d4bd341c418dca1">creating_object</a></td></tr>
 <tr class="separator:abac137a4612743e71d4bd341c418dca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a103220316fa35b8ebc01f73d7ac20e11"><td class="memItemLeft" align="right" valign="top"><a id="a103220316fa35b8ebc01f73d7ac20e11"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_init</b></td></tr>
+<tr class="memitem:a103220316fa35b8ebc01f73d7ac20e11"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a103220316fa35b8ebc01f73d7ac20e11">transition_tool_init</a></td></tr>
 <tr class="separator:a103220316fa35b8ebc01f73d7ac20e11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61edf25604d0d4608b75d472c81dc088"><td class="memItemLeft" align="right" valign="top"><a id="a61edf25604d0d4608b75d472c81dc088"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_proc</b></td></tr>
+<tr class="memitem:a61edf25604d0d4608b75d472c81dc088"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a61edf25604d0d4608b75d472c81dc088">transition_tool_proc</a></td></tr>
 <tr class="separator:a61edf25604d0d4608b75d472c81dc088"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad98f2969f2ea9cd5e7e04a1cb4e32b4c"><td class="memItemLeft" align="right" valign="top"><a id="ad98f2969f2ea9cd5e7e04a1cb4e32b4c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_pre_clip</b></td></tr>
-<tr class="separator:ad98f2969f2ea9cd5e7e04a1cb4e32b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65e9417146fb34ece8f7b0cd9bef11d5"><td class="memItemLeft" align="right" valign="top"><a id="a65e9417146fb34ece8f7b0cd9bef11d5"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_post_clip</b></td></tr>
-<tr class="separator:a65e9417146fb34ece8f7b0cd9bef11d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a352ff4f1abd150f6deabaff12180ce8b"><td class="memItemLeft" align="right" valign="top"><a id="a352ff4f1abd150f6deabaff12180ce8b"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_type</b></td></tr>
-<tr class="separator:a352ff4f1abd150f6deabaff12180ce8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7e1de8cae0dc6ad5a1cfa40bc57fdcc"><td class="memItemLeft" align="right" valign="top"><a id="ab7e1de8cae0dc6ad5a1cfa40bc57fdcc"></a>
-const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_meta</b></td></tr>
+<tr class="memitem:a23d0cc61d346fcb83c98f4ae3551fb2c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a23d0cc61d346fcb83c98f4ae3551fb2c">transition_tool_open_clip</a></td></tr>
+<tr class="separator:a23d0cc61d346fcb83c98f4ae3551fb2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad13a23d26f96d294c9da68c80da5ea45"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ad13a23d26f96d294c9da68c80da5ea45">transition_tool_close_clip</a></td></tr>
+<tr class="separator:ad13a23d26f96d294c9da68c80da5ea45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7e1de8cae0dc6ad5a1cfa40bc57fdcc"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="struct_effect_meta.html">EffectMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ab7e1de8cae0dc6ad5a1cfa40bc57fdcc">transition_tool_meta</a></td></tr>
 <tr class="separator:ab7e1de8cae0dc6ad5a1cfa40bc57fdcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2270318042895e56c1935cd85059859a"><td class="memItemLeft" align="right" valign="top"><a id="a2270318042895e56c1935cd85059859a"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_side</b></td></tr>
+<tr class="memitem:a2270318042895e56c1935cd85059859a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a2270318042895e56c1935cd85059859a">transition_tool_side</a></td></tr>
 <tr class="separator:a2270318042895e56c1935cd85059859a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48e210028ee53fcda04f98d18f8cbac4"><td class="memItemLeft" align="right" valign="top"><a id="a48e210028ee53fcda04f98d18f8cbac4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>hand_moving</b></td></tr>
+<tr class="memitem:a48e210028ee53fcda04f98d18f8cbac4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a48e210028ee53fcda04f98d18f8cbac4">hand_moving</a></td></tr>
 <tr class="separator:a48e210028ee53fcda04f98d18f8cbac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38bc7069d397fad59f5a8104c3894f00"><td class="memItemLeft" align="right" valign="top"><a id="a38bc7069d397fad59f5a8104c3894f00"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>drag_x_start</b></td></tr>
+<tr class="memitem:a38bc7069d397fad59f5a8104c3894f00"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a38bc7069d397fad59f5a8104c3894f00">drag_x_start</a></td></tr>
 <tr class="separator:a38bc7069d397fad59f5a8104c3894f00"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f837c1a515c43be61605e3f48ecafbc"><td class="memItemLeft" align="right" valign="top"><a id="a6f837c1a515c43be61605e3f48ecafbc"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>drag_y_start</b></td></tr>
+<tr class="memitem:a6f837c1a515c43be61605e3f48ecafbc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a6f837c1a515c43be61605e3f48ecafbc">drag_y_start</a></td></tr>
 <tr class="separator:a6f837c1a515c43be61605e3f48ecafbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf20c17baf8dfe869ef6e56a65f837f7"><td class="memItemLeft" align="right" valign="top"><a id="adf20c17baf8dfe869ef6e56a65f837f7"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>block_repaints</b></td></tr>
+<tr class="memitem:adf20c17baf8dfe869ef6e56a65f837f7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#adf20c17baf8dfe869ef6e56a65f837f7">block_repaints</a></td></tr>
 <tr class="separator:adf20c17baf8dfe869ef6e56a65f837f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9b0f794319dd470d69ce7480dd9fc58"><td class="memItemLeft" align="right" valign="top"><a id="ae9b0f794319dd470d69ce7480dd9fc58"></a>
-<a class="el" href="class_timeline_header.html">TimelineHeader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>headers</b></td></tr>
+<tr class="memitem:ae9b0f794319dd470d69ce7480dd9fc58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_timeline_header.html">TimelineHeader</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ae9b0f794319dd470d69ce7480dd9fc58">headers</a></td></tr>
 <tr class="separator:ae9b0f794319dd470d69ce7480dd9fc58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a77213763d845427fa8e71b75a7d213bc"><td class="memItemLeft" align="right" valign="top"><a id="a77213763d845427fa8e71b75a7d213bc"></a>
-<a class="el" href="class_audio_monitor.html">AudioMonitor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>audio_monitor</b></td></tr>
+<tr class="memitem:a77213763d845427fa8e71b75a7d213bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_audio_monitor.html">AudioMonitor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a77213763d845427fa8e71b75a7d213bc">audio_monitor</a></td></tr>
 <tr class="separator:a77213763d845427fa8e71b75a7d213bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90ab0a63353a2dfa8de4a02d48bffd5c"><td class="memItemLeft" align="right" valign="top"><a id="a90ab0a63353a2dfa8de4a02d48bffd5c"></a>
-<a class="el" href="class_resizable_scroll_bar.html">ResizableScrollBar</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>horizontalScrollBar</b></td></tr>
+<tr class="memitem:a90ab0a63353a2dfa8de4a02d48bffd5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_resizable_scroll_bar.html">ResizableScrollBar</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a90ab0a63353a2dfa8de4a02d48bffd5c">horizontalScrollBar</a></td></tr>
 <tr class="separator:a90ab0a63353a2dfa8de4a02d48bffd5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a2de91fb39240de7f4f7fc68c48ab95"><td class="memItemLeft" align="right" valign="top"><a id="a0a2de91fb39240de7f4f7fc68c48ab95"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolArrowButton</b></td></tr>
+<tr class="memitem:a0a2de91fb39240de7f4f7fc68c48ab95"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0a2de91fb39240de7f4f7fc68c48ab95">toolArrowButton</a></td></tr>
 <tr class="separator:a0a2de91fb39240de7f4f7fc68c48ab95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57570e3128f55a443251c1c8a5de98d0"><td class="memItemLeft" align="right" valign="top"><a id="a57570e3128f55a443251c1c8a5de98d0"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolEditButton</b></td></tr>
+<tr class="memitem:a57570e3128f55a443251c1c8a5de98d0"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a57570e3128f55a443251c1c8a5de98d0">toolEditButton</a></td></tr>
 <tr class="separator:a57570e3128f55a443251c1c8a5de98d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac72386eabe65830a5a4541849c521c71"><td class="memItemLeft" align="right" valign="top"><a id="ac72386eabe65830a5a4541849c521c71"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolRippleButton</b></td></tr>
+<tr class="memitem:ac72386eabe65830a5a4541849c521c71"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ac72386eabe65830a5a4541849c521c71">toolRippleButton</a></td></tr>
 <tr class="separator:ac72386eabe65830a5a4541849c521c71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47b98aa4949745d8d75e6fd4507b1911"><td class="memItemLeft" align="right" valign="top"><a id="a47b98aa4949745d8d75e6fd4507b1911"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolRazorButton</b></td></tr>
+<tr class="memitem:a47b98aa4949745d8d75e6fd4507b1911"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a47b98aa4949745d8d75e6fd4507b1911">toolRazorButton</a></td></tr>
 <tr class="separator:a47b98aa4949745d8d75e6fd4507b1911"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ee296eefbe3a97d60d8f8a8a6d3d55d"><td class="memItemLeft" align="right" valign="top"><a id="a3ee296eefbe3a97d60d8f8a8a6d3d55d"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolSlipButton</b></td></tr>
+<tr class="memitem:a3ee296eefbe3a97d60d8f8a8a6d3d55d"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a3ee296eefbe3a97d60d8f8a8a6d3d55d">toolSlipButton</a></td></tr>
 <tr class="separator:a3ee296eefbe3a97d60d8f8a8a6d3d55d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaac686ac73cc953d833c59aed15767c3"><td class="memItemLeft" align="right" valign="top"><a id="aaac686ac73cc953d833c59aed15767c3"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolSlideButton</b></td></tr>
+<tr class="memitem:aaac686ac73cc953d833c59aed15767c3"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aaac686ac73cc953d833c59aed15767c3">toolSlideButton</a></td></tr>
 <tr class="separator:aaac686ac73cc953d833c59aed15767c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3b28a3c9f242ae5f5669647cbd0984e"><td class="memItemLeft" align="right" valign="top"><a id="ab3b28a3c9f242ae5f5669647cbd0984e"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolHandButton</b></td></tr>
+<tr class="memitem:ab3b28a3c9f242ae5f5669647cbd0984e"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ab3b28a3c9f242ae5f5669647cbd0984e">toolHandButton</a></td></tr>
 <tr class="separator:ab3b28a3c9f242ae5f5669647cbd0984e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a511e2dae85fb6badc139852b417eb08d"><td class="memItemLeft" align="right" valign="top"><a id="a511e2dae85fb6badc139852b417eb08d"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>toolTransitionButton</b></td></tr>
+<tr class="memitem:a511e2dae85fb6badc139852b417eb08d"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a511e2dae85fb6badc139852b417eb08d">toolTransitionButton</a></td></tr>
 <tr class="separator:a511e2dae85fb6badc139852b417eb08d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a132745770484118225d6b3ace05d16fa"><td class="memItemLeft" align="right" valign="top"><a id="a132745770484118225d6b3ace05d16fa"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>snappingButton</b></td></tr>
+<tr class="memitem:a132745770484118225d6b3ace05d16fa"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a132745770484118225d6b3ace05d16fa">snappingButton</a></td></tr>
 <tr class="separator:a132745770484118225d6b3ace05d16fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:af9328bb1c4568b682c062c9224aeee29"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#af9328bb1c4568b682c062c9224aeee29">resizeEvent</a> (QResizeEvent *<a class="el" href="class_panel.html#a4b8a5a275be1cb26e0ef8668cef662f6">event</a>) override</td></tr>
+<tr class="separator:af9328bb1c4568b682c062c9224aeee29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaecf4ce0f2a3aabae4b12253f4f7185e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aaecf4ce0f2a3aabae4b12253f4f7185e">Retranslate</a> () override</td></tr>
+<tr class="separator:aaecf4ce0f2a3aabae4b12253f4f7185e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-slots"></a>
 Private Slots</h2></td></tr>
-<tr class="memitem:a8054e560669d30a2a353749e0cc76f7c"><td class="memItemLeft" align="right" valign="top"><a id="a8054e560669d30a2a353749e0cc76f7c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>snapping_clicked</b> (bool checked)</td></tr>
+<tr class="memitem:a8054e560669d30a2a353749e0cc76f7c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a8054e560669d30a2a353749e0cc76f7c">snapping_clicked</a> (bool checked)</td></tr>
 <tr class="separator:a8054e560669d30a2a353749e0cc76f7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9cc4f482e2b061bc2659b200f018d5c"><td class="memItemLeft" align="right" valign="top"><a id="ae9cc4f482e2b061bc2659b200f018d5c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>add_btn_click</b> ()</td></tr>
+<tr class="memitem:ae9cc4f482e2b061bc2659b200f018d5c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ae9cc4f482e2b061bc2659b200f018d5c">add_btn_click</a> ()</td></tr>
 <tr class="separator:ae9cc4f482e2b061bc2659b200f018d5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67ad5d65fb15a6e885724af148be006b"><td class="memItemLeft" align="right" valign="top"><a id="a67ad5d65fb15a6e885724af148be006b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>add_menu_item</b> (QAction *)</td></tr>
+<tr class="memitem:a67ad5d65fb15a6e885724af148be006b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a67ad5d65fb15a6e885724af148be006b">add_menu_item</a> (QAction *)</td></tr>
 <tr class="separator:a67ad5d65fb15a6e885724af148be006b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae80e5dd5143fb8df0adb3abcdab29b12"><td class="memItemLeft" align="right" valign="top"><a id="ae80e5dd5143fb8df0adb3abcdab29b12"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setScroll</b> (int)</td></tr>
+<tr class="memitem:ae80e5dd5143fb8df0adb3abcdab29b12"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ae80e5dd5143fb8df0adb3abcdab29b12">setScroll</a> (int)</td></tr>
 <tr class="separator:ae80e5dd5143fb8df0adb3abcdab29b12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abaf44157c24cabb31c69e6b7cf1ac60d"><td class="memItemLeft" align="right" valign="top"><a id="abaf44157c24cabb31c69e6b7cf1ac60d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>record_btn_click</b> ()</td></tr>
+<tr class="memitem:abaf44157c24cabb31c69e6b7cf1ac60d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#abaf44157c24cabb31c69e6b7cf1ac60d">record_btn_click</a> ()</td></tr>
 <tr class="separator:abaf44157c24cabb31c69e6b7cf1ac60d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38ae060d260ce6c4930960e988f47828"><td class="memItemLeft" align="right" valign="top"><a id="a38ae060d260ce6c4930960e988f47828"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>transition_tool_click</b> ()</td></tr>
+<tr class="memitem:a38ae060d260ce6c4930960e988f47828"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a38ae060d260ce6c4930960e988f47828">transition_tool_click</a> ()</td></tr>
 <tr class="separator:a38ae060d260ce6c4930960e988f47828"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51847f64014a271f0d655e3e2f552e2f"><td class="memItemLeft" align="right" valign="top"><a id="a51847f64014a271f0d655e3e2f552e2f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>transition_menu_select</b> (QAction *)</td></tr>
+<tr class="memitem:a51847f64014a271f0d655e3e2f552e2f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a51847f64014a271f0d655e3e2f552e2f">transition_menu_select</a> (QAction *)</td></tr>
 <tr class="separator:a51847f64014a271f0d655e3e2f552e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75e9e1e06316d87d2227e3b9ab61cfab"><td class="memItemLeft" align="right" valign="top"><a id="a75e9e1e06316d87d2227e3b9ab61cfab"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resize_move</b> (double d)</td></tr>
+<tr class="memitem:a75e9e1e06316d87d2227e3b9ab61cfab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a75e9e1e06316d87d2227e3b9ab61cfab">resize_move</a> (double d)</td></tr>
 <tr class="separator:a75e9e1e06316d87d2227e3b9ab61cfab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac5723f631d485e9bc9f54047d64a7377"><td class="memItemLeft" align="right" valign="top"><a id="ac5723f631d485e9bc9f54047d64a7377"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_tool</b> ()</td></tr>
+<tr class="memitem:ac5723f631d485e9bc9f54047d64a7377"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ac5723f631d485e9bc9f54047d64a7377">set_tool</a> ()</td></tr>
 <tr class="separator:ac5723f631d485e9bc9f54047d64a7377"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:a9da603889ceed648528a548d2e370366"><td class="memItemLeft" align="right" valign="top"><a id="a9da603889ceed648528a548d2e370366"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_zoom_value</b> (double v)</td></tr>
+<tr class="memitem:a9da603889ceed648528a548d2e370366"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a9da603889ceed648528a548d2e370366">set_zoom_value</a> (double v)</td></tr>
 <tr class="separator:a9da603889ceed648528a548d2e370366"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06a7fbc767b4ec76b192dcb61b3540cb"><td class="memItemLeft" align="right" valign="top"><a id="a06a7fbc767b4ec76b192dcb61b3540cb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>decheck_tool_buttons</b> (QObject *sender)</td></tr>
+<tr class="memitem:a06a7fbc767b4ec76b192dcb61b3540cb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a06a7fbc767b4ec76b192dcb61b3540cb">decheck_tool_buttons</a> (QObject *sender)</td></tr>
 <tr class="separator:a06a7fbc767b4ec76b192dcb61b3540cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1274807ba471f3685fac2d79048722e2"><td class="memItemLeft" align="right" valign="top"><a id="a1274807ba471f3685fac2d79048722e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_tool</b> (int tool)</td></tr>
+<tr class="memitem:a1274807ba471f3685fac2d79048722e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a1274807ba471f3685fac2d79048722e2">set_tool</a> (int <a class="el" href="class_timeline.html#a5bcd297b6b4cfc08fe4999e2daf745a3">tool</a>)</td></tr>
 <tr class="separator:a1274807ba471f3685fac2d79048722e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57e70f0a1ccafc8085b9d0f230732d36"><td class="memItemLeft" align="right" valign="top"><a id="a57e70f0a1ccafc8085b9d0f230732d36"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_sb_max</b> ()</td></tr>
+<tr class="memitem:a57e70f0a1ccafc8085b9d0f230732d36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a57e70f0a1ccafc8085b9d0f230732d36">set_sb_max</a> ()</td></tr>
 <tr class="separator:a57e70f0a1ccafc8085b9d0f230732d36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc7b554c80c5e379925740595b5bc309"><td class="memItemLeft" align="right" valign="top"><a id="acc7b554c80c5e379925740595b5bc309"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setup_ui</b> ()</td></tr>
+<tr class="memitem:a8f060175a6d6a49fa9986f798a44565f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a8f060175a6d6a49fa9986f798a44565f">UpdateTitle</a> ()</td></tr>
+<tr class="separator:a8f060175a6d6a49fa9986f798a44565f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc7b554c80c5e379925740595b5bc309"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#acc7b554c80c5e379925740595b5bc309">setup_ui</a> ()</td></tr>
 <tr class="separator:acc7b554c80c5e379925740595b5bc309"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a7acf0dd881d42fce85f7fe6f2691db7a"><td class="memItemLeft" align="right" valign="top"><a id="a7acf0dd881d42fce85f7fe6f2691db7a"></a>
-QVector&lt; QPushButton * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tool_buttons</b></td></tr>
+<tr class="memitem:a7acf0dd881d42fce85f7fe6f2691db7a"><td class="memItemLeft" align="right" valign="top">QVector&lt; QPushButton * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a7acf0dd881d42fce85f7fe6f2691db7a">tool_buttons</a></td></tr>
 <tr class="separator:a7acf0dd881d42fce85f7fe6f2691db7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16f4b6e76b716b01ac9b941ac1ec7ba0"><td class="memItemLeft" align="right" valign="top"><a id="a16f4b6e76b716b01ac9b941ac1ec7ba0"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>scroll</b></td></tr>
+<tr class="memitem:a16f4b6e76b716b01ac9b941ac1ec7ba0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a16f4b6e76b716b01ac9b941ac1ec7ba0">scroll</a></td></tr>
 <tr class="separator:a16f4b6e76b716b01ac9b941ac1ec7ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6576c6f03bd04513cf2e2122cd379c7"><td class="memItemLeft" align="right" valign="top"><a id="ae6576c6f03bd04513cf2e2122cd379c7"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>default_track_height</b></td></tr>
-<tr class="separator:ae6576c6f03bd04513cf2e2122cd379c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a622be0b2ff8a907f7845ab400fa672d3"><td class="memItemLeft" align="right" valign="top"><a id="a622be0b2ff8a907f7845ab400fa672d3"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>rc_ripple_min</b></td></tr>
+<tr class="memitem:a622be0b2ff8a907f7845ab400fa672d3"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a622be0b2ff8a907f7845ab400fa672d3">rc_ripple_min</a></td></tr>
 <tr class="separator:a622be0b2ff8a907f7845ab400fa672d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a468895a5e3f529a26340f8a8cbe1e126"><td class="memItemLeft" align="right" valign="top"><a id="a468895a5e3f529a26340f8a8cbe1e126"></a>
-long&#160;</td><td class="memItemRight" valign="bottom"><b>rc_ripple_max</b></td></tr>
+<tr class="memitem:a468895a5e3f529a26340f8a8cbe1e126"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a468895a5e3f529a26340f8a8cbe1e126">rc_ripple_max</a></td></tr>
 <tr class="separator:a468895a5e3f529a26340f8a8cbe1e126"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae16c8141b07cc7b2dd71bde668eca49b"><td class="memItemLeft" align="right" valign="top"><a id="ae16c8141b07cc7b2dd71bde668eca49b"></a>
-QWidget *&#160;</td><td class="memItemRight" valign="bottom"><b>timeline_area</b></td></tr>
+<tr class="memitem:ab6f12e222f6ec6e931bb920e5f2eabd7"><td class="memItemLeft" align="right" valign="top">QVector&lt; <a class="el" href="struct_timeline_track_height.html">TimelineTrackHeight</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ab6f12e222f6ec6e931bb920e5f2eabd7">track_heights</a></td></tr>
+<tr class="separator:ab6f12e222f6ec6e931bb920e5f2eabd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae16c8141b07cc7b2dd71bde668eca49b"><td class="memItemLeft" align="right" valign="top">QWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ae16c8141b07cc7b2dd71bde668eca49b">timeline_area</a></td></tr>
 <tr class="separator:ae16c8141b07cc7b2dd71bde668eca49b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22ac292fc19a4996f435aa6de3d20a66"><td class="memItemLeft" align="right" valign="top"><a id="a22ac292fc19a4996f435aa6de3d20a66"></a>
-<a class="el" href="class_timeline_widget.html">TimelineWidget</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>video_area</b></td></tr>
+<tr class="memitem:a22ac292fc19a4996f435aa6de3d20a66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_timeline_widget.html">TimelineWidget</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a22ac292fc19a4996f435aa6de3d20a66">video_area</a></td></tr>
 <tr class="separator:a22ac292fc19a4996f435aa6de3d20a66"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c018d3cef0503745e31f0df6ee0c5f6"><td class="memItemLeft" align="right" valign="top"><a id="a2c018d3cef0503745e31f0df6ee0c5f6"></a>
-<a class="el" href="class_timeline_widget.html">TimelineWidget</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>audio_area</b></td></tr>
+<tr class="memitem:a2c018d3cef0503745e31f0df6ee0c5f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_timeline_widget.html">TimelineWidget</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a2c018d3cef0503745e31f0df6ee0c5f6">audio_area</a></td></tr>
 <tr class="separator:a2c018d3cef0503745e31f0df6ee0c5f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0aa27c4db9e9e94a225f72bc65b8f5c"><td class="memItemLeft" align="right" valign="top"><a id="af0aa27c4db9e9e94a225f72bc65b8f5c"></a>
-QWidget *&#160;</td><td class="memItemRight" valign="bottom"><b>editAreas</b></td></tr>
+<tr class="memitem:af0aa27c4db9e9e94a225f72bc65b8f5c"><td class="memItemLeft" align="right" valign="top">QWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#af0aa27c4db9e9e94a225f72bc65b8f5c">editAreas</a></td></tr>
 <tr class="separator:af0aa27c4db9e9e94a225f72bc65b8f5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe6665254957a089f0ea9a26f1fcef07"><td class="memItemLeft" align="right" valign="top"><a id="abe6665254957a089f0ea9a26f1fcef07"></a>
-QScrollBar *&#160;</td><td class="memItemRight" valign="bottom"><b>videoScrollbar</b></td></tr>
+<tr class="memitem:abe6665254957a089f0ea9a26f1fcef07"><td class="memItemLeft" align="right" valign="top">QScrollBar *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#abe6665254957a089f0ea9a26f1fcef07">videoScrollbar</a></td></tr>
 <tr class="separator:abe6665254957a089f0ea9a26f1fcef07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac79c7d07cf1b4a0519be216610020c0f"><td class="memItemLeft" align="right" valign="top"><a id="ac79c7d07cf1b4a0519be216610020c0f"></a>
-QScrollBar *&#160;</td><td class="memItemRight" valign="bottom"><b>audioScrollbar</b></td></tr>
+<tr class="memitem:ac79c7d07cf1b4a0519be216610020c0f"><td class="memItemLeft" align="right" valign="top">QScrollBar *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#ac79c7d07cf1b4a0519be216610020c0f">audioScrollbar</a></td></tr>
 <tr class="separator:ac79c7d07cf1b4a0519be216610020c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b9c7f685ef62ba44e461ea8de379f35"><td class="memItemLeft" align="right" valign="top"><a id="a0b9c7f685ef62ba44e461ea8de379f35"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>zoomInButton</b></td></tr>
+<tr class="memitem:a0b9c7f685ef62ba44e461ea8de379f35"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0b9c7f685ef62ba44e461ea8de379f35">zoomInButton</a></td></tr>
 <tr class="separator:a0b9c7f685ef62ba44e461ea8de379f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6e0d9ced42a908cd610343c04177c62"><td class="memItemLeft" align="right" valign="top"><a id="aa6e0d9ced42a908cd610343c04177c62"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>zoomOutButton</b></td></tr>
+<tr class="memitem:aa6e0d9ced42a908cd610343c04177c62"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aa6e0d9ced42a908cd610343c04177c62">zoomOutButton</a></td></tr>
 <tr class="separator:aa6e0d9ced42a908cd610343c04177c62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0092a9337bf71eedcf73a762b922e39d"><td class="memItemLeft" align="right" valign="top"><a id="a0092a9337bf71eedcf73a762b922e39d"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>recordButton</b></td></tr>
+<tr class="memitem:a0092a9337bf71eedcf73a762b922e39d"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a0092a9337bf71eedcf73a762b922e39d">recordButton</a></td></tr>
 <tr class="separator:a0092a9337bf71eedcf73a762b922e39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8848e40d4bb289b099a6e6ec572e6c14"><td class="memItemLeft" align="right" valign="top"><a id="a8848e40d4bb289b099a6e6ec572e6c14"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>addButton</b></td></tr>
+<tr class="memitem:a8848e40d4bb289b099a6e6ec572e6c14"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#a8848e40d4bb289b099a6e6ec572e6c14">addButton</a></td></tr>
 <tr class="separator:a8848e40d4bb289b099a6e6ec572e6c14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba356b1d8aabfde8e647b0590f890464"><td class="memItemLeft" align="right" valign="top"><a id="aba356b1d8aabfde8e647b0590f890464"></a>
-QWidget *&#160;</td><td class="memItemRight" valign="bottom"><b>tool_button_widget</b></td></tr>
+<tr class="memitem:aba356b1d8aabfde8e647b0590f890464"><td class="memItemLeft" align="right" valign="top">QWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_timeline.html#aba356b1d8aabfde8e647b0590f890464">tool_button_widget</a></td></tr>
 <tr class="separator:aba356b1d8aabfde8e647b0590f890464"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a52c06629ecbc4aeecc94120469f7144b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52c06629ecbc4aeecc94120469f7144b">&#9670;&nbsp;</a></span>Timeline()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Timeline::Timeline </td>
+          <td>(</td>
+          <td class="paramtype">QWidget *&#160;</td>
+          <td class="paramname"><em>parent</em> = <code>nullptr</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a02265431700e1ed876221c68da2ae005"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02265431700e1ed876221c68da2ae005">&#9670;&nbsp;</a></span>~Timeline()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Timeline::~Timeline </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ae9cc4f482e2b061bc2659b200f018d5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9cc4f482e2b061bc2659b200f018d5c">&#9670;&nbsp;</a></span>add_btn_click</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::add_btn_click </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a45c72c51a0dfb5bba5ec22b855d6ca17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45c72c51a0dfb5bba5ec22b855d6ca17">&#9670;&nbsp;</a></span>add_clips_from_ghosts()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::add_clips_from_ghosts </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a>&#160;</td>
+          <td class="paramname"><em>s</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a67ad5d65fb15a6e885724af148be006b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67ad5d65fb15a6e885724af148be006b">&#9670;&nbsp;</a></span>add_menu_item</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::add_menu_item </td>
+          <td>(</td>
+          <td class="paramtype">QAction *&#160;</td>
+          <td class="paramname"><em>action</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a75c07b4a600cc2a436ccfe8ea12b249a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75c07b4a600cc2a436ccfe8ea12b249a">&#9670;&nbsp;</a></span>add_transition</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::add_transition </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1be8a3b81178a4535baf6ae241bf926b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1be8a3b81178a4535baf6ae241bf926b">&#9670;&nbsp;</a></span>can_ripple_empty_space()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::can_ripple_empty_space </td>
+          <td>(</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>track</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a27b879f4e0915d04eeaf9f2311d4e6fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27b879f4e0915d04eeaf9f2311d4e6fe">&#9670;&nbsp;</a></span>clean_up_selections()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::clean_up_selections </td>
+          <td>(</td>
+          <td class="paramtype">QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>areas</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8f54973a48568b533caa5e15e8effc3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f54973a48568b533caa5e15e8effc3d">&#9670;&nbsp;</a></span>copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::copy </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>del</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adf0909bb3a7f1909a792e7bb1521bd3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf0909bb3a7f1909a792e7bb1521bd3e">&#9670;&nbsp;</a></span>create_ghosts_from_media()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::create_ghosts_from_media </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a>&#160;</td>
+          <td class="paramname"><em>seq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>entry_point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QVector&lt; <a class="el" href="class_media.html">Media</a> * &gt; &amp;&#160;</td>
+          <td class="paramname"><em>media_list</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a06a7fbc767b4ec76b192dcb61b3540cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06a7fbc767b4ec76b192dcb61b3540cb">&#9670;&nbsp;</a></span>decheck_tool_buttons()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::decheck_tool_buttons </td>
+          <td>(</td>
+          <td class="paramtype">QObject *&#160;</td>
+          <td class="paramname"><em>sender</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a13210599ae8a12dabfe27da3751387eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13210599ae8a12dabfe27da3751387eb">&#9670;&nbsp;</a></span>DecreaseTrackHeight</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::DecreaseTrackHeight </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aed9dec65c0ea386c661191b90ff85687"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed9dec65c0ea386c661191b90ff85687">&#9670;&nbsp;</a></span>delete_areas_and_relink()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::delete_areas_and_relink </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>areas</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>deselect_areas</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0db2f4cafdf8b0290b6b71989fcdf825"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0db2f4cafdf8b0290b6b71989fcdf825">&#9670;&nbsp;</a></span>delete_in_out_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::delete_in_out_internal </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>ripple</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3a3ce85179228f291265e7b0aea34fd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a3ce85179228f291265e7b0aea34fd3">&#9670;&nbsp;</a></span>delete_inout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::delete_inout </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a24721c0863116ca4e062e1449542775a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24721c0863116ca4e062e1449542775a">&#9670;&nbsp;</a></span>delete_selection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::delete_selection </td>
+          <td>(</td>
+          <td class="paramtype">QVector&lt; <a class="el" href="struct_selection.html">Selection</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>selections</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>ripple</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a189f90a7538c3469428d2a905265ca6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a189f90a7538c3469428d2a905265ca6e">&#9670;&nbsp;</a></span>deselect</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::deselect </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a98386e82ef4b7370d854cf6d42a4e2c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98386e82ef4b7370d854cf6d42a4e2c9">&#9670;&nbsp;</a></span>deselect_area()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::deselect_area </td>
+          <td>(</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>track</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a29bfab6b1643de9cbfa61508f086eabb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29bfab6b1643de9cbfa61508f086eabb">&#9670;&nbsp;</a></span>edit_to_in_point</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::edit_to_in_point </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acde9d38b634aeeaa82197aa72ae66d0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acde9d38b634aeeaa82197aa72ae66d0c">&#9670;&nbsp;</a></span>edit_to_out_point</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::edit_to_out_point </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0c55cec8b0ece590e8b10acb35a264b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c55cec8b0ece590e8b10acb35a264b4">&#9670;&nbsp;</a></span>edit_to_point_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::edit_to_point_internal </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>ripple</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a705a012f3e56baa610c58732e08de8c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a705a012f3e56baa610c58732e08de8c4">&#9670;&nbsp;</a></span>focused()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::focused </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aba8c20bd49982f3f0c68ce460da38e94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba8c20bd49982f3f0c68ce460da38e94">&#9670;&nbsp;</a></span>get_snap_range()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::get_snap_range </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0941a196b60d5ff710d41767003a3981"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0941a196b60d5ff710d41767003a3981">&#9670;&nbsp;</a></span>getDisplayFrameFromScreenPoint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::getDisplayFrameFromScreenPoint </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a65a6e04ecaef74ea5fe37a5ca866b7e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65a6e04ecaef74ea5fe37a5ca866b7e7">&#9670;&nbsp;</a></span>getDisplayScreenPointFromFrame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::getDisplayScreenPointFromFrame </td>
+          <td>(</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4c3a95618e89ad83170f0a09c59e9e6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c3a95618e89ad83170f0a09c59e9e6b">&#9670;&nbsp;</a></span>getTimelineFrameFromScreenPoint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::getTimelineFrameFromScreenPoint </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abc20960f8e5daf9ff5c9e35bbbce70db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc20960f8e5daf9ff5c9e35bbbce70db">&#9670;&nbsp;</a></span>getTimelineScreenPointFromFrame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::getTimelineScreenPointFromFrame </td>
+          <td>(</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3324c971f0f4a1e585f00517b7f13eb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3324c971f0f4a1e585f00517b7f13eb4">&#9670;&nbsp;</a></span>GetTrackHeight()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::GetTrackHeight </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>track</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a79bd245c8e9e508dda6161b158e22d0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79bd245c8e9e508dda6161b158e22d0a">&#9670;&nbsp;</a></span>IncreaseTrackHeight</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::IncreaseTrackHeight </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6f79958d70e239f1e8910cb37b64f3e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f79958d70e239f1e8910cb37b64f3e2">&#9670;&nbsp;</a></span>multiply_zoom()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::multiply_zoom </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>m</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8ef72ebfaff2d2a2d7cb1ffc8cb956d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ef72ebfaff2d2a2d7cb1ffc8cb956d3">&#9670;&nbsp;</a></span>nest</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::nest </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa6de1a9fd358a2d961641e9484a21e4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6de1a9fd358a2d961641e9484a21e4f">&#9670;&nbsp;</a></span>next_cut</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::next_cut </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a12baf65f35637a36b57df7bae702b1a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12baf65f35637a36b57df7bae702b1a3">&#9670;&nbsp;</a></span>paste</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::paste </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>insert</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6957271bef74259de99ec7f3ed5a890e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6957271bef74259de99ec7f3ed5a890e">&#9670;&nbsp;</a></span>previous_cut</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::previous_cut </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abaf44157c24cabb31c69e6b7cf1ac60d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abaf44157c24cabb31c69e6b7cf1ac60d">&#9670;&nbsp;</a></span>record_btn_click</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::record_btn_click </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9dda22fa2558deeb51c4b5b94883a54a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dda22fa2558deeb51c4b5b94883a54a">&#9670;&nbsp;</a></span>relink_clips_using_ids()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::relink_clips_using_ids </td>
+          <td>(</td>
+          <td class="paramtype">QVector&lt; int &gt; &amp;&#160;</td>
+          <td class="paramname"><em>old_clips</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QVector&lt; <a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>new_clips</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aaf3ab106e6ddd6a41b19adb9d7313c5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf3ab106e6ddd6a41b19adb9d7313c5f">&#9670;&nbsp;</a></span>repaint_timeline</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::repaint_timeline </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a75e9e1e06316d87d2227e3b9ab61cfab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75e9e1e06316d87d2227e3b9ab61cfab">&#9670;&nbsp;</a></span>resize_move</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::resize_move </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>d</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af9328bb1c4568b682c062c9224aeee29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9328bb1c4568b682c062c9224aeee29">&#9670;&nbsp;</a></span>resizeEvent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::resizeEvent </td>
+          <td>(</td>
+          <td class="paramtype">QResizeEvent *&#160;</td>
+          <td class="paramname"><em>event</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aaecf4ce0f2a3aabae4b12253f4f7185e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaecf4ce0f2a3aabae4b12253f4f7185e">&#9670;&nbsp;</a></span>Retranslate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::Retranslate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_panel.html#acc714dbdefcd643a467df84fafc6c265">Panel</a>.</p>
+
+</div>
+</div>
+<a id="a7523787d44855bf87fccc7c43dbf436e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7523787d44855bf87fccc7c43dbf436e">&#9670;&nbsp;</a></span>ripple_delete</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::ripple_delete </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a61faea6126026f04918d7c3e98dfda4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61faea6126026f04918d7c3e98dfda4c">&#9670;&nbsp;</a></span>ripple_delete_empty_space</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::ripple_delete_empty_space </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a94a4a80fd046ca4a454b72c00babf22c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94a4a80fd046ca4a454b72c00babf22c">&#9670;&nbsp;</a></span>ripple_delete_inout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::ripple_delete_inout </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a587f225fa880ad516f1b9bab4f0dbfc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a587f225fa880ad516f1b9bab4f0dbfc8">&#9670;&nbsp;</a></span>ripple_to_in_point</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::ripple_to_in_point </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6ac73dc6d30437f342a090fc930b460b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ac73dc6d30437f342a090fc930b460b">&#9670;&nbsp;</a></span>ripple_to_out_point</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::ripple_to_out_point </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1d39ab87fb04ac91410c0a0565c97046"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d39ab87fb04ac91410c0a0565c97046">&#9670;&nbsp;</a></span>scroll_to_frame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::scroll_to_frame </td>
+          <td>(</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aba9815734309a5ea108ea3263536fc32"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba9815734309a5ea108ea3263536fc32">&#9670;&nbsp;</a></span>select_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::select_all </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5451b044adf5f2c919e46848e797baaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5451b044adf5f2c919e46848e797baaf">&#9670;&nbsp;</a></span>select_from_playhead()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::select_from_playhead </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6643fb435ab7d4b958fe055fcc5a5dfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6643fb435ab7d4b958fe055fcc5a5dfd">&#9670;&nbsp;</a></span>set_marker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::set_marker </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a57e70f0a1ccafc8085b9d0f230732d36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57e70f0a1ccafc8085b9d0f230732d36">&#9670;&nbsp;</a></span>set_sb_max()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::set_sb_max </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac5723f631d485e9bc9f54047d64a7377"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5723f631d485e9bc9f54047d64a7377">&#9670;&nbsp;</a></span>set_tool <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::set_tool </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1274807ba471f3685fac2d79048722e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1274807ba471f3685fac2d79048722e2">&#9670;&nbsp;</a></span>set_tool() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::set_tool </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>tool</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9da603889ceed648528a548d2e370366"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9da603889ceed648528a548d2e370366">&#9670;&nbsp;</a></span>set_zoom_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::set_zoom_value </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae80e5dd5143fb8df0adb3abcdab29b12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae80e5dd5143fb8df0adb3abcdab29b12">&#9670;&nbsp;</a></span>setScroll</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::setScroll </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>s</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adba34f5c274d7794d1fe9daf7b7386f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adba34f5c274d7794d1fe9daf7b7386f3">&#9670;&nbsp;</a></span>SetTrackHeight()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::SetTrackHeight </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>track</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>height</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acc7b554c80c5e379925740595b5bc309"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc7b554c80c5e379925740595b5bc309">&#9670;&nbsp;</a></span>setup_ui()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::setup_ui </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="afb930fc8648119d747f56ab86874731f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb930fc8648119d747f56ab86874731f">&#9670;&nbsp;</a></span>snap_to_point()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::snap_to_point </td>
+          <td>(</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long *&#160;</td>
+          <td class="paramname"><em>l</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="afc358e2916180252996726c0c103bf32"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc358e2916180252996726c0c103bf32">&#9670;&nbsp;</a></span>snap_to_timeline()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::snap_to_timeline </td>
+          <td>(</td>
+          <td class="paramtype">long *&#160;</td>
+          <td class="paramname"><em>l</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>use_playhead</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>use_markers</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>use_workarea</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8054e560669d30a2a353749e0cc76f7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8054e560669d30a2a353749e0cc76f7c">&#9670;&nbsp;</a></span>snapping_clicked</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::snapping_clicked </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>checked</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a20d8a064e587ff2c9fe6a0e76464b0a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20d8a064e587ff2c9fe6a0e76464b0a4">&#9670;&nbsp;</a></span>split_all_clips_at_point()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::split_all_clips_at_point </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>point</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a89fe8ed5541d1bc49a67030a92022d4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89fe8ed5541d1bc49a67030a92022d4c">&#9670;&nbsp;</a></span>split_at_playhead</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::split_at_playhead </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a73220f6b8e173fbfb1a957a007de4698"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73220f6b8e173fbfb1a957a007de4698">&#9670;&nbsp;</a></span>split_clip() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> Timeline::split_clip </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>transitions</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3e07895282df3c413100b15bb09fb813"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e07895282df3c413100b15bb09fb813">&#9670;&nbsp;</a></span>split_clip() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> Timeline::split_clip </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>transitions</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>post_in</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad6362765b69afe9dd80187124ee2074c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6362765b69afe9dd80187124ee2074c">&#9670;&nbsp;</a></span>split_clip_and_relink()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::split_clip_and_relink </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>clip</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>relink</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae95a359ddafd02725f90d5eadd32ee94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae95a359ddafd02725f90d5eadd32ee94">&#9670;&nbsp;</a></span>split_selection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::split_selection </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_combo_action.html">ComboAction</a> *&#160;</td>
+          <td class="paramname"><em>ca</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4cb7175aab3569267adf3190471f3338"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4cb7175aab3569267adf3190471f3338">&#9670;&nbsp;</a></span>toggle_enable_on_selected_clips</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::toggle_enable_on_selected_clips </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a92fca9db81bb36cb2cc6a66850d05da3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92fca9db81bb36cb2cc6a66850d05da3">&#9670;&nbsp;</a></span>toggle_links</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::toggle_links </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a724f665aa4dab0f3b8a6a1a9466a88eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a724f665aa4dab0f3b8a6a1a9466a88eb">&#9670;&nbsp;</a></span>toggle_show_all</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::toggle_show_all </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a51847f64014a271f0d655e3e2f552e2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51847f64014a271f0d655e3e2f552e2f">&#9670;&nbsp;</a></span>transition_menu_select</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::transition_menu_select </td>
+          <td>(</td>
+          <td class="paramtype">QAction *&#160;</td>
+          <td class="paramname"><em>a</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a38ae060d260ce6c4930960e988f47828"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38ae060d260ce6c4930960e988f47828">&#9670;&nbsp;</a></span>transition_tool_click</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::transition_tool_click </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4c8507378d8f0f23ac3a9eeda1a1d84c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c8507378d8f0f23ac3a9eeda1a1d84c">&#9670;&nbsp;</a></span>update_effect_controls()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::update_effect_controls </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac76affc01e3d26a484afce87692229ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac76affc01e3d26a484afce87692229ab">&#9670;&nbsp;</a></span>update_sequence()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::update_sequence </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8f060175a6d6a49fa9986f798a44565f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f060175a6d6a49fa9986f798a44565f">&#9670;&nbsp;</a></span>UpdateTitle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::UpdateTitle </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3dc94dfcf38bb0c62391d6157fb803d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3dc94dfcf38bb0c62391d6157fb803d1">&#9670;&nbsp;</a></span>zoom_in</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::zoom_in </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4286a9444e2af2c14ac71c02ff067b97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4286a9444e2af2c14ac71c02ff067b97">&#9670;&nbsp;</a></span>zoom_out</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Timeline::zoom_out </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a8848e40d4bb289b099a6e6ec572e6c14"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8848e40d4bb289b099a6e6ec572e6c14">&#9670;&nbsp;</a></span>addButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::addButton</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2c018d3cef0503745e31f0df6ee0c5f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c018d3cef0503745e31f0df6ee0c5f6">&#9670;&nbsp;</a></span>audio_area</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_timeline_widget.html">TimelineWidget</a>* Timeline::audio_area</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af6043d57e301be5e5e6a77d1e65098e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6043d57e301be5e5e6a77d1e65098e6">&#9670;&nbsp;</a></span>audio_ghosts</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::audio_ghosts</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a77213763d845427fa8e71b75a7d213bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77213763d845427fa8e71b75a7d213bc">&#9670;&nbsp;</a></span>audio_monitor</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_audio_monitor.html">AudioMonitor</a>* Timeline::audio_monitor</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac79c7d07cf1b4a0519be216610020c0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac79c7d07cf1b4a0519be216610020c0f">&#9670;&nbsp;</a></span>audioScrollbar</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QScrollBar* Timeline::audioScrollbar</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adf20c17baf8dfe869ef6e56a65f837f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf20c17baf8dfe869ef6e56a65f837f7">&#9670;&nbsp;</a></span>block_repaints</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::block_repaints</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a54322f55256409408b2dcbde40ab4cc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54322f55256409408b2dcbde40ab4cc9">&#9670;&nbsp;</a></span>creating</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::creating</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abac137a4612743e71d4bd341c418dca1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abac137a4612743e71d4bd341c418dca1">&#9670;&nbsp;</a></span>creating_object</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::creating_object</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a40c124875f6fc15d84a37776e586f359"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40c124875f6fc15d84a37776e586f359">&#9670;&nbsp;</a></span>cursor_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::cursor_frame</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2e30132d34c1563c8a07c7fb3949f353"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e30132d34c1563c8a07c7fb3949f353">&#9670;&nbsp;</a></span>cursor_track</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::cursor_track</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4ab4f0a32449b84a413fe1ac61d68d1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ab4f0a32449b84a413fe1ac61d68d1d">&#9670;&nbsp;</a></span>drag_frame_start</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::drag_frame_start</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0bba8ad9abcd7540697171dba273eb43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0bba8ad9abcd7540697171dba273eb43">&#9670;&nbsp;</a></span>drag_track_start</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::drag_track_start</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a38bc7069d397fad59f5a8104c3894f00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38bc7069d397fad59f5a8104c3894f00">&#9670;&nbsp;</a></span>drag_x_start</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::drag_x_start</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6f837c1a515c43be61605e3f48ecafbc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f837c1a515c43be61605e3f48ecafbc">&#9670;&nbsp;</a></span>drag_y_start</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::drag_y_start</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af0aa27c4db9e9e94a225f72bc65b8f5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0aa27c4db9e9e94a225f72bc65b8f5c">&#9670;&nbsp;</a></span>editAreas</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QWidget* Timeline::editAreas</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8385381e9aded5cc35eccbefad26c264"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8385381e9aded5cc35eccbefad26c264">&#9670;&nbsp;</a></span>ghosts</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;<a class="el" href="struct_ghost.html">Ghost</a>&gt; Timeline::ghosts</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a48e210028ee53fcda04f98d18f8cbac4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a48e210028ee53fcda04f98d18f8cbac4">&#9670;&nbsp;</a></span>hand_moving</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::hand_moving</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae9b0f794319dd470d69ce7480dd9fc58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9b0f794319dd470d69ce7480dd9fc58">&#9670;&nbsp;</a></span>headers</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_timeline_header.html">TimelineHeader</a>* Timeline::headers</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a90ab0a63353a2dfa8de4a02d48bffd5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90ab0a63353a2dfa8de4a02d48bffd5c">&#9670;&nbsp;</a></span>horizontalScrollBar</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_resizable_scroll_bar.html">ResizableScrollBar</a>* Timeline::horizontalScrollBar</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9710142e063bc614fff1fd4bacbd20e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9710142e063bc614fff1fd4bacbd20e5">&#9670;&nbsp;</a></span>importing</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::importing</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a04afd33fc672a07a6b0ddd7c66d71237"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04afd33fc672a07a6b0ddd7c66d71237">&#9670;&nbsp;</a></span>importing_files</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::importing_files</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa31225e9f4b2fa11323b5d68f136d05e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa31225e9f4b2fa11323b5d68f136d05e">&#9670;&nbsp;</a></span>move_insert</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::move_insert</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae6e5a2b1d0f22833e913240e4e2517f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6e5a2b1d0f22833e913240e4e2517f7">&#9670;&nbsp;</a></span>moving_init</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::moving_init</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aba3c6d4f7ce850a66ac548699939e4f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba3c6d4f7ce850a66ac548699939e4f9">&#9670;&nbsp;</a></span>moving_proc</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::moving_proc</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a51f95ea0689ee7cd4d15e618be91145a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51f95ea0689ee7cd4d15e618be91145a">&#9670;&nbsp;</a></span>old_zoom</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Timeline::old_zoom</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a468895a5e3f529a26340f8a8cbe1e126"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a468895a5e3f529a26340f8a8cbe1e126">&#9670;&nbsp;</a></span>rc_ripple_max</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::rc_ripple_max</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a622be0b2ff8a907f7845ab400fa672d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a622be0b2ff8a907f7845ab400fa672d3">&#9670;&nbsp;</a></span>rc_ripple_min</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::rc_ripple_min</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0092a9337bf71eedcf73a762b922e39d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0092a9337bf71eedcf73a762b922e39d">&#9670;&nbsp;</a></span>recordButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::recordButton</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a009b82529555f521690de66d6d32689a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a009b82529555f521690de66d6d32689a">&#9670;&nbsp;</a></span>rect_select_init</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::rect_select_init</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1ac7211e336311314a53f5a642447234"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ac7211e336311314a53f5a642447234">&#9670;&nbsp;</a></span>rect_select_proc</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::rect_select_proc</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adb549777afc5eeaffef499afc9bd66f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb549777afc5eeaffef499afc9bd66f4">&#9670;&nbsp;</a></span>rect_select_rect</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QRect Timeline::rect_select_rect</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a16f4b6e76b716b01ac9b941ac1ec7ba0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16f4b6e76b716b01ac9b941ac1ec7ba0">&#9670;&nbsp;</a></span>scroll</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::scroll</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a02974e0e12b6246454a75bc2f4c6c2e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02974e0e12b6246454a75bc2f4c6c2e3">&#9670;&nbsp;</a></span>selecting</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::selecting</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a845c5da10b038613db097a41841a1553"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a845c5da10b038613db097a41841a1553">&#9670;&nbsp;</a></span>selection_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::selection_offset</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0e68f624863c1fecb9e4348abf7fac8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e68f624863c1fecb9e4348abf7fac8e">&#9670;&nbsp;</a></span>showing_all</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::showing_all</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad927d85e616749d642f9dad63d782637"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad927d85e616749d642f9dad63d782637">&#9670;&nbsp;</a></span>snap_point</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long Timeline::snap_point</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab999a31e89f51e359ec7b57ade792d88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab999a31e89f51e359ec7b57ade792d88">&#9670;&nbsp;</a></span>snapped</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::snapped</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1a6c7e2b4ee7829c2707b844a0e2aa08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a6c7e2b4ee7829c2707b844a0e2aa08">&#9670;&nbsp;</a></span>snapping</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::snapping</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a132745770484118225d6b3ace05d16fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a132745770484118225d6b3ace05d16fa">&#9670;&nbsp;</a></span>snappingButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::snappingButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad920d274cf7d20dca40579a3b03421a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad920d274cf7d20dca40579a3b03421a0">&#9670;&nbsp;</a></span>split_cache</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;int&gt; Timeline::split_cache</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4d2ecb3699190da79c8c2b8428ea44d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d2ecb3699190da79c8c2b8428ea44d4">&#9670;&nbsp;</a></span>split_tracks</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;int&gt; Timeline::split_tracks</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a429e16260f5dc7822ef4ef575b0333b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a429e16260f5dc7822ef4ef575b0333b4">&#9670;&nbsp;</a></span>splitting</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::splitting</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae16c8141b07cc7b2dd71bde668eca49b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae16c8141b07cc7b2dd71bde668eca49b">&#9670;&nbsp;</a></span>timeline_area</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QWidget* Timeline::timeline_area</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5bcd297b6b4cfc08fe4999e2daf745a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bcd297b6b4cfc08fe4999e2daf745a3">&#9670;&nbsp;</a></span>tool</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::tool</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aba356b1d8aabfde8e647b0590f890464"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba356b1d8aabfde8e647b0590f890464">&#9670;&nbsp;</a></span>tool_button_widget</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QWidget* Timeline::tool_button_widget</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7acf0dd881d42fce85f7fe6f2691db7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7acf0dd881d42fce85f7fe6f2691db7a">&#9670;&nbsp;</a></span>tool_buttons</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;QPushButton*&gt; Timeline::tool_buttons</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0a2de91fb39240de7f4f7fc68c48ab95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a2de91fb39240de7f4f7fc68c48ab95">&#9670;&nbsp;</a></span>toolArrowButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolArrowButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a57570e3128f55a443251c1c8a5de98d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57570e3128f55a443251c1c8a5de98d0">&#9670;&nbsp;</a></span>toolEditButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolEditButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab3b28a3c9f242ae5f5669647cbd0984e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3b28a3c9f242ae5f5669647cbd0984e">&#9670;&nbsp;</a></span>toolHandButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolHandButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a47b98aa4949745d8d75e6fd4507b1911"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47b98aa4949745d8d75e6fd4507b1911">&#9670;&nbsp;</a></span>toolRazorButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolRazorButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac72386eabe65830a5a4541849c521c71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac72386eabe65830a5a4541849c521c71">&#9670;&nbsp;</a></span>toolRippleButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolRippleButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aaac686ac73cc953d833c59aed15767c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaac686ac73cc953d833c59aed15767c3">&#9670;&nbsp;</a></span>toolSlideButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolSlideButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3ee296eefbe3a97d60d8f8a8a6d3d55d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ee296eefbe3a97d60d8f8a8a6d3d55d">&#9670;&nbsp;</a></span>toolSlipButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolSlipButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a511e2dae85fb6badc139852b417eb08d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a511e2dae85fb6badc139852b417eb08d">&#9670;&nbsp;</a></span>toolTransitionButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::toolTransitionButton</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab6f12e222f6ec6e931bb920e5f2eabd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6f12e222f6ec6e931bb920e5f2eabd7">&#9670;&nbsp;</a></span>track_heights</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;<a class="el" href="struct_timeline_track_height.html">TimelineTrackHeight</a>&gt; Timeline::track_heights</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5518b21518367ffecc3a148e68edd300"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5518b21518367ffecc3a148e68edd300">&#9670;&nbsp;</a></span>transition_select</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::transition_select</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad13a23d26f96d294c9da68c80da5ea45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad13a23d26f96d294c9da68c80da5ea45">&#9670;&nbsp;</a></span>transition_tool_close_clip</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::transition_tool_close_clip</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a103220316fa35b8ebc01f73d7ac20e11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a103220316fa35b8ebc01f73d7ac20e11">&#9670;&nbsp;</a></span>transition_tool_init</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::transition_tool_init</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab7e1de8cae0dc6ad5a1cfa40bc57fdcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7e1de8cae0dc6ad5a1cfa40bc57fdcc">&#9670;&nbsp;</a></span>transition_tool_meta</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="struct_effect_meta.html">EffectMeta</a>* Timeline::transition_tool_meta</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a23d0cc61d346fcb83c98f4ae3551fb2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23d0cc61d346fcb83c98f4ae3551fb2c">&#9670;&nbsp;</a></span>transition_tool_open_clip</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::transition_tool_open_clip</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a61edf25604d0d4608b75d472c81dc088"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61edf25604d0d4608b75d472c81dc088">&#9670;&nbsp;</a></span>transition_tool_proc</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::transition_tool_proc</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2270318042895e56c1935cd85059859a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2270318042895e56c1935cd85059859a">&#9670;&nbsp;</a></span>transition_tool_side</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::transition_tool_side</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abefa5bda6a497bb3d5131a3d283bc7fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abefa5bda6a497bb3d5131a3d283bc7fc">&#9670;&nbsp;</a></span>trim_target</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Timeline::trim_target</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0df4abb3e1cccdd409964cee26b7b604"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0df4abb3e1cccdd409964cee26b7b604">&#9670;&nbsp;</a></span>trim_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="timeline_8h.html#a3b8761f40035433d3f9bdec33a076b30">TrimType</a> Timeline::trim_type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a22ac292fc19a4996f435aa6de3d20a66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22ac292fc19a4996f435aa6de3d20a66">&#9670;&nbsp;</a></span>video_area</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_timeline_widget.html">TimelineWidget</a>* Timeline::video_area</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad889a2d6eb633374326be645277cf9ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad889a2d6eb633374326be645277cf9ea">&#9670;&nbsp;</a></span>video_ghosts</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::video_ghosts</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abe6665254957a089f0ea9a26f1fcef07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe6665254957a089f0ea9a26f1fcef07">&#9670;&nbsp;</a></span>videoScrollbar</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QScrollBar* Timeline::videoScrollbar</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac3b8b136fa0c42f3a781aa973077a921"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3b8b136fa0c42f3a781aa973077a921">&#9670;&nbsp;</a></span>zoom</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Timeline::zoom</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab0da4feeb231f86e23c4e3311f8a56fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0da4feeb231f86e23c4e3311f8a56fc">&#9670;&nbsp;</a></span>zoom_just_changed</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Timeline::zoom_just_changed</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0b9c7f685ef62ba44e461ea8de379f35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b9c7f685ef62ba44e461ea8de379f35">&#9670;&nbsp;</a></span>zoomInButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::zoomInButton</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa6e0d9ced42a908cd610343c04177c62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6e0d9ced42a908cd610343c04177c62">&#9670;&nbsp;</a></span>zoomOutButton</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* Timeline::zoomOutButton</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>panels/<a class="el" href="timeline_8h_source.html">timeline.h</a></li>
-<li>panels/timeline.cpp</li>
+<li>panels/<a class="el" href="timeline_8cpp.html">timeline.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

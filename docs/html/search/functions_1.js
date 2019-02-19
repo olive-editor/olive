@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['decrease_5fspeed',['decrease_speed',['../class_focus_filter.html#a7df3eede8f25fde514142046b3352c09',1,'FocusFilter']]],
-  ['delete_5ffunction',['delete_function',['../class_focus_filter.html#a7d9dbfa4b9595a4e83b01c54f123b3a7',1,'FocusFilter']]],
-  ['duplicate',['duplicate',['../class_focus_filter.html#a603997516bd2e5954e8cb49fa87c8bad',1,'FocusFilter']]]
+  ['blurred2',['blurred2',['../texteffect_8cpp.html#a1c91186f0609d356d15f4ab40e979cd2',1,'texteffect.cpp']]],
+  ['browse',['browse',['../class_embedded_file_chooser.html#a1be5ef9979d157641f3ff64ba933728d',1,'EmbeddedFileChooser']]],
+  ['browse_5fcss_5ffile',['browse_css_file',['../class_preferences_dialog.html#aeeba960285aa17b736f0778a0426f1ca',1,'PreferencesDialog']]],
+  ['bytes_5fto_5fseconds',['bytes_to_seconds',['../cacher_8cpp.html#a673f9f122c08ad992fba3ea9cde1bc3a',1,'cacher.cpp']]]
 ];

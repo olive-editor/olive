@@ -69,6 +69,8 @@ $(function() {
 <div class="title">ColorCommand Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="colorbutton_8h_source.html">colorbutton.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for ColorCommand:</div>
 <div class="dyncontent">
@@ -78,31 +80,162 @@ Inheritance diagram for ColorCommand:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7dd09c97bc13d11f6e72be84f6528e9f"><td class="memItemLeft" align="right" valign="top"><a id="a7dd09c97bc13d11f6e72be84f6528e9f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ColorCommand</b> (<a class="el" href="class_color_button.html">ColorButton</a> *s, QColor o, QColor n)</td></tr>
+<tr class="memitem:a7dd09c97bc13d11f6e72be84f6528e9f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_command.html#a7dd09c97bc13d11f6e72be84f6528e9f">ColorCommand</a> (<a class="el" href="class_color_button.html">ColorButton</a> *s, QColor o, QColor n)</td></tr>
 <tr class="separator:a7dd09c97bc13d11f6e72be84f6528e9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8de925ef45ce8097191296cc98e02724"><td class="memItemLeft" align="right" valign="top"><a id="a8de925ef45ce8097191296cc98e02724"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>undo</b> ()</td></tr>
+<tr class="memitem:a8de925ef45ce8097191296cc98e02724"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_command.html#a8de925ef45ce8097191296cc98e02724">undo</a> ()</td></tr>
 <tr class="separator:a8de925ef45ce8097191296cc98e02724"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc357a57a33f55454c328d379e668b4d"><td class="memItemLeft" align="right" valign="top"><a id="acc357a57a33f55454c328d379e668b4d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>redo</b> ()</td></tr>
+<tr class="memitem:acc357a57a33f55454c328d379e668b4d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_command.html#acc357a57a33f55454c328d379e668b4d">redo</a> ()</td></tr>
 <tr class="separator:acc357a57a33f55454c328d379e668b4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a78343395e366525c787bc31265568897"><td class="memItemLeft" align="right" valign="top"><a id="a78343395e366525c787bc31265568897"></a>
-<a class="el" href="class_color_button.html">ColorButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>sender</b></td></tr>
+<tr class="memitem:a78343395e366525c787bc31265568897"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_color_button.html">ColorButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_command.html#a78343395e366525c787bc31265568897">sender</a></td></tr>
 <tr class="separator:a78343395e366525c787bc31265568897"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86d387e588719658612036f9626c5096"><td class="memItemLeft" align="right" valign="top"><a id="a86d387e588719658612036f9626c5096"></a>
-QColor&#160;</td><td class="memItemRight" valign="bottom"><b>old_color</b></td></tr>
+<tr class="memitem:a86d387e588719658612036f9626c5096"><td class="memItemLeft" align="right" valign="top">QColor&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_command.html#a86d387e588719658612036f9626c5096">old_color</a></td></tr>
 <tr class="separator:a86d387e588719658612036f9626c5096"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21ad33b4e026029d30aab46cca634773"><td class="memItemLeft" align="right" valign="top"><a id="a21ad33b4e026029d30aab46cca634773"></a>
-QColor&#160;</td><td class="memItemRight" valign="bottom"><b>new_color</b></td></tr>
+<tr class="memitem:a21ad33b4e026029d30aab46cca634773"><td class="memItemLeft" align="right" valign="top">QColor&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_command.html#a21ad33b4e026029d30aab46cca634773">new_color</a></td></tr>
 <tr class="separator:a21ad33b4e026029d30aab46cca634773"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a7dd09c97bc13d11f6e72be84f6528e9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dd09c97bc13d11f6e72be84f6528e9f">&#9670;&nbsp;</a></span>ColorCommand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ColorCommand::ColorCommand </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_color_button.html">ColorButton</a> *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QColor&#160;</td>
+          <td class="paramname"><em>o</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QColor&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="acc357a57a33f55454c328d379e668b4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc357a57a33f55454c328d379e668b4d">&#9670;&nbsp;</a></span>redo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ColorCommand::redo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8de925ef45ce8097191296cc98e02724"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8de925ef45ce8097191296cc98e02724">&#9670;&nbsp;</a></span>undo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ColorCommand::undo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a21ad33b4e026029d30aab46cca634773"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21ad33b4e026029d30aab46cca634773">&#9670;&nbsp;</a></span>new_color</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QColor ColorCommand::new_color</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a86d387e588719658612036f9626c5096"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86d387e588719658612036f9626c5096">&#9670;&nbsp;</a></span>old_color</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QColor ColorCommand::old_color</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a78343395e366525c787bc31265568897"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78343395e366525c787bc31265568897">&#9670;&nbsp;</a></span>sender</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_color_button.html">ColorButton</a>* ColorCommand::sender</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>ui/<a class="el" href="colorbutton_8h_source.html">colorbutton.h</a></li>
-<li>ui/colorbutton.cpp</li>
+<li>ui/<a class="el" href="colorbutton_8cpp.html">colorbutton.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
