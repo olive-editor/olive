@@ -694,7 +694,7 @@ void ExportDialog::setup_ui() {
 	verticalLayout->addWidget(videoGroupbox);
 
 	audioGroupbox = new QGroupBox(this);
-	audioGroupbox->setTitle("Audio");
+	audioGroupbox->setTitle(tr("Audio"));
 	audioGroupbox->setCheckable(true);
 
 	QGridLayout* audioGridLayout = new QGridLayout(audioGroupbox);
