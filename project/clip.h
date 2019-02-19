@@ -51,7 +51,7 @@ class Clip {
 public:
   Clip(SequencePtr s);
   ~Clip();
-  ClipPtr copy(SequencePtr s, bool duplicate_transitions = true);
+  ClipPtr copy(SequencePtr s);
   void reset_audio();
   void reset();
   void refresh();
@@ -96,9 +96,7 @@ public:
   QList<EffectPtr> effects;
   QVector<int> linked;
   TransitionPtr opening_transition;
-  TransitionPtr get_opening_transition();
   TransitionPtr closing_transition;
-  TransitionPtr get_closing_transition();
 
   // media handling
   AVFormatContext* formatCtx;

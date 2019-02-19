@@ -421,18 +421,18 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           }
 
           // if the clip has an opening transition, process that now
-          if (c->get_opening_transition() != nullptr) {
+          if (c->opening_transition != nullptr) {
             int transition_progress = playhead - c->get_timeline_in_with_transition();
-            if (transition_progress < c->get_opening_transition()->get_length()) {
-              process_effect(c, c->get_opening_transition(), double(transition_progress)/double(c->get_opening_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionOpening);
+            if (transition_progress < c->opening_transition->get_length()) {
+              process_effect(c, c->opening_transition, double(transition_progress)/double(c->opening_transition->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionOpening);
             }
           }
 
           // if the clip has a closing transition, process that now
-          if (c->get_closing_transition() != nullptr) {
-            int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->get_closing_transition()->get_length());
-            if (transition_progress >= 0 && transition_progress < c->get_closing_transition()->get_length()) {
-              process_effect(c, c->get_closing_transition(), double(transition_progress)/double(c->get_closing_transition()->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionClosing);
+          if (c->closing_transition != nullptr) {
+            int transition_progress = playhead - (c->get_timeline_out_with_transition() - c->closing_transition->get_length());
+            if (transition_progress >= 0 && transition_progress < c->closing_transition->get_length()) {
+              process_effect(c, c->closing_transition, double(transition_progress)/double(c->closing_transition->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionClosing);
             }
           }
 

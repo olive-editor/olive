@@ -60,7 +60,7 @@ Clip::Clip(SequencePtr s) :
   reset();
 }
 
-ClipPtr Clip::copy(SequencePtr s, bool duplicate_transitions) {
+ClipPtr Clip::copy(SequencePtr s) {
   ClipPtr copy(new Clip(s));
 
   copy->enabled = enabled;
@@ -168,14 +168,6 @@ QVector<Marker> &Clip::get_markers() {
   return markers;
 }
 
-TransitionPtr Clip::get_opening_transition() {
-  return opening_transition;
-}
-
-TransitionPtr Clip::get_closing_transition() {
-  return closing_transition;
-}
-
 Clip::~Clip() {
   if (open) {
     close_clip(ClipPtr(this), true);
@@ -186,25 +178,25 @@ Clip::~Clip() {
 }
 
 long Clip::get_clip_in_with_transition() {
-  if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip != nullptr) {
+  if (opening_transition != nullptr && opening_transition->secondary_clip != nullptr) {
     // we must be the secondary clip, so return (timeline in - length)
-    return clip_in - get_opening_transition()->get_true_length();
+    return clip_in - opening_transition->get_true_length();
   }
   return clip_in;
 }
 
 long Clip::get_timeline_in_with_transition() {
-  if (get_opening_transition() != nullptr && get_opening_transition()->secondary_clip != nullptr) {
+  if (opening_transition != nullptr && opening_transition->secondary_clip != nullptr) {
     // we must be the secondary clip, so return (timeline in - length)
-    return timeline_in - get_opening_transition()->get_true_length();
+    return timeline_in - opening_transition->get_true_length();
   }
   return timeline_in;
 }
 
 long Clip::get_timeline_out_with_transition() {
-  if (get_closing_transition() != nullptr && get_closing_transition()->secondary_clip != nullptr) {
+  if (closing_transition != nullptr && closing_transition->secondary_clip != nullptr) {
     // we must be the primary clip, so return (timeline out + length2)
-    return timeline_out + get_closing_transition()->get_true_length();
+    return timeline_out + closing_transition->get_true_length();
   } else {
     return timeline_out;
   }

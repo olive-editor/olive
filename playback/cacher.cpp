@@ -71,28 +71,28 @@ void apply_audio_effects(ClipPtr c, double timecode_start, AVFrame* frame, int n
     EffectPtr e = c->effects.at(j);
     if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
   }
-  if (c->get_opening_transition() != nullptr) {
+  if (c->opening_transition != nullptr) {
     if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
       double transition_start = (c->get_clip_in_with_transition() / c->sequence->frame_rate);
-      double transition_end = (c->get_clip_in_with_transition() + c->get_opening_transition()->get_length()) / c->sequence->frame_rate;
+      double transition_end = (c->get_clip_in_with_transition() + c->opening_transition->get_length()) / c->sequence->frame_rate;
       if (timecode_end < transition_end) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
         double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-        c->get_opening_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionOpening);
+        c->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionOpening);
       }
     }
   }
-  if (c->get_closing_transition() != nullptr) {
+  if (c->closing_transition != nullptr) {
     if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
       long length_with_transitions = c->get_timeline_out_with_transition() - c->get_timeline_in_with_transition();
-      double transition_start = (c->get_clip_in_with_transition() + length_with_transitions - c->get_closing_transition()->get_length()) / c->sequence->frame_rate;
+      double transition_start = (c->get_clip_in_with_transition() + length_with_transitions - c->closing_transition->get_length()) / c->sequence->frame_rate;
       double transition_end = (c->get_clip_in_with_transition() + length_with_transitions) / c->sequence->frame_rate;
       if (timecode_start > transition_start) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
         double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-        c->get_closing_transition()->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionClosing);
+        c->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionClosing);
       }
     }
   }

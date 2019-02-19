@@ -378,7 +378,7 @@ void Timeline::add_transition() {
     ClipPtr c = olive::ActiveSequence->clips.at(i);
     if (c != nullptr && is_clip_selected(c, true)) {
       int transition_to_add = (c->track < 0) ? TRANSITION_INTERNAL_CROSSDISSOLVE : TRANSITION_INTERNAL_LINEARFADE;
-      if (c->get_opening_transition() == nullptr) {
+      if (c->opening_transition == nullptr) {
         ca->append(new AddTransitionCommand(c,
                                             nullptr,
                                             nullptr,
@@ -386,7 +386,7 @@ void Timeline::add_transition() {
                                             olive::CurrentConfig.default_transition_length));
         adding = true;
       }
-      if (c->get_closing_transition() == nullptr) {
+      if (c->closing_transition == nullptr) {
         ca->append(new AddTransitionCommand(nullptr,
                                             c,
                                             nullptr,
@@ -850,7 +850,7 @@ ClipPtr Timeline::split_clip(ComboAction* ca, bool transitions, int p, long fram
     if (pre->timeline_in < frame && pre->timeline_out > frame) {
       // duplicate clip without duplicating its transitions, we'll restore them later
 
-      ClipPtr post = ClipPtr(pre->copy(olive::ActiveSequence, false));
+      ClipPtr post = ClipPtr(pre->copy(olive::ActiveSequence));
 
       long new_clip_length = frame - pre->timeline_in;
 
@@ -999,15 +999,15 @@ void Timeline::clean_up_selections(QVector<Selection>& areas) {
 
 bool selection_contains_transition(const Selection& s, ClipPtr c, int type) {
   if (type == kTransitionOpening) {
-    return c->get_opening_transition() != nullptr
-        && s.out == c->timeline_in + c->get_opening_transition()->get_true_length()
-        && ((c->get_opening_transition()->secondary_clip == nullptr && s.in == c->timeline_in)
-            || (c->get_opening_transition()->secondary_clip != nullptr && s.in == c->timeline_in - c->get_opening_transition()->get_true_length()));
+    return c->opening_transition != nullptr
+        && s.out == c->timeline_in + c->opening_transition->get_true_length()
+        && ((c->opening_transition->secondary_clip == nullptr && s.in == c->timeline_in)
+            || (c->opening_transition->secondary_clip != nullptr && s.in == c->timeline_in - c->opening_transition->get_true_length()));
   } else {
-    return c->get_closing_transition() != nullptr
-        && s.in == c->timeline_out - c->get_closing_transition()->get_true_length()
-        && ((c->get_closing_transition()->secondary_clip == nullptr && s.out == c->timeline_out)
-            || (c->get_closing_transition()->secondary_clip != nullptr && s.out == c->timeline_out + c->get_closing_transition()->get_true_length()));
+    return c->closing_transition != nullptr
+        && s.in == c->timeline_out - c->closing_transition->get_true_length()
+        && ((c->closing_transition->secondary_clip == nullptr && s.out == c->timeline_out)
+            || (c->closing_transition->secondary_clip != nullptr && s.out == c->timeline_out + c->closing_transition->get_true_length()));
   }
 }
 
@@ -1044,22 +1044,22 @@ void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& area
           // only out point is in deletion area
           move_clip(ca, c, c->timeline_in, s.in, c->clip_in, c->track);
 
-          if (c->get_closing_transition() != nullptr) {
-            if (s.in < c->timeline_out - c->get_closing_transition()->get_true_length()) {
+          if (c->closing_transition != nullptr) {
+            if (s.in < c->timeline_out - c->closing_transition->get_true_length()) {
               ca->append(new DeleteTransitionCommand(c->closing_transition));
             } else {
-              ca->append(new ModifyTransitionCommand(c->closing_transition, c->get_closing_transition()->get_true_length() - (c->timeline_out - s.in)));
+              ca->append(new ModifyTransitionCommand(c->closing_transition, c->closing_transition->get_true_length() - (c->timeline_out - s.in)));
             }
           }
         } else if (c->timeline_in < s.out && c->timeline_out > s.out) {
           // only in point is in deletion area
           move_clip(ca, c, s.out, c->timeline_out, c->clip_in + (s.out - c->timeline_in), c->track);
 
-          if (c->get_opening_transition() != nullptr) {
-            if (s.out > c->timeline_in + c->get_opening_transition()->get_true_length()) {
+          if (c->opening_transition != nullptr) {
+            if (s.out > c->timeline_in + c->opening_transition->get_true_length()) {
               ca->append(new DeleteTransitionCommand(c->opening_transition));
             } else {
-              ca->append(new ModifyTransitionCommand(c->opening_transition, c->get_opening_transition()->get_true_length() - (s.out - c->timeline_in)));
+              ca->append(new ModifyTransitionCommand(c->opening_transition, c->opening_transition->get_true_length() - (s.out - c->timeline_in)));
             }
           }
         }
@@ -1596,11 +1596,11 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
           return true;
         } else if (snap_to_point(c->timeline_out, l)) {
           return true;
-        } else if (c->get_opening_transition() != nullptr
-                   && snap_to_point(c->timeline_in + c->get_opening_transition()->get_true_length(), l)) {
+        } else if (c->opening_transition != nullptr
+                   && snap_to_point(c->timeline_in + c->opening_transition->get_true_length(), l)) {
           return true;
-        } else if (c->get_closing_transition() != nullptr
-                   && snap_to_point(c->timeline_out - c->get_closing_transition()->get_true_length(), l)) {
+        } else if (c->closing_transition != nullptr
+                   && snap_to_point(c->timeline_out - c->closing_transition->get_true_length(), l)) {
           return true;
         } else {
           // try to snap to clip markers
@@ -2075,26 +2075,26 @@ void move_clip(ComboAction* ca, ClipPtr c, long iin, long iout, long iclip_in, i
   if (verify_transitions) {
 
     // if this is a shared transition, and the corresponding clip will be moved away somehow
-    if (c->get_opening_transition() != nullptr
-        && c->get_opening_transition()->secondary_clip != nullptr
-        && c->get_opening_transition()->secondary_clip->timeline_out != iin) {
+    if (c->opening_transition != nullptr
+        && c->opening_transition->secondary_clip != nullptr
+        && c->opening_transition->secondary_clip->timeline_out != iin) {
       // separate transition
-      ca->append(new SetPointer(reinterpret_cast<void**>(&c->get_opening_transition()->secondary_clip), nullptr));
+      ca->append(new SetPointer(reinterpret_cast<void**>(&c->opening_transition->secondary_clip), nullptr));
       ca->append(new AddTransitionCommand(nullptr,
-                                          c->get_opening_transition()->secondary_clip,
-                                          c->get_opening_transition(),
+                                          c->opening_transition->secondary_clip,
+                                          c->opening_transition,
                                           nullptr,
                                           0));
     }
 
-    if (c->get_closing_transition() != nullptr
-        && c->get_closing_transition()->secondary_clip != nullptr
-        && c->get_closing_transition()->parent_clip->timeline_in != iout) {
+    if (c->closing_transition != nullptr
+        && c->closing_transition->secondary_clip != nullptr
+        && c->closing_transition->parent_clip->timeline_in != iout) {
       // separate transition
-      ca->append(new SetPointer(reinterpret_cast<void**>(&c->get_closing_transition()->secondary_clip), nullptr));
+      ca->append(new SetPointer(reinterpret_cast<void**>(&c->closing_transition->secondary_clip), nullptr));
       ca->append(new AddTransitionCommand(nullptr,
                                           c,
-                                          c->get_closing_transition(),
+                                          c->closing_transition,
                                           nullptr,
                                           0));
     }
