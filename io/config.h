@@ -23,36 +23,39 @@
 
 #include <QString>
 
-#define SAVE_VERSION 190219 // YYMMDD
-#define MIN_SAVE_VERSION 190219 // lowest compatible project version
+namespace olive {
+  const int kSaveVersion = 190219; // YYMMDD
+  const int kMinimumSaveVersion = 190219; // lowest compatible project version
 
-enum TimecodeType {
-  TIMECODE_DROP,
-  TIMECODE_NONDROP,
-  TIMECODE_FRAMES,
-  TIMECODE_MILLISECONDS
-};
+  enum TimecodeType {
+    kTimecodeDrop,
+    kTimecodeNonDrop,
+    kTimecodeFrames,
+    kTimecodeMilliseconds
+  };
 
-enum RecordingMode {
-  RECORD_MODE_MONO,
-  RECORD_MODE_STEREO
-};
+  enum RecordingMode {
+    RECORD_MODE_MONO,
+    RECORD_MODE_STEREO
+  };
 
-enum AutoScrollMode {
-  AUTOSCROLL_NO_SCROLL,
-  AUTOSCROLL_PAGE_SCROLL,
-  AUTOSCROLL_SMOOTH_SCROLL
-};
+  enum AutoScrollMode {
+    AUTOSCROLL_NO_SCROLL,
+    AUTOSCROLL_PAGE_SCROLL,
+    AUTOSCROLL_SMOOTH_SCROLL
+  };
 
-enum ProjectView {
-  PROJECT_VIEW_TREE,
-  PROJECT_VIEW_ICON
-};
+  enum ProjectView {
+    PROJECT_VIEW_TREE,
+    PROJECT_VIEW_ICON
+  };
 
-enum FrameQueueType {
-  FRAME_QUEUE_TYPE_FRAMES,
-  FRAME_QUEUE_TYPE_SECONDS
-};
+  enum FrameQueueType {
+    FRAME_QUEUE_TYPE_FRAMES,
+    FRAME_QUEUE_TYPE_SECONDS
+  };
+}
+
 
 struct Config {
   Config();

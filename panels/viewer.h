@@ -36,7 +36,7 @@
 #include "ui/labelslider.h"
 #include "ui/resizablescrollbar.h"
 
-bool frame_rate_is_droppable(float rate);
+bool frame_rate_is_droppable(double rate);
 long timecode_to_frame(const QString& s, int view, double frame_rate);
 QString frame_to_timecode(long f, int view, double frame_rate);
 

@@ -43,7 +43,7 @@ Config::Config()
     img_seq_formats("jpg|jpeg|bmp|tiff|tif|psd|png|tga|jp2|gif"),
     rectified_waveforms(false),
     default_transition_length(30),
-    timecode_view(TIMECODE_DROP),
+    timecode_view(olive::kTimecodeDrop),
     show_title_safe_area(false),
     use_custom_title_safe_ratio(false),
     custom_title_safe_ratio(1),
@@ -53,17 +53,17 @@ Config::Config()
     enable_seek_to_import(false),
     enable_audio_scrubbing(true),
     drop_on_media_to_replace(true),
-    autoscroll(AUTOSCROLL_PAGE_SCROLL),
+    autoscroll(olive::AUTOSCROLL_PAGE_SCROLL),
     audio_rate(48000),
     fast_seeking(false),
     hover_focus(false),
-    project_view_type(PROJECT_VIEW_TREE),
+    project_view_type(olive::PROJECT_VIEW_TREE),
     set_name_with_marker(true),
     show_project_toolbar(false),
     previous_queue_size(3),
-    previous_queue_type(FRAME_QUEUE_TYPE_FRAMES),
+    previous_queue_type(olive::FRAME_QUEUE_TYPE_FRAMES),
     upcoming_queue_size(0.5),
-    upcoming_queue_type(FRAME_QUEUE_TYPE_SECONDS),
+    upcoming_queue_type(olive::FRAME_QUEUE_TYPE_SECONDS),
     loop(false),
     seek_also_selects(false),
     effect_textbox_lines(3),
@@ -234,7 +234,7 @@ void Config::save(QString path) {
   stream.writeStartDocument(); // doc
   stream.writeStartElement("Configuration"); // configuration
 
-  stream.writeTextElement("Version", QString::number(SAVE_VERSION));
+  stream.writeTextElement("Version", QString::number(olive::kSaveVersion));
   stream.writeTextElement("SavedLayout", QString::number(saved_layout));
   stream.writeTextElement("ShowTrackLines", QString::number(show_track_lines));
   stream.writeTextElement("ScrollZooms", QString::number(scroll_zooms));

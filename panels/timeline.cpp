@@ -502,13 +502,13 @@ void Timeline::repaint_timeline() {
         && panel_sequence_viewer->playing
         && !zoom_just_changed) {
       // auto scroll
-      if (olive::CurrentConfig.autoscroll == AUTOSCROLL_PAGE_SCROLL) {
+      if (olive::CurrentConfig.autoscroll == olive::AUTOSCROLL_PAGE_SCROLL) {
         int playhead_x = getTimelineScreenPointFromFrame(olive::ActiveSequence->playhead);
         if (playhead_x < 0 || playhead_x > (editAreas->width() - videoScrollbar->width())) {
           horizontalScrollBar->setValue(getScreenPointFromFrame(zoom, olive::ActiveSequence->playhead));
           draw = false;
         }
-      } else if (olive::CurrentConfig.autoscroll == AUTOSCROLL_SMOOTH_SCROLL) {
+      } else if (olive::CurrentConfig.autoscroll == olive::AUTOSCROLL_SMOOTH_SCROLL) {
         if (center_scroll_to_playhead(horizontalScrollBar, zoom, olive::ActiveSequence->playhead)) {
           draw = false;
         }

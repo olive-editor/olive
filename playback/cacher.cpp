@@ -743,12 +743,12 @@ void open_clip_worker(ClipPtr clip) {
       clip->max_queue_size = 1;
     } else {
       clip->max_queue_size = 0;
-      if (olive::CurrentConfig.upcoming_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+      if (olive::CurrentConfig.upcoming_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
         clip->max_queue_size += qCeil(olive::CurrentConfig.upcoming_queue_size);
       } else {
         clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * olive::CurrentConfig.upcoming_queue_size);
       }
-      if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+      if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
         clip->max_queue_size += qCeil(olive::CurrentConfig.previous_queue_size);
       } else {
         clip->max_queue_size += qCeil(ms->video_frame_rate * m->speed * olive::CurrentConfig.previous_queue_size);

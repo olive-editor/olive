@@ -432,10 +432,10 @@ void Project::new_folder() {
 
   QModelIndex index = olive::project_model.create_index(m->row(), 0, m);
   switch (olive::CurrentConfig.project_view_type) {
-  case PROJECT_VIEW_TREE:
+  case olive::PROJECT_VIEW_TREE:
     tree_view->edit(sorter->mapFromSource(index));
     break;
-  case PROJECT_VIEW_ICON:
+  case olive::PROJECT_VIEW_ICON:
     icon_view->edit(sorter->mapFromSource(index));
     break;
   }
@@ -871,7 +871,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
       // retrieve its parent item
       QModelIndex hierarchy = sorted_index.parent();
 
-      if (olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE) {
+      if (olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE) {
 
         // if we're in tree view, expand every folder in the hierarchy containing the media
         while (hierarchy.isValid()) {
@@ -886,7 +886,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
               );
 
         tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
-      } else if (olive::CurrentConfig.project_view_type == PROJECT_VIEW_ICON) {
+      } else if (olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON) {
 
         // if we're in icon view, we just "browse" to the parent folder
         icon_view->setRootIndex(hierarchy);
@@ -1206,7 +1206,7 @@ void Project::save_project(bool autorecovery) {
 
   stream.writeStartElement("project"); // project
 
-  stream.writeTextElement("version", QString::number(SAVE_VERSION));
+  stream.writeTextElement("version", QString::number(olive::kSaveVersion));
 
   stream.writeTextElement("url", olive::ActiveProjectFilename);
   proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
@@ -1240,26 +1240,26 @@ void Project::save_project(bool autorecovery) {
 }
 
 void Project::update_view_type() {
-  tree_view->setVisible(olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE);
-  icon_view_container->setVisible(olive::CurrentConfig.project_view_type == PROJECT_VIEW_ICON);
+  tree_view->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE);
+  icon_view_container->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON);
 
   switch (olive::CurrentConfig.project_view_type) {
-  case PROJECT_VIEW_TREE:
+  case olive::PROJECT_VIEW_TREE:
     sources_common->view = tree_view;
     break;
-  case PROJECT_VIEW_ICON:
+  case olive::PROJECT_VIEW_ICON:
     sources_common->view = icon_view;
     break;
   }
 }
 
 void Project::set_icon_view() {
-  olive::CurrentConfig.project_view_type = PROJECT_VIEW_ICON;
+  olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_ICON;
   update_view_type();
 }
 
 void Project::set_tree_view() {
-  olive::CurrentConfig.project_view_type = PROJECT_VIEW_TREE;
+  olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_TREE;
   update_view_type();
 }
 
@@ -1343,7 +1343,7 @@ QVector<Media*> Project::list_all_project_sequences() {
 }
 
 QModelIndexList Project::get_current_selected() {
-  if (olive::CurrentConfig.project_view_type == PROJECT_VIEW_TREE) {
+  if (olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE) {
     return tree_view->selectionModel()->selectedRows();
   }
   return icon_view->selectionModel()->selectedIndexes();

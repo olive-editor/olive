@@ -449,19 +449,19 @@ void MainWindow::setup_menus() {
 
   frames_action = view_menu->addAction(tr("Frames"), &olive::MenuHelper, SLOT(set_timecode_view()));
   frames_action->setProperty("id", "modeframes");
-  frames_action->setData(TIMECODE_FRAMES);
+  frames_action->setData(olive::kTimecodeFrames);
   frames_action->setCheckable(true);
   drop_frame_action = view_menu->addAction(tr("Drop Frame"), &olive::MenuHelper, SLOT(set_timecode_view()));
   drop_frame_action->setProperty("id", "modedropframe");
-  drop_frame_action->setData(TIMECODE_DROP);
+  drop_frame_action->setData(olive::kTimecodeDrop);
   drop_frame_action->setCheckable(true);
   nondrop_frame_action = view_menu->addAction(tr("Non-Drop Frame"), &olive::MenuHelper, SLOT(set_timecode_view()));
   nondrop_frame_action->setProperty("id", "modenondropframe");
-  nondrop_frame_action->setData(TIMECODE_NONDROP);
+  nondrop_frame_action->setData(olive::kTimecodeNonDrop);
   nondrop_frame_action->setCheckable(true);
   milliseconds_action = view_menu->addAction(tr("Milliseconds"), &olive::MenuHelper, SLOT(set_timecode_view()));
   milliseconds_action->setProperty("id", "milliseconds");
-  milliseconds_action->setData(TIMECODE_MILLISECONDS);
+  milliseconds_action->setData(olive::kTimecodeMilliseconds);
   milliseconds_action->setCheckable(true);
 
   view_menu->addSeparator();
@@ -700,17 +700,17 @@ void MainWindow::setup_menus() {
 
   no_autoscroll = tools_menu->addAction(tr("No Auto-Scroll"), &olive::MenuHelper, SLOT(set_autoscroll()));
   no_autoscroll->setProperty("id", "autoscrollno");
-  no_autoscroll->setData(AUTOSCROLL_NO_SCROLL);
+  no_autoscroll->setData(olive::AUTOSCROLL_NO_SCROLL);
   no_autoscroll->setCheckable(true);
 
   page_autoscroll = tools_menu->addAction(tr("Page Auto-Scroll"), &olive::MenuHelper, SLOT(set_autoscroll()));
   page_autoscroll->setProperty("id", "autoscrollpage");
-  page_autoscroll->setData(AUTOSCROLL_PAGE_SCROLL);
+  page_autoscroll->setData(olive::AUTOSCROLL_PAGE_SCROLL);
   page_autoscroll->setCheckable(true);
 
   smooth_autoscroll = tools_menu->addAction(tr("Smooth Auto-Scroll"), &olive::MenuHelper, SLOT(set_autoscroll()));
   smooth_autoscroll->setProperty("id", "autoscrollsmooth");
-  smooth_autoscroll->setData(AUTOSCROLL_SMOOTH_SCROLL);
+  smooth_autoscroll->setData(olive::AUTOSCROLL_SMOOTH_SCROLL);
   smooth_autoscroll->setCheckable(true);
 
   tools_menu->addSeparator();

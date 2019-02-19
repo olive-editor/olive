@@ -204,7 +204,7 @@ void get_clip_frame(ClipPtr c, long playhead, bool& texture_failed) {
 				int64_t minimum_ts = target_frame->pts;
 
 				int previous_frame_count = 0;
-				if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+        if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS) {
 					minimum_ts -= (second_pts*olive::CurrentConfig.previous_queue_size);
 				}
 
@@ -214,7 +214,7 @@ void get_clip_frame(ClipPtr c, long playhead, bool& texture_failed) {
 						next_pts = c->queue.at(i)->pts;
 					}
 					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
-						if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+            if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS) {
 							//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
 							av_frame_free(&c->queue[i]); // may be a little heavy for the main thread?
 							c->queue.removeAt(i);
@@ -226,7 +226,7 @@ void get_clip_frame(ClipPtr c, long playhead, bool& texture_failed) {
 					}
 				}
 
-				if (olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
+        if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
 					while (previous_frame_count > qCeil(olive::CurrentConfig.previous_queue_size)) {
 						int smallest = 0;
 						for (int i=1;i<c->queue.size();i++) {

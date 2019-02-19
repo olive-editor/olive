@@ -169,14 +169,14 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
   show_err = true;
 
-  int proj_version = SAVE_VERSION;
+  int proj_version = olive::kSaveVersion;
 
   while (!stream.atEnd() && !cancelled) {
     read_next_start_element(stream);
     if (stream.name() == root_search) {
       if (type == LOAD_TYPE_VERSION) {
         proj_version = stream.readElementText().toInt();
-        if (proj_version < MIN_SAVE_VERSION || proj_version > SAVE_VERSION) {
+        if (proj_version < olive::kMinimumSaveVersion || proj_version > olive::kSaveVersion) {
           emit start_question(
                 tr("Version Mismatch"),
                 tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),

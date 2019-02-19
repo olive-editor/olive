@@ -144,14 +144,14 @@ void Viewer::reset_all_audio() {
 long timecode_to_frame(const QString& s, int view, double frame_rate) {
 	QList<QString> list = s.split(QRegExp("[:;]"));
 
-	if (view == TIMECODE_FRAMES || (list.size() == 1 && view != TIMECODE_MILLISECONDS)) {
+  if (view == olive::kTimecodeFrames || (list.size() == 1 && view != olive::kTimecodeMilliseconds)) {
 		return s.toLong();
 	}
 
 	int frRound = qRound(frame_rate);
 	int hours, minutes, seconds, frames;
 
-	if (view == TIMECODE_MILLISECONDS) {
+  if (view == olive::kTimecodeMilliseconds) {
 		long milliseconds = s.toLong();
 
 		hours = milliseconds/3600000;
@@ -174,14 +174,14 @@ long timecode_to_frame(const QString& s, int view, double frame_rate) {
 
 	int f = (frames + seconds + minutes + hours);
 
-	if ((view == TIMECODE_DROP || view == TIMECODE_MILLISECONDS) && frame_rate_is_droppable(frame_rate)) {
+  if ((view == olive::kTimecodeDrop || view == olive::kTimecodeMilliseconds) && frame_rate_is_droppable(frame_rate)) {
 		// return drop
 		int d;
 		int m;
 
-		int dropFrames = round(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
-		int framesPer10Minutes = round(frame_rate * 60 * 10); //Number of frames per ten minutes
-		int framesPerMinute = (round(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
+    int dropFrames = qRound(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
+    int framesPer10Minutes = qRound(frame_rate * 60 * 10); //Number of frames per ten minutes
+    int framesPerMinute = (qRound(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
 
 		d = f / framesPer10Minutes;
 		f -= dropFrames*9*d;
@@ -198,7 +198,7 @@ long timecode_to_frame(const QString& s, int view, double frame_rate) {
 }
 
 QString frame_to_timecode(long f, int view, double frame_rate) {
-	if (view == TIMECODE_FRAMES) {
+  if (view == olive::kTimecodeFrames) {
 		return QString::number(f);
 	}
 
@@ -209,7 +209,7 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 	int frames = 0;
 	QString token = ":";
 
-	if ((view == TIMECODE_DROP || view == TIMECODE_MILLISECONDS) && frame_rate_is_droppable(frame_rate)) {
+  if ((view == olive::kTimecodeDrop || view == olive::kTimecodeMilliseconds) && frame_rate_is_droppable(frame_rate)) {
 		//CONVERT A FRAME NUMBER TO DROP FRAME TIMECODE
 		//Code by David Heidelberger, adapted from Andrew Duncan, further adapted for Olive by Olive Team
 		//Given an int called framenumber and a double called framerate
@@ -218,11 +218,11 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 		int d;
 		int m;
 
-		int dropFrames = round(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
-		int framesPerHour = round(frame_rate*60*60); //Number of frqRound64ames in an hour
+    int dropFrames = qRound(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
+    int framesPerHour = qRound(frame_rate*60*60); //Number of frqRound64ames in an hour
 		int framesPer24Hours = framesPerHour*24; //Number of frames in a day - timecode rolls over after 24 hours
-		int framesPer10Minutes = round(frame_rate * 60 * 10); //Number of frames per ten minutes
-		int framesPerMinute = (round(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
+    int framesPer10Minutes = qRound(frame_rate * 60 * 10); //Number of frames per ten minutes
+    int framesPerMinute = (qRound(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
 
 		//If framenumber is greater than 24 hrs, next operation will rollover clock
 		f = f % framesPer24Hours; //% is the modulus operator, which returns a remainder. a % b = the remainder of a/b
@@ -237,7 +237,7 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 			f = f + dropFrames*9*d;
 		}
 
-		int frRound = round(frame_rate);
+    int frRound = qRound(frame_rate);
 		frames = f % frRound;
 		secs = (f / frRound) % 60;
 		mins = ((f / frRound) / 60) % 60;
@@ -253,7 +253,7 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 		secs = f/int_fps % 60;
 		frames = f%int_fps;
 	}
-	if (view == TIMECODE_MILLISECONDS) {
+  if (view == olive::kTimecodeMilliseconds) {
 		return QString::number((hours*3600000)+(mins*60000)+(secs*1000)+qCeil(frames*1000/frame_rate));
 	}
 	return QString(QString::number(hours).rightJustified(2, '0') +
@@ -263,8 +263,8 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
 				);
 }
 
-bool frame_rate_is_droppable(float rate) {
-	return (qFuzzyCompare(rate, 23.976f) || qFuzzyCompare(rate, 29.97f) || qFuzzyCompare(rate, 59.94f));
+bool frame_rate_is_droppable(double rate) {
+  return (qFuzzyCompare(rate, 23.976) || qFuzzyCompare(rate, 29.97) || qFuzzyCompare(rate, 59.94));
 }
 
 void Viewer::seek(long p) {
