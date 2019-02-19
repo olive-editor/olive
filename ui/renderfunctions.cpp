@@ -44,7 +44,7 @@
 #include "panels/viewer.h"
 
 extern "C" {
-	#include <libavformat/avformat.h>
+#include <libavformat/avformat.h>
 }
 
 void full_blit() {
