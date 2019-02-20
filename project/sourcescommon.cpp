@@ -249,7 +249,7 @@ void SourcesCommon::mouseDoubleClickEvent(const QModelIndexList& selected_items)
 	if (selected_items.size() == 0) {
 		project_parent->import_dialog();
 	} else if (selected_items.size() == 1) {
-    Media* media = media;
+    Media* media = project_parent->item_to_media(selected_items.at(0));
     if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
       olive::UndoStack.push(new ChangeSequenceAction(media->to_sequence()));
     } else {
