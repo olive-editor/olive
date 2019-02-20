@@ -151,7 +151,8 @@ SOURCES += \
     ui/focusfilter.cpp \
     project/comboaction.cpp \
     ui/mediaiconservice.cpp \
-    ui/panel.cpp
+    ui/panel.cpp \
+    effects/internal/dropshadoweffect.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -260,7 +261,8 @@ HEADERS += \
     ui/focusfilter.h \
     project/comboaction.h \
     ui/mediaiconservice.h \
-    ui/panel.h
+    ui/panel.h \
+    effects/internal/dropshadoweffect.h
 
 FORMS +=
 

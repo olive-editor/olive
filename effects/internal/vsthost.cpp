@@ -108,6 +108,10 @@ typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs,
 void VSTHost::loadPlugin() {
 	QString dll_fn = file_field->get_filename(0, true);
 
+  if (dll_fn.isEmpty()) {
+    return;
+  }
+
 #if defined(__APPLE__)
 	bundle = BundleLoad(dll_fn);
 
