@@ -73,7 +73,7 @@ void SourceIconView::dropEvent(QDropEvent* event) {
 	project_parent->sources_common->dropEvent(this, event, drop_item, selectedIndexes());
 }
 
-void SourceIconView::mouseDoubleClickEvent(QMouseEvent *event) {
+void SourceIconView::mouseDoubleClickEvent(QMouseEvent *) {
 	bool default_behavior = true;
 	if (selectedIndexes().size() == 1) {
 		Media* m = project_parent->item_to_media(selectedIndexes().at(0));
@@ -84,6 +84,6 @@ void SourceIconView::mouseDoubleClickEvent(QMouseEvent *event) {
 		}
 	}
 	if (default_behavior) {
-		project_parent->sources_common->mouseDoubleClickEvent(event, selectedIndexes());
+    project_parent->sources_common->mouseDoubleClickEvent(selectedIndexes());
 	}
 }

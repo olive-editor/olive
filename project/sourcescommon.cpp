@@ -214,6 +214,15 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 		QObject::connect(delete_action, SIGNAL(triggered(bool)), project_parent, SLOT(delete_selected_media()));
 
 		if (items.size() == 1) {
+      Media* media_item = project_parent->item_to_media(items.at(0));
+
+      if (media_item->get_type() != MEDIA_TYPE_FOLDER) {
+        QAction* preview_in_media_viewer_action = menu.addAction(tr("Preview in Media Viewer"),
+                                                                 this,
+                                                                 SLOT(OpenSelectedMediaInMediaViewerFromAction()));
+        preview_in_media_viewer_action->setData(reinterpret_cast<quintptr>(media_item));
+      }
+
 			QAction* properties_action = menu.addAction(tr("Properties..."));
 			QObject::connect(properties_action, SIGNAL(triggered(bool)), project_parent, SLOT(open_properties()));
 		}
@@ -235,21 +244,17 @@ void SourcesCommon::item_click(Media *m, const QModelIndex& index) {
 	}
 }
 
-void SourcesCommon::mouseDoubleClickEvent(QMouseEvent *, const QModelIndexList& selected_items) {
+void SourcesCommon::mouseDoubleClickEvent(const QModelIndexList& selected_items) {
 	stop_rename_timer();
 	if (selected_items.size() == 0) {
 		project_parent->import_dialog();
 	} else if (selected_items.size() == 1) {
-		Media* item = project_parent->item_to_media(selected_items.at(0));
-		switch (item->get_type()) {
-		case MEDIA_TYPE_FOOTAGE:
-			panel_footage_viewer->set_media(item);
-			panel_footage_viewer->setFocus();
-			break;
-		case MEDIA_TYPE_SEQUENCE:
-			olive::UndoStack.push(new ChangeSequenceAction(item->to_sequence()));
-			break;
-		}
+    Media* media = media;
+    if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
+      olive::UndoStack.push(new ChangeSequenceAction(media->to_sequence()));
+    } else {
+      OpenSelectedMediaInMediaViewer(project_parent->item_to_media(selected_items.at(0)));
+    }
 	}
 }
 
@@ -372,7 +377,19 @@ void SourcesCommon::item_renamed(Media* item) {
 		MediaRename* mr = new MediaRename(item, "idk");
 		olive::UndoStack.push(mr);
 		editing_item = nullptr;
-	}
+  }
+}
+
+void SourcesCommon::OpenSelectedMediaInMediaViewerFromAction()
+{
+  OpenSelectedMediaInMediaViewer(reinterpret_cast<Media*>(static_cast<QAction*>(sender())->data().value<quintptr>()));
+}
+
+void SourcesCommon::OpenSelectedMediaInMediaViewer(Media* item) {
+  if (item->get_type() != MEDIA_TYPE_FOLDER) {
+    panel_footage_viewer->set_media(item);
+    panel_footage_viewer->setFocus();
+  }
 }
 
 void SourcesCommon::open_create_proxy_dialog() {
