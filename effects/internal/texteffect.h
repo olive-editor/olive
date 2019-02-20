@@ -45,7 +45,8 @@ public:
 	EffectField* outline_color;
 
 	EffectField* shadow_bool;
-	EffectField* shadow_distance;
+  EffectField* shadow_angle;
+  EffectField* shadow_distance;
 	EffectField* shadow_color;
 	EffectField* shadow_softness;
 	EffectField* shadow_opacity;
