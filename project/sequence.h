@@ -21,48 +21,50 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
+#include <memory>
 #include <QVector>
 
+#include "project/clip.h"
 #include "project/marker.h"
+#include "project/transition.h"
 #include "project/selection.h"
 
-class Clip;
-class Transition;
-class Media;
+class Sequence {
+public:
+  Sequence();
+  ~Sequence();
+  SequencePtr copy();
+  QString name;
+  void getTrackLimits(int* video_tracks, int* audio_tracks);
+  long getEndFrame();
+  int width;
+  int height;
+  double frame_rate;
+  int audio_frequency;
+  int audio_layout;
 
-struct Sequence {
-	Sequence();
-	~Sequence();
-	Sequence* copy();
-	QString name;
-	void getTrackLimits(int* video_tracks, int* audio_tracks);
-	long getEndFrame();
-	void hard_delete_transition(Clip *c, int type);
-	int width;
-	int height;
-	double frame_rate;
-	int audio_frequency;
-	int audio_layout;
+  void RefreshClips(Media* m = nullptr);
 
-	QVector<Selection> selections;
-	long playhead;
+  QVector<Selection> selections;
+  long playhead;
 
-	bool using_workarea;
-	long workarea_in;
-	long workarea_out;
+  bool using_workarea;
+  long workarea_in;
+  long workarea_out;
 
-	bool wrapper_sequence;
+  bool wrapper_sequence;
 
-	int save_id;
+  int save_id;
 
-	QVector<Marker> markers;
-	QVector<Clip*> clips;
-	QVector<Transition*> transitions;
+  QVector<Marker> markers;
+  QVector<ClipPtr> clips;
 };
 
+using SequencePtr = std::shared_ptr<Sequence>;
+
 // static variable for the currently active sequence
-namespace Olive {
-    extern Sequence* ActiveSequence;
+namespace olive {
+extern SequencePtr ActiveSequence;
 }
 
 #endif // SEQUENCE_H

@@ -21,6 +21,7 @@
 #ifndef EFFECT_H
 #define EFFECT_H
 
+#include <memory>
 #include <QObject>
 #include <QString>
 #include <QVector>
@@ -30,19 +31,22 @@
 #include <QOpenGLTexture>
 #include <QMutex>
 #include <QThread>
-class QLabel;
-class QWidget;
-class CollapsibleWidget;
-class QGridLayout;
-class QPushButton;
-class QMouseEvent;
+#include <QLabel>
+#include <QWidget>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QMouseEvent>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+
+#include "ui/collapsiblewidget.h"
+#include "ui/checkboxex.h"
 
 class Clip;
-class QXmlStreamReader;
-class QXmlStreamWriter;
+using ClipPtr = std::shared_ptr<Clip>;
+
 class Effect;
-class EffectRow;
-class CheckboxEx;
+using EffectPtr = std::shared_ptr<Effect>;
 
 struct EffectMeta {
 	QString name;
@@ -57,7 +61,7 @@ struct EffectMeta {
 extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
-Effect* create_effect(Clip* c, const EffectMeta *em);
+EffectPtr create_effect(ClipPtr c, const EffectMeta *em);
 const EffectMeta* get_internal_meta(int internal_id, int type);
 
 enum EffectType {
@@ -166,9 +170,9 @@ qint16 mix_audio_sample(qint16 a, qint16 b);
 class Effect : public QObject {
 	Q_OBJECT
 public:
-	Effect(Clip* c, const EffectMeta* em);
+    Effect(ClipPtr c, const EffectMeta* em);
 	~Effect();
-	Clip* parent_clip;
+    ClipPtr parent_clip;
 	const EffectMeta* meta;
 	int id;
 	QString name;
@@ -187,8 +191,8 @@ public:
 
 	virtual void refresh();
 
-	virtual Effect* copy(Clip* c);
-	void copy_field_keyframes(Effect *e);
+    virtual EffectPtr copy(ClipPtr c);
+    void copy_field_keyframes(EffectPtr e);
 
 	virtual void load(QXmlStreamReader& stream);
 	virtual void custom_load(QXmlStreamReader& stream);

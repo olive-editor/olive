@@ -23,8 +23,10 @@
 
 #include <QList>
 #include <QVariant>
+#include <QIcon>
 
 #include "project/marker.h"
+#include "project/footage.h"
 
 enum MediaType {
     MEDIA_TYPE_FOOTAGE,
@@ -32,29 +34,28 @@ enum MediaType {
     MEDIA_TYPE_FOLDER
 };
 
-struct Footage;
-class MediaThrobber;
-struct Sequence;
-#include <QIcon>
+class Sequence;
+using SequencePtr = std::shared_ptr<Sequence>;
+
+using VoidPtr = std::shared_ptr<void>;
 
 class Media
 {
 public:
     Media(Media* iparent);
     ~Media();
-    Footage *to_footage();
-    Sequence* to_sequence();
-    void set_footage(Footage* f);
-    void set_sequence(Sequence* s);
+    FootagePtr to_footage();
+    SequencePtr to_sequence();
+    void set_footage(FootagePtr f);
+    void set_sequence(SequencePtr s);
     void set_folder();
     void set_icon(const QIcon &ico);
     void set_parent(Media* p);
     void update_tooltip(const QString& error = 0);
-    void *to_object();
+    VoidPtr to_object();
     int get_type();
     const QString& get_name();
     void set_name(const QString& n);
-    MediaThrobber* throbber;
 
 	double get_frame_rate(int stream = -1);
 	int get_sampling_rate(int stream = -1);
@@ -78,7 +79,7 @@ public:
     int temp_id2;
 private:
     int type;
-    void* object;
+    VoidPtr object;
 
     // item functions
     QList<Media*> children;

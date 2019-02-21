@@ -32,7 +32,7 @@
 #include "project/footage.h"
 #include "mainwindow.h"
 
-ProxyDialog::ProxyDialog(QWidget *parent, const QVector<Footage *> &footage) :
+ProxyDialog::ProxyDialog(QWidget *parent, const QVector<FootagePtr> &footage) :
 	QDialog(parent),
 	selected_footage(footage)
 {
@@ -152,7 +152,7 @@ void ProxyDialog::accept() {
 		proxy_generator.queue(info_list.at(i));
 	}
 
-    Olive::MainWindow->setWindowModified(true);
+    olive::MainWindow->setWindowModified(true);
 
 	QDialog::accept();
 }

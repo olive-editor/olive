@@ -36,7 +36,6 @@
 #include "debug.h"
 
 extern "C" {
-	#include <libavformat/avformat.h>
 	#include <libavutil/pixdesc.h>
 	#include <libavcodec/avcodec.h>
 	#include <libswscale/swscale.h>
@@ -59,11 +58,11 @@ long refactor_frame_number(long framenumber, double source_frame_rate, double ta
 	return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
 }
 
-bool clip_uses_cacher(Clip* clip) {
+bool clip_uses_cacher(ClipPtr clip) {
 	return (clip->media == nullptr && clip->track >= 0) || (clip->media != nullptr && clip->media->get_type() == MEDIA_TYPE_FOOTAGE);
 }
 
-void open_clip(Clip* clip, bool multithreaded) {
+void open_clip(ClipPtr clip, bool multithreaded) {
 	if (clip_uses_cacher(clip)) {
 		clip->multithreaded = multithreaded;
 		if (multithreaded) {
@@ -85,7 +84,10 @@ void open_clip(Clip* clip, bool multithreaded) {
 	}
 }
 
-void close_clip(Clip* clip, bool wait) {
+void close_clip(ClipPtr clip, bool wait) {
+  // render lock prevents crashes if this function tries to delete a texture while the RenderThread is rendering it
+  clip->render_lock.lock();
+
 	clip->finished_opening = false;
 
 	// destroy opengl texture in main thread
@@ -127,9 +129,11 @@ void close_clip(Clip* clip, bool wait) {
 
 		clip->open = false;
 	}
+
+  clip->render_lock.unlock();
 }
 
-void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip*>& nests, int playback_speed) {
+void cache_clip(ClipPtr clip, long playhead, bool reset, bool scrubbing, QVector<ClipPtr>& nests, int playback_speed) {
 	if (clip_uses_cacher(clip)) {
 		if (clip->multithreaded) {
 			clip->cacher->playhead = playhead;
@@ -147,11 +151,11 @@ void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<C
 	}
 }
 
-double get_timecode(Clip* c, long playhead) {
+double get_timecode(ClipPtr c, long playhead) {
 	return ((double)(playhead-c->get_timeline_in_with_transition()+c->get_clip_in_with_transition())/(double)c->sequence->frame_rate);
 }
 
-void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
+void get_clip_frame(ClipPtr c, long playhead, bool& texture_failed) {
 	if (c->finished_opening) {
 		const FootageStream* ms = c->media->to_footage()->get_stream_from_file_index(c->track < 0, c->media_stream);
 
@@ -200,8 +204,8 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 				int64_t minimum_ts = target_frame->pts;
 
 				int previous_frame_count = 0;
-				if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
-					minimum_ts -= (second_pts*Olive::CurrentConfig.previous_queue_size);
+        if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS) {
+					minimum_ts -= (second_pts*olive::CurrentConfig.previous_queue_size);
 				}
 
 				//dout << "closest frame was" << closest_frame << "with" << target_frame->pts << "/" << target_pts;
@@ -210,7 +214,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 						next_pts = c->queue.at(i)->pts;
 					}
 					if (c->queue.at(i) != target_frame && ((c->queue.at(i)->pts > minimum_ts) == c->reverse)) {
-						if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_SECONDS) {
+            if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS) {
 							//dout << "removed frame at" << i << "because its pts was" << c->queue.at(i)->pts << "compared to" << target_frame->pts;
 							av_frame_free(&c->queue[i]); // may be a little heavy for the main thread?
 							c->queue.removeAt(i);
@@ -222,8 +226,8 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 					}
 				}
 
-				if (Olive::CurrentConfig.previous_queue_type == FRAME_QUEUE_TYPE_FRAMES) {
-					while (previous_frame_count > qCeil(Olive::CurrentConfig.previous_queue_size)) {
+        if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
+					while (previous_frame_count > qCeil(olive::CurrentConfig.previous_queue_size)) {
 						int smallest = 0;
 						for (int i=1;i<c->queue.size();i++) {
 							if (c->queue.at(i)->pts < c->queue.at(smallest)->pts) {
@@ -257,7 +261,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 #ifdef GCF_DEBUG
 							dout << "GCF ==> RESET" << target_pts << "(" << target_frame->pts << "-" << target_frame->pts+target_frame->pkt_duration << ")";
 #endif
-							if (!Olive::CurrentConfig.fast_seeking) target_frame = nullptr;
+							if (!olive::CurrentConfig.fast_seeking) target_frame = nullptr;
 							reset = true;
 							c->last_invalid_ts = target_pts;
 						} else {
@@ -336,7 +340,7 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 			}
 
 			for (int i=0;i<c->effects.size();i++) {
-				Effect* e = c->effects.at(i);
+                EffectPtr e = c->effects.at(i);
 				if (e->enable_image && e->is_enabled()) {
 					if (data_buffer_1 == target_frame->data[0]) {
 						data_buffer_1 = new uint8_t[frame_size];
@@ -366,16 +370,16 @@ void get_clip_frame(Clip* c, long playhead, bool& texture_failed) {
 		c->queue_lock.unlock();
 
 		// get more frames
-		QVector<Clip*> empty;
+        QVector<ClipPtr> empty;
 		if (cache) cache_clip(c, playhead, reset, false, empty, false);
 	}
 }
 
-long playhead_to_clip_frame(Clip* c, long playhead) {
+long playhead_to_clip_frame(ClipPtr c, long playhead) {
 	return (qMax(0L, playhead - c->get_timeline_in_with_transition()) + c->get_clip_in_with_transition());
 }
 
-double playhead_to_clip_seconds(Clip* c, long playhead) {
+double playhead_to_clip_seconds(ClipPtr c, long playhead) {
 	// returns time in seconds
 	long clip_frame = playhead_to_clip_frame(c, playhead);
 	if (c->reverse) clip_frame = c->getMaximumLength() - clip_frame - 1;
@@ -384,15 +388,15 @@ double playhead_to_clip_seconds(Clip* c, long playhead) {
 	return secs;
 }
 
-int64_t seconds_to_timestamp(Clip* c, double seconds) {
+int64_t seconds_to_timestamp(ClipPtr c, double seconds) {
 	return qRound64(seconds * av_q2d(av_inv_q(c->stream->time_base))) + qMax((int64_t) 0, c->stream->start_time);
 }
 
-int64_t playhead_to_timestamp(Clip* c, long playhead) {
+int64_t playhead_to_timestamp(ClipPtr c, long playhead) {
 	return seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 }
 
-int retrieve_next_frame(Clip* c, AVFrame* f) {
+int retrieve_next_frame(ClipPtr c, AVFrame* f) {
 	int result = 0;
 	int receive_ret;
 
@@ -438,7 +442,7 @@ int retrieve_next_frame(Clip* c, AVFrame* f) {
 	return result;
 }
 
-bool is_clip_active(Clip* c, long playhead) {
+bool is_clip_active(ClipPtr c, long playhead) {
 	// these buffers allow clips to be opened and prepared well before they're displayed
 	// as well as closed a little after they're not needed anymore
 	int open_buffer = qCeil(c->sequence->frame_rate*2);
@@ -451,18 +455,18 @@ bool is_clip_active(Clip* c, long playhead) {
 			&& playhead - c->get_timeline_in_with_transition() + c->get_clip_in_with_transition() < c->getMaximumLength();
 }
 
-void set_sequence(Sequence* s) {
+void set_sequence(SequencePtr s) {
 	panel_effect_controls->clear_effects(true);
-	Olive::ActiveSequence = s;
+	olive::ActiveSequence = s;
 	panel_sequence_viewer->set_main_sequence();
 	panel_timeline->update_sequence();
 	panel_timeline->setFocus();
 }
 
-void closeActiveClips(Sequence *s) {
+void closeActiveClips(SequencePtr s) {
 	if (s != nullptr) {
 		for (int i=0;i<s->clips.size();i++) {
-			Clip* c = s->clips.at(i);
+            ClipPtr c = s->clips.at(i);
 			if (c != nullptr) {
 				if (c->media != nullptr && c->media->get_type() == MEDIA_TYPE_SEQUENCE) {
 					closeActiveClips(c->media->to_sequence());

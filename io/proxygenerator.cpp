@@ -316,7 +316,7 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
 	info.footage->proxy_path = info.path;
 
 	qInfo() << "Finished creating proxy for" << info.footage->url;
-    QMetaObject::invokeMethod(Olive::MainWindow->statusBar(),
+    QMetaObject::invokeMethod(olive::MainWindow->statusBar(),
                               "showMessage",
                               Qt::QueuedConnection,
                               Q_ARG(QString, tr("Finished generating proxy for \"%1\"").arg(info.footage->url)));
@@ -399,7 +399,7 @@ void ProxyGenerator::cancel() {
 	wait();
 }
 
-double ProxyGenerator::get_proxy_progress(Footage *f) {
+double ProxyGenerator::get_proxy_progress(FootagePtr f) {
 	if (proxy_queue.first().footage == f) {
 		return current_progress;
 	}

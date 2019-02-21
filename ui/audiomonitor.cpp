@@ -68,7 +68,7 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
 }
 
 void AudioMonitor::paintEvent(QPaintEvent *) {
-	if (Olive::ActiveSequence != nullptr && values.size() > 0) {
+	if (olive::ActiveSequence != nullptr && values.size() > 0) {
 		QPainter p(this);
 		int channel_x = AUDIO_MONITOR_GAP;
 		int channel_count = values.size();

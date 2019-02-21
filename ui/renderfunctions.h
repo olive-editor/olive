@@ -23,12 +23,12 @@
 
 #include <QOpenGLContext>
 #include <QVector>
+#include <QOpenGLShaderProgram>
 
-class Effect;
-class Viewer;
-class QOpenGLShaderProgram;
-struct Sequence;
-class Clip;
+#include "project/sequence.h"
+#include "project/effect.h"
+
+#include "panels/viewer.h"
 
 /**
  * @brief The ComposeSequenceParams struct
@@ -59,7 +59,7 @@ struct ComposeSequenceParams {
      * In addition to clips, sequences also contain the playhead position so compose_sequence() knows which frame
      * to render.
      */
-    Sequence* seq;
+    SequencePtr seq;
 
     /**
      * @brief Array to store the nested sequence hierarchy
@@ -67,7 +67,7 @@ struct ComposeSequenceParams {
      * Should be left empty. This array gets passed around compose_sequence() as it calls itself recursively to
      * handle nested sequences.
      */
-    QVector<Clip*> nests;
+    QVector<ClipPtr> nests;
 
     /**
      * @brief Set compose mode to video or audio
@@ -82,7 +82,7 @@ struct ComposeSequenceParams {
      * A pointer to a pointer that will be set to the Effect whose gizmos are being rendered and should therefore
      * be interacted with if the user uses them.
      */
-    Effect** gizmos;
+    EffectPtr* gizmos;
 
     /**
      * @brief A variable that compose_sequence() will set to **TRUE** if any of the clips couldn't be shown.
@@ -260,6 +260,6 @@ GLuint compose_sequence(ComposeSequenceParams &params);
  *
  * The current playback speed (controlled by Shuttle Left/Right)
  */
-void compose_audio(Viewer* viewer, Sequence* seq, int playback_speed);
+void compose_audio(Viewer* viewer, SequencePtr seq, int playback_speed);
 
 #endif // RENDERFUNCTIONS_H

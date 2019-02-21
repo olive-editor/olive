@@ -24,30 +24,32 @@
 #include <QVector>
 #include <QMutex>
 
-class Clip;
-struct ClipCache;
-struct Sequence;
-struct AVFrame;
+#include "project/clip.h"
+#include "project/sequence.h"
+
+extern "C" {
+    #include <libavformat/avformat.h>
+}
 
 long refactor_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
-bool clip_uses_cacher(Clip* clip);
-void open_clip(Clip* clip, bool multithreaded);
-void cache_clip(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> &nests, int playback_speed);
-void close_clip(Clip* clip, bool wait);
-void handle_media(Sequence* sequence, long playhead, bool multithreaded);
-void reset_cache(Clip* c, long target_frame, int playback_speed);
-void get_clip_frame(Clip* c, long playhead, bool &texture_failed);
-double get_timecode(Clip* c, long playhead);
+bool clip_uses_cacher(ClipPtr clip);
+void open_clip(ClipPtr clip, bool multithreaded);
+void cache_clip(ClipPtr clip, long playhead, bool reset, bool scrubbing, QVector<ClipPtr> &nests, int playback_speed);
+void close_clip(ClipPtr clip, bool wait);
+void handle_media(SequencePtr sequence, long playhead, bool multithreaded);
+void reset_cache(ClipPtr c, long target_frame, int playback_speed);
+void get_clip_frame(ClipPtr c, long playhead, bool &texture_failed);
+double get_timecode(ClipPtr c, long playhead);
 
-long playhead_to_clip_frame(Clip* c, long playhead);
-double playhead_to_clip_seconds(Clip* c, long playhead);
-int64_t seconds_to_timestamp(Clip* c, double seconds);
-int64_t playhead_to_timestamp(Clip* c, long playhead);
+long playhead_to_clip_frame(ClipPtr c, long playhead);
+double playhead_to_clip_seconds(ClipPtr c, long playhead);
+int64_t seconds_to_timestamp(ClipPtr c, double seconds);
+int64_t playhead_to_timestamp(ClipPtr c, long playhead);
 
-int retrieve_next_frame(Clip* c, AVFrame* f);
-bool is_clip_active(Clip* c, long playhead);
-void get_next_audio(Clip* c, bool mix);
-void set_sequence(Sequence* s);
-void closeActiveClips(Sequence* s);
+int retrieve_next_frame(ClipPtr c, AVFrame* f);
+bool is_clip_active(ClipPtr c, long playhead);
+void get_next_audio(ClipPtr c, bool mix);
+void set_sequence(SequencePtr s);
+void closeActiveClips(SequencePtr s);
 
 #endif // PLAYBACK_H

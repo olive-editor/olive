@@ -31,7 +31,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media) :
+ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media* old_media) :
 	QDialog(parent),
 	media(old_media)
 {
@@ -67,7 +67,7 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media *old_media
 
 	layout->addLayout(buttons);
 
-	tree->setModel(&project_model);
+	tree->setModel(&olive::project_model);
 }
 
 void ReplaceClipMediaDialog::replace() {
@@ -80,7 +80,7 @@ void ReplaceClipMediaDialog::replace() {
 					QMessageBox::Ok
 				);
 	} else {
-		Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
+        Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
 		if (media == new_item) {
 			QMessageBox::critical(
 						this,
@@ -96,7 +96,7 @@ void ReplaceClipMediaDialog::replace() {
 						QMessageBox::Ok
 					);
 		} else {
-			if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && Olive::ActiveSequence == new_item->to_sequence()) {
+			if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && olive::ActiveSequence == new_item->to_sequence()) {
 				QMessageBox::critical(
 							this,
 							tr("Active sequence selected"),
@@ -110,14 +110,14 @@ void ReplaceClipMediaDialog::replace() {
 							use_same_media_in_points->isChecked()
 						);
 
-				for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-					Clip* c = Olive::ActiveSequence->clips.at(i);
+				for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
+                    ClipPtr c = olive::ActiveSequence->clips.at(i);
 					if (c != nullptr && c->media == media) {
 						rcmc->clips.append(c);
 					}
 				}
 
-				Olive::UndoStack.push(rcmc);
+				olive::UndoStack.push(rcmc);
 
 				close();
 			}

@@ -21,16 +21,18 @@
 #ifndef CACHER_H
 #define CACHER_H
 
+#include <memory>
 #include <QThread>
 #include <QVector>
 
 class Clip;
+using ClipPtr = std::shared_ptr<Clip>;
 
 class Cacher : public QThread
 {
 //	Q_OBJECT
 public:
-	Cacher(Clip* c);
+    Cacher(ClipPtr c);
 	void run();
 
 	bool caching;
@@ -42,14 +44,14 @@ public:
 	bool interrupt;
 	bool queued;
 	int playback_speed;
-	QVector<Clip*> nests;
+    QVector<ClipPtr> nests;
 
 private:
-	Clip* clip;
+    ClipPtr clip;
 };
 
-void open_clip_worker(Clip* clip);
-void cache_clip_worker(Clip* clip, long playhead, bool reset, bool scrubbing, QVector<Clip *> nest, int playback_speed);
-void close_clip_worker(Clip* clip);
+void open_clip_worker(ClipPtr clip);
+void cache_clip_worker(ClipPtr clip, long playhead, bool reset, bool scrubbing, QVector<ClipPtr> nest, int playback_speed);
+void close_clip_worker(ClipPtr clip);
 
 #endif // CACHER_H

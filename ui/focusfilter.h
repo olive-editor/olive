@@ -224,7 +224,7 @@ public slots:
     void zoom_out();
 };
 
-namespace Olive {
+namespace olive {
     extern FocusFilter FocusFilter;
 }
 

@@ -29,7 +29,7 @@
 class TimecodeEffect : public Effect {
 	Q_OBJECT
 public:
-    TimecodeEffect(Clip* c, const EffectMeta *em);
+    TimecodeEffect(ClipPtr c, const EffectMeta *em);
     void redraw(double timecode);
     EffectField * scale_val;
     EffectField * color_val;

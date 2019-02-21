@@ -2,7 +2,7 @@ var searchData=
 [
   ['scrollarea',['ScrollArea',['../class_scroll_area.html',1,'']]],
   ['selection',['Selection',['../struct_selection.html',1,'']]],
-  ['sequence',['Sequence',['../struct_sequence.html',1,'']]],
+  ['sequence',['Sequence',['../class_sequence.html',1,'']]],
   ['setautoscaleaction',['SetAutoscaleAction',['../class_set_autoscale_action.html',1,'']]],
   ['setbool',['SetBool',['../class_set_bool.html',1,'']]],
   ['setdouble',['SetDouble',['../class_set_double.html',1,'']]],
@@ -21,6 +21,5 @@ var searchData=
   ['sourceiconview',['SourceIconView',['../class_source_icon_view.html',1,'']]],
   ['sourcescommon',['SourcesCommon',['../class_sources_common.html',1,'']]],
   ['sourcetable',['SourceTable',['../class_source_table.html',1,'']]],
-  ['speeddialog',['SpeedDialog',['../class_speed_dialog.html',1,'']]],
-  ['stabilizerdialog',['StabilizerDialog',['../class_stabilizer_dialog.html',1,'']]]
+  ['speeddialog',['SpeedDialog',['../class_speed_dialog.html',1,'']]]
 ];

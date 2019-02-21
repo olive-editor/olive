@@ -25,6 +25,7 @@
 #include "panels/panels.h"
 
 #include "io/path.h"
+#include "io/config.h"
 
 #include "playback/audio.h"
 
@@ -41,11 +42,12 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QAction>
+#include <QApplication>
 #include <QDebug>
 
-QSharedPointer<OliveGlobal> Olive::Global;
-QString Olive::ActiveProjectFilename;
-QString Olive::AppName;
+std::unique_ptr<OliveGlobal> olive::Global;
+QString olive::ActiveProjectFilename;
+QString olive::AppName;
 
 OliveGlobal::OliveGlobal() {
     // sets current app name
@@ -53,13 +55,16 @@ OliveGlobal::OliveGlobal() {
 #ifdef GITHASH
     version_id = QString(" | %1").arg(GITHASH);
 #endif
-    Olive::AppName = QString("Olive (February 2019 | Alpha%1)").arg(version_id);
+    olive::AppName = QString("Olive (February 2019 | Alpha%1)").arg(version_id);
 
     // set the file filter used in all file dialogs pertaining to Olive project files.
     project_file_filter = tr("Olive Project %1").arg("(*.ove)");
 
     // set default value
     enable_load_project_on_init = false;
+
+    // alloc QTranslator
+    translator = std::unique_ptr<QTranslator>(new QTranslator());
 }
 
 const QString &OliveGlobal::get_project_file_filter() {
@@ -68,10 +73,10 @@ const QString &OliveGlobal::get_project_file_filter() {
 
 void OliveGlobal::update_project_filename(const QString &s) {
     // set filename to s
-    Olive::ActiveProjectFilename = s;
+    olive::ActiveProjectFilename = s;
 
     // update main window title to reflect new project filename
-    Olive::MainWindow->updateTitle();
+    olive::MainWindow->updateTitle();
 }
 
 void OliveGlobal::check_for_autorecovery_file() {
@@ -101,12 +106,38 @@ void OliveGlobal::set_rendering_state(bool rendering) {
 }
 
 void OliveGlobal::load_project_on_launch(const QString& s) {
-    Olive::ActiveProjectFilename = s;
+    olive::ActiveProjectFilename = s;
     enable_load_project_on_init = true;
 }
 
 QString OliveGlobal::get_recent_project_list_file() {
-    return get_data_dir().filePath("recents");
+  return get_data_dir().filePath("recents");
+}
+
+void OliveGlobal::load_translation_from_config() {
+  QString language_file = olive::CurrentRuntimeConfig.external_translation_file.isEmpty() ?
+        olive::CurrentConfig.language_file :
+        olive::CurrentRuntimeConfig.external_translation_file;
+
+  // clear runtime language file so if the user sets a different language, we won't load it next time
+  olive::CurrentRuntimeConfig.external_translation_file.clear();
+
+  // remove current translation if there is one
+  QApplication::removeTranslator(translator.get());
+
+  if (!language_file.isEmpty()) {
+
+    // translation files are stored relative to app path (see GitHub issue #454)
+    QString full_language_path = QDir(get_app_path()).filePath(language_file);
+
+    // load translation file
+    if (QFileInfo::exists(full_language_path)
+        && translator->load(full_language_path)) {
+      QApplication::installTranslator(translator.get());
+    } else {
+      qWarning() << "Failed to load translation file" << full_language_path << ". No language will be loaded.";
+    }
+  }
 }
 
 void OliveGlobal::new_project() {
@@ -118,7 +149,7 @@ void OliveGlobal::new_project() {
         panel_project->new_project();
 
         // clear undo stack
-        Olive::UndoStack.clear();
+        olive::UndoStack.clear();
 
         // empty current project filename
         update_project_filename("");
@@ -129,7 +160,7 @@ void OliveGlobal::new_project() {
 }
 
 void OliveGlobal::open_project() {
-    QString fn = QFileDialog::getOpenFileName(Olive::MainWindow, tr("Open Project..."), "", project_file_filter);
+    QString fn = QFileDialog::getOpenFileName(olive::MainWindow, tr("Open Project..."), "", project_file_filter);
     if (!fn.isEmpty() && can_close_project()) {
         open_project_worker(fn, false);
     }
@@ -139,20 +170,20 @@ void OliveGlobal::open_recent(int index) {
     QString recent_url = recent_projects.at(index);
     if (!QFile::exists(recent_url)) {
         if (QMessageBox::question(
-                        Olive::MainWindow,
+                        olive::MainWindow,
                         tr("Missing recent project"),
                         tr("The project '%1' no longer exists. Would you like to remove it from the recent projects list?").arg(recent_url),
                         QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
             recent_projects.removeAt(index);
             panel_project->save_recent_projects();
         }
-    } else if (Olive::Global.data()->can_close_project()) {
+    } else if (can_close_project()) {
         open_project_worker(recent_url, false);
     }
 }
 
 bool OliveGlobal::save_project_as() {
-    QString fn = QFileDialog::getSaveFileName(Olive::MainWindow, tr("Save Project As..."), "", project_file_filter);
+    QString fn = QFileDialog::getSaveFileName(olive::MainWindow, tr("Save Project As..."), "", project_file_filter);
     if (!fn.isEmpty()) {
         if (!fn.endsWith(".ove", Qt::CaseInsensitive)) {
             fn += ".ove";
@@ -165,7 +196,7 @@ bool OliveGlobal::save_project_as() {
 }
 
 bool OliveGlobal::save_project() {
-    if (Olive::ActiveProjectFilename.isEmpty()) {
+    if (olive::ActiveProjectFilename.isEmpty()) {
         return save_project_as();
     } else {
         panel_project->save_project(false);
@@ -174,13 +205,13 @@ bool OliveGlobal::save_project() {
 }
 
 bool OliveGlobal::can_close_project() {
-    if (Olive::MainWindow->isWindowModified()) {
+    if (olive::MainWindow->isWindowModified()) {
         QMessageBox* m = new QMessageBox(
                     QMessageBox::Question,
                     tr("Unsaved Project"),
                     tr("This project has changed since it was last saved. Would you like to save it before closing?"),
                     QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
-                    Olive::MainWindow
+                    olive::MainWindow
                 );
         m->setWindowModality(Qt::WindowModal);
         int r = m->exec();
@@ -195,13 +226,13 @@ bool OliveGlobal::can_close_project() {
 }
 
 void OliveGlobal::open_export_dialog() {
-    if (Olive::ActiveSequence == nullptr) {
-        QMessageBox::information(Olive::MainWindow,
+    if (olive::ActiveSequence == nullptr) {
+        QMessageBox::information(olive::MainWindow,
                                  tr("No active sequence"),
                                  tr("Please open the sequence you wish to export."),
                                  QMessageBox::Ok);
     } else {
-        ExportDialog e(Olive::MainWindow);
+        ExportDialog e(olive::MainWindow);
         e.exec();
     }
 }
@@ -210,12 +241,12 @@ void OliveGlobal::finished_initialize() {
     if (enable_load_project_on_init) {
 
         // if a project was set as a command line argument, we load it here
-        if (QFileInfo::exists(Olive::ActiveProjectFilename)) {
-            open_project_worker(Olive::ActiveProjectFilename, false);
+        if (QFileInfo::exists(olive::ActiveProjectFilename)) {
+            open_project_worker(olive::ActiveProjectFilename, false);
         } else {
-            QMessageBox::critical(Olive::MainWindow,
+            QMessageBox::critical(olive::MainWindow,
                                   tr("Missing Project File"),
-                                  tr("Specified project '%1' does not exist.").arg(Olive::ActiveProjectFilename),
+                                  tr("Specified project '%1' does not exist.").arg(olive::ActiveProjectFilename),
                                   QMessageBox::Ok);
             update_project_filename(nullptr);
         }
@@ -225,7 +256,7 @@ void OliveGlobal::finished_initialize() {
     } else {
         // if we are not loading a project on launch and are running a release build, open the demo notice dialog
 #ifndef QT_DEBUG
-        DemoNotice* d = new DemoNotice(Olive::MainWindow);
+        DemoNotice* d = new DemoNotice(olive::MainWindow);
         connect(d, SIGNAL(finished(int)), d, SLOT(deleteLater()));
         d->open();
 #endif
@@ -233,7 +264,7 @@ void OliveGlobal::finished_initialize() {
 }
 
 void OliveGlobal::save_autorecovery_file() {
-    if (Olive::MainWindow->isWindowModified()) {
+    if (olive::MainWindow->isWindowModified()) {
         panel_project->save_project(true);
         qInfo() << "Auto-recovery project saved";
     }
@@ -243,21 +274,21 @@ void OliveGlobal::open_preferences() {
     panel_sequence_viewer->pause();
     panel_footage_viewer->pause();
 
-    PreferencesDialog pd(Olive::MainWindow);
-    pd.setup_kbd_shortcuts(Olive::MainWindow->menuBar());
+    PreferencesDialog pd(olive::MainWindow);
+    pd.setup_kbd_shortcuts(olive::MainWindow->menuBar());
     pd.exec();
 }
 
 void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
     update_project_filename(fn);
     panel_project->load_project(autorecovery);
-    Olive::UndoStack.clear();
+    olive::UndoStack.clear();
 }
 
 void OliveGlobal::undo() {
     // workaround to prevent crash (and also users should never need to do this)
     if (!panel_timeline->importing) {
-        Olive::UndoStack.undo();
+        olive::UndoStack.undo();
         update_ui(true);
     }
 }
@@ -265,37 +296,37 @@ void OliveGlobal::undo() {
 void OliveGlobal::redo() {
     // workaround to prevent crash (and also users should never need to do this)
     if (!panel_timeline->importing) {
-        Olive::UndoStack.redo();
+        olive::UndoStack.redo();
         update_ui(true);
     }
 }
 
 void OliveGlobal::paste() {
-    if (Olive::ActiveSequence != nullptr) {
+    if (olive::ActiveSequence != nullptr) {
         panel_timeline->paste(false);
     }
 }
 
 void OliveGlobal::paste_insert() {
-    if (Olive::ActiveSequence != nullptr) {
+    if (olive::ActiveSequence != nullptr) {
         panel_timeline->paste(true);
     }
 }
 
 void OliveGlobal::open_about_dialog() {
-    AboutDialog a(Olive::MainWindow);
+    AboutDialog a(olive::MainWindow);
     a.exec();
 }
 
 void OliveGlobal::open_debug_log() {
-    Olive::DebugDialog->show();
+    olive::DebugDialog->show();
 }
 
 void OliveGlobal::open_speed_dialog() {
-    if (Olive::ActiveSequence != nullptr) {
-        SpeedDialog s(Olive::MainWindow);
-        for (int i=0;i<Olive::ActiveSequence->clips.size();i++) {
-            Clip* c = Olive::ActiveSequence->clips.at(i);
+    if (olive::ActiveSequence != nullptr) {
+        SpeedDialog s(olive::MainWindow);
+        for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
+            ClipPtr c = olive::ActiveSequence->clips.at(i);
             if (c != nullptr && is_clip_selected(c, true)) {
                 s.clips.append(c);
             }
@@ -305,10 +336,10 @@ void OliveGlobal::open_speed_dialog() {
 }
 
 void OliveGlobal::clear_undo_stack() {
-    Olive::UndoStack.clear();
+    olive::UndoStack.clear();
 }
 
 void OliveGlobal::open_action_search() {
-    ActionSearch as(Olive::MainWindow);
+    ActionSearch as(olive::MainWindow);
     as.exec();
 }

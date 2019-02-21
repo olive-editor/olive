@@ -44,7 +44,7 @@
 #include "io/config.h"
 #include "mainwindow.h"
 
-TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
+TextEffect::TextEffect(ClipPtr c, const EffectMeta* em) :
 	Effect(c, em)
 {
 	enable_superimpose = true;
@@ -81,7 +81,8 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	outline_width->set_double_minimum_value(0);
 
 	shadow_bool = add_row(tr("Shadow"))->add_field(EFFECT_FIELD_BOOL, "shadow", 2);
-	shadow_color = add_row(tr("Shadow Color"))->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
+  shadow_color = add_row(tr("Shadow Color"))->add_field(EFFECT_FIELD_COLOR, "shadowcolor", 2);
+  shadow_angle = add_row(tr("Shadow Angle"))->add_field(EFFECT_FIELD_DOUBLE, "shadowangle", 2);
 	shadow_distance = add_row(tr("Shadow Distance"))->add_field(EFFECT_FIELD_DOUBLE, "shadowdistance", 2);
 	shadow_distance->set_double_minimum_value(0);
 	shadow_softness = add_row(tr("Shadow Softness"))->add_field(EFFECT_FIELD_DOUBLE, "shadowsoftness", 2);
@@ -97,6 +98,7 @@ TextEffect::TextEffect(Clip *c, const EffectMeta* em) :
 	word_wrap_field->set_bool_value(true);
 	outline_color->set_color_value(Qt::black);
 	shadow_color->set_color_value(Qt::black);
+  shadow_angle->set_double_default_value(45);
 	shadow_opacity->set_double_default_value(100);
 	shadow_softness->set_double_default_value(5);
 	shadow_distance->set_double_default_value(5);
@@ -277,10 +279,15 @@ void TextEffect::redraw(double timecode) {
 	// draw software shadow
 	if (shadow_bool->get_bool_value(timecode)) {
 		p.setPen(Qt::NoPen);
-		int shadow_offset = shadow_distance->get_double_value(timecode);
+
+    // calculate offset using distance and angle
+    double angle = shadow_angle->get_double_value(timecode) * M_PI / 180.0;
+    double distance = qFloor(shadow_distance->get_double_value(timecode));
+    int shadow_x_offset = qRound(qCos(angle) * distance);
+    int shadow_y_offset = qRound(qSin(angle) * distance);
 
 		QPainterPath shadow_path(path);
-		shadow_path.translate(shadow_offset, shadow_offset);
+    shadow_path.translate(shadow_x_offset, shadow_y_offset);
 
 		QColor col = shadow_color->get_color_value(timecode);
 		col.setAlpha(0);
@@ -290,8 +297,8 @@ void TextEffect::redraw(double timecode) {
 		p.setBrush(col);
 		p.drawPath(shadow_path);
 
-		int blurSoftness = shadow_softness->get_double_value(timecode);
-		if (blurSoftness > 0) blurred2(img, img.rect(), blurSoftness, false);
+    int blurSoftness = qFloor(shadow_softness->get_double_value(timecode));
+    if (blurSoftness > 0) blurred2(img, img.rect(), blurSoftness, true);
 	}
 
 	// draw outline
@@ -330,7 +337,7 @@ void TextEffect::text_edit_menu() {
 }
 
 void TextEffect::open_text_edit() {
-    TextEditDialog ted(Olive::MainWindow, text_val->get_current_data().toString());
+    TextEditDialog ted(olive::MainWindow, text_val->get_current_data().toString());
 	ted.exec();
 	QString result = ted.get_string();
 	if (!result.isEmpty()) {

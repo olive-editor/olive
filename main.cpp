@@ -24,108 +24,119 @@
 #include "debug.h"
 
 #include "oliveglobal.h"
+#include "ui/mediaiconservice.h"
 
 #include "io/config.h"
 
 extern "C" {
-	#include <libavformat/avformat.h>
-	#include <libavfilter/avfilter.h>
+#include <libavformat/avformat.h>
+#include <libavfilter/avfilter.h>
 }
 
-int main(int argc, char *argv[]) {
-    Olive::Global = QSharedPointer<OliveGlobal>(new OliveGlobal);
+int main(int argc, char *argv[]) {   
+  olive::Global = std::unique_ptr<OliveGlobal>(new OliveGlobal);
 
-	bool launch_fullscreen = false;
-	QString load_proj;
+  bool launch_fullscreen = false;
+  QString load_proj;
 
-	bool use_internal_logger = true;
+  bool use_internal_logger = true;
 
-	if (argc > 1) {
-		for (int i=1;i<argc;i++) {
-			if (argv[i][0] == '-') {
-				if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v")) {
+  if (argc > 1) {
+    for (int i=1;i<argc;i++) {
+      if (argv[i][0] == '-') {
+        if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v")) {
 #ifndef GITHASH
-					qWarning() << "No Git commit information found";
+          qWarning() << "No Git commit information found";
 #endif
-                    printf("%s\n", Olive::AppName.toUtf8().constData());
-					return 0;
-				} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
-					printf("Usage: %s [options] [filename]\n\n"
-						   "[filename] is the file to open on startup.\n\n"
-						   "Options:\n"
-						   "\t-v, --version\t\tShow version information\n"
-						   "\t-h, --help\t\tShow this help\n"
-						   "\t-f, --fullscreen\tStart in full screen mode\n"
-						   "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
-						   "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
-						   "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
-						   "\t--translation <file>\tSet an external language file to use\n"
-						   "\n"
-						   "Environment Variables:\n"
-						   "\tOLIVE_EFFECTS_PATH\tSpecify a path to search for GLSL shader effects\n"
-						   "\tFREI0R_PATH\t\tSpecify a path to search for Frei0r effects\n"
-						   "\tOLIVE_LANG_PATH\t\tSpecify a path to search for translation files\n"
-						   "\n", argv[0]);
-					return 0;
-				} else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
-					launch_fullscreen = true;
-				} else if (!strcmp(argv[i], "--disable-shaders")) {
-					Olive::CurrentRuntimeConfig.shaders_are_enabled = false;
-				} else if (!strcmp(argv[i], "--no-debug")) {
-					use_internal_logger = false;
-				} else if (!strcmp(argv[i], "--disable-blend-modes")) {
-					Olive::CurrentRuntimeConfig.disable_blending = true;
-				} else if (!strcmp(argv[i], "--translation")) {
-					if (i + 1 < argc && argv[i + 1][0] != '-') {
-						// load translation file
-						Olive::CurrentRuntimeConfig.external_translation_file = argv[i + 1];
+          printf("%s\n", olive::AppName.toUtf8().constData());
+          return 0;
+        } else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
+          printf("Usage: %s [options] [filename]\n\n"
+                 "[filename] is the file to open on startup.\n\n"
+                 "Options:\n"
+                 "\t-v, --version\t\tShow version information\n"
+                 "\t-h, --help\t\tShow this help\n"
+                 "\t-f, --fullscreen\tStart in full screen mode\n"
+                 "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
+                 "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
+                 "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
+                 "\t--translation <file>\tSet an external language file to use\n"
+                 "\n"
+                 "Environment Variables:\n"
+                 "\tOLIVE_EFFECTS_PATH\tSpecify a path to search for GLSL shader effects\n"
+                 "\tFREI0R_PATH\t\tSpecify a path to search for Frei0r effects\n"
+                 "\tOLIVE_LANG_PATH\t\tSpecify a path to search for translation files\n"
+                 "\n", argv[0]);
+          return 0;
+        } else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
+          launch_fullscreen = true;
+        } else if (!strcmp(argv[i], "--disable-shaders")) {
+          olive::CurrentRuntimeConfig.shaders_are_enabled = false;
+        } else if (!strcmp(argv[i], "--no-debug")) {
+          use_internal_logger = false;
+        } else if (!strcmp(argv[i], "--disable-blend-modes")) {
+          olive::CurrentRuntimeConfig.disable_blending = true;
+        } else if (!strcmp(argv[i], "--translation")) {
+          if (i + 1 < argc && argv[i + 1][0] != '-') {
+            // load translation file
+            olive::CurrentRuntimeConfig.external_translation_file = argv[i + 1];
 
-						i++;
-					} else {
-						printf("[ERROR] No translation file specified\n");
-						return 1;
-					}
-				} else {
-					printf("[ERROR] Unknown argument '%s'\n", argv[1]);
-					return 1;
-				}
-			} else if (load_proj.isEmpty()) {
-				load_proj = argv[i];
-			}
-		}
-	}
-
-	if (use_internal_logger) {
-		qInstallMessageHandler(debug_message_handler);
+            i++;
+          } else {
+            printf("[ERROR] No translation file specified\n");
+            return 1;
+          }
+        } else {
+          printf("[ERROR] Unknown argument '%s'\n", argv[1]);
+          return 1;
+        }
+      } else if (load_proj.isEmpty()) {
+        load_proj = argv[i];
+      }
     }
+  }
 
-    // init ffmpeg subsystem
-    av_register_all();
-    avfilter_register_all();
+  if (use_internal_logger) {
+    qInstallMessageHandler(debug_message_handler);
+  }
 
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+  // Initialize ffmpeg subsystem
+  // (these have been deprecated in FFmpeg 4, but are still necessary for FFmpeg 3)
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
+  av_register_all();
+#endif
 
-	QApplication a(argc, argv);
-    a.setWindowIcon(QIcon(":/icons/olive64.png"));
+#if LIBAVFILTER_VERSION_INT < AV_VERSION_INT(7, 14, 100)
+  avfilter_register_all();
+#endif
 
-    QCoreApplication::setOrganizationName("olivevideoeditor.org");
-    QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
-    QCoreApplication::setApplicationName("Olive");
-    QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
+  QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    MainWindow w(nullptr);
+  QApplication a(argc, argv);
+  a.setWindowIcon(QIcon(":/icons/olive64.png"));
 
-    // connect main window's first paint to global's init finished function
-    QObject::connect(&w, SIGNAL(finished_first_paint()), Olive::Global.data(), SLOT(finished_initialize()));
+  // start media icon service (uses QPixmaps which require a QGuiApplication to have been created)
+  olive::media_icon_service = std::unique_ptr<MediaIconService>(new MediaIconService());
 
-    if (!load_proj.isEmpty()) {
-        Olive::Global.data()->load_project_on_launch(load_proj);
-	}
-	if (launch_fullscreen) {
-		w.showFullScreen();
-	} else {
-		w.showMaximized();
-	}
+  // set app name data
+  QCoreApplication::setOrganizationName("olivevideoeditor.org");
+  QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
+  QCoreApplication::setApplicationName("Olive");
+  QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 
-	return a.exec();
+  MainWindow w(nullptr);
+
+  // connect main window's first paint to global's init finished function
+  QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()));
+
+  if (!load_proj.isEmpty()) {
+    olive::Global->load_project_on_launch(load_proj);
+  }
+  if (launch_fullscreen) {
+    w.showFullScreen();
+  } else {
+    w.showMaximized();
+  }
+
+  return a.exec();
 }

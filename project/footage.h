@@ -21,6 +21,7 @@
 #ifndef FOOTAGE_H
 #define FOOTAGE_H
 
+#include <memory>
 #include <QString>
 #include <QVector>
 #include <QMetaType>
@@ -37,10 +38,9 @@ enum VideoInterlacingMode {
 	VIDEO_BOTTOM_FIELD_FIRST
 };
 
-struct Sequence;
+class Sequence;
 class Clip;
 class PreviewGenerator;
-class MediaThrobber;
 
 struct FootageStream {
 	int file_index;
@@ -100,5 +100,7 @@ struct Footage {
 	FootageStream *get_stream_from_file_index(bool video, int index);
 	void reset();
 };
+
+using FootagePtr = std::shared_ptr<Footage>;
 
 #endif // FOOTAGE_H

@@ -48,18 +48,18 @@ void draw_marker(QPainter &p, int x, int y, int bottom, bool selected) {
 	p.drawPolygon(points, 5);
 }
 
-void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
+void set_marker_internal(SequencePtr seq, const QVector<int>& clips) {
 	// if clips is empty, the marker is being added to the sequence
 
 	// add_marker is used to determine whether we're adding a marker, depending on whether the user input a marker name
 	// however if (config.set_name_with_marker) is true, we don't need a marker name so we just add
-	bool add_marker = !Olive::CurrentConfig.set_name_with_marker;
+	bool add_marker = !olive::CurrentConfig.set_name_with_marker;
 
 	QString marker_name;
 
 	// if (config.set_name_with_marker) is false (set above), ask for a marker name
 	if (!add_marker) {
-        QInputDialog d(Olive::MainWindow);
+        QInputDialog d(olive::MainWindow);
 		d.setWindowTitle(QCoreApplication::translate("Marker", "Set Marker"));
 		d.setLabelText(clips.size() > 0
 					   ? QCoreApplication::translate("Marker", "Set clip marker name:")
@@ -78,7 +78,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 			// add a marker action for each clip
 			foreach (int i, clips) {
-				Clip* c = seq->clips.at(i);
+                ClipPtr c = seq->clips.at(i);
 				ca->append(new AddMarkerAction(&c->get_markers(),
 											   seq->playhead - c->timeline_in + c->clip_in,
 											   marker_name));
@@ -110,7 +110,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 
 		// push action
-        Olive::UndoStack.push(ca);
+        olive::UndoStack.push(ca);
 
 		// redraw UI for new markers
 		update_ui(false);
@@ -119,7 +119,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 	}
 }
 
-void set_marker_internal(Sequence* seq) {
+void set_marker_internal(SequencePtr seq) {
 	// create empty clip array
 	QVector<int> clips;
 

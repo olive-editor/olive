@@ -70,6 +70,8 @@ $(function() {
 <div class="title">EditSequenceCommand Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="undo_8h_source.html">undo.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for EditSequenceCommand:</div>
 <div class="dyncontent">
@@ -82,80 +84,423 @@ Inheritance diagram for EditSequenceCommand:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1ae0643bc2acf8c15fe7bcb6578258ef"><td class="memItemLeft" align="right" valign="top"><a id="a1ae0643bc2acf8c15fe7bcb6578258ef"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>EditSequenceCommand</b> (<a class="el" href="class_media.html">Media</a> *i, <a class="el" href="struct_sequence.html">Sequence</a> *s)</td></tr>
-<tr class="separator:a1ae0643bc2acf8c15fe7bcb6578258ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af493392823252757811bab229f426b5d"><td class="memItemLeft" align="right" valign="top"><a id="af493392823252757811bab229f426b5d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doUndo</b> () override</td></tr>
+<tr class="memitem:a42d1c2923b334f51f322518d7dcb1588"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a42d1c2923b334f51f322518d7dcb1588">EditSequenceCommand</a> (<a class="el" href="class_media.html">Media</a> *i, <a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a> s)</td></tr>
+<tr class="separator:a42d1c2923b334f51f322518d7dcb1588"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af493392823252757811bab229f426b5d"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#af493392823252757811bab229f426b5d">doUndo</a> () override</td></tr>
 <tr class="separator:af493392823252757811bab229f426b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb50bde1c91304eea18851f455edf441"><td class="memItemLeft" align="right" valign="top"><a id="afb50bde1c91304eea18851f455edf441"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doRedo</b> () override</td></tr>
+<tr class="memitem:afb50bde1c91304eea18851f455edf441"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#afb50bde1c91304eea18851f455edf441">doRedo</a> () override</td></tr>
 <tr class="separator:afb50bde1c91304eea18851f455edf441"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac5e5358e327c3a1e9cc3202ea38ab120"><td class="memItemLeft" align="right" valign="top"><a id="ac5e5358e327c3a1e9cc3202ea38ab120"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> ()</td></tr>
+<tr class="memitem:ac5e5358e327c3a1e9cc3202ea38ab120"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#ac5e5358e327c3a1e9cc3202ea38ab120">update</a> ()</td></tr>
 <tr class="separator:ac5e5358e327c3a1e9cc3202ea38ab120"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_olive_action"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_olive_action')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_olive_action.html">OliveAction</a></td></tr>
-<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="ae90cf762a471f704e9ee4c30fd13b05f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OliveAction</b> (bool iset_window_modified=true)</td></tr>
+<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#ae90cf762a471f704e9ee4c30fd13b05f">OliveAction</a> (bool iset_window_modified=true)</td></tr>
 <tr class="separator:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a6e14775c35e9c0acbef06b104c98a10c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>undo</b> () override</td></tr>
+<tr class="memitem:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a62bcbe2d4297e05349ceff9e406ef02e">~OliveAction</a> () override</td></tr>
+<tr class="separator:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a6e14775c35e9c0acbef06b104c98a10c">undo</a> () override</td></tr>
 <tr class="separator:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a4bdc5f2f1d644b02f5bce1f025698bfe"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>redo</b> () override</td></tr>
+<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a4bdc5f2f1d644b02f5bce1f025698bfe">redo</a> () override</td></tr>
 <tr class="separator:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:afe8cdadc3df779da21697039b7a2a947"><td class="memItemLeft" align="right" valign="top"><a id="afe8cdadc3df779da21697039b7a2a947"></a>
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="memitem:afe8cdadc3df779da21697039b7a2a947"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#afe8cdadc3df779da21697039b7a2a947">name</a></td></tr>
 <tr class="separator:afe8cdadc3df779da21697039b7a2a947"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8ec12d9b7af5e02aa1910d4e20ebba5"><td class="memItemLeft" align="right" valign="top"><a id="aa8ec12d9b7af5e02aa1910d4e20ebba5"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>width</b></td></tr>
+<tr class="memitem:aa8ec12d9b7af5e02aa1910d4e20ebba5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#aa8ec12d9b7af5e02aa1910d4e20ebba5">width</a></td></tr>
 <tr class="separator:aa8ec12d9b7af5e02aa1910d4e20ebba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac501f155e55d793a3c0001105ec90802"><td class="memItemLeft" align="right" valign="top"><a id="ac501f155e55d793a3c0001105ec90802"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>height</b></td></tr>
+<tr class="memitem:ac501f155e55d793a3c0001105ec90802"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#ac501f155e55d793a3c0001105ec90802">height</a></td></tr>
 <tr class="separator:ac501f155e55d793a3c0001105ec90802"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24dedfb58f98f3da9c54fdd92675f3a3"><td class="memItemLeft" align="right" valign="top"><a id="a24dedfb58f98f3da9c54fdd92675f3a3"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>frame_rate</b></td></tr>
+<tr class="memitem:a24dedfb58f98f3da9c54fdd92675f3a3"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a24dedfb58f98f3da9c54fdd92675f3a3">frame_rate</a></td></tr>
 <tr class="separator:a24dedfb58f98f3da9c54fdd92675f3a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34c14135295ffe66ee03d67304d6bc60"><td class="memItemLeft" align="right" valign="top"><a id="a34c14135295ffe66ee03d67304d6bc60"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>audio_frequency</b></td></tr>
+<tr class="memitem:a34c14135295ffe66ee03d67304d6bc60"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a34c14135295ffe66ee03d67304d6bc60">audio_frequency</a></td></tr>
 <tr class="separator:a34c14135295ffe66ee03d67304d6bc60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9953e98bddd4e0c6f75c9968ab89210"><td class="memItemLeft" align="right" valign="top"><a id="ad9953e98bddd4e0c6f75c9968ab89210"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>audio_layout</b></td></tr>
+<tr class="memitem:ad9953e98bddd4e0c6f75c9968ab89210"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#ad9953e98bddd4e0c6f75c9968ab89210">audio_layout</a></td></tr>
 <tr class="separator:ad9953e98bddd4e0c6f75c9968ab89210"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:ab818c3995baff08fbc7505719d44bc72"><td class="memItemLeft" align="right" valign="top"><a id="ab818c3995baff08fbc7505719d44bc72"></a>
-<a class="el" href="class_media.html">Media</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>item</b></td></tr>
+<tr class="memitem:ab818c3995baff08fbc7505719d44bc72"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_media.html">Media</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#ab818c3995baff08fbc7505719d44bc72">item</a></td></tr>
 <tr class="separator:ab818c3995baff08fbc7505719d44bc72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb676a3efee75cfc4139d49103170b58"><td class="memItemLeft" align="right" valign="top"><a id="afb676a3efee75cfc4139d49103170b58"></a>
-<a class="el" href="struct_sequence.html">Sequence</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>seq</b></td></tr>
-<tr class="separator:afb676a3efee75cfc4139d49103170b58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54ee1a116176981d5604ac3292674a5a"><td class="memItemLeft" align="right" valign="top"><a id="a54ee1a116176981d5604ac3292674a5a"></a>
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>old_name</b></td></tr>
+<tr class="memitem:af4bdd9e7ca01b7206b939c5eefcb4fa7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#af4bdd9e7ca01b7206b939c5eefcb4fa7">seq</a></td></tr>
+<tr class="separator:af4bdd9e7ca01b7206b939c5eefcb4fa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54ee1a116176981d5604ac3292674a5a"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a54ee1a116176981d5604ac3292674a5a">old_name</a></td></tr>
 <tr class="separator:a54ee1a116176981d5604ac3292674a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9adee2296bc31b0e6eefab910214bc56"><td class="memItemLeft" align="right" valign="top"><a id="a9adee2296bc31b0e6eefab910214bc56"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>old_width</b></td></tr>
+<tr class="memitem:a9adee2296bc31b0e6eefab910214bc56"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a9adee2296bc31b0e6eefab910214bc56">old_width</a></td></tr>
 <tr class="separator:a9adee2296bc31b0e6eefab910214bc56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71c31af9c44e28dfff73e43e642624e7"><td class="memItemLeft" align="right" valign="top"><a id="a71c31af9c44e28dfff73e43e642624e7"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>old_height</b></td></tr>
+<tr class="memitem:a71c31af9c44e28dfff73e43e642624e7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a71c31af9c44e28dfff73e43e642624e7">old_height</a></td></tr>
 <tr class="separator:a71c31af9c44e28dfff73e43e642624e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abce788373739cc18cd0197279b835c03"><td class="memItemLeft" align="right" valign="top"><a id="abce788373739cc18cd0197279b835c03"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>old_frame_rate</b></td></tr>
+<tr class="memitem:abce788373739cc18cd0197279b835c03"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#abce788373739cc18cd0197279b835c03">old_frame_rate</a></td></tr>
 <tr class="separator:abce788373739cc18cd0197279b835c03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cf82cc32f2cbf6468ce9614037fc9f2"><td class="memItemLeft" align="right" valign="top"><a id="a8cf82cc32f2cbf6468ce9614037fc9f2"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>old_audio_frequency</b></td></tr>
+<tr class="memitem:a8cf82cc32f2cbf6468ce9614037fc9f2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a8cf82cc32f2cbf6468ce9614037fc9f2">old_audio_frequency</a></td></tr>
 <tr class="separator:a8cf82cc32f2cbf6468ce9614037fc9f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3bbfaa9ae0ae11cda89433578f8ed35c"><td class="memItemLeft" align="right" valign="top"><a id="a3bbfaa9ae0ae11cda89433578f8ed35c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>old_audio_layout</b></td></tr>
+<tr class="memitem:a3bbfaa9ae0ae11cda89433578f8ed35c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_edit_sequence_command.html#a3bbfaa9ae0ae11cda89433578f8ed35c">old_audio_layout</a></td></tr>
 <tr class="separator:a3bbfaa9ae0ae11cda89433578f8ed35c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a42d1c2923b334f51f322518d7dcb1588"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42d1c2923b334f51f322518d7dcb1588">&#9670;&nbsp;</a></span>EditSequenceCommand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EditSequenceCommand::EditSequenceCommand </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_media.html">Media</a> *&#160;</td>
+          <td class="paramname"><em>i</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a>&#160;</td>
+          <td class="paramname"><em>s</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="afb50bde1c91304eea18851f455edf441"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb50bde1c91304eea18851f455edf441">&#9670;&nbsp;</a></span>doRedo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditSequenceCommand::doRedo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ad2558014854156e81631f395db38a697">OliveAction</a>.</p>
+
+</div>
+</div>
+<a id="af493392823252757811bab229f426b5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af493392823252757811bab229f426b5d">&#9670;&nbsp;</a></span>doUndo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditSequenceCommand::doUndo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ae5c9247751022c35aebd477718113cc4">OliveAction</a>.</p>
+
+</div>
+</div>
+<a id="ac5e5358e327c3a1e9cc3202ea38ab120"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5e5358e327c3a1e9cc3202ea38ab120">&#9670;&nbsp;</a></span>update()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditSequenceCommand::update </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a34c14135295ffe66ee03d67304d6bc60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34c14135295ffe66ee03d67304d6bc60">&#9670;&nbsp;</a></span>audio_frequency</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::audio_frequency</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad9953e98bddd4e0c6f75c9968ab89210"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9953e98bddd4e0c6f75c9968ab89210">&#9670;&nbsp;</a></span>audio_layout</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::audio_layout</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a24dedfb58f98f3da9c54fdd92675f3a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24dedfb58f98f3da9c54fdd92675f3a3">&#9670;&nbsp;</a></span>frame_rate</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double EditSequenceCommand::frame_rate</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac501f155e55d793a3c0001105ec90802"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac501f155e55d793a3c0001105ec90802">&#9670;&nbsp;</a></span>height</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::height</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab818c3995baff08fbc7505719d44bc72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab818c3995baff08fbc7505719d44bc72">&#9670;&nbsp;</a></span>item</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_media.html">Media</a>* EditSequenceCommand::item</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="afe8cdadc3df779da21697039b7a2a947"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe8cdadc3df779da21697039b7a2a947">&#9670;&nbsp;</a></span>name</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString EditSequenceCommand::name</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8cf82cc32f2cbf6468ce9614037fc9f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8cf82cc32f2cbf6468ce9614037fc9f2">&#9670;&nbsp;</a></span>old_audio_frequency</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::old_audio_frequency</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3bbfaa9ae0ae11cda89433578f8ed35c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bbfaa9ae0ae11cda89433578f8ed35c">&#9670;&nbsp;</a></span>old_audio_layout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::old_audio_layout</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abce788373739cc18cd0197279b835c03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abce788373739cc18cd0197279b835c03">&#9670;&nbsp;</a></span>old_frame_rate</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double EditSequenceCommand::old_frame_rate</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a71c31af9c44e28dfff73e43e642624e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71c31af9c44e28dfff73e43e642624e7">&#9670;&nbsp;</a></span>old_height</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::old_height</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a54ee1a116176981d5604ac3292674a5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54ee1a116176981d5604ac3292674a5a">&#9670;&nbsp;</a></span>old_name</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString EditSequenceCommand::old_name</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9adee2296bc31b0e6eefab910214bc56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9adee2296bc31b0e6eefab910214bc56">&#9670;&nbsp;</a></span>old_width</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::old_width</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af4bdd9e7ca01b7206b939c5eefcb4fa7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4bdd9e7ca01b7206b939c5eefcb4fa7">&#9670;&nbsp;</a></span>seq</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a> EditSequenceCommand::seq</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa8ec12d9b7af5e02aa1910d4e20ebba5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8ec12d9b7af5e02aa1910d4e20ebba5">&#9670;&nbsp;</a></span>width</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditSequenceCommand::width</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>project/<a class="el" href="undo_8h_source.html">undo.h</a></li>
-<li>project/undo.cpp</li>
+<li>project/<a class="el" href="undo_8cpp.html">undo.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

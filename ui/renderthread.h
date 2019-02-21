@@ -29,14 +29,14 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 
+#include "project/sequence.h"
+#include "project/effect.h"
+
 // copied from source code to OCIODisplay
-#define LUT3D_EDGE_SIZE 32
+const int LUT3D_EDGE_SIZE = 32;
 
 // copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
-#define NUM_3D_ENTRIES 98304
-
-struct Sequence;
-class Effect;
+const int NUM_3D_ENTRIES = 98304;
 
 class RenderThread : public QThread {
 	Q_OBJECT
@@ -47,9 +47,9 @@ public:
 	QMutex mutex;
 	GLuint front_buffer;
 	GLuint front_texture;
-	Effect* gizmos;
+    EffectPtr gizmos;
 	void paint();
-    void start_render(QOpenGLContext* share, Sequence* s, const QString &save = nullptr, GLvoid *pixels = nullptr, int pixel_linesize = 0, int idivider = 0);
+    void start_render(QOpenGLContext* share, SequencePtr s, const QString &save = nullptr, GLvoid *pixels = nullptr, int pixel_linesize = 0, int idivider = 0);
 	bool did_texture_fail();
 	void cancel();
 
@@ -78,7 +78,7 @@ private:
 
     float ocio_lut_data[NUM_3D_ENTRIES];
 
-	Sequence* seq;
+    SequencePtr seq;
 	int divider;
 	int tex_width;
 	int tex_height;

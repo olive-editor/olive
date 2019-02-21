@@ -69,6 +69,8 @@ $(function() {
 <div class="title">AddClipCommand Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="undo_8h_source.html">undo.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AddClipCommand:</div>
 <div class="dyncontent">
@@ -81,41 +83,212 @@ Inheritance diagram for AddClipCommand:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac10746901235e3ee6c9e1f5fdaa69c98"><td class="memItemLeft" align="right" valign="top"><a id="ac10746901235e3ee6c9e1f5fdaa69c98"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>AddClipCommand</b> (<a class="el" href="struct_sequence.html">Sequence</a> *s, QVector&lt; <a class="el" href="class_clip.html">Clip</a> * &gt; &amp;add)</td></tr>
-<tr class="separator:ac10746901235e3ee6c9e1f5fdaa69c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9747a6af7db058d2422e11ef0948cbb2"><td class="memItemLeft" align="right" valign="top"><a id="a9747a6af7db058d2422e11ef0948cbb2"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doUndo</b> () override</td></tr>
+<tr class="memitem:a76bc7d58836e520d113d8d24b76275e7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#a76bc7d58836e520d113d8d24b76275e7">AddClipCommand</a> (<a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a> s, QVector&lt; <a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> &gt; &amp;add)</td></tr>
+<tr class="separator:a76bc7d58836e520d113d8d24b76275e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e1e9bc2f299aa3c259f9c91822d20f9"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#a6e1e9bc2f299aa3c259f9c91822d20f9">~AddClipCommand</a> () override</td></tr>
+<tr class="separator:a6e1e9bc2f299aa3c259f9c91822d20f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9747a6af7db058d2422e11ef0948cbb2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#a9747a6af7db058d2422e11ef0948cbb2">doUndo</a> () override</td></tr>
 <tr class="separator:a9747a6af7db058d2422e11ef0948cbb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a298b751d7f9062f5a781773ecf959ed6"><td class="memItemLeft" align="right" valign="top"><a id="a298b751d7f9062f5a781773ecf959ed6"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doRedo</b> () override</td></tr>
+<tr class="memitem:a298b751d7f9062f5a781773ecf959ed6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#a298b751d7f9062f5a781773ecf959ed6">doRedo</a> () override</td></tr>
 <tr class="separator:a298b751d7f9062f5a781773ecf959ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_olive_action"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_olive_action')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_olive_action.html">OliveAction</a></td></tr>
-<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="ae90cf762a471f704e9ee4c30fd13b05f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OliveAction</b> (bool iset_window_modified=true)</td></tr>
+<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#ae90cf762a471f704e9ee4c30fd13b05f">OliveAction</a> (bool iset_window_modified=true)</td></tr>
 <tr class="separator:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a6e14775c35e9c0acbef06b104c98a10c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>undo</b> () override</td></tr>
+<tr class="memitem:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a62bcbe2d4297e05349ceff9e406ef02e">~OliveAction</a> () override</td></tr>
+<tr class="separator:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a6e14775c35e9c0acbef06b104c98a10c">undo</a> () override</td></tr>
 <tr class="separator:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a4bdc5f2f1d644b02f5bce1f025698bfe"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>redo</b> () override</td></tr>
+<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a4bdc5f2f1d644b02f5bce1f025698bfe">redo</a> () override</td></tr>
 <tr class="separator:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a61cc58d500e9ca804c41c208ae7f6893"><td class="memItemLeft" align="right" valign="top"><a id="a61cc58d500e9ca804c41c208ae7f6893"></a>
-<a class="el" href="struct_sequence.html">Sequence</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>seq</b></td></tr>
-<tr class="separator:a61cc58d500e9ca804c41c208ae7f6893"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa3e27b14e6b18bcbb820c48086807a1"><td class="memItemLeft" align="right" valign="top"><a id="afa3e27b14e6b18bcbb820c48086807a1"></a>
-QVector&lt; <a class="el" href="class_clip.html">Clip</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>clips</b></td></tr>
-<tr class="separator:afa3e27b14e6b18bcbb820c48086807a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace6f2f1d83649bc5d67e617e12d82cc6"><td class="memItemLeft" align="right" valign="top"><a id="ace6f2f1d83649bc5d67e617e12d82cc6"></a>
-QVector&lt; <a class="el" href="class_clip.html">Clip</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>undone_clips</b></td></tr>
-<tr class="separator:ace6f2f1d83649bc5d67e617e12d82cc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a451e6192fbab9a1df3eb352d2896e94d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#a451e6192fbab9a1df3eb352d2896e94d">seq</a></td></tr>
+<tr class="separator:a451e6192fbab9a1df3eb352d2896e94d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acabefd3521769909f4a7fbd47f1b0364"><td class="memItemLeft" align="right" valign="top">QVector&lt; <a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#acabefd3521769909f4a7fbd47f1b0364">clips</a></td></tr>
+<tr class="separator:acabefd3521769909f4a7fbd47f1b0364"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a770cb0554708c13d59c3f7898f16a6c3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_add_clip_command.html#a770cb0554708c13d59c3f7898f16a6c3">link_offset_</a></td></tr>
+<tr class="separator:a770cb0554708c13d59c3f7898f16a6c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a76bc7d58836e520d113d8d24b76275e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76bc7d58836e520d113d8d24b76275e7">&#9670;&nbsp;</a></span>AddClipCommand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AddClipCommand::AddClipCommand </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a>&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QVector&lt; <a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>add</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6e1e9bc2f299aa3c259f9c91822d20f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e1e9bc2f299aa3c259f9c91822d20f9">&#9670;&nbsp;</a></span>~AddClipCommand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AddClipCommand::~AddClipCommand </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a298b751d7f9062f5a781773ecf959ed6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a298b751d7f9062f5a781773ecf959ed6">&#9670;&nbsp;</a></span>doRedo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AddClipCommand::doRedo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ad2558014854156e81631f395db38a697">OliveAction</a>.</p>
+
+</div>
+</div>
+<a id="a9747a6af7db058d2422e11ef0948cbb2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9747a6af7db058d2422e11ef0948cbb2">&#9670;&nbsp;</a></span>doUndo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AddClipCommand::doUndo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ae5c9247751022c35aebd477718113cc4">OliveAction</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="acabefd3521769909f4a7fbd47f1b0364"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acabefd3521769909f4a7fbd47f1b0364">&#9670;&nbsp;</a></span>clips</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;<a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&gt; AddClipCommand::clips</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a770cb0554708c13d59c3f7898f16a6c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a770cb0554708c13d59c3f7898f16a6c3">&#9670;&nbsp;</a></span>link_offset_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int AddClipCommand::link_offset_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a451e6192fbab9a1df3eb352d2896e94d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a451e6192fbab9a1df3eb352d2896e94d">&#9670;&nbsp;</a></span>seq</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="clip_8h.html#a2a0d48184294d399b0adc41f6e1de6c7">SequencePtr</a> AddClipCommand::seq</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>project/<a class="el" href="undo_8h_source.html">undo.h</a></li>
-<li>project/undo.cpp</li>
+<li>project/<a class="el" href="undo_8cpp.html">undo.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

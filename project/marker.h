@@ -25,8 +25,10 @@
 
 #include <QString>
 #include <QPainter>
+#include <memory>
 
-struct Sequence;
+class Sequence;
+using SequencePtr = std::shared_ptr<Sequence>;
 
 struct Marker {
     long frame;
@@ -35,7 +37,7 @@ struct Marker {
 
 void draw_marker(QPainter& p, int x, int y, int bottom, bool selected);
 
-void set_marker_internal(Sequence* seq, const QVector<int>& clips);
-void set_marker_internal(Sequence* seq);
+void set_marker_internal(SequencePtr seq, const QVector<int>& clips);
+void set_marker_internal(SequencePtr seq);
 
 #endif // MARKER_H

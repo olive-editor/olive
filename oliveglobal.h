@@ -21,10 +21,12 @@
 #ifndef OLIVEGLOBAL_H
 #define OLIVEGLOBAL_H
 
+#include <memory>
 #include "project/undo.h"
 
 #include <QTimer>
 #include <QFile>
+#include <QTranslator>
 
 /**
  * @brief The Olive Global class
@@ -107,6 +109,11 @@ public:
      * @return The URL as a string
      */
     QString get_recent_project_list_file();
+
+    /**
+     * @brief (Re)load translation file from olive::config
+     */
+    void load_translation_from_config();
 
 public slots:
     /**
@@ -290,16 +297,21 @@ private:
      */
     bool enable_load_project_on_init;
 
+    /**
+     * @brief Internal translator object that interfaces with the currently loaded language file
+     */
+    std::unique_ptr<QTranslator> translator;
+
 
 private slots:
 
 };
 
-namespace Olive {
+namespace olive {
     /**
      * @brief Object resource for various global functions used throughout Olive
      */
-    extern QSharedPointer<OliveGlobal> Global;
+    extern std::unique_ptr<OliveGlobal> Global;
 
     /**
      * @brief Currently active project filename

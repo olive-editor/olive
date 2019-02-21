@@ -235,7 +235,7 @@ void RenderThread::paint() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, Sequence *s, const QString& save, GLvoid* pixels, int pixel_linesize, int idivider) {
+void RenderThread::start_render(QOpenGLContext *share, SequencePtr s, const QString& save, GLvoid* pixels, int pixel_linesize, int idivider) {
     Q_UNUSED(idivider);
 
 	seq = s;

@@ -29,7 +29,7 @@
 class TextEffect : public Effect {
 	Q_OBJECT
 public:
-	TextEffect(Clip* c, const EffectMeta *em);
+    TextEffect(ClipPtr c, const EffectMeta *em);
 	void redraw(double timecode);
 
 	EffectField* text_val;
@@ -45,7 +45,8 @@ public:
 	EffectField* outline_color;
 
 	EffectField* shadow_bool;
-	EffectField* shadow_distance;
+  EffectField* shadow_angle;
+  EffectField* shadow_distance;
 	EffectField* shadow_color;
 	EffectField* shadow_softness;
 	EffectField* shadow_opacity;

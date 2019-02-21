@@ -38,14 +38,6 @@
 <context>
     <name>Audio</name>
     <message>
-        <source>Audio</source>
-        <translation type="vanished">Звук</translation>
-    </message>
-    <message>
-        <source>Recording</source>
-        <translation type="vanished">Запись</translation>
-    </message>
-    <message>
         <location filename="../playback/audio.cpp" line="331"/>
         <source>%1 Audio</source>
         <translation type="unfinished"></translation>
@@ -53,7 +45,7 @@
     <message>
         <location filename="../playback/audio.cpp" line="344"/>
         <source>Recording %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Запись %1</translation>
     </message>
 </context>
 <context>
@@ -492,6 +484,11 @@
         <translation>Дополнительно</translation>
     </message>
     <message>
+        <location filename="../dialogs/exportdialog.cpp" line="697"/>
+        <source>Audio</source>
+        <translation>Звук</translation>
+    </message>
+    <message>
         <location filename="../dialogs/exportdialog.cpp" line="706"/>
         <source>Sampling Rate:</source>
         <translation>Частота дискретизации:</translation>
@@ -600,12 +597,12 @@
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="29"/>
         <source>Fill Left with Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Заполнить левый канал правым</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="30"/>
         <source>Fill Right with Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Заполнить правый канал левым</translation>
     </message>
 </context>
 <context>
@@ -677,7 +674,7 @@
     <message>
         <location filename="../project/media.cpp" line="43"/>
         <source>None (Progressive)</source>
-        <translation type="unfinished">Нет (прогрессивно)</translation>
+        <translation>Нет (прогрессивно)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="44"/>
@@ -692,7 +689,7 @@
     <message>
         <location filename="../project/media.cpp" line="46"/>
         <source>Invalid</source>
-        <translation type="unfinished">Некорректный</translation>
+        <translation>Некорректно</translation>
     </message>
 </context>
 <context>
@@ -815,70 +812,6 @@
         <translation>Приветствуем в %1</translation>
     </message>
     <message>
-        <source>Auto-recovery</source>
-        <translation type="vanished">Автовосстановление</translation>
-    </message>
-    <message>
-        <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation type="vanished">Olive аварийно завершил работу, обнаружен файл автовосстановления. Открыть его?</translation>
-    </message>
-    <message>
-        <source>&amp;Project</source>
-        <translation type="vanished">&amp;Проект</translation>
-    </message>
-    <message>
-        <source>&amp;Sequence</source>
-        <translation type="vanished">П&amp;оследовательность</translation>
-    </message>
-    <message>
-        <source>&amp;Folder</source>
-        <translation type="vanished">П&amp;апка</translation>
-    </message>
-    <message>
-        <source>Set In Point</source>
-        <translation type="vanished">Установить точку входа</translation>
-    </message>
-    <message>
-        <source>Set Out Point</source>
-        <translation type="vanished">Установить точку выхода</translation>
-    </message>
-    <message>
-        <source>Enable/Disable In/Out Point</source>
-        <translation type="vanished">Переключить точку входа/выхода</translation>
-    </message>
-    <message>
-        <source>Reset In Point</source>
-        <translation type="vanished">Сбросить точку входа</translation>
-    </message>
-    <message>
-        <source>Reset Out Point</source>
-        <translation type="vanished">Сбросить точку выхода</translation>
-    </message>
-    <message>
-        <source>Clear In/Out Point</source>
-        <translation type="vanished">Очистить точку входа/выхода</translation>
-    </message>
-    <message>
-        <source>No active sequence</source>
-        <translation type="vanished">Нет активных последовательностей</translation>
-    </message>
-    <message>
-        <source>Please open the sequence you wish to export.</source>
-        <translation type="vanished">Откройте последовательность, которую хотите экспортировать</translation>
-    </message>
-    <message>
-        <source>Save Project As...</source>
-        <translation type="vanished">Сохранить проект как…</translation>
-    </message>
-    <message>
-        <source>Unsaved Project</source>
-        <translation type="vanished">Несохранённый проект</translation>
-    </message>
-    <message>
-        <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation type="vanished">Проект был изменён с момента последнего сохранения. Хотите сохранить его перед закрытием?</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="362"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
@@ -944,34 +877,6 @@
         <translation>Вернуть</translation>
     </message>
     <message>
-        <source>Cu&amp;t</source>
-        <translation type="vanished">В&amp;ырезать</translation>
-    </message>
-    <message>
-        <source>Cop&amp;y</source>
-        <translation type="vanished">С&amp;копировать</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="vanished">&amp;Вставить</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="vanished">Сделать копию</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="vanished">Удалить</translation>
-    </message>
-    <message>
-        <source>Ripple Delete</source>
-        <translation type="vanished">Удалить со сдвигом</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation type="vanished">Разделить</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="409"/>
         <source>Select &amp;All</source>
         <translation>Выд&amp;елить всё</translation>
@@ -980,22 +885,6 @@
         <location filename="../mainwindow.cpp" line="411"/>
         <source>Deselect All</source>
         <translation>Снять выделение</translation>
-    </message>
-    <message>
-        <source>Add Default Transition</source>
-        <translation type="vanished">Добавить переход по умолчанию</translation>
-    </message>
-    <message>
-        <source>Link/Unlink</source>
-        <translation type="vanished">Связать/Убрать связь</translation>
-    </message>
-    <message>
-        <source>Enable/Disable</source>
-        <translation type="vanished">Включить/Отключить</translation>
-    </message>
-    <message>
-        <source>Nest</source>
-        <translation type="vanished">Вложить</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="419"/>
@@ -1130,7 +1019,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="519"/>
         <source>Full Screen Viewer</source>
-        <translation>Монитор в полноэкранном режиме</translation>
+        <translation>Просмотр в полноэкранном режиме</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="523"/>
@@ -1203,18 +1092,6 @@
         <translation>Увеличить скорость</translation>
     </message>
     <message>
-        <source>Decrease Speed</source>
-        <translation type="vanished">Уменьшить скорость</translation>
-    </message>
-    <message>
-        <source>Pause</source>
-        <translation type="vanished">Пауза</translation>
-    </message>
-    <message>
-        <source>Increase Speed</source>
-        <translation type="vanished">Увеличить скорость</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="544"/>
         <source>Loop</source>
         <translation>Петля</translation>
@@ -1237,7 +1114,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="564"/>
         <source>Timeline</source>
-        <translation>Таймлайн</translation>
+        <translation>Монтажный стол</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="569"/>
@@ -1247,12 +1124,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="574"/>
         <source>Media Viewer</source>
-        <translation>Монитор проекта</translation>
+        <translation>Просмотр проекта</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="579"/>
         <source>Sequence Viewer</source>
-        <translation>Монитор последовательностей</translation>
+        <translation>Просмотр последовательностей</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="586"/>
@@ -1342,12 +1219,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="671"/>
         <source>Scroll Wheel Zooms</source>
-        <translation>Колесо мыши масштабирует таймлайн</translation>
+        <translation>Колесо мыши масштабирует монтажный стол</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="676"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation>Разрешить перетаскивание на таймлайн извне</translation>
+        <translation>Разрешить перетаскивание на монтажный стол извне</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="681"/>
@@ -1429,30 +1306,6 @@
         <source>&lt;untitled&gt;</source>
         <translation>&lt;без названия&gt;</translation>
     </message>
-    <message>
-        <source>Open Project...</source>
-        <translation type="vanished">Открыть проект…</translation>
-    </message>
-    <message>
-        <source>Missing recent project</source>
-        <translation type="vanished">Отсутствует недавний проект</translation>
-    </message>
-    <message>
-        <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation type="vanished">Проект &apos;%1&apos; больше не существует. Удалить его из списка недавних?</translation>
-    </message>
-    <message>
-        <source>Invalid aspect ratio</source>
-        <translation type="vanished">Некорректное соотношение сторон</translation>
-    </message>
-    <message>
-        <source>Enter custom aspect ratio</source>
-        <translation type="vanished">Введите другое соотношение сторон</translation>
-    </message>
-    <message>
-        <source>Nested Sequence</source>
-        <translation type="vanished">Вложенная последовательность</translation>
-    </message>
 </context>
 <context>
     <name>Marker</name>
@@ -1498,10 +1351,6 @@
         <location filename="../project/media.cpp" line="132"/>
         <source>Frame Rate:</source>
         <translation>Частота кадров:</translation>
-    </message>
-    <message>
-        <source>%1 fields (%2 frames)</source>
-        <translation type="vanished">полей: %1 (кадров: %2)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="142"/>
@@ -1570,10 +1419,6 @@ Audio Layout: %6</source>
         <translation>Видео %1: %2x%3 %4к/с</translation>
     </message>
     <message>
-        <source>Audio %1: %2Hz %3 channels</source>
-        <translation type="vanished">Звук %1: %2Гц %3 каналов</translation>
-    </message>
-    <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="76"/>
         <source>Audio %1: %2Hz %3</source>
         <translation type="unfinished"></translation>
@@ -1618,77 +1463,77 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="39"/>
         <source>&amp;Project</source>
-        <translation type="unfinished">&amp;Проект</translation>
+        <translation>&amp;Проект</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="41"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">П&amp;оследовательность</translation>
+        <translation>П&amp;оследовательность</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="42"/>
         <source>&amp;Folder</source>
-        <translation type="unfinished">П&amp;апка</translation>
+        <translation>П&amp;апка</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="46"/>
         <source>Set In Point</source>
-        <translation type="unfinished">Установить точку входа</translation>
+        <translation>Установить точку входа</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="47"/>
         <source>Set Out Point</source>
-        <translation type="unfinished">Установить точку выхода</translation>
+        <translation>Установить точку выхода</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="49"/>
         <source>Reset In Point</source>
-        <translation type="unfinished">Сбросить точку входа</translation>
+        <translation>Сбросить точку входа</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="50"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished">Сбросить точку выхода</translation>
+        <translation>Сбросить точку выхода</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="51"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished">Очистить точку входа/выхода</translation>
+        <translation>Очистить точку входа/выхода</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="55"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished">Добавить переход по умолчанию</translation>
+        <translation>Добавить переход по умолчанию</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="56"/>
         <source>Link/Unlink</source>
-        <translation type="unfinished">Связать/Убрать связь</translation>
+        <translation>Связать/Убрать связь</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="57"/>
         <source>Enable/Disable</source>
-        <translation type="unfinished">Включить/Отключить</translation>
+        <translation>Включить/Отключить</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="58"/>
         <source>Nest</source>
-        <translation type="unfinished">Вложить</translation>
+        <translation>Вложить</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="62"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">В&amp;ырезать</translation>
+        <translation>В&amp;ырезать</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="63"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">С&amp;копировать</translation>
+        <translation>С&amp;копировать</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="64"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Вставить</translation>
+        <translation>&amp;Вставить</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="65"/>
@@ -1698,27 +1543,27 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="66"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Сделать копию</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="67"/>
         <source>Delete</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="68"/>
         <source>Ripple Delete</source>
-        <translation type="unfinished">Удалить со сдвигом</translation>
+        <translation>Удалить со сдвигом</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="69"/>
         <source>Split</source>
-        <translation type="unfinished">Разделить</translation>
+        <translation>Разделить</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="130"/>
         <source>Invalid aspect ratio</source>
-        <translation type="unfinished">Некорректное соотношение сторон</translation>
+        <translation>Некорректное соотношение сторон</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="130"/>
@@ -1869,67 +1714,67 @@ Audio Layout: %6</source>
     <message>
         <location filename="../oliveglobal.cpp" line="59"/>
         <source>Olive Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Проект Olive %1</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="83"/>
         <source>Auto-recovery</source>
-        <translation type="unfinished">Автовосстановление</translation>
+        <translation>Автовосстановление</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="83"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation type="unfinished">Olive аварийно завершил работу, обнаружен файл автовосстановления. Открыть его?</translation>
+        <translation>Olive аварийно завершил работу, обнаружен файл автовосстановления. Открыть его?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="132"/>
         <source>Open Project...</source>
-        <translation type="unfinished">Открыть проект…</translation>
+        <translation>Открыть проект…</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="143"/>
         <source>Missing recent project</source>
-        <translation type="unfinished">Отсутствует недавний проект</translation>
+        <translation>Отсутствует недавний проект</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="144"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation type="unfinished">Проект &apos;%1&apos; больше не существует. Удалить его из списка недавних?</translation>
+        <translation>Проект &apos;%1&apos; больше не существует. Удалить его из списка недавних?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="155"/>
         <source>Save Project As...</source>
-        <translation type="unfinished">Сохранить проект как…</translation>
+        <translation>Сохранить проект как…</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="180"/>
         <source>Unsaved Project</source>
-        <translation type="unfinished">Несохранённый проект</translation>
+        <translation>Несохранённый проект</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="181"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation type="unfinished">Проект был изменён с момента последнего сохранения. Хотите сохранить его перед закрытием?</translation>
+        <translation>Проект был изменён с момента последнего сохранения. Хотите сохранить его перед закрытием?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="200"/>
         <source>No active sequence</source>
-        <translation type="unfinished">Нет активных последовательностей</translation>
+        <translation>Нет активных последовательностей</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="201"/>
         <source>Please open the sequence you wish to export.</source>
-        <translation type="unfinished">Откройте последовательность, которую хотите экспортировать</translation>
+        <translation>Откройте последовательность, которую хотите экспортировать</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="217"/>
         <source>Missing Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>Отсутствует проектный файл</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="218"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Указанный проект &apos;%1&apos; не существует.</translation>
     </message>
 </context>
 <context>
@@ -1964,14 +1809,6 @@ Audio Layout: %6</source>
         <location filename="../dialogs/preferencesdialog.cpp" line="181"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
         <translation>Файл CSS &apos;%1&apos; не существует.</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="vanished">Предупреждение</translation>
-    </message>
-    <message>
-        <source>Some changed settings will require restarting Olive to take effect</source>
-        <translation type="vanished">Некоторые изменения параметров вступят в силу только при следующем запуске Olive</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="310"/>
@@ -2115,10 +1952,6 @@ Audio Layout: %6</source>
         <translation>Поведение</translation>
     </message>
     <message>
-        <source>Disable Multithreading on Images</source>
-        <translation type="vanished">Отключить многопоточность для изображений</translation>
-    </message>
-    <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="571"/>
         <source>Seeking</source>
         <translation>Позиционирование</translation>
@@ -2135,7 +1968,7 @@ Always show the correct frame (visual may pause briefly as correct frame is retr
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
         <translation>Быстрое позиционирование
-Переходы без пауз, возможен кратковременный показ неправильного кадра в мониторе</translation>
+Переходы без пауз, возможен кратковременный показ неправильного кадра в просмотре</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
@@ -2465,7 +2298,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="79"/>
         <source>Please select a media to replace with or click &apos;Cancel&apos;.</source>
-        <translation>Выборите файлы для замены или нажмите кнопку «Отмена».</translation>
+        <translation>Выберите файлы для замены или нажмите кнопку «Отмена».</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
@@ -2913,7 +2746,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="480"/>
         <source>Timeline: </source>
-        <translation>Таймлайн:</translation>
+        <translation>Монтажный стол:</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="482"/>
@@ -2951,21 +2784,9 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
         <translation>Применить для всех конфликтов</translation>
     </message>
     <message>
-        <source>Set Marker</source>
-        <translation type="vanished">Установить маркер</translation>
-    </message>
-    <message>
-        <source>Set clip marker name:</source>
-        <translation type="vanished">Установить название маркера клипа:</translation>
-    </message>
-    <message>
-        <source>Set sequence marker name:</source>
-        <translation type="vanished">Установить название маркера последовательности:</translation>
-    </message>
-    <message>
         <location filename="../panels/timeline.cpp" line="414"/>
         <source>Nested Sequence</source>
-        <translation type="unfinished">Вложенная последовательность</translation>
+        <translation>Вложенная последовательность</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1717"/>
@@ -3005,7 +2826,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="1769"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
-        <translation>Щелкните на таймлайне в точке, от которой хотите начать запись звука. Перетащите курсор после щелчка, чтобы сразу задать длительность записи.</translation>
+        <translation>Щелкните на монтажном столе в точке, от которой хотите начать запись звука. Перетащите курсор после щелчка, чтобы сразу задать длительность записи.</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1852"/>
@@ -3127,18 +2948,6 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
         <location filename="../ui/timelinewidget.cpp" line="139"/>
         <source>Auto-s&amp;cale</source>
         <translation>Авто&amp;масштабирование</translation>
-    </message>
-    <message>
-        <source>Enable/Disable</source>
-        <translation type="obsolete">Включить/Отключить</translation>
-    </message>
-    <message>
-        <source>Link/Unlink</source>
-        <translation type="vanished">Связать/Убрать связь</translation>
-    </message>
-    <message>
-        <source>&amp;Nest</source>
-        <translation type="vanished">Вло&amp;жить</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="174"/>
@@ -3401,10 +3210,6 @@ Duration: %4</source>
 <context>
     <name>Transition</name>
     <message>
-        <source>Length:</source>
-        <translation type="vanished">Длительность:</translation>
-    </message>
-    <message>
         <location filename="../project/transition.cpp" line="48"/>
         <source>Length</source>
         <translation>Длительность</translation>
@@ -3447,7 +3252,7 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="203"/>
         <source>VST Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка VST</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="203"/>
@@ -3480,12 +3285,12 @@ Duration: %4</source>
     <message>
         <location filename="../panels/panels.cpp" line="176"/>
         <source>Sequence Viewer</source>
-        <translation>Монитор последовательностей</translation>
+        <translation>Просмотр последовательностей</translation>
     </message>
     <message>
         <location filename="../panels/panels.cpp" line="179"/>
         <source>Media Viewer</source>
-        <translation>Монитор проекта</translation>
+        <translation>Просмотр проекта</translation>
     </message>
     <message>
         <location filename="../panels/viewer.cpp" line="573"/>

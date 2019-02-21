@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QVector>
 
+#include "project/footage.h"
+
 class Project;
 class QMouseEvent;
 class Media;
@@ -41,7 +43,7 @@ public:
 	void show_context_menu(QWidget* parent, const QModelIndexList &items);
 
 	void mousePressEvent(QMouseEvent* e);
-	void mouseDoubleClickEvent(QMouseEvent* e, const QModelIndexList& selected_items);
+  void mouseDoubleClickEvent(const QModelIndexList& selected_items);
 	void dropEvent(QWidget *parent, QDropEvent* e, const QModelIndex& drop_item, const QModelIndexList &items);
 
 	void item_click(Media* m, const QModelIndex &index);
@@ -50,6 +52,8 @@ private slots:
 	void reveal_in_browser();
 	void rename_interval();
 	void item_renamed(Media *item);
+  void OpenSelectedMediaInMediaViewerFromAction();
+  void OpenSelectedMediaInMediaViewer(Media* item);
 
 	// proxy functions
 	void open_create_proxy_dialog();
@@ -63,7 +67,7 @@ private:
 	QTimer rename_timer;
 
 	// we cache the selected footage items for open_create_proxy_dialog()
-	QVector<Footage*> cached_selected_footage;
+    QVector<FootagePtr> cached_selected_footage;
 };
 
 #endif // SOURCESCOMMON_H

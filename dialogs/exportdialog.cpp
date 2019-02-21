@@ -70,11 +70,11 @@ enum ExportFormats {
 ExportDialog::ExportDialog(QWidget *parent) :
 	QDialog(parent)
 {
-	setWindowTitle(tr("Export \"%1\"").arg(Olive::ActiveSequence->name));
+    setWindowTitle(tr("Export \"%1\"").arg(olive::ActiveSequence->name));
 	setup_ui();
 
 	rangeCombobox->setCurrentIndex(0);
-	if (Olive::ActiveSequence->using_workarea) {
+    if (olive::ActiveSequence->using_workarea) {
 		rangeCombobox->setEnabled(true);
 		rangeCombobox->setCurrentIndex(1);
 	}
@@ -107,10 +107,10 @@ ExportDialog::ExportDialog(QWidget *parent) :
 	}
 	formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
-	widthSpinbox->setValue(Olive::ActiveSequence->width);
-	heightSpinbox->setValue(Olive::ActiveSequence->height);
-	samplingRateSpinbox->setValue(Olive::ActiveSequence->audio_frequency);
-	framerateSpinbox->setValue(Olive::ActiveSequence->frame_rate);
+    widthSpinbox->setValue(olive::ActiveSequence->width);
+    heightSpinbox->setValue(olive::ActiveSequence->height);
+    samplingRateSpinbox->setValue(olive::ActiveSequence->audio_frequency);
+    framerateSpinbox->setValue(olive::ActiveSequence->frame_rate);
 }
 
 ExportDialog::~ExportDialog()
@@ -524,10 +524,10 @@ void ExportDialog::export_action() {
         }
 
         params.start_frame = 0;
-        params.end_frame = Olive::ActiveSequence->getEndFrame(); // entire sequence
+        params.end_frame = olive::ActiveSequence->getEndFrame(); // entire sequence
         if (rangeCombobox->currentIndex() == 1) {
-            params.start_frame = qMax(Olive::ActiveSequence->workarea_in, params.start_frame);
-            params.end_frame = qMin(Olive::ActiveSequence->workarea_out, params.end_frame);
+            params.start_frame = qMax(olive::ActiveSequence->workarea_in, params.start_frame);
+            params.end_frame = qMin(olive::ActiveSequence->workarea_out, params.end_frame);
         }
 
         et = new ExportThread(params, vcodec_params, this);
@@ -535,11 +535,11 @@ void ExportDialog::export_action() {
 		connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
 		connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
-		closeActiveClips(Olive::ActiveSequence);
+        closeActiveClips(olive::ActiveSequence);
 
-        Olive::Global.data()->set_rendering_state(true);
+        olive::Global->set_rendering_state(true);
 
-        Olive::Global.data()->save_autorecovery_file();
+        olive::Global->save_autorecovery_file();
 
         prep_ui_for_render(true);
 
@@ -605,7 +605,7 @@ void ExportDialog::comp_type_changed(int) {
 	case COMPRESSION_TYPE_CBR:
 	case COMPRESSION_TYPE_TARGETBR:
 		videoBitrateLabel->setText(tr("Bitrate (Mbps):"));
-		videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * Olive::ActiveSequence->height) - 4.5)));
+        videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * olive::ActiveSequence->height) - 4.5)));
 		break;
 	case COMPRESSION_TYPE_CFR:
 		videoBitrateLabel->setText(tr("Quality (CRF):"));
@@ -694,7 +694,7 @@ void ExportDialog::setup_ui() {
 	verticalLayout->addWidget(videoGroupbox);
 
 	audioGroupbox = new QGroupBox(this);
-	audioGroupbox->setTitle("Audio");
+	audioGroupbox->setTitle(tr("Audio"));
 	audioGroupbox->setCheckable(true);
 
 	QGridLayout* audioGridLayout = new QGridLayout(audioGroupbox);

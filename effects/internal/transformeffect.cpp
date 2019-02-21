@@ -43,7 +43,7 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 
-TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
+TransformEffect::TransformEffect(ClipPtr c, const EffectMeta* em) : Effect(c, em) {
 	enable_coords = true;
 
 	EffectRow* position_row = add_row(tr("Position"));

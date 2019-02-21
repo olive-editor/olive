@@ -60,38 +60,35 @@ QString get_channel_layout_name(int channels, uint64_t layout) {
 	}
 }
 
-Media::Media(Media* iparent) :
-	parent(iparent),
-	throbber(nullptr),
-	root(false),
-	type(-1)
-{}
+Media::Media(Media* iparent) {
+    parent = iparent;
+    root = false;
+    type = -1;
+}
 
 Media::~Media() {
-	switch (get_type()) {
-	case MEDIA_TYPE_FOOTAGE: delete to_footage(); break;
-	case MEDIA_TYPE_SEQUENCE: if (object != nullptr) delete to_sequence(); break;
-	}
-	delete throbber;
+    for (int i=0;i<children.size();i++) {
+        delete children.at(i);
+    }
 }
 
-Footage *Media::to_footage() {
-	return static_cast<Footage*>(object);
+FootagePtr Media::to_footage() {
+    return std::static_pointer_cast<Footage>(object);
 }
 
-Sequence *Media::to_sequence() {
-	return static_cast<Sequence*>(object);
+SequencePtr Media::to_sequence() {
+    return std::static_pointer_cast<Sequence>(object);
 }
 
-void Media::set_footage(Footage *f) {
+void Media::set_footage(FootagePtr f) {
 	type = MEDIA_TYPE_FOOTAGE;
-	object = f;
+    object = VoidPtr(f);
 }
 
-void Media::set_sequence(Sequence *s) {
+void Media::set_sequence(SequencePtr s) {
 	set_icon(QIcon(":/icons/sequence.png"));
 	type = MEDIA_TYPE_SEQUENCE;
-	object = s;
+    object = VoidPtr(s);
 	if (s != nullptr) update_tooltip();
 }
 
@@ -114,7 +111,7 @@ void Media::update_tooltip(const QString& error) {
 	switch (type) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-		Footage* f = to_footage();
+        FootagePtr f = to_footage();
 		tooltip = QCoreApplication::translate("Media", "Name:") + " " + f->name + "\n" + QCoreApplication::translate("Media", "Filename:") + " " + f->url + "\n";
 
 		if (error.isEmpty()) {
@@ -185,7 +182,7 @@ void Media::update_tooltip(const QString& error) {
 		break;
 	case MEDIA_TYPE_SEQUENCE:
 	{
-		Sequence* s = to_sequence();
+        SequencePtr s = to_sequence();
 
 		tooltip = QCoreApplication::translate("Media", "Name: %1"
 					 "\nVideo Dimensions: %2x%3"
@@ -205,7 +202,7 @@ void Media::update_tooltip(const QString& error) {
 
 }
 
-void *Media::to_object() {
+VoidPtr Media::to_object() {
 	return object;
 }
 
@@ -233,7 +230,7 @@ double Media::get_frame_rate(int stream) {
 	switch (get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-		Footage* f = to_footage();
+        FootagePtr f = to_footage();
 		if (stream < 0) return f->video_tracks.at(0).video_frame_rate * f->speed;
 		return f->get_stream_from_file_index(true, stream)->video_frame_rate * f->speed;
 	}
@@ -246,7 +243,7 @@ int Media::get_sampling_rate(int stream) {
 	switch (get_type()) {
 	case MEDIA_TYPE_FOOTAGE:
 	{
-		Footage* f = to_footage();
+        FootagePtr f = to_footage();
 		if (stream < 0) return f->audio_tracks.at(0).audio_frequency * f->speed;
 		return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency * f->speed;
 	}
@@ -264,7 +261,7 @@ bool Media::setData(int col, const QVariant &value) {
 	if (col == 0) {
 		QString n = value.toString();
 		if (!n.isEmpty() && get_name() != n) {
-			Olive::UndoStack.push(new MediaRename(this, value.toString()));
+			olive::UndoStack.push(new MediaRename(this, value.toString()));
 			return true;
 		}
 	}
@@ -288,7 +285,7 @@ QVariant Media::data(int column, int role) {
 	case Qt::DecorationRole:
 		if (column == 0) {
 			if (get_type() == MEDIA_TYPE_FOOTAGE) {
-				Footage* f = to_footage();
+                FootagePtr f = to_footage();
 				if (f->video_tracks.size() > 0
 						&& f->video_tracks.at(0).preview_done) {
 					return f->video_tracks.at(0).video_preview_square;
@@ -304,25 +301,25 @@ QVariant Media::data(int column, int role) {
 		case 1:
 			if (root) return QCoreApplication::translate("Media", "Duration");
 			if (get_type() == MEDIA_TYPE_SEQUENCE) {
-				Sequence* s = to_sequence();
-				return frame_to_timecode(s->getEndFrame(), Olive::CurrentConfig.timecode_view, s->frame_rate);
+                SequencePtr s = to_sequence();
+				return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
 			}
 			if (get_type() == MEDIA_TYPE_FOOTAGE) {
-				Footage* f = to_footage();
+                FootagePtr f = to_footage();
 				double r = 30;
 
 				if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0).video_frame_rate))
 					r = f->video_tracks.at(0).video_frame_rate * f->speed;
 
 				long len = f->get_length_in_frames(r);
-				if (len > 0) return frame_to_timecode(len, Olive::CurrentConfig.timecode_view, r);
+				if (len > 0) return frame_to_timecode(len, olive::CurrentConfig.timecode_view, r);
 			}
 			break;
 		case 2:
 			if (root) return QCoreApplication::translate("Media", "Rate");
 			if (get_type() == MEDIA_TYPE_SEQUENCE) return QString::number(get_frame_rate()) + " FPS";
 			if (get_type() == MEDIA_TYPE_FOOTAGE) {
-				Footage* f = to_footage();
+                FootagePtr f = to_footage();
 				double r;
 				if (f->video_tracks.size() > 0 && !qIsNull(r = get_frame_rate())) {
 					return QString::number(get_frame_rate()) + " FPS";

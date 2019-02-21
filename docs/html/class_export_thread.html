@@ -73,6 +73,8 @@ $(function() {
 <div class="title">ExportThread Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="exportthread_8h_source.html">exportthread.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for ExportThread:</div>
 <div class="dyncontent">
@@ -82,130 +84,942 @@ Inheritance diagram for ExportThread:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr class="memitem:a665c7502f6bc93241f159e2be4671a55"><td class="memItemLeft" align="right" valign="top"><a id="a665c7502f6bc93241f159e2be4671a55"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>wake</b> ()</td></tr>
+<tr class="memitem:a665c7502f6bc93241f159e2be4671a55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a665c7502f6bc93241f159e2be4671a55">wake</a> ()</td></tr>
 <tr class="separator:a665c7502f6bc93241f159e2be4671a55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
-<tr class="memitem:adf19a2d93b577be81bb055087e59313d"><td class="memItemLeft" align="right" valign="top"><a id="adf19a2d93b577be81bb055087e59313d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>progress_changed</b> (int value, qint64 remaining_ms)</td></tr>
+<tr class="memitem:adf19a2d93b577be81bb055087e59313d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#adf19a2d93b577be81bb055087e59313d">progress_changed</a> (int value, qint64 remaining_ms)</td></tr>
 <tr class="separator:adf19a2d93b577be81bb055087e59313d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af36493de2ed1b63f5a1e58920250c6eb"><td class="memItemLeft" align="right" valign="top"><a id="af36493de2ed1b63f5a1e58920250c6eb"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ExportThread</b> (const <a class="el" href="struct_export_params.html">ExportParams</a> &amp;iparams, const <a class="el" href="struct_video_codec_params.html">VideoCodecParams</a> &amp;ivparams, QObject *parent=nullptr)</td></tr>
+<tr class="memitem:af36493de2ed1b63f5a1e58920250c6eb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#af36493de2ed1b63f5a1e58920250c6eb">ExportThread</a> (const <a class="el" href="struct_export_params.html">ExportParams</a> &amp;iparams, const <a class="el" href="struct_video_codec_params.html">VideoCodecParams</a> &amp;ivparams, QObject *parent=nullptr)</td></tr>
 <tr class="separator:af36493de2ed1b63f5a1e58920250c6eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13b763676984349813b398ac4556b2cf"><td class="memItemLeft" align="right" valign="top"><a id="a13b763676984349813b398ac4556b2cf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>run</b> ()</td></tr>
+<tr class="memitem:a13b763676984349813b398ac4556b2cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a13b763676984349813b398ac4556b2cf">run</a> ()</td></tr>
 <tr class="separator:a13b763676984349813b398ac4556b2cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae213d914041647885b443e4a9c15301c"><td class="memItemLeft" align="right" valign="top">const QString &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#ae213d914041647885b443e4a9c15301c">getError</a> ()</td></tr>
+<tr class="separator:ae213d914041647885b443e4a9c15301c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a51de400208101c726d9595075dcef83f"><td class="memItemLeft" align="right" valign="top"><a id="a51de400208101c726d9595075dcef83f"></a>
-QOffscreenSurface&#160;</td><td class="memItemRight" valign="bottom"><b>surface</b></td></tr>
+<tr class="memitem:a51de400208101c726d9595075dcef83f"><td class="memItemLeft" align="right" valign="top">QOffscreenSurface&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a51de400208101c726d9595075dcef83f">surface</a></td></tr>
 <tr class="separator:a51de400208101c726d9595075dcef83f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b9260c709c1e4aedbf9e3aadcf24afd"><td class="memItemLeft" align="right" valign="top"><a id="a9b9260c709c1e4aedbf9e3aadcf24afd"></a>
-<a class="el" href="class_export_dialog.html">ExportDialog</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ed</b></td></tr>
-<tr class="separator:a9b9260c709c1e4aedbf9e3aadcf24afd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf319902abbc77a0133447c0d9c6f6b2"><td class="memItemLeft" align="right" valign="top"><a id="abf319902abbc77a0133447c0d9c6f6b2"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>continueEncode</b></td></tr>
+<tr class="memitem:abf319902abbc77a0133447c0d9c6f6b2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#abf319902abbc77a0133447c0d9c6f6b2">continueEncode</a></td></tr>
 <tr class="separator:abf319902abbc77a0133447c0d9c6f6b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:a496c2bc95b6bde125fac2871e6bcf52a"><td class="memItemLeft" align="right" valign="top"><a id="a496c2bc95b6bde125fac2871e6bcf52a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>encode</b> (AVFormatContext *ofmt_ctx, AVCodecContext *codec_ctx, AVFrame *frame, AVPacket *packet, AVStream *stream, bool rescale)</td></tr>
+<tr class="memitem:a496c2bc95b6bde125fac2871e6bcf52a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a496c2bc95b6bde125fac2871e6bcf52a">encode</a> (AVFormatContext *ofmt_ctx, AVCodecContext *codec_ctx, AVFrame *frame, AVPacket *packet, AVStream *stream, bool rescale)</td></tr>
 <tr class="separator:a496c2bc95b6bde125fac2871e6bcf52a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab68cb5d2098d72c666624e38584b3c19"><td class="memItemLeft" align="right" valign="top"><a id="ab68cb5d2098d72c666624e38584b3c19"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setupVideo</b> ()</td></tr>
+<tr class="memitem:ab68cb5d2098d72c666624e38584b3c19"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#ab68cb5d2098d72c666624e38584b3c19">setupVideo</a> ()</td></tr>
 <tr class="separator:ab68cb5d2098d72c666624e38584b3c19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d7edbaf3e9712f29879d2c5b6838a0b"><td class="memItemLeft" align="right" valign="top"><a id="a3d7edbaf3e9712f29879d2c5b6838a0b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setupAudio</b> ()</td></tr>
+<tr class="memitem:a3d7edbaf3e9712f29879d2c5b6838a0b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a3d7edbaf3e9712f29879d2c5b6838a0b">setupAudio</a> ()</td></tr>
 <tr class="separator:a3d7edbaf3e9712f29879d2c5b6838a0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4c5e7e6715b4a4663d338bfc8d89527"><td class="memItemLeft" align="right" valign="top"><a id="ac4c5e7e6715b4a4663d338bfc8d89527"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setupContainer</b> ()</td></tr>
+<tr class="memitem:ac4c5e7e6715b4a4663d338bfc8d89527"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#ac4c5e7e6715b4a4663d338bfc8d89527">setupContainer</a> ()</td></tr>
 <tr class="separator:ac4c5e7e6715b4a4663d338bfc8d89527"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:ae405ee9998482c8717003a4b9cf1c405"><td class="memItemLeft" align="right" valign="top"><a id="ae405ee9998482c8717003a4b9cf1c405"></a>
-<a class="el" href="struct_export_params.html">ExportParams</a>&#160;</td><td class="memItemRight" valign="bottom"><b>params</b></td></tr>
+<tr class="memitem:ae405ee9998482c8717003a4b9cf1c405"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_export_params.html">ExportParams</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#ae405ee9998482c8717003a4b9cf1c405">params</a></td></tr>
 <tr class="separator:ae405ee9998482c8717003a4b9cf1c405"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a662712aaf9f725b7a1d9eab1f9065773"><td class="memItemLeft" align="right" valign="top"><a id="a662712aaf9f725b7a1d9eab1f9065773"></a>
-<a class="el" href="struct_video_codec_params.html">VideoCodecParams</a>&#160;</td><td class="memItemRight" valign="bottom"><b>vcodec_params</b></td></tr>
+<tr class="memitem:a662712aaf9f725b7a1d9eab1f9065773"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_video_codec_params.html">VideoCodecParams</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a662712aaf9f725b7a1d9eab1f9065773">vcodec_params</a></td></tr>
 <tr class="separator:a662712aaf9f725b7a1d9eab1f9065773"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e310108709c9e10105efad0179e6c03"><td class="memItemLeft" align="right" valign="top"><a id="a7e310108709c9e10105efad0179e6c03"></a>
-AVFormatContext *&#160;</td><td class="memItemRight" valign="bottom"><b>fmt_ctx</b></td></tr>
+<tr class="memitem:a7e310108709c9e10105efad0179e6c03"><td class="memItemLeft" align="right" valign="top">AVFormatContext *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a7e310108709c9e10105efad0179e6c03">fmt_ctx</a></td></tr>
 <tr class="separator:a7e310108709c9e10105efad0179e6c03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7cc8ba8c35e3df4f204d9f52a0c3659a"><td class="memItemLeft" align="right" valign="top"><a id="a7cc8ba8c35e3df4f204d9f52a0c3659a"></a>
-AVStream *&#160;</td><td class="memItemRight" valign="bottom"><b>video_stream</b></td></tr>
+<tr class="memitem:a7cc8ba8c35e3df4f204d9f52a0c3659a"><td class="memItemLeft" align="right" valign="top">AVStream *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a7cc8ba8c35e3df4f204d9f52a0c3659a">video_stream</a></td></tr>
 <tr class="separator:a7cc8ba8c35e3df4f204d9f52a0c3659a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af73c94e29a0e09025b0ebf66723bbe76"><td class="memItemLeft" align="right" valign="top"><a id="af73c94e29a0e09025b0ebf66723bbe76"></a>
-AVCodec *&#160;</td><td class="memItemRight" valign="bottom"><b>vcodec</b></td></tr>
+<tr class="memitem:af73c94e29a0e09025b0ebf66723bbe76"><td class="memItemLeft" align="right" valign="top">AVCodec *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#af73c94e29a0e09025b0ebf66723bbe76">vcodec</a></td></tr>
 <tr class="separator:af73c94e29a0e09025b0ebf66723bbe76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24560a787ab2ab7fa2483efcf14b8468"><td class="memItemLeft" align="right" valign="top"><a id="a24560a787ab2ab7fa2483efcf14b8468"></a>
-AVCodecContext *&#160;</td><td class="memItemRight" valign="bottom"><b>vcodec_ctx</b></td></tr>
+<tr class="memitem:a24560a787ab2ab7fa2483efcf14b8468"><td class="memItemLeft" align="right" valign="top">AVCodecContext *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a24560a787ab2ab7fa2483efcf14b8468">vcodec_ctx</a></td></tr>
 <tr class="separator:a24560a787ab2ab7fa2483efcf14b8468"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff1717381d96651c99f45997622dae07"><td class="memItemLeft" align="right" valign="top"><a id="aff1717381d96651c99f45997622dae07"></a>
-AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><b>video_frame</b></td></tr>
+<tr class="memitem:aff1717381d96651c99f45997622dae07"><td class="memItemLeft" align="right" valign="top">AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#aff1717381d96651c99f45997622dae07">video_frame</a></td></tr>
 <tr class="separator:aff1717381d96651c99f45997622dae07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e365fa49d5dbc83d2b7e8c8396843d6"><td class="memItemLeft" align="right" valign="top"><a id="a8e365fa49d5dbc83d2b7e8c8396843d6"></a>
-AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><b>sws_frame</b></td></tr>
+<tr class="memitem:a8e365fa49d5dbc83d2b7e8c8396843d6"><td class="memItemLeft" align="right" valign="top">AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a8e365fa49d5dbc83d2b7e8c8396843d6">sws_frame</a></td></tr>
 <tr class="separator:a8e365fa49d5dbc83d2b7e8c8396843d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd6a226998bcf25a550658362d85efdf"><td class="memItemLeft" align="right" valign="top"><a id="acd6a226998bcf25a550658362d85efdf"></a>
-SwsContext *&#160;</td><td class="memItemRight" valign="bottom"><b>sws_ctx</b></td></tr>
+<tr class="memitem:acd6a226998bcf25a550658362d85efdf"><td class="memItemLeft" align="right" valign="top">SwsContext *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#acd6a226998bcf25a550658362d85efdf">sws_ctx</a></td></tr>
 <tr class="separator:acd6a226998bcf25a550658362d85efdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a839df47fc80dc0b44cb50fd1e16faf4e"><td class="memItemLeft" align="right" valign="top"><a id="a839df47fc80dc0b44cb50fd1e16faf4e"></a>
-AVStream *&#160;</td><td class="memItemRight" valign="bottom"><b>audio_stream</b></td></tr>
+<tr class="memitem:a839df47fc80dc0b44cb50fd1e16faf4e"><td class="memItemLeft" align="right" valign="top">AVStream *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a839df47fc80dc0b44cb50fd1e16faf4e">audio_stream</a></td></tr>
 <tr class="separator:a839df47fc80dc0b44cb50fd1e16faf4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f607ef8f98dcd1d1f82b137f5eeb452"><td class="memItemLeft" align="right" valign="top"><a id="a7f607ef8f98dcd1d1f82b137f5eeb452"></a>
-AVCodec *&#160;</td><td class="memItemRight" valign="bottom"><b>acodec</b></td></tr>
+<tr class="memitem:a7f607ef8f98dcd1d1f82b137f5eeb452"><td class="memItemLeft" align="right" valign="top">AVCodec *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a7f607ef8f98dcd1d1f82b137f5eeb452">acodec</a></td></tr>
 <tr class="separator:a7f607ef8f98dcd1d1f82b137f5eeb452"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e1e6341bbb191f83c66f5593786b89d"><td class="memItemLeft" align="right" valign="top"><a id="a1e1e6341bbb191f83c66f5593786b89d"></a>
-AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><b>audio_frame</b></td></tr>
+<tr class="memitem:a1e1e6341bbb191f83c66f5593786b89d"><td class="memItemLeft" align="right" valign="top">AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a1e1e6341bbb191f83c66f5593786b89d">audio_frame</a></td></tr>
 <tr class="separator:a1e1e6341bbb191f83c66f5593786b89d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a737eff8c28e732eae96fd41e222eb75b"><td class="memItemLeft" align="right" valign="top"><a id="a737eff8c28e732eae96fd41e222eb75b"></a>
-AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><b>swr_frame</b></td></tr>
+<tr class="memitem:a737eff8c28e732eae96fd41e222eb75b"><td class="memItemLeft" align="right" valign="top">AVFrame *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a737eff8c28e732eae96fd41e222eb75b">swr_frame</a></td></tr>
 <tr class="separator:a737eff8c28e732eae96fd41e222eb75b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1db01ab51fa1eea910eb4a013713d0ad"><td class="memItemLeft" align="right" valign="top"><a id="a1db01ab51fa1eea910eb4a013713d0ad"></a>
-AVCodecContext *&#160;</td><td class="memItemRight" valign="bottom"><b>acodec_ctx</b></td></tr>
+<tr class="memitem:a1db01ab51fa1eea910eb4a013713d0ad"><td class="memItemLeft" align="right" valign="top">AVCodecContext *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a1db01ab51fa1eea910eb4a013713d0ad">acodec_ctx</a></td></tr>
 <tr class="separator:a1db01ab51fa1eea910eb4a013713d0ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f727fbf8ddab7043523f8cd0f8da94e"><td class="memItemLeft" align="right" valign="top"><a id="a8f727fbf8ddab7043523f8cd0f8da94e"></a>
-AVPacket&#160;</td><td class="memItemRight" valign="bottom"><b>video_pkt</b></td></tr>
+<tr class="memitem:a8f727fbf8ddab7043523f8cd0f8da94e"><td class="memItemLeft" align="right" valign="top">AVPacket&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a8f727fbf8ddab7043523f8cd0f8da94e">video_pkt</a></td></tr>
 <tr class="separator:a8f727fbf8ddab7043523f8cd0f8da94e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fde252e227f9019ad07c7431f5b1997"><td class="memItemLeft" align="right" valign="top"><a id="a6fde252e227f9019ad07c7431f5b1997"></a>
-AVPacket&#160;</td><td class="memItemRight" valign="bottom"><b>audio_pkt</b></td></tr>
+<tr class="memitem:a6fde252e227f9019ad07c7431f5b1997"><td class="memItemLeft" align="right" valign="top">AVPacket&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a6fde252e227f9019ad07c7431f5b1997">audio_pkt</a></td></tr>
 <tr class="separator:a6fde252e227f9019ad07c7431f5b1997"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e9e26ac853c63170574b579c414aa22"><td class="memItemLeft" align="right" valign="top"><a id="a0e9e26ac853c63170574b579c414aa22"></a>
-SwrContext *&#160;</td><td class="memItemRight" valign="bottom"><b>swr_ctx</b></td></tr>
+<tr class="memitem:a0e9e26ac853c63170574b579c414aa22"><td class="memItemLeft" align="right" valign="top">SwrContext *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a0e9e26ac853c63170574b579c414aa22">swr_ctx</a></td></tr>
 <tr class="separator:a0e9e26ac853c63170574b579c414aa22"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a065ea0d0e913f9c5c41cc971663a3b7f"><td class="memItemLeft" align="right" valign="top"><a id="a065ea0d0e913f9c5c41cc971663a3b7f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>vpkt_alloc</b></td></tr>
+<tr class="memitem:a065ea0d0e913f9c5c41cc971663a3b7f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a065ea0d0e913f9c5c41cc971663a3b7f">vpkt_alloc</a></td></tr>
 <tr class="separator:a065ea0d0e913f9c5c41cc971663a3b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abec631706c7c148dec2253a6a6cb567d"><td class="memItemLeft" align="right" valign="top"><a id="abec631706c7c148dec2253a6a6cb567d"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>apkt_alloc</b></td></tr>
+<tr class="memitem:abec631706c7c148dec2253a6a6cb567d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#abec631706c7c148dec2253a6a6cb567d">apkt_alloc</a></td></tr>
 <tr class="separator:abec631706c7c148dec2253a6a6cb567d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26ed765454b5ece2e8a7672eda623792"><td class="memItemLeft" align="right" valign="top"><a id="a26ed765454b5ece2e8a7672eda623792"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>aframe_bytes</b></td></tr>
+<tr class="memitem:a26ed765454b5ece2e8a7672eda623792"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a26ed765454b5ece2e8a7672eda623792">aframe_bytes</a></td></tr>
 <tr class="separator:a26ed765454b5ece2e8a7672eda623792"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2b34a888e8ff74f0671e7e684a27917"><td class="memItemLeft" align="right" valign="top"><a id="ae2b34a888e8ff74f0671e7e684a27917"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>ret</b></td></tr>
+<tr class="memitem:ae2b34a888e8ff74f0671e7e684a27917"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#ae2b34a888e8ff74f0671e7e684a27917">ret</a></td></tr>
 <tr class="separator:ae2b34a888e8ff74f0671e7e684a27917"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a786859adf3a4eaeab9da8748bf3fb210"><td class="memItemLeft" align="right" valign="top"><a id="a786859adf3a4eaeab9da8748bf3fb210"></a>
-char *&#160;</td><td class="memItemRight" valign="bottom"><b>c_filename</b></td></tr>
+<tr class="memitem:a786859adf3a4eaeab9da8748bf3fb210"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a786859adf3a4eaeab9da8748bf3fb210">c_filename</a></td></tr>
 <tr class="separator:a786859adf3a4eaeab9da8748bf3fb210"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1389089a2d31ec367e5ddcbcb8081a16"><td class="memItemLeft" align="right" valign="top"><a id="a1389089a2d31ec367e5ddcbcb8081a16"></a>
-QMutex&#160;</td><td class="memItemRight" valign="bottom"><b>mutex</b></td></tr>
+<tr class="memitem:a1389089a2d31ec367e5ddcbcb8081a16"><td class="memItemLeft" align="right" valign="top">QMutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#a1389089a2d31ec367e5ddcbcb8081a16">mutex</a></td></tr>
 <tr class="separator:a1389089a2d31ec367e5ddcbcb8081a16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd10af15eceab6c0c901cfeec8dabd3f"><td class="memItemLeft" align="right" valign="top"><a id="afd10af15eceab6c0c901cfeec8dabd3f"></a>
-QWaitCondition&#160;</td><td class="memItemRight" valign="bottom"><b>waitCond</b></td></tr>
+<tr class="memitem:afd10af15eceab6c0c901cfeec8dabd3f"><td class="memItemLeft" align="right" valign="top">QWaitCondition&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#afd10af15eceab6c0c901cfeec8dabd3f">waitCond</a></td></tr>
 <tr class="separator:afd10af15eceab6c0c901cfeec8dabd3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6d99cd04ff34416a43ab59066d03988"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_export_thread.html#aa6d99cd04ff34416a43ab59066d03988">export_error</a></td></tr>
+<tr class="separator:aa6d99cd04ff34416a43ab59066d03988"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="af36493de2ed1b63f5a1e58920250c6eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af36493de2ed1b63f5a1e58920250c6eb">&#9670;&nbsp;</a></span>ExportThread()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ExportThread::ExportThread </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_export_params.html">ExportParams</a> &amp;&#160;</td>
+          <td class="paramname"><em>iparams</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="struct_video_codec_params.html">VideoCodecParams</a> &amp;&#160;</td>
+          <td class="paramname"><em>ivparams</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QObject *&#160;</td>
+          <td class="paramname"><em>parent</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a496c2bc95b6bde125fac2871e6bcf52a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a496c2bc95b6bde125fac2871e6bcf52a">&#9670;&nbsp;</a></span>encode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::encode </td>
+          <td>(</td>
+          <td class="paramtype">AVFormatContext *&#160;</td>
+          <td class="paramname"><em>ofmt_ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">AVCodecContext *&#160;</td>
+          <td class="paramname"><em>codec_ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">AVFrame *&#160;</td>
+          <td class="paramname"><em>frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">AVPacket *&#160;</td>
+          <td class="paramname"><em>packet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">AVStream *&#160;</td>
+          <td class="paramname"><em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>rescale</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae213d914041647885b443e4a9c15301c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae213d914041647885b443e4a9c15301c">&#9670;&nbsp;</a></span>getError()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const QString &amp; ExportThread::getError </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adf19a2d93b577be81bb055087e59313d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf19a2d93b577be81bb055087e59313d">&#9670;&nbsp;</a></span>progress_changed</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ExportThread::progress_changed </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">qint64&#160;</td>
+          <td class="paramname"><em>remaining_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a13b763676984349813b398ac4556b2cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13b763676984349813b398ac4556b2cf">&#9670;&nbsp;</a></span>run()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ExportThread::run </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3d7edbaf3e9712f29879d2c5b6838a0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d7edbaf3e9712f29879d2c5b6838a0b">&#9670;&nbsp;</a></span>setupAudio()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::setupAudio </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac4c5e7e6715b4a4663d338bfc8d89527"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4c5e7e6715b4a4663d338bfc8d89527">&#9670;&nbsp;</a></span>setupContainer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::setupContainer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab68cb5d2098d72c666624e38584b3c19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab68cb5d2098d72c666624e38584b3c19">&#9670;&nbsp;</a></span>setupVideo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::setupVideo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a665c7502f6bc93241f159e2be4671a55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a665c7502f6bc93241f159e2be4671a55">&#9670;&nbsp;</a></span>wake</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ExportThread::wake </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a7f607ef8f98dcd1d1f82b137f5eeb452"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f607ef8f98dcd1d1f82b137f5eeb452">&#9670;&nbsp;</a></span>acodec</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVCodec* ExportThread::acodec</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1db01ab51fa1eea910eb4a013713d0ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1db01ab51fa1eea910eb4a013713d0ad">&#9670;&nbsp;</a></span>acodec_ctx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVCodecContext* ExportThread::acodec_ctx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a26ed765454b5ece2e8a7672eda623792"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26ed765454b5ece2e8a7672eda623792">&#9670;&nbsp;</a></span>aframe_bytes</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ExportThread::aframe_bytes</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abec631706c7c148dec2253a6a6cb567d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abec631706c7c148dec2253a6a6cb567d">&#9670;&nbsp;</a></span>apkt_alloc</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::apkt_alloc</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1e1e6341bbb191f83c66f5593786b89d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e1e6341bbb191f83c66f5593786b89d">&#9670;&nbsp;</a></span>audio_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVFrame* ExportThread::audio_frame</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6fde252e227f9019ad07c7431f5b1997"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fde252e227f9019ad07c7431f5b1997">&#9670;&nbsp;</a></span>audio_pkt</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVPacket ExportThread::audio_pkt</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a839df47fc80dc0b44cb50fd1e16faf4e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a839df47fc80dc0b44cb50fd1e16faf4e">&#9670;&nbsp;</a></span>audio_stream</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVStream* ExportThread::audio_stream</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a786859adf3a4eaeab9da8748bf3fb210"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a786859adf3a4eaeab9da8748bf3fb210">&#9670;&nbsp;</a></span>c_filename</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* ExportThread::c_filename</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abf319902abbc77a0133447c0d9c6f6b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf319902abbc77a0133447c0d9c6f6b2">&#9670;&nbsp;</a></span>continueEncode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::continueEncode</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa6d99cd04ff34416a43ab59066d03988"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6d99cd04ff34416a43ab59066d03988">&#9670;&nbsp;</a></span>export_error</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString ExportThread::export_error</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7e310108709c9e10105efad0179e6c03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e310108709c9e10105efad0179e6c03">&#9670;&nbsp;</a></span>fmt_ctx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVFormatContext* ExportThread::fmt_ctx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1389089a2d31ec367e5ddcbcb8081a16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1389089a2d31ec367e5ddcbcb8081a16">&#9670;&nbsp;</a></span>mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QMutex ExportThread::mutex</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae405ee9998482c8717003a4b9cf1c405"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae405ee9998482c8717003a4b9cf1c405">&#9670;&nbsp;</a></span>params</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_export_params.html">ExportParams</a> ExportThread::params</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae2b34a888e8ff74f0671e7e684a27917"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2b34a888e8ff74f0671e7e684a27917">&#9670;&nbsp;</a></span>ret</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ExportThread::ret</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a51de400208101c726d9595075dcef83f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51de400208101c726d9595075dcef83f">&#9670;&nbsp;</a></span>surface</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QOffscreenSurface ExportThread::surface</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0e9e26ac853c63170574b579c414aa22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e9e26ac853c63170574b579c414aa22">&#9670;&nbsp;</a></span>swr_ctx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SwrContext* ExportThread::swr_ctx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a737eff8c28e732eae96fd41e222eb75b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a737eff8c28e732eae96fd41e222eb75b">&#9670;&nbsp;</a></span>swr_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVFrame* ExportThread::swr_frame</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acd6a226998bcf25a550658362d85efdf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd6a226998bcf25a550658362d85efdf">&#9670;&nbsp;</a></span>sws_ctx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SwsContext* ExportThread::sws_ctx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8e365fa49d5dbc83d2b7e8c8396843d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e365fa49d5dbc83d2b7e8c8396843d6">&#9670;&nbsp;</a></span>sws_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVFrame* ExportThread::sws_frame</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af73c94e29a0e09025b0ebf66723bbe76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af73c94e29a0e09025b0ebf66723bbe76">&#9670;&nbsp;</a></span>vcodec</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVCodec* ExportThread::vcodec</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a24560a787ab2ab7fa2483efcf14b8468"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24560a787ab2ab7fa2483efcf14b8468">&#9670;&nbsp;</a></span>vcodec_ctx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVCodecContext* ExportThread::vcodec_ctx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a662712aaf9f725b7a1d9eab1f9065773"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a662712aaf9f725b7a1d9eab1f9065773">&#9670;&nbsp;</a></span>vcodec_params</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_video_codec_params.html">VideoCodecParams</a> ExportThread::vcodec_params</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aff1717381d96651c99f45997622dae07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff1717381d96651c99f45997622dae07">&#9670;&nbsp;</a></span>video_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVFrame* ExportThread::video_frame</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8f727fbf8ddab7043523f8cd0f8da94e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f727fbf8ddab7043523f8cd0f8da94e">&#9670;&nbsp;</a></span>video_pkt</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVPacket ExportThread::video_pkt</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7cc8ba8c35e3df4f204d9f52a0c3659a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cc8ba8c35e3df4f204d9f52a0c3659a">&#9670;&nbsp;</a></span>video_stream</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AVStream* ExportThread::video_stream</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a065ea0d0e913f9c5c41cc971663a3b7f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a065ea0d0e913f9c5c41cc971663a3b7f">&#9670;&nbsp;</a></span>vpkt_alloc</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ExportThread::vpkt_alloc</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="afd10af15eceab6c0c901cfeec8dabd3f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd10af15eceab6c0c901cfeec8dabd3f">&#9670;&nbsp;</a></span>waitCond</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QWaitCondition ExportThread::waitCond</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>io/<a class="el" href="exportthread_8h_source.html">exportthread.h</a></li>
-<li>io/exportthread.cpp</li>
+<li>io/<a class="el" href="exportthread_8cpp.html">exportthread.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -28,7 +28,7 @@
 #include "project/sequence.h"
 #include "debug.h"
 
-ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_MIN) {
+ToneEffect::ToneEffect(ClipPtr c, const EffectMeta *em) : Effect(c, em), sinX(INT_MIN) {
     type_val = add_row(tr("Type"))->add_field(EFFECT_FIELD_COMBO, "type");
 	type_val->add_combo_item("Sine", TONE_TYPE_SINE);
 

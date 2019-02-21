@@ -70,7 +70,7 @@ EffectField::EffectField(EffectRow *parent, int t, const QString &i) :
 		TextEditEx* edit = new TextEditEx();
 
 		// TODO magic number 2 - i'm not sure how to make this work otherwise though
-		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*Olive::CurrentConfig.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
+		edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines + edit->document()->documentMargin() + edit->document()->documentMargin() + 2));
 
 		edit->setUndoRedoEnabled(true);
 		ui_element = edit;
@@ -349,7 +349,7 @@ void EffectField::ui_element_change() {
 	ComboAction* ca = nullptr;
 	if (!dragging_double) ca = new ComboAction();
 	make_key_from_change(ca);
-	if (!dragging_double) Olive::UndoStack.push(ca);
+	if (!dragging_double) olive::UndoStack.push(ca);
 	emit changed();
 }
 

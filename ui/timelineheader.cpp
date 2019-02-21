@@ -115,7 +115,7 @@ void TimelineHeader::set_in_point(long new_in) {
 		new_out = viewer->seq->getEndFrame();
 	}
 
-    Olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+    olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
 }
 
@@ -127,7 +127,7 @@ void TimelineHeader::set_out_point(long new_out) {
 		new_in = 0;
 	}
 
-    Olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+    olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
 	update_parents();
 }
 
@@ -280,7 +280,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 	if (viewer->seq != nullptr) {
 		dragging = false;
 		if (resizing_workarea) {
-            Olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
+            olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
 		} else if (dragging_markers && selected_markers.size() > 0) {
 			bool moved = false;
 			ComboAction* ca = new ComboAction();
@@ -292,7 +292,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
 				}
 			}
 			if (moved) {
-                Olive::UndoStack.push(ca);
+                olive::UndoStack.push(ca);
 			} else {
 				delete ca;
 			}
@@ -330,7 +330,7 @@ void TimelineHeader::delete_markers() {
 		for (int i=0;i<selected_markers.size();i++) {
 			dma->markers.append(selected_markers.at(i));
 		}
-        Olive::UndoStack.push(dma);
+        olive::UndoStack.push(dma);
 		update_parents();
 	}
 }
@@ -372,14 +372,14 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 			// draw text
 			bool draw_text = false;
 			if (text_enabled && lineX-textWidth > lastTextBoundary) {
-				timecode = frame_to_timecode(frame + in_visible, Olive::CurrentConfig.timecode_view, viewer->seq->frame_rate);
+                timecode = frame_to_timecode(frame + in_visible, olive::CurrentConfig.timecode_view, viewer->seq->frame_rate);
 				fullTextWidth = fm.width(timecode);
 				textWidth = fullTextWidth>>1;
 
 				text_x = lineX;
 
 				// centers the text to that point on the timeline, LEFT aligns it if not
-				if (Olive::CurrentConfig.center_timeline_timecodes) {
+                if (olive::CurrentConfig.center_timeline_timecodes) {
 					text_x -= textWidth;
 				} else {
 					text_x += TEXT_PADDING_FROM_LINE;
@@ -399,7 +399,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
 				// draw line markers
 				p.setPen(Qt::gray);
-				p.drawLine(lineX, (!Olive::CurrentConfig.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
+                p.drawLine(lineX, (!olive::CurrentConfig.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
 
 				// draw sub-line markers
 				for (int j=1;j<sublineCount;j++) {
@@ -457,14 +457,14 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 void TimelineHeader::show_context_menu(const QPoint &pos) {
 	QMenu menu(this);
 
-    Olive::MenuHelper.make_inout_menu(&menu);
+    olive::MenuHelper.make_inout_menu(&menu);
 
 	menu.addSeparator();
 
-    QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), Olive::MainWindow, SLOT(toggle_bool_action()));
+    QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), olive::MainWindow, SLOT(toggle_bool_action()));
 	center_timecodes->setCheckable(true);
-	center_timecodes->setChecked(Olive::CurrentConfig.center_timeline_timecodes);
-	center_timecodes->setData(reinterpret_cast<quintptr>(&Olive::CurrentConfig.center_timeline_timecodes));
+    center_timecodes->setChecked(olive::CurrentConfig.center_timeline_timecodes);
+    center_timecodes->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.center_timeline_timecodes));
 
 	menu.exec(mapToGlobal(pos));
 }

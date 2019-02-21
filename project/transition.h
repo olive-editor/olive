@@ -23,33 +23,48 @@
 
 #include "effect.h"
 
-#define TA_NO_TRANSITION 0
-#define TA_OPENING_TRANSITION 1
-#define TA_CLOSING_TRANSITION 2
+enum TransitionType {
+  kTransitionNone,
+  kTransitionOpening,
+  kTransitionClosing
+};
 
-#define TRANSITION_INTERNAL_CROSSDISSOLVE 0
-#define TRANSITION_INTERNAL_LINEARFADE 1
-#define TRANSITION_INTERNAL_EXPONENTIALFADE	2
-#define TRANSITION_INTERNAL_LOGARITHMICFADE 3
-#define TRANSITION_INTERNAL_CUBE 4
-#define TRANSITION_INTERNAL_COUNT 5
+enum TransitionInternal {
+  TRANSITION_INTERNAL_CROSSDISSOLVE,
+  TRANSITION_INTERNAL_LINEARFADE,
+  TRANSITION_INTERNAL_EXPONENTIALFADE,
+  TRANSITION_INTERNAL_LOGARITHMICFADE,
+  TRANSITION_INTERNAL_CUBE,
+  TRANSITION_INTERNAL_COUNT
+};
 
-int create_transition(Clip* c, Clip* s, const EffectMeta* em, long length = -1);
+class Transition;
+using TransitionPtr = std::shared_ptr<Transition>;
+
+TransitionPtr get_transition_from_meta(ClipPtr c, ClipPtr s, const EffectMeta* em);
+
+TransitionPtr create_transition(ClipPtr c, ClipPtr s, const EffectMeta* em, long length = 0);
 
 class Transition : public Effect {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	Transition(Clip* c, Clip* s, const EffectMeta* em);
-	int copy(Clip* c, Clip* s);
-	Clip* secondary_clip;
-	void set_length(long l);
-	long get_true_length();
-	long get_length();
+  Transition(ClipPtr c, ClipPtr s, const EffectMeta* em);
+  virtual TransitionPtr copy(ClipPtr c, ClipPtr s);
+  ClipPtr secondary_clip;
+
+  virtual void save(QXmlStreamWriter& stream) override;
+
+  void set_length(long l);
+  long get_true_length();
+  long get_length();
+
+  ClipPtr get_opened_clip();
+  ClipPtr get_closed_clip();
 private slots:
-	void set_length_from_slider();
+  void set_length_from_slider();
 private:
-	long length; // used only for transitions
-	EffectField* length_field;
+  long length; // used only for transitions
+  EffectField* length_field;
 };
 
 #endif // TRANSITION_H

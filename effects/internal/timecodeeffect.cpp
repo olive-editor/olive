@@ -44,7 +44,7 @@
 #include "io/config.h"
 #include "playback/playback.h"
 
-TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
+TimecodeEffect::TimecodeEffect(ClipPtr c, const EffectMeta* em) :
 	Effect(c, em)
 {
 	enable_always_update = true;
@@ -82,10 +82,10 @@ TimecodeEffect::TimecodeEffect(Clip *c, const EffectMeta* em) :
 
 void TimecodeEffect::redraw(double timecode) {
 	if (tc_select->get_combo_data(timecode).toBool()){
-		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(Olive::ActiveSequence->playhead, Olive::CurrentConfig.timecode_view, Olive::ActiveSequence->frame_rate);}
+		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(olive::ActiveSequence->playhead, olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate);}
 	else {
 		double media_rate = parent_clip->getMediaFrameRate();
-		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(timecode * media_rate, Olive::CurrentConfig.timecode_view, media_rate);}
+		display_timecode = prepend_text->get_string_value(timecode) + frame_to_timecode(timecode * media_rate, olive::CurrentConfig.timecode_view, media_rate);}
 	img.fill(Qt::transparent);
 
 	QPainter p(&img);

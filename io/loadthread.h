@@ -30,69 +30,59 @@
 
 #include "project/projectelements.h"
 
-struct TransitionData {
-    int id;
-    QString name;
-    long length;
-    Clip* otc;
-    Clip* ctc;
-};
-
 class LoadThread : public QThread
 {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    LoadThread(bool a);
-	void run();
-	void cancel();
+  LoadThread(bool a);
+  void run();
+  void cancel();
 signals:
-	void start_question(const QString &title, const QString &text, int buttons);
-	void success();
-	void error();
-	void start_create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
-	void start_create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
-	void report_progress(int p);
+  void start_question(const QString &title, const QString &text, int buttons);
+  void success();
+  void error();
+  void start_create_effect_ui(QXmlStreamReader* stream, ClipPtr c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
+  void report_progress(int p);
 private slots:
-	void question_func(const QString &title, const QString &text, int buttons);
-	void error_func();
-	void success_func();
-	void create_effect_ui(QXmlStreamReader* stream, Clip* c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
-	void create_dual_transition(const TransitionData* td, Clip* primary, Clip* secondary, const EffectMeta* meta);
+  void question_func(const QString &title, const QString &text, int buttons);
+  void error_func();
+  void success_func();
+  void create_effect_ui(QXmlStreamReader* stream, ClipPtr c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
 private:
-	bool autorecovery;
+  bool autorecovery;
 
-	bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
-	void load_effect(QXmlStreamReader& stream, Clip* c);
+  bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
+  void load_effect(QXmlStreamReader& stream, ClipPtr c);
 
-	void read_next(QXmlStreamReader& stream);
-	void read_next_start_element(QXmlStreamReader& stream);
-	void update_current_element_count(QXmlStreamReader& stream);
+  void read_next(QXmlStreamReader& stream);
+  void read_next_start_element(QXmlStreamReader& stream);
+  void update_current_element_count(QXmlStreamReader& stream);
 
-	Sequence* open_seq;
-	QVector<Media*> loaded_media_items;
-	QDir proj_dir;
-	QDir internal_proj_dir;
-	QString internal_proj_url;
-	bool show_err;
-	QString error_str;
+  SequencePtr open_seq;
+  QVector<Media*> loaded_media_items;
+  QDir proj_dir;
+  QDir internal_proj_dir;
+  QString internal_proj_url;
+  bool show_err;
+  QString error_str;
 
-	bool is_element(QXmlStreamReader& stream);
+  bool is_element(QXmlStreamReader& stream);
 
-	QVector<Media*> loaded_folders;
-	QVector<Clip*> loaded_clips;
-	QVector<Media*> loaded_sequences;
-	Media* find_loaded_folder_by_id(int id);
+  QVector<Media*> loaded_folders;
+  QVector<ClipPtr> loaded_clips;
+  QVector<Media*> loaded_sequences;
+  Media* find_loaded_folder_by_id(int id);
 
-	int current_element_count;
-	int total_element_count;
+  int current_element_count;
+  int total_element_count;
 
-	QMutex mutex;
-	QWaitCondition waitCond;
+  QMutex mutex;
+  QWaitCondition waitCond;
 
-	bool cancelled;
-	bool xml_error;
+  bool cancelled;
+  bool xml_error;
 
-	QMessageBox::StandardButton question_btn;
+  QMessageBox::StandardButton question_btn;
 };
 
 #endif // LOADTHREAD_H

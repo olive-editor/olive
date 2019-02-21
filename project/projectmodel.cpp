@@ -26,6 +26,8 @@
 #include "project/media.h"
 #include "debug.h"
 
+ProjectModel olive::project_model;
+
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent), root_item(nullptr) {
 	make_root();
 }
@@ -99,8 +101,8 @@ QModelIndex ProjectModel::index(int row, int column, const QModelIndex &parent) 
 		return QModelIndex();
 }
 
-QModelIndex ProjectModel::create_index(int arow, int acolumn, void* aid) {
-	return createIndex(arow, acolumn, aid);
+QModelIndex ProjectModel::create_index(int arow, int acolumn, void* adata) {
+    return createIndex(arow, acolumn, adata);
 }
 
 QModelIndex ProjectModel::parent(const QModelIndex &index) const {

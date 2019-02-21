@@ -72,8 +72,8 @@ void SourceTable::mousePressEvent(QMouseEvent* event) {
 	QTreeView::mousePressEvent(event);
 }
 
-void SourceTable::mouseDoubleClickEvent(QMouseEvent* event) {
-	project_parent->sources_common->mouseDoubleClickEvent(event, selectionModel()->selectedRows());
+void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
+  project_parent->sources_common->mouseDoubleClickEvent(selectionModel()->selectedRows());
 }
 
 void SourceTable::dragEnterEvent(QDragEnterEvent *event) {

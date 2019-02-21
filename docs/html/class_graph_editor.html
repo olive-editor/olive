@@ -63,6 +63,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pri-slots">Private Slots</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="class_graph_editor-members.html">List of all members</a>  </div>
@@ -70,94 +71,613 @@ $(function() {
 <div class="title">GraphEditor Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="grapheditor_8h_source.html">grapheditor.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for GraphEditor:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="class_graph_editor.png" alt=""/>
- </div></div>
+  <img src="class_graph_editor.png" usemap="#GraphEditor_map" alt=""/>
+  <map id="GraphEditor_map" name="GraphEditor_map">
+<area href="class_panel.html" alt="Panel" shape="rect" coords="0,56,89,80"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a05e5f232f12e6e5e2fd26863a04b8991"><td class="memItemLeft" align="right" valign="top"><a id="a05e5f232f12e6e5e2fd26863a04b8991"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>GraphEditor</b> (QWidget *parent=0)</td></tr>
-<tr class="separator:a05e5f232f12e6e5e2fd26863a04b8991"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0fe847fd0780b2acb5ddec8cc4cb8b92"><td class="memItemLeft" align="right" valign="top"><a id="a0fe847fd0780b2acb5ddec8cc4cb8b92"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>update_panel</b> ()</td></tr>
+<tr class="memitem:a5b7b7727a48a3ab729fa86cd5e25f3ac"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a5b7b7727a48a3ab729fa86cd5e25f3ac">GraphEditor</a> (QWidget *parent=nullptr)</td></tr>
+<tr class="separator:a5b7b7727a48a3ab729fa86cd5e25f3ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fe847fd0780b2acb5ddec8cc4cb8b92"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a0fe847fd0780b2acb5ddec8cc4cb8b92">update_panel</a> ()</td></tr>
 <tr class="separator:a0fe847fd0780b2acb5ddec8cc4cb8b92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0e74ec8ec6fc764cfd74813de8e35e6"><td class="memItemLeft" align="right" valign="top"><a id="ab0e74ec8ec6fc764cfd74813de8e35e6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_row</b> (<a class="el" href="class_effect_row.html">EffectRow</a> *r)</td></tr>
+<tr class="memitem:ab0e74ec8ec6fc764cfd74813de8e35e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#ab0e74ec8ec6fc764cfd74813de8e35e6">set_row</a> (<a class="el" href="class_effect_row.html">EffectRow</a> *r)</td></tr>
 <tr class="separator:ab0e74ec8ec6fc764cfd74813de8e35e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c90d9557fe3417787ade12054a8f9b1"><td class="memItemLeft" align="right" valign="top"><a id="a4c90d9557fe3417787ade12054a8f9b1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>view_is_focused</b> ()</td></tr>
+<tr class="memitem:a4c90d9557fe3417787ade12054a8f9b1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a4c90d9557fe3417787ade12054a8f9b1">view_is_focused</a> ()</td></tr>
 <tr class="separator:a4c90d9557fe3417787ade12054a8f9b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60edb4dd25153666217c2d43316a5c18"><td class="memItemLeft" align="right" valign="top"><a id="a60edb4dd25153666217c2d43316a5c18"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>view_is_under_mouse</b> ()</td></tr>
+<tr class="memitem:a60edb4dd25153666217c2d43316a5c18"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a60edb4dd25153666217c2d43316a5c18">view_is_under_mouse</a> ()</td></tr>
 <tr class="separator:a60edb4dd25153666217c2d43316a5c18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae735d893c5df0b7108d7b12fbef9795c"><td class="memItemLeft" align="right" valign="top"><a id="ae735d893c5df0b7108d7b12fbef9795c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_selected_keys</b> ()</td></tr>
+<tr class="memitem:ae735d893c5df0b7108d7b12fbef9795c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#ae735d893c5df0b7108d7b12fbef9795c">delete_selected_keys</a> ()</td></tr>
 <tr class="separator:ae735d893c5df0b7108d7b12fbef9795c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2258f07a8ff54255150f764c9f03de75"><td class="memItemLeft" align="right" valign="top"><a id="a2258f07a8ff54255150f764c9f03de75"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>select_all</b> ()</td></tr>
+<tr class="memitem:a2258f07a8ff54255150f764c9f03de75"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a2258f07a8ff54255150f764c9f03de75">select_all</a> ()</td></tr>
 <tr class="separator:a2258f07a8ff54255150f764c9f03de75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_panel"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_panel')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_panel.html">Panel</a></td></tr>
+<tr class="memitem:a40f24f4c425c7c02a67381f54c038375 inherit pub_methods_class_panel"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_panel.html#a40f24f4c425c7c02a67381f54c038375">Panel</a> (QWidget *parent=nullptr)</td></tr>
+<tr class="separator:a40f24f4c425c7c02a67381f54c038375 inherit pub_methods_class_panel"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b8a5a275be1cb26e0ef8668cef662f6 inherit pub_methods_class_panel"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_panel.html#a4b8a5a275be1cb26e0ef8668cef662f6">event</a> (QEvent *e) override</td></tr>
+<tr class="separator:a4b8a5a275be1cb26e0ef8668cef662f6 inherit pub_methods_class_panel"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:ae90cd12f6fd498d935ab07cd5e43cd17"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#ae90cd12f6fd498d935ab07cd5e43cd17">Retranslate</a> () override</td></tr>
+<tr class="separator:ae90cd12f6fd498d935ab07cd5e43cd17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-slots"></a>
 Private Slots</h2></td></tr>
-<tr class="memitem:a7f5832504615761cf1da1afaef889de6"><td class="memItemLeft" align="right" valign="top"><a id="a7f5832504615761cf1da1afaef889de6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_key_button_enabled</b> (bool e, int type)</td></tr>
+<tr class="memitem:a7f5832504615761cf1da1afaef889de6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a7f5832504615761cf1da1afaef889de6">set_key_button_enabled</a> (bool e, int type)</td></tr>
 <tr class="separator:a7f5832504615761cf1da1afaef889de6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08882e992f2a9575b625cadff91d7f71"><td class="memItemLeft" align="right" valign="top"><a id="a08882e992f2a9575b625cadff91d7f71"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>passthrough_slider_value</b> ()</td></tr>
+<tr class="memitem:a08882e992f2a9575b625cadff91d7f71"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a08882e992f2a9575b625cadff91d7f71">passthrough_slider_value</a> ()</td></tr>
 <tr class="separator:a08882e992f2a9575b625cadff91d7f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b4ea5a7b99c67997e1512946eac4912"><td class="memItemLeft" align="right" valign="top"><a id="a4b4ea5a7b99c67997e1512946eac4912"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_keyframe_type</b> ()</td></tr>
+<tr class="memitem:a4b4ea5a7b99c67997e1512946eac4912"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a4b4ea5a7b99c67997e1512946eac4912">set_keyframe_type</a> ()</td></tr>
 <tr class="separator:a4b4ea5a7b99c67997e1512946eac4912"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16544cb1a4252ac7f6fb5ea137c73cd2"><td class="memItemLeft" align="right" valign="top"><a id="a16544cb1a4252ac7f6fb5ea137c73cd2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_field_visibility</b> (bool b)</td></tr>
+<tr class="memitem:a16544cb1a4252ac7f6fb5ea137c73cd2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a16544cb1a4252ac7f6fb5ea137c73cd2">set_field_visibility</a> (bool b)</td></tr>
 <tr class="separator:a16544cb1a4252ac7f6fb5ea137c73cd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a7bf5c30682b7054808a1835146458a07"><td class="memItemLeft" align="right" valign="top"><a id="a7bf5c30682b7054808a1835146458a07"></a>
-<a class="el" href="class_graph_view.html">GraphView</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>view</b></td></tr>
+<tr class="memitem:a7bf5c30682b7054808a1835146458a07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_graph_view.html">GraphView</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a7bf5c30682b7054808a1835146458a07">view</a></td></tr>
 <tr class="separator:a7bf5c30682b7054808a1835146458a07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f492170b1ec1641a59b2c483c2333cf"><td class="memItemLeft" align="right" valign="top"><a id="a3f492170b1ec1641a59b2c483c2333cf"></a>
-<a class="el" href="class_timeline_header.html">TimelineHeader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>header</b></td></tr>
+<tr class="memitem:a3f492170b1ec1641a59b2c483c2333cf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_timeline_header.html">TimelineHeader</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a3f492170b1ec1641a59b2c483c2333cf">header</a></td></tr>
 <tr class="separator:a3f492170b1ec1641a59b2c483c2333cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a977313e71194daaca770717ac76c8529"><td class="memItemLeft" align="right" valign="top"><a id="a977313e71194daaca770717ac76c8529"></a>
-QHBoxLayout *&#160;</td><td class="memItemRight" valign="bottom"><b>value_layout</b></td></tr>
+<tr class="memitem:a977313e71194daaca770717ac76c8529"><td class="memItemLeft" align="right" valign="top">QHBoxLayout *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a977313e71194daaca770717ac76c8529">value_layout</a></td></tr>
 <tr class="separator:a977313e71194daaca770717ac76c8529"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac78ededbfccd64f419b5159734504662"><td class="memItemLeft" align="right" valign="top"><a id="ac78ededbfccd64f419b5159734504662"></a>
-QVector&lt; <a class="el" href="class_label_slider.html">LabelSlider</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>slider_proxies</b></td></tr>
+<tr class="memitem:ac78ededbfccd64f419b5159734504662"><td class="memItemLeft" align="right" valign="top">QVector&lt; <a class="el" href="class_label_slider.html">LabelSlider</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#ac78ededbfccd64f419b5159734504662">slider_proxies</a></td></tr>
 <tr class="separator:ac78ededbfccd64f419b5159734504662"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c6464140ffc2b450204cc08c3c7e082"><td class="memItemLeft" align="right" valign="top"><a id="a1c6464140ffc2b450204cc08c3c7e082"></a>
-QVector&lt; QPushButton * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>slider_proxy_buttons</b></td></tr>
+<tr class="memitem:a1c6464140ffc2b450204cc08c3c7e082"><td class="memItemLeft" align="right" valign="top">QVector&lt; QPushButton * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a1c6464140ffc2b450204cc08c3c7e082">slider_proxy_buttons</a></td></tr>
 <tr class="separator:a1c6464140ffc2b450204cc08c3c7e082"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee12f99c1e1fe0caa8cb7686313693b7"><td class="memItemLeft" align="right" valign="top"><a id="aee12f99c1e1fe0caa8cb7686313693b7"></a>
-QVector&lt; <a class="el" href="class_label_slider.html">LabelSlider</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>slider_proxy_sources</b></td></tr>
+<tr class="memitem:aee12f99c1e1fe0caa8cb7686313693b7"><td class="memItemLeft" align="right" valign="top">QVector&lt; <a class="el" href="class_label_slider.html">LabelSlider</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#aee12f99c1e1fe0caa8cb7686313693b7">slider_proxy_sources</a></td></tr>
 <tr class="separator:aee12f99c1e1fe0caa8cb7686313693b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29aaede8af416c0f2a276e39b187ddad"><td class="memItemLeft" align="right" valign="top"><a id="a29aaede8af416c0f2a276e39b187ddad"></a>
-QLabel *&#160;</td><td class="memItemRight" valign="bottom"><b>current_row_desc</b></td></tr>
+<tr class="memitem:a29aaede8af416c0f2a276e39b187ddad"><td class="memItemLeft" align="right" valign="top">QLabel *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a29aaede8af416c0f2a276e39b187ddad">current_row_desc</a></td></tr>
 <tr class="separator:a29aaede8af416c0f2a276e39b187ddad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4a82e2205f0faf0a6cca340f7b88d7e"><td class="memItemLeft" align="right" valign="top"><a id="ae4a82e2205f0faf0a6cca340f7b88d7e"></a>
-<a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>row</b></td></tr>
+<tr class="memitem:ae4a82e2205f0faf0a6cca340f7b88d7e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#ae4a82e2205f0faf0a6cca340f7b88d7e">row</a></td></tr>
 <tr class="separator:ae4a82e2205f0faf0a6cca340f7b88d7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae090721754a6be290cc22059dc2570ed"><td class="memItemLeft" align="right" valign="top"><a id="ae090721754a6be290cc22059dc2570ed"></a>
-<a class="el" href="class_keyframe_navigator.html">KeyframeNavigator</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>keyframe_nav</b></td></tr>
+<tr class="memitem:ae090721754a6be290cc22059dc2570ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_keyframe_navigator.html">KeyframeNavigator</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#ae090721754a6be290cc22059dc2570ed">keyframe_nav</a></td></tr>
 <tr class="separator:ae090721754a6be290cc22059dc2570ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aedf5ea4d14b90c388453ec3f16cd2892"><td class="memItemLeft" align="right" valign="top"><a id="aedf5ea4d14b90c388453ec3f16cd2892"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>linear_button</b></td></tr>
+<tr class="memitem:aedf5ea4d14b90c388453ec3f16cd2892"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#aedf5ea4d14b90c388453ec3f16cd2892">linear_button</a></td></tr>
 <tr class="separator:aedf5ea4d14b90c388453ec3f16cd2892"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f8147290188f793e2589e3d811735ba"><td class="memItemLeft" align="right" valign="top"><a id="a4f8147290188f793e2589e3d811735ba"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>bezier_button</b></td></tr>
+<tr class="memitem:a4f8147290188f793e2589e3d811735ba"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a4f8147290188f793e2589e3d811735ba">bezier_button</a></td></tr>
 <tr class="separator:a4f8147290188f793e2589e3d811735ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64fc919e260867932a70b4b3ffba7c0f"><td class="memItemLeft" align="right" valign="top"><a id="a64fc919e260867932a70b4b3ffba7c0f"></a>
-QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><b>hold_button</b></td></tr>
+<tr class="memitem:a64fc919e260867932a70b4b3ffba7c0f"><td class="memItemLeft" align="right" valign="top">QPushButton *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph_editor.html#a64fc919e260867932a70b4b3ffba7c0f">hold_button</a></td></tr>
 <tr class="separator:a64fc919e260867932a70b4b3ffba7c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a5b7b7727a48a3ab729fa86cd5e25f3ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b7b7727a48a3ab729fa86cd5e25f3ac">&#9670;&nbsp;</a></span>GraphEditor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GraphEditor::GraphEditor </td>
+          <td>(</td>
+          <td class="paramtype">QWidget *&#160;</td>
+          <td class="paramname"><em>parent</em> = <code>nullptr</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ae735d893c5df0b7108d7b12fbef9795c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae735d893c5df0b7108d7b12fbef9795c">&#9670;&nbsp;</a></span>delete_selected_keys()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::delete_selected_keys </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a08882e992f2a9575b625cadff91d7f71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08882e992f2a9575b625cadff91d7f71">&#9670;&nbsp;</a></span>passthrough_slider_value</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::passthrough_slider_value </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae90cd12f6fd498d935ab07cd5e43cd17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae90cd12f6fd498d935ab07cd5e43cd17">&#9670;&nbsp;</a></span>Retranslate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::Retranslate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_panel.html#acc714dbdefcd643a467df84fafc6c265">Panel</a>.</p>
+
+</div>
+</div>
+<a id="a2258f07a8ff54255150f764c9f03de75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2258f07a8ff54255150f764c9f03de75">&#9670;&nbsp;</a></span>select_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::select_all </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a16544cb1a4252ac7f6fb5ea137c73cd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16544cb1a4252ac7f6fb5ea137c73cd2">&#9670;&nbsp;</a></span>set_field_visibility</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::set_field_visibility </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>b</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7f5832504615761cf1da1afaef889de6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f5832504615761cf1da1afaef889de6">&#9670;&nbsp;</a></span>set_key_button_enabled</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::set_key_button_enabled </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4b4ea5a7b99c67997e1512946eac4912"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b4ea5a7b99c67997e1512946eac4912">&#9670;&nbsp;</a></span>set_keyframe_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::set_keyframe_type </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab0e74ec8ec6fc764cfd74813de8e35e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0e74ec8ec6fc764cfd74813de8e35e6">&#9670;&nbsp;</a></span>set_row()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::set_row </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_effect_row.html">EffectRow</a> *&#160;</td>
+          <td class="paramname"><em>r</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0fe847fd0780b2acb5ddec8cc4cb8b92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fe847fd0780b2acb5ddec8cc4cb8b92">&#9670;&nbsp;</a></span>update_panel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GraphEditor::update_panel </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4c90d9557fe3417787ade12054a8f9b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c90d9557fe3417787ade12054a8f9b1">&#9670;&nbsp;</a></span>view_is_focused()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GraphEditor::view_is_focused </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a60edb4dd25153666217c2d43316a5c18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60edb4dd25153666217c2d43316a5c18">&#9670;&nbsp;</a></span>view_is_under_mouse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GraphEditor::view_is_under_mouse </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a4f8147290188f793e2589e3d811735ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f8147290188f793e2589e3d811735ba">&#9670;&nbsp;</a></span>bezier_button</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* GraphEditor::bezier_button</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a29aaede8af416c0f2a276e39b187ddad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29aaede8af416c0f2a276e39b187ddad">&#9670;&nbsp;</a></span>current_row_desc</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QLabel* GraphEditor::current_row_desc</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3f492170b1ec1641a59b2c483c2333cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f492170b1ec1641a59b2c483c2333cf">&#9670;&nbsp;</a></span>header</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_timeline_header.html">TimelineHeader</a>* GraphEditor::header</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a64fc919e260867932a70b4b3ffba7c0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64fc919e260867932a70b4b3ffba7c0f">&#9670;&nbsp;</a></span>hold_button</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* GraphEditor::hold_button</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae090721754a6be290cc22059dc2570ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae090721754a6be290cc22059dc2570ed">&#9670;&nbsp;</a></span>keyframe_nav</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_keyframe_navigator.html">KeyframeNavigator</a>* GraphEditor::keyframe_nav</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aedf5ea4d14b90c388453ec3f16cd2892"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedf5ea4d14b90c388453ec3f16cd2892">&#9670;&nbsp;</a></span>linear_button</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QPushButton* GraphEditor::linear_button</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae4a82e2205f0faf0a6cca340f7b88d7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4a82e2205f0faf0a6cca340f7b88d7e">&#9670;&nbsp;</a></span>row</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_effect_row.html">EffectRow</a>* GraphEditor::row</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac78ededbfccd64f419b5159734504662"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac78ededbfccd64f419b5159734504662">&#9670;&nbsp;</a></span>slider_proxies</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;<a class="el" href="class_label_slider.html">LabelSlider</a>*&gt; GraphEditor::slider_proxies</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1c6464140ffc2b450204cc08c3c7e082"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c6464140ffc2b450204cc08c3c7e082">&#9670;&nbsp;</a></span>slider_proxy_buttons</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;QPushButton*&gt; GraphEditor::slider_proxy_buttons</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aee12f99c1e1fe0caa8cb7686313693b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee12f99c1e1fe0caa8cb7686313693b7">&#9670;&nbsp;</a></span>slider_proxy_sources</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector&lt;<a class="el" href="class_label_slider.html">LabelSlider</a>*&gt; GraphEditor::slider_proxy_sources</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a977313e71194daaca770717ac76c8529"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a977313e71194daaca770717ac76c8529">&#9670;&nbsp;</a></span>value_layout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QHBoxLayout* GraphEditor::value_layout</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7bf5c30682b7054808a1835146458a07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bf5c30682b7054808a1835146458a07">&#9670;&nbsp;</a></span>view</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_graph_view.html">GraphView</a>* GraphEditor::view</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>panels/<a class="el" href="grapheditor_8h_source.html">grapheditor.h</a></li>
-<li>panels/grapheditor.cpp</li>
+<li>panels/<a class="el" href="grapheditor_8cpp.html">grapheditor.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

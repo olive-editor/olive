@@ -29,7 +29,7 @@
 #include "project/footage.h"
 
 struct ProxyInfo {
-	Footage* footage;
+    FootagePtr footage;
 	double size_multiplier;
 	int codec_type;
 	QString path;
@@ -42,7 +42,7 @@ public:
 	void run();
 	void queue(const ProxyInfo& info);
 	void cancel();
-	double get_proxy_progress(Footage* f);
+    double get_proxy_progress(FootagePtr f);
 private:
 	// queue of footage to process proxies for
 	QVector<ProxyInfo> proxy_queue;

@@ -27,7 +27,7 @@
 #include "ui/collapsiblewidget.h"
 #include "debug.h"
 
-VoidEffect::VoidEffect(Clip *c, const QString& n) : Effect(c, nullptr) {
+VoidEffect::VoidEffect(ClipPtr c, const QString& n) : Effect(c, nullptr) {
 	name = n;
 	QString display_name;
 	if (n.isEmpty()) {
@@ -43,8 +43,8 @@ VoidEffect::VoidEffect(Clip *c, const QString& n) : Effect(c, nullptr) {
 	meta = &void_meta;
 }
 
-Effect *VoidEffect::copy(Clip *c) {
-	Effect* copy = new VoidEffect(c, name);
+EffectPtr VoidEffect::copy(ClipPtr c) {
+    EffectPtr copy(new VoidEffect(c, name));
 	copy->set_enabled(is_enabled());
 	copy_field_keyframes(copy);
 	return copy;
@@ -52,26 +52,26 @@ Effect *VoidEffect::copy(Clip *c) {
 
 void VoidEffect::load(QXmlStreamReader &stream) {
 	QString tag = stream.name().toString();
-	qint64 start_index = stream.characterOffset();
-	qint64 end_index = start_index;
-	while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
-		end_index = stream.characterOffset();
-		stream.readNext();
-	}
-	qint64 passage_length = end_index - start_index;
-	if (passage_length > 0) {
-		// store xml data verbatim
-		QFile* device = static_cast<QFile*>(stream.device());
 
-		QFile passage_get(device->fileName());
-		if (passage_get.open(QFile::ReadOnly)) {
-			passage_get.seek(start_index);
-			bytes = passage_get.read(passage_length);
-			int passage_end = bytes.lastIndexOf('>')+1;
-			bytes.remove(passage_end, bytes.size()-passage_end);
-			passage_get.close();
-		}
-	}
+    QXmlStreamWriter writer(&bytes);
+
+    // copy XML from reader to writer
+    while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
+		stream.readNext();
+
+        if (stream.isStartElement()) {
+            writer.writeStartElement(stream.name().toString());
+        }
+        if (stream.isEndElement()) {
+            writer.writeEndElement();
+        }
+        if (stream.isCharacters()) {
+            writer.writeCharacters(stream.text().toString());
+        }
+        for (int i=0;i<stream.attributes().size();i++) {
+            writer.writeAttribute(stream.attributes().at(i));
+        }
+    }
 }
 
 void VoidEffect::save(QXmlStreamWriter &stream) {

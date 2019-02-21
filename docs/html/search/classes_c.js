@@ -1,6 +1,7 @@
 var searchData=
 [
   ['paneffect',['PanEffect',['../class_pan_effect.html',1,'']]],
+  ['panel',['Panel',['../class_panel.html',1,'']]],
   ['playbutton',['PlayButton',['../class_play_button.html',1,'']]],
   ['preferencesdialog',['PreferencesDialog',['../class_preferences_dialog.html',1,'']]],
   ['previewgenerator',['PreviewGenerator',['../class_preview_generator.html',1,'']]],

@@ -69,6 +69,8 @@ $(function() {
 <div class="title">DeleteTransitionCommand Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="undo_8h_source.html">undo.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for DeleteTransitionCommand:</div>
 <div class="dyncontent">
@@ -81,47 +83,175 @@ Inheritance diagram for DeleteTransitionCommand:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4deaa9ae14685e3484bce4e239609b7b"><td class="memItemLeft" align="right" valign="top"><a id="a4deaa9ae14685e3484bce4e239609b7b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteTransitionCommand</b> (<a class="el" href="struct_sequence.html">Sequence</a> *s, int transition_index)</td></tr>
-<tr class="separator:a4deaa9ae14685e3484bce4e239609b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7859092d3c3b982587cdf6f527d5a176"><td class="memItemLeft" align="right" valign="top"><a id="a7859092d3c3b982587cdf6f527d5a176"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doUndo</b> () override</td></tr>
+<tr class="memitem:a073745a712812e5b76510335b4d8fc55"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_delete_transition_command.html#a073745a712812e5b76510335b4d8fc55">DeleteTransitionCommand</a> (<a class="el" href="transition_8h.html#a8d0836efe0f38d1f8e07298abda7ec98">TransitionPtr</a> t)</td></tr>
+<tr class="separator:a073745a712812e5b76510335b4d8fc55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7859092d3c3b982587cdf6f527d5a176"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_delete_transition_command.html#a7859092d3c3b982587cdf6f527d5a176">doUndo</a> () override</td></tr>
 <tr class="separator:a7859092d3c3b982587cdf6f527d5a176"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbedf05e24648f631cad2fa744b970e5"><td class="memItemLeft" align="right" valign="top"><a id="acbedf05e24648f631cad2fa744b970e5"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doRedo</b> () override</td></tr>
+<tr class="memitem:acbedf05e24648f631cad2fa744b970e5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_delete_transition_command.html#acbedf05e24648f631cad2fa744b970e5">doRedo</a> () override</td></tr>
 <tr class="separator:acbedf05e24648f631cad2fa744b970e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_olive_action"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_olive_action')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_olive_action.html">OliveAction</a></td></tr>
-<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="ae90cf762a471f704e9ee4c30fd13b05f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OliveAction</b> (bool iset_window_modified=true)</td></tr>
+<tr class="memitem:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#ae90cf762a471f704e9ee4c30fd13b05f">OliveAction</a> (bool iset_window_modified=true)</td></tr>
 <tr class="separator:ae90cf762a471f704e9ee4c30fd13b05f inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a6e14775c35e9c0acbef06b104c98a10c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>undo</b> () override</td></tr>
+<tr class="memitem:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a62bcbe2d4297e05349ceff9e406ef02e">~OliveAction</a> () override</td></tr>
+<tr class="separator:a62bcbe2d4297e05349ceff9e406ef02e inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a6e14775c35e9c0acbef06b104c98a10c">undo</a> () override</td></tr>
 <tr class="separator:a6e14775c35e9c0acbef06b104c98a10c inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top"><a id="a4bdc5f2f1d644b02f5bce1f025698bfe"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>redo</b> () override</td></tr>
+<tr class="memitem:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_olive_action.html#a4bdc5f2f1d644b02f5bce1f025698bfe">redo</a> () override</td></tr>
 <tr class="separator:a4bdc5f2f1d644b02f5bce1f025698bfe inherit pub_methods_class_olive_action"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a0550960f70c9bf70e5e598c206592ca5"><td class="memItemLeft" align="right" valign="top"><a id="a0550960f70c9bf70e5e598c206592ca5"></a>
-<a class="el" href="struct_sequence.html">Sequence</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>seq</b></td></tr>
-<tr class="separator:a0550960f70c9bf70e5e598c206592ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4de89eafae3ab477b5cb1a3cf4ff20b3"><td class="memItemLeft" align="right" valign="top"><a id="a4de89eafae3ab477b5cb1a3cf4ff20b3"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>index</b></td></tr>
-<tr class="separator:a4de89eafae3ab477b5cb1a3cf4ff20b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7486fb68fa9aca2a4f1f9c2e28f104be"><td class="memItemLeft" align="right" valign="top"><a id="a7486fb68fa9aca2a4f1f9c2e28f104be"></a>
-<a class="el" href="class_transition.html">Transition</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>transition</b></td></tr>
-<tr class="separator:a7486fb68fa9aca2a4f1f9c2e28f104be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22ffffcac776f296525af1aa282d09db"><td class="memItemLeft" align="right" valign="top"><a id="a22ffffcac776f296525af1aa282d09db"></a>
-<a class="el" href="class_clip.html">Clip</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>otc</b></td></tr>
-<tr class="separator:a22ffffcac776f296525af1aa282d09db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab79a8ddb19db0c247ee2ed4ee5069a52"><td class="memItemLeft" align="right" valign="top"><a id="ab79a8ddb19db0c247ee2ed4ee5069a52"></a>
-<a class="el" href="class_clip.html">Clip</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ctc</b></td></tr>
-<tr class="separator:ab79a8ddb19db0c247ee2ed4ee5069a52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6afd0bb978c8c0fc0127636d5a1296c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="transition_8h.html#a8d0836efe0f38d1f8e07298abda7ec98">TransitionPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_delete_transition_command.html#ab6afd0bb978c8c0fc0127636d5a1296c">transition_ref_</a></td></tr>
+<tr class="separator:ab6afd0bb978c8c0fc0127636d5a1296c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1a299da1620a81ae4a028e800f99f20"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_delete_transition_command.html#ad1a299da1620a81ae4a028e800f99f20">opened_clip_</a></td></tr>
+<tr class="separator:ad1a299da1620a81ae4a028e800f99f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a010d8becb4789c5b9abf58a55a21edee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_delete_transition_command.html#a010d8becb4789c5b9abf58a55a21edee">closed_clip_</a></td></tr>
+<tr class="separator:a010d8becb4789c5b9abf58a55a21edee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a073745a712812e5b76510335b4d8fc55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a073745a712812e5b76510335b4d8fc55">&#9670;&nbsp;</a></span>DeleteTransitionCommand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DeleteTransitionCommand::DeleteTransitionCommand </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="transition_8h.html#a8d0836efe0f38d1f8e07298abda7ec98">TransitionPtr</a>&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="acbedf05e24648f631cad2fa744b970e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acbedf05e24648f631cad2fa744b970e5">&#9670;&nbsp;</a></span>doRedo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DeleteTransitionCommand::doRedo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ad2558014854156e81631f395db38a697">OliveAction</a>.</p>
+
+</div>
+</div>
+<a id="a7859092d3c3b982587cdf6f527d5a176"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7859092d3c3b982587cdf6f527d5a176">&#9670;&nbsp;</a></span>doUndo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DeleteTransitionCommand::doUndo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="class_olive_action.html#ae5c9247751022c35aebd477718113cc4">OliveAction</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a010d8becb4789c5b9abf58a55a21edee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a010d8becb4789c5b9abf58a55a21edee">&#9670;&nbsp;</a></span>closed_clip_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> DeleteTransitionCommand::closed_clip_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad1a299da1620a81ae4a028e800f99f20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1a299da1620a81ae4a028e800f99f20">&#9670;&nbsp;</a></span>opened_clip_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cacher_8h.html#a06b2300f462978e17d9b586991a0af3f">ClipPtr</a> DeleteTransitionCommand::opened_clip_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab6afd0bb978c8c0fc0127636d5a1296c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6afd0bb978c8c0fc0127636d5a1296c">&#9670;&nbsp;</a></span>transition_ref_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="transition_8h.html#a8d0836efe0f38d1f8e07298abda7ec98">TransitionPtr</a> DeleteTransitionCommand::transition_ref_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>project/<a class="el" href="undo_8h_source.html">undo.h</a></li>
-<li>project/undo.cpp</li>
+<li>project/<a class="el" href="undo_8cpp.html">undo.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
