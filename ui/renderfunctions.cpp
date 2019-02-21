@@ -20,10 +20,19 @@
 
 #include "renderfunctions.h"
 
+extern "C" {
+#include <libavformat/avformat.h>
+}
+
 #include <QOpenGLFramebufferObject>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDebug>
+
+#ifdef OLIVE_OCIO
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE;
+#endif
 
 #include "project/clip.h"
 #include "project/sequence.h"
@@ -42,10 +51,6 @@
 
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-
-extern "C" {
-#include <libavformat/avformat.h>
-}
 
 void full_blit() {
   glPushMatrix();
@@ -358,15 +363,36 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
               // compose_sequence() would have written to this clip's fbo[0], so we switch to fbo[1]
               fbo_switcher = true;
-            } else if (c->media->get_type() == MEDIA_TYPE_FOOTAGE && !c->media->to_footage()->alpha_is_premultiplied) {
-              // alpha is not premultiplied, we'll need to premultiply it for the rest of the pipeline
-              params.premultiply_program->bind();
+            } else if (c->media->get_type() == MEDIA_TYPE_FOOTAGE) {
 
-              textureID = draw_clip(c->fbo[0], textureID, true);
+              if (!c->media->to_footage()->alpha_is_premultiplied) {
+                // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
+                params.premultiply_program->bind();
 
-              params.premultiply_program->release();
+                textureID = draw_clip(c->fbo[0], textureID, true);
 
-              fbo_switcher = true;
+                params.premultiply_program->release();
+
+                fbo_switcher = true;
+              }
+
+              // convert to linear colorspace
+#ifdef OLIVE_OCIO
+              bool linear_convert = true;
+              if (linear_convert)
+              {
+                OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+                const char* g_display = config->getDefaultDisplay();
+                const char* g_transformName = config->getDefaultView(g_display);
+
+                const char* g_inputColorSpace = OCIO::ROLE_SCENE_LINEAR;
+                std::string cs = config->parseColorSpaceFromString("srgb");
+                if (!cs.empty()) {
+                  g_inputColorSpace = cs.c_str();
+                }
+              }
+#endif
+
             }
           }
 

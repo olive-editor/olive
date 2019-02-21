@@ -125,7 +125,6 @@ public:
   bool multithreaded;
   Cacher* cacher;
   QWaitCondition can_cache;
-  int max_queue_size;
   QVector<AVFrame*> queue;
   QMutex queue_lock;
   QMutex render_lock;
