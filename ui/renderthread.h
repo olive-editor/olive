@@ -39,55 +39,55 @@ const int LUT3D_EDGE_SIZE = 32;
 const int NUM_3D_ENTRIES = 98304;
 
 class RenderThread : public QThread {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	RenderThread();
-	~RenderThread();
-	void run();
-	QMutex mutex;
-	GLuint front_buffer;
-	GLuint front_texture;
-    EffectPtr gizmos;
-	void paint();
-    void start_render(QOpenGLContext* share, SequencePtr s, const QString &save = nullptr, GLvoid *pixels = nullptr, int pixel_linesize = 0, int idivider = 0);
-	bool did_texture_fail();
-	void cancel();
+  RenderThread();
+  ~RenderThread();
+  void run();
+  QMutex mutex;
+  GLuint front_buffer;
+  GLuint front_texture;
+  EffectPtr gizmos;
+  void paint();
+  void start_render(QOpenGLContext* share, SequencePtr s, const QString &save = nullptr, GLvoid *pixels = nullptr, int pixel_linesize = 0, int idivider = 0);
+  bool did_texture_fail();
+  void cancel();
 
 public slots:
-	// cleanup functions
-	void delete_ctx();
+  // cleanup functions
+  void delete_ctx();
 signals:
-	void ready();
+  void ready();
 private:
-	// cleanup functions
-	void delete_texture();
-	void delete_fbo();
-	void delete_shader_program();
+  // cleanup functions
+  void delete_texture();
+  void delete_fbo();
+  void delete_shader_program();
 
-	QWaitCondition waitCond;
-	QOffscreenSurface surface;
-	QOpenGLContext* share_ctx;
-	QOpenGLContext* ctx;
-	QOpenGLShaderProgram* blend_mode_program;
-	QOpenGLShaderProgram* premultiply_program;
+  QWaitCondition waitCond;
+  QOffscreenSurface surface;
+  QOpenGLContext* share_ctx;
+  QOpenGLContext* ctx;
+  QOpenGLShaderProgram* blend_mode_program;
+  QOpenGLShaderProgram* premultiply_program;
 
-	GLuint back_buffer_1;
-	GLuint back_buffer_2;
-	GLuint back_texture_1;
-	GLuint back_texture_2;
+  GLuint back_buffer_1;
+  GLuint back_buffer_2;
+  GLuint back_texture_1;
+  GLuint back_texture_2;
 
-    float ocio_lut_data[NUM_3D_ENTRIES];
+  float ocio_lut_data[NUM_3D_ENTRIES];
 
-    SequencePtr seq;
-	int divider;
-	int tex_width;
-	int tex_height;
-	bool queued;
-	bool texture_failed;
-	bool running;
-	QString save_fn;
-	GLvoid *pixel_buffer;
-    int pixel_buffer_linesize;
+  SequencePtr seq;
+  int divider;
+  int tex_width;
+  int tex_height;
+  bool queued;
+  bool texture_failed;
+  bool running;
+  QString save_fn;
+  GLvoid *pixel_buffer;
+  int pixel_buffer_linesize;
 };
 
 #endif // RENDERTHREAD_H
