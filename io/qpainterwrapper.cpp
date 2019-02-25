@@ -30,8 +30,6 @@ QPainterWrapper painter_wrapper;
 QPainterWrapper::QPainterWrapper() {}
 
 QColor get_color_from_string(const QString& s) {
-	dout << s;
-
 	// workaround for alpha
 	if (s.at(0) == '#' && s.length() == 9) {
 		QColor color(s.left(7));

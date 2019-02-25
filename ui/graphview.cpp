@@ -127,8 +127,8 @@ void GraphView::set_view_to_selection() {
 			max_dbl = qMax(key.data.toDouble(), max_dbl);
 		}
 
-        min_time -= row->parent_effect->parent_clip->clip_in;
-        max_time -= row->parent_effect->parent_clip->clip_in;
+        min_time -= row->parent_effect->parent_clip->clip_in();
+        max_time -= row->parent_effect->parent_clip->clip_in();
 
 		set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
 	}
@@ -153,8 +153,8 @@ void GraphView::set_view_to_all() {
 			}
 		}
 		if (can_set) {
-            min_time -= row->parent_effect->parent_clip->clip_in;
-            max_time -= row->parent_effect->parent_clip->clip_in;
+            min_time -= row->parent_effect->parent_clip->clip_in();
+            max_time -= row->parent_effect->parent_clip->clip_in();
 
 			set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
 		}
@@ -608,85 +608,87 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 				if (field_visibility.at(i)) {
 					QVector<int> sorted_keys = sort_keys_from_field(f);
 
-					if (event->pos().x() <= get_screen_x(f->keyframes.at(sorted_keys.first()).time)) {
-						int y_comp = get_screen_y(f->keyframes.at(sorted_keys.first()).data.toDouble());
-            if (event->pos().y() >= y_comp-kBezierLineSize
-                && event->pos().y() <= y_comp+kBezierLineSize) {
-	//						dout << "make an EARLY key on field" << i;
-							click_add = true;
-							click_add_type = f->keyframes.at(sorted_keys.first()).type;
-						}
-					} else if (event->pos().x() >= get_screen_x(f->keyframes.at(sorted_keys.last()).time)) {
-						int y_comp = get_screen_y(f->keyframes.at(sorted_keys.last()).data.toDouble());
-            if (event->pos().y() >= y_comp-kBezierLineSize
-                && event->pos().y() <= y_comp+kBezierLineSize) {
-	//						dout << "make an LATE key on field" << i;
-							click_add = true;
-							click_add_type = f->keyframes.at(sorted_keys.last()).type;
-						}
-					} else {
-						for (int j=1;j<sorted_keys.size();j++) {
-							const EffectKeyframe& last_key = f->keyframes.at(sorted_keys.at(j-1));
-							const EffectKeyframe& key = f->keyframes.at(sorted_keys.at(j));
+          if (!sorted_keys.isEmpty()) {
+            if (event->pos().x() <= get_screen_x(f->keyframes.at(sorted_keys.first()).time)) {
+              int y_comp = get_screen_y(f->keyframes.at(sorted_keys.first()).data.toDouble());
+              if (event->pos().y() >= y_comp-kBezierLineSize
+                  && event->pos().y() <= y_comp+kBezierLineSize) {
+    //						dout << "make an EARLY key on field" << i;
+                click_add = true;
+                click_add_type = f->keyframes.at(sorted_keys.first()).type;
+              }
+            } else if (event->pos().x() >= get_screen_x(f->keyframes.at(sorted_keys.last()).time)) {
+              int y_comp = get_screen_y(f->keyframes.at(sorted_keys.last()).data.toDouble());
+              if (event->pos().y() >= y_comp-kBezierLineSize
+                  && event->pos().y() <= y_comp+kBezierLineSize) {
+    //						dout << "make an LATE key on field" << i;
+                click_add = true;
+                click_add_type = f->keyframes.at(sorted_keys.last()).type;
+              }
+            } else {
+              for (int j=1;j<sorted_keys.size();j++) {
+                const EffectKeyframe& last_key = f->keyframes.at(sorted_keys.at(j-1));
+                const EffectKeyframe& key = f->keyframes.at(sorted_keys.at(j));
 
-							int last_key_x = get_screen_x(last_key.time);
-							int key_x = get_screen_x(key.time);
-							int last_key_y = get_screen_y(last_key.data.toDouble());
-							int key_y = get_screen_y(key.data.toDouble());
+                int last_key_x = get_screen_x(last_key.time);
+                int key_x = get_screen_x(key.time);
+                int last_key_y = get_screen_y(last_key.data.toDouble());
+                int key_y = get_screen_y(key.data.toDouble());
 
-							click_add_type = last_key.type;
+                click_add_type = last_key.type;
 
-							if (event->pos().x() >= last_key_x
-									&& event->pos().x() <= key_x) {
-                QRect mouse_rect(event->pos().x()-kBezierLineSize, event->pos().y()-kBezierLineSize, kBezierLineSize+kBezierLineSize, kBezierLineSize+kBezierLineSize);
-								// NOTE: FILTHY copy/paste from paintEvent
-								if (last_key.type == EFFECT_KEYFRAME_HOLD) {
-									// hold
-                  if (event->pos().y() >= last_key_y-kBezierLineSize
-                      && event->pos().y() <= last_key_y+kBezierLineSize) {
-	//									dout << "make an HOLD key on field" << i << "after key" << j;
-										click_add = true;
-									}
-								} else if (last_key.type == EFFECT_KEYFRAME_BEZIER || key.type == EFFECT_KEYFRAME_BEZIER) {
-									QPainterPath bezier_path;
-									bezier_path.moveTo(last_key_x, last_key_y);
-									if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
-										// cubic bezier
-										bezier_path.cubicTo(
-                                                    QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
-                                                    QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
-													QPointF(key_x, key_y)
-												);
-									} else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
-										// last keyframe is the bezier one
-										bezier_path.quadTo(
-                                                    QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
-													QPointF(key_x, key_y)
-												);
-									} else {
-										// this keyframe is the bezier one
-										bezier_path.quadTo(
-                                                    QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
-													QPointF(key_x, key_y)
-												);
-									}
-									if (bezier_path.intersects(mouse_rect)) {
-	//									dout << "make an BEZIER key on field" << i << "after key" << j;
-										click_add = true;
-									}
-								} else {
-									// linear
-									QPainterPath linear_path;
-									linear_path.moveTo(last_key_x, last_key_y);
-									linear_path.lineTo(key_x, key_y);
-									if (linear_path.intersects(mouse_rect)) {
-	//									dout << "make an LINEAR key on field" << i << "after key" << j;
-										click_add = true;
-									}
-								}
-							}
-						}
-					}
+                if (event->pos().x() >= last_key_x
+                    && event->pos().x() <= key_x) {
+                  QRect mouse_rect(event->pos().x()-kBezierLineSize, event->pos().y()-kBezierLineSize, kBezierLineSize+kBezierLineSize, kBezierLineSize+kBezierLineSize);
+                  // NOTE: FILTHY copy/paste from paintEvent
+                  if (last_key.type == EFFECT_KEYFRAME_HOLD) {
+                    // hold
+                    if (event->pos().y() >= last_key_y-kBezierLineSize
+                        && event->pos().y() <= last_key_y+kBezierLineSize) {
+    //									dout << "make an HOLD key on field" << i << "after key" << j;
+                      click_add = true;
+                    }
+                  } else if (last_key.type == EFFECT_KEYFRAME_BEZIER || key.type == EFFECT_KEYFRAME_BEZIER) {
+                    QPainterPath bezier_path;
+                    bezier_path.moveTo(last_key_x, last_key_y);
+                    if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
+                      // cubic bezier
+                      bezier_path.cubicTo(
+                                                      QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
+                                                      QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
+                            QPointF(key_x, key_y)
+                          );
+                    } else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
+                      // last keyframe is the bezier one
+                      bezier_path.quadTo(
+                                                      QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
+                            QPointF(key_x, key_y)
+                          );
+                    } else {
+                      // this keyframe is the bezier one
+                      bezier_path.quadTo(
+                                                      QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
+                            QPointF(key_x, key_y)
+                          );
+                    }
+                    if (bezier_path.intersects(mouse_rect)) {
+    //									dout << "make an BEZIER key on field" << i << "after key" << j;
+                      click_add = true;
+                    }
+                  } else {
+                    // linear
+                    QPainterPath linear_path;
+                    linear_path.moveTo(last_key_x, last_key_y);
+                    linear_path.lineTo(key_x, key_y);
+                    if (linear_path.intersects(mouse_rect)) {
+    //									dout << "make an LINEAR key on field" << i << "after key" << j;
+                      click_add = true;
+                    }
+                  }
+                }
+              }
+            }
+          }
 				}
 				if (click_add) {
 					click_add_field = f;
@@ -796,7 +798,7 @@ void GraphView::set_row(EffectRow *r) {
 			for (int i=0;i<row->fieldCount();i++) {
 				field_visibility[i] = row->field(i)->is_enabled();
 			}
-			visible_in = row->parent_effect->parent_clip->timeline_in;
+      visible_in = row->parent_effect->parent_clip->timeline_in();
 			set_view_to_all();
 		} else {
 			update();
@@ -864,7 +866,7 @@ void GraphView::set_zoom(double xz, double yz) {
 
 int GraphView::get_screen_x(double d) {
     if (row != nullptr) {
-        d -= row->parent_effect->parent_clip->clip_in;
+        d -= row->parent_effect->parent_clip->clip_in();
     }
     return qRound((d*x_zoom) - x_scroll);
 }
@@ -876,7 +878,7 @@ int GraphView::get_screen_y(double d) {
 long GraphView::get_value_x(int i) {
     long frame = qRound((i + x_scroll)/x_zoom);
     if (row != nullptr) {
-        frame += row->parent_effect->parent_clip->clip_in;
+        frame += row->parent_effect->parent_clip->clip_in();
     }
     return frame;
 }

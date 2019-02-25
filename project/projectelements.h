@@ -21,6 +21,12 @@
 #ifndef PROJECTELEMENTS_H
 #define PROJECTELEMENTS_H
 
+/**
+
+  Simple header to include all classes used for an Olive project file
+
+  */
+
 // includes elements the user can use in a project
 #include "media.h"
 #include "footage.h"

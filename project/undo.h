@@ -362,12 +362,25 @@ private:
   bool done;
 };
 
-class SetAutoscaleAction : public OliveAction {
+enum SetClipPropertyType {
+  kSetClipPropertyAutoscale,
+  kSetClipPropertyReversed,
+  kSetClipPropertyMaintainAudioPitch,
+  kSetClipPropertyEnabled
+};
+
+class SetClipProperty : public OliveAction {
 public:
-  SetAutoscaleAction();
+  SetClipProperty(SetClipPropertyType type);
   virtual void doUndo() override;
   virtual void doRedo() override;
-  QVector<ClipPtr> clips;
+  void AddSetting(ClipPtr c, bool setting);
+private:
+  SetClipPropertyType type_;
+  QVector<ClipPtr> clips_;
+  QVector<bool> setting_;
+  QVector<bool> old_setting_;
+  void MainLoop(bool undo);
 };
 
 class AddMarkerAction : public OliveAction {

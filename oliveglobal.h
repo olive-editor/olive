@@ -263,6 +263,19 @@ public slots:
      */
     void open_preferences();
 
+    /**
+     * @brief Set the current active Sequence
+     *
+     * Call this to change the active Sequence (e.g. when the user double clicks a Sequence in the Project panel).
+     * This will affect panel_timeline, panel_sequence_viewer, and panel_effect_controls and can then be retrieved
+     * using olive::ActiveSequence.
+     *
+     * @param s
+     *
+     * The Sequence to set as the active Sequence.
+     */
+    void set_sequence(SequencePtr s);
+
 private:
     /**
      * @brief Internal function to handle loading a project from file

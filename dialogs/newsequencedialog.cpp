@@ -26,9 +26,8 @@
 #include "project/undo.h"
 #include "project/clip.h"
 #include "panels/timeline.h"
-#include "playback/playback.h"
 #include "project/media.h"
-#include "playback/audio.h"
+#include "rendering/audio.h"
 
 #include <QVariant>
 #include <QVBoxLayout>

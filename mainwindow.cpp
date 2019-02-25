@@ -43,8 +43,8 @@
 
 #include "dialogs/debugdialog.h"
 
-#include "playback/audio.h"
-#include "playback/playback.h"
+#include "rendering/audio.h"
+#include "rendering/renderfunctions.h"
 
 #include "debug.h"
 
@@ -233,7 +233,7 @@ MainWindow::MainWindow(QWidget *parent) :
   init_audio();
 
   // start omnipotent proxy generator process
-  proxy_generator.start();
+  olive::proxy_generator.start();
 
   // set default window title
   updateTitle();
@@ -573,6 +573,10 @@ void MainWindow::setup_menus() {
 
   window_menu->addAction(tr("Maximize Panel"), this, SLOT(maximize_panel()), QKeySequence("`"))->setProperty("id", "maximizepanel");
 
+  QAction* lock_panels = window_menu->addAction(tr("Lock Panels"), this, SLOT(set_panels_locked(bool)));
+  lock_panels->setCheckable(true);
+  lock_panels->setProperty("id", "lockpanels");
+
   window_menu->addSeparator();
 
   window_menu->addAction(tr("Reset to Default Layout"), this, SLOT(reset_layout()))->setProperty("id", "resetdefaultlayout");
@@ -748,11 +752,11 @@ void MainWindow::updateTitle() {
 void MainWindow::closeEvent(QCloseEvent *e) {
   if (olive::Global->can_close_project()) {
     // stop proxy generator thread
-    proxy_generator.cancel();
+    olive::proxy_generator.cancel();
 
     panel_effect_controls->clear_effects(true);
 
-    set_sequence(nullptr);
+    olive::Global->set_sequence(nullptr);
 
     panel_footage_viewer->viewer_widget->close_window();
     panel_sequence_viewer->viewer_widget->close_window();
@@ -917,6 +921,27 @@ void MainWindow::toggle_panel_visibility() {
   // layout has changed, we're no longer in maximized panel mode,
   // so we clear this byte array
   temp_panel_state.clear();
+}
+
+void MainWindow::set_panels_locked(bool locked)
+{
+  for (int i=0;i<olive::panels.size();i++) {
+    Panel* panel = olive::panels.at(i);
+
+    if (locked) {
+      // disable moving on QDockWidget
+      panel->setFeatures(panel->features() & ~QDockWidget::DockWidgetMovable);
+
+      // hide the title bar (only real way to do this is to replace it with an empty QWidget)
+      panel->setTitleBarWidget(new QWidget(panel));
+    } else {
+      // re-enable moving on QDockWidget
+      panel->setFeatures(panel->features() | QDockWidget::DockWidgetMovable);
+
+      // set the "custom" titlebar to null so the default gets restored
+      panel->setTitleBarWidget(nullptr);
+    }
+  }
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {

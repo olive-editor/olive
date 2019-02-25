@@ -32,12 +32,13 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/timeline.h"
-#include "playback/playback.h"
 #include "ui/sourcetable.h"
 #include "project/effect.h"
 #include "project/transition.h"
 #include "project/footage.h"
-#include "playback/cacher.h"
+#include "rendering/renderfunctions.h"
+#include "rendering/cacher.h"
+#include "io/previewgenerator.h"
 #include "ui/labelslider.h"
 #include "ui/viewerwidget.h"
 #include "project/marker.h"
@@ -45,16 +46,17 @@
 #include "io/clipboard.h"
 #include "project/media.h"
 #include "debug.h"
+#include "oliveglobal.h"
 
 QUndoStack olive::UndoStack;
 
 MoveClipAction::MoveClipAction(ClipPtr c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
   clip = c;
 
-  old_in = c->timeline_in;
-  old_out = c->timeline_out;
-  old_clip_in = c->clip_in;
-  old_track = c->track;
+  old_in = c->timeline_in();
+  old_out = c->timeline_out();
+  old_clip_in = c->clip_in();
+  old_track = c->track();
 
   new_in = iin;
   new_out = iout;
@@ -66,29 +68,29 @@ MoveClipAction::MoveClipAction(ClipPtr c, long iin, long iout, long iclip_in, in
 
 void MoveClipAction::doUndo() {
   if (relative) {
-    clip->timeline_in -= new_in;
-    clip->timeline_out -= new_out;
-    clip->clip_in -= new_clip_in;
-    clip->track -= new_track;
+    clip->set_timeline_in (clip->timeline_in() - new_in);
+    clip->set_timeline_out (clip->timeline_out() - new_out);
+    clip->set_clip_in (clip->clip_in() - new_clip_in);
+    clip->set_track (clip->track() - new_track);
   } else {
-    clip->timeline_in = old_in;
-    clip->timeline_out = old_out;
-    clip->clip_in = old_clip_in;
-    clip->track = old_track;
+    clip->set_timeline_in(old_in);
+    clip->set_timeline_out(old_out);
+    clip->set_clip_in(old_clip_in);
+    clip->set_track(old_track);
   }
 }
 
 void MoveClipAction::doRedo() {
   if (relative) {
-    clip->timeline_in += new_in;
-    clip->timeline_out += new_out;
-    clip->clip_in += new_clip_in;
-    clip->track += new_track;
+    clip->set_timeline_in(clip->timeline_in() + new_in);
+    clip->set_timeline_out(clip->timeline_out() + new_out);
+    clip->set_clip_in(clip->clip_in() + new_clip_in);
+    clip->set_track(clip->track() + new_track);
   } else {
-    clip->timeline_in = new_in;
-    clip->timeline_out = new_out;
-    clip->clip_in = new_clip_in;
-    clip->track = new_track;
+    clip->set_timeline_in(new_in);
+    clip->set_timeline_out(new_out);
+    clip->set_clip_in(new_clip_in);
+    clip->set_track(new_track);
   }
 }
 
@@ -116,8 +118,8 @@ void DeleteClipAction::doUndo() {
 void DeleteClipAction::doRedo() {
   // remove ref to clip
   ref = seq->clips.at(index);
-  if (ref->open) {
-    close_clip(ref, true);
+  if (ref->IsOpen()) {
+    ref->Close(true);
   }
   seq->clips[index] = nullptr;
 
@@ -143,12 +145,12 @@ ChangeSequenceAction::ChangeSequenceAction(SequencePtr s) {
 }
 
 void ChangeSequenceAction::doUndo() {
-  set_sequence(old_sequence);
+  olive::Global->set_sequence(old_sequence);
 }
 
 void ChangeSequenceAction::doRedo() {
   old_sequence = olive::ActiveSequence;
-  set_sequence(new_sequence);
+  olive::Global->set_sequence(new_sequence);
 }
 
 SetTimelineInOutCommand::SetTimelineInOutCommand(SequencePtr s, bool enabled, long in, long out) {
@@ -165,7 +167,7 @@ void SetTimelineInOutCommand::doUndo() {
 
   // footage viewer functions
   if (seq->wrapper_sequence) {
-    FootagePtr m = seq->clips.at(0)->media->to_footage();
+    FootagePtr m = seq->clips.at(0)->media()->to_footage();
     m->using_inout = old_enabled;
     m->in = old_in;
     m->out = old_out;
@@ -183,7 +185,7 @@ void SetTimelineInOutCommand::doRedo() {
 
   // footage viewer functions
   if (seq->wrapper_sequence) {
-    FootagePtr m = seq->clips.at(0)->media->to_footage();
+    FootagePtr m = seq->clips.at(0)->media()->to_footage();
     m->using_inout = new_enabled;
     m->in = new_in;
     m->out = new_out;
@@ -417,11 +419,11 @@ void AddClipCommand::doUndo() {
       }
 
       // deselect the area occupied by this clip
-      panel_timeline->deselect_area(c->timeline_in, c->timeline_out, c->track);
+      panel_timeline->deselect_area(c->timeline_in(), c->timeline_out(), c->track());
 
       // if the clip is open, close it
-      if (c->open) {
-        close_clip(c, true);
+      if (c->IsOpen()) {
+        c->Close(true);
       }
     }
 
@@ -468,7 +470,6 @@ void LinkCommand::doUndo() {
 void LinkCommand::doRedo() {
   old_links.clear();
   for (int i=0;i<clips.size();i++) {
-    dout << clips.at(i);
     ClipPtr c = s->clips.at(clips.at(i));
     if (link) {
       for (int j=0;j<clips.size();j++) {
@@ -516,8 +517,8 @@ void ReplaceMediaCommand::replace(QString& filename) {
     SequencePtr s = all_sequences.at(i)->to_sequence();
     for (int j=0;j<s->clips.size();j++) {
       ClipPtr c = s->clips.at(j);
-      if (c != nullptr && c->media == item && c->open) {
-        close_clip(c, true);
+      if (c != nullptr && c->media() == item && c->IsOpen()) {
+        c->Close(true);
         c->replaced = true;
       }
     }
@@ -526,8 +527,8 @@ void ReplaceMediaCommand::replace(QString& filename) {
   // replace media
   QStringList files;
   files.append(filename);
-  item->to_footage()->ready_lock.lock();
   panel_project->process_file_list(files, false, item, nullptr);
+  PreviewGenerator* pg = new PreviewGenerator(item);
 }
 
 void ReplaceMediaCommand::doUndo() {
@@ -553,23 +554,23 @@ void ReplaceClipMediaCommand::replace(bool undo) {
 
   for (int i=0;i<clips.size();i++) {
     ClipPtr c = clips.at(i);
-    if (c->open) {
-      close_clip(c, true);
+    if (c->IsOpen()) {
+      c->Close(true);
     }
 
     if (undo) {
       if (!preserve_clip_ins) {
-        c->clip_in = old_clip_ins.at(i);
+        c->set_clip_in(old_clip_ins.at(i));
       }
 
-      c->media = old_media;
+      c->set_media(old_media, c->media_stream_index());
     } else {
       if (!preserve_clip_ins) {
-        old_clip_ins.append(c->clip_in);
-        c->clip_in = 0;
+        old_clip_ins.append(c->clip_in());
+        c->set_clip_in(0);
       }
 
-      c->media = new_media;
+      c->set_media(new_media, c->media_stream_index());
     }
 
     c->replaced = true;
@@ -685,20 +686,68 @@ void EffectFieldUndo::doRedo() {
   }
 }
 
-SetAutoscaleAction::SetAutoscaleAction() {}
+SetClipProperty::SetClipProperty(SetClipPropertyType type) : type_(type)
+{}
 
-void SetAutoscaleAction::doUndo() {
-  for (int i=0;i<clips.size();i++) {
-    clips.at(i)->autoscale = !clips.at(i)->autoscale;
+void SetClipProperty::AddSetting(ClipPtr c, bool setting)
+{
+  clips_.append(c);
+  setting_.append(setting);
+
+  // store current setting for undoing
+  bool old_setting = false;
+  switch (type_) {
+  case kSetClipPropertyAutoscale:
+    old_setting = c->autoscaled();
+    break;
+  case kSetClipPropertyReversed:
+    old_setting = c->reversed();
+    break;
+  case kSetClipPropertyMaintainAudioPitch:
+    old_setting = c->speed().maintain_audio_pitch;
+    break;
+  case kSetClipPropertyEnabled:
+    old_setting = c->enabled();
+    break;
   }
+  old_setting_.append(old_setting);
+}
+
+void SetClipProperty::MainLoop(bool undo)
+{
+  for (int i=0;i<clips_.size();i++) {
+
+    bool setting = (undo) ? old_setting_.at(i) : setting_.at(i);
+
+    switch (type_) {
+    case kSetClipPropertyAutoscale:
+      clips_.at(i)->set_autoscaled(setting);
+      break;
+    case kSetClipPropertyReversed:
+      clips_.at(i)->set_reversed(setting);
+      break;
+    case kSetClipPropertyMaintainAudioPitch:
+    {
+      ClipSpeed s = clips_.at(i)->speed();
+      s.maintain_audio_pitch = setting;
+      clips_.at(i)->set_speed(s);
+    }
+      break;
+    case kSetClipPropertyEnabled:
+      clips_.at(i)->set_enabled(setting);
+      break;
+    }
+  }
+}
+
+void SetClipProperty::doUndo() {
+  MainLoop(true);
   panel_sequence_viewer->viewer_widget->frame_update();
 
 }
 
-void SetAutoscaleAction::doRedo() {
-  for (int i=0;i<clips.size();i++) {
-    clips.at(i)->autoscale = !clips.at(i)->autoscale;
-  }
+void SetClipProperty::doRedo() {
+  MainLoop(false);
   panel_sequence_viewer->viewer_widget->frame_update();
 }
 
@@ -782,19 +831,24 @@ void DeleteMarkerAction::doRedo() {
 
 SetSpeedAction::SetSpeedAction(ClipPtr c, double speed) {
   clip = c;
-  old_speed = c->speed;
+  old_speed = c->speed().value;
   new_speed = speed;
 }
 
 void SetSpeedAction::doUndo() {
-  clip->speed = old_speed;
-  clip->recalculateMaxLength();
+  ClipSpeed cs = clip->speed();
 
+  cs.value = old_speed;
+
+  clip->set_speed(cs);
 }
 
 void SetSpeedAction::doRedo() {
-  clip->speed = new_speed;
-  clip->recalculateMaxLength();
+  ClipSpeed cs = clip->speed();
+
+  cs.value = new_speed;
+
+  clip->set_speed(cs);
 }
 
 SetBool::SetBool(bool* b, bool setting) {
@@ -868,7 +922,7 @@ void EditSequenceCommand::update() {
   }
 
   if (olive::ActiveSequence == seq) {
-    set_sequence(seq);
+    olive::Global->set_sequence(seq);
   }
 }
 
@@ -907,7 +961,7 @@ void CloseAllClipsCommand::doUndo() {
 }
 
 void CloseAllClipsCommand::doRedo() {
-  closeActiveClips(olive::ActiveSequence);
+  close_active_clips(olive::ActiveSequence);
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) {
@@ -955,15 +1009,15 @@ RenameClipCommand::RenameClipCommand() {}
 
 void RenameClipCommand::doUndo() {
   for (int i=0;i<clips.size();i++) {
-    clips.at(i)->name = old_names.at(i);
+    clips.at(i)->set_name(old_names.at(i));
   }
 }
 
 void RenameClipCommand::doRedo() {
   old_names.resize(clips.size());
   for (int i=0;i<clips.size();i++) {
-    old_names[i] = clips.at(i)->name;
-    clips.at(i)->name = new_name;
+    old_names[i] = clips.at(i)->name();
+    clips.at(i)->set_name(new_name);
   }
 }
 
@@ -1007,7 +1061,7 @@ void RippleAction::doRedo() {
     if (!ignore.contains(i)) {
       ClipPtr c = s->clips.at(i);
       if (c != nullptr) {
-        if (c->timeline_in >= point) {
+        if (c->timeline_in() >= point) {
           move_clip(ca, c, length, length, 0, 0, true, true);
         }
       }
@@ -1108,7 +1162,7 @@ void RefreshClips::doRedo() {
     SequencePtr s = all_sequences.at(i)->to_sequence();
     for (int j=0;j<s->clips.size();j++) {
       ClipPtr c = s->clips.at(j);
-      if (c != nullptr && c->media == media) {
+      if (c != nullptr && c->media() == media) {
         c->replaced = true;
         c->refresh();
       }

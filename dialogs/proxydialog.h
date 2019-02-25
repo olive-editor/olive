@@ -25,36 +25,82 @@
 #include <QVector>
 #include <QComboBox>
 
-#include "project/footage.h"
+#include "project/media.h"
 
+/**
+ * @brief The ProxyDialog class
+ *
+ * Dialog to set up proxy generation of footage
+ */
 class ProxyDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    ProxyDialog(QWidget* parent, const QVector<FootagePtr>& footage);
+  /**
+   * @brief ProxyDialog Constructor
+   * @param parent
+   *
+   * Parent widget to become modal to.
+   *
+   * @param footage
+   *
+   * List of Footage items to process.
+   */
+  ProxyDialog(QWidget* parent, const QVector<Media *> &media);
 public slots:
-	// called if user clicks "OK" on the dialog
-	virtual void accept() override;
+  /**
+   * @brief Accept changes
+   *
+   * Called when the user clicks OK on the dialog. Verifies all proxies, asking the user whether they want to overwrite
+   * existing proxies if necessary, and if everything is valid, queues the footage with ProxyGenerator.
+   */
+  virtual void accept() override;
 private:
-	// user's desired dimensions
-	QComboBox* size_combobox;
+  /**
+   * @brief User's desired dimensions
+   *
+   * Always a fraction of the original video size (e.g. 1/2, 1/4, 1/8, etc.)
+   */
+  QComboBox* size_combobox;
 
-	// user's desired proxy format
-	QComboBox* format_combobox;
+  /**
+   * @brief User's desired proxy format
+   *
+   * e.g. ProRes, DNxHD, etc.
+   */
+  QComboBox* format_combobox;
 
-	// allows users to set the location to store proxies
-	QComboBox* location_combobox;
+  /**
+   * @brief Allows users to set the directory to store proxies in
+   */
+  QComboBox* location_combobox;
 
-	// stores the custom location to store proxies if the user sets a custom location
-	QString custom_location;
+  /**
+   * @brief Stores the custom location to store proxies if the user sets a custom location
+   */
+  QString custom_location;
 
-	// stores the subdirectory to be made next to the source (dependent on the user's language)
-	QString proxy_folder_name;
+  /**
+   * @brief Stores the default subdirectory to be made next to the source (dependent on the user's language)
+   *
+   * "Proxy" in en-US.
+   */
+  QString proxy_folder_name;
 
-	// list of footage to make proxies for
-    QVector<FootagePtr> selected_footage;
+  /**
+   * @brief Stored list of footage to make proxies for
+   */
+  QVector<Media*> selected_media;
 private slots:
-	// triggered when the user changes the index in the location combobox
-	void location_changed(int i);
+  /**
+   * @brief Slot when the user changes the location
+   *
+   * Triggered when the user changes the index in the location combobox.
+   *
+   * @param i
+   *
+   * location_combobox's new selected index
+   */
+  void location_changed(int i);
 };
 
 #endif // PROXYDIALOG_H

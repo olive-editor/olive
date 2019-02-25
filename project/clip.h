@@ -28,7 +28,7 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
 
-#include "playback/cacher.h"
+#include "rendering/cacher.h"
 
 #include "project/effect.h"
 #include "project/transition.h"
@@ -43,6 +43,11 @@ extern "C" {
 #include <libavfilter/avfilter.h>
 }
 
+struct ClipSpeed {
+  double value;
+  bool maintain_audio_pitch;
+};
+
 using ClipPtr = std::shared_ptr<Clip>;
 
 class Sequence;
@@ -53,42 +58,62 @@ public:
   Clip(SequencePtr s);
   ~Clip();
   ClipPtr copy(SequencePtr s);
+
+  bool IsActiveAt(long timecode);
+
+  const QColor& color();
+  void set_color(int r, int g, int b);
+  void set_color(const QColor& c);
+
+  Media* media();
+  FootageStream* media_stream();
+  int media_stream_index();
+  int media_width();
+  int media_height();
+  double media_frame_rate();
+  long media_length();
+  void set_media(Media* m, int s);
+
+  bool enabled();
+  void set_enabled(bool e);
+
+  long clip_in(bool with_transition = false);
+  void set_clip_in(long c);
+
+  long timeline_in(bool with_transition = false);
+  void set_timeline_in(long t);
+
+  long timeline_out(bool with_transition = false);
+  void set_timeline_out(long t);
+
+  int track();
+  void set_track(int t);
+
+  bool reversed();
+  void set_reversed(bool r);
+
+  bool autoscaled();
+  void set_autoscaled(bool b);
+
+  double cached_frame_rate();
+  void set_cached_frame_rate(double d);
+
+  const QString& name();
+  void set_name(const QString& s);
+
+  const ClipSpeed& speed();
+  void set_speed(const ClipSpeed& s);
+
+  AVRational time_base();
+
   void reset_audio();
   void reset();
   void refresh();
-  long get_clip_in_with_transition();
-  long get_timeline_in_with_transition();
-  long get_timeline_out_with_transition();
-  long getLength();
-  double getMediaFrameRate();
-  long getMaximumLength();
-  void recalculateMaxLength();
-  int getWidth();
-  int getHeight();
+
+  long length();
+
   void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
   SequencePtr sequence;
-
-  // queue functions
-  void queue_clear();
-  void queue_remove_earliest();
-
-  // timeline variables (should be copied in copy())
-  bool enabled;
-  long clip_in;
-  long timeline_in;
-  long timeline_out;
-  int track;
-  QString name;
-  quint8 color_r;
-  quint8 color_g;
-  quint8 color_b;
-  Media* media;
-  int media_stream;
-  double speed;
-  double cached_fr;
-  bool reverse;
-  bool maintain_audio_pitch;
-  bool autoscale;
 
   // markers
   QVector<Marker>& get_markers();
@@ -99,58 +124,50 @@ public:
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;
 
-  // media handling
-  AVFormatContext* formatCtx;
-  AVStream* stream;
-  AVCodec* codec;
-  AVCodecContext* codecCtx;
-  AVPacket* pkt;
-  AVFrame* frame;
-  AVDictionary* opts;
-  long calculated_length;
+  // playback functions
+  void Open();
+  void Cache(long playhead, bool scrubbing, QVector<ClipPtr> &nests, int playback_speed);
+  bool Retrieve();
+  void Close(bool wait);
+  bool IsOpen();
+
+  bool UsesCacher();
 
   // temporary variables
   int load_id;
   bool undeletable;
-  bool reached_end;
-  bool pkt_written;
-  bool open;
-  bool finished_opening;
   bool replaced;
-  bool ignore_reverse;
-  int pix_fmt;
 
   // caching functions
-  bool use_existing_frame;
-  bool multithreaded;
-  Cacher* cacher;
-  QWaitCondition can_cache;
-  QVector<AVFrame*> queue;
-  QMutex queue_lock;
-  QMutex render_lock;
-  QMutex lock;
-  QMutex open_lock;
-  int64_t last_invalid_ts;
-
-  // converters/filters
-  AVFilterGraph* filter_graph;
-  AVFilterContext* buffersink_ctx;
-  AVFilterContext* buffersrc_ctx;
+  QMutex state_change_lock;
+  QMutex cache_lock;
 
   // video playback variables
   QOpenGLFramebufferObject** fbo;
   QOpenGLTexture* texture;
   long texture_frame;
 
-  // audio playback variables
-  int64_t reverse_target;
-  int frame_sample_index;
-  qint64 audio_buffer_write;
-  bool audio_reset;
-  bool audio_just_reset;
-  long audio_target_frame;
 private:
+  // timeline variables (should be copied in copy())
+  bool enabled_;
+  long clip_in_;
+  long timeline_in_;
+  long timeline_out_;
+  int track_;
+  QString name_;
+  Media* media_;
+  int media_stream_;
+  ClipSpeed speed_;
+  double cached_fr_;
+  bool reverse_;
+  bool autoscale_;
+
+  Cacher cacher;
+  long cacher_frame;
+
   QVector<Marker> markers;
+  QColor color_;
+  bool open_;
 };
 
 #endif // CLIP_H

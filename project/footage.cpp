@@ -25,10 +25,6 @@
 #include <QPainter>
 #include "io/previewgenerator.h"
 
-extern "C" {
-	#include <libavformat/avformat.h>
-}
-
 #include "project/clip.h"
 
 Footage::Footage() :

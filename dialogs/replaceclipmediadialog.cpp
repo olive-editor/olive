@@ -22,8 +22,7 @@
 
 #include "panels/panels.h"
 
-#include "playback/playback.h"
-#include "playback/cacher.h"
+#include "rendering/cacher.h"
 #include "project/undo.h"
 
 #include <QVBoxLayout>
@@ -112,7 +111,7 @@ void ReplaceClipMediaDialog::replace() {
 
 				for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
                     ClipPtr c = olive::ActiveSequence->clips.at(i);
-					if (c != nullptr && c->media == media) {
+          if (c != nullptr && c->media() == media) {
 						rcmc->clips.append(c);
 					}
 				}

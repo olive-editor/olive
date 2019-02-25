@@ -9,3 +9,5 @@ Please consider supporting Olive:
 [![Become a Patron](https://olivevideoeditor.org/img/become_a_patron_button.png)](https://www.patreon.com/olivevideoeditor)
 
 Compiling instructions for Windows, macOS, and Linux can be found [on the main site](https://olivevideoeditor.org/compile.php).
+
+Olive has Doxygen-compatible documentation. Just run `doxygen` in the source root directory to generate it.

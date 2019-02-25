@@ -27,7 +27,9 @@
 #include "io/path.h"
 #include "io/config.h"
 
-#include "playback/audio.h"
+#include "ui/mediaiconservice.h"
+
+#include "rendering/audio.h"
 
 #include "dialogs/demonotice.h"
 #include "dialogs/preferencesdialog.h"
@@ -277,6 +279,16 @@ void OliveGlobal::open_preferences() {
     PreferencesDialog pd(olive::MainWindow);
     pd.setup_kbd_shortcuts(olive::MainWindow->menuBar());
     pd.exec();
+}
+
+void OliveGlobal::set_sequence(SequencePtr s)
+{
+  panel_effect_controls->clear_effects(true);
+
+  olive::ActiveSequence = s;
+  panel_sequence_viewer->set_main_sequence();
+  panel_timeline->update_sequence();
+  panel_timeline->setFocus();
 }
 
 void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {

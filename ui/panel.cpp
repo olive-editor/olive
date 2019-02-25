@@ -22,8 +22,17 @@
 
 #include <QEvent>
 
+QVector<Panel*> olive::panels;
+
 Panel::Panel(QWidget *parent) : QDockWidget (parent) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+  olive::panels.append(this);
+}
+
+Panel::~Panel()
+{
+  olive::panels.removeAll(this);
 }
 
 bool Panel::event(QEvent *e) {

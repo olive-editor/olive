@@ -52,7 +52,7 @@ Transition::Transition(ClipPtr c, ClipPtr s, const EffectMeta* em) :
 
   LabelSlider* length_ui_ele = static_cast<LabelSlider*>(length_field->ui_element);
   length_ui_ele->set_display_type(LABELSLIDER_FRAMENUMBER);
-  length_ui_ele->set_frame_rate(parent_clip->sequence == nullptr ? parent_clip->cached_fr : parent_clip->sequence->frame_rate);
+  length_ui_ele->set_frame_rate(parent_clip->sequence == nullptr ? parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
 }
 
 TransitionPtr Transition::copy(ClipPtr c, ClipPtr s) {

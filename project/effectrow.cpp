@@ -120,7 +120,7 @@ void EffectRow::goto_previous_key() {
 	for (int i=0;i<fieldCount();i++) {
 		EffectField* f = field(i);
 		for (int j=0;j<f->keyframes.size();j++) {
-			long comp = f->keyframes.at(j).time - c->clip_in + c->timeline_in;
+      long comp = f->keyframes.at(j).time - c->clip_in() + c->timeline_in();
 			if (comp < olive::ActiveSequence->playhead) {
 				key = qMax(comp, key);
 			}
@@ -136,7 +136,7 @@ void EffectRow::toggle_key() {
 	for (int j=0;j<fieldCount();j++) {
 		EffectField* f = field(j);
 		for (int i=0;i<f->keyframes.size();i++) {
-			long comp = c->timeline_in - c->clip_in + f->keyframes.at(i).time;
+      long comp = c->timeline_in() - c->clip_in() + f->keyframes.at(i).time;
 			if (comp == olive::ActiveSequence->playhead) {
 				key_fields.append(f);
 				key_field_index.append(i);
@@ -163,7 +163,7 @@ void EffectRow::goto_next_key() {
 	for (int i=0;i<fieldCount();i++) {
 		EffectField* f = field(i);
 		for (int j=0;j<f->keyframes.size();j++) {
-			long comp = f->keyframes.at(j).time - c->clip_in + c->timeline_in;
+      long comp = f->keyframes.at(j).time - c->clip_in() + c->timeline_in();
 			if (comp > olive::ActiveSequence->playhead) {
 				key = qMin(comp, key);
 			}
@@ -194,7 +194,9 @@ void EffectRow::add_widget(QWidget* w) {
 }
 
 void EffectRow::set_keyframe_now(ComboAction* ca) {
-	long time = olive::ActiveSequence->playhead-parent_effect->parent_clip->timeline_in+parent_effect->parent_clip->clip_in;
+  long time = olive::ActiveSequence->playhead
+      - parent_effect->parent_clip->timeline_in()
+      + parent_effect->parent_clip->clip_in();
 
 	if (!just_made_unsafe_keyframe) {
 		EffectKeyframe key;

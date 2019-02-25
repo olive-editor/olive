@@ -94,13 +94,14 @@ bool EffectControls::keyframe_focus() {
 void EffectControls::set_zoom(bool in) {
   zoom *= (in) ? 2 : 0.5;
   update_keyframes();
+  scroll_to_frame(olive::ActiveSequence->playhead);
 }
 
 void EffectControls::menu_select(QAction* q) {
   ComboAction* ca = new ComboAction();
   for (int i=0;i<selected_clips.size();i++) {
     const ClipPtr& c = olive::ActiveSequence->clips.at(selected_clips.at(i));
-    if ((c->track < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
+    if ((c->track() < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
       const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
         if (c->opening_transition == nullptr) {
@@ -178,7 +179,7 @@ void EffectControls::copy(bool del) {
 }
 
 void EffectControls::scroll_to_frame(long frame) {
-  scroll_to_frame_internal(horizontalScrollBar, frame, zoom, keyframeView->width());
+  scroll_to_frame_internal(horizontalScrollBar, frame - keyframeView->visible_in, zoom, keyframeView->width());
 }
 
 void EffectControls::add_effect_paste_action(QMenu *menu) {
@@ -309,7 +310,7 @@ void EffectControls::UpdateTitle() {
   if (selected_clips.empty()) {
     setWindowTitle(panel_name + tr("(none)"));
   } else {
-    setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name);
+    setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name());
   }
 }
 
@@ -529,7 +530,7 @@ void EffectControls::load_effects() {
     for (int i=0;i<selected_clips.size();i++) {
       ClipPtr c = olive::ActiveSequence->clips.at(selected_clips.at(i));
       QVBoxLayout* layout;
-      if (c->track < 0) {
+      if (c->track() < 0) {
         vcontainer->setVisible(true);
         layout = static_cast<QVBoxLayout*>(video_effect_area->layout());
       } else {

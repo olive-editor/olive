@@ -55,7 +55,7 @@ void update_effect_controls() {
         for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
           const Selection& s = olive::ActiveSequence->selections.at(j);
           bool add = true;
-          if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
+          if (clip->timeline_in() >= s.in && clip->timeline_out() <= s.out && clip->track() == s.track) {
             mode = kTransitionNone;
           } else if (selection_contains_transition(s, clip, kTransitionOpening)) {
             mode = kTransitionOpening;
@@ -66,9 +66,9 @@ void update_effect_controls() {
           }
 
           if (add) {
-            if (clip->track < 0 && vclip == -1) {
+            if (clip->track() < 0 && vclip == -1) {
               vclip = i;
-            } else if (clip->track >= 0 && aclip == -1) {
+            } else if (clip->track() >= 0 && aclip == -1) {
               aclip = i;
             } else {
               vclip = -2;

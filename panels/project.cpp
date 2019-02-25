@@ -23,12 +23,12 @@
 #include "oliveglobal.h"
 
 #include "panels.h"
-#include "playback/playback.h"
+#include "rendering/renderfunctions.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
 #include "mainwindow.h"
 #include "io/config.h"
-#include "playback/cacher.h"
+#include "rendering/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
 #include "panels/effectcontrols.h"
 #include "dialogs/newsequencedialog.h"
@@ -63,6 +63,13 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }
+
+// TODO make these configurable
+const int kDefaultSequenceWidth = 1920;
+const int kDefaultSequenceHeight = 1080;
+const double kDefaultSequenceFrameRate = 29.97;
+const int kDefaultSequenceFrequency = 48000;
+const int kDefaultSequenceChannelLayout = 3;
 
 #define MAXIMUM_RECENT_PROJECTS 10 // FIXME: should be configurable
 
@@ -268,11 +275,11 @@ SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
   s->name = panel_project->get_next_sequence_name();
 
   // shitty hardcoded default values
-  s->width = 1920;
-  s->height = 1080;
-  s->frame_rate = 29.97;
-  s->audio_frequency = 48000;
-  s->audio_layout = 3;
+  s->width = kDefaultSequenceWidth;
+  s->height = kDefaultSequenceHeight;
+  s->frame_rate = kDefaultSequenceFrameRate;
+  s->audio_frequency = kDefaultSequenceFrequency;
+  s->audio_layout = kDefaultSequenceChannelLayout;
 
   bool got_video_values = false;
   bool got_audio_values = false;
@@ -464,7 +471,9 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
     } else {
       parent->appendChild(item);
     }
-    if (open) set_sequence(s);
+    if (open) {
+      olive::Global->set_sequence(s);
+    }
   }
   return item;
 }
@@ -515,7 +524,7 @@ bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
   if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
     for (int i=0;i<clipboard.size();i++) {
       ClipPtr c = std::static_pointer_cast<Clip>(clipboard.at(i));
-      if (c->media == m) {
+      if (c->media() == m) {
         ca->append(new RemoveClipsFromClipboard(i-delete_count));
         delete_count++;
       }
@@ -553,7 +562,7 @@ void Project::delete_selected_media() {
         SequencePtr s = sequence_items.at(j)->to_sequence();
         for (int k=0;k<s->clips.size();k++) {
           ClipPtr c = s->clips.at(k);
-          if (c != nullptr && c->media == item) {
+          if (c != nullptr && c->media() == item) {
             if (!confirm_delete) {
               // we found a reference, so we know we'll need to ask if the user wants to delete it
               QMessageBox confirm(this);
@@ -649,7 +658,7 @@ void Project::delete_selected_media() {
         if (panel_footage_viewer->seq != nullptr) {
           for (int j=0;j<panel_footage_viewer->seq->clips.size();j++) {
             ClipPtr c = panel_footage_viewer->seq->clips.at(j);
-            if (c != nullptr && c->media == items.at(i)) {
+            if (c != nullptr && c->media() == items.at(i)) {
               panel_footage_viewer->set_media(nullptr);
               break;
             }
@@ -666,15 +675,6 @@ void Project::delete_selected_media() {
   } else {
     delete ca;
   }
-}
-
-void Project::start_preview_generator(Media* item, bool replacing) {
-  // set up throbber animation
-  olive::media_icon_service->SetMediaIcon(item, ICON_TYPE_LOADING);
-
-  PreviewGenerator* pg = new PreviewGenerator(item, item->to_footage(), replacing);
-  item->to_footage()->preview_gen = pg;
-  pg->start(QThread::LowPriority);
 }
 
 void Project::process_file_list(QStringList& files, bool recursive, Media* replace, Media* parent) {
@@ -800,12 +800,11 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
         if (replace != nullptr) {
           item = replace;
-          m = replace->to_footage();
-          m->reset();
         } else {
           item = new Media(parent);
-          m = FootagePtr(new Footage());
         }
+
+        m = FootagePtr(new Footage());
 
         m->using_inout = false;
         m->url = file;
@@ -820,7 +819,6 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
             ca->append(new AddMediaCommand(item, parent));
           } else {
             parent->appendChild(item);
-            //						project_model.appendChild(parent, item);
           }
         }
 
@@ -834,7 +832,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
       for (int i=0;i<last_imported_media.size();i++) {
         // generate waveform/thumbnail in another thread
-        start_preview_generator(last_imported_media.at(i), replace != nullptr);
+        PreviewGenerator* pg = new PreviewGenerator(last_imported_media.at(i));
       }
     } else {
       delete ca;
@@ -931,7 +929,7 @@ void Project::delete_clips_using_selected_media() {
       if (c != nullptr) {
         for (int j=0;j<items.size();j++) {
           Media* m = item_to_media(items.at(j));
-          if (c->media == m) {
+          if (c->media() == m) {
             ca->append(new DeleteClipAction(olive::ActiveSequence, i));
             deleted = true;
           }
@@ -971,7 +969,7 @@ void Project::clear() {
 
 void Project::new_project() {
   // clear existing project
-  set_sequence(nullptr);
+  olive::Global->set_sequence(nullptr);
   panel_footage_viewer->set_media(nullptr);
   clear();
   olive::MainWindow->setWindowModified(false);
@@ -1094,38 +1092,38 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
               if (c != nullptr) {
                 stream.writeStartElement("clip"); // clip
                 stream.writeAttribute("id", QString::number(j));
-                stream.writeAttribute("enabled", QString::number(c->enabled));
-                stream.writeAttribute("name", c->name);
-                stream.writeAttribute("clipin", QString::number(c->clip_in));
-                stream.writeAttribute("in", QString::number(c->timeline_in));
-                stream.writeAttribute("out", QString::number(c->timeline_out));
-                stream.writeAttribute("track", QString::number(c->track));
+                stream.writeAttribute("enabled", QString::number(c->enabled()));
+                stream.writeAttribute("name", c->name());
+                stream.writeAttribute("clipin", QString::number(c->clip_in()));
+                stream.writeAttribute("in", QString::number(c->timeline_in()));
+                stream.writeAttribute("out", QString::number(c->timeline_out()));
+                stream.writeAttribute("track", QString::number(c->track()));
 
-                stream.writeAttribute("r", QString::number(c->color_r));
-                stream.writeAttribute("g", QString::number(c->color_g));
-                stream.writeAttribute("b", QString::number(c->color_b));
+                stream.writeAttribute("r", QString::number(c->color().red()));
+                stream.writeAttribute("g", QString::number(c->color().green()));
+                stream.writeAttribute("b", QString::number(c->color().blue()));
 
-                stream.writeAttribute("autoscale", QString::number(c->autoscale));
-                stream.writeAttribute("speed", QString::number(c->speed, 'f', 10));
-                stream.writeAttribute("maintainpitch", QString::number(c->maintain_audio_pitch));
-                stream.writeAttribute("reverse", QString::number(c->reverse));
+                stream.writeAttribute("autoscale", QString::number(c->autoscaled()));
+                stream.writeAttribute("speed", QString::number(c->speed().value, 'f', 10));
+                stream.writeAttribute("maintainpitch", QString::number(c->speed().maintain_audio_pitch));
+                stream.writeAttribute("reverse", QString::number(c->reversed()));
 
-                if (c->media != nullptr) {
-                  stream.writeAttribute("type", QString::number(c->media->get_type()));
-                  switch (c->media->get_type()) {
+                if (c->media() != nullptr) {
+                  stream.writeAttribute("type", QString::number(c->media()->get_type()));
+                  switch (c->media()->get_type()) {
                   case MEDIA_TYPE_FOOTAGE:
-                    stream.writeAttribute("media", QString::number(c->media->to_footage()->save_id));
-                    stream.writeAttribute("stream", QString::number(c->media_stream));
+                    stream.writeAttribute("media", QString::number(c->media()->to_footage()->save_id));
+                    stream.writeAttribute("stream", QString::number(c->media_stream_index()));
                     break;
                   case MEDIA_TYPE_SEQUENCE:
-                    stream.writeAttribute("sequence", QString::number(c->media->to_sequence()->save_id));
+                    stream.writeAttribute("sequence", QString::number(c->media()->to_sequence()->save_id));
                     break;
                   }
                 }
 
                 // save markers
                 // only necessary for null media clips, since media has its own markers
-                if (c->media == nullptr) {
+                if (c->media() == nullptr) {
                   for (int k=0;k<c->get_markers().size();k++) {
                     save_marker(stream, c->get_markers().at(k));
                   }

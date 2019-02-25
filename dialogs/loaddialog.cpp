@@ -28,7 +28,6 @@
 
 #include "panels/panels.h"
 
-#include "playback/playback.h"
 #include "ui/sourcetable.h"
 #include "mainwindow.h"
 

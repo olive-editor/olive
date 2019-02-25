@@ -29,7 +29,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # Tries to get the current Git short hash
 system("which git") {
-    GITHASHVAR = $$system(git --git-dir $$PWD/.git --work-tree $$PWD log -1 --format=%h)
+    GITPATH = $$PWD
+
+    win32 {
+        GITPATH = $$system(cygpath $$PWD)
+    }
+
+    GITHASHVAR = $$system(git --git-dir="$$GITPATH/.git" --work-tree="$$GITPATH" log -1 --format=%h)
 
     # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
     # (see https://answers.launchpad.net/launchpad/+question/678556)
@@ -60,8 +66,6 @@ SOURCES += \
     project/footage.cpp \
     project/sequence.cpp \
     project/clip.cpp \
-    playback/playback.cpp \
-    playback/audio.cpp \
     io/config.cpp \
     dialogs/newsequencedialog.cpp \
     ui/viewerwidget.cpp \
@@ -69,7 +73,6 @@ SOURCES += \
     dialogs/exportdialog.cpp \
     ui/collapsiblewidget.cpp \
     panels/panels.cpp \
-    playback/cacher.cpp \
     io/exportthread.cpp \
     ui/timelineheader.cpp \
     io/previewgenerator.cpp \
@@ -133,8 +136,6 @@ SOURCES += \
     effects/internal/voideffect.cpp \
     dialogs/texteditdialog.cpp \
     dialogs/debugdialog.cpp \
-    ui/renderthread.cpp \
-    ui/renderfunctions.cpp \
     ui/viewerwindow.cpp \
     project/projectfilter.cpp \
     effects/internal/frei0reffect.cpp \
@@ -152,7 +153,12 @@ SOURCES += \
     project/comboaction.cpp \
     ui/mediaiconservice.cpp \
     ui/panel.cpp \
-    effects/internal/dropshadoweffect.cpp
+    effects/internal/dropshadoweffect.cpp \
+    rendering/renderfunctions.cpp \
+    rendering/renderthread.cpp \
+    rendering/cacher.cpp \
+    rendering/clipqueue.cpp \
+    rendering/audio.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -167,8 +173,6 @@ HEADERS += \
     project/footage.h \
     project/sequence.h \
     project/clip.h \
-    playback/playback.h \
-    playback/audio.h \
     io/config.h \
     dialogs/newsequencedialog.h \
     ui/viewerwidget.h \
@@ -176,7 +180,6 @@ HEADERS += \
     dialogs/exportdialog.h \
     ui/collapsiblewidget.h \
     panels/panels.h \
-    playback/cacher.h \
     io/exportthread.h \
     ui/timelinetools.h \
     ui/timelineheader.h \
@@ -242,8 +245,6 @@ HEADERS += \
     effects/internal/voideffect.h \
     dialogs/texteditdialog.h \
     dialogs/debugdialog.h \
-    ui/renderthread.h \
-    ui/renderfunctions.h \
     ui/viewerwindow.h \
     project/projectfilter.h \
     effects/internal/frei0reffect.h \
@@ -262,7 +263,12 @@ HEADERS += \
     project/comboaction.h \
     ui/mediaiconservice.h \
     ui/panel.h \
-    effects/internal/dropshadoweffect.h
+    effects/internal/dropshadoweffect.h \
+    rendering/renderfunctions.h \
+    rendering/renderthread.h \
+    rendering/clipqueue.h \
+    rendering/cacher.h \
+    rendering/audio.h
 
 FORMS +=
 
@@ -280,7 +286,7 @@ TRANSLATIONS += \
 win32 {
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-    defined(OLIVE_OCIO) {
+    contains(DEFINES, OLIVE_OCIO) {
         LIBS += -lOpenColorIO
     }
 }

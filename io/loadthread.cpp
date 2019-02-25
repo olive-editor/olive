@@ -29,7 +29,7 @@
 #include "project/projectelements.h"
 
 #include "io/config.h"
-#include "playback/playback.h"
+#include "rendering/renderfunctions.h"
 #include "io/previewgenerator.h"
 #include "effects/internal/voideffect.h"
 #include "debug.h"
@@ -376,50 +376,55 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   int media_id, stream_id;
                   ClipPtr c(new Clip(s));
 
+                  QColor clip_color;
+                  ClipSpeed speed_info = c->speed();
+
                   for (int j=0;j<stream.attributes().size();j++) {
                     const QXmlStreamAttribute& attr = stream.attributes().at(j);
                     if (attr.name() == "name") {
-                      c->name = attr.value().toString();
+                      c->set_name(attr.value().toString());
                     } else if (attr.name() == "enabled") {
-                      c->enabled = (attr.value() == "1");
+                      c->set_enabled(attr.value() == "1");
                     } else if (attr.name() == "id") {
                       c->load_id = attr.value().toInt();
                     } else if (attr.name() == "clipin") {
-                      c->clip_in = attr.value().toLong();
+                      c->set_clip_in(attr.value().toLong());
                     } else if (attr.name() == "in") {
-                      c->timeline_in = attr.value().toLong();
+                      c->set_timeline_in(attr.value().toLong());
                     } else if (attr.name() == "out") {
-                      c->timeline_out = attr.value().toLong();
+                      c->set_timeline_out(attr.value().toLong());
                     } else if (attr.name() == "track") {
-                      c->track = attr.value().toInt();
+                      c->set_track(attr.value().toInt());
                     } else if (attr.name() == "r") {
-                      c->color_r = quint8(attr.value().toInt());
+                      clip_color.setRed(attr.value().toInt());
                     } else if (attr.name() == "g") {
-                      c->color_g = quint8(attr.value().toInt());
+                      clip_color.setGreen(attr.value().toInt());
                     } else if (attr.name() == "b") {
-                      c->color_b = quint8(attr.value().toInt());
+                      clip_color.setBlue(attr.value().toInt());
                     } else if (attr.name() == "autoscale") {
-                      c->autoscale = (attr.value() == "1");
+                      c->set_autoscaled(attr.value() == "1");
                     } else if (attr.name() == "media") {
                       media_type = MEDIA_TYPE_FOOTAGE;
                       media_id = attr.value().toInt();
                     } else if (attr.name() == "stream") {
                       stream_id = attr.value().toInt();
                     } else if (attr.name() == "speed") {
-                      c->speed = attr.value().toDouble();
+                      speed_info.value = attr.value().toDouble();
                     } else if (attr.name() == "maintainpitch") {
-                      c->maintain_audio_pitch = (attr.value() == "1");
+                      speed_info.maintain_audio_pitch = (attr.value() == "1");
                     } else if (attr.name() == "reverse") {
-                      c->reverse = (attr.value() == "1");
+                      c->set_reversed(attr.value() == "1");
                     } else if (attr.name() == "sequence") {
                       media_type = MEDIA_TYPE_SEQUENCE;
 
                       // since we haven't finished loading sequences, we defer linking this until later
-                      c->media = nullptr;
-                      c->media_stream = attr.value().toInt();
+                      c->set_media(nullptr, attr.value().toInt());
                       loaded_clips.append(c);
                     }
                   }
+
+                  c->set_color(clip_color);
+                  c->set_speed(speed_info);
 
                   // set media and media stream
                   switch (media_type) {
@@ -428,8 +433,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                       for (int j=0;j<loaded_media_items.size();j++) {
                         FootagePtr m = loaded_media_items.at(j)->to_footage();
                         if (m->save_id == media_id) {
-                          c->media = loaded_media_items.at(j);
-                          c->media_stream = stream_id;
+                          c->set_media(loaded_media_items.at(j), stream_id);
                           break;
                         }
                       }
@@ -630,8 +634,9 @@ void LoadThread::run() {
       // attach nested sequence clips to their sequences
       for (int i=0;i<loaded_clips.size();i++) {
         for (int j=0;j<loaded_sequences.size();j++) {
-          if (loaded_clips.at(i)->media == nullptr && loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->to_sequence()->save_id) {
-            loaded_clips.at(i)->media = loaded_sequences.at(j);
+          if (loaded_clips.at(i)->media() == nullptr
+              && loaded_clips.at(i)->media_stream_index() == loaded_sequences.at(j)->to_sequence()->save_id) {
+            loaded_clips.at(i)->set_media(loaded_sequences.at(j), loaded_clips.at(i)->media_stream_index());
             loaded_clips.at(i)->refresh();
             break;
           }
@@ -644,7 +649,7 @@ void LoadThread::run() {
     emit success(); // run in main thread
 
     for (int i=0;i<loaded_media_items.size();i++) {
-      panel_project->start_preview_generator(loaded_media_items.at(i), true);
+      PreviewGenerator* pg = new PreviewGenerator(loaded_media_items.at(i));
     }
   } else {
     if (error_str.isEmpty()) {
@@ -712,7 +717,9 @@ void LoadThread::success_func() {
   }
 
   olive::MainWindow->setWindowModified(autorecovery);
-  if (open_seq != nullptr) set_sequence(open_seq);
+  if (open_seq != nullptr) {
+    olive::Global->set_sequence(open_seq);
+  }
   update_ui(false);
 }
 

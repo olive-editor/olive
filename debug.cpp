@@ -88,8 +88,11 @@ void debug_message_handler(QtMsgType type, const QMessageLogContext &context, co
         break;
     }//switch
 
-    fprintf(stderr, "%s [%s] %s (%s:%u, %s)\n", timeRepr.data(), msgTag.toLocal8Bit().constData(), localMsg.data(),
-            context.file, context.line, context.function);
+    /*fprintf(stderr, "%s [%s] %s (%s:%u, %s)\n", timeRepr.data(), msgTag.toLocal8Bit().constData(), localMsg.data(),
+            context.file, context.line, context.function);*/
+
+    fprintf(stderr, "%s [%s] %s\n", timeRepr.data(), msgTag.toLocal8Bit().constData(), localMsg.data());
+
     if (debug_file.isOpen()) {
         debug_stream << QString("[%1] %2 (%3:%4, %5)\n")
                         .arg(msgTag, localMsg, context.file, QString::number(context.line), context.function);

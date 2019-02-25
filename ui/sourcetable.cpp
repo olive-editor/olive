@@ -25,7 +25,7 @@
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "panels/panels.h"
-#include "playback/playback.h"
+#include "rendering/renderfunctions.h"
 #include "project/undo.h"
 #include "project/sequence.h"
 #include "mainwindow.h"

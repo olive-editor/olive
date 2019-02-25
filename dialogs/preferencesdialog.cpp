@@ -23,7 +23,7 @@
 #include "oliveglobal.h"
 #include "io/config.h"
 #include "io/path.h"
-#include "playback/audio.h"
+#include "rendering/audio.h"
 #include "mainwindow.h"
 
 #include <QMenuBar>
