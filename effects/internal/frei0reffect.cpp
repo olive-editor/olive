@@ -206,7 +206,7 @@ void Frei0rEffect::destruct_module() {
 
 void Frei0rEffect::construct_module() {
 	f0rConstructFunc construct = reinterpret_cast<f0rConstructFunc>(LibAddress(handle, "f0r_construct"));
-	instance = construct(parent_clip->getWidth(), parent_clip->getHeight());
+  instance = construct(parent_clip->media_width(), parent_clip->media_height());
 
 	open = true;
 }
