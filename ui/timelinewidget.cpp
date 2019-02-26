@@ -360,8 +360,8 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void TimelineWidget::wheelEvent(QWheelEvent *event) {
-  // shift used to toggle zooming instead of scrolling
-  bool shift = (event->modifiers() & Qt::ShiftModifier);
+  // ctrl used to toggle zooming instead of scrolling
+  bool ctrl = (event->modifiers() & Qt::ControlModifier);
 
   //
   // NOTE/FIXME: CURRENTLY disabling pixel scrolling because it needs more testing
@@ -384,9 +384,9 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
     int scroll_amount = alt ? (event->angleDelta().x()) : (event->angleDelta().y());
 
     bool in = (scroll_amount > 0);
-    if (olive::CurrentConfig.scroll_zooms != shift) {
+    if (olive::CurrentConfig.scroll_zooms != ctrl) {
 
-      // if config.scroll_zooms is enabled or shift is held, zoom instead of scrolling
+      // if config.scroll_zooms is enabled or ctrl is held, zoom instead of scrolling
       if (in) {
         panel_timeline->multiply_zoom(1.5);
       } else {
