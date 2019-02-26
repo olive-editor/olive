@@ -390,17 +390,17 @@ void Viewer::play(bool in_to_out) {
       uncue_recording();
     }
 
-    if (playback_speed == 0) {
-      playback_speed = 1;
-    }
-
     bool seek_to_in = (seq->using_workarea && (olive::CurrentConfig.loop || playing_in_to_out));
     if (!is_recording_cued()
-        && playback_speed > 0
+        && playback_speed >= 0
         && (playing_in_to_out
             || seq->playhead >= sequence_end_frame
             || (seek_to_in && seq->playhead >= seq->workarea_out))) {
       seek(seek_to_in ? seq->workarea_in : 0);
+    }
+
+    if (playback_speed == 0) {
+      playback_speed = 1;
     }
 
     reset_all_audio();
@@ -408,6 +408,7 @@ void Viewer::play(bool in_to_out) {
       qCritical() << "Failed to record audio";
       return;
     }
+
     playhead_start = seq->playhead;
     playing = true;
     just_played_ = true;

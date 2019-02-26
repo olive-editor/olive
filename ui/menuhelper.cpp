@@ -266,9 +266,12 @@ QMenu* MenuHelper::create_submenu(QMenuBar* parent,
                                   const QObject *receiver,
                                   const char *member) {
   QMenu* menu = new QMenu(parent);
+
+  /*
   menu->setStyle(QStyleFactory::create("windowsvista"));
   menu->setPalette(menu->style()->standardPalette());
   menu->setStyleSheet("");
+  */
 
   parent->addMenu(menu);
 
@@ -281,9 +284,12 @@ QMenu* MenuHelper::create_submenu(QMenuBar* parent,
 
 QMenu* MenuHelper::create_submenu(QMenu* parent) {
   QMenu* menu = new QMenu(parent);
+
+  /*
   menu->setStyle(QStyleFactory::create("windowsvista"));
   menu->setPalette(menu->style()->standardPalette());
   menu->setStyleSheet("");
+  */
 
   parent->addMenu(menu);
   return menu;
