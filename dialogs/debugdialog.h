@@ -28,10 +28,12 @@ class DebugDialog : public QDialog {
 	Q_OBJECT
 public:
 	DebugDialog(QWidget* parent = 0);
+  void Retranslate();
 public slots:
 	void update_log();
 protected:
-	void showEvent(QShowEvent* event);
+  virtual void changeEvent(QEvent* e) override;
+  virtual void showEvent(QShowEvent* event) override;
 private:
 	QTextEdit* textEdit;
 };

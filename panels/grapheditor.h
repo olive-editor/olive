@@ -43,8 +43,9 @@ public:
   bool view_is_under_mouse();
   void delete_selected_keys();
   void select_all();
-protected:
+
   virtual void Retranslate() override;
+protected:
 private:
   GraphView* view;
   TimelineHeader* header;

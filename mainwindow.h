@@ -109,6 +109,8 @@ protected:
      */
   virtual void paintEvent(QPaintEvent *) override;
 
+  virtual bool event(QEvent* e) override;
+
 private slots:
   /**
      * @brief Maximizes the currently hovered panel.
@@ -209,14 +211,40 @@ private:
 
   void Retranslate();
 
-  // menu bar menus
-  QMenu* window_menu;
-
   // file menu actions
+  QMenu* file_menu;
+  QMenu* new_menu;
+  QAction* open_project;
   QMenu* open_recent;
+  QAction* open_action;
   QAction* clear_open_recent_action;
+  QAction* save_project;
+  QAction* save_project_as;
+  QAction* import_action;
+  QAction* export_action;
+  QAction* exit_action;
+
+  // edit menu actions
+  QMenu* edit_menu;
+  QAction* undo_action;
+  QAction* redo_action;
+  QAction* select_all_action;
+  QAction* deselect_all_action;
+  QAction* ripple_to_in_point_;
+  QAction* ripple_to_out_point_;
+  QAction* edit_to_in_point_;
+  QAction* edit_to_out_point_;
+  QAction* delete_inout_point_;
+  QAction* ripple_delete_inout_point_;
+  QAction* setedit_marker_;
+
 
   // view menu actions
+  QMenu* view_menu;
+  QAction* zoom_in_;
+  QAction* zoom_out_;
+  QAction* increase_track_height_;
+  QAction* decrease_track_height_;
   QAction* track_lines;
   QAction* frames_action;
   QAction* drop_frame_action;
@@ -225,15 +253,54 @@ private:
   QAction* no_autoscroll;
   QAction* page_autoscroll;
   QAction* smooth_autoscroll;
+
+  QMenu* title_safe_area_menu;
   QAction* title_safe_off;
   QAction* title_safe_default;
   QAction* title_safe_43;
   QAction* title_safe_169;
   QAction* title_safe_custom;
+
   QAction* full_screen;
+  QAction* full_screen_viewer_;
   QAction* show_all;
 
-  // tool menu actions
+  // playback menu
+  QMenu* playback_menu;
+
+  QAction* go_to_start_;
+  QAction* previous_frame_;
+  QAction* playpause_;
+  QAction* play_in_to_out_;
+  QAction* next_frame_;
+  QAction* go_to_end_;
+  QAction* go_to_prev_cut_;
+  QAction* go_to_next_cut_;
+  QAction* go_to_in_point_;
+  QAction* go_to_out_point_;
+  QAction* shuttle_left_;
+  QAction* shuttle_stop_;
+  QAction* shuttle_right_;
+  QAction* loop_action_;
+
+  // window menu
+
+  QMenu* window_menu;
+
+  QAction* window_project_action;
+  QAction* window_effectcontrols_action;
+  QAction* window_timeline_action;
+  QAction* window_graph_editor_action;
+  QAction* window_footageviewer_action;
+  QAction* window_sequenceviewer_action;
+
+  QAction* maximize_panel_;
+  QAction* lock_panels_;
+  QAction* reset_default_layout_;
+
+  // tools menu
+  QMenu* tools_menu;
+
   QAction* pointer_tool_action;
   QAction* edit_tool_action;
   QAction* ripple_tool_action;
@@ -256,12 +323,15 @@ private:
   QAction* enable_drop_on_media_to_replace;
   QAction* enable_hover_focus;
   QAction* set_name_and_marker;
-  QAction* loop_action;
   QAction* seek_also_selects;
+  QAction* preferences_action_;
+  QAction* clear_undo_action_;
 
-  // edit menu actions
-  QAction* undo_action;
-  QAction* redo_action;
+  // help menu
+  QMenu* help_menu;
+  QAction* action_search_;
+  QAction* debug_log_;
+  QAction* about_action_;
 
   // used to store the panel state when one panel is maximized
   QByteArray temp_panel_state;

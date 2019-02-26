@@ -208,9 +208,9 @@ public:
 
   bool can_ripple_empty_space(long frame, int track);
 
+  virtual void Retranslate() override;
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
-  virtual void Retranslate() override;
 public slots:
   void paste(bool insert = false);
   void repaint_timeline();

@@ -98,10 +98,9 @@ public:
 
   TimelineHeader* headers;
 
-  void resizeEvent(QResizeEvent *event);
-
-protected:
   virtual void Retranslate() override;
+protected:
+  virtual void resizeEvent(QResizeEvent *event) override;
 
 public slots:
   void play_wake();

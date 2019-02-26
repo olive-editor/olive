@@ -172,11 +172,9 @@ QDockWidget *get_focused_panel(bool force_hover) {
 void alloc_panels(QWidget* parent) {
   // TODO maybe replace these with non-pointers later on?
   panel_sequence_viewer = new Viewer(parent);
-  panel_sequence_viewer->setObjectName("seq_viewer");
-  panel_sequence_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Sequence Viewer"));
+  panel_sequence_viewer->setObjectName("seq_viewer");  
   panel_footage_viewer = new Viewer(parent);
   panel_footage_viewer->setObjectName("footage_viewer");
-  panel_footage_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Media Viewer"));
   panel_project = new Project(parent);
   panel_project->setObjectName("proj_root");
   panel_effect_controls = new EffectControls(parent);

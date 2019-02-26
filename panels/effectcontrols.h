@@ -76,6 +76,8 @@ public:
   QMutex effects_loaded;
 
   void add_effect_paste_action(QMenu* menu);
+
+  virtual void Retranslate() override;
 public slots:
   void cut();
   void copy(bool del = false);
@@ -96,7 +98,6 @@ private slots:
   void effects_area_context_menu();
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
-  virtual void Retranslate() override;
 private:
   void show_effect_menu(int type, int subtype);
   void load_effects();

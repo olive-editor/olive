@@ -21,6 +21,7 @@
 #include "panel.h"
 
 #include <QEvent>
+#include <QDebug>
 
 QVector<Panel*> olive::panels;
 
@@ -35,10 +36,16 @@ Panel::~Panel()
   olive::panels.removeAll(this);
 }
 
-bool Panel::event(QEvent *e) {
+void Panel::changeEvent(QEvent *e)
+{
   if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-    return true;
+//    Retranslate();
+  } else {
+    QDockWidget::changeEvent(e);
   }
-  return QDockWidget::event(e);
+}
+
+void Panel::Retranslate()
+{
+  qDebug() << "like what?";
 }

@@ -98,7 +98,8 @@ Viewer::Viewer(QWidget *parent) :
 Viewer::~Viewer() {}
 
 void Viewer::Retranslate() {
-  update_window_title();
+  /// Viewer panels are retranslated through the MainWindow to differentiate Media and Sequence Viewers
+//  update_window_title();
 }
 
 bool Viewer::is_focused() {
@@ -225,7 +226,7 @@ QString frame_to_timecode(long f, int view, double frame_rate) {
     int framesPerMinute = (qRound(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
 
     //If framenumber is greater than 24 hrs, next operation will rollover clock
-    f = f % framesPer24Hours; //% is the modulus operator, which returns a remainder. a % b = the remainder of a/b
+    f = f % framesPer24Hours; // % is the modulus operator, which returns a remainder. a % b = the remainder of a/b
 
     d = f / framesPer10Minutes; // \ means integer division, which is a/b without a remainder. Some languages you could use floor(a/b)
     m = f % framesPer10Minutes;

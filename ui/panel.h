@@ -28,9 +28,9 @@ class Panel : public QDockWidget {
 public:
   Panel(QWidget* parent = nullptr);
   virtual ~Panel() override;
-  virtual bool event(QEvent* e) override;
+  virtual void Retranslate();
 protected:
-  virtual void Retranslate() = 0;
+  virtual void changeEvent(QEvent* e) override;
 };
 
 namespace olive {

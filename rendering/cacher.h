@@ -544,14 +544,15 @@ private:
    *
    * @param f
    *
-   * The AVFrame to retrieve. This function allocates an AVFrame so you shouldn't do so beforehand. You'll also need to
-   * free it later with av_frame_free() (though ClipQueue will do this automatically if the frame is added to it).
+   * A pointer to an AVFrame object. It does not need to be allocated, as this function allocates an AVFrame itself.
+   * You'll also need to free it later with av_frame_free() (though ClipQueue will do this automatically if the frame is
+   * added to it).
    *
    * @return
    *
    * FFmpeg error code (>= 0 on success, a negative error code on failure)
    */
-  int RetrieveFrameAndProcess(AVFrame *f);
+  int RetrieveFrameAndProcess(AVFrame **f);
 
   /**
    * @brief Internal video caching function

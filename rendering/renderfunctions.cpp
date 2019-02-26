@@ -313,7 +313,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
           // retrieve video frame from cache and store it in c->texture
-          c->Cache(qMax(playhead, c->timeline_in()), false, false, params.nests, params.playback_speed);
+          c->Cache(qMax(playhead, c->timeline_in()), false, params.nests, params.playback_speed);
           if (!c->Retrieve()) {
             params.texture_failed = true;
           } else {
@@ -626,7 +626,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             c->cache_lock.unlock();
 
             c->Cache(playhead,
-                     false,
                      (params.viewer != nullptr && !params.viewer->playing),
                      params.nests,
                      params.playback_speed);
