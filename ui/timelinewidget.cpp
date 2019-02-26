@@ -3312,6 +3312,13 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
     int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(olive::ActiveSequence->playhead);
     p.drawLine(playhead_x, rect().top(), playhead_x, rect().bottom());
 
+    // Draw single frame highlight
+    int playhead_frame_width = panel_timeline->getTimelineScreenPointFromFrame(olive::ActiveSequence->playhead+1) - playhead_x;
+    if (playhead_frame_width > 5){ //hardcoded for now, maybe better way to do this?
+        QRectF singleFrameRect(playhead_x, rect().top(), playhead_frame_width, rect().bottom());
+        p.fillRect(singleFrameRect, QColor(255,255,255,15));
+    }
+
     // draw border
     p.setPen(QColor(0, 0, 0, 64));
     int edge_y = (bottom_align) ? rect().height()-1 : 0;
