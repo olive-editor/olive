@@ -42,6 +42,8 @@ public:
   PreviewGenerator(Media*);
   void run();
   void cancel();
+
+  static void AnalyzeMedia(Media*);
 private:
   void parse_media();
   bool retrieve_preview(const QString &hash);

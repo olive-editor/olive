@@ -593,3 +593,11 @@ void PreviewGenerator::cancel() {
   cancelled_ = true;
   wait();
 }
+
+void PreviewGenerator::AnalyzeMedia(Media *m)
+{
+  // PreviewGenerator's constructor starts the thread, sets a reference of itself as the media's generator,
+  // and connects its thread completion to its own deletion, therefore handling its own memory. Nothing else needs to
+  // be done.
+  new PreviewGenerator(m);
+}

@@ -528,7 +528,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
   QStringList files;
   files.append(filename);
   panel_project->process_file_list(files, false, item, nullptr);
-  PreviewGenerator* pg = new PreviewGenerator(item);
+  PreviewGenerator::AnalyzeMedia(item);
 }
 
 void ReplaceMediaCommand::doUndo() {

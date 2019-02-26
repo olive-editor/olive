@@ -649,7 +649,7 @@ void LoadThread::run() {
     emit success(); // run in main thread
 
     for (int i=0;i<loaded_media_items.size();i++) {
-      PreviewGenerator* pg = new PreviewGenerator(loaded_media_items.at(i));
+      PreviewGenerator::AnalyzeMedia(loaded_media_items.at(i));
     }
   } else {
     if (error_str.isEmpty()) {

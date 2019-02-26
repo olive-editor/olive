@@ -220,6 +220,6 @@ namespace olive {
      * @brief A global MenuHelper object to assist menu creation throughout Olive.
      */
 extern MenuHelper MenuHelper;
-}
+};
 
 #endif // MENUHELPER_H

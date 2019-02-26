@@ -832,7 +832,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
       for (int i=0;i<last_imported_media.size();i++) {
         // generate waveform/thumbnail in another thread
-        PreviewGenerator* pg = new PreviewGenerator(last_imported_media.at(i));
+        PreviewGenerator::AnalyzeMedia(last_imported_media.at(i));
       }
     } else {
       delete ca;
