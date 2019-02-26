@@ -290,6 +290,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   f->proxy = (attr.value() == "1");
                 } else if (attr.name() == "proxypath") {
                   f->proxy_path = attr.value().toString();
+                } else if (attr.name() == "startnumber") {
+                  f->start_number = attr.value().toInt();
                 }
               }
 

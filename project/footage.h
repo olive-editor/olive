@@ -82,6 +82,7 @@ struct Footage {
   bool invalid;
   double speed;
   bool alpha_is_premultiplied;
+  int start_number;
 
   // proxy config
   bool proxy;

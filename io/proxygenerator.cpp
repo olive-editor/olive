@@ -47,9 +47,15 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
   // set progress to 0
   current_progress = 0.0;
 
+  // for image sequences that don't start at 0, set the index where it does start
+  AVDictionary* format_opts = nullptr;
+  if (footage->start_number > 0) {
+    av_dict_set(&format_opts, "start_number", QString::number(footage->start_number).toUtf8(), 0);
+  }
+
   // open input file
   AVFormatContext* input_fmt_ctx = nullptr;
-  avformat_open_input(&input_fmt_ctx, footage->url.toUtf8(), nullptr, nullptr);
+  avformat_open_input(&input_fmt_ctx, footage->url.toUtf8(), nullptr, &format_opts);
 
   // open output file
   AVFormatContext* output_fmt_ctx = nullptr;

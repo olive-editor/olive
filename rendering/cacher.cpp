@@ -781,12 +781,18 @@ void Cacher::OpenWorker() {
     const char* filename = ba.constData();
     const FootageStream* ms = clip->media_stream();
 
+    // for image sequences that don't start at 0, set the index where it does start
+    AVDictionary* format_opts = nullptr;
+    if (m->start_number > 0) {
+      av_dict_set(&format_opts, "start_number", QString::number(m->start_number).toUtf8(), 0);
+    }
+
     formatCtx = nullptr;
     int errCode = avformat_open_input(
           &formatCtx,
           filename,
           nullptr,
-          nullptr
+          &format_opts
           );
     if (errCode != 0) {
       char err[1024];

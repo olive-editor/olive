@@ -740,7 +740,11 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
       if (lastcharindex == 0) lastcharindex++;
 
+      // used for image sequences that don't start at "0"
+      int start_number = 0;
+
       if (found && file[lastcharindex-1].isDigit()) {
+
         bool is_img_sequence = false;
 
         // how many digits are in the filename?
@@ -787,6 +791,17 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
                                       QMessageBox::Yes) == QMessageBox::Yes) {
               file = new_filename;
               image_sequence_importassequence.append(true);
+
+
+              // try to find the start number for this image sequence
+              int test_file_number = file_number;
+              do {
+                test_file_number--;
+              } while (QFileInfo::exists(QString("%1%2%3").arg(file.left(digit_test),
+                                                               QString("%1").arg(test_file_number, digit_count, 10, QChar('0')),
+                                                               file.mid(lastcharindex))));
+              start_number = test_file_number + 1;
+
             } else {
               image_sequence_importassequence.append(false);
             }
@@ -809,6 +824,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
         m->using_inout = false;
         m->url = file;
         m->name = get_file_name_from_path(files.at(i));
+        m->start_number = start_number;
 
         item->set_footage(m);
 
@@ -1028,6 +1044,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
           stream.writeAttribute("out", QString::number(f->out));
           stream.writeAttribute("speed", QString::number(f->speed));
           stream.writeAttribute("alphapremul", QString::number(f->alpha_is_premultiplied));
+          stream.writeAttribute("startnumber", QString::number(f->start_number));
 
           stream.writeAttribute("proxy", QString::number(f->proxy));
           stream.writeAttribute("proxypath", f->proxy_path);

@@ -524,7 +524,15 @@ void PreviewGenerator::run() {
 
   QString errorStr;
   bool error = false;
-  int errCode = avformat_open_input(&fmt_ctx_, filename, nullptr, nullptr);
+
+  AVDictionary* format_opts = nullptr;
+
+  // for image sequences that don't start at 0, set the index where it does start
+  if (footage_->start_number > 0) {
+    av_dict_set(&format_opts, "start_number", QString::number(footage_->start_number).toUtf8(), 0);
+  }
+
+  int errCode = avformat_open_input(&fmt_ctx_, filename, nullptr, &format_opts);
   if(errCode != 0) {
     char err[1024];
     av_strerror(errCode, err, 1024);
