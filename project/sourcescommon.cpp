@@ -20,6 +20,7 @@
 
 #include "sourcescommon.h"
 
+#include "ui/menuhelper.h"
 #include "panels/panels.h"
 #include "project/media.h"
 #include "project/undo.h"
@@ -33,7 +34,6 @@
 #include "io/config.h"
 #include "dialogs/proxydialog.h"
 #include "ui/viewerwidget.h"
-#include "ui/menuhelper.h"
 #include "io/proxygenerator.h"
 #include "mainwindow.h"
 

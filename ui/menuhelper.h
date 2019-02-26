@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QMenu>
+#include <QMenuBar>
 
 class MenuHelper : public QObject {
   Q_OBJECT

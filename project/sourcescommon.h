@@ -33,8 +33,6 @@ class Media;
 class QAbstractItemView;
 class QDropEvent;
 
-struct Footage;
-
 class SourcesCommon : public QObject {
   Q_OBJECT
 public:
