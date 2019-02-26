@@ -36,7 +36,7 @@ struct SwsContext;
 struct SwrContext;
 
 extern "C" {
-	#include <libavcodec/avcodec.h>
+#include <libavcodec/avcodec.h>
 }
 
 #define COMPRESSION_TYPE_CBR 0
@@ -47,79 +47,80 @@ extern "C" {
 // structs that store parameters passed from the export dialogs to this thread
 
 struct ExportParams {
-    // export parameters
-    QString filename;
-    bool video_enabled;
-    int video_codec;
-    int video_width;
-    int video_height;
-    double video_frame_rate;
-    int video_compression_type;
-    double video_bitrate;
-    bool audio_enabled;
-    int audio_codec;
-    int audio_sampling_rate;
-    int audio_bitrate;
-    long start_frame;
-    long end_frame;
+  // export parameters
+  QString filename;
+  bool video_enabled;
+  int video_codec;
+  int video_width;
+  int video_height;
+  double video_frame_rate;
+  int video_compression_type;
+  double video_bitrate;
+  bool audio_enabled;
+  int audio_codec;
+  int audio_sampling_rate;
+  int audio_bitrate;
+  long start_frame;
+  long end_frame;
 };
 
 struct VideoCodecParams {
-    int pix_fmt;
+  int pix_fmt;
+  int threads;
 };
 
 class ExportThread : public QThread {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    ExportThread(const ExportParams& iparams, const VideoCodecParams& ivparams, QObject* parent = nullptr);
-	void run();
+  ExportThread(const ExportParams& iparams, const VideoCodecParams& ivparams, QObject* parent = nullptr);
+  void run();
 
-    const QString& getError();
+  const QString& getError();
 
-    QOffscreenSurface surface;
+  QOffscreenSurface surface;
 
-	bool continueEncode;
+  bool continueEncode;
 signals:
-	void progress_changed(int value, qint64 remaining_ms);
+  void progress_changed(int value, qint64 remaining_ms);
 public slots:
-	void wake();
+  void wake();
 private:
-	bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
-	bool setupVideo();
-	bool setupAudio();
-	bool setupContainer();
+  bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
+  bool setupVideo();
+  bool setupAudio();
+  bool setupContainer();
 
-    // params imported from dialogs
-    ExportParams params;
-    VideoCodecParams vcodec_params;
+  // params imported from dialogs
+  ExportParams params;
+  VideoCodecParams vcodec_params;
 
-	AVFormatContext* fmt_ctx;
-	AVStream* video_stream;
-	AVCodec* vcodec;
-	AVCodecContext* vcodec_ctx;
-	AVFrame* video_frame;
-	AVFrame* sws_frame;
-	SwsContext* sws_ctx;
-	AVStream* audio_stream;
-	AVCodec* acodec;
-	AVFrame* audio_frame;
-	AVFrame* swr_frame;
-	AVCodecContext* acodec_ctx;
-	AVPacket video_pkt;
-	AVPacket audio_pkt;
-	SwrContext* swr_ctx;
+  AVFormatContext* fmt_ctx;
+  AVStream* video_stream;
+  AVCodec* vcodec;
+  AVCodecContext* vcodec_ctx;
+  AVFrame* video_frame;
+  AVFrame* sws_frame;
+  SwsContext* sws_ctx;
+  AVStream* audio_stream;
+  AVCodec* acodec;
+  AVFrame* audio_frame;
+  AVFrame* swr_frame;
+  AVCodecContext* acodec_ctx;
+  AVPacket video_pkt;
+  AVPacket audio_pkt;
+  SwrContext* swr_ctx;
 
-	bool vpkt_alloc;
-	bool apkt_alloc;
+  bool vpkt_alloc;
+  bool apkt_alloc;
 
-	int aframe_bytes;
-	int ret;
-	char* c_filename;
+  int aframe_bytes;
+  int ret;
+  char* c_filename;
 
-	QMutex mutex;
-	QWaitCondition waitCond;
+  QMutex mutex;
+  QWaitCondition waitCond;
 
-    QString export_error;
+  QString export_error;
 };
 
 #endif // EXPORTTHREAD_H

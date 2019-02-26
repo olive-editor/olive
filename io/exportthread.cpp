@@ -151,6 +151,8 @@ bool ExportThread::setupVideo() {
   }
 
   switch (vcodec_ctx->codec_id) {
+
+  /// H.264 specific settings
   case AV_CODEC_ID_H264:
     switch (params.video_compression_type) {
     case COMPRESSION_TYPE_CFR:
@@ -158,10 +160,15 @@ bool ExportThread::setupVideo() {
       break;
     }
     break;
+
   }
 
   AVDictionary* opts = nullptr;
-  av_dict_set(&opts, "threads", "auto", 0);
+  if (vcodec_params.threads == 0) {
+    av_dict_set(&opts, "threads", "auto", 0);
+  } else {
+    av_dict_set(&opts, "threads", QString::number(vcodec_params.threads).toUtf8(), 0);
+  }
 
   ret = avcodec_open2(vcodec_ctx, vcodec, &opts);
   if (ret < 0) {

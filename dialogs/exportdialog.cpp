@@ -107,10 +107,14 @@ ExportDialog::ExportDialog(QWidget *parent) :
   }
   formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
+  // default to sequence's native dimensions
   widthSpinbox->setValue(olive::ActiveSequence->width);
   heightSpinbox->setValue(olive::ActiveSequence->height);
   samplingRateSpinbox->setValue(olive::ActiveSequence->audio_frequency);
   framerateSpinbox->setValue(olive::ActiveSequence->frame_rate);
+
+  // set some advanced defaults
+  vcodec_params.threads = 0;
 }
 
 ExportDialog::~ExportDialog()

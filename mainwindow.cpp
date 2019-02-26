@@ -343,6 +343,10 @@ void MainWindow::editMenu_About_To_Be_Shown() {
 
 void MainWindow::setup_menus() {
   QMenuBar* menuBar = new QMenuBar(this);
+  menuBar->setStyle(QStyleFactory::create("windowsvista"));
+  menuBar->setPalette(menuBar->style()->standardPalette());
+  menuBar->setStyleSheet("");
+
   setMenuBar(menuBar);
 
   olive::MenuHelper.InitializeSharedMenus();

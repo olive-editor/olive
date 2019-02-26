@@ -23,22 +23,40 @@
 
 #include <QDialog>
 #include <QComboBox>
+#include <QSpinBox>
 
 #include "io/exportthread.h"
 
+/**
+ * @brief The AdvancedVideoDialog class
+ *
+ * A dialog for interfacing with VideoCodecParams, a struct for more advanced video settings sometimes specific to
+ * one codec.
+ */
 class AdvancedVideoDialog : public QDialog {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    AdvancedVideoDialog(QWidget* parent,
-                        int encoding_codec,
-                        VideoCodecParams& iparams);
+  AdvancedVideoDialog(QWidget* parent,
+                      int encoding_codec,
+                      VideoCodecParams& iparams);
 
 public slots:
-    virtual void accept() override;
+  virtual void accept() override;
 private:
-    VideoCodecParams& params;
+  /**
+   * @brief Internal reference to VideoCodecParams struct provided by ExportDialog.
+   */
+  VideoCodecParams& params_;
 
-    QComboBox* pix_fmt_combo;
+  /**
+   * @brief ComboBox to show available pixel formats for this codec
+   */
+  QComboBox* pix_fmt_combo_;
+
+  /**
+   * @brief SpinBox for multithreading settings
+   */
+  QSpinBox* thread_spinbox_;
 };
 
 #endif // ADVANCEDVIDEODIALOG_H
