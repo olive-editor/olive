@@ -212,17 +212,14 @@ MainWindow::MainWindow(QWidget *parent) :
     }
   }
 
-  // load preferred language from file
-  olive::Global->load_translation_from_config();
-
   alloc_panels(this);
+
+  // populate menu bars
+  setup_menus();
 
   QStatusBar* statusBar = new QStatusBar(this);
   statusBar->showMessage(tr("Welcome to %1").arg(olive::AppName));
   setStatusBar(statusBar);
-
-  // populate menu bars
-  setup_menus();
 
   olive::Global->check_for_autorecovery_file();
 
@@ -235,7 +232,10 @@ MainWindow::MainWindow(QWidget *parent) :
   // start omnipotent proxy generator process
   olive::proxy_generator.start();
 
-  // set default window title
+  // load preferred language from file
+  olive::Global->load_translation_from_config();
+
+  // set default strings
   Retranslate();
 }
 
@@ -802,7 +802,9 @@ void MainWindow::Retranslate()
   smooth_autoscroll->setText(tr("Smooth Auto-Scroll"));
 
   preferences_action_->setText(tr("Preferences"));
+#ifdef QT_DEBUG
   clear_undo_action_->setText(tr("Clear Undo"));
+#endif
 
   help_menu->setTitle(tr("&Help"));
 
