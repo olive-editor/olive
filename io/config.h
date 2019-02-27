@@ -165,6 +165,7 @@ struct Config {
    * @brief The scroll wheel zooms rather than scrolls
    *
    * **TRUE** if the scroll wheel should zoom in and out rather than scroll up and down.
+   * The Control key temporarily toggles this setting.
    */
   bool scroll_zooms;
 
@@ -508,6 +509,14 @@ struct Config {
    * VolumeEffect, and PanEffect) added to them by default.
    */
   bool add_default_effects_to_clips;
+
+  /**
+   * @brief Horizontal scroll wheel
+   *
+   * **TRUE** Scrolling vertically with a mouse wheel or touchpad scrolls the Timeline horizontally.
+   * The Shift key temporarily toggles this setting.
+   */
+  bool horizontal_scroll_wheel;
 
   /**
    * @brief Load config from file
