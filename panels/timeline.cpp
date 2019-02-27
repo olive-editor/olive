@@ -1871,123 +1871,84 @@ void Timeline::setup_ui() {
   tool_buttons_layout->setMargin(0);
 
   toolArrowButton = new QPushButton();
-  QIcon arrow_icon;
-  arrow_icon.addFile(QStringLiteral(":/icons/arrow.png"), QSize(), QIcon::Normal, QIcon::Off);
-  arrow_icon.addFile(QStringLiteral(":/icons/arrow-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  toolArrowButton->setIcon(arrow_icon);
+  toolArrowButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/arrow.svg")));
   toolArrowButton->setCheckable(true);
   toolArrowButton->setProperty("tool", TIMELINE_TOOL_POINTER);
   connect(toolArrowButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolArrowButton);
 
   toolEditButton = new QPushButton();
-  QIcon icon1;
-  icon1.addFile(QStringLiteral(":/icons/beam.png"), QSize(), QIcon::Normal, QIcon::Off);
-  icon1.addFile(QStringLiteral(":/icons/beam-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  toolEditButton->setIcon(icon1);
+  toolEditButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/beam.svg")));
   toolEditButton->setCheckable(true);
   toolEditButton->setProperty("tool", TIMELINE_TOOL_EDIT);
   connect(toolEditButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolEditButton);
 
   toolRippleButton = new QPushButton();
-  QIcon icon2;
-  icon2.addFile(QStringLiteral(":/icons/ripple.png"), QSize(), QIcon::Normal, QIcon::Off);
-  icon2.addFile(QStringLiteral(":/icons/ripple-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  toolRippleButton->setIcon(icon2);
+  toolRippleButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/ripple.svg")));
   toolRippleButton->setCheckable(true);
   toolRippleButton->setProperty("tool", TIMELINE_TOOL_RIPPLE);
   connect(toolRippleButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolRippleButton);
 
   toolRazorButton = new QPushButton();
-  QIcon icon4;
-  icon4.addFile(QStringLiteral(":/icons/razor.png"), QSize(), QIcon::Normal, QIcon::Off);
-  icon4.addFile(QStringLiteral(":/icons/razor-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  toolRazorButton->setIcon(icon4);
+  toolRazorButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/razor.svg")));
   toolRazorButton->setCheckable(true);
   toolRazorButton->setProperty("tool", TIMELINE_TOOL_RAZOR);
   connect(toolRazorButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolRazorButton);
 
   toolSlipButton = new QPushButton();
-  QIcon icon5;
-  icon5.addFile(QStringLiteral(":/icons/slip.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon5.addFile(QStringLiteral(":/icons/slip-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolSlipButton->setIcon(icon5);
+  toolSlipButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/slip.svg")));
   toolSlipButton->setCheckable(true);
   toolSlipButton->setProperty("tool", TIMELINE_TOOL_SLIP);
   connect(toolSlipButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolSlipButton);
 
   toolSlideButton = new QPushButton();
-  QIcon icon6;
-  icon6.addFile(QStringLiteral(":/icons/slide.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon6.addFile(QStringLiteral(":/icons/slide-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolSlideButton->setIcon(icon6);
+  toolSlideButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/slide.svg")));
   toolSlideButton->setCheckable(true);
   toolSlideButton->setProperty("tool", TIMELINE_TOOL_SLIDE);
   connect(toolSlideButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolSlideButton);
 
   toolHandButton = new QPushButton();
-  QIcon icon7;
-  icon7.addFile(QStringLiteral(":/icons/hand.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon7.addFile(QStringLiteral(":/icons/hand-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolHandButton->setIcon(icon7);
+  toolHandButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/hand.svg")));
   toolHandButton->setCheckable(true);
 
   toolHandButton->setProperty("tool", TIMELINE_TOOL_HAND);
   connect(toolHandButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolHandButton);
   toolTransitionButton = new QPushButton();
-  QIcon icon8;
-  icon8.addFile(QStringLiteral(":/icons/transition-tool.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon8.addFile(QStringLiteral(":/icons/transition-tool-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolTransitionButton->setIcon(icon8);
+  toolTransitionButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/transition-tool.svg")));
   toolTransitionButton->setCheckable(true);
   connect(toolTransitionButton, SIGNAL(clicked(bool)), this, SLOT(transition_tool_click()));
   tool_buttons_layout->addWidget(toolTransitionButton);
 
   snappingButton = new QPushButton();
-  QIcon icon9;
-  icon9.addFile(QStringLiteral(":/icons/magnet.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon9.addFile(QStringLiteral(":/icons/magnet-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  snappingButton->setIcon(icon9);
+  snappingButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/magnet.svg")));
   snappingButton->setCheckable(true);
   snappingButton->setChecked(true);
   connect(snappingButton, SIGNAL(toggled(bool)), this, SLOT(snapping_clicked(bool)));
   tool_buttons_layout->addWidget(snappingButton);
 
   zoomInButton = new QPushButton();
-  QIcon icon10;
-  icon10.addFile(QStringLiteral(":/icons/zoomin.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon10.addFile(QStringLiteral(":/icons/zoomin-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  zoomInButton->setIcon(icon10);
+  zoomInButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/zoomin.svg")));
   connect(zoomInButton, SIGNAL(clicked(bool)), this, SLOT(zoom_in()));
   tool_buttons_layout->addWidget(zoomInButton);
 
   zoomOutButton = new QPushButton();
-  QIcon icon11;
-  icon11.addFile(QStringLiteral(":/icons/zoomout.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon11.addFile(QStringLiteral(":/icons/zoomout-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  zoomOutButton->setIcon(icon11);
+  zoomOutButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/zoomout.svg")));
   connect(zoomOutButton, SIGNAL(clicked(bool)), this, SLOT(zoom_out()));
   tool_buttons_layout->addWidget(zoomOutButton);
 
   recordButton = new QPushButton();
-  QIcon icon12;
-  icon12.addFile(QStringLiteral(":/icons/record.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon12.addFile(QStringLiteral(":/icons/record-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  recordButton->setIcon(icon12);
+  recordButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/record.svg")));
   connect(recordButton, SIGNAL(clicked(bool)), this, SLOT(record_btn_click()));
   tool_buttons_layout->addWidget(recordButton);
 
   addButton = new QPushButton();
-  QIcon icon13;
-  icon13.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon13.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  addButton->setIcon(icon13);
+  addButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
   connect(addButton, SIGNAL(clicked()), this, SLOT(add_btn_click()));
   tool_buttons_layout->addWidget(addButton);
 

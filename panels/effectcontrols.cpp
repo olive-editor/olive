@@ -360,8 +360,11 @@ void EffectControls::setup_ui() {
   veHeaderLayout->setSpacing(0);
   veHeaderLayout->setMargin(0);
 
+  QIcon add_effect_icon(":/icons/add-effect.svg");
+  QIcon add_transition_icon(":/icons/add-transition.svg");
+
   btnAddVideoEffect = new QPushButton();
-  btnAddVideoEffect->setIcon(QIcon(":/icons/add-effect.png"));
+  btnAddVideoEffect->setIcon(add_effect_icon);
   veHeaderLayout->addWidget(btnAddVideoEffect);
   connect(btnAddVideoEffect, SIGNAL(clicked(bool)), this, SLOT(video_effect_click()));
 
@@ -377,7 +380,7 @@ void EffectControls::setup_ui() {
   veHeaderLayout->addStretch();
 
   btnAddVideoTransition = new QPushButton();
-  btnAddVideoTransition->setIcon(QIcon(":/icons/add-transition.png"));
+  btnAddVideoTransition->setIcon(add_transition_icon);
   connect(btnAddVideoTransition, SIGNAL(clicked(bool)), this, SLOT(video_transition_click()));
   veHeaderLayout->addWidget(btnAddVideoTransition);
 
@@ -405,7 +408,7 @@ void EffectControls::setup_ui() {
   aeHeaderLayout->setMargin(0);
 
   btnAddAudioEffect = new QPushButton();
-  btnAddAudioEffect->setIcon(QIcon(":/icons/add-effect.png"));
+  btnAddAudioEffect->setIcon(add_effect_icon);
   connect(btnAddAudioEffect, SIGNAL(clicked(bool)), this, SLOT(audio_effect_click()));
   aeHeaderLayout->addWidget(btnAddAudioEffect);
 
@@ -419,7 +422,7 @@ void EffectControls::setup_ui() {
   aeHeaderLayout->addStretch();
 
   btnAddAudioTransition = new QPushButton();
-  btnAddAudioTransition->setIcon(QIcon(":/icons/add-transition.png"));
+  btnAddAudioTransition->setIcon(add_transition_icon);
   connect(btnAddAudioTransition, SIGNAL(clicked(bool)), this, SLOT(audio_transition_click()));
   aeHeaderLayout->addWidget(btnAddAudioTransition);
 

@@ -179,7 +179,7 @@ void GraphEditor::set_row(EffectRow *r) {
         QPushButton* slider_button = new QPushButton();
         slider_button->setCheckable(true);
         slider_button->setChecked(field->is_enabled());
-        slider_button->setIcon(QIcon(":/icons/record.png"));
+        slider_button->setIcon(QIcon(":/icons/record.svg"));
         slider_button->setProperty("field", i);
         slider_button->setIconSize(slider_button->iconSize()*0.5);
         connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));

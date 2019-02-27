@@ -37,6 +37,7 @@
 #include "ui/labelslider.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
+#include "oliveglobal.h"
 #include "debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
@@ -668,41 +669,30 @@ void Viewer::setup_ui() {
   playback_control_layout->setMargin(0);
 
   go_to_start_button = new QPushButton();
-  QIcon goToStartIcon;
-  goToStartIcon.addFile(QStringLiteral(":/icons/prev.png"), QSize(), QIcon::Normal, QIcon::Off);
-  goToStartIcon.addFile(QStringLiteral(":/icons/prev-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  go_to_start_button->setIcon(goToStartIcon);
+  go_to_start_button->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/prev.svg")));
   connect(go_to_start_button, SIGNAL(clicked(bool)), this, SLOT(go_to_in()));
   playback_control_layout->addWidget(go_to_start_button);
 
   prev_frame_button = new QPushButton();
-  QIcon rewindIcon;
-  rewindIcon.addFile(QStringLiteral(":/icons/rew.png"), QSize(), QIcon::Normal, QIcon::Off);
-  rewindIcon.addFile(QStringLiteral(":/icons/rew-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  prev_frame_button->setIcon(rewindIcon);
+  prev_frame_button->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/rew.svg")));
   connect(prev_frame_button, SIGNAL(clicked(bool)), this, SLOT(previous_frame()));
   playback_control_layout->addWidget(prev_frame_button);
 
+  play_icon_ = OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/play.svg"));
+  pause_icon_ = QPixmap(":/icons/pause.svg");
+
   play_button = new QPushButton();
-  playIcon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::On);
-  playIcon.addFile(QStringLiteral(":/icons/play-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  play_button->setIcon(playIcon);
+  play_button->setIcon(play_icon_);
   connect(play_button, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
   playback_control_layout->addWidget(play_button);
 
   next_frame_button = new QPushButton();
-  QIcon ffIcon;
-  ffIcon.addFile(QStringLiteral(":/icons/ff.png"), QSize(), QIcon::Normal, QIcon::On);
-  ffIcon.addFile(QStringLiteral(":/icons/ff-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  next_frame_button->setIcon(ffIcon);
+  next_frame_button->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/ff.svg")));
   connect(next_frame_button, SIGNAL(clicked(bool)), this, SLOT(next_frame()));
   playback_control_layout->addWidget(next_frame_button);
 
   go_to_end_frame = new QPushButton();
-  QIcon nextIcon;
-  nextIcon.addFile(QStringLiteral(":/icons/next.png"), QSize(), QIcon::Normal, QIcon::Off);
-  nextIcon.addFile(QStringLiteral(":/icons/next-disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
-  go_to_end_frame->setIcon(nextIcon);
+  go_to_end_frame->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/next.svg")));
   connect(go_to_end_frame, SIGNAL(clicked(bool)), this, SLOT(go_to_out()));
   playback_control_layout->addWidget(go_to_end_frame);
 
@@ -917,5 +907,5 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 }
 
 void Viewer::set_playpause_icon(bool play) {
-  play_button->setIcon(play ? playIcon : QIcon(":/icons/pause.png"));
+  play_button->setIcon(play ? play_icon_ : pause_icon_);
 }

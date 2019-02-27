@@ -115,6 +115,15 @@ public:
      */
     void load_translation_from_config();
 
+    /**
+     * @brief Converts an SVG into a QIcon with a semi-transparent for the QIcon::Disabled property
+     *
+     * @param path
+     *
+     * Path to SVG file
+     */
+    static QIcon CreateIconFromSVG(const QString& path);
+
 public slots:
     /**
      * @brief Undo user's last action
@@ -314,7 +323,6 @@ private:
      * @brief Internal translator object that interfaces with the currently loaded language file
      */
     std::unique_ptr<QTranslator> translator;
-
 
 private slots:
 

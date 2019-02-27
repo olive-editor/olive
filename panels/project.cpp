@@ -102,46 +102,31 @@ Project::Project(QWidget *parent) :
   toolbar->setSpacing(0);
 
   QPushButton* toolbar_new = new QPushButton();
-  QIcon icon1;
-  icon1.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon1.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_new->setIcon(icon1);
+  toolbar_new->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
   toolbar_new->setToolTip("New");
   connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
   toolbar->addWidget(toolbar_new);
 
   QPushButton* toolbar_open = new QPushButton();
-  QIcon icon2;
-  icon2.addFile(QStringLiteral(":/icons/open.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_open->setIcon(icon2);
+  toolbar_open->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
   toolbar_open->setToolTip("Open Project");
   connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(open_project()));
   toolbar->addWidget(toolbar_open);
 
   QPushButton* toolbar_save = new QPushButton();
-  QIcon icon3;
-  icon3.addFile(QStringLiteral(":/icons/save.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_save->setIcon(icon3);
+  toolbar_save->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/save.svg")));
   toolbar_save->setToolTip("Save Project");
   connect(toolbar_save, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(save_project()));
   toolbar->addWidget(toolbar_save);
 
   QPushButton* toolbar_undo = new QPushButton();
-  QIcon icon4;
-  icon4.addFile(QStringLiteral(":/icons/undo.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_undo->setIcon(icon4);
+  toolbar_undo->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/undo.svg")));
   toolbar_undo->setToolTip("Undo");
   connect(toolbar_undo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(undo()));
   toolbar->addWidget(toolbar_undo);
 
   QPushButton* toolbar_redo = new QPushButton();
-  QIcon icon5;
-  icon5.addFile(QStringLiteral(":/icons/redo.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_redo->setIcon(icon5);
+  toolbar_redo->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/redo.svg")));
   toolbar_redo->setToolTip("Redo");
   connect(toolbar_redo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(redo()));
   toolbar->addWidget(toolbar_redo);
@@ -152,19 +137,13 @@ Project::Project(QWidget *parent) :
   toolbar->addWidget(toolbar_search);
 
   QPushButton* toolbar_tree_view = new QPushButton();
-  QIcon icon6;
-  icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon6.addFile(QStringLiteral(":/icons/treeview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_tree_view->setIcon(icon6);
+  toolbar_tree_view->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/treeview.svg")));
   toolbar_tree_view->setToolTip("Tree View");
   connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
   toolbar->addWidget(toolbar_tree_view);
 
   QPushButton* toolbar_icon_view = new QPushButton();
-  QIcon icon7;
-  icon7.addFile(QStringLiteral(":/icons/iconview.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon7.addFile(QStringLiteral(":/icons/iconview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_icon_view->setIcon(icon7);
+  toolbar_icon_view->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/iconview.svg")));
   toolbar_icon_view->setToolTip("Icon View");
   connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
   toolbar->addWidget(toolbar_icon_view);
@@ -194,12 +173,8 @@ Project::Project(QWidget *parent) :
   icon_view_controls->setMargin(0);
   icon_view_controls->setSpacing(0);
 
-  QIcon directory_up_button;
-  directory_up_button.addFile(":/icons/dirup.png", QSize(), QIcon::Normal);
-  directory_up_button.addFile(":/icons/dirup-disabled.png", QSize(), QIcon::Disabled);
-
   directory_up = new QPushButton();
-  directory_up->setIcon(directory_up_button);
+  directory_up->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/dirup.svg")));
   directory_up->setEnabled(false);
   icon_view_controls->addWidget(directory_up);
 

@@ -59,6 +59,9 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
 	title_bar_layout->addStretch();
 	layout->addWidget(title_bar);
 
+  tri_down_ = QIcon(":/icons/tri-down.svg");
+  tri_right_ = QIcon(":/icons/tri-right.svg");
+
 	connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
 
 	set_button_icon(true);
@@ -89,7 +92,7 @@ bool CollapsibleWidget::is_expanded() {
 }
 
 void CollapsibleWidget::set_button_icon(bool open) {
-	collapse_button->setIcon(open ? QIcon(":/icons/tri-down.png") : QIcon(":/icons/tri-right.png"));
+  collapse_button->setIcon(open ? tri_down_ : tri_right_);
 }
 
 void CollapsibleWidget::setContents(QWidget* c) {
@@ -135,8 +138,7 @@ void CollapsibleWidgetHeader::mousePressEvent(QMouseEvent* event) {
 void CollapsibleWidgetHeader::paintEvent(QPaintEvent *event) {
 	QWidget::paintEvent(event);
 	QPainter p(this);
-	p.setPen(Qt::white);
-	int line_x = width() * 0.01;
+  p.setPen(Qt::white);
 	int line_y = height() - 1;
-	p.drawLine(line_x, line_y, width() - line_x - line_x, line_y);
+  p.drawLine(0, line_y, width(), line_y);
 }
