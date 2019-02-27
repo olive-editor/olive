@@ -70,7 +70,8 @@ Config::Config()
     center_timeline_timecodes(true),
     waveform_resolution(64),
     thumbnail_resolution(120),
-    add_default_effects_to_clips(true)
+    add_default_effects_to_clips(true),
+    horizontal_scroll_wheel(true)
 {}
 
 void Config::load(QString path) {
