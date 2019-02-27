@@ -360,49 +360,81 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void TimelineWidget::wheelEvent(QWheelEvent *event) {
-  // ctrl used to toggle zooming instead of scrolling
+
+  // TODO: implement pixel scrolling
+
+  // "Scroll Zooms" false + Control up  : not zooming
+  // "Scroll Zooms" false + Control down:     zooming
+  // "Scroll Zooms" true  + Control up  :     zooming
+  // "Scroll Zooms" true  + Control down: not zooming
+
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
+  bool zooming = (olive::CurrentConfig.scroll_zooms != ctrl);
 
-  //
-  // NOTE/FIXME: CURRENTLY disabling pixel scrolling because it needs more testing
-  //
+  // Qt automatically swaps axes behind-the-scenes on Alt. Allow Shift too.
 
-  /*if (!event->pixelDelta().isNull()) {
-        // if we got pixel scrolling data, prefer it over the angleDelta data
+  bool shift = (event->modifiers() & Qt::ShiftModifier);
+  bool swap_hv = shift;
 
-        QScrollBar* horiz_bar = panel_timeline->horizontalScrollBar;
-        QScrollBar* vert_bar = scrollBar;
+  int delta_h = swap_hv ? event->angleDelta().y() : event->angleDelta().x();
+  int delta_v = swap_hv ? event->angleDelta().x() : event->angleDelta().y();
 
-        horiz_bar->setValue(horiz_bar->value() + event->pixelDelta().x());
-        vert_bar->setValue(vert_bar->value() + event->pixelDelta().y());
+  if (zooming) {
 
-    } else*/ if (!event->angleDelta().isNull()) {
+    // Zoom only uses vertical scrolling, to avoid glitches on touchpads.
+    // Don't do anything if not scrolling vertically.
 
-    // alt is used to swap horizontal and vertical scrolling
-    bool alt = (event->modifiers() & Qt::AltModifier);
+    if (delta_v != 0) {
 
-    int scroll_amount = alt ? (event->angleDelta().x()) : (event->angleDelta().y());
+      // delta_v == 120 for one click of a mousewheel. Less or more for a
+      // touchpad gesture. Calculate speed to compensate.
+      // 120 = ratio of 4/3 (1.33), -120 = ratio of 3/4 (.75)
 
-    bool in = (scroll_amount > 0);
-    if (olive::CurrentConfig.scroll_zooms != ctrl) {
+      double zoom_ratio = 1.0 + (abs(delta_v) * 0.33 / 120);
 
-      // if config.scroll_zooms is enabled or ctrl is held, zoom instead of scrolling
-      if (in) {
-        panel_timeline->multiply_zoom(1.5);
-      } else {
-        panel_timeline->multiply_zoom(0.75);
+      if (delta_v < 0) {
+        zoom_ratio = 1.0 / zoom_ratio;
       }
 
-    } else {
-      // pass the scrolling to the Timeline's main scrollbar for horizontal scrolling, or this widget's
-      // scrollbar for vertical scrolling
-
-      QScrollBar* bar = alt ? scrollBar : panel_timeline->horizontalScrollBar;
-
-      int step = bar->singleStep();
-      if (in) step = -step;
-      bar->setValue(bar->value() + step);
+      panel_timeline->multiply_zoom(zoom_ratio);
     }
+
+  } else {
+
+    // Use the Timeline's main scrollbar for horizontal scrolling, and this
+    // widget's scrollbar for vertical scrolling.
+
+    QScrollBar* bar_v = scrollBar;
+    QScrollBar* bar_h = panel_timeline->horizontalScrollBar;
+
+    // To allow mouse users to scroll horizontally with the (vertical) scroll
+    // wheel, check if the vertical scrollbar is trying to exceed its travel.
+    // If so, convert that into horizontal movement.
+    //
+    // If we're seeing vertical scrolling while shift is held, then:
+    // 1) A mouse user is holding both Alt and Shift; OR
+    // 2) A touchpad user is holding Shift while scrolling horizontally; OR
+    // 3) A touchpad user is holding both Alt and Shift scrolling vertically.
+    //
+    // In any of those cases, disable the vert -> horiz behavior.
+
+    if (!shift) {
+      if ((bar_v->value() == bar_v->maximum() && delta_v < 0) ||
+          (bar_v->value() == bar_v->minimum() && delta_v > 0)) {
+        delta_h = delta_h + delta_v;
+      }
+    }
+
+    // Match the wheel events to the size of a step as per
+    // https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+
+    int step_h = bar_h->singleStep() * delta_h / -120;
+    int step_v = bar_v->singleStep() * delta_v / -120;
+
+    // Apply to appropriate scrollbars
+
+    bar_h->setValue(bar_h->value() + step_h);
+    bar_v->setValue(bar_v->value() + step_v);
   }
 }
 
