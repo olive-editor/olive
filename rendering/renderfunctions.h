@@ -175,16 +175,6 @@ struct ComposeSequenceParams {
     GLuint main_attachment;
 
     /**
-     * @brief Mutex for the main framebuffer
-     *
-     * Used only for video rendering. Never accessed with audio rendering.
-     *
-     * If this is not nullptr, compose_sequence() will lock this mutex when rendering to main_buffer/main_attachment.
-     * Used to synchronize ViewerWidget and ViewerWindow with RenderThread.
-     */
-    QMutex* main_buffer_mutex;
-
-    /**
      * @brief Backend OpenGL framebuffer 1 used for further processing before rendering to main_buffer
      *
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"

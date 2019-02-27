@@ -613,6 +613,7 @@ void ViewerWidget::paintGL() {
     }
 
     glDisable(GL_TEXTURE_2D);
+    glFinish();
 
     if (window->isVisible()) {
       window->set_texture(tex, double(viewer->seq->width)/double(viewer->seq->height), tex_lock);

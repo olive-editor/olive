@@ -541,10 +541,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 
-            // thread safety (see docs for ComposeSequenceParams::main_buffer_mutex)
-            if (final_fbo == params.main_buffer) {
-              params.main_buffer_mutex->lock();
-            }
 
             // bind front buffer as draw buffer
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
@@ -593,10 +589,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             // unbind framebuffer
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-            // thread safety (see docs for ComposeSequenceParams::main_buffer_mutex)
-            if (final_fbo == params.main_buffer) {
-              params.main_buffer_mutex->unlock();
-            }
 
 
 

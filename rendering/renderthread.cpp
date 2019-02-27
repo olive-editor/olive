@@ -203,7 +203,9 @@ void RenderThread::paint() {
   params.backend_attachment2 = back_texture_2;
   params.main_buffer = front_buffer_switcher ? front_buffer1 : front_buffer2;
   params.main_attachment = front_buffer_switcher ? front_texture1 : front_texture2;
-  params.main_buffer_mutex = front_buffer_switcher ? &front_mutex1 : &front_mutex2;
+
+  QMutex& active_mutex = front_buffer_switcher ? front_mutex1 : front_mutex2;
+  active_mutex.lock();
 
   // bind framebuffer for drawing
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, params.main_buffer);
@@ -223,7 +225,12 @@ void RenderThread::paint() {
 
   compose_sequence(params);
 
+  // flush changes
+  ctx->functions()->glFinish();
+
   texture_failed = params.texture_failed;
+
+  active_mutex.unlock();
 
   if (!save_fn.isEmpty()) {
     if (texture_failed) {
@@ -262,9 +269,6 @@ void RenderThread::paint() {
   glDisable(GL_DEPTH);
   glDisable(GL_BLEND);
   glDisable(GL_TEXTURE_2D);
-
-  // flush changes
-  ctx->functions()->glFinish();
 
   // release
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
