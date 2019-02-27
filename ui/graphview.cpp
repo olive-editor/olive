@@ -26,6 +26,7 @@
 #include <QMenu>
 #include <cfloat>
 
+#include "io/config.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
@@ -741,10 +742,12 @@ void GraphView::wheelEvent(QWheelEvent *event) {
   bool redraw = false;
   bool zooming = false;
 
-  // Control: zoom freely (each axis separately)
+  // Respect the "Scroll Wheel Zooms" option here; Ctrl toggles.
+  // Default zoom: zoom freely (each axis separately)
   // Alt: zoom uniformly (both axes equally)
   // Shift: swap horiz/vert axes
   //
+  // Respect the "Horizontal Scroll Wheel" option here; swap l/r & u/d.
   // Mousewheel   up/down: scroll up/down
   // Shift-wheel  up/down: scroll left/right
   // Ctrl-wheel   up/down: zoom vertically in/out
@@ -761,7 +764,7 @@ void GraphView::wheelEvent(QWheelEvent *event) {
 
   // Use Shift to swap horizontal and vertical axes. Alt already combines
   // the axes, so it doesn't matter if Qt swaps them behind-the-scenes on Alt
-  bool swap_hv = shift;
+  bool swap_hv = (shift != olive::CurrentConfig.horizontal_scroll_wheel);
 
   int delta_h = swap_hv ? event->angleDelta().y() : event->angleDelta().x();
   int delta_v = swap_hv ? event->angleDelta().x() : event->angleDelta().y();
@@ -769,7 +772,7 @@ void GraphView::wheelEvent(QWheelEvent *event) {
   double new_x_zoom = x_zoom;
   double new_y_zoom = y_zoom;
 
-  if (ctrl) {
+  if (ctrl != olive::CurrentConfig.scroll_zooms) {
     zooming = true;
   }
 
