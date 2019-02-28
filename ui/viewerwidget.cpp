@@ -74,10 +74,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   setMouseTracking(true);
   setFocusPolicy(Qt::ClickFocus);
 
-  QSurfaceFormat format;
-  format.setDepthBufferSize(24);
-  setFormat(format);
-
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 

@@ -113,6 +113,10 @@ int main(int argc, char *argv[]) {
 
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
+  QSurfaceFormat format;
+  format.setDepthBufferSize(24);
+  QSurfaceFormat::setDefaultFormat(format);
+
   QApplication a(argc, argv);
   a.setWindowIcon(QIcon(":/icons/olive64.png"));
 
