@@ -1023,40 +1023,40 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
             if (c->track() < 0 && olive::CurrentConfig.add_default_effects_to_clips) {
               // default video effects (before custom effects)
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
             }
 
             switch (panel_timeline->creating_object) {
             case ADD_OBJ_TITLE:
               c->set_name(tr("Title"));
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_TEXT, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TEXT, EFFECT_TYPE_EFFECT)));
               break;
             case ADD_OBJ_SOLID:
               c->set_name(tr("Solid Color"));
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT)));
               break;
             case ADD_OBJ_BARS:
             {
               c->set_name(tr("Bars"));
-              EffectPtr e = create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
+              EffectPtr e = Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
               e->row(0)->field(0)->set_combo_index(1);
               c->effects.append(e);
             }
               break;
             case ADD_OBJ_TONE:
               c->set_name(tr("Tone"));
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_TONE, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TONE, EFFECT_TYPE_EFFECT)));
               break;
             case ADD_OBJ_NOISE:
               c->set_name(tr("Noise"));
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
               break;
             }
 
             if (c->track() >= 0 && olive::CurrentConfig.add_default_effects_to_clips) {
               // default audio effects (after custom effects)
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
-              c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
             }
 
             push_undo = true;

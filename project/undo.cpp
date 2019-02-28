@@ -212,7 +212,7 @@ void AddEffectCommand::doUndo() {
 
 void AddEffectCommand::doRedo() {
   if (ref == nullptr) {
-    ref = create_effect(clip, meta);
+    ref = Effect::Create(clip, meta);
   }
   if (pos < 0) {
     clip->effects.append(ref);

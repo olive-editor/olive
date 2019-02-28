@@ -349,11 +349,11 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, SequencePtr s) {
     if (olive::CurrentConfig.add_default_effects_to_clips) {
       if (c->track() < 0) {
         // add default video effects
-        c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
+        c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
       } else {
         // add default audio effects
-        c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
-        c->effects.append(create_effect(c.get(), get_internal_meta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
+        c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
+        c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
       }
     }
   }
@@ -377,7 +377,7 @@ void Timeline::add_transition() {
         ca->append(new AddTransitionCommand(c,
                                             nullptr,
                                             nullptr,
-                                            get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION),
+                                            Effect::GetInternalMeta(transition_to_add, EFFECT_TYPE_TRANSITION),
                                             olive::CurrentConfig.default_transition_length));
         adding = true;
       }
@@ -385,7 +385,7 @@ void Timeline::add_transition() {
         ca->append(new AddTransitionCommand(nullptr,
                                             c,
                                             nullptr,
-                                            get_internal_meta(transition_to_add, EFFECT_TYPE_TRANSITION),
+                                            Effect::GetInternalMeta(transition_to_add, EFFECT_TYPE_TRANSITION),
                                             olive::CurrentConfig.default_transition_length));
         adding = true;
       }

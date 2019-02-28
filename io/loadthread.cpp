@@ -771,7 +771,7 @@ void LoadThread::create_effect_ui(
       ve->load(*stream);
       c->effects.append(ve);
     } else {
-      EffectPtr e(create_effect(c, meta));
+      EffectPtr e(Effect::Create(c, meta));
       e->set_enabled(effect_enabled);
       e->load(*stream);
 

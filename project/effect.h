@@ -43,7 +43,6 @@
 #include "ui/checkboxex.h"
 
 class Clip;
-using ClipPtr = std::shared_ptr<Clip>;
 
 class Effect;
 using EffectPtr = std::shared_ptr<Effect>;
@@ -61,8 +60,6 @@ struct EffectMeta {
 extern QVector<EffectMeta> effects;
 
 double log_volume(double linear);
-EffectPtr create_effect(Clip *c, const EffectMeta *em);
-const EffectMeta* get_internal_meta(int internal_id, int type);
 
 enum EffectType {
   EFFECT_TYPE_INVALID,
@@ -229,6 +226,9 @@ public:
   void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
   void gizmo_world_to_screen();
   bool are_gizmos_enabled();
+
+  static EffectPtr Create(Clip *c, const EffectMeta *em);
+  static const EffectMeta* GetInternalMeta(int internal_id, int type);
 public slots:
   void field_changed();
 private slots:
