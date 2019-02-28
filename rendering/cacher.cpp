@@ -42,7 +42,7 @@ double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
   return (double(nb_bytes >> 1) / nb_channels / sample_rate);
 }
 
-void apply_audio_effects(ClipPtr clip, double timecode_start, AVFrame* frame, int nb_bytes, QVector<ClipPtr> nests) {
+void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
   // perform all audio effects
   double timecode_end;
   timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
@@ -78,7 +78,7 @@ void apply_audio_effects(ClipPtr clip, double timecode_start, AVFrame* frame, in
   }
 
   if (!nests.isEmpty()) {
-    ClipPtr next_nest = nests.last();
+    Clip* next_nest = nests.last();
     nests.removeLast();
     apply_audio_effects(next_nest,
                         timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->sequence->frame_rate),
@@ -735,7 +735,7 @@ void Cacher::WakeMainThread()
   main_thread_lock_.unlock();
 }
 
-Cacher::Cacher(ClipPtr c) : clip(c) {}
+Cacher::Cacher(Clip* c) : clip(c) {}
 
 void Cacher::OpenWorker() {
   qint64 time_start = QDateTime::currentMSecsSinceEpoch();
@@ -1048,7 +1048,7 @@ void Cacher::Open()
   start((clip->track() < 0) ? QThread::HighPriority : QThread::TimeCriticalPriority);
 }
 
-void Cacher::Cache(long playhead, bool scrubbing, QVector<ClipPtr>& nests, int playback_speed)
+void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
 {
   if (clip->media_stream()->infinite_length && queue.size() > 0) {
     retrieved_frame = queue.at(0);

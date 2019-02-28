@@ -41,7 +41,7 @@
 #include <QMessageBox>
 #include <QCoreApplication>
 
-Transition::Transition(ClipPtr c, ClipPtr s, const EffectMeta* em) :
+Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
   Effect(c, em), secondary_clip(s),
   length(30)
 {
@@ -55,7 +55,7 @@ Transition::Transition(ClipPtr c, ClipPtr s, const EffectMeta* em) :
   length_ui_ele->set_frame_rate(parent_clip->sequence == nullptr ? parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
 }
 
-TransitionPtr Transition::copy(ClipPtr c, ClipPtr s) {
+TransitionPtr Transition::copy(Clip *c, Clip *s) {
   return create_transition(c, s, meta, length);
 }
 
@@ -80,7 +80,7 @@ long Transition::get_length() {
   return length;
 }
 
-ClipPtr Transition::get_opened_clip() {
+Clip* Transition::get_opened_clip() {
   if (parent_clip->opening_transition.get() == this) {
     return parent_clip;
   } else if (secondary_clip != nullptr && secondary_clip->opening_transition.get() == this) {
@@ -89,7 +89,7 @@ ClipPtr Transition::get_opened_clip() {
   return nullptr;
 }
 
-ClipPtr Transition::get_closed_clip() {
+Clip* Transition::get_closed_clip() {
   if (parent_clip->closing_transition.get() == this) {
     return parent_clip;
   } else if (secondary_clip != nullptr && secondary_clip->closing_transition.get() == this) {
@@ -103,7 +103,7 @@ void Transition::set_length_from_slider() {
   update_ui(false);
 }
 
-TransitionPtr get_transition_from_meta(ClipPtr c, ClipPtr s, const EffectMeta* em) {
+TransitionPtr get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
   if (!em->filename.isEmpty()) {
     // load effect from file
     return TransitionPtr(new Transition(c, s, em));
@@ -126,7 +126,7 @@ TransitionPtr get_transition_from_meta(ClipPtr c, ClipPtr s, const EffectMeta* e
   return nullptr;
 }
 
-TransitionPtr create_transition(ClipPtr c, ClipPtr s, const EffectMeta* em, long length) {
+TransitionPtr create_transition(Clip* c, Clip* s, const EffectMeta* em, long length) {
   TransitionPtr t(get_transition_from_meta(c, s, em));
   if (t != nullptr) {
     if (length > 0) {

@@ -40,7 +40,7 @@ const int kRGBAComponentCount = 4;
 
 Clip::Clip(SequencePtr s) :
   sequence(s),
-  cacher(ClipPtr(this))
+  cacher(this)
 {
   enabled_ = true;
   clip_in_ = 0;
@@ -63,7 +63,7 @@ Clip::Clip(SequencePtr s) :
 }
 
 ClipPtr Clip::copy(SequencePtr s) {
-  ClipPtr copy(new Clip(s));
+  ClipPtr copy = std::make_shared<Clip>(s);
 
   copy->set_enabled(enabled());
   copy->set_name(name());
@@ -78,7 +78,7 @@ ClipPtr Clip::copy(SequencePtr s) {
   copy->set_reversed(reversed());
 
   for (int i=0;i<effects.size();i++) {
-    copy->effects.append(effects.at(i)->copy(copy));
+    copy->effects.append(effects.at(i)->copy(copy.get()));
   }
 
   copy->set_cached_frame_rate((this->sequence == nullptr) ? cached_frame_rate() : this->sequence->frame_rate);
@@ -151,6 +151,39 @@ bool Clip::enabled()
 void Clip::set_enabled(bool e)
 {
   enabled_ = e;
+}
+
+void Clip::move(ComboAction* ca, long iin, long iout, long iclip_in, int itrack, bool verify_transitions, bool relative)
+{
+  ca->append(new MoveClipAction(this, iin, iout, iclip_in, itrack, relative));
+
+  if (verify_transitions) {
+
+    // if this is a shared transition, and the corresponding clip will be moved away somehow
+    if (opening_transition != nullptr
+        && opening_transition->secondary_clip != nullptr
+        && opening_transition->secondary_clip->timeline_out() != iin) {
+      // separate transition
+      ca->append(new SetPointer(reinterpret_cast<void**>(&opening_transition->secondary_clip), nullptr));
+      ca->append(new AddTransitionCommand(nullptr,
+                                          opening_transition->secondary_clip,
+                                          opening_transition,
+                                          nullptr,
+                                          0));
+    }
+
+    if (closing_transition != nullptr
+        && closing_transition->secondary_clip != nullptr
+        && closing_transition->parent_clip->timeline_in() != iout) {
+      // separate transition
+      ca->append(new SetPointer(reinterpret_cast<void**>(&closing_transition->secondary_clip), nullptr));
+      ca->append(new AddTransitionCommand(nullptr,
+                                          this,
+                                          closing_transition,
+                                          nullptr,
+                                          0));
+    }
+  }
 }
 
 void Clip::reset() {
@@ -395,11 +428,11 @@ int Clip::media_height() {
 
 void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points) {
   if (change_timeline_points) {
-    move_clip(ca, ClipPtr(this),
-              qRound(double(timeline_in_) * multiplier),
-              qRound(double(timeline_out_) * multiplier),
-              qRound(double(clip_in_) * multiplier),
-              track_);
+    this->move(ca,
+               qRound(double(timeline_in_) * multiplier),
+               qRound(double(timeline_out_) * multiplier),
+               qRound(double(clip_in_) * multiplier),
+               track_);
   }
 
   // move keyframes
@@ -485,7 +518,7 @@ bool Clip::IsOpen()
   return open_;
 }
 
-void Clip::Cache(long playhead, bool scrubbing, QVector<ClipPtr>& nests, int playback_speed) {
+void Clip::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed) {
 //  qint64 time = QDateTime::currentMSecsSinceEpoch();
 
   cacher.Cache(playhead, scrubbing, nests, playback_speed);
@@ -542,7 +575,7 @@ bool Clip::Retrieve()
             memcpy(data_buffer_1, frame->data[0], frame_size);
           }
 
-          e->process_image(get_timecode(ClipPtr(this), cacher_frame),
+          e->process_image(get_timecode(this, cacher_frame),
                            using_db_1 ? data_buffer_1 : data_buffer_2,
                            using_db_1 ? data_buffer_2 : data_buffer_1,
                            frame_size

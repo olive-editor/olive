@@ -376,7 +376,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
       if (panel_timeline->snapping) {
         for (int i=0;i<selected_keyframes.size();i++) {
           EffectField* field = selected_fields.at(i);
-          ClipPtr c = field->parent_row->parent_effect->parent_clip;
+          Clip* c = field->parent_row->parent_effect->parent_clip;
           long key_time = old_key_vals.at(i) + frame_diff - c->clip_in() + c->timeline_in();
           long key_eval = key_time;
           if (panel_timeline->snap_to_point(olive::ActiveSequence->playhead, &key_eval)) {

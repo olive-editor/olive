@@ -50,7 +50,7 @@ void update_effect_controls() {
   int mode = kTransitionNone;
   if (olive::ActiveSequence != nullptr) {
     for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      ClipPtr clip = olive::ActiveSequence->clips.at(i);
+      Clip* clip = olive::ActiveSequence->clips.at(i).get();
       if (clip != nullptr) {
         for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
           const Selection& s = olive::ActiveSequence->selections.at(j);

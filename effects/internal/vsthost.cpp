@@ -256,7 +256,7 @@ void VSTHost::processAudio(long numFrames) {
   plugin->processReplacing(plugin, inputs, outputs, numFrames);
 }
 
-VSTHost::VSTHost(ClipPtr c, const EffectMeta *em) : Effect(c, em) {
+VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
   plugin = nullptr;
 
   inputs = new float* [CHANNEL_COUNT];

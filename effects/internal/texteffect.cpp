@@ -44,7 +44,7 @@
 #include "io/config.h"
 #include "mainwindow.h"
 
-TextEffect::TextEffect(ClipPtr c, const EffectMeta* em) :
+TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
 	Effect(c, em)
 {
 	enable_superimpose = true;

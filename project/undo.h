@@ -63,11 +63,11 @@ private:
 
 class MoveClipAction : public OliveAction {
 public:
-  MoveClipAction(ClipPtr c, long iin, long iout, long iclip_in, int itrack, bool irelative);
+  MoveClipAction(Clip* c, long iin, long iout, long iclip_in, int itrack, bool irelative);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  ClipPtr clip;
+  Clip* clip;
 
   long old_in;
   long old_out;
@@ -125,11 +125,11 @@ private:
 
 class AddEffectCommand : public OliveAction {
 public:
-  AddEffectCommand(ClipPtr c, EffectPtr e, const EffectMeta* m, int insert_pos = -1);
+  AddEffectCommand(Clip* c, EffectPtr e, const EffectMeta* m, int insert_pos = -1);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  ClipPtr clip;
+  Clip* clip;
   const EffectMeta* meta;
   EffectPtr ref;
   int pos;
@@ -138,12 +138,12 @@ private:
 
 class AddTransitionCommand : public OliveAction {
 public:
-  AddTransitionCommand(ClipPtr iopen, ClipPtr iclose, TransitionPtr copy, const EffectMeta* itransition, int ilength);
+  AddTransitionCommand(Clip* iopen, Clip* iclose, TransitionPtr copy, const EffectMeta* itransition, int ilength);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  ClipPtr open_;
-  ClipPtr close_;
+  Clip* open_;
+  Clip* close_;
   TransitionPtr transition_to_copy_;
   const EffectMeta* transition_meta_;
   int length_;
@@ -170,8 +170,8 @@ public:
   virtual void doRedo() override;
 private:
   TransitionPtr transition_ref_;
-  ClipPtr opened_clip_;
-  ClipPtr closed_clip_;
+  Clip* opened_clip_;
+  Clip* closed_clip_;
 };
 
 class SetTimelineInOutCommand : public OliveAction {
@@ -295,7 +295,7 @@ public:
   virtual ~EffectDeleteCommand() override;
   virtual void doUndo() override;
   virtual void doRedo() override;
-  QVector<ClipPtr> clips;
+  QVector<Clip*> clips;
   QVector<int> fx;
 private:
   bool done;
@@ -374,10 +374,10 @@ public:
   SetClipProperty(SetClipPropertyType type);
   virtual void doUndo() override;
   virtual void doRedo() override;
-  void AddSetting(ClipPtr c, bool setting);
+  void AddSetting(Clip *c, bool setting);
 private:
   SetClipPropertyType type_;
-  QVector<ClipPtr> clips_;
+  QVector<Clip*> clips_;
   QVector<bool> setting_;
   QVector<bool> old_setting_;
   void MainLoop(bool undo);
@@ -421,11 +421,11 @@ private:
 
 class SetSpeedAction : public OliveAction {
 public:
-  SetSpeedAction(ClipPtr c, double speed);
+  SetSpeedAction(Clip* c, double speed);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  ClipPtr clip;
+  Clip* clip;
   double old_speed;
   double new_speed;
 };
@@ -542,7 +542,7 @@ public:
   MoveEffectCommand();
   virtual void doUndo() override;
   virtual void doRedo() override;
-  ClipPtr clip;
+  Clip* clip;
   int from;
   int to;
 };
@@ -561,13 +561,13 @@ private:
 
 class RenameClipCommand : public OliveAction {
 public:
-  RenameClipCommand();
-  QVector<ClipPtr> clips;
-  QString new_name;
+  RenameClipCommand(Clip* clip, QString new_name);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  QVector<QString> old_names;
+  QString old_name_;
+  QString new_name_;
+  Clip* clip_;
 };
 
 class SetPointer : public OliveAction {

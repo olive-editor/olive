@@ -37,7 +37,7 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 typedef void (*f0rSetParamValue) (f0r_instance_t instance,
 				f0r_param_t param, int param_index);
 
-Frei0rEffect::Frei0rEffect(ClipPtr c, const EffectMeta *em) :
+Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
 	Effect(c, em),
 	open(false)
 {

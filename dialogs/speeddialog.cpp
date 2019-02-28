@@ -35,8 +35,10 @@
 #include "project/effect.h"
 #include "project/media.h"
 
-SpeedDialog::SpeedDialog(QWidget *parent) : QDialog(parent) {
+SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent) {
   setWindowTitle(tr("Speed/Duration"));
+
+  clips_ = clips;
 
   QVBoxLayout* main_layout = new QVBoxLayout(this);
 
@@ -93,8 +95,8 @@ void SpeedDialog::run() {
   default_length = -1;
   current_length = -1;
 
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i);
 
     double clip_percent;
 
@@ -185,8 +187,8 @@ void SpeedDialog::percent_update() {
   double fr_val = qSNaN();
   long len_val = -1;
 
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i);
 
     // get frame rate
     if (frame_rate->isEnabled() && c->track() < 0) {
@@ -220,8 +222,8 @@ void SpeedDialog::duration_update() {
   bool got_fr = false;
   double fr_val = qSNaN();
 
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i);
 
     // get percent
     long clip_default_length = qRound(c->length() * c->speed().value);
@@ -263,8 +265,8 @@ void SpeedDialog::frame_rate_update() {
   long len_val = -1;
 
   // analyze video clips
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i);
 
     // check if all selected clips are currently the same speed
     if (i == 0) {
@@ -295,8 +297,8 @@ void SpeedDialog::frame_rate_update() {
   }
 
   // analyze audio clips
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i);
 
     if (c->track() >= 0) {
       long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ? c->length() : ((c->length() * c->speed().value) / pc_val);
@@ -311,7 +313,7 @@ void SpeedDialog::frame_rate_update() {
   duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
 }
 
-void set_speed(ComboAction* ca, ClipPtr c, double speed, bool ripple, long& ep, long& lr) {
+void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, long& lr) {
   panel_timeline->deselect_area(c->timeline_in(), c->timeline_out(), c->track());
 
   long proposed_out = c->timeline_out();
@@ -330,7 +332,7 @@ void set_speed(ComboAction* ca, ClipPtr c, double speed, bool ripple, long& ep, 
   }
   ep = qMin(ep, c->timeline_out());
   lr = qMax(lr, proposed_out - c->timeline_out());
-  move_clip(ca, c, c->timeline_in(), proposed_out, qRound(c->clip_in() * multiplier), c->track());
+  c->move(ca, c->timeline_in(), proposed_out, qRound(c->clip_in() * multiplier), c->track());
 
   c->refactor_frame_rate(ca, multiplier, false);
 
@@ -358,8 +360,8 @@ void SpeedDialog::accept() {
   long earliest_point = LONG_MAX;
   long longest_ripple = LONG_MIN;
 
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i);
 
     // make sure the clip is closed while we're making changes
     if (c->IsOpen()) {
@@ -376,7 +378,7 @@ void SpeedDialog::accept() {
     // set reverse setting if the user made a selection
     if (reverse->checkState() != Qt::PartiallyChecked && c->reversed() != reverse->isChecked()) {
       long new_clip_in = (c->media_length() - (c->length() + c->clip_in()));
-      move_clip(ca, c, c->timeline_in(), c->timeline_out(), new_clip_in, c->track());
+      c->move(ca, c->timeline_in(), c->timeline_out(), new_clip_in, c->track());
       c->set_clip_in(new_clip_in);
       reversed_action->AddSetting(c, reverse->isChecked());
     }
@@ -386,8 +388,8 @@ void SpeedDialog::accept() {
   if (!qIsNaN(percent->value())) {
 
     // if we have a percentage value, use that on all the clips
-    for (int i=0;i<clips.size();i++) {
-      ClipPtr c = clips.at(i);
+    for (int i=0;i<clips_.size();i++) {
+      Clip* c = clips_.at(i);
       set_speed(ca, c, percent->value(), ripple->isChecked(), earliest_point, longest_ripple);
     }
 
@@ -395,15 +397,13 @@ void SpeedDialog::accept() {
 
     // if the user changed the speed by changing the frame rate,
     bool can_change_all = true;
-    double cached_speed;
+    double cached_speed = clips_.first()->speed().value;
     double cached_fr = qSNaN();
 
     // see if we can use the frame rate to change all the speeds
-    for (int i=0;i<clips.size();i++) {
-      ClipPtr c = clips.at(i);
-      if (i == 0) {
-        cached_speed = c->speed().value;
-      } else if (!qFuzzyCompare(cached_speed, c->speed().value)) {
+    for (int i=0;i<clips_.size();i++) {
+      Clip* c = clips_.at(i);
+      if (i > 0 && !qFuzzyCompare(cached_speed, c->speed().value)) {
         can_change_all = false;
       }
       if (c->track() < 0) {
@@ -417,8 +417,8 @@ void SpeedDialog::accept() {
     }
 
     // make changes
-    for (int i=0;i<clips.size();i++) {
-      ClipPtr c = clips.at(i);
+    for (int i=0;i<clips_.size();i++) {
+      Clip* c = clips_.at(i);
       if (c->track() < 0) {
         set_speed(ca, c, frame_rate->value() / c->media_frame_rate(), ripple->isChecked(), earliest_point, longest_ripple);
       } else if (can_change_all) {
@@ -427,14 +427,14 @@ void SpeedDialog::accept() {
     }
   } else if (!qIsNaN(duration->value())) {
     // simply set duration
-    for (int i=0;i<clips.size();i++) {
-      ClipPtr c = clips.at(i);
+    for (int i=0;i<clips_.size();i++) {
+      Clip* c = clips_.at(i);
       set_speed(ca, c, (c->length() * c->speed().value) / duration->value(), ripple->isChecked(), earliest_point, longest_ripple);
     }
   }
 
   if (ripple->isChecked()) {
-    ripple_clips(ca, clips.at(0)->sequence, earliest_point, longest_ripple);
+    ripple_clips(ca, clips_.at(0)->sequence, earliest_point, longest_ripple);
   }
 
   sel_command->new_data = olive::ActiveSequence->selections;

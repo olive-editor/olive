@@ -106,7 +106,7 @@ GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
   return fbo->texture();
 }
 
-void process_effect(ClipPtr c,
+void process_effect(Clip* c,
                     EffectPtr e,
                     double timecode,
                     GLTextureCoords& coords,
@@ -178,12 +178,12 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
   int audio_track_count = 0;
 
-  QVector<ClipPtr> current_clips;
+  QVector<Clip*> current_clips;
 
   // loop through clips, find currently active, and sort by track
   for (int i=0;i<s->clips.size();i++) {
 
-    ClipPtr c = s->clips.at(i);
+    Clip* c = s->clips.at(i).get();
 
     if (c != nullptr) {
 
@@ -284,7 +284,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
   // loop through current clips
 
   for (int i=0;i<current_clips.size();i++) {
-    ClipPtr c = current_clips.at(i);
+    Clip* c = current_clips.at(i);
 
     bool got_mutex = true;
 
@@ -683,15 +683,15 @@ long rescale_frame_number(long framenumber, double source_frame_rate, double tar
   return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
 }
 
-double get_timecode(ClipPtr c, long playhead) {
+double get_timecode(Clip* c, long playhead) {
   return double(playhead_to_clip_frame(c, playhead))/c->sequence->frame_rate;
 }
 
-long playhead_to_clip_frame(ClipPtr c, long playhead) {
+long playhead_to_clip_frame(Clip* c, long playhead) {
   return (qMax(0L, playhead - c->timeline_in(true)) + c->clip_in(true));
 }
 
-double playhead_to_clip_seconds(ClipPtr c, long playhead) {
+double playhead_to_clip_seconds(Clip* c, long playhead) {
   // returns time in seconds
   long clip_frame = playhead_to_clip_frame(c, playhead);
 
@@ -707,18 +707,18 @@ double playhead_to_clip_seconds(ClipPtr c, long playhead) {
   return secs;
 }
 
-int64_t seconds_to_timestamp(ClipPtr c, double seconds) {
+int64_t seconds_to_timestamp(Clip *c, double seconds) {
   return qRound64(seconds * av_q2d(av_inv_q(c->time_base())));
 }
 
-int64_t playhead_to_timestamp(ClipPtr c, long playhead) {
+int64_t playhead_to_timestamp(Clip* c, long playhead) {
   return seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 }
 
 void close_active_clips(SequencePtr s) {
   if (s != nullptr) {
     for (int i=0;i<s->clips.size();i++) {
-      ClipPtr c = s->clips.at(i);
+      Clip* c = s->clips.at(i).get();
       if (c != nullptr) {
         c->Close(true);
       }

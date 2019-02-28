@@ -41,11 +41,14 @@ LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
   connect(this, SIGNAL(success()), this, SLOT(success_func()));
   connect(this, SIGNAL(error()), this, SLOT(error_func()));
-  connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, ClipPtr, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, ClipPtr, int, const QString*, const EffectMeta*, long, bool)));
+  connect(this,
+          SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
+          this,
+          SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
   connect(this, SIGNAL(start_question(const QString&, const QString &, int)), this, SLOT(question_func(const QString &, const QString &, int)));
 }
 
-void LoadThread::load_effect(QXmlStreamReader& stream, ClipPtr c) {
+void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   QString tag = stream.name().toString();
 
   // variables to store effect metadata in
@@ -68,7 +71,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, ClipPtr c) {
     } else if (attr.name() == "shared") {
       // if a transition has this tag, it's sharing a transition with another clip so we don't have to do any processing
 
-      ClipPtr sharing_clip = c->sequence->clips.at(attr.value().toInt());
+      Clip* sharing_clip = c->sequence->clips.at(attr.value().toInt()).get();
       if (tag == "opening") {
         c->opening_transition = (sharing_clip->closing_transition);
 
@@ -376,7 +379,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 } else if (stream.name() == "clip" && stream.isStartElement()) {
                   int media_type = -1;
                   int media_id, stream_id;
-                  ClipPtr c(new Clip(s));
+
+                  ClipPtr c = std::make_shared<Clip>(s);
 
                   QColor clip_color;
                   ClipSpeed speed_info = c->speed();
@@ -465,7 +469,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                  && (stream.name() == "effect"
                                      || stream.name() == "opening"
                                      || stream.name() == "closing")) {
-                        load_effect(stream, c);
+                        load_effect(stream, c.get());
                       } else if (stream.name() == "marker" && stream.isStartElement()) {
                         Marker m;
                         for (int j=0;j<stream.attributes().size();j++) {
@@ -490,7 +494,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               // correct links, clip IDs, transitions
               for (int i=0;i<s->clips.size();i++) {
                 // correct links
-                ClipPtr correct_clip = s->clips.at(i);
+                Clip* correct_clip = s->clips.at(i).get();
                 for (int j=0;j<correct_clip->linked.size();j++) {
                   bool found = false;
                   for (int k=0;k<s->clips.size();k++) {
@@ -727,7 +731,7 @@ void LoadThread::success_func() {
 
 void LoadThread::create_effect_ui(
     QXmlStreamReader* stream,
-    ClipPtr c,
+    Clip* c,
     int type,
     const QString* effect_name,
     const EffectMeta* meta,

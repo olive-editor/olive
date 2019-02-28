@@ -41,18 +41,30 @@ signals:
   void start_question(const QString &title, const QString &text, int buttons);
   void success();
   void error();
-  void start_create_effect_ui(QXmlStreamReader* stream, ClipPtr c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
+  void start_create_effect_ui(QXmlStreamReader* stream,
+                              Clip* c,
+                              int type,
+                              const QString *effect_name,
+                              const EffectMeta* meta,
+                              long effect_length,
+                              bool effect_enabled);
   void report_progress(int p);
 private slots:
   void question_func(const QString &title, const QString &text, int buttons);
   void error_func();
   void success_func();
-  void create_effect_ui(QXmlStreamReader* stream, ClipPtr c, int type, const QString *effect_name, const EffectMeta* meta, long effect_length, bool effect_enabled);
+  void create_effect_ui(QXmlStreamReader* stream,
+                        Clip* c,
+                        int type,
+                        const QString *effect_name,
+                        const EffectMeta* meta,
+                        long effect_length,
+                        bool effect_enabled);
 private:
   bool autorecovery;
 
   bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
-  void load_effect(QXmlStreamReader& stream, ClipPtr c);
+  void load_effect(QXmlStreamReader& stream, Clip* c);
 
   void read_next(QXmlStreamReader& stream);
   void read_next_start_element(QXmlStreamReader& stream);

@@ -42,7 +42,6 @@ extern "C" {
 #include "rendering/clipqueue.h"
 
 class Clip;
-using ClipPtr = std::shared_ptr<Clip>;
 
 /**
  * @brief The Cacher class
@@ -106,7 +105,7 @@ public:
    *
    * @param c
    */
-  Cacher(ClipPtr c);
+  Cacher(Clip* c);
 
   /**
    * @brief The main QThread loop
@@ -158,7 +157,7 @@ public:
    *
    * The current playback speed (controlled by Shuttle Left/Stop/Right)
    */
-  void Cache(long playhead, bool scrubbing, QVector<ClipPtr>& nests, int playback_speed);
+  void Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed);
 
   /**
    * @brief Retrieve frame requested by Cache()
@@ -257,7 +256,7 @@ private:
   /**
    * @brief Reference to the parent clip. Set in the constructor and never changed during this object's lifetime.
    */
-  ClipPtr clip;
+  Clip* clip;
 
   /**
    * @brief Frame queue
@@ -327,7 +326,7 @@ private:
   /**
    * @brief Current nested Sequence hierarchy set by Cache()
    */
-  QVector<ClipPtr> nests_;
+  QVector<Clip*> nests_;
 
   /**
    * @brief Signal cache to continue operation after one cycle rather than wait for another signal

@@ -448,7 +448,7 @@ void Viewer::pause() {
       panel_project->process_file_list(file_list);
 
       // add it to the sequence
-      ClipPtr c = ClipPtr(new Clip(seq));
+      ClipPtr c = std::make_shared<Clip>(seq);
       Media* m = panel_project->last_imported_media.at(0);
       FootagePtr f = m->to_footage();
 
@@ -745,7 +745,7 @@ void Viewer::set_media(Media* m) {
         seq->height = video_stream.video_height;
         if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate * footage->speed;
 
-        ClipPtr c = ClipPtr(new Clip(seq));
+        ClipPtr c = std::make_shared<Clip>(seq);
         c->set_media(media, video_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));
@@ -765,7 +765,7 @@ void Viewer::set_media(Media* m) {
         const FootageStream& audio_stream = footage->audio_tracks.at(0);
         seq->audio_frequency = audio_stream.audio_frequency;
 
-        ClipPtr c = ClipPtr(new Clip(seq));
+        ClipPtr c = std::make_shared<Clip>(seq);
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));

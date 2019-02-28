@@ -67,7 +67,7 @@ struct ComposeSequenceParams {
      * Should be left empty. This array gets passed around compose_sequence() as it calls itself recursively to
      * handle nested sequences.
      */
-    QVector<ClipPtr> nests;
+    QVector<Clip*> nests;
 
     /**
      * @brief Set compose mode to video or audio
@@ -307,7 +307,7 @@ long rescale_frame_number(long framenumber, double source_frame_rate, double tar
  *
  * Timecode in seconds
  */
-double get_timecode(ClipPtr c, long playhead);
+double get_timecode(Clip *c, long playhead);
 
 /**
  * @brief Convert playhead frame number to a clip frame number
@@ -327,7 +327,7 @@ double get_timecode(ClipPtr c, long playhead);
  *
  * The curren frame number of the clip at `playhead`
  */
-long playhead_to_clip_frame(ClipPtr c, long playhead);
+long playhead_to_clip_frame(Clip* c, long playhead);
 
 /**
  * @brief Converts the playhead to clip seconds
@@ -348,7 +348,7 @@ long playhead_to_clip_frame(ClipPtr c, long playhead);
  *
  * Clip time in seconds
  */
-double playhead_to_clip_seconds(ClipPtr c, long playhead);
+double playhead_to_clip_seconds(Clip *c, long playhead);
 
 /**
  * @brief Convert seconds to FFmpeg timestamp
@@ -368,7 +368,7 @@ double playhead_to_clip_seconds(ClipPtr c, long playhead);
  *
  * An FFmpeg-compatible timestamp in AVStream->time_base units.
  */
-int64_t seconds_to_timestamp(ClipPtr c, double seconds);
+int64_t seconds_to_timestamp(Clip* c, double seconds);
 
 /**
  * @brief Convert Timeline playhead to FFmpeg timestamp
@@ -388,7 +388,7 @@ int64_t seconds_to_timestamp(ClipPtr c, double seconds);
  *
  * An FFmpeg-compatible timestamp in AVStream->time_base units.
  */
-int64_t playhead_to_timestamp(ClipPtr c, long playhead);
+int64_t playhead_to_timestamp(Clip *c, long playhead);
 
 /**
  * @brief Close all open clips in a Sequence

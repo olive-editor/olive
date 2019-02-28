@@ -69,7 +69,7 @@
 
 QVector<EffectMeta> effects;
 
-EffectPtr create_effect(ClipPtr c, const EffectMeta* em) {
+EffectPtr create_effect(Clip* c, const EffectMeta* em) {
 	if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
 		// must be an internal effect
 		switch (em->internal) {
@@ -112,7 +112,7 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 	return nullptr;
 }
 
-Effect::Effect(ClipPtr c, const EffectMeta *em) :
+Effect::Effect(Clip* c, const EffectMeta *em) :
 	parent_clip(c),
 	meta(em),
 	enable_shader(false),
@@ -854,7 +854,7 @@ void Effect::setIterations(int i) {
 
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
-EffectPtr Effect::copy(ClipPtr c) {
+EffectPtr Effect::copy(Clip *c) {
     EffectPtr copy = create_effect(c, meta);
 	copy->set_enabled(is_enabled());
 	copy_field_keyframes(copy);

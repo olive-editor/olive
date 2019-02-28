@@ -43,7 +43,7 @@
 #include "ui/fontcombobox.h"
 #include "io/config.h"
 
-TimecodeEffect::TimecodeEffect(ClipPtr c, const EffectMeta* em) :
+TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   Effect(c, em)
 {
   enable_always_update = true;

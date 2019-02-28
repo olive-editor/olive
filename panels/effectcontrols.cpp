@@ -100,7 +100,7 @@ void EffectControls::set_zoom(bool in) {
 void EffectControls::menu_select(QAction* q) {
   ComboAction* ca = new ComboAction();
   for (int i=0;i<selected_clips.size();i++) {
-    const ClipPtr& c = olive::ActiveSequence->clips.at(selected_clips.at(i));
+    Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
     if ((c->track() < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
       const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
@@ -148,7 +148,7 @@ void EffectControls::copy(bool del) {
     ComboAction* ca = new ComboAction();
     EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : nullptr;
     for (int i=0;i<selected_clips.size();i++) {
-      const ClipPtr& c = olive::ActiveSequence->clips.at(selected_clips.at(i));
+      Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
       for (int j=0;j<c->effects.size();j++) {
         EffectPtr effect = c->effects.at(j);
         if (effect->container->selected) {
@@ -566,7 +566,7 @@ void EffectControls::delete_effects() {
   if (mode == kTransitionNone) {
     EffectDeleteCommand* command = new EffectDeleteCommand();
     for (int i=0;i<selected_clips.size();i++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(selected_clips.at(i));
+      Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
       for (int j=0;j<c->effects.size();j++) {
         EffectPtr effect = c->effects.at(j);
         if (effect->container->selected) {

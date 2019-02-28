@@ -50,7 +50,7 @@
 
 QUndoStack olive::UndoStack;
 
-MoveClipAction::MoveClipAction(ClipPtr c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
+MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
   clip = c;
 
   old_in = c->timeline_in();
@@ -192,7 +192,7 @@ void SetTimelineInOutCommand::doRedo() {
   }
 }
 
-AddEffectCommand::AddEffectCommand(ClipPtr c, EffectPtr e, const EffectMeta *m, int insert_pos) {
+AddEffectCommand::AddEffectCommand(Clip* c, EffectPtr e, const EffectMeta *m, int insert_pos) {
   clip = c;
   ref = e;
   meta = m;
@@ -222,8 +222,8 @@ void AddEffectCommand::doRedo() {
   done = true;
 }
 
-AddTransitionCommand::AddTransitionCommand(ClipPtr iopen,
-                                           ClipPtr iclose,
+AddTransitionCommand::AddTransitionCommand(Clip* iopen,
+                                           Clip* iclose,
                                            TransitionPtr copy,
                                            const EffectMeta *itransition,
                                            int ilength) {
@@ -247,8 +247,8 @@ void AddTransitionCommand::doUndo() {
 
 void AddTransitionCommand::doRedo() {
   // convert open/close clips to primary/secondary for transition object
-  ClipPtr primary = open_;
-  ClipPtr secondary = close_;
+  Clip* primary = open_;
+  Clip* secondary = close_;
   if (primary == nullptr) {
     primary = secondary;
     secondary = nullptr;
@@ -596,7 +596,7 @@ EffectDeleteCommand::~EffectDeleteCommand() {}
 
 void EffectDeleteCommand::doUndo() {
   for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+    Clip* c = clips.at(i);
     c->effects.insert(fx.at(i), deleted_objects.at(i));
   }
   panel_effect_controls->reload_clips();
@@ -607,7 +607,7 @@ void EffectDeleteCommand::doUndo() {
 void EffectDeleteCommand::doRedo() {
   deleted_objects.clear();
   for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+    Clip* c = clips.at(i);
     int fx_id = fx.at(i) - i;
     EffectPtr e = c->effects.at(fx_id);
     e->close();
@@ -689,7 +689,7 @@ void EffectFieldUndo::doRedo() {
 SetClipProperty::SetClipProperty(SetClipPropertyType type) : type_(type)
 {}
 
-void SetClipProperty::AddSetting(ClipPtr c, bool setting)
+void SetClipProperty::AddSetting(Clip* c, bool setting)
 {
   clips_.append(c);
   setting_.append(setting);
@@ -829,7 +829,7 @@ void DeleteMarkerAction::doRedo() {
   sorted = true;
 }
 
-SetSpeedAction::SetSpeedAction(ClipPtr c, double speed) {
+SetSpeedAction::SetSpeedAction(Clip* c, double speed) {
   clip = c;
   old_speed = c->speed().value;
   new_speed = speed;
@@ -1005,20 +1005,19 @@ void RemoveClipsFromClipboard::doRedo() {
   done = true;
 }
 
-RenameClipCommand::RenameClipCommand() {}
+RenameClipCommand::RenameClipCommand(Clip *clip, QString new_name)
+{
+  clip_ = clip;
+  old_name_ = clip_->name();
+  new_name_ = new_name;
+}
 
 void RenameClipCommand::doUndo() {
-  for (int i=0;i<clips.size();i++) {
-    clips.at(i)->set_name(old_names.at(i));
-  }
+  clip_->set_name(old_name_);
 }
 
 void RenameClipCommand::doRedo() {
-  old_names.resize(clips.size());
-  for (int i=0;i<clips.size();i++) {
-    old_names[i] = clips.at(i)->name();
-    clips.at(i)->set_name(new_name);
-  }
+  clip_->set_name(new_name_);
 }
 
 SetPointer::SetPointer(void **pointer, void *data) {
@@ -1062,7 +1061,7 @@ void RippleAction::doRedo() {
       ClipPtr c = s->clips.at(i);
       if (c != nullptr) {
         if (c->timeline_in() >= point) {
-          move_clip(ca, c, length, length, 0, 0, true, true);
+          c->move(ca, length, length, 0, 0, true, true);
         }
       }
     }

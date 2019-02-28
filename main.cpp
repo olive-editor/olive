@@ -25,6 +25,7 @@
 
 #include "oliveglobal.h"
 #include "ui/mediaiconservice.h"
+#include "panels/timeline.h"
 
 #include "io/config.h"
 
@@ -125,6 +126,9 @@ int main(int argc, char *argv[]) {
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 
   MainWindow w(nullptr);
+
+  // multiply track height constants by the current DPI scale
+  olive::timeline::MultiplyTrackSizesByDPI();
 
   // connect main window's first paint to global's init finished function
   QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()));

@@ -28,7 +28,7 @@
 class SolidEffect : public Effect {
 	Q_OBJECT
 public:
-    SolidEffect(ClipPtr c, const EffectMeta *em);
+    SolidEffect(Clip* c, const EffectMeta *em);
 	void redraw(double timecode);
 private slots:
     void ui_update(int);

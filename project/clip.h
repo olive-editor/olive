@@ -53,7 +53,7 @@ using ClipPtr = std::shared_ptr<Clip>;
 class Sequence;
 using SequencePtr = std::shared_ptr<Sequence>;
 
-class Clip {
+class Clip : public std::enable_shared_from_this<Clip> {
 public:
   Clip(SequencePtr s);
   ~Clip();
@@ -76,6 +76,14 @@ public:
 
   bool enabled();
   void set_enabled(bool e);
+
+  void move(ComboAction* ca,
+            long iin,
+            long iout,
+            long iclip_in,
+            int itrack,
+            bool verify_transitions = true,
+            bool relative = false);
 
   long clip_in(bool with_transition = false);
   void set_clip_in(long c);
@@ -126,7 +134,7 @@ public:
 
   // playback functions
   void Open();
-  void Cache(long playhead, bool scrubbing, QVector<ClipPtr> &nests, int playback_speed);
+  void Cache(long playhead, bool scrubbing, QVector<Clip*> &nests, int playback_speed);
   bool Retrieve();
   void Close(bool wait);
   bool IsOpen();

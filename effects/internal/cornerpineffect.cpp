@@ -24,7 +24,7 @@
 #include "project/clip.h"
 #include "debug.h"
 
-CornerPinEffect::CornerPinEffect(ClipPtr c, const EffectMeta *em) : Effect(c, em) {
+CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
 	enable_coords = true;
 	enable_shader = true;
 
