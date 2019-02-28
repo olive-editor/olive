@@ -56,7 +56,7 @@ Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
 }
 
 TransitionPtr Transition::copy(Clip *c, Clip *s) {
-  return create_transition(c, s, meta, length);
+  return Transition::Create(c, s, meta, length);
 }
 
 void Transition::save(QXmlStreamWriter &stream) {
@@ -103,7 +103,7 @@ void Transition::set_length_from_slider() {
   update_ui(false);
 }
 
-TransitionPtr get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
+TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s, const EffectMeta* em) {
   if (!em->filename.isEmpty()) {
     // load effect from file
     return TransitionPtr(new Transition(c, s, em));
@@ -126,8 +126,8 @@ TransitionPtr get_transition_from_meta(Clip* c, Clip* s, const EffectMeta* em) {
   return nullptr;
 }
 
-TransitionPtr create_transition(Clip* c, Clip* s, const EffectMeta* em, long length) {
-  TransitionPtr t(get_transition_from_meta(c, s, em));
+TransitionPtr Transition::Create(Clip* c, Clip* s, const EffectMeta* em, long length) {
+  TransitionPtr t(CreateFromMeta(c, s, em));
   if (t != nullptr) {
     if (length > 0) {
       t->set_length(length);

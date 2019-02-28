@@ -778,7 +778,7 @@ void LoadThread::create_effect_ui(
       c->effects.append(e);
     }
   } else {
-    TransitionPtr t = create_transition(c, nullptr, meta);
+    TransitionPtr t = Transition::Create(c, nullptr, meta);
     if (effect_length > -1) t->set_length(effect_length);
     t->set_enabled(effect_enabled);
     t->load(*stream);

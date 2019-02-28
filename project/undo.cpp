@@ -257,7 +257,7 @@ void AddTransitionCommand::doRedo() {
   // create new transition object
   if (new_transition_ref_ == nullptr) {
     if (transition_to_copy_ == nullptr) {
-      new_transition_ref_ = get_transition_from_meta(primary, secondary, transition_meta_);
+      new_transition_ref_ = Transition::CreateFromMeta(primary, secondary, transition_meta_);
     } else {
       new_transition_ref_ = transition_to_copy_->copy(primary, nullptr);
     }

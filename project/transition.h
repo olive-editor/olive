@@ -41,10 +41,6 @@ enum TransitionInternal {
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-TransitionPtr get_transition_from_meta(Clip *c, Clip *s, const EffectMeta* em);
-
-TransitionPtr create_transition(Clip* c, Clip* s, const EffectMeta* em, long length = 0);
-
 class Transition : public Effect {
   Q_OBJECT
 public:
@@ -60,6 +56,9 @@ public:
 
   Clip* get_opened_clip();
   Clip* get_closed_clip();
+
+  static TransitionPtr Create(Clip* c, Clip* s, const EffectMeta* em, long length = 0);
+  static TransitionPtr CreateFromMeta(Clip *c, Clip *s, const EffectMeta* em);
 private slots:
   void set_length_from_slider();
 private:
