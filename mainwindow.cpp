@@ -70,29 +70,53 @@ MainWindow* olive::MainWindow;
 
 #define DEFAULT_CSS "QPushButton::checked { background: rgb(25, 25, 25); }"
 
-void MainWindow::setup_layout(bool reset) {
-  panel_project->show();
-  panel_effect_controls->show();
-  panel_footage_viewer->show();
-  panel_sequence_viewer->show();
-  panel_timeline->show();
-  panel_graph_editor->hide();
-
-  addDockWidget(Qt::TopDockWidgetArea, panel_project);
-  addDockWidget(Qt::TopDockWidgetArea, panel_graph_editor);
-  addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
-  tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
-  panel_footage_viewer->raise();
-  addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
-  addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
-
+void MainWindow::setup_layout(bool reset) {  
   // load panels from file
   if (!reset) {
     QFile panel_config(get_config_path() + "/layout");
     if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
       restoreState(panel_config.readAll(), 0);
       panel_config.close();
+    } else {
+      reset = true;
     }
+  }
+
+  if (reset) {
+    // remove all panels from the main window
+    for (int i=0;i<olive::panels.size();i++) {
+      removeDockWidget(olive::panels.at(i));
+    }
+
+    addDockWidget(Qt::TopDockWidgetArea, panel_project);
+    addDockWidget(Qt::TopDockWidgetArea, panel_graph_editor);
+    addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
+    tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
+    panel_footage_viewer->raise();
+    addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
+    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+
+    panel_project->show();
+    panel_effect_controls->show();
+    panel_footage_viewer->show();
+    panel_sequence_viewer->show();
+    panel_timeline->show();
+    panel_graph_editor->hide();
+
+    panel_project->setFloating(false);
+    panel_effect_controls->setFloating(false);
+    panel_footage_viewer->setFloating(false);
+    panel_sequence_viewer->setFloating(false);
+    panel_timeline->setFloating(false);
+    panel_graph_editor->setFloating(true);
+
+    resizeDocks({panel_project, panel_footage_viewer, panel_sequence_viewer},
+                {width()/3, width()/3, width()/3},
+                Qt::Horizontal);
+
+    resizeDocks({panel_project, panel_timeline},
+                {height()/2, height()/2},
+                Qt::Vertical);
   }
 
   layout()->update();
@@ -102,8 +126,6 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   first_show(true)
 {
-  qRegisterMetaType<ClipPtr>();
-
   init_custom_cursors();
 
   open_debug_file();
@@ -222,9 +244,6 @@ MainWindow::MainWindow(QWidget *parent) :
   setStatusBar(statusBar);
 
   olive::Global->check_for_autorecovery_file();
-
-  // set up panel layout
-  setup_layout(false);
 
   // set up output audio device
   init_audio();
@@ -892,25 +911,44 @@ void MainWindow::paintEvent(QPaintEvent *event) {
   QMainWindow::paintEvent(event);
 
   if (first_show) {
+    // set this to false immediately to prevent anything here being called again
     first_show = false;
+
+    /**
+     * @brief Set up the dock widget layout on the main window
+     *
+     * For some reason, Qt didn't like this in the constructor. It would lead to several geometry issues with HiDPI
+     * on Windows, and also seemed to break QMainWindow::restoreState() which is why it took so long to implement
+     * saving/restoring panel layouts. Putting it in showEvent() didn't help either, nor did putting it in
+     * changeEvent() (QEvent::type() == QEvent::Polish). This is the only place it's functioned as expected.
+     */
+    setup_layout(false);
+
+    /**
+      Signal that window has finished loading.
+     */
     emit finished_first_paint();
   }
 }
 
-bool MainWindow::event(QEvent *e)
+void MainWindow::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
+
+    // if this was a LanguageEvent, run the retranslation function
     Retranslate();
-    return true;
+
+  } else {
+
+    // otherwise pass it to the base class
+    QMainWindow::changeEvent(e);
+
   }
-  return QMainWindow::event(e);
 }
 
 void MainWindow::reset_layout() {
   setup_layout(true);
 }
-
-
 
 void MainWindow::maximize_panel() {
   // toggles between normal state and a state of one panel being maximized

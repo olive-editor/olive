@@ -109,7 +109,17 @@ protected:
      */
   virtual void paintEvent(QPaintEvent *) override;
 
-  virtual bool event(QEvent* e) override;
+  /**
+   * @brief Change event
+   *
+   * Overridden to handle language changes (e->type() == QEvent::LanguageChange) by calling Retranslate().
+   *
+   * See documentation for QWidget::changeEvent() for more information.
+   *
+   * @param e
+   * @return
+   */
+  virtual void changeEvent(QEvent* e) override;
 
 private slots:
   /**

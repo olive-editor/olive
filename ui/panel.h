@@ -28,7 +28,7 @@ class Panel : public QDockWidget {
 public:
   Panel(QWidget* parent = nullptr);
   virtual ~Panel() override;
-  virtual void Retranslate();
+  virtual void Retranslate() = 0;
 protected:
   virtual void changeEvent(QEvent* e) override;
 };

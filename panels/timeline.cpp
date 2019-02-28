@@ -2060,8 +2060,6 @@ void Timeline::set_tool() {
 
 void olive::timeline::MultiplyTrackSizesByDPI()
 {
-  qDebug() << QApplication::desktop()->devicePixelRatio();
-
   kTrackDefaultHeight *= QApplication::desktop()->devicePixelRatio();
   kTrackMinHeight *= QApplication::desktop()->devicePixelRatio();
   kTrackHeightIncrement *= QApplication::desktop()->devicePixelRatio();

@@ -26,7 +26,8 @@
 QVector<Panel*> olive::panels;
 
 Panel::Panel(QWidget *parent) : QDockWidget (parent) {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//  setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+//  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   olive::panels.append(this);
 }
@@ -39,13 +40,17 @@ Panel::~Panel()
 void Panel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
+    /**
+
+      NOTE: While overriding changeEvent() is the official documented way of handling runtime language change events,
+      I found it buggy to do it this way (some panels would change and others wouldn't, and the panels that did/didn't
+      change would be different each time). The current workaround is calling Retranslate() on each panel manually
+      from MainWindow::Retranslate which is triggered by its own changeEvent() that seems fairly reliable. Currently
+      this function is mostly a no-op.
+
+      */
 //    Retranslate();
   } else {
     QDockWidget::changeEvent(e);
   }
-}
-
-void Panel::Retranslate()
-{
-  qDebug() << "like what?";
 }
