@@ -58,7 +58,7 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 	export VERSION=$(git rev-parse --short HEAD)
 
 	# use linuxdeployqt to set up dependencies
-	./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
+	./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -extra-plugins=imageformats/libqsvg.so -appimage
 
 	# 64-bit linuxdeployqt can only generate a 64-bit AppImage
 	# to generate a 32-bit one, we need to download and run 32-bit AppImageTool
