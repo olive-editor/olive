@@ -44,6 +44,11 @@ public:
   int audio_layout;
 
   void RefreshClips(Media* m = nullptr);
+  QVector<Clip*> SelectedClips();
+  QVector<int> SelectedClipIndexes();
+
+  bool IsClipSelected(int clip_index, bool containing);
+  bool IsClipSelected(Clip* clip, bool containing);
 
   QVector<Selection> selections;
   long playhead;

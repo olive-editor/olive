@@ -71,7 +71,6 @@ namespace olive {
   }
 }
 
-bool is_clip_selected(Clip* clip, bool containing);
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 bool selection_contains_transition(const Selection& s, Clip *c, int type);

@@ -434,7 +434,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           // using gizmo data, set definitive gizmo
           if (selected_effect != nullptr) {
             (*params.gizmos) = selected_effect;
-          } else if (is_clip_selected(c, true)) {
+          } else if (s->IsClipSelected(c, true)) {
             (*params.gizmos) = first_gizmo_effect;
           }
 

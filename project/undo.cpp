@@ -689,6 +689,13 @@ void EffectFieldUndo::doRedo() {
 SetClipProperty::SetClipProperty(SetClipPropertyType type) : type_(type)
 {}
 
+void SetClipProperty::AddSetting(QVector<Clip *> clips, bool setting)
+{
+  for (int i=0;i<clips.size();i++) {
+    AddSetting(clips.at(i), setting);
+  }
+}
+
 void SetClipProperty::AddSetting(Clip* c, bool setting)
 {
   clips_.append(c);

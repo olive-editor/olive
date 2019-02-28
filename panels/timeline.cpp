@@ -371,7 +371,7 @@ void Timeline::add_transition() {
 
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     Clip* c = olive::ActiveSequence->clips.at(i).get();
-    if (c != nullptr && is_clip_selected(c, true)) {
+    if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, true)) {
       int transition_to_add = (c->track() < 0) ? TRANSITION_INTERNAL_CROSSDISSOLVE : TRANSITION_INTERNAL_LINEARFADE;
       if (c->opening_transition == nullptr) {
         ca->append(new AddTransitionCommand(c,
@@ -403,25 +403,23 @@ void Timeline::add_transition() {
 
 void Timeline::nest() {
   if (olive::ActiveSequence != nullptr) {
-    QVector<int> selected_clips;
-    long earliest_point = LONG_MAX;
-
     // get selected clips
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(i).get();
-      if (c != nullptr && is_clip_selected(c, true)) {
-        selected_clips.append(i);
-        earliest_point = qMin(c->timeline_in(), earliest_point);
-      }
-    }
+    QVector<int> selected_clips = olive::ActiveSequence->SelectedClipIndexes();
 
     // nest them
     if (!selected_clips.isEmpty()) {
+
+      // get earliest point in selected clips
+      long earliest_point = LONG_MAX;
+      for (int i=0;i<selected_clips.size();i++) {
+        earliest_point = qMin(olive::ActiveSequence->clips.at(selected_clips.at(i))->timeline_in(), earliest_point);
+      }
+
       ComboAction* ca = new ComboAction();
 
+      // create "nest" sequence with the same attributes as the current sequence
       SequencePtr s(new Sequence());
 
-      // create "nest" sequence
       s->name = panel_project->get_next_sequence_name(tr("Nested Sequence"));
       s->width = olive::ActiveSequence->width;
       s->height = olive::ActiveSequence->height;
@@ -658,22 +656,22 @@ void Timeline::delete_in_out_internal(bool ripple) {
 void Timeline::toggle_enable_on_selected_clips() {
   if (olive::ActiveSequence != nullptr) {
 
-    SetClipProperty* set_action = new SetClipProperty(kSetClipPropertyEnabled);
-    bool push_undo = false;
+    // get currently selected clips
+    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(i).get();
-      if (c != nullptr && is_clip_selected(c, true)) {        
+    if (!selected_clips.isEmpty()) {
+      // if clips are selected, create an undoable action
+      SetClipProperty* set_action = new SetClipProperty(kSetClipPropertyEnabled);
+
+      // add each selected clip to the action
+      for (int i=0;i<selected_clips.size();i++) {
+        Clip* c = selected_clips.at(i);
         set_action->AddSetting(c, !c->enabled());
-        push_undo = true;
       }
-    }
 
-    if (push_undo) {
+      // push the action
       olive::UndoStack.push(set_action);
-      update_ui(true);
-    } else {
-      delete set_action;
+      update_ui(false);
     }
   }
 }
@@ -828,18 +826,6 @@ void Timeline::DecreaseTrackHeight() {
   repaint_timeline();
 }
 
-bool is_clip_selected(Clip *clip, bool containing) {
-  for (int i=0;i<clip->sequence->selections.size();i++) {
-    const Selection& s = clip->sequence->selections.at(i);
-    if (clip->track() == s.track && ((clip->timeline_in() >= s.in && clip->timeline_out() <= s.out && containing) ||
-                                   (!containing && !(clip->timeline_in() < s.in && clip->timeline_out() < s.in)
-                                    && !(clip->timeline_in() > s.in && clip->timeline_out() > s.in)))) {
-      return true;
-    }
-  }
-  return false;
-}
-
 void Timeline::snapping_clicked(bool checked) {
   snapping = checked;
 }
@@ -945,14 +931,14 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
       if (relink) {
         pre_clips.append(clip);
 
-        bool original_clip_is_selected = is_clip_selected(c, true);
+        bool original_clip_is_selected = olive::ActiveSequence->IsClipSelected(c, true);
 
         // find linked clips of old clip
         for (int i=0;i<c->linked.size();i++) {
           int l = c->linked.at(i);
           if (!split_cache.contains(l)) {
             Clip* link = olive::ActiveSequence->clips.at(l).get();
-            if ((original_clip_is_selected && is_clip_selected(link, true)) || !original_clip_is_selected) {
+            if ((original_clip_is_selected && olive::ActiveSequence->IsClipSelected(link, true)) || !original_clip_is_selected) {
               split_cache.append(l);
               ClipPtr s = split_clip(ca, true, l, frame);
               if (s != nullptr) {
@@ -1233,73 +1219,71 @@ void Timeline::paste(bool insert) {
       }
     } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
       ComboAction* ca = new ComboAction();
-      bool push = false;
 
       bool replace = false;
       bool skip = false;
       bool ask_conflict = true;
 
-      for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-        Clip* c = olive::ActiveSequence->clips.at(i).get();
-        if (c != nullptr && is_clip_selected(c, true)) {
-          for (int j=0;j<clipboard.size();j++) {
-            EffectPtr e = std::static_pointer_cast<Effect>(clipboard.at(j));
-            if ((c->track() < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
-              int found = -1;
-              if (ask_conflict) {
-                replace = false;
-                skip = false;
+      QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+
+      for (int i=0;i<selected_clips.size();i++) {
+        Clip* c = selected_clips.at(i);
+
+        for (int j=0;j<clipboard.size();j++) {
+          EffectPtr e = std::static_pointer_cast<Effect>(clipboard.at(j));
+          if ((c->track() < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
+            int found = -1;
+            if (ask_conflict) {
+              replace = false;
+              skip = false;
+            }
+            for (int k=0;k<c->effects.size();k++) {
+              if (c->effects.at(k)->meta == e->meta) {
+                found = k;
+                break;
               }
-              for (int k=0;k<c->effects.size();k++) {
-                if (c->effects.at(k)->meta == e->meta) {
-                  found = k;
-                  break;
-                }
+            }
+            if (found >= 0 && ask_conflict) {
+              QMessageBox box(this);
+              box.setWindowTitle(tr("Effect already exists"));
+              box.setText(tr("Clip '%1' already contains a '%2' effect. "
+                             "Would you like to replace it with the pasted one or add it as a separate effect?")
+                          .arg(c->name(), e->meta->name));
+              box.setIcon(QMessageBox::Icon::Question);
+
+              box.addButton(tr("Add"), QMessageBox::YesRole);
+              QPushButton* replace_button = box.addButton(tr("Replace"), QMessageBox::NoRole);
+              QPushButton* skip_button = box.addButton(tr("Skip"), QMessageBox::RejectRole);
+
+              QCheckBox* future_box = new QCheckBox(tr("Do this for all conflicts found"), &box);
+              box.setCheckBox(future_box);
+
+              box.exec();
+
+              if (box.clickedButton() == replace_button) {
+                replace = true;
+              } else if (box.clickedButton() == skip_button) {
+                skip = true;
               }
-              if (found >= 0 && ask_conflict) {
-                QMessageBox box(this);
-                box.setWindowTitle(tr("Effect already exists"));
-                box.setText(tr("Clip '%1' already contains a '%2' effect. "
-                               "Would you like to replace it with the pasted one or add it as a separate effect?")
-                            .arg(c->name(), e->meta->name));
-                box.setIcon(QMessageBox::Icon::Question);
+              ask_conflict = !future_box->isChecked();
+            }
 
-                box.addButton(tr("Add"), QMessageBox::YesRole);
-                QPushButton* replace_button = box.addButton(tr("Replace"), QMessageBox::NoRole);
-                QPushButton* skip_button = box.addButton(tr("Skip"), QMessageBox::RejectRole);
+            if (found >= 0 && skip) {
+              // do nothing
+            } else if (found >= 0 && replace) {
+              EffectDeleteCommand* delcom = new EffectDeleteCommand();
+              delcom->clips.append(c);
+              delcom->fx.append(found);
+              ca->append(delcom);
 
-                QCheckBox* future_box = new QCheckBox(tr("Do this for all conflicts found"), &box);
-                box.setCheckBox(future_box);
-
-                box.exec();
-
-                if (box.clickedButton() == replace_button) {
-                  replace = true;
-                } else if (box.clickedButton() == skip_button) {
-                  skip = true;
-                }
-                ask_conflict = !future_box->isChecked();
-              }
-
-              if (found >= 0 && skip) {
-                // do nothing
-              } else if (found >= 0 && replace) {
-                EffectDeleteCommand* delcom = new EffectDeleteCommand();
-                delcom->clips.append(c);
-                delcom->fx.append(found);
-                ca->append(delcom);
-
-                ca->append(new AddEffectCommand(c, e->copy(c), nullptr, found));
-                push = true;
-              } else {
-                ca->append(new AddEffectCommand(c, e->copy(c), nullptr));
-                push = true;
-              }
+              ca->append(new AddEffectCommand(c, e->copy(c), nullptr, found));
+            } else {
+              ca->append(new AddEffectCommand(c, e->copy(c), nullptr));
             }
           }
         }
       }
-      if (push) {
+      if (ca->hasActions()) {
         ca->appendPost(new ReloadEffectsCommand());
         olive::UndoStack.push(ca);
       } else {
@@ -1491,7 +1475,7 @@ void Timeline::split_at_playhead() {
     QVector<ClipPtr> post_clips;
     for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
       Clip* clip = olive::ActiveSequence->clips.at(j).get();
-      if (clip != nullptr && is_clip_selected(clip, true)) {
+      if (clip != nullptr && olive::ActiveSequence->IsClipSelected(clip, true)) {
         ClipPtr s = split_clip(ca, true, j, olive::ActiveSequence->playhead);
         if (s != nullptr) {
           pre_clips.append(j);
@@ -1634,7 +1618,7 @@ void Timeline::set_marker() {
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     Clip* c = olive::ActiveSequence->clips.at(i).get();
     if (c != nullptr
-        && is_clip_selected(c, true)) {
+        && olive::ActiveSequence->IsClipSelected(c, true)) {
 
       // only add markers if the playhead is inside the clip
       if (olive::ActiveSequence->playhead >= c->timeline_in()
@@ -1688,7 +1672,7 @@ void Timeline::toggle_links() {
   command->s = olive::ActiveSequence;
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     Clip* c = olive::ActiveSequence->clips.at(i).get();
-    if (c != nullptr && is_clip_selected(c, true)) {
+    if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, true)) {
       if (!command->clips.contains(i)) command->clips.append(i);
 
       if (c->linked.size() > 0) {

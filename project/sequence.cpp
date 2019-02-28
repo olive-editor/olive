@@ -79,6 +79,52 @@ void Sequence::RefreshClips(Media *m) {
   }
 }
 
+QVector<Clip *> Sequence::SelectedClips()
+{
+  QVector<Clip*> selected_clips;
+
+  for (int i=0;i<clips.size();i++) {
+    Clip* c = clips.at(i).get();
+    if (c != nullptr && IsClipSelected(c, true)) {
+      selected_clips.append(c);
+    }
+  }
+
+  return selected_clips;
+}
+
+QVector<int> Sequence::SelectedClipIndexes()
+{
+  QVector<int> selected_clips;
+
+  for (int i=0;i<clips.size();i++) {
+    Clip* c = clips.at(i).get();
+    if (c != nullptr && IsClipSelected(c, true)) {
+      selected_clips.append(i);
+    }
+  }
+
+  return selected_clips;
+}
+
+bool Sequence::IsClipSelected(int clip_index, bool containing)
+{
+  return IsClipSelected(clips.at(clip_index).get(), containing);
+}
+
+bool Sequence::IsClipSelected(Clip *clip, bool containing)
+{
+  for (int i=0;i<selections.size();i++) {
+    const Selection& s = selections.at(i);
+    if (clip->track() == s.track && ((clip->timeline_in() >= s.in && clip->timeline_out() <= s.out && containing)
+                                  || (!containing && !(clip->timeline_in() < s.in && clip->timeline_out() < s.in)
+                                   && !(clip->timeline_in() > s.in && clip->timeline_out() > s.in)))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
   int vt = 0;
   int at = 0;

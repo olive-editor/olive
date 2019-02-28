@@ -101,13 +101,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
     menu.addSeparator();
 
     // collect all the selected clips
-    QVector<Clip*> selected_clips;
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(i).get();
-      if (c != nullptr && is_clip_selected(c, true)) {
-        selected_clips.append(c);
-      }
-    }
+    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
     if (!selected_clips.isEmpty()) {
       // clips are selected
@@ -184,20 +178,17 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 }
 
 void TimelineWidget::toggle_autoscale() {
-  SetClipProperty* action = new SetClipProperty(kSetClipPropertyAutoscale);
+  QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
-  bool added_clip = false;
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    Clip* c = olive::ActiveSequence->clips.at(i).get();
-    if (c != nullptr && is_clip_selected(c, true)) {
+  if (!selected_clips.isEmpty()) {
+    SetClipProperty* action = new SetClipProperty(kSetClipPropertyAutoscale);
+
+    for (int i=0;i<selected_clips.size();i++) {
+      Clip* c = selected_clips.at(i);
       action->AddSetting(c, !c->autoscaled());
-      added_clip = true;
     }
-  }
-  if (added_clip) {
+
     olive::UndoStack.push(action);
-  } else {
-    delete action;
   }
 }
 
@@ -239,16 +230,10 @@ void TimelineWidget::open_sequence_properties() {
 void TimelineWidget::show_clip_properties()
 {
   // get list of selected clips
-  QVector<Clip*> selected_clips;
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    Clip* c = olive::ActiveSequence->clips.at(i).get();
-    if (c != nullptr && is_clip_selected(c, true)) {
-      selected_clips.append(c);
-    }
-  }
+  QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
   // if clips are selected, open the clip properties dialog
-  if (selected_clips.size() > 0) {
+  if (!selected_clips.isEmpty()) {
     ClipPropertiesDialog cpd(this, selected_clips);
     cpd.exec();
   }
@@ -663,7 +648,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
           if (hovered_clip >= 0) {
             Clip* clip = olive::ActiveSequence->clips.at(hovered_clip).get();
 
-            if (is_clip_selected(clip, true)) {
+            if (olive::ActiveSequence->IsClipSelected(clip, true)) {
 
               if (shift) {
 
@@ -766,7 +751,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                   Clip* link = olive::ActiveSequence->clips.at(clip->linked.at(i)).get();
 
                   // check if the clip is already selected
-                  if (!is_clip_selected(link, true)) {
+                  if (!olive::ActiveSequence->IsClipSelected(link, true)) {
                     Selection ss;
                     ss.in = link->timeline_in();
                     ss.out = link->timeline_out();
@@ -2064,7 +2049,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
           Clip* c = olive::ActiveSequence->clips.at(j).get();
 
-          if (c != nullptr && is_clip_selected(c, false)) {
+          if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, false)) {
 
             // loop through linked clips
             for (int k=0;k<c->linked.size();k++) {
@@ -2194,7 +2179,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
             // if a transition isn't selected, check if the whole clip is
             if (!add) {
-              add = is_clip_selected(c, true);
+              add = olive::ActiveSequence->IsClipSelected(c, true);
             }
 
             if (add) {

@@ -374,6 +374,7 @@ public:
   SetClipProperty(SetClipPropertyType type);
   virtual void doUndo() override;
   virtual void doRedo() override;
+  void AddSetting(QVector<Clip *> clips, bool setting);
   void AddSetting(Clip *c, bool setting);
 private:
   SetClipPropertyType type_;

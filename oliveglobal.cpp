@@ -358,16 +358,9 @@ void OliveGlobal::open_debug_log() {
 void OliveGlobal::open_speed_dialog() {
   if (olive::ActiveSequence != nullptr) {
 
-    QVector<Clip*> selected_clips;
+    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(i).get();
-      if (c != nullptr && is_clip_selected(c, true)) {
-        selected_clips.append(c);
-      }
-    }
-
-    if (selected_clips.size() > 0) {
+    if (!selected_clips.isEmpty()) {
       SpeedDialog s(olive::MainWindow, selected_clips);
       s.exec();
     }
