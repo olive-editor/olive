@@ -735,7 +735,10 @@ void Cacher::WakeMainThread()
   main_thread_lock_.unlock();
 }
 
-Cacher::Cacher(Clip* c) : clip(c) {}
+Cacher::Cacher(Clip* c) : clip(c) {
+  frame_ = nullptr;
+  pkt = nullptr;
+}
 
 void Cacher::OpenWorker() {
   qint64 time_start = QDateTime::currentMSecsSinceEpoch();
@@ -988,9 +991,15 @@ void Cacher::CloseWorker() {
   queue.clear();
   queue.unlock();
 
-  av_frame_free(&frame_);
+  if (frame_ != nullptr) {
+    av_frame_free(&frame_);
+    frame_ = nullptr;
+  }
 
-  av_packet_free(&pkt);
+  if (pkt != nullptr) {
+    av_packet_free(&pkt);
+    pkt = nullptr;
+  }
 
   if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     avfilter_graph_free(&filter_graph);
@@ -1050,7 +1059,9 @@ void Cacher::Open()
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
 {
-  if (clip->media_stream()->infinite_length && queue.size() > 0) {
+  if (clip->media_stream() != nullptr
+      && queue.size() > 0
+      && clip->media_stream()->infinite_length) {
     retrieved_frame = queue.at(0);
     return;
   }
@@ -1063,26 +1074,33 @@ void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int pla
 
   bool wait_for_cacher_to_respond = true;
 
-  // see if we already have this frame
-  retrieve_lock_.lock();
-  queue.lock();
-  retrieved_frame = nullptr;
-  int64_t target_pts = seconds_to_timestamp(clip, playhead_to_clip_seconds(clip, playhead_));
-  for (int i=0;i<queue.size();i++) {
-    if (queue.at(i)->pts == target_pts) {
-      retrieved_frame = queue.at(i);
-//      qDebug() << "================> found frame at" << i;
-      wait_for_cacher_to_respond = false;
-      break;
-    } else if (i > 0 && queue.at(i-1)->pts < target_pts && queue.at(i)->pts > target_pts) {
-      retrieved_frame = queue.at(i-1);
-//      qDebug() << "================> found frame at" << i-1;
-      wait_for_cacher_to_respond = false;
-      break;
+  if (clip->media() != nullptr) {
+    // see if we already have this frame
+    retrieve_lock_.lock();
+    queue.lock();
+    retrieved_frame = nullptr;
+    int64_t target_pts = seconds_to_timestamp(clip, playhead_to_clip_seconds(clip, playhead_));
+    for (int i=0;i<queue.size();i++) {
+
+      if (queue.at(i)->pts == target_pts) {
+
+        // the queue has a frame with the exact timestamp
+
+        retrieved_frame = queue.at(i);
+        wait_for_cacher_to_respond = false;
+        break;
+      } else if (i > 0 && queue.at(i-1)->pts < target_pts && queue.at(i)->pts > target_pts) {
+
+        // the queue has a frame with a close timestamp that we'll assume is different due to a rounding error
+
+        retrieved_frame = queue.at(i-1);
+        wait_for_cacher_to_respond = false;
+        break;
+      }
     }
+    queue.unlock();
+    retrieve_lock_.unlock();
   }
-  queue.unlock();
-  retrieve_lock_.unlock();
 
   if (wait_for_cacher_to_respond) {
     main_thread_lock_.lock();
