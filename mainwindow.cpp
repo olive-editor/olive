@@ -73,9 +73,22 @@ MainWindow* olive::MainWindow;
 void MainWindow::setup_layout(bool reset) {  
   // load panels from file
   if (!reset) {
-    QFile panel_config(get_config_path() + "/layout");
+    QFile panel_config(get_config_dir().filePath("layout"));
     if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
-      restoreState(panel_config.readAll(), 0);
+
+      // default to resetting unless we find the tag in the XML file
+      reset = true;
+
+      // read XML layout file
+      QXmlStreamReader stream(&panel_config);
+      while (!stream.atEnd()) {
+        stream.readNextStartElement();
+        if (stream.name() == "panels") {
+          restoreState(QByteArray::fromBase64(stream.readElementText().toUtf8()), 0);
+          reset = false;
+        }
+      }
+
       panel_config.close();
     } else {
       reset = true;
@@ -888,9 +901,14 @@ void MainWindow::closeEvent(QCloseEvent *e) {
       olive::CurrentConfig.save(config_fn);
 
       // save panel layout
-      QFile panel_config(config_path + "/layout");
+      QFile panel_config(get_config_dir().filePath("layout"));
       if (panel_config.open(QFile::WriteOnly)) {
-        panel_config.write(saveState(0));
+        QXmlStreamWriter stream(&panel_config);
+        stream.writeStartDocument();
+
+        stream.writeTextElement("panels", saveState(0).toBase64());
+
+        stream.writeEndDocument();
         panel_config.close();
       } else {
         qCritical() << "Failed to save layout";
