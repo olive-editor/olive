@@ -126,9 +126,11 @@ Media *Clip::media()
 
 FootageStream *Clip::media_stream()
 {
-  if (media()->get_type() == MEDIA_TYPE_FOOTAGE) {
+  if (media() != nullptr
+      && media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     return media()->to_footage()->get_stream_from_file_index(track() < 0, media_stream_index());
   }
+
   return nullptr;
 }
 

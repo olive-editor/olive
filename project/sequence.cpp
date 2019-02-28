@@ -42,6 +42,8 @@ SequencePtr Sequence::copy() {
   s->frame_rate = frame_rate;
   s->audio_frequency = audio_frequency;
   s->audio_layout = audio_layout;
+
+  // deep copy all of the sequence's clips
   s->clips.resize(clips.size());
   for (int i=0;i<clips.size();i++) {
     ClipPtr c = clips.at(i);
@@ -53,6 +55,10 @@ SequencePtr Sequence::copy() {
       s->clips[i] = copy;
     }
   }
+
+  // copy all of the sequence's markers
+  s->markers = markers;
+
   return s;
 }
 
