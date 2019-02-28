@@ -571,13 +571,12 @@ void Cacher::CacheVideoWorker() {
       do {
         AVFrame* decoded_frame;
 
-//        qint64 time = QDateTime::currentMSecsSinceEpoch();
+        // retrieve raw RGBA frame from decoder + filter stack
         int retrieve_code = RetrieveFrameAndProcess(&decoded_frame);
-        //qDebug() << "decode took:" << (QDateTime::currentMSecsSinceEpoch() - time);
 
-        // for some reason we were unable to retrieve a frame, likely a decoder error so we report it
-        // again an EOF, is not really an "error", and we can continue execution if we encounter it
         if (retrieve_code < 0 && retrieve_code != AVERROR_EOF) {
+          // for some reason we were unable to retrieve a frame, likely a decoder error so we report it
+          // again, an EOF isn't an "error" but will how we add frames (see below)
 
           qCritical() << "Failed to retrieve frame from buffersink." << retrieve_code;
 
@@ -668,7 +667,22 @@ void Cacher::CacheVideoWorker() {
 
           qWarning() << clip->name() << "frame had no PTS value";
           av_frame_free(&decoded_frame);
-          SetRetrievedFrame(nullptr);
+
+          if (retrieve_code == AVERROR_EOF && retrieved_frame == nullptr) {
+            // if we reached the end of the file, it's not an error but there are no more frames to retrieve
+            // some formats EOF before the end of the duration that Olive calculates. In this event, we simply
+            // return the last frame we retrieved
+            //
+            // TODO: Check duration formula
+
+            SetRetrievedFrame(queue.last());
+
+          } else {
+
+            SetRetrievedFrame(nullptr);
+
+          }
+
           break;
 
         }
