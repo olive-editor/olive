@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia opengl
+QT       += core gui multimedia opengl svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
