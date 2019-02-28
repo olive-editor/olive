@@ -55,7 +55,9 @@ void Footage::reset() {
 }
 
 long Footage::get_length_in_frames(double frame_rate) {
-	if (length >= 0) return qFloor(((double) length / (double) AV_TIME_BASE) * frame_rate / speed);
+  if (length >= 0) {
+    return qFloor((double(length) / double(AV_TIME_BASE)) * frame_rate / speed);
+  }
 	return 0;
 }
 
