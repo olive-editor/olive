@@ -41,16 +41,12 @@ enum TransitionInternal {
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-TransitionPtr get_transition_from_meta(ClipPtr c, ClipPtr s, const EffectMeta* em);
-
-TransitionPtr create_transition(ClipPtr c, ClipPtr s, const EffectMeta* em, long length = 0);
-
 class Transition : public Effect {
   Q_OBJECT
 public:
-  Transition(ClipPtr c, ClipPtr s, const EffectMeta* em);
-  virtual TransitionPtr copy(ClipPtr c, ClipPtr s);
-  ClipPtr secondary_clip;
+  Transition(Clip* c, Clip* s, const EffectMeta* em);
+  virtual TransitionPtr copy(Clip* c, Clip* s);
+  Clip* secondary_clip;
 
   virtual void save(QXmlStreamWriter& stream) override;
 
@@ -58,8 +54,11 @@ public:
   long get_true_length();
   long get_length();
 
-  ClipPtr get_opened_clip();
-  ClipPtr get_closed_clip();
+  Clip* get_opened_clip();
+  Clip* get_closed_clip();
+
+  static TransitionPtr Create(Clip* c, Clip* s, const EffectMeta* em, long length = 0);
+  static TransitionPtr CreateFromMeta(Clip *c, Clip *s, const EffectMeta* em);
 private slots:
   void set_length_from_slider();
 private:

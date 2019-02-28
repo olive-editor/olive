@@ -27,7 +27,7 @@
 #include "ui/collapsiblewidget.h"
 #include "debug.h"
 
-VoidEffect::VoidEffect(ClipPtr c, const QString& n) : Effect(c, nullptr) {
+VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
 	name = n;
 	QString display_name;
 	if (n.isEmpty()) {
@@ -43,7 +43,7 @@ VoidEffect::VoidEffect(ClipPtr c, const QString& n) : Effect(c, nullptr) {
 	meta = &void_meta;
 }
 
-EffectPtr VoidEffect::copy(ClipPtr c) {
+EffectPtr VoidEffect::copy(Clip* c) {
     EffectPtr copy(new VoidEffect(c, name));
 	copy->set_enabled(is_enabled());
 	copy_field_keyframes(copy);

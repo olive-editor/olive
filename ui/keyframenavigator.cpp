@@ -35,7 +35,7 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
 	}
 
 	left_key_nav = new QPushButton(this);
-	left_key_nav->setIcon(QIcon(":/icons/tri-left.png"));
+  left_key_nav->setIcon(QIcon(":/icons/tri-left.svg"));
 	left_key_nav->setIconSize(left_key_nav->iconSize()*0.5);
 	left_key_nav->setVisible(false);
 	key_controls->addWidget(left_key_nav);
@@ -43,7 +43,7 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
 	connect(left_key_nav, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));
 
 	key_addremove = new QPushButton(this);
-	key_addremove->setIcon(QIcon(":/icons/diamond.png"));
+  key_addremove->setIcon(QIcon(":/icons/diamond.svg"));
 	key_addremove->setIconSize(key_addremove->iconSize()*0.5);
 	key_addremove->setVisible(false);
 	key_controls->addWidget(key_addremove);
@@ -51,14 +51,14 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
 	connect(key_addremove, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));
 
 	right_key_nav = new QPushButton(this);
-	right_key_nav->setIcon(QIcon(":/icons/tri-right.png"));
+  right_key_nav->setIcon(QIcon(":/icons/tri-right.svg"));
 	right_key_nav->setIconSize(right_key_nav->iconSize()*0.5);
 	right_key_nav->setVisible(false);
 	key_controls->addWidget(right_key_nav);
 	connect(right_key_nav, SIGNAL(clicked(bool)), this, SIGNAL(goto_next_key()));
 	connect(right_key_nav, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));
 
-	keyframe_enable = new QPushButton(QIcon(":/icons/clock.png"), "", this);
+  keyframe_enable = new QPushButton(QIcon(":/icons/clock.svg"), "", this);
 	keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	keyframe_enable->setIconSize(keyframe_enable->iconSize()*0.75);
 	keyframe_enable->setCheckable(true);

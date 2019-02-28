@@ -179,7 +179,7 @@ void GraphEditor::set_row(EffectRow *r) {
         QPushButton* slider_button = new QPushButton();
         slider_button->setCheckable(true);
         slider_button->setChecked(field->is_enabled());
-        slider_button->setIcon(QIcon(":/icons/record.png"));
+        slider_button->setIcon(QIcon(":/icons/record.svg"));
         slider_button->setProperty("field", i);
         slider_button->setIconSize(slider_button->iconSize()*0.5);
         connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));
@@ -201,8 +201,10 @@ void GraphEditor::set_row(EffectRow *r) {
 
   if (found_vals) {
     row = r;
-    current_row_desc->setText(row->parent_effect->parent_clip->name + " :: " + row->parent_effect->meta->name + " :: " + row->get_name());
-    header->set_visible_in(r->parent_effect->parent_clip->timeline_in);
+    current_row_desc->setText(row->parent_effect->parent_clip->name()
+                              + " :: " + row->parent_effect->meta->name
+                              + " :: " + row->get_name());
+    header->set_visible_in(r->parent_effect->parent_clip->timeline_in());
 
     connect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(goto_previous_key()));
     connect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(toggle_key()));

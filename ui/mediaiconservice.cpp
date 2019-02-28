@@ -54,13 +54,13 @@ void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
 
   switch (icon_type) {
   case ICON_TYPE_VIDEO:
-    olive::project_model.set_icon(media, QIcon(":/icons/videosource.png"));
+    olive::project_model.set_icon(media, QIcon(":/icons/videosource.svg"));
     break;
   case ICON_TYPE_AUDIO:
-    olive::project_model.set_icon(media, QIcon(":/icons/audiosource.png"));
+    olive::project_model.set_icon(media, QIcon(":/icons/audiosource.svg"));
     break;
   case ICON_TYPE_IMAGE:
-    olive::project_model.set_icon(media, QIcon(":/icons/imagesource.png"));
+    olive::project_model.set_icon(media, QIcon(":/icons/imagesource.svg"));
     break;
   case ICON_TYPE_LOADING:
     throbber_items_.append(media);
@@ -75,7 +75,7 @@ void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
     }
     break;
   case ICON_TYPE_ERROR:
-    olive::project_model.set_icon(media, QIcon(":/icons/error.png"));
+    olive::project_model.set_icon(media, QIcon(":/icons/error.svg"));
     break;
   }
 

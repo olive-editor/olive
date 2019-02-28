@@ -47,12 +47,12 @@
         <translation type="vanished">Aufnahme</translation>
     </message>
     <message>
-        <location filename="../playback/audio.cpp" line="331"/>
+        <location filename="../rendering/audio.cpp" line="331"/>
         <source>%1 Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playback/audio.cpp" line="344"/>
+        <location filename="../rendering/audio.cpp" line="344"/>
         <source>Recording %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -139,7 +139,7 @@
 <context>
     <name>DebugDialog</name>
     <message>
-        <location filename="../dialogs/debugdialog.cpp" line="32"/>
+        <location filename="../dialogs/debugdialog.cpp" line="44"/>
         <source>Debug Log</source>
         <translatorcomment>Could be also different but is understandable in german</translatorcomment>
         <translation>Debug-Log</translation>
@@ -263,47 +263,52 @@
 <context>
     <name>EffectControls</name>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="58"/>
+        <location filename="../panels/effectcontrols.cpp" line="494"/>
         <source>Effects: </source>
         <translation>Effekte: </translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="178"/>
+        <location filename="../panels/effectcontrols.cpp" line="186"/>
         <source>&amp;Paste</source>
         <translation>&amp;Einfügen</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="349"/>
+        <location filename="../panels/effectcontrols.cpp" line="311"/>
+        <source>(none)</source>
+        <translation type="unfinished">(keine)</translation>
+    </message>
+    <message>
+        <location filename="../panels/effectcontrols.cpp" line="496"/>
         <source>Add Video Effect</source>
         <translation>Video-Effekt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="360"/>
+        <location filename="../panels/effectcontrols.cpp" line="497"/>
         <source>VIDEO EFFECTS</source>
         <translation>VIDEO-EFFEKTE</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="367"/>
+        <location filename="../panels/effectcontrols.cpp" line="498"/>
         <source>Add Video Transition</source>
         <translation>Video-Übergang hinzufügen</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="396"/>
+        <location filename="../panels/effectcontrols.cpp" line="499"/>
         <source>Add Audio Effect</source>
         <translation>Audio-Effekt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="405"/>
+        <location filename="../panels/effectcontrols.cpp" line="500"/>
         <source>AUDIO EFFECTS</source>
         <translation>AUDIO-EFFEKTE</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="412"/>
+        <location filename="../panels/effectcontrols.cpp" line="501"/>
         <source>Add Audio Transition</source>
         <translation>Audio-Übergang hinzufügen</translation>
     </message>
     <message>
-        <location filename="../panels/effectcontrols.cpp" line="429"/>
+        <location filename="../panels/effectcontrols.cpp" line="502"/>
         <source>(Multiple clips selected)</source>
         <translation>(mehrere Clips ausgewählt)</translation>
     </message>
@@ -503,6 +508,11 @@
         <translation>Erweitert</translation>
     </message>
     <message>
+        <location filename="../dialogs/exportdialog.cpp" line="697"/>
+        <source>Audio</source>
+        <translation type="unfinished">Audio</translation>
+    </message>
+    <message>
         <location filename="../dialogs/exportdialog.cpp" line="706"/>
         <source>Sampling Rate:</source>
         <translation>Abtastrate:</translation>
@@ -517,87 +527,87 @@
 <context>
     <name>ExportThread</name>
     <message>
-        <location filename="../io/exportthread.cpp" line="82"/>
+        <location filename="../io/exportthread.cpp" line="81"/>
         <source>failed to send frame to encoder (%1)</source>
         <translation>Fehler beim Senden des Frames zum Encoder (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="93"/>
+        <location filename="../io/exportthread.cpp" line="92"/>
         <source>failed to receive packet from encoder (%1)</source>
         <translation>Fehler beim Empfangen des Pakets vom Encoder (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="114"/>
+        <location filename="../io/exportthread.cpp" line="113"/>
         <source>could not video encoder for %1</source>
         <translation>Video-Encoder für %1 konnte nicht gefunden werden</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="123"/>
+        <location filename="../io/exportthread.cpp" line="122"/>
         <source>could not allocate video stream</source>
         <translation>Videostream konnte nicht zugewiesen werden</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="132"/>
+        <location filename="../io/exportthread.cpp" line="131"/>
         <source>could not allocate video encoding context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="170"/>
+        <location filename="../io/exportthread.cpp" line="169"/>
         <source>could not open output video encoder (%1)</source>
         <translation>Video-Encoder konnte nicht geöffnet werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="178"/>
+        <location filename="../io/exportthread.cpp" line="177"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
         <translation>Video-Encoder-Parameter konnten nicht in den Ausgabe-Stream kopiert werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="216"/>
+        <location filename="../io/exportthread.cpp" line="215"/>
         <source>could not audio encoder for %1</source>
         <translation>Audio-Encoder für %1 konnte nicht gefunden werden</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="225"/>
+        <location filename="../io/exportthread.cpp" line="224"/>
         <source>could not allocate audio stream</source>
         <translation>Audiostream konnte nicht zugewiesen werden</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="234"/>
+        <location filename="../io/exportthread.cpp" line="233"/>
         <source>could not allocate audio encoding context</source>
         <translation>Audio-Encoding-Kontext konnte nicht zugewiesen werden</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="259"/>
+        <location filename="../io/exportthread.cpp" line="258"/>
         <source>could not open output audio encoder (%1)</source>
         <translation>Audio-Encoder konnte nicht geöffnet werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="267"/>
+        <location filename="../io/exportthread.cpp" line="266"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
         <translation>Audio-Encoder-Parameter konnten nicht in den Ausgabe-Stream kopiert werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="297"/>
+        <location filename="../io/exportthread.cpp" line="296"/>
         <source>could not allocate audio buffer (%1)</source>
         <translation>Audio-Buffer konnte nicht zugewiesen werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="319"/>
+        <location filename="../io/exportthread.cpp" line="318"/>
         <source>could not create output format context</source>
         <translation>Ausgabe-Format-Kontext konnte nicht erstellt werden</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="328"/>
+        <location filename="../io/exportthread.cpp" line="327"/>
         <source>could not open output file (%1)</source>
         <translation>Ausgabe konnte nicht geöffnet werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="354"/>
+        <location filename="../io/exportthread.cpp" line="353"/>
         <source>could not write output file header (%1)</source>
         <translation>Ausgabe-Datei-Header konnte nicht geschrieben werden (%1)</translation>
     </message>
     <message>
-        <location filename="../io/exportthread.cpp" line="491"/>
+        <location filename="../io/exportthread.cpp" line="490"/>
         <source>could not write output file trailer (%1)</source>
         <translation>Ausgabe-Datei-Trailer konnte nicht geschrieben werden (%1)</translation>
     </message>
@@ -646,24 +656,24 @@
 <context>
     <name>GraphEditor</name>
     <message>
-        <location filename="../panels/grapheditor.cpp" line="43"/>
+        <location filename="../panels/grapheditor.cpp" line="133"/>
         <source>Graph Editor</source>
         <translation>Grafischer Editor</translation>
     </message>
     <message>
-        <location filename="../panels/grapheditor.cpp" line="76"/>
+        <location filename="../panels/grapheditor.cpp" line="134"/>
         <source>Linear</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Linear</translation>
     </message>
     <message>
-        <location filename="../panels/grapheditor.cpp" line="79"/>
+        <location filename="../panels/grapheditor.cpp" line="135"/>
         <source>Bezier</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Bezier</translation>
     </message>
     <message>
-        <location filename="../panels/grapheditor.cpp" line="82"/>
+        <location filename="../panels/grapheditor.cpp" line="136"/>
         <source>Hold</source>
         <translatorcomment>Does this make sense? (is a handle button meant?)</translatorcomment>
         <translation type="unfinished">Halten</translation>
@@ -672,17 +682,17 @@
 <context>
     <name>GraphView</name>
     <message>
-        <location filename="../ui/graphview.cpp" line="82"/>
+        <location filename="../ui/graphview.cpp" line="81"/>
         <source>Zoom to Selection</source>
         <translation>In die Auswahl zoomen</translation>
     </message>
     <message>
-        <location filename="../ui/graphview.cpp" line="89"/>
+        <location filename="../ui/graphview.cpp" line="88"/>
         <source>Zoom to Show All</source>
         <translation>Zommen, um alles anzuzeigen</translation>
     </message>
     <message>
-        <location filename="../ui/graphview.cpp" line="98"/>
+        <location filename="../ui/graphview.cpp" line="97"/>
         <source>Reset View</source>
         <translation>Ansicht zurücksetzen</translation>
     </message>
@@ -757,17 +767,17 @@
 <context>
     <name>LoadDialog</name>
     <message>
-        <location filename="../dialogs/loaddialog.cpp" line="36"/>
+        <location filename="../dialogs/loaddialog.cpp" line="35"/>
         <source>Loading...</source>
         <translation>Lädt...</translation>
     </message>
     <message>
-        <location filename="../dialogs/loaddialog.cpp" line="41"/>
+        <location filename="../dialogs/loaddialog.cpp" line="40"/>
         <source>Loading &apos;%1&apos;...</source>
         <translation>Lädt &apos;%1&apos;...</translation>
     </message>
     <message>
-        <location filename="../dialogs/loaddialog.cpp" line="47"/>
+        <location filename="../dialogs/loaddialog.cpp" line="46"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -775,54 +785,54 @@
 <context>
     <name>LoadThread</name>
     <message>
-        <location filename="../io/loadthread.cpp" line="157"/>
+        <location filename="../io/loadthread.cpp" line="181"/>
         <source>Version Mismatch</source>
         <translation>Unterschiedliche Versionen</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="158"/>
+        <location filename="../io/loadthread.cpp" line="182"/>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
         <translation>Dieses Projekt wurde mit einer anderen Version von Olive gespeichert und ist möglicherweise nicht vollständig kompatibel. Wollen Sie trotzdem versuchen, es zu laden?</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="505"/>
+        <location filename="../io/loadthread.cpp" line="506"/>
         <source>Invalid Clip Link</source>
         <translation>Ungültiger Clip Link</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="506"/>
+        <location filename="../io/loadthread.cpp" line="507"/>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
         <translatorcomment>Sounds better in German but has same sense</translatorcomment>
         <translation>Dieses Projekt enthält eine ungültige Verlinkung zu einem Clip. Das Projekt ist möglicherweise beschädigt. Wollen Sie es dennoch versuchen?</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="667"/>
+        <location filename="../io/loadthread.cpp" line="629"/>
         <source>%1 - Line: %2 Col: %3</source>
         <translation>%1 - Zeile: %2 Spalte: %3</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="693"/>
+        <location filename="../io/loadthread.cpp" line="656"/>
         <source>User aborted loading</source>
         <translation>Ladevorgang durch Nutzer abgebrochen</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="724"/>
+        <location filename="../io/loadthread.cpp" line="687"/>
         <source>XML Parsing Error</source>
         <translatorcomment>Does not make sense to translate this</translatorcomment>
         <translation>XML Parsing Error</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="725"/>
+        <location filename="../io/loadthread.cpp" line="688"/>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
         <translation>&apos;%1&apos; konnte nicht geladen werden. (%2)</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="729"/>
+        <location filename="../io/loadthread.cpp" line="692"/>
         <source>Project Load Error</source>
         <translation>Projektladefehler</translation>
     </message>
     <message>
-        <location filename="../io/loadthread.cpp" line="730"/>
+        <location filename="../io/loadthread.cpp" line="693"/>
         <source>Error loading project: %1</source>
         <translation>Fehler beim Laden des Projektes: %1</translation>
     </message>
@@ -863,7 +873,7 @@
         <translation type="obsolete">Anfangs-/Endpunkt aktivieren/deaktiviern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="233"/>
+        <location filename="../mainwindow.cpp" line="221"/>
         <source>Welcome to %1</source>
         <translation>Willkommen in %1</translation>
     </message>
@@ -900,67 +910,67 @@
         <translation type="vanished">Das Projekt enthält ungespeicherte Änderungen. Wollen Sie diese jetzt speichern?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="362"/>
+        <location filename="../mainwindow.cpp" line="696"/>
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="365"/>
+        <location filename="../mainwindow.cpp" line="697"/>
         <source>&amp;New</source>
         <translation>&amp;Neu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="368"/>
+        <location filename="../mainwindow.cpp" line="698"/>
         <source>&amp;Open Project</source>
         <translation>Projekt &amp;öffnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="370"/>
+        <location filename="../mainwindow.cpp" line="699"/>
         <source>Clear Recent List</source>
         <translation>&apos;Zuletzt geöffnet&apos; leeren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="374"/>
+        <location filename="../mainwindow.cpp" line="700"/>
         <source>Open Recent</source>
         <translation>Zuletzt Verwendete öffnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="378"/>
+        <location filename="../mainwindow.cpp" line="701"/>
         <source>&amp;Save Project</source>
         <translation>&amp;Projekt speichern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="379"/>
+        <location filename="../mainwindow.cpp" line="702"/>
         <source>Save Project &amp;As</source>
         <translation>Projekt speichern &amp;als...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="703"/>
         <source>&amp;Import...</source>
         <translation>&amp;Importieren...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="387"/>
+        <location filename="../mainwindow.cpp" line="704"/>
         <source>&amp;Export...</source>
         <translation>&amp;Exportieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="391"/>
+        <location filename="../mainwindow.cpp" line="705"/>
         <source>E&amp;xit</source>
         <translation>B&amp;eenden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="395"/>
+        <location filename="../mainwindow.cpp" line="707"/>
         <source>&amp;Edit</source>
         <translation>&amp;Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="398"/>
+        <location filename="../mainwindow.cpp" line="708"/>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="400"/>
+        <location filename="../mainwindow.cpp" line="709"/>
         <source>Redo</source>
         <translation>Wiederholen</translation>
     </message>
@@ -994,12 +1004,12 @@
         <translation type="vanished">Teilen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="409"/>
+        <location filename="../mainwindow.cpp" line="710"/>
         <source>Select &amp;All</source>
         <translation>Alles &amp;auswählen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="711"/>
         <source>Deselect All</source>
         <translation>Auswahl aufheben</translation>
     </message>
@@ -1020,212 +1030,212 @@
         <translation type="vanished">Schachteln</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="419"/>
+        <location filename="../mainwindow.cpp" line="712"/>
         <source>Ripple to In Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="420"/>
+        <location filename="../mainwindow.cpp" line="713"/>
         <source>Ripple to Out Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="421"/>
+        <location filename="../mainwindow.cpp" line="714"/>
         <source>Edit to In Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="422"/>
+        <location filename="../mainwindow.cpp" line="715"/>
         <source>Edit to Out Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="427"/>
+        <location filename="../mainwindow.cpp" line="716"/>
         <source>Delete In/Out Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="428"/>
+        <location filename="../mainwindow.cpp" line="717"/>
         <source>Ripple Delete In/Out Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="432"/>
+        <location filename="../mainwindow.cpp" line="718"/>
         <source>Set/Edit Marker</source>
         <translation>Marker setzen/bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="436"/>
+        <location filename="../mainwindow.cpp" line="720"/>
         <source>&amp;View</source>
         <translation>&amp;Ansicht</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="439"/>
+        <location filename="../mainwindow.cpp" line="721"/>
         <source>Zoom In</source>
         <translation>Hereinzoomen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="440"/>
+        <location filename="../mainwindow.cpp" line="722"/>
         <source>Zoom Out</source>
         <translation>Herauszoomen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="441"/>
+        <location filename="../mainwindow.cpp" line="723"/>
         <source>Increase Track Height</source>
         <translation>Spurhöhe erhöhen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="442"/>
+        <location filename="../mainwindow.cpp" line="724"/>
         <source>Decrease Track Height</source>
         <translation>Spurhöhe verringern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="444"/>
+        <location filename="../mainwindow.cpp" line="725"/>
         <source>Toggle Show All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="450"/>
+        <location filename="../mainwindow.cpp" line="726"/>
         <source>Track Lines</source>
         <translation>Spurlinien</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="455"/>
+        <location filename="../mainwindow.cpp" line="727"/>
         <source>Rectified Waveforms</source>
         <translation>Nachgebesserte Waveforms</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="462"/>
+        <location filename="../mainwindow.cpp" line="728"/>
         <source>Frames</source>
         <translation type="unfinished">Bilder/Frames</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="466"/>
+        <location filename="../mainwindow.cpp" line="729"/>
         <source>Drop Frame</source>
         <translatorcomment>Same word used in German</translatorcomment>
         <translation>Drop Frame</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="470"/>
+        <location filename="../mainwindow.cpp" line="730"/>
         <source>Non-Drop Frame</source>
         <translatorcomment>Same word used in German</translatorcomment>
         <translation>Non-Drop Frame</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="474"/>
+        <location filename="../mainwindow.cpp" line="731"/>
         <source>Milliseconds</source>
         <translation>Millisekunden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="481"/>
+        <location filename="../mainwindow.cpp" line="733"/>
         <source>Title/Action Safe Area</source>
         <translation>Sicherer Titelbereich</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="483"/>
+        <location filename="../mainwindow.cpp" line="734"/>
         <source>Off</source>
         <translation>Aus</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="489"/>
+        <location filename="../mainwindow.cpp" line="735"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="495"/>
+        <location filename="../mainwindow.cpp" line="736"/>
         <source>4:3</source>
         <translation>4:3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="501"/>
+        <location filename="../mainwindow.cpp" line="737"/>
         <source>16:9</source>
         <translation>16:9</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="507"/>
+        <location filename="../mainwindow.cpp" line="738"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="515"/>
+        <location filename="../mainwindow.cpp" line="740"/>
         <source>Full Screen</source>
         <translation type="unfinished">Vollbild</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="519"/>
+        <location filename="../mainwindow.cpp" line="741"/>
         <source>Full Screen Viewer</source>
         <translatorcomment>Does this make sense?</translatorcomment>
         <translation type="unfinished">Vollbild-Viewer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="523"/>
+        <location filename="../mainwindow.cpp" line="743"/>
         <source>&amp;Playback</source>
         <translatorcomment>Should we translate this? Playback is also known</translatorcomment>
         <translation>&amp;Wiedergabe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="526"/>
+        <location filename="../mainwindow.cpp" line="744"/>
         <source>Go to Start</source>
         <translation>Zum Start gehen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="527"/>
+        <location filename="../mainwindow.cpp" line="745"/>
         <source>Previous Frame</source>
         <translation>Vorheriger Frame</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="528"/>
+        <location filename="../mainwindow.cpp" line="746"/>
         <source>Play/Pause</source>
         <translatorcomment>Does not make sense to translate</translatorcomment>
         <translation>Play/Pause</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="529"/>
+        <location filename="../mainwindow.cpp" line="747"/>
         <source>Play In to Out</source>
         <translation>Von Anfang bis Ende wiedergeben</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="530"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>Next Frame</source>
         <translation>Nächster Frame</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="531"/>
+        <location filename="../mainwindow.cpp" line="749"/>
         <source>Go to End</source>
         <translation>Zum Ende springen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="533"/>
+        <location filename="../mainwindow.cpp" line="751"/>
         <source>Go to Previous Cut</source>
         <translation>Zum vorherigen Schnitt springen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="534"/>
+        <location filename="../mainwindow.cpp" line="752"/>
         <source>Go to Next Cut</source>
         <translation>Zum nächsten Schnitt springen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="536"/>
+        <location filename="../mainwindow.cpp" line="753"/>
         <source>Go to In Point</source>
         <translation>Zum Anfangspunkt springen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="537"/>
+        <location filename="../mainwindow.cpp" line="754"/>
         <source>Go to Out Point</source>
         <translation>Zum Endpunkt springen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="539"/>
+        <location filename="../mainwindow.cpp" line="756"/>
         <source>Shuttle Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="540"/>
+        <location filename="../mainwindow.cpp" line="757"/>
         <source>Shuttle Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="541"/>
+        <location filename="../mainwindow.cpp" line="758"/>
         <source>Shuttle Right</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1243,225 +1253,230 @@
         <translation type="vanished">Geschwindigkeit erhöhen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="544"/>
+        <location filename="../mainwindow.cpp" line="760"/>
         <source>Loop</source>
         <translation>Schleife</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="551"/>
+        <location filename="../mainwindow.cpp" line="762"/>
         <source>&amp;Window</source>
         <translation>&amp;Fenster</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="554"/>
+        <location filename="../mainwindow.cpp" line="764"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="559"/>
+        <location filename="../mainwindow.cpp" line="765"/>
         <source>Effect Controls</source>
         <translation>Effektsteuerung</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="564"/>
+        <location filename="../mainwindow.cpp" line="766"/>
         <source>Timeline</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Timeline</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="569"/>
+        <location filename="../mainwindow.cpp" line="767"/>
         <source>Graph Editor</source>
         <translation>Grafischer Editor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="574"/>
+        <location filename="../mainwindow.cpp" line="768"/>
         <source>Media Viewer</source>
         <translatorcomment>Does this make sense to translate?</translatorcomment>
         <translation type="unfinished">Media Viewer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="769"/>
         <source>Sequence Viewer</source>
         <translatorcomment>Does this make sense to translate?</translatorcomment>
         <translation type="unfinished">Sequence Viewer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="586"/>
+        <location filename="../mainwindow.cpp" line="771"/>
         <source>Maximize Panel</source>
         <translation>Panel maximieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="590"/>
+        <location filename="../mainwindow.cpp" line="772"/>
+        <source>Lock Panels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="773"/>
         <source>Reset to Default Layout</source>
         <translation>Zum Standard-Layout zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="594"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>&amp;Tools</source>
         <translation>&amp;Werkzeuge</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="777"/>
         <source>Pointer Tool</source>
         <translatorcomment>Does this make sense?</translatorcomment>
         <translation type="unfinished">Zeiger</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="602"/>
+        <location filename="../mainwindow.cpp" line="778"/>
         <source>Edit Tool</source>
         <translation>Bearbeitungs-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="607"/>
+        <location filename="../mainwindow.cpp" line="779"/>
         <source>Ripple Tool</source>
         <translatorcomment>Same as &apos;Ripple Delete&apos;</translatorcomment>
         <translation>Ripple-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="612"/>
+        <location filename="../mainwindow.cpp" line="780"/>
         <source>Razor Tool</source>
         <translation>Schneide-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="617"/>
+        <location filename="../mainwindow.cpp" line="781"/>
         <source>Slip Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="622"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>Slide Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="627"/>
+        <location filename="../mainwindow.cpp" line="783"/>
         <source>Hand Tool</source>
         <translation>Hand-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="632"/>
+        <location filename="../mainwindow.cpp" line="784"/>
         <source>Transition Tool</source>
         <translation>Übergangs-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="639"/>
+        <location filename="../mainwindow.cpp" line="785"/>
         <source>Enable Snapping</source>
         <translation>Snapping aktivieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="646"/>
+        <location filename="../mainwindow.cpp" line="786"/>
         <source>Selecting Also Seeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="651"/>
+        <location filename="../mainwindow.cpp" line="787"/>
         <source>Edit Tool Also Seeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="656"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>Edit Tool Selects Links</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="661"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>Seek Also Selects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="666"/>
+        <location filename="../mainwindow.cpp" line="790"/>
         <source>Seek to the End of Pastes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="671"/>
+        <location filename="../mainwindow.cpp" line="791"/>
         <source>Scroll Wheel Zooms</source>
         <translatorcomment>Could be better</translatorcomment>
         <translation type="unfinished">Scrollrad zoomt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="676"/>
+        <location filename="../mainwindow.cpp" line="792"/>
         <source>Enable Drag Files to Timeline</source>
         <translation>Dateien auf Timeline ziehen aktivieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="681"/>
+        <location filename="../mainwindow.cpp" line="793"/>
         <source>Auto-Scale By Default</source>
         <translation>Skaliere automatisch</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="686"/>
+        <location filename="../mainwindow.cpp" line="794"/>
         <source>Enable Seek to Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="691"/>
+        <location filename="../mainwindow.cpp" line="795"/>
         <source>Audio Scrubbing</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Audio Scrubbing</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="696"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>Enable Drop on Media to Replace</source>
         <translation>Auf Medien zum Ersetzen ziehen aktivieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="701"/>
+        <location filename="../mainwindow.cpp" line="797"/>
         <source>Enable Hover Focus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="706"/>
+        <location filename="../mainwindow.cpp" line="798"/>
         <source>Ask For Name When Setting Marker</source>
         <translation>Nach Namen fragen, wenn Marker gesetzt wird</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="713"/>
+        <location filename="../mainwindow.cpp" line="800"/>
         <source>No Auto-Scroll</source>
         <translation>Kein Auto-Scroll</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="718"/>
+        <location filename="../mainwindow.cpp" line="801"/>
         <source>Page Auto-Scroll</source>
         <translation>Seiten Auto-Scroll</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="723"/>
+        <location filename="../mainwindow.cpp" line="802"/>
         <source>Smooth Auto-Scroll</source>
         <translation>Weiches Auto-Scroll</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="730"/>
+        <location filename="../mainwindow.cpp" line="804"/>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="733"/>
+        <location filename="../mainwindow.cpp" line="805"/>
         <source>Clear Undo</source>
         <translation>Rückgängig-Historie leeren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="738"/>
+        <location filename="../mainwindow.cpp" line="807"/>
         <source>&amp;Help</source>
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="740"/>
+        <location filename="../mainwindow.cpp" line="809"/>
         <source>A&amp;ction Search</source>
         <translation>&amp;Aktionensuche</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="744"/>
+        <location filename="../mainwindow.cpp" line="810"/>
         <source>Debug Log</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Debug-Log</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="748"/>
+        <location filename="../mainwindow.cpp" line="811"/>
         <source>&amp;About...</source>
         <translation>&amp;Über...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="756"/>
+        <location filename="../mainwindow.cpp" line="829"/>
         <source>&lt;untitled&gt;</source>
         <translation>&lt;unbenannt&gt;</translation>
     </message>
@@ -1519,27 +1534,27 @@
 <context>
     <name>Media</name>
     <message>
-        <location filename="../project/media.cpp" line="99"/>
+        <location filename="../project/media.cpp" line="96"/>
         <source>New Folder</source>
         <translation>Neuer Ordner:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="118"/>
+        <location filename="../project/media.cpp" line="115"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="118"/>
+        <location filename="../project/media.cpp" line="115"/>
         <source>Filename:</source>
         <translation>Dateiname:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="122"/>
+        <location filename="../project/media.cpp" line="119"/>
         <source>Video Dimensions:</source>
         <translation>Video-Dimensionen:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="132"/>
+        <location filename="../project/media.cpp" line="129"/>
         <source>Frame Rate:</source>
         <translation>Bildrate:</translation>
     </message>
@@ -1548,28 +1563,28 @@
         <translation type="vanished">%1 Felder (%2 frames)</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="142"/>
+        <location filename="../project/media.cpp" line="139"/>
         <source>%1 field(s) (%2 frame(s))</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="151"/>
+        <location filename="../project/media.cpp" line="148"/>
         <source>Interlacing:</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Interlacing:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="163"/>
+        <location filename="../project/media.cpp" line="160"/>
         <source>Audio Frequency:</source>
         <translation>Audiofrequenz:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="172"/>
+        <location filename="../project/media.cpp" line="169"/>
         <source>Audio Channels:</source>
         <translation>Audiokanäle:</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="190"/>
+        <location filename="../project/media.cpp" line="187"/>
         <source>Name: %1
 Video Dimensions: %2x%3
 Frame Rate: %4
@@ -1582,17 +1597,17 @@ Audiofrequenz: %5
 Audio Layout: %6</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="303"/>
+        <location filename="../project/media.cpp" line="300"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="305"/>
+        <location filename="../project/media.cpp" line="302"/>
         <source>Duration</source>
         <translation>Dauer</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="322"/>
+        <location filename="../project/media.cpp" line="319"/>
         <source>Rate</source>
         <translatorcomment>Same as in english, differently spoken, but same meaning</translatorcomment>
         <translation>Rate</translation>
@@ -1665,122 +1680,122 @@ Audio Layout: %6</translation>
 <context>
     <name>MenuHelper</name>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="39"/>
+        <location filename="../ui/menuhelper.cpp" line="158"/>
         <source>&amp;Project</source>
         <translation type="unfinished">&amp;Projekt</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="41"/>
+        <location filename="../ui/menuhelper.cpp" line="159"/>
         <source>&amp;Sequence</source>
         <translation type="unfinished">&amp;Sequenz</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="42"/>
+        <location filename="../ui/menuhelper.cpp" line="160"/>
         <source>&amp;Folder</source>
         <translation type="unfinished">&amp;Ordner</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="46"/>
+        <location filename="../ui/menuhelper.cpp" line="161"/>
         <source>Set In Point</source>
         <translation type="unfinished">Anfangspunkt festlegen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="47"/>
+        <location filename="../ui/menuhelper.cpp" line="162"/>
         <source>Set Out Point</source>
         <translation type="unfinished">Endpunkt festlegen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="49"/>
+        <location filename="../ui/menuhelper.cpp" line="163"/>
         <source>Reset In Point</source>
         <translation type="unfinished">Anfangspunkt zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="50"/>
+        <location filename="../ui/menuhelper.cpp" line="164"/>
         <source>Reset Out Point</source>
         <translation type="unfinished">Endpunkt zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="51"/>
+        <location filename="../ui/menuhelper.cpp" line="165"/>
         <source>Clear In/Out Point</source>
         <translation type="unfinished">Anfangs-/Endpunkt löschen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="55"/>
+        <location filename="../ui/menuhelper.cpp" line="166"/>
         <source>Add Default Transition</source>
         <translation type="unfinished">Standardübergang einfügen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="56"/>
+        <location filename="../ui/menuhelper.cpp" line="167"/>
         <source>Link/Unlink</source>
         <translation type="unfinished">Verbinden/Trennen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="57"/>
+        <location filename="../ui/menuhelper.cpp" line="168"/>
         <source>Enable/Disable</source>
         <translation type="unfinished">Einblenden/Ausblenden</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="58"/>
+        <location filename="../ui/menuhelper.cpp" line="169"/>
         <source>Nest</source>
         <translation type="unfinished">Schachteln</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="62"/>
+        <location filename="../ui/menuhelper.cpp" line="170"/>
         <source>Cu&amp;t</source>
         <translation type="unfinished">&amp;Ausschneiden</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="63"/>
+        <location filename="../ui/menuhelper.cpp" line="171"/>
         <source>Cop&amp;y</source>
         <translation type="unfinished">&amp;Kopieren</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="64"/>
+        <location filename="../ui/menuhelper.cpp" line="172"/>
         <source>&amp;Paste</source>
         <translation type="unfinished">&amp;Einfügen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="65"/>
+        <location filename="../ui/menuhelper.cpp" line="173"/>
         <source>Paste Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="66"/>
+        <location filename="../ui/menuhelper.cpp" line="174"/>
         <source>Duplicate</source>
         <translation type="unfinished">Duplizieren</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="67"/>
+        <location filename="../ui/menuhelper.cpp" line="175"/>
         <source>Delete</source>
         <translation type="unfinished">Löschen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="68"/>
+        <location filename="../ui/menuhelper.cpp" line="176"/>
         <source>Ripple Delete</source>
         <translation type="unfinished">Ripple Delete</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="69"/>
+        <location filename="../ui/menuhelper.cpp" line="177"/>
         <source>Split</source>
         <translation type="unfinished">Teilen</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="130"/>
+        <location filename="../ui/menuhelper.cpp" line="220"/>
         <source>Invalid aspect ratio</source>
         <translation type="unfinished">Ungültiges Seitenverhältnis</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="130"/>
+        <location filename="../ui/menuhelper.cpp" line="220"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
         <translation type="unfinished">Das Seitenverhältnis &apos;%1&apos; ist ungültig. Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="133"/>
+        <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Enter custom aspect ratio</source>
         <translation type="unfinished">Benutzerdefiniertes Seitenverhältnis eingeben</translation>
     </message>
     <message>
-        <location filename="../ui/menuhelper.cpp" line="133"/>
+        <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
         <translation type="unfinished">Geben Sie das Seitenverhältnis für den sicheren Bereich ein (z.B. 16:9):</translation>
     </message>
@@ -1788,131 +1803,131 @@ Audio Layout: %6</translation>
 <context>
     <name>NewSequenceDialog</name>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="55"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="54"/>
         <source>Editing &quot;%1&quot;</source>
         <translation>Bearbeitung von &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="75"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="74"/>
         <source>New Sequence</source>
         <translation>Neue Sequenz</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="180"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="179"/>
         <source>Preset:</source>
         <translatorcomment>Could be also preset</translatorcomment>
         <translation type="unfinished">Vorgabe:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="184"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="183"/>
         <source>Film 4K</source>
         <translation>Film 4K</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="185"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="184"/>
         <source>TV 4K (Ultra HD/2160p)</source>
         <translation>TV 4K (Ultra HD/2160p)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="186"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="185"/>
         <source>1080p</source>
         <translation>1080p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="187"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="186"/>
         <source>720p</source>
         <translation>720p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="188"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="187"/>
         <source>480p</source>
         <translation>480p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="189"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="188"/>
         <source>360p</source>
         <translation>360p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="190"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="189"/>
         <source>240p</source>
         <translation>240p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="191"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="190"/>
         <source>144p</source>
         <translation>144p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="192"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="191"/>
         <source>NTSC (480i)</source>
         <translation>NTSC (480i)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="193"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="192"/>
         <source>PAL (576i)</source>
         <translation>PAL (576i)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="194"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="193"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="202"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="201"/>
         <source>Video</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="206"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="205"/>
         <source>Width:</source>
         <translation>Breite:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="212"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="211"/>
         <source>Height:</source>
         <translation>Höhe:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="218"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="217"/>
         <source>Frame Rate:</source>
         <translation>Bildrate:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="234"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="233"/>
         <source>Pixel Aspect Ratio:</source>
         <translation>Pixel-Seitenverhältnis:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="236"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="235"/>
         <source>Square Pixels (1.0)</source>
         <translation>Quadratische Pixel (1.0)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="239"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="238"/>
         <source>Interlacing:</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Interlacing:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="241"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="240"/>
         <source>None (Progressive)</source>
         <translation>Keine (Progressive)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="249"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="248"/>
         <source>Audio</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="253"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="252"/>
         <source>Sample Rate: </source>
         <translation>Abtastrate:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="267"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="266"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
@@ -1920,67 +1935,67 @@ Audio Layout: %6</translation>
 <context>
     <name>OliveGlobal</name>
     <message>
-        <location filename="../oliveglobal.cpp" line="59"/>
+        <location filename="../oliveglobal.cpp" line="63"/>
         <source>Olive Project %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="83"/>
+        <location filename="../oliveglobal.cpp" line="90"/>
         <source>Auto-recovery</source>
         <translation type="unfinished">Auto-Wiederherstellung</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="83"/>
+        <location filename="../oliveglobal.cpp" line="90"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
         <translation type="unfinished">Olive wurde nicht richtig beendet und eine Wiederherstellungsdatei wurde gefunden. Möchten Sie diese öffnen?</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="132"/>
+        <location filename="../oliveglobal.cpp" line="165"/>
         <source>Open Project...</source>
         <translation type="unfinished">Projekt öffnen...</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="143"/>
+        <location filename="../oliveglobal.cpp" line="176"/>
         <source>Missing recent project</source>
         <translation type="unfinished">Zuletzt geöffnetes Projekt existiert nicht</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="144"/>
+        <location filename="../oliveglobal.cpp" line="177"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
         <translation type="unfinished">Das Projekt &apos;%1&apos; existiert nicht mehr oder wurde verschoben. Möchten Sie es aus der Liste entfernen?</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="155"/>
+        <location filename="../oliveglobal.cpp" line="188"/>
         <source>Save Project As...</source>
         <translation type="unfinished">Projekt speichern als...</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="180"/>
+        <location filename="../oliveglobal.cpp" line="213"/>
         <source>Unsaved Project</source>
         <translation type="unfinished">Ungespeichertes Projekt</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="181"/>
+        <location filename="../oliveglobal.cpp" line="214"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
         <translation type="unfinished">Das Projekt enthält ungespeicherte Änderungen. Wollen Sie diese jetzt speichern?</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="200"/>
+        <location filename="../oliveglobal.cpp" line="233"/>
         <source>No active sequence</source>
         <translation type="unfinished">Keine aktive Sequenz</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="201"/>
+        <location filename="../oliveglobal.cpp" line="234"/>
         <source>Please open the sequence you wish to export.</source>
         <translation type="unfinished">Bitte öffnen Sie die Sequenz, die Sie exportieren möchten.</translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="217"/>
+        <location filename="../oliveglobal.cpp" line="250"/>
         <source>Missing Project File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../oliveglobal.cpp" line="218"/>
+        <location filename="../oliveglobal.cpp" line="251"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1996,9 +2011,8 @@ Audio Layout: %6</translation>
 <context>
     <name>Playback</name>
     <message>
-        <location filename="../playback/playback.cpp" line="319"/>
         <source>Generating Proxy: %1%</source>
-        <translation>Proxy wird generiert: %1%</translation>
+        <translation type="vanished">Proxy wird generiert: %1%</translation>
     </message>
 </context>
 <context>
@@ -2009,12 +2023,12 @@ Audio Layout: %6</translation>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="180"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="181"/>
         <source>Invalid CSS File</source>
         <translation>Ungültige CSS Datei</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="181"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="182"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
         <translation>CSS Datei &apos;%1&apos; existiert nicht.</translation>
     </message>
@@ -2027,145 +2041,145 @@ Audio Layout: %6</translation>
         <translation type="vanished">Einige Änderungen erfordern einen Neustart von Olive, um angwendet zu werden</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="310"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="321"/>
         <source>Confirm Reset All Shortcuts</source>
         <translation>Bestätige das Zurücksetzen aller Shortcuts</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="311"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="322"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
         <translation>Sind Sie sicher, dass Sie alle Tastatur-Shortcuts zurücksetzen wollen?</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="361"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="372"/>
         <source>Import Keyboard Shortcuts</source>
         <translation>Tastatur-Shortcuts importieren</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="385"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="409"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="396"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="420"/>
         <source>Error saving shortcuts</source>
         <translation>Fehler beim Speichern der Shortcuts</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="386"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="397"/>
         <source>Failed to open file for reading</source>
         <translation>Fehler beim öffnen der Datei</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="393"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="404"/>
         <source>Export Keyboard Shortcuts</source>
         <translation>Tastatur-Shortcuts exportieren</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="407"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="418"/>
         <source>Export Shortcuts</source>
         <translation>Shortcuts exportieren</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="407"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="418"/>
         <source>Shortcuts exported successfully</source>
         <translation>Shortcuts wurden erfolgreich exportiert</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="409"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="420"/>
         <source>Failed to open file for writing</source>
         <translation>Fehler beim Schreiben der Datei</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="415"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="426"/>
         <source>Browse for CSS file</source>
         <translation>Nach CSS Datei suchen</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="423"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="434"/>
         <source>Delete All Previews</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="424"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="435"/>
         <source>Are you sure you want to delete all previews?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="428"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="439"/>
         <source>Previews Deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="429"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="440"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="446"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="457"/>
         <source>Language:</source>
         <translation>Sprache:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="483"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="494"/>
         <source>Custom CSS:</source>
         <translation>Benutzerdefiniertes CSS:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="489"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="500"/>
         <source>Browse</source>
         <translation>Durchsuchen</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="496"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="507"/>
         <source>Image sequence formats:</source>
         <translation>Bilddateiformate:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="505"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="516"/>
         <source>Audio Recording:</source>
         <translation>Audioaufnahmen:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="508"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
         <source>Mono</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Mono</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="509"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="520"/>
         <source>Stereo</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Stereo</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="515"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="526"/>
         <source>Effect Textbox Lines:</source>
         <translation>Effekt Textbox-Linien:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="525"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="536"/>
         <source>Thumbnail Resolution:</source>
         <translation type="unfinished">Thumbnail-Auflösung:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="533"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="544"/>
         <source>Waveform Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="541"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="552"/>
         <source>Delete Previews</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="549"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="560"/>
         <source>Use Software Fallbacks When Possible</source>
         <translation>Absicherung durch Software-Defaults</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="564"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="557"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="568"/>
         <source>Behavior</source>
         <translation>Verhalten</translation>
     </message>
@@ -2174,120 +2188,120 @@ Audio Layout: %6</translation>
         <translation type="vanished">Multithreading auf Bildern deaktiviern</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="571"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="582"/>
         <source>Seeking</source>
         <translation>Suche</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="574"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="585"/>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
         <translation>Genaue Suche
 Zeigt immer den richtigen Frame (kann optisch kurzzeitig anhalten, wenn Frame abgefragt wird)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="577"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="588"/>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
         <translation>Schnelle Suche
 Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf Plaback aus)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="594"/>
         <source>Memory Usage</source>
         <translation>Speicherauslastung</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="585"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="596"/>
         <source>Upcoming Frame Queue:</source>
         <translation>Anstehende Frame-Warteschlange:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="590"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="599"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="601"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="610"/>
         <source>frames</source>
         <translatorcomment>Could also use &apos;Bilder&apos;</translatorcomment>
         <translation>Frames</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="591"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="600"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="602"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="611"/>
         <source>seconds</source>
         <translation>Sekunden</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="594"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="605"/>
         <source>Previous Frame Queue:</source>
         <translation>Vorherige Frame-Warteschlange:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="605"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="616"/>
         <source>Playback</source>
         <translation>Wiedergabe</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="612"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
         <source>Output Device:</source>
         <translation>Ausgabegerät:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="615"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="634"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="626"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="645"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="631"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="642"/>
         <source>Input Device:</source>
         <translation>Eingabegerät:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="650"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="661"/>
         <source>Sample Rate:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="663"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
         <source>Audio</source>
         <translation type="unfinished">Audio</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="671"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="682"/>
         <source>Search for action or shortcut</source>
         <translation>Nach Eintrag oder Shortcut suchen</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="678"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="689"/>
         <source>Action</source>
         <translation>Eintrag</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="679"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="690"/>
         <source>Shortcut</source>
         <translation>Shortcut</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="684"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="695"/>
         <source>Import</source>
         <translation>Importieren</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="688"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="699"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="694"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="705"/>
         <source>Reset Selected</source>
         <translation>Ausgewählte zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="698"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="709"/>
         <source>Reset All</source>
         <translation>Alle zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="704"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="715"/>
         <source>Keyboard</source>
         <translation>Tastatur</translation>
     </message>
@@ -2295,12 +2309,12 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>PreviewGenerator</name>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="530"/>
+        <location filename="../io/previewgenerator.cpp" line="531"/>
         <source>Could not open file - %1</source>
         <translation>Konnte Datei nicht öffnen - %1</translation>
     </message>
     <message>
-        <location filename="../io/previewgenerator.cpp" line="537"/>
+        <location filename="../io/previewgenerator.cpp" line="538"/>
         <source>Could not find stream information - %1</source>
         <translation>Konnte Stream-Informationen nicht finden - %1</translation>
     </message>
@@ -2308,94 +2322,94 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>Project</name>
     <message>
-        <location filename="../panels/project.cpp" line="146"/>
+        <location filename="../panels/project.cpp" line="244"/>
         <source>Search media, markers, etc.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="227"/>
+        <location filename="../panels/project.cpp" line="245"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="237"/>
+        <location filename="../panels/project.cpp" line="249"/>
         <source>Sequence</source>
         <translation>Sequenz</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="357"/>
+        <location filename="../panels/project.cpp" line="369"/>
         <source>Replace &apos;%1&apos;</source>
         <translation>Ersetze &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="359"/>
-        <location filename="../panels/project.cpp" line="906"/>
+        <location filename="../panels/project.cpp" line="371"/>
+        <location filename="../panels/project.cpp" line="908"/>
         <source>All Files</source>
         <translation>Alle Dateien</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="370"/>
-        <location filename="../panels/project.cpp" line="918"/>
+        <location filename="../panels/project.cpp" line="382"/>
+        <location filename="../panels/project.cpp" line="920"/>
         <source>No active sequence</source>
         <translation>Keine aktive Sequenz</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="371"/>
+        <location filename="../panels/project.cpp" line="383"/>
         <source>No sequence is active, please open the sequence you want to replace clips from.</source>
         <translation>Keine Sequenz ist aktiv. Bitten öffnen Sie die Sequenz, bei der Sie Clips ersetzen möchten.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="379"/>
+        <location filename="../panels/project.cpp" line="391"/>
         <source>Active sequence selected</source>
         <translation>Aktive Sequenz ausgewählt</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="380"/>
+        <location filename="../panels/project.cpp" line="392"/>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
         <translation>Sequenz kann nicht sich selbst zugewiesen werden, da es keine Medien enthalten würde.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="411"/>
+        <location filename="../panels/project.cpp" line="423"/>
         <source>Rename &apos;%1&apos;</source>
         <translation>&apos;%1&apos; umbenennen</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="412"/>
+        <location filename="../panels/project.cpp" line="424"/>
         <source>Enter new name:</source>
         <translation>Neuen Namen eingeben:</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="552"/>
+        <location filename="../panels/project.cpp" line="569"/>
         <source>Delete media in use?</source>
         <translation>Verwendete Datei löschen?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="553"/>
+        <location filename="../panels/project.cpp" line="570"/>
         <source>The media &apos;%1&apos; is currently used in &apos;%2&apos;. Deleting it will remove all instances in the sequence. Are you sure you want to do this?</source>
         <translation>Die Datei &apos;%1&apos; wird aktuell in &apos;%2&apos; benutzt. Wenn Sie sie löschen, werden alle Instanzen in der Sequenz entfernt. Sind Sie sicher?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="556"/>
+        <location filename="../panels/project.cpp" line="573"/>
         <source>Skip</source>
         <translation>Überspringen</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="780"/>
+        <location filename="../panels/project.cpp" line="784"/>
         <source>Image sequence detected</source>
         <translation>Bildsequenz erkannt</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="781"/>
+        <location filename="../panels/project.cpp" line="785"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
         <translation>Die Datei &apos;%1&apos; scheint eine Bildsequenz zu enthalten. Möchten Sie sie als solche importieren?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="906"/>
+        <location filename="../panels/project.cpp" line="908"/>
         <source>Import media...</source>
         <translation>Medien importieren...</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="919"/>
+        <location filename="../panels/project.cpp" line="921"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
         <translation>Keine Sequenz ist aktiv. Bitten öffnen Sie die Sequenz, bei der Sie Clips löschen möchten.</translation>
     </message>
@@ -2464,17 +2478,17 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
         <translation>Genau wie Quelle (in Ordner &quot;%1&quot;)</translation>
     </message>
     <message>
-        <location filename="../dialogs/proxydialog.cpp" line="125"/>
+        <location filename="../dialogs/proxydialog.cpp" line="127"/>
         <source>Proxy file exists</source>
         <translation>Proxy-Datei existiert bereits</translation>
     </message>
     <message>
-        <location filename="../dialogs/proxydialog.cpp" line="126"/>
+        <location filename="../dialogs/proxydialog.cpp" line="128"/>
         <source>The file &quot;%1&quot; already exists. Do you wish to replace it?</source>
         <translation>Die Datei &quot;%1&quot; existiert bereits. Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
-        <location filename="../dialogs/proxydialog.cpp" line="171"/>
+        <location filename="../dialogs/proxydialog.cpp" line="181"/>
         <source>Custom Location</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2482,7 +2496,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>ProxyGenerator</name>
     <message>
-        <location filename="../io/proxygenerator.cpp" line="322"/>
+        <location filename="../io/proxygenerator.cpp" line="326"/>
         <source>Finished generating proxy for &quot;%1&quot;</source>
         <translation>Proxy-Generierung für &quot;%1&quot; wurde abgeschlossen</translation>
     </message>
@@ -2490,67 +2504,67 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>ReplaceClipMediaDialog</name>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="38"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="37"/>
         <source>Replace clips using &quot;%1&quot;</source>
         <translation>Ersetze Clips unter Verwendung von &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="44"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="43"/>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
         <translation>Wählen Sie, welche Medien mit den Clips dieser Medien ersetzt werden sollen</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="50"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="49"/>
         <source>Keep the same media in-points</source>
         <translation>Anfangspunkte der Medien behalten</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="58"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="57"/>
         <source>Replace</source>
         <translation>Ersetzen</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="62"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="61"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="78"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="77"/>
         <source>No media selected</source>
         <translation>Keine Medien ausgewählt</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="79"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="78"/>
         <source>Please select a media to replace with or click &apos;Cancel&apos;.</source>
         <translation>Bitten wählen Sie Medien zum Ersetzen aus oder klicken Sie auf &apos;Abbrechen&apos;.</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="86"/>
         <source>Same media selected</source>
         <translation>Identische Medien ausgewählt</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="88"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
         <source>You selected the same media that you&apos;re replacing. Please select a different one or click &apos;Cancel&apos;.</source>
         <translation>Sie haben die gleichen Medien ausgewählt, die Sie ersetzen möchten. Bitte wählen Sie andere Medien oder klicken Sie auf &apos;Abbrechen&apos;.</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="94"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="93"/>
         <source>Folder selected</source>
         <translation>Ordner ausgewählt</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="95"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="94"/>
         <source>You cannot replace footage with a folder.</source>
         <translation>Sie können Footage nicht mit einem Ordner austauschen.</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="102"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="101"/>
         <source>Active sequence selected</source>
         <translation>Aktive Sequenz ausgewählt</translation>
     </message>
     <message>
-        <location filename="../dialogs/replaceclipmediadialog.cpp" line="103"/>
+        <location filename="../dialogs/replaceclipmediadialog.cpp" line="102"/>
         <source>You cannot insert a sequence into itself.</source>
         <translation>Sie können keine Sequenz in die selbe einsetzen.</translation>
     </message>
@@ -2558,7 +2572,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>Sequence</name>
     <message>
-        <location filename="../project/sequence.cpp" line="48"/>
+        <location filename="../project/sequence.cpp" line="39"/>
         <source>%1 (copy)</source>
         <translation>%1 (kopieren)</translation>
     </message>
@@ -2711,52 +2725,57 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
         <translation>Proxy wird generiert: %1% fertig</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="190"/>
+        <location filename="../project/sourcescommon.cpp" line="193"/>
         <source>Create/Modify Proxy</source>
         <translation>Erstelle/Modifiziere Proxy</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="193"/>
+        <location filename="../project/sourcescommon.cpp" line="196"/>
         <source>Create Proxy</source>
         <translation>Proxy erstellen</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="204"/>
+        <location filename="../project/sourcescommon.cpp" line="207"/>
         <source>Modify Proxy</source>
         <translation>Proxy modifizieren</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="207"/>
+        <location filename="../project/sourcescommon.cpp" line="210"/>
         <source>Restore Original</source>
         <translation>Original wiederherstellen</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="213"/>
+        <location filename="../project/sourcescommon.cpp" line="216"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="217"/>
+        <location filename="../project/sourcescommon.cpp" line="223"/>
+        <source>Preview in Media Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../project/sourcescommon.cpp" line="229"/>
         <source>Properties...</source>
         <translation>Eigenschaften...</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="275"/>
+        <location filename="../project/sourcescommon.cpp" line="283"/>
         <source>Replace Media</source>
         <translation>Medien ersetzen</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="276"/>
+        <location filename="../project/sourcescommon.cpp" line="284"/>
         <source>You dropped a file onto &apos;%1&apos;. Would you like to replace it with the dropped file?</source>
         <translation>Sie haben eine Datei auf &apos;%1&apos; gezogen. Möchten Sie diese ersetzen?</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="393"/>
+        <location filename="../project/sourcescommon.cpp" line="413"/>
         <source>Delete proxy</source>
         <translation>Proxy löschen</translation>
     </message>
     <message>
-        <location filename="../project/sourcescommon.cpp" line="394"/>
+        <location filename="../project/sourcescommon.cpp" line="414"/>
         <source>Would you like to delete the proxy file &quot;%1&quot; as well?</source>
         <translation>Möchten Sie die Proxy-Datei &quot;%1&quot; ebenfalls löschen?</translation>
     </message>
@@ -2898,26 +2917,31 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="85"/>
+        <source>Shadow Angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../effects/internal/texteffect.cpp" line="86"/>
         <source>Shadow Distance</source>
         <translation>Schattenentfernung</translation>
     </message>
     <message>
-        <location filename="../effects/internal/texteffect.cpp" line="87"/>
+        <location filename="../effects/internal/texteffect.cpp" line="88"/>
         <source>Shadow Softness</source>
         <translation>Schattensoftness</translation>
     </message>
     <message>
-        <location filename="../effects/internal/texteffect.cpp" line="89"/>
+        <location filename="../effects/internal/texteffect.cpp" line="90"/>
         <source>Shadow Opacity</source>
         <translation>Schattendeckkraft</translation>
     </message>
     <message>
-        <location filename="../effects/internal/texteffect.cpp" line="94"/>
+        <location filename="../effects/internal/texteffect.cpp" line="95"/>
         <source>Sample Text</source>
         <translation>Beispieltext</translation>
     </message>
     <message>
-        <location filename="../effects/internal/texteffect.cpp" line="327"/>
+        <location filename="../effects/internal/texteffect.cpp" line="334"/>
         <source>&amp;Edit Text</source>
         <translation>&amp;Text bearbeiten</translation>
     </message>
@@ -2925,47 +2949,47 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>TimecodeEffect</name>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="53"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="52"/>
         <source>Timecode</source>
         <translation>Zeitstempel</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="55"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="54"/>
         <source>Sequence</source>
         <translation>Sequenz</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="56"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="55"/>
         <source>Media</source>
         <translation>Medien</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="59"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="58"/>
         <source>Scale</source>
         <translation>Skalierung</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="64"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="63"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="67"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="66"/>
         <source>Background Color</source>
         <translation>Hintergrundfarbe</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="70"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="69"/>
         <source>Background Opacity</source>
         <translation>Hintergrunddeckkraft</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="75"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="74"/>
         <source>Offset</source>
         <translation>Versatz</translation>
     </message>
     <message>
-        <location filename="../effects/internal/timecodeeffect.cpp" line="79"/>
+        <location filename="../effects/internal/timecodeeffect.cpp" line="78"/>
         <source>Prepend</source>
         <translation>Voreinstellung</translation>
     </message>
@@ -2973,43 +2997,42 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>Timeline</name>
     <message>
-        <location filename="../panels/timeline.cpp" line="480"/>
+        <location filename="../panels/timeline.cpp" line="1847"/>
         <source>Timeline: </source>
         <translatorcomment>Makes no sense to translate</translatorcomment>
         <translation>Timeline: </translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="482"/>
         <source>&lt;none&gt;</source>
-        <translation>&lt;keine&gt;</translation>
+        <translation type="vanished">&lt;keine&gt;</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1221"/>
+        <location filename="../panels/timeline.cpp" line="1257"/>
         <source>Effect already exists</source>
         <translation>Effekt existiert bereits</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1222"/>
+        <location filename="../panels/timeline.cpp" line="1258"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
         <translation>Der Clip &apos;%1&apos; enthält bereits den Effekt &apos;%2&apos;. Möchten Sie diesen ersetzen oder ihn als separaten Effekt hinzufügen?</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1225"/>
+        <location filename="../panels/timeline.cpp" line="1263"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1226"/>
+        <location filename="../panels/timeline.cpp" line="1264"/>
         <source>Replace</source>
         <translation>Ersetzen</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1227"/>
+        <location filename="../panels/timeline.cpp" line="1265"/>
         <source>Skip</source>
         <translation>Überspringen</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1229"/>
+        <location filename="../panels/timeline.cpp" line="1267"/>
         <source>Do this for all conflicts found</source>
         <translation>Auf alle gefundenen Konflikte anwenden</translation>
     </message>
@@ -3022,115 +3045,120 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
         <translation type="vanished">Marker-Name setzen:</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="414"/>
-        <source>Nested Sequence</source>
-        <translation type="unfinished">Geschachtelte Sequenz</translation>
-    </message>
-    <message>
-        <location filename="../panels/timeline.cpp" line="1717"/>
+        <location filename="../panels/timeline.cpp" line="1734"/>
         <source>Title...</source>
         <translation>Titel...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1722"/>
+        <location filename="../panels/timeline.cpp" line="1739"/>
         <source>Solid Color...</source>
         <translation>Solid...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1727"/>
+        <location filename="../panels/timeline.cpp" line="1744"/>
         <source>Bars...</source>
         <translation>Balken...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1734"/>
+        <location filename="../panels/timeline.cpp" line="1751"/>
         <source>Tone...</source>
         <translation>Ton...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1739"/>
+        <location filename="../panels/timeline.cpp" line="1756"/>
         <source>Noise...</source>
         <translation>Rauschen...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1762"/>
+        <location filename="../panels/timeline.cpp" line="1779"/>
         <source>Unsaved Project</source>
         <translation>Ungespeichertes Projekt</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1763"/>
+        <location filename="../panels/timeline.cpp" line="1780"/>
         <source>You must save this project before you can record audio in it.</source>
         <translation>Sie müssen das Projekt speichern, bevor Sie Audio aufnehmen können.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1769"/>
+        <location filename="../panels/timeline.cpp" line="1786"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
         <translation>Klicken Sie auf die Timeline, an welcher Stelle Sie mit der Aufnahme beginnen möchten (Ziehen, um das Limit der Aufnahme auf einen bestimmten Timeframe zu setzen)</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1852"/>
+        <location filename="../panels/timeline.cpp" line="119"/>
         <source>Pointer Tool</source>
         <translation>Pointer-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1863"/>
+        <location filename="../panels/timeline.cpp" line="120"/>
         <source>Edit Tool</source>
         <translation>Bearbeitungs-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1874"/>
+        <location filename="../panels/timeline.cpp" line="121"/>
         <source>Ripple Tool</source>
         <translation>Ripple-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1885"/>
+        <location filename="../panels/timeline.cpp" line="122"/>
         <source>Razor Tool</source>
         <translation>Schneide-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1896"/>
+        <location filename="../panels/timeline.cpp" line="123"/>
         <source>Slip Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1907"/>
+        <location filename="../panels/timeline.cpp" line="124"/>
         <source>Slide Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1918"/>
+        <location filename="../panels/timeline.cpp" line="125"/>
         <source>Hand Tool</source>
         <translation>Hand-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1929"/>
+        <location filename="../panels/timeline.cpp" line="126"/>
         <source>Transition Tool</source>
         <translation>Übergangs-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1940"/>
+        <location filename="../panels/timeline.cpp" line="127"/>
         <source>Snapping</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Snapping</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1949"/>
+        <location filename="../panels/timeline.cpp" line="128"/>
         <source>Zoom In</source>
         <translation>Hereinzommen</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1958"/>
+        <location filename="../panels/timeline.cpp" line="129"/>
         <source>Zoom Out</source>
         <translation>Herauszoomen</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1967"/>
+        <location filename="../panels/timeline.cpp" line="130"/>
         <source>Record audio</source>
         <translation>Audio aufnehmen</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1976"/>
+        <location filename="../panels/timeline.cpp" line="131"/>
         <source>Add title, solid, bars, etc.</source>
         <translation>Titel, Solid, Balken, etc. Hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../panels/timeline.cpp" line="421"/>
+        <source>Nested Sequence</source>
+        <translation type="unfinished">Geschachtelte Sequenz</translation>
+    </message>
+    <message>
+        <location filename="../panels/timeline.cpp" line="1849"/>
+        <source>(none)</source>
+        <translation type="unfinished">(keine)</translation>
     </message>
 </context>
 <context>
@@ -3208,7 +3236,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
         <translation>U&amp;mbenennen</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="207"/>
+        <location filename="../ui/timelinewidget.cpp" line="210"/>
         <source>%1
 Start: %2
 End: %3
@@ -3219,57 +3247,57 @@ Ende: %3
 Dauer: %4</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="229"/>
+        <location filename="../ui/timelinewidget.cpp" line="232"/>
         <source>Rename &apos;%1&apos;</source>
         <translation>&apos;%1&apos; umbenennen</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="229"/>
+        <location filename="../ui/timelinewidget.cpp" line="233"/>
         <source>Rename multiple clips</source>
         <translation>Mehrere Clips umbenennen</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="230"/>
+        <location filename="../ui/timelinewidget.cpp" line="234"/>
         <source>Enter a new name for this clip:</source>
         <translation>Geben Sie einen neuen Namen für den Clip ein:</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="258"/>
+        <location filename="../ui/timelinewidget.cpp" line="262"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="258"/>
+        <location filename="../ui/timelinewidget.cpp" line="262"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
         <translation>Konnte den Medienwrapper für diese Sequenz nicht finden.</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="848"/>
+        <location filename="../ui/timelinewidget.cpp" line="1040"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="852"/>
+        <location filename="../ui/timelinewidget.cpp" line="1044"/>
         <source>Solid Color</source>
         <translation>Solid</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="857"/>
+        <location filename="../ui/timelinewidget.cpp" line="1049"/>
         <source>Bars</source>
         <translation>Balken</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="864"/>
+        <location filename="../ui/timelinewidget.cpp" line="1056"/>
         <source>Tone</source>
         <translation>Ton</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="868"/>
+        <location filename="../ui/timelinewidget.cpp" line="1060"/>
         <source>Noise</source>
         <translation>Rauschen</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1626"/>
+        <location filename="../ui/timelinewidget.cpp" line="1980"/>
         <source>Duration:</source>
         <translation>Dauer:</translation>
     </message>
@@ -3478,65 +3506,65 @@ Dauer: %4</translation>
 <context>
     <name>VSTHost</name>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="115"/>
-        <location filename="../effects/internal/vsthost.cpp" line="162"/>
-        <location filename="../effects/internal/vsthost.cpp" line="175"/>
+        <location filename="../effects/internal/vsthost.cpp" line="119"/>
+        <location filename="../effects/internal/vsthost.cpp" line="166"/>
+        <location filename="../effects/internal/vsthost.cpp" line="179"/>
         <source>Error loading VST plugin</source>
         <translation>Fehler beim Laden des VST Plugins</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="115"/>
+        <location filename="../effects/internal/vsthost.cpp" line="119"/>
         <source>Failed to create VST reference</source>
         <translation>Fehler beim Herstellen einer VST Referenz</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="150"/>
+        <location filename="../effects/internal/vsthost.cpp" line="154"/>
         <source>Failed to load VST plugin &quot;%1&quot;: %2</source>
         <translation>Fehler beim Laden des VST Plugins &quot;%1&quot;:%2</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="155"/>
+        <location filename="../effects/internal/vsthost.cpp" line="159"/>
         <source>NOTE: You can&apos;t load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.</source>
         <translation>HINWEIS: Sie können keine 32-bit VST Plugins in einer 64-bit Version von Olive laden. Sie benötigen entweder eine 64-bit Version des Plugins oder eine 32-bit Version von Olive.</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="157"/>
+        <location filename="../effects/internal/vsthost.cpp" line="161"/>
         <source>NOTE: You can&apos;t load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
         <translation>HINWEIS: Sie können keine 64-bit VST Plugins in einer 32-bit Version von Olive laden. Sie benötigen entweder eine 32-bit Version des Plugins oder eine 64-bit Version von Olive.</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="175"/>
+        <location filename="../effects/internal/vsthost.cpp" line="179"/>
         <source>Failed to locate entry point for dynamic library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="203"/>
+        <location filename="../effects/internal/vsthost.cpp" line="207"/>
         <source>VST Error</source>
         <translation>VST Fehler</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="203"/>
+        <location filename="../effects/internal/vsthost.cpp" line="207"/>
         <source>Plugin&apos;s magic number is invalid</source>
         <translation>Die Magic Number des Plugins ist ungültig</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="265"/>
+        <location filename="../effects/internal/vsthost.cpp" line="269"/>
         <source>Plugin</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Plugin</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="268"/>
+        <location filename="../effects/internal/vsthost.cpp" line="272"/>
         <source>Interface</source>
         <translation>Benutzeroberfläche</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="269"/>
+        <location filename="../effects/internal/vsthost.cpp" line="273"/>
         <source>Show</source>
         <translation>Anzeigen</translation>
     </message>
     <message>
-        <location filename="../effects/internal/vsthost.cpp" line="276"/>
+        <location filename="../effects/internal/vsthost.cpp" line="280"/>
         <source>VST Plugin</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>VST Plugin</translation>
@@ -3545,17 +3573,17 @@ Dauer: %4</translation>
 <context>
     <name>Viewer</name>
     <message>
-        <location filename="../panels/panels.cpp" line="176"/>
+        <location filename="../mainwindow.cpp" line="813"/>
         <source>Sequence Viewer</source>
         <translation>Sequenz-Viewer</translation>
     </message>
     <message>
-        <location filename="../panels/panels.cpp" line="179"/>
+        <location filename="../mainwindow.cpp" line="814"/>
         <source>Media Viewer</source>
         <translation>Medien-Viewer</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="573"/>
+        <location filename="../panels/viewer.cpp" line="584"/>
         <source>(none)</source>
         <translation>(keine)</translation>
     </message>
@@ -3563,59 +3591,59 @@ Dauer: %4</translation>
 <context>
     <name>ViewerWidget</name>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="128"/>
+        <location filename="../ui/viewerwidget.cpp" line="121"/>
         <source>Save Frame as Image...</source>
         <translation>Frame als Bild speichern...</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="133"/>
+        <location filename="../ui/viewerwidget.cpp" line="124"/>
         <source>Show Fullscreen</source>
         <translation>Vollbildschirm</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="136"/>
+        <location filename="../ui/viewerwidget.cpp" line="127"/>
         <source>Disable</source>
         <translation>Ausblenden</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="139"/>
+        <location filename="../ui/viewerwidget.cpp" line="130"/>
         <source>Screen %1: %2x%3</source>
         <translation>Screen %1:%2x%3</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="147"/>
+        <location filename="../ui/viewerwidget.cpp" line="138"/>
         <source>Zoom</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="148"/>
+        <location filename="../ui/viewerwidget.cpp" line="139"/>
         <source>Fit</source>
         <translation>Einpassen</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="158"/>
+        <location filename="../ui/viewerwidget.cpp" line="149"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="164"/>
+        <location filename="../ui/viewerwidget.cpp" line="155"/>
         <source>Close Media</source>
         <translation>Medien schließen</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="174"/>
+        <location filename="../ui/viewerwidget.cpp" line="165"/>
         <source>Save Frame</source>
         <translation>Frame speichern</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="208"/>
+        <location filename="../ui/viewerwidget.cpp" line="199"/>
         <source>Viewer Zoom</source>
         <translatorcomment>Makes no sense to translate</translatorcomment>
         <translation>Viewer Zoom</translation>
     </message>
     <message>
-        <location filename="../ui/viewerwidget.cpp" line="209"/>
+        <location filename="../ui/viewerwidget.cpp" line="200"/>
         <source>Set Custom Zoom Value:</source>
         <translation>Benutzerdefinierten Zoomwert angeben</translation>
     </message>
@@ -3652,12 +3680,12 @@ Dauer: %4</translation>
 <context>
     <name>transition</name>
     <message>
-        <location filename="../project/transition.cpp" line="99"/>
+        <location filename="../project/transition.cpp" line="122"/>
         <source>Invalid transition</source>
         <translation>Ungültiger Übergang</translation>
     </message>
     <message>
-        <location filename="../project/transition.cpp" line="100"/>
+        <location filename="../project/transition.cpp" line="123"/>
         <source>No candidate for transition &apos;%1&apos;. This transition may be corrupt. Try reinstalling it or Olive.</source>
         <translation>Kein Kandidat für den Übergang &apos;%1&apos;. Der Übergang ist möglicherweise beschädigt. Eine Neuinstallation wird empfohlen.</translation>
     </message>

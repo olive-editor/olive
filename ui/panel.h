@@ -27,9 +27,14 @@ class Panel : public QDockWidget {
   Q_OBJECT
 public:
   Panel(QWidget* parent = nullptr);
-  virtual bool event(QEvent* e) override;
-protected:
+  virtual ~Panel() override;
   virtual void Retranslate() = 0;
+protected:
+  virtual void changeEvent(QEvent* e) override;
 };
+
+namespace olive {
+  extern QVector<Panel*> panels;
+}
 
 #endif // PANEL_H

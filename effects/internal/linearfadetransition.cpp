@@ -20,7 +20,7 @@
 
 #include "linearfadetransition.h"
 
-LinearFadeTransition::LinearFadeTransition(ClipPtr c, ClipPtr s, const EffectMeta* em) : Transition(c, s, em) {}
+LinearFadeTransition::LinearFadeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {}
 
 void LinearFadeTransition::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int type) {
 	double interval = (timecode_end-timecode_start)/nb_bytes;

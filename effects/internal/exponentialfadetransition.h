@@ -25,7 +25,7 @@
 
 class ExponentialFadeTransition : public Transition {
 public:
-    ExponentialFadeTransition(ClipPtr c, ClipPtr s, const EffectMeta* em);
+    ExponentialFadeTransition(Clip* c, Clip* s, const EffectMeta* em);
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 };
 

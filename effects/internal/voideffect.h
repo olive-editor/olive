@@ -32,9 +32,9 @@
 class VoidEffect : public Effect {
     Q_OBJECT
 public:
-    VoidEffect(ClipPtr c, const QString& n);
+    VoidEffect(Clip* c, const QString& n);
 
-    virtual EffectPtr copy(ClipPtr c) override;
+    virtual EffectPtr copy(Clip* c) override;
 	virtual void load(QXmlStreamReader &stream) override;
 	virtual void save(QXmlStreamWriter &stream) override;
 private:

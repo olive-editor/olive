@@ -38,7 +38,7 @@
 #define SMPTE_STRIP_COUNT 3
 #define SMPTE_LOWER_BARS 4
 
-SolidEffect::SolidEffect(ClipPtr c, const EffectMeta* em) : Effect(c, em) {
+SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
 	enable_superimpose = true;
 
     solid_type = add_row(tr("Type"))->add_field(EFFECT_FIELD_COMBO, "type");

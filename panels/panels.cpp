@@ -50,12 +50,12 @@ void update_effect_controls() {
   int mode = kTransitionNone;
   if (olive::ActiveSequence != nullptr) {
     for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      ClipPtr clip = olive::ActiveSequence->clips.at(i);
+      Clip* clip = olive::ActiveSequence->clips.at(i).get();
       if (clip != nullptr) {
         for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
           const Selection& s = olive::ActiveSequence->selections.at(j);
           bool add = true;
-          if (clip->timeline_in >= s.in && clip->timeline_out <= s.out && clip->track == s.track) {
+          if (clip->timeline_in() >= s.in && clip->timeline_out() <= s.out && clip->track() == s.track) {
             mode = kTransitionNone;
           } else if (selection_contains_transition(s, clip, kTransitionOpening)) {
             mode = kTransitionOpening;
@@ -66,9 +66,9 @@ void update_effect_controls() {
           }
 
           if (add) {
-            if (clip->track < 0 && vclip == -1) {
+            if (clip->track() < 0 && vclip == -1) {
               vclip = i;
-            } else if (clip->track >= 0 && aclip == -1) {
+            } else if (clip->track() >= 0 && aclip == -1) {
               aclip = i;
             } else {
               vclip = -2;
@@ -172,11 +172,9 @@ QDockWidget *get_focused_panel(bool force_hover) {
 void alloc_panels(QWidget* parent) {
   // TODO maybe replace these with non-pointers later on?
   panel_sequence_viewer = new Viewer(parent);
-  panel_sequence_viewer->setObjectName("seq_viewer");
-  panel_sequence_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Sequence Viewer"));
+  panel_sequence_viewer->setObjectName("seq_viewer");  
   panel_footage_viewer = new Viewer(parent);
   panel_footage_viewer->setObjectName("footage_viewer");
-  panel_footage_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Media Viewer"));
   panel_project = new Project(parent);
   panel_project->setObjectName("proj_root");
   panel_effect_controls = new EffectControls(parent);

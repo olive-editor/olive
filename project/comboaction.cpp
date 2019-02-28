@@ -31,5 +31,10 @@ void ComboAction::append(QUndoCommand* u) {
 }
 
 void ComboAction::appendPost(QUndoCommand* u) {
-    post_commands.append(u);
+  post_commands.append(u);
+}
+
+bool ComboAction::hasActions()
+{
+  return commands.size() > 0;
 }

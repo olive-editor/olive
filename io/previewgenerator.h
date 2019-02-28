@@ -39,24 +39,26 @@ class PreviewGenerator : public QThread
 {
   Q_OBJECT
 public:
-  PreviewGenerator(Media*, FootagePtr, bool);
+  PreviewGenerator(Media*);
   void run();
   void cancel();
+
+  static void AnalyzeMedia(Media*);
 private:
   void parse_media();
   bool retrieve_preview(const QString &hash);
   void generate_waveform();
-  void finalize_media();
-  AVFormatContext* fmt_ctx;
-  Media* media;
-  FootagePtr footage;
-  bool retrieve_duration;
-  bool contains_still_image;
-  bool replace;
-  bool cancelled;
-  QDir data_dir;
+  void finalize_media();  
   QString get_thumbnail_path(const QString &hash, const FootageStream &ms);
   QString get_waveform_path(const QString& hash, const FootageStream &ms);
+
+  AVFormatContext* fmt_ctx_;
+  Media* media_;
+  FootagePtr footage_;
+  bool retrieve_duration_;
+  bool contains_still_image_;
+  bool cancelled_;
+  QDir data_dir_;
 };
 
 #endif // PREVIEWGENERATOR_H

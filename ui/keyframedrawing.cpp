@@ -55,5 +55,7 @@ void draw_keyframe(QPainter &p, int type, int x, int y, bool darker, int r, int 
 
 // adjusts keyframe's internal time (in clip time) to timeline time
 long adjust_row_keyframe(EffectRow* row, long time, long visible_in) {
-    return time-row->parent_effect->parent_clip->clip_in+(row->parent_effect->parent_clip->timeline_in-visible_in);
+    return time
+        - row->parent_effect->parent_clip->clip_in()
+        + (row->parent_effect->parent_clip->timeline_in() - visible_in);
 }

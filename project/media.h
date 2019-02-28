@@ -29,9 +29,9 @@
 #include "project/footage.h"
 
 enum MediaType {
-    MEDIA_TYPE_FOOTAGE,
-    MEDIA_TYPE_SEQUENCE,
-    MEDIA_TYPE_FOLDER
+  MEDIA_TYPE_FOOTAGE,
+  MEDIA_TYPE_SEQUENCE,
+  MEDIA_TYPE_FOLDER
 };
 
 class Sequence;
@@ -42,51 +42,51 @@ using VoidPtr = std::shared_ptr<void>;
 class Media
 {
 public:
-    Media(Media* iparent);
-    ~Media();
-    FootagePtr to_footage();
-    SequencePtr to_sequence();
-    void set_footage(FootagePtr f);
-    void set_sequence(SequencePtr s);
-    void set_folder();
-    void set_icon(const QIcon &ico);
-    void set_parent(Media* p);
-    void update_tooltip(const QString& error = 0);
-    VoidPtr to_object();
-    int get_type();
-    const QString& get_name();
-    void set_name(const QString& n);
+  Media(Media* iparent);
+  ~Media();
+  FootagePtr to_footage();
+  SequencePtr to_sequence();
+  void set_footage(FootagePtr f);
+  void set_sequence(SequencePtr s);
+  void set_folder();
+  void set_icon(const QIcon &ico);
+  void set_parent(Media* p);
+  void update_tooltip(const QString& error = 0);
+  VoidPtr to_object();
+  int get_type();
+  const QString& get_name();
+  void set_name(const QString& n);
 
-	double get_frame_rate(int stream = -1);
-	int get_sampling_rate(int stream = -1);
+  double get_frame_rate(int stream = -1);
+  int get_sampling_rate(int stream = -1);
 
-    // item functions
-    void appendChild(Media *child);
-    bool setData(int col, const QVariant &value);
-    Media *child(int row);
-    int childCount() const;
-    int columnCount() const;
-    QVariant data(int column, int role);
-    int row() const;
-    Media *parentItem();
-    void removeChild(int i);
+  // item functions
+  void appendChild(Media *child);
+  bool setData(int col, const QVariant &value);
+  Media *child(int row);
+  int childCount() const;
+  int columnCount() const;
+  QVariant data(int column, int role);
+  int row() const;
+  Media *parentItem();
+  void removeChild(int i);
 
-    // get markers from internal object
-    QVector<Marker>& get_markers();
+  // get markers from internal object
+  QVector<Marker>& get_markers();
 
-    bool root;
-    int temp_id;
-    int temp_id2;
+  bool root;
+  int temp_id;
+  int temp_id2;
 private:
-    int type;
-    VoidPtr object;
+  int type;
+  VoidPtr object;
 
-    // item functions
-    QList<Media*> children;
-    Media* parent;
-    QString folder_name;
-    QString tooltip;
-    QIcon icon;
+  // item functions
+  QList<Media*> children;
+  Media* parent;
+  QString folder_name;
+  QString tooltip;
+  QIcon icon;
 };
 
 #endif // MEDIA_H

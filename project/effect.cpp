@@ -69,7 +69,7 @@
 
 QVector<EffectMeta> effects;
 
-EffectPtr create_effect(ClipPtr c, const EffectMeta* em) {
+EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
 	if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
 		// must be an internal effect
 		switch (em->internal) {
@@ -103,7 +103,7 @@ EffectPtr create_effect(ClipPtr c, const EffectMeta* em) {
 	return nullptr;
 }
 
-const EffectMeta* get_internal_meta(int internal_id, int type) {
+const EffectMeta* Effect::GetInternalMeta(int internal_id, int type) {
 	for (int i=0;i<effects.size();i++) {
 		if (effects.at(i).internal == internal_id && effects.at(i).type == type) {
 			return &effects.at(i);
@@ -112,7 +112,7 @@ const EffectMeta* get_internal_meta(int internal_id, int type) {
 	return nullptr;
 }
 
-Effect::Effect(ClipPtr c, const EffectMeta *em) :
+Effect::Effect(Clip* c, const EffectMeta *em) :
 	parent_clip(c),
 	meta(em),
 	enable_shader(false),
@@ -854,15 +854,15 @@ void Effect::setIterations(int i) {
 
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
-EffectPtr Effect::copy(ClipPtr c) {
-    EffectPtr copy = create_effect(c, meta);
+EffectPtr Effect::copy(Clip *c) {
+    EffectPtr copy = Effect::Create(c, meta);
 	copy->set_enabled(is_enabled());
 	copy_field_keyframes(copy);
 	return copy;
 }
 
 void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
-	glslProgram->setUniformValue("resolution", parent_clip->getWidth(), parent_clip->getHeight());
+  glslProgram->setUniformValue("resolution", parent_clip->media_width(), parent_clip->media_height());
 	glslProgram->setUniformValue("time", GLfloat(timecode));
 	glslProgram->setUniformValue("iteration", iteration);
 
@@ -904,8 +904,8 @@ GLuint Effect::process_superimpose(double timecode) {
 	bool dimensions_changed = false;
 	bool redrew_image = false;
 
-	int width = parent_clip->getWidth();
-	int height = parent_clip->getHeight();
+  int width = parent_clip->media_width();
+  int height = parent_clip->media_height();
 
 	if (width != img.width() || height != img.height()) {
 		img = QImage(width, height, QImage::Format_RGBA8888_Premultiplied);
@@ -1003,8 +1003,8 @@ void Effect::redraw(double) {
 	painter_wrapper.painter = &p;
 
 	jsEngine.globalObject().setProperty("painter", wrapper_obj);
-	jsEngine.globalObject().setProperty("width", parent_clip->getWidth());
-	jsEngine.globalObject().setProperty("height", parent_clip->getHeight());
+  jsEngine.globalObject().setProperty("width", parent_clip->media_width());
+  jsEngine.globalObject().setProperty("height", parent_clip->media_height());
 
 	for (int i=0;i<rows.size();i++) {
 		EffectRow* row = rows.at(i);

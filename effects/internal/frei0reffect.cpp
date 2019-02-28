@@ -37,7 +37,7 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 typedef void (*f0rSetParamValue) (f0r_instance_t instance,
 				f0r_param_t param, int param_index);
 
-Frei0rEffect::Frei0rEffect(ClipPtr c, const EffectMeta *em) :
+Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
 	Effect(c, em),
 	open(false)
 {
@@ -206,7 +206,7 @@ void Frei0rEffect::destruct_module() {
 
 void Frei0rEffect::construct_module() {
 	f0rConstructFunc construct = reinterpret_cast<f0rConstructFunc>(LibAddress(handle, "f0r_construct"));
-	instance = construct(parent_clip->getWidth(), parent_clip->getHeight());
+  instance = construct(parent_clip->media_width(), parent_clip->media_height());
 
 	open = true;
 }

@@ -28,6 +28,4 @@ const QString& get_debug_str();
 void open_debug_file();
 void close_debug_file();
 
-#define dout qDebug()
-
 #endif // DEBUG_H

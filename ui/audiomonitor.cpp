@@ -21,7 +21,7 @@
 #include "audiomonitor.h"
 
 #include "project/sequence.h"
-#include "playback/audio.h"
+#include "rendering/audio.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 

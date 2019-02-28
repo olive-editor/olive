@@ -23,7 +23,7 @@
 #define FILL_TYPE_LEFT 0
 #define FILL_TYPE_RIGHT 1
 
-FillLeftRightEffect::FillLeftRightEffect(ClipPtr c, const EffectMeta *em) : Effect(c, em) {
+FillLeftRightEffect::FillLeftRightEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
     EffectRow* type_row = add_row(tr("Type"));
 	fill_type = type_row->add_field(EFFECT_FIELD_COMBO, "type");
     fill_type->add_combo_item(tr("Fill Left with Right"), FILL_TYPE_LEFT);

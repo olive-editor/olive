@@ -87,12 +87,12 @@ public:
 
   QModelIndexList get_current_selected();
 
-  void start_preview_generator(Media* item, bool replacing);
   void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
 
   QWidget* toolbar_widget;
-protected:
+
   virtual void Retranslate() override;
+protected:
 public slots:
   void import_dialog();
   void delete_selected_media();

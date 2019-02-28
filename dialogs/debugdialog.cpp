@@ -23,24 +23,39 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QScrollBar>
+#include <QEvent>
 
 #include "debug.h"
 
 DebugDialog* olive::DebugDialog = nullptr;
 
 DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
-	setWindowTitle(tr("Debug Log"));
-
 	QVBoxLayout* layout = new QVBoxLayout(this);
 
 	textEdit = new QTextEdit(this);
 	textEdit->setWordWrapMode(QTextOption::NoWrap);
-	layout->addWidget(textEdit);
+  layout->addWidget(textEdit);
+
+  Retranslate();
+}
+
+void DebugDialog::Retranslate()
+{
+  setWindowTitle(tr("Debug Log"));
 }
 
 void DebugDialog::update_log() {
 	textEdit->setHtml(get_debug_str());
-	textEdit->verticalScrollBar()->setValue(textEdit->verticalScrollBar()->maximum());
+  textEdit->verticalScrollBar()->setValue(textEdit->verticalScrollBar()->maximum());
+}
+
+void DebugDialog::changeEvent(QEvent *e)
+{
+  if (e->type() == QEvent::LanguageChange) {
+    Retranslate();
+  } else {
+    QDialog::changeEvent(e);
+  }
 }
 
 void DebugDialog::showEvent(QShowEvent *) {

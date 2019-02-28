@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Emboss" category="Stylize">
+	<row name="Contrast">
+		<field type="double" min="0" default="50" max="100" id="contrast100"/>
+	</row>
+	<row name="Resolution">
+		<field type="double" min="0" default="1" max="100" id="level"/>
+	</row>
+	<row name="HSL mode">
+        <field type="bool" min="0" default="100" max="100" id="hslmode"/>
+    </row>
+	<row name="Invert">
+        <field type="bool" min="0" default="100" max="100" id="invert"/>
+    </row>
+	<shader vert="common.vert" frag="emboss.frag"/>
+</effect>

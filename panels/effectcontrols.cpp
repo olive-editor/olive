@@ -94,13 +94,14 @@ bool EffectControls::keyframe_focus() {
 void EffectControls::set_zoom(bool in) {
   zoom *= (in) ? 2 : 0.5;
   update_keyframes();
+  scroll_to_frame(olive::ActiveSequence->playhead);
 }
 
 void EffectControls::menu_select(QAction* q) {
   ComboAction* ca = new ComboAction();
   for (int i=0;i<selected_clips.size();i++) {
-    const ClipPtr& c = olive::ActiveSequence->clips.at(selected_clips.at(i));
-    if ((c->track < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
+    Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
+    if ((c->track() < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
       const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
         if (c->opening_transition == nullptr) {
@@ -147,7 +148,7 @@ void EffectControls::copy(bool del) {
     ComboAction* ca = new ComboAction();
     EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : nullptr;
     for (int i=0;i<selected_clips.size();i++) {
-      const ClipPtr& c = olive::ActiveSequence->clips.at(selected_clips.at(i));
+      Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
       for (int j=0;j<c->effects.size();j++) {
         EffectPtr effect = c->effects.at(j);
         if (effect->container->selected) {
@@ -178,7 +179,7 @@ void EffectControls::copy(bool del) {
 }
 
 void EffectControls::scroll_to_frame(long frame) {
-  scroll_to_frame_internal(horizontalScrollBar, frame, zoom, keyframeView->width());
+  scroll_to_frame_internal(horizontalScrollBar, frame - keyframeView->visible_in, zoom, keyframeView->width());
 }
 
 void EffectControls::add_effect_paste_action(QMenu *menu) {
@@ -309,7 +310,7 @@ void EffectControls::UpdateTitle() {
   if (selected_clips.empty()) {
     setWindowTitle(panel_name + tr("(none)"));
   } else {
-    setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name);
+    setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name());
   }
 }
 
@@ -359,8 +360,11 @@ void EffectControls::setup_ui() {
   veHeaderLayout->setSpacing(0);
   veHeaderLayout->setMargin(0);
 
+  QIcon add_effect_icon(":/icons/add-effect.svg");
+  QIcon add_transition_icon(":/icons/add-transition.svg");
+
   btnAddVideoEffect = new QPushButton();
-  btnAddVideoEffect->setIcon(QIcon(":/icons/add-effect.png"));
+  btnAddVideoEffect->setIcon(add_effect_icon);
   veHeaderLayout->addWidget(btnAddVideoEffect);
   connect(btnAddVideoEffect, SIGNAL(clicked(bool)), this, SLOT(video_effect_click()));
 
@@ -376,7 +380,7 @@ void EffectControls::setup_ui() {
   veHeaderLayout->addStretch();
 
   btnAddVideoTransition = new QPushButton();
-  btnAddVideoTransition->setIcon(QIcon(":/icons/add-transition.png"));
+  btnAddVideoTransition->setIcon(add_transition_icon);
   connect(btnAddVideoTransition, SIGNAL(clicked(bool)), this, SLOT(video_transition_click()));
   veHeaderLayout->addWidget(btnAddVideoTransition);
 
@@ -404,7 +408,7 @@ void EffectControls::setup_ui() {
   aeHeaderLayout->setMargin(0);
 
   btnAddAudioEffect = new QPushButton();
-  btnAddAudioEffect->setIcon(QIcon(":/icons/add-effect.png"));
+  btnAddAudioEffect->setIcon(add_effect_icon);
   connect(btnAddAudioEffect, SIGNAL(clicked(bool)), this, SLOT(audio_effect_click()));
   aeHeaderLayout->addWidget(btnAddAudioEffect);
 
@@ -418,7 +422,7 @@ void EffectControls::setup_ui() {
   aeHeaderLayout->addStretch();
 
   btnAddAudioTransition = new QPushButton();
-  btnAddAudioTransition->setIcon(QIcon(":/icons/add-transition.png"));
+  btnAddAudioTransition->setIcon(add_transition_icon);
   connect(btnAddAudioTransition, SIGNAL(clicked(bool)), this, SLOT(audio_transition_click()));
   aeHeaderLayout->addWidget(btnAddAudioTransition);
 
@@ -529,7 +533,7 @@ void EffectControls::load_effects() {
     for (int i=0;i<selected_clips.size();i++) {
       ClipPtr c = olive::ActiveSequence->clips.at(selected_clips.at(i));
       QVBoxLayout* layout;
-      if (c->track < 0) {
+      if (c->track() < 0) {
         vcontainer->setVisible(true);
         layout = static_cast<QVBoxLayout*>(video_effect_area->layout());
       } else {
@@ -562,7 +566,7 @@ void EffectControls::delete_effects() {
   if (mode == kTransitionNone) {
     EffectDeleteCommand* command = new EffectDeleteCommand();
     for (int i=0;i<selected_clips.size();i++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(selected_clips.at(i));
+      Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
       for (int j=0;j<c->effects.size();j++) {
         EffectPtr effect = c->effects.at(j);
         if (effect->container->selected) {

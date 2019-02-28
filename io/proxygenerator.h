@@ -26,45 +26,47 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include "project/footage.h"
+#include "project/media.h"
 
 struct ProxyInfo {
-    FootagePtr footage;
-	double size_multiplier;
-	int codec_type;
-	QString path;
+  Media* media;
+  double size_multiplier;
+  int codec_type;
+  QString path;
 };
 
 class ProxyGenerator : public QThread {
-    Q_OBJECT
+  Q_OBJECT
 public:
-	ProxyGenerator();
-	void run();
-	void queue(const ProxyInfo& info);
-	void cancel();
-    double get_proxy_progress(FootagePtr f);
+  ProxyGenerator();
+  void run();
+  void queue(const ProxyInfo& info);
+  void cancel();
+  double get_proxy_progress(Media *f);
 private:
-	// queue of footage to process proxies for
-	QVector<ProxyInfo> proxy_queue;
+  // queue of footage to process proxies for
+  QVector<ProxyInfo> proxy_queue;
 
-	// threading objects
-	QWaitCondition waitCond;
-	QMutex mutex;
+  // threading objects
+  QWaitCondition waitCond;
+  QMutex mutex;
 
-	// set to true if you want to permanently close ProxyGenerator
-	bool cancelled;
+  // set to true if you want to permanently close ProxyGenerator
+  bool cancelled;
 
-	// set to true if you want to abort the footage currently being processed
-	bool skip;
+  // set to true if you want to abort the footage currently being processed
+  bool skip;
 
-	// stores progress in percent of proxy currently being processed
-	double current_progress;
+  // stores progress in percent of proxy currently being processed
+  double current_progress;
 
-	// function that performs the actual transcode
-	void transcode(const ProxyInfo& info);
+  // function that performs the actual transcode
+  void transcode(const ProxyInfo& info);
 };
 
-// proxy generator is a global omnipotent entity
-extern ProxyGenerator proxy_generator;
+namespace olive {
+  // proxy generator is a global omnipotent entity
+  extern ProxyGenerator proxy_generator;
+}
 
 #endif // PROXYGENERATOR_H

@@ -39,30 +39,37 @@
 
 QSemaphore sem(5); // only 5 preview generators can run at one time
 
-PreviewGenerator::PreviewGenerator(Media* i, FootagePtr m, bool r) :
-  QThread(nullptr),
-  fmt_ctx(nullptr),
-  media(i),
-  footage(m),
-  retrieve_duration(false),
-  contains_still_image(false),
-  replace(r),
-  cancelled(false)
+PreviewGenerator::PreviewGenerator(Media* i) :
+  QThread(nullptr)
 {
-  data_dir = QDir(get_data_dir().filePath("previews"));
-  if (!data_dir.exists()) {
-    data_dir.mkpath(".");
+  fmt_ctx_ = (nullptr);
+  media_ = (i);
+  retrieve_duration_ = (false);
+  contains_still_image_ = (false);
+  cancelled_ = (false);
+  footage_ = media_->to_footage();
+
+  footage_->preview_gen = this;
+
+  data_dir_ = QDir(get_data_dir().filePath("previews"));
+  if (!data_dir_.exists()) {
+    data_dir_.mkpath(".");
   }
 
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+
+  // set up throbber animation
+  olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_LOADING);
+
+  start(QThread::LowPriority);
 }
 
 void PreviewGenerator::parse_media() {
   // detect video/audio streams in file
-  for (int i=0;i<int(fmt_ctx->nb_streams);i++) {
+  for (int i=0;i<int(fmt_ctx_->nb_streams);i++) {
     // Find the decoder for the video stream
-    if (avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id) == nullptr) {
-      qCritical() << "Unsupported codec in stream" << i << "of file" << footage->name;
+    if (avcodec_find_decoder(fmt_ctx_->streams[i]->codecpar->codec_id) == nullptr) {
+      qCritical() << "Unsupported codec in stream" << i << "of file" << footage_->name;
     } else {
       FootageStream ms;
       ms.preview_done = false;
@@ -72,59 +79,62 @@ void PreviewGenerator::parse_media() {
 
       bool append = false;
 
-      if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
-          && fmt_ctx->streams[i]->codecpar->width > 0
-          && fmt_ctx->streams[i]->codecpar->height > 0) {
+      if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
+          && fmt_ctx_->streams[i]->codecpar->width > 0
+          && fmt_ctx_->streams[i]->codecpar->height > 0) {
 
         // heuristic to determine if video is a still image (if it is, we treat it differently in the playback/render process)
-        if (fmt_ctx->streams[i]->avg_frame_rate.den == 0
-            && fmt_ctx->streams[i]->codecpar->codec_id != AV_CODEC_ID_DNXHD) { // silly hack but this is the only scenario i've seen this
-          if (footage->url.contains('%')) {
+        if (fmt_ctx_->streams[i]->avg_frame_rate.den == 0
+            && fmt_ctx_->streams[i]->codecpar->codec_id != AV_CODEC_ID_DNXHD) { // silly hack but this is the only scenario i've seen this
+          if (footage_->url.contains('%')) {
             // must be an image sequence
             ms.video_frame_rate = 25;
           } else {
             ms.infinite_length = true;
-            contains_still_image = true;
+            contains_still_image_ = true;
             ms.video_frame_rate = 0;
           }
 
         } else {
           // using ffmpeg's built-in heuristic
-          ms.video_frame_rate = av_q2d(av_guess_frame_rate(fmt_ctx, fmt_ctx->streams[i], nullptr));
+          ms.video_frame_rate = av_q2d(av_guess_frame_rate(fmt_ctx_, fmt_ctx_->streams[i], nullptr));
         }
 
-        ms.video_width = fmt_ctx->streams[i]->codecpar->width;
-        ms.video_height = fmt_ctx->streams[i]->codecpar->height;
+        ms.video_width = fmt_ctx_->streams[i]->codecpar->width;
+        ms.video_height = fmt_ctx_->streams[i]->codecpar->height;
 
         // default value, we get the true value later in generate_waveform()
         ms.video_auto_interlacing = VIDEO_PROGRESSIVE;
         ms.video_interlacing = VIDEO_PROGRESSIVE;
 
         append = true;
-      } else if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-        ms.audio_channels = fmt_ctx->streams[i]->codecpar->channels;
-        ms.audio_layout = int(fmt_ctx->streams[i]->codecpar->channel_layout);
-        ms.audio_frequency = fmt_ctx->streams[i]->codecpar->sample_rate;
+      } else if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+        ms.audio_channels = fmt_ctx_->streams[i]->codecpar->channels;
+        ms.audio_layout = int(fmt_ctx_->streams[i]->codecpar->channel_layout);
+        ms.audio_frequency = fmt_ctx_->streams[i]->codecpar->sample_rate;
 
         append = true;
       }
 
       if (append) {
-        QVector<FootageStream>& stream_list = (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) ? footage->audio_tracks : footage->video_tracks;
+        QVector<FootageStream>& stream_list = (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) ?
+              footage_->audio_tracks : footage_->video_tracks;
+
         for (int j=0;j<stream_list.size();j++) {
           if (stream_list.at(j).file_index == i) {
             stream_list[j] = ms;
             append = false;
           }
         }
+
         if (append) stream_list.append(ms);
       }
     }
   }
-  footage->length = fmt_ctx->duration;
+  footage_->length = fmt_ctx_->duration;
 
-  if (fmt_ctx->duration == INT64_MIN) {
-    retrieve_duration = true;
+  if (fmt_ctx_->duration == INT64_MIN) {
+    retrieve_duration_ = true;
   } else {
     finalize_media();
   }
@@ -132,14 +142,14 @@ void PreviewGenerator::parse_media() {
 
 bool PreviewGenerator::retrieve_preview(const QString& hash) {
   // returns true if generate_waveform must be run, false if we got all previews from cached files
-  if (retrieve_duration) {
+  if (retrieve_duration_) {
     //dout << "[NOTE] " << media->name << "needs to retrieve duration";
     return true;
   }
 
   bool found = true;
-  for (int i=0;i<footage->video_tracks.size();i++) {
-    FootageStream& ms = footage->video_tracks[i];
+  for (int i=0;i<footage_->video_tracks.size();i++) {
+    FootageStream& ms = footage_->video_tracks[i];
     QString thumb_path = get_thumbnail_path(hash, ms);
     QFile f(thumb_path);
     if (f.exists() && ms.video_preview.load(thumb_path)) {
@@ -151,8 +161,8 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
       break;
     }
   }
-  for (int i=0;i<footage->audio_tracks.size();i++) {
-    FootageStream& ms = footage->audio_tracks[i];
+  for (int i=0;i<footage_->audio_tracks.size();i++) {
+    FootageStream& ms = footage_->audio_tracks[i];
     QString waveform_path = get_waveform_path(hash, ms);
     QFile f(waveform_path);
     if (f.exists()) {
@@ -172,12 +182,12 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
     }
   }
   if (!found) {
-    for (int i=0;i<footage->video_tracks.size();i++) {
-      FootageStream& ms = footage->video_tracks[i];
+    for (int i=0;i<footage_->video_tracks.size();i++) {
+      FootageStream& ms = footage_->video_tracks[i];
       ms.preview_done = false;
     }
-    for (int i=0;i<footage->audio_tracks.size();i++) {
-      FootageStream& ms = footage->audio_tracks[i];
+    for (int i=0;i<footage_->audio_tracks.size();i++) {
+      FootageStream& ms = footage_->audio_tracks[i];
       ms.audio_preview.clear();
       ms.preview_done = false;
     }
@@ -186,20 +196,20 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 }
 
 void PreviewGenerator::finalize_media() {
-  footage->ready_lock.unlock();
-  footage->ready = true;
+  footage_->ready_lock.unlock();
+  footage_->ready = true;
 
-  if (!cancelled) {
-    if (footage->video_tracks.size() == 0) {
-      olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_AUDIO);
-    } else if (contains_still_image) {
-      olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_IMAGE);
+  if (!cancelled_) {
+    if (footage_->video_tracks.size() == 0) {
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_AUDIO);
+    } else if (contains_still_image_) {
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_IMAGE);
     } else {
-      olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_VIDEO);
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_VIDEO);
     }
 
     if (olive::ActiveSequence != nullptr) {
-      olive::ActiveSequence->RefreshClips(media);
+      olive::ActiveSequence->RefreshClips(media_);
     }
   }
 }
@@ -214,19 +224,19 @@ void PreviewGenerator::generate_waveform() {
   AVFrame* temp_frame = av_frame_alloc();
 
   // stores codec contexts for format's streams
-  AVCodecContext** codec_ctx = new AVCodecContext* [fmt_ctx->nb_streams];
+  AVCodecContext** codec_ctx = new AVCodecContext* [fmt_ctx_->nb_streams];
 
   // stores media lengths while scanning in case the format has no duration metadata
-  int64_t* media_lengths = new int64_t[fmt_ctx->nb_streams]{0};
+  int64_t* media_lengths = new int64_t[fmt_ctx_->nb_streams]{0};
 
   // stores samples while scanning before they get sent to preview file
-  qint16*** waveform_cache_data = new qint16** [fmt_ctx->nb_streams];
+  qint16*** waveform_cache_data = new qint16** [fmt_ctx_->nb_streams];
   int waveform_cache_count = 0;
 
   // defaults to false, sets to true if we find a valid stream to make a preview of
   bool create_previews = false;
 
-  for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
+  for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
 
     // default to nullptr values for easier memory management later
     codec_ctx[i] = nullptr;
@@ -234,32 +244,32 @@ void PreviewGenerator::generate_waveform() {
 
     // we only generate previews for video and audio
     // and only if the thumbnail and waveform sizes are > 0
-    if ((fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::CurrentConfig.thumbnail_resolution > 0)
-        || (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::CurrentConfig.waveform_resolution > 0)) {
-      AVCodec* codec = avcodec_find_decoder(fmt_ctx->streams[i]->codecpar->codec_id);
+    if ((fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::CurrentConfig.thumbnail_resolution > 0)
+        || (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::CurrentConfig.waveform_resolution > 0)) {
+      AVCodec* codec = avcodec_find_decoder(fmt_ctx_->streams[i]->codecpar->codec_id);
       if (codec != nullptr) {
 
         // alloc the context and load the params into it
         codec_ctx[i] = avcodec_alloc_context3(codec);
-        avcodec_parameters_to_context(codec_ctx[i], fmt_ctx->streams[i]->codecpar);
+        avcodec_parameters_to_context(codec_ctx[i], fmt_ctx_->streams[i]->codecpar);
 
         // open the decoder
         avcodec_open2(codec_ctx[i], codec, nullptr);
 
         // audio specific functions
-        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
           // allocate sample cache for this stream
-          waveform_cache_data[i] = new qint16* [fmt_ctx->streams[i]->codecpar->channels];
+          waveform_cache_data[i] = new qint16* [fmt_ctx_->streams[i]->codecpar->channels];
 
           // each channel gets a min and a max value so we allocate two ints for each one
-          for (int j=0;j<fmt_ctx->streams[i]->codecpar->channels;j++) {
+          for (int j=0;j<fmt_ctx_->streams[i]->codecpar->channels;j++) {
             waveform_cache_data[i][j] = new qint16[2];
           }
 
           // if codec context has no defined channel layout, guess it from the channel count
           if (codec_ctx[i]->channel_layout == 0) {
-            codec_ctx[i]->channel_layout = av_get_default_channel_layout(fmt_ctx->streams[i]->codecpar->channels);
+            codec_ctx[i]->channel_layout = av_get_default_channel_layout(fmt_ctx_->streams[i]->codecpar->channels);
           }
 
         }
@@ -280,16 +290,14 @@ void PreviewGenerator::generate_waveform() {
 
     // get the ball rolling
     do {
-      av_read_frame(fmt_ctx, packet);
+      av_read_frame(fmt_ctx_, packet);
     } while (codec_ctx[packet->stream_index] == nullptr);
     avcodec_send_packet(codec_ctx[packet->stream_index], packet);
 
     while (!end_of_file) {
       while (codec_ctx[packet->stream_index] == nullptr || avcodec_receive_frame(codec_ctx[packet->stream_index], temp_frame) == AVERROR(EAGAIN)) {
         av_packet_unref(packet);
-        int read_ret = av_read_frame(fmt_ctx, packet);
-
-        //dout << "read frame for" << footage->name << footage->url << read_ret << "retrieve_duration:" << retrieve_duration << "eof:" << end_of_file << "packet pts:" << packet->pts;
+        int read_ret = av_read_frame(fmt_ctx_, packet);
 
         if (read_ret < 0) {
           end_of_file = true;
@@ -306,9 +314,9 @@ void PreviewGenerator::generate_waveform() {
         }
       }
       if (!end_of_file) {
-        FootageStream* s = footage->get_stream_from_file_index(fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet->stream_index);
+        FootageStream* s = footage_->get_stream_from_file_index(fmt_ctx_->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO, packet->stream_index);
         if (s != nullptr) {
-          if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+          if (fmt_ctx_->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             if (!s->preview_done) {
               int dstH = olive::CurrentConfig.thumbnail_resolution;
               int dstW = qRound(dstH * (float(temp_frame->width)/float(temp_frame->height)));
@@ -342,13 +350,13 @@ void PreviewGenerator::generate_waveform() {
 
               sws_freeContext(sws_ctx);
 
-              if (!retrieve_duration) {
+              if (!retrieve_duration_) {
                 avcodec_close(codec_ctx[packet->stream_index]);
                 codec_ctx[packet->stream_index] = nullptr;
               }
             }
             media_lengths[packet->stream_index]++;
-          } else if (fmt_ctx->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+          } else if (fmt_ctx_->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             AVFrame* swr_frame = av_frame_alloc();
             swr_frame->channel_layout = temp_frame->channel_layout;
             swr_frame->sample_rate = temp_frame->sample_rate;
@@ -419,7 +427,7 @@ void PreviewGenerator::generate_waveform() {
 
               waveform_cache_count++;
 
-              if (cancelled) {
+              if (cancelled_) {
                 break;
               }
             }
@@ -427,7 +435,7 @@ void PreviewGenerator::generate_waveform() {
             swr_free(&swr_ctx);
             av_frame_free(&swr_frame);
 
-            if (cancelled) {
+            if (cancelled_) {
               end_of_file = true;
               break;
             }
@@ -435,12 +443,12 @@ void PreviewGenerator::generate_waveform() {
         }
 
         // check if we've got all our previews
-        if (retrieve_duration) {
+        if (retrieve_duration_) {
           done = false;
-        } else if (footage->audio_tracks.size() == 0) {
+        } else if (footage_->audio_tracks.size() == 0) {
           done = true;
-          for (int i=0;i<footage->video_tracks.size();i++) {
-            if (!footage->video_tracks.at(i).preview_done) {
+          for (int i=0;i<footage_->video_tracks.size();i++) {
+            if (!footage_->video_tracks.at(i).preview_done) {
               done = false;
               break;
             }
@@ -457,7 +465,7 @@ void PreviewGenerator::generate_waveform() {
     av_frame_free(&temp_frame);
     av_packet_free(&packet);
 
-    for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
+    for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
       if (waveform_cache_data[i] != nullptr) {
         for (int j=0;j<codec_ctx[i]->channels;j++) {
           delete [] waveform_cache_data[i][j];
@@ -472,22 +480,22 @@ void PreviewGenerator::generate_waveform() {
     }
 
     // by this point, we'll have made all audio waveform previews
-    for (int i=0;i<footage->audio_tracks.size();i++) {
-      footage->audio_tracks[i].preview_done = true;
+    for (int i=0;i<footage_->audio_tracks.size();i++) {
+      footage_->audio_tracks[i].preview_done = true;
     }
   }
 
-  if (retrieve_duration) {
-    footage->length = 0;
+  if (retrieve_duration_) {
+    footage_->length = 0;
     unsigned int maximum_stream = 0;
-    for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
+    for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
       if (media_lengths[i] > media_lengths[maximum_stream]) {
         maximum_stream = i;
       }
     }
 
     // FIXME: length is currently retrieved as a frame count rather than a timestamp
-    footage->length = qRound(double(media_lengths[maximum_stream]) / av_q2d(fmt_ctx->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE);
+    footage_->length = qRound(double(media_lengths[maximum_stream]) / av_q2d(fmt_ctx_->streams[maximum_stream]->avg_frame_rate) * AV_TIME_BASE);
 
     finalize_media();
   }
@@ -498,58 +506,67 @@ void PreviewGenerator::generate_waveform() {
 }
 
 QString PreviewGenerator::get_thumbnail_path(const QString& hash, const FootageStream& ms) {
-  return data_dir.filePath(QString("%1t%2").arg(hash, QString::number(ms.file_index)));
+  return data_dir_.filePath(QString("%1t%2").arg(hash, QString::number(ms.file_index)));
 }
 
 QString PreviewGenerator::get_waveform_path(const QString& hash, const FootageStream& ms) {
-  return data_dir.filePath(QString("%1w%2").arg(hash, QString::number(ms.file_index)));
+  return data_dir_.filePath(QString("%1w%2").arg(hash, QString::number(ms.file_index)));
 }
 
 void PreviewGenerator::run() {
-  Q_ASSERT(footage != nullptr);
-  Q_ASSERT(media != nullptr);
+  Q_ASSERT(footage_ != nullptr);
+  Q_ASSERT(media_ != nullptr);
 
-  QByteArray ba = footage->url.toUtf8();
+  const QString url = footage_->url;
+  QByteArray ba = url.toUtf8();
   char* filename = new char[ba.size()+1];
   strcpy(filename, ba.data());
 
   QString errorStr;
   bool error = false;
-  int errCode = avformat_open_input(&fmt_ctx, filename, nullptr, nullptr);
+
+  AVDictionary* format_opts = nullptr;
+
+  // for image sequences that don't start at 0, set the index where it does start
+  if (footage_->start_number > 0) {
+    av_dict_set(&format_opts, "start_number", QString::number(footage_->start_number).toUtf8(), 0);
+  }
+
+  int errCode = avformat_open_input(&fmt_ctx_, filename, nullptr, &format_opts);
   if(errCode != 0) {
     char err[1024];
     av_strerror(errCode, err, 1024);
     errorStr = tr("Could not open file - %1").arg(err);
     error = true;
   } else {
-    errCode = avformat_find_stream_info(fmt_ctx, nullptr);
+    errCode = avformat_find_stream_info(fmt_ctx_, nullptr);
     if (errCode < 0) {
       char err[1024];
       av_strerror(errCode, err, 1024);
       errorStr = tr("Could not find stream information - %1").arg(err);
       error = true;
     } else {
-      av_dump_format(fmt_ctx, 0, filename, 0);
+      av_dump_format(fmt_ctx_, 0, filename, 0);
       parse_media();
 
       // see if we already have data for this
-      QString hash = get_file_hash(footage->url);
+      QString hash = get_file_hash(footage_->url);
 
       if (retrieve_preview(hash)) {
         sem.acquire();
 
-        if (!cancelled) {
+        if (!cancelled_) {
           generate_waveform();
 
-          if (!cancelled) {
+          if (!cancelled_) {
             // save preview to file
-            for (int i=0;i<footage->video_tracks.size();i++) {
-              FootageStream& ms = footage->video_tracks[i];
+            for (int i=0;i<footage_->video_tracks.size();i++) {
+              FootageStream& ms = footage_->video_tracks[i];
               ms.video_preview.save(get_thumbnail_path(hash, ms), "PNG");
               //dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
             }
-            for (int i=0;i<footage->audio_tracks.size();i++) {
-              FootageStream& ms = footage->audio_tracks[i];
+            for (int i=0;i<footage_->audio_tracks.size();i++) {
+              FootageStream& ms = footage_->audio_tracks[i];
               QFile f(get_waveform_path(hash, ms));
               f.open(QFile::WriteOnly);
               f.write(ms.audio_preview.constData(), ms.audio_preview.size());
@@ -562,25 +579,33 @@ void PreviewGenerator::run() {
         sem.release();
       }
     }
-    avformat_close_input(&fmt_ctx);
+    avformat_close_input(&fmt_ctx_);
   }
 
-  if (!cancelled) {
+  if (!cancelled_) {
     if (error) {
-      media->update_tooltip(errorStr);
-      olive::media_icon_service->SetMediaIcon(media, ICON_TYPE_ERROR);
-      footage->invalid = true;
-      footage->ready_lock.unlock();
+      media_->update_tooltip(errorStr);
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_ERROR);
+      footage_->invalid = true;
+      footage_->ready_lock.unlock();
     } else {
-      media->update_tooltip();
+      media_->update_tooltip();
     }
   }
 
   delete [] filename;
-  footage->preview_gen = nullptr;
+  footage_->preview_gen = nullptr;
 }
 
 void PreviewGenerator::cancel() {
-  cancelled = true;
+  cancelled_ = true;
   wait();
+}
+
+void PreviewGenerator::AnalyzeMedia(Media *m)
+{
+  // PreviewGenerator's constructor starts the thread, sets a reference of itself as the media's generator,
+  // and connects its thread completion to its own deletion, therefore handling its own memory. Nothing else needs to
+  // be done.
+  new PreviewGenerator(m);
 }

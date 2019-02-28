@@ -37,17 +37,6 @@
 
 class Timeline;
 
-namespace olive {
-  namespace timeline {
-    const int kGhostThickness = 2;
-    const int kClipTextPadding = 3;
-
-    const int kTrackDefaultHeight = 40/* * QApplication::desktop()->devicePixelRatio()*/;
-    const int kTrackMinHeight = 30;
-    const int kTrackHeightIncrement = 10;
-  }
-}
-
 struct TimelineTrackHeight {
   int index;
   int height;
@@ -118,8 +107,8 @@ private slots:
   void show_context_menu(const QPoint& pos);
   void toggle_autoscale();
   void tooltip_timer_timeout();
-  void rename_clip();
   void open_sequence_properties();
+  void show_clip_properties();
 };
 
 #endif // TIMELINEWIDGET_H

@@ -22,7 +22,7 @@
 
 #include "debug.h"
 
-CubeTransition::CubeTransition(ClipPtr c, ClipPtr s, const EffectMeta* em) : Transition(c, s, em) {
+CubeTransition::CubeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {
 	enable_coords = true;
 }
 

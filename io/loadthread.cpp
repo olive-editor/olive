@@ -29,7 +29,7 @@
 #include "project/projectelements.h"
 
 #include "io/config.h"
-#include "playback/playback.h"
+#include "rendering/renderfunctions.h"
 #include "io/previewgenerator.h"
 #include "effects/internal/voideffect.h"
 #include "debug.h"
@@ -41,11 +41,14 @@ LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
   connect(this, SIGNAL(success()), this, SLOT(success_func()));
   connect(this, SIGNAL(error()), this, SLOT(error_func()));
-  connect(this, SIGNAL(start_create_effect_ui(QXmlStreamReader*, ClipPtr, int, const QString*, const EffectMeta*, long, bool)), this, SLOT(create_effect_ui(QXmlStreamReader*, ClipPtr, int, const QString*, const EffectMeta*, long, bool)));
+  connect(this,
+          SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
+          this,
+          SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
   connect(this, SIGNAL(start_question(const QString&, const QString &, int)), this, SLOT(question_func(const QString &, const QString &, int)));
 }
 
-void LoadThread::load_effect(QXmlStreamReader& stream, ClipPtr c) {
+void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   QString tag = stream.name().toString();
 
   // variables to store effect metadata in
@@ -68,7 +71,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, ClipPtr c) {
     } else if (attr.name() == "shared") {
       // if a transition has this tag, it's sharing a transition with another clip so we don't have to do any processing
 
-      ClipPtr sharing_clip = c->sequence->clips.at(attr.value().toInt());
+      Clip* sharing_clip = c->sequence->clips.at(attr.value().toInt()).get();
       if (tag == "opening") {
         c->opening_transition = (sharing_clip->closing_transition);
 
@@ -290,6 +293,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   f->proxy = (attr.value() == "1");
                 } else if (attr.name() == "proxypath") {
                   f->proxy_path = attr.value().toString();
+                } else if (attr.name() == "startnumber") {
+                  f->start_number = attr.value().toInt();
                 }
               }
 
@@ -374,52 +379,58 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 } else if (stream.name() == "clip" && stream.isStartElement()) {
                   int media_type = -1;
                   int media_id, stream_id;
-                  ClipPtr c(new Clip(s));
+
+                  ClipPtr c = std::make_shared<Clip>(s);
+
+                  QColor clip_color;
+                  ClipSpeed speed_info = c->speed();
 
                   for (int j=0;j<stream.attributes().size();j++) {
                     const QXmlStreamAttribute& attr = stream.attributes().at(j);
                     if (attr.name() == "name") {
-                      c->name = attr.value().toString();
+                      c->set_name(attr.value().toString());
                     } else if (attr.name() == "enabled") {
-                      c->enabled = (attr.value() == "1");
+                      c->set_enabled(attr.value() == "1");
                     } else if (attr.name() == "id") {
                       c->load_id = attr.value().toInt();
                     } else if (attr.name() == "clipin") {
-                      c->clip_in = attr.value().toLong();
+                      c->set_clip_in(attr.value().toLong());
                     } else if (attr.name() == "in") {
-                      c->timeline_in = attr.value().toLong();
+                      c->set_timeline_in(attr.value().toLong());
                     } else if (attr.name() == "out") {
-                      c->timeline_out = attr.value().toLong();
+                      c->set_timeline_out(attr.value().toLong());
                     } else if (attr.name() == "track") {
-                      c->track = attr.value().toInt();
+                      c->set_track(attr.value().toInt());
                     } else if (attr.name() == "r") {
-                      c->color_r = quint8(attr.value().toInt());
+                      clip_color.setRed(attr.value().toInt());
                     } else if (attr.name() == "g") {
-                      c->color_g = quint8(attr.value().toInt());
+                      clip_color.setGreen(attr.value().toInt());
                     } else if (attr.name() == "b") {
-                      c->color_b = quint8(attr.value().toInt());
+                      clip_color.setBlue(attr.value().toInt());
                     } else if (attr.name() == "autoscale") {
-                      c->autoscale = (attr.value() == "1");
+                      c->set_autoscaled(attr.value() == "1");
                     } else if (attr.name() == "media") {
                       media_type = MEDIA_TYPE_FOOTAGE;
                       media_id = attr.value().toInt();
                     } else if (attr.name() == "stream") {
                       stream_id = attr.value().toInt();
                     } else if (attr.name() == "speed") {
-                      c->speed = attr.value().toDouble();
+                      speed_info.value = attr.value().toDouble();
                     } else if (attr.name() == "maintainpitch") {
-                      c->maintain_audio_pitch = (attr.value() == "1");
+                      speed_info.maintain_audio_pitch = (attr.value() == "1");
                     } else if (attr.name() == "reverse") {
-                      c->reverse = (attr.value() == "1");
+                      c->set_reversed(attr.value() == "1");
                     } else if (attr.name() == "sequence") {
                       media_type = MEDIA_TYPE_SEQUENCE;
 
                       // since we haven't finished loading sequences, we defer linking this until later
-                      c->media = nullptr;
-                      c->media_stream = attr.value().toInt();
+                      c->set_media(nullptr, attr.value().toInt());
                       loaded_clips.append(c);
                     }
                   }
+
+                  c->set_color(clip_color);
+                  c->set_speed(speed_info);
 
                   // set media and media stream
                   switch (media_type) {
@@ -428,8 +439,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                       for (int j=0;j<loaded_media_items.size();j++) {
                         FootagePtr m = loaded_media_items.at(j)->to_footage();
                         if (m->save_id == media_id) {
-                          c->media = loaded_media_items.at(j);
-                          c->media_stream = stream_id;
+                          c->set_media(loaded_media_items.at(j), stream_id);
                           break;
                         }
                       }
@@ -459,7 +469,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                                  && (stream.name() == "effect"
                                      || stream.name() == "opening"
                                      || stream.name() == "closing")) {
-                        load_effect(stream, c);
+                        load_effect(stream, c.get());
                       } else if (stream.name() == "marker" && stream.isStartElement()) {
                         Marker m;
                         for (int j=0;j<stream.attributes().size();j++) {
@@ -484,7 +494,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               // correct links, clip IDs, transitions
               for (int i=0;i<s->clips.size();i++) {
                 // correct links
-                ClipPtr correct_clip = s->clips.at(i);
+                Clip* correct_clip = s->clips.at(i).get();
                 for (int j=0;j<correct_clip->linked.size();j++) {
                   bool found = false;
                   for (int k=0;k<s->clips.size();k++) {
@@ -630,8 +640,9 @@ void LoadThread::run() {
       // attach nested sequence clips to their sequences
       for (int i=0;i<loaded_clips.size();i++) {
         for (int j=0;j<loaded_sequences.size();j++) {
-          if (loaded_clips.at(i)->media == nullptr && loaded_clips.at(i)->media_stream == loaded_sequences.at(j)->to_sequence()->save_id) {
-            loaded_clips.at(i)->media = loaded_sequences.at(j);
+          if (loaded_clips.at(i)->media() == nullptr
+              && loaded_clips.at(i)->media_stream_index() == loaded_sequences.at(j)->to_sequence()->save_id) {
+            loaded_clips.at(i)->set_media(loaded_sequences.at(j), loaded_clips.at(i)->media_stream_index());
             loaded_clips.at(i)->refresh();
             break;
           }
@@ -644,7 +655,7 @@ void LoadThread::run() {
     emit success(); // run in main thread
 
     for (int i=0;i<loaded_media_items.size();i++) {
-      panel_project->start_preview_generator(loaded_media_items.at(i), true);
+      PreviewGenerator::AnalyzeMedia(loaded_media_items.at(i));
     }
   } else {
     if (error_str.isEmpty()) {
@@ -712,13 +723,15 @@ void LoadThread::success_func() {
   }
 
   olive::MainWindow->setWindowModified(autorecovery);
-  if (open_seq != nullptr) set_sequence(open_seq);
+  if (open_seq != nullptr) {
+    olive::Global->set_sequence(open_seq);
+  }
   update_ui(false);
 }
 
 void LoadThread::create_effect_ui(
     QXmlStreamReader* stream,
-    ClipPtr c,
+    Clip* c,
     int type,
     const QString* effect_name,
     const EffectMeta* meta,
@@ -758,14 +771,14 @@ void LoadThread::create_effect_ui(
       ve->load(*stream);
       c->effects.append(ve);
     } else {
-      EffectPtr e(create_effect(c, meta));
+      EffectPtr e(Effect::Create(c, meta));
       e->set_enabled(effect_enabled);
       e->load(*stream);
 
       c->effects.append(e);
     }
   } else {
-    TransitionPtr t = create_transition(c, nullptr, meta);
+    TransitionPtr t = Transition::Create(c, nullptr, meta);
     if (effect_length > -1) t->set_length(effect_length);
     t->set_enabled(effect_enabled);
     t->load(*stream);

@@ -23,12 +23,12 @@
 #include "oliveglobal.h"
 
 #include "panels.h"
-#include "playback/playback.h"
+#include "rendering/renderfunctions.h"
 #include "io/previewgenerator.h"
 #include "project/undo.h"
 #include "mainwindow.h"
 #include "io/config.h"
-#include "playback/cacher.h"
+#include "rendering/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
 #include "panels/effectcontrols.h"
 #include "dialogs/newsequencedialog.h"
@@ -64,6 +64,13 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
+// TODO make these configurable
+const int kDefaultSequenceWidth = 1920;
+const int kDefaultSequenceHeight = 1080;
+const double kDefaultSequenceFrameRate = 29.97;
+const int kDefaultSequenceFrequency = 48000;
+const int kDefaultSequenceChannelLayout = 3;
+
 #define MAXIMUM_RECENT_PROJECTS 10 // FIXME: should be configurable
 
 QString autorecovery_filename;
@@ -95,46 +102,31 @@ Project::Project(QWidget *parent) :
   toolbar->setSpacing(0);
 
   QPushButton* toolbar_new = new QPushButton();
-  QIcon icon1;
-  icon1.addFile(QStringLiteral(":/icons/add-button.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon1.addFile(QStringLiteral(":/icons/add-button-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_new->setIcon(icon1);
+  toolbar_new->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
   toolbar_new->setToolTip("New");
   connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
   toolbar->addWidget(toolbar_new);
 
   QPushButton* toolbar_open = new QPushButton();
-  QIcon icon2;
-  icon2.addFile(QStringLiteral(":/icons/open.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon2.addFile(QStringLiteral(":/icons/open-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_open->setIcon(icon2);
+  toolbar_open->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
   toolbar_open->setToolTip("Open Project");
   connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(open_project()));
   toolbar->addWidget(toolbar_open);
 
   QPushButton* toolbar_save = new QPushButton();
-  QIcon icon3;
-  icon3.addFile(QStringLiteral(":/icons/save.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon3.addFile(QStringLiteral(":/icons/save-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_save->setIcon(icon3);
+  toolbar_save->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/save.svg")));
   toolbar_save->setToolTip("Save Project");
   connect(toolbar_save, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(save_project()));
   toolbar->addWidget(toolbar_save);
 
   QPushButton* toolbar_undo = new QPushButton();
-  QIcon icon4;
-  icon4.addFile(QStringLiteral(":/icons/undo.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon4.addFile(QStringLiteral(":/icons/undo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_undo->setIcon(icon4);
+  toolbar_undo->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/undo.svg")));
   toolbar_undo->setToolTip("Undo");
   connect(toolbar_undo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(undo()));
   toolbar->addWidget(toolbar_undo);
 
   QPushButton* toolbar_redo = new QPushButton();
-  QIcon icon5;
-  icon5.addFile(QStringLiteral(":/icons/redo.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon5.addFile(QStringLiteral(":/icons/redo-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_redo->setIcon(icon5);
+  toolbar_redo->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/redo.svg")));
   toolbar_redo->setToolTip("Redo");
   connect(toolbar_redo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(redo()));
   toolbar->addWidget(toolbar_redo);
@@ -145,19 +137,13 @@ Project::Project(QWidget *parent) :
   toolbar->addWidget(toolbar_search);
 
   QPushButton* toolbar_tree_view = new QPushButton();
-  QIcon icon6;
-  icon6.addFile(QStringLiteral(":/icons/treeview.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon6.addFile(QStringLiteral(":/icons/treeview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_tree_view->setIcon(icon6);
+  toolbar_tree_view->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/treeview.svg")));
   toolbar_tree_view->setToolTip("Tree View");
   connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
   toolbar->addWidget(toolbar_tree_view);
 
   QPushButton* toolbar_icon_view = new QPushButton();
-  QIcon icon7;
-  icon7.addFile(QStringLiteral(":/icons/iconview.png"), QSize(), QIcon::Normal, QIcon::On);
-  icon7.addFile(QStringLiteral(":/icons/iconview-disabled.png"), QSize(), QIcon::Disabled, QIcon::On);
-  toolbar_icon_view->setIcon(icon7);
+  toolbar_icon_view->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/iconview.svg")));
   toolbar_icon_view->setToolTip("Icon View");
   connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
   toolbar->addWidget(toolbar_icon_view);
@@ -187,12 +173,8 @@ Project::Project(QWidget *parent) :
   icon_view_controls->setMargin(0);
   icon_view_controls->setSpacing(0);
 
-  QIcon directory_up_button;
-  directory_up_button.addFile(":/icons/dirup.png", QSize(), QIcon::Normal);
-  directory_up_button.addFile(":/icons/dirup-disabled.png", QSize(), QIcon::Disabled);
-
   directory_up = new QPushButton();
-  directory_up->setIcon(directory_up_button);
+  directory_up->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/dirup.svg")));
   directory_up->setEnabled(false);
   icon_view_controls->addWidget(directory_up);
 
@@ -268,11 +250,11 @@ SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
   s->name = panel_project->get_next_sequence_name();
 
   // shitty hardcoded default values
-  s->width = 1920;
-  s->height = 1080;
-  s->frame_rate = 29.97;
-  s->audio_frequency = 48000;
-  s->audio_layout = 3;
+  s->width = kDefaultSequenceWidth;
+  s->height = kDefaultSequenceHeight;
+  s->frame_rate = kDefaultSequenceFrameRate;
+  s->audio_frequency = kDefaultSequenceFrequency;
+  s->audio_layout = kDefaultSequenceChannelLayout;
 
   bool got_video_values = false;
   bool got_audio_values = false;
@@ -464,7 +446,9 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
     } else {
       parent->appendChild(item);
     }
-    if (open) set_sequence(s);
+    if (open) {
+      olive::Global->set_sequence(s);
+    }
   }
   return item;
 }
@@ -515,7 +499,7 @@ bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
   if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
     for (int i=0;i<clipboard.size();i++) {
       ClipPtr c = std::static_pointer_cast<Clip>(clipboard.at(i));
-      if (c->media == m) {
+      if (c->media() == m) {
         ca->append(new RemoveClipsFromClipboard(i-delete_count));
         delete_count++;
       }
@@ -553,7 +537,7 @@ void Project::delete_selected_media() {
         SequencePtr s = sequence_items.at(j)->to_sequence();
         for (int k=0;k<s->clips.size();k++) {
           ClipPtr c = s->clips.at(k);
-          if (c != nullptr && c->media == item) {
+          if (c != nullptr && c->media() == item) {
             if (!confirm_delete) {
               // we found a reference, so we know we'll need to ask if the user wants to delete it
               QMessageBox confirm(this);
@@ -649,7 +633,7 @@ void Project::delete_selected_media() {
         if (panel_footage_viewer->seq != nullptr) {
           for (int j=0;j<panel_footage_viewer->seq->clips.size();j++) {
             ClipPtr c = panel_footage_viewer->seq->clips.at(j);
-            if (c != nullptr && c->media == items.at(i)) {
+            if (c != nullptr && c->media() == items.at(i)) {
               panel_footage_viewer->set_media(nullptr);
               break;
             }
@@ -666,15 +650,6 @@ void Project::delete_selected_media() {
   } else {
     delete ca;
   }
-}
-
-void Project::start_preview_generator(Media* item, bool replacing) {
-  // set up throbber animation
-  olive::media_icon_service->SetMediaIcon(item, ICON_TYPE_LOADING);
-
-  PreviewGenerator* pg = new PreviewGenerator(item, item->to_footage(), replacing);
-  item->to_footage()->preview_gen = pg;
-  pg->start(QThread::LowPriority);
 }
 
 void Project::process_file_list(QStringList& files, bool recursive, Media* replace, Media* parent) {
@@ -740,7 +715,11 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
       if (lastcharindex == 0) lastcharindex++;
 
+      // used for image sequences that don't start at "0"
+      int start_number = 0;
+
       if (found && file[lastcharindex-1].isDigit()) {
+
         bool is_img_sequence = false;
 
         // how many digits are in the filename?
@@ -787,6 +766,17 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
                                       QMessageBox::Yes) == QMessageBox::Yes) {
               file = new_filename;
               image_sequence_importassequence.append(true);
+
+
+              // try to find the start number for this image sequence
+              int test_file_number = file_number;
+              do {
+                test_file_number--;
+              } while (QFileInfo::exists(QString("%1%2%3").arg(file.left(digit_test),
+                                                               QString("%1").arg(test_file_number, digit_count, 10, QChar('0')),
+                                                               file.mid(lastcharindex))));
+              start_number = test_file_number + 1;
+
             } else {
               image_sequence_importassequence.append(false);
             }
@@ -800,16 +790,16 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
         if (replace != nullptr) {
           item = replace;
-          m = replace->to_footage();
-          m->reset();
         } else {
           item = new Media(parent);
-          m = FootagePtr(new Footage());
         }
+
+        m = FootagePtr(new Footage());
 
         m->using_inout = false;
         m->url = file;
         m->name = get_file_name_from_path(files.at(i));
+        m->start_number = start_number;
 
         item->set_footage(m);
 
@@ -820,7 +810,6 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
             ca->append(new AddMediaCommand(item, parent));
           } else {
             parent->appendChild(item);
-            //						project_model.appendChild(parent, item);
           }
         }
 
@@ -834,7 +823,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
       for (int i=0;i<last_imported_media.size();i++) {
         // generate waveform/thumbnail in another thread
-        start_preview_generator(last_imported_media.at(i), replace != nullptr);
+        PreviewGenerator::AnalyzeMedia(last_imported_media.at(i));
       }
     } else {
       delete ca;
@@ -931,7 +920,7 @@ void Project::delete_clips_using_selected_media() {
       if (c != nullptr) {
         for (int j=0;j<items.size();j++) {
           Media* m = item_to_media(items.at(j));
-          if (c->media == m) {
+          if (c->media() == m) {
             ca->append(new DeleteClipAction(olive::ActiveSequence, i));
             deleted = true;
           }
@@ -971,7 +960,7 @@ void Project::clear() {
 
 void Project::new_project() {
   // clear existing project
-  set_sequence(nullptr);
+  olive::Global->set_sequence(nullptr);
   panel_footage_viewer->set_media(nullptr);
   clear();
   olive::MainWindow->setWindowModified(false);
@@ -1030,6 +1019,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
           stream.writeAttribute("out", QString::number(f->out));
           stream.writeAttribute("speed", QString::number(f->speed));
           stream.writeAttribute("alphapremul", QString::number(f->alpha_is_premultiplied));
+          stream.writeAttribute("startnumber", QString::number(f->start_number));
 
           stream.writeAttribute("proxy", QString::number(f->proxy));
           stream.writeAttribute("proxypath", f->proxy_path);
@@ -1094,38 +1084,38 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
               if (c != nullptr) {
                 stream.writeStartElement("clip"); // clip
                 stream.writeAttribute("id", QString::number(j));
-                stream.writeAttribute("enabled", QString::number(c->enabled));
-                stream.writeAttribute("name", c->name);
-                stream.writeAttribute("clipin", QString::number(c->clip_in));
-                stream.writeAttribute("in", QString::number(c->timeline_in));
-                stream.writeAttribute("out", QString::number(c->timeline_out));
-                stream.writeAttribute("track", QString::number(c->track));
+                stream.writeAttribute("enabled", QString::number(c->enabled()));
+                stream.writeAttribute("name", c->name());
+                stream.writeAttribute("clipin", QString::number(c->clip_in()));
+                stream.writeAttribute("in", QString::number(c->timeline_in()));
+                stream.writeAttribute("out", QString::number(c->timeline_out()));
+                stream.writeAttribute("track", QString::number(c->track()));
 
-                stream.writeAttribute("r", QString::number(c->color_r));
-                stream.writeAttribute("g", QString::number(c->color_g));
-                stream.writeAttribute("b", QString::number(c->color_b));
+                stream.writeAttribute("r", QString::number(c->color().red()));
+                stream.writeAttribute("g", QString::number(c->color().green()));
+                stream.writeAttribute("b", QString::number(c->color().blue()));
 
-                stream.writeAttribute("autoscale", QString::number(c->autoscale));
-                stream.writeAttribute("speed", QString::number(c->speed, 'f', 10));
-                stream.writeAttribute("maintainpitch", QString::number(c->maintain_audio_pitch));
-                stream.writeAttribute("reverse", QString::number(c->reverse));
+                stream.writeAttribute("autoscale", QString::number(c->autoscaled()));
+                stream.writeAttribute("speed", QString::number(c->speed().value, 'f', 10));
+                stream.writeAttribute("maintainpitch", QString::number(c->speed().maintain_audio_pitch));
+                stream.writeAttribute("reverse", QString::number(c->reversed()));
 
-                if (c->media != nullptr) {
-                  stream.writeAttribute("type", QString::number(c->media->get_type()));
-                  switch (c->media->get_type()) {
+                if (c->media() != nullptr) {
+                  stream.writeAttribute("type", QString::number(c->media()->get_type()));
+                  switch (c->media()->get_type()) {
                   case MEDIA_TYPE_FOOTAGE:
-                    stream.writeAttribute("media", QString::number(c->media->to_footage()->save_id));
-                    stream.writeAttribute("stream", QString::number(c->media_stream));
+                    stream.writeAttribute("media", QString::number(c->media()->to_footage()->save_id));
+                    stream.writeAttribute("stream", QString::number(c->media_stream_index()));
                     break;
                   case MEDIA_TYPE_SEQUENCE:
-                    stream.writeAttribute("sequence", QString::number(c->media->to_sequence()->save_id));
+                    stream.writeAttribute("sequence", QString::number(c->media()->to_sequence()->save_id));
                     break;
                   }
                 }
 
                 // save markers
                 // only necessary for null media clips, since media has its own markers
-                if (c->media == nullptr) {
+                if (c->media() == nullptr) {
                   for (int k=0;k<c->get_markers().size();k++) {
                     save_marker(stream, c->get_markers().at(k));
                   }

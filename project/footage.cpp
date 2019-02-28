@@ -25,22 +25,19 @@
 #include <QPainter>
 #include "io/previewgenerator.h"
 
-extern "C" {
-	#include <libavformat/avformat.h>
-}
-
 #include "project/clip.h"
 
-Footage::Footage() :
-	ready(false),
-	preview_gen(nullptr),
-	invalid(false),
-	in(0),
-	out(0),
-	speed(1.0),
-	alpha_is_premultiplied(false),
-	proxy(false)
-{
+Footage::Footage() {
+  ready = (false);
+  preview_gen = (nullptr);
+  invalid = (false);
+  in = (0);
+  out = (0);
+  speed = (1.0);
+  alpha_is_premultiplied = (false);
+  proxy = (false);
+  start_number = 0;
+
 	ready_lock.lock();
 }
 

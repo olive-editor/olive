@@ -26,7 +26,7 @@
 class VolumeEffect : public Effect {
     Q_OBJECT
 public:
-    VolumeEffect(ClipPtr c, const EffectMeta* em);
+    VolumeEffect(Clip* c, const EffectMeta* em);
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
 	EffectField* volume_val;

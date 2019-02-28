@@ -26,7 +26,7 @@
 class AudioNoiseEffect : public Effect {
     Q_OBJECT
 public:
-    AudioNoiseEffect(ClipPtr c, const EffectMeta* em);
+    AudioNoiseEffect(Clip* c, const EffectMeta* em);
 	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
 	EffectField* amount_val;

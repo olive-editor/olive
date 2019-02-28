@@ -73,6 +73,14 @@ public:
      * The PostAction to add
      */
     void appendPost(QUndoCommand* u);
+
+    /**
+     * @brief Returns whether actions have been appended or not
+     *
+     * @return **TRUE** if actions have been appended, **FALSE** if not.
+     */
+    bool hasActions();
+
 private:
     /**
      * @brief Internal array of QUndoCommand objects
