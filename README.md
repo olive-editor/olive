@@ -2,9 +2,9 @@
 
 Olive is a free non-linear video editor for Windows, macOS, and Linux.
 
-**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/rvJMEYQ)
-
 ![screen](https://www.olivevideoeditor.org/img/screenshot.jpg)
+
+**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/rvJMEYQ)
 
 Please consider supporting Olive:
 
