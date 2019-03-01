@@ -1,6 +1,8 @@
-# Olive Video Editor
+# Olive Video Editor [![Build Status](https://travis-ci.org/olive-editor/olive.svg?branch=master)](https://travis-ci.org/olive-editor/olive)
 
 Olive is a free non-linear video editor for Windows, macOS, and Linux.
+
+![screen](https://www.olivevideoeditor.org/img/screenshot.jpg)
 
 Discover more and download binaries at: https://www.olivevideoeditor.org/
 
