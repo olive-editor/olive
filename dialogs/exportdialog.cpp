@@ -566,7 +566,6 @@ void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
 void ExportDialog::cancel_render() {
   et->continueEncode = false;
   cancelled = true;
-  et->wake();
 }
 
 void ExportDialog::vcodec_changed(int index) {
@@ -729,9 +728,8 @@ void ExportDialog::setup_ui() {
   progressLayout->addWidget(progressBar);
 
   renderCancel = new QPushButton(this);
-  renderCancel->setText("x");
+  renderCancel->setIcon(QIcon(":/icons/error.svg"));
   renderCancel->setEnabled(false);
-  renderCancel->setMaximumSize(QSize(20, 16777215));
   connect(renderCancel, SIGNAL(clicked(bool)), this, SLOT(cancel_render()));
   progressLayout->addWidget(renderCancel);
 
