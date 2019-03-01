@@ -5,6 +5,7 @@ __Olive version:__
 __Source:__ *(AppImage, Website etc.)*  
 __Operating system:__ *(Ubuntu 18.04 64-bit)*  
 __CPU:__ *Intel i5-4300U*  
+__RAM:__ *8GB*  
 __GPU:__ *NVIDIA Geforce GT 1030 2GB (Driver ver xxx.xx.xx)*
 
 ### Detailed Description
