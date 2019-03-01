@@ -1185,7 +1185,7 @@ void Project::save_project(bool autorecovery) {
   sequence_id = 1;
 
   QFile file(autorecovery ? autorecovery_filename : olive::ActiveProjectFilename);
-  if (!file.open(QIODevice::WriteOnly/* | QIODevice::Text*/)) {
+  if (!file.open(QIODevice::WriteOnly)) {
     qCritical() << "Could not open file";
     return;
   }

@@ -29,6 +29,7 @@
 #include <QLabel>
 #include <QScrollBar>
 #include <QHBoxLayout>
+#include <QSplitter>
 
 #include "project/projectelements.h"
 #include "ui/timelineheader.h"
@@ -78,6 +79,9 @@ public:
   void add_effect_paste_action(QMenu* menu);
 
   virtual void Retranslate() override;
+
+  virtual void LoadLayoutState(const QByteArray& data) override;
+  virtual QByteArray SaveLayoutState() override;
 public slots:
   void cut();
   void copy(bool del = false);
@@ -112,6 +116,7 @@ private:
   QString panel_name;
   int mode;
 
+  QSplitter* splitter;
   QPushButton* btnAddVideoEffect;
   QLabel* lblVideoEffects;
   QPushButton* btnAddVideoTransition;

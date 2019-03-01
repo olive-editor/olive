@@ -28,7 +28,11 @@ class Panel : public QDockWidget {
 public:
   Panel(QWidget* parent = nullptr);
   virtual ~Panel() override;
+
   virtual void Retranslate() = 0;
+
+  virtual void LoadLayoutState(const QByteArray& data);
+  virtual QByteArray SaveLayoutState();
 protected:
   virtual void changeEvent(QEvent* e) override;
 };

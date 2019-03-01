@@ -76,17 +76,71 @@ void MainWindow::setup_layout(bool reset) {
     QFile panel_config(get_config_dir().filePath("layout"));
     if (panel_config.exists() && panel_config.open(QFile::ReadOnly)) {
 
-      // default to resetting unless we find the tag in the XML file
+      // default to resetting unless we find layout data in the XML file
       reset = true;
 
       // read XML layout file
       QXmlStreamReader stream(&panel_config);
+
+      // loop through XML for all data
       while (!stream.atEnd()) {
-        stream.readNextStartElement();
-        if (stream.name() == "panels") {
-          restoreState(QByteArray::fromBase64(stream.readElementText().toUtf8()), 0);
+        stream.readNext();
+
+        if (stream.name() == "panels" && stream.isStartElement()) {
+
+          // element contains MainWindow layout data to restore
+          stream.readNext();
+          restoreState(QByteArray::fromBase64(stream.text().toUtf8()), 0);
           reset = false;
+
+        } else if (stream.name() == "panel" && stream.isStartElement()) {
+
+          // element contains layout data specific to a panel, we'll find the panel and load it
+
+          // get panel name from XML attribute
+          QString panel_name;
+          const QXmlStreamAttributes& attributes = stream.attributes();
+          for (int i=0;i<attributes.size();i++) {
+            const QXmlStreamAttribute& attr = attributes.at(i);
+            if (attr.name() == "name") {
+              panel_name = attr.value().toString();
+              break;
+            }
+          }
+
+          if (panel_name.isEmpty()) {
+            qWarning() << "Layout file specified data for a panel but didn't specify a name. Layout wasn't loaded.";
+          } else {
+            // loop through panels for a panel with the same name
+
+            bool found_panel = false;
+
+            for (int i=0;i<olive::panels.size();i++) {
+
+              Panel* panel = olive::panels.at(i);
+              if (panel->objectName() == panel_name) {
+
+                // found the panel, so we can load its state
+                stream.readNext();
+                panel->LoadLayoutState(QByteArray::fromBase64(stream.text().toUtf8()));
+
+                // we found it, no more need to loop through panels
+                found_panel = true;
+
+                break;
+
+              }
+
+            }
+
+            if (!found_panel) {
+              qWarning() << "Panel specified in layout data doesn't exist. Layout wasn't loaded.";
+            }
+
+          }
+
         }
+
       }
 
       panel_config.close();
@@ -904,9 +958,36 @@ void MainWindow::closeEvent(QCloseEvent *e) {
       QFile panel_config(get_config_dir().filePath("layout"));
       if (panel_config.open(QFile::WriteOnly)) {
         QXmlStreamWriter stream(&panel_config);
+        stream.setAutoFormatting(true);
         stream.writeStartDocument();
 
+        stream.writeStartElement("layout");
+
         stream.writeTextElement("panels", saveState(0).toBase64());
+
+        // if the panels have any specific layout data to save, save it now
+        for (int i=0;i<olive::panels.size();i++) {
+          QByteArray layout_data = olive::panels.at(i)->SaveLayoutState();
+
+          if (!layout_data.isEmpty()) {
+
+            // layout data is matched with the panel's objectName(), which we can't do if the panel has no name
+            const QString& panel_name = olive::panels.at(i)->objectName();
+            if (panel_name.isEmpty()) {
+              qWarning() << "Panel" << i << "had layout state data but no objectName(). Layout was not saved.";
+            } else {
+              stream.writeStartElement("panel");
+
+              stream.writeAttribute("name", panel_name);
+
+              stream.writeCharacters(layout_data.toBase64());
+
+              stream.writeEndElement();
+            }
+          }
+        }
+
+        stream.writeEndElement(); // layout
 
         stream.writeEndDocument();
         panel_config.close();
