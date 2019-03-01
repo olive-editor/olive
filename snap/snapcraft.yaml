@@ -31,7 +31,8 @@ parts:
     source: .
     build-packages:
       - qt5-default
-      - qtmultimedia5-dev 
+      - qtmultimedia5-dev
+      - libqt5svg5-dev
       - libavformat-dev
       - libavfilter-dev
       - frei0r-plugins-dev
