@@ -756,12 +756,13 @@ void Timeline::set_zoom_value(double v) {
   zoom_just_changed = true;
 
   // set scrollbar to center the playhead
-  if (olive::ActiveSequence != nullptr
-      && !horizontalScrollBar->is_resizing()) {
+  if (olive::ActiveSequence != nullptr) {
     // update scrollbar maximum value for new zoom
     set_sb_max();
 
-    center_scroll_to_playhead(horizontalScrollBar, zoom, olive::ActiveSequence->playhead);
+    if (!horizontalScrollBar->is_resizing()) {
+      center_scroll_to_playhead(horizontalScrollBar, zoom, olive::ActiveSequence->playhead);
+    }
   }
 
   // repaint the timeline for the new zoom/location

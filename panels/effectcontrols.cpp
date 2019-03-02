@@ -24,7 +24,6 @@
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QScrollBar>
-#include <QSplitter>
 #include <QScrollArea>
 #include <QPushButton>
 #include <QSpacerItem>
@@ -321,7 +320,7 @@ void EffectControls::setup_ui() {
   hlayout->setSpacing(0);
   hlayout->setMargin(0);
 
-  QSplitter* splitter = new QSplitter();
+  splitter = new QSplitter();
   splitter->setOrientation(Qt::Horizontal);
   splitter->setChildrenCollapsible(false);
 
@@ -505,6 +504,16 @@ void EffectControls::Retranslate() {
   lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
 
   UpdateTitle();
+}
+
+void EffectControls::LoadLayoutState(const QByteArray &data)
+{
+  splitter->restoreState(data);
+}
+
+QByteArray EffectControls::SaveLayoutState()
+{
+  return splitter->saveState();
 }
 
 void EffectControls::update_scrollbar() {

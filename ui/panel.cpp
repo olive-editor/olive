@@ -37,6 +37,13 @@ Panel::~Panel()
   olive::panels.removeAll(this);
 }
 
+void Panel::LoadLayoutState(const QByteArray &) {}
+
+QByteArray Panel::SaveLayoutState()
+{
+  return QByteArray();
+}
+
 void Panel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
