@@ -81,6 +81,8 @@ private:
   QGroupBox* videoGroupbox;
   QGroupBox* audioGroupbox;
   QComboBox* compressionTypeCombobox;
+
+  qint64 total_export_time_start;
 };
 
 #endif // EXPORTDIALOG_H

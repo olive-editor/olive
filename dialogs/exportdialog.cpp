@@ -549,16 +549,34 @@ void ExportDialog::export_action() {
 
     cancelled = false;
 
+    total_export_time_start = QDateTime::currentMSecsSinceEpoch();
+
     et->start();
   }
 }
 
 void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
+  if (value == 100) {
+    // if value is 100%, show total render time rather than remaining
+    remaining_ms = QDateTime::currentMSecsSinceEpoch() - total_export_time_start;
+  }
+
   // convert ms to H:MM:SS
   int seconds = qFloor(remaining_ms*0.001)%60;
   int minutes = qFloor(remaining_ms/60000)%60;
   int hours = qFloor(remaining_ms/3600000);
-  progressBar->setFormat("%p% (ETA: " + QString::number(hours) + ":" + QString::number(minutes).rightJustified(2, '0') + ":" + QString::number(seconds).rightJustified(2, '0') + ")");
+
+  if (value == 100) {
+    // show value as "total"
+    progressBar->setFormat(tr("%p% (Total: %1:%2:%3)").arg(QString::number(hours),
+                                                            QString::number(minutes).rightJustified(2, '0'),
+                                                            QString::number(seconds).rightJustified(2, '0')));
+  } else {
+    // show value as "remaining"
+    progressBar->setFormat(tr("%p% (ETA: %1:%2:%3)").arg(QString::number(hours),
+                                                         QString::number(minutes).rightJustified(2, '0'),
+                                                         QString::number(seconds).rightJustified(2, '0')));
+  }
 
   progressBar->setValue(value);
 }
