@@ -50,6 +50,7 @@ RenderThread::RenderThread()
   queued = false;
   texture_failed = false;
   running = true;
+  front_buffer_switcher = false;
 
   surface.create();
 }
