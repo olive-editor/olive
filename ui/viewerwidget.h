@@ -81,7 +81,7 @@ private:
   void move_gizmos(QMouseEvent *event, bool done);
   bool dragging;
   void seek_from_click(int x);
-  EffectPtr gizmos;
+  Effect* gizmos;
   int drag_start_x;
   int drag_start_y;
   int gizmo_x_mvmt;

@@ -48,7 +48,7 @@ public:
   QMutex* get_texture_mutex();
   const GLuint& get_texture();
 
-  EffectPtr gizmos;
+  Effect* gizmos;
   void paint();
   void start_render(QOpenGLContext* share,
                     SequencePtr s,

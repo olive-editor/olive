@@ -192,7 +192,6 @@ void RenderThread::paint() {
   params.seq = seq;
   params.video = true;
   params.texture_failed = false;
-  params.gizmos = &gizmos;
   params.wait_for_mutexes = true;
   params.playback_speed = 1;
   params.blend_mode_program = blend_mode_program;
@@ -203,6 +202,10 @@ void RenderThread::paint() {
   params.backend_attachment2 = back_texture_2;
   params.main_buffer = front_buffer_switcher ? front_buffer1 : front_buffer2;
   params.main_attachment = front_buffer_switcher ? front_texture1 : front_texture2;
+
+  // get currently selected gizmos
+  gizmos = seq->GetSelectedGizmo();
+  params.gizmos = gizmos;
 
   QMutex& active_mutex = front_buffer_switcher ? front_mutex1 : front_mutex2;
   active_mutex.lock();
@@ -220,8 +223,6 @@ void RenderThread::paint() {
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
   glEnable(GL_DEPTH);
-
-  gizmos = nullptr;
 
   compose_sequence(params);
 

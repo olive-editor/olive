@@ -107,7 +107,7 @@ GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 }
 
 void process_effect(Clip* c,
-                    EffectPtr e,
+                    Effect* e,
                     double timecode,
                     GLTextureCoords& coords,
                     GLuint& composite_texture,
@@ -415,34 +415,22 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           // get current sequence time in seconds (used for effects)
           double timecode = get_timecode(c, playhead);
 
-          // set up variables for gizmos later
-          EffectPtr first_gizmo_effect = nullptr;
-          EffectPtr selected_effect = nullptr;
-
           // run through all of the clip's effects
           for (int j=0;j<c->effects.size();j++) {
-            EffectPtr e = c->effects.at(j);
+            Effect* e = c->effects.at(j).get();
             process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
-            // retrieve gizmo data from effect
-            if (e->are_gizmos_enabled()) {
-              if (first_gizmo_effect == nullptr) first_gizmo_effect = e;
-              if (e->container->selected) selected_effect = e;
+            if (e == params.gizmos) {
+              e->gizmo_draw(timecode, coords); // set correct gizmo coords
+              e->gizmo_world_to_screen(); // convert gizmo coords to screen coords
             }
-          }
-
-          // using gizmo data, set definitive gizmo
-          if (selected_effect != nullptr) {
-            (*params.gizmos) = selected_effect;
-          } else if (s->IsClipSelected(c, true)) {
-            (*params.gizmos) = first_gizmo_effect;
           }
 
           // if the clip has an opening transition, process that now
           if (c->opening_transition != nullptr) {
             int transition_progress = playhead - c->timeline_in(true);
             if (transition_progress < c->opening_transition->get_length()) {
-              process_effect(c, c->opening_transition, double(transition_progress)/double(c->opening_transition->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionOpening);
+              process_effect(c, c->opening_transition.get(), double(transition_progress)/double(c->opening_transition->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionOpening);
             }
           }
 
@@ -450,7 +438,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           if (c->closing_transition != nullptr) {
             int transition_progress = playhead - (c->timeline_out(true) - c->closing_transition->get_length());
             if (transition_progress >= 0 && transition_progress < c->closing_transition->get_length()) {
-              process_effect(c, c->closing_transition, double(transition_progress)/double(c->closing_transition->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionClosing);
+              process_effect(c, c->closing_transition.get(), double(transition_progress)/double(c->closing_transition->get_length()), coords, textureID, fbo_switcher, params.texture_failed, kTransitionClosing);
             }
           }
 
@@ -596,6 +584,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           }
 
           // prepare gizmos
+          /*
           if ((*params.gizmos) != nullptr
               && params.nests.isEmpty()
               && ((*params.gizmos) == first_gizmo_effect
@@ -603,6 +592,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             (*params.gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
             (*params.gizmos)->gizmo_world_to_screen(); // convert gizmo coords to screen coords
           }
+          */
 
           glPopMatrix();
         }

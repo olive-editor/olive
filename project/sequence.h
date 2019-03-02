@@ -47,6 +47,8 @@ public:
   QVector<Clip*> SelectedClips();
   QVector<int> SelectedClipIndexes();
 
+  Effect* GetSelectedGizmo();
+
   bool IsClipSelected(int clip_index, bool containing);
   bool IsClipSelected(Clip* clip, bool containing);
 

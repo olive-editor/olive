@@ -79,10 +79,9 @@ struct ComposeSequenceParams {
     /**
      * @brief Set to the Effect whose gizmos were chosen to be drawn on screen
      *
-     * A pointer to a pointer that will be set to the Effect whose gizmos are being rendered and should therefore
-     * be interacted with if the user uses them.
+     * The currently active Effect that compose_sequence() will update the gizmos of.
      */
-    EffectPtr* gizmos;
+    Effect* gizmos;
 
     /**
      * @brief A variable that compose_sequence() will set to **TRUE** if any of the clips couldn't be shown.

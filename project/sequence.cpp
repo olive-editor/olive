@@ -113,6 +113,47 @@ QVector<int> Sequence::SelectedClipIndexes()
   return selected_clips;
 }
 
+Effect *Sequence::GetSelectedGizmo()
+{
+  Effect* gizmo_ptr = nullptr;
+
+  for (int i=0;i<clips.size();i++) {
+    Clip* c = clips.at(i).get();
+    if (c != nullptr
+        && c->IsActiveAt(playhead)
+        && IsClipSelected(c, true)) {
+      // This clip is selected and currently active - we'll use this for gizmos
+
+      if (!c->effects.isEmpty()) {
+
+        // find which effect has gizmos selected, or default to the first gizmo effect we find if there is
+        // none selected
+
+        for (int j=0;j<c->effects.size();j++) {
+          Effect* e = c->effects.at(j).get();
+
+          // retrieve gizmo data from effect
+          if (e->are_gizmos_enabled()) {
+            if (gizmo_ptr == nullptr) {
+              gizmo_ptr = e;
+            }
+            if (e->container->selected) {
+              gizmo_ptr = e;
+              break;
+            }
+          }
+        }
+      }
+
+      if (gizmo_ptr != nullptr) {
+        break;
+      }
+    }
+  }
+
+  return gizmo_ptr;
+}
+
 bool Sequence::IsClipSelected(int clip_index, bool containing)
 {
   return IsClipSelected(clips.at(clip_index).get(), containing);
