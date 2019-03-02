@@ -25,10 +25,10 @@
 #include <QUndoCommand>
 
 enum LabelSliderDisplayType {
-    LABELSLIDER_NORMAL,
-    LABELSLIDER_FRAMENUMBER,
-    LABELSLIDER_PERCENT,
-    LABELSLIDER_DECIBEL
+  LABELSLIDER_NORMAL,
+  LABELSLIDER_FRAMENUMBER,
+  LABELSLIDER_PERCENT,
+  LABELSLIDER_DECIBEL
 };
 
 /**
@@ -39,11 +39,11 @@ enum LabelSliderDisplayType {
  */
 class LabelSlider : public QLabel
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    LabelSlider(QWidget* parent = nullptr);
+  LabelSlider(QWidget* parent = nullptr);
 
-    /**
+  /**
      * @brief Set the display frame rate
      *
      * If the `display_type` is set to LABELSLIDER_FRAMENUMBER, this function sets how many frames per second the
@@ -51,9 +51,9 @@ public:
      *
      * @param d
      */
-	void set_frame_rate(double d);
+  void set_frame_rate(double d);
 
-    /**
+  /**
      * @brief Sets the way to display the value
      *
      * * `LABELSLIDER_NORMAL` - Shows the value as a normal number
@@ -67,9 +67,9 @@ public:
      *
      * The display type to set to. Should be a member of `enum LabelSliderDisplayType`.
      */
-	void set_display_type(int type);
+  void set_display_type(int type);
 
-    /**
+  /**
      * @brief Set the value
      * @param v
      *
@@ -81,9 +81,9 @@ public:
      * only difference is **TRUE** will emit a signal (valueChanged()) indicating that the value has changed, and
      * **FALSE** will not.
      */
-	void set_value(double v, bool userSet);
+  void set_value(double v, bool userSet);
 
-    /**
+  /**
      * @brief Set the default value
      *
      * If a default value is set, alt+clicking the LabelSlider will return to the default value.
@@ -92,9 +92,9 @@ public:
      *
      * Value to set as default
      */
-    void set_default_value(double v);
+  void set_default_value(double v);
 
-    /**
+  /**
      * @brief Set the minimum value
      *
      * If a minimum value is set, the value will never go below it. If the user manually sets a value lower than
@@ -104,9 +104,9 @@ public:
      *
      * Value to set as minimum
      */
-    void set_minimum_value(double v);
+  void set_minimum_value(double v);
 
-    /**
+  /**
      * @brief Set the maximum value
      *
      * If a maximum value is set, the value will never go above it. If the user manually sets a value higher than
@@ -116,16 +116,16 @@ public:
      *
      * Value to set as maximum
      */
-    void set_maximum_value(double v);
+  void set_maximum_value(double v);
 
-    /**
+  /**
      * @brief Returns the internal value as a double
      * @return The internal value. This will not respect the `display_type`, i.e. 100% will return as 1.0, 12dB will
      * return as 400%, and a timecode will return as a frame number.
      */
-    double value();
+  double value();
 
-    /**
+  /**
      * @brief Returns whether a value has been set or not
      *
      * If a value has been entered by any means (i.e. if set_value() was called), this will be **TRUE**. If set_value()
@@ -136,21 +136,21 @@ public:
      *
      * @return **TRUE** if a value has been set, **FALSE** if not.
      */
-    bool is_set();
+  bool is_set();
 
-    /**
+  /**
      * @brief Returns whether the user is currently dragging
      * @return **TRUE** if the user is dragging, **FALSE** if not.
      */
-	bool is_dragging();
+  bool is_dragging();
 
-    /**
+  /**
      * @brief Convert the internal value to a displayed string according to `display_type`
      * @return The internal value as a string
      */
-    QString valueToString();
+  QString valueToString();
 
-    /**
+  /**
      * @brief Returns whatever value was set before the last set_value()
      *
      * For various reasons (largely undo capabilities) it is helpful to retrieve whatever the value was before the
@@ -159,79 +159,102 @@ public:
      *
      * @return The previous value
      */
-	double getPreviousValue();
+  double getPreviousValue();
 
-    /**
+  /**
      * @brief Updates previous value
      *
      * Called internally to store the current value as the previous value in anticipation of an upcoming value change.
      * Can also be called externally (mainly for dragged EffectGizmos) in anticipation of an external change.
      */
-    void set_previous_value();
+  void set_previous_value();
 
-    /**
+  /**
      * @brief Set the display color
      * @param c
      *
      * Color to set to
      */
-    void set_color(QString c = nullptr);
+  void set_color(QString c = nullptr);
 
-    /**
+  /**
      * @brief Set how many decimal places to show for a floating-point number
      *
      * Defaults to 1
      */
-	int decimal_places;
+  int decimal_places;
 protected:
-    void mousePressEvent(QMouseEvent *ev);
-    void mouseMoveEvent(QMouseEvent *ev);
-    void mouseReleaseEvent(QMouseEvent *ev);
+  void mousePressEvent(QMouseEvent *ev);
+  void mouseMoveEvent(QMouseEvent *ev);
+  void mouseReleaseEvent(QMouseEvent *ev);
 private:
-    double default_value;
-    double internal_value;
-    double drag_start_value;
-	double previous_value;
+  double default_value;
+  double internal_value;
+  double drag_start_value;
+  double previous_value;
 
-    bool min_enabled;
-    double min_value;
-    bool max_enabled;
-    double max_value;
+  bool min_enabled;
+  double min_value;
+  bool max_enabled;
+  double max_value;
 
-    bool drag_start;
-    bool drag_proc;
-    int drag_start_x;
-    int drag_start_y;
+  bool drag_start;
+  bool drag_proc;
+  int drag_start_x;
+  int drag_start_y;
 
-    bool set;
+  bool set;
 
-	int display_type;
+  int display_type;
 
-	double frame_rate;
+  double frame_rate;
 
-    /**
+  /**
      * @brief Internal function to set the standard cursor (usually SizeHorCursor)
      */
-    void set_default_cursor();
+  void set_default_cursor();
 
-    /**
+  /**
      * @brief Internal function to set the cursor while dragging (usually NoCursor aka invisible)
      */
-    void set_active_cursor();
+  void set_active_cursor();
+private slots:
+  /**
+   * @brief Context menu slot to be connected to QWidget::customContextMenuRequested(const QPoint&)
+   *
+   * @param pos
+   *
+   * Current cursor position
+   */
+  void show_context_menu(const QPoint& pos);
+
+  /**
+   * @brief Slot to reset current value to the default value
+   */
+  void reset_to_default_value();
+
+  /**
+   * @brief Show prompt asking for value
+   *
+   * Triggered when the user clicks on the LabelSlider without dragging or triggers right click > Edit.
+   * Will show an input dialog asking for a new value to be entered manually. Asks for units in the selected
+   * display type and converts them back to the internal value type.
+   */
+  void prompt_for_value();
 signals:
-    /**
+  /**
      * @brief valueChanged signal
      *
      * Emitted if the value changed at it was instigated by the user.
      */
-	void valueChanged();
+  void valueChanged();
 
-    /**
+  /**
      * @brief clicked signal
      *
      * Emitted if the user clicks on the LabelSlider in any way
      */
-	void clicked();
+  void clicked();
 };
 
 #endif // LABELSLIDER_H
