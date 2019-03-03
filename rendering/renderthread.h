@@ -31,6 +31,7 @@
 
 #include "project/sequence.h"
 #include "project/effect.h"
+#include "rendering/framebufferobject.h"
 
 // copied from source code to OCIODisplay
 const int LUT3D_EDGE_SIZE = 32;
@@ -66,22 +67,17 @@ public slots:
 signals:
   void ready();
 private:
-  void allocate_texture(GLuint tex, GLuint fbo);
+  // cleanup functions
+  void delete_buffers();
+  void delete_shaders();
 
   void set_up_ocio();
   void destroy_ocio();
 
-  // cleanup functions
-  void delete_texture();
-  void delete_fbo();
-  void delete_shader_program();
-
-  GLuint front_buffer1;
-  GLuint front_texture1;
+  FramebufferObject front_buffer_1;
   QMutex front_mutex1;
 
-  GLuint front_buffer2;
-  GLuint front_texture2;
+  FramebufferObject front_buffer_2;
   QMutex front_mutex2;
 
   bool front_buffer_switcher;
@@ -98,10 +94,8 @@ private:
   QOpenGLShaderProgram* blend_mode_program;
   QOpenGLShaderProgram* premultiply_program;
 
-  GLuint back_buffer_1;
-  GLuint back_buffer_2;
-  GLuint back_texture_1;
-  GLuint back_texture_2;
+  FramebufferObject back_buffer_1;
+  FramebufferObject back_buffer_2;
 
   float ocio_lut_data[NUM_3D_ENTRIES];
   GLuint ocio_lut_texture;

@@ -749,10 +749,11 @@ void Cacher::WakeMainThread()
   main_thread_lock_.unlock();
 }
 
-Cacher::Cacher(Clip* c) : clip(c) {
-  frame_ = nullptr;
-  pkt = nullptr;
-}
+Cacher::Cacher(Clip* c) :
+  clip(c),
+  frame_(nullptr),
+  pkt(nullptr)
+{}
 
 void Cacher::OpenWorker() {
   qint64 time_start = QDateTime::currentMSecsSinceEpoch();
