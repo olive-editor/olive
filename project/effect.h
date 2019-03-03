@@ -38,6 +38,7 @@
 #include <QMouseEvent>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <random>
 
 #include "ui/collapsiblewidget.h"
 #include "ui/checkboxex.h"
@@ -226,6 +227,15 @@ public:
   void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
   void gizmo_world_to_screen();
   bool are_gizmos_enabled();
+
+  template <typename T>
+  T randomNumber()
+  {
+    static std::random_device device;
+    static std::mt19937 generator(device());
+    static std::uniform_int_distribution<> distribution(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+    return distribution(generator);
+  }
 
   static EffectPtr Create(Clip *c, const EffectMeta *em);
   static const EffectMeta* GetInternalMeta(int internal_id, int type);
