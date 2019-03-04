@@ -154,6 +154,7 @@ bool ExportThread::setupVideo() {
 
   /// H.264 specific settings
   case AV_CODEC_ID_H264:
+  case AV_CODEC_ID_H265:
     switch (params.video_compression_type) {
     case COMPRESSION_TYPE_CFR:
       av_opt_set(vcodec_ctx->priv_data, "crf", QString::number(static_cast<int>(params.video_bitrate)).toUtf8(), AV_OPT_SEARCH_CHILDREN);

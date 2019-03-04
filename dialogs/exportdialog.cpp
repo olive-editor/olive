@@ -145,6 +145,7 @@ void ExportDialog::format_changed(int index) {
   case FORMAT_3GPP:
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
+    add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H265);
 
     add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
 
@@ -231,6 +232,7 @@ void ExportDialog::format_changed(int index) {
   case FORMAT_MPEG4:
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
+    add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H265);
 
     add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
     add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
@@ -252,6 +254,7 @@ void ExportDialog::format_changed(int index) {
   case FORMAT_MKV:
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
+    add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H265);
 
     add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AAC);
     add_codec_to_combobox(acodecCombobox, AV_CODEC_ID_AC3);
@@ -280,6 +283,7 @@ void ExportDialog::format_changed(int index) {
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_QTRLE);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MPEG4);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H264);
+    add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_H265);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_MJPEG);
     add_codec_to_combobox(vcodecCombobox, AV_CODEC_ID_PRORES);
 
@@ -590,7 +594,8 @@ void ExportDialog::vcodec_changed(int index) {
   compressionTypeCombobox->clear();
 
   if (vcodecCombobox->count() > 0) {
-    if (vcodecCombobox->itemData(index) == AV_CODEC_ID_H264) {
+    if (vcodecCombobox->itemData(index) == AV_CODEC_ID_H264
+        || vcodecCombobox->itemData(index) == AV_CODEC_ID_H265) {
       compressionTypeCombobox->setEnabled(true);
       compressionTypeCombobox->addItem(tr("Quality-based (Constant Rate Factor)"), COMPRESSION_TYPE_CFR);
       //		compressionTypeCombobox->addItem("File size-based (Two-Pass)", COMPRESSION_TYPE_TARGETSIZE);
