@@ -1781,14 +1781,14 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
           if (validator > 0) frame_diff -= validator;
         } else {
           // prevent clip_in from going below 0
-          if (c->media()->get_type() == MEDIA_TYPE_SEQUENCE
+          if ((c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE)
               || (ms != nullptr && !ms->infinite_length)) {
             validator = g.old_clip_in + frame_diff;
             if (validator < 0) frame_diff -= validator;
           }
 
           // prevent clip length exceeding media length
-          if (c->media()->get_type() == MEDIA_TYPE_SEQUENCE
+          if ((c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE)
               || (ms != nullptr && !ms->infinite_length)) {
             validator = g.old_clip_in + g.ghost_length + frame_diff;
             if (validator > g.media_length) frame_diff -= validator - g.media_length;
