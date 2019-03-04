@@ -34,7 +34,7 @@ class LoadThread : public QThread
 {
   Q_OBJECT
 public:
-  LoadThread(bool a);
+  LoadThread(const QString& filename, bool autorecovery, bool clear);
   void run();
   void cancel();
 signals:
@@ -61,7 +61,9 @@ private slots:
                         long effect_length,
                         bool effect_enabled);
 private:
-  bool autorecovery;
+  bool autorecovery_;
+  bool clear_;
+  QString filename_;
 
   bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
   void load_effect(QXmlStreamReader& stream, Clip* c);
@@ -91,7 +93,7 @@ private:
   QMutex mutex;
   QWaitCondition waitCond;
 
-  bool cancelled;
+  bool cancelled_;
   bool xml_error;
 
   QMessageBox::StandardButton question_btn;

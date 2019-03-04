@@ -655,9 +655,12 @@ void Project::delete_selected_media() {
 void Project::process_file_list(QStringList& files, bool recursive, Media* replace, Media* parent) {
   bool imported = false;
 
+  // retrieve the array of image formats from the user's configuration
+  QStringList image_sequence_formats = olive::CurrentConfig.img_seq_formats.split("|");
+
+  // a cache of image sequence formatted URLS to assist the user in importing image sequences
   QVector<QString> image_sequence_urls;
   QVector<bool> image_sequence_importassequence;
-  QStringList image_sequence_formats = olive::CurrentConfig.img_seq_formats.split("|");
 
   if (!recursive) last_imported_media.clear();
 
@@ -665,8 +668,12 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
   ComboAction* ca = nullptr;
   if (create_undo_action) ca = new ComboAction();
 
+  // Loop through received files
   for (int i=0;i<files.size();i++) {
+
+    // If this file is a directory, we'll recursively call this function again to process the directory's contents
     if (QFileInfo(files.at(i)).isDir()) {
+
       QString folder_name = get_file_name_from_path(files.at(i));
       Media* folder = create_folder_internal(folder_name);
 
@@ -689,132 +696,193 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
       }
 
       imported = true;
+
     } else if (!files.at(i).isEmpty()) {
-      QString file(files.at(i));
-      bool skip = false;
+      QString file = files.at(i);
 
-      /* Heuristic to determine whether file is part of an image sequence */
+      // Check if the user is importing an Olive project file
+      if (file.endsWith(".ove", Qt::CaseInsensitive)) {
 
-      // check file extension (assume it's not a
+        // This file is an Olive project file. Ask the user if they really want to import it.
+        if (QMessageBox::question(this,
+                                  tr("Import a Project"),
+                                  tr("\"%1\" is an Olive project file. It will merge with this project. "
+                                     "Do you wish to continue?").arg(file),
+                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
-      int lastcharindex = file.lastIndexOf(".");
-      bool found = true;
-      if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
-        // image_sequence_formats
-        found = false;
-        QString ext = file.mid(lastcharindex+1);
-        for (int j=0;j<image_sequence_formats.size();j++) {
-          if (ext == image_sequence_formats.at(j)) {
-            found = true;
-            break;
-          }
+          // load the project without clearing the current one
+          load_project(file, false, false);
+
         }
+
       } else {
-        lastcharindex = file.length();
-      }
 
-      if (lastcharindex == 0) lastcharindex++;
+        // This file is NOT an Olive project file
 
-      // used for image sequences that don't start at "0"
-      int start_number = 0;
+        // Used later if this file is part of an already processed image sequence
+        bool skip = false;
 
-      if (found && file[lastcharindex-1].isDigit()) {
+        /* Heuristic to determine whether file is part of an image sequence */
 
-        bool is_img_sequence = false;
+        // Firstly, we run a heuristic on whether this file is an image by checking its file extension
 
-        // how many digits are in the filename?
-        int digit_count = 0;
-        int digit_test = lastcharindex-1;
-        while (file[digit_test].isDigit()) {
-          digit_count++;
-          digit_test--;
-        }
+        bool file_is_an_image = false;
 
-        // retrieve number from filename
-        digit_test++;
-        int file_number = file.mid(digit_test, digit_count).toInt();
+        // Get the string position of the extension in the filename
+        int lastcharindex = file.lastIndexOf(".");
 
-        // Check if there are files with the same filename but just different numbers
-        if (QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number-1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))
-            || QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number+1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))) {
-          is_img_sequence = true;
-        }
+        if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
 
-        if (is_img_sequence) {
-          // get the URL that we would pass to FFmpeg to force it to read the image as a sequence
-          QString new_filename = file.left(digit_test) + "%" + QString::number(digit_count) + "d" + file.mid(lastcharindex);
+          QString ext = file.mid(lastcharindex+1);
 
-          // add image sequence url to a vector in case the user imported several files that
-          // we're interpreting as a possible sequence
-          found = false;
-          for (int i=0;i<image_sequence_urls.size();i++) {
-            if (image_sequence_urls.at(i) == new_filename) {
-              // either SKIP if we're importing as a sequence, or leave it if we aren't
-              if (image_sequence_importassequence.at(i)) {
-                skip = true;
-              }
-              found = true;
-              break;
-            }
+          // If the file extension is part of a predetermined list (from Config::img_seq_formats), we'll treat it
+          // as an image
+          if (image_sequence_formats.contains(ext, Qt::CaseInsensitive)) {
+            file_is_an_image = true;
           }
-          if (!found) {
-            image_sequence_urls.append(new_filename);
-            if (QMessageBox::question(this,
-                                      tr("Image sequence detected"),
-                                      tr("The file '%1' appears to be part of an image sequence. Would you like to import it as such?").arg(file),
-                                      QMessageBox::Yes | QMessageBox::No,
-                                      QMessageBox::Yes) == QMessageBox::Yes) {
-              file = new_filename;
-              image_sequence_importassequence.append(true);
 
+        } else {
 
-              // try to find the start number for this image sequence
-              int test_file_number = file_number;
-              do {
-                test_file_number--;
-              } while (QFileInfo::exists(QString("%1%2%3").arg(file.left(digit_test),
-                                                               QString("%1").arg(test_file_number, digit_count, 10, QChar('0')),
-                                                               file.mid(lastcharindex))));
-              start_number = test_file_number + 1;
+          // If we're here, the file has no extension, but we'll still check if its an image sequence just in case
+          lastcharindex = file.length();
+          file_is_an_image = true;
+
+        }
+
+        // Some image sequence's don't start at "0", if it is indeed an image sequence, we'll use this variable
+        // later to determine where it does start
+        int start_number = 0;
+
+        // Check if we passed the earlier heuristic to check whether this is a file, and whether the last number in
+        // the filename (before the extension) is a number
+        if (file_is_an_image && file[lastcharindex-1].isDigit()) {
+
+          // Check how many digits are at the end of this filename
+          int digit_count = 0;
+          int digit_test = lastcharindex-1;
+          while (file[digit_test].isDigit()) {
+            digit_count++;
+            digit_test--;
+          }
+
+          // Retrieve the integer represented at the end of this filename
+          digit_test++;
+          int file_number = file.mid(digit_test, digit_count).toInt();
+
+          // Check whether a file exists with the same format but one number higher or one number lower
+          if (QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number-1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))
+              || QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number+1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))) {
+
+            //
+            // If so, it certainly looks like it *could* be an image sequence, but we'll ask the user just in case
+            //
+
+            // Firstly we should check if this file is part of a sequence the user has already confirmed as either a
+            // sequence or not a sequence (e.g. if the user happened to select a bunch of images that happen to increase
+            // consecutively). We format the filename with FFmpeg's '%Nd' (N = digits) formatting for reading image
+            // sequences
+            QString new_filename = file.left(digit_test) + "%" + QString::number(digit_count) + "d" + file.mid(lastcharindex);
+
+            int does_url_cache_already_contain_this = image_sequence_urls.indexOf(new_filename);
+
+            if (does_url_cache_already_contain_this > -1) {
+
+              // We've already processed an image with the same formatting
+
+              // Check if the last time we saw this formatting, the user chose to import as a sequence
+              if (image_sequence_importassequence.at(does_url_cache_already_contain_this)) {
+
+                // If so, no need to import this file too, so we signal to the rest of the function to skip this file
+                skip = true;
+
+              }
+
+              // If not, we can fall-through to the next step which is importing normally
 
             } else {
-              image_sequence_importassequence.append(false);
+
+              // If we're here, we've never seen a file with this formatting before, so we'll ask whether to import
+              // as a sequence or not
+
+              // Add this file formatting file to the URL cache
+              image_sequence_urls.append(new_filename);
+
+              // This does look like an image sequence, let's ask the user if it'll indeed be an image sequence
+              if (QMessageBox::question(this,
+                                        tr("Image sequence detected"),
+                                        tr("The file '%1' appears to be part of an image sequence. "
+                                           "Would you like to import it as such?").arg(file),
+                                        QMessageBox::Yes | QMessageBox::No,
+                                        QMessageBox::Yes) == QMessageBox::Yes) {
+
+                // Proceed to the next step of this with the formatted filename
+                file = new_filename;
+
+                // Cache the user's answer alongside the image_sequence_urls value - in this case, YES, this will be an
+                // image sequence
+                image_sequence_importassequence.append(true);
+
+
+                // FFmpeg needs to know what file number to start at in the sequence. In case the image sequence doesn't
+                // start at a zero, we'll loop decreasing the number until it doesn't exist anymore
+                QString test_filename_format = QString("%1%2%3").arg(file.left(digit_test), "%1", file.mid(lastcharindex));
+                int test_file_number = file_number;
+                do {
+                  test_file_number--;
+                } while (QFileInfo::exists(test_filename_format.arg(QString("%1").arg(test_file_number, digit_count, 10, QChar('0')))));
+
+                // set the image sequence's start number to the last that existed
+                start_number = test_file_number + 1;
+
+              } else {
+
+                // Cache the user's response to the image sequence question - i.e. none of the files imported with this
+                // formatting should be imported as an image sequence
+                image_sequence_importassequence.append(false);
+
+              }
+            }
+
+          }
+
+        }
+
+        // If we're not skipping this file, let's import it
+        if (!skip) {
+          Media* item;
+          FootagePtr m;
+
+          if (replace != nullptr) {
+            item = replace;
+          } else {
+            item = new Media(parent);
+          }
+
+          m = FootagePtr(new Footage());
+
+          m->using_inout = false;
+          m->url = file;
+          m->name = get_file_name_from_path(files.at(i));
+          m->start_number = start_number;
+
+          item->set_footage(m);
+
+          last_imported_media.append(item);
+
+          if (replace == nullptr) {
+            if (create_undo_action) {
+              ca->append(new AddMediaCommand(item, parent));
+            } else {
+              parent->appendChild(item);
             }
           }
+
+          imported = true;
         }
+
       }
 
-      if (!skip) {
-        Media* item;
-        FootagePtr m;
 
-        if (replace != nullptr) {
-          item = replace;
-        } else {
-          item = new Media(parent);
-        }
-
-        m = FootagePtr(new Footage());
-
-        m->using_inout = false;
-        m->url = file;
-        m->name = get_file_name_from_path(files.at(i));
-        m->start_number = start_number;
-
-        item->set_footage(m);
-
-        last_imported_media.append(item);
-
-        if (replace == nullptr) {
-          if (create_undo_action) {
-            ca->append(new AddMediaCommand(item, parent));
-          } else {
-            parent->appendChild(item);
-          }
-        }
-
-        imported = true;
-      }
     }
   }
   if (create_undo_action) {
@@ -966,10 +1034,16 @@ void Project::new_project() {
   olive::MainWindow->setWindowModified(false);
 }
 
-void Project::load_project(bool autorecovery) {
-  new_project();
+void Project::load_project(const QString& filename, bool autorecovery, bool clear) {
 
-  LoadDialog ld(this, autorecovery);
+  // Normally, the user will be closing the previous project to load a new one, but just in case the user
+  // is importing a new project
+
+  if (clear) {
+    new_project();
+  }
+
+  LoadDialog ld(this, filename, autorecovery, clear);
   ld.exec();
 }
 

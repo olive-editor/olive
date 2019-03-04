@@ -30,18 +30,18 @@
 
 class LoadDialog : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    LoadDialog(QWidget* parent, bool autorecovery);
+  LoadDialog(QWidget* parent, const QString& filename, bool autorecovery, bool clear);
 private slots:
-    void cancel();
-	void die();
-    void thread_done();
+  void cancel();
+  void die();
+  void thread_done();
 private:
-	QProgressBar* bar;
-    QPushButton* cancel_button;
-    QHBoxLayout* hboxLayout;
-    LoadThread* lt;
+  QProgressBar* bar;
+  QPushButton* cancel_button;
+  QHBoxLayout* hboxLayout;
+  LoadThread* lt;
 };
 
 #endif // LOADDIALOG_H

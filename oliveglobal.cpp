@@ -293,7 +293,7 @@ void OliveGlobal::set_sequence(SequencePtr s)
 
 void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
   update_project_filename(fn);
-  panel_project->load_project(autorecovery);
+  panel_project->load_project(fn, autorecovery, true);
   olive::UndoStack.clear();
 }
 

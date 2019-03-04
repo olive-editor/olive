@@ -37,7 +37,12 @@
 #include <QFile>
 #include <QTreeWidgetItem>
 
-LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
+LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
+  filename_(filename),
+  autorecovery_(autorecovery),
+  clear_(clear),
+  cancelled_(false)
+{
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
   connect(this, SIGNAL(success()), this, SLOT(success_func()));
   connect(this, SIGNAL(error()), this, SLOT(error_func()));
@@ -45,7 +50,10 @@ LoadThread::LoadThread(bool a) : autorecovery(a), cancelled(false) {
           SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
           this,
           SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
-  connect(this, SIGNAL(start_question(const QString&, const QString &, int)), this, SLOT(question_func(const QString &, const QString &, int)));
+  connect(this,
+          SIGNAL(start_question(const QString&, const QString &, int)),
+          this,
+          SLOT(question_func(const QString &, const QString &, int)));
 }
 
 void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
@@ -174,7 +182,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
   int proj_version = olive::kSaveVersion;
 
-  while (!stream.atEnd() && !cancelled) {
+  while (!stream.atEnd() && !cancelled_) {
     read_next_start_element(stream);
     if (stream.name() == root_search) {
       if (type == LOAD_TYPE_VERSION) {
@@ -195,7 +203,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
         internal_proj_url = stream.readElementText();
         internal_proj_dir = QFileInfo(internal_proj_url).absoluteDir();
       } else {
-        while (!cancelled && !stream.atEnd() && !(stream.name() == root_search && stream.isEndElement())) {
+        while (!cancelled_ && !stream.atEnd() && !(stream.name() == root_search && stream.isEndElement())) {
           read_next(stream);
           if (stream.name() == child_search && stream.isStartElement()) {
             switch (type) {
@@ -298,7 +306,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 }
               }
 
-              while (!cancelled && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
+              while (!cancelled_ && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
                 read_next_start_element(stream);
                 if (stream.name() == "marker" && stream.isStartElement()) {
                   Marker m;
@@ -363,7 +371,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               }
 
               // load all clips and clip information
-              while (!cancelled && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
+              while (!cancelled_ && !(stream.name() == child_search && stream.isEndElement()) && !stream.atEnd()) {
                 read_next_start_element(stream);
                 if (stream.name() == "marker" && stream.isStartElement()) {
                   Marker m;
@@ -448,11 +456,11 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   }
 
                   // load links and effects
-                  while (!cancelled && !(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {
+                  while (!cancelled_ && !(stream.name() == "clip" && stream.isEndElement()) && !stream.atEnd()) {
                     read_next(stream);
                     if (stream.isStartElement()) {
                       if (stream.name() == "linked") {
-                        while (!cancelled && !(stream.name() == "linked" && stream.isEndElement()) && !stream.atEnd()) {
+                        while (!cancelled_ && !(stream.name() == "linked" && stream.isEndElement()) && !stream.atEnd()) {
                           read_next(stream);
                           if (stream.name() == "link" && stream.isStartElement()) {
                             for (int k=0;k<stream.attributes().size();k++) {
@@ -464,7 +472,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             }
                           }
                         }
-                        if (cancelled) return false;
+                        if (cancelled_) return false;
                       } else if (stream.isStartElement()
                                  && (stream.name() == "effect"
                                      || stream.name() == "opening"
@@ -484,12 +492,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                       }
                     }
                   }
-                  if (cancelled) return false;
+                  if (cancelled_) return false;
 
                   s->clips.append(c);
                 }
               }
-              if (cancelled) return false;
+              if (cancelled_) return false;
 
               // correct links, clip IDs, transitions
               for (int i=0;i<s->clips.size();i++) {
@@ -530,12 +538,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
             }
           }
         }
-        if (cancelled) return false;
+        if (cancelled_) return false;
       }
       break;
     }
   }
-  return !cancelled;
+  return !cancelled_;
 }
 
 Media* LoadThread::find_loaded_folder_by_id(int id) {
@@ -552,7 +560,7 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
 void LoadThread::run() {
   mutex.lock();
 
-  QFile file(olive::ActiveProjectFilename);
+  QFile file(filename_);
   if (!file.open(QIODevice::ReadOnly)) {
     qCritical() << "Could not open file";
     return;
@@ -563,9 +571,9 @@ void LoadThread::run() {
    * case the project file has moved without the footage,
    * we check both
    */
-  proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
-  internal_proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
-  internal_proj_url = olive::ActiveProjectFilename;
+  proj_dir = QFileInfo(filename_).absoluteDir();
+  internal_proj_dir = QFileInfo(filename_).absoluteDir();
+  internal_proj_url = filename_;
 
   QXmlStreamReader stream(&file);
 
@@ -583,13 +591,13 @@ void LoadThread::run() {
   // get "element" count
   current_element_count = 0;
   total_element_count = 0;
-  while (!cancelled && !stream.atEnd()) {
+  while (!cancelled_ && !stream.atEnd()) {
     stream.readNextStartElement();
     if (is_element(stream)) {
       total_element_count++;
     }
   }
-  cont = !cancelled;
+  cont = !cancelled_;
 
   // find project file version
   if (cont) {
@@ -627,7 +635,7 @@ void LoadThread::run() {
     cont = load_worker(file, stream, MEDIA_TYPE_SEQUENCE);
   }
 
-  if (!cancelled) {
+  if (!cancelled_) {
     if (!cont) {
       xml_error = false;
       if (show_err) emit error();
@@ -672,7 +680,7 @@ void LoadThread::run() {
 
 void LoadThread::cancel() {
   waitCond.wakeAll();
-  cancelled = true;
+  cancelled_ = true;
 }
 
 void LoadThread::question_func(const QString &title, const QString &text, int buttons) {
@@ -691,7 +699,7 @@ void LoadThread::error_func() {
     qCritical() << "Error parsing XML." << error_str;
     QMessageBox::critical(olive::MainWindow,
                           tr("XML Parsing Error"),
-                          tr("Couldn't load '%1'. %2").arg(olive::ActiveProjectFilename, error_str),
+                          tr("Couldn't load '%1'. %2").arg(filename_, error_str),
                           QMessageBox::Ok);
   } else {
     QMessageBox::critical(olive::MainWindow,
@@ -702,7 +710,7 @@ void LoadThread::error_func() {
 }
 
 void LoadThread::success_func() {
-  if (autorecovery) {
+  if (autorecovery_) {
     QString orig_filename = internal_proj_url;
     int insert_index = internal_proj_url.lastIndexOf(".ove", -1, Qt::CaseInsensitive);
     if (insert_index == -1) insert_index = internal_proj_url.length();
@@ -717,12 +725,14 @@ void LoadThread::success_func() {
       counter++;
     }
 
-    olive::Global->update_project_filename(orig_filename);
+    if (clear_) {
+      olive::Global->update_project_filename(orig_filename);
+    }
   } else {
-    panel_project->add_recent_project(olive::ActiveProjectFilename);
+    panel_project->add_recent_project(filename_);
   }
 
-  olive::MainWindow->setWindowModified(autorecovery);
+  olive::MainWindow->setWindowModified(autorecovery_ || !clear_);
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }
@@ -762,7 +772,7 @@ void LoadThread::create_effect_ui(
   // lock mutex - ensures the load thread is suspended while this happens
   mutex.lock();
 
-  if (cancelled) return;
+  if (cancelled_) return;
   if (type == kTransitionNone) {
     if (meta == nullptr) {
       // create void effect

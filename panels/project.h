@@ -67,7 +67,7 @@ public:
   void add_recent_project(QString url);
 
   void new_project();
-  void load_project(bool autorecovery);
+  void load_project(const QString &filename, bool autorecovery, bool clear);
   void save_project(bool autorecovery);
 
   Media* create_folder_internal(QString name);
