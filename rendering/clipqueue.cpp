@@ -93,3 +93,8 @@ int ClipQueue::size()
 {
   return queue.size();
 }
+
+bool ClipQueue::isEmpty()
+{
+  return queue.isEmpty();
+}

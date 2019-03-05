@@ -159,6 +159,15 @@ public:
    */
   int size();
 
+  /**
+   * @brief Returns whether the queue is empty of not.
+   *
+   * @return
+   *
+   * **TRUE** if the queue is empty and contains no frames, **FALSE** if not.
+   */
+  bool isEmpty();
+
 private:
   QVector<AVFrame*> queue;
   QMutex queue_lock;

@@ -668,7 +668,7 @@ void Cacher::CacheVideoWorker() {
           qWarning() << clip->name() << "frame had no PTS value";
           av_frame_free(&decoded_frame);
 
-          if (retrieve_code == AVERROR_EOF && retrieved_frame == nullptr) {
+          if (retrieve_code == AVERROR_EOF && retrieved_frame == nullptr && !queue.isEmpty()) {
             // if we reached the end of the file, it's not an error but there are no more frames to retrieve
             // some formats EOF before the end of the duration that Olive calculates. In this event, we simply
             // return the last frame we retrieved
