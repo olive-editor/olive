@@ -86,7 +86,8 @@ void Media::set_footage(FootagePtr f) {
 }
 
 void Media::set_sequence(SequencePtr s) {
-  set_icon(QIcon(":/icons/sequence.svg"));
+  // ensure icon setting occurs in a separate thread
+  set_icon(":/icons/sequence.svg");
   type = MEDIA_TYPE_SEQUENCE;
   object = VoidPtr(s);
   if (s != nullptr) update_tooltip();
@@ -94,9 +95,14 @@ void Media::set_sequence(SequencePtr s) {
 
 void Media::set_folder() {
   if (folder_name.isEmpty()) folder_name = QCoreApplication::translate("Media", "New Folder");
-  set_icon(QIcon(":/icons/folder.svg"));
+  set_icon(":/icons/folder.svg");
   type = MEDIA_TYPE_FOLDER;
   object = nullptr;
+}
+
+void Media::set_icon(const QString &str)
+{
+  set_icon(QIcon(str));
 }
 
 void Media::set_icon(const QIcon &ico) {

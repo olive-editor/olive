@@ -46,12 +46,13 @@ public:
   ~Media();
   FootagePtr to_footage();
   SequencePtr to_sequence();
+  void set_icon(const QString& str);
+  void set_icon(const QIcon &ico);
   void set_footage(FootagePtr f);
   void set_sequence(SequencePtr s);
   void set_folder();
-  void set_icon(const QIcon &ico);
   void set_parent(Media* p);
-  void update_tooltip(const QString& error = 0);
+  void update_tooltip(const QString& error = nullptr);
   VoidPtr to_object();
   int get_type();
   const QString& get_name();
@@ -77,6 +78,7 @@ public:
   bool root;
   int temp_id;
   int temp_id2;
+
 private:
   int type;
   VoidPtr object;

@@ -1836,7 +1836,11 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
     }
   }
-  if (temp_frame_diff != frame_diff) panel_timeline->snapped = false;
+
+  // if the above validation changed the frame movement, it's unlikely we're still snapped
+  if (temp_frame_diff != frame_diff) {
+    panel_timeline->snapped = false;
+  }
 
   // apply changes to ghosts
   for (int i=0;i<panel_timeline->ghosts.size();i++) {

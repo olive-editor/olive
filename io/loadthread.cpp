@@ -44,16 +44,19 @@ LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
   cancelled_(false)
 {
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
-  connect(this, SIGNAL(success()), this, SLOT(success_func()));
-  connect(this, SIGNAL(error()), this, SLOT(error_func()));
+
+  connect(this, SIGNAL(success()), this, SLOT(success_func()), Qt::QueuedConnection);
+  connect(this, SIGNAL(error()), this, SLOT(error_func()), Qt::QueuedConnection);
   connect(this,
           SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
           this,
-          SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)));
+          SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
+          Qt::QueuedConnection);
   connect(this,
           SIGNAL(start_question(const QString&, const QString &, int)),
           this,
-          SLOT(question_func(const QString &, const QString &, int)));
+          SLOT(question_func(const QString &, const QString &, int)),
+          Qt::QueuedConnection);
 }
 
 void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
@@ -337,7 +340,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
             case MEDIA_TYPE_SEQUENCE:
             {
               Media* parent = nullptr;
-              SequencePtr s(new Sequence());
+              SequencePtr s = std::make_shared<Sequence>();
 
               // load attributes about sequence
               for (int j=0;j<stream.attributes().size();j++) {
@@ -736,7 +739,6 @@ void LoadThread::success_func() {
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }
-  update_ui(false);
 }
 
 void LoadThread::create_effect_ui(

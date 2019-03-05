@@ -165,7 +165,6 @@ void ProjectModel::set_icon(Media* m, const QIcon &ico) {
 	QModelIndex index = createIndex(m->row(), 0, m);
 	m->set_icon(ico);
 	emit dataChanged(index, index);
-
 }
 
 void ProjectModel::appendChild(Media *parent, Media *child) {

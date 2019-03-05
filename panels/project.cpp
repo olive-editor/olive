@@ -434,7 +434,7 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
     parent = olive::project_model.get_root();
   }
 
-  Media* item(new Media(parent));
+  Media* item = new Media(parent);
   item->set_sequence(s);
 
   if (ca != nullptr) {
