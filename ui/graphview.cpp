@@ -779,6 +779,11 @@ void GraphView::wheelEvent(QWheelEvent *event) {
   }
 
   if (!zooming) {
+    // Shift to swap axes
+    if (shift) {
+      std::swap(delta_h, delta_v);
+    }
+
     // Minus to correct for scroll vs. zoom behavior on horiz axis
     set_scroll_x(x_scroll - (delta_h / 10));
     set_scroll_y(y_scroll + (delta_v / 10));
