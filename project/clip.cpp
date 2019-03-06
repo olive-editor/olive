@@ -531,13 +531,22 @@ bool Clip::Retrieve()
 
   if (UsesCacher()) {
 
+    // Retrieve the frame from the cacher that we requested in Cache().
     AVFrame* frame = cacher.Retrieve();
 
+    // Wait for exclusive control of the queue to avoid any threading collisions
     cacher.queue()->lock();
 
     // Check if we retrieved a frame (nullptr) and if the queue stil contains this frame.
     //
-    // In some situations it's
+    // `nullptr` is returned if the cacher failed to get any sort of frame and is uncommon, but we do need
+    // to handle it.
+    //
+    // We check the queue because in some situations (e.g. intensive scrubbing), in the time it took to gain
+    // exclusive control of the queue, the cacher may have deleted the frame.
+    // Therefore we check to ensure the queue still contains the frame now that we have exclusive control,
+    // to avoid any attempt to utilize now-freed memory.
+
     if (frame != nullptr && cacher.queue()->contains(frame)) {
 
       // check if the opengl texture exists yet, create it if not
