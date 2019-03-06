@@ -146,7 +146,7 @@ void VSTHost::loadPlugin() {
 #ifdef _WIN32
     DWORD dll_err = GetLastError();
     dll_error = QString::number(dll_err);
-#elif __linux__
+#elif defined(__linux__) || defined(__HAIKU__)
     dll_error = dlerror();
 #endif
     qCritical() << "Failed to load VST plugin" << dll_fn << "-" << dll_error;
@@ -363,7 +363,7 @@ void VSTHost::show_interface(bool show) {
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
 #elif defined(__APPLE__)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__HAIKU__)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
 #endif
   } else {
