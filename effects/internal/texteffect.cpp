@@ -323,7 +323,8 @@ void TextEffect::shadow_enable(bool e) {
 	close();
 
 	shadow_color->set_enabled(e);
-	shadow_distance->set_enabled(e);
+  shadow_angle->set_enabled(e);
+  shadow_distance->set_enabled(e);
 	shadow_softness->set_enabled(e);
 	shadow_opacity->set_enabled(e);
 }
