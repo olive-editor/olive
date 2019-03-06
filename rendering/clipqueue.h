@@ -168,6 +168,15 @@ public:
    */
   bool isEmpty();
 
+  /**
+   * @brief Returns whether the queue contains a frame or not
+   *
+   * @return
+   *
+   * **TRUE** if the queue contains the specified frame, **FALSE** if not.
+   */
+  bool contains(AVFrame* frame);
+
 private:
   QVector<AVFrame*> queue;
   QMutex queue_lock;

@@ -98,3 +98,8 @@ bool ClipQueue::isEmpty()
 {
   return queue.isEmpty();
 }
+
+bool ClipQueue::contains(AVFrame *frame)
+{
+  return queue.contains(frame);
+}
