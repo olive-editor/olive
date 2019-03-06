@@ -118,7 +118,7 @@ void PreviewGenerator::parse_media() {
 
       if (append) {
         QVector<FootageStream>& stream_list = (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) ?
-              footage_->audio_tracks : footage_->video_tracks;
+                                                footage_->audio_tracks : footage_->video_tracks;
 
         for (int j=0;j<stream_list.size();j++) {
           if (stream_list.at(j).file_index == i) {
@@ -323,17 +323,17 @@ void PreviewGenerator::generate_waveform() {
               uint8_t* data = new uint8_t[size_t(dstW*dstH*4)];
 
               sws_ctx = sws_getContext(
-                    temp_frame->width,
-                    temp_frame->height,
-                    static_cast<AVPixelFormat>(temp_frame->format),
-                    dstW,
-                    dstH,
-                    static_cast<AVPixelFormat>(AV_PIX_FMT_RGBA),
-                    SWS_FAST_BILINEAR,
-                    nullptr,
-                    nullptr,
-                    nullptr
-                    );
+                          temp_frame->width,
+                          temp_frame->height,
+                          static_cast<AVPixelFormat>(temp_frame->format),
+                          dstW,
+                          dstH,
+                          static_cast<AVPixelFormat>(AV_PIX_FMT_RGBA),
+                          SWS_FAST_BILINEAR,
+                          nullptr,
+                          nullptr,
+                          nullptr
+                          );
 
               int linesize[AV_NUM_DATA_POINTERS];
               linesize[0] = dstW*4;
@@ -363,16 +363,16 @@ void PreviewGenerator::generate_waveform() {
             swr_frame->format = AV_SAMPLE_FMT_S16P;
 
             swr_ctx = swr_alloc_set_opts(
-                  nullptr,
-                  temp_frame->channel_layout,
-                  static_cast<AVSampleFormat>(swr_frame->format),
-                  temp_frame->sample_rate,
-                  temp_frame->channel_layout,
-                  static_cast<AVSampleFormat>(temp_frame->format),
-                  temp_frame->sample_rate,
-                  0,
-                  nullptr
-                  );
+                        nullptr,
+                        temp_frame->channel_layout,
+                        static_cast<AVSampleFormat>(swr_frame->format),
+                        temp_frame->sample_rate,
+                        temp_frame->channel_layout,
+                        static_cast<AVSampleFormat>(temp_frame->format),
+                        temp_frame->sample_rate,
+                        0,
+                        nullptr
+                        );
 
             swr_init(swr_ctx);
 
@@ -552,30 +552,26 @@ void PreviewGenerator::run() {
       // see if we already have data for this
       QString hash = get_file_hash(footage_->url);
 
+      generate_waveform();
+
       if (retrieve_preview(hash)) {
         sem.acquire();
-
         if (!cancelled_) {
-          generate_waveform();
-
-          if (!cancelled_) {
-            // save preview to file
-            for (int i=0;i<footage_->video_tracks.size();i++) {
-              FootageStream& ms = footage_->video_tracks[i];
-              ms.video_preview.save(get_thumbnail_path(hash, ms), "PNG");
-              //dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
-            }
-            for (int i=0;i<footage_->audio_tracks.size();i++) {
-              FootageStream& ms = footage_->audio_tracks[i];
-              QFile f(get_waveform_path(hash, ms));
-              f.open(QFile::WriteOnly);
-              f.write(ms.audio_preview.constData(), ms.audio_preview.size());
-              f.close();
-              //dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
-            }
+          // save preview to file
+          for (int i=0;i<footage_->video_tracks.size();i++) {
+            FootageStream& ms = footage_->video_tracks[i];
+            ms.video_preview.save(get_thumbnail_path(hash, ms), "PNG");
+            //dout << "saved" << ms->file_index << "thumbnail to" << get_thumbnail_path(hash, ms);
+          }
+          for (int i=0;i<footage_->audio_tracks.size();i++) {
+            FootageStream& ms = footage_->audio_tracks[i];
+            QFile f(get_waveform_path(hash, ms));
+            f.open(QFile::WriteOnly);
+            f.write(ms.audio_preview.constData(), ms.audio_preview.size());
+            f.close();
+            //dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
           }
         }
-
         sem.release();
       }
     }
