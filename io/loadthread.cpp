@@ -327,11 +327,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
 
               item->set_footage(f);
 
-              if (folder == 0) {
-                olive::project_model.appendChild(nullptr, item);
-              } else {
-                find_loaded_folder_by_id(folder)->appendChild(item);
-              }
+              olive::project_model.appendChild(find_loaded_folder_by_id(folder), item);
 
               // analyze media to see if it's the same
               loaded_media_items.append(item);
@@ -623,11 +619,7 @@ void LoadThread::run() {
     for (int i=0;i<loaded_folders.size();i++) {
       Media* folder = loaded_folders.at(i);
       int parent = folder->temp_id2;
-      if (folder->temp_id2 == 0) {
-        olive::project_model.appendChild(nullptr, folder);
-      } else {
-        find_loaded_folder_by_id(parent)->appendChild(folder);
-      }
+      olive::project_model.appendChild(find_loaded_folder_by_id(parent), folder);
     }
 
     cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);

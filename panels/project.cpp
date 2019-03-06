@@ -441,11 +441,9 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
     ca->append(new NewSequenceCommand(item, parent));
     if (open) ca->append(new ChangeSequenceAction(s));
   } else {
-    if (parent == olive::project_model.get_root()) {
-      olive::project_model.appendChild(parent, item);
-    } else {
-      parent->appendChild(item);
-    }
+
+    olive::project_model.appendChild(parent, item);
+
     if (open) {
       olive::Global->set_sequence(s);
     }

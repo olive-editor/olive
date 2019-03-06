@@ -115,7 +115,30 @@ QModelIndex ProjectModel::parent(const QModelIndex &index) const {
 	if (parentItem == root_item)
 		return QModelIndex();
 
-	return createIndex(parentItem->row(), 0, parentItem);
+  return createIndex(parentItem->row(), 0, parentItem);
+}
+
+bool ProjectModel::canFetchMore(const QModelIndex &parent) const
+{
+
+  // Mostly implementing this because QSortFilterProxyModel will actually *ignore* a "true" result from hasChildren()
+  // and then query this value for a "true" result. So we need to override both this and hasChildren() to show a
+  // persistent childIndicator for folder items.
+
+  if (parent.isValid()
+      && static_cast<Media*>(parent.internalPointer())->get_type() == MEDIA_TYPE_FOLDER) {
+    return true;
+  }
+  return QAbstractItemModel::canFetchMore(parent);
+}
+
+bool ProjectModel::hasChildren(const QModelIndex &parent) const
+{
+  if (parent.isValid()
+      && static_cast<Media*>(parent.internalPointer())->get_type() == MEDIA_TYPE_FOLDER) {
+    return true;
+  }
+  return QAbstractItemModel::hasChildren(parent);
 }
 
 bool ProjectModel::setData(const QModelIndex &index, const QVariant &value, int role) {
@@ -132,7 +155,7 @@ bool ProjectModel::setData(const QModelIndex &index, const QVariant &value, int 
 }
 
 int ProjectModel::rowCount(const QModelIndex &parent) const {
-	Media *parentItem;
+  Media *parentItem;
 	if (parent.column() > 0)
 		return 0;
 

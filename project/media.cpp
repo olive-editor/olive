@@ -86,7 +86,6 @@ void Media::set_footage(FootagePtr f) {
 }
 
 void Media::set_sequence(SequencePtr s) {
-  // ensure icon setting occurs in a separate thread
   set_icon(":/icons/sequence.svg");
   type = MEDIA_TYPE_SEQUENCE;
   object = VoidPtr(s);
@@ -94,7 +93,9 @@ void Media::set_sequence(SequencePtr s) {
 }
 
 void Media::set_folder() {
-  if (folder_name.isEmpty()) folder_name = QCoreApplication::translate("Media", "New Folder");
+  if (folder_name.isEmpty()) {
+    folder_name = QCoreApplication::translate("Media", "New Folder");
+  }
   set_icon(":/icons/folder.svg");
   type = MEDIA_TYPE_FOLDER;
   object = nullptr;
