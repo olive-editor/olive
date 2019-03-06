@@ -82,8 +82,21 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
     } else if (attr.name() == "shared") {
       // if a transition has this tag, it's sharing a transition with another clip so we don't have to do any processing
 
-      Clip* sharing_clip = c->sequence->clips.at(attr.value().toInt()).get();
-      if (tag == "opening") {
+      Clip* sharing_clip = nullptr;
+
+      // Find the clip with the ID referenced in the transition
+      int clip_id = attr.value().toInt();
+      for (int i=0;i<c->sequence->clips.size();i++) {
+        Clip* test_clip = c->sequence->clips.at(i).get();
+        if (test_clip->load_id == clip_id) {
+          sharing_clip = test_clip;
+          break;
+        }
+      }
+
+      if (sharing_clip == nullptr) {
+        qWarning() << "Failed to link shared transition. Project may be corrupt.";
+      } else if (tag == "opening") {
         c->opening_transition = (sharing_clip->closing_transition);
 
         // since this is the opened clip, switch secondaries and primaries
