@@ -57,7 +57,7 @@ OliveGlobal::OliveGlobal() {
 #ifdef GITHASH
   version_id = QString(" | %1").arg(GITHASH);
 #endif
-  olive::AppName = QString("Olive (February 2019 | Alpha%1)").arg(version_id);
+  olive::AppName = QString("Olive (March 2019 | Alpha%1)").arg(version_id);
 
   // set the file filter used in all file dialogs pertaining to Olive project files.
   project_file_filter = tr("Olive Project %1").arg("(*.ove)");
