@@ -272,7 +272,8 @@ HEADERS += \
     rendering/cacher.h \
     rendering/audio.h \
     dialogs/clippropertiesdialog.h \
-    rendering/framebufferobject.h
+    rendering/framebufferobject.h \
+    platform.h
 
 FORMS +=
 

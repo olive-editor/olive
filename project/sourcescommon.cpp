@@ -20,6 +20,8 @@
 
 #include "sourcescommon.h"
 
+#include "platform.h"
+
 #include "ui/menuhelper.h"
 #include "panels/panels.h"
 #include "project/media.h"
@@ -112,9 +114,9 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
         QAction* replace_action = menu.addAction(tr("Replace/Relink Media"));
         QObject::connect(replace_action, SIGNAL(triggered(bool)), project_parent, SLOT(replace_selected_file()));
 
-#if defined(Q_OS_WIN)
+#if defined(WINDOWS)
         QAction* reveal_in_explorer = menu.addAction(tr("Reveal in Explorer"));
-#elif defined(Q_OS_MAC)
+#elif defined(APPLE)
         QAction* reveal_in_explorer = menu.addAction(tr("Reveal in Finder"));
 #else
         QAction* reveal_in_explorer = menu.addAction(tr("Reveal in File Manager"));

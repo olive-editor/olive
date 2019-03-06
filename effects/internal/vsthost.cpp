@@ -112,7 +112,7 @@ void VSTHost::loadPlugin() {
     return;
   }
 
-#if defined(__APPLE__)
+#if defined(APPLE)
   bundle = BundleLoad(dll_fn);
 
   if (bundle == NULL) {
@@ -188,7 +188,7 @@ void VSTHost::loadPlugin() {
 void VSTHost::freePlugin() {
   if (plugin != nullptr) {
     stopPlugin();
-#if defined(__APPLE__)
+#if defined(APPLE)
     CFBundleUnloadExecutable(bundle);
     CFRelease(bundle);
 #else
@@ -359,11 +359,11 @@ void VSTHost::show_interface(bool show) {
   dialog->setVisible(show);
 
   if (show) {
-#if defined(_WIN32)
+#if defined(WINDOWS)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
-#elif defined(__APPLE__)
+#elif defined(APPLE)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
-#elif defined(__linux__) || defined(__HAIKU__)
+#elif defined(LINUX) || defined(HAIKU)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
 #endif
   } else {

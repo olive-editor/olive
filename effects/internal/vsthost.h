@@ -23,6 +23,8 @@
 
 #ifndef NOVST
 
+#include "platform.h"
+
 #include "project/effect.h"
 
 #include "io/crossplatformlib.h"
@@ -67,7 +69,7 @@ private:
 	QPushButton* show_interface_btn;
 	QByteArray data_cache;
 
-#if defined(__APPLE__)
+#if defined(APPLE)
 	CFBundleRef bundle;
 #else
 	ModulePtr modulePtr;

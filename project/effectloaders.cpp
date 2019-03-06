@@ -18,6 +18,8 @@
 
 ***/
 
+#include "platform.h"
+
 #include "effectloaders.h"
 
 #include "project/effect.h"
@@ -231,7 +233,7 @@ void load_frei0r_effects() {
 	QList<QString> effect_dirs = get_effects_paths();
 
 	// add defined paths for frei0r plugins on unix
-#if defined(__APPLE__) || defined(__linux__) || defined(__HAIKU__)
+#if defined(APPLE) || defined(LINUX) || defined(HAIKU)
 	effect_dirs.prepend("/usr/lib/frei0r-1");
 	effect_dirs.prepend("/usr/local/lib/frei0r-1");
 	effect_dirs.prepend(QDir::homePath() + "/.frei0r-1/lib");

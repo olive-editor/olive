@@ -18,33 +18,19 @@
 
 ***/
 
-#ifndef CROSSPLATFORMLIB_H
-#define CROSSPLATFORMLIB_H
+#ifndef PLATFORM_H
+#define PLATFORM_H
 
-#include "platform.h"
-#include <QString>
+#include <QtGlobal>
 
-#ifdef _WIN32
-	#include <Windows.h>
-	#define LibAddress GetProcAddress
-	#define LibClose FreeModule
-	#define ModulePtr HMODULE
-#elif defined(LINUX) || defined(APPLE) || defined(HAIKU)
-	#include <dlfcn.h>
-	#define LibAddress dlsym
-	#define LibClose dlclose
-	#define ModulePtr void*
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64) || defined(Q_OS_WINCE) || defined(Q_OS_WINRT)
+#define WINDOWS
+#elif defined(Q_OS_LINUX) || defined(__linux__)
+#define LINUX
+#elif defined(__HAIKU__)
+#define HAIKU
+#elif defined(__APPLE__) || defined(Q_OS_DARWIN) || defined(Q_OS_MAC)
+#define APPLE
 #endif
 
-ModulePtr LibLoad(const QString& filename);
-QStringList LibFilter();
-
-#ifdef APPLE
-#include <CoreFoundation/CoreFoundation.h>
-class NSWindow;
-
-CFBundleRef BundleLoad(const QString& filename);
-void BundleClose(CFBundleRef bundle);
-#endif
-
-#endif // CROSSPLATFORMLIB_H
+#endif // PLATFORM_H
