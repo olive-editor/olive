@@ -32,7 +32,7 @@
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="53"/>
         <source>Pixel Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixelformat:</translation>
     </message>
 </context>
 <context>
@@ -49,12 +49,12 @@
     <message>
         <location filename="../rendering/audio.cpp" line="331"/>
         <source>%1 Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Audio</translation>
     </message>
     <message>
         <location filename="../rendering/audio.cpp" line="344"/>
         <source>Recording %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 aufnehmen</translation>
     </message>
 </context>
 <context>
@@ -275,7 +275,7 @@
     <message>
         <location filename="../panels/effectcontrols.cpp" line="311"/>
         <source>(none)</source>
-        <translation type="unfinished">(keine)</translation>
+        <translation>(keine)</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="496"/>
@@ -510,7 +510,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="697"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="706"/>
@@ -1159,7 +1159,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="740"/>
         <source>Full Screen</source>
-        <translation type="unfinished">Vollbild</translation>
+        <translation>Vollbild</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="741"/>
@@ -1303,7 +1303,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="772"/>
         <source>Lock Panels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Panel sperren</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="773"/>
@@ -1518,7 +1518,7 @@
     <message>
         <location filename="../project/marker.cpp" line="63"/>
         <source>Set Marker</source>
-        <translation type="unfinished">Marker setzen</translation>
+        <translation>Marker setzen</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="65"/>
@@ -1638,13 +1638,13 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="76"/>
         <source>Audio %1: %2Hz %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio %1: %2Hz %3</translation>
     </message>
     <message numerus="yes">
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="79"/>
         <source>%n channel(s)</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
+            <numerusform>%n Kanäle</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -1682,77 +1682,77 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="158"/>
         <source>&amp;Project</source>
-        <translation type="unfinished">&amp;Projekt</translation>
+        <translation>&amp;Projekt</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="159"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">&amp;Sequenz</translation>
+        <translation>&amp;Sequenz</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="160"/>
         <source>&amp;Folder</source>
-        <translation type="unfinished">&amp;Ordner</translation>
+        <translation>&amp;Ordner</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="161"/>
         <source>Set In Point</source>
-        <translation type="unfinished">Anfangspunkt festlegen</translation>
+        <translation>Anfangspunkt festlegen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="162"/>
         <source>Set Out Point</source>
-        <translation type="unfinished">Endpunkt festlegen</translation>
+        <translation>Endpunkt festlegen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="163"/>
         <source>Reset In Point</source>
-        <translation type="unfinished">Anfangspunkt zurücksetzen</translation>
+        <translation>Anfangspunkt zurücksetzen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="164"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished">Endpunkt zurücksetzen</translation>
+        <translation>Endpunkt zurücksetzen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="165"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished">Anfangs-/Endpunkt löschen</translation>
+        <translation>Anfangs-/Endpunkt löschen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="166"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished">Standardübergang einfügen</translation>
+        <translation>Standardübergang einfügen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="167"/>
         <source>Link/Unlink</source>
-        <translation type="unfinished">Verbinden/Trennen</translation>
+        <translation>Verbinden/Trennen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="168"/>
         <source>Enable/Disable</source>
-        <translation type="unfinished">Einblenden/Ausblenden</translation>
+        <translation>Einblenden/Ausblenden</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="169"/>
         <source>Nest</source>
-        <translation type="unfinished">Schachteln</translation>
+        <translation>Schachteln</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="170"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">&amp;Ausschneiden</translation>
+        <translation>&amp;Ausschneiden</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="171"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">&amp;Kopieren</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="172"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Einfügen</translation>
+        <translation>&amp;Einfügen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="173"/>
@@ -1762,42 +1762,42 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="174"/>
         <source>Duplicate</source>
-        <translation type="unfinished">Duplizieren</translation>
+        <translation>Duplizieren</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="175"/>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="176"/>
         <source>Ripple Delete</source>
-        <translation type="unfinished">Ripple Delete</translation>
+        <translation>Ripple Delete</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="177"/>
         <source>Split</source>
-        <translation type="unfinished">Teilen</translation>
+        <translation>Teilen</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="220"/>
         <source>Invalid aspect ratio</source>
-        <translation type="unfinished">Ungültiges Seitenverhältnis</translation>
+        <translation>Ungültiges Seitenverhältnis</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="220"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
-        <translation type="unfinished">Das Seitenverhältnis &apos;%1&apos; ist ungültig. Bitte versuchen Sie es erneut.</translation>
+        <translation>Das Seitenverhältnis &apos;%1&apos; ist ungültig. Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Enter custom aspect ratio</source>
-        <translation type="unfinished">Benutzerdefiniertes Seitenverhältnis eingeben</translation>
+        <translation>Benutzerdefiniertes Seitenverhältnis eingeben</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
-        <translation type="unfinished">Geben Sie das Seitenverhältnis für den sicheren Bereich ein (z.B. 16:9):</translation>
+        <translation>Geben Sie das Seitenverhältnis für den sicheren Bereich ein (z.B. 16:9):</translation>
     </message>
 </context>
 <context>
@@ -1816,7 +1816,7 @@ Audio Layout: %6</translation>
         <location filename="../dialogs/newsequencedialog.cpp" line="179"/>
         <source>Preset:</source>
         <translatorcomment>Could be also preset</translatorcomment>
-        <translation type="unfinished">Vorgabe:</translation>
+        <translation>Vorgabe:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="183"/>
@@ -1937,67 +1937,67 @@ Audio Layout: %6</translation>
     <message>
         <location filename="../oliveglobal.cpp" line="63"/>
         <source>Olive Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive-Projekt %1</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="90"/>
         <source>Auto-recovery</source>
-        <translation type="unfinished">Auto-Wiederherstellung</translation>
+        <translation>Auto-Wiederherstellung</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="90"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation type="unfinished">Olive wurde nicht richtig beendet und eine Wiederherstellungsdatei wurde gefunden. Möchten Sie diese öffnen?</translation>
+        <translation>Olive wurde nicht richtig beendet und eine Wiederherstellungsdatei wurde gefunden. Möchten Sie diese öffnen?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="165"/>
         <source>Open Project...</source>
-        <translation type="unfinished">Projekt öffnen...</translation>
+        <translation>Projekt öffnen...</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="176"/>
         <source>Missing recent project</source>
-        <translation type="unfinished">Zuletzt geöffnetes Projekt existiert nicht</translation>
+        <translation>Zuletzt geöffnetes Projekt existiert nicht</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="177"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation type="unfinished">Das Projekt &apos;%1&apos; existiert nicht mehr oder wurde verschoben. Möchten Sie es aus der Liste entfernen?</translation>
+        <translation>Das Projekt &apos;%1&apos; existiert nicht mehr oder wurde verschoben. Möchten Sie es aus der Liste entfernen?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="188"/>
         <source>Save Project As...</source>
-        <translation type="unfinished">Projekt speichern als...</translation>
+        <translation>Projekt speichern als...</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="213"/>
         <source>Unsaved Project</source>
-        <translation type="unfinished">Ungespeichertes Projekt</translation>
+        <translation>Ungespeichertes Projekt</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="214"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation type="unfinished">Das Projekt enthält ungespeicherte Änderungen. Wollen Sie diese jetzt speichern?</translation>
+        <translation>Das Projekt enthält ungespeicherte Änderungen. Wollen Sie diese jetzt speichern?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="233"/>
         <source>No active sequence</source>
-        <translation type="unfinished">Keine aktive Sequenz</translation>
+        <translation>Keine aktive Sequenz</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="234"/>
         <source>Please open the sequence you wish to export.</source>
-        <translation type="unfinished">Bitte öffnen Sie die Sequenz, die Sie exportieren möchten.</translation>
+        <translation>Bitte öffnen Sie die Sequenz, die Sie exportieren möchten.</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="250"/>
         <source>Missing Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei fehlt</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="251"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt &apos;%1&apos; existiert nicht.</translation>
     </message>
 </context>
 <context>
@@ -2258,12 +2258,12 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="661"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Abtastrate:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="682"/>
@@ -2470,7 +2470,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="71"/>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="74"/>
@@ -2490,7 +2490,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="181"/>
         <source>Custom Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierter Pfad</translation>
     </message>
 </context>
 <context>
@@ -3158,7 +3158,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../panels/timeline.cpp" line="1849"/>
         <source>(none)</source>
-        <translation type="unfinished">(keine)</translation>
+        <translation>(keine)</translation>
     </message>
 </context>
 <context>
@@ -3174,7 +3174,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../ui/timelinewidget.cpp" line="94"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="95"/>
@@ -3228,7 +3228,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
     <message>
         <location filename="../ui/timelinewidget.cpp" line="174"/>
         <source>&amp;Reveal in Project</source>
-        <translation type="unfinished">&amp;Im Projekt anzeigen</translation>
+        <translation>&amp;Im Projekt anzeigen</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="178"/>
@@ -3535,7 +3535,7 @@ Dauer: %4</translation>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="179"/>
         <source>Failed to locate entry point for dynamic library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Einstiegspunkt für dynamische Bibliothek gefunden.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="207"/>
