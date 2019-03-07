@@ -167,7 +167,7 @@ void Cacher::CacheAudioWorker() {
     } else if (clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
       double timebase = av_q2d(stream->time_base);
 
-      frame = queue.at(0);
+      frame = queue_.at(0);
 
       // retrieve frame
       bool new_frame = false;
@@ -233,7 +233,7 @@ void Cacher::CacheAudioWorker() {
 
             if (reverse_audio) {
               if (loop > 1) {
-                AVFrame* rev_frame = queue.at(1);
+                AVFrame* rev_frame = queue_.at(1);
                 if (ret != AVERROR_EOF) {
                   if (loop == 2) {
 #ifdef AUDIOWARNINGS
@@ -368,7 +368,7 @@ void Cacher::CacheAudioWorker() {
         }
       }
 
-      if (reverse_audio) frame = queue.at(1);
+      if (reverse_audio) frame = queue_.at(1);
 
 #ifdef AUDIOWARNINGS
       dout << "j" << frame_sample_index << nb_bytes;
@@ -459,7 +459,7 @@ void Cacher::CacheVideoWorker() {
     // for efficiency, we do slightly different things for a still image
 
     // if we already queued a frame, we don't actually need to cache anything, so we only retrieve a frame if not
-    if (queue.size() == 0) {
+    if (queue_.size() == 0) {
 
       // retrieve a single frame
 
@@ -470,9 +470,9 @@ void Cacher::CacheVideoWorker() {
 
       if (RetrieveFrameAndProcess(&still_image_frame) >= 0) {
 
-        queue.lock();
-        queue.append(still_image_frame);
-        queue.unlock();
+        queue_.lock();
+        queue_.append(still_image_frame);
+        queue_.unlock();
 
         SetRetrievedFrame(still_image_frame);
       }
@@ -496,13 +496,13 @@ void Cacher::CacheVideoWorker() {
     int64_t latest_pts = INT64_MIN;
     int frames_greater_than_target = 0;
 
-    for (int i=0;i<queue.size();i++) {
+    for (int i=0;i<queue_.size();i++) {
       // cache earliest and latest timestamps in the queue
-      earliest_pts = qMin(earliest_pts, queue.at(i)->pts);
-      latest_pts = qMax(latest_pts, queue.at(i)->pts);
+      earliest_pts = qMin(earliest_pts, queue_.at(i)->pts);
+      latest_pts = qMax(latest_pts, queue_.at(i)->pts);
 
       // count upcoming frames
-      if (queue.at(i)->pts > target_pts) {
+      if (queue_.at(i)->pts > target_pts) {
         frames_greater_than_target++;
       }
     }
@@ -510,16 +510,16 @@ void Cacher::CacheVideoWorker() {
     // check if the frame is within this queue or if we'll have to seek elsewhere to get it
     // (we check for one second of time after latest_pts, because if it's within that range it'll likely be faster to
     // play up to that frame than seek to it)
-    if (target_pts < earliest_pts || target_pts > latest_pts + second_pts || queue.size() == 0) {
+    if (target_pts < earliest_pts || target_pts > latest_pts + second_pts || queue_.size() == 0) {
       // we need to seek to retrieve this frame
 
       avcodec_flush_buffers(codecCtx);
       av_seek_frame(formatCtx, clip->media_stream_index(), target_pts, AVSEEK_FLAG_BACKWARD);
 
       // also we assume none of the frames in the queue are usable
-      queue.lock();
-      queue.clear();
-      queue.unlock();
+      queue_.lock();
+      queue_.clear();
+      queue_.unlock();
 
       // reset upcoming frame count and latest pts for later calculations
       frames_greater_than_target = 0;
@@ -595,15 +595,15 @@ void Cacher::CacheVideoWorker() {
               if (decoded_frame->pts == target_pts) {
                 SetRetrievedFrame(decoded_frame);
               } else if (decoded_frame->pts > target_pts
-                         && queue.size() > 0) {
-                SetRetrievedFrame(queue.last());
+                         && queue_.size() > 0) {
+                SetRetrievedFrame(queue_.last());
               }
             }
 
             // add the frame to the queue
-            queue.lock();
-            queue.append(decoded_frame);
-            queue.unlock();
+            queue_.lock();
+            queue_.append(decoded_frame);
+            queue_.unlock();
 
             // check the amount of previous frames in the queue by using the current queue size for if we need to
             // remove any old entries (assumes the queue is chronological)
@@ -613,13 +613,13 @@ void Cacher::CacheVideoWorker() {
 
               if (decoded_frame->pts < target_pts) {
                 // if this frame is before the target frame, make sure we don't add too many of them
-                previous_frame_count = queue.size();
+                previous_frame_count = queue_.size();
               } else {
                 // if this frame is after the target frame, clean up any previous frames before it
                 // TODO is there a faster way to do this?
 
-                for (int i=0;i<queue.size();i++) {
-                  if (queue.at(i)->pts > target_pts) {
+                for (int i=0;i<queue_.size();i++) {
+                  if (queue_.at(i)->pts > target_pts) {
                     break;
                   } else {
                     previous_frame_count++;
@@ -630,9 +630,9 @@ void Cacher::CacheVideoWorker() {
 
               // remove frames while the amount of previous frames exceeds the maximum
               while (previous_frame_count > minimum_ts) {
-                queue.lock();
-                queue.removeFirst();
-                queue.unlock();
+                queue_.lock();
+                queue_.removeFirst();
+                queue_.unlock();
                 previous_frame_count--;
               }
 
@@ -668,14 +668,14 @@ void Cacher::CacheVideoWorker() {
           qWarning() << clip->name() << "frame had no PTS value";
           av_frame_free(&decoded_frame);
 
-          if (retrieve_code == AVERROR_EOF && retrieved_frame == nullptr && !queue.isEmpty()) {
+          if (retrieve_code == AVERROR_EOF && retrieved_frame == nullptr && !queue_.isEmpty()) {
             // if we reached the end of the file, it's not an error but there are no more frames to retrieve
             // some formats EOF before the end of the duration that Olive calculates. In this event, we simply
             // return the last frame we retrieved
             //
             // TODO: Check duration formula
 
-            SetRetrievedFrame(queue.last());
+            SetRetrievedFrame(queue_.last());
 
           } else {
 
@@ -899,7 +899,7 @@ void Cacher::OpenWorker() {
       if (codecCtx->channel_layout == 0) codecCtx->channel_layout = av_get_default_channel_layout(stream->codecpar->channels);
 
       // set up cache
-      queue.append(av_frame_alloc());
+      queue_.append(av_frame_alloc());
       //			if (clip->reverse) {
       if (true) {
         AVFrame* reverse_frame = av_frame_alloc();
@@ -910,7 +910,7 @@ void Cacher::OpenWorker() {
         reverse_frame->channels = av_get_channel_layout_nb_channels(clip->sequence->audio_layout);
         av_frame_get_buffer(reverse_frame, 0);
 
-        queue.append(reverse_frame);
+        queue_.append(reverse_frame);
       }
 
       snprintf(filter_args, sizeof(filter_args), "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
@@ -1002,9 +1002,9 @@ void Cacher::CacheWorker() {
 
 void Cacher::CloseWorker() {
   retrieved_frame = nullptr;
-  queue.lock();
-  queue.clear();
-  queue.unlock();
+  queue_.lock();
+  queue_.clear();
+  queue_.unlock();
 
   if (frame_ != nullptr) {
     av_frame_free(&frame_);
@@ -1075,9 +1075,9 @@ void Cacher::Open()
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
 {
   if (clip->media_stream() != nullptr
-      && queue.size() > 0
+      && queue_.size() > 0
       && clip->media_stream()->infinite_length) {
-    retrieved_frame = queue.at(0);
+    retrieved_frame = queue_.at(0);
     return;
   }
 
@@ -1092,28 +1092,28 @@ void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int pla
   if (clip->media() != nullptr) {
     // see if we already have this frame
     retrieve_lock_.lock();
-    queue.lock();
+    queue_.lock();
     retrieved_frame = nullptr;
     int64_t target_pts = seconds_to_timestamp(clip, playhead_to_clip_seconds(clip, playhead_));
-    for (int i=0;i<queue.size();i++) {
+    for (int i=0;i<queue_.size();i++) {
 
-      if (queue.at(i)->pts == target_pts) {
+      if (queue_.at(i)->pts == target_pts) {
 
         // the queue has a frame with the exact timestamp
 
-        retrieved_frame = queue.at(i);
+        retrieved_frame = queue_.at(i);
         wait_for_cacher_to_respond = false;
         break;
-      } else if (i > 0 && queue.at(i-1)->pts < target_pts && queue.at(i)->pts > target_pts) {
+      } else if (i > 0 && queue_.at(i-1)->pts < target_pts && queue_.at(i)->pts > target_pts) {
 
         // the queue has a frame with a close timestamp that we'll assume is different due to a rounding error
 
-        retrieved_frame = queue.at(i-1);
+        retrieved_frame = queue_.at(i-1);
         wait_for_cacher_to_respond = false;
         break;
       }
     }
-    queue.unlock();
+    queue_.unlock();
     retrieve_lock_.unlock();
   }
 
@@ -1140,8 +1140,6 @@ void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int pla
 
 AVFrame *Cacher::Retrieve()
 {
-//  qint64 time = QDateTime::currentMSecsSinceEpoch();
-
   if (!caching_) {
     return nullptr;
   }
@@ -1160,7 +1158,6 @@ AVFrame *Cacher::Retrieve()
     } else {
 
       // cacher is running, wait for it to give a frame
-//      qDebug() << "====> retrieve lock waiting";
       retrieve_lock_.lock();
       retrieve_wait_.wait(&retrieve_lock_);
       retrieve_lock_.unlock();
@@ -1168,8 +1165,6 @@ AVFrame *Cacher::Retrieve()
     }
 
   }
-
-//  qDebug() << "Cacher::Retrieve took" << (QDateTime::currentMSecsSinceEpoch() - time) << "and retrieved" << retrieved_frame;
 
   return retrieved_frame;
 }
@@ -1211,14 +1206,9 @@ AVRational Cacher::media_time_base()
   return stream->time_base;
 }
 
-void Cacher::QueueLock()
+ClipQueue *Cacher::queue()
 {
-  queue.lock();
-}
-
-void Cacher::QueueUnlock()
-{
-  queue.unlock();
+  return &queue_;
 }
 
 int Cacher::RetrieveFrameFromDecoder(AVFrame* f) {

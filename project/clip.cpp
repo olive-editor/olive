@@ -521,12 +521,8 @@ bool Clip::IsOpen()
 }
 
 void Clip::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed) {
-//  qint64 time = QDateTime::currentMSecsSinceEpoch();
-
   cacher.Cache(playhead, scrubbing, nests, playback_speed);
   cacher_frame = playhead;
-
-//  qDebug() << "Clip::Cache took" << (QDateTime::currentMSecsSinceEpoch() - time);
 }
 
 bool Clip::Retrieve()
@@ -535,13 +531,23 @@ bool Clip::Retrieve()
 
   if (UsesCacher()) {
 
-//    qint64 time = QDateTime::currentMSecsSinceEpoch();
-
+    // Retrieve the frame from the cacher that we requested in Cache().
     AVFrame* frame = cacher.Retrieve();
 
-    cacher.QueueLock();
+    // Wait for exclusive control of the queue to avoid any threading collisions
+    cacher.queue()->lock();
 
-    if (frame != nullptr) {
+    // Check if we retrieved a frame (nullptr) and if the queue stil contains this frame.
+    //
+    // `nullptr` is returned if the cacher failed to get any sort of frame and is uncommon, but we do need
+    // to handle it.
+    //
+    // We check the queue because in some situations (e.g. intensive scrubbing), in the time it took to gain
+    // exclusive control of the queue, the cacher may have deleted the frame.
+    // Therefore we check to ensure the queue still contains the frame now that we have exclusive control,
+    // to avoid any attempt to utilize now-freed memory.
+
+    if (frame != nullptr && cacher.queue()->contains(frame)) {
 
       // check if the opengl texture exists yet, create it if not
       if (texture == nullptr) {
@@ -599,14 +605,12 @@ bool Clip::Retrieve()
 
       glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-//      qDebug() << "Clip::Retrieve took" << (QDateTime::currentMSecsSinceEpoch() - time);
-
       ret = true;
     } else {
       qCritical() << "Failed to retrieve frame for clip" << name();
     }
 
-    cacher.QueueUnlock();
+    cacher.queue()->unlock();
   }
 
   return ret;

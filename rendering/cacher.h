@@ -243,14 +243,13 @@ public:
   AVRational media_time_base();
 
   /**
-   * @brief Wrapper function for queue::lock()
+   * @brief Get cacher queue object
+   *
+   * @return
+   *
+   * A pointer to the cacher's internal frame queue
    */
-  void QueueLock();
-
-  /**
-   * @brief Wrapper function for queue::unlock()
-   */
-  void QueueUnlock();
+  ClipQueue* queue();
 
 private:
   /**
@@ -263,7 +262,7 @@ private:
    *
    * Valid fames are cached into this, which also does memory handling when necessary.
    */
-  ClipQueue queue;
+  ClipQueue queue_;
 
   /**
    * @brief Main wait condition
