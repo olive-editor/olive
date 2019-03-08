@@ -2,15 +2,20 @@
 
 # Check if there's been a new commit since this build, and if so don't upload it
 
+GREP_PATH=grep
 
-REMOTE=$(curl -s -N https://api.github.com/repos/olive-editor/olive/commits/master | grep -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1)
+if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+	GREP_PATH=ggrep
+fi
+
+REMOTE=$(curl -s -N https://api.github.com/repos/olive-editor/olive/commits/master | $GREP_PATH -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1)
 LOCAL=$(git rev-parse HEAD)
 
 if [ "$REMOTE" == "$LOCAL" ]
 then
-	echo "[INFO] This commit is still current. Uploading..."
+	echo "[INFO] Still current. Uploading..."
 else
-	echo "[INFO] This commit is no longer current. $REMOTE vs $LOCAL - aborting upload."
+	echo "[INFO] No longer current. $REMOTE vs $LOCAL - aborting upload."
 	exit 0
 fi
 

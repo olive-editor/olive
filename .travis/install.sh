@@ -3,7 +3,7 @@
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
 	brew install ffmpeg qt5 grep
-	export PATH="/usr/local/opt/grep/libexec/gnubin:/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
+	export PATH="/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
