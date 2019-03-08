@@ -522,6 +522,7 @@ void Cacher::CacheVideoWorker() {
 
       int retrieve_code;
       int64_t seek_ts = target_pts;
+      int64_t zero = 0;
 
       // Some formats don't seek reliably to the last keyframe, as a result we need to seek in a loop to ensure we
       // get a frame prior to the timestamp
@@ -542,7 +543,7 @@ void Cacher::CacheVideoWorker() {
 
         //qDebug() << "Target:" << target_pts << "Seek:" << seek_ts << "Frame:" << decoded_frame->pts;
 
-        seek_ts = qMax(0LL, seek_ts - second_pts);
+        seek_ts = qMax(zero, seek_ts - second_pts);
 
         have_existing_frame_to_use = true;
       } while (retrieve_code >= 0 && decoded_frame->pts > target_pts && !seeked_to_zero);
