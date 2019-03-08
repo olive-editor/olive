@@ -14,10 +14,8 @@ Name ${APP_NAME}
 
 
 !ifdef X64
-OutFile "olive-w64i.exe"
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
 !else
-OutFile "olive-w32i.exe"
 InstallDir "$PROGRAMFILES32\${APP_NAME}"
 !endif
 
