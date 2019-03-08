@@ -20,11 +20,12 @@
 
 #include "cacher.h"
 
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
 #include <math.h>
-#include <cinttypes>
 
 #include "project/projectelements.h"
 #include "rendering/audio.h"

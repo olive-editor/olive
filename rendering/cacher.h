@@ -21,6 +21,9 @@
 #ifndef CACHER_H
 #define CACHER_H
 
+#define __STDC_FORMAT_MACROS 1
+#include <inttypes.h>
+
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
