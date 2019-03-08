@@ -48,7 +48,8 @@ private:
   void parse_media();
   bool retrieve_preview(const QString &hash);
   void generate_waveform();
-  void finalize_media();  
+  void finalize_media();
+  void invalidate_media(const QString& error_msg);
   QString get_thumbnail_path(const QString &hash, const FootageStream &ms);
   QString get_waveform_path(const QString& hash, const FootageStream &ms);
 

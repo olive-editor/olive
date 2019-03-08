@@ -196,22 +196,42 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 }
 
 void PreviewGenerator::finalize_media() {
-  footage_->ready_lock.unlock();
-  footage_->ready = true;
-
   if (!cancelled_) {
-    if (footage_->video_tracks.size() == 0) {
-      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_AUDIO);
-    } else if (contains_still_image_) {
-      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_IMAGE);
-    } else {
+    bool footage_is_ready = true;
+
+    if (footage_->video_tracks.isEmpty() && footage_->audio_tracks.isEmpty()) {
+      // ERROR
+      footage_is_ready = false;
+      invalidate_media(tr("Failed to find any valid video/audio streams"));
+    } else if (!footage_->video_tracks.isEmpty() && !contains_still_image_) {
+      // VIDEO
       olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_VIDEO);
+    } else if (!footage_->audio_tracks.isEmpty()) {
+      // AUDIO
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_AUDIO);
+    } else {
+      // IMAGE
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_IMAGE);
+    }
+
+    if (footage_is_ready) {
+      footage_->ready_lock.unlock();
+      footage_->ready = true;
+      media_->update_tooltip();
     }
 
     if (olive::ActiveSequence != nullptr) {
       olive::ActiveSequence->RefreshClips(media_);
     }
   }
+}
+
+void PreviewGenerator::invalidate_media(const QString &error_msg)
+{
+  media_->update_tooltip(error_msg);
+  olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_ERROR);
+  footage_->invalid = true;
+  footage_->ready_lock.unlock();
 }
 
 void thumb_data_cleanup(void *info) {
@@ -584,12 +604,7 @@ void PreviewGenerator::run() {
 
   if (!cancelled_) {
     if (error) {
-      media_->update_tooltip(errorStr);
-      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_ERROR);
-      footage_->invalid = true;
-      footage_->ready_lock.unlock();
-    } else {
-      media_->update_tooltip();
+      invalidate_media(errorStr);
     }
   }
 
