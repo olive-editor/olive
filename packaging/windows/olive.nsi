@@ -40,11 +40,7 @@ Section "Olive (required)"
 
 	SetOutPath $INSTDIR
 
-!ifdef X64
-	File /r olive-w64\*
-!else
-	File /r olive-w32\*
-!endif
+	File /r olive\*
 
 	WriteUninstaller "$INSTDIR\uninstall.exe"
 
