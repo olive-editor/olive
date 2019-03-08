@@ -19,12 +19,5 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 	fi
 	source /opt/qt*/bin/qt*-env.sh
 
-elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-
-	#/c/msys64/usr/bin/bash -l -c "pacman -Syu --noconfirm"
-
-	# install build tools
-	/c/msys64/usr/bin/bash -l -c "pacman -S --noconfirm mingw-w64-x86_64-toolchain mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-qt5"
-
 fi
 
