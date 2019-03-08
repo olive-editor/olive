@@ -2,13 +2,10 @@
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
-	brew install ffmpeg qt5 python@2 grep
-	export GREP=ggrep
-	export PATH="/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
+	brew install ffmpeg qt5 grep
+	export PATH="/usr/local/opt/grep/libexec/gnubin:/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-
-	export GREP=grep
 
 	if [ "$ARCH" == "x86_64" ]; then
 		sudo apt-get -y install qt59base qt59multimedia qt59svg libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev libswresample-dev frei0r-plugins-dev frei0r-plugins fuse

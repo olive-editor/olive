@@ -22,7 +22,10 @@ InstallDir "$PROGRAMFILES32\${APP_NAME}"
 !endif
 
 !insertmacro MUI_PAGE_WELCOME
+
+# Try using the LICENSE file from the source root
 !insertmacro MUI_PAGE_LICENSE LICENSE
+
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_INSTFILES
