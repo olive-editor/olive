@@ -24,6 +24,7 @@
 #include <QtMath>
 #include <QAudioOutput>
 #include <math.h>
+#include <cinttypes>
 
 #include "project/projectelements.h"
 #include "rendering/audio.h"
