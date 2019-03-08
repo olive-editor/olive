@@ -717,6 +717,10 @@ void MainWindow::setup_menus() {
   scroll_wheel_zooms->setCheckable(true);
   scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.scroll_zooms));
 
+  horizontal_timeline_scroll = MenuHelper::create_menu_action(tools_menu, "horizontaltimelinescroll", &olive::MenuHelper, SLOT(toggle_bool_action()));
+  horizontal_timeline_scroll->setCheckable(true);
+  horizontal_timeline_scroll->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.horizontal_timeline_scroll));
+
   enable_drag_files_to_timeline = MenuHelper::create_menu_action(tools_menu, "enabledragfilestotimeline", &olive::MenuHelper, SLOT(toggle_bool_action()));
   enable_drag_files_to_timeline->setCheckable(true);
   enable_drag_files_to_timeline->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.enable_drag_files_to_timeline));
@@ -881,7 +885,8 @@ void MainWindow::Retranslate()
   edit_tool_selects_links->setText(tr("Edit Tool Selects Links"));
   seek_also_selects->setText(tr("Seek Also Selects"));
   seek_to_end_of_pastes->setText(tr("Seek to the End of Pastes"));
-  scroll_wheel_zooms->setText(tr("Scroll Wheel Zooms"));
+  scroll_wheel_zooms->setText(tr("Scroll Wheel Zooms (Ctrl toggles)"));
+  horizontal_timeline_scroll->setText(tr("Invert Timeline scroll axes"));
   enable_drag_files_to_timeline->setText(tr("Enable Drag Files to Timeline"));
   autoscale_by_default->setText(tr("Auto-Scale By Default"));
   enable_seek_to_import->setText(tr("Enable Seek to Import"));
@@ -1134,6 +1139,7 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
   olive::MenuHelper.set_bool_action_checked(edit_tool_selects_links);
   olive::MenuHelper.set_bool_action_checked(seek_to_end_of_pastes);
   olive::MenuHelper.set_bool_action_checked(scroll_wheel_zooms);
+  olive::MenuHelper.set_bool_action_checked(horizontal_timeline_scroll);
   olive::MenuHelper.set_bool_action_checked(rectified_waveforms);
   olive::MenuHelper.set_bool_action_checked(enable_drag_files_to_timeline);
   olive::MenuHelper.set_bool_action_checked(autoscale_by_default);

@@ -337,49 +337,65 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void TimelineWidget::wheelEvent(QWheelEvent *event) {
-  // ctrl used to toggle zooming instead of scrolling
+
+  // TODO: implement pixel scrolling
+
+  bool shift = (event->modifiers() & Qt::ShiftModifier);
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
+  bool alt = (event->modifiers() & Qt::AltModifier);
 
-  //
-  // NOTE/FIXME: CURRENTLY disabling pixel scrolling because it needs more testing
-  //
+  // "Scroll Zooms" false + Control up  : not zooming
+  // "Scroll Zooms" false + Control down:     zooming
+  // "Scroll Zooms" true  + Control up  :     zooming
+  // "Scroll Zooms" true  + Control down: not zooming
+  bool zooming = (olive::CurrentConfig.scroll_zooms != ctrl);
 
-  /*if (!event->pixelDelta().isNull()) {
-        // if we got pixel scrolling data, prefer it over the angleDelta data
+  // Allow shift for axis swap, but don't swap on zoom... Unless
+  // we need to override Qt's axis swap via Alt
+  bool swap_hv = ((shift != olive::CurrentConfig.horizontal_timeline_scroll) &
+                  !zooming) | (alt & !shift & zooming);
 
-        QScrollBar* horiz_bar = panel_timeline->horizontalScrollBar;
-        QScrollBar* vert_bar = scrollBar;
+  int delta_h = swap_hv ? event->angleDelta().y() : event->angleDelta().x();
+  int delta_v = swap_hv ? event->angleDelta().x() : event->angleDelta().y();
 
-        horiz_bar->setValue(horiz_bar->value() + event->pixelDelta().x());
-        vert_bar->setValue(vert_bar->value() + event->pixelDelta().y());
+  if (zooming) {
 
-    } else*/ if (!event->angleDelta().isNull()) {
+    // Zoom only uses vertical scrolling, to avoid glitches on touchpads.
+    // Don't do anything if not scrolling vertically.
 
-    // alt is used to swap horizontal and vertical scrolling
-    bool alt = (event->modifiers() & Qt::AltModifier);
+    if (delta_v != 0) {
 
-    int scroll_amount = alt ? (event->angleDelta().x()) : (event->angleDelta().y());
+      // delta_v == 120 for one click of a mousewheel. Less or more for a
+      // touchpad gesture. Calculate speed to compensate.
+      // 120 = ratio of 4/3 (1.33), -120 = ratio of 3/4 (.75)
 
-    bool in = (scroll_amount > 0);
-    if (olive::CurrentConfig.scroll_zooms != ctrl) {
+      double zoom_ratio = 1.0 + (abs(delta_v) * 0.33 / 120);
 
-      // if config.scroll_zooms is enabled or ctrl is held, zoom instead of scrolling
-      if (in) {
-        panel_timeline->multiply_zoom(1.5);
-      } else {
-        panel_timeline->multiply_zoom(0.75);
+      if (delta_v < 0) {
+        zoom_ratio = 1.0 / zoom_ratio;
       }
 
-    } else {
-      // pass the scrolling to the Timeline's main scrollbar for horizontal scrolling, or this widget's
-      // scrollbar for vertical scrolling
-
-      QScrollBar* bar = alt ? scrollBar : panel_timeline->horizontalScrollBar;
-
-      int step = bar->singleStep();
-      if (in) step = -step;
-      bar->setValue(bar->value() + step);
+      panel_timeline->multiply_zoom(zoom_ratio);
     }
+
+  } else {
+
+    // Use the Timeline's main scrollbar for horizontal scrolling, and this
+    // widget's scrollbar for vertical scrolling.
+
+    QScrollBar* bar_v = scrollBar;
+    QScrollBar* bar_h = panel_timeline->horizontalScrollBar;
+
+    // Match the wheel events to the size of a step as per
+    // https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+
+    int step_h = bar_h->singleStep() * delta_h / -120;
+    int step_v = bar_v->singleStep() * delta_v / -120;
+
+    // Apply to appropriate scrollbars
+
+    bar_h->setValue(bar_h->value() + step_h);
+    bar_v->setValue(bar_v->value() + step_v);
   }
 }
 
