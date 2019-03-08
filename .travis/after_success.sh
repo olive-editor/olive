@@ -4,9 +4,22 @@
 wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
 
 # only create release for master
-if [ "$TRAVIS_BRANCH" != "master" ]
+#if [ "$TRAVIS_BRANCH" != "master" ]
+#then
+#	export TRAVIS_EVENT_TYPE=pull_request
+#fi
+
+# Check if there's been a new commit since this build, and if so don't upload it
+
+REMOTE=$(curl https://api.github.com/repos/olive-editor/olive/commits/master | grep -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1)
+LOCAL=$(git rev-parse HEAD)
+
+if [ "$REMOTE" == "$LOCAL" ]
 then
-	export TRAVIS_EVENT_TYPE=pull_request
+	echo "[INFO] This commit is still current. Uploading..."
+else
+	echo "[INFO] This commit is no longer current. Aborting upload."
+	exit 0
 fi
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
