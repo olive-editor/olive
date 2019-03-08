@@ -9,7 +9,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 	qmake CONFIG+=release PREFIX=/usr
 
 	# run Makefile
-	make -j$(nproc)
+	make -j$(sysctl -n hw.ncpu)
 
 	# move Qt deps into bundle
 	macdeployqt Olive.app
