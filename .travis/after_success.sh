@@ -8,11 +8,9 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 	GREP_PATH=ggrep
 fi
 
-which curl
-curl https://api.github.com/repos/olive-editor/olive/commits/master
-
 # Get current repo commit from GitHub (problems arose from trying to pipe cURL directly into grep, so we buffer it through a file)
-curl -s -N https://api.github.com/repos/olive-editor/olive/commits/master -o repo.txt
+curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/olive-editor/olive/commits/master
+curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/olive-editor/olive/commits/master -o repo.txt
 
 REMOTE=$($GREP_PATH -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
 LOCAL=$(git rev-parse HEAD)
