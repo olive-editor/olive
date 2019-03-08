@@ -812,19 +812,26 @@ void Timeline::SetTrackHeight(int track, int height) {
   track_heights.append(t);
 }
 
-void Timeline::IncreaseTrackHeight() {
-  for (int i=0;i<track_heights.size();i++) {
-    track_heights[i].height += olive::timeline::kTrackHeightIncrement;
+void Timeline::ChangeTrackHeightUniformly(int diff) {
+  // get range of tracks currently active
+  int min_track, max_track;
+  olive::ActiveSequence->getTrackLimits(&min_track, &max_track);
+
+  // for each active track, set the track to increase/decrease based on `diff`
+  for (int i=min_track;i<=max_track;i++) {
+    SetTrackHeight(i, qMax(GetTrackHeight(i) + diff, olive::timeline::kTrackMinHeight));
   }
+
+  // update the timeline
   repaint_timeline();
 }
 
+void Timeline::IncreaseTrackHeight() {
+  ChangeTrackHeightUniformly(olive::timeline::kTrackHeightIncrement);
+}
+
 void Timeline::DecreaseTrackHeight() {
-  for (int i=0;i<track_heights.size();i++) {
-    track_heights[i].height = qMax(track_heights[i].height - olive::timeline::kTrackHeightIncrement,
-                                   olive::timeline::kTrackDefaultHeight);
-  }
-  repaint_timeline();
+  ChangeTrackHeightUniformly(-olive::timeline::kTrackHeightIncrement);
 }
 
 void Timeline::snapping_clicked(bool checked) {

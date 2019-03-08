@@ -274,6 +274,7 @@ private slots:
   void set_tool();
 
 private:
+  void ChangeTrackHeightUniformly(int diff);
   void set_zoom_value(double v);
   QVector<QPushButton*> tool_buttons;
   void decheck_tool_buttons(QObject* sender);
