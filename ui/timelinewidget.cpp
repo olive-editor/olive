@@ -352,7 +352,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
 
   // Allow shift for axis swap, but don't swap on zoom... Unless
   // we need to override Qt's axis swap via Alt
-  bool swap_hv = ((shift != olive::CurrentConfig.horizontal_timeline_scroll) &
+  bool swap_hv = ((shift != olive::CurrentConfig.invert_timeline_scroll_axes) &
                   !zooming) | (alt & !shift & zooming);
 
   int delta_h = swap_hv ? event->angleDelta().y() : event->angleDelta().x();
@@ -1235,7 +1235,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                     g.transition->secondary_clip->undeletable = false;
                   }
                 }
-              }              
+              }
             }
 
             // finally, perform actual movement of clips
@@ -2351,7 +2351,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
       // get the range of tracks currently dragged
       int track_start = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
-      int track_end = qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start);      
+      int track_end = qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start);
       int track_size = 1 + track_end - track_start;
 
       // set tracks to be split

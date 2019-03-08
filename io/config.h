@@ -511,12 +511,11 @@ struct Config {
   bool add_default_effects_to_clips;
 
   /**
-   * @brief Horizontal timeline scroll
+   * @brief Invert Timeline scroll axes
    *
-   * **TRUE** Scrolling vertically with a mouse wheel or touchpad scrolls the Timeline horizontally.
-   * The Shift key temporarily toggles this setting.
+   * **TRUE** if scrolling vertically on the Timeline should scroll it horizontally
    */
-  bool horizontal_timeline_scroll;
+  bool invert_timeline_scroll_axes;
 
   /**
    * @brief Load config from file

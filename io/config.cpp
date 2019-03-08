@@ -71,7 +71,7 @@ Config::Config()
     waveform_resolution(64),
     thumbnail_resolution(120),
     add_default_effects_to_clips(true),
-    horizontal_timeline_scroll(true)
+    invert_timeline_scroll_axes(true)
 {}
 
 void Config::load(QString path) {
@@ -88,9 +88,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "ScrollZooms") {
           stream.readNext();
           scroll_zooms = (stream.text() == "1");
-        } else if (stream.name() == "HorizontalTimelineScroll") {
+        } else if (stream.name() == "InvertTimelineScrollAxes") {
           stream.readNext();
-          horizontal_timeline_scroll = (stream.text() == "1");
+          invert_timeline_scroll_axes = (stream.text() == "1");
         } else if (stream.name() == "EditToolSelectsLinks") {
           stream.readNext();
           edit_tool_selects_links = (stream.text() == "1");
@@ -237,7 +237,7 @@ void Config::save(QString path) {
   stream.writeTextElement("Version", QString::number(olive::kSaveVersion));
   stream.writeTextElement("ShowTrackLines", QString::number(show_track_lines));
   stream.writeTextElement("ScrollZooms", QString::number(scroll_zooms));
-  stream.writeTextElement("HorizontalTimelineScroll", QString::number(horizontal_timeline_scroll));
+  stream.writeTextElement("InvertTimelineScrollAxes", QString::number(invert_timeline_scroll_axes));
   stream.writeTextElement("EditToolSelectsLinks", QString::number(edit_tool_selects_links));
   stream.writeTextElement("EditToolAlsoSeeks", QString::number(edit_tool_also_seeks));
   stream.writeTextElement("SelectAlsoSeeks", QString::number(select_also_seeks));

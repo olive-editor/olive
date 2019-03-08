@@ -325,7 +325,7 @@ private:
   QAction* edit_tool_selects_links;
   QAction* seek_to_end_of_pastes;
   QAction* scroll_wheel_zooms;
-  QAction* horizontal_timeline_scroll;
+  QAction* invert_timeline_scroll_axes;
   QAction* rectified_waveforms;
   QAction* enable_drag_files_to_timeline;
   QAction* autoscale_by_default;
