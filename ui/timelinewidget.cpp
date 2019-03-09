@@ -2666,7 +2666,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
         // check to see if we're resizing a track height
         int test_range = 5;
-        int mouse_pos = event->pos().y() + scroll;
+        int mouse_pos = event->pos().y();
         int hover_track = getTrackFromScreenPoint(mouse_pos);
         int track_y_edge = getScreenPointFromTrack(hover_track);
 
