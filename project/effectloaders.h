@@ -22,7 +22,15 @@
 #define EFFECTLOADERS_H
 
 #include <QList>
+#include <QThread>
 
 void init_effects();
+
+class EffectInit : public QThread {
+public:
+  EffectInit();
+protected:
+  void run();
+};
 
 #endif // EFFECTLOADERS_H

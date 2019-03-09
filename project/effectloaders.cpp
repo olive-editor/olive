@@ -137,6 +137,7 @@ void load_shader_effects() {
     const QString& effects_path = effects_paths.at(h);
     QDir effects_dir(effects_path);
     if (effects_dir.exists()) {
+      // Load XML metadata for GLSL shader effects
       QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
       for (int i=0;i<entries.size();i++) {
         QFile file(effects_path + "/" + entries.at(i));
@@ -177,6 +178,15 @@ void load_shader_effects() {
         }
 
         file.close();
+      }
+
+      // Load blending mode shaders from file
+      QList<QString> blend_mode_entries = effects_dir.entryList(QStringList("*.blend"), QDir::Files);
+      for (int i=0;i<blend_mode_entries.size();i++) {
+        BlendMode b;
+        b.url = effects_dir.filePath(blend_mode_entries.at(i));
+        b.name = QFileInfo(b.url).baseName();
+        olive::blend_modes.append(b);
       }
     }
   }
@@ -255,6 +265,84 @@ void load_frei0r_effects() {
 }
 #endif
 
+void GenerateBlendingShader()
+{
+  olive::generated_blending_shader = "#version 110\n" // Start with GLSL version identifier
+                                     "\n"
+                                     "uniform sampler2D background;\n" // background (base) texture color
+                                     "uniform sampler2D foreground;\n" // foreground (blend) texture color
+                                     "varying vec2 vTexCoord;\n"       // texture coordinate
+                                     "uniform float opacity;\n"        // foreground opacity setting
+                                     "uniform int blendmode;\n"        // blending mode switcher
+                                     "\n"
+                                     "\n";
+
+  // Import code from each blend mode file
+  for (int i=0;i<olive::blend_modes.size();i++) {
+    QFile blending_file(olive::blend_modes.at(i).url);
+
+    if (blending_file.open(QFile::ReadOnly)) {
+
+      QTextStream stream(&blending_file);
+
+      while (!stream.atEnd()) {
+        QString line = stream.readLine();
+        if (line.startsWith("#olive name ")) {
+
+          // The blending mode can specify its own name
+          olive::blend_modes[i].name = line.mid(12);
+
+        } else if (line.startsWith("#pragma glslify: export(")) {
+
+          // Get function name
+          olive::blend_modes[i].function_name = line.mid(24, line.length()-25);
+
+        } else {
+
+          // Assume this line is code and add it to the shader
+          olive::generated_blending_shader.append(line);
+          olive::generated_blending_shader.append("\n");
+
+        }
+      }
+
+      blending_file.close();
+
+    } else {
+      qWarning() << "Failed to open blending shader" << olive::blend_modes.at(i).url;
+    }
+  }
+
+  // Create monolithic switcher function
+
+  olive::generated_blending_shader.append("vec3 blend(vec3 base, vec3 blend) {\n");
+
+  for (int i=0;i<olive::blend_modes.size();i++) {
+    if (i == 0) {
+      olive::generated_blending_shader.append("  if (blendmode == 0) {\n");
+    } else {
+      olive::generated_blending_shader.append(QString(" else if (blendmode == %1) {\n").arg(i));
+    }
+
+    olive::generated_blending_shader.append(QString("    return %1(base, blend)\n").arg(olive::blend_modes.at(i).function_name));
+    olive::generated_blending_shader.append("  }");
+  }
+
+  olive::generated_blending_shader.append("\n  return blend;\n" // default return value
+                                          "}\n"
+                                          "\n"
+                                          "void main() {\n"
+                                          "  vec4 bg_color = texture2D(background, vTexCoord);\n" // Get background texture color
+                                          "  vec4 fg_color = texture2D(foreground, vTexCoord);\n" // Get foreground texture color
+                                          "  vec3 composite = blend(bg_color.rgb, fg_color.rgb);\n" // Use switcher function above to blend RGBs
+                                          "  vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-fg_color.a), bg_color.a + fg_color.a);\n"
+                                          "  full_composite = mix(bg_color, full_composite, opacity);\n"
+                                          "  gl_FragColor = full_composite;\n"
+                                          "}\n");
+
+  qDebug() << olive::generated_blending_shader;
+}
+
 EffectInit::EffectInit() {
   panel_effect_controls->effects_loaded.lock();
 }
@@ -266,6 +354,7 @@ void EffectInit::run() {
 #ifndef NOFREI0R
   load_frei0r_effects();
 #endif
+  GenerateBlendingShader();
   panel_effect_controls->effects_loaded.unlock();
   qInfo() << "Finished initializing effects";
 }

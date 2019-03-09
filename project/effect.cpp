@@ -69,6 +69,7 @@
 
 QVector<EffectMeta> olive::effects;
 QVector<BlendMode> olive::blend_modes;
+QString olive::generated_blending_shader;
 
 EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
   if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {

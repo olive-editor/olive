@@ -62,11 +62,14 @@ struct EffectMeta {
 struct BlendMode {
   QString name;
   QString url;
+  QString function_name;
 };
 
 namespace olive {
   extern QVector<EffectMeta> effects;
   extern QVector<BlendMode> blend_modes;
+
+  extern QString generated_blending_shader;
 }
 
 double log_volume(double linear);
@@ -258,13 +261,6 @@ private:
   void delete_texture();
   int get_index_in_clip();
   void validate_meta_path();
-};
-
-class EffectInit : public QThread {
-public:
-  EffectInit();
-protected:
-  void run();
 };
 
 #endif // EFFECT_H

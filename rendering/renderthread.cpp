@@ -99,7 +99,7 @@ void RenderThread::run() {
 
           blend_mode_program = new QOpenGLShaderProgram();
           blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
-          blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/blending.frag");
+          blend_mode_program->addShaderFromSourceCode(QOpenGLShader::Fragment, olive::generated_blending_shader);
           blend_mode_program->link();
 
           premultiply_program = new QOpenGLShaderProgram();
