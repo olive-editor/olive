@@ -399,7 +399,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0.0;
           coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
           coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
-          coords.blendmode = BLEND_MODE_NORMAL;
+          coords.blendmode = -1;
           coords.opacity = 1.0;
 
           // if auto-scale is enabled, auto-scale the clip
@@ -514,8 +514,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 
-            // copy front buffer to back buffer (only if we're using blending modes - which we usually will be)
-            if (!olive::CurrentRuntimeConfig.disable_blending) {
+            // copy front buffer to back buffer (only if we're using a blending mode)
+            if (coords.blendmode >= 0) {
               if (params.nests.size() > 0) {
                 draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
               } else {
@@ -533,8 +533,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             // bind front buffer as draw buffer
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
-            if (olive::CurrentRuntimeConfig.disable_blending) {
-              // some GPUs don't like the blending shader, so we provide a pure GL fallback here
+            // Check if we're using a blend mode (< 0 means no blend mode)
+            if (coords.blendmode < 0) {
 
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
 
@@ -543,7 +543,9 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               full_blit();
 
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+
             } else {
+
               // load background texture into texture unit 0
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_2);
@@ -572,6 +574,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               // unbind texture from texture unit 0
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+
             }
 
             // unbind framebuffer

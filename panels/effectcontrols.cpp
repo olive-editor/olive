@@ -199,8 +199,8 @@ void EffectControls::show_effect_menu(int type, int subtype) {
   QMenu effects_menu(this);
   effects_menu.setToolTipsVisible(true);
 
-  for (int i=0;i<effects.size();i++) {
-    const EffectMeta& em = effects.at(i);
+  for (int i=0;i<olive::effects.size();i++) {
+    const EffectMeta& em = olive::effects.at(i);
 
     if (em.type == type && em.subtype == subtype) {
       QAction* action = new QAction(&effects_menu);

@@ -58,7 +58,16 @@ struct EffectMeta {
   int type;
   int subtype;
 };
-extern QVector<EffectMeta> effects;
+
+struct BlendMode {
+  QString name;
+  QString url;
+};
+
+namespace olive {
+  extern QVector<EffectMeta> effects;
+  extern QVector<BlendMode> blend_modes;
+}
 
 double log_volume(double linear);
 
@@ -92,36 +101,6 @@ enum EffectInternal {
   EFFECT_INTERNAL_CORNERPIN,
   EFFECT_INTERNAL_FREI0R,
   EFFECT_INTERNAL_COUNT
-};
-
-enum EffectBlendMode {
-  BLEND_MODE_ADD,
-  BLEND_MODE_AVERAGE,
-  BLEND_MODE_COLORBURN,
-  BLEND_MODE_COLORDODGE,
-  BLEND_MODE_DARKEN,
-  BLEND_MODE_DIFFERENCE,
-  BLEND_MODE_EXCLUSION,
-  BLEND_MODE_GLOW,
-  BLEND_MODE_HARDLIGHT,
-  BLEND_MODE_HARDMIX,
-  BLEND_MODE_LIGHTEN,
-  BLEND_MODE_LINEARBURN,
-  BLEND_MODE_LINEARDODGE,
-  BLEND_MODE_LINEARLIGHT,
-  BLEND_MODE_MULTIPLY,
-  BLEND_MODE_NEGATION,
-  BLEND_MODE_NORMAL,
-  BLEND_MODE_OVERLAY,
-  BLEND_MODE_PHOENIX,
-  BLEND_MODE_PINLIGHT,
-  BLEND_MODE_REFLECT,
-  BLEND_MODE_SCREEN,
-  BLEND_MODE_SOFTLIGHT,
-  BLEND_MODE_SUBSTRACT,
-  BLEND_MODE_SUBTRACT,
-  BLEND_MODE_VIVIDLIGHT,
-  BLEND_MODE_COUNT
 };
 
 struct GLTextureCoords {
