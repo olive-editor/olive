@@ -2653,9 +2653,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
       if (found) {
 
         if (panel_timeline->trim_type == TRIM_IN) { // if we're trimming an IN point
-          setCursor(olive::Cursor_LeftTrim);
+          setCursor(panel_timeline->tool == TIMELINE_TOOL_RIPPLE ? olive::Cursor_LeftRipple : olive::Cursor_LeftTrim);
         } else { // if we're trimming an OUT point
-          setCursor(olive::Cursor_RightTrim);
+          setCursor(panel_timeline->tool == TIMELINE_TOOL_RIPPLE ? olive::Cursor_RightRipple : olive::Cursor_RightTrim);
         }
 
       } else {
@@ -2691,7 +2691,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
       // we're not currently performing any slipping, all we do here is set the cursor if mouse is hovering over a
       // cursor
       if (getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track) > -1) {
-        setCursor(Qt::SizeHorCursor);
+        setCursor(olive::Cursor_Slip);
       } else {
         unsetCursor();
       }

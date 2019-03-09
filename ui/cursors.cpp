@@ -20,30 +20,50 @@
 
 #include "cursors.h"
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QPixmap>
+#include <QSvgRenderer>
+#include <QPainter>
 #include <QCursor>
-
 #include <QDebug>
 
 QCursor olive::Cursor_LeftTrim;
 QCursor olive::Cursor_RightTrim;
+QCursor olive::Cursor_LeftRipple;
+QCursor olive::Cursor_RightRipple;
+QCursor olive::Cursor_Slip;
+QCursor olive::Cursor_Razor;
 
-QCursor load_cursor(const QString& file, int hotX, int hotY, const bool& right_aligned){
-    // load specified file into a pixmap
-    QPixmap temp(file);
+const int cursor_size = 24;
 
-    // set cursor's horizontal hotspot
-    if (right_aligned) {
-        hotX = temp.width() - hotX;
-    }
+QCursor load_cursor(const QString& file, int hotX = -1, int hotY = -1, bool right_aligned = false){
+  // load specified file into a pixmap
+  QSvgRenderer renderer(file);
 
-    // return cursor
-    return QCursor(temp, hotX, hotY);
+  int cursor_size_dpiaware = cursor_size * QApplication::desktop()->devicePixelRatio();
+  QPixmap pixmap(cursor_size_dpiaware, cursor_size_dpiaware);
+  pixmap.fill(Qt::transparent);
+
+  QPainter painter(&pixmap);
+  renderer.render(&painter, pixmap.rect());
+
+  // set cursor's horizontal hotspot
+  if (right_aligned) {
+    hotX = pixmap.width() - hotX;
+  }
+
+  // return cursor
+  return QCursor(pixmap, hotX, hotY);
 }
 
 void init_custom_cursors(){
-    qInfo() << "Initializing custom cursors";
-    olive::Cursor_LeftTrim = load_cursor(":/cursors/left_side.png", 0, -1, false);
-    olive::Cursor_RightTrim = load_cursor(":/cursors/right_side.png", 0, -1, true);
-    qInfo() << "Finished initializing custom cursors";
+  qInfo() << "Initializing custom cursors";
+  olive::Cursor_LeftTrim = load_cursor(":/cursors/1_left.svg");
+  olive::Cursor_RightTrim = load_cursor(":/cursors/1_right.svg");
+  olive::Cursor_LeftRipple = load_cursor(":/cursors/3_left.svg");
+  olive::Cursor_RightRipple = load_cursor(":/cursors/3_right.svg");
+  olive::Cursor_Slip = load_cursor(":/cursors/4.svg");
+  olive::Cursor_Razor = load_cursor(":/cursors/5.svg");
+  qInfo() << "Finished initializing custom cursors";
 }

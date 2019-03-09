@@ -36,6 +36,7 @@
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
 #include "ui/flowlayout.h"
+#include "ui/cursors.h"
 #include "mainwindow.h"
 #include "debug.h"
 
@@ -1706,7 +1707,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-  long f = qCeil(double(x) / zoom);
+  long f = qRound(double(x) / zoom);
   if (f < 0) {
     return 0;
   }
@@ -1714,7 +1715,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-  return qFloor(double(frame)*zoom);
+  return qRound(double(frame)*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
@@ -2039,8 +2040,10 @@ void Timeline::set_tool() {
   creating = false;
   switch (tool) {
   case TIMELINE_TOOL_EDIT:
-  case TIMELINE_TOOL_RAZOR:
     timeline_area->setCursor(Qt::IBeamCursor);
+    break;
+  case TIMELINE_TOOL_RAZOR:
+    timeline_area->setCursor(olive::Cursor_Razor);
     break;
   case TIMELINE_TOOL_HAND:
     timeline_area->setCursor(Qt::OpenHandCursor);

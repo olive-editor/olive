@@ -28,6 +28,10 @@ void init_custom_cursors();
 namespace olive{
     extern QCursor Cursor_LeftTrim;
     extern QCursor Cursor_RightTrim;
+    extern QCursor Cursor_LeftRipple;
+    extern QCursor Cursor_RightRipple;
+    extern QCursor Cursor_Slip;
+    extern QCursor Cursor_Razor;
 }
 
 #endif // CURSORS_H
