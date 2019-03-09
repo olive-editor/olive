@@ -39,6 +39,7 @@
 #include "ui/collapsiblewidget.h"
 #include "project/sequence.h"
 #include "project/undo.h"
+#include "project/effectloaders.h"
 #include "panels/project.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
@@ -194,7 +195,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
   effect_menu_type = type;
   effect_menu_subtype = subtype;
 
-  effects_loaded.lock();
+  olive::effects_loaded.lock();
 
   QMenu effects_menu(this);
   effects_menu.setToolTipsVisible(true);
@@ -254,7 +255,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
     }
   }
 
-  effects_loaded.unlock();
+  olive::effects_loaded.unlock();
 
   connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
   effects_menu.exec(QCursor::pos());

@@ -33,6 +33,8 @@
 
 #include <QDebug>
 
+QMutex olive::effects_loaded;
+
 #ifndef NOFREI0R
 #include <frei0r.h>
 typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
@@ -287,15 +289,27 @@ void GenerateBlendingShader()
 
       while (!stream.atEnd()) {
         QString line = stream.readLine();
-        if (line.startsWith("#olive name ")) {
+        if (line.length() > 0 && line.at(0) == '#') {
 
-          // The blending mode can specify its own name
-          olive::blend_modes[i].name = line.mid(12);
+          if (line.startsWith("#olive name ")) {
 
-        } else if (line.startsWith("#pragma glslify: export(")) {
+            // The blending mode can specify its own name
+            olive::blend_modes[i].name = line.mid(12);
 
-          // Get function name
-          olive::blend_modes[i].function_name = line.mid(24, line.length()-25);
+          } else if (line.startsWith("#pragma glslify: export(")) {
+
+            // Get function name
+            olive::blend_modes[i].function_name = line.mid(24, line.length()-25);
+
+          } else if (line.contains("require")) {
+
+            // This function wanted to include an external shader
+
+            int index_of_last_bracked = line.lastIndexOf('(') + 1;
+
+            qDebug() << "this blend mode wanted:" << line.mid(index_of_last_bracked, line.length() - index_of_last_bracked - 1);
+
+          }
 
         } else {
 
@@ -324,7 +338,7 @@ void GenerateBlendingShader()
       olive::generated_blending_shader.append(QString(" else if (blendmode == %1) {\n").arg(i));
     }
 
-    olive::generated_blending_shader.append(QString("    return %1(base, blend)\n").arg(olive::blend_modes.at(i).function_name));
+    olive::generated_blending_shader.append(QString("    return %1(base, blend);\n").arg(olive::blend_modes.at(i).function_name));
     olive::generated_blending_shader.append("  }");
   }
 
@@ -344,7 +358,7 @@ void GenerateBlendingShader()
 }
 
 EffectInit::EffectInit() {
-  panel_effect_controls->effects_loaded.lock();
+  olive::effects_loaded.lock();
 }
 
 void EffectInit::run() {
@@ -355,6 +369,6 @@ void EffectInit::run() {
   load_frei0r_effects();
 #endif
   GenerateBlendingShader();
-  panel_effect_controls->effects_loaded.unlock();
+  olive::effects_loaded.unlock();
   qInfo() << "Finished initializing effects";
 }

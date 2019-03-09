@@ -32,6 +32,7 @@ namespace OCIO = OCIO_NAMESPACE;
 
 #include "rendering/renderfunctions.h"
 #include "project/sequence.h"
+#include "project/effectloaders.h"
 
 RenderThread::RenderThread() :
   gizmos(nullptr),
@@ -99,7 +100,9 @@ void RenderThread::run() {
 
           blend_mode_program = new QOpenGLShaderProgram();
           blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
+          olive::effects_loaded.lock();
           blend_mode_program->addShaderFromSourceCode(QOpenGLShader::Fragment, olive::generated_blending_shader);
+          olive::effects_loaded.unlock();
           blend_mode_program->link();
 
           premultiply_program = new QOpenGLShaderProgram();

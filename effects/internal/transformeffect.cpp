@@ -36,6 +36,7 @@
 #include "io/math.h"
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"
+#include "project/effectloaders.h"
 #include "panels/project.h"
 #include "debug.h"
 
@@ -78,9 +79,11 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
   blend_mode_box->add_combo_item(tr("Normal"), -1);
 
   // add loaded blending modes
+  olive::effects_loaded.lock();
   for (int i=0;i<olive::blend_modes.size();i++) {
     blend_mode_box->add_combo_item(olive::blend_modes.at(i).name, i);
   }
+  olive::effects_loaded.unlock();
 
   // set up gizmos
   top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);

@@ -74,8 +74,6 @@ public:
   ResizableScrollBar* horizontalScrollBar;
   QScrollBar* verticalScrollBar;
 
-  QMutex effects_loaded;
-
   void add_effect_paste_action(QMenu* menu);
 
   virtual void Retranslate() override;

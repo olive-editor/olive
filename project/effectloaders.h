@@ -23,6 +23,11 @@
 
 #include <QList>
 #include <QThread>
+#include <QMutex>
+
+namespace olive {
+  extern QMutex effects_loaded;
+}
 
 void init_effects();
 
