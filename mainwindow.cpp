@@ -195,7 +195,7 @@ MainWindow::MainWindow(QWidget *parent) :
   first_show(true)
 {
   olive::icon::Initialize();
-  init_custom_cursors();
+  olive::cursor::Initialize();
 
   open_debug_file();
 

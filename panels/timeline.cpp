@@ -2044,7 +2044,7 @@ void Timeline::set_tool() {
     timeline_area->setCursor(Qt::IBeamCursor);
     break;
   case TIMELINE_TOOL_RAZOR:
-    timeline_area->setCursor(olive::Cursor_Razor);
+    timeline_area->setCursor(olive::cursor::Razor);
     break;
   case TIMELINE_TOOL_HAND:
     timeline_area->setCursor(Qt::OpenHandCursor);

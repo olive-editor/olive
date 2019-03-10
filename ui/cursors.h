@@ -23,15 +23,17 @@
 
 #include <QCursor>
 
-void init_custom_cursors();
-
 namespace olive{
-    extern QCursor Cursor_LeftTrim;
-    extern QCursor Cursor_RightTrim;
-    extern QCursor Cursor_LeftRipple;
-    extern QCursor Cursor_RightRipple;
-    extern QCursor Cursor_Slip;
-    extern QCursor Cursor_Razor;
+  namespace cursor {
+    extern QCursor LeftTrim;
+    extern QCursor RightTrim;
+    extern QCursor LeftRipple;
+    extern QCursor RightRipple;
+    extern QCursor Slip;
+    extern QCursor Razor;
+
+    void Initialize();
+  }
 }
 
 #endif // CURSORS_H
