@@ -562,14 +562,6 @@ struct RuntimeConfig {
   bool shaders_are_enabled;
 
   /**
-   * @brief Disable blending modes
-   *
-   * Some users had difficulty utilizing blending modes (provided by shaders). Set this to **TRUE** to bypass
-   * shader-based blending modes and utilize standard (less versatile) OpenGL blending instead.
-   */
-  bool disable_blending;
-
-  /**
    * @brief Load an external translation file
    *
    * Overrides Config::language_file and sets the path to a language file to use.

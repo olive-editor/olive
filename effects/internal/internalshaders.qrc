@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/internalshaders">
-        <file>blending.frag</file>
         <file>common.vert</file>
         <file>cornerpin.frag</file>
         <file>cornerpin.vert</file>

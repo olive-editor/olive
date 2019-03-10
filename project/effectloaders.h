@@ -22,7 +22,20 @@
 #define EFFECTLOADERS_H
 
 #include <QList>
+#include <QThread>
+#include <QMutex>
+
+namespace olive {
+  extern QMutex effects_loaded;
+}
 
 void init_effects();
+
+class EffectInit : public QThread {
+public:
+  EffectInit();
+protected:
+  void run();
+};
 
 #endif // EFFECTLOADERS_H

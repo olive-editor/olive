@@ -1793,8 +1793,8 @@ void Timeline::transition_tool_click() {
 
   QMenu transition_menu(this);
 
-  for (int i=0;i<effects.size();i++) {
-    const EffectMeta& em = effects.at(i);
+  for (int i=0;i<olive::effects.size();i++) {
+    const EffectMeta& em = olive::effects.at(i);
     if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_VIDEO) {
       QAction* a = transition_menu.addAction(em.name);
       a->setObjectName("v");
@@ -1804,8 +1804,8 @@ void Timeline::transition_tool_click() {
 
   transition_menu.addSeparator();
 
-  for (int i=0;i<effects.size();i++) {
-    const EffectMeta& em = effects.at(i);
+  for (int i=0;i<olive::effects.size();i++) {
+    const EffectMeta& em = olive::effects.at(i);
     if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_AUDIO) {
       QAction* a = transition_menu.addAction(em.name);
       a->setObjectName("a");

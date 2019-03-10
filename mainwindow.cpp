@@ -948,6 +948,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
     panel_footage_viewer->set_main_sequence();
 
+    olive::UndoStack.clear();
+
     QString data_dir = get_data_path();
     QString config_path = get_config_path();
     if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
