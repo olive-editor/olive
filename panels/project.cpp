@@ -37,6 +37,7 @@
 #include "io/clipboard.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
+#include "ui/icons.h"
 #include "ui/menuhelper.h"
 #include "ui/mediaiconservice.h"
 #include "project/sourcescommon.h"
@@ -102,31 +103,31 @@ Project::Project(QWidget *parent) :
   toolbar->setSpacing(0);
 
   QPushButton* toolbar_new = new QPushButton();
-  toolbar_new->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
+  toolbar_new->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
   toolbar_new->setToolTip("New");
   connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
   toolbar->addWidget(toolbar_new);
 
   QPushButton* toolbar_open = new QPushButton();
-  toolbar_open->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
+  toolbar_open->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
   toolbar_open->setToolTip("Open Project");
   connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(open_project()));
   toolbar->addWidget(toolbar_open);
 
   QPushButton* toolbar_save = new QPushButton();
-  toolbar_save->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/save.svg")));
+  toolbar_save->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/save.svg")));
   toolbar_save->setToolTip("Save Project");
   connect(toolbar_save, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(save_project()));
   toolbar->addWidget(toolbar_save);
 
   QPushButton* toolbar_undo = new QPushButton();
-  toolbar_undo->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/undo.svg")));
+  toolbar_undo->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/undo.svg")));
   toolbar_undo->setToolTip("Undo");
   connect(toolbar_undo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(undo()));
   toolbar->addWidget(toolbar_undo);
 
   QPushButton* toolbar_redo = new QPushButton();
-  toolbar_redo->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/redo.svg")));
+  toolbar_redo->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/redo.svg")));
   toolbar_redo->setToolTip("Redo");
   connect(toolbar_redo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(redo()));
   toolbar->addWidget(toolbar_redo);
@@ -137,13 +138,13 @@ Project::Project(QWidget *parent) :
   toolbar->addWidget(toolbar_search);
 
   QPushButton* toolbar_tree_view = new QPushButton();
-  toolbar_tree_view->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/treeview.svg")));
+  toolbar_tree_view->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/treeview.svg")));
   toolbar_tree_view->setToolTip("Tree View");
   connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
   toolbar->addWidget(toolbar_tree_view);
 
   QPushButton* toolbar_icon_view = new QPushButton();
-  toolbar_icon_view->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/iconview.svg")));
+  toolbar_icon_view->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/iconview.svg")));
   toolbar_icon_view->setToolTip("Icon View");
   connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
   toolbar->addWidget(toolbar_icon_view);
@@ -174,7 +175,7 @@ Project::Project(QWidget *parent) :
   icon_view_controls->setSpacing(0);
 
   directory_up = new QPushButton();
-  directory_up->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/dirup.svg")));
+  directory_up->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/dirup.svg")));
   directory_up->setEnabled(false);
   icon_view_controls->addWidget(directory_up);
 

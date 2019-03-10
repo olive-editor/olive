@@ -66,9 +66,6 @@ private:
   QHBoxLayout* title_bar_layout;
   void set_button_icon(bool open);
 
-  QIcon tri_right_;
-  QIcon tri_down_;
-
 signals:
   void deselect_others(QWidget*);
   void visibleChanged();

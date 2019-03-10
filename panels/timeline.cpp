@@ -26,6 +26,7 @@
 #include "project/projectelements.h"
 
 #include "ui/timelinewidget.h"
+#include "ui/icons.h"
 #include "ui/viewerwidget.h"
 #include "rendering/audio.h"
 #include "rendering/cacher.h"
@@ -1870,84 +1871,84 @@ void Timeline::setup_ui() {
   tool_buttons_layout->setMargin(0);
 
   toolArrowButton = new QPushButton();
-  toolArrowButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/arrow.svg")));
+  toolArrowButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/arrow.svg")));
   toolArrowButton->setCheckable(true);
   toolArrowButton->setProperty("tool", TIMELINE_TOOL_POINTER);
   connect(toolArrowButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolArrowButton);
 
   toolEditButton = new QPushButton();
-  toolEditButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/beam.svg")));
+  toolEditButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/beam.svg")));
   toolEditButton->setCheckable(true);
   toolEditButton->setProperty("tool", TIMELINE_TOOL_EDIT);
   connect(toolEditButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolEditButton);
 
   toolRippleButton = new QPushButton();
-  toolRippleButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/ripple.svg")));
+  toolRippleButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/ripple.svg")));
   toolRippleButton->setCheckable(true);
   toolRippleButton->setProperty("tool", TIMELINE_TOOL_RIPPLE);
   connect(toolRippleButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolRippleButton);
 
   toolRazorButton = new QPushButton();
-  toolRazorButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/razor.svg")));
+  toolRazorButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/razor.svg")));
   toolRazorButton->setCheckable(true);
   toolRazorButton->setProperty("tool", TIMELINE_TOOL_RAZOR);
   connect(toolRazorButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolRazorButton);
 
   toolSlipButton = new QPushButton();
-  toolSlipButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/slip.svg")));
+  toolSlipButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/slip.svg")));
   toolSlipButton->setCheckable(true);
   toolSlipButton->setProperty("tool", TIMELINE_TOOL_SLIP);
   connect(toolSlipButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolSlipButton);
 
   toolSlideButton = new QPushButton();
-  toolSlideButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/slide.svg")));
+  toolSlideButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/slide.svg")));
   toolSlideButton->setCheckable(true);
   toolSlideButton->setProperty("tool", TIMELINE_TOOL_SLIDE);
   connect(toolSlideButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolSlideButton);
 
   toolHandButton = new QPushButton();
-  toolHandButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/hand.svg")));
+  toolHandButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/hand.svg")));
   toolHandButton->setCheckable(true);
 
   toolHandButton->setProperty("tool", TIMELINE_TOOL_HAND);
   connect(toolHandButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolHandButton);
   toolTransitionButton = new QPushButton();
-  toolTransitionButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/transition-tool.svg")));
+  toolTransitionButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/transition-tool.svg")));
   toolTransitionButton->setCheckable(true);
   connect(toolTransitionButton, SIGNAL(clicked(bool)), this, SLOT(transition_tool_click()));
   tool_buttons_layout->addWidget(toolTransitionButton);
 
   snappingButton = new QPushButton();
-  snappingButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/magnet.svg")));
+  snappingButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/magnet.svg")));
   snappingButton->setCheckable(true);
   snappingButton->setChecked(true);
   connect(snappingButton, SIGNAL(toggled(bool)), this, SLOT(snapping_clicked(bool)));
   tool_buttons_layout->addWidget(snappingButton);
 
   zoomInButton = new QPushButton();
-  zoomInButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/zoomin.svg")));
+  zoomInButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/zoomin.svg")));
   connect(zoomInButton, SIGNAL(clicked(bool)), this, SLOT(zoom_in()));
   tool_buttons_layout->addWidget(zoomInButton);
 
   zoomOutButton = new QPushButton();
-  zoomOutButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/zoomout.svg")));
+  zoomOutButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/zoomout.svg")));
   connect(zoomOutButton, SIGNAL(clicked(bool)), this, SLOT(zoom_out()));
   tool_buttons_layout->addWidget(zoomOutButton);
 
   recordButton = new QPushButton();
-  recordButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/record.svg")));
+  recordButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/record.svg")));
   connect(recordButton, SIGNAL(clicked(bool)), this, SLOT(record_btn_click()));
   tool_buttons_layout->addWidget(recordButton);
 
   addButton = new QPushButton();
-  addButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
+  addButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
   connect(addButton, SIGNAL(clicked()), this, SLOT(add_btn_click()));
   tool_buttons_layout->addWidget(addButton);
 

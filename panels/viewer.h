@@ -142,9 +142,6 @@ private:
   long get_seq_in();
   long get_seq_out();
 
-  QIcon play_icon_;
-  QIcon pause_icon_;
-
   void setup_ui();
 
   ResizableScrollBar* horizontal_bar;

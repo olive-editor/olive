@@ -24,6 +24,7 @@ const int kThrobberLimit = 20;
 const int kThrobberSize = 50;
 
 #include "project/projectmodel.h"
+#include "ui/icons.h"
 
 std::unique_ptr<MediaIconService> olive::media_icon_service;
 
@@ -54,13 +55,13 @@ void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
 
   switch (icon_type) {
   case ICON_TYPE_VIDEO:
-    olive::project_model.set_icon(media, QIcon(":/icons/videosource.svg"));
+    olive::project_model.set_icon(media, olive::icon::MediaVideo);
     break;
   case ICON_TYPE_AUDIO:
-    olive::project_model.set_icon(media, QIcon(":/icons/audiosource.svg"));
+    olive::project_model.set_icon(media, olive::icon::MediaAudio);
     break;
   case ICON_TYPE_IMAGE:
-    olive::project_model.set_icon(media, QIcon(":/icons/imagesource.svg"));
+    olive::project_model.set_icon(media, olive::icon::MediaImage);
     break;
   case ICON_TYPE_LOADING:
     throbber_items_.append(media);
@@ -75,7 +76,7 @@ void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
     }
     break;
   case ICON_TYPE_ERROR:
-    olive::project_model.set_icon(media, QIcon(":/icons/error.svg"));
+    olive::project_model.set_icon(media, olive::icon::MediaError);
     break;
   }
 

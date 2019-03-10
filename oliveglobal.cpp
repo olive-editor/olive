@@ -302,27 +302,6 @@ void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
   olive::UndoStack.clear();
 }
 
-QIcon OliveGlobal::CreateIconFromSVG(const QString &path)
-{
-  QIcon icon;
-
-  QPixmap normal(path);
-  icon.addPixmap(normal, QIcon::Normal, QIcon::On);
-
-  QPixmap disabled(normal.size());
-  disabled.fill(Qt::transparent);
-
-  // draw semi-transparent version of icon for the disabled variant
-  QPainter p(&disabled);
-  p.setOpacity(0.5);
-  p.drawPixmap(0, 0, normal);
-  p.end();
-
-  icon.addPixmap(disabled, QIcon::Disabled, QIcon::On);
-
-  return icon;
-}
-
 void OliveGlobal::undo() {
   // workaround to prevent crash (and also users should never need to do this)
   if (!panel_timeline->importing) {
