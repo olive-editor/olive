@@ -22,9 +22,10 @@
 
 #include <QApplication>
 #include <QImage>
-#include <QOpenGLFunctions>
 #include <QDateTime>
+#include <QFileInfo>
 #include <QDebug>
+
 #ifdef OLIVE_OCIO
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
@@ -33,6 +34,7 @@ namespace OCIO = OCIO_NAMESPACE;
 #include "rendering/renderfunctions.h"
 #include "project/sequence.h"
 #include "project/effectloaders.h"
+#include "io/config.h"
 
 RenderThread::RenderThread() :
   gizmos(nullptr),
@@ -93,8 +95,8 @@ void RenderThread::run() {
           back_buffer_2.Create(ctx, seq->width, seq->height);
         }
 
+        // If there's no blending mode shader, create it now
         if (blend_mode_program == nullptr) {
-          // create shader program to make blending modes work
           delete_shaders();
 
           blend_mode_program = new QOpenGLShaderProgram();
@@ -103,6 +105,14 @@ void RenderThread::run() {
           blend_mode_program->addShaderFromSourceCode(QOpenGLShader::Fragment, olive::generated_blending_shader);
           olive::effects_loaded.unlock();
           blend_mode_program->link();
+        }
+
+        // If there's no OpenColorIO shader, create it now
+        if (olive::CurrentConfig.enable_color_management
+            && (ocio_shader == nullptr || ocio_loaded_config != olive::CurrentConfig.ocio_config_path)) {
+          destroy_ocio();
+
+          set_up_ocio();
         }
 
         // draw frame
@@ -132,8 +142,117 @@ const GLuint &RenderThread::get_texture()
   return front_buffer_switcher ? front_buffer_2.texture() : front_buffer_1.texture();
 }
 
+const char * g_fragShaderText = ""
+"\n"
+"uniform sampler2D tex1;\n"
+"uniform sampler3D tex2;\n"
+"\n"
+"void main()\n"
+"{\n"
+"    vec4 col = texture2D(tex1, gl_TexCoord[0].st);\n"
+"    gl_FragColor = OCIODisplay(col, tex2);\n"
+"}\n";
+
 void RenderThread::set_up_ocio()
 {
+  functions.initializeOpenGLFunctions();
+
+  //
+  // SETUP LUT TEXTURE
+  //
+
+  // Create LUT texture
+  ctx->functions()->glGenTextures(1, &ocio_lut_texture);
+
+  // Bind texture to GL_TEXTURE_3D and GL_TEXTURE2
+  ctx->functions()->glActiveTexture(GL_TEXTURE2);
+  ctx->functions()->glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
+
+  // Set texture parameters
+  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  // Allocate storage for texture
+  functions.glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
+                         OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
+                         0, GL_RGB,GL_FLOAT, ocio_lut_data);
+
+  //
+  // SET UP OCIO DISPLAY
+  //
+
+  OCIO::ConstConfigRcPtr config;
+
+  // Set current config to the file specified in Config
+  if (QFileInfo::exists(olive::CurrentConfig.ocio_config_path)) {
+
+    config = OCIO::Config::CreateFromFile(olive::CurrentConfig.ocio_config_path.toUtf8());
+    OCIO::SetCurrentConfig(config);
+    ocio_loaded_config = olive::CurrentConfig.ocio_config_path;
+
+  } else {
+
+    config = OCIO::GetCurrentConfig();
+
+  }
+
+  const char* display = config->getDefaultDisplay();
+
+  OCIO::DisplayTransformRcPtr transform = OCIO::DisplayTransform::Create();
+  transform->setInputColorSpaceName(OCIO::ROLE_SCENE_LINEAR);
+  transform->setDisplay(display);
+  transform->setView(config->getDefaultView(display));
+
+  //
+  // GET OCIO PROCESSOR
+  //
+
+  OCIO::ConstProcessorRcPtr processor = OCIO::GetCurrentConfig()->getProcessor(transform);
+
+  //
+  // SET UP GLSL SHADER
+  //
+
+  OCIO::GpuShaderDesc shaderDesc;
+  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
+  shaderDesc.setFunctionName("OCIODisplay");
+  shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
+
+  //
+  // COMPUTE 3D LUT
+  //
+
+  processor->getGpuLut3D(ocio_lut_data, shaderDesc);
+
+  glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
+  functions.glTexSubImage3D(GL_TEXTURE_3D, 0,
+                            0, 0, 0,
+                            OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
+                            GL_RGB,GL_FLOAT, ocio_lut_data);
+
+  QString shader_text = processor->getGpuShaderText(shaderDesc);
+  shader_text.append("\n");
+  shader_text.append(g_fragShaderText);
+
+  ocio_shader = new QOpenGLShaderProgram();
+  ocio_shader->addShaderFromSourceCode(QOpenGLShader::Fragment, shader_text);
+  ocio_shader->link();
+
+  // Reset active texture to 0 for the rest of the pipeline
+  ctx->functions()->glActiveTexture(GL_TEXTURE0);
+}
+
+void RenderThread::destroy_ocio()
+{
+  // Destroy LUT texture
+  ctx->functions()->glDeleteTextures(1, &ocio_lut_texture);
+  ocio_lut_texture = 0;
+
+  delete ocio_shader;
+  ocio_shader = nullptr;
 }
 
 void RenderThread::paint() {
@@ -147,6 +266,7 @@ void RenderThread::paint() {
   params.wait_for_mutexes = true;
   params.playback_speed = 1;
   params.blend_mode_program = blend_mode_program;
+  params.ocio_shader = ocio_shader;
   params.backend_buffer1 = back_buffer_1.buffer();
   params.backend_buffer2 = back_buffer_2.buffer();
   params.backend_attachment1 = back_buffer_1.texture();
@@ -279,6 +399,8 @@ void RenderThread::delete_ctx() {
   if (ctx != nullptr) {
     delete_shaders();
     delete_buffers();
+
+    destroy_ocio();
   }
 
   delete ctx;

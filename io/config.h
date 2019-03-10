@@ -316,16 +316,6 @@ struct Config {
   int audio_rate;
 
   /**
-   * @brief Enable fast seeking
-   *
-   * Olive supports a seek mode that shows frames faster with the risk of briefly showing a "best-effort" frame that
-   * may not be the accurate frame at that point of the Timeline. This does not affect exporting.
-   *
-   * Set to **TRUE** if this mode should be enabled.
-   */
-  bool fast_seeking;
-
-  /**
    * @brief Enable hover focus
    *
    * Default behavior is panels are focused (and therefore respond to certain keyboard shortcuts)when they are clicked
@@ -516,6 +506,20 @@ struct Config {
    * **TRUE** if scrolling vertically on the Timeline should scroll it horizontally
    */
   bool invert_timeline_scroll_axes;
+
+  /**
+   * @brief Enable color managemennt
+   *
+   * **TRUE** if color management through OpenColorIO should be enabled
+   */
+  bool enable_color_management;
+
+  /**
+   * @brief Path to OpenColorIO configuration file
+   *
+   * Used if Config::enable_color_management is **TRUE**.
+   */
+  QString ocio_config_path;
 
   /**
    * @brief Load config from file

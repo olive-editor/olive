@@ -29,6 +29,6 @@ QVector<VoidPtr> clipboard;
 QVector<TransitionPtr> clipboard_transitions;
 
 void clear_clipboard() {
-    clipboard.clear();
-    clipboard_transitions.clear();
+  clipboard.clear();
+  clipboard_transitions.clear();
 }

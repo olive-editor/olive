@@ -63,8 +63,11 @@ private slots:
   bool refine_shortcut_list(const QString &, QTreeWidgetItem* parent = nullptr);
   void load_shortcut_file();
   void save_shortcut_file();
-  void browse_css_file();
   void delete_all_previews();
+
+  // Browse for file functionns
+  void browse_css_file();
+  void browse_ocio_config();
 
 private:
   void setup_ui();
@@ -77,8 +80,6 @@ private:
   QLineEdit* custom_css_fn;
   QLineEdit* imgSeqFormatEdit;
   QComboBox* recordingComboBox;
-  QRadioButton* accurateSeekButton;
-  QRadioButton* fastSeekButton;
   QTreeWidget* keyboard_tree;
   QDoubleSpinBox* upcoming_queue_spinbox;
   QComboBox* upcoming_queue_type;
@@ -93,6 +94,8 @@ private:
   QSpinBox* thumbnail_res_spinbox;
   QSpinBox* waveform_res_spinbox;
   QCheckBox* add_default_effects_to_clips;
+  QCheckBox* enable_color_management;
+  QLineEdit* ocio_config_file;
 
   QVector<QAction*> key_shortcut_actions;
   QVector<QTreeWidgetItem*> key_shortcut_items;

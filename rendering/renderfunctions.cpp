@@ -369,19 +369,27 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
                 // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
                 params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
 
-                textureID = draw_clip(c->fbo[0], textureID, true);
+                textureID = draw_clip(c->fbo[fbo_switcher], textureID, true);
 
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-                fbo_switcher = true;
+                fbo_switcher = !fbo_switcher;
               }
 
 #ifdef OLIVE_OCIO
               // convert to linear colorspace
-              bool linear_convert = true;
-              if (linear_convert)
+              if (olive::CurrentConfig.enable_color_management)
               {
+                params.ocio_shader->bind();
 
+                params.ocio_shader->setUniformValue("tex1", 0);
+                params.ocio_shader->setUniformValue("tex2", 2);
+
+                textureID = draw_clip(c->fbo[fbo_switcher], textureID, true);
+
+                params.ocio_shader->release();
+
+                fbo_switcher = !fbo_switcher;
               }
 #endif
 
@@ -717,4 +725,8 @@ void close_active_clips(SequencePtr s) {
       }
     }
   }
+}
+
+void UpdateOCIOGLState(const ComposeSequenceParams& params)
+{
 }

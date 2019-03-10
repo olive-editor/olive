@@ -28,16 +28,17 @@
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLFunctions_2_0>
 
 #include "project/sequence.h"
 #include "project/effect.h"
 #include "rendering/framebufferobject.h"
 
 // copied from source code to OCIODisplay
-const int LUT3D_EDGE_SIZE = 32;
+const int OCIO_LUT3D_EDGE_SIZE = 32;
 
 // copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
-const int NUM_3D_ENTRIES = 98304;
+const int OCIO_NUM_3D_ENTRIES = 98304;
 
 class RenderThread : public QThread {
   Q_OBJECT
@@ -96,9 +97,11 @@ private:
   FramebufferObject back_buffer_1;
   FramebufferObject back_buffer_2;
 
-  float ocio_lut_data[NUM_3D_ENTRIES];
+  // OpenColorIO variables
+  float ocio_lut_data[OCIO_NUM_3D_ENTRIES];
   GLuint ocio_lut_texture;
   QOpenGLShaderProgram* ocio_shader;
+  QString ocio_loaded_config;
 
   SequencePtr seq;
   int divider;
@@ -110,6 +113,8 @@ private:
   QString save_fn;
   GLvoid *pixel_buffer;
   int pixel_buffer_linesize;
+
+  QOpenGLFunctions_2_0 functions;
 };
 
 #endif // RENDERTHREAD_H

@@ -54,7 +54,6 @@ Config::Config()
     drop_on_media_to_replace(true),
     autoscroll(olive::AUTOSCROLL_PAGE_SCROLL),
     audio_rate(48000),
-    fast_seeking(false),
     hover_focus(false),
     project_view_type(olive::PROJECT_VIEW_TREE),
     set_name_with_marker(true),
@@ -71,7 +70,8 @@ Config::Config()
     waveform_resolution(64),
     thumbnail_resolution(120),
     add_default_effects_to_clips(true),
-    invert_timeline_scroll_axes(true)
+    invert_timeline_scroll_axes(true),
+    enable_color_management(false)
 {}
 
 void Config::load(QString path) {
@@ -148,9 +148,6 @@ void Config::load(QString path) {
         } else if (stream.name() == "AudioRate") {
           stream.readNext();
           audio_rate = stream.text().toInt();
-        } else if (stream.name() == "FastSeeking") {
-          stream.readNext();
-          fast_seeking = (stream.text() == "1");
         } else if (stream.name() == "HoverFocus") {
           stream.readNext();
           hover_focus = (stream.text() == "1");
@@ -211,6 +208,12 @@ void Config::load(QString path) {
         } else if (stream.name() == "AddDefaultEffectsToClips") {
           stream.readNext();
           add_default_effects_to_clips = (stream.text() == "1");
+        } else if (stream.name() == "EnableColorManagement") {
+          stream.readNext();
+          enable_color_management = (stream.text() == "1");
+        } else if (stream.name() == "OCIOConfigPath") {
+          stream.readNext();
+          ocio_config_path = stream.text().toString();
         }
       }
     }
@@ -257,7 +260,6 @@ void Config::save(QString path) {
   stream.writeTextElement("DropFileOnMediaToReplace", QString::number(drop_on_media_to_replace));
   stream.writeTextElement("Autoscroll", QString::number(autoscroll));
   stream.writeTextElement("AudioRate", QString::number(audio_rate));
-  stream.writeTextElement("FastSeeking", QString::number(fast_seeking));
   stream.writeTextElement("HoverFocus", QString::number(hover_focus));
   stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
   stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
@@ -278,6 +280,8 @@ void Config::save(QString path) {
   stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
   stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
   stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
+  stream.writeTextElement("EnableColorManagement", QString::number(enable_color_management));
+  stream.writeTextElement("OCIOConfigPath", ocio_config_path);
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc

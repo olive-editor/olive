@@ -390,4 +390,6 @@ int64_t playhead_to_timestamp(Clip  *c, long playhead);
   */
 void close_active_clips(SequencePtr s);
 
+void UpdateOCIOGLState(const ComposeSequenceParams &params);
+
 #endif // RENDERFUNCTIONS_H

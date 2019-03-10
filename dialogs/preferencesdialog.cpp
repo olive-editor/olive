@@ -82,11 +82,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 {
   setWindowTitle(tr("Preferences"));
   setup_ui();
-
-  accurateSeekButton->setChecked(!olive::CurrentConfig.fast_seeking);
-  fastSeekButton->setChecked(olive::CurrentConfig.fast_seeking);
-  recordingComboBox->setCurrentIndex(olive::CurrentConfig.recording_mode - 1);
-  imgSeqFormatEdit->setText(olive::CurrentConfig.img_seq_formats);
 }
 
 PreferencesDialog::~PreferencesDialog() {}
@@ -184,6 +179,26 @@ void PreferencesDialog::save() {
     return;
   }
 
+  // Validate whether the OCIO config path exists
+  if (enable_color_management->isChecked() && !QFileInfo::exists(ocio_config_file->text())) {
+
+    QString msg_title = tr("Invalid OpenColorIO Configuration File");
+    QString msg_body;
+
+    if (ocio_config_file->text().isEmpty()) {
+      msg_body = tr("You must specify an OpenColorIO configuration file if color management is enabled.");
+    } else {
+      msg_body = tr("OpenColorIO configuration file '%1' does not exist.").arg(ocio_config_file->text());
+    }
+
+    QMessageBox::critical(
+          this,
+          msg_title,
+          msg_body
+          );
+    return;
+  }
+
   // Check if any settings will require a restart of Olive
   if (olive::CurrentConfig.effect_textbox_lines != effect_textbox_lines_field->value()
       || olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
@@ -233,7 +248,6 @@ void PreferencesDialog::save() {
 
   olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
   olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
-  olive::CurrentConfig.fast_seeking = fastSeekButton->isChecked();
   olive::CurrentConfig.upcoming_queue_size = upcoming_queue_spinbox->value();
   olive::CurrentConfig.upcoming_queue_type = upcoming_queue_type->currentIndex();
   olive::CurrentConfig.previous_queue_size = previous_queue_spinbox->value();
@@ -247,6 +261,9 @@ void PreferencesDialog::save() {
   olive::CurrentConfig.effect_textbox_lines = effect_textbox_lines_field->value();
   olive::CurrentConfig.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
+
+  olive::CurrentConfig.enable_color_management = enable_color_management->isChecked();
+  olive::CurrentConfig.ocio_config_path = ocio_config_file->text();
 
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
@@ -429,6 +446,14 @@ void PreferencesDialog::browse_css_file() {
   }
 }
 
+void PreferencesDialog::browse_ocio_config()
+{
+  QString fn = QFileDialog::getOpenFileName(this, tr("Browse for OpenColorIO configuration"));
+  if (!fn.isEmpty()) {
+    ocio_config_file->setText(fn);
+  }
+}
+
 void PreferencesDialog::delete_all_previews() {
   if (QMessageBox::question(this,
                             tr("Delete All Previews"),
@@ -437,7 +462,8 @@ void PreferencesDialog::delete_all_previews() {
     delete_previews(1);
     QMessageBox::information(this,
                              tr("Previews Deleted"),
-                             tr("All previews deleted succesfully. You may have to re-open your current project for changes to take effect."),
+                             tr("All previews deleted succesfully. You may have to re-open your current project for "
+                                "changes to take effect."),
                              QMessageBox::Ok);
   }
 }
@@ -577,18 +603,6 @@ void PreferencesDialog::setup_ui() {
   QWidget* playback_tab = new QWidget(this);
   QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
 
-  // Playback -> Seeking
-  QGroupBox* seeking_group = new QGroupBox(playback_tab);
-  seeking_group->setTitle(tr("Seeking"));
-  QVBoxLayout* seeking_group_layout = new QVBoxLayout(seeking_group);
-  accurateSeekButton = new QRadioButton(seeking_group);
-  accurateSeekButton->setText(tr("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)"));
-  seeking_group_layout->addWidget(accurateSeekButton);
-  fastSeekButton = new QRadioButton(seeking_group);
-  fastSeekButton->setText(tr("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)"));
-  seeking_group_layout->addWidget(fastSeekButton);
-  playback_tab_layout->addWidget(seeking_group);
-
   // Playback -> Memory Usage
   QGroupBox* memory_usage_group = new QGroupBox(playback_tab);
   memory_usage_group->setTitle(tr("Memory Usage"));
@@ -672,6 +686,34 @@ void PreferencesDialog::setup_ui() {
   audio_tab_layout->addWidget(audio_sample_rate, 2, 1);
 
   tabWidget->addTab(audio_tab, tr("Audio"));
+
+  //
+  // COLOR MANAGEMENT
+  //
+
+  QWidget* color_management_tab = new QWidget();
+
+  QGridLayout* color_management_layout = new QGridLayout(color_management_tab);
+
+  row = 0;
+
+  enable_color_management = new QCheckBox(tr("Enable Color Management"));
+  enable_color_management->setChecked(olive::CurrentConfig.enable_color_management);
+  color_management_layout->addWidget(enable_color_management, row, 0, 1, 3);
+
+  row++;
+
+  color_management_layout->addWidget(new QLabel(tr("OpenColorIO Config File:")), row, 0);
+
+  ocio_config_file = new QLineEdit();
+  ocio_config_file->setText(olive::CurrentConfig.ocio_config_path);
+  color_management_layout->addWidget(ocio_config_file, row, 1);
+
+  QPushButton* ocio_config_browse_btn = new QPushButton(tr("Browse"));
+  connect(ocio_config_browse_btn, SIGNAL(clicked(bool)), this, SLOT(browse_ocio_config()));
+  color_management_layout->addWidget(ocio_config_browse_btn, row, 2);
+
+  tabWidget->addTab(color_management_tab, tr("Color Management"));
 
   // Shortcuts
   QWidget* shortcut_tab = new QWidget(this);
