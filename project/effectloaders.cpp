@@ -381,10 +381,15 @@ void GenerateBlendingShader()
                                           "void main() {\n"
                                           "  vec4 bg_color = texture2D(background, vTexCoord);\n" // Get background texture color
                                           "  vec4 fg_color = texture2D(foreground, vTexCoord);\n" // Get foreground texture color
-                                          "  float true_opacity = opacity * fg_color.a;\n"
-                                          "  vec3 blended_rgb = blend(bg_color.rgb, fg_color.rgb, true_opacity);\n" // Use switcher function above to blend RGBs
-                                          "  vec4 composite = vec4(blended_rgb, bg_color.a + true_opacity);\n"
-                                          "  gl_FragColor = composite;\n"
+                                          "  if (fg_color.a > 0.0) {\n"
+                                          "    float true_opacity = opacity * fg_color.a;\n"
+                                          "    vec3 unmultipled_fg = max(vec3(0.0), min(vec3(1.0), fg_color.rgb / fg_color.a));\n"
+                                          "    vec3 blended_rgb = blend(bg_color.rgb, unmultipled_fg, true_opacity);\n" // Use switcher function above to blend RGBs
+                                          "    vec4 composite = vec4(blended_rgb, bg_color.a + true_opacity);\n"
+                                          "    gl_FragColor = composite;\n"
+                                          "  } else {\n"
+                                          "    gl_FragColor = bg_color;\n"
+                                          "  }\n"
                                           "}\n");
 }
 
