@@ -186,6 +186,7 @@ void load_shader_effects() {
       QList<QString> blend_mode_entries = effects_dir.entryList(QStringList("*.blend"), QDir::Files);
       for (int i=0;i<blend_mode_entries.size();i++) {
         BlendMode b;
+        b.loaded = false;
         b.url = effects_dir.filePath(blend_mode_entries.at(i));
         b.name = QFileInfo(b.url).baseName();
         olive::blend_modes.append(b);
@@ -267,21 +268,9 @@ void load_frei0r_effects() {
 }
 #endif
 
-void GenerateBlendingShader()
-{
-  olive::generated_blending_shader = "#version 110\n" // Start with GLSL version identifier
-                                     "\n"
-                                     "uniform sampler2D background;\n" // background (base) texture color
-                                     "uniform sampler2D foreground;\n" // foreground (blend) texture color
-                                     "varying vec2 vTexCoord;\n"       // texture coordinate
-                                     "uniform float opacity;\n"        // foreground opacity setting
-                                     "uniform int blendmode;\n"        // blending mode switcher
-                                     "\n"
-                                     "\n";
-
-  // Import code from each blend mode file
-  for (int i=0;i<olive::blend_modes.size();i++) {
-    QFile blending_file(olive::blend_modes.at(i).url);
+void IncludeBlendingShader(BlendMode& b) {
+  if (!b.loaded) {
+    QFile blending_file(b.url);
 
     if (blending_file.open(QFile::ReadOnly)) {
 
@@ -294,12 +283,12 @@ void GenerateBlendingShader()
           if (line.startsWith("#olive name ")) {
 
             // The blending mode can specify its own name
-            olive::blend_modes[i].name = line.mid(12);
+            b.name = line.mid(12);
 
           } else if (line.startsWith("#pragma glslify: export(")) {
 
             // Get function name
-            olive::blend_modes[i].function_name = line.mid(24, line.length()-25);
+            b.function_name = line.mid(24, line.length()-25);
 
           } else if (line.contains("require")) {
 
@@ -307,7 +296,29 @@ void GenerateBlendingShader()
 
             int index_of_last_bracked = line.lastIndexOf('(') + 1;
 
-            qDebug() << "this blend mode wanted:" << line.mid(index_of_last_bracked, line.length() - index_of_last_bracked - 1);
+            QString include_fn = line.mid(index_of_last_bracked, line.length() - index_of_last_bracked - 1);
+            include_fn.append(".blend");
+            QString include_path = QFileInfo(b.url).dir().filePath(include_fn);
+
+            // see if this file is already in the blend modes list
+            bool found = false;
+            for (int i=0;i<olive::blend_modes.size();i++) {
+              if (QFileInfo(olive::blend_modes.at(i).url) == QFileInfo(include_path)) {
+
+                // It is, so we'll include it now rather than later
+                IncludeBlendingShader(olive::blend_modes[i]);
+
+                found = true;
+                break;
+              }
+            }
+
+            if (!found) {
+              // include the file, but don't add it to the blend mode list
+              BlendMode b;
+              b.url = include_path;
+              IncludeBlendingShader(b);
+            }
 
           }
 
@@ -323,8 +334,28 @@ void GenerateBlendingShader()
       blending_file.close();
 
     } else {
-      qWarning() << "Failed to open blending shader" << olive::blend_modes.at(i).url;
+      qWarning() << "Failed to open blending shader" << b.url;
     }
+
+    b.loaded = true;
+  }
+}
+
+void GenerateBlendingShader()
+{
+  olive::generated_blending_shader = "#version 110\n" // Start with GLSL version identifier
+                                     "\n"
+                                     "uniform sampler2D background;\n" // background (base) texture color
+                                     "uniform sampler2D foreground;\n" // foreground (blend) texture color
+                                     "varying vec2 vTexCoord;\n"       // texture coordinate
+                                     "uniform float opacity;\n"        // foreground opacity setting
+                                     "uniform int blendmode;\n"        // blending mode switcher
+                                     "\n"
+                                     "\n";
+
+  // Import code from each blend mode file
+  for (int i=0;i<olive::blend_modes.size();i++) {
+    IncludeBlendingShader(olive::blend_modes[i]);
   }
 
   // Create monolithic switcher function

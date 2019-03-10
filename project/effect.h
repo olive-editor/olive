@@ -63,6 +63,8 @@ struct BlendMode {
   QString name;
   QString url;
   QString function_name;
+
+  bool loaded;
 };
 
 namespace olive {
