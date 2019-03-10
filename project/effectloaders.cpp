@@ -360,7 +360,7 @@ void GenerateBlendingShader()
 
   // Create monolithic switcher function
 
-  olive::generated_blending_shader.append("vec3 blend(vec3 base, vec3 blend) {\n");
+  olive::generated_blending_shader.append("vec3 blend(vec3 base, vec3 blend, float opacity) {\n");
 
   for (int i=0;i<olive::blend_modes.size();i++) {
     if (i == 0) {
@@ -369,9 +369,11 @@ void GenerateBlendingShader()
       olive::generated_blending_shader.append(QString(" else if (blendmode == %1) {\n").arg(i));
     }
 
-    olive::generated_blending_shader.append(QString("    return %1(base, blend);\n").arg(olive::blend_modes.at(i).function_name));
+    olive::generated_blending_shader.append(QString("    return %1(base, blend, opacity);\n").arg(olive::blend_modes.at(i).function_name));
     olive::generated_blending_shader.append("  }");
   }
+
+  // Write the main() function for the shader
 
   olive::generated_blending_shader.append("\n  return blend;\n" // default return value
                                           "}\n"
@@ -379,13 +381,11 @@ void GenerateBlendingShader()
                                           "void main() {\n"
                                           "  vec4 bg_color = texture2D(background, vTexCoord);\n" // Get background texture color
                                           "  vec4 fg_color = texture2D(foreground, vTexCoord);\n" // Get foreground texture color
-                                          "  vec3 composite = blend(bg_color.rgb, fg_color.rgb);\n" // Use switcher function above to blend RGBs
-                                          "  vec4 full_composite = vec4(composite + bg_color.rgb*(1.0-fg_color.a), bg_color.a + fg_color.a);\n"
-                                          "  full_composite = mix(bg_color, full_composite, opacity);\n"
-                                          "  gl_FragColor = full_composite;\n"
+                                          "  float true_opacity = opacity * fg_color.a;\n"
+                                          "  vec3 blended_rgb = blend(bg_color.rgb, fg_color.rgb, true_opacity);\n" // Use switcher function above to blend RGBs
+                                          "  vec4 composite = vec4(blended_rgb, bg_color.a + true_opacity);\n"
+                                          "  gl_FragColor = composite;\n"
                                           "}\n");
-
-  qDebug() << olive::generated_blending_shader;
 }
 
 EffectInit::EffectInit() {
