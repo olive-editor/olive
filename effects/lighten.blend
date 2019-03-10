@@ -11,3 +11,4 @@ vec3 blendLighten(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendLighten)
+#olive name Lighten

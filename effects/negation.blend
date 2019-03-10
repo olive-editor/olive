@@ -7,3 +7,4 @@ vec3 blendNegation(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendNegation)
+#olive name Negation

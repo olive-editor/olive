@@ -7,3 +7,4 @@ vec3 blendDifference(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendDifference)
+#olive name Difference

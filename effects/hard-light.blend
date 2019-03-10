@@ -9,3 +9,4 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendHardLight)
+#olive name Hard Light

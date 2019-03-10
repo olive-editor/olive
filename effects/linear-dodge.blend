@@ -13,3 +13,4 @@ vec3 blendLinearDodge(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendLinearDodge)
+#olive name Linear Dodge

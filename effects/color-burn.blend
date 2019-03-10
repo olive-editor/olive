@@ -11,3 +11,4 @@ vec3 blendColorBurn(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendColorBurn)
+#olive name Color Burn

@@ -7,3 +7,4 @@ vec3 blendPhoenix(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendPhoenix)
+#olive name Phoenix

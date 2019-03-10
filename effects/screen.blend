@@ -11,3 +11,4 @@ vec3 blendScreen(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendScreen)
+#olive name Screen

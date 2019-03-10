@@ -14,3 +14,4 @@ vec3 blendPinLight(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendPinLight)
+#olive name Pin Light

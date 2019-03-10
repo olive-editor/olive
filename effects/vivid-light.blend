@@ -14,3 +14,4 @@ vec3 blendVividLight(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendVividLight)
+#olive name Vivid Light

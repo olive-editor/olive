@@ -7,3 +7,4 @@ vec3 blendNormal(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendNormal)
+#olive name Normal

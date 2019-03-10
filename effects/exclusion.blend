@@ -7,3 +7,4 @@ vec3 blendExclusion(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendExclusion)
+#olive name Exclusion

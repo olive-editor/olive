@@ -11,3 +11,4 @@ vec3 blendOverlay(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendOverlay)
+#olive name Overlay

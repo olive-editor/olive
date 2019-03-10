@@ -11,3 +11,4 @@ vec3 blendDarken(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendDarken)
+#olive name Darken

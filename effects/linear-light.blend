@@ -14,3 +14,4 @@ vec3 blendLinearLight(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendLinearLight)
+#olive name Linear Light

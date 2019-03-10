@@ -13,3 +13,4 @@ vec3 blendLinearBurn(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendLinearBurn)
+#olive name Linear Burn

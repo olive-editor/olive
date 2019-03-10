@@ -11,3 +11,4 @@ vec3 blendColorDodge(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendColorDodge)
+#olive name Color Dodge

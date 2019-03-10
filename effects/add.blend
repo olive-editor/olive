@@ -11,3 +11,4 @@ vec3 blendAdd(vec3 base, vec3 blend, float opacity) {
 }
 
 #pragma glslify: export(blendAdd)
+#olive name Add
