@@ -451,6 +451,7 @@ void PreferencesDialog::browse_ocio_config()
   QString fn = QFileDialog::getOpenFileName(this, tr("Browse for OpenColorIO configuration"));
   if (!fn.isEmpty()) {
     ocio_config_file->setText(fn);
+    enable_color_management->setChecked(true);
   }
 }
 
@@ -697,6 +698,14 @@ void PreferencesDialog::setup_ui() {
 
   row = 0;
 
+#ifdef NO_OCIO
+  QLabel* no_ocio_available_lbl = new QLabel(tr("<html><b>Color management is unavailable because Olive was "
+                                               "compiled without OpenColorIO support.</b></html>"));
+  no_ocio_available_lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  color_management_layout->addWidget(no_ocio_available_lbl, row, 0, 1, 3);
+  row++;
+#endif
+
   enable_color_management = new QCheckBox(tr("Enable Color Management"));
   enable_color_management->setChecked(olive::CurrentConfig.enable_color_management);
   color_management_layout->addWidget(enable_color_management, row, 0, 1, 3);
@@ -712,6 +721,12 @@ void PreferencesDialog::setup_ui() {
   QPushButton* ocio_config_browse_btn = new QPushButton(tr("Browse"));
   connect(ocio_config_browse_btn, SIGNAL(clicked(bool)), this, SLOT(browse_ocio_config()));
   color_management_layout->addWidget(ocio_config_browse_btn, row, 2);
+
+#ifdef NO_OCIO
+  enable_color_management->setEnabled(false);
+  ocio_config_file->setEnabled(false);
+  ocio_config_browse_btn->setEnabled(false);
+#endif
 
   tabWidget->addTab(color_management_tab, tr("Color Management"));
 

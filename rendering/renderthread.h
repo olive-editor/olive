@@ -72,8 +72,17 @@ private:
   void delete_buffers();
   void delete_shaders();
 
+#ifndef NO_OCIO
+  // OpenColorIO functions
   void set_up_ocio();
   void destroy_ocio();
+
+  // OpenColorIO variables
+  float ocio_lut_data[OCIO_NUM_3D_ENTRIES];
+  GLuint ocio_lut_texture;
+  QOpenGLShaderProgram* ocio_shader;
+  QString ocio_loaded_config;
+#endif
 
   FramebufferObject front_buffer_1;
   QMutex front_mutex1;
@@ -96,12 +105,6 @@ private:
 
   FramebufferObject back_buffer_1;
   FramebufferObject back_buffer_2;
-
-  // OpenColorIO variables
-  float ocio_lut_data[OCIO_NUM_3D_ENTRIES];
-  GLuint ocio_lut_texture;
-  QOpenGLShaderProgram* ocio_shader;
-  QString ocio_loaded_config;
 
   SequencePtr seq;
   int divider;

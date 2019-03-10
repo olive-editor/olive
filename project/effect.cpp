@@ -86,10 +86,8 @@ EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
         case EFFECT_INTERNAL_SHAKE: return EffectPtr(new ShakeEffect(c, em));
         case EFFECT_INTERNAL_CORNERPIN: return EffectPtr(new CornerPinEffect(c, em));
         case EFFECT_INTERNAL_FILLLEFTRIGHT: return EffectPtr(new FillLeftRightEffect(c, em));
-#ifndef NOVST
         case EFFECT_INTERNAL_VST: return EffectPtr(new VSTHost(c, em));
-#endif
-#ifndef NOFREI0R
+#ifndef NO_FREI0R
         case EFFECT_INTERNAL_FREI0R: return EffectPtr(new Frei0rEffect(c, em));
 #endif
     }

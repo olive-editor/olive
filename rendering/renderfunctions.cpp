@@ -29,7 +29,7 @@ extern "C" {
 #include <QDesktopWidget>
 #include <QDebug>
 
-#ifdef OLIVE_OCIO
+#ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
 #endif
@@ -376,7 +376,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
                 fbo_switcher = !fbo_switcher;
               }
 
-#ifdef OLIVE_OCIO
+#ifndef NO_OCIO
               // convert to linear colorspace
               if (olive::CurrentConfig.enable_color_management)
               {

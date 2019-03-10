@@ -193,6 +193,7 @@ struct ComposeSequenceParams {
     */
   GLuint backend_attachment2;
 
+#ifndef NO_OCIO
   /**
     * @brief OpenGL shader containing OpenColorIO shader information
     */
@@ -202,6 +203,7 @@ struct ComposeSequenceParams {
     * @brief OpenGL texture containing LUT obtained form OpenColorIO
     */
   GLuint ocio_lut_texture;
+#endif
 };
 
 /**

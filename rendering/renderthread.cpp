@@ -26,7 +26,7 @@
 #include <QFileInfo>
 #include <QDebug>
 
-#ifdef OLIVE_OCIO
+#ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
 #endif
@@ -107,6 +107,7 @@ void RenderThread::run() {
           blend_mode_program->link();
         }
 
+#ifndef NO_OCIO
         // If there's no OpenColorIO shader, create it now
         if (olive::CurrentConfig.enable_color_management
             && (ocio_shader == nullptr || ocio_loaded_config != olive::CurrentConfig.ocio_config_path)) {
@@ -114,6 +115,7 @@ void RenderThread::run() {
 
           set_up_ocio();
         }
+#endif
 
         // draw frame
         paint();
@@ -153,6 +155,7 @@ const char * g_fragShaderText = ""
 "    gl_FragColor = OCIODisplay(col, tex2);\n"
 "}\n";
 
+#ifndef NO_OCIO
 void RenderThread::set_up_ocio()
 {
   functions.initializeOpenGLFunctions();
@@ -254,6 +257,7 @@ void RenderThread::destroy_ocio()
   delete ocio_shader;
   ocio_shader = nullptr;
 }
+#endif
 
 void RenderThread::paint() {
   // set up compose_sequence() parameters
@@ -266,7 +270,9 @@ void RenderThread::paint() {
   params.wait_for_mutexes = true;
   params.playback_speed = 1;
   params.blend_mode_program = blend_mode_program;
+#ifndef NO_OCIO
   params.ocio_shader = ocio_shader;
+#endif
   params.backend_buffer1 = back_buffer_1.buffer();
   params.backend_buffer2 = back_buffer_2.buffer();
   params.backend_attachment1 = back_buffer_1.texture();
@@ -400,7 +406,9 @@ void RenderThread::delete_ctx() {
     delete_shaders();
     delete_buffers();
 
+#ifndef NO_OCIO
     destroy_ocio();
+#endif
   }
 
   delete ctx;

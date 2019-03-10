@@ -294,7 +294,7 @@ TRANSLATIONS += \
 win32 {
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-    contains(DEFINES, OLIVE_OCIO) {
+    !contains(DEFINES, NO_OCIO) {
         LIBS += -lOpenColorIO
     }
 }
@@ -303,11 +303,17 @@ mac {
     LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -framework CoreFoundation
     ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
+    !contains(DEFINES, NO_OCIO) {
+        LIBS += -lOpenColorIO
+    }
 }
 
 unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
+    !contains(DEFINES, NO_OCIO) {
+        LIBS += -lOpenColorIO
+    }
 }
 unix:!mac:!haiku {
     LIBS += -ldl

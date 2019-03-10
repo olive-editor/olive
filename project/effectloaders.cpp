@@ -35,7 +35,7 @@
 
 QMutex olive::effects_loaded;
 
-#ifndef NOFREI0R
+#ifndef NO_FREI0R
 #include <frei0r.h>
 typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 #endif
@@ -59,11 +59,9 @@ void load_internal_effects() {
   em.internal = EFFECT_INTERNAL_PAN;
   olive::effects.append(em);
 
-#ifndef NOVST
   em.name = "VST Plugin 2.x";
   em.internal = EFFECT_INTERNAL_VST;
   olive::effects.append(em);
-#endif
 
   em.name = "Tone";
   em.internal = EFFECT_INTERNAL_TONE;
@@ -201,7 +199,7 @@ void init_effects() {
   init_thread->start();
 }
 
-#ifndef NOFREI0R
+#ifndef NO_FREI0R
 void load_frei0r_effects_worker(const QString& dir, EffectMeta& em, QVector<QString>& loaded_names) {
   QDir search_dir(dir);
   if (search_dir.exists()) {
@@ -401,7 +399,7 @@ void EffectInit::run() {
   qInfo() << "Initializing effects...";
   load_internal_effects();
   load_shader_effects();
-#ifndef NOFREI0R
+#ifndef NO_FREI0R
   load_frei0r_effects();
 #endif
   GenerateBlendingShader();
