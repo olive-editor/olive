@@ -36,6 +36,7 @@
 #include "ui/viewerwidget.h"
 #include "ui/sourceiconview.h"
 #include "ui/timelineheader.h"
+#include "ui/icons.h"
 #include "ui/cursors.h"
 #include "ui/focusfilter.h"
 
@@ -193,6 +194,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   first_show(true)
 {
+  olive::icon::Initialize();
   init_custom_cursors();
 
   open_debug_file();

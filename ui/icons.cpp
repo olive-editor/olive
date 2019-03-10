@@ -46,6 +46,8 @@ QIcon olive::icon::CreateIconFromSVG(const QString &path)
 
 void olive::icon::Initialize()
 {
+  qInfo() << "Initializing icons";
+
   LeftArrow = QIcon(":/icons/tri-left.svg");
   RightArrow = QIcon(":/icons/tri-right.svg");
   UpArrow = QIcon(":/icons/tri-up.svg");
@@ -66,4 +68,6 @@ void olive::icon::Initialize()
   ViewerPause = QPixmap(":/icons/pause.svg");
   ViewerNextFrame = CreateIconFromSVG(QStringLiteral(":/icons/ff.svg"));
   ViewerGoToEnd = CreateIconFromSVG(QStringLiteral(":/icons/next.svg"));
+
+  qInfo() << "Finished initializing icons";
 }
