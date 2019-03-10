@@ -372,6 +372,12 @@ void GenerateBlendingShader()
   }
 
   // Write the main() function for the shader
+  //
+  // NOTE/FIXME: Unfortunately the current blending shaders (from https://github.com/jamieowen/glsl-blend) all seem to
+  // be calculated for unassociated alpha, while Olive's internal pipeline largely functions in associated alpha.
+  // Therefore for the blending shaders to work as expected, the alpha has to be unassociated at this stage.
+  // Naturally, this sucks, but I'm not entirely sure what the solution is apart from rewriting the blending shaders
+  // or maybe finding a new library.
 
   olive::generated_blending_shader.append("\n  return blend;\n" // default return value
                                           "}\n"
