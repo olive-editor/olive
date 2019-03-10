@@ -367,11 +367,11 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
               if (!c->media()->to_footage()->alpha_is_premultiplied) {
                 // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
-                params.premultiply_program->bind();
+                params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
 
                 textureID = draw_clip(c->fbo[0], textureID, true);
 
-                params.premultiply_program->release();
+                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
                 fbo_switcher = true;
               }

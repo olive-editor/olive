@@ -39,7 +39,6 @@ RenderThread::RenderThread() :
   share_ctx(nullptr),
   ctx(nullptr),
   blend_mode_program(nullptr),
-  premultiply_program(nullptr),
   seq(nullptr),
   tex_width(-1),
   tex_height(-1),
@@ -104,11 +103,6 @@ void RenderThread::run() {
           blend_mode_program->addShaderFromSourceCode(QOpenGLShader::Fragment, olive::generated_blending_shader);
           olive::effects_loaded.unlock();
           blend_mode_program->link();
-
-          premultiply_program = new QOpenGLShaderProgram();
-          premultiply_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
-          premultiply_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/premultiply.frag");
-          premultiply_program->link();
         }
 
         // draw frame
@@ -153,7 +147,6 @@ void RenderThread::paint() {
   params.wait_for_mutexes = true;
   params.playback_speed = 1;
   params.blend_mode_program = blend_mode_program;
-  params.premultiply_program = premultiply_program;
   params.backend_buffer1 = back_buffer_1.buffer();
   params.backend_buffer2 = back_buffer_2.buffer();
   params.backend_attachment1 = back_buffer_1.texture();
@@ -280,9 +273,6 @@ void RenderThread::delete_buffers() {
 void RenderThread::delete_shaders() {
   delete blend_mode_program;
   blend_mode_program = nullptr;
-
-  delete premultiply_program;
-  premultiply_program = nullptr;
 }
 
 void RenderThread::delete_ctx() {

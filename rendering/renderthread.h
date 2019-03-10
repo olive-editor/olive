@@ -92,7 +92,6 @@ private:
   QOpenGLContext* share_ctx;
   QOpenGLContext* ctx;
   QOpenGLShaderProgram* blend_mode_program;
-  QOpenGLShaderProgram* premultiply_program;
 
   FramebufferObject back_buffer_1;
   FramebufferObject back_buffer_2;

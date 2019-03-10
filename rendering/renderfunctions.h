@@ -144,18 +144,6 @@ struct ComposeSequenceParams {
   QOpenGLShaderProgram* blend_mode_program;
 
   /**
-    * @brief Premultiply alpha shader
-    *
-    * Used only for video rendering. Never accessed with audio rendering.
-    *
-    * compose_sequence()'s internal composition
-    * expects premultipled alpha, but it will pre-emptively multiply any footage that is not set as already
-    * premultiplied (see Footage::alpha_is_premultiplied) using this shader. Must be compiled and linked beforehand.
-    * See RenderThread::premultiply_program for how this is properly set up.
-    */
-  QOpenGLShaderProgram* premultiply_program;
-
-  /**
     * @brief The OpenGL framebuffer object that the final texture to be shown is rendered to.
     *
     * Used only for video rendering. Never accessed with audio rendering.
