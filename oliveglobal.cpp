@@ -41,6 +41,8 @@
 
 #include "project/sequence.h"
 
+#include "ui/updatenotification.h"
+
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QAction>
@@ -263,6 +265,9 @@ void OliveGlobal::finished_initialize() {
     d->open();
 #endif
   }
+
+  // Check for updates
+  olive::update_notifier.check();
 }
 
 void OliveGlobal::save_autorecovery_file() {

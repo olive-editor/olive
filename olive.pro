@@ -160,7 +160,9 @@ SOURCES += \
     rendering/clipqueue.cpp \
     rendering/audio.cpp \
     dialogs/clippropertiesdialog.cpp \
-    rendering/framebufferobject.cpp
+    rendering/framebufferobject.cpp \
+    ui/updatenotification.cpp \
+    ui/icons.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -272,7 +274,9 @@ HEADERS += \
     rendering/cacher.h \
     rendering/audio.h \
     dialogs/clippropertiesdialog.h \
-    rendering/framebufferobject.h
+    rendering/framebufferobject.h \
+    ui/updatenotification.h \
+    ui/icons.h
 
 FORMS +=
 
