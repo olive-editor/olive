@@ -20,8 +20,14 @@
 
 #include "cacher.h"
 
-#define __STDC_FORMAT_MACROS
+#ifndef __STDC_FORMAT_MACROS
+// For some reason the Windows AppVeyor build fails to find PRIx64 without this definition and including
+// <inttypes.h> Maybe something to do with the GCC version being used? Either way, that's why it's here.
+#define __STDC_FORMAT_MACROS 1
+#endif
+
 #include <inttypes.h>
+
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
