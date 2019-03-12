@@ -1207,7 +1207,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="871"/>
         <source>Maximize Panel</source>
-        <translation>Розвернути панель</translation>
+        <translation>Розгорнути панель</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="872"/>
