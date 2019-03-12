@@ -992,11 +992,12 @@ void ReloadEffectsCommand::doRedo() {
   panel_effect_controls->Reload();
 }
 
-RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) {
-  s = is;
-  point = ipoint;
-  length = ilength;
-  ignore = iignore;
+RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) :
+  s(is),
+  point(ipoint),
+  length(ilength),
+  ignore(iignore)
+{
 }
 
 void RippleAction::doUndo() {
@@ -1019,10 +1020,11 @@ void RippleAction::doRedo() {
   ca->redo();
 }
 
-SetDouble::SetDouble(double* pointer, double old_value, double new_value) {
-  p = pointer;
-  oldval = old_value;
-  newval = new_value;
+SetDouble::SetDouble(double* pointer, double old_value, double new_value) :
+  p(pointer),
+  oldval(old_value),
+  newval(new_value)
+{
 }
 
 void SetDouble::doUndo() {
@@ -1034,10 +1036,11 @@ void SetDouble::doRedo() {
   *p = newval;
 }
 
-SetQVariant::SetQVariant(QVariant *itarget, const QVariant &iold, const QVariant &inew) {
-  target = itarget;
-  old_val = iold;
-  new_val = inew;
+SetQVariant::SetQVariant(QVariant *itarget, const QVariant &iold, const QVariant &inew) :
+  target(itarget),
+  old_val(iold),
+  new_val(inew)
+{
 }
 
 void SetQVariant::doUndo() {

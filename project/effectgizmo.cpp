@@ -37,6 +37,8 @@ EffectGizmo::EffectGizmo(Effect *parent, int type) :
   type(type),
   cursor(-1)
 {
+  Q_ASSERT(parent != nullptr);
+
   int point_count = (type == GIZMO_TYPE_POLY) ? 4 : 1;
   world_pos.resize(point_count);
   screen_pos.resize(point_count);
