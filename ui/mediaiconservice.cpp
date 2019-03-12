@@ -40,11 +40,11 @@ MediaIconService::MediaIconService() {
 void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
   // if this icon is already part of the throbber animation loop, remove it
   if (throbber_items_.contains(media)) {
-    //    throbber_lock_.lock();
+    throbber_lock_.lock();
 
     throbber_items_.removeAll(media);
 
-    //    throbber_lock_.unlock();
+    throbber_lock_.unlock();
 
     // if we aren't animating anything, no need to run the timer for now
     if (throbber_items_.empty()) {
@@ -90,13 +90,13 @@ void MediaIconService::AnimationUpdate() {
 
   QIcon throbber_ico = QIcon(throbber_pixmap_.copy(kThrobberSize*throbber_animation_frame_, 0, kThrobberSize, kThrobberSize));
 
-  //  throbber_lock_.lock();
+  throbber_lock_.lock();
 
   for (int i=0;i<throbber_items_.size();i++) {
     olive::project_model.set_icon(throbber_items_.at(i), throbber_ico);
   }
 
-  //  throbber_lock_.unlock();
+  throbber_lock_.unlock();
 
   throbber_animation_frame_++;
 }
