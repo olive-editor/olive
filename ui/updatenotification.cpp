@@ -14,7 +14,7 @@ UpdateNotification::UpdateNotification()
 
 void UpdateNotification::check()
 {
-#if defined(GITHASH) && (defined(_WIN32) || defined(__APPLE__))
+#if defined(GITHASH) && defined(UPDATEMSG)
   QNetworkAccessManager* manager = new QNetworkAccessManager();
 
   connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(finished_slot(QNetworkReply *)));
