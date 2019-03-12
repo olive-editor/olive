@@ -191,40 +191,24 @@ private:
   long new_out;
 };
 
-class NewSequenceCommand : public OliveAction {
-public:
-  NewSequenceCommand(Media* s, Media* iparent);
-  virtual ~NewSequenceCommand() override;
-  virtual void doUndo() override;
-  virtual void doRedo() override;
-private:
-  Media* seq;
-  Media* parent;
-  bool done;
-};
-
 class AddMediaCommand : public OliveAction {
 public:
-  AddMediaCommand(Media* iitem, Media* iparent);
-  virtual ~AddMediaCommand() override;
+  AddMediaCommand(MediaPtr iitem, Media* iparent);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Media* item;
+  MediaPtr item;
   Media* parent;
-  bool done;
 };
 
 class DeleteMediaCommand : public OliveAction {
 public:
-  DeleteMediaCommand(Media *i);
-  virtual ~DeleteMediaCommand() override;
+  DeleteMediaCommand(MediaPtr i);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Media* item;
+  MediaPtr item;
   Media* parent;
-  bool done;
 };
 
 class AddClipCommand : public OliveAction {
@@ -265,11 +249,11 @@ private:
 
 class ReplaceMediaCommand : public OliveAction {
 public:
-  ReplaceMediaCommand(Media*, QString);
+  ReplaceMediaCommand(MediaPtr, QString);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Media *item;
+  MediaPtr item;
   QString old_filename;
   QString new_filename;
   void replace(QString& filename);
@@ -304,7 +288,7 @@ private:
 class MediaMove : public OliveAction {
 public:
   MediaMove();
-  QVector<Media*> items;
+  QVector<MediaPtr> items;
   Media* to;
   virtual void doUndo() override;
   virtual void doRedo() override;

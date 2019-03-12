@@ -444,11 +444,11 @@ void Timeline::nest() {
       relink_clips_using_ids(selected_clips, s->clips);
 
       // add sequence to project
-      Media* m = panel_project->create_sequence_internal(ca, s, false, nullptr);
+      MediaPtr m = panel_project->create_sequence_internal(ca, s, false, nullptr);
 
       // add nested sequence to active sequence
       QVector<Media*> media_list;
-      media_list.append(m);
+      media_list.append(m.get());
       create_ghosts_from_media(olive::ActiveSequence.get(), earliest_point, media_list);
       add_clips_from_ghosts(ca, olive::ActiveSequence.get());
 

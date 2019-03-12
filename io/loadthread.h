@@ -70,7 +70,7 @@ private:
 
   bool is_element(QXmlStreamReader& stream);
 
-  QVector<Media*> loaded_folders;
+  QVector<MediaPtr> loaded_folders;
   QVector<ClipPtr> loaded_clips;
   QVector<Media*> loaded_sequences;
   Media* find_loaded_folder_by_id(int id);

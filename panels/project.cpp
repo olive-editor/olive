@@ -333,14 +333,14 @@ void Project::duplicate_selected() {
 void Project::replace_selected_file() {
   QModelIndexList selected_items = get_current_selected();
   if (selected_items.size() == 1) {
-    Media* item = item_to_media(selected_items.at(0));
+    MediaPtr item = item_to_media_ptr(selected_items.at(0));
     if (item->get_type() == MEDIA_TYPE_FOOTAGE) {
       replace_media(item, nullptr);
     }
   }
 }
 
-void Project::replace_media(Media* item, QString filename) {
+void Project::replace_media(MediaPtr item, QString filename) {
   if (filename.isEmpty()) {
     filename = QFileDialog::getOpenFileName(
           this,
@@ -412,10 +412,10 @@ void Project::open_properties() {
 }
 
 void Project::new_folder() {
-  Media* m = create_folder_internal(nullptr);
+  MediaPtr m = create_folder_internal(nullptr);
   olive::UndoStack.push(new AddMediaCommand(m, get_selected_folder()));
 
-  QModelIndex index = olive::project_model.create_index(m->row(), 0, m);
+  QModelIndex index = olive::project_model.create_index(m->row(), 0, m.get());
   switch (olive::CurrentConfig.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
     tree_view->edit(sorter->mapFromSource(index));
@@ -432,16 +432,16 @@ void Project::new_sequence() {
   nsd.exec();
 }
 
-Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
+MediaPtr Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
   if (parent == nullptr) {
     parent = olive::project_model.get_root();
   }
 
-  Media* item = new Media(parent);
+  MediaPtr item = std::make_shared<Media>(parent);
   item->set_sequence(s);
 
   if (ca != nullptr) {
-    ca->append(new NewSequenceCommand(item, parent));
+    ca->append(new AddMediaCommand(item, parent));
 
     if (open) {
       ca->append(new ChangeSequenceAction(s));
@@ -460,26 +460,25 @@ QString Project::get_file_name_from_path(const QString& path) {
   return path.mid(path.lastIndexOf('/')+1);
 }
 
-/*Media* Project::new_item() {
-    Media* item = new Media(0);
-  //item->setFlags(item->flags() | Qt::ItemIsEditable);
-  return item;
-}*/
-
 bool Project::is_focused() {
   return tree_view->hasFocus() || icon_view->hasFocus();
 }
 
-Media* Project::create_folder_internal(QString name) {
-  Media* item = new Media(nullptr);
+MediaPtr Project::create_folder_internal(QString name) {
+  MediaPtr item = std::make_shared<Media>();
   item->set_folder();
   item->set_name(name);
   return item;
 }
 
-Media *Project::item_to_media(const QModelIndex &index) {
+Media* Project::item_to_media(const QModelIndex &index) {
   return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
-  //    return static_cast<Media*>(index.internalPointer());
+}
+
+MediaPtr Project::item_to_media_ptr(const QModelIndex &index) {
+  Media* raw_ptr = item_to_media(index);
+
+  return raw_ptr->parentItem()->get_shared_ptr(raw_ptr);
 }
 
 void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list, int search_type) {
@@ -514,10 +513,12 @@ bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
 void Project::delete_selected_media() {
   ComboAction* ca = new ComboAction();
   QModelIndexList selected_items = get_current_selected();
+
   QList<Media*> items;
   for (int i=0;i<selected_items.size();i++) {
     items.append(item_to_media(selected_items.at(i)));
   }
+
   bool remove = true;
   bool redraw = false;
 
@@ -530,8 +531,10 @@ void Project::delete_selected_media() {
   }
   get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
   if (sequence_items.size() > 0) {
+
     QList<Media*> media_items;
     get_all_media_from_table(items, media_items, MEDIA_TYPE_FOOTAGE);
+
     for (int i=0;i<media_items.size();i++) {
       Media* item = media_items.at(i);
       Footage* media = item->to_footage();
@@ -618,7 +621,8 @@ void Project::delete_selected_media() {
     }
 
     for (int i=0;i<items.size();i++) {
-      ca->append(new DeleteMediaCommand(items.at(i)));
+
+      ca->append(new DeleteMediaCommand(items.at(i)->parentItem()->get_shared_ptr(items.at(i))));
 
       if (items.at(i)->get_type() == MEDIA_TYPE_SEQUENCE) {
         redraw = true;
@@ -655,7 +659,7 @@ void Project::delete_selected_media() {
   }
 }
 
-void Project::process_file_list(QStringList& files, bool recursive, Media* replace, Media* parent) {
+void Project::process_file_list(QStringList& files, bool recursive, MediaPtr replace, Media* parent) {
   bool imported = false;
 
   // retrieve the array of image formats from the user's configuration
@@ -678,7 +682,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
     if (QFileInfo(files.at(i)).isDir()) {
 
       QString folder_name = get_file_name_from_path(files.at(i));
-      Media* folder = create_folder_internal(folder_name);
+      MediaPtr folder = create_folder_internal(folder_name);
 
       QDir directory(files.at(i));
       directory.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
@@ -690,7 +694,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
         subdir_filenames.append(subdir_files.at(j).filePath());
       }
 
-      process_file_list(subdir_filenames, true, nullptr, folder);
+      process_file_list(subdir_filenames, true, nullptr, folder.get());
 
       if (create_undo_action) {
         ca->append(new AddMediaCommand(folder, parent));
@@ -852,13 +856,13 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
         // If we're not skipping this file, let's import it
         if (!skip) {
-          Media* item;
+          MediaPtr item;
           FootagePtr m;
 
           if (replace != nullptr) {
             item = replace;
           } else {
-            item = new Media(parent);
+            item = std::make_shared<Media>(parent);
           }
 
           m = FootagePtr(new Footage());
@@ -870,7 +874,7 @@ void Project::process_file_list(QStringList& files, bool recursive, Media* repla
 
           item->set_footage(m);
 
-          last_imported_media.append(item);
+          last_imported_media.append(item.get());
 
           if (replace == nullptr) {
             if (create_undo_action) {

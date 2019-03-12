@@ -322,76 +322,32 @@ void DeleteTransitionCommand::doRedo() {
   }
 }
 
-NewSequenceCommand::NewSequenceCommand(Media *s, Media* iparent) {
-  seq = s;
-  parent = iparent;
-  done = false;
-
-  if (parent == nullptr) parent = olive::project_model.get_root();
-}
-
-NewSequenceCommand::~NewSequenceCommand() {
-  if (!done) delete seq;
-}
-
-void NewSequenceCommand::doUndo() {
-  olive::project_model.removeChild(parent, seq);
-
-  done = false;
-}
-
-void NewSequenceCommand::doRedo() {
-  olive::project_model.appendChild(parent, seq);
-
-  done = true;
-}
-
-AddMediaCommand::AddMediaCommand(Media* iitem, Media *iparent) {
-  item = iitem;
-  parent = iparent;
-  done = false;
-}
-
-AddMediaCommand::~AddMediaCommand() {
-  if (!done) {
-    delete item;
-  }
+AddMediaCommand::AddMediaCommand(MediaPtr iitem, Media *iparent) :
+  item(iitem),
+  parent(iparent)
+{
 }
 
 void AddMediaCommand::doUndo() {
-  olive::project_model.removeChild(parent, item);
-  done = false;
-
+  olive::project_model.removeChild(parent, item.get());
 }
 
 void AddMediaCommand::doRedo() {
   olive::project_model.appendChild(parent, item);
-
-  done = true;
 }
 
-DeleteMediaCommand::DeleteMediaCommand(Media* i) {
-  item = i;
-  parent = i->parentItem();
-}
-
-DeleteMediaCommand::~DeleteMediaCommand() {
-  if (done) {
-    delete item;
-  }
+DeleteMediaCommand::DeleteMediaCommand(MediaPtr i) :
+  item(i),
+  parent(i->parentItem())
+{
 }
 
 void DeleteMediaCommand::doUndo() {
   olive::project_model.appendChild(parent, item);
-
-
-  done = false;
 }
 
 void DeleteMediaCommand::doRedo() {
-  olive::project_model.removeChild(parent, item);
-
-  done = true;
+  olive::project_model.removeChild(parent, item.get());
 }
 
 AddClipCommand::AddClipCommand(Sequence *s, QVector<ClipPtr>& add) {
@@ -501,7 +457,7 @@ void CheckboxCommand::doRedo() {
   }
 }
 
-ReplaceMediaCommand::ReplaceMediaCommand(Media* i, QString s) {
+ReplaceMediaCommand::ReplaceMediaCommand(MediaPtr i, QString s) {
   item = i;
   new_filename = s;
   old_filename = item->to_footage()->url;
@@ -514,7 +470,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
     Sequence* s = all_sequences.at(i)->to_sequence().get();
     for (int j=0;j<s->clips.size();j++) {
       ClipPtr c = s->clips.at(j);
-      if (c != nullptr && c->media() == item && c->IsOpen()) {
+      if (c != nullptr && c->media() == item.get() && c->IsOpen()) {
         c->Close(true);
         c->replaced = true;
       }
@@ -525,7 +481,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
   QStringList files;
   files.append(filename);
   panel_project->process_file_list(files, false, item, nullptr);
-  PreviewGenerator::AnalyzeMedia(item);
+  PreviewGenerator::AnalyzeMedia(item.get());
 }
 
 void ReplaceMediaCommand::doUndo() {
@@ -615,7 +571,6 @@ void MediaMove::doUndo() {
   for (int i=0;i<items.size();i++) {
     olive::project_model.moveChild(items.at(i), froms.at(i));
   }
-
 }
 
 void MediaMove::doRedo() {

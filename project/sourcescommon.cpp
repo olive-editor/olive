@@ -261,9 +261,12 @@ void SourcesCommon::mouseDoubleClickEvent(const QModelIndexList& selected_items)
   }
 }
 
-void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIndex& drop_item, const QModelIndexList& items) {
+void SourcesCommon::dropEvent(QWidget* parent,
+                              QDropEvent *event,
+                              const QModelIndex& drop_item,
+                              const QModelIndexList& items) {
   const QMimeData* mimeData = event->mimeData();
-  Media* m = project_parent->item_to_media(drop_item);
+  MediaPtr m = project_parent->item_to_media_ptr(drop_item);
   if (mimeData->hasUrls()) {
     // drag files in from outside
     QList<QUrl> urls = mimeData->urls();
@@ -305,11 +308,11 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
     // dragging files within project
     // if we dragged to the root OR dragged to a folder
     if (!drop_item.isValid() || m->get_type() == MEDIA_TYPE_FOLDER) {
-      QVector<Media*> move_items;
+      QVector<MediaPtr> move_items;
       for (int i=0;i<items.size();i++) {
         const QModelIndex& item = items.at(i);
         const QModelIndex& parent = item.parent();
-        Media* s = project_parent->item_to_media(item);
+        MediaPtr s = project_parent->item_to_media_ptr(item);
         if (parent != drop_item && item != drop_item) {
           bool ignore = false;
           if (parent.isValid()) {
@@ -332,7 +335,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
       }
       if (move_items.size() > 0) {
         MediaMove* mm = new MediaMove();
-        mm->to = m;
+        mm->to = m.get();
         mm->items = move_items;
         olive::UndoStack.push(mm);
       }

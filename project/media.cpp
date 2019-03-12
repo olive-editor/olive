@@ -67,12 +67,6 @@ Media::Media(Media* iparent) {
   type = -1;
 }
 
-Media::~Media() {
-  for (int i=0;i<children.size();i++) {
-    delete children.at(i);
-  }
-}
-
 Footage* Media::to_footage() {
   return static_cast<Footage*>(object.get());
 }
@@ -262,7 +256,7 @@ int Media::get_sampling_rate(int stream) {
   return 0;
 }
 
-void Media::appendChild(Media *child) {
+void Media::appendChild(MediaPtr child) {
   child->set_parent(this);
   children.append(child);
 }
@@ -279,7 +273,7 @@ bool Media::setData(int col, const QVariant &value) {
 }
 
 Media *Media::child(int row) {
-  return children.value(row);
+  return children.value(row).get();
 }
 
 int Media::childCount() const {
@@ -348,7 +342,11 @@ QVariant Media::data(int column, int role) {
 
 int Media::row() const {
   if (parent) {
-    return parent->children.indexOf(const_cast<Media*>(this));
+    for (int i=0;i<parent->children.size();i++) {
+      if (parent->children.at(i).get() == this) {
+        return i;
+      }
+    }
   }
   return 0;
 }
@@ -359,6 +357,16 @@ Media *Media::parentItem() {
 
 void Media::removeChild(int i) {
   children.removeAt(i);
+}
+
+MediaPtr Media::get_shared_ptr(Media *m)
+{
+  for (int i=0;i<children.size();i++) {
+    if (children.at(i).get() == m) {
+      return children.at(i);
+    }
+  }
+  return MediaPtr();
 }
 
 QVector<Marker> &Media::get_markers() {
