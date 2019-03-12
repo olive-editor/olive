@@ -42,6 +42,9 @@
 
 #include "ui/collapsiblewidget.h"
 #include "ui/checkboxex.h"
+#include "effectfields.h"
+#include "effectrow.h"
+#include "effectgizmo.h"
 
 class Clip;
 
@@ -94,36 +97,6 @@ enum EffectInternal {
   EFFECT_INTERNAL_COUNT
 };
 
-enum EffectBlendMode {
-  BLEND_MODE_ADD,
-  BLEND_MODE_AVERAGE,
-  BLEND_MODE_COLORBURN,
-  BLEND_MODE_COLORDODGE,
-  BLEND_MODE_DARKEN,
-  BLEND_MODE_DIFFERENCE,
-  BLEND_MODE_EXCLUSION,
-  BLEND_MODE_GLOW,
-  BLEND_MODE_HARDLIGHT,
-  BLEND_MODE_HARDMIX,
-  BLEND_MODE_LIGHTEN,
-  BLEND_MODE_LINEARBURN,
-  BLEND_MODE_LINEARDODGE,
-  BLEND_MODE_LINEARLIGHT,
-  BLEND_MODE_MULTIPLY,
-  BLEND_MODE_NEGATION,
-  BLEND_MODE_NORMAL,
-  BLEND_MODE_OVERLAY,
-  BLEND_MODE_PHOENIX,
-  BLEND_MODE_PINLIGHT,
-  BLEND_MODE_REFLECT,
-  BLEND_MODE_SCREEN,
-  BLEND_MODE_SOFTLIGHT,
-  BLEND_MODE_SUBSTRACT,
-  BLEND_MODE_SUBTRACT,
-  BLEND_MODE_VIVIDLIGHT,
-  BLEND_MODE_COUNT
-};
-
 struct GLTextureCoords {
   int grid_size;
 
@@ -160,10 +133,6 @@ struct GLTextureCoords {
 const EffectMeta* get_meta_from_name(const QString& input);
 
 qint16 mix_audio_sample(qint16 a, qint16 b);
-
-#include "effectfield.h"
-#include "effectrow.h"
-#include "effectgizmo.h"
 
 class Effect : public QObject {
   Q_OBJECT
@@ -207,10 +176,14 @@ public:
   virtual void startEffect();
   virtual void endEffect();
 
-  bool enable_shader;
-  bool enable_coords;
-  bool enable_superimpose;
-  bool enable_image;
+  enum VideoEffectFlags {
+    ShaderFlag        = 0x1,
+    CoordsFlag        = 0x2,
+    SuperimposeFlag   = 0x4,
+    ImageFlag         = 0x8
+  };
+  int Flags();
+  void SetFlags(int flags);
 
   int getIterations();
   void setIterations(int i);
@@ -258,8 +231,9 @@ protected:
   QImage img;
   QOpenGLTexture* texture;
 
-  // enable effect to update constantly
-  bool enable_always_update;
+  bool AlwaysUpdate();
+  void SetAlwaysUpdate(bool b);
+
 private:
   // superimpose effect
   QString script;
@@ -271,6 +245,11 @@ private:
   QWidget* ui;
   bool bound;
   int iterations;
+
+  int flags_;
+
+  // enable effect to update constantly
+  bool enable_always_update_;
 
   // superimpose functions
   virtual void redraw(double timecode);

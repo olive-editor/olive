@@ -48,7 +48,7 @@ SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent
   grid->addWidget(new QLabel(tr("Speed:"), this), 0, 0);
   percent = new LabelSlider(this);
   percent->decimal_places = 2;
-  percent->set_display_type(LABELSLIDER_PERCENT);
+  percent->set_display_type(LabelSlider::LABELSLIDER_PERCENT);
   percent->set_default_value(1);
   grid->addWidget(percent, 0, 1);
 
@@ -59,7 +59,7 @@ SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent
 
   grid->addWidget(new QLabel(tr("Duration:"), this), 2, 0);
   duration = new LabelSlider(this);
-  duration->set_display_type(LABELSLIDER_FRAMENUMBER);
+  duration->set_display_type(LabelSlider::LABELSLIDER_FRAMENUMBER);
   duration->set_frame_rate(olive::ActiveSequence->frame_rate);
   grid->addWidget(duration, 2, 1);
 
@@ -301,7 +301,10 @@ void SpeedDialog::frame_rate_update() {
     Clip* c = clips_.at(i);
 
     if (c->track() >= 0) {
-      long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ? c->length() : ((c->length() * c->speed().value) / pc_val);
+
+      long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ?
+            c->length() : qRound((c->length() * c->speed().value) / pc_val);
+
       if (len_val > -1 && new_clip_len != len_val) {
         len_val = -1;
         break;

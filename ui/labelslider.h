@@ -24,13 +24,6 @@
 #include <QLabel>
 #include <QUndoCommand>
 
-enum LabelSliderDisplayType {
-  LABELSLIDER_NORMAL,
-  LABELSLIDER_FRAMENUMBER,
-  LABELSLIDER_PERCENT,
-  LABELSLIDER_DECIBEL
-};
-
 /**
  * @brief The LabelSlider class
  *
@@ -53,6 +46,13 @@ public:
      */
   void set_frame_rate(double d);
 
+  enum DisplayType {
+    LABELSLIDER_NORMAL,
+    LABELSLIDER_FRAMENUMBER,
+    LABELSLIDER_PERCENT,
+    LABELSLIDER_DECIBEL
+  };
+
   /**
      * @brief Sets the way to display the value
      *
@@ -65,9 +65,9 @@ public:
      *
      * @param type
      *
-     * The display type to set to. Should be a member of `enum LabelSliderDisplayType`.
+     * The display type to set to.
      */
-  void set_display_type(int type);
+  void set_display_type(const DisplayType& type);
 
   /**
      * @brief Set the value
@@ -205,7 +205,7 @@ private:
 
   bool set;
 
-  int display_type;
+  DisplayType display_type;
 
   double frame_rate;
 

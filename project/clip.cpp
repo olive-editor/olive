@@ -574,8 +574,8 @@ bool Clip::Retrieve()
       int frame_size = frame->linesize[0]*frame->height;
 
       for (int i=0;i<effects.size();i++) {
-        EffectPtr e = effects.at(i);
-        if (e->enable_image && e->is_enabled()) {
+        Effect* e = effects.at(i).get();
+        if ((e->Flags() & Effect::ImageFlag) && e->is_enabled()) {
           if (data_buffer_1 == frame->data[0]) {
             data_buffer_1 = new uint8_t[frame_size];
             data_buffer_2 = new uint8_t[frame_size];

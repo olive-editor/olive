@@ -23,7 +23,7 @@
 
 #include "project/projectelements.h"
 #include "project/selection.h"
-#include "project/effectfield.h"
+#include "project/effectfields/effectfield.h"
 
 #include "ui/labelslider.h"
 #include "ui/sourcetable.h"
@@ -352,7 +352,7 @@ private:
 
 class EffectFieldUndo : public OliveAction {
 public:
-  EffectFieldUndo(EffectField* field);
+  EffectFieldUndo(EffectField* field, const QVariant &old_data, const QVariant new_data);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:

@@ -34,7 +34,7 @@ enum TransitionInternal {
   TRANSITION_INTERNAL_LINEARFADE,
   TRANSITION_INTERNAL_EXPONENTIALFADE,
   TRANSITION_INTERNAL_LOGARITHMICFADE,
-  TRANSITION_INTERNAL_CUBE,
+  //TRANSITION_INTERNAL_CUBE,
   TRANSITION_INTERNAL_COUNT
 };
 
@@ -50,9 +50,9 @@ public:
 
   virtual void save(QXmlStreamWriter& stream) override;
 
-  void set_length(long l);
-  long get_true_length();
-  long get_length();
+  void set_length(int l);
+  int get_true_length();
+  int get_length();
 
   Clip* get_opened_clip();
   Clip* get_closed_clip();
@@ -62,8 +62,7 @@ public:
 private slots:
   void set_length_from_slider();
 private:
-  long length; // used only for transitions
-  EffectField* length_field;
+  DoubleField* length_field;
 };
 
 #endif // TRANSITION_H

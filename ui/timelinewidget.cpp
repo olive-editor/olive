@@ -1040,7 +1040,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             {
               c->set_name(tr("Bars"));
               EffectPtr e = Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
-              e->row(0)->field(0)->set_combo_index(1);
+
+              // Auto-select bars
+              SolidEffect* solid_effect = static_cast<SolidEffect*>(e.get());
+              solid_effect->SetType(SolidEffect::SOLID_TYPE_BARS);
+
               c->effects.append(e);
             }
               break;

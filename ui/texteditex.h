@@ -23,21 +23,31 @@
 
 #include <QTextEdit>
 
+/*
 class TextEditEx : public QTextEdit {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	TextEditEx(QWidget* parent = 0);
-	void setPlainTextEx(const QString &text);
-	const QString& getPreviousValue();
-	const QString& getPlainTextEx();
+  TextEditEx(QWidget* parent = 0);
+  void setPlainTextEx(const QString &text);
+  const QString& getPreviousValue();
+  const QString& getPlainTextEx();
 signals:
-	void updateSelf();
+  void updateSelf();
 private slots:
-	void updateInternals();
-	void updateText();
+  void updateInternals();
+  void updateText();
 private:
-	QString previousText;
-	QString text;
+  QString previousText;
+  QString text;
+};
+*/
+
+class TextEditEx : public QTextEdit {
+public:
+  TextEditEx(QWidget* parent);
+private slots:
+  void text_edit_menu();
+  void open_text_edit();
 };
 
 #endif // TEXTEDITEX_H

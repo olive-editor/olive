@@ -42,21 +42,21 @@
 #include <QCoreApplication>
 
 Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
-  Effect(c, em), secondary_clip(s),
-  length(30)
+  Effect(c, em),
+  secondary_clip(s)
 {
-  length_field = add_row(tr("Length"), false)->add_field(EFFECT_FIELD_DOUBLE, "length");
+  EffectRow* length_row = add_row(tr("Length"), false, false);
+  length_field = new DoubleField(length_row, "length");
+  length_field->SetDefault(30);
+  length_field->SetMinimum(0);
+  length_field->SetDisplayType(LabelSlider::LABELSLIDER_FRAMENUMBER);
+  length_field->SetFrameRate(parent_clip->sequence == nullptr ?
+                               parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
   connect(length_field, SIGNAL(changed()), this, SLOT(set_length_from_slider()));
-  length_field->set_double_default_value(30);
-  length_field->set_double_minimum_value(0);
-
-  LabelSlider* length_ui_ele = static_cast<LabelSlider*>(length_field->ui_element);
-  length_ui_ele->set_display_type(LABELSLIDER_FRAMENUMBER);
-  length_ui_ele->set_frame_rate(parent_clip->sequence == nullptr ? parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
 }
 
 TransitionPtr Transition::copy(Clip *c, Clip *s) {
-  return Transition::Create(c, s, meta, length);
+  return Transition::Create(c, s, meta, get_true_length());
 }
 
 void Transition::save(QXmlStreamWriter &stream) {
@@ -64,20 +64,19 @@ void Transition::save(QXmlStreamWriter &stream) {
   Effect::save(stream);
 }
 
-void Transition::set_length(long l) {
-  length = l;
-  length_field->set_double_value(l);
+void Transition::set_length(int l) {
+  length_field->SetValueAt(0, l);
 }
 
-long Transition::get_true_length() {
-  return length;
+int Transition::get_true_length() {
+  return length_field->GetValueAt(0).toInt();
 }
 
-long Transition::get_length() {
+int Transition::get_length() {
   if (secondary_clip != nullptr) {
-    return length * 2;
+    return get_true_length() * 2;
   }
-  return length;
+  return get_true_length();
 }
 
 Clip* Transition::get_opened_clip() {
@@ -99,7 +98,6 @@ Clip* Transition::get_closed_clip() {
 }
 
 void Transition::set_length_from_slider() {
-  set_length(length_field->get_double_value(0));
   update_ui(false);
 }
 
@@ -114,7 +112,7 @@ TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s, const EffectMeta* em)
     case TRANSITION_INTERNAL_LINEARFADE: return TransitionPtr(new LinearFadeTransition(c, s, em));
     case TRANSITION_INTERNAL_EXPONENTIALFADE: return TransitionPtr(new ExponentialFadeTransition(c, s, em));
     case TRANSITION_INTERNAL_LOGARITHMICFADE: return TransitionPtr(new LogarithmicFadeTransition(c, s, em));
-    case TRANSITION_INTERNAL_CUBE: return TransitionPtr(new CubeTransition(c, s, em));
+    //case TRANSITION_INTERNAL_CUBE: return TransitionPtr(new CubeTransition(c, s, em));
     }
   } else {
     qCritical() << "Invalid transition data";

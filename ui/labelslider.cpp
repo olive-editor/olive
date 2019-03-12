@@ -56,7 +56,7 @@ void LabelSlider::set_frame_rate(double d) {
   frame_rate = d;
 }
 
-void LabelSlider::set_display_type(int type) {
+void LabelSlider::set_display_type(const DisplayType& type) {
   display_type = type;
   setText(valueToString());
 }
@@ -112,8 +112,9 @@ QString LabelSlider::valueToString() {
 
       return db_str;
     }
+    default:
+      return QString::number(v, 'f', decimal_places);
     }
-    return QString::number(v, 'f', decimal_places);
   }
 }
 

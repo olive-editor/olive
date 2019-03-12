@@ -666,25 +666,21 @@ void KeyframeDelete::doRedo() {
   field->keyframes.removeAt(index);
 }
 
-EffectFieldUndo::EffectFieldUndo(EffectField* f) {
-  field = f;
-  done = true;
-
-  old_val = field->get_previous_data();
-  new_val = field->get_current_data();
-}
+/*
+EffectFieldUndo::EffectFieldUndo(EffectField* f, const QVariant& old_data, const QVariant new_data) :
+  field(f),
+  old_val(old_data),
+  new_val(new_data)
+{}
 
 void EffectFieldUndo::doUndo() {
-  field->set_current_data(old_val);
-  done = false;
-
+  field->SetCurrentValue(old_val);
 }
 
 void EffectFieldUndo::doRedo() {
-  if (!done) {
-    field->set_current_data(new_val);
-  }
+  field->SetCurrentValue(new_val);
 }
+*/
 
 SetClipProperty::SetClipProperty(SetClipPropertyType type) : type_(type)
 {}

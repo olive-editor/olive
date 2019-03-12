@@ -30,168 +30,179 @@
 #include "project/clip.h"
 #include "project/sequence.h"
 
-#define SOLID_TYPE_COLOR 0
-#define SOLID_TYPE_BARS 1
-#define SOLID_TYPE_CHECKERBOARD 2
+const int SMPTE_BARS = 7;
+const int SMPTE_STRIP_COUNT = 3;
+const int SMPTE_LOWER_BARS = 4;
 
-#define SMPTE_BARS 7
-#define SMPTE_STRIP_COUNT 3
-#define SMPTE_LOWER_BARS 4
+SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
+  Effect(c, em)
+{
+  SetFlags(Effect::SuperimposeFlag);
 
-SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
-	enable_superimpose = true;
+  // Field for solid type
+  EffectRow* type_row = add_row(tr("Type"));
+  solid_type = new ComboField(type_row, "type");
+  solid_type->AddItem(tr("Solid Color"), SOLID_TYPE_COLOR);
+  solid_type->AddItem(tr("SMPTE Bars"), SOLID_TYPE_BARS);
+  solid_type->AddItem(tr("Checkerboard"), SOLID_TYPE_CHECKERBOARD);
 
-    solid_type = add_row(tr("Type"))->add_field(EFFECT_FIELD_COMBO, "type");
-    solid_type->add_combo_item(tr("Solid Color"), SOLID_TYPE_COLOR);
-    solid_type->add_combo_item(tr("SMPTE Bars"), SOLID_TYPE_BARS);
-    solid_type->add_combo_item(tr("Checkerboard"), SOLID_TYPE_CHECKERBOARD);
+  EffectRow* opacity_row = add_row(tr("Opacity"));
+  opacity_field = new DoubleField(opacity_row, "opacity");
+  opacity_field->SetMinimum(0);
+  opacity_field->SetDefault(0);
+  opacity_field->SetMaximum(100);
 
-    opacity_field = add_row(tr("Opacity"))->add_field(EFFECT_FIELD_DOUBLE, "opacity");
-	opacity_field->set_double_minimum_value(0);
-	opacity_field->set_double_maximum_value(100);
-	opacity_field->set_double_default_value(100);
+  EffectRow* solid_color_row = add_row(tr("Color"));
+  solid_color_field = new ColorField(solid_color_row, "color");
+  solid_color_field->SetValueAt(0, QColor(Qt::red));
 
-    solid_color_field = add_row(tr("Color"))->add_field(EFFECT_FIELD_COLOR, "color");
-	solid_color_field->set_color_value(Qt::red);
+  EffectRow* checkerboard_size = add_row(tr("Checkerboard Size"));
+  checkerboard_size_field = new DoubleField(checkerboard_size, "checker_size");
+  checkerboard_size_field->SetMinimum(1);
+  checkerboard_size_field->SetDefault(10);
 
-    checkerboard_size_field = add_row(tr("Checkerboard Size"))->add_field(EFFECT_FIELD_DOUBLE, "checker_size");
-	checkerboard_size_field->set_double_minimum_value(1);
-	checkerboard_size_field->set_double_default_value(10);
+  connect(solid_type, SIGNAL(IndexChanged(int)), this, SLOT(ui_update(int)));
 
-	// hacky but eh
-	QComboBox* solid_type_combo = static_cast<QComboBox*>(solid_type->get_ui_element());
-	connect(solid_type_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(ui_update(int)));
-	ui_update(solid_type_combo->currentIndex());
+  // Set default UI
+  solid_type->SetValueAt(0, SOLID_TYPE_COLOR);
 
-	/*vertPath = ":/shaders/common.vert";
-	fragPath = ":/shaders/solideffect.frag";*/
+  // TODO necessary? Isn't this called from the connect() above?
+  ui_update(SOLID_TYPE_COLOR);
+
+  /*vertPath = ":/shaders/common.vert";
+  fragPath = ":/shaders/solideffect.frag";*/
 }
 
 void SolidEffect::redraw(double timecode) {
-	int w = img.width();
-	int h = img.height();
-	int alpha = qRound(opacity_field->get_double_value(timecode)*2.55);
-	switch (solid_type->get_combo_data(timecode).toInt()) {
-	case SOLID_TYPE_COLOR:
-	{
-		QColor solidColor = solid_color_field->get_color_value(timecode);
-		solidColor.setAlpha(alpha);
-		img.fill(solidColor);
-	}
-		break;
-	case SOLID_TYPE_BARS:
-	{
-		// draw smpte bars
-		QPainter p(&img);
-		img.fill(Qt::transparent);
-		int bar_width = qCeil((double) w / 7.0);
-		int first_bar_height = qCeil((double) h / 3.0 * 2.0);
-		int second_bar_height = qCeil((double) h / 12.5);
-		int third_bar_y = first_bar_height + second_bar_height;
-		int third_bar_height = h - third_bar_y;
-		int third_bar_width = 0;
-		int bar_x, strip_width;
-		QColor first_color, second_color, third_color;
-		for (int i=0;i<SMPTE_BARS;i++) {
-			bar_x = bar_width*i;
-			switch (i) {
-			case 0:
-				first_color = QColor(192, 192, 192);
-				second_color = QColor(0, 0, 192);
-				break;
-			case 1:
-				first_color = QColor(192, 192, 0);
-				second_color = QColor(19, 19, 19);
-				break;
-			case 2:
-				first_color = QColor(0, 192, 192);
-				second_color = QColor(192, 0, 192);
-				break;
-			case 3:
-				first_color = QColor(0, 192, 0);
-				second_color = QColor(19, 19, 19);
-				break;
-			case 4:
-				first_color = QColor(192, 0, 192);
-				second_color = QColor(0, 192, 192);
-				break;
-			case 5:
-				third_bar_width = qRound((double) bar_x / (double) SMPTE_LOWER_BARS);
+  int w = img.width();
+  int h = img.height();
+  int alpha = qRound(opacity_field->GetDoubleAt(timecode)*2.55);
+  switch (solid_type->GetValueAt(timecode).toInt()) {
+  case SOLID_TYPE_COLOR:
+  {
+    QColor solidColor = solid_color_field->GetColorAt(timecode);
+    solidColor.setAlpha(alpha);
+    img.fill(solidColor);
+  }
+    break;
+  case SOLID_TYPE_BARS:
+  {
+    // draw smpte bars
+    QPainter p(&img);
+    img.fill(Qt::transparent);
+    int bar_width = qCeil(double(w) / 7.0);
+    int first_bar_height = qCeil(double(h) / 3.0 * 2.0);
+    int second_bar_height = qCeil(double(h) / 12.5);
+    int third_bar_y = first_bar_height + second_bar_height;
+    int third_bar_height = h - third_bar_y;
+    int third_bar_width = 0;
+    int bar_x, strip_width;
+    QColor first_color, second_color, third_color;
+    for (int i=0;i<SMPTE_BARS;i++) {
+      bar_x = bar_width*i;
+      switch (i) {
+      case 0:
+        first_color = QColor(192, 192, 192);
+        second_color = QColor(0, 0, 192);
+        break;
+      case 1:
+        first_color = QColor(192, 192, 0);
+        second_color = QColor(19, 19, 19);
+        break;
+      case 2:
+        first_color = QColor(0, 192, 192);
+        second_color = QColor(192, 0, 192);
+        break;
+      case 3:
+        first_color = QColor(0, 192, 0);
+        second_color = QColor(19, 19, 19);
+        break;
+      case 4:
+        first_color = QColor(192, 0, 192);
+        second_color = QColor(0, 192, 192);
+        break;
+      case 5:
+        third_bar_width = qRound(double(bar_x) / double(SMPTE_LOWER_BARS));
 
-				first_color = QColor(192, 0, 0);
-				second_color = QColor(19, 19, 19);
+        first_color = QColor(192, 0, 0);
+        second_color = QColor(19, 19, 19);
 
-				strip_width = qCeil(bar_width/SMPTE_STRIP_COUNT);
-				for (int j=0;j<SMPTE_STRIP_COUNT;j++) {
-					switch (j) {
-					case 0:
-						third_color = QColor(29, 29, 29, alpha);
-						p.fillRect(QRect(bar_x, third_bar_y, bar_width, third_bar_height), third_color);
-						break;
-					case 1:
-						third_color = QColor(19, 19, 19, alpha);
-						p.fillRect(QRect(bar_x + strip_width, third_bar_y, strip_width, third_bar_height), third_color);
-						break;
-					case 2:
-						third_color = QColor(9, 9, 9, alpha);
-						p.fillRect(QRect(bar_x, third_bar_y, strip_width, third_bar_height), third_color);
-						break;
-					}
-				}
-				break;
-			case 6:
-				first_color = QColor(0, 0, 192);
-				second_color = QColor(192, 192, 192);
-				p.fillRect(QRect(bar_x, third_bar_y, bar_width, third_bar_height), QColor(19, 19, 19, alpha));
-				break;
-			}
-			first_color.setAlpha(alpha);
-			second_color.setAlpha(alpha);
-			p.fillRect(QRect(bar_x, 0, bar_width, first_bar_height), first_color);
-			p.fillRect(QRect(bar_x, first_bar_height, bar_width, second_bar_height), second_color);
-		}
-		for (int i=0;i<SMPTE_LOWER_BARS;i++) {
-			bar_x = third_bar_width*i;
-			switch (i) {
-			case 0: third_color = QColor(0, 33, 76); break;
-			case 1: third_color = QColor(255, 255, 255); break;
-			case 2: third_color = QColor(50, 0, 106); break;
-			case 3: third_color = QColor(19, 19, 19); break;
-			}
-			third_color.setAlpha(alpha);
-			p.fillRect(QRect(bar_x, third_bar_y, third_bar_width, third_bar_height), third_color);
-		}
-	}
-		break;
-	case SOLID_TYPE_CHECKERBOARD:
-	{
-		// draw checkboard
-		QPainter p(&img);
-		img.fill(Qt::transparent);
+        strip_width = qCeil(bar_width/SMPTE_STRIP_COUNT);
+        for (int j=0;j<SMPTE_STRIP_COUNT;j++) {
+          switch (j) {
+          case 0:
+            third_color = QColor(29, 29, 29, alpha);
+            p.fillRect(QRect(bar_x, third_bar_y, bar_width, third_bar_height), third_color);
+            break;
+          case 1:
+            third_color = QColor(19, 19, 19, alpha);
+            p.fillRect(QRect(bar_x + strip_width, third_bar_y, strip_width, third_bar_height), third_color);
+            break;
+          case 2:
+            third_color = QColor(9, 9, 9, alpha);
+            p.fillRect(QRect(bar_x, third_bar_y, strip_width, third_bar_height), third_color);
+            break;
+          }
+        }
+        break;
+      case 6:
+        first_color = QColor(0, 0, 192);
+        second_color = QColor(192, 192, 192);
+        p.fillRect(QRect(bar_x, third_bar_y, bar_width, third_bar_height), QColor(19, 19, 19, alpha));
+        break;
+      }
+      first_color.setAlpha(alpha);
+      second_color.setAlpha(alpha);
+      p.fillRect(QRect(bar_x, 0, bar_width, first_bar_height), first_color);
+      p.fillRect(QRect(bar_x, first_bar_height, bar_width, second_bar_height), second_color);
+    }
+    for (int i=0;i<SMPTE_LOWER_BARS;i++) {
+      bar_x = third_bar_width*i;
+      switch (i) {
+      case 0: third_color = QColor(0, 33, 76); break;
+      case 1: third_color = QColor(255, 255, 255); break;
+      case 2: third_color = QColor(50, 0, 106); break;
+      case 3: third_color = QColor(19, 19, 19); break;
+      }
+      third_color.setAlpha(alpha);
+      p.fillRect(QRect(bar_x, third_bar_y, third_bar_width, third_bar_height), third_color);
+    }
+  }
+    break;
+  case SOLID_TYPE_CHECKERBOARD:
+  {
+    // draw checkboard
+    QPainter p(&img);
+    img.fill(Qt::transparent);
 
-		int checker_width = qCeil(checkerboard_size_field->get_double_value(timecode));
-		int checker_x, checker_y;
-		int checkerboard_size_w = qCeil(double(w)/checker_width);
-		int checkerboard_size_h = qCeil(double(h)/checker_width);
+    int checker_width = qCeil(checkerboard_size_field->GetDoubleAt(timecode));
+    int checker_x, checker_y;
+    int checkerboard_size_w = qCeil(double(w)/checker_width);
+    int checkerboard_size_h = qCeil(double(h)/checker_width);
 
-		QColor checker_odd(QColor(0, 0, 0, alpha));
-		QColor checker_even(solid_color_field->get_color_value(timecode));
-		checker_even.setAlpha(alpha);
-		QVector<QColor> checker_color{checker_odd, checker_even};
+    QColor checker_odd(QColor(0, 0, 0, alpha));
+    QColor checker_even(solid_color_field->GetColorAt(timecode));
+    checker_even.setAlpha(alpha);
+    QVector<QColor> checker_color{checker_odd, checker_even};
 
-		for(int i = 0; i < checkerboard_size_w; i++){
-			checker_x = checker_width*i;
-			for(int j = 0; j < checkerboard_size_h; j++){
-				checker_y = checker_width*j;
-				p.fillRect(QRect(checker_x, checker_y, checker_width, checker_width), checker_color[(i + j)%2]);
-			}
-		}
-	}
-		break;
-	}
+    for(int i = 0; i < checkerboard_size_w; i++){
+      checker_x = checker_width*i;
+      for(int j = 0; j < checkerboard_size_h; j++){
+        checker_y = checker_width*j;
+        p.fillRect(QRect(checker_x, checker_y, checker_width, checker_width), checker_color[(i + j)%2]);
+      }
+    }
+  }
+    break;
+  }
+}
+
+void SolidEffect::SetType(SolidEffect::SolidType type)
+{
+  solid_type->SetValueAt(0, type);
 }
 
 void SolidEffect::ui_update(int i) {
-	solid_color_field->set_enabled(i == SOLID_TYPE_COLOR || i == SOLID_TYPE_CHECKERBOARD);
-	checkerboard_size_field->set_enabled(i == SOLID_TYPE_CHECKERBOARD);
+  solid_color_field->SetEnabled(i == SOLID_TYPE_COLOR || i == SOLID_TYPE_CHECKERBOARD);
+  checkerboard_size_field->SetEnabled(i == SOLID_TYPE_CHECKERBOARD);
 }

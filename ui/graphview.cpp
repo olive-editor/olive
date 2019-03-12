@@ -245,7 +245,7 @@ void GraphView::paintEvent(QPaintEvent *) {
       for (int i=row->fieldCount()-1;i>=0;i--) {
         EffectField* field = row->field(i);
 
-        if (field->type == EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
+        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
           // sort keyframes by time
           QVector<int> sorted_keys = sort_keys_from_field(field);
 
@@ -266,8 +266,8 @@ void GraphView::paintEvent(QPaintEvent *) {
             } else {
               const EffectKeyframe& last_key = field->keyframes.at(sorted_keys.at(j-1));
 
-              double pre_handle = field->get_validated_keyframe_handle(sorted_keys.at(j), false);
-              double last_post_handle = field->get_validated_keyframe_handle(sorted_keys.at(j-1), true);
+              double pre_handle = field->GetValidKeyframeHandlePosition(sorted_keys.at(j), false);
+              double last_post_handle = field->GetValidKeyframeHandlePosition(sorted_keys.at(j-1), true);
 
               if (last_key.type == EFFECT_KEYFRAME_HOLD) {
                 // hold
@@ -387,7 +387,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
     } else {
       for (int i=0;i<row->fieldCount();i++) {
         EffectField* field = row->field(i);
-        if (field->type == EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
+        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
           for (int j=0;j<field->keyframes.size();j++) {
             const EffectKeyframe& key = field->keyframes.at(j);
             int key_x = get_screen_x(key.time);
@@ -833,7 +833,7 @@ void GraphView::set_row(EffectRow *r) {
     if (row != nullptr) {
       field_visibility.resize(row->fieldCount());
       for (int i=0;i<row->fieldCount();i++) {
-        field_visibility[i] = row->field(i)->is_enabled();
+        field_visibility[i] = row->field(i)->IsEnabled();
       }
       visible_in = row->parent_effect->parent_clip->timeline_in();
       set_view_to_all();

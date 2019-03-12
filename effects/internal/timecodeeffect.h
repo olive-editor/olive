@@ -27,18 +27,18 @@
 #include <QImage>
 
 class TimecodeEffect : public Effect {
-	Q_OBJECT
+  Q_OBJECT
 public:
     TimecodeEffect(Clip* c, const EffectMeta *em);
     void redraw(double timecode);
-    EffectField * scale_val;
-    EffectField * color_val;
-    EffectField * color_bg_val;
-    EffectField * bg_alpha;
-    EffectField * offset_x_val;
-    EffectField * offset_y_val;
-    EffectField * prepend_text;
-    EffectField * tc_select;
+    DoubleField* scale_val;
+    ColorField* color_val;
+    ColorField* color_bg_val;
+    DoubleField* bg_alpha;
+    DoubleField* offset_x_val;
+    DoubleField* offset_y_val;
+    StringField* prepend_text;
+    ComboField* tc_select;
 
 private:
     QFont font;

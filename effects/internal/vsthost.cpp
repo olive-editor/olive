@@ -106,7 +106,7 @@ typedef int32_t (*processEventsFuncPtr)(VstEvents *events);
 typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs, int32_t sampleFrames);
 
 void VSTHost::loadPlugin() {
-  QString dll_fn = file_field->get_filename(0, true);
+  QString dll_fn = file_field->GetFileAt(0);
 
   if (dll_fn.isEmpty()) {
     return;
@@ -266,7 +266,8 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
     outputs[channel] = new float[BLOCK_SIZE];
   }
 
-  file_field = add_row(tr("Plugin"), true, false)->add_field(EFFECT_FIELD_FILE, "filename");
+  EffectRow* file_row = add_row(tr("Plugin"), true, false);
+  file_field = new FileField(file_row, "filename");
   connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
 
   EffectRow* interface_row = add_row(tr("Interface"), false, false);

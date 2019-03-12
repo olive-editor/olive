@@ -82,7 +82,7 @@ Viewer::Viewer(QWidget *parent) :
   current_timecode_slider->set_minimum_value(0);
   current_timecode_slider->set_default_value(qSNaN());
   current_timecode_slider->set_value(0, false);
-  current_timecode_slider->set_display_type(LABELSLIDER_FRAMENUMBER);
+  current_timecode_slider->set_display_type(LabelSlider::LABELSLIDER_FRAMENUMBER);
   connect(current_timecode_slider, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
 
   recording_flasher.setInterval(500);

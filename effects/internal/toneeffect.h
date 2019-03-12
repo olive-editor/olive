@@ -24,17 +24,17 @@
 #include "project/effect.h"
 
 class ToneEffect : public Effect {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    ToneEffect(Clip* c, const EffectMeta* em);
-	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  ToneEffect(Clip* c, const EffectMeta* em);
+  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
-	EffectField* type_val;
-	EffectField* freq_val;
-	EffectField* amount_val;
-	EffectField* mix_val;
+  ComboField* type_val;
+  DoubleField* freq_val;
+  DoubleField* amount_val;
+  BoolField* mix_val;
 private:
-	int sinX;
+  int sinX;
 };
 
 #endif // TONEEFFECT_H

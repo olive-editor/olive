@@ -116,8 +116,6 @@ SOURCES += \
     project/effect.cpp \
     project/transition.cpp \
     project/effectrow.cpp \
-    project/effectfield.cpp \
-    effects/internal/cubetransition.cpp \
     project/effectgizmo.cpp \
     io/clipboard.cpp \
     ui/resizablescrollbar.cpp \
@@ -162,7 +160,15 @@ SOURCES += \
     dialogs/clippropertiesdialog.cpp \
     rendering/framebufferobject.cpp \
     ui/updatenotification.cpp \
-    ui/icons.cpp
+    ui/icons.cpp \
+    project/effectfields/doublefield.cpp \
+    project/effectfields/fontfield.cpp \
+    project/effectfields/effectfield.cpp \
+    project/effectfields/colorfield.cpp \
+    project/effectfields/stringfield.cpp \
+    project/effectfields/boolfield.cpp \
+    project/effectfields/combofield.cpp \
+    project/effectfields/filefield.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -229,7 +235,6 @@ HEADERS += \
     project/effect.h \
     project/transition.h \
     project/effectrow.h \
-    project/effectfield.h \
     effects/internal/cubetransition.h \
     project/effectgizmo.h \
     io/clipboard.h \
@@ -276,7 +281,16 @@ HEADERS += \
     dialogs/clippropertiesdialog.h \
     rendering/framebufferobject.h \
     ui/updatenotification.h \
-    ui/icons.h
+    ui/icons.h \
+    project/effectfields/doublefield.h \
+    project/effectfields/fontfield.h \
+    project/effectfields/effectfield.h \
+    project/effectfields.h \
+    project/effectfields/colorfield.h \
+    project/effectfields/stringfield.h \
+    project/effectfields/boolfield.h \
+    project/effectfields/combofield.h \
+    project/effectfields/filefield.h
 
 FORMS +=
 

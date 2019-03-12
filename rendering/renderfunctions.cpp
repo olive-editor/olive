@@ -115,11 +115,11 @@ void process_effect(Clip* c,
                     bool& texture_failed,
                     int data) {
   if (e->is_enabled()) {
-    if (e->enable_coords) {
+    if (e->Flags() & Effect::CoordsFlag) {
       e->process_coords(timecode, coords, data);
     }
-    bool can_process_shaders = (e->enable_shader && olive::CurrentRuntimeConfig.shaders_are_enabled);
-    if (can_process_shaders || e->enable_superimpose) {
+    bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::CurrentRuntimeConfig.shaders_are_enabled);
+    if (can_process_shaders || (e->Flags() & Effect::SuperimposeFlag)) {
       e->startEffect();
       if (can_process_shaders && e->is_glsl_linked()) {
         for (int i=0;i<e->getIterations();i++) {
@@ -128,7 +128,7 @@ void process_effect(Clip* c,
           fbo_switcher = !fbo_switcher;
         }
       }
-      if (e->enable_superimpose) {
+      if (e->Flags() & Effect::SuperimposeFlag) {
         GLuint superimpose_texture = e->process_superimpose(timecode);
 
         if (superimpose_texture == 0) {
@@ -399,7 +399,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           coords.textureTopLeftY = coords.textureTopRightY = coords.textureTopLeftX = coords.textureBottomLeftX = 0.0;
           coords.textureBottomLeftY = coords.textureBottomRightY = coords.textureTopRightX = coords.textureBottomRightX = 1.0;
           coords.textureTopLeftQ = coords.textureTopRightQ = coords.textureTopLeftQ = coords.textureBottomLeftQ = 1;
-          coords.blendmode = BLEND_MODE_NORMAL;
+          coords.blendmode = -1;
           coords.opacity = 1.0;
 
           // if auto-scale is enabled, auto-scale the clip
@@ -615,6 +615,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           }
         }
 
+        /*
         // visually update all the keyframe values
         if (c->sequence == params.seq) { // only if you can currently see them
           double ts = (playhead - c->timeline_in(true) + c->clip_in(true))/s->frame_rate;
@@ -628,6 +629,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             }
           }
         }
+        */
       }
     } else {
       params.texture_failed = true;

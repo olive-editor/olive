@@ -1,4 +1,4 @@
-/***
+﻿/***
 
     Olive - Non-Linear Video Editor
     Copyright (C) 2019  Olive Team
@@ -34,47 +34,51 @@ class QHBoxLayout;
 class KeyframeNavigator;
 class ClickableLabel;
 
+#include "effectfields.h"
+
 class EffectRow : public QObject {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	EffectRow(Effect* parent, bool save, QGridLayout* uilayout, const QString& n, int row, bool keyframable = true);
-	~EffectRow();
-	EffectField* add_field(int type, const QString &id, int colspan = 1);
-	void add_widget(QWidget *w);
-	EffectField* field(int i);
-	int fieldCount();
-	void set_keyframe_now(ComboAction *ca);
-	void delete_keyframe_at_time(ComboAction *ca, long time);
-	ClickableLabel* label;
-	Effect* parent_effect;
-	bool savable;
-	const QString& get_name();
+  EffectRow(Effect* parent, bool save, QGridLayout* uilayout, const QString& n, int row, bool keyframable = true);
+  ~EffectRow();
 
-	bool isKeyframing();
-	void setKeyframing(bool);
+  void AddField(EffectField* field);
+
+  void add_widget(QWidget *w);
+  EffectField* field(int i);
+  int fieldCount();
+  void set_keyframe_now(ComboAction *ca);
+  void delete_keyframe_at_time(ComboAction *ca, long time);
+  ClickableLabel* label;
+  Effect* parent_effect;
+  bool savable;
+  const QString& name();
+
+  bool isKeyframing();
+  void setKeyframing(bool);
 public slots:
-	void goto_previous_key();
-	void toggle_key();
-	void goto_next_key();
-	void focus_row();
+  void GoToPreviousKeyframe();
+  void ToggleKeyframe();
+  void GoToNextKeyframe();
+  void FocusRow();
 private slots:
-	void set_keyframe_enabled(bool);
+  void SetKeyframingEnabled(bool);
 private:
-	bool keyframing;
-	QGridLayout* ui;
-	QString name;
-	int ui_row;
-	QVector<EffectField*> fields;
-	QVector<QWidget*> widgets;
+  bool keyframing;
+  QGridLayout* ui;
+  QString name_;
+  int ui_row;
+  QVector<EffectField*> fields_;
+  QVector<QWidget*> widgets;
 
-	KeyframeNavigator* keyframe_nav;
+  KeyframeNavigator* keyframe_nav;
 
-	bool just_made_unsafe_keyframe;
-	QVector<int> unsafe_keys;
-	QVector<QVariant> unsafe_old_data;
-	QVector<bool> key_is_new;
+  bool just_made_unsafe_keyframe;
+  QVector<int> unsafe_keys;
+  QVector<QVariant> unsafe_old_data;
+  QVector<bool> key_is_new;
 
-	int column_count;
+  int column_count;
 };
 
 #endif // EFFECTROW_H

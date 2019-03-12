@@ -33,7 +33,7 @@ ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clip
   layout->addWidget(new QLabel(tr("Duration:")), row, 0);
 
   duration_field_ = new LabelSlider();
-  duration_field_->set_display_type(LABELSLIDER_FRAMENUMBER);
+  duration_field_->set_display_type(LabelSlider::LABELSLIDER_FRAMENUMBER);
   duration_field_->set_minimum_value(1);
   layout->addWidget(duration_field_, row, 1);
 
