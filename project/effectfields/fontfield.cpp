@@ -1,7 +1,8 @@
 #include "fontfield.h"
 
-#include <QComboBox>
 #include <QFontDatabase>
+
+#include "ui/comboboxex.h"
 
 FontField::FontField(EffectRow* parent, const QString &id) :
   EffectField(parent, id, EFFECT_FIELD_FONT)
@@ -18,7 +19,9 @@ QString FontField::GetFontAt(double timecode)
 
 QWidget *FontField::CreateWidget()
 {
-  QComboBox* fcb = new QComboBox();
+  ComboBoxEx* fcb = new ComboBoxEx();
+
+  fcb->setScrollingEnabled(false);
 
   fcb->addItems(font_list);
 

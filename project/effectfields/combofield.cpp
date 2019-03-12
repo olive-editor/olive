@@ -1,6 +1,6 @@
 #include "combofield.h"
 
-#include <QComboBox>
+#include "ui/comboboxex.h"
 
 ComboField::ComboField(EffectRow* parent, const QString& id) :
   EffectField(parent, id, EFFECT_FIELD_COMBO)
@@ -18,7 +18,9 @@ void ComboField::AddItem(const QString &text, const QVariant &data)
 
 QWidget *ComboField::CreateWidget()
 {
-  QComboBox* cb = new QComboBox();
+  ComboBoxEx* cb = new ComboBoxEx();
+
+  cb->setScrollingEnabled(false);
 
   for (int i=0;i<items_.size();i++) {
     cb->addItem(items_.at(i).name);

@@ -36,12 +36,15 @@ EffectUI::EffectUI(Effect* e) :
 
     layout_->addWidget(row_label, i, 0);
 
+    int column = 1;
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
 
       QWidget* widget = field->CreateWidget();
 
-      layout_->addWidget(widget, i, j + 1);
+      layout_->addWidget(widget, i, column, 1, field->GetColumnSpan());
+
+      column += field->GetColumnSpan();
     }
 
     // Find maximum column to place keyframe controls

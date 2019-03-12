@@ -50,7 +50,8 @@ EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t)
   QObject(parent),
   type_(t),
   id_(i),
-  enabled_(true)
+  enabled_(true),
+  colspan_(1)
 {
   // EffectField MUST be created with a parent.
   Q_ASSERT(parent != nullptr);
@@ -80,6 +81,7 @@ int EffectField::GetColumnSpan()
 
 void EffectField::SetColumnSpan(int i)
 {
+  Q_ASSERT(i >= 1);
   colspan_ = i;
 }
 
