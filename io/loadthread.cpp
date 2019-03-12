@@ -46,7 +46,9 @@ LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 
   connect(this, SIGNAL(success()), this, SLOT(success_func()), Qt::QueuedConnection);
+
   connect(this, SIGNAL(error()), this, SLOT(error_func()), Qt::QueuedConnection);
+
   connect(this,
           SIGNAL(start_question(const QString&, const QString &, int)),
           this,
