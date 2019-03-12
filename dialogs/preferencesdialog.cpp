@@ -24,6 +24,7 @@
 #include "io/config.h"
 #include "io/path.h"
 #include "rendering/audio.h"
+#include "panels/panels.h"
 #include "mainwindow.h"
 
 #include <QMenuBar>
@@ -74,7 +75,7 @@ QString KeySequenceEditor::export_shortcut() {
   if (ks != action->property("default")) {
     return action->property("id").toString() + "\t" + keySequence().toString();
   }
-  return 0;
+  return nullptr;
 }
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
@@ -173,6 +174,7 @@ void PreferencesDialog::save() {
   bool restart_after_saving = false;
   bool reinit_audio = false;
   bool reload_language = false;
+  bool reload_effects = false;
 
   // Validate whether the specified CSS file exists
   if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
@@ -184,9 +186,13 @@ void PreferencesDialog::save() {
     return;
   }
 
+  // Validate whether the effects panel should refresh itself
+  if (olive::CurrentConfig.effect_textbox_lines != effect_textbox_lines_field->value()) {
+    reload_effects = true;
+  }
+
   // Check if any settings will require a restart of Olive
-  if (olive::CurrentConfig.effect_textbox_lines != effect_textbox_lines_field->value()
-      || olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
+  if (olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
 
@@ -288,6 +294,10 @@ void PreferencesDialog::save() {
   // Audio settings may require the audio device to be re-initiated.
   if (reinit_audio) {
     init_audio();
+  }
+
+  if (reload_effects) {
+    panel_effect_controls->Reload();
   }
 
   // reload language file if it changed

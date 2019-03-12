@@ -72,6 +72,8 @@ TextEditEx::TextEditEx(QWidget *parent) : QTextEdit(parent)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(text_edit_menu()));
+
+  connect(this, SIGNAL(textChanged()), this, SLOT(queue_text_modified()));
 }
 
 void TextEditEx::text_edit_menu() {
@@ -89,4 +91,9 @@ void TextEditEx::open_text_edit() {
   if (!result.isEmpty()) {
     setHtml(result);
   }
+}
+
+void TextEditEx::queue_text_modified()
+{
+  emit textModified(toHtml());
 }

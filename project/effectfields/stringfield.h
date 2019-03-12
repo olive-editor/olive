@@ -10,6 +10,10 @@ public:
   StringField(EffectRow* parent, const QString& id);
 
   QString GetStringAt(double timecode);
+
+  virtual QWidget *CreateWidget() override;
+private slots:
+  void UpdateFromWidget(const QString& b);
 };
 
 #endif // STRINGFIELD_H
