@@ -48,11 +48,6 @@ LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
   connect(this, SIGNAL(success()), this, SLOT(success_func()), Qt::QueuedConnection);
   connect(this, SIGNAL(error()), this, SLOT(error_func()), Qt::QueuedConnection);
   connect(this,
-          SIGNAL(start_create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
-          this,
-          SLOT(create_effect_ui(QXmlStreamReader*, Clip*, int, const QString*, const EffectMeta*, long, bool)),
-          Qt::QueuedConnection);
-  connect(this,
           SIGNAL(start_question(const QString&, const QString &, int)),
           this,
           SLOT(question_func(const QString &, const QString &, int)),
@@ -135,9 +130,34 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
     type = kTransitionNone;
   }
 
-  // effect UI creation has to occur in the main thread, see an explanation in create_effect_ui()
-  emit start_create_effect_ui(&stream, c, type, &effect_name, meta, effect_length, effect_enabled);
-  waitCond.wait(&mutex);
+  // effect construction
+  if (cancelled_) return;
+  if (type == kTransitionNone) {
+    if (meta == nullptr) {
+      // create void effect
+      EffectPtr ve(new VoidEffect(c, effect_name));
+      ve->SetEnabled(effect_enabled);
+      ve->load(stream);
+      c->effects.append(ve);
+    } else {
+      EffectPtr e(Effect::Create(c, meta));
+      e->SetEnabled(effect_enabled);
+      e->load(stream);
+
+      c->effects.append(e);
+    }
+  } else {
+    TransitionPtr t = Transition::Create(c, nullptr, meta);
+    if (effect_length > -1) t->set_length(effect_length);
+    t->SetEnabled(effect_enabled);
+    t->load(stream);
+
+    if (type == kTransitionOpening) {
+      c->opening_transition = t;
+    } else {
+      c->closing_transition = t;
+    }
+  }
 }
 
 void LoadThread::read_next(QXmlStreamReader &stream) {
@@ -155,6 +175,16 @@ void LoadThread::update_current_element_count(QXmlStreamReader &stream) {
     current_element_count++;
     report_progress((current_element_count * 100) / total_element_count);
   }
+}
+
+void LoadThread::show_message(const QString& title, const QString& body, int buttons)
+{
+  emit start_question(
+          title,
+          body,
+          buttons
+        );
+  waitCond.wait(&mutex);
 }
 
 bool LoadThread::is_element(QXmlStreamReader &stream) {
@@ -204,12 +234,11 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
       if (type == LOAD_TYPE_VERSION) {
         proj_version = stream.readElementText().toInt();
         if (proj_version < olive::kMinimumSaveVersion || proj_version > olive::kSaveVersion) {
-          emit start_question(
-                tr("Version Mismatch"),
-                tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),
-                QMessageBox::Yes | QMessageBox::No
+          show_message(
+                  tr("Version Mismatch"),
+                  tr("This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?"),
+                  QMessageBox::Yes | QMessageBox::No
                 );
-          waitCond.wait(&mutex);
           if (question_btn == QMessageBox::No) {
             show_err = false;
             return false;
@@ -398,7 +427,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   s->markers.append(m);
                 } else if (stream.name() == "clip" && stream.isStartElement()) {
                   int media_type = -1;
-                  int media_id, stream_id;
+                  int media_id = -1;
+                  int stream_id = -1;
 
                   ClipPtr c = std::make_shared<Clip>(s.get());
 
@@ -455,7 +485,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   // set media and media stream
                   switch (media_type) {
                   case MEDIA_TYPE_FOOTAGE:
-                    if (media_id >= 0) {
+                    if (media_id >= 0 && stream_id >= 0) {
                       for (int j=0;j<loaded_media_items.size();j++) {
                         Footage* m = loaded_media_items.at(j)->to_footage();
                         if (m->save_id == media_id) {
@@ -528,12 +558,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                     correct_clip->linked.removeAt(j);
                     j--;
 
-                    emit start_question(
+                    show_message(
                           tr("Invalid Clip Link"),
                           tr("This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?"),
                           QMessageBox::Yes | QMessageBox::No
                           );
-                    waitCond.wait(&mutex);
+
                     if (question_btn == QMessageBox::No) {
                       s.reset();
                       return false;
@@ -744,70 +774,4 @@ void LoadThread::success_func() {
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }
-}
-
-void LoadThread::create_effect_ui(
-    QXmlStreamReader* stream,
-    Clip* c,
-    int type,
-    const QString* effect_name,
-    const EffectMeta* meta,
-    long effect_length,
-    bool effect_enabled)
-{
-  /* This is extremely hacky - prepare yourself.
-   *
-   * When moving project loading to a separate thread, it was soon discovered
-   * that effects wouldn't load correctly anymore. They were actually still
-   * "functional", but there were no controls appearing in EffectControls.
-   *
-   * Turns out since Effect creates its UI in its constructor, the UI was
-   * created in this thread rather than the main GUI thread, which is a big
-   * no-no. Unfortunately the design of Effect does not separate UI and data,
-   * so having the UI set up was integral to creating annd loading the effect.
-   *
-   * Therefore, rather than rewrite the class (I just rewrote QTreeWidget to
-   * QTreeView with a custom model/item so I'm exhausted), for
-   * quick-n-dirty-ness, I made LoadThread offload the effect creation to the
-   * main thread (and since the effect loads data from the same XML stream,
-   * the LoadThread has to wait for the effect to finish before it can
-   * continue.
-   *
-   * Sorry. I'll fix it one day.
-   */
-
-  // lock mutex - ensures the load thread is suspended while this happens
-  mutex.lock();
-
-  if (cancelled_) return;
-  if (type == kTransitionNone) {
-    if (meta == nullptr) {
-      // create void effect
-      EffectPtr ve(new VoidEffect(c, *effect_name));
-      ve->SetEnabled(effect_enabled);
-      ve->load(*stream);
-      c->effects.append(ve);
-    } else {
-      EffectPtr e(Effect::Create(c, meta));
-      e->SetEnabled(effect_enabled);
-      e->load(*stream);
-
-      c->effects.append(e);
-    }
-  } else {
-    TransitionPtr t = Transition::Create(c, nullptr, meta);
-    if (effect_length > -1) t->set_length(effect_length);
-    t->SetEnabled(effect_enabled);
-    t->load(*stream);
-
-    if (type == kTransitionOpening) {
-      c->opening_transition = t;
-    } else {
-      c->closing_transition = t;
-    }
-  }
-
-  mutex.unlock();
-
-  waitCond.wakeAll();
 }

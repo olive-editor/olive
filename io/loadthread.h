@@ -41,25 +41,11 @@ signals:
   void start_question(const QString &title, const QString &text, int buttons);
   void success();
   void error();
-  void start_create_effect_ui(QXmlStreamReader* stream,
-                              Clip* c,
-                              int type,
-                              const QString *effect_name,
-                              const EffectMeta* meta,
-                              long effect_length,
-                              bool effect_enabled);
   void report_progress(int p);
 private slots:
   void question_func(const QString &title, const QString &text, int buttons);
   void error_func();
   void success_func();
-  void create_effect_ui(QXmlStreamReader* stream,
-                        Clip* c,
-                        int type,
-                        const QString *effect_name,
-                        const EffectMeta* meta,
-                        long effect_length,
-                        bool effect_enabled);
 private:
   bool autorecovery_;
   bool clear_;
@@ -71,6 +57,8 @@ private:
   void read_next(QXmlStreamReader& stream);
   void read_next_start_element(QXmlStreamReader& stream);
   void update_current_element_count(QXmlStreamReader& stream);
+
+  void show_message(const QString& title, const QString& body, int buttons);
 
   SequencePtr open_seq;
   QVector<Media*> loaded_media_items;
