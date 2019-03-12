@@ -5,7 +5,7 @@
 
 struct ComboFieldItem {
   QString name;
-  QVector<QVariant> data;
+  QVariant data;
 };
 
 class ComboField : public EffectField
@@ -16,11 +16,16 @@ public:
 
   void AddItem(const QString& text, const QVariant& data);
 
+  virtual QWidget *CreateWidget() override;
+
 signals:
   void IndexChanged(int i);
 
 private:
   QVector<ComboFieldItem> items_;
+
+private slots:
+  void UpdateFromWidget(int index);
 };
 
 #endif // COMBOFIELD_H
