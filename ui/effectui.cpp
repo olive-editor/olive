@@ -5,6 +5,7 @@
 
 #include "project/clip.h"
 #include "ui/menuhelper.h"
+#include "ui/keyframenavigator.h"
 
 EffectUI::EffectUI(Effect* e) :
   effect_(e)
@@ -24,6 +25,8 @@ EffectUI::EffectUI(Effect* e) :
           this,
           SIGNAL(TitleBarContextMenuRequested(const QPoint&)));
 
+  int maximum_column = 0;
+
   for (int i=0;i<e->row_count();i++) {
     EffectRow* row = e->row(i);
 
@@ -40,6 +43,26 @@ EffectUI::EffectUI(Effect* e) :
 
       layout_->addWidget(widget, i, j + 1);
     }
+
+    // Find maximum column to place keyframe controls
+    maximum_column = qMax(row->FieldCount(), maximum_column);
+  }
+
+  // Create keyframe controls
+  maximum_column++;
+
+  for (int i=0;i<e->row_count();i++) {
+    EffectRow* row = e->row(i);
+
+    KeyframeNavigator* nav = new KeyframeNavigator();
+
+    connect(nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
+    connect(nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));
+    connect(nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));
+    connect(nav, SIGNAL(keyframe_enabled_changed(bool)), row, SLOT(SetKeyframingEnabled(bool)));
+    connect(nav, SIGNAL(clicked()), row, SLOT(FocusRow()));
+
+    layout_->addWidget(nav, i, maximum_column);
   }
 
   connect(enabled_check, SIGNAL(clicked(bool)), e, SLOT(FieldChanged()));
