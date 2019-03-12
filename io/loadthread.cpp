@@ -140,18 +140,20 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
       EffectPtr ve(new VoidEffect(c, effect_name));
       ve->SetEnabled(effect_enabled);
       ve->load(stream);
+      ve->moveToThread(QApplication::instance()->thread());
       c->effects.append(ve);
     } else {
       EffectPtr e(Effect::Create(c, meta));
       e->SetEnabled(effect_enabled);
       e->load(stream);
-
+      e->moveToThread(QApplication::instance()->thread());
       c->effects.append(e);
     }
   } else {
     TransitionPtr t = Transition::Create(c, nullptr, meta);
     if (effect_length > -1) t->set_length(effect_length);
     t->SetEnabled(effect_enabled);
+    t->moveToThread(QApplication::instance()->thread());
     t->load(stream);
 
     if (type == kTransitionOpening) {
