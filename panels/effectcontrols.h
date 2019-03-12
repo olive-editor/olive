@@ -46,6 +46,8 @@ public:
   QScrollArea* parent_widget;
   KeyframeView* keyframe_area;
   TimelineHeader* header;
+protected:
+  void resizeEvent(QResizeEvent*);
 public slots:
   void receive_wheel_event(QWheelEvent* e);
 };

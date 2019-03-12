@@ -651,6 +651,11 @@ EffectsArea::EffectsArea(QWidget* parent) :
   QWidget(parent)
 {}
 
+void EffectsArea::resizeEvent(QResizeEvent *)
+{
+  parent_widget->setMinimumWidth(sizeHint().width());
+}
+
 void EffectsArea::receive_wheel_event(QWheelEvent *e) {
   QApplication::sendEvent(this, e);
 }
