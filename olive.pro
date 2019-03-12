@@ -168,7 +168,9 @@ SOURCES += \
     project/effectfields/stringfield.cpp \
     project/effectfields/boolfield.cpp \
     project/effectfields/combofield.cpp \
-    project/effectfields/filefield.cpp
+    project/effectfields/filefield.cpp \
+    project/effectfields/labelfield.cpp \
+    project/effectfields/buttonfield.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -290,7 +292,9 @@ HEADERS += \
     project/effectfields/stringfield.h \
     project/effectfields/boolfield.h \
     project/effectfields/combofield.h \
-    project/effectfields/filefield.h
+    project/effectfields/filefield.h \
+    project/effectfields/labelfield.h \
+    project/effectfields/buttonfield.h
 
 FORMS +=
 

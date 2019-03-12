@@ -36,17 +36,17 @@
 ShakeEffect::ShakeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
   SetFlags(Effect::CoordsFlag);
 
-  EffectRow* intensity_row = add_row(tr("Intensity"));
+  EffectRow* intensity_row = new EffectRow(this, tr("Intensity"));
   intensity_val = new DoubleField(intensity_row, "intensity");
   intensity_val->SetMinimum(0);
   intensity_val->SetDefault(25);
 
-  EffectRow* rotation_row = add_row(tr("Rotation"));
+  EffectRow* rotation_row = new EffectRow(this, tr("Rotation"));
   rotation_val = new DoubleField(rotation_row, "rotation");
   rotation_val->SetMinimum(0);
   rotation_val->SetDefault(10);
 
-  EffectRow* frequency_row = add_row(tr("Frequency"));
+  EffectRow* frequency_row = new EffectRow(this, tr("Frequency"));
   frequency_val = new DoubleField(frequency_row, "frequency");
   frequency_val->SetMinimum(0);
   frequency_val->SetDefault(5);

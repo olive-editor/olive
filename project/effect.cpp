@@ -153,7 +153,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
               }
             }
             if (!row_name.isEmpty()) {
-              EffectRow* row = add_row(row_name);
+              EffectRow* row = new EffectRow(this, row_name);
               while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
                 reader.readNext();
                 if (reader.name() == "field" && reader.isStartElement()) {
@@ -356,9 +356,6 @@ Effect::~Effect() {
 
   delete container;
 
-  for (int i=0;i<rows.size();i++) {
-    delete rows.at(i);
-  }
   for (int i=0;i<gizmos.size();i++) {
     delete gizmos.at(i);
   }
@@ -368,24 +365,18 @@ void Effect::copy_field_keyframes(EffectPtr e) {
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
     EffectRow* copy_row = e->rows.at(i);
-    copy_row->setKeyframing(row->isKeyframing());
-    for (int j=0;j<row->fieldCount();j++) {
+    copy_row->SetKeyframing(row->IsKeyframing());
+    for (int j=0;j<row->FieldCount();j++) {
       // Get field from this (the source) effect
-      EffectField* field = row->field(j);
+      EffectField* field = row->Field(j);
 
       // Get field from the destination effect
-      EffectField* copy_field = copy_row->field(j);
+      EffectField* copy_field = copy_row->Field(j);
 
       // Copy keyframes between effects
       copy_field->keyframes = field->keyframes;
     }
   }
-}
-
-EffectRow* Effect::add_row(const QString& name, bool savable, bool keyframable) {
-  EffectRow* row = new EffectRow(this, savable, ui_layout, name, rows.size(), keyframable);
-  rows.append(row);
-  return row;
 }
 
 EffectRow* Effect::row(int i) {
@@ -575,30 +566,30 @@ void Effect::load(QXmlStreamReader& stream) {
     if (stream.name() == "row" && stream.isStartElement()) {
       if (row_count < rows.size()) {
         EffectRow* row = rows.at(row_count);
-        int field_count = 0;
 
         while (!stream.atEnd() && !(stream.name() == "row" && stream.isEndElement())) {
           stream.readNext();
 
           // read field
           if (stream.name() == "field" && stream.isStartElement()) {
-            if (field_count < row->fieldCount()) {
-              // match field using ID
-              int field_number = field_count;
-              for (int k=0;k<stream.attributes().size();k++) {
-                const QXmlStreamAttribute& attr = stream.attributes().at(k);
-                if (attr.name() == "id") {
-                  for (int l=0;l<row->fieldCount();l++) {
-                    if (row->field(l)->id() == attr.value()) {
-                      field_number = l;
-                      break;
-                    }
-                  }
-                  break;
-                }
-              }
+            int field_number = -1;
 
-              EffectField* field = row->field(field_number);
+            // match field using ID
+            for (int k=0;k<stream.attributes().size();k++) {
+              const QXmlStreamAttribute& attr = stream.attributes().at(k);
+              if (attr.name() == "id") {
+                for (int l=0;l<row->FieldCount();l++) {
+                  if (row->Field(l)->id() == attr.value()) {
+                    field_number = l;
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+
+            if (field_number > -1) {
+              EffectField* field = row->Field(field_number);
 
               // get current field value
               /*
@@ -616,7 +607,7 @@ void Effect::load(QXmlStreamReader& stream) {
 
                 // read keyframes
                 if (stream.name() == "key" && stream.isStartElement()) {
-                  row->setKeyframing(true);
+                  row->SetKeyframing(true);
 
                   EffectKeyframe key;
                   for (int k=0;k<stream.attributes().size();k++) {
@@ -640,10 +631,7 @@ void Effect::load(QXmlStreamReader& stream) {
                   field->keyframes.append(key);
                 }
               }
-            } else {
-              qCritical() << "Too many fields for effect" << id << "row" << row_count << ". Project might be corrupt. (Got" << field_count << ", expected <" << row->fieldCount()-1 << ")";
             }
-            field_count++;
           }
         }
 
@@ -665,25 +653,28 @@ void Effect::save(QXmlStreamWriter& stream) {
 
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
-    if (row->savable) {
+    if (row->IsSavable()) {
       stream.writeStartElement("row"); // row
-      for (int j=0;j<row->fieldCount();j++) {
-        EffectField* field = row->field(j);
-        stream.writeStartElement("field"); // field
-        stream.writeAttribute("id", field->id());
-        for (int k=0;k<field->keyframes.size();k++) {
-          const EffectKeyframe& key = field->keyframes.at(k);
-          stream.writeStartElement("key");
-          stream.writeAttribute("value", field->ConvertValueToString(key.data));
-          stream.writeAttribute("frame", QString::number(key.time));
-          stream.writeAttribute("type", QString::number(key.type));
-          stream.writeAttribute("prehx", QString::number(key.pre_handle_x));
-          stream.writeAttribute("prehy", QString::number(key.pre_handle_y));
-          stream.writeAttribute("posthx", QString::number(key.post_handle_x));
-          stream.writeAttribute("posthy", QString::number(key.post_handle_y));
-          stream.writeEndElement(); // key
+      for (int j=0;j<row->FieldCount();j++) {
+        EffectField* field = row->Field(j);
+
+        if (field->id().isEmpty()) {
+          stream.writeStartElement("field"); // field
+          stream.writeAttribute("id", field->id());
+          for (int k=0;k<field->keyframes.size();k++) {
+            const EffectKeyframe& key = field->keyframes.at(k);
+            stream.writeStartElement("key");
+            stream.writeAttribute("value", field->ConvertValueToString(key.data));
+            stream.writeAttribute("frame", QString::number(key.time));
+            stream.writeAttribute("type", QString::number(key.type));
+            stream.writeAttribute("prehx", QString::number(key.pre_handle_x));
+            stream.writeAttribute("prehy", QString::number(key.pre_handle_y));
+            stream.writeAttribute("posthx", QString::number(key.post_handle_x));
+            stream.writeAttribute("posthy", QString::number(key.post_handle_y));
+            stream.writeEndElement(); // key
+          }
+          stream.writeEndElement(); // field
         }
-        stream.writeEndElement(); // field
       }
       stream.writeEndElement(); // row
     }
@@ -694,9 +685,9 @@ void Effect::load_from_string(const QByteArray &s) {
   // clear existing keyframe data
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
-    row->setKeyframing(false);
-    for (int j=0;j<row->fieldCount();j++) {
-      EffectField* field = row->field(j);
+    row->SetKeyframing(false);
+    for (int j=0;j<row->FieldCount();j++) {
+      EffectField* field = row->Field(j);
       field->keyframes.clear();
     }
   }
@@ -884,8 +875,8 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
 
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
-    for (int j=0;j<row->fieldCount();j++) {
-      EffectField* field = row->field(j);
+    for (int j=0;j<row->FieldCount();j++) {
+      EffectField* field = row->Field(j);
       if (!field->id().isEmpty()) {
         switch (field->type()) {
         case EffectField::EFFECT_FIELD_DOUBLE:
@@ -1070,8 +1061,8 @@ bool Effect::valueHasChanged(double timecode) {
 
     for (int i=0;i<row_count();i++) {
       EffectRow* crow = row(i);
-      for (int j=0;j<crow->fieldCount();j++) {
-        cachedValues.append(crow->field(j)->GetValueAt(timecode));
+      for (int j=0;j<crow->FieldCount();j++) {
+        cachedValues.append(crow->Field(j)->GetValueAt(timecode));
       }
     }
     return true;
@@ -1082,8 +1073,8 @@ bool Effect::valueHasChanged(double timecode) {
     int index = 0;
     for (int i=0;i<row_count();i++) {
       EffectRow* crow = row(i);
-      for (int j=0;j<crow->fieldCount();j++) {
-        EffectField* field = crow->field(j);
+      for (int j=0;j<crow->FieldCount();j++) {
+        EffectField* field = crow->Field(j);
         if (cachedValues.at(index) != field->GetValueAt(timecode)) {
           changed = true;
         }

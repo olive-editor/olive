@@ -29,23 +29,23 @@
 #include "debug.h"
 
 ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_MIN) {
-  EffectRow* type_row = add_row(tr("Type"));
+  EffectRow* type_row = new EffectRow(this, tr("Type"));
   type_val = new ComboField(type_row, "type");
   type_val->AddItem(tr("Sine"), TONE_TYPE_SINE);
 
-  EffectRow* frequency_row = add_row(tr("Frequency"));
+  EffectRow* frequency_row = new EffectRow(this, tr("Frequency"));
   freq_val = new DoubleField(frequency_row, "frequency");
   freq_val->SetMinimum(20);
   freq_val->SetMaximum(20000);
   freq_val->SetDefault(1000);
 
-  EffectRow* amount_row = add_row(tr("Amount"));
+  EffectRow* amount_row = new EffectRow(this, tr("Amount"));
   amount_val = new DoubleField(amount_row, "amount");
   amount_val->SetMinimum(0);
   amount_val->SetMaximum(100);
   amount_val->SetDefault(25);
 
-  EffectRow* mix_row = add_row(tr("Mix"));
+  EffectRow* mix_row = new EffectRow(this, tr("Mix"));
   mix_val = new BoolField(mix_row, "mix");
   mix_val->SetValueAt(0, true);
 }

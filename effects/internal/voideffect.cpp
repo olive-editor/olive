@@ -28,36 +28,38 @@
 #include "debug.h"
 
 VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
-	name = n;
-	QString display_name;
-	if (n.isEmpty()) {
-		display_name = tr("(unknown)");
-	} else {
-		display_name = n;
-	}
-	EffectRow* row = add_row(tr("Missing Effect"), false, false);
-	row->add_widget(new QLabel(display_name));
-	container->setText(display_name);
+  name = n;
+  QString display_name;
+  if (n.isEmpty()) {
+    display_name = tr("(unknown)");
+  } else {
+    display_name = n;
+  }
+  EffectRow* row = new EffectRow(this, tr("Missing Effect"), false, false);
 
-	void_meta.type = EFFECT_TYPE_EFFECT;
-	meta = &void_meta;
+  new LabelField(row, display_name);
+
+  container->setText(display_name);
+
+  void_meta.type = EFFECT_TYPE_EFFECT;
+  meta = &void_meta;
 }
 
 EffectPtr VoidEffect::copy(Clip* c) {
     EffectPtr copy(new VoidEffect(c, name));
-	copy->set_enabled(is_enabled());
-	copy_field_keyframes(copy);
-	return copy;
+  copy->set_enabled(is_enabled());
+  copy_field_keyframes(copy);
+  return copy;
 }
 
 void VoidEffect::load(QXmlStreamReader &stream) {
-	QString tag = stream.name().toString();
+  QString tag = stream.name().toString();
 
     QXmlStreamWriter writer(&bytes);
 
     // copy XML from reader to writer
     while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
-		stream.readNext();
+    stream.readNext();
 
         if (stream.isStartElement()) {
             writer.writeStartElement(stream.name().toString());
@@ -75,18 +77,18 @@ void VoidEffect::load(QXmlStreamReader &stream) {
 }
 
 void VoidEffect::save(QXmlStreamWriter &stream) {
-	if (!name.isEmpty()) {
-		stream.writeAttribute("name", name);
-		stream.writeAttribute("enabled", QString::number(is_enabled()));
+  if (!name.isEmpty()) {
+    stream.writeAttribute("name", name);
+    stream.writeAttribute("enabled", QString::number(is_enabled()));
 
-		// force xml writer to expand <effect> tag, ignored when loading
-		stream.writeStartElement("void");
-		stream.writeEndElement();
+    // force xml writer to expand <effect> tag, ignored when loading
+    stream.writeStartElement("void");
+    stream.writeEndElement();
 
-		if (!bytes.isEmpty()) {
-			// write stored data
-			QIODevice* device = stream.device();
-			device->write(bytes);
-		}
-	}
+    if (!bytes.isEmpty()) {
+      // write stored data
+      QIODevice* device = stream.device();
+      device->write(bytes);
+    }
+  }
 }

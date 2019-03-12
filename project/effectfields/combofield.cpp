@@ -13,13 +13,3 @@ void ComboField::AddItem(const QString &text, const QVariant &data)
 
   items_.append(item);
 }
-
-QVariant ComboField::ConvertStringToValue(const QString &s)
-{
-  return s;
-}
-
-QString ComboField::ConvertValueToString(const QVariant &v)
-{
-  return v.toString();
-}

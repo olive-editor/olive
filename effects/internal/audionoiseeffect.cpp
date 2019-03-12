@@ -21,13 +21,13 @@
 #include <QtMath>
 
 AudioNoiseEffect::AudioNoiseEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  EffectRow* amount_row = add_row(tr("Amount"));
+  EffectRow* amount_row = new EffectRow(this, tr("Amount"));
   amount_val = new DoubleField(amount_row, "amount");
   amount_val->SetMinimum(0);
   amount_val->SetDefault(20);
   amount_val->SetMaximum(100);
 
-  EffectRow* mix_row = add_row(tr("Mix"));
+  EffectRow* mix_row = new EffectRow(this, tr("Mix"));
   mix_val = new BoolField(mix_row, "mix");
   mix_val->SetValueAt(0, true);
 }

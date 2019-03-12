@@ -39,46 +39,40 @@ class ClickableLabel;
 class EffectRow : public QObject {
   Q_OBJECT
 public:
-  EffectRow(Effect* parent, bool save, QGridLayout* uilayout, const QString& n, int row, bool keyframable = true);
-  ~EffectRow();
+  EffectRow(Effect* parent, const QString& n, bool savable = true, bool keyframable = true);
 
-  void AddField(EffectField* field);
+  void AddField(EffectField* Field);
 
-  void add_widget(QWidget *w);
-  EffectField* field(int i);
-  int fieldCount();
+  EffectField* Field(int i);
+  int FieldCount();
   void set_keyframe_now(ComboAction *ca);
   void delete_keyframe_at_time(ComboAction *ca, long time);
-  ClickableLabel* label;
-  Effect* parent_effect;
-  bool savable;
+
+  Effect* GetParentEffect();
+
   const QString& name();
 
-  bool isKeyframing();
-  void setKeyframing(bool);
+  bool IsKeyframing();
+  void SetKeyframing(bool);
+
+  bool IsSavable();
 public slots:
   void GoToPreviousKeyframe();
   void ToggleKeyframe();
   void GoToNextKeyframe();
   void FocusRow();
+signals:
+  void KeyframingSetChanged(bool);
 private slots:
   void SetKeyframingEnabled(bool);
 private:
-  bool keyframing;
-  QGridLayout* ui;
   QString name_;
-  int ui_row;
+
+  bool keyframable_;
+  bool keyframing_;
+  bool savable_;
+
   QVector<EffectField*> fields_;
-  QVector<QWidget*> widgets;
-
-  KeyframeNavigator* keyframe_nav;
-
-  bool just_made_unsafe_keyframe;
-  QVector<int> unsafe_keys;
-  QVector<QVariant> unsafe_old_data;
-  QVector<bool> key_is_new;
-
-  int column_count;
 };
 
 #endif // EFFECTROW_H

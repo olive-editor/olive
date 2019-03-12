@@ -47,24 +47,24 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
 {
   SetFlags(Effect::SuperimposeFlag);
 
-  EffectRow* text_field = add_row(tr("Text"));
+  EffectRow* text_field = new EffectRow(this, tr("Text"));
   text_val = new StringField(text_field, "text");
   text_val->SetColumnSpan(2);
 
-  EffectRow* font_row = add_row(tr("Font"));
+  EffectRow* font_row = new EffectRow(this, tr("Font"));
   set_font_combobox = new FontField(font_row, "font");
   set_font_combobox->SetColumnSpan(2);
 
-  EffectRow* size_row = add_row(tr("Size"));
+  EffectRow* size_row = new EffectRow(this, tr("Size"));
   size_val = new DoubleField(size_row, "size");
   size_val->SetMinimum(0);
   size_val->SetColumnSpan(2);
 
-  EffectRow* color_row = add_row(tr("Color"));
+  EffectRow* color_row = new EffectRow(this, tr("Color"));
   set_color_button = new ColorField(color_row, "color");
   set_color_button->SetColumnSpan(2);
 
-  EffectRow* alignment_row = add_row(tr("Alignment"));
+  EffectRow* alignment_row = new EffectRow(this, tr("Alignment"));
   halign_field = new ComboField(alignment_row, "halign");
   halign_field->AddItem(tr("Left"), Qt::AlignLeft);
   halign_field->AddItem(tr("Center"), Qt::AlignHCenter);
@@ -76,46 +76,46 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
   valign_field->AddItem(tr("Center"), Qt::AlignVCenter);
   valign_field->AddItem(tr("Bottom"), Qt::AlignBottom);
 
-  EffectRow* word_wrap_row = add_row(tr("Word Wrap"));
+  EffectRow* word_wrap_row = new EffectRow(this, tr("Word Wrap"));
   word_wrap_field = new BoolField(word_wrap_row, "wordwrap");
   word_wrap_field->SetColumnSpan(2);
 
-  EffectRow* outline_row = add_row(tr("Outline"));
+  EffectRow* outline_row = new EffectRow(this, tr("Outline"));
   outline_bool = new BoolField(outline_row, "outline");
   outline_bool->SetColumnSpan(2);
 
-  EffectRow* outline_color_row = add_row(tr("Outline Color"));
+  EffectRow* outline_color_row = new EffectRow(this, tr("Outline Color"));
   outline_color = new ColorField(outline_color_row, "outlinecolor");
   outline_color->SetColumnSpan(2);
 
-  EffectRow* outline_width_row = add_row(tr("Outline Width"));
+  EffectRow* outline_width_row = new EffectRow(this, tr("Outline Width"));
   outline_width = new DoubleField(outline_width_row, "outlinewidth");
   outline_width->SetColumnSpan(2);
   outline_width->SetMinimum(0);
 
-  EffectRow* shadow_row = add_row(tr("Shadow"));
+  EffectRow* shadow_row = new EffectRow(this, tr("Shadow"));
   shadow_bool = new BoolField(shadow_row, "shadow");
   shadow_bool->SetColumnSpan(2);
 
-  EffectRow* shadow_color_row = add_row(tr("Shadow Color"));
+  EffectRow* shadow_color_row = new EffectRow(this, tr("Shadow Color"));
   shadow_color = new ColorField(shadow_color_row, "shadowcolor");
   shadow_color->SetColumnSpan(2);
 
-  EffectRow* shadow_angle_row = add_row(tr("Shadow Angle"));
+  EffectRow* shadow_angle_row = new EffectRow(this, tr("Shadow Angle"));
   shadow_angle = new DoubleField(shadow_angle_row, "shadowangle");
   shadow_angle->SetColumnSpan(2);
 
-  EffectRow* shadow_distance_row = add_row(tr("Shadow Distance"));
+  EffectRow* shadow_distance_row = new EffectRow(this, tr("Shadow Distance"));
   shadow_distance = new DoubleField(shadow_distance_row, "shadowdistance");
   shadow_distance->SetColumnSpan(2);
   shadow_distance->SetMinimum(0);
 
-  EffectRow* shadow_softness_row = add_row(tr("Shadow Softness"));
+  EffectRow* shadow_softness_row = new EffectRow(this, tr("Shadow Softness"));
   shadow_softness = new DoubleField(shadow_softness_row, "shadowsoftness");
   shadow_softness->SetColumnSpan(2);
   shadow_softness->SetMinimum(0);
 
-  EffectRow* shadow_opacity_row = add_row(tr("Shadow Opacity"));
+  EffectRow* shadow_opacity_row = new EffectRow(this, tr("Shadow Opacity"));
   shadow_opacity = new DoubleField(shadow_opacity_row, "shadowopacity");
   shadow_opacity->SetColumnSpan(2);
   shadow_opacity->SetMinimum(0);
@@ -145,7 +145,7 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
   fragPath = "dropshadow.frag";
 }
 
-void blurred2(QImage& result, const QRect& rect, int radius, bool alphaOnly = false) {
+void blurred2(QImage& result, const QRect& rect, int radius, bool alphaOnly) {
   int tab[] = { 14, 10, 8, 6, 5, 5, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2 };
   int alpha = (radius < 1)  ? 16 : (radius > 17) ? 1 : tab[radius-1];
 

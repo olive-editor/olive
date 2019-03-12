@@ -27,23 +27,23 @@
 CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
   SetFlags(Effect::CoordsFlag & Effect::ShaderFlag);
 
-  EffectRow* top_left = add_row(tr("Top Left"));
+  EffectRow* top_left = new EffectRow(this, tr("Top Left"));
   top_left_x = new DoubleField(top_left, "topleftx");
   top_left_y = new DoubleField(top_left, "toplefty");
 
-  EffectRow* top_right = add_row(tr("Top Right"));
+  EffectRow* top_right = new EffectRow(this, tr("Top Right"));
   top_right_x = new DoubleField(top_right, "toprightx");
   top_right_y = new DoubleField(top_right, "toprighty");
 
-  EffectRow* bottom_left = add_row(tr("Bottom Left"));
+  EffectRow* bottom_left = new EffectRow(this, tr("Bottom Left"));
   bottom_left_x = new DoubleField(bottom_left, "bottomleftx");
   bottom_left_y = new DoubleField(bottom_left, "bottomlefty");
 
-  EffectRow* bottom_right = add_row(tr("Bottom Right"));
+  EffectRow* bottom_right = new EffectRow(this, tr("Bottom Right"));
   bottom_right_x = new DoubleField(bottom_right, "bottomrightx");
   bottom_right_y = new DoubleField(bottom_right, "bottomrighty");
 
-  EffectRow* perspective_row = add_row(tr("Perspective"));
+  EffectRow* perspective_row = new EffectRow(this, tr("Perspective"));
   perspective = new BoolField(perspective_row, "perspective");
   perspective->SetValueAt(0, true);
 

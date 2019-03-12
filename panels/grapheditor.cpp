@@ -141,11 +141,11 @@ void GraphEditor::update_panel() {
   if (isVisible()) {
     if (row != nullptr) {
       int slider_index = 0;
-      for (int i=0;i<row->fieldCount();i++) {
-        EffectField* field = row->field(i);
+      for (int i=0;i<row->FieldCount();i++) {
+        EffectField* field = row->Field(i);
         if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
           slider_proxies.at(slider_index)->set_value(
-                row->field(i)->GetValueAt(playhead_to_clip_seconds(field->GetParentRow()->parent_effect->parent_clip,
+                row->Field(i)->GetValueAt(playhead_to_clip_seconds(field->GetParentRow()->GetParentEffect()->parent_clip,
                                                                    olive::ActiveSequence->playhead)).toDouble(),
                 false
               );
@@ -177,9 +177,9 @@ void GraphEditor::set_row(EffectRow *r) {
 
   bool found_vals = false;
 
-  if (r != nullptr && r->isKeyframing()) {
-    for (int i=0;i<r->fieldCount();i++) {
-      EffectField* field = r->field(i);
+  if (r != nullptr && r->IsKeyframing()) {
+    for (int i=0;i<r->FieldCount();i++) {
+      EffectField* field = r->Field(i);
       if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
         QPushButton* slider_button = new QPushButton();
         slider_button->setCheckable(true);
@@ -192,7 +192,7 @@ void GraphEditor::set_row(EffectRow *r) {
         value_layout->addWidget(slider_button);
 
         LabelSlider* slider = new LabelSlider();
-        slider->set_color(get_curve_color(i, r->fieldCount()).name());
+        slider->set_color(get_curve_color(i, r->FieldCount()).name());
         connect(slider, SIGNAL(valueChanged()), this, SLOT(passthrough_slider_value()));
         slider_proxies.append(slider);
         value_layout->addWidget(slider);
@@ -206,10 +206,10 @@ void GraphEditor::set_row(EffectRow *r) {
 
   if (found_vals) {
     row = r;
-    current_row_desc->setText(row->parent_effect->parent_clip->name()
-                              + " :: " + row->parent_effect->meta->name
+    current_row_desc->setText(row->GetParentEffect()->parent_clip->name()
+                              + " :: " + row->GetParentEffect()->meta->name
                               + " :: " + row->name());
-    header->set_visible_in(r->parent_effect->parent_clip->timeline_in());
+    header->set_visible_in(r->GetParentEffect()->parent_clip->timeline_in());
 
     connect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(goto_previous_key()));
     connect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(toggle_key()));

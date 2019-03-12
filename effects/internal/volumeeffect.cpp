@@ -29,7 +29,7 @@
 #include "ui/collapsiblewidget.h"
 
 VolumeEffect::VolumeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  EffectRow* volume_row = add_row(tr("Volume"));
+  EffectRow* volume_row = new EffectRow(this, tr("Volume"));
   volume_val = new DoubleField(volume_row, "volume");
 
   // set defaults

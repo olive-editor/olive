@@ -145,7 +145,6 @@ public:
   QString name;
   CollapsibleWidget* container;
 
-  EffectRow* add_row(const QString &name, bool savable = true, bool keyframable = true);
   EffectRow* row(int i);
   int row_count();
 

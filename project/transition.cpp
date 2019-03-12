@@ -45,7 +45,7 @@ Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
   Effect(c, em),
   secondary_clip(s)
 {
-  EffectRow* length_row = add_row(tr("Length"), false, false);
+  EffectRow* length_row = new EffectRow(this, tr("Length"), false, false);
   length_field = new DoubleField(length_row, "length");
   length_field->SetDefault(30);
   length_field->SetMinimum(0);

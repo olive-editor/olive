@@ -10,13 +10,3 @@ QString FontField::GetFontAt(double timecode)
 {
   return GetValueAt(timecode).toString();
 }
-
-QVariant FontField::ConvertStringToValue(const QString &s)
-{
-  return s;
-}
-
-QString FontField::ConvertValueToString(const QVariant &v)
-{
-  return v.toString();
-}

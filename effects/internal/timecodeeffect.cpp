@@ -49,41 +49,41 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   SetAlwaysUpdate(true);
   SetFlags(Effect::SuperimposeFlag);
 
-  EffectRow* tc_row = add_row(tr("Timecode"));
+  EffectRow* tc_row = new EffectRow(this, tr("Timecode"));
   tc_select = new ComboField(tc_row, "tc_selector");
   tc_select->AddItem(tr("Sequence"), true);
   tc_select->AddItem(tr("Media"), false);
   tc_select->SetValueAt(0, true);
 
-  EffectRow* scale_row = add_row(tr("Scale"));
+  EffectRow* scale_row = new EffectRow(this, tr("Scale"));
   scale_val = new DoubleField(scale_row, "scale");
   scale_val->SetColumnSpan(2);
   scale_val->SetMinimum(1);
   scale_val->SetDefault(100);
   scale_val->SetMaximum(1000);
 
-  EffectRow* color_row = add_row(tr("Color"));
+  EffectRow* color_row = new EffectRow(this, tr("Color"));
   color_val = new ColorField(color_row, "color");
   color_val->SetColumnSpan(2);
   color_val->SetValueAt(0, QColor(Qt::white));
 
-  EffectRow* color_bg_row = add_row(tr("Background Color"));
+  EffectRow* color_bg_row = new EffectRow(this, tr("Background Color"));
   color_bg_val = new ColorField(color_bg_row, "bgcolor");
   color_bg_val->SetColumnSpan(2);
   color_bg_val->SetValueAt(0, QColor(Qt::black));
 
-  EffectRow* bg_alpha_row = add_row(tr("Background Opacity"));
+  EffectRow* bg_alpha_row = new EffectRow(this, tr("Background Opacity"));
   bg_alpha = new DoubleField(bg_alpha_row, "bgalpha");
   bg_alpha->SetColumnSpan(2);
   bg_alpha->SetMinimum(0);
   bg_alpha->SetDefault(50);
   bg_alpha->SetMaximum(100);
 
-  EffectRow* offset_row = add_row(tr("Offset"));
+  EffectRow* offset_row = new EffectRow(this, tr("Offset"));
   offset_x_val = new DoubleField(offset_row, "offsetx");
   offset_y_val = new DoubleField(offset_row, "offsety");
 
-  EffectRow* prepent_text_row = add_row(tr("Prepend"));
+  EffectRow* prepent_text_row = new EffectRow(this, tr("Prepend"));
   prepend_text = new StringField(prepent_text_row, "prepend");
   prepend_text->SetColumnSpan(2);
 }

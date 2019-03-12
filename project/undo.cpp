@@ -1136,17 +1136,17 @@ void KeyframeFieldSet::doRedo() {
   done = true;
 }
 
-SetKeyframing::SetKeyframing(EffectRow *irow, bool ib) {
+SetIsKeyframing::SetIsKeyframing(EffectRow *irow, bool ib) {
   row = irow;
   b = ib;
 }
 
-void SetKeyframing::doUndo() {
-  row->setKeyframing(!b);
+void SetIsKeyframing::doUndo() {
+  row->SetKeyframing(!b);
 }
 
-void SetKeyframing::doRedo() {
-  row->setKeyframing(b);
+void SetIsKeyframing::doRedo() {
+  row->SetKeyframing(b);
 }
 
 RefreshClips::RefreshClips(Media *m) {

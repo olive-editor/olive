@@ -92,7 +92,7 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
     get_param_info(&param_info, i);
 
     if (param_info.type >= 0 && param_info.type <= F0R_PARAM_STRING) {
-      EffectRow* row = add_row(param_info.name);
+      EffectRow* row = new EffectRow(this, param_info.name);
       switch (param_info.type) {
       case F0R_PARAM_BOOL:
         new BoolField(row, QString::number(i));
@@ -147,19 +147,19 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
     switch (param_info.type) {
     case F0R_PARAM_BOOL:
     {
-      double b = param_row->field(0)->GetValueAt(timecode).toBool();
+      double b = param_row->Field(0)->GetValueAt(timecode).toBool();
       set_param(instance, &b, i);
     }
       break;
     case F0R_PARAM_DOUBLE:
     {
-      double d = param_row->field(0)->GetValueAt(timecode).toDouble()*0.01;
+      double d = param_row->Field(0)->GetValueAt(timecode).toDouble()*0.01;
       set_param(instance, &d, i);
     }
       break;
     case F0R_PARAM_COLOR:
     {
-      QColor qcolor = param_row->field(0)->GetValueAt(timecode).value<QColor>();
+      QColor qcolor = param_row->Field(0)->GetValueAt(timecode).value<QColor>();
 
       f0r_param_color fcolor;
       fcolor.r = float(qcolor.redF());
@@ -172,14 +172,14 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
     case F0R_PARAM_POSITION:
     {
       f0r_param_position pos;
-      pos.x = param_row->field(0)->GetValueAt(timecode).toDouble();
-      pos.y = param_row->field(1)->GetValueAt(timecode).toDouble();
+      pos.x = param_row->Field(0)->GetValueAt(timecode).toDouble();
+      pos.y = param_row->Field(1)->GetValueAt(timecode).toDouble();
       set_param(instance, &pos, i);
     }
       break;
     case F0R_PARAM_STRING:
     {
-      QByteArray bytes = param_row->field(0)->GetValueAt(timecode).toString().toUtf8();
+      QByteArray bytes = param_row->Field(0)->GetValueAt(timecode).toString().toUtf8();
       char* byte_data = bytes.data();
       set_param(instance, &byte_data, i);
     }

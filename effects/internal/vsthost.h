@@ -37,7 +37,7 @@ typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t i
 class VSTHost : public Effect {
   Q_OBJECT
 public:
-    VSTHost(Clip* c, const EffectMeta* em);
+  VSTHost(Clip* c, const EffectMeta* em);
   ~VSTHost();
   void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
@@ -49,6 +49,7 @@ private slots:
   void change_plugin();
 private:
   FileField* file_field;
+  ButtonField* show_interface_btn;
 
   void loadPlugin();
   void freePlugin();
@@ -64,7 +65,6 @@ private:
   float** inputs;
   float** outputs;
   QDialog* dialog;
-  QPushButton* show_interface_btn;
   QByteArray data_cache;
 
 #if defined(__APPLE__)

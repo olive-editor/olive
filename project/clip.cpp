@@ -442,8 +442,8 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
     EffectPtr e = effects.at(i);
     for (int j=0;j<e->row_count();j++) {
       EffectRow* r = e->row(j);
-      for (int l=0;l<r->fieldCount();l++) {
-        EffectField* f = r->field(l);
+      for (int l=0;l<r->FieldCount();l++) {
+        EffectField* f = r->Field(l);
         for (int k=0;k<f->keyframes.size();k++) {
           ca->append(new SetLong(&f->keyframes[k].time, f->keyframes[k].time, qRound(f->keyframes[k].time * multiplier)));
         }

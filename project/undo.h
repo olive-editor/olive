@@ -600,9 +600,9 @@ private:
   QVariant new_val;
 };
 
-class SetKeyframing : public OliveAction {
+class SetIsKeyframing : public OliveAction {
 public:
-  SetKeyframing(EffectRow* irow, bool ib);
+  SetIsKeyframing(EffectRow* irow, bool ib);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:

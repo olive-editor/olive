@@ -52,7 +52,7 @@ EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t)
 {
   // EffectField MUST be created with a parent.
   Q_ASSERT(parent != nullptr);
-  Q_ASSERT(!i.isEmpty());
+  Q_ASSERT(!i.isEmpty() || t == EFFECT_FIELD_UI);
 
   parent->AddField(this);
   /*
@@ -141,6 +141,16 @@ void EffectField::SetColumnSpan(int i)
   colspan_ = i;
 }
 
+QVariant EffectField::ConvertStringToValue(const QString &s)
+{
+  return s;
+}
+
+QString EffectField::ConvertValueToString(const QVariant &v)
+{
+  return v.toString();
+}
+
 QVariant EffectField::GetValueAt(double timecode)
 {
   Q_ASSERT(!keyframes.isEmpty());
@@ -172,15 +182,15 @@ QVariant EffectField::GetValueAt(double timecode)
           // bezier interpolation
           if (before_key.type == EFFECT_KEYFRAME_BEZIER && after_key.type == EFFECT_KEYFRAME_BEZIER) {
             // cubic bezier
-            double t = cubic_t_from_x(timecode*GetParentRow()->parent_effect->parent_clip->sequence->frame_rate, before_key.time, before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true), after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false), after_key.time);
+            double t = cubic_t_from_x(timecode*GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate, before_key.time, before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true), after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false), after_key.time);
             value = cubic_from_t(before_dbl, before_dbl+before_key.post_handle_y, after_dbl+after_key.pre_handle_y, after_dbl, t);
           } else if (after_key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
             // last keyframe is the bezier one
-            double t = quad_t_from_x(timecode*GetParentRow()->parent_effect->parent_clip->sequence->frame_rate, before_key.time, before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true), after_key.time);
+            double t = quad_t_from_x(timecode*GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate, before_key.time, before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true), after_key.time);
             value = quad_from_t(before_dbl, before_dbl+before_key.post_handle_y, after_dbl, t);
           } else {
             // this keyframe is the bezier one
-            double t = quad_t_from_x(timecode*GetParentRow()->parent_effect->parent_clip->sequence->frame_rate, before_key.time, after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false), after_key.time);
+            double t = quad_t_from_x(timecode*GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate, before_key.time, after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false), after_key.time);
             value = quad_from_t(before_dbl, after_dbl+after_key.pre_handle_y, after_dbl, t);
           }
         } else {
@@ -223,7 +233,7 @@ void EffectField::SetValueAt(double timecode, const QVariant &value)
     return;
   }
 
-  if (GetParentRow()->isKeyframing()) {
+  if (GetParentRow()->IsKeyframing()) {
     // create keyframe here
   } else {
     keyframes.first().data = value;
@@ -289,11 +299,11 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
 }
 
 double EffectField::frameToTimecode(long frame) {
-  return (double(frame) / GetParentRow()->parent_effect->parent_clip->sequence->frame_rate);
+  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
 }
 
 long EffectField::timecodeToFrame(double timecode) {
-  return qRound(timecode * GetParentRow()->parent_effect->parent_clip->sequence->frame_rate);
+  return qRound(timecode * GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
 }
 
 void EffectField::get_keyframe_data(double timecode, int &before, int &after, double &progress) {
@@ -333,7 +343,7 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
 }
 
 bool EffectField::HasKeyframes() {
-  return (GetParentRow()->isKeyframing() && keyframes.size() > 1);
+  return (GetParentRow()->IsKeyframing() && keyframes.size() > 1);
 }
 
 void EffectField::ui_element_change() {

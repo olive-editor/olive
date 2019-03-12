@@ -40,23 +40,23 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
   SetFlags(Effect::SuperimposeFlag);
 
   // Field for solid type
-  EffectRow* type_row = add_row(tr("Type"));
+  EffectRow* type_row = new EffectRow(this, tr("Type"));
   solid_type = new ComboField(type_row, "type");
   solid_type->AddItem(tr("Solid Color"), SOLID_TYPE_COLOR);
   solid_type->AddItem(tr("SMPTE Bars"), SOLID_TYPE_BARS);
   solid_type->AddItem(tr("Checkerboard"), SOLID_TYPE_CHECKERBOARD);
 
-  EffectRow* opacity_row = add_row(tr("Opacity"));
+  EffectRow* opacity_row = new EffectRow(this, tr("Opacity"));
   opacity_field = new DoubleField(opacity_row, "opacity");
   opacity_field->SetMinimum(0);
   opacity_field->SetDefault(0);
   opacity_field->SetMaximum(100);
 
-  EffectRow* solid_color_row = add_row(tr("Color"));
+  EffectRow* solid_color_row = new EffectRow(this, tr("Color"));
   solid_color_field = new ColorField(solid_color_row, "color");
   solid_color_field->SetValueAt(0, QColor(Qt::red));
 
-  EffectRow* checkerboard_size = add_row(tr("Checkerboard Size"));
+  EffectRow* checkerboard_size = new EffectRow(this, tr("Checkerboard Size"));
   checkerboard_size_field = new DoubleField(checkerboard_size, "checker_size");
   checkerboard_size_field->SetMinimum(1);
   checkerboard_size_field->SetDefault(10);

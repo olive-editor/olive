@@ -10,9 +10,6 @@ public:
   StringField(EffectRow* parent, const QString& id);
 
   QString GetStringAt(double timecode);
-
-  virtual QVariant ConvertStringToValue(const QString& s);
-  virtual QString ConvertValueToString(const QVariant& v);
 };
 
 #endif // STRINGFIELD_H

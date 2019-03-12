@@ -40,7 +40,8 @@ public:
     EFFECT_FIELD_BOOL,
     EFFECT_FIELD_COMBO,
     EFFECT_FIELD_FONT,
-    EFFECT_FIELD_FILE
+    EFFECT_FIELD_FILE,
+    EFFECT_FIELD_UI
   };
 
   EffectField(EffectRow* parent, const QString& i, EffectFieldType t);
@@ -57,8 +58,8 @@ public:
   int GetColumnSpan();
   void SetColumnSpan(int i);
 
-  virtual QVariant ConvertStringToValue(const QString& s) = 0;
-  virtual QString ConvertValueToString(const QVariant& v) = 0;
+  virtual QVariant ConvertStringToValue(const QString& s);
+  virtual QString ConvertValueToString(const QVariant& v);
 
   double GetValidKeyframeHandlePosition(int key, bool post);
 

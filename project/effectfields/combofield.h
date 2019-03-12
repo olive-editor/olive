@@ -16,9 +16,6 @@ public:
 
   void AddItem(const QString& text, const QVariant& data);
 
-  virtual QVariant ConvertStringToValue(const QString& s);
-  virtual QString ConvertValueToString(const QVariant& v);
-
 signals:
   void IndexChanged(int i);
 

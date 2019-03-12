@@ -10,9 +10,6 @@ public:
   FileField(EffectRow* parent, const QString& id);
 
   QString GetFileAt(double timecode);
-
-  virtual QVariant ConvertStringToValue(const QString& s);
-  virtual QString ConvertValueToString(const QVariant& v);
 };
 
 #endif // FILEFIELD_H

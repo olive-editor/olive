@@ -266,16 +266,17 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
     outputs[channel] = new float[BLOCK_SIZE];
   }
 
-  EffectRow* file_row = add_row(tr("Plugin"), true, false);
+  EffectRow* file_row = new EffectRow(this, tr("Plugin"), true, false);
   file_field = new FileField(file_row, "filename");
   connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
 
-  EffectRow* interface_row = add_row(tr("Interface"), false, false);
-  show_interface_btn = new QPushButton(tr("Show"));
-  show_interface_btn->setCheckable(true);
-  show_interface_btn->setEnabled(false);
+  EffectRow* interface_row = new EffectRow(this, tr("Interface"), false, false);
+
+
+  show_interface_btn = new ButtonField(interface_row, tr("Show"));
+  show_interface_btn->SetCheckable(true);
+  show_interface_btn->SetEnabled(false);
   connect(show_interface_btn, SIGNAL(toggled(bool)), this, SLOT(show_interface(bool)));
-  interface_row->add_widget(show_interface_btn);
 
   dialog = new QDialog(olive::MainWindow);
   dialog->setWindowTitle(tr("VST Plugin"));
@@ -373,7 +374,7 @@ void VSTHost::show_interface(bool show) {
 }
 
 void VSTHost::uncheck_show_button() {
-  show_interface_btn->setChecked(false);
+  show_interface_btn->SetChecked(false);
 }
 
 void VSTHost::change_plugin() {
@@ -395,7 +396,7 @@ void VSTHost::change_plugin() {
       plugin = nullptr;
     }
   }
-  show_interface_btn->setEnabled(plugin != nullptr);
+  show_interface_btn->SetEnabled(plugin != nullptr);
 }
 
 #endif

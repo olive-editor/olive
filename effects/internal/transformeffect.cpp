@@ -46,12 +46,12 @@
 TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
   SetFlags(Effect::CoordsFlag);
 
-  EffectRow* position_row = add_row(tr("Position"));
+  EffectRow* position_row = new EffectRow(this, tr("Position"));
 
   position_x = new DoubleField(position_row, "posx"); // position X
   position_y = new DoubleField(position_row, "posy"); // position Y
 
-  EffectRow* scale_row = add_row(tr("Scale"));
+  EffectRow* scale_row = new EffectRow(this, tr("Scale"));
 
   // scale X (and Y is uniform scale is selected)
   scale_x = new DoubleField(scale_row, "scalex");
@@ -61,27 +61,27 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
   scale_y = new DoubleField(scale_row, "scaley");
   scale_y->SetMinimum(0);
 
-  EffectRow* uniform_scale_row = add_row(tr("Uniform Scale"));
+  EffectRow* uniform_scale_row = new EffectRow(this, tr("Uniform Scale"));
 
   uniform_scale_field = new BoolField(uniform_scale_row, "uniformscale"); // uniform scale option
 
-  EffectRow* rotation_row = add_row(tr("Rotation"));
+  EffectRow* rotation_row = new EffectRow(this, tr("Rotation"));
 
   rotation = new DoubleField(rotation_row, "rotation");
 
-  EffectRow* anchor_point_row = add_row(tr("Anchor Point"));
+  EffectRow* anchor_point_row = new EffectRow(this, tr("Anchor Point"));
 
   anchor_x_box = new DoubleField(anchor_point_row, "anchorx"); // anchor point X
   anchor_y_box = new DoubleField(anchor_point_row, "anchory"); // anchor point Y
 
-  EffectRow* opacity_row = add_row(tr("Opacity"));
+  EffectRow* opacity_row = new EffectRow(this, tr("Opacity"));
 
   // opacity
   opacity = new DoubleField(opacity_row, "opacity");
   opacity->SetMinimum(0);
   opacity->SetMaximum(100);
 
-  EffectRow* blend_mode_row = add_row(tr("Blend Mode"));
+  EffectRow* blend_mode_row = new EffectRow(this, tr("Blend Mode"));
 
   // blend mode
   blend_mode_box = new ComboField(blend_mode_row, "blendmode");

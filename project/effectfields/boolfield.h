@@ -11,8 +11,8 @@ public:
 
   bool GetBoolAt(double timecode);
 
-  virtual QVariant ConvertStringToValue(const QString& s);
-  virtual QString ConvertValueToString(const QVariant& v);
+  virtual QVariant ConvertStringToValue(const QString& s) override;
+  virtual QString ConvertValueToString(const QVariant& v) override;
 };
 
 #endif // BOOLFIELD_H
