@@ -192,4 +192,4 @@ void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 }
 
 // static variable for the currently active sequence
-Sequence* olive::ActiveSequence = nullptr;
+SequencePtr olive::ActiveSequence = nullptr;

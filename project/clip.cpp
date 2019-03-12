@@ -197,10 +197,12 @@ void Clip::reset_audio() {
     cacher.ResetAudio();
   }
   if (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) {
-    Sequence* nested_sequence = media()->to_sequence();
+    Sequence* nested_sequence = media()->to_sequence().get();
     for (int i=0;i<nested_sequence->clips.size();i++) {
-      ClipPtr c = nested_sequence->clips.at(i);
-      if (c != nullptr) c->reset_audio();
+      Clip* c = nested_sequence->clips.at(i).get();
+      if (c != nullptr) {
+        c->reset_audio();
+      }
     }
   }
 }
@@ -391,7 +393,7 @@ long Clip::media_length() {
       }
       case MEDIA_TYPE_SEQUENCE:
       {
-        Sequence* s = media_->to_sequence();
+        Sequence* s = media_->to_sequence().get();
         return rescale_frame_number(s->getEndFrame(), s->frame_rate, fr);
       }
       }
@@ -412,7 +414,7 @@ int Clip::media_width() {
   }
   case MEDIA_TYPE_SEQUENCE:
   {
-    Sequence* s = media_->to_sequence();
+    Sequence* s = media_->to_sequence().get();
     return s->width;
   }
   }
@@ -431,7 +433,7 @@ int Clip::media_height() {
     break;
   case MEDIA_TYPE_SEQUENCE:
   {
-    Sequence* s = media_->to_sequence();
+    Sequence* s = media_->to_sequence().get();
     return s->height;
   }
   }
@@ -489,7 +491,7 @@ void Clip::Close(bool wait) {
     open_ = false;
 
     if (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) {
-      close_active_clips(media()->to_sequence());
+      close_active_clips(media()->to_sequence().get());
     }
 
     // destroy opengl texture in main thread

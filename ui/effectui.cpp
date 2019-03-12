@@ -42,7 +42,7 @@ EffectUI::EffectUI(Effect* e) :
     }
   }
 
-  connect(enabled_check, SIGNAL(clicked(bool)), this, SLOT(field_changed()));
+  connect(enabled_check, SIGNAL(clicked(bool)), e, SLOT(FieldChanged()));
 }
 
 Effect *EffectUI::GetEffect()
@@ -64,8 +64,11 @@ void EffectUI::show_context_menu(const QPoint& pos) {
 
     int index = c->IndexOfEffect(effect_);
 
-    menu.addAction(tr("Cu&t"), this, SIGNAL(CutRequested()));
-    menu.addAction(tr("&Copy"), this, SIGNAL(CopyRequested()));
+    QAction* cut_action = menu.addAction(tr("Cu&t"));
+    connect(cut_action, SIGNAL(triggered(bool)), this, SIGNAL(CutRequested()));
+
+    QAction* copy_action = menu.addAction(tr("&Copy"));
+    connect(copy_action, SIGNAL(triggered(bool)), this, SIGNAL(CopyRequested()));
 
     olive::MenuHelper.create_effect_paste_action(&menu);
 

@@ -45,7 +45,7 @@ public:
   Media(Media* iparent);
   ~Media();
   Footage *to_footage();
-  Sequence *to_sequence();
+  SequencePtr to_sequence();
   void set_icon(const QString& str);
   void set_icon(const QIcon &ico);
   void set_footage(FootagePtr f);

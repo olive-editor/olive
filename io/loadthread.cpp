@@ -372,7 +372,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 } else if (attr.name() == "alayout") {
                   s->audio_layout = attr.value().toInt();
                 } else if (attr.name() == "open") {
-                  open_seq = s.get();
+                  open_seq = s;
                 } else if (attr.name() == "workarea") {
                   s->using_workarea = (attr.value() == "1");
                 } else if (attr.name() == "workareaIn") {

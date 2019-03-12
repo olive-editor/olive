@@ -311,7 +311,7 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
     drag_start_x = event->pos().x();
     drag_start_y = event->pos().y();
 
-    gizmos->field_changed();
+    gizmos->FieldChanged();
   }
 }
 

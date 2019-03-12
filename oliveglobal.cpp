@@ -286,7 +286,7 @@ void OliveGlobal::open_preferences() {
   pd.exec();
 }
 
-void OliveGlobal::set_sequence(Sequence* s)
+void OliveGlobal::set_sequence(SequencePtr s)
 {
   panel_effect_controls->Clear(true);
 

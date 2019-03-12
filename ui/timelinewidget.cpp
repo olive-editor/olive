@@ -259,8 +259,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
   }
 
   if (event->source() == panel_footage_viewer->viewer_widget) {
-    Sequence* proposed_seq = panel_footage_viewer->seq.get();
-    if (proposed_seq != olive::ActiveSequence) { // don't allow nesting the same sequence
+    if (panel_footage_viewer->seq != olive::ActiveSequence) { // don't allow nesting the same sequence
       media_list.append(panel_footage_viewer->media);
       import_init = true;
     }
@@ -302,7 +301,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     event->acceptProposedAction();
 
     long entry_point;
-    Sequence* seq = olive::ActiveSequence;
+    Sequence* seq = olive::ActiveSequence.get();
 
     if (seq == nullptr) {
       // if no sequence, we're going to create a new one using the clips as a reference
@@ -486,13 +485,13 @@ void insert_clips(ComboAction* ca) {
 
   long ripple_length = (latest_new_point - earliest_new_point);
 
-  ripple_clips(ca, olive::ActiveSequence, earliest_new_point, ripple_length, ignore_clips);
+  ripple_clips(ca, olive::ActiveSequence.get(), earliest_new_point, ripple_length, ignore_clips);
 
   if (ripple_old_point) {
     // works for moving later clips earlier but not earlier to later
     long second_ripple_length = (earliest_old_point - latest_old_point);
 
-    ripple_clips(ca, olive::ActiveSequence, latest_old_point, second_ripple_length, ignore_clips);
+    ripple_clips(ca, olive::ActiveSequence.get(), latest_old_point, second_ripple_length, ignore_clips);
 
     if (earliest_old_point < earliest_new_point) {
       for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -515,7 +514,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
     ComboAction* ca = new ComboAction();
 
-    Sequence* s = olive::ActiveSequence;
+    Sequence* s = olive::ActiveSequence.get();
 
     // if we're dropping into nothing, create a new sequences based on the clip being dragged
     if (s == nullptr) {
@@ -998,7 +997,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
             panel_timeline->creating = false;
           } else if (g.in != g.out) {
-            ClipPtr c = std::make_shared<Clip>(olive::ActiveSequence);
+            ClipPtr c = std::make_shared<Clip>(olive::ActiveSequence.get());
             c->set_media(nullptr, 0);
             c->set_timeline_in(qMin(g.in, g.out));
             c->set_timeline_out(qMax(g.in, g.out));
@@ -1020,7 +1019,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
             QVector<ClipPtr> add;
             add.append(c);
-            ca->append(new AddClipCommand(olive::ActiveSequence, add));
+            ca->append(new AddClipCommand(olive::ActiveSequence.get(), add));
 
             if (c->track() < 0 && olive::CurrentConfig.add_default_effects_to_clips) {
               // default video effects (before custom effects)
@@ -1141,7 +1140,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             if (panel_timeline->trim_type == TRIM_OUT) ripple_length = -ripple_length;
 
             // finally, ripple everything
-            ripple_clips(ca, olive::ActiveSequence, ripple_point, ripple_length, ignore_clips);
+            ripple_clips(ca, olive::ActiveSequence.get(), ripple_point, ripple_length, ignore_clips);
           }
 
           if (panel_timeline->tool == TIMELINE_TOOL_POINTER
@@ -1157,7 +1156,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
               if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
 
                 // create copy of clip
-                ClipPtr c(olive::ActiveSequence->clips.at(g.clip)->copy(olive::ActiveSequence));
+                ClipPtr c = olive::ActiveSequence->clips.at(g.clip)->copy(olive::ActiveSequence.get());
 
                 c->set_timeline_in(g.in);
                 c->set_timeline_out(g.out);
@@ -1184,7 +1183,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
               panel_timeline->relink_clips_using_ids(old_clips, new_clips);
 
               // add them
-              ca->append(new AddClipCommand(olive::ActiveSequence, new_clips));
+              ca->append(new AddClipCommand(olive::ActiveSequence.get(), new_clips));
 
             }
 
@@ -2342,7 +2341,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         }
 
         // store selections
-        selection_command = new SetSelectionsCommand(olive::ActiveSequence);
+        selection_command = new SetSelectionsCommand(olive::ActiveSequence.get());
         selection_command->old_data = olive::ActiveSequence->selections;
 
         // ready to start moving clips
@@ -2953,7 +2952,6 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
           if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
             bool draw_checkerboard = false;
             QRect checkerboard_rect(clip_rect);
-            Footage* m = clip->media()->to_footage();
             FootageStream* ms = clip->media_stream();
             if (ms == nullptr) {
               draw_checkerboard = true;

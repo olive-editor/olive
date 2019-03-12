@@ -377,12 +377,12 @@ void ExportThread::run() {
     start_time = QDateTime::currentMSecsSinceEpoch();
 
     if (params.audio_enabled) {
-      compose_audio(nullptr, olive::ActiveSequence, 1, true);
+      compose_audio(nullptr, olive::ActiveSequence.get(), 1, true);
     }
     if (params.video_enabled) {
       do {
         // TODO optimize by rendering the next frame while encoding the last
-        renderer->start_render(nullptr, olive::ActiveSequence, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
+        renderer->start_render(nullptr, olive::ActiveSequence.get(), nullptr, video_frame->data[0], video_frame->linesize[0]/4);
         waitCond.wait(&mutex);
         if (!continueEncode) break;
       } while (renderer->did_texture_fail());

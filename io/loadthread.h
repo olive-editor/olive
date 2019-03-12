@@ -72,7 +72,7 @@ private:
   void read_next_start_element(QXmlStreamReader& stream);
   void update_current_element_count(QXmlStreamReader& stream);
 
-  Sequence* open_seq;
+  SequencePtr open_seq;
   QVector<Media*> loaded_media_items;
   QDir proj_dir;
   QDir internal_proj_dir;

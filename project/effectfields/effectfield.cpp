@@ -20,6 +20,9 @@
 
 #include "effectfield.h"
 
+#include <QDateTime>
+#include <QtMath>
+
 #include "ui/labelslider.h"
 #include "ui/colorbutton.h"
 #include "ui/texteditex.h"
@@ -27,6 +30,8 @@
 #include "ui/comboboxex.h"
 #include "ui/fontcombobox.h"
 #include "ui/embeddedfilechooser.h"
+
+#include "rendering/renderfunctions.h"
 
 #include "io/config.h"
 
@@ -38,9 +43,6 @@
 #include "project/sequence.h"
 
 #include "io/math.h"
-
-#include <QDateTime>
-#include <QtMath>
 
 #include "debug.h"
 
@@ -54,74 +56,14 @@ EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t)
   Q_ASSERT(parent != nullptr);
   Q_ASSERT(!i.isEmpty() || t == EFFECT_FIELD_UI);
 
+  // Add this field to the parent row specified
   parent->AddField(this);
-  /*
-  switch (t) {
-  case EFFECT_FIELD_DOUBLE:
-  {
-    LabelSlider* ls = new LabelSlider();
-    ui_element = ls;
-    connect(ls, SIGNAL(valueChanged()), this, SLOT(ui_element_change()));
-    connect(ls, SIGNAL(clicked()), this, SIGNAL(clicked()));
-  }
-    break;
-  case EFFECT_FIELD_COLOR:
-  {
-    ColorButton* cb = new ColorButton();
-    ui_element = cb;
-    connect(cb, SIGNAL(color_changed()), this, SLOT(ui_element_change()));
-  }
-    break;
-  case EFFECT_FIELD_STRING:
-  {
-    TextEditEx* edit = new TextEditEx();
-
-    // TODO magic number 2 - It seems to just be +1 for the top and +1 for the bottom, which is sort of sensible but
-    // feels a little tacky?
-    edit->setFixedHeight(qCeil(edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines
-                               + edit->document()->documentMargin()
-                               + edit->document()->documentMargin()
-                               + 2));
-
-    edit->setUndoRedoEnabled(true);
-    ui_element = edit;
-    connect(edit, SIGNAL(textChanged()), this, SLOT(ui_element_change()));
-  }
-    break;
-  case EFFECT_FIELD_BOOL:
-  {
-    CheckboxEx* cb = new CheckboxEx();
-    ui_element = cb;
-    connect(cb, SIGNAL(clicked(bool)), this, SLOT(ui_element_change()));
-    connect(cb, SIGNAL(toggled(bool)), this, SIGNAL(toggled(bool)));
-  }
-    break;
-  case EFFECT_FIELD_COMBO:
-  {
-    ComboBoxEx* cb = new ComboBoxEx();
-    ui_element = cb;
-    connect(cb, SIGNAL(activated(int)), this, SLOT(ui_element_change()));
-  }
-    break;
-  case EFFECT_FIELD_FONT:
-  {
-    FontCombobox* fcb = new FontCombobox();
-    ui_element = fcb;
-    connect(fcb, SIGNAL(activated(int)), this, SLOT(ui_element_change()));
-  }
-    break;
-  case EFFECT_FIELD_FILE:
-  {
-    EmbeddedFileChooser* efc = new EmbeddedFileChooser();
-    ui_element = efc;
-    connect(efc, SIGNAL(changed()), this, SLOT(ui_element_change()));
-  }
-    break;
-  }
-  */
 
   // Set a very base default value
   SetValueAt(0, 0);
+
+  // Connect this field to the effect's changed function
+  connect(this, SIGNAL(Changed()), parent->GetParentEffect(), SLOT(FieldChanged()));
 }
 
 EffectField::~EffectField() {}
@@ -223,6 +165,8 @@ QVariant EffectField::GetValueAt(double timecode)
     case EFFECT_FIELD_FONT:
     case EFFECT_FIELD_FILE:
       return before_data;
+    default:
+      break;
     }
   }
 
@@ -245,6 +189,12 @@ void EffectField::SetValueAt(double timecode, const QVariant &value)
   }
 
   emit Changed();
+}
+
+double EffectField::Now()
+{
+  Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
+  return playhead_to_clip_seconds(c, c->sequence->playhead);
 }
 
 const EffectField::EffectFieldType &EffectField::type()
@@ -351,6 +301,7 @@ bool EffectField::HasKeyframes() {
   return (GetParentRow()->IsKeyframing() && keyframes.size() > 1);
 }
 
+/*
 void EffectField::ui_element_change() {
   // TODO address this
   //bool dragging_double = (type_ == EFFECT_FIELD_DOUBLE && static_cast<LabelSlider*>(ui_element)->is_dragging());
@@ -361,6 +312,7 @@ void EffectField::ui_element_change() {
   if (!dragging_double) olive::UndoStack.push(ca);
   emit Changed();
 }
+*/
 
 /*
 void EffectField::make_key_from_change(ComboAction* ca) {

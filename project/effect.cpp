@@ -290,10 +290,6 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                       }
                       break;
                     }
-
-                    if (field != nullptr) {
-                      connect(field, SIGNAL(changed()), this, SLOT(field_changed()));
-                    }
                   }
                 }
               }
@@ -393,7 +389,7 @@ int Effect::gizmo_count() {
 
 void Effect::refresh() {}
 
-void Effect::field_changed() {
+void Effect::FieldChanged() {
   panel_sequence_viewer->viewer_widget->frame_update();
   panel_graph_editor->update_panel();
 }
@@ -465,7 +461,7 @@ void Effect::load_from_file() {
     QFile file_handle(file);
     if (file_handle.open(QFile::ReadOnly)) {
 
-      olive::UndoStack.push(new SetEffectData(EffectPtr(this), file_handle.readAll()));
+      olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
 
       file_handle.close();
 

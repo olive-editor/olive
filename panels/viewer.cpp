@@ -83,7 +83,7 @@ Viewer::Viewer(QWidget *parent) :
   current_timecode_slider->set_default_value(qSNaN());
   current_timecode_slider->set_value(0, false);
   current_timecode_slider->set_display_type(LabelSlider::LABELSLIDER_FRAMENUMBER);
-  connect(current_timecode_slider, SIGNAL(valueChanged()), this, SLOT(update_playhead()));
+  connect(current_timecode_slider, SIGNAL(valueChanged(double)), this, SLOT(update_playhead()));
 
   recording_flasher.setInterval(500);
 
@@ -790,11 +790,11 @@ void Viewer::set_media(Media* m) {
     }
       break;
     case MEDIA_TYPE_SEQUENCE:
-      seq = SequencePtr(media->to_sequence());
+      seq = media->to_sequence();
       break;
     }
   }
-  set_sequence(false, seq.get());
+  set_sequence(false, seq);
 }
 
 void Viewer::update_playhead() {
@@ -857,17 +857,19 @@ void Viewer::clean_created_seq() {
   }
 }
 
-void Viewer::set_sequence(bool main, Sequence* s) {
+void Viewer::set_sequence(bool main, SequencePtr s) {
   pause();
 
   reset_all_audio();
 
+  main_sequence = main;
+
+  // If we had a current sequence open, close it
   if (seq != nullptr) {
     close_active_clips(seq.get());
   }
 
-  main_sequence = main;
-  seq = SequencePtr((main) ? olive::ActiveSequence : s);
+  seq = (main) ? olive::ActiveSequence : s;
 
   bool null_sequence = (seq == nullptr);
 

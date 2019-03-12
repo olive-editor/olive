@@ -55,6 +55,8 @@ public:
   QVariant GetValueAt(double timecode);
   void SetValueAt(double timecode, const QVariant& value);
 
+  double Now();
+
   int GetColumnSpan();
   void SetColumnSpan(int i);
 
@@ -69,8 +71,6 @@ public:
   void SetEnabled(bool e);
   QVector<EffectKeyframe> keyframes;
 
-public slots:
-  void ui_element_change();
 private:
   EffectFieldType type_;
   QString id_;

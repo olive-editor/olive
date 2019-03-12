@@ -214,7 +214,7 @@ public:
   static EffectPtr Create(Clip *c, const EffectMeta *em);
   static const EffectMeta* GetInternalMeta(int internal_id, int type);
 public slots:
-  void field_changed();
+  void FieldChanged();
 signals:
   void EnabledChanged(bool);
 private slots:

@@ -77,8 +77,8 @@ Footage* Media::to_footage() {
   return static_cast<Footage*>(object.get());
 }
 
-Sequence* Media::to_sequence() {
-  return static_cast<Sequence*>(object.get());
+SequencePtr Media::to_sequence() {
+  return std::static_pointer_cast<Sequence>(object);
 }
 
 void Media::set_footage(FootagePtr f) {
@@ -192,7 +192,7 @@ void Media::update_tooltip(const QString& error) {
     break;
   case MEDIA_TYPE_SEQUENCE:
   {
-    Sequence* s = to_sequence();
+    Sequence* s = to_sequence().get();
 
     tooltip = QCoreApplication::translate("Media", "Name: %1"
                                                    "\nVideo Dimensions: %2x%3"
@@ -311,7 +311,7 @@ QVariant Media::data(int column, int role) {
     case 1:
       if (root) return QCoreApplication::translate("Media", "Duration");
       if (get_type() == MEDIA_TYPE_SEQUENCE) {
-        Sequence* s = to_sequence();
+        Sequence* s = to_sequence().get();
         return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
       }
       if (get_type() == MEDIA_TYPE_FOOTAGE) {

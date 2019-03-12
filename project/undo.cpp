@@ -140,7 +140,7 @@ void DeleteClipAction::doRedo() {
   }
 }
 
-ChangeSequenceAction::ChangeSequenceAction(Sequence *s) {
+ChangeSequenceAction::ChangeSequenceAction(SequencePtr s) {
   new_sequence = s;
 }
 
@@ -514,7 +514,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
   // close any clips currently using this media
   QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
   for (int i=0;i<all_sequences.size();i++) {
-    Sequence* s = all_sequences.at(i)->to_sequence();
+    Sequence* s = all_sequences.at(i)->to_sequence().get();
     for (int j=0;j<s->clips.size();j++) {
       ClipPtr c = s->clips.at(j);
       if (c != nullptr && c->media() == item && c->IsOpen()) {
@@ -879,7 +879,7 @@ void SetSelectionsCommand::doRedo() {
   }
 }
 
-EditSequenceCommand::EditSequenceCommand(Media* i, Sequence *s) {
+EditSequenceCommand::EditSequenceCommand(Media* i, SequencePtr s) {
   item = i;
   seq = s;
   old_name = s->name;
@@ -959,7 +959,7 @@ void CloseAllClipsCommand::doUndo() {
 }
 
 void CloseAllClipsCommand::doRedo() {
-  close_active_clips(olive::ActiveSequence);
+  close_active_clips(olive::ActiveSequence.get());
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) {
@@ -1156,9 +1156,9 @@ void RefreshClips::doRedo() {
   // close any clips currently using this media
   QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
   for (int i=0;i<all_sequences.size();i++) {
-    Sequence* s = all_sequences.at(i)->to_sequence();
+    Sequence* s = all_sequences.at(i)->to_sequence().get();
     for (int j=0;j<s->clips.size();j++) {
-      ClipPtr c = s->clips.at(j);
+      Clip* c = s->clips.at(j).get();
       if (c != nullptr && c->media() == media) {
         c->replaced = true;
         c->refresh();
@@ -1175,7 +1175,7 @@ void UpdateViewer::doRedo() {
   panel_sequence_viewer->viewer_widget->frame_update();
 }
 
-SetEffectData::SetEffectData(EffectPtr e, const QByteArray &s) {
+SetEffectData::SetEffectData(Effect *e, const QByteArray &s) {
   effect = e;
   data = s;
 }

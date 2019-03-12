@@ -258,12 +258,15 @@ void EffectControls::Clear(bool clear_cache) {
   deselect_all_effects(nullptr);
 
   // clear graph editor
-  if (panel_graph_editor != nullptr) panel_graph_editor->set_row(nullptr);
+  if (panel_graph_editor != nullptr) {
+    panel_graph_editor->set_row(nullptr);
+  }
 
   for (int i=0;i<open_effects_.size();i++) {
     delete open_effects_.at(i);
   }
   open_effects_.clear();
+  keyframeView->SetEffects(open_effects_);
 
   vcontainer->setVisible(false);
   acontainer->setVisible(false);
@@ -295,14 +298,16 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
     }
   }
 
-  panel_sequence_viewer->viewer_widget->update();
+  if (panel_sequence_viewer != nullptr) {
+    panel_sequence_viewer->viewer_widget->update();
+  }
 }
 
 void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
   EffectUI* container = new EffectUI(e);
 
   connect(container, SIGNAL(CutRequested()), this, SLOT(cut()));
-  connect(container, SIGNAL(CopyRequested()), this, SLOT(copy(bool)));
+  connect(container, SIGNAL(CopyRequested()), this, SLOT(copy()));
   connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
 
   open_effects_.append(container);
@@ -596,8 +601,12 @@ void EffectControls::Load() {
       open_effect(layout, c->closing_transition.get());
     }
   }
+
+  keyframeView->SetEffects(open_effects_);
+
   if (selected_clips_.size() > 0) {
     keyframeView->setEnabled(true);
+
     headers->setVisible(true);
 
     QTimer::singleShot(50, this, SLOT(queue_post_update()));

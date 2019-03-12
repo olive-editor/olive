@@ -424,7 +424,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 
   if (olive::ActiveSequence != nullptr) {
     // close all clips so we can delete any proxies requested to be deleted
-    close_active_clips(olive::ActiveSequence);
+    close_active_clips(olive::ActiveSequence.get());
   }
 
   // delete proxies requested to be deleted

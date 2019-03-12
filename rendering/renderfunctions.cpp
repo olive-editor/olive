@@ -51,8 +51,6 @@ namespace OCIO = OCIO_NAMESPACE;
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 
-const int kMaximumRetryCount = 10;
-
 void full_blit() {
   glPushMatrix();
   glLoadIdentity();
@@ -164,7 +162,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
   if (!params.nests.isEmpty()) {
     for (int i=0;i<params.nests.size();i++) {
-      s = params.nests.at(i)->media()->to_sequence();
+      s = params.nests.at(i)->media()->to_sequence().get();
       playhead += params.nests.at(i)->clip_in(true) - params.nests.at(i)->timeline_in(true);
       playhead = rescale_frame_number(playhead, params.nests.at(i)->sequence->frame_rate, s->frame_rate);
     }

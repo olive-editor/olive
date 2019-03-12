@@ -543,7 +543,7 @@ void ExportDialog::export_action() {
     connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
     connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
-    close_active_clips(olive::ActiveSequence);
+    close_active_clips(olive::ActiveSequence.get());
 
     olive::Global->set_rendering_state(true);
 

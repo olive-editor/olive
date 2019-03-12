@@ -115,12 +115,12 @@ private:
 
 class ChangeSequenceAction : public OliveAction {
 public:
-  ChangeSequenceAction(Sequence* s);
+  ChangeSequenceAction(SequencePtr s);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Sequence* old_sequence;
-  Sequence* new_sequence;
+  SequencePtr old_sequence;
+  SequencePtr new_sequence;
 };
 
 class AddEffectCommand : public OliveAction {
@@ -455,7 +455,7 @@ private:
 
 class EditSequenceCommand : public OliveAction {
 public:
-  EditSequenceCommand(Media *i, Sequence* s);
+  EditSequenceCommand(Media *i, SequencePtr s);
   virtual void doUndo() override;
   virtual void doRedo() override;
   void update();
@@ -468,7 +468,7 @@ public:
   int audio_layout;
 private:
   Media* item;
-  Sequence* seq;
+  SequencePtr seq;
 
   QString old_name;
   int old_width;
@@ -626,11 +626,11 @@ public:
 
 class SetEffectData : public OliveAction {
 public:
-  SetEffectData(EffectPtr e, const QByteArray &s);
+  SetEffectData(Effect* e, const QByteArray &s);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  EffectPtr effect;
+  Effect* effect;
   QByteArray data;
   QByteArray old_data;
 };

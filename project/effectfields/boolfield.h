@@ -11,8 +11,14 @@ public:
 
   bool GetBoolAt(double timecode);
 
+  virtual QWidget* CreateWidget() override;
+
   virtual QVariant ConvertStringToValue(const QString& s) override;
   virtual QString ConvertValueToString(const QVariant& v) override;
+signals:
+  void Toggled(bool);
+private slots:
+  void UpdateFromWidget(bool b);
 };
 
 #endif // BOOLFIELD_H

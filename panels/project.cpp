@@ -292,7 +292,9 @@ SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
       break;
     case MEDIA_TYPE_SEQUENCE:
     {
-      Sequence* seq = media->to_sequence();
+      // Clone all attributes of the original sequence (seq) into the new one (s)
+      Sequence* seq = media->to_sequence().get();
+
       s->width = seq->width;
       s->height = seq->height;
       s->frame_rate = seq->frame_rate;
@@ -442,13 +444,13 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
     ca->append(new NewSequenceCommand(item, parent));
 
     if (open) {
-      ca->append(new ChangeSequenceAction(s.get()));
+      ca->append(new ChangeSequenceAction(s));
     }
   } else {
     olive::project_model.appendChild(parent, item);
 
     if (open) {
-      olive::Global->set_sequence(s.get());
+      olive::Global->set_sequence(s);
     }
   }
   return item;
@@ -535,7 +537,7 @@ void Project::delete_selected_media() {
       Footage* media = item->to_footage();
       bool confirm_delete = false;
       for (int j=0;j<sequence_items.size();j++) {
-        Sequence* s = sequence_items.at(j)->to_sequence();
+        Sequence* s = sequence_items.at(j)->to_sequence().get();
         for (int k=0;k<s->clips.size();k++) {
           ClipPtr c = s->clips.at(k);
           if (c != nullptr && c->media() == item) {
@@ -621,9 +623,9 @@ void Project::delete_selected_media() {
       if (items.at(i)->get_type() == MEDIA_TYPE_SEQUENCE) {
         redraw = true;
 
-        Sequence* s = items.at(i)->to_sequence();
+        Sequence* s = items.at(i)->to_sequence().get();
 
-        if (s == olive::ActiveSequence) {
+        if (s == olive::ActiveSequence.get()) {
           ca->append(new ChangeSequenceAction(nullptr));
         }
 
@@ -990,7 +992,7 @@ void Project::delete_clips_using_selected_media() {
         for (int j=0;j<items.size();j++) {
           Media* m = item_to_media(items.at(j));
           if (c->media() == m) {
-            ca->append(new DeleteClipAction(olive::ActiveSequence, i));
+            ca->append(new DeleteClipAction(olive::ActiveSequence.get(), i));
             deleted = true;
           }
         }
@@ -1129,7 +1131,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
           stream.writeEndElement(); // footage
           media_id++;
         } else if (type == MEDIA_TYPE_SEQUENCE) {
-          Sequence* s = m->to_sequence();
+          Sequence* s = m->to_sequence().get();
           if (set_ids_only) {
             s->save_id = sequence_id;
             sequence_id++;
@@ -1143,7 +1145,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
             stream.writeAttribute("framerate", QString::number(s->frame_rate, 'f', 10));
             stream.writeAttribute("afreq", QString::number(s->audio_frequency));
             stream.writeAttribute("alayout", QString::number(s->audio_layout));
-            if (s == olive::ActiveSequence) {
+            if (s == olive::ActiveSequence.get()) {
               stream.writeAttribute("open", "1");
             }
             stream.writeAttribute("workarea", QString::number(s->using_workarea));

@@ -35,7 +35,7 @@ public:
   virtual QVariant ConvertStringToValue(const QString& s);
   virtual QString ConvertValueToString(const QVariant& v);
 
-  //virtual QWidget* CreateWidget() override;
+  virtual QWidget* CreateWidget() override;
 private:
   double min_;
   double max_;
@@ -47,6 +47,7 @@ private:
   bool value_set_;
 private slots:
   void ValueHasBeenSet();
+  void UpdateFromWidget(double d);
 };
 
 #endif // DOUBLEFIELD_H

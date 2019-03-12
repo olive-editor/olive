@@ -73,7 +73,9 @@ void LabelSlider::set_value(double v, bool userSet) {
     }
 
     setText(valueToString());
-    if (userSet) emit valueChanged();
+    if (userSet) {
+      emit valueChanged(internal_value);
+    }
   }
 }
 
@@ -247,7 +249,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 
       previous_value = drag_start_value;
 
-      emit valueChanged();
+      emit valueChanged(internal_value);
 
     } else {
 

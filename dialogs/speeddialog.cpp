@@ -79,9 +79,9 @@ SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent
   connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 
-  connect(percent, SIGNAL(valueChanged()), this, SLOT(percent_update()));
-  connect(frame_rate, SIGNAL(valueChanged()), this, SLOT(frame_rate_update()));
-  connect(duration, SIGNAL(valueChanged()), this, SLOT(duration_update()));
+  connect(percent, SIGNAL(valueChanged(double)), this, SLOT(percent_update()));
+  connect(frame_rate, SIGNAL(valueChanged(double)), this, SLOT(frame_rate_update()));
+  connect(duration, SIGNAL(valueChanged(double)), this, SLOT(duration_update()));
 }
 
 void SpeedDialog::run() {
@@ -356,7 +356,7 @@ void SpeedDialog::accept() {
   SetClipProperty* reversed_action = new SetClipProperty(kSetClipPropertyReversed);
 
   // undoable action for restoring clip selections
-  SetSelectionsCommand* sel_command = new SetSelectionsCommand(olive::ActiveSequence);
+  SetSelectionsCommand* sel_command = new SetSelectionsCommand(olive::ActiveSequence.get());
   sel_command->old_data = olive::ActiveSequence->selections;
 
   // variables used to calculate ripples

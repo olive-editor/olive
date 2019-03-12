@@ -45,7 +45,7 @@ private slots:
   void preset_changed(int index);
 
 private:
-  Sequence* existing_sequence;
+  SequencePtr existing_sequence;
   Media* existing_item;
 
   void setup_ui();
