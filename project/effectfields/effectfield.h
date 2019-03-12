@@ -85,6 +85,7 @@ private:
 signals:
   void Changed();
   void Clicked();
+
   void EnabledChanged(bool);
 };
 

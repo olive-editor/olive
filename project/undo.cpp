@@ -197,7 +197,6 @@ AddEffectCommand::AddEffectCommand(Clip* c, EffectPtr e, const EffectMeta *m, in
   ref = e;
   meta = m;
   pos = insert_pos;
-  done = false;
 }
 
 void AddEffectCommand::doUndo() {
@@ -207,7 +206,6 @@ void AddEffectCommand::doUndo() {
   } else {
     clip->effects.removeAt(pos);
   }
-  done = false;
 }
 
 void AddEffectCommand::doRedo() {
@@ -219,7 +217,6 @@ void AddEffectCommand::doRedo() {
   } else {
     clip->effects.insert(pos, ref);
   }
-  done = true;
 }
 
 AddTransitionCommand::AddTransitionCommand(Clip* iopen,

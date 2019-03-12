@@ -25,6 +25,7 @@ QWidget *ComboField::CreateWidget()
   }
 
   connect(cb, SIGNAL(activated(int)), this, SLOT(UpdateFromWidget(int)));
+  connect(this, SIGNAL(EnabledChanged(bool)), cb, SLOT(setEnabled(bool)));
 
   return cb;
 }

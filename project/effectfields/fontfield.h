@@ -9,6 +9,12 @@ public:
   FontField(EffectRow* parent, const QString& id);
 
   QString GetFontAt(double timecode);
+
+  virtual QWidget *CreateWidget() override;
+private:
+  QStringList font_list;
+private slots:
+  void UpdateFromWidget(const QString& index);
 };
 
 #endif // FONTFIELD_H

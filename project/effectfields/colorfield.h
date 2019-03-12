@@ -11,8 +11,12 @@ public:
 
   QColor GetColorAt(double timecode);
 
+  virtual QWidget* CreateWidget() override;
+
   virtual QVariant ConvertStringToValue(const QString& s) override;
   virtual QString ConvertValueToString(const QVariant& v) override;
+private slots:
+  void UpdateFromWidget(const QColor &c);
 };
 
 #endif // COLORFIELD_H

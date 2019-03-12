@@ -71,6 +71,8 @@ QWidget *DoubleField::CreateWidget()
   ls->set_display_type(display_type_);
   ls->set_frame_rate(frame_rate_);
 
+  ls->setEnabled(IsEnabled());
+
   connect(ls, SIGNAL(valueChanged(double)), this, SLOT(UpdateFromWidget(double)));
   connect(ls, SIGNAL(clicked()), this, SIGNAL(Clicked()));
   connect(this, SIGNAL(EnabledChanged(bool)), ls, SLOT(setEnabled(bool)));

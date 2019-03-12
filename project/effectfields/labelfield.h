@@ -8,6 +8,10 @@ class LabelField : public EffectField
   Q_OBJECT
 public:
   LabelField(EffectRow* parent, const QString& string);
+
+  virtual QWidget* CreateWidget() override;
+private:
+  QString label_text_;
 };
 
 #endif // LABELFIELD_H

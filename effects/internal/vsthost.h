@@ -62,6 +62,7 @@ private:
   void suspendPlugin();
   bool canPluginDo(char *canDoString);
   void processAudio(long numFrames);
+  void CreateDialogIfNull();
   float** inputs;
   float** outputs;
   QDialog* dialog;

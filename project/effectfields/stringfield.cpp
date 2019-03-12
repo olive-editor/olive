@@ -20,6 +20,7 @@ QWidget *StringField::CreateWidget()
 {
   TextEditEx* text_edit = new TextEditEx();
 
+  text_edit->setEnabled(IsEnabled());
   text_edit->setUndoRedoEnabled(true);
 
   // the "2" looks like a magic number, but it's just one pixel on the top and the bottom
@@ -28,6 +29,7 @@ QWidget *StringField::CreateWidget()
                                   + text_edit->document()->documentMargin() + 2));
 
   connect(text_edit, SIGNAL(textModified(const QString&)), this, SLOT(UpdateFromWidget(const QString&)));
+  connect(this, SIGNAL(EnabledChanged(bool)), text_edit, SLOT(setEnabled(bool)));
 
   return text_edit;
 }

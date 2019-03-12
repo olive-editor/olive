@@ -29,7 +29,7 @@
 class TextEffect : public Effect {
   Q_OBJECT
 public:
-    TextEffect(Clip* c, const EffectMeta *em);
+  TextEffect(Clip* c, const EffectMeta *em);
   void redraw(double timecode);
 
   StringField* text_val;
