@@ -25,16 +25,16 @@
 #include <QPlainTextEdit>
 
 class TextEditDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr);
-	const QString& get_string();
+  TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr);
+  const QString& get_string();
 private slots:
-	void save();
-	void cancel();
+  void save();
+  void cancel();
 private:
-	QString result_str;
-	QPlainTextEdit* textEdit;
+  QString result_str;
+  QTextEdit* textEdit;
 };
 
 #endif // TEXTEDITDIALOG_H

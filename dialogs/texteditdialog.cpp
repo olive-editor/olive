@@ -22,33 +22,53 @@
 
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
+#include <QPushButton>
 
 TextEditDialog::TextEditDialog(QWidget *parent, const QString &s) :
-	QDialog(parent)
+  QDialog(parent)
 {
-	setWindowTitle(tr("Edit Text"));
+  setWindowTitle(tr("Edit Text"));
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
+  QVBoxLayout* layout = new QVBoxLayout(this);
 
-	textEdit = new QPlainTextEdit(this);
-	textEdit->setPlainText(s);
-	layout->addWidget(textEdit);
+  QHBoxLayout* toolbar = new QHBoxLayout();
 
-	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-	layout->addWidget(buttons);
-	connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
-	connect(buttons, SIGNAL(rejected()), this, SLOT(cancel()));
+  QPushButton* italic_button = new QPushButton("I");
+  italic_button->setCheckable(true);
+  toolbar->addWidget(italic_button);
+
+  QPushButton* underline_button = new QPushButton("U");
+  underline_button->setCheckable(true);
+  toolbar->addWidget(underline_button);
+
+  toolbar->addStretch();
+
+  layout->addLayout(toolbar);
+
+  textEdit = new QTextEdit(this);
+  textEdit->setHtml(s);
+  layout->addWidget(textEdit);
+
+  // Connect buttons to the text field
+  connect(italic_button, SIGNAL(clicked(bool)), textEdit, SLOT(setFontItalic(bool)));
+  connect(underline_button, SIGNAL(clicked(bool)), textEdit, SLOT(setFontUnderline(bool)));
+
+  // Create dialog buttons at the bottom
+  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+  layout->addWidget(buttons);
+  connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
+  connect(buttons, SIGNAL(rejected()), this, SLOT(cancel()));
 }
 
 const QString& TextEditDialog::get_string() {
-	return result_str;
+  return result_str;
 }
 
 void TextEditDialog::save() {
-	result_str = textEdit->toPlainText();
-	accept();
+  result_str = textEdit->toHtml();
+  accept();
 }
 
 void TextEditDialog::cancel() {
-	reject();
+  reject();
 }
