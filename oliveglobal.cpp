@@ -147,7 +147,7 @@ void OliveGlobal::load_translation_from_config() {
 void OliveGlobal::new_project() {
   if (can_close_project()) {
     // clear effects panel
-    panel_effect_controls->clear_effects(true);
+    panel_effect_controls->Clear(true);
 
     // clear project contents (footage, sequences, etc.)
     panel_project->new_project();
@@ -286,9 +286,9 @@ void OliveGlobal::open_preferences() {
   pd.exec();
 }
 
-void OliveGlobal::set_sequence(SequencePtr s)
+void OliveGlobal::set_sequence(Sequence* s)
 {
-  panel_effect_controls->clear_effects(true);
+  panel_effect_controls->Clear(true);
 
   olive::ActiveSequence = s;
   panel_sequence_viewer->set_main_sequence();

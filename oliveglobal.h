@@ -274,7 +274,7 @@ public slots:
      *
      * The Sequence to set as the active Sequence.
      */
-    void set_sequence(SequencePtr s);
+    void set_sequence(Sequence *s);
 
 private:
     /**

@@ -51,13 +51,12 @@ struct ClipSpeed {
 using ClipPtr = std::shared_ptr<Clip>;
 
 class Sequence;
-using SequencePtr = std::shared_ptr<Sequence>;
 
-class Clip : public std::enable_shared_from_this<Clip> {
+class Clip {
 public:
-  Clip(SequencePtr s);
+  Clip(Sequence *s);
   ~Clip();
-  ClipPtr copy(SequencePtr s);
+  ClipPtr copy(Sequence *s);
 
   bool IsActiveAt(long timecode);
 
@@ -121,12 +120,13 @@ public:
   long length();
 
   void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
-  SequencePtr sequence;
+  Sequence* sequence;
 
   // markers
   QVector<Marker>& get_markers();
 
   // other variables (should be deep copied/duplicated in copy())
+  int IndexOfEffect(Effect* e);
   QList<EffectPtr> effects;
   QVector<int> linked;
   TransitionPtr opening_transition;

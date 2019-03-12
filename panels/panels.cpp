@@ -39,16 +39,11 @@ Timeline* panel_timeline = nullptr;
 GraphEditor* panel_graph_editor = nullptr;
 
 void update_effect_controls() {
-  // SEND CLIPS TO EFFECT CONTROLS
-  // find out how many clips are selected
-  // limits to one video clip and one audio clip and only if they're linked
-  // one of these days it might be nice to have multiple clips in the effects panel
-  bool multiple = false;
-  int vclip = -1;
-  int aclip = -1;
-  QVector<int> selected_clips;
+  QVector<Clip*> selected_clips;
   int mode = kTransitionNone;
+
   if (olive::ActiveSequence != nullptr) {
+    /*
     for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
       Clip* clip = olive::ActiveSequence->clips.at(i).get();
       if (clip != nullptr) {
@@ -102,26 +97,14 @@ void update_effect_controls() {
         }
       }
     }
+    */
+
+    selected_clips = olive::ActiveSequence->SelectedClips();
+
+    // TODO handle selecting transitions
   }
 
-
-
-  bool same = (selected_clips.size() == panel_effect_controls->selected_clips.size()
-               && panel_effect_controls->get_mode() == mode);
-  if (same) {
-    for (int i=0;i<selected_clips.size();i++) {
-      if (selected_clips.at(i) != panel_effect_controls->selected_clips.at(i)) {
-        same = false;
-        break;
-      }
-    }
-  }
-
-  if (panel_effect_controls->multiple != multiple || !same) {
-    panel_effect_controls->multiple = multiple;
-
-    panel_effect_controls->set_clips(selected_clips, mode);
-  }
+  panel_effect_controls->SetClips(selected_clips, mode);
 }
 
 void update_ui(bool modified) {
@@ -172,7 +155,7 @@ QDockWidget *get_focused_panel(bool force_hover) {
 void alloc_panels(QWidget* parent) {
   // TODO maybe replace these with non-pointers later on?
   panel_sequence_viewer = new Viewer(parent);
-  panel_sequence_viewer->setObjectName("seq_viewer");  
+  panel_sequence_viewer->setObjectName("seq_viewer");
   panel_footage_viewer = new Viewer(parent);
   panel_footage_viewer->setObjectName("footage_viewer");
   panel_project = new Project(parent);

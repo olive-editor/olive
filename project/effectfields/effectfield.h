@@ -61,6 +61,8 @@ public:
   virtual QVariant ConvertStringToValue(const QString& s);
   virtual QString ConvertValueToString(const QVariant& v);
 
+  virtual QWidget* CreateWidget();
+
   double GetValidKeyframeHandlePosition(int key, bool post);
 
   bool IsEnabled();

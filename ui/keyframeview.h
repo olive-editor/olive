@@ -24,6 +24,8 @@
 #include <QWidget>
 #include <QPainter>
 
+#include "ui/effectui.h"
+
 class Clip;
 class Effect;
 class EffectRow;
@@ -31,56 +33,60 @@ class EffectField;
 class TimelineHeader;
 
 class KeyframeView : public QWidget {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	KeyframeView(QWidget* parent = 0);
+  KeyframeView(QWidget* parent = nullptr);
 
-	void delete_selected_keyframes();
+  void SetEffects(const QVector<EffectUI*>& open_effects);
 
-	TimelineHeader* header;
+  void delete_selected_keyframes();
 
-	long visible_in;
-	long visible_out;
+  TimelineHeader* header;
+
+  long visible_in;
+  long visible_out;
 signals:
-    void wheel_event_signal(QWheelEvent*);
+  void wheel_event_signal(QWheelEvent*);
 public slots:
-	void set_x_scroll(int);
-	void set_y_scroll(int);
-	void resize_move(double d);
+  void set_x_scroll(int);
+  void set_y_scroll(int);
+  void resize_move(double d);
 private:
-	QVector<EffectField*> selected_fields;
-	QVector<int> selected_keyframes;
-	QVector<int> rowY;
-	QVector<EffectRow*> rows;
-	QVector<long> old_key_vals;
-	void mousePressEvent(QMouseEvent* event);
-	void mouseMoveEvent(QMouseEvent* event);
-	void mouseReleaseEvent(QMouseEvent *event);
-	void paintEvent(QPaintEvent *event);
-    void wheelEvent(QWheelEvent* e);
-	bool mousedown;
-	bool dragging;
-	bool keys_selected;
-	bool select_rect;
-	bool scroll_drag;
+  QVector<EffectUI*> open_effects_;
 
-	bool keyframeIsSelected(EffectField *field, int keyframe);
+  QVector<EffectField*> selected_fields;
+  QVector<int> selected_keyframes;
+  QVector<int> rowY;
+  QVector<EffectRow*> rows;
+  QVector<long> old_key_vals;
+  void mousePressEvent(QMouseEvent* event);
+  void mouseMoveEvent(QMouseEvent* event);
+  void mouseReleaseEvent(QMouseEvent *event);
+  void paintEvent(QPaintEvent *event);
+  void wheelEvent(QWheelEvent* e);
+  bool mousedown;
+  bool dragging;
+  bool keys_selected;
+  bool select_rect;
+  bool scroll_drag;
 
-	long drag_frame_start;
-	long last_frame_diff;
-	int rect_select_x;
-	int rect_select_y;
-	int rect_select_w;
-	int rect_select_h;
-	int rect_select_offset;
+  bool keyframeIsSelected(EffectField *field, int keyframe);
 
-	int x_scroll;
-	int y_scroll;
+  long drag_frame_start;
+  long last_frame_diff;
+  int rect_select_x;
+  int rect_select_y;
+  int rect_select_w;
+  int rect_select_h;
+  int rect_select_offset;
 
-	void update_keys();
+  int x_scroll;
+  int y_scroll;
+
+  void update_keys();
 private slots:
-	void show_context_menu(const QPoint& pos);
-	void menu_set_key_type(QAction*);
+  void show_context_menu(const QPoint& pos);
+  void menu_set_key_type(QAction*);
 };
 
 #endif // KEYFRAMEVIEW_H

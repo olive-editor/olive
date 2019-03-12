@@ -186,6 +186,15 @@ public slots:
    */
   void open_recent_from_menu();
 
+  /**
+   * @brief Create a "Paste" action on the specified menu that's enabled only if the clipboard contains effects
+   *
+   * @param menu
+   *
+   * Menu to add action to
+   */
+  void create_effect_paste_action(QMenu *menu);
+
 private:
   QAction* new_project_;
   QAction* new_sequence_;

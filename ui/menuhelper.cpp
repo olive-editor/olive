@@ -20,20 +20,17 @@
 
 #include "menuhelper.h"
 
-#include "oliveglobal.h"
-
-#include "ui/focusfilter.h"
-
-#include "io/config.h"
-
-#include "panels/panels.h"
-
-#include "mainwindow.h"
-
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QStyleFactory>
+
+#include "io/config.h"
+#include "io/clipboard.h"
+#include "mainwindow.h"
+#include "oliveglobal.h"
+#include "panels/panels.h"
+#include "ui/focusfilter.h"
 
 MenuHelper olive::MenuHelper;
 
@@ -260,6 +257,12 @@ void MenuHelper::set_timecode_view() {
 void MenuHelper::open_recent_from_menu() {
   int index = static_cast<QAction*>(sender())->data().toInt();
   olive::Global.get()->open_recent(index);
+}
+
+void MenuHelper::create_effect_paste_action(QMenu *menu)
+{
+  QAction* paste_action = menu->addAction(tr("&Paste"), panel_timeline, SLOT(paste(bool)));
+  paste_action->setEnabled(clipboard.size() > 0 && clipboard_type == CLIPBOARD_TYPE_EFFECT);
 }
 
 QMenu* MenuHelper::create_submenu(QMenuBar* parent,

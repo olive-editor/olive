@@ -22,6 +22,8 @@
 
 #include <QCoreApplication>
 
+#include "panels/panels.h"
+
 #include "debug.h"
 
 Sequence::Sequence() {
@@ -35,7 +37,7 @@ Sequence::Sequence() {
 Sequence::~Sequence() {}
 
 SequencePtr Sequence::copy() {
-  SequencePtr s(new Sequence());
+  SequencePtr s = std::make_shared<Sequence>();
   s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
   s->width = width;
   s->height = height;
@@ -50,7 +52,7 @@ SequencePtr Sequence::copy() {
     if (c == nullptr) {
       s->clips[i] = nullptr;
     } else {
-      ClipPtr copy = c->copy(s);
+      ClipPtr copy = c->copy(s.get());
       copy->linked = c->linked;
       s->clips[i] = copy;
     }
@@ -137,7 +139,7 @@ Effect *Sequence::GetSelectedGizmo()
             if (gizmo_ptr == nullptr) {
               gizmo_ptr = e;
             }
-            if (e->container->selected) {
+            if (panel_effect_controls->IsEffectSelected(e)) {
               gizmo_ptr = e;
               break;
             }
@@ -190,4 +192,4 @@ void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
 }
 
 // static variable for the currently active sequence
-SequencePtr olive::ActiveSequence = nullptr;
+Sequence* olive::ActiveSequence = nullptr;

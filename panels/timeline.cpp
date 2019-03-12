@@ -177,7 +177,7 @@ void Timeline::next_cut() {
   }
 }
 
-void ripple_clips(ComboAction* ca, SequencePtr s, long point, long length, const QVector<int>& ignore) {
+void ripple_clips(ComboAction* ca, Sequence* s, long point, long length, const QVector<int>& ignore) {
   ca->append(new RippleAction(s, point, length, ignore));
 }
 
@@ -193,7 +193,7 @@ void Timeline::toggle_show_all() {
   }
 }
 
-void Timeline::create_ghosts_from_media(SequencePtr seq, long entry_point, QVector<Media*>& media_list) {
+void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<Media*>& media_list) {
   video_ghosts = false;
   audio_ghosts = false;
 
@@ -201,8 +201,8 @@ void Timeline::create_ghosts_from_media(SequencePtr seq, long entry_point, QVect
     bool can_import = true;
 
     Media* medium = media_list.at(i);
-    FootagePtr m = nullptr;
-    SequencePtr s = nullptr;
+    Footage* m = nullptr;
+    Sequence* s = nullptr;
     long sequence_length = 0;
     long default_clip_in = 0;
     long default_clip_out = 0;
@@ -298,7 +298,7 @@ void Timeline::create_ghosts_from_media(SequencePtr seq, long entry_point, QVect
   }
 }
 
-void Timeline::add_clips_from_ghosts(ComboAction* ca, SequencePtr s) {
+void Timeline::add_clips_from_ghosts(ComboAction* ca, Sequence* s) {
   // add clips
   long earliest_point = LONG_MAX;
   QVector<ClipPtr> added_clips;
@@ -314,7 +314,7 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, SequencePtr s) {
     c->set_clip_in(g.clip_in);
     c->set_track(g.track);
     if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-      FootagePtr m = c->media()->to_footage();
+      Footage* m = c->media()->to_footage();
       if (m->video_tracks.size() == 0) {
         // audio only (greenish)
         c->set_color(128, 192, 128);
@@ -330,7 +330,7 @@ void Timeline::add_clips_from_ghosts(ComboAction* ca, SequencePtr s) {
       // sequence (red?ish?)
       c->set_color(192, 128, 128);
 
-      SequencePtr media = c->media()->to_sequence();
+      Sequence* media = c->media()->to_sequence();
       c->set_name(media->name);
     }
     c->refresh();
@@ -420,7 +420,7 @@ void Timeline::nest() {
       ComboAction* ca = new ComboAction();
 
       // create "nest" sequence with the same attributes as the current sequence
-      SequencePtr s(new Sequence());
+      SequencePtr s = std::make_shared<Sequence>();
 
       s->name = panel_project->get_next_sequence_name(tr("Nested Sequence"));
       s->width = olive::ActiveSequence->width;
@@ -435,7 +435,7 @@ void Timeline::nest() {
         ca->append(new DeleteClipAction(olive::ActiveSequence, selected_clips.at(i)));
 
         // copy to new
-        ClipPtr copy(olive::ActiveSequence->clips.at(selected_clips.at(i))->copy(s));
+        ClipPtr copy(olive::ActiveSequence->clips.at(selected_clips.at(i))->copy(s.get()));
         copy->set_timeline_in(copy->timeline_in() - earliest_point);
         copy->set_timeline_out(copy->timeline_out() - earliest_point);
         s->clips.append(copy);
@@ -453,7 +453,7 @@ void Timeline::nest() {
       create_ghosts_from_media(olive::ActiveSequence, earliest_point, media_list);
       add_clips_from_ghosts(ca, olive::ActiveSequence);
 
-      panel_effect_controls->clear_effects(true);
+      panel_effect_controls->Clear(true);
       olive::ActiveSequence->selections.clear();
 
       olive::UndoStack.push(ca);
@@ -680,7 +680,7 @@ void Timeline::toggle_enable_on_selected_clips() {
 
 void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_delete) {
   if (selections.size() > 0) {
-    panel_effect_controls->clear_effects(true);
+    panel_effect_controls->Clear(true);
 
     ComboAction* ca = new ComboAction();
 
@@ -1014,7 +1014,7 @@ bool selection_contains_transition(const Selection& s, Clip* c, int type) {
 
 void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas, bool deselect_areas) {
   clean_up_selections(areas);
-  panel_effect_controls->clear_effects(true);
+  panel_effect_controls->Clear(true);
 
   QVector<int> pre_clips;
   QVector<ClipPtr> post_clips;
@@ -1281,10 +1281,7 @@ void Timeline::paste(bool insert) {
             if (found >= 0 && skip) {
               // do nothing
             } else if (found >= 0 && replace) {
-              EffectDeleteCommand* delcom = new EffectDeleteCommand();
-              delcom->clips.append(c);
-              delcom->fx.append(found);
-              ca->append(delcom);
+              ca->append(new EffectDeleteCommand(c->effects.at(found).get()));
 
               ca->append(new AddEffectCommand(c, e->copy(c), nullptr, found));
             } else {

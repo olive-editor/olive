@@ -230,7 +230,12 @@ void RenderThread::paint() {
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, SequencePtr s, const QString& save, GLvoid* pixels, int pixel_linesize, int idivider) {
+void RenderThread::start_render(QOpenGLContext *share,
+                                Sequence* s,
+                                const QString& save,
+                                GLvoid* pixels,
+                                int pixel_linesize,
+                                int idivider) {
   Q_UNUSED(idivider);
 
   seq = s;

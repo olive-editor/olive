@@ -54,6 +54,11 @@ QString DoubleField::ConvertValueToString(const QVariant &v)
   return QString::number(v.toDouble());
 }
 
+//QWidget *DoubleField::CreateWidget()
+//{
+
+//}
+
 void DoubleField::ValueHasBeenSet()
 {
   value_set_ = true;

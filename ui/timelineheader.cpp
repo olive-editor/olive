@@ -115,7 +115,7 @@ void TimelineHeader::set_in_point(long new_in) {
     new_out = viewer->seq->getEndFrame();
   }
 
-  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
   update_parents();
 }
 
@@ -127,7 +127,7 @@ void TimelineHeader::set_out_point(long new_out) {
     new_in = 0;
   }
 
-  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
   update_parents();
 }
 
@@ -280,7 +280,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
   if (viewer->seq != nullptr) {
     dragging = false;
     if (resizing_workarea) {
-      olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
+      olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, temp_workarea_in, temp_workarea_out));
     } else if (dragging_markers && selected_markers.size() > 0) {
       bool moved = false;
       ComboAction* ca = new ComboAction();

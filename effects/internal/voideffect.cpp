@@ -28,7 +28,6 @@
 #include "debug.h"
 
 VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
-  name = n;
   QString display_name;
   if (n.isEmpty()) {
     display_name = tr("(unknown)");
@@ -39,15 +38,15 @@ VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
 
   new LabelField(row, display_name);
 
-  container->setText(display_name);
+  name = display_name;
 
   void_meta.type = EFFECT_TYPE_EFFECT;
   meta = &void_meta;
 }
 
 EffectPtr VoidEffect::copy(Clip* c) {
-    EffectPtr copy(new VoidEffect(c, name));
-  copy->set_enabled(is_enabled());
+  EffectPtr copy = std::make_shared<VoidEffect>(c, name);
+  copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
   return copy;
 }
@@ -55,31 +54,31 @@ EffectPtr VoidEffect::copy(Clip* c) {
 void VoidEffect::load(QXmlStreamReader &stream) {
   QString tag = stream.name().toString();
 
-    QXmlStreamWriter writer(&bytes);
+  QXmlStreamWriter writer(&bytes);
 
-    // copy XML from reader to writer
-    while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
+  // copy XML from reader to writer
+  while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
     stream.readNext();
 
-        if (stream.isStartElement()) {
-            writer.writeStartElement(stream.name().toString());
-        }
-        if (stream.isEndElement()) {
-            writer.writeEndElement();
-        }
-        if (stream.isCharacters()) {
-            writer.writeCharacters(stream.text().toString());
-        }
-        for (int i=0;i<stream.attributes().size();i++) {
-            writer.writeAttribute(stream.attributes().at(i));
-        }
+    if (stream.isStartElement()) {
+      writer.writeStartElement(stream.name().toString());
     }
+    if (stream.isEndElement()) {
+      writer.writeEndElement();
+    }
+    if (stream.isCharacters()) {
+      writer.writeCharacters(stream.text().toString());
+    }
+    for (int i=0;i<stream.attributes().size();i++) {
+      writer.writeAttribute(stream.attributes().at(i));
+    }
+  }
 }
 
 void VoidEffect::save(QXmlStreamWriter &stream) {
   if (!name.isEmpty()) {
     stream.writeAttribute("name", name);
-    stream.writeAttribute("enabled", QString::number(is_enabled()));
+    stream.writeAttribute("enabled", QString::number(IsEnabled()));
 
     // force xml writer to expand <effect> tag, ignored when loading
     stream.writeStartElement("void");

@@ -44,6 +44,8 @@ EffectRow::EffectRow(Effect *parent, const QString &n, bool savable, bool keyfra
   savable_(savable)
 {
   Q_ASSERT(parent != nullptr);
+
+  parent->AddRow(this);
 }
 
 void EffectRow::AddField(EffectField *field)

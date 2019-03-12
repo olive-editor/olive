@@ -65,8 +65,8 @@ void SourcesCommon::create_seq_from_selected() {
     SequencePtr s = create_sequence_from_media(media_list);
 
     // add clips to it
-    panel_timeline->create_ghosts_from_media(s, 0, media_list);
-    panel_timeline->add_clips_from_ghosts(ca, s);
+    panel_timeline->create_ghosts_from_media(s.get(), 0, media_list);
+    panel_timeline->add_clips_from_ghosts(ca, s.get());
 
     project_parent->create_sequence_internal(ca, s, true, nullptr);
     olive::UndoStack.push(ca);
@@ -342,7 +342,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 
 void SourcesCommon::reveal_in_browser() {
   Media* media = project_parent->item_to_media(selected_items.at(0));
-  FootagePtr m = media->to_footage();
+  Footage* m = media->to_footage();
 
 #if defined(Q_OS_WIN)
   QStringList args;
@@ -405,7 +405,7 @@ void SourcesCommon::clear_proxies_from_selected() {
   QList<QString> delete_list;
 
   for (int i=0;i<cached_selected_footage.size();i++) {
-    FootagePtr f = cached_selected_footage.at(i)->to_footage();
+    Footage* f = cached_selected_footage.at(i)->to_footage();
 
     if (f->proxy && !f->proxy_path.isEmpty()) {
       if (QFileInfo::exists(f->proxy_path)) {

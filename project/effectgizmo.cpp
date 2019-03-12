@@ -22,8 +22,10 @@
 
 #include "ui/labelslider.h"
 #include "effectfields/doublefield.h"
+#include "project/effect.h"
 
-EffectGizmo::EffectGizmo(int type) :
+EffectGizmo::EffectGizmo(Effect *parent, int type) :
+  QObject(parent),
   x_field1(nullptr),
   x_field_multi1(1.0),
   y_field1(nullptr),

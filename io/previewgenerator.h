@@ -55,7 +55,7 @@ private:
 
   AVFormatContext* fmt_ctx_;
   Media* media_;
-  FootagePtr footage_;
+  Footage* footage_;
   bool retrieve_duration_;
   bool contains_still_image_;
   bool cancelled_;

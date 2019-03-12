@@ -139,11 +139,13 @@ class Effect : public QObject {
 public:
   Effect(Clip *c, const EffectMeta* em);
   ~Effect();
+
   Clip* parent_clip;
   const EffectMeta* meta;
   int id;
   QString name;
-  CollapsibleWidget* container;
+
+  void AddRow(EffectRow* row);
 
   EffectRow* row(int i);
   int row_count();
@@ -152,8 +154,8 @@ public:
   EffectGizmo* gizmo(int i);
   int gizmo_count();
 
-  bool is_enabled();
-  void set_enabled(bool b);
+  bool IsEnabled();
+  void SetEnabled(bool b);
 
   virtual void refresh();
 
@@ -213,8 +215,9 @@ public:
   static const EffectMeta* GetInternalMeta(int internal_id, int type);
 public slots:
   void field_changed();
+signals:
+  void EnabledChanged(bool);
 private slots:
-  void show_context_menu(const QPoint&);
   void delete_self();
   void move_up();
   void move_down();
@@ -234,16 +237,13 @@ protected:
   void SetAlwaysUpdate(bool b);
 
 private:
-  // superimpose effect
-  QString script;
-
   bool isOpen;
   QVector<EffectRow*> rows;
   QVector<EffectGizmo*> gizmos;
-  QGridLayout* ui_layout;
-  QWidget* ui;
   bool bound;
   int iterations;
+
+  bool enabled_;
 
   int flags_;
 
@@ -255,15 +255,7 @@ private:
   bool valueHasChanged(double timecode);
   QVector<QVariant> cachedValues;
   void delete_texture();
-  int get_index_in_clip();
   void validate_meta_path();
-};
-
-class EffectInit : public QThread {
-public:
-  EffectInit();
-protected:
-  void run();
 };
 
 #endif // EFFECT_H

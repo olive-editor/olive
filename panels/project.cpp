@@ -264,7 +264,7 @@ SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
     switch (media->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
     {
-      FootagePtr m = media->to_footage();
+      Footage* m = media->to_footage();
       if (m->ready) {
         if (!got_video_values) {
           for (int j=0;j<m->video_tracks.size();j++) {
@@ -292,7 +292,7 @@ SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
       break;
     case MEDIA_TYPE_SEQUENCE:
     {
-      SequencePtr seq = media->to_sequence();
+      Sequence* seq = media->to_sequence();
       s->width = seq->width;
       s->height = seq->height;
       s->frame_rate = seq->frame_rate;
@@ -440,13 +440,15 @@ Media* Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool op
 
   if (ca != nullptr) {
     ca->append(new NewSequenceCommand(item, parent));
-    if (open) ca->append(new ChangeSequenceAction(s));
-  } else {
 
+    if (open) {
+      ca->append(new ChangeSequenceAction(s.get()));
+    }
+  } else {
     olive::project_model.appendChild(parent, item);
 
     if (open) {
-      olive::Global->set_sequence(s);
+      olive::Global->set_sequence(s.get());
     }
   }
   return item;
@@ -530,10 +532,10 @@ void Project::delete_selected_media() {
     get_all_media_from_table(items, media_items, MEDIA_TYPE_FOOTAGE);
     for (int i=0;i<media_items.size();i++) {
       Media* item = media_items.at(i);
-      FootagePtr media = item->to_footage();
+      Footage* media = item->to_footage();
       bool confirm_delete = false;
       for (int j=0;j<sequence_items.size();j++) {
-        SequencePtr s = sequence_items.at(j)->to_sequence();
+        Sequence* s = sequence_items.at(j)->to_sequence();
         for (int k=0;k<s->clips.size();k++) {
           ClipPtr c = s->clips.at(k);
           if (c != nullptr && c->media() == item) {
@@ -600,7 +602,7 @@ void Project::delete_selected_media() {
 
   // remove
   if (remove) {
-    panel_effect_controls->clear_effects(true);
+    panel_effect_controls->Clear(true);
     if (olive::ActiveSequence != nullptr) olive::ActiveSequence->selections.clear();
 
     // remove media and parents
@@ -619,13 +621,13 @@ void Project::delete_selected_media() {
       if (items.at(i)->get_type() == MEDIA_TYPE_SEQUENCE) {
         redraw = true;
 
-        SequencePtr s = items.at(i)->to_sequence();
+        Sequence* s = items.at(i)->to_sequence();
 
         if (s == olive::ActiveSequence) {
           ca->append(new ChangeSequenceAction(nullptr));
         }
 
-        if (s == panel_footage_viewer->seq) {
+        if (s == panel_footage_viewer->seq.get()) {
           panel_footage_viewer->set_media(nullptr);
         }
       } else if (items.at(i)->get_type() == MEDIA_TYPE_FOOTAGE) {
@@ -1009,12 +1011,11 @@ void Project::delete_clips_using_selected_media() {
 
 void Project::clear() {
   // clear effects cache
-  panel_effect_controls->clear_effects(true);
+  panel_effect_controls->Clear(true);
 
   // delete sequences first because it's important to close all the clips before deleting the media
   QVector<Media*> sequences = list_all_project_sequences();
   for (int i=0;i<sequences.size();i++) {
-    sequences.at(i)->to_sequence().reset();
     sequences.at(i)->set_sequence(nullptr);
   }
 
@@ -1079,7 +1080,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
       } else {
         int folder = m->parentItem()->temp_id;
         if (type == MEDIA_TYPE_FOOTAGE) {
-          FootagePtr f = m->to_footage();
+          Footage* f = m->to_footage();
           f->save_id = media_id;
           stream.writeStartElement("footage");
           stream.writeAttribute("id", QString::number(media_id));
@@ -1128,7 +1129,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
           stream.writeEndElement(); // footage
           media_id++;
         } else if (type == MEDIA_TYPE_SEQUENCE) {
-          SequencePtr s = m->to_sequence();
+          Sequence* s = m->to_sequence();
           if (set_ids_only) {
             s->save_id = sequence_id;
             sequence_id++;

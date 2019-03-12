@@ -114,7 +114,7 @@ void process_effect(Clip* c,
                     bool& fbo_switcher,
                     bool& texture_failed,
                     int data) {
-  if (e->is_enabled()) {
+  if (e->IsEnabled()) {
     if (e->Flags() & Effect::CoordsFlag) {
       e->process_coords(timecode, coords, data);
     }
@@ -159,7 +159,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
   GLuint final_fbo = params.main_buffer;
 
-  SequencePtr s = params.seq;
+  Sequence* s = params.seq;
   long playhead = s->playhead;
 
   if (!params.nests.isEmpty()) {
@@ -194,7 +194,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
         // is the clip a "footage" clip?
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-          FootagePtr m = c->media()->to_footage();
+          Footage* m = c->media()->to_footage();
 
           // does the clip have a valid media source?
           if (!m->invalid && !(c->track() >= 0 && !is_audio_device_set())) {
@@ -658,7 +658,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
   return 0;
 }
 
-void compose_audio(Viewer* viewer, SequencePtr seq, int playback_speed, bool wait_for_mutexes) {
+void compose_audio(Viewer* viewer, Sequence* seq, int playback_speed, bool wait_for_mutexes) {
   ComposeSequenceParams params;
   params.viewer = viewer;
   params.ctx = nullptr;
@@ -707,7 +707,7 @@ int64_t playhead_to_timestamp(Clip* c, long playhead) {
   return seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 }
 
-void close_active_clips(SequencePtr s) {
+void close_active_clips(Sequence* s) {
   if (s != nullptr) {
     for (int i=0;i<s->clips.size();i++) {
       Clip* c = s->clips.at(i).get();

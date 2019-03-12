@@ -103,7 +103,7 @@ void ProxyDialog::accept() {
     info.codec_type = 0;
     info.size_multiplier = size_combobox->currentData().toDouble();
 
-    FootagePtr footage = selected_media.at(i)->to_footage();
+    Footage* footage = selected_media.at(i)->to_footage();
 
     QString base_footage_fn = QFileInfo(footage->url).baseName();
 
@@ -148,7 +148,7 @@ void ProxyDialog::accept() {
 
   // all proxy info checks out, queue it with the proxy generator
   for (int i=0;i<info_list.size();i++) {
-    FootagePtr footage = info_list.at(i).media->to_footage();
+    Footage* footage = info_list.at(i).media->to_footage();
     footage->proxy = true;
     footage->proxy_path.clear();
 

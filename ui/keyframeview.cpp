@@ -23,7 +23,6 @@
 #include "project/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
-#include "panels/effectcontrols.h"
 #include "project/clip.h"
 #include "panels/timeline.h"
 #include "ui/timelineheader.h"
@@ -60,6 +59,11 @@ KeyframeView::KeyframeView(QWidget *parent) :
 
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
+}
+
+void KeyframeView::SetEffects(const QVector<EffectUI *> &open_effects)
+{
+  open_effects_ = open_effects;
 }
 
 void KeyframeView::show_context_menu(const QPoint& pos) {
@@ -101,73 +105,61 @@ void KeyframeView::paintEvent(QPaintEvent*) {
   rowY.clear();
   rows.clear();
 
-  if (panel_effect_controls->selected_clips.size() > 0) {
+  if (!open_effects_.isEmpty()) {
     visible_in = LONG_MAX;
     visible_out = 0;
 
-    for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
+    for (int i=0;i<open_effects_.size();i++) {
+      Clip* c = open_effects_.at(i)->GetEffect()->parent_clip;
       visible_in = qMin(visible_in, c->timeline_in());
       visible_out = qMax(visible_out, c->timeline_out());
     }
 
-    for (int j=0;j<panel_effect_controls->selected_clips.size();j++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(panel_effect_controls->selected_clips.at(j));
-      for (int i=0;i<c->effects.size();i++) {
-        EffectPtr e = c->effects.at(i);
-        if (e->container->is_expanded()) {
-          for (int j=0;j<e->row_count();j++) {
-            EffectRow* row = e->row(j);
+    for (int j=0;j<open_effects_.size();j++) {
 
-            // TODO address this
+      EffectUI* container = open_effects_.at(j);
+      Effect* e = container->GetEffect();
 
-            /*
+      if (container->IsExpanded()) {
+        for (int j=0;j<e->row_count();j++) {
+          EffectRow* row = e->row(j);
 
-            ClickableLabel* label = row->label;
-            QWidget* contents = e->container->contents;
+          int keyframe_y = container->GetRowPos(j);
 
-            QVector<long> key_times;
+          QVector<long> key_times;
 
-            int keyframe_y = label->y()
-                + (label->height()>>1)
-                + mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y()
-                - e->container->title_bar->height();
+          for (int l=0;l<row->FieldCount();l++) {
+            EffectField* f = row->Field(l);
+            for (int k=0;k<f->keyframes.size();k++) {
+              if (!key_times.contains(f->keyframes.at(k).time)) {
+                bool keyframe_selected = keyframeIsSelected(f, k);
+                long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time, visible_in);
 
-            for (int l=0;l<row->FieldCount();l++) {
-              EffectField* f = row->Field(l);
-              for (int k=0;k<f->keyframes.size();k++) {
-                if (!key_times.contains(f->keyframes.at(k).time)) {
-                  bool keyframe_selected = keyframeIsSelected(f, k);
-                  long keyframe_frame = adjust_row_keyframe(row, f->keyframes.at(k).time, visible_in);
-
-                  // see if any other keyframes have this time
-                  int appearances = 0;
-                  for (int m=0;m<row->FieldCount();m++) {
-                    EffectField* compf = row->Field(m);
-                    for (int n=0;n<compf->keyframes.size();n++) {
-                      if (f->keyframes.at(k).time == compf->keyframes.at(n).time) {
-                        appearances++;
-                      }
+                // see if any other keyframes have this time
+                int appearances = 0;
+                for (int m=0;m<row->FieldCount();m++) {
+                  EffectField* compf = row->Field(m);
+                  for (int n=0;n<compf->keyframes.size();n++) {
+                    if (f->keyframes.at(k).time == compf->keyframes.at(n).time) {
+                      appearances++;
                     }
                   }
-
-                  if (appearances != row->FieldCount()) {
-                    QColor cc = get_curve_color(l, row->FieldCount());
-                    draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected, cc.red(), cc.green(), cc.blue());
-                  } else {
-                    draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
-                  }
-
-                  key_times.append(f->keyframes.at(k).time);
                 }
+
+                if (appearances != row->FieldCount()) {
+                  QColor cc = get_curve_color(l, row->FieldCount());
+                  draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected, cc.red(), cc.green(), cc.blue());
+                } else {
+                  draw_keyframe(p, f->keyframes.at(k).type, getScreenPointFromFrame(panel_effect_controls->zoom, keyframe_frame) - x_scroll, keyframe_y, keyframe_selected);
+                }
+
+                key_times.append(f->keyframes.at(k).time);
               }
             }
-
-            rows.append(row);
-            rowY.append(keyframe_y);
-
-            */
           }
+
+          rows.append(row);
+          rowY.append(keyframe_y);
         }
       }
     }

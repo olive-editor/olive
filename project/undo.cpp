@@ -94,7 +94,7 @@ void MoveClipAction::doRedo() {
   }
 }
 
-DeleteClipAction::DeleteClipAction(SequencePtr s, int clip) {
+DeleteClipAction::DeleteClipAction(Sequence *s, int clip) {
   seq = s;
   index = clip;
   opening_transition = -1;
@@ -140,7 +140,7 @@ void DeleteClipAction::doRedo() {
   }
 }
 
-ChangeSequenceAction::ChangeSequenceAction(SequencePtr s) {
+ChangeSequenceAction::ChangeSequenceAction(Sequence *s) {
   new_sequence = s;
 }
 
@@ -153,7 +153,7 @@ void ChangeSequenceAction::doRedo() {
   olive::Global->set_sequence(new_sequence);
 }
 
-SetTimelineInOutCommand::SetTimelineInOutCommand(SequencePtr s, bool enabled, long in, long out) {
+SetTimelineInOutCommand::SetTimelineInOutCommand(Sequence* s, bool enabled, long in, long out) {
   seq = s;
   new_enabled = enabled;
   new_in = in;
@@ -167,7 +167,7 @@ void SetTimelineInOutCommand::doUndo() {
 
   // footage viewer functions
   if (seq->wrapper_sequence) {
-    FootagePtr m = seq->clips.at(0)->media()->to_footage();
+    Footage* m = seq->clips.at(0)->media()->to_footage();
     m->using_inout = old_enabled;
     m->in = old_in;
     m->out = old_out;
@@ -185,7 +185,7 @@ void SetTimelineInOutCommand::doRedo() {
 
   // footage viewer functions
   if (seq->wrapper_sequence) {
-    FootagePtr m = seq->clips.at(0)->media()->to_footage();
+    Footage* m = seq->clips.at(0)->media()->to_footage();
     m->using_inout = new_enabled;
     m->in = new_in;
     m->out = new_out;
@@ -397,7 +397,7 @@ void DeleteMediaCommand::doRedo() {
   done = true;
 }
 
-AddClipCommand::AddClipCommand(SequencePtr s, QVector<ClipPtr>& add) {
+AddClipCommand::AddClipCommand(Sequence *s, QVector<ClipPtr>& add) {
   link_offset_ = 0;
   seq = s;
   clips = add;
@@ -407,7 +407,7 @@ AddClipCommand::~AddClipCommand() {}
 
 void AddClipCommand::doUndo() {
   // clear effects panel
-  panel_effect_controls->clear_effects(true);
+  panel_effect_controls->Clear(true);
 
   for (int i=0;i<clips.size();i++) {
     ClipPtr c = seq->clips.last();
@@ -514,7 +514,7 @@ void ReplaceMediaCommand::replace(QString& filename) {
   // close any clips currently using this media
   QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
   for (int i=0;i<all_sequences.size();i++) {
-    SequencePtr s = all_sequences.at(i)->to_sequence();
+    Sequence* s = all_sequences.at(i)->to_sequence();
     for (int j=0;j<s->clips.size();j++) {
       ClipPtr c = s->clips.at(j);
       if (c != nullptr && c->media() == item && c->IsOpen()) {
@@ -588,34 +588,28 @@ void ReplaceClipMediaCommand::doRedo() {
   update_ui(true);
 }
 
-EffectDeleteCommand::EffectDeleteCommand() {
-  done = false;
-}
-
-EffectDeleteCommand::~EffectDeleteCommand() {}
+EffectDeleteCommand::EffectDeleteCommand(Effect *e) :
+  effect_(e)
+{}
 
 void EffectDeleteCommand::doUndo() {
-  for (int i=0;i<clips.size();i++) {
-    Clip* c = clips.at(i);
-    c->effects.insert(fx.at(i), deleted_objects.at(i));
-  }
-  panel_effect_controls->reload_clips();
-  done = false;
+  parent_clip_->effects.insert(index_, deleted_obj_);
 
+  panel_effect_controls->Reload();
 }
 
 void EffectDeleteCommand::doRedo() {
-  deleted_objects.clear();
-  for (int i=0;i<clips.size();i++) {
-    Clip* c = clips.at(i);
-    int fx_id = fx.at(i) - i;
-    EffectPtr e = c->effects.at(fx_id);
-    e->close();
-    deleted_objects.append(e);
-    c->effects.removeAt(fx_id);
-  }
-  panel_effect_controls->reload_clips();
-  done = true;
+  parent_clip_ = effect_->parent_clip;
+
+  index_ = parent_clip_->IndexOfEffect(effect_);
+
+  Q_ASSERT(index_ > -1);
+
+  effect_->close();
+  deleted_obj_ = parent_clip_->effects.at(index_);
+  parent_clip_->effects.removeAt(index_);
+
+  panel_effect_controls->Reload();
 }
 
 MediaMove::MediaMove() {}
@@ -868,7 +862,7 @@ void SetBool::doRedo() {
   *boolean = new_setting;
 }
 
-SetSelectionsCommand::SetSelectionsCommand(SequencePtr s) {
+SetSelectionsCommand::SetSelectionsCommand(Sequence *s) {
   seq = s;
   done = true;
 }
@@ -885,7 +879,7 @@ void SetSelectionsCommand::doRedo() {
   }
 }
 
-EditSequenceCommand::EditSequenceCommand(Media* i, SequencePtr s) {
+EditSequenceCommand::EditSequenceCommand(Media* i, Sequence *s) {
   item = i;
   seq = s;
   old_name = s->name;
@@ -918,7 +912,8 @@ void EditSequenceCommand::doRedo() {
 
 void EditSequenceCommand::update() {
   // update tooltip
-  item->set_sequence(seq);
+  // TODO/FIXME: this is a lousy way to do this, Media should have a separate fuctionn for updating the tooltip
+  item->update_tooltip();
 
   for (int i=0;i<seq->clips.size();i++) {
     if (seq->clips.at(i) != nullptr) seq->clips.at(i)->refresh();
@@ -1042,10 +1037,10 @@ void ReloadEffectsCommand::doUndo() {
 }
 
 void ReloadEffectsCommand::doRedo() {
-  panel_effect_controls->reload_clips();
+  panel_effect_controls->Reload();
 }
 
-RippleAction::RippleAction(SequencePtr is, long ipoint, long ilength, const QVector<int> &iignore) {
+RippleAction::RippleAction(Sequence *is, long ipoint, long ilength, const QVector<int> &iignore) {
   s = is;
   point = ipoint;
   length = ilength;
@@ -1161,7 +1156,7 @@ void RefreshClips::doRedo() {
   // close any clips currently using this media
   QVector<Media*> all_sequences = panel_project->list_all_project_sequences();
   for (int i=0;i<all_sequences.size();i++) {
-    SequencePtr s = all_sequences.at(i)->to_sequence();
+    Sequence* s = all_sequences.at(i)->to_sequence();
     for (int j=0;j<s->clips.size();j++) {
       ClipPtr c = s->clips.at(j);
       if (c != nullptr && c->media() == media) {

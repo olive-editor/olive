@@ -30,6 +30,7 @@ enum GizmoType {
 #define GIZMO_DOT_SIZE 2.5
 #define GIZMO_TARGET_SIZE 5.0
 
+#include <QObject>
 #include <QString>
 #include <QRect>
 #include <QPoint>
@@ -37,11 +38,12 @@ enum GizmoType {
 #include <QColor>
 
 class DoubleField;
+class Effect;
 
-class EffectGizmo
-{
+class EffectGizmo : public QObject {
+  Q_OBJECT
 public:
-  EffectGizmo(int type);
+  EffectGizmo(Effect* parent, int type);
 
   QVector<QPoint> world_pos;
   QVector<QPoint> screen_pos;

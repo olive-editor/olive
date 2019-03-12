@@ -73,32 +73,32 @@ EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
   if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
     // must be an internal effect
     switch (em->internal) {
-        case EFFECT_INTERNAL_TRANSFORM: return std::make_shared<TransformEffect>(c, em);
-        case EFFECT_INTERNAL_TEXT: return std::make_shared<TextEffect>(c, em);
-        case EFFECT_INTERNAL_TIMECODE: return std::make_shared<TimecodeEffect>(c, em);
-        case EFFECT_INTERNAL_SOLID: return std::make_shared<SolidEffect>(c, em);
-        case EFFECT_INTERNAL_NOISE: return std::make_shared<AudioNoiseEffect>(c, em);
-        case EFFECT_INTERNAL_VOLUME: return std::make_shared<VolumeEffect>(c, em);
-        case EFFECT_INTERNAL_PAN: return std::make_shared<PanEffect>(c, em);
-        case EFFECT_INTERNAL_TONE: return std::make_shared<ToneEffect>(c, em);
-        case EFFECT_INTERNAL_SHAKE: return std::make_shared<ShakeEffect>(c, em);
-        case EFFECT_INTERNAL_CORNERPIN: return std::make_shared<CornerPinEffect>(c, em);
-        case EFFECT_INTERNAL_FILLLEFTRIGHT: return std::make_shared<FillLeftRightEffect>(c, em);
+    case EFFECT_INTERNAL_TRANSFORM: return std::make_shared<TransformEffect>(c, em);
+    case EFFECT_INTERNAL_TEXT: return std::make_shared<TextEffect>(c, em);
+    case EFFECT_INTERNAL_TIMECODE: return std::make_shared<TimecodeEffect>(c, em);
+    case EFFECT_INTERNAL_SOLID: return std::make_shared<SolidEffect>(c, em);
+    case EFFECT_INTERNAL_NOISE: return std::make_shared<AudioNoiseEffect>(c, em);
+    case EFFECT_INTERNAL_VOLUME: return std::make_shared<VolumeEffect>(c, em);
+    case EFFECT_INTERNAL_PAN: return std::make_shared<PanEffect>(c, em);
+    case EFFECT_INTERNAL_TONE: return std::make_shared<ToneEffect>(c, em);
+    case EFFECT_INTERNAL_SHAKE: return std::make_shared<ShakeEffect>(c, em);
+    case EFFECT_INTERNAL_CORNERPIN: return std::make_shared<CornerPinEffect>(c, em);
+    case EFFECT_INTERNAL_FILLLEFTRIGHT: return std::make_shared<FillLeftRightEffect>(c, em);
 #ifndef NOVST
-        case EFFECT_INTERNAL_VST: return std::make_shared<VSTHost>(c, em);
+    case EFFECT_INTERNAL_VST: return std::make_shared<VSTHost>(c, em);
 #endif
 #ifndef NOFREI0R
-        case EFFECT_INTERNAL_FREI0R: return std::make_shared<Frei0rEffect>(c, em);
+    case EFFECT_INTERNAL_FREI0R: return std::make_shared<Frei0rEffect>(c, em);
 #endif
     }
   } else if (!em->filename.isEmpty()) {
     // load effect from file
-        return std::make_shared<Effect>(c, em);
+    return std::make_shared<Effect>(c, em);
   } else {
     qCritical() << "Invalid effect data";
-        QMessageBox::critical(olive::MainWindow,
-                QCoreApplication::translate("Effect", "Invalid effect"),
-                QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
+    QMessageBox::critical(olive::MainWindow,
+                          QCoreApplication::translate("Effect", "Invalid effect"),
+                          QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
   }
   return nullptr;
 }
@@ -123,19 +123,9 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   bound(false),
   iterations(1)
 {
-  // set up base UI
-  container = new CollapsibleWidget();
-  connect(container->enabled_check, SIGNAL(clicked(bool)), this, SLOT(field_changed()));
-  ui = new QWidget(container);
-  ui_layout = new QGridLayout(ui);
-  ui_layout->setSpacing(4);
-  container->setContents(ui);
-
-  connect(container->title_bar, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
-
   if (em != nullptr) {
     // set up UI from effect file
-    container->setText(em->name);
+    name = em->name;
 
     if (!em->filename.isEmpty() && em->internal == -1) {
       QFile effect_file(em->filename);
@@ -353,12 +343,12 @@ Effect::~Effect() {
   if (isOpen) {
     close();
   }
+}
 
-  delete container;
-
-  for (int i=0;i<gizmos.size();i++) {
-    delete gizmos.at(i);
-  }
+void Effect::AddRow(EffectRow *row)
+{
+  row->setParent(this);
+  rows.append(row);
 }
 
 void Effect::copy_field_keyframes(EffectPtr e) {
@@ -388,7 +378,7 @@ int Effect::row_count() {
 }
 
 EffectGizmo *Effect::add_gizmo(int type) {
-  EffectGizmo* gizmo = new EffectGizmo(type);
+  EffectGizmo* gizmo = new EffectGizmo(this, type);
   gizmos.append(gizmo);
   return gizmo;
 }
@@ -408,83 +398,45 @@ void Effect::field_changed() {
   panel_graph_editor->update_panel();
 }
 
-void Effect::show_context_menu(const QPoint& pos) {
-  if (meta->type == EFFECT_TYPE_EFFECT) {
-        QMenu menu(olive::MainWindow);
-
-    int index = get_index_in_clip();
-
-    menu.addAction(tr("Cu&t"), panel_effect_controls, SLOT(cut()));
-    menu.addAction(tr("&Copy"), panel_effect_controls, SLOT(copy(bool)));
-
-    panel_effect_controls->add_effect_paste_action(&menu);
-
-    menu.addSeparator();
-
-    if (index > 0) {
-      menu.addAction(tr("Move &Up"), this, SLOT(move_up()));
-    }
-
-    if (index < parent_clip->effects.size() - 1) {
-      menu.addAction(tr("Move &Down"), this, SLOT(move_down()));
-    }
-
-    menu.addSeparator();
-
-    menu.addAction(tr("D&elete"), this, SLOT(delete_self()));
-
-    menu.addSeparator();
-
-    menu.addAction(tr("Load Settings From File"), this, SLOT(load_from_file()));
-
-    menu.addAction(tr("Save Settings to File"), this, SLOT(save_to_file()));
-
-    menu.exec(container->title_bar->mapToGlobal(pos));
-  }
-}
-
 void Effect::delete_self() {
-  EffectDeleteCommand* command = new EffectDeleteCommand();
-  command->clips.append(parent_clip);
-  command->fx.append(get_index_in_clip());
-  olive::UndoStack.push(command);
+  olive::UndoStack.push(new EffectDeleteCommand(this));
   update_ui(true);
 }
 
 void Effect::move_up() {
   MoveEffectCommand* command = new MoveEffectCommand();
   command->clip = parent_clip;
-  command->from = get_index_in_clip();
+  command->from = parent_clip->IndexOfEffect(this);
   command->to = command->from - 1;
   olive::UndoStack.push(command);
-  panel_effect_controls->reload_clips();
+  panel_effect_controls->Reload();
   panel_sequence_viewer->viewer_widget->frame_update();
 }
 
 void Effect::move_down() {
   MoveEffectCommand* command = new MoveEffectCommand();
   command->clip = parent_clip;
-  command->from = get_index_in_clip();
+  command->from = parent_clip->IndexOfEffect(this);
   command->to = command->from + 1;
   olive::UndoStack.push(command);
-  panel_effect_controls->reload_clips();
+  panel_effect_controls->Reload();
   panel_sequence_viewer->viewer_widget->frame_update();
 }
 
 void Effect::save_to_file() {
   // save effect settings to file
-    QString file = QFileDialog::getSaveFileName(olive::MainWindow,
-                        tr("Save Effect Settings"),
-                        QString(),
-                        tr("Effect XML Settings %1").arg("(*.xml)"));
+  QString file = QFileDialog::getSaveFileName(olive::MainWindow,
+                                              tr("Save Effect Settings"),
+                                              QString(),
+                                              tr("Effect XML Settings %1").arg("(*.xml)"));
 
   // if the user picked a file
   if (!file.isEmpty()) {
 
-        // ensure file ends with .xml extension
-        if (!file.endsWith(".xml", Qt::CaseInsensitive)) {
-            file.append(".xml");
-        }
+    // ensure file ends with .xml extension
+    if (!file.endsWith(".xml", Qt::CaseInsensitive)) {
+      file.append(".xml");
+    }
 
     QFile file_handle(file);
     if (file_handle.open(QFile::WriteOnly)) {
@@ -493,36 +445,36 @@ void Effect::save_to_file() {
 
       file_handle.close();
     } else {
-            QMessageBox::critical(olive::MainWindow,
-                  tr("Save Settings Failed"),
-                  tr("Failed to open \"%1\" for writing.").arg(file),
-                  QMessageBox::Ok);
+      QMessageBox::critical(olive::MainWindow,
+                            tr("Save Settings Failed"),
+                            tr("Failed to open \"%1\" for writing.").arg(file),
+                            QMessageBox::Ok);
     }
   }
 }
 
 void Effect::load_from_file() {
   // load effect settings from file
-    QString file = QFileDialog::getOpenFileName(olive::MainWindow,
-                        tr("Load Effect Settings"),
-                        QString(),
-                        tr("Effect XML Settings %1").arg("(*.xml)"));
+  QString file = QFileDialog::getOpenFileName(olive::MainWindow,
+                                              tr("Load Effect Settings"),
+                                              QString(),
+                                              tr("Effect XML Settings %1").arg("(*.xml)"));
 
   // if the user picked a file
   if (!file.isEmpty()) {
     QFile file_handle(file);
     if (file_handle.open(QFile::ReadOnly)) {
 
-            olive::UndoStack.push(new SetEffectData(EffectPtr(this), file_handle.readAll()));
+      olive::UndoStack.push(new SetEffectData(EffectPtr(this), file_handle.readAll()));
 
       file_handle.close();
 
       update_ui(false);
     } else {
-            QMessageBox::critical(olive::MainWindow,
-                  tr("Load Settings Failed"),
-                  tr("Failed to open \"%1\" for reading.").arg(file),
-                  QMessageBox::Ok);
+      QMessageBox::critical(olive::MainWindow,
+                            tr("Load Settings Failed"),
+                            tr("Failed to open \"%1\" for reading.").arg(file),
+                            QMessageBox::Ok);
     }
   }
 }
@@ -537,23 +489,13 @@ void Effect::SetAlwaysUpdate(bool b)
   enable_always_update_ = b;
 }
 
-int Effect::get_index_in_clip() {
-  if (parent_clip != nullptr) {
-    for (int i=0;i<parent_clip->effects.size();i++) {
-            if (parent_clip->effects.at(i).get() == this) {
-        return i;
-      }
-    }
-  }
-  return -1;
+bool Effect::IsEnabled() {
+  return enabled_;
 }
 
-bool Effect::is_enabled() {
-  return container->enabled_check->isChecked();
-}
-
-void Effect::set_enabled(bool b) {
-  container->enabled_check->setChecked(b);
+void Effect::SetEnabled(bool b) {
+  enabled_ = b;
+  emit EnabledChanged(b);
 }
 
 void Effect::load(QXmlStreamReader& stream) {
@@ -649,7 +591,7 @@ void Effect::custom_load(QXmlStreamReader &) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
   stream.writeAttribute("name", meta->category + "/" + meta->name);
-  stream.writeAttribute("enabled", QString::number(is_enabled()));
+  stream.writeAttribute("enabled", QString::number(IsEnabled()));
 
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
@@ -710,10 +652,10 @@ void Effect::load_from_string(const QByteArray &s) {
             // pass off to standard loading function
             load(stream);
           } else {
-                        QMessageBox::critical(olive::MainWindow,
-                        tr("Load Settings Failed"),
-                        tr("This settings file doesn't match this effect."),
-                        QMessageBox::Ok);
+            QMessageBox::critical(olive::MainWindow,
+                                  tr("Load Settings Failed"),
+                                  tr("This settings file doesn't match this effect."),
+                                  QMessageBox::Ok);
           }
           break;
         }
@@ -862,8 +804,8 @@ void Effect::setIterations(int i) {
 void Effect::process_image(double, uint8_t *, uint8_t *, int){}
 
 EffectPtr Effect::copy(Clip *c) {
-    EffectPtr copy = Effect::Create(c, meta);
-  copy->set_enabled(is_enabled());
+  EffectPtr copy = Effect::Create(c, meta);
+  copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
   return copy;
 }
@@ -894,7 +836,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
                 GLfloat(color_field->GetColorAt(timecode).redF()),
                 GLfloat(color_field->GetColorAt(timecode).greenF()),
                 GLfloat(color_field->GetColorAt(timecode).blueF())
-              );
+                );
         }
           break;
         case EffectField::EFFECT_FIELD_BOOL:
@@ -904,7 +846,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
           glslProgram->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
           break;
 
-        // can you even send a string to a uniform value?
+          // can you even send a string to a uniform value?
         case EffectField::EFFECT_FIELD_STRING:
         case EffectField::EFFECT_FIELD_FONT:
         case EffectField::EFFECT_FIELD_FILE:
@@ -1105,7 +1047,7 @@ const EffectMeta* get_meta_from_name(const QString& input) {
   for (int j=0;j<effects.size();j++) {
     if (effects.at(j).name == name
         && (effects.at(j).category == category
-          || category.isEmpty())) {
+            || category.isEmpty())) {
       return &effects.at(j);
     }
   }

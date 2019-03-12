@@ -59,7 +59,7 @@ struct ComposeSequenceParams {
      * In addition to clips, sequences also contain the playhead position so compose_sequence() knows which frame
      * to render.
      */
-    SequencePtr seq;
+    Sequence* seq;
 
     /**
      * @brief Array to store the nested sequence hierarchy
@@ -263,7 +263,7 @@ GLuint compose_sequence(ComposeSequenceParams &params);
  *
  * Whether to wait for media to open or simply fail if the media is not yet open. This should usually be **FALSE**.
  */
-void compose_audio(Viewer* viewer, SequencePtr seq, int playback_speed, bool wait_for_mutexes);
+void compose_audio(Viewer* viewer, Sequence *seq, int playback_speed, bool wait_for_mutexes);
 
 /**
  * @brief Rescale a frame number between two frame rates
@@ -400,6 +400,6 @@ int64_t playhead_to_timestamp(Clip *c, long playhead);
  *
  * The Sequence to close all clips on.
  */
-void close_active_clips(SequencePtr s);
+void close_active_clips(Sequence* s);
 
 #endif // RENDERFUNCTIONS_H

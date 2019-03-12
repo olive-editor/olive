@@ -53,7 +53,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   collapse_button = new QPushButton(title_bar);
   collapse_button->setIconSize(collapse_button->iconSize()*0.5);
   collapse_button->setStyleSheet("QPushButton { border: none; }");
-  setText(tr("<untitled>"));
+  SetText(tr("<untitled>"));
   title_bar_layout->addWidget(collapse_button);
   title_bar_layout->addWidget(enabled_check);
   title_bar_layout->addWidget(header);
@@ -80,20 +80,25 @@ void CollapsibleWidget::header_click(bool s, bool deselect) {
   if (deselect) emit deselect_others(this);
 }
 
-bool CollapsibleWidget::is_focused() {
+bool CollapsibleWidget::IsFocused() {
   if (hasFocus()) return true;
   return title_bar->hasFocus();
 }
 
-bool CollapsibleWidget::is_expanded() {
+bool CollapsibleWidget::IsExpanded() {
   return contents->isVisible();
+}
+
+bool CollapsibleWidget::IsSelected()
+{
+  return selected;
 }
 
 void CollapsibleWidget::set_button_icon(bool open) {
   collapse_button->setIcon(open ? olive::icon::DownArrow : olive::icon::RightArrow);
 }
 
-void CollapsibleWidget::setContents(QWidget* c) {
+void CollapsibleWidget::SetContents(QWidget* c) {
   bool existing = (contents != nullptr);
   contents = c;
   if (!existing) {
@@ -103,7 +108,7 @@ void CollapsibleWidget::setContents(QWidget* c) {
   }
 }
 
-void CollapsibleWidget::setText(const QString &s) {
+void CollapsibleWidget::SetText(const QString &s) {
   header->setText(s);
 }
 

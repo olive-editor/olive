@@ -84,11 +84,11 @@ private:
 
 class RippleAction : public OliveAction {
 public:
-  RippleAction(SequencePtr is, long ipoint, long ilength, const QVector<int>& iignore);
+  RippleAction(Sequence* is, long ipoint, long ilength, const QVector<int>& iignore);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  SequencePtr s;
+  Sequence* s;
   long point;
   long length;
   QVector<int> ignore;
@@ -97,12 +97,12 @@ private:
 
 class DeleteClipAction : public OliveAction {
 public:
-  DeleteClipAction(SequencePtr s, int clip);
+  DeleteClipAction(Sequence* s, int clip);
   virtual ~DeleteClipAction() override;
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  SequencePtr seq;
+  Sequence* seq;
   ClipPtr ref;
   int index;
 
@@ -115,12 +115,12 @@ private:
 
 class ChangeSequenceAction : public OliveAction {
 public:
-  ChangeSequenceAction(SequencePtr s);
+  ChangeSequenceAction(Sequence* s);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  SequencePtr old_sequence;
-  SequencePtr new_sequence;
+  Sequence* old_sequence;
+  Sequence* new_sequence;
 };
 
 class AddEffectCommand : public OliveAction {
@@ -176,11 +176,11 @@ private:
 
 class SetTimelineInOutCommand : public OliveAction {
 public:
-  SetTimelineInOutCommand(SequencePtr s, bool enabled, long in, long out);
+  SetTimelineInOutCommand(Sequence* s, bool enabled, long in, long out);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  SequencePtr seq;
+  Sequence* seq;
 
   bool old_enabled;
   long old_in;
@@ -229,12 +229,12 @@ private:
 
 class AddClipCommand : public OliveAction {
 public:
-  AddClipCommand(SequencePtr s, QVector<ClipPtr>& add);
+  AddClipCommand(Sequence* s, QVector<ClipPtr>& add);
   virtual ~AddClipCommand() override;
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  SequencePtr seq;
+  Sequence* seq;
   QVector<ClipPtr> clips;
   int link_offset_;
 };
@@ -244,7 +244,7 @@ public:
   LinkCommand();
   virtual void doUndo() override;
   virtual void doRedo() override;
-  SequencePtr s;
+  Sequence* s;
   QVector<int> clips;
   bool link;
 private:
@@ -291,15 +291,14 @@ private:
 
 class EffectDeleteCommand : public OliveAction {
 public:
-  EffectDeleteCommand();
-  virtual ~EffectDeleteCommand() override;
+  EffectDeleteCommand(Effect* e);
   virtual void doUndo() override;
   virtual void doRedo() override;
-  QVector<Clip*> clips;
-  QVector<int> fx;
 private:
-  bool done;
-  QVector<EffectPtr> deleted_objects;
+  Effect* effect_;
+  EffectPtr deleted_obj_;
+  Clip* parent_clip_;
+  int index_;
 };
 
 class MediaMove : public OliveAction {
@@ -444,19 +443,19 @@ private:
 
 class SetSelectionsCommand : public OliveAction {
 public:
-  SetSelectionsCommand(SequencePtr s);
+  SetSelectionsCommand(Sequence* s);
   virtual void doUndo() override;
   virtual void doRedo() override;
   QVector<Selection> old_data;
   QVector<Selection> new_data;
 private:
-  SequencePtr seq;
+  Sequence* seq;
   bool done;
 };
 
 class EditSequenceCommand : public OliveAction {
 public:
-  EditSequenceCommand(Media *i, SequencePtr s);
+  EditSequenceCommand(Media *i, Sequence* s);
   virtual void doUndo() override;
   virtual void doRedo() override;
   void update();
@@ -469,7 +468,7 @@ public:
   int audio_layout;
 private:
   Media* item;
-  SequencePtr seq;
+  Sequence* seq;
 
   QString old_name;
   int old_width;

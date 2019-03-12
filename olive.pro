@@ -170,7 +170,8 @@ SOURCES += \
     project/effectfields/combofield.cpp \
     project/effectfields/filefield.cpp \
     project/effectfields/labelfield.cpp \
-    project/effectfields/buttonfield.cpp
+    project/effectfields/buttonfield.cpp \
+    ui/effectui.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -294,7 +295,8 @@ HEADERS += \
     project/effectfields/combofield.h \
     project/effectfields/filefield.h \
     project/effectfields/labelfield.h \
-    project/effectfields/buttonfield.h
+    project/effectfields/buttonfield.h \
+    ui/effectui.h
 
 FORMS +=
 

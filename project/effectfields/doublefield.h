@@ -34,6 +34,8 @@ public:
 
   virtual QVariant ConvertStringToValue(const QString& s);
   virtual QString ConvertValueToString(const QVariant& v);
+
+  //virtual QWidget* CreateWidget() override;
 private:
   double min_;
   double max_;

@@ -126,7 +126,7 @@ private:
 
   void update_window_title();
   void clean_created_seq();
-  void set_sequence(bool main, SequencePtr s);
+  void set_sequence(bool main, Sequence *s);
   bool main_sequence;
   bool created_sequence;
   long cached_end_frame;

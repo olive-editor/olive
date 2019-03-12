@@ -37,7 +37,7 @@ struct Marker {
 
 void draw_marker(QPainter& p, int x, int y, int bottom, bool selected);
 
-void set_marker_internal(SequencePtr seq, const QVector<int>& clips);
-void set_marker_internal(SequencePtr seq);
+void set_marker_internal(Sequence *seq, const QVector<int>& clips);
+void set_marker_internal(Sequence* seq);
 
 #endif // MARKER_H

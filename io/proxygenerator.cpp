@@ -42,7 +42,7 @@ enum AVCodecID temp_enc_codec = AV_CODEC_ID_PRORES;
 ProxyGenerator::ProxyGenerator() : cancelled(false) {}
 
 void ProxyGenerator::transcode(const ProxyInfo& info) {
-  FootagePtr footage = info.media->to_footage();
+  Footage* footage = info.media->to_footage();
 
   // set progress to 0
   current_progress = 0.0;

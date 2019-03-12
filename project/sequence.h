@@ -71,7 +71,7 @@ using SequencePtr = std::shared_ptr<Sequence>;
 
 // static variable for the currently active sequence
 namespace olive {
-extern SequencePtr ActiveSequence;
+  extern Sequence* ActiveSequence;
 }
 
 #endif // SEQUENCE_H

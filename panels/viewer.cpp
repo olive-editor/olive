@@ -449,9 +449,9 @@ void Viewer::pause() {
       panel_project->process_file_list(file_list);
 
       // add it to the sequence
-      ClipPtr c = std::make_shared<Clip>(seq);
+      ClipPtr c = std::make_shared<Clip>(seq.get());
       Media* m = panel_project->last_imported_media.at(0);
-      FootagePtr f = m->to_footage();
+      Footage* f = m->to_footage();
 
       // wait for footage to be completely ready before taking metadata from it
       f->ready_lock.lock();
@@ -468,7 +468,7 @@ void Viewer::pause() {
 
       QVector<ClipPtr> add_clips;
       add_clips.append(c);
-      olive::UndoStack.push(new AddClipCommand(seq, add_clips)); // add clip
+      olive::UndoStack.push(new AddClipCommand(seq.get(), add_clips)); // add clip
     }
   }
 }
@@ -514,7 +514,7 @@ int Viewer::get_playback_speed() {
 }
 
 void Viewer::set_marker() {
-  set_marker_internal(seq);
+  set_marker_internal(seq.get());
 }
 
 void Viewer::resizeEvent(QResizeEvent *e) {
@@ -537,7 +537,7 @@ void Viewer::update_viewer() {
 void Viewer::clear_in() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, 0, seq->workarea_out));
+    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), true, 0, seq->workarea_out));
     update_parents();
   }
 }
@@ -545,7 +545,7 @@ void Viewer::clear_in() {
 void Viewer::clear_out() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq, true, seq->workarea_in, seq->getEndFrame()));
+    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), true, seq->workarea_in, seq->getEndFrame()));
     update_parents();
   }
 }
@@ -553,7 +553,7 @@ void Viewer::clear_out() {
 void Viewer::clear_inout_point() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq, false, 0, 0));
+    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), false, 0, 0));
     update_parents();
   }
 }
@@ -720,11 +720,11 @@ void Viewer::set_media(Media* m) {
     switch (media->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
     {
-      FootagePtr footage = media->to_footage();
+      Footage* footage = media->to_footage();
 
       marker_ref = &footage->markers;
 
-      seq = SequencePtr(new Sequence());
+      seq = std::make_shared<Sequence>();
       created_sequence = true;
       seq->wrapper_sequence = true;
       seq->name = footage->name;
@@ -744,7 +744,7 @@ void Viewer::set_media(Media* m) {
         seq->height = video_stream.video_height;
         if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate * footage->speed;
 
-        ClipPtr c = std::make_shared<Clip>(seq);
+        ClipPtr c = std::make_shared<Clip>(seq.get());
         c->set_media(media, video_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));
@@ -766,7 +766,7 @@ void Viewer::set_media(Media* m) {
         const FootageStream& audio_stream = footage->audio_tracks.at(0);
         seq->audio_frequency = audio_stream.audio_frequency;
 
-        ClipPtr c = std::make_shared<Clip>(seq);
+        ClipPtr c = std::make_shared<Clip>(seq.get());
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));
@@ -790,11 +790,11 @@ void Viewer::set_media(Media* m) {
     }
       break;
     case MEDIA_TYPE_SEQUENCE:
-      seq = media->to_sequence();
+      seq = SequencePtr(media->to_sequence());
       break;
     }
   }
-  set_sequence(false, seq);
+  set_sequence(false, seq.get());
 }
 
 void Viewer::update_playhead() {
@@ -857,17 +857,17 @@ void Viewer::clean_created_seq() {
   }
 }
 
-void Viewer::set_sequence(bool main, SequencePtr s) {
+void Viewer::set_sequence(bool main, Sequence* s) {
   pause();
 
   reset_all_audio();
 
   if (seq != nullptr) {
-    close_active_clips(seq);
+    close_active_clips(seq.get());
   }
 
   main_sequence = main;
-  seq = (main) ? olive::ActiveSequence : s;
+  seq = SequencePtr((main) ? olive::ActiveSequence : s);
 
   bool null_sequence = (seq == nullptr);
 

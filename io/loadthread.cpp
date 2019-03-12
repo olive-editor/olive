@@ -372,7 +372,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 } else if (attr.name() == "alayout") {
                   s->audio_layout = attr.value().toInt();
                 } else if (attr.name() == "open") {
-                  open_seq = s;
+                  open_seq = s.get();
                 } else if (attr.name() == "workarea") {
                   s->using_workarea = (attr.value() == "1");
                 } else if (attr.name() == "workareaIn") {
@@ -400,7 +400,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   int media_type = -1;
                   int media_id, stream_id;
 
-                  ClipPtr c = std::make_shared<Clip>(s);
+                  ClipPtr c = std::make_shared<Clip>(s.get());
 
                   QColor clip_color;
                   ClipSpeed speed_info = c->speed();
@@ -457,7 +457,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   case MEDIA_TYPE_FOOTAGE:
                     if (media_id >= 0) {
                       for (int j=0;j<loaded_media_items.size();j++) {
-                        FootagePtr m = loaded_media_items.at(j)->to_footage();
+                        Footage* m = loaded_media_items.at(j)->to_footage();
                         if (m->save_id == media_id) {
                           c->set_media(loaded_media_items.at(j), stream_id);
                           break;
@@ -784,12 +784,12 @@ void LoadThread::create_effect_ui(
     if (meta == nullptr) {
       // create void effect
       EffectPtr ve(new VoidEffect(c, *effect_name));
-      ve->set_enabled(effect_enabled);
+      ve->SetEnabled(effect_enabled);
       ve->load(*stream);
       c->effects.append(ve);
     } else {
       EffectPtr e(Effect::Create(c, meta));
-      e->set_enabled(effect_enabled);
+      e->SetEnabled(effect_enabled);
       e->load(*stream);
 
       c->effects.append(e);
@@ -797,7 +797,7 @@ void LoadThread::create_effect_ui(
   } else {
     TransitionPtr t = Transition::Create(c, nullptr, meta);
     if (effect_length > -1) t->set_length(effect_length);
-    t->set_enabled(effect_enabled);
+    t->SetEnabled(effect_enabled);
     t->load(*stream);
 
     if (type == kTransitionOpening) {

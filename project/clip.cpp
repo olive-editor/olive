@@ -38,7 +38,7 @@
 
 const int kRGBAComponentCount = 4;
 
-Clip::Clip(SequencePtr s) :
+Clip::Clip(Sequence* s) :
   sequence(s),
   cacher(this)
 {
@@ -62,7 +62,7 @@ Clip::Clip(SequencePtr s) :
   reset();
 }
 
-ClipPtr Clip::copy(SequencePtr s) {
+ClipPtr Clip::copy(Sequence* s) {
   ClipPtr copy = std::make_shared<Clip>(s);
 
   copy->set_enabled(enabled());
@@ -197,7 +197,7 @@ void Clip::reset_audio() {
     cacher.ResetAudio();
   }
   if (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) {
-    SequencePtr nested_sequence = media()->to_sequence();
+    Sequence* nested_sequence = media()->to_sequence();
     for (int i=0;i<nested_sequence->clips.size();i++) {
       ClipPtr c = nested_sequence->clips.at(i);
       if (c != nullptr) c->reset_audio();
@@ -208,7 +208,7 @@ void Clip::reset_audio() {
 void Clip::refresh() {
   // validates media if it was replaced
   if (replaced && media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-    FootagePtr m = media()->to_footage();
+    Footage* m = media()->to_footage();
 
     if (track() < 0 && m->video_tracks.size() > 0)  {
       set_media(media(), m->video_tracks.at(0).file_index);
@@ -229,6 +229,16 @@ QVector<Marker> &Clip::get_markers() {
     return media()->get_markers();
   }
   return markers;
+}
+
+int Clip::IndexOfEffect(Effect *e)
+{
+  for (int i=0;i<effects.size();i++) {
+    if (effects.at(i).get() == e) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 Clip::~Clip() {
@@ -371,7 +381,7 @@ long Clip::media_length() {
       switch (media_->get_type()) {
       case MEDIA_TYPE_FOOTAGE:
       {
-        FootagePtr m = media_->to_footage();
+        Footage* m = media_->to_footage();
         const FootageStream* ms = m->get_stream_from_file_index(track_ < 0, media_stream_index());
         if (ms != nullptr && ms->infinite_length) {
           return LONG_MAX;
@@ -381,7 +391,7 @@ long Clip::media_length() {
       }
       case MEDIA_TYPE_SEQUENCE:
       {
-        SequencePtr s = media_->to_sequence();
+        Sequence* s = media_->to_sequence();
         return rescale_frame_number(s->getEndFrame(), s->frame_rate, fr);
       }
       }
@@ -402,7 +412,7 @@ int Clip::media_width() {
   }
   case MEDIA_TYPE_SEQUENCE:
   {
-    SequencePtr s = media_->to_sequence();
+    Sequence* s = media_->to_sequence();
     return s->width;
   }
   }
@@ -421,7 +431,7 @@ int Clip::media_height() {
     break;
   case MEDIA_TYPE_SEQUENCE:
   {
-    SequencePtr s = media_->to_sequence();
+    Sequence* s = media_->to_sequence();
     return s->height;
   }
   }
@@ -575,7 +585,7 @@ bool Clip::Retrieve()
 
       for (int i=0;i<effects.size();i++) {
         Effect* e = effects.at(i).get();
-        if ((e->Flags() & Effect::ImageFlag) && e->is_enabled()) {
+        if ((e->Flags() & Effect::ImageFlag) && e->IsEnabled()) {
           if (data_buffer_1 == frame->data[0]) {
             data_buffer_1 = new uint8_t[frame_size];
             data_buffer_2 = new uint8_t[frame_size];

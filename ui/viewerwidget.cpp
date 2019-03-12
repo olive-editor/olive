@@ -91,7 +91,7 @@ ViewerWidget::~ViewerWidget() {
 }
 
 void ViewerWidget::delete_function() {
-  close_active_clips(viewer->seq);
+  close_active_clips(viewer->seq.get());
 }
 
 void ViewerWidget::set_waveform_scroll(int s) {
@@ -168,7 +168,7 @@ void ViewerWidget::save_frame() {
       fn += selected_ext;
     }
 
-    renderer->start_render(context(), viewer->seq, fn);
+    renderer->start_render(context(), viewer->seq.get(), fn);
   }
 }
 
@@ -228,11 +228,11 @@ void ViewerWidget::frame_update() {
       update();
     } else {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq);
+      renderer->start_render(context(), viewer->seq.get());
     }
 
     // render the audio
-    compose_audio(viewer, viewer->seq, viewer->get_playback_speed(), viewer->WaitingForPlayWake());
+    compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), viewer->WaitingForPlayWake());
   }
 }
 
@@ -253,7 +253,7 @@ void ViewerWidget::seek_from_click(int x) {
 void ViewerWidget::context_destroy() {
   makeCurrent();
   if (viewer->seq != nullptr) {
-    close_active_clips(viewer->seq);
+    close_active_clips(viewer->seq.get());
   }
   renderer->delete_ctx();
   doneCurrent();
@@ -619,7 +619,7 @@ void ViewerWidget::paintGL() {
 
     if (renderer->did_texture_fail() && !viewer->playing) {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq);
+      renderer->start_render(context(), viewer->seq.get());
     }
   }
 }

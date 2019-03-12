@@ -259,7 +259,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
   }
 
   if (event->source() == panel_footage_viewer->viewer_widget) {
-    SequencePtr proposed_seq = panel_footage_viewer->seq;
+    Sequence* proposed_seq = panel_footage_viewer->seq.get();
     if (proposed_seq != olive::ActiveSequence) { // don't allow nesting the same sequence
       media_list.append(panel_footage_viewer->media);
       import_init = true;
@@ -280,7 +280,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
       for (int i=0;i<panel_project->last_imported_media.size();i++) {
         // waits for media to have a duration
         // TODO would be much nicer if this was multithreaded
-        FootagePtr f = panel_project->last_imported_media.at(i)->to_footage();
+        Footage* f = panel_project->last_imported_media.at(i)->to_footage();
         f->ready_lock.lock();
         f->ready_lock.unlock();
 
@@ -302,14 +302,14 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     event->acceptProposedAction();
 
     long entry_point;
-    SequencePtr seq = olive::ActiveSequence;
+    Sequence* seq = olive::ActiveSequence;
 
     if (seq == nullptr) {
       // if no sequence, we're going to create a new one using the clips as a reference
       entry_point = 0;
 
       self_created_sequence = create_sequence_from_media(media_list);
-      seq = self_created_sequence;
+      seq = self_created_sequence.get();
     } else {
       entry_point = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
       panel_timeline->drag_frame_start = entry_point + getFrameFromScreenPoint(panel_timeline->zoom, 50);
@@ -515,11 +515,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
     ComboAction* ca = new ComboAction();
 
-    SequencePtr s = olive::ActiveSequence;
+    Sequence* s = olive::ActiveSequence;
 
     // if we're dropping into nothing, create a new sequences based on the clip being dragged
     if (s == nullptr) {
-      s = self_created_sequence;
+      s = self_created_sequence.get();
       panel_project->create_sequence_internal(ca, self_created_sequence, true, nullptr);
       self_created_sequence = nullptr;
     } else if (event->keyboardModifiers() & Qt::ControlModifier) {
@@ -2953,7 +2953,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
           if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
             bool draw_checkerboard = false;
             QRect checkerboard_rect(clip_rect);
-            FootagePtr m = clip->media()->to_footage();
+            Footage* m = clip->media()->to_footage();
             FootageStream* ms = clip->media_stream();
             if (ms == nullptr) {
               draw_checkerboard = true;

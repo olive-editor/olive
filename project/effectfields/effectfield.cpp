@@ -151,6 +151,11 @@ QString EffectField::ConvertValueToString(const QVariant &v)
   return v.toString();
 }
 
+QWidget *EffectField::CreateWidget()
+{
+  return new QLabel(tr("(Invalid field)"));
+}
+
 QVariant EffectField::GetValueAt(double timecode)
 {
   Q_ASSERT(!keyframes.isEmpty());

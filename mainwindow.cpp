@@ -939,7 +939,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     // stop proxy generator thread
     olive::proxy_generator.cancel();
 
-    panel_effect_controls->clear_effects(true);
+    panel_effect_controls->Clear(true);
 
     olive::Global->set_sequence(nullptr);
 
