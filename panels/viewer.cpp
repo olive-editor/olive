@@ -376,6 +376,10 @@ void Viewer::decrease_speed() {
 }
 
 void Viewer::play(bool in_to_out) {
+  if (seq == nullptr) {
+    return;
+  }
+
   if (panel_sequence_viewer->playing) panel_sequence_viewer->pause();
   if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
