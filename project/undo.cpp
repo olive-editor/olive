@@ -1092,11 +1092,11 @@ SetIsKeyframing::SetIsKeyframing(EffectRow *irow, bool ib) {
 }
 
 void SetIsKeyframing::doUndo() {
-  row->SetKeyframing(!b);
+  row->SetKeyframingInternal(!b);
 }
 
 void SetIsKeyframing::doRedo() {
-  row->SetKeyframing(b);
+  row->SetKeyframingInternal(b);
 }
 
 RefreshClips::RefreshClips(Media *m) {

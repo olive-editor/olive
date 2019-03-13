@@ -53,9 +53,11 @@ public:
   const QString& id();
 
   QVariant GetValueAt(double timecode);
-  void SetValueAt(double timecode, const QVariant& value);
+  void SetValueAt(double time, const QVariant& value);
 
   double Now();
+
+  void PrepareDataForKeyframing(bool enabled, ComboAction* ca);
 
   int GetColumnSpan();
   void SetColumnSpan(int i);
@@ -69,7 +71,14 @@ public:
 
   bool IsEnabled();
   void SetEnabled(bool e);
+
   QVector<EffectKeyframe> keyframes;
+
+signals:
+  void Changed();
+  void Clicked();
+
+  void EnabledChanged(bool);
 
 private:
   EffectFieldType type_;
@@ -82,11 +91,7 @@ private:
 
   bool enabled_;
   int colspan_;
-signals:
-  void Changed();
-  void Clicked();
 
-  void EnabledChanged(bool);
 };
 
 #endif // EFFECTFIELD_H

@@ -60,7 +60,8 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
   connect(right_key_nav, SIGNAL(clicked(bool)), this, SIGNAL(goto_next_key()));
   connect(right_key_nav, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));
 
-  keyframe_enable = new QPushButton(olive::icon::Clock, "", this);
+  keyframe_enable = new QPushButton(this);
+  keyframe_enable->setIcon(olive::icon::Clock);
   keyframe_enable->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   keyframe_enable->setIconSize(keyframe_enable->iconSize()*0.75);
   keyframe_enable->setCheckable(true);

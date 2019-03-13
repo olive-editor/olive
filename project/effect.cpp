@@ -351,7 +351,7 @@ void Effect::copy_field_keyframes(EffectPtr e) {
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
     EffectRow* copy_row = e->rows.at(i);
-    copy_row->SetKeyframing(row->IsKeyframing());
+    copy_row->SetKeyframingInternal(row->IsKeyframing());
     for (int j=0;j<row->FieldCount();j++) {
       // Get field from this (the source) effect
       EffectField* field = row->Field(j);
@@ -390,8 +390,7 @@ int Effect::gizmo_count() {
 void Effect::refresh() {}
 
 void Effect::FieldChanged() {
-  panel_sequence_viewer->viewer_widget->frame_update();
-  panel_graph_editor->update_panel();
+  update_ui(false);
 }
 
 void Effect::delete_self() {
@@ -545,7 +544,7 @@ void Effect::load(QXmlStreamReader& stream) {
 
                 // read keyframes
                 if (stream.name() == "key" && stream.isStartElement()) {
-                  row->SetKeyframing(true);
+                  row->SetKeyframingInternal(true);
 
                   EffectKeyframe key;
                   for (int k=0;k<stream.attributes().size();k++) {
@@ -623,7 +622,7 @@ void Effect::load_from_string(const QByteArray &s) {
   // clear existing keyframe data
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
-    row->SetKeyframing(false);
+    row->SetKeyframingInternal(false);
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
       field->keyframes.clear();

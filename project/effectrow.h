@@ -45,7 +45,7 @@ public:
 
   EffectField* Field(int i);
   int FieldCount();
-  void set_keyframe_now(ComboAction *ca);
+  void SetKeyframeOnAllFields(ComboAction *ca);
   void delete_keyframe_at_time(ComboAction *ca, long time);
 
   Effect* GetParentEffect();
@@ -53,7 +53,7 @@ public:
   const QString& name();
 
   bool IsKeyframing();
-  void SetKeyframing(bool);
+  void SetKeyframingInternal(bool);
 
   bool IsSavable();
 public slots:
