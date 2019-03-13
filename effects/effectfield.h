@@ -75,6 +75,7 @@ public:
   bool IsEnabled();
   void SetEnabled(bool e);
 
+  QVariant persistent_data_;
   QVector<EffectKeyframe> keyframes;
 
 signals:
@@ -95,7 +96,6 @@ private:
   bool enabled_;
   int colspan_;
 
-  QVariant perpetual_data_;
 };
 
 #endif // EFFECTFIELD_H

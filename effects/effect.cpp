@@ -896,27 +896,69 @@ void Effect::process_audio(double, double, quint8*, int, int) {}
 void Effect::gizmo_draw(double, GLTextureCoords &) {}
 
 void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
+  // Loop through each gizmo to find `gizmo`
   for (int i=0;i<gizmos.size();i++) {
+
     if (gizmos.at(i) == gizmo) {
-      ComboAction* ca = nullptr;
-      if (done) ca = new ComboAction();
+
+      // If (!done && gizmo_dragging_actions_.isEmpty()), that means the drag just started and we're going to save
+      // the current state of the attach fields' keyframes in KeyframeDataChange objects to make the changes undoable
+      // by the user later.
+      if (!done && gizmo_dragging_actions_.isEmpty()) {
+        if (gizmo->x_field1 != nullptr) {
+          gizmo_dragging_actions_.append(new KeyframeDataChange(gizmo->x_field1));
+        }
+        if (gizmo->y_field1 != nullptr) {
+          gizmo_dragging_actions_.append(new KeyframeDataChange(gizmo->y_field1));
+        }
+        if (gizmo->x_field2 != nullptr) {
+          gizmo_dragging_actions_.append(new KeyframeDataChange(gizmo->x_field2));
+        }
+        if (gizmo->y_field2 != nullptr) {
+          gizmo_dragging_actions_.append(new KeyframeDataChange(gizmo->y_field2));
+        }
+      }
+
+      // Update the field values
       if (gizmo->x_field1 != nullptr) {
-        gizmo->x_field1->SetValueAt(timecode, gizmo->x_field1->GetDoubleAt(timecode) + x_movement*gizmo->x_field_multi1);
-        //gizmo->x_field1->make_key_from_change(ca);
+        gizmo->x_field1->SetValueAt(timecode,
+                                    gizmo->x_field1->GetDoubleAt(timecode) + x_movement*gizmo->x_field_multi1);
       }
       if (gizmo->y_field1 != nullptr) {
-        gizmo->y_field1->SetValueAt(timecode, gizmo->y_field1->GetDoubleAt(timecode) + y_movement*gizmo->y_field_multi1);
-        //gizmo->y_field1->make_key_from_change(ca);
+        gizmo->y_field1->SetValueAt(timecode,
+                                    gizmo->y_field1->GetDoubleAt(timecode) + y_movement*gizmo->y_field_multi1);
       }
       if (gizmo->x_field2 != nullptr) {
-        gizmo->x_field2->SetValueAt(timecode, gizmo->x_field2->GetDoubleAt(timecode) + x_movement*gizmo->x_field_multi2);
-        //gizmo->x_field2->make_key_from_change(ca);
+        gizmo->x_field2->SetValueAt(timecode,
+                                    gizmo->x_field2->GetDoubleAt(timecode) + x_movement*gizmo->x_field_multi2);
       }
       if (gizmo->y_field2 != nullptr) {
-        gizmo->y_field2->SetValueAt(timecode, gizmo->y_field2->GetDoubleAt(timecode) + y_movement*gizmo->y_field_multi2);
-        //gizmo->y_field2->make_key_from_change(ca);
+        gizmo->y_field2->SetValueAt(timecode,
+                                    gizmo->y_field2->GetDoubleAt(timecode) + y_movement*gizmo->y_field_multi2);
       }
-      if (done) olive::UndoStack.push(ca);
+
+      // If (done && !gizmo_dragging_actions_.isEmpty()), that means the drag just ended and we're going to save
+      // the new state of the attach fields' keyframes in KeyframeDataChange objects to make the changes undoable
+      // by the user later.
+      if (done && !gizmo_dragging_actions_.isEmpty()) {
+
+        // Store all the KeyframeDataChange objects into a ComboAction to send to the undo stack (makes them all
+        // undoable together rather than having to be undone individually).
+        ComboAction* ca = new ComboAction();
+
+        for (int j=0;j<gizmo_dragging_actions_.size();j++) {
+          // Set the current state of the keyframes as the "new" keyframes (the old values were set earlier when the
+          // KeyframeDataChange object was constructed).
+          gizmo_dragging_actions_.at(j)->SetNewKeyframes();
+
+          // Add this KeyframeDataChange object to the ComboAction
+          ca->append(gizmo_dragging_actions_.at(j));
+        }
+
+        olive::UndoStack.push(ca);
+
+        gizmo_dragging_actions_.clear();
+      }
       break;
     }
   }

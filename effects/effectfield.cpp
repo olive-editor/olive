@@ -179,7 +179,7 @@ QVariant EffectField::GetValueAt(double timecode)
 
         }
       }
-      perpetual_data_ = value;
+      persistent_data_ = value;
       break;
     }
     case EFFECT_FIELD_COLOR:
@@ -192,7 +192,7 @@ QVariant EffectField::GetValueAt(double timecode)
         QColor after_data = keyframes.at(after_keyframe).data.value<QColor>();
         value = QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
       }
-      perpetual_data_ = value;
+      persistent_data_ = value;
       break;
     }
     case EFFECT_FIELD_STRING:
@@ -200,14 +200,14 @@ QVariant EffectField::GetValueAt(double timecode)
     case EFFECT_FIELD_COMBO:
     case EFFECT_FIELD_FONT:
     case EFFECT_FIELD_FILE:
-      perpetual_data_ = before_data;
+      persistent_data_ = before_data;
       break;
     default:
       break;
     }
   }
 
-  return perpetual_data_;
+  return persistent_data_;
 }
 
 void EffectField::SetValueAt(double time, const QVariant &value)
@@ -241,7 +241,7 @@ void EffectField::SetValueAt(double time, const QVariant &value)
     }
 
   } else {
-    perpetual_data_ = value;
+    persistent_data_ = value;
   }
 
   emit Changed();
@@ -267,7 +267,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     EffectKeyframe key;
 
     key.time = NowInFrames();
-    key.data = perpetual_data_;
+    key.data = persistent_data_;
     key.type = EFFECT_KEYFRAME_LINEAR;
 
     keyframes.append(key);
@@ -279,7 +279,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Convert keyframes to one "perpetual" keyframe
 
     // Set first keyframe to whatever the data is now
-    ca->append(new SetQVariant(&perpetual_data_, perpetual_data_, GetValueAt(Now())));
+    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(Now())));
 
     // Delete all keyframes
     for (int i=0;i<keyframes.size();i++) {

@@ -636,6 +636,8 @@ private:
   EffectField* field_;
   QVector<EffectKeyframe> old_keys_;
   QVector<EffectKeyframe> new_keys_;
+  QVariant old_persistent_data_;
+  QVariant new_persistent_data_;
   bool done_;
 };
 

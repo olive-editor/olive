@@ -344,7 +344,7 @@ unix:!mac:isEmpty(PREFIX) {
 
 unix:!mac:target.path = $$PREFIX/bin
 
-effects.files = $$PWD/effects/*.frag $$PWD/effects/*.xml $$PWD/effects/*.vert
+effects.files = $$PWD/effects/shaders/*
 unix:!mac:effects.path = $$PREFIX/share/olive-editor/effects
 
 translations.files = $$PWD/ts/*.qm

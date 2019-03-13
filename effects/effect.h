@@ -246,6 +246,8 @@ private:
 
   int flags_;
 
+  QVector<KeyframeDataChange*> gizmo_dragging_actions_;
+
   // enable effect to update constantly
   bool enable_always_update_;
 

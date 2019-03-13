@@ -1159,16 +1159,19 @@ KeyframeDataChange::KeyframeDataChange(EffectField *field) :
   done_(true)
 {
   old_keys_ = field_->keyframes;
+  old_persistent_data_ = field_->persistent_data_;
 }
 
 void KeyframeDataChange::SetNewKeyframes()
 {
   new_keys_ = field_->keyframes;
+  new_persistent_data_ = field_->persistent_data_;
 }
 
 void KeyframeDataChange::doUndo()
 {
   field_->keyframes = old_keys_;
+  field_->persistent_data_ = old_persistent_data_;
   done_ = false;
 }
 
@@ -1176,6 +1179,7 @@ void KeyframeDataChange::doRedo()
 {
   if (!done_) {
     field_->keyframes = new_keys_;
+    field_->persistent_data_ = new_persistent_data_;
     done_ = true;
   }
 }
