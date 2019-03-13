@@ -547,45 +547,58 @@ void MainWindow::setup_menus() {
 
   view_menu->addSeparator();
 
+  QActionGroup* frame_view_mode_group = new QActionGroup(this);
+
   frames_action = MenuHelper::create_menu_action(view_menu, "modeframes", &olive::MenuHelper, SLOT(set_timecode_view()));
   frames_action->setData(olive::kTimecodeFrames);
   frames_action->setCheckable(true);
+  frame_view_mode_group->addAction(frames_action);
 
   drop_frame_action = MenuHelper::create_menu_action(view_menu, "modedropframe", &olive::MenuHelper, SLOT(set_timecode_view()));
   drop_frame_action->setData(olive::kTimecodeDrop);
   drop_frame_action->setCheckable(true);
+  frame_view_mode_group->addAction(drop_frame_action);
 
   nondrop_frame_action = MenuHelper::create_menu_action(view_menu, "modenondropframe", &olive::MenuHelper, SLOT(set_timecode_view()));
   nondrop_frame_action->setData(olive::kTimecodeNonDrop);
   nondrop_frame_action->setCheckable(true);
+  frame_view_mode_group->addAction(nondrop_frame_action);
 
   milliseconds_action = MenuHelper::create_menu_action(view_menu, "milliseconds", &olive::MenuHelper, SLOT(set_timecode_view()));
   milliseconds_action->setData(olive::kTimecodeMilliseconds);
   milliseconds_action->setCheckable(true);
+  frame_view_mode_group->addAction(milliseconds_action);
 
   view_menu->addSeparator();
 
   title_safe_area_menu = MenuHelper::create_submenu(view_menu);
 
+  QActionGroup* title_safe_group = new QActionGroup(this);
+
   title_safe_off = MenuHelper::create_menu_action(title_safe_area_menu, "titlesafeoff", &olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
   title_safe_off->setCheckable(true);
   title_safe_off->setData(qSNaN());
+  title_safe_group->addAction(title_safe_off);
 
   title_safe_default = MenuHelper::create_menu_action(title_safe_area_menu, "titlesafedefault", &olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
   title_safe_default->setCheckable(true);
   title_safe_default->setData(0.0);
+  title_safe_group->addAction(title_safe_default);
 
   title_safe_43 = MenuHelper::create_menu_action(title_safe_area_menu, "titlesafe43", &olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
   title_safe_43->setCheckable(true);
   title_safe_43->setData(4.0/3.0);
+  title_safe_group->addAction(title_safe_43);
 
   title_safe_169 = MenuHelper::create_menu_action(title_safe_area_menu, "titlesafe169", &olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
   title_safe_169->setCheckable(true);
   title_safe_169->setData(16.0/9.0);
+  title_safe_group->addAction(title_safe_169);
 
   title_safe_custom = MenuHelper::create_menu_action(title_safe_area_menu, "titlesafecustom", &olive::MenuHelper, SLOT(set_titlesafe_from_menu()));
   title_safe_custom->setCheckable(true);
   title_safe_custom->setData(-1.0);
+  title_safe_group->addAction(title_safe_custom);
 
   view_menu->addSeparator();
 
@@ -671,37 +684,47 @@ void MainWindow::setup_menus() {
   tools_menu = MenuHelper::create_submenu(menuBar, this, SLOT(toolMenu_About_To_Be_Shown()));
   tools_menu->setToolTipsVisible(true);
 
+  QActionGroup* tools_group = new QActionGroup(this);
+
   pointer_tool_action = MenuHelper::create_menu_action(tools_menu, "pointertool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("V"));
   pointer_tool_action->setCheckable(true);
   pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolArrowButton));
+  tools_group->addAction(pointer_tool_action);
 
   edit_tool_action = MenuHelper::create_menu_action(tools_menu, "edittool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("X"));
   edit_tool_action->setCheckable(true);
   edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolEditButton));
+  tools_group->addAction(edit_tool_action);
 
   ripple_tool_action = MenuHelper::create_menu_action(tools_menu, "rippletool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("B"));
   ripple_tool_action->setCheckable(true);
   ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRippleButton));
+  tools_group->addAction(ripple_tool_action);
 
   razor_tool_action = MenuHelper::create_menu_action(tools_menu, "razortool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("C"));
   razor_tool_action->setCheckable(true);
   razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRazorButton));
+  tools_group->addAction(razor_tool_action);
 
   slip_tool_action = MenuHelper::create_menu_action(tools_menu, "sliptool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("Y"));
   slip_tool_action->setCheckable(true);
   slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlipButton));
+  tools_group->addAction(slip_tool_action);
 
   slide_tool_action = MenuHelper::create_menu_action(tools_menu, "slidetool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("U"));
   slide_tool_action->setCheckable(true);
   slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlideButton));
+  tools_group->addAction(slide_tool_action);
 
   hand_tool_action = MenuHelper::create_menu_action(tools_menu, "handtool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("H"));
   hand_tool_action->setCheckable(true);
   hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolHandButton));
+  tools_group->addAction(hand_tool_action);
 
   transition_tool_action = MenuHelper::create_menu_action(tools_menu, "transitiontool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("T"));
   transition_tool_action->setCheckable(true);
   transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolTransitionButton));
+  tools_group->addAction(transition_tool_action);
 
   tools_menu->addSeparator();
 
@@ -769,17 +792,22 @@ void MainWindow::setup_menus() {
 
   tools_menu->addSeparator();
 
+  QActionGroup* autoscroll_group = new QActionGroup(this);
+
   no_autoscroll = MenuHelper::create_menu_action(tools_menu, "autoscrollno", &olive::MenuHelper, SLOT(set_autoscroll()));
   no_autoscroll->setData(olive::AUTOSCROLL_NO_SCROLL);
   no_autoscroll->setCheckable(true);
+  autoscroll_group->addAction(no_autoscroll);
 
   page_autoscroll = MenuHelper::create_menu_action(tools_menu, "autoscrollpage", &olive::MenuHelper, SLOT(set_autoscroll()));
   page_autoscroll->setData(olive::AUTOSCROLL_PAGE_SCROLL);
   page_autoscroll->setCheckable(true);
+  autoscroll_group->addAction(page_autoscroll);
 
   smooth_autoscroll = MenuHelper::create_menu_action(tools_menu, "autoscrollsmooth", &olive::MenuHelper, SLOT(set_autoscroll()));
   smooth_autoscroll->setData(olive::AUTOSCROLL_SMOOTH_SCROLL);
   smooth_autoscroll->setCheckable(true);
+  autoscroll_group->addAction(smooth_autoscroll);
 
   tools_menu->addSeparator();
 
