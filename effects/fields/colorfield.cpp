@@ -23,6 +23,13 @@ QWidget *ColorField::CreateWidget()
   return cb;
 }
 
+void ColorField::UpdateWidgetValue(QWidget *widget, double timecode)
+{
+  ColorButton* cb = static_cast<ColorButton*>(widget);
+
+  cb->set_color(GetColorAt(timecode));
+}
+
 QVariant ColorField::ConvertStringToValue(const QString &s)
 {
   return QColor(s);

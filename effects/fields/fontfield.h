@@ -1,7 +1,7 @@
 #ifndef FONTFIELD_H
 #define FONTFIELD_H
 
-#include "../effectfield.h"
+#include "combofield.h"
 
 class FontField : public EffectField {
   Q_OBJECT
@@ -11,6 +11,8 @@ public:
   QString GetFontAt(double timecode);
 
   virtual QWidget *CreateWidget() override;
+  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+
 private:
   QStringList font_list;
 private slots:

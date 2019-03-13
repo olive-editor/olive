@@ -34,6 +34,11 @@ QWidget *StringField::CreateWidget()
   return text_edit;
 }
 
+void StringField::UpdateWidgetValue(QWidget *widget, double timecode)
+{
+  static_cast<TextEditEx*>(widget)->setHtml(GetValueAt(timecode).toString());
+}
+
 void StringField::UpdateFromWidget(const QString &s)
 {
   SetValueAt(Now(), s);

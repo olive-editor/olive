@@ -12,6 +12,7 @@ public:
   QColor GetColorAt(double timecode);
 
   virtual QWidget* CreateWidget() override;
+  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
 
   virtual QVariant ConvertStringToValue(const QString& s) override;
   virtual QString ConvertValueToString(const QVariant& v) override;

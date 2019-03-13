@@ -1,5 +1,7 @@
 #include "combofield.h"
 
+#include <QDebug>
+
 #include "ui/comboboxex.h"
 
 ComboField::ComboField(EffectRow* parent, const QString& id) :
@@ -30,6 +32,24 @@ QWidget *ComboField::CreateWidget()
   connect(this, SIGNAL(EnabledChanged(bool)), cb, SLOT(setEnabled(bool)));
 
   return cb;
+}
+
+void ComboField::UpdateWidgetValue(QWidget *widget, double timecode)
+{
+  QVariant data = GetValueAt(timecode);
+
+  ComboBoxEx* cb = static_cast<ComboBoxEx*>(widget);
+
+  for (int i=0;i<items_.size();i++) {
+    if (items_.at(i).data == data) {
+      cb->blockSignals(true);
+      cb->setCurrentIndex(i);
+      cb->blockSignals(false);
+      return;
+    }
+  }
+
+  qWarning() << "Failed to set ComboField value from data";
 }
 
 void ComboField::UpdateFromWidget(int index)

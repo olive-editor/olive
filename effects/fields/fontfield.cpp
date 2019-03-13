@@ -1,8 +1,11 @@
 #include "fontfield.h"
 
 #include <QFontDatabase>
+#include <QDebug>
 
 #include "ui/comboboxex.h"
+
+// NOTE/TODO: This shares a lot of similarity with ComboField, and could probably be a derived class of it
 
 FontField::FontField(EffectRow* parent, const QString &id) :
   EffectField(parent, id, EFFECT_FIELD_FONT)
@@ -29,6 +32,24 @@ QWidget *FontField::CreateWidget()
   connect(this, SIGNAL(EnabledChanged(bool)), fcb, SLOT(setEnabled(bool)));
 
   return fcb;
+}
+
+void FontField::UpdateWidgetValue(QWidget *widget, double timecode)
+{
+  QVariant data = GetValueAt(timecode);
+
+  ComboBoxEx* cb = static_cast<ComboBoxEx*>(widget);
+
+  for (int i=0;i<font_list.size();i++) {
+    if (font_list.at(i) == data) {
+      cb->blockSignals(true);
+      cb->setCurrentIndex(i);
+      cb->blockSignals(false);
+      return;
+    }
+  }
+
+  qWarning() << "Failed to set FontField value from data";
 }
 
 void FontField::UpdateFromWidget(const QString& s)

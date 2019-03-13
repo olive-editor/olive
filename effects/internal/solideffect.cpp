@@ -49,7 +49,7 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
   EffectRow* opacity_row = new EffectRow(this, tr("Opacity"));
   opacity_field = new DoubleField(opacity_row, "opacity");
   opacity_field->SetMinimum(0);
-  opacity_field->SetDefault(0);
+  opacity_field->SetDefault(100);
   opacity_field->SetMaximum(100);
 
   EffectRow* solid_color_row = new EffectRow(this, tr("Color"));
