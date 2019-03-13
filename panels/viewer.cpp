@@ -31,6 +31,7 @@
 #include "project/footage.h"
 #include "project/media.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "ui/audiomonitor.h"
 #include "rendering/renderfunctions.h"
 #include "ui/viewercontainer.h"
@@ -852,9 +853,13 @@ void Viewer::clean_created_seq() {
 
   if (created_sequence) {
     // TODO delete undo commands referencing this sequence to avoid crashes
-    /*for (int i=0;i<undo_stack.count();i++) {
-      undo_stack.command(i)
-    }*/
+    /*
+    for (int i=0;i<olive::UndoStack.count();i++) {
+      const QUndoCommand* oa = olive::UndoStack.command(i);
+      if (typeid(*oa) == typeid(SetTimelineInOutCommand)) {
+      }
+    }
+    */
 
     seq.reset();
     created_sequence = false;

@@ -122,15 +122,21 @@ void MenuHelper::make_clip_functions_menu(QMenu *parent) {
   parent->addAction(nest_);
 }
 
-void MenuHelper::make_edit_functions_menu(QMenu *parent) {
-  parent->addAction(cut_);
-  parent->addAction(copy_);
+void MenuHelper::make_edit_functions_menu(QMenu *parent, bool objects_are_selected) {
+  if (objects_are_selected) {
+    parent->addAction(cut_);
+    parent->addAction(copy_);
+  }
+
   parent->addAction(paste_);
   parent->addAction(paste_insert_);
-  parent->addAction(duplicate_);
-  parent->addAction(delete_);
-  parent->addAction(ripple_delete_);
-  parent->addAction(split_);
+
+  if (objects_are_selected) {
+    parent->addAction(duplicate_);
+    parent->addAction(delete_);
+    parent->addAction(ripple_delete_);
+    parent->addAction(split_);
+  }
 }
 
 void MenuHelper::set_bool_action_checked(QAction *a) {

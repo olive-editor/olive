@@ -34,6 +34,8 @@
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 
+#include "timeline/sequence.h"
+
 class KeySequenceEditor : public QKeySequenceEdit {
   Q_OBJECT
 public:
@@ -72,6 +74,13 @@ private:
 
   // used to delete previews
   // type can be: 't' for thumbnails, 'w' for waveforms, or 1 for all
+  /**
+   * @brief Delete disk cached preview files (thumbnails, waveforms, etc.)
+   *
+   * @param type
+   *
+   * The types of previews to
+   */
   void delete_previews(char type);
 
   QLineEdit* custom_css_fn;
@@ -94,6 +103,7 @@ private:
   QSpinBox* waveform_res_spinbox;
   QCheckBox* add_default_effects_to_clips;
   QComboBox* ui_style;
+  Sequence sequence_settings;
 
   QVector<QAction*> key_shortcut_actions;
   QVector<QTreeWidgetItem*> key_shortcut_items;

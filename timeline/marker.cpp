@@ -22,6 +22,7 @@
 
 #include "global/config.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "ui/mainwindow.h"
 #include "timeline/sequence.h"
 #include "timeline/clip.h"
@@ -59,11 +60,11 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
   // if (config.set_name_with_marker) is false (set above), ask for a marker name
   if (!add_marker) {
-        QInputDialog d(olive::MainWindow);
+    QInputDialog d(olive::MainWindow);
     d.setWindowTitle(QCoreApplication::translate("Marker", "Set Marker"));
     d.setLabelText(clips.size() > 0
-             ? QCoreApplication::translate("Marker", "Set clip marker name:")
-             : QCoreApplication::translate("Marker", "Set sequence marker name:"));
+                   ? QCoreApplication::translate("Marker", "Set clip marker name:")
+                   : QCoreApplication::translate("Marker", "Set sequence marker name:"));
     d.setInputMode(QInputDialog::TextInput);
     add_marker = (d.exec() == QDialog::Accepted);
     marker_name = d.textValue();
@@ -78,10 +79,10 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
       // add a marker action for each clip
       foreach (int i, clips) {
-                ClipPtr c = seq->clips.at(i);
+        ClipPtr c = seq->clips.at(i);
         ca->append(new AddMarkerAction(&c->get_markers(),
-                         seq->playhead - c->timeline_in() + c->clip_in(),
-                         marker_name));
+                                       seq->playhead - c->timeline_in() + c->clip_in(),
+                                       marker_name));
       }
 
     } else {
@@ -110,7 +111,7 @@ void set_marker_internal(Sequence* seq, const QVector<int>& clips) {
 
 
     // push action
-        olive::UndoStack.push(ca);
+    olive::UndoStack.push(ca);
 
     // redraw UI for new markers
     update_ui(false);

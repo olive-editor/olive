@@ -32,6 +32,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "effects/effect.h"
 #include "project/media.h"
 

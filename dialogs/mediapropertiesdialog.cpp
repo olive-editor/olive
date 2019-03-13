@@ -35,6 +35,7 @@
 #include "project/media.h"
 #include "panels/project.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 
 MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
   QDialog(parent),

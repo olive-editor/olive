@@ -20,6 +20,14 @@
 
 #include "sourcescommon.h"
 
+#include <QProcess>
+#include <QMenu>
+#include <QAbstractItemView>
+#include <QMimeData>
+#include <QMessageBox>
+#include <QDesktopServices>
+#include <QDebug>
+
 #include "ui/menuhelper.h"
 #include "panels/panels.h"
 #include "project/media.h"
@@ -36,15 +44,7 @@
 #include "ui/viewerwidget.h"
 #include "project/proxygenerator.h"
 #include "ui/mainwindow.h"
-
-#include <QProcess>
-#include <QMenu>
-#include <QAbstractItemView>
-#include <QMimeData>
-#include <QMessageBox>
-#include <QDesktopServices>
-
-#include <QDebug>
+#include "undo/undostack.h"
 
 SourcesCommon::SourcesCommon(Project* parent) :
   editing_item(nullptr),

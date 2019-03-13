@@ -53,10 +53,6 @@ struct EffectMeta;
 class EffectRow;
 class EffectField;
 
-namespace olive {
-extern QUndoStack UndoStack;
-}
-
 class OliveAction : public QUndoCommand {
 public:
   OliveAction(bool iset_window_modified = true);

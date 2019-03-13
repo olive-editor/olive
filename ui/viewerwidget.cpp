@@ -326,10 +326,6 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     gizmo_y_mvmt = 0;
 
     selected_gizmo = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
-
-    if (selected_gizmo != nullptr) {
-      selected_gizmo->set_previous_value();
-    }
   }
   dragging = true;
 }

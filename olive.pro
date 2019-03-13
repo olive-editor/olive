@@ -171,7 +171,8 @@ SOURCES += \
     effects/fields/buttonfield.cpp \
     ui/effectui.cpp \
     effects/transition.cpp \
-    ui/styling.cpp
+    ui/styling.cpp \
+    undo/undostack.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -296,7 +297,8 @@ HEADERS += \
     effects/fields/colorfield.h \
     effects/fields/combofield.h \
     effects/transition.h \
-    ui/styling.h
+    ui/styling.h \
+    undo/undostack.h
 
 FORMS +=
 

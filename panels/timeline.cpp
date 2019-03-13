@@ -37,6 +37,7 @@
 #include "ui/flowlayout.h"
 #include "ui/cursors.h"
 #include "ui/mainwindow.h"
+#include "undo/undostack.h"
 #include "global/debug.h"
 
 #include <QTime>
@@ -450,6 +451,7 @@ void Timeline::nest() {
       create_ghosts_from_media(olive::ActiveSequence.get(), earliest_point, media_list);
       add_clips_from_ghosts(ca, olive::ActiveSequence.get());
 
+      panel_graph_editor->set_row(nullptr);
       panel_effect_controls->Clear(true);
       olive::ActiveSequence->selections.clear();
 
@@ -680,6 +682,7 @@ void Timeline::toggle_enable_on_selected_clips() {
 
 void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_delete) {
   if (selections.size() > 0) {
+    panel_graph_editor->set_row(nullptr);
     panel_effect_controls->Clear(true);
 
     ComboAction* ca = new ComboAction();
@@ -1014,6 +1017,8 @@ bool selection_contains_transition(const Selection& s, Clip* c, int type) {
 
 void Timeline::delete_areas_and_relink(ComboAction* ca, QVector<Selection>& areas, bool deselect_areas) {
   clean_up_selections(areas);
+
+  panel_graph_editor->set_row(nullptr);
   panel_effect_controls->Clear(true);
 
   QVector<int> pre_clips;

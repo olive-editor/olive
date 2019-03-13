@@ -20,6 +20,7 @@
 
 #include "checkboxex.h"
 
+#include "undo/undostack.h"
 #include "undo/undo.h"
 
 CheckboxEx::CheckboxEx(QWidget* parent) : QCheckBox(parent) {

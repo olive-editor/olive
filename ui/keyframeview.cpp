@@ -20,6 +20,10 @@
 
 #include "keyframeview.h"
 
+#include <QMouseEvent>
+#include <QtMath>
+#include <QMenu>
+
 #include "effects/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
@@ -27,6 +31,7 @@
 #include "panels/timeline.h"
 #include "ui/timelineheader.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 #include "timeline/sequence.h"
@@ -37,10 +42,6 @@
 #include "ui/rectangleselect.h"
 #include "effects/keyframe.h"
 #include "ui/graphview.h"
-
-#include <QMouseEvent>
-#include <QtMath>
-#include <QMenu>
 
 KeyframeView::KeyframeView(QWidget *parent) :
   QWidget(parent),

@@ -25,6 +25,7 @@
 #include "rendering/renderfunctions.h"
 #include "project/previewgenerator.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "ui/mainwindow.h"
 #include "global/config.h"
 #include "rendering/cacher.h"
@@ -606,7 +607,9 @@ void Project::delete_selected_media() {
 
   // remove
   if (remove) {
+    panel_graph_editor->set_row(nullptr);
     panel_effect_controls->Clear(true);
+
     if (olive::ActiveSequence != nullptr) olive::ActiveSequence->selections.clear();
 
     // remove media and parents
@@ -1015,6 +1018,9 @@ void Project::delete_clips_using_selected_media() {
 }
 
 void Project::clear() {
+  // clear graph editor
+  panel_graph_editor->set_row(nullptr);
+
   // clear effects cache
   panel_effect_controls->Clear(true);
 

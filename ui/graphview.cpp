@@ -33,6 +33,7 @@
 #include "timeline/sequence.h"
 #include "ui/keyframedrawing.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "effects/effect.h"
 #include "timeline/clip.h"
 #include "ui/rectangleselect.h"

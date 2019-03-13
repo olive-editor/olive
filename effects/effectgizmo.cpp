@@ -46,16 +46,6 @@ EffectGizmo::EffectGizmo(Effect *parent, int type) :
   color = Qt::white;
 }
 
-void EffectGizmo::set_previous_value() {
-  // TODO address this
-  /*
-  if (x_field1 != nullptr) static_cast<LabelSlider*>(x_field1->ui_element)->set_previous_value();
-  if (y_field1 != nullptr) static_cast<LabelSlider*>(y_field1->ui_element)->set_previous_value();
-  if (x_field2 != nullptr) static_cast<LabelSlider*>(x_field2->ui_element)->set_previous_value();
-  if (y_field2 != nullptr) static_cast<LabelSlider*>(y_field2->ui_element)->set_previous_value();
-  */
-}
-
 int EffectGizmo::get_point_count() {
   return world_pos.size();
 }

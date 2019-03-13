@@ -23,6 +23,7 @@
 #include "panels/panels.h"
 #include "panels/project.h"
 #include "timeline/sequence.h"
+#include "undo/undostack.h"
 #include "undo/undo.h"
 #include "timeline/clip.h"
 #include "panels/timeline.h"

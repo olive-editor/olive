@@ -39,6 +39,7 @@
 #include "ui/collapsiblewidget.h"
 #include "timeline/sequence.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "panels/project.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"

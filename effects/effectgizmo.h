@@ -57,8 +57,6 @@ public:
   DoubleField* y_field2;
   double y_field_multi2;
 
-  void set_previous_value();
-
   QColor color;
   int get_point_count();
 

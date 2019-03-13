@@ -27,6 +27,7 @@
 
 #include "effects/keyframe.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 
 class EffectRow;
 class ComboAction;

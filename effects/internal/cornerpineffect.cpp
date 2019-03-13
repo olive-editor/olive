@@ -25,7 +25,7 @@
 #include "global/debug.h"
 
 CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  SetFlags(Effect::CoordsFlag & Effect::ShaderFlag);
+  SetFlags(Effect::CoordsFlag | Effect::ShaderFlag);
 
   EffectRow* top_left = new EffectRow(this, tr("Top Left"));
   top_left_x = new DoubleField(top_left, "topleftx");

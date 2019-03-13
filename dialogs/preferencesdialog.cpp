@@ -544,6 +544,12 @@ void PreferencesDialog::setup_ui() {
   use_software_fallbacks_checkbox->setChecked(olive::CurrentConfig.use_software_fallback);
   general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 4);
 
+  row++;
+
+  // General -> Default Sequence Settings
+  QPushButton* default_sequence_settings = new QPushButton(tr("Default Sequence Settings"));
+  general_layout->addWidget(default_sequence_settings);
+
   tabWidget->addTab(general_tab, tr("General"));
 
   // Behavior

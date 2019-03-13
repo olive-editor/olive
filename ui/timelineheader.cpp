@@ -20,6 +20,13 @@
 
 #include "timelineheader.h"
 
+#include <QPainter>
+#include <QMouseEvent>
+#include <QScrollBar>
+#include <QtMath>
+#include <QMenu>
+#include <QAction>
+
 #include "mainwindow.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
@@ -31,13 +38,7 @@
 #include "global/global.h"
 #include "ui/menuhelper.h"
 #include "global/debug.h"
-
-#include <QPainter>
-#include <QMouseEvent>
-#include <QScrollBar>
-#include <QtMath>
-#include <QMenu>
-#include <QAction>
+#include "undo/undostack.h"
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6

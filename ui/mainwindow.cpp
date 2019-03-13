@@ -20,35 +20,6 @@
 
 #include "mainwindow.h"
 
-#include "global/global.h"
-
-#include "ui/menuhelper.h"
-
-#include "project/projectelements.h"
-#include "timeline/clip.h"
-
-#include "global/config.h"
-#include "global/path.h"
-#include "global/debug.h"
-
-#include "project/proxygenerator.h"
-#include "project/projectfilter.h"
-
-#include "ui/sourcetable.h"
-#include "ui/viewerwidget.h"
-#include "ui/sourceiconview.h"
-#include "ui/timelineheader.h"
-#include "ui/icons.h"
-#include "ui/cursors.h"
-#include "ui/focusfilter.h"
-
-#include "panels/panels.h"
-
-#include "dialogs/debugdialog.h"
-
-#include "rendering/audio.h"
-#include "rendering/renderfunctions.h"
-
 #include <QStyleFactory>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -65,7 +36,27 @@
 #include <QPushButton>
 #include <QTranslator>
 
-Q_DECLARE_METATYPE(ClipPtr);
+#include "global/global.h"
+#include "ui/menuhelper.h"
+#include "project/projectelements.h"
+#include "timeline/clip.h"
+#include "global/config.h"
+#include "global/path.h"
+#include "global/debug.h"
+#include "project/proxygenerator.h"
+#include "project/projectfilter.h"
+#include "ui/sourcetable.h"
+#include "ui/viewerwidget.h"
+#include "ui/sourceiconview.h"
+#include "ui/timelineheader.h"
+#include "ui/icons.h"
+#include "ui/cursors.h"
+#include "ui/focusfilter.h"
+#include "panels/panels.h"
+#include "dialogs/debugdialog.h"
+#include "rendering/audio.h"
+#include "rendering/renderfunctions.h"
+#include "undo/undostack.h"
 
 MainWindow* olive::MainWindow;
 
@@ -982,6 +973,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     // stop proxy generator thread
     olive::proxy_generator.cancel();
 
+    panel_graph_editor->set_row(nullptr);
     panel_effect_controls->Clear(true);
 
     olive::Global->set_sequence(nullptr);

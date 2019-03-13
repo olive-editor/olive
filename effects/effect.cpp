@@ -20,6 +20,19 @@
 
 #include "effect.h"
 
+#include <QCheckBox>
+#include <QGridLayout>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QMessageBox>
+#include <QOpenGLContext>
+#include <QDir>
+#include <QPainter>
+#include <QtMath>
+#include <QMenu>
+#include <QApplication>
+#include <QFileDialog>
+
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
@@ -39,6 +52,7 @@
 #include "project/clipboard.h"
 #include "global/config.h"
 #include "transition.h"
+#include "undo/undostack.h"
 
 #include "effects/internal/transformeffect.h"
 #include "effects/internal/texteffect.h"
@@ -53,19 +67,6 @@
 #include "effects/internal/vsthost.h"
 #include "effects/internal/fillleftrighteffect.h"
 #include "effects/internal/frei0reffect.h"
-
-#include <QCheckBox>
-#include <QGridLayout>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-#include <QMessageBox>
-#include <QOpenGLContext>
-#include <QDir>
-#include <QPainter>
-#include <QtMath>
-#include <QMenu>
-#include <QApplication>
-#include <QFileDialog>
 
 QVector<EffectMeta> effects;
 
@@ -295,7 +296,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
               }
             }
           } else if (reader.name() == "shader" && reader.isStartElement()) {
-            SetFlags(Flags() & ShaderFlag);
+            SetFlags(Flags() | ShaderFlag);
             const QXmlStreamAttributes& attributes = reader.attributes();
             for (int i=0;i<attributes.size();i++) {
               const QXmlStreamAttribute& attr = attributes.at(i);
@@ -855,6 +856,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
         case EffectField::EFFECT_FIELD_STRING:
         case EffectField::EFFECT_FIELD_FONT:
         case EffectField::EFFECT_FIELD_FILE:
+        case EffectField::EFFECT_FIELD_UI:
           break;
         }
       }

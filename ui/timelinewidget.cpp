@@ -20,32 +20,6 @@
 
 #include "timelinewidget.h"
 
-#include "global/global.h"
-#include "panels/panels.h"
-#include "project/projectelements.h"
-
-#include "rendering/audio.h"
-#include "global/config.h"
-#include "ui/sourcetable.h"
-#include "ui/sourceiconview.h"
-#include "undo/undo.h"
-#include "ui/viewerwidget.h"
-#include "ui/resizablescrollbar.h"
-#include "dialogs/newsequencedialog.h"
-#include "mainwindow.h"
-#include "ui/rectangleselect.h"
-#include "rendering/renderfunctions.h"
-#include "ui/cursors.h"
-#include "ui/menuhelper.h"
-#include "ui/focusfilter.h"
-#include "dialogs/clippropertiesdialog.h"
-#include "global/debug.h"
-
-#include "effects/effect.h"
-
-#include "effects/internal/solideffect.h"
-#include "effects/internal/texteffect.h"
-
 #include <QPainter>
 #include <QColor>
 #include <QMouseEvent>
@@ -60,6 +34,30 @@
 #include <QToolTip>
 #include <QInputDialog>
 #include <QStatusBar>
+
+#include "global/global.h"
+#include "panels/panels.h"
+#include "project/projectelements.h"
+#include "rendering/audio.h"
+#include "global/config.h"
+#include "ui/sourcetable.h"
+#include "ui/sourceiconview.h"
+#include "undo/undo.h"
+#include "undo/undostack.h"
+#include "ui/viewerwidget.h"
+#include "ui/resizablescrollbar.h"
+#include "dialogs/newsequencedialog.h"
+#include "mainwindow.h"
+#include "ui/rectangleselect.h"
+#include "rendering/renderfunctions.h"
+#include "ui/cursors.h"
+#include "ui/menuhelper.h"
+#include "ui/focusfilter.h"
+#include "dialogs/clippropertiesdialog.h"
+#include "global/debug.h"
+#include "effects/effect.h"
+#include "effects/internal/solideffect.h"
+#include "effects/internal/texteffect.h"
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
@@ -90,8 +88,6 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
     QMenu menu(this);
 
-    // TODO replace with Olive::MenuHelper::make_edit_functions_menu() without losing functionality
-
     QAction* undoAction = menu.addAction(tr("&Undo"));
     QAction* redoAction = menu.addAction(tr("&Redo"));
     connect(undoAction, SIGNAL(triggered(bool)), olive::Global.get(), SLOT(undo()));
@@ -103,13 +99,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
     // collect all the selected clips
     QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
-    if (!selected_clips.isEmpty()) {
-      // clips are selected
-      menu.addAction(tr("C&ut"), &olive::FocusFilter, SLOT(cut()));
-      menu.addAction(tr("Cop&y"), &olive::FocusFilter, SLOT(copy()));
-    }
-
-    menu.addAction(tr("&Paste"), olive::Global.get(), SLOT(paste()));
+    olive::MenuHelper.make_edit_functions_menu(&menu, !selected_clips.isEmpty());
 
     if (selected_clips.isEmpty()) {
       // no clips are selected
@@ -119,7 +109,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
       panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 
       if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
-        QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete"));
+        QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete Empty Space"));
         connect(ripple_delete_action, SIGNAL(triggered(bool)), panel_timeline, SLOT(ripple_delete_empty_space()));
       }
 
@@ -128,7 +118,9 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
     }
 
     if (!selected_clips.isEmpty()) {
+
       menu.addSeparator();
+
       menu.addAction(tr("&Speed/Duration"), olive::Global.get(), SLOT(open_speed_dialog()));
 
       QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
@@ -277,9 +269,10 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
       panel_project->process_file_list(file_list);
 
       for (int i=0;i<panel_project->last_imported_media.size();i++) {
+        Footage* f = panel_project->last_imported_media.at(i)->to_footage();
+
         // waits for media to have a duration
         // TODO would be much nicer if this was multithreaded
-        Footage* f = panel_project->last_imported_media.at(i)->to_footage();
         f->ready_lock.lock();
         f->ready_lock.unlock();
 

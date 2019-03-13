@@ -31,6 +31,7 @@ extern "C" {
 #include "footage.h"
 #include "timeline/sequence.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "global/config.h"
 #include "panels/viewer.h"
 #include "panels/project.h"

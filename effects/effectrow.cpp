@@ -25,6 +25,7 @@
 #include <QMessageBox>
 
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 #include "panels/panels.h"

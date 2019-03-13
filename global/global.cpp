@@ -20,15 +20,16 @@
 
 #include "global/global.h"
 
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QAction>
+#include <QApplication>
+#include <QDebug>
 
 #include "panels/panels.h"
-
 #include "global/path.h"
 #include "global/config.h"
-
-
 #include "rendering/audio.h"
-
 #include "dialogs/demonotice.h"
 #include "dialogs/preferencesdialog.h"
 #include "dialogs/exportdialog.h"
@@ -36,18 +37,11 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
-
 #include "timeline/sequence.h"
-
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
 #include "ui/updatenotification.h"
-
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QAction>
-#include <QApplication>
-#include <QDebug>
+#include "undo/undostack.h"
 
 std::unique_ptr<OliveGlobal> olive::Global;
 QString olive::ActiveProjectFilename;
@@ -56,9 +50,12 @@ QString olive::AppName;
 OliveGlobal::OliveGlobal() {
   // sets current app name
   QString version_id;
+
+  // if available, append the current Git hash (defined by `qmake` and the Makefile)
 #ifdef GITHASH
   version_id = QString(" | %1").arg(GITHASH);
 #endif
+
   olive::AppName = QString("Olive (March 2019 | Alpha%1)").arg(version_id);
 
   // set the file filter used in all file dialogs pertaining to Olive project files.
@@ -146,6 +143,9 @@ void OliveGlobal::load_translation_from_config() {
 
 void OliveGlobal::new_project() {
   if (can_close_project()) {
+    // clear graph editor
+    panel_graph_editor->set_row(nullptr);
+
     // clear effects panel
     panel_effect_controls->Clear(true);
 
@@ -288,6 +288,7 @@ void OliveGlobal::open_preferences() {
 
 void OliveGlobal::set_sequence(SequencePtr s)
 {
+  panel_graph_editor->set_row(nullptr);
   panel_effect_controls->Clear(true);
 
   olive::ActiveSequence = s;

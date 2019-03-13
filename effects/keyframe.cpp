@@ -24,6 +24,7 @@
 
 #include "effectfields.h"
 #include "undo/undo.h"
+#include "undo/undostack.h"
 #include "panels/panels.h"
 
 EffectKeyframe::EffectKeyframe()

@@ -42,8 +42,6 @@
 #include "project/previewgenerator.h"
 #include "ui/mainwindow.h"
 
-QUndoStack olive::UndoStack;
-
 MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
   clip = c;
 
@@ -354,6 +352,7 @@ AddClipCommand::~AddClipCommand() {}
 
 void AddClipCommand::doUndo() {
   // clear effects panel
+  panel_graph_editor->set_row(nullptr);
   panel_effect_controls->Clear(true);
 
   for (int i=0;i<clips.size();i++) {
@@ -842,12 +841,13 @@ void EditSequenceCommand::doRedo() {
 }
 
 void EditSequenceCommand::update() {
-  // update tooltip
-  // TODO/FIXME: this is a lousy way to do this, Media should have a separate fuctionn for updating the tooltip
+  // Update sequence's tooltip
   item->update_tooltip();
 
   for (int i=0;i<seq->clips.size();i++) {
-    if (seq->clips.at(i) != nullptr) seq->clips.at(i)->refresh();
+    if (seq->clips.at(i) != nullptr) {
+      seq->clips.at(i)->refresh();
+    }
   }
 
   if (olive::ActiveSequence == seq) {
