@@ -629,6 +629,7 @@ void EffectControls::Load() {
   }
 
   UpdateTitle();
+  update_keyframes();
 }
 
 void EffectControls::video_effect_click() {
