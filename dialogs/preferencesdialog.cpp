@@ -20,12 +20,12 @@
 
 #include "preferencesdialog.h"
 
-#include "oliveglobal.h"
-#include "io/config.h"
-#include "io/path.h"
+#include "global/global.h"
+#include "global/config.h"
+#include "global/path.h"
 #include "rendering/audio.h"
 #include "panels/panels.h"
-#include "mainwindow.h"
+#include "ui/mainwindow.h"
 
 #include <QMenuBar>
 #include <QAction>

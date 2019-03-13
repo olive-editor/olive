@@ -28,9 +28,9 @@
 #include <QMessageBox>
 #include <QDebug>
 
-#include "io/proxygenerator.h"
+#include "project/proxygenerator.h"
 #include "project/footage.h"
-#include "mainwindow.h"
+#include "ui/mainwindow.h"
 
 ProxyDialog::ProxyDialog(QWidget *parent, const QVector<Media*> &media) :
   QDialog(parent),

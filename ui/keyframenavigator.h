@@ -32,8 +32,9 @@ class KeyframeNavigator : public QWidget
 public:
   KeyframeNavigator(QWidget* parent = nullptr, bool addLeftPad = true);
   ~KeyframeNavigator();
-  void enable_keyframes(bool);
+
   void enable_keyframe_toggle(bool);
+  void enable_keyframes(bool);
 signals:
   void goto_previous_key();
   void toggle_key();

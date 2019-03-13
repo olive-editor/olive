@@ -21,7 +21,7 @@
 #ifndef FILLLEFTRIGHTEFFECT_H
 #define FILLLEFTRIGHTEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class FillLeftRightEffect : public Effect {
   Q_OBJECT

@@ -25,7 +25,7 @@
 #include <QFile>
 
 #include "ui/collapsiblewidget.h"
-#include "debug.h"
+#include "global/debug.h"
 
 VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
   QString display_name;

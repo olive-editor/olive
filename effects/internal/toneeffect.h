@@ -21,7 +21,7 @@
 #ifndef TONEEFFECT_H
 #define TONEEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class ToneEffect : public Effect {
   Q_OBJECT

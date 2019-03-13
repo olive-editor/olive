@@ -24,7 +24,7 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 #include "project/media.h"
-#include "debug.h"
+#include "global/debug.h"
 
 ProjectModel olive::project_model;
 

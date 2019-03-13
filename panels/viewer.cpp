@@ -24,13 +24,13 @@
 #include "timeline.h"
 #include "panels/project.h"
 #include "panels/effectcontrols.h"
-#include "project/sequence.h"
-#include "project/clip.h"
+#include "timeline/sequence.h"
+#include "timeline/clip.h"
 #include "panels/panels.h"
-#include "io/config.h"
+#include "global/config.h"
 #include "project/footage.h"
 #include "project/media.h"
-#include "project/undo.h"
+#include "undo/undo.h"
 #include "ui/audiomonitor.h"
 #include "rendering/renderfunctions.h"
 #include "ui/viewercontainer.h"
@@ -38,8 +38,8 @@
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/icons.h"
-#include "oliveglobal.h"
-#include "debug.h"
+#include "global/global.h"
+#include "global/debug.h"
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
@@ -79,10 +79,10 @@ Viewer::Viewer(QWidget *parent) :
   set_media(nullptr);
 
   current_timecode_slider->setEnabled(false);
-  current_timecode_slider->set_minimum_value(0);
-  current_timecode_slider->set_default_value(qSNaN());
-  current_timecode_slider->set_value(0, false);
-  current_timecode_slider->set_display_type(LabelSlider::LABELSLIDER_FRAMENUMBER);
+  current_timecode_slider->SetMinimum(0);
+  current_timecode_slider->SetDefault(qSNaN());
+  current_timecode_slider->SetValue(0);
+  current_timecode_slider->SetDisplayType(LabelSlider::FrameNumber);
   connect(current_timecode_slider, SIGNAL(valueChanged(double)), this, SLOT(update_playhead()));
 
   recording_flasher.setInterval(500);
@@ -479,7 +479,7 @@ bool Viewer::WaitingForPlayWake()
 }
 
 void Viewer::update_playhead_timecode(long p) {
-  current_timecode_slider->set_value(p, false);
+  current_timecode_slider->SetValue(p);
 }
 
 void Viewer::update_end_timecode() {
@@ -884,7 +884,7 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
   go_to_end_frame->setEnabled(!null_sequence);
 
   if (!null_sequence) {
-    current_timecode_slider->set_frame_rate(seq->frame_rate);
+    current_timecode_slider->SetFrameRate(seq->frame_rate);
 
     playback_updater.setInterval(qFloor(1000 / seq->frame_rate));
 

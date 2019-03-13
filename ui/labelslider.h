@@ -37,20 +37,66 @@ public:
   LabelSlider(QWidget* parent = nullptr);
 
   /**
-   * @brief Set the display frame rate
+   * @brief Set the value
+   * @param v
    *
-   * If the `display_type` is set to LABELSLIDER_FRAMENUMBER, this function sets how many frames per second the
-   * timecode will be in.
+   * Value to set to.
    *
-   * @param d
+   * @param userSet
+   *
+   * **TRUE** if this was called through a user action, **FALSE** if this was called through some other way. The
+   * only difference is **TRUE** will emit a signal (valueChanged()) indicating that the value has changed, and
+   * **FALSE** will not.
    */
-  void set_frame_rate(double d);
+  void SetValue(double v);
+
+  /**
+   * @brief Set the default value
+   *
+   * If a default value is set, alt+clicking the LabelSlider will return to the default value.
+   *
+   * @param v
+   *
+   * Value to set as default
+   */
+  void SetDefault(double v);
+
+  /**
+   * @brief Set the minimum value
+   *
+   * If a minimum value is set, the value will never go below it. If the user manually sets a value lower than
+   * the minimum, it will automatically snap to the minimum.
+   *
+   * @param v
+   *
+   * Value to set as minimum
+   */
+  void SetMinimum(double v);
+
+  /**
+   * @brief Set the maximum value
+   *
+   * If a maximum value is set, the value will never go above it. If the user manually sets a value higher than
+   * the maximum, it will automatically snap to the maximum.
+   *
+   * @param v
+   *
+   * Value to set as maximum
+   */
+  void SetMaximum(double v);
+
+  /**
+   * @brief Returns the internal value as a double
+   * @return The internal value. This will not respect the `display_type`, i.e. 100% will return as 1.0, 12dB will
+   * return as 400%, and a timecode will return as a frame number.
+   */
+  double value();
 
   enum DisplayType {
-    LABELSLIDER_NORMAL,
-    LABELSLIDER_FRAMENUMBER,
-    LABELSLIDER_PERCENT,
-    LABELSLIDER_DECIBEL
+    Normal,
+    FrameNumber,
+    Percent,
+    Decibel
   };
 
   /**
@@ -67,107 +113,13 @@ public:
    *
    * The display type to set to.
    */
-  void set_display_type(const DisplayType& type);
-
-  /**
-   * @brief Set the value
-   * @param v
-   *
-   * Value to set to.
-   *
-   * @param userSet
-   *
-   * **TRUE** if this was called through a user action, **FALSE** if this was called through some other way. The
-   * only difference is **TRUE** will emit a signal (valueChanged()) indicating that the value has changed, and
-   * **FALSE** will not.
-   */
-  void set_value(double v, bool userSet);
-
-  /**
-   * @brief Set the default value
-   *
-   * If a default value is set, alt+clicking the LabelSlider will return to the default value.
-   *
-   * @param v
-   *
-   * Value to set as default
-   */
-  void set_default_value(double v);
-
-  /**
-   * @brief Set the minimum value
-   *
-   * If a minimum value is set, the value will never go below it. If the user manually sets a value lower than
-   * the minimum, it will automatically snap to the minimum.
-   *
-   * @param v
-   *
-   * Value to set as minimum
-   */
-  void set_minimum_value(double v);
-
-  /**
-   * @brief Set the maximum value
-   *
-   * If a maximum value is set, the value will never go above it. If the user manually sets a value higher than
-   * the maximum, it will automatically snap to the maximum.
-   *
-   * @param v
-   *
-   * Value to set as maximum
-   */
-  void set_maximum_value(double v);
-
-  /**
-   * @brief Returns the internal value as a double
-   * @return The internal value. This will not respect the `display_type`, i.e. 100% will return as 1.0, 12dB will
-   * return as 400%, and a timecode will return as a frame number.
-   */
-  double value();
-
-  /**
-   * @brief Returns whether a value has been set or not
-   *
-   * If a value has been entered by any means (i.e. if set_value() was called), this will be **TRUE**. If set_value()
-   * has not been called and is_set() is **FALSE**, calling set_default_value() will automatically set the value
-   * to the default value WITHOUT changing the is_set() state (i.e. it will still be **FALSE** and calling
-   * set_default_value() again will change the current value again unless it's been changed through some other means
-   * in that time).
-   *
-   * @return **TRUE** if a value has been set, **FALSE** if not.
-   */
-  bool is_set();
+  void SetDisplayType(const DisplayType& type);
 
   /**
    * @brief Returns whether the user is currently dragging
    * @return **TRUE** if the user is dragging, **FALSE** if not.
    */
-  bool is_dragging();
-
-  /**
-   * @brief Convert the internal value to a displayed string according to `display_type`
-   * @return The internal value as a string
-   */
-  QString valueToString();
-
-  /**
-   * @brief Returns whatever value was set before the last set_value()
-   *
-   * For various reasons (largely undo capabilities) it is helpful to retrieve whatever the value was before the
-   * current one. If the user dragged the current value, this will return the value just before the user started
-   * dragging.
-   *
-   * @return The previous value
-   */
-  double getPreviousValue();
-
-  /**
-   * @brief Updates previous value
-   *
-   * Called internally to store the current value as the previous value in anticipation of an upcoming value change.
-   * Can also be called externally (mainly for dragged EffectGizmos) in anticipation of an external change.
-   */
-  void set_previous_value();
+  bool IsDragging();
 
   /**
    * @brief Set the display color
@@ -175,23 +127,42 @@ public:
    *
    * Color to set to
    */
-  void set_color(QString c = nullptr);
+  void SetColor(QString c = nullptr);
+
+  /**
+   * @brief Set the display frame rate
+   *
+   * If the `display_type` is set to LABELSLIDER_FRAMENUMBER, this function sets how many frames per second the
+   * timecode will be in.
+   *
+   * @param d
+   */
+  void SetFrameRate(double d);
 
   /**
    * @brief Set how many decimal places to show for a floating-point number
    *
    * Defaults to 1
    */
-  int decimal_places;
+  void SetDecimalPlaces(int places);
 protected:
   void mousePressEvent(QMouseEvent *ev);
   void mouseMoveEvent(QMouseEvent *ev);
   void mouseReleaseEvent(QMouseEvent *ev);
 private:
+
+  /**
+   * @brief Convert the internal value to a displayed string according to `display_type`
+   * @return The internal value as a string
+   */
+  QString ValueToString();
+
   double default_value;
   double internal_value;
   double drag_start_value;
   double previous_value;
+
+  int decimal_places;
 
   bool min_enabled;
   double min_value;
@@ -212,12 +183,12 @@ private:
   /**
    * @brief Internal function to set the standard cursor (usually SizeHorCursor)
    */
-  void set_default_cursor();
+  void SetDefaultCursor();
 
   /**
    * @brief Internal function to set the cursor while dragging (usually NoCursor aka invisible)
    */
-  void set_active_cursor();
+  void SetActiveCursor();
 private slots:
   /**
    * @brief Context menu slot to be connected to QWidget::customContextMenuRequested(const QPoint&)
@@ -226,12 +197,12 @@ private slots:
    *
    * Current cursor position
    */
-  void show_context_menu(const QPoint& pos);
+  void ShowContextMenu(const QPoint& pos);
 
   /**
    * @brief Slot to reset current value to the default value
    */
-  void reset_to_default_value();
+  void ResetToDefault();
 
   /**
    * @brief Show prompt asking for value
@@ -240,7 +211,7 @@ private slots:
    * Will show an input dialog asking for a new value to be entered manually. Asks for units in the selected
    * display type and converts them back to the internal value type.
    */
-  void prompt_for_value();
+  void ShowDialog();
 signals:
   /**
    * @brief valueChanged signal

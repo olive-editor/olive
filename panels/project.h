@@ -32,10 +32,10 @@
 #include "project/projectmodel.h"
 #include "project/projectfilter.h"
 #include "project/projectelements.h"
-#include "project/undo.h"
 #include "project/sourcescommon.h"
 #include "ui/panel.h"
 #include "ui/sourceiconview.h"
+#include "undo/undo.h"
 
 #include "ui/sourcetable.h"
 

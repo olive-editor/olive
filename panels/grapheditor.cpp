@@ -30,13 +30,13 @@
 #include "ui/timelinetools.h"
 #include "ui/labelslider.h"
 #include "ui/graphview.h"
-#include "project/effect.h"
-#include "project/effectfields.h"
-#include "project/effectrow.h"
-#include "project/clip.h"
+#include "effects/effect.h"
+#include "effects/effectfields.h"
+#include "effects/effectrow.h"
+#include "timeline/clip.h"
 #include "rendering/renderfunctions.h"
 #include "panels.h"
-#include "debug.h"
+#include "global/debug.h"
 
 GraphEditor::GraphEditor(QWidget* parent) : Panel(parent), row(nullptr) {
   resize(720, 480);
@@ -144,10 +144,10 @@ void GraphEditor::update_panel() {
       for (int i=0;i<row->FieldCount();i++) {
         EffectField* field = row->Field(i);
         if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
-          slider_proxies.at(slider_index)->set_value(
-                row->Field(i)->GetValueAt(playhead_to_clip_seconds(field->GetParentRow()->GetParentEffect()->parent_clip,
-                                                                   olive::ActiveSequence->playhead)).toDouble(),
-                false
+          slider_proxies.at(slider_index)->SetValue(
+                row->Field(i)->GetValueAt(
+                  playhead_to_clip_seconds(field->GetParentRow()->GetParentEffect()->parent_clip,
+                                           olive::ActiveSequence->playhead)).toDouble()
               );
           slider_index++;
         }
@@ -192,7 +192,7 @@ void GraphEditor::set_row(EffectRow *r) {
         value_layout->addWidget(slider_button);
 
         LabelSlider* slider = new LabelSlider();
-        slider->set_color(get_curve_color(i, r->FieldCount()).name());
+        slider->SetColor(get_curve_color(i, r->FieldCount()).name());
         connect(slider, SIGNAL(valueChanged()), this, SLOT(passthrough_slider_value()));
         slider_proxies.append(slider);
         value_layout->addWidget(slider);
@@ -250,7 +250,7 @@ void GraphEditor::set_key_button_enabled(bool e, int type) {
 void GraphEditor::passthrough_slider_value() {
   for (int i=0;i<slider_proxies.size();i++) {
     if (slider_proxies.at(i) == sender()) {
-      slider_proxy_sources.at(i)->set_value(slider_proxies.at(i)->value(), true);
+      slider_proxy_sources.at(i)->SetValue(slider_proxies.at(i)->value());
     }
   }
 }

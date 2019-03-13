@@ -32,8 +32,8 @@
 #include <QWindow>
 
 #include "rendering/audio.h"
-#include "mainwindow.h"
-#include "debug.h"
+#include "ui/mainwindow.h"
+#include "global/debug.h"
 
 #ifdef __linux__
 #include <X11/X.h>

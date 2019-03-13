@@ -27,9 +27,9 @@
 
 #include "ui/timelinewidget.h"
 #include "ui/timelinetools.h"
-#include "project/selection.h"
-#include "project/clip.h"
-#include "project/undo.h"
+#include "timeline/selection.h"
+#include "timeline/clip.h"
+#include "undo/undo.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"

@@ -18,23 +18,21 @@
 
 ***/
 
-#include "mainwindow.h"
 #include <QApplication>
 
-#include "debug.h"
-
-#include "oliveglobal.h"
-#include "ui/mediaiconservice.h"
+#include "global/debug.h"
+#include "global/config.h"
+#include "global/global.h"
 #include "panels/timeline.h"
-
-#include "io/config.h"
+#include "ui/mediaiconservice.h"
+#include "ui/mainwindow.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavfilter/avfilter.h>
 }
 
-int main(int argc, char *argv[]) {   
+int main(int argc, char *argv[]) {
   olive::Global = std::unique_ptr<OliveGlobal>(new OliveGlobal);
 
   bool launch_fullscreen = false;

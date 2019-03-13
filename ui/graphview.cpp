@@ -26,18 +26,17 @@
 #include <QMenu>
 #include <cfloat>
 
-#include "io/config.h"
+#include "global/config.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 #include "ui/keyframedrawing.h"
-#include "project/undo.h"
-#include "project/effect.h"
-#include "project/clip.h"
+#include "undo/undo.h"
+#include "effects/effect.h"
+#include "timeline/clip.h"
 #include "ui/rectangleselect.h"
-
-#include "debug.h"
+#include "global/debug.h"
 
 
 const double kGraphZoomSpeed = 0.05;
@@ -702,7 +701,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *) {
   if (click_add_proc) {
-    olive::UndoStack.push(new KeyframeFieldSet(click_add_field, click_add_key));
+    olive::UndoStack.push(new KeyframeAdd(click_add_field, click_add_key));
   } else if (moved_keys && selected_keys.size() > 0) {
     ComboAction* ca = new ComboAction();
     switch (current_handle) {

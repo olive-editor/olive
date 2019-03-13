@@ -24,12 +24,12 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "oliveglobal.h"
+#include "global/global.h"
 
 #include "panels/panels.h"
 
 #include "ui/sourcetable.h"
-#include "mainwindow.h"
+#include "ui/mainwindow.h"
 
 LoadDialog::LoadDialog(QWidget *parent, const QString& fn, bool autorecovery, bool clear) :
   QDialog(parent)

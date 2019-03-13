@@ -35,13 +35,13 @@
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
-#include "project/clip.h"
-#include "project/sequence.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 #include "panels/viewer.h"
 #include "ui/comboboxex.h"
 #include "ui/colorbutton.h"
 #include "ui/fontcombobox.h"
-#include "io/config.h"
+#include "global/config.h"
 
 TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   Effect(c, em)

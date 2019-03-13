@@ -23,9 +23,9 @@
 
 #ifndef NOVST
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
-#include "io/crossplatformlib.h"
+#include "global/crossplatformlib.h"
 
 #include "include/vestige.h"
 

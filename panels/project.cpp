@@ -20,21 +20,20 @@
 
 #include "project.h"
 
-#include "oliveglobal.h"
-
+#include "global/global.h"
 #include "panels.h"
 #include "rendering/renderfunctions.h"
-#include "io/previewgenerator.h"
-#include "project/undo.h"
-#include "mainwindow.h"
-#include "io/config.h"
+#include "project/previewgenerator.h"
+#include "undo/undo.h"
+#include "ui/mainwindow.h"
+#include "global/config.h"
 #include "rendering/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
 #include "panels/effectcontrols.h"
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/mediapropertiesdialog.h"
 #include "dialogs/loaddialog.h"
-#include "io/clipboard.h"
+#include "project/clipboard.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
 #include "ui/icons.h"
@@ -42,7 +41,7 @@
 #include "ui/mediaiconservice.h"
 #include "project/sourcescommon.h"
 #include "project/projectfilter.h"
-#include "debug.h"
+#include "global/debug.h"
 
 #include <QApplication>
 #include <QFileDialog>

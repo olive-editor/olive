@@ -20,9 +20,9 @@
 
 #include "cornerpineffect.h"
 
-#include "io/path.h"
-#include "project/clip.h"
-#include "debug.h"
+#include "global/path.h"
+#include "timeline/clip.h"
+#include "global/debug.h"
 
 CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
   SetFlags(Effect::CoordsFlag & Effect::ShaderFlag);

@@ -21,7 +21,7 @@
 #include "focusfilter.h"
 
 #include "panels/panels.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 #include "ui/timelineheader.h"
 
 FocusFilter olive::FocusFilter;

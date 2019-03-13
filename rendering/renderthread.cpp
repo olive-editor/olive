@@ -31,7 +31,7 @@ namespace OCIO = OCIO_NAMESPACE;
 #endif
 
 #include "rendering/renderfunctions.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
 RenderThread::RenderThread() :
   gizmos(nullptr),

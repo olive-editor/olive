@@ -3,9 +3,10 @@
 #include <QPoint>
 #include <QMenu>
 
-#include "project/clip.h"
+#include "timeline/clip.h"
 #include "ui/menuhelper.h"
 #include "ui/keyframenavigator.h"
+#include "panels/panels.h"
 
 EffectUI::EffectUI(Effect* e) :
   effect_(e)
@@ -27,6 +28,8 @@ EffectUI::EffectUI(Effect* e) :
 
   int maximum_column = 0;
 
+  widgets_.resize(e->row_count());
+
   for (int i=0;i<e->row_count();i++) {
     EffectRow* row = e->row(i);
 
@@ -36,11 +39,15 @@ EffectUI::EffectUI(Effect* e) :
 
     layout_->addWidget(row_label, i, 0);
 
+    widgets_[i].resize(row->FieldCount());
+
     int column = 1;
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
 
       QWidget* widget = field->CreateWidget();
+
+      widgets_[i][j] = widget;
 
       layout_->addWidget(widget, i, column, 1, field->GetColumnSpan());
 
@@ -64,6 +71,7 @@ EffectUI::EffectUI(Effect* e) :
     connect(nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));
     connect(nav, SIGNAL(keyframe_enabled_changed(bool)), row, SLOT(SetKeyframingEnabled(bool)));
     connect(nav, SIGNAL(clicked()), row, SLOT(FocusRow()));
+    connect(row, SIGNAL(KeyframingSetChanged(bool)), nav, SLOT(enable_keyframes(bool)));
 
     layout_->addWidget(nav, i, maximum_column);
   }
@@ -76,10 +84,17 @@ Effect *EffectUI::GetEffect()
   return effect_;
 }
 
-int EffectUI::GetRowPos(int row)
-{
+int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
   QLabel* row_label = labels_.at(row);
-  return mapToGlobal(row_label->rect().center()).y();
+  return row_label->y()
+      + row_label->height() / 2
+      + mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y()
+      - title_bar->height();
+}
+
+QWidget *EffectUI::Widget(int row, int field)
+{
+  return widgets_.at(row).at(field);
 }
 
 void EffectUI::show_context_menu(const QPoint& pos) {

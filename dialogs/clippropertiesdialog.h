@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QLineEdit>
 
-#include "project/clip.h"
+#include "timeline/clip.h"
 #include "ui/labelslider.h"
 
 class ClipPropertiesDialog : public QDialog {

@@ -33,24 +33,24 @@
 #include <QApplication>
 
 #include "panels/panels.h"
-#include "project/effect.h"
-#include "project/clip.h"
-#include "project/transition.h"
+#include "effects/effect.h"
+#include "effects/transition.h"
+#include "timeline/clip.h"
 #include "ui/collapsiblewidget.h"
-#include "project/sequence.h"
-#include "project/undo.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
 #include "panels/project.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "panels/grapheditor.h"
 #include "ui/viewerwidget.h"
 #include "ui/menuhelper.h"
-#include "io/clipboard.h"
-#include "io/config.h"
+#include "project/clipboard.h"
+#include "global/config.h"
 #include "ui/timelineheader.h"
 #include "ui/keyframeview.h"
 #include "ui/resizablescrollbar.h"
-#include "debug.h"
+#include "global/debug.h"
 
 EffectControls::EffectControls(QWidget *parent) :
   Panel(parent),
@@ -130,6 +130,22 @@ void EffectControls::menu_select(QAction* q) {
 }
 
 void EffectControls::update_keyframes() {
+  for (int i=0;i<open_effects_.size();i++) {
+    EffectUI* ui = open_effects_.at(i);
+    Effect* effect = ui->GetEffect();
+
+    for (int j=0;j<effect->row_count();j++) {
+
+      EffectRow* row = effect->row(j);
+
+      for (int k=0;k<row->FieldCount();k++) {
+        EffectField* field = row->Field(k);
+
+        field->UpdateWidgetValue(ui->Widget(j, k), field->Now());
+      }
+    }
+  }
+
   headers->update_zoom(zoom);
   keyframeView->update();
 }

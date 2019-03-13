@@ -30,14 +30,14 @@
 #include <QMouseEvent>
 
 #include "ui/collapsiblewidget.h"
-#include "project/clip.h"
-#include "project/sequence.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 #include "project/footage.h"
-#include "io/math.h"
+#include "global/math.h"
 #include "ui/labelslider.h"
 #include "ui/comboboxex.h"
 #include "panels/project.h"
-#include "debug.h"
+#include "global/debug.h"
 
 #include "panels/panels.h"
 #include "panels/viewer.h"

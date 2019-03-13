@@ -28,67 +28,67 @@
 
 #include "viewerwidget.h"
 #include "panels/viewer.h"
-#include "project/sequence.h"
-#include "debug.h"
+#include "timeline/sequence.h"
+#include "global/debug.h"
 
 // enforces aspect ratio
 ViewerContainer::ViewerContainer(QWidget *parent) :
-	QWidget(parent),
-	fit(true),
-	child(nullptr)
+  QWidget(parent),
+  fit(true),
+  child(nullptr)
 {
-	horizontal_scrollbar = new QScrollBar(Qt::Horizontal, this);
-	vertical_scrollbar = new QScrollBar(Qt::Vertical, this);
+  horizontal_scrollbar = new QScrollBar(Qt::Horizontal, this);
+  vertical_scrollbar = new QScrollBar(Qt::Vertical, this);
 
-	horizontal_scrollbar->setVisible(false);
-	vertical_scrollbar->setVisible(false);
+  horizontal_scrollbar->setVisible(false);
+  vertical_scrollbar->setVisible(false);
 
-	horizontal_scrollbar->setSingleStep(20);
-	vertical_scrollbar->setSingleStep(20);
+  horizontal_scrollbar->setSingleStep(20);
+  vertical_scrollbar->setSingleStep(20);
 
-	child = new ViewerWidget(this);
-	child->container = this;
+  child = new ViewerWidget(this);
+  child->container = this;
 
-	connect(horizontal_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scroll_changed()));
-	connect(vertical_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scroll_changed()));
+  connect(horizontal_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scroll_changed()));
+  connect(vertical_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scroll_changed()));
 }
 
 ViewerContainer::~ViewerContainer() {}
 
 void ViewerContainer::dragScrollPress(const QPoint &p) {
-	drag_start_x = p.x();
-	drag_start_y = p.y();
+  drag_start_x = p.x();
+  drag_start_y = p.y();
 
-	horiz_start = horizontal_scrollbar->value();
-	vert_start = vertical_scrollbar->value();
+  horiz_start = horizontal_scrollbar->value();
+  vert_start = vertical_scrollbar->value();
 }
 
 void ViewerContainer::dragScrollMove(const QPoint &p) {
-	int this_x = p.x();
-	int this_y = p.y();
+  int this_x = p.x();
+  int this_y = p.y();
 
-	horizontal_scrollbar->setValue(horiz_start + (drag_start_x-this_x));
-	vertical_scrollbar->setValue(vert_start + (drag_start_y-this_y));
+  horizontal_scrollbar->setValue(horiz_start + (drag_start_x-this_x));
+  vertical_scrollbar->setValue(vert_start + (drag_start_y-this_y));
 }
 
 void ViewerContainer::parseWheelEvent(QWheelEvent *event) {
-	if (event->modifiers() & Qt::AltModifier) {
-		QApplication::sendEvent(horizontal_scrollbar, event);
-	} else {
-		QApplication::sendEvent(vertical_scrollbar, event);
-	}
+  if (event->modifiers() & Qt::AltModifier) {
+    QApplication::sendEvent(horizontal_scrollbar, event);
+  } else {
+    QApplication::sendEvent(vertical_scrollbar, event);
+  }
 }
 
 void ViewerContainer::adjust() {
-	if (viewer->seq != nullptr) {
-		if (child->waveform) {
-			child->move(0, 0);
-			child->resize(size());
-		} else {
-			horizontal_scrollbar->setVisible(false);
-			vertical_scrollbar->setVisible(false);
+  if (viewer->seq != nullptr) {
+    if (child->waveform) {
+      child->move(0, 0);
+      child->resize(size());
+    } else {
+      horizontal_scrollbar->setVisible(false);
+      vertical_scrollbar->setVisible(false);
 
-			int zoomed_width = qRound(double(viewer->seq->width)*zoom);
+      int zoomed_width = qRound(double(viewer->seq->width)*zoom);
             int zoomed_height = qRound(double(viewer->seq->height)*zoom);
 
             if (fit || zoomed_width > width() || zoomed_height > height()) {
@@ -147,28 +147,28 @@ void ViewerContainer::adjust() {
                 child->move(zoomed_x, zoomed_y);
                 child->resize(zoomed_width, zoomed_height);
             }
-		}
-	}
+    }
+  }
 }
 
 void ViewerContainer::adjust_scrollbars() {
-	horizontal_scrollbar->move(0, height()-horizontal_scrollbar->height());
-	horizontal_scrollbar->setFixedWidth(qMax(0, width()-vertical_scrollbar->width()));
-	horizontal_scrollbar->setPageStep(width());
+  horizontal_scrollbar->move(0, height()-horizontal_scrollbar->height());
+  horizontal_scrollbar->setFixedWidth(qMax(0, width()-vertical_scrollbar->width()));
+  horizontal_scrollbar->setPageStep(width());
 
-	vertical_scrollbar->move(width() - vertical_scrollbar->width(), 0);
-	vertical_scrollbar->setFixedHeight(qMax(0, height()-horizontal_scrollbar->height()));
-	vertical_scrollbar->setPageStep(height());
+  vertical_scrollbar->move(width() - vertical_scrollbar->width(), 0);
+  vertical_scrollbar->setFixedHeight(qMax(0, height()-horizontal_scrollbar->height()));
+  vertical_scrollbar->setPageStep(height());
 }
 
 void ViewerContainer::resizeEvent(QResizeEvent *event) {
-	event->accept();
-	adjust();
+  event->accept();
+  adjust();
 }
 
 void ViewerContainer::scroll_changed() {
-	child->set_scroll(
-				double(horizontal_scrollbar->value())/double(horizontal_scrollbar->maximum()),
-				double(vertical_scrollbar->value())/double(vertical_scrollbar->maximum())
-			);
+  child->set_scroll(
+        double(horizontal_scrollbar->value())/double(horizontal_scrollbar->maximum()),
+        double(vertical_scrollbar->value())/double(vertical_scrollbar->maximum())
+      );
 }

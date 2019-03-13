@@ -20,11 +20,11 @@
 
 #include "labelslider.h"
 
-#include "project/undo.h"
+#include "undo/undo.h"
 #include "panels/viewer.h"
-#include "io/config.h"
-#include "io/math.h"
-#include "debug.h"
+#include "global/config.h"
+#include "global/math.h"
+#include "global/debug.h"
 
 #include <QMouseEvent>
 #include <QInputDialog>
@@ -40,28 +40,33 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
   drag_proc = false;
   min_enabled = false;
   max_enabled = false;
-  set_color();
-  set_default_cursor();
+  SetColor();
+  SetDefaultCursor();
   internal_value = -1;
   set = false;
-  display_type = LABELSLIDER_NORMAL;
+  display_type = Normal;
 
-  set_default_value(0);
+  SetDefault(0);
 
   setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu(const QPoint&)));
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu(const QPoint&)));
 }
 
-void LabelSlider::set_frame_rate(double d) {
+void LabelSlider::SetFrameRate(double d) {
   frame_rate = d;
 }
 
-void LabelSlider::set_display_type(const DisplayType& type) {
-  display_type = type;
-  setText(valueToString());
+void LabelSlider::SetDecimalPlaces(int places)
+{
+  decimal_places = places;
 }
 
-void LabelSlider::set_value(double v, bool userSet) {
+void LabelSlider::SetDisplayType(const DisplayType& type) {
+  display_type = type;
+  setText(ValueToString());
+}
+
+void LabelSlider::SetValue(double v) {
   set = true;
   if (!qFuzzyCompare(v, internal_value)) {
     if (min_enabled && v < min_value) {
@@ -72,32 +77,25 @@ void LabelSlider::set_value(double v, bool userSet) {
       internal_value = v;
     }
 
-    setText(valueToString());
-    if (userSet) {
-      emit valueChanged(internal_value);
-    }
+    setText(ValueToString());
   }
 }
 
-bool LabelSlider::is_set() {
-  return set;
-}
-
-bool LabelSlider::is_dragging() {
+bool LabelSlider::IsDragging() {
   return drag_proc;
 }
 
-QString LabelSlider::valueToString() {
+QString LabelSlider::ValueToString() {
   double v = internal_value;
   if (qIsNaN(v)) {
     return "---";
   } else {
     switch (display_type) {
-    case LABELSLIDER_FRAMENUMBER:
+    case FrameNumber:
       return frame_to_timecode(long(v), olive::CurrentConfig.timecode_view, frame_rate);
-    case LABELSLIDER_PERCENT:
+    case Percent:
       return QString::number((v*100), 'f', decimal_places).append("%");
-    case LABELSLIDER_DECIBEL:
+    case Decibel:
     {
       QString db_str;
 
@@ -120,15 +118,7 @@ QString LabelSlider::valueToString() {
   }
 }
 
-double LabelSlider::getPreviousValue() {
-  return previous_value;
-}
-
-void LabelSlider::set_previous_value() {
-  previous_value = internal_value;
-}
-
-void LabelSlider::set_color(QString c) {
+void LabelSlider::SetColor(QString c) {
   if (c.isEmpty()) c = "#ffc000";
   setStyleSheet("QLabel{color:" + c + ";text-decoration:underline;}QLabel:disabled{color:#808080;}");
 }
@@ -137,20 +127,20 @@ double LabelSlider::value() {
   return internal_value;
 }
 
-void LabelSlider::set_default_value(double v) {
+void LabelSlider::SetDefault(double v) {
   default_value = v;
   if (!set) {
-    set_value(v, false);
+    SetValue(v);
     set = false;
   }
 }
 
-void LabelSlider::set_minimum_value(double v) {
+void LabelSlider::SetMinimum(double v) {
   min_value = v;
   min_enabled = true;
 }
 
-void LabelSlider::set_maximum_value(double v) {
+void LabelSlider::SetMaximum(double v) {
   max_value = v;
   max_enabled = true;
 }
@@ -166,7 +156,7 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
     if (ev->modifiers() & Qt::AltModifier) {
 
       // reset to default
-      reset_to_default_value();
+      ResetToDefault();
 
     } else {
 
@@ -174,7 +164,7 @@ void LabelSlider::mousePressEvent(QMouseEvent *ev) {
       if (qIsNaN(internal_value)) internal_value = 0;
 
       // hide the cursor and store information about it for dragging
-      set_active_cursor();
+      SetActiveCursor();
 
       drag_start = true;
       drag_start_x = cursor().pos().x();
@@ -206,7 +196,7 @@ void LabelSlider::mouseMoveEvent(QMouseEvent* event) {
     // ctrl + drag drags in smaller increments
     if (event->modifiers() & Qt::ControlModifier) diff *= 0.01;
 
-    if (display_type == LABELSLIDER_PERCENT) {
+    if (display_type == Percent) {
       // we'll also need to drag in smaller increments for a percent value
 
       diff *= 0.01;
@@ -215,7 +205,7 @@ void LabelSlider::mouseMoveEvent(QMouseEvent* event) {
     // determine what the new value will be
     double new_value;
 
-    if (display_type == LABELSLIDER_DECIBEL) {
+    if (display_type == Decibel) {
       // we move in terms of dB for decibel display
 
       new_value = db_to_amplitude(amplitude_to_db(internal_value) + diff);
@@ -227,7 +217,8 @@ void LabelSlider::mouseMoveEvent(QMouseEvent* event) {
     }
 
     // set internal value
-    set_value(new_value, true);
+    SetValue(new_value);
+    emit valueChanged(internal_value);
 
     // keep the cursor in the same location while dragging
     cursor().setPos(drag_start_x, drag_start_y);
@@ -238,7 +229,7 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
   if (drag_start) {
 
     // unhide cursor
-    set_default_cursor();
+    SetDefaultCursor();
 
     drag_start = false;
 
@@ -253,49 +244,47 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 
     } else {
 
-      prompt_for_value();
+      ShowDialog();
 
     }
   }
 }
 
-void LabelSlider::set_default_cursor() {
+void LabelSlider::SetDefaultCursor() {
   setCursor(Qt::SizeHorCursor);
 }
 
-void LabelSlider::set_active_cursor() {
+void LabelSlider::SetActiveCursor() {
   setCursor(Qt::BlankCursor);
 }
 
-void LabelSlider::show_context_menu(const QPoint &pos)
+void LabelSlider::ShowContextMenu(const QPoint &pos)
 {
   QMenu menu(this);
 
-  menu.addAction(tr("&Edit"), this, SLOT(prompt_for_value()));
+  menu.addAction(tr("&Edit"), this, SLOT(ShowDialog()));
 
   menu.addSeparator();
 
-  menu.addAction(tr("&Reset to Default"), this, SLOT(reset_to_default_value()));
+  menu.addAction(tr("&Reset to Default"), this, SLOT(ResetToDefault()));
 
   menu.exec(mapToGlobal(pos));
 }
 
-void LabelSlider::reset_to_default_value()
+void LabelSlider::ResetToDefault()
 {
   // if the value is not already default, and there is a default to set
   if (!qFuzzyCompare(internal_value, default_value)
       && !qIsNaN(default_value)) {
 
-    // cache current value
-    set_previous_value();
-
     // set back to default
-    set_value(default_value, true);
+    SetValue(default_value);
+    emit valueChanged(internal_value);
 
   }
 }
 
-void LabelSlider::prompt_for_value()
+void LabelSlider::ShowDialog()
 {
   // if the user didn't actually drag, and just clicked in one place,
   // we instead present a dialog prompt for the user to enter a
@@ -303,7 +292,7 @@ void LabelSlider::prompt_for_value()
 
   double d = internal_value;
 
-  if (display_type == LABELSLIDER_FRAMENUMBER) {
+  if (display_type == FrameNumber) {
 
     // ask the user to enter a timecode
     QString s = QInputDialog::getText(
@@ -311,7 +300,7 @@ void LabelSlider::prompt_for_value()
           tr("Set Value"),
           tr("New value:"),
           QLineEdit::Normal,
-          valueToString()
+          ValueToString()
           );
     if (s.isEmpty()) return;
 
@@ -325,9 +314,9 @@ void LabelSlider::prompt_for_value()
 
     // value to show
     double shown_value = internal_value;
-    if (display_type == LABELSLIDER_PERCENT) {
+    if (display_type == Percent) {
       shown_value *= 100;
-    } else if (display_type == LABELSLIDER_DECIBEL) {
+    } else if (display_type == Decibel) {
       shown_value = amplitude_to_db(shown_value);
     }
 
@@ -336,7 +325,7 @@ void LabelSlider::prompt_for_value()
     if (min_enabled) {
       // if this field has a minimum value set, use it
       shown_minimum_value = min_value;
-    } else if (display_type == LABELSLIDER_DECIBEL) {
+    } else if (display_type == Decibel) {
       // minimum decibel amount is -96db
       shown_minimum_value = -96;
     } else {
@@ -358,16 +347,16 @@ void LabelSlider::prompt_for_value()
     if (!ok) return;
 
     // convert shown value back to internal value
-    if (display_type == LABELSLIDER_PERCENT) {
+    if (display_type == Percent) {
       d *= 0.01;
-    } else if (display_type == LABELSLIDER_DECIBEL) {
+    } else if (display_type == Decibel) {
       d = db_to_amplitude(d);
     }
   }
 
   // if the value actually changed, trigger a change event
   if (!qFuzzyCompare(d, internal_value)) {
-    set_previous_value();
-    set_value(d, true);
+    SetValue(d);
+    emit valueChanged(internal_value);
   }
 }

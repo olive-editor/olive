@@ -29,9 +29,9 @@
 #include <QProgressBar>
 #include <QGroupBox>
 
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
-#include "io/exportthread.h"
+#include "rendering/exportthread.h"
 
 class ExportDialog : public QDialog
 {

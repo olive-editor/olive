@@ -21,7 +21,7 @@
 #ifndef TEXTEFFECT_H
 #define TEXTEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #include <QFont>
 #include <QImage>

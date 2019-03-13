@@ -21,7 +21,7 @@
 #ifndef AUDIONOISEEFFECT_H
 #define AUDIONOISEEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class AudioNoiseEffect : public Effect {
   Q_OBJECT

@@ -34,19 +34,19 @@ extern "C" {
 namespace OCIO = OCIO_NAMESPACE;
 #endif
 
-#include "project/clip.h"
-#include "project/sequence.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 #include "project/media.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "project/footage.h"
-#include "project/transition.h"
+#include "effects/transition.h"
 
 #include "ui/collapsiblewidget.h"
 
 #include "rendering/audio.h"
 
-#include "io/math.h"
-#include "io/config.h"
+#include "global/math.h"
+#include "global/config.h"
 
 #include "panels/timeline.h"
 #include "panels/viewer.h"

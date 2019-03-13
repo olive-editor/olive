@@ -20,15 +20,15 @@
 
 #include "timelinewidget.h"
 
-#include "oliveglobal.h"
+#include "global/global.h"
 #include "panels/panels.h"
 #include "project/projectelements.h"
 
 #include "rendering/audio.h"
-#include "io/config.h"
+#include "global/config.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
-#include "project/undo.h"
+#include "undo/undo.h"
 #include "ui/viewerwidget.h"
 #include "ui/resizablescrollbar.h"
 #include "dialogs/newsequencedialog.h"
@@ -39,9 +39,9 @@
 #include "ui/menuhelper.h"
 #include "ui/focusfilter.h"
 #include "dialogs/clippropertiesdialog.h"
-#include "debug.h"
+#include "global/debug.h"
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #include "effects/internal/solideffect.h"
 #include "effects/internal/texteffect.h"

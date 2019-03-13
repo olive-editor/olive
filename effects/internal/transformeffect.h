@@ -21,7 +21,7 @@
 #ifndef TRANSFORMEFFECT_H
 #define TRANSFORMEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class TransformEffect : public Effect {
   Q_OBJECT

@@ -57,9 +57,9 @@ public:
 protected:
   CheckboxEx* enabled_check;
   CollapsibleWidgetHeader* title_bar;
+  QWidget* contents;
 private:
   bool selected;
-  QWidget* contents;
   QLabel* header;
   QVBoxLayout* layout;
   QPushButton* collapse_button;

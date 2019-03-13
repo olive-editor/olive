@@ -22,9 +22,9 @@
 
 #include "panels/panels.h"
 #include "panels/project.h"
-#include "project/sequence.h"
-#include "project/undo.h"
-#include "project/clip.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
+#include "timeline/clip.h"
 #include "panels/timeline.h"
 #include "project/media.h"
 #include "rendering/audio.h"

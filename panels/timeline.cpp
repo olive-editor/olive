@@ -20,26 +20,24 @@
 
 #include "timeline.h"
 
-#include "oliveglobal.h"
-
+#include "global/global.h"
 #include "panels/panels.h"
 #include "project/projectelements.h"
-
 #include "ui/timelinewidget.h"
 #include "ui/icons.h"
 #include "ui/viewerwidget.h"
 #include "rendering/audio.h"
 #include "rendering/cacher.h"
 #include "rendering/renderfunctions.h"
-#include "io/config.h"
-#include "io/clipboard.h"
+#include "global/config.h"
+#include "project/clipboard.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
 #include "ui/flowlayout.h"
 #include "ui/cursors.h"
-#include "mainwindow.h"
-#include "debug.h"
+#include "ui/mainwindow.h"
+#include "global/debug.h"
 
 #include <QTime>
 #include <QScrollBar>

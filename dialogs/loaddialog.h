@@ -26,7 +26,7 @@
 #include <QHBoxLayout>
 
 #include "project/projectelements.h"
-#include "io/loadthread.h"
+#include "project/loadthread.h"
 
 class LoadDialog : public QDialog
 {

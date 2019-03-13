@@ -23,7 +23,7 @@
 #include <QWheelEvent>
 #include <QDebug>
 
-#include "io/config.h"
+#include "global/config.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 

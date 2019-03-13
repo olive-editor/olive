@@ -21,7 +21,7 @@
 #ifndef SHAKEEFFECT_H
 #define SHAKEEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #define RANDOM_VAL_SIZE 30
 

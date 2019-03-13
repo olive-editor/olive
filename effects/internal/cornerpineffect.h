@@ -21,7 +21,7 @@
 #ifndef CORNERPINEFFECT_H
 #define CORNERPINEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class CornerPinEffect : public Effect {
   Q_OBJECT

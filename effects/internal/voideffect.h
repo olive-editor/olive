@@ -27,7 +27,7 @@
  * isn't lost if the user saves over the project.
  */
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class VoidEffect : public Effect {
   Q_OBJECT

@@ -21,7 +21,7 @@
 #ifndef TIMECODEEFFECT_H
 #define TIMECODEEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #include <QFont>
 #include <QImage>

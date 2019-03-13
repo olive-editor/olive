@@ -26,7 +26,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "project/marker.h"
+#include "timeline/marker.h"
 #include "project/media.h"
 
 #include "ui/panel.h"

@@ -23,13 +23,13 @@
 #include "mainwindow.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
-#include "project/sequence.h"
-#include "project/undo.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
 #include "project/media.h"
 #include "panels/viewer.h"
-#include "io/config.h"
+#include "global/config.h"
 #include "ui/menuhelper.h"
-#include "debug.h"
+#include "global/debug.h"
 
 #include <QPainter>
 #include <QMouseEvent>

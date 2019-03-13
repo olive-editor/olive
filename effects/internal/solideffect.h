@@ -21,7 +21,7 @@
 #ifndef SOLIDEFFECT_H
 #define SOLIDEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #include <QImage>
 

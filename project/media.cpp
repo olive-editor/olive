@@ -20,24 +20,23 @@
 
 #include "media.h"
 
-#include "footage.h"
-#include "sequence.h"
-#include "undo.h"
-#include "io/config.h"
-#include "panels/viewer.h"
-#include "panels/project.h"
-#include "ui/icons.h"
-#include "projectmodel.h"
-
-#include <QCoreApplication>
-#include <QtMath>
-
-#include "debug.h"
-
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }
+
+#include <QCoreApplication>
+#include <QtMath>
+
+#include "footage.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
+#include "global/config.h"
+#include "panels/viewer.h"
+#include "panels/project.h"
+#include "ui/icons.h"
+#include "projectmodel.h"
+#include "global/debug.h"
 
 QString get_interlacing_name(int interlacing) {
   switch (interlacing) {

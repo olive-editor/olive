@@ -28,7 +28,7 @@
 
 #include "panels/project.h"
 #include "project/media.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
 class NewSequenceDialog : public QDialog
 {

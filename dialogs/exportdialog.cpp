@@ -30,13 +30,13 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "oliveglobal.h"
+#include "global/global.h"
 #include "dialogs/advancedvideodialog.h"
 #include "panels/panels.h"
 #include "ui/viewerwidget.h"
 #include "rendering/renderfunctions.h"
-#include "io/exportthread.h"
-#include "mainwindow.h"
+#include "rendering/exportthread.h"
+#include "ui/mainwindow.h"
 
 extern "C" {
 #include <libavformat/avformat.h>

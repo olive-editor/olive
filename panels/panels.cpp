@@ -20,13 +20,12 @@
 
 #include "panels.h"
 
-#include "project/sequence.h"
-#include "project/clip.h"
-#include "project/transition.h"
-#include "io/config.h"
-
-#include "project/effectloaders.h"
-#include "debug.h"
+#include "timeline/sequence.h"
+#include "timeline/clip.h"
+#include "effects/transition.h"
+#include "global/config.h"
+#include "effects/effectloaders.h"
+#include "global/debug.h"
 
 #include <QScrollBar>
 #include <QCoreApplication>
@@ -43,62 +42,6 @@ void update_effect_controls() {
   int mode = kTransitionNone;
 
   if (olive::ActiveSequence != nullptr) {
-    /*
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      Clip* clip = olive::ActiveSequence->clips.at(i).get();
-      if (clip != nullptr) {
-        for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
-          const Selection& s = olive::ActiveSequence->selections.at(j);
-          bool add = true;
-          if (clip->timeline_in() >= s.in && clip->timeline_out() <= s.out && clip->track() == s.track) {
-            mode = kTransitionNone;
-          } else if (selection_contains_transition(s, clip, kTransitionOpening)) {
-            mode = kTransitionOpening;
-          } else if (selection_contains_transition(s, clip, kTransitionClosing)) {
-            mode = kTransitionClosing;
-          } else {
-            add = false;
-          }
-
-          if (add) {
-            if (clip->track() < 0 && vclip == -1) {
-              vclip = i;
-            } else if (clip->track() >= 0 && aclip == -1) {
-              aclip = i;
-            } else {
-              vclip = -2;
-              aclip = -2;
-              multiple = true;
-              multiple = true;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    if (!multiple) {
-      // check if aclip is linked to vclip
-      if (vclip >= 0) selected_clips.append(vclip);
-      if (aclip >= 0) selected_clips.append(aclip);
-      if (vclip >= 0 && aclip >= 0) {
-        bool found = false;
-        ClipPtr vclip_ref = olive::ActiveSequence->clips.at(vclip);
-        for (int i=0;i<vclip_ref->linked.size();i++) {
-          if (vclip_ref->linked.at(i) == aclip) {
-            found = true;
-            break;
-          }
-        }
-        if (!found) {
-          // only display multiple clips if they're linked
-          selected_clips.clear();
-          multiple = true;
-        }
-      }
-    }
-    */
-
     selected_clips = olive::ActiveSequence->SelectedClips();
 
     // TODO handle selecting transitions

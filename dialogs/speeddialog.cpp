@@ -26,13 +26,13 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 #include "project/footage.h"
 #include "rendering/renderfunctions.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
-#include "project/undo.h"
-#include "project/effect.h"
+#include "undo/undo.h"
+#include "effects/effect.h"
 #include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent) {
@@ -47,20 +47,20 @@ SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent
 
   grid->addWidget(new QLabel(tr("Speed:"), this), 0, 0);
   percent = new LabelSlider(this);
-  percent->decimal_places = 2;
-  percent->set_display_type(LabelSlider::LABELSLIDER_PERCENT);
-  percent->set_default_value(1);
+  percent->SetDecimalPlaces(2);
+  percent->SetDisplayType(LabelSlider::Percent);
+  percent->SetDefault(1);
   grid->addWidget(percent, 0, 1);
 
   grid->addWidget(new QLabel(tr("Frame Rate:"), this), 1, 0);
   frame_rate = new LabelSlider(this);
-  frame_rate->decimal_places = 3;
+  frame_rate->SetDecimalPlaces(3);
   grid->addWidget(frame_rate, 1, 1);
 
   grid->addWidget(new QLabel(tr("Duration:"), this), 2, 0);
   duration = new LabelSlider(this);
-  duration->set_display_type(LabelSlider::LABELSLIDER_FRAMENUMBER);
-  duration->set_frame_rate(olive::ActiveSequence->frame_rate);
+  duration->SetDisplayType(LabelSlider::FrameNumber);
+  duration->SetFrameRate(olive::ActiveSequence->frame_rate);
   grid->addWidget(duration, 2, 1);
 
   main_layout->addLayout(grid);
@@ -168,16 +168,16 @@ void SpeedDialog::run() {
     }
   }
 
-  frame_rate->set_minimum_value(1);
-  percent->set_minimum_value(0.0001);
-  duration->set_minimum_value(1);
+  frame_rate->SetMinimum(1);
+  percent->SetMinimum(0.0001);
+  duration->SetMinimum(1);
 
   frame_rate->setEnabled(enable_frame_rate);
-  frame_rate->set_default_value(default_frame_rate);
-  frame_rate->set_value(current_frame_rate, false);
-  percent->set_value(current_percent, false);
-  duration->set_default_value(default_length);
-  duration->set_value((current_length == -1) ? qSNaN() : current_length, false);
+  frame_rate->SetDefault(default_frame_rate);
+  frame_rate->SetValue(current_frame_rate);
+  percent->SetValue(current_percent);
+  duration->SetDefault(default_length);
+  duration->SetValue((current_length == -1) ? qSNaN() : current_length);
 
   exec();
 }
@@ -213,8 +213,8 @@ void SpeedDialog::percent_update() {
     }
   }
 
-  frame_rate->set_value(fr_val, false);
-  duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
+  frame_rate->SetValue(fr_val);
+  duration->SetValue((len_val == -1) ? qSNaN() : len_val);
 }
 
 void SpeedDialog::duration_update() {
@@ -248,8 +248,8 @@ void SpeedDialog::duration_update() {
     }
   }
 
-  frame_rate->set_value(fr_val, false);
-  percent->set_value(pc_val, false);
+  frame_rate->SetValue(fr_val);
+  percent->SetValue(pc_val);
 }
 
 void SpeedDialog::frame_rate_update() {
@@ -312,8 +312,8 @@ void SpeedDialog::frame_rate_update() {
     }
   }
 
-  percent->set_value(pc_val, false);
-  duration->set_value((len_val == -1) ? qSNaN() : len_val, false);
+  percent->SetValue(pc_val);
+  duration->SetValue((len_val == -1) ? qSNaN() : len_val);
 }
 
 void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, long& lr) {
@@ -321,7 +321,7 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
 
   long proposed_out = c->timeline_out();
   double multiplier = (c->speed().value / speed);
-  proposed_out = c->timeline_in() + (c->length() * multiplier);
+  proposed_out = qRound(c->timeline_in() + (c->length() * multiplier));
   ca->append(new SetSpeedAction(c, speed));
   if (!ripple && proposed_out > c->timeline_out()) {
     for (int i=0;i<c->sequence->clips.size();i++) {

@@ -30,7 +30,7 @@
 #include "ui/timelineheader.h"
 #include "ui/labelslider.h"
 #include "ui/keyframenavigator.h"
-#include "project/effectrow.h"
+#include "effects/effectrow.h"
 
 class GraphEditor : public Panel {
   Q_OBJECT

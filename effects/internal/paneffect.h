@@ -21,7 +21,7 @@
 #ifndef PANEFFECT_H
 #define PANEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class PanEffect : public Effect {
   Q_OBJECT

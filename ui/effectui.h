@@ -2,7 +2,7 @@
 #define EFFECTUI_H
 
 #include "collapsiblewidget.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class EffectUI : public CollapsibleWidget {
   Q_OBJECT
@@ -11,7 +11,9 @@ public:
 
   Effect* GetEffect();
 
-  int GetRowPos(int row);
+  int GetRowY(int row, QWidget *mapToWidget);
+
+  QWidget* Widget(int row, int field);
 signals:
   void CutRequested();
   void CopyRequested();
@@ -20,6 +22,7 @@ private:
   Effect* effect_;
   QGridLayout* layout_;
   QVector<QLabel*> labels_;
+  QVector< QVector<QWidget*> > widgets_;
 private slots:
   void show_context_menu(const QPoint&);
 };

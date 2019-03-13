@@ -25,10 +25,10 @@
 #include <QPushButton>
 #include <QStyleFactory>
 
-#include "io/config.h"
-#include "io/clipboard.h"
-#include "mainwindow.h"
-#include "oliveglobal.h"
+#include "global/config.h"
+#include "project/clipboard.h"
+#include "ui/mainwindow.h"
+#include "global/global.h"
 #include "panels/panels.h"
 #include "ui/focusfilter.h"
 

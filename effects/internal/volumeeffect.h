@@ -21,7 +21,7 @@
 #ifndef VOLUMEEFFECT_H
 #define VOLUMEEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class VolumeEffect : public Effect {
   Q_OBJECT

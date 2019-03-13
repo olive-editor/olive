@@ -25,9 +25,8 @@
 #include <QVector>
 #include <QOpenGLShaderProgram>
 
-#include "project/sequence.h"
-#include "project/effect.h"
-
+#include "timeline/sequence.h"
+#include "effects/effect.h"
 #include "panels/viewer.h"
 
 /**

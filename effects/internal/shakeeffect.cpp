@@ -27,11 +27,10 @@
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
-#include "project/clip.h"
-#include "project/sequence.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 #include "panels/timeline.h"
-
-#include "debug.h"
+#include "global/debug.h"
 
 ShakeEffect::ShakeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
   SetFlags(Effect::CoordsFlag);

@@ -20,22 +20,22 @@
 
 #include "keyframeview.h"
 
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
-#include "project/clip.h"
+#include "timeline/clip.h"
 #include "panels/timeline.h"
 #include "ui/timelineheader.h"
-#include "project/undo.h"
+#include "undo/undo.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 #include "panels/grapheditor.h"
 #include "ui/keyframedrawing.h"
 #include "ui/clickablelabel.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/rectangleselect.h"
-#include "project/keyframe.h"
+#include "effects/keyframe.h"
 #include "ui/graphview.h"
 
 #include <QMouseEvent>
@@ -124,7 +124,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
         for (int j=0;j<e->row_count();j++) {
           EffectRow* row = e->row(j);
 
-          int keyframe_y = container->GetRowPos(j);
+          int keyframe_y = container->GetRowY(j, this);
 
           QVector<long> key_times;
 

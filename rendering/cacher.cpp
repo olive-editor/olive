@@ -37,8 +37,8 @@
 #include "rendering/audio.h"
 #include "rendering/renderfunctions.h"
 #include "panels/panels.h"
-#include "io/config.h"
-#include "debug.h"
+#include "global/config.h"
+#include "global/debug.h"
 
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS

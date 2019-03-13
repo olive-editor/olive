@@ -29,8 +29,8 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 
-#include "project/sequence.h"
-#include "project/effect.h"
+#include "timeline/sequence.h"
+#include "effects/effect.h"
 #include "rendering/framebufferobject.h"
 
 // copied from source code to OCIODisplay

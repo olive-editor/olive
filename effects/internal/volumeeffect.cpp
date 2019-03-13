@@ -34,7 +34,7 @@ VolumeEffect::VolumeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
 
   // set defaults
   volume_val->SetDefault(1);
-  volume_val->SetDisplayType(LabelSlider::LABELSLIDER_DECIBEL);
+  volume_val->SetDisplayType(LabelSlider::Decibel);
 }
 
 void VolumeEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
