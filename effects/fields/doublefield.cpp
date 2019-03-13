@@ -102,11 +102,12 @@ void DoubleField::UpdateFromWidget(double d)
   }
 
   SetValueAt(Now(), d);
-  GetParentRow()->SetKeyframeOnAllFields(nullptr);
 
   if (!ls->IsDragging() && kdc_ != nullptr) {
     kdc_->SetNewKeyframes();
+
     olive::UndoStack.push(kdc_);
+
     kdc_ = nullptr;
   }
 }

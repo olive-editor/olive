@@ -154,7 +154,6 @@ public:
   int gizmo_count();
 
   bool IsEnabled();
-  void SetEnabled(bool b);
 
   virtual void refresh();
 
@@ -214,6 +213,7 @@ public:
   static const EffectMeta* GetInternalMeta(int internal_id, int type);
 public slots:
   void FieldChanged();
+  void SetEnabled(bool b);
 signals:
   void EnabledChanged(bool);
 private slots:

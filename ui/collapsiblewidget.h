@@ -72,7 +72,6 @@ signals:
   void visibleChanged();
 
 private slots:
-  void on_enabled_change(bool b);
   void on_visible_change();
 
 public slots:
