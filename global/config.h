@@ -23,6 +23,8 @@
 
 #include <QString>
 
+#include "ui/styling.h"
+
 namespace olive {
   /**
    * @brief Version identifier for saved projects
@@ -516,6 +518,13 @@ struct Config {
    * **TRUE** if scrolling vertically on the Timeline should scroll it horizontally
    */
   bool invert_timeline_scroll_axes;
+
+  /**
+   * @brief Style to use when theming Olive.
+   *
+   * Set to a member of olive::styling::Style.
+   */
+  olive::styling::Style style;
 
   /**
    * @brief Load config from file

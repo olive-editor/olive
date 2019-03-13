@@ -73,8 +73,17 @@ public:
      * @param fn
      *
      * URL to load the CSS file from.
+     *
+     * @return
+     *
+     * **TRUE** if CSS was successfully loaded.
      */
-  void load_css_from_file(const QString& fn);
+  bool load_css_from_file(const QString& fn);
+
+  /**
+   * @brief Set application's QStyle based on values from Config
+   */
+  void Restyle();
 
 public slots:
   /**
@@ -247,7 +256,6 @@ private:
   QAction* delete_inout_point_;
   QAction* ripple_delete_inout_point_;
   QAction* setedit_marker_;
-
 
   // view menu actions
   QMenu* view_menu;

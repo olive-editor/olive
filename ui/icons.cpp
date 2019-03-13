@@ -1,6 +1,7 @@
 #include "icons.h"
 
-#include "oliveglobal.h"
+#include "global/global.h"
+#include "global/config.h"
 
 QIcon olive::icon::LeftArrow;
 QIcon olive::icon::RightArrow;
@@ -27,14 +28,27 @@ QIcon olive::icon::CreateIconFromSVG(const QString &path)
 {
   QIcon icon;
 
+  QPainter p;
+
+  // Draw the icon as a solid color
   QPixmap normal(path);
+
+  if (olive::styling::UseDarkIcons()) {
+    p.begin(&normal);
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    p.fillRect(normal.rect(), QColor(32, 32, 32));
+    p.end();
+  }
+
   icon.addPixmap(normal, QIcon::Normal, QIcon::On);
 
+  // Create semi-transparent disabled icon
   QPixmap disabled(normal.size());
   disabled.fill(Qt::transparent);
 
   // draw semi-transparent version of icon for the disabled variant
-  QPainter p(&disabled);
+  p.begin(&disabled);
+  p.setCompositionMode(QPainter::CompositionMode_SourceOver);
   p.setOpacity(0.5);
   p.drawPixmap(0, 0, normal);
   p.end();

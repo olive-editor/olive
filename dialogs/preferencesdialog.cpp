@@ -194,7 +194,8 @@ void PreferencesDialog::save() {
   // Check if any settings will require a restart of Olive
   if (olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
-      || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
+      || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()
+      || olive::CurrentConfig.style != static_cast<olive::styling::Style>(ui_style->currentData().toInt())) {
 
     // any changes to these settings will require a restart - ask the user if we should do one now or later
 
@@ -234,8 +235,10 @@ void PreferencesDialog::save() {
   }
 
   // save settings from UI to backend
-  olive::CurrentConfig.css_path = custom_css_fn->text();
-  olive::MainWindow->load_css_from_file(olive::CurrentConfig.css_path);
+  if (olive::CurrentConfig.css_path != custom_css_fn->text()) {
+    olive::CurrentConfig.css_path = custom_css_fn->text();
+    olive::MainWindow->Restyle();
+  }
 
   olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
   olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
@@ -254,6 +257,9 @@ void PreferencesDialog::save() {
   olive::CurrentConfig.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
 
+  olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
+
+  // Check if the thumbnail or waveform icon
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
     // we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
@@ -500,45 +506,12 @@ void PreferencesDialog::setup_ui() {
 
   row++;
 
-  // General -> Custom CSS
-  general_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0);
-
-  custom_css_fn = new QLineEdit(general_tab);
-  custom_css_fn->setText(olive::CurrentConfig.css_path);
-  general_layout->addWidget(custom_css_fn, row, 1, 1, 3);
-
-  QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
-  connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
-  general_layout->addWidget(custom_css_browse, row, 4);
-
-  row++;
-
   // General -> Image Sequence Formats
   general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0);
 
   imgSeqFormatEdit = new QLineEdit(general_tab);
 
   general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 4);
-
-  row++;
-
-  // General -> Audio Recording
-  general_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0);
-
-  recordingComboBox = new QComboBox(general_tab);
-  recordingComboBox->addItem(tr("Mono"));
-  recordingComboBox->addItem(tr("Stereo"));
-  general_layout->addWidget(recordingComboBox, row, 1, 1, 4);
-
-  row++;
-
-  // General -> Effect Textbox Lines
-  general_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0);
-
-  effect_textbox_lines_field = new QSpinBox(general_tab);
-  effect_textbox_lines_field->setMinimum(1);
-  effect_textbox_lines_field->setValue(olive::CurrentConfig.effect_textbox_lines);
-  general_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 4);
 
   row++;
 
@@ -582,6 +555,50 @@ void PreferencesDialog::setup_ui() {
   add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
   add_default_effects_to_clips->setChecked(olive::CurrentConfig.add_default_effects_to_clips);
   behavior_tab_layout->addWidget(add_default_effects_to_clips);
+
+  // Appearance
+  QWidget* appearance_tab = new QWidget(this);
+  tabWidget->addTab(appearance_tab, tr("Appearance"));
+
+  row = 0;
+
+  QGridLayout* appearance_layout = new QGridLayout(appearance_tab);
+
+  // Appearance -> Theme
+  appearance_layout->addWidget(new QLabel(tr("Theme")), row, 0);
+
+  ui_style = new QComboBox();
+  ui_style->addItem(tr("Olive Dark (Default)"), olive::styling::kOliveDefaultDark);
+  ui_style->addItem(tr("Olive Light"), olive::styling::kOliveDefaultLight);
+  ui_style->addItem(tr("Native"), olive::styling::kNativeDarkIcons);
+  ui_style->addItem(tr("Native (Light Icons)"), olive::styling::kNativeLightIcons);
+  ui_style->setCurrentIndex(olive::CurrentConfig.style);
+  appearance_layout->addWidget(ui_style, row, 1, 1, 2);
+
+  row++;
+
+  // Appearance -> Custom CSS
+  appearance_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0);
+
+  custom_css_fn = new QLineEdit(general_tab);
+  custom_css_fn->setText(olive::CurrentConfig.css_path);
+  appearance_layout->addWidget(custom_css_fn, row, 1);
+
+  QPushButton* custom_css_browse = new QPushButton(tr("Browse"), general_tab);
+  connect(custom_css_browse, SIGNAL(clicked(bool)), this, SLOT(browse_css_file()));
+  appearance_layout->addWidget(custom_css_browse, row, 2);
+
+  row++;
+
+  // Appearance -> Effect Textbox Lines
+  appearance_layout->addWidget(new QLabel(tr("Effect Textbox Lines:"), this), row, 0);
+
+  effect_textbox_lines_field = new QSpinBox(general_tab);
+  effect_textbox_lines_field->setMinimum(1);
+  effect_textbox_lines_field->setValue(olive::CurrentConfig.effect_textbox_lines);
+  appearance_layout->addWidget(effect_textbox_lines_field, row, 1, 1, 2);
+
+  row++;
 
   // Playback
   QWidget* playback_tab = new QWidget(this);
@@ -630,7 +647,11 @@ void PreferencesDialog::setup_ui() {
 
   QGridLayout* audio_tab_layout = new QGridLayout(audio_tab);
 
-  audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), 0, 0);
+  row = 0;
+
+  // Audio -> Output Device
+
+  audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), row, 0);
 
   audio_output_devices = new QComboBox();
   audio_output_devices->addItem(tr("Default"), "");
@@ -647,9 +668,13 @@ void PreferencesDialog::setup_ui() {
     }
   }
 
-  audio_tab_layout->addWidget(audio_output_devices, 0, 1);
+  audio_tab_layout->addWidget(audio_output_devices, row, 1);
 
-  audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), 1, 0);
+  row++;
+
+  // Audio -> Input Device
+
+  audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), row, 0);
 
   audio_input_devices = new QComboBox();
   audio_input_devices->addItem(tr("Default"), "");
@@ -666,9 +691,13 @@ void PreferencesDialog::setup_ui() {
     }
   }
 
-  audio_tab_layout->addWidget(audio_input_devices, 1, 1);
+  audio_tab_layout->addWidget(audio_input_devices, row, 1);
 
-  audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), 2, 0);
+  row++;
+
+  // Audio -> Sample Rate
+
+  audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), row, 0);
 
   audio_sample_rate = new QComboBox();
   combobox_audio_sample_rates(audio_sample_rate);
@@ -679,7 +708,19 @@ void PreferencesDialog::setup_ui() {
     }
   }
 
-  audio_tab_layout->addWidget(audio_sample_rate, 2, 1);
+  audio_tab_layout->addWidget(audio_sample_rate, row, 1);
+
+  row++;
+
+  // Audio -> Audio Recording
+  audio_tab_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0);
+
+  recordingComboBox = new QComboBox(general_tab);
+  recordingComboBox->addItem(tr("Mono"));
+  recordingComboBox->addItem(tr("Stereo"));
+  audio_tab_layout->addWidget(recordingComboBox, row, 1);
+
+  row++;
 
   tabWidget->addTab(audio_tab, tr("Audio"));
 

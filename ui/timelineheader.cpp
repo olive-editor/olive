@@ -28,6 +28,7 @@
 #include "project/media.h"
 #include "panels/viewer.h"
 #include "global/config.h"
+#include "global/global.h"
 #include "ui/menuhelper.h"
 #include "global/debug.h"
 
@@ -393,7 +394,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
       if (lineX > lastLineX+LINE_MIN_PADDING) {
         if (draw_text) {
-          p.setPen(Qt::white);
+          p.setPen(olive::styling::GetIconColor());
           p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
         }
 
@@ -419,7 +420,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
       in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
       int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
       p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
-      p.setPen(Qt::white);
+      p.setPen(olive::styling::GetIconColor());
       p.drawLine(in_x, 0, in_x, height());
       p.drawLine(out_x, 0, out_x, height());
     }

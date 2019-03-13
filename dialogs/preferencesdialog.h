@@ -93,6 +93,7 @@ private:
   QSpinBox* thumbnail_res_spinbox;
   QSpinBox* waveform_res_spinbox;
   QCheckBox* add_default_effects_to_clips;
+  QComboBox* ui_style;
 
   QVector<QAction*> key_shortcut_actions;
   QVector<QTreeWidgetItem*> key_shortcut_items;

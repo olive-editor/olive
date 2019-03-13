@@ -194,7 +194,6 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   first_show(true)
 {
-  olive::icon::Initialize();
   olive::cursor::Initialize();
 
   open_debug_file();
@@ -203,29 +202,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   olive::MainWindow = this;
 
-  // set up style?
-
-  qApp->setStyle(QStyleFactory::create("Fusion"));
-  setStyleSheet(DEFAULT_CSS);
-
-  QPalette darkPalette;
-  darkPalette.setColor(QPalette::Window, QColor(53,53,53));
-  darkPalette.setColor(QPalette::WindowText, Qt::white);
-  darkPalette.setColor(QPalette::Base, QColor(25,25,25));
-  darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-  darkPalette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
-  darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-  darkPalette.setColor(QPalette::Text, Qt::white);
-  darkPalette.setColor(QPalette::Button, QColor(53,53,53));
-  darkPalette.setColor(QPalette::ButtonText, Qt::white);	darkPalette.setColor(QPalette::BrightText, Qt::red);
-  darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
-  darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-  darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-  darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-
-  qApp->setPalette(darkPalette);
-
-  // end style
   QWidget* centralWidget = new QWidget(this);
   centralWidget->setMaximumSize(QSize(0, 0));
   setCentralWidget(centralWidget);
@@ -296,12 +272,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QString config_fn = config_dir.filePath("config.xml");
     if (QFileInfo::exists(config_fn)) {
       olive::CurrentConfig.load(config_fn);
-
-      if (!olive::CurrentConfig.css_path.isEmpty()) {
-        load_css_from_file(olive::CurrentConfig.css_path);
-      }
     }
   }
+
+  Restyle();
+
+  olive::icon::Initialize();
 
   alloc_panels(this);
 
@@ -413,14 +389,53 @@ void MainWindow::save_shortcuts(const QString& fn) {
   }
 }
 
-void MainWindow::load_css_from_file(const QString &fn) {
+bool MainWindow::load_css_from_file(const QString &fn) {
   QFile css_file(fn);
   if (css_file.exists() && css_file.open(QFile::ReadOnly)) {
     setStyleSheet(css_file.readAll());
     css_file.close();
+    return true;
+  }
+  return false;
+}
+
+void MainWindow::Restyle()
+{
+  // Set up UI style
+  if (olive::styling::UseNativeUI()) {
+    qApp->setStyle(QStyleFactory::create(""));
   } else {
-    // set default stylesheet
-    setStyleSheet(DEFAULT_CSS);
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    // Set up whether to load custom CSS or default CSS+palette
+    if (!olive::CurrentConfig.css_path.isEmpty()
+        && load_css_from_file(olive::CurrentConfig.css_path)) {
+
+      setPalette(QPalette());
+
+    } else {
+
+      // set default palette
+      QPalette darkPalette;
+      darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+      darkPalette.setColor(QPalette::WindowText, Qt::white);
+      darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+      darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+      darkPalette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
+      darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+      darkPalette.setColor(QPalette::Text, Qt::white);
+      darkPalette.setColor(QPalette::Button, QColor(53,53,53));
+      darkPalette.setColor(QPalette::ButtonText, Qt::white);
+      darkPalette.setColor(QPalette::BrightText, Qt::red);
+      darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
+      darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+      darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+      darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+      qApp->setPalette(darkPalette);
+
+      // set default CSS
+      setStyleSheet(DEFAULT_CSS);
+    }
   }
 }
 

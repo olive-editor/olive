@@ -170,7 +170,8 @@ SOURCES += \
     effects/fields/labelfield.cpp \
     effects/fields/buttonfield.cpp \
     ui/effectui.cpp \
-    effects/transition.cpp
+    effects/transition.cpp \
+    ui/styling.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -294,7 +295,8 @@ HEADERS += \
     effects/fields/buttonfield.h \
     effects/fields/colorfield.h \
     effects/fields/combofield.h \
-    effects/transition.h
+    effects/transition.h \
+    ui/styling.h
 
 FORMS +=
 

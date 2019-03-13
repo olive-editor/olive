@@ -85,6 +85,8 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
 
     olive::UndoStack.push(ca);
 
+    update_ui(false);
+
   } else {
 
     // Confirm with the user whether they really want to disable keyframing
@@ -105,7 +107,8 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
       ca->append(new SetIsKeyframing(this, false));
 
       olive::UndoStack.push(ca);
-      panel_effect_controls->update_keyframes();
+
+      update_ui(false);
 
     } else {
 

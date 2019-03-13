@@ -71,7 +71,8 @@ Config::Config()
     waveform_resolution(64),
     thumbnail_resolution(120),
     add_default_effects_to_clips(true),
-    invert_timeline_scroll_axes(true)
+    invert_timeline_scroll_axes(true),
+    style(olive::styling::kOliveDefaultDark)
 {}
 
 void Config::load(QString path) {
@@ -211,6 +212,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "AddDefaultEffectsToClips") {
           stream.readNext();
           add_default_effects_to_clips = (stream.text() == "1");
+        } else if (stream.name() == "Style") {
+          stream.readNext();
+          style = static_cast<olive::styling::Style>(stream.text().toInt());
         }
       }
     }
@@ -278,6 +282,7 @@ void Config::save(QString path) {
   stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
   stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
   stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
+  stream.writeTextElement("Style", QString::number(style));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc

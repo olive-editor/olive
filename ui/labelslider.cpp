@@ -25,6 +25,7 @@
 #include "global/config.h"
 #include "global/math.h"
 #include "global/debug.h"
+#include "ui/styling.h"
 
 #include <QMouseEvent>
 #include <QInputDialog>
@@ -119,7 +120,13 @@ QString LabelSlider::ValueToString() {
 }
 
 void LabelSlider::SetColor(QString c) {
-  if (c.isEmpty()) c = "#ffc000";
+  if (c.isEmpty()) {
+    if (olive::styling::UseDarkIcons()) {
+      c = "#0080ff";
+    } else {
+      c = "#ffc000";
+    }
+  }
   setStyleSheet("QLabel{color:" + c + ";text-decoration:underline;}QLabel:disabled{color:#808080;}");
 }
 

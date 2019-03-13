@@ -595,7 +595,7 @@ void Effect::save(QXmlStreamWriter& stream) {
       for (int j=0;j<row->FieldCount();j++) {
         EffectField* field = row->Field(j);
 
-        if (field->id().isEmpty()) {
+        if (!field->id().isEmpty()) {
           stream.writeStartElement("field"); // field
           stream.writeAttribute("id", field->id());
           for (int k=0;k<field->keyframes.size();k++) {
