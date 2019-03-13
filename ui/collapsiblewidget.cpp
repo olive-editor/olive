@@ -33,7 +33,7 @@
 #include "ui/checkboxex.h"
 #include "ui/icons.h"
 
-#include "debug.h"
+#include "global/debug.h"
 
 CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   selected = false;

@@ -26,6 +26,7 @@
 #include <QVector>
 
 #include "effects/keyframe.h"
+#include "undo/undo.h"
 
 class EffectRow;
 class ComboAction;

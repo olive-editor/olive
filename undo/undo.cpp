@@ -607,22 +607,6 @@ void KeyframeDelete::doRedo() {
   field->keyframes.removeAt(index);
 }
 
-/*
-EffectFieldUndo::EffectFieldUndo(EffectField* f, const QVariant& old_data, const QVariant new_data) :
-  field(f),
-  old_val(old_data),
-  new_val(new_data)
-{}
-
-void EffectFieldUndo::doUndo() {
-  field->SetCurrentValue(old_val);
-}
-
-void EffectFieldUndo::doRedo() {
-  field->SetCurrentValue(new_val);
-}
-*/
-
 SetClipProperty::SetClipProperty(SetClipPropertyType type) : type_(type)
 {}
 
@@ -1167,5 +1151,31 @@ void OliveAction::redo() {
     // set modified to true
     olive::MainWindow->setWindowModified(true);
 
+  }
+}
+
+KeyframeDataChange::KeyframeDataChange(EffectField *field) :
+  field_(field),
+  done_(true)
+{
+  old_keys_ = field_->keyframes;
+}
+
+void KeyframeDataChange::SetNewKeyframes()
+{
+  new_keys_ = field_->keyframes;
+}
+
+void KeyframeDataChange::doUndo()
+{
+  field_->keyframes = old_keys_;
+  done_ = false;
+}
+
+void KeyframeDataChange::doRedo()
+{
+  if (!done_) {
+    field_->keyframes = new_keys_;
+    done_ = true;
   }
 }

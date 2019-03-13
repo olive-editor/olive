@@ -1,5 +1,7 @@
 #include "icons.h"
 
+#include <QDebug>
+
 #include "global/global.h"
 #include "global/config.h"
 

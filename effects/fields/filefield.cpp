@@ -25,5 +25,10 @@ QWidget *FileField::CreateWidget()
 
 void FileField::UpdateFromWidget(const QString &s)
 {
+  KeyframeDataChange* kdc = new KeyframeDataChange(this);
+
   SetValueAt(Now(), s);
+
+  kdc->SetNewKeyframes();
+  olive::UndoStack.push(kdc);
 }

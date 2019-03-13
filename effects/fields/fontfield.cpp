@@ -54,5 +54,10 @@ void FontField::UpdateWidgetValue(QWidget *widget, double timecode)
 
 void FontField::UpdateFromWidget(const QString& s)
 {
+  KeyframeDataChange* kdc = new KeyframeDataChange(this);
+
   SetValueAt(Now(), s);
+
+  kdc->SetNewKeyframes();
+  olive::UndoStack.push(kdc);
 }

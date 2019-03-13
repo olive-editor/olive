@@ -48,5 +48,10 @@ QString BoolField::ConvertValueToString(const QVariant &v)
 
 void BoolField::UpdateFromWidget(bool b)
 {
+  KeyframeDataChange* kdc = new KeyframeDataChange(this);
+
   SetValueAt(Now(), b);
+
+  kdc->SetNewKeyframes();
+  olive::UndoStack.push(kdc);
 }

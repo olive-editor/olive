@@ -66,6 +66,8 @@ EffectUI::EffectUI(Effect* e) :
 
     KeyframeNavigator* nav = new KeyframeNavigator();
 
+    nav->enable_keyframes(row->IsKeyframing());
+
     connect(nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
     connect(nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));
     connect(nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));

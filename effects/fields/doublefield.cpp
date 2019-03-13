@@ -1,6 +1,6 @@
 #include "doublefield.h"
 
-#include <QDebug>
+#include "effects/effectrow.h"
 
 DoubleField::DoubleField(EffectRow* parent, const QString& id) :
   EffectField(parent, id, EFFECT_FIELD_DOUBLE),
@@ -9,7 +9,8 @@ DoubleField::DoubleField(EffectRow* parent, const QString& id) :
   default_(0),
   display_type_(LabelSlider::Normal),
   frame_rate_(30),
-  value_set_(false)
+  value_set_(false),
+  kdc_(nullptr)
 {
   connect(this, SIGNAL(Changed()), this, SLOT(ValueHasBeenSet()), Qt::DirectConnection);
 }
@@ -94,5 +95,18 @@ void DoubleField::ValueHasBeenSet()
 
 void DoubleField::UpdateFromWidget(double d)
 {
+  LabelSlider* ls = static_cast<LabelSlider*>(sender());
+
+  if (ls->IsDragging() && kdc_ == nullptr) {
+    kdc_ = new KeyframeDataChange(this);
+  }
+
   SetValueAt(Now(), d);
+  GetParentRow()->SetKeyframeOnAllFields(nullptr);
+
+  if (!ls->IsDragging() && kdc_ != nullptr) {
+    kdc_->SetNewKeyframes();
+    olive::UndoStack.push(kdc_);
+    kdc_ = nullptr;
+  }
 }

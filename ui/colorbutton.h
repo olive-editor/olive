@@ -42,15 +42,4 @@ private slots:
   void open_dialog();
 };
 
-class ColorCommand : public QUndoCommand {
-public:
-  ColorCommand(ColorButton* s, QColor o, QColor n);
-  void undo();
-  void redo();
-private:
-  ColorButton* sender;
-  QColor old_color;
-  QColor new_color;
-};
-
 #endif // COLORBUTTON_H

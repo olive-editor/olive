@@ -28,15 +28,30 @@
 #include <QVariant>
 #include <QModelIndex>
 
-#include "project/projectelements.h"
-#include "timeline/selection.h"
-#include "timeline/clip.h"
-#include "timeline/sequence.h"
-#include "effects/transition.h"
-#include "effects/effectfield.h"
+#include "comboaction.h"
 
-#include "ui/labelslider.h"
-#include "ui/sourcetable.h"
+#include "timeline/marker.h"
+#include "timeline/selection.h"
+#include "effects/keyframe.h"
+
+class Clip;
+using ClipPtr = std::shared_ptr<Clip>;
+
+class Sequence;
+using SequencePtr = std::shared_ptr<Sequence>;
+
+class Media;
+using MediaPtr = std::shared_ptr<Media>;
+
+class Effect;
+using EffectPtr = std::shared_ptr<Effect>;
+
+class Transition;
+using TransitionPtr = std::shared_ptr<Transition>;
+
+struct EffectMeta;
+class EffectRow;
+class EffectField;
 
 namespace olive {
 extern QUndoStack UndoStack;
@@ -334,18 +349,6 @@ private:
   bool done;
 };
 
-class EffectFieldUndo : public OliveAction {
-public:
-  EffectFieldUndo(EffectField* field, const QVariant &old_data, const QVariant new_data);
-  virtual void doUndo() override;
-  virtual void doRedo() override;
-private:
-  EffectField* field;
-  QVariant old_val;
-  QVariant new_val;
-  bool done;
-};
-
 enum SetClipPropertyType {
   kSetClipPropertyAutoscale,
   kSetClipPropertyReversed,
@@ -618,6 +621,22 @@ private:
   Effect* effect;
   QByteArray data;
   QByteArray old_data;
+};
+
+class KeyframeDataChange : public OliveAction {
+public:
+  KeyframeDataChange(EffectField* field);
+
+  void SetNewKeyframes();
+
+  virtual void doUndo() override;
+  virtual void doRedo() override;
+
+private:
+  EffectField* field_;
+  QVector<EffectKeyframe> old_keys_;
+  QVector<EffectKeyframe> new_keys_;
+  bool done_;
 };
 
 #endif // UNDO_H

@@ -183,8 +183,32 @@ void EffectRow::ToggleKeyframe() {
   } else {
 
     // If we DID find keyframes at this time, delete them
-    for (int i=0;i<key_fields.size();i++) {
-      ca->append(new KeyframeDelete(key_fields.at(i), key_field_index.at(i)));
+
+    QVector<EffectField*> sorted_key_fields;
+    QVector<int> sorted_key_field_index;
+
+    // Since QVectors shift themselves when removing items, we need to sort these in reverse order
+    for (int i=0;i<key_field_index.size();i++) {
+      bool found = false;
+
+      for (int j=0;j<sorted_key_field_index.size();j++) {
+        if (sorted_key_field_index.at(j) < key_field_index.at(i)) {
+          sorted_key_fields.insert(j, key_fields.at(i));
+          sorted_key_field_index.insert(j, key_field_index.at(i));
+
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        sorted_key_fields.append(key_fields.at(i));
+        sorted_key_field_index.append(key_field_index.at(i));
+      }
+    }
+
+    for (int i=0;i<sorted_key_fields.size();i++) {
+      ca->append(new KeyframeDelete(sorted_key_fields.at(i), sorted_key_field_index.at(i)));
     }
 
   }
@@ -215,7 +239,13 @@ void EffectRow::FocusRow() {
 void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
   for (int i=0;i<FieldCount();i++) {
     EffectField* field = Field(i);
+
+    KeyframeDataChange* kdc = new KeyframeDataChange(field);
+
     field->SetValueAt(field->Now(), field->GetValueAt(field->Now()));
+
+    kdc->SetNewKeyframes();
+    ca->append(kdc);
   }
 
   panel_effect_controls->update_keyframes();

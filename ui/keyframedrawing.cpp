@@ -20,8 +20,8 @@
 
 #include "keyframedrawing.h"
 
-#include "project/effect.h"
-#include "project/clip.h"
+#include "effects/effect.h"
+#include "timeline/clip.h"
 
 #define KEYFRAME_POINT_COUNT 4
 

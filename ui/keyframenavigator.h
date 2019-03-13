@@ -34,6 +34,7 @@ public:
   ~KeyframeNavigator();
 
   void enable_keyframe_toggle(bool);
+public slots:
   void enable_keyframes(bool);
 signals:
   void goto_previous_key();

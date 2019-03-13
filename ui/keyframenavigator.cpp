@@ -24,6 +24,7 @@
 #include <QPushButton>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QDebug>
 
 #include "ui/icons.h"
 

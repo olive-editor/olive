@@ -20,8 +20,6 @@
 
 #include "colorbutton.h"
 
-#include "project/undo.h"
-
 #include <QColorDialog>
 
 ColorButton::ColorButton(QWidget *parent)
@@ -57,15 +55,4 @@ void ColorButton::open_dialog() {
     set_button_color();
     emit color_changed(color);
   }
-}
-
-ColorCommand::ColorCommand(ColorButton* s, QColor o, QColor n)
-  : sender(s), old_color(o), new_color(n) {}
-
-void ColorCommand::undo() {
-  sender->set_color(old_color);
-}
-
-void ColorCommand::redo() {
-  sender->set_color(new_color);
 }

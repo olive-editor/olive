@@ -42,7 +42,6 @@
 
 #include "ui/collapsiblewidget.h"
 #include "ui/checkboxex.h"
-#include "effectfields.h"
 #include "effectrow.h"
 #include "effectgizmo.h"
 

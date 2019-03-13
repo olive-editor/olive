@@ -42,5 +42,10 @@ QString ColorField::ConvertValueToString(const QVariant &v)
 
 void ColorField::UpdateFromWidget(const QColor& c)
 {
+  KeyframeDataChange* kdc = new KeyframeDataChange(this);
+
   SetValueAt(Now(), c);
+
+  kdc->SetNewKeyframes();
+  olive::UndoStack.push(kdc);
 }

@@ -25,15 +25,15 @@
 #include <QScrollBar>
 #include <QEvent>
 
-#include "debug.h"
+#include "global/debug.h"
 
 DebugDialog* olive::DebugDialog = nullptr;
 
 DebugDialog::DebugDialog(QWidget *parent) : QDialog(parent) {
-	QVBoxLayout* layout = new QVBoxLayout(this);
+  QVBoxLayout* layout = new QVBoxLayout(this);
 
-	textEdit = new QTextEdit(this);
-	textEdit->setWordWrapMode(QTextOption::NoWrap);
+  textEdit = new QTextEdit(this);
+  textEdit->setWordWrapMode(QTextOption::NoWrap);
   layout->addWidget(textEdit);
 
   Retranslate();
@@ -45,7 +45,7 @@ void DebugDialog::Retranslate()
 }
 
 void DebugDialog::update_log() {
-	textEdit->setHtml(get_debug_str());
+  textEdit->setHtml(get_debug_str());
   textEdit->verticalScrollBar()->setValue(textEdit->verticalScrollBar()->maximum());
 }
 
@@ -59,5 +59,5 @@ void DebugDialog::changeEvent(QEvent *e)
 }
 
 void DebugDialog::showEvent(QShowEvent *) {
-	update_log();
+  update_log();
 }

@@ -41,5 +41,10 @@ void StringField::UpdateWidgetValue(QWidget *widget, double timecode)
 
 void StringField::UpdateFromWidget(const QString &s)
 {
+  KeyframeDataChange* kdc = new KeyframeDataChange(this);
+
   SetValueAt(Now(), s);
+
+  kdc->SetNewKeyframes();
+  olive::UndoStack.push(kdc);
 }

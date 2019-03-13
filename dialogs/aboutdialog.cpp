@@ -24,7 +24,7 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 
-#include "oliveglobal.h"
+#include "global/global.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
   QDialog(parent)

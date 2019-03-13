@@ -54,5 +54,10 @@ void ComboField::UpdateWidgetValue(QWidget *widget, double timecode)
 
 void ComboField::UpdateFromWidget(int index)
 {
+  KeyframeDataChange* kdc = new KeyframeDataChange(this);
+
   SetValueAt(Now(), items_.at(index).data);
+
+  kdc->SetNewKeyframes();
+  olive::UndoStack.push(kdc);
 }
