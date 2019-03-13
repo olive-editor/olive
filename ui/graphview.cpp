@@ -38,7 +38,6 @@
 #include "ui/rectangleselect.h"
 #include "global/debug.h"
 
-
 const double kGraphZoomSpeed = 0.05;
 const int kGraphSize = 100;
 const int kBezierHandleSize = 3;

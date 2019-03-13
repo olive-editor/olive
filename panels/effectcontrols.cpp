@@ -273,11 +273,6 @@ void EffectControls::Clear(bool clear_cache) {
   // clear existing clips
   deselect_all_effects(nullptr);
 
-  // clear graph editor
-  if (panel_graph_editor != nullptr) {
-    panel_graph_editor->set_row(nullptr);
-  }
-
   for (int i=0;i<open_effects_.size();i++) {
     delete open_effects_.at(i);
   }
@@ -593,6 +588,8 @@ void EffectControls::SetClips(const QVector<Clip*> &clips, int mode)
 }
 
 void EffectControls::Load() {
+  bool graph_editor_row_is_still_active = false;
+
   // load in new clips
   for (int i=0;i<selected_clips_.size();i++) {
     Clip* c = selected_clips_.at(i);
@@ -610,6 +607,18 @@ void EffectControls::Load() {
     if (mode_ == kTransitionNone) {
       for (int j=0;j<c->effects.size();j++) {
         open_effect(layout, c->effects.at(j).get());
+
+        // Check if one of the open effects contains the row currently active in the graph editor. If not, we'll have
+        // to clear the graph editor later.
+        if (!graph_editor_row_is_still_active) {
+          for (int k=0;k<c->effects.at(j)->row_count();k++) {
+            EffectRow* row = c->effects.at(j)->row(k);
+            if (row == panel_graph_editor->get_row()) {
+              graph_editor_row_is_still_active = true;
+              break;
+            }
+          }
+        }
       }
     } else if (mode_ == kTransitionOpening && c->opening_transition != nullptr) {
       open_effect(layout, c->opening_transition.get());
@@ -626,6 +635,11 @@ void EffectControls::Load() {
     headers->setVisible(true);
 
     QTimer::singleShot(50, this, SLOT(queue_post_update()));
+  }
+
+  // If the graph editor's currently active row is not part of the current effects, clear it
+  if (!graph_editor_row_is_still_active) {
+    panel_graph_editor->set_row(nullptr);
   }
 
   UpdateTitle();

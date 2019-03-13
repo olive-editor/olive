@@ -37,8 +37,10 @@ class GraphEditor : public Panel {
 public:
   GraphEditor(QWidget* parent = nullptr);
 
-  void update_panel();
+  EffectRow* get_row();
   void set_row(EffectRow* r);
+
+  void update_panel();
   bool view_is_focused();
   bool view_is_under_mouse();
   void delete_selected_keys();
@@ -50,9 +52,8 @@ private:
   GraphView* view;
   TimelineHeader* header;
   QHBoxLayout* value_layout;
-  QVector<LabelSlider*> slider_proxies;
-  QVector<QPushButton*> slider_proxy_buttons;
-  QVector<LabelSlider*> slider_proxy_sources;
+  QVector<LabelSlider*> field_sliders_;
+  QVector<QPushButton*> field_enable_buttons;
   QLabel* current_row_desc;
   EffectRow* row;
   KeyframeNavigator* keyframe_nav;
@@ -61,7 +62,6 @@ private:
   QPushButton* hold_button;
 private slots:
   void set_key_button_enabled(bool e, int type);
-  void passthrough_slider_value();
   void set_keyframe_type();
   void set_field_visibility(bool b);
 };

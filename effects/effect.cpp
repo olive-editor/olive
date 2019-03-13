@@ -339,6 +339,16 @@ Effect::~Effect() {
   if (isOpen) {
     close();
   }
+
+  // Clear graph editor if it's using one of these rows
+  if (panel_graph_editor != nullptr) {
+    for (int i=0;i<row_count();i++) {
+      if (row(i) == panel_graph_editor->get_row()) {
+        panel_graph_editor->set_row(nullptr);
+        break;
+      }
+    }
+  }
 }
 
 void Effect::AddRow(EffectRow *row)
