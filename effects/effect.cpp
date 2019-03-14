@@ -540,15 +540,13 @@ void Effect::load(QXmlStreamReader& stream) {
               EffectField* field = row->Field(field_number);
 
               // get current field value
-              /*
               for (int k=0;k<stream.attributes().size();k++) {
                 const QXmlStreamAttribute& attr = stream.attributes().at(k);
                 if (attr.name() == "value") {
-                  field->SetCurrentValue(field->GetValueFromString(attr.value().toString()));
+                  field->persistent_data_ = field->ConvertStringToValue(attr.value().toString());
                   break;
                 }
               }
-              */
 
               while (!stream.atEnd() && !(stream.name() == "field" && stream.isEndElement())) {
                 stream.readNext();
@@ -609,6 +607,7 @@ void Effect::save(QXmlStreamWriter& stream) {
         if (!field->id().isEmpty()) {
           stream.writeStartElement("field"); // field
           stream.writeAttribute("id", field->id());
+          stream.writeAttribute("value", field->ConvertValueToString(field->persistent_data_));
           for (int k=0;k<field->keyframes.size();k++) {
             const EffectKeyframe& key = field->keyframes.at(k);
             stream.writeStartElement("key");

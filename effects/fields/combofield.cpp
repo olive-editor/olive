@@ -45,6 +45,8 @@ void ComboField::UpdateWidgetValue(QWidget *widget, double timecode)
       cb->blockSignals(true);
       cb->setCurrentIndex(i);
       cb->blockSignals(false);
+
+      emit DataChanged(data);
       return;
     }
   }

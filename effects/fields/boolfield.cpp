@@ -34,6 +34,8 @@ void BoolField::UpdateWidgetValue(QWidget *widget, double timecode)
   cb->setChecked(GetBoolAt(timecode));
 
   cb->blockSignals(false);
+
+  emit Toggled(cb->isChecked());
 }
 
 QVariant BoolField::ConvertStringToValue(const QString &s)

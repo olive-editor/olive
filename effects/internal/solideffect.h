@@ -39,7 +39,7 @@ public:
 
   void SetType(SolidType type);
 private slots:
-  void ui_update(int);
+  void ui_update(const QVariant &d);
 private:
   ComboField* solid_type;
   ColorField* solid_color_field;

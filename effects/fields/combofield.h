@@ -20,7 +20,7 @@ public:
   virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
 
 signals:
-  void IndexChanged(int i);
+  void DataChanged(const QVariant&);
 
 private:
   QVector<ComboFieldItem> items_;

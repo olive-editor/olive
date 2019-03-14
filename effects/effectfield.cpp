@@ -241,7 +241,9 @@ void EffectField::SetValueAt(double time, const QVariant &value)
     }
 
   } else {
+
     persistent_data_ = value;
+
   }
 
   emit Changed();

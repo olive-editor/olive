@@ -1,6 +1,7 @@
 #include "stringfield.h"
 
 #include <QtMath>
+#include <QDebug>
 
 #include "ui/texteditex.h"
 #include "global/config.h"

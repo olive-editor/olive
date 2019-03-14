@@ -61,7 +61,7 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
   checkerboard_size_field->SetMinimum(1);
   checkerboard_size_field->SetDefault(10);
 
-  connect(solid_type, SIGNAL(IndexChanged(int)), this, SLOT(ui_update(int)));
+  connect(solid_type, SIGNAL(DataChanged(const QVariant&)), this, SLOT(ui_update(const QVariant&)));
 
   // Set default UI
   solid_type->SetValueAt(0, SOLID_TYPE_COLOR);
@@ -202,7 +202,9 @@ void SolidEffect::SetType(SolidEffect::SolidType type)
   solid_type->SetValueAt(0, type);
 }
 
-void SolidEffect::ui_update(int i) {
+void SolidEffect::ui_update(const QVariant& d) {
+  int i = d.toInt();
+
   solid_color_field->SetEnabled(i == SOLID_TYPE_COLOR || i == SOLID_TYPE_CHECKERBOARD);
   checkerboard_size_field->SetEnabled(i == SOLID_TYPE_CHECKERBOARD);
 }
