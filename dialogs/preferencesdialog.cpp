@@ -534,7 +534,7 @@ void PreferencesDialog::setup_ui() {
   general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0);
 
   imgSeqFormatEdit = new QLineEdit(general_tab);
-
+  imgSeqFormatEdit->setText(olive::CurrentConfig.img_seq_formats);
   general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 4);
 
   row++;
@@ -545,6 +545,7 @@ void PreferencesDialog::setup_ui() {
   recordingComboBox = new QComboBox(general_tab);
   recordingComboBox->addItem(tr("Mono"));
   recordingComboBox->addItem(tr("Stereo"));
+  recordingComboBox->setCurrentIndex(olive::CurrentConfig.recording_mode - 1);
   general_layout->addWidget(recordingComboBox, row, 1, 1, 4);
 
   row++;
