@@ -453,8 +453,6 @@ void ExportThread::run() {
 
         swr_frame->pts = file_audio_samples;
 
-        qDebug() << swr_frame->nb_samples << acodec_ctx->frame_size;
-
         // send to encoder
         if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) continueEncode = false;
 
