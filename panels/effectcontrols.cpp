@@ -133,18 +133,7 @@ void EffectControls::menu_select(QAction* q) {
 void EffectControls::update_keyframes() {
   for (int i=0;i<open_effects_.size();i++) {
     EffectUI* ui = open_effects_.at(i);
-    Effect* effect = ui->GetEffect();
-
-    for (int j=0;j<effect->row_count();j++) {
-
-      EffectRow* row = effect->row(j);
-
-      for (int k=0;k<row->FieldCount();k++) {
-        EffectField* field = row->Field(k);
-
-        field->UpdateWidgetValue(ui->Widget(j, k), field->Now());
-      }
-    }
+    ui->UpdateFromEffect();
   }
 
   headers->update_zoom(zoom);
@@ -607,7 +596,20 @@ void EffectControls::Load() {
 
     if (mode_ == kTransitionNone) {
       for (int j=0;j<c->effects.size();j++) {
-        open_effect(layout, c->effects.at(j).get());
+
+        // Check if we've already opened an effect of this type before
+        bool already_opened = false;
+        for (int k=0;k<open_effects_.size();k++) {
+          if (open_effects_.at(k)->GetEffect()->meta == c->effects.at(j)->meta) {
+            open_effects_.at(k)->AddAdditionalEffect(c->effects.at(j).get());
+            already_opened = true;
+            break;
+          }
+        }
+
+        if (!already_opened) {
+          open_effect(layout, c->effects.at(j).get());
+        }
 
         // Check if one of the open effects contains the row currently active in the graph editor. If not, we'll have
         // to clear the graph editor later.

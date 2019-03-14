@@ -83,6 +83,11 @@ EffectUI::EffectUI(Effect* e) :
   connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(FieldChanged()));
 }
 
+void EffectUI::AddAdditionalEffect(Effect *e)
+{
+  additional_effects_.append(e);
+}
+
 Effect *EffectUI::GetEffect()
 {
   return effect_;
@@ -94,6 +99,47 @@ int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
       + row_label->height() / 2
       + mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y()
       - title_bar->height();
+}
+
+void EffectUI::UpdateFromEffect()
+{
+  Effect* effect = GetEffect();
+
+  for (int j=0;j<effect->row_count();j++) {
+
+    EffectRow* row = effect->row(j);
+
+    for (int k=0;k<row->FieldCount();k++) {
+      EffectField* field = row->Field(k);
+
+      // Check if this UI object is attached to one effect or many
+      if (additional_effects_.isEmpty()) {
+
+        field->UpdateWidgetValue(Widget(j, k), field->Now());
+
+      } else {
+
+        bool same_value = true;
+
+        for (int i=0;i<additional_effects_.size();i++) {
+          EffectField* previous_field = i > 0 ? additional_effects_.at(i-1)->row(j)->Field(k) : field;
+          EffectField* additional_field = additional_effects_.at(i)->row(j)->Field(k);
+
+          if (additional_field->GetValueAt(additional_field->Now()) != previous_field->GetValueAt(previous_field->Now())) {
+            same_value = false;
+            break;
+          }
+        }
+
+        if (same_value) {
+          field->UpdateWidgetValue(Widget(j, k), field->Now());
+        } else {
+          field->UpdateWidgetValue(Widget(j, k), qSNaN());
+        }
+
+      }
+    }
+  }
 }
 
 QWidget *EffectUI::Widget(int row, int field)

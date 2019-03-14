@@ -31,7 +31,13 @@ void BoolField::UpdateWidgetValue(QWidget *widget, double timecode)
 
   cb->blockSignals(true);
 
-  cb->setChecked(GetBoolAt(timecode));
+  if (qIsNaN(timecode)) {
+    cb->setTristate(true);
+    cb->setCheckState(Qt::PartiallyChecked);
+  } else {
+    cb->setTristate(false);
+    cb->setChecked(GetBoolAt(timecode));
+  }
 
   cb->blockSignals(false);
 

@@ -86,7 +86,11 @@ QWidget *DoubleField::CreateWidget()
 
 void DoubleField::UpdateWidgetValue(QWidget *widget, double timecode)
 {
-  static_cast<LabelSlider*>(widget)->SetValue(GetDoubleAt(timecode));
+  if (qIsNaN(timecode)) {
+    static_cast<LabelSlider*>(widget)->SetValue(qSNaN());
+  } else {
+    static_cast<LabelSlider*>(widget)->SetValue(GetDoubleAt(timecode));
+  }
 }
 
 void DoubleField::ValueHasBeenSet()

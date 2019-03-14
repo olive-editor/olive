@@ -179,9 +179,6 @@ void RichTextEffect::redraw(double timecode)
 
     p.translate(-shadow_x_offset, -shadow_y_offset);
     clip_rect.translate(shadow_x_offset, shadow_y_offset);
-
-
-
   }
 
   td.drawContents(&p, clip_rect);
