@@ -173,7 +173,8 @@ SOURCES += \
     effects/transition.cpp \
     ui/styling.cpp \
     undo/undostack.cpp \
-    effects/internal/richtexteffect.cpp
+    effects/internal/richtexteffect.cpp \
+    ui/blur.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -300,7 +301,8 @@ HEADERS += \
     effects/transition.h \
     ui/styling.h \
     undo/undostack.h \
-    effects/internal/richtexteffect.h
+    effects/internal/richtexteffect.h \
+    ui/blur.h
 
 FORMS +=
 

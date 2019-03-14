@@ -33,13 +33,8 @@ QColor ColorButton::get_color() {
 }
 
 void ColorButton::set_color(QColor c) {
-  previousColor = color;
   color = c;
   set_button_color();
-}
-
-const QColor &ColorButton::getPreviousValue() {
-  return previousColor;
 }
 
 void ColorButton::set_button_color() {

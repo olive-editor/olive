@@ -42,12 +42,7 @@ const QString &EmbeddedFileChooser::getFilename() {
   return filename;
 }
 
-const QString &EmbeddedFileChooser::getPreviousValue() {
-  return old_filename;
-}
-
 void EmbeddedFileChooser::setFilename(const QString &s) {
-  old_filename = filename;
   filename = s;
   update_label();
   emit changed(filename);

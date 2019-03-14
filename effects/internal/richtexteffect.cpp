@@ -1,8 +1,10 @@
 #include "richtexteffect.h"
 
 #include <QTextDocument>
+#include <QtMath>
 
 #include "timeline/clip.h"
+#include "ui/blur.h"
 
 enum AutoscrollDirection {
   SCROLL_OFF,
@@ -46,6 +48,34 @@ RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em) :
   autoscroll->AddItem(tr("Right"), SCROLL_RIGHT);
   autoscroll->SetColumnSpan(2);
 
+  EffectRow* shadow_row = new EffectRow(this, tr("Shadow"));
+  shadow_bool = new BoolField(shadow_row, "shadow");
+  shadow_bool->SetColumnSpan(2);
+
+  EffectRow* shadow_color_row = new EffectRow(this, tr("Shadow Color"));
+  shadow_color = new ColorField(shadow_color_row, "shadowcolor");
+  shadow_color->SetColumnSpan(2);
+
+  EffectRow* shadow_angle_row = new EffectRow(this, tr("Shadow Angle"));
+  shadow_angle = new DoubleField(shadow_angle_row, "shadowangle");
+  shadow_angle->SetColumnSpan(2);
+
+  EffectRow* shadow_distance_row = new EffectRow(this, tr("Shadow Distance"));
+  shadow_distance = new DoubleField(shadow_distance_row, "shadowdistance");
+  shadow_distance->SetColumnSpan(2);
+  shadow_distance->SetMinimum(0);
+
+  EffectRow* shadow_softness_row = new EffectRow(this, tr("Shadow Softness"));
+  shadow_softness = new DoubleField(shadow_softness_row, "shadowsoftness");
+  shadow_softness->SetColumnSpan(2);
+  shadow_softness->SetMinimum(0);
+
+  EffectRow* shadow_opacity_row = new EffectRow(this, tr("Shadow Opacity"));
+  shadow_opacity = new DoubleField(shadow_opacity_row, "shadowopacity");
+  shadow_opacity->SetColumnSpan(2);
+  shadow_opacity->SetMinimum(0);
+  shadow_opacity->SetMaximum(100);
+
   // Create default text
   text_val->SetValueAt(0, "<html>"
                             "<body style=\"color: #ffffff; font-size: 36pt;\">"
@@ -60,8 +90,6 @@ void RichTextEffect::redraw(double timecode)
   p.setRenderHint(QPainter::Antialiasing);
   int width = img.width();
   int height = img.height();
-
-  img.fill(Qt::transparent);
 
   int padding = qRound(padding_field->GetDoubleAt(timecode));
 
@@ -79,7 +107,7 @@ void RichTextEffect::redraw(double timecode)
 
   AutoscrollDirection auto_scroll_dir = static_cast<AutoscrollDirection>(autoscroll->GetValueAt(timecode).toInt());
 
-  double scroll_progress;
+  double scroll_progress = 0;
 
   if (auto_scroll_dir != SCROLL_OFF) {
     double clip_length_secs = double(parent_clip->length()) / parent_clip->media_frame_rate();
@@ -102,7 +130,7 @@ void RichTextEffect::redraw(double timecode)
         scroll_progress = 1.0 - scroll_progress;
       }
 
-      int doc_width = td.size().width();
+      int doc_width = qRound(td.size().width());
       translate_x += qRound(-doc_width + (img.width() + doc_width) * scroll_progress);
     }
 
@@ -114,7 +142,7 @@ void RichTextEffect::redraw(double timecode)
       scroll_progress = 1.0 - scroll_progress;
     }
 
-    translate_y += qRound(-doc_height + (height + doc_height)*scroll_progress);
+    translate_y += qRound(-doc_height + (img.height() + doc_height)*scroll_progress);
 
   }
 
@@ -122,8 +150,43 @@ void RichTextEffect::redraw(double timecode)
   clip_rect.translate(-translate_x, -translate_y);
   p.translate(translate_x, translate_y);
 
+  img.fill(Qt::transparent);
+
+  // draw software shadow
+  if (shadow_bool->GetBoolAt(timecode)) {
+
+    // calculate offset using distance and angle
+    double angle = shadow_angle->GetDoubleAt(timecode) * M_PI / 180.0;
+    double distance = qFloor(shadow_distance->GetDoubleAt(timecode));
+    int shadow_x_offset = qRound(qCos(angle) * distance);
+    int shadow_y_offset = qRound(qSin(angle) * distance);
+
+    p.translate(shadow_x_offset, shadow_y_offset);
+    clip_rect.translate(-shadow_x_offset, -shadow_y_offset);
+
+    td.drawContents(&p, clip_rect);
+
+    int blurSoftness = qFloor(shadow_softness->GetDoubleAt(timecode));
+    if (blurSoftness > 0) {
+      olive::ui::blur(img, img.rect(), blurSoftness, true);
+    }
+
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+    p.fillRect(img.rect(), shadow_color->GetColorAt(timecode));
+
+    p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+    p.translate(-shadow_x_offset, -shadow_y_offset);
+    clip_rect.translate(shadow_x_offset, shadow_y_offset);
+
+
+
+  }
 
   td.drawContents(&p, clip_rect);
+
+  p.end();
 }
 
 bool RichTextEffect::AlwaysUpdate()

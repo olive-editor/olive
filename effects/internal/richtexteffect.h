@@ -17,6 +17,13 @@ private:
   DoubleField* position_y;
   ComboField* vertical_align;
   ComboField* autoscroll;
+
+  BoolField* shadow_bool;
+  DoubleField* shadow_angle;
+  DoubleField* shadow_distance;
+  ColorField* shadow_color;
+  DoubleField* shadow_softness;
+  DoubleField* shadow_opacity;
 };
 
 #endif // RICHTEXTEFFECT_H

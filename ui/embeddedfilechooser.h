@@ -31,14 +31,12 @@ public:
   EmbeddedFileChooser(QWidget* parent = 0);
 
   const QString& getFilename();
-  const QString& getPreviousValue();
   void setFilename(const QString& s);
 signals:
   void changed(const QString& s);
 private:
   QLabel* file_label;
   QString filename;
-  QString old_filename;
   void update_label();
 private slots:
   void browse();

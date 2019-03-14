@@ -373,6 +373,9 @@ void Effect::copy_field_keyframes(EffectPtr e) {
 
       // Copy keyframes between effects
       copy_field->keyframes = field->keyframes;
+
+      // Copy persistet data between effects
+      copy_field->persistent_data_ = field->persistent_data_;
     }
   }
 }

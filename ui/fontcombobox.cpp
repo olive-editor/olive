@@ -30,11 +30,6 @@ FontCombobox::FontCombobox(QWidget* parent) : QComboBox(parent) {
   connect(this, SIGNAL(currentTextChanged(QString)), this, SLOT(updateInternals()));
 }
 
-const QString& FontCombobox::getPreviousValue() {
-  return previousValue;
-}
-
 void FontCombobox::updateInternals() {
-  previousValue = value;
   value = currentText();
 }

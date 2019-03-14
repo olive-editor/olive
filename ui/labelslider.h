@@ -160,7 +160,6 @@ private:
   double default_value;
   double internal_value;
   double drag_start_value;
-  double previous_value;
 
   int decimal_places;
 

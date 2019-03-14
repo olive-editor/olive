@@ -245,8 +245,6 @@ void LabelSlider::mouseReleaseEvent(QMouseEvent*) {
 
       drag_proc = false;
 
-      previous_value = drag_start_value;
-
       emit valueChanged(internal_value);
 
     } else {

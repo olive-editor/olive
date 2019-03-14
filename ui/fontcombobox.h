@@ -26,12 +26,10 @@
 class FontCombobox : public QComboBox {
   Q_OBJECT
 public:
-  FontCombobox(QWidget* parent = 0);
-  const QString &getPreviousValue();
+  FontCombobox(QWidget* parent = nullptr);
 private slots:
   void updateInternals();
 private:
-  QString previousValue;
   QString value;
 };
 
