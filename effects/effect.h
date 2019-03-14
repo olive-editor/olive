@@ -233,8 +233,8 @@ protected:
   QImage img;
   QOpenGLTexture* texture;
 
-  bool AlwaysUpdate();
-  void SetAlwaysUpdate(bool b);
+  // enable effect to update constantly
+  virtual bool AlwaysUpdate();
 
 private:
   bool isOpen;
@@ -248,9 +248,6 @@ private:
   int flags_;
 
   QVector<KeyframeDataChange*> gizmo_dragging_actions_;
-
-  // enable effect to update constantly
-  bool enable_always_update_;
 
   // superimpose functions
   virtual void redraw(double timecode);

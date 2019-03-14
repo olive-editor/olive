@@ -24,6 +24,7 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QIcon>
+#include <QTimer>
 #include <QDebug>
 
 #include "ui/icons.h"
@@ -166,7 +167,9 @@ TextEditDialog::TextEditDialog(QWidget *parent, const QString &s, bool rich_text
     textEdit->setPlainText(s);
   }
 
-  UpdateUIFromTextCursor();
+  // Helps ensure the UI elements update correctly at the beginning - when the cursor is at the start, the UI elements
+  // show up blank...
+  textEdit->moveCursor(QTextCursor::End);
 }
 
 const QString& TextEditDialog::get_string() {

@@ -79,8 +79,8 @@ EffectUI::EffectUI(Effect* e) :
   }
 
   enabled_check->setChecked(e->IsEnabled());
-  connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(FieldChanged()));
   connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(SetEnabled(bool)));
+  connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(FieldChanged()));
 }
 
 Effect *EffectUI::GetEffect()

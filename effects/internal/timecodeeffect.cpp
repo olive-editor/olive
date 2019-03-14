@@ -46,7 +46,6 @@
 TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   Effect(c, em)
 {
-  SetAlwaysUpdate(true);
   SetFlags(Effect::SuperimposeFlag);
 
   EffectRow* tc_row = new EffectRow(this, tr("Timecode"));
@@ -137,4 +136,9 @@ void TimecodeEffect::redraw(double timecode) {
   p.drawRect(QRect(text_x-fm.descent(), rect_y, text_width+fm.descent()*2, text_height));
   p.setBrush(color_val->GetColorAt(timecode));
   p.drawPath(path);
+}
+
+bool TimecodeEffect::AlwaysUpdate()
+{
+  return true;
 }

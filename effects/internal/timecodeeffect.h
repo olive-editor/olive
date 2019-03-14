@@ -29,20 +29,23 @@
 class TimecodeEffect : public Effect {
   Q_OBJECT
 public:
-    TimecodeEffect(Clip* c, const EffectMeta *em);
-    void redraw(double timecode);
-    DoubleField* scale_val;
-    ColorField* color_val;
-    ColorField* color_bg_val;
-    DoubleField* bg_alpha;
-    DoubleField* offset_x_val;
-    DoubleField* offset_y_val;
-    StringField* prepend_text;
-    ComboField* tc_select;
+  TimecodeEffect(Clip* c, const EffectMeta *em);
+  void redraw(double timecode);
+  DoubleField* scale_val;
+  ColorField* color_val;
+  ColorField* color_bg_val;
+  DoubleField* bg_alpha;
+  DoubleField* offset_x_val;
+  DoubleField* offset_y_val;
+  StringField* prepend_text;
+  ComboField* tc_select;
+
+protected:
+  virtual bool AlwaysUpdate() override;
 
 private:
-    QFont font;
-    QString display_timecode;
+  QFont font;
+  QString display_timecode;
 };
 
 #endif // TIMECODEEFFECT_H

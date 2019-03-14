@@ -121,7 +121,6 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   flags_(0),
   glslProgram(nullptr),
   texture(nullptr),
-  enable_always_update_(false),
   isOpen(false),
   bound(false),
   iterations(1)
@@ -489,12 +488,7 @@ void Effect::load_from_file() {
 
 bool Effect::AlwaysUpdate()
 {
-  return enable_always_update_;
-}
-
-void Effect::SetAlwaysUpdate(bool b)
-{
-  enable_always_update_ = b;
+  return false;
 }
 
 bool Effect::IsEnabled() {
