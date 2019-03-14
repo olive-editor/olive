@@ -400,14 +400,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           coords.blendmode = -1;
           coords.opacity = 1.0;
 
-          // if auto-scale is enabled, auto-scale the clip
-          if (c->autoscaled() && (video_width != s->width && video_height != s->height)) {
-            float width_multiplier = float(s->width) / float(video_width);
-            float height_multiplier = float(s->height) / float(video_height);
-            float scale_multiplier = qMin(width_multiplier, height_multiplier);
-            glScalef(scale_multiplier, scale_multiplier, 1);
-          }
-
           // == EFFECT CODE START ==
 
           // get current sequence time in seconds (used for effects)
@@ -418,10 +410,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             Effect* e = c->effects.at(j).get();
             process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
-            if (e == params.gizmos) {
-              e->gizmo_draw(timecode, coords); // set correct gizmo coords
-              e->gizmo_world_to_screen(); // convert gizmo coords to screen coords
-            }
+
           }
 
           // if the clip has an opening transition, process that now
@@ -441,6 +430,25 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           }
 
           // == EFFECT CODE END ==
+
+
+          // Check whether the parent clip is auto-scaledc
+          if (c->autoscaled()
+              && (video_width != s->width
+                  && video_height != s->height)) {
+            float width_multiplier = float(s->width) / float(video_width);
+            float height_multiplier = float(s->height) / float(video_height);
+            float scale_multiplier = qMin(width_multiplier, height_multiplier);
+            glScalef(scale_multiplier, scale_multiplier, 1);
+          }
+
+          // Configure effect gizmos if they exist
+          if (params.gizmos != nullptr) {
+            params.gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
+            params.gizmos->gizmo_world_to_screen(); // convert gizmo coords to screen coords
+          }
+
+
 
           if (textureID > 0) {
             // set viewport to sequence size
