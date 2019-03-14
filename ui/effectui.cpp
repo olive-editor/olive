@@ -102,9 +102,14 @@ void EffectUI::AddAdditionalEffect(Effect *e)
   // Ensure this is the same kind of effect and will be fully compatible
   Q_ASSERT(e->meta == effect_->meta);
 
-  // Add multiple modifer to header label
-  QString new_title = QString(tr("%1 (multiple)")).arg(Title());
-  SetTitle(new_title);
+  // Add multiple modifer to header label (but only once)
+  if (!multiple_) {
+    QString new_title = QString(tr("%1 (multiple)")).arg(Title());
+
+    SetTitle(new_title);
+
+    multiple_ = true;
+  }
 
   // Add effect to list
   additional_effects_.append(e);
@@ -187,6 +192,21 @@ void EffectUI::UpdateFromEffect()
       }
     }
   }
+}
+
+bool EffectUI::IsAttachedToClip(Clip *c)
+{
+  if (GetEffect()->parent_clip == c) {
+    return true;
+  }
+
+  for (int i=0;i<additional_effects_.size();i++) {
+    if (additional_effects_.at(i)->parent_clip == c) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 QWidget *EffectUI::Widget(int row, int field)

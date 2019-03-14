@@ -600,7 +600,8 @@ void EffectControls::Load() {
         // Check if we've already opened an effect of this type before
         bool already_opened = false;
         for (int k=0;k<open_effects_.size();k++) {
-          if (open_effects_.at(k)->GetEffect()->meta == c->effects.at(j)->meta) {
+          if (open_effects_.at(k)->GetEffect()->meta == c->effects.at(j)->meta
+              && !open_effects_.at(k)->IsAttachedToClip(c)) {
 
             open_effects_.at(k)->AddAdditionalEffect(c->effects.at(j).get());
 

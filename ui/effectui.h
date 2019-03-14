@@ -17,6 +17,8 @@ public:
 
   void UpdateFromEffect();
 
+  bool IsAttachedToClip(Clip* c);
+
 signals:
   void CutRequested();
   void CopyRequested();
