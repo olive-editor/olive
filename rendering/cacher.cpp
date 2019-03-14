@@ -180,6 +180,7 @@ void Cacher::CacheAudioWorker() {
       // retrieve frame
       bool new_frame = false;
       while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+
         // no more audio left in frame, get a new one
         if (!reached_end) {
           int loop = 0;
@@ -187,7 +188,8 @@ void Cacher::CacheAudioWorker() {
           if (reverse_audio && !audio_just_reset) {
             avcodec_flush_buffers(codecCtx);
             reached_end = false;
-            int64_t backtrack_seek = qMax(reverse_target_ - static_cast<int64_t>(av_q2d(av_inv_q(stream->time_base))), static_cast<int64_t>(0));
+            int64_t backtrack_seek = qMax(reverse_target_ - static_cast<int64_t>(av_q2d(av_inv_q(stream->time_base))),
+                                          static_cast<int64_t>(0));
             av_seek_frame(formatCtx, stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
 #ifdef AUDIOWARNINGS
             if (backtrack_seek == 0) {
@@ -339,7 +341,10 @@ void Cacher::CacheAudioWorker() {
         if (audio_just_reset) {
           // get precise sample offset for the elected clip_in from this audio frame
           double target_sts = playhead_to_clip_seconds(clip, audio_target_frame);
-          double frame_sts = ((frame->pts - stream->start_time) * timebase);
+
+          int64_t stream_start = qMax(static_cast<int64_t>(0), stream->start_time);
+          double frame_sts = ((frame->pts - stream_start) * timebase);
+
           int nb_samples = qRound64((target_sts - frame_sts)*current_audio_freq());
           frame_sample_index_ = nb_samples * 4;
 #ifdef AUDIOWARNINGS
@@ -387,10 +392,6 @@ void Cacher::CacheAudioWorker() {
       if (new_frame) {
         apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
       }
-    } else {
-      // shouldn't ever get here
-      qCritical() << "Tried to cache a non-footage/tone clip";
-      return;
     }
 
     // mix audio into internal buffer
@@ -957,7 +958,7 @@ void Cacher::OpenWorker() {
 
       // set up cache
       queue_.append(av_frame_alloc());
-      //			if (clip->reverse) {
+
       if (true) {
         AVFrame* reverse_frame = av_frame_alloc();
 
