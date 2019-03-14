@@ -2000,7 +2000,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
     panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
     // if holding the mouse button down, let's scroll to that location
-    if (event->buttons() != 0) {
+    if (event->buttons() != 0 && panel_timeline->tool != TIMELINE_TOOL_HAND) {
       panel_timeline->scroll_to_frame(panel_timeline->cursor_frame);
     }
 
