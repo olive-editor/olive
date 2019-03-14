@@ -196,16 +196,28 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
 }
 
 void PreviewGenerator::finalize_media() {
-  footage_->ready_lock.unlock();
-  footage_->ready = true;
-
   if (!cancelled_) {
-    if (footage_->video_tracks.size() == 0) {
-      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_AUDIO);
-    } else if (contains_still_image_) {
-      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_IMAGE);
-    } else {
+    bool footage_is_ready = true;
+
+    if (footage_->video_tracks.isEmpty() && footage_->audio_tracks.isEmpty()) {
+      // ERROR
+      footage_is_ready = false;
+      invalidate_media(tr("Failed to find any valid video/audio streams"));
+    } else if (!footage_->video_tracks.isEmpty() && !contains_still_image_) {
+      // VIDEO
       olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_VIDEO);
+    } else if (!footage_->audio_tracks.isEmpty()) {
+      // AUDIO
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_AUDIO);
+    } else {
+      // IMAGE
+      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_IMAGE);
+    }
+
+    if (footage_is_ready) {
+      footage_->ready_lock.unlock();
+      footage_->ready = true;
+      media_->update_tooltip();
     }
 
     if (olive::ActiveSequence != nullptr) {
@@ -214,8 +226,12 @@ void PreviewGenerator::finalize_media() {
   }
 }
 
-void thumb_data_cleanup(void *info) {
-  delete [] static_cast<uint8_t*>(info);
+void PreviewGenerator::invalidate_media(const QString &error_msg)
+{
+  media_->update_tooltip(error_msg);
+  olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_ERROR);
+  footage_->invalid = true;
+  footage_->ready_lock.unlock();
 }
 
 void PreviewGenerator::generate_waveform() {
@@ -320,7 +336,6 @@ void PreviewGenerator::generate_waveform() {
             if (!s->preview_done) {
               int dstH = olive::CurrentConfig.thumbnail_resolution;
               int dstW = qRound(dstH * (float(temp_frame->width)/float(temp_frame->height)));
-              uint8_t* data = new uint8_t[size_t(dstW*dstH*4)];
 
               sws_ctx = sws_getContext(
                     temp_frame->width,
@@ -337,9 +352,18 @@ void PreviewGenerator::generate_waveform() {
 
               int linesize[AV_NUM_DATA_POINTERS];
               linesize[0] = dstW*4;
-              sws_scale(sws_ctx, temp_frame->data, temp_frame->linesize, 0, temp_frame->height, &data, linesize);
 
-              s->video_preview = QImage(data, dstW, dstH, linesize[0], QImage::Format_RGBA8888, thumb_data_cleanup);
+              s->video_preview = QImage(dstW, dstH, QImage::Format_RGBA8888);
+              uint8_t* data = s->video_preview.bits();
+
+              sws_scale(sws_ctx,
+                        temp_frame->data,
+                        temp_frame->linesize,
+                        0,
+                        temp_frame->height,
+                        &data,
+                        linesize);
+
               s->make_square_thumb();
 
               // is video interlaced?
@@ -584,12 +608,7 @@ void PreviewGenerator::run() {
 
   if (!cancelled_) {
     if (error) {
-      media_->update_tooltip(errorStr);
-      olive::media_icon_service->SetMediaIcon(media_, ICON_TYPE_ERROR);
-      footage_->invalid = true;
-      footage_->ready_lock.unlock();
-    } else {
-      media_->update_tooltip();
+      invalidate_media(errorStr);
     }
   }
 

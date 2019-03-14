@@ -20,8 +20,6 @@
 
 #include "collapsiblewidget.h"
 
-#include "ui/checkboxex.h"
-
 #include <QDebug>
 #include <QLabel>
 #include <QLayout>
@@ -32,113 +30,113 @@
 #include <QWidget>
 #include <QPainter>
 
+#include "ui/checkboxex.h"
+#include "ui/icons.h"
+
 #include "debug.h"
 
 CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
-	selected = false;
+  selected = false;
 
-	layout = new QVBoxLayout(this);
-	layout->setMargin(0);
-	layout->setSpacing(0);
+  layout = new QVBoxLayout(this);
+  layout->setMargin(0);
+  layout->setSpacing(0);
 
-	title_bar = new CollapsibleWidgetHeader(this);
-	title_bar->setFocusPolicy(Qt::ClickFocus);
-	title_bar->setAutoFillBackground(true);
-	title_bar_layout = new QHBoxLayout(title_bar);
-	title_bar_layout->setMargin(5);
-	enabled_check = new CheckboxEx(title_bar);
-	enabled_check->setChecked(true);
-	header = new QLabel(title_bar);
-	collapse_button = new QPushButton(title_bar);
-	collapse_button->setIconSize(collapse_button->iconSize()*0.5);
-	collapse_button->setStyleSheet("QPushButton { border: none; }");
-	setText(tr("<untitled>"));
-	title_bar_layout->addWidget(collapse_button);
-	title_bar_layout->addWidget(enabled_check);
-	title_bar_layout->addWidget(header);
-	title_bar_layout->addStretch();
-	layout->addWidget(title_bar);
+  title_bar = new CollapsibleWidgetHeader(this);
+  title_bar->setFocusPolicy(Qt::ClickFocus);
+  title_bar->setAutoFillBackground(true);
+  title_bar_layout = new QHBoxLayout(title_bar);
+  title_bar_layout->setMargin(5);
+  enabled_check = new CheckboxEx(title_bar);
+  enabled_check->setChecked(true);
+  header = new QLabel(title_bar);
+  collapse_button = new QPushButton(title_bar);
+  collapse_button->setIconSize(collapse_button->iconSize()*0.5);
+  collapse_button->setStyleSheet("QPushButton { border: none; }");
+  setText(tr("<untitled>"));
+  title_bar_layout->addWidget(collapse_button);
+  title_bar_layout->addWidget(enabled_check);
+  title_bar_layout->addWidget(header);
+  title_bar_layout->addStretch();
+  layout->addWidget(title_bar);
 
-  tri_down_ = QIcon(":/icons/tri-down.svg");
-  tri_right_ = QIcon(":/icons/tri-right.svg");
+  connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
 
-	connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
+  set_button_icon(true);
 
-	set_button_icon(true);
-
-	contents = nullptr;
+  contents = nullptr;
 }
 
 void CollapsibleWidget::header_click(bool s, bool deselect) {
-	selected = s;
-	title_bar->selected = s;
-	if (s) {
-		QPalette p = title_bar->palette();
-		p.setColor(QPalette::Background, QColor(255, 255, 255, 64));
-		title_bar->setPalette(p);
-	} else {
-		title_bar->setPalette(palette());
-	}
-	if (deselect) emit deselect_others(this);
+  selected = s;
+  title_bar->selected = s;
+  if (s) {
+    QPalette p = title_bar->palette();
+    p.setColor(QPalette::Background, QColor(255, 255, 255, 64));
+    title_bar->setPalette(p);
+  } else {
+    title_bar->setPalette(palette());
+  }
+  if (deselect) emit deselect_others(this);
 }
 
 bool CollapsibleWidget::is_focused() {
-	if (hasFocus()) return true;
-	return title_bar->hasFocus();
+  if (hasFocus()) return true;
+  return title_bar->hasFocus();
 }
 
 bool CollapsibleWidget::is_expanded() {
-	return contents->isVisible();
+  return contents->isVisible();
 }
 
 void CollapsibleWidget::set_button_icon(bool open) {
-  collapse_button->setIcon(open ? tri_down_ : tri_right_);
+  collapse_button->setIcon(open ? olive::icon::DownArrow : olive::icon::RightArrow);
 }
 
 void CollapsibleWidget::setContents(QWidget* c) {
-	bool existing = (contents != nullptr);
-	contents = c;
-	if (!existing) {
-		layout->addWidget(contents);
-		connect(enabled_check, SIGNAL(toggled(bool)), this, SLOT(on_enabled_change(bool)));
-		connect(collapse_button, SIGNAL(clicked()), this, SLOT(on_visible_change()));
-	}
+  bool existing = (contents != nullptr);
+  contents = c;
+  if (!existing) {
+    layout->addWidget(contents);
+    connect(enabled_check, SIGNAL(toggled(bool)), this, SLOT(on_enabled_change(bool)));
+    connect(collapse_button, SIGNAL(clicked()), this, SLOT(on_visible_change()));
+  }
 }
 
 void CollapsibleWidget::setText(const QString &s) {
-	header->setText(s);
+  header->setText(s);
 }
 
 void CollapsibleWidget::on_enabled_change(bool b) {
-	contents->setEnabled(b);
+  contents->setEnabled(b);
 }
 
 void CollapsibleWidget::on_visible_change() {
-	contents->setVisible(!contents->isVisible());
-	set_button_icon(contents->isVisible());
-	emit visibleChanged();
+  contents->setVisible(!contents->isVisible());
+  set_button_icon(contents->isVisible());
+  emit visibleChanged();
 }
 
 CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {
-	setContextMenuPolicy(Qt::CustomContextMenu);
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void CollapsibleWidgetHeader::mousePressEvent(QMouseEvent* event) {
-	if (selected) {
-		if ((event->modifiers() & Qt::ShiftModifier)) {
-			selected = false;
-			emit select(selected, false);
-		}
-	} else {
-		selected = true;
-		emit select(selected, !(event->modifiers() & Qt::ShiftModifier));
-	}
+  if (selected) {
+    if ((event->modifiers() & Qt::ShiftModifier)) {
+      selected = false;
+      emit select(selected, false);
+    }
+  } else {
+    selected = true;
+    emit select(selected, !(event->modifiers() & Qt::ShiftModifier));
+  }
 }
 
 void CollapsibleWidgetHeader::paintEvent(QPaintEvent *event) {
-	QWidget::paintEvent(event);
-	QPainter p(this);
+  QWidget::paintEvent(event);
+  QPainter p(this);
   p.setPen(Qt::white);
-	int line_y = height() - 1;
+  int line_y = height() - 1;
   p.drawLine(0, line_y, width(), line_y);
 }

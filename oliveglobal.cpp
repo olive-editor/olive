@@ -41,6 +41,8 @@
 
 #include "project/sequence.h"
 
+#include "ui/updatenotification.h"
+
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QAction>
@@ -263,6 +265,9 @@ void OliveGlobal::finished_initialize() {
     d->open();
 #endif
   }
+
+  // Check for updates
+  olive::update_notifier.check();
 }
 
 void OliveGlobal::save_autorecovery_file() {
@@ -295,27 +300,6 @@ void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
   update_project_filename(fn);
   panel_project->load_project(fn, autorecovery, true);
   olive::UndoStack.clear();
-}
-
-QIcon OliveGlobal::CreateIconFromSVG(const QString &path)
-{
-  QIcon icon;
-
-  QPixmap normal(path);
-  icon.addPixmap(normal, QIcon::Normal, QIcon::On);
-
-  QPixmap disabled(normal.size());
-  disabled.fill(Qt::transparent);
-
-  // draw semi-transparent version of icon for the disabled variant
-  QPainter p(&disabled);
-  p.setOpacity(0.5);
-  p.drawPixmap(0, 0, normal);
-  p.end();
-
-  icon.addPixmap(disabled, QIcon::Disabled, QIcon::On);
-
-  return icon;
 }
 
 void OliveGlobal::undo() {

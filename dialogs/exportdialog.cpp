@@ -35,6 +35,7 @@
 #include "panels/panels.h"
 #include "ui/viewerwidget.h"
 #include "rendering/renderfunctions.h"
+#include "rendering/audio.h"
 #include "io/exportthread.h"
 #include "mainwindow.h"
 
@@ -341,6 +342,7 @@ void ExportDialog::render_thread_finished() {
           QMessageBox::Ok
           );
   }
+  clear_audio_ibuffer();
   prep_ui_for_render(false);
   panel_sequence_viewer->viewer_widget->makeCurrent();
   panel_sequence_viewer->viewer_widget->initializeGL();

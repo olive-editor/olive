@@ -26,6 +26,7 @@
 #include "io/config.h"
 #include "panels/viewer.h"
 #include "panels/project.h"
+#include "ui/icons.h"
 #include "projectmodel.h"
 
 #include <QCoreApplication>
@@ -86,7 +87,7 @@ void Media::set_footage(FootagePtr f) {
 }
 
 void Media::set_sequence(SequencePtr s) {
-  set_icon(":/icons/sequence.svg");
+  set_icon(olive::icon::MediaSequence);
   type = MEDIA_TYPE_SEQUENCE;
   object = VoidPtr(s);
   if (s != nullptr) update_tooltip();
@@ -96,7 +97,7 @@ void Media::set_folder() {
   if (folder_name.isEmpty()) {
     folder_name = QCoreApplication::translate("Media", "New Folder");
   }
-  set_icon(":/icons/folder.svg");
+  set_icon(olive::icon::MediaFolder);
   type = MEDIA_TYPE_FOLDER;
   object = nullptr;
 }

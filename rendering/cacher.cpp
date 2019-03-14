@@ -20,6 +20,14 @@
 
 #include "cacher.h"
 
+#ifndef __STDC_FORMAT_MACROS
+// For some reason the Windows AppVeyor build fails to find PRIx64 without this definition and including
+// <inttypes.h> Maybe something to do with the GCC version being used? Either way, that's why it's here.
+#define __STDC_FORMAT_MACROS 1
+#endif
+
+#include <inttypes.h>
+
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
@@ -172,6 +180,7 @@ void Cacher::CacheAudioWorker() {
       // retrieve frame
       bool new_frame = false;
       while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+
         // no more audio left in frame, get a new one
         if (!reached_end) {
           int loop = 0;
@@ -179,7 +188,8 @@ void Cacher::CacheAudioWorker() {
           if (reverse_audio && !audio_just_reset) {
             avcodec_flush_buffers(codecCtx);
             reached_end = false;
-            int64_t backtrack_seek = qMax(reverse_target_ - static_cast<int64_t>(av_q2d(av_inv_q(stream->time_base))), static_cast<int64_t>(0));
+            int64_t backtrack_seek = qMax(reverse_target_ - static_cast<int64_t>(av_q2d(av_inv_q(stream->time_base))),
+                                          static_cast<int64_t>(0));
             av_seek_frame(formatCtx, stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
 #ifdef AUDIOWARNINGS
             if (backtrack_seek == 0) {
@@ -331,7 +341,10 @@ void Cacher::CacheAudioWorker() {
         if (audio_just_reset) {
           // get precise sample offset for the elected clip_in from this audio frame
           double target_sts = playhead_to_clip_seconds(clip, audio_target_frame);
-          double frame_sts = ((frame->pts - stream->start_time) * timebase);
+
+          int64_t stream_start = qMax(static_cast<int64_t>(0), stream->start_time);
+          double frame_sts = ((frame->pts - stream_start) * timebase);
+
           int nb_samples = qRound64((target_sts - frame_sts)*current_audio_freq());
           frame_sample_index_ = nb_samples * 4;
 #ifdef AUDIOWARNINGS
@@ -379,10 +392,6 @@ void Cacher::CacheAudioWorker() {
       if (new_frame) {
         apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
       }
-    } else {
-      // shouldn't ever get here
-      qCritical() << "Tried to cache a non-footage/tone clip";
-      return;
     }
 
     // mix audio into internal buffer
@@ -507,14 +516,44 @@ void Cacher::CacheVideoWorker() {
       }
     }
 
+    // If we have to seek ahead, we may want to re-use the frame we retrieved later in the pipeline.
+    AVFrame* decoded_frame;
+    bool have_existing_frame_to_use = false;
+    bool seeked_to_zero = false;
+
     // check if the frame is within this queue or if we'll have to seek elsewhere to get it
     // (we check for one second of time after latest_pts, because if it's within that range it'll likely be faster to
     // play up to that frame than seek to it)
     if (target_pts < earliest_pts || target_pts > latest_pts + second_pts || queue_.size() == 0) {
       // we need to seek to retrieve this frame
 
-      avcodec_flush_buffers(codecCtx);
-      av_seek_frame(formatCtx, clip->media_stream_index(), target_pts, AVSEEK_FLAG_BACKWARD);
+      int retrieve_code;
+      int64_t seek_ts = target_pts;
+      int64_t zero = 0;
+
+      // Some formats don't seek reliably to the last keyframe, as a result we need to seek in a loop to ensure we
+      // get a frame prior to the timestamp
+      do {
+
+        // if we already allocated a frame here, we'd better free it
+        if (have_existing_frame_to_use) {
+          av_frame_free(&decoded_frame);
+        }
+
+        // If we already seeked to a timestamp of zero, there's no further we can go, so we have to exit the loop if so
+        seeked_to_zero = (seek_ts == 0);
+
+        avcodec_flush_buffers(codecCtx);
+        av_seek_frame(formatCtx, clip->media_stream_index(), seek_ts, AVSEEK_FLAG_BACKWARD);
+
+        retrieve_code = RetrieveFrameAndProcess(&decoded_frame);
+
+        //qDebug() << "Target:" << target_pts << "Seek:" << seek_ts << "Frame:" << decoded_frame->pts;
+
+        seek_ts = qMax(zero, seek_ts - second_pts);
+
+        have_existing_frame_to_use = true;
+      } while (retrieve_code >= 0 && decoded_frame->pts > target_pts && !seeked_to_zero);
 
       // also we assume none of the frames in the queue are usable
       queue_.lock();
@@ -569,12 +608,19 @@ void Cacher::CacheVideoWorker() {
 
       interrupt_ = false;
       do {
-        AVFrame* decoded_frame;
 
         // retrieve raw RGBA frame from decoder + filter stack
-        int retrieve_code = RetrieveFrameAndProcess(&decoded_frame);
+        int retrieve_code = 0;
+
+        // if we retrieved a perfectly good frame earlier by checking the seek, use that here
+        if (!have_existing_frame_to_use) {
+          retrieve_code = RetrieveFrameAndProcess(&decoded_frame);
+        } else {
+          have_existing_frame_to_use = false;
+        }
 
         if (retrieve_code < 0 && retrieve_code != AVERROR_EOF) {
+
           // for some reason we were unable to retrieve a frame, likely a decoder error so we report it
           // again, an EOF isn't an "error" but will how we add frames (see below)
 
@@ -594,6 +640,12 @@ void Cacher::CacheVideoWorker() {
             if (retrieved_frame == nullptr) {
               if (decoded_frame->pts == target_pts) {
                 SetRetrievedFrame(decoded_frame);
+              } else if (seeked_to_zero) {
+
+                // If this flag is set, it means this was somehow the earliest frame we could get for this timestamp
+                SetRetrievedFrame(decoded_frame);
+                seeked_to_zero = false;
+
               } else if (decoded_frame->pts > target_pts
                          && queue_.size() > 0) {
                 SetRetrievedFrame(queue_.last());
@@ -690,6 +742,12 @@ void Cacher::CacheVideoWorker() {
 
     }
 
+  }
+
+  // For some reason we couldn't get the frame, we should wake up the RenderThread anyway
+  if (retrieved_frame == nullptr) {
+    qCritical() << "Couldn't retrieve an appropriate frame. This is an error and may mean this media is corrupt.";
+    SetRetrievedFrame(nullptr);
   }
 }
 
@@ -900,7 +958,7 @@ void Cacher::OpenWorker() {
 
       // set up cache
       queue_.append(av_frame_alloc());
-      //			if (clip->reverse) {
+
       if (true) {
         AVFrame* reverse_frame = av_frame_alloc();
 
@@ -1126,7 +1184,6 @@ void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int pla
 
   // if not, wait for cacher to respond
   if (wait_for_cacher_to_respond) {
-//    qDebug() << "================> didn't find frame - waiting for cacher to respond..." << clip->name();
     interrupt_ = true;
     main_thread_wait_.wait(&main_thread_lock_, 2000);
   }
@@ -1134,8 +1191,6 @@ void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int pla
   if (wait_for_cacher_to_respond) {
     main_thread_lock_.unlock();
   }
-
-//  qDebug() << "Cacher::Cache took" << (QDateTime::currentMSecsSinceEpoch() - time) << "and retrieved" << retrieved_frame;
 }
 
 AVFrame *Cacher::Retrieve()
@@ -1144,10 +1199,15 @@ AVFrame *Cacher::Retrieve()
     return nullptr;
   }
 
+  // for thread-safety, we lock a mutex to ensure this thread is never woken by anything out of sync
+
+  retrieve_lock_.lock();
+
   // check if there's a frame ready to be shown by the cacher
 
   if (retrieved_frame == nullptr) {
     // wait for cacher to finish caching
+
 
     if (clip->cache_lock.tryLock()) {
 
@@ -1158,13 +1218,13 @@ AVFrame *Cacher::Retrieve()
     } else {
 
       // cacher is running, wait for it to give a frame
-      retrieve_lock_.lock();
       retrieve_wait_.wait(&retrieve_lock_);
-      retrieve_lock_.unlock();
 
     }
 
   }
+
+  retrieve_lock_.unlock();
 
   return retrieved_frame;
 }

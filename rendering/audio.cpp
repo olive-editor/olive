@@ -50,8 +50,10 @@ bool audio_scrub = false;
 QMutex audio_write_lock;
 QAudioInput* audio_input = nullptr;
 QFile output_recording;
-bool audio_rendering = false;
 bool recording = false;
+
+bool audio_rendering = false;
+int audio_rendering_rate = 0;
 
 qint8 audio_ibuffer[audio_ibuffer_size];
 qint64 audio_ibuffer_read = 0;
@@ -152,7 +154,7 @@ void clear_audio_ibuffer() {
 }
 
 int current_audio_freq() {
-  return audio_rendering ? olive::ActiveSequence->audio_frequency : audio_output->format().sampleRate();
+  return audio_rendering ? audio_rendering_rate : audio_output->format().sampleRate();
 }
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {

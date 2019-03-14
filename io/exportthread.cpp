@@ -242,6 +242,9 @@ bool ExportThread::setupAudio() {
     return false;
   }
 
+  // set sample rate to use for project
+  audio_rendering_rate = params.audio_sampling_rate;
+
   // setup context
   acodec_ctx->codec_id = static_cast<AVCodecID>(params.audio_codec);
   acodec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -283,7 +286,7 @@ bool ExportThread::setupAudio() {
         acodec_ctx->sample_rate,
         olive::ActiveSequence->audio_layout,
         AV_SAMPLE_FMT_S16,
-        olive::ActiveSequence->audio_frequency,
+        acodec_ctx->sample_rate,
         0,
         nullptr
         );
@@ -291,9 +294,14 @@ bool ExportThread::setupAudio() {
 
   // initialize raw audio frame
   audio_frame = av_frame_alloc();
-  audio_frame->sample_rate = olive::ActiveSequence->audio_frequency;
+  audio_frame->sample_rate = acodec_ctx->sample_rate;
   audio_frame->nb_samples = acodec_ctx->frame_size;
-  if (audio_frame->nb_samples == 0) audio_frame->nb_samples = 256; // should possibly be smaller?
+
+  if (audio_frame->nb_samples == 0) {
+    // FIXME: Magic number. I don't know what to put here and truthfully I don't even know if it matters.
+    audio_frame->nb_samples = 256;
+  }
+
   audio_frame->format = AV_SAMPLE_FMT_S16;
   audio_frame->channel_layout = AV_CH_LAYOUT_STEREO; // change this to support surround/mono sound in the future (this is whatever format they're held in the internal buffer)
   audio_frame->channels = av_get_channel_layout_nb_channels(audio_frame->channel_layout);
@@ -306,15 +314,18 @@ bool ExportThread::setupAudio() {
   }
   aframe_bytes = av_samples_get_buffer_size(nullptr, audio_frame->channels, audio_frame->nb_samples, static_cast<AVSampleFormat>(audio_frame->format), 0);
 
+  av_init_packet(&audio_pkt);
+
   // init converted audio frame
   swr_frame = av_frame_alloc();
   swr_frame->channel_layout = acodec_ctx->channel_layout;
   swr_frame->channels = acodec_ctx->channels;
   swr_frame->sample_rate = acodec_ctx->sample_rate;
   swr_frame->format = acodec_ctx->sample_fmt;
-  av_frame_make_writable(swr_frame);
+  swr_frame->nb_samples = acodec_ctx->frame_size;
+  av_frame_get_buffer(swr_frame, 0);
 
-  av_init_packet(&audio_pkt);
+  av_frame_make_writable(swr_frame);
 
   return true;
 }
@@ -439,7 +450,10 @@ void ExportThread::run() {
 
         // convert to export sample format
         swr_convert_frame(swr_ctx, swr_frame, audio_frame);
+
         swr_frame->pts = file_audio_samples;
+
+        qDebug() << swr_frame->nb_samples << acodec_ctx->frame_size;
 
         // send to encoder
         if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) continueEncode = false;
@@ -473,14 +487,18 @@ void ExportThread::run() {
   olive::Global->set_rendering_state(false);
 
   if (params.audio_enabled && continueEncode) {
+
     // flush swresample
     do {
+
       swr_convert_frame(swr_ctx, swr_frame, nullptr);
       if (swr_frame->nb_samples == 0) break;
       swr_frame->pts = file_audio_samples;
       if (!encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) continueEncode = false;
       file_audio_samples += swr_frame->nb_samples;
+
     } while (swr_frame->nb_samples > 0);
+
   }
 
   bool continueVideo = true;
@@ -526,8 +544,8 @@ void ExportThread::run() {
     sws_freeContext(sws_ctx);
   }
   if (swr_ctx != nullptr) {
-    swr_free(&swr_ctx);
     av_frame_free(&swr_frame);
+    swr_free(&swr_ctx);
   }
 
   delete [] c_filename;

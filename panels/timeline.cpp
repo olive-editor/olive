@@ -26,6 +26,7 @@
 #include "project/projectelements.h"
 
 #include "ui/timelinewidget.h"
+#include "ui/icons.h"
 #include "ui/viewerwidget.h"
 #include "rendering/audio.h"
 #include "rendering/cacher.h"
@@ -36,6 +37,7 @@
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
 #include "ui/flowlayout.h"
+#include "ui/cursors.h"
 #include "mainwindow.h"
 #include "debug.h"
 
@@ -812,19 +814,26 @@ void Timeline::SetTrackHeight(int track, int height) {
   track_heights.append(t);
 }
 
-void Timeline::IncreaseTrackHeight() {
-  for (int i=0;i<track_heights.size();i++) {
-    track_heights[i].height += olive::timeline::kTrackHeightIncrement;
+void Timeline::ChangeTrackHeightUniformly(int diff) {
+  // get range of tracks currently active
+  int min_track, max_track;
+  olive::ActiveSequence->getTrackLimits(&min_track, &max_track);
+
+  // for each active track, set the track to increase/decrease based on `diff`
+  for (int i=min_track;i<=max_track;i++) {
+    SetTrackHeight(i, qMax(GetTrackHeight(i) + diff, olive::timeline::kTrackMinHeight));
   }
+
+  // update the timeline
   repaint_timeline();
 }
 
+void Timeline::IncreaseTrackHeight() {
+  ChangeTrackHeightUniformly(olive::timeline::kTrackHeightIncrement);
+}
+
 void Timeline::DecreaseTrackHeight() {
-  for (int i=0;i<track_heights.size();i++) {
-    track_heights[i].height = qMax(track_heights[i].height - olive::timeline::kTrackHeightIncrement,
-                                   olive::timeline::kTrackDefaultHeight);
-  }
-  repaint_timeline();
+  ChangeTrackHeightUniformly(-olive::timeline::kTrackHeightIncrement);
 }
 
 void Timeline::snapping_clicked(bool checked) {
@@ -1699,7 +1708,7 @@ void Timeline::deselect() {
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-  long f = qCeil(double(x) / zoom);
+  long f = qRound(double(x) / zoom);
   if (f < 0) {
     return 0;
   }
@@ -1707,7 +1716,7 @@ long getFrameFromScreenPoint(double zoom, int x) {
 }
 
 int getScreenPointFromFrame(double zoom, long frame) {
-  return qFloor(double(frame)*zoom);
+  return qRound(double(frame)*zoom);
 }
 
 long Timeline::getTimelineFrameFromScreenPoint(int x) {
@@ -1862,84 +1871,84 @@ void Timeline::setup_ui() {
   tool_buttons_layout->setMargin(0);
 
   toolArrowButton = new QPushButton();
-  toolArrowButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/arrow.svg")));
+  toolArrowButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/arrow.svg")));
   toolArrowButton->setCheckable(true);
   toolArrowButton->setProperty("tool", TIMELINE_TOOL_POINTER);
   connect(toolArrowButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolArrowButton);
 
   toolEditButton = new QPushButton();
-  toolEditButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/beam.svg")));
+  toolEditButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/beam.svg")));
   toolEditButton->setCheckable(true);
   toolEditButton->setProperty("tool", TIMELINE_TOOL_EDIT);
   connect(toolEditButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolEditButton);
 
   toolRippleButton = new QPushButton();
-  toolRippleButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/ripple.svg")));
+  toolRippleButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/ripple.svg")));
   toolRippleButton->setCheckable(true);
   toolRippleButton->setProperty("tool", TIMELINE_TOOL_RIPPLE);
   connect(toolRippleButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolRippleButton);
 
   toolRazorButton = new QPushButton();
-  toolRazorButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/razor.svg")));
+  toolRazorButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/razor.svg")));
   toolRazorButton->setCheckable(true);
   toolRazorButton->setProperty("tool", TIMELINE_TOOL_RAZOR);
   connect(toolRazorButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolRazorButton);
 
   toolSlipButton = new QPushButton();
-  toolSlipButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/slip.svg")));
+  toolSlipButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/slip.svg")));
   toolSlipButton->setCheckable(true);
   toolSlipButton->setProperty("tool", TIMELINE_TOOL_SLIP);
   connect(toolSlipButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolSlipButton);
 
   toolSlideButton = new QPushButton();
-  toolSlideButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/slide.svg")));
+  toolSlideButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/slide.svg")));
   toolSlideButton->setCheckable(true);
   toolSlideButton->setProperty("tool", TIMELINE_TOOL_SLIDE);
   connect(toolSlideButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolSlideButton);
 
   toolHandButton = new QPushButton();
-  toolHandButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/hand.svg")));
+  toolHandButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/hand.svg")));
   toolHandButton->setCheckable(true);
 
   toolHandButton->setProperty("tool", TIMELINE_TOOL_HAND);
   connect(toolHandButton, SIGNAL(clicked(bool)), this, SLOT(set_tool()));
   tool_buttons_layout->addWidget(toolHandButton);
   toolTransitionButton = new QPushButton();
-  toolTransitionButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/transition-tool.svg")));
+  toolTransitionButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/transition-tool.svg")));
   toolTransitionButton->setCheckable(true);
   connect(toolTransitionButton, SIGNAL(clicked(bool)), this, SLOT(transition_tool_click()));
   tool_buttons_layout->addWidget(toolTransitionButton);
 
   snappingButton = new QPushButton();
-  snappingButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/magnet.svg")));
+  snappingButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/magnet.svg")));
   snappingButton->setCheckable(true);
   snappingButton->setChecked(true);
   connect(snappingButton, SIGNAL(toggled(bool)), this, SLOT(snapping_clicked(bool)));
   tool_buttons_layout->addWidget(snappingButton);
 
   zoomInButton = new QPushButton();
-  zoomInButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/zoomin.svg")));
+  zoomInButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/zoomin.svg")));
   connect(zoomInButton, SIGNAL(clicked(bool)), this, SLOT(zoom_in()));
   tool_buttons_layout->addWidget(zoomInButton);
 
   zoomOutButton = new QPushButton();
-  zoomOutButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/zoomout.svg")));
+  zoomOutButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/zoomout.svg")));
   connect(zoomOutButton, SIGNAL(clicked(bool)), this, SLOT(zoom_out()));
   tool_buttons_layout->addWidget(zoomOutButton);
 
   recordButton = new QPushButton();
-  recordButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/record.svg")));
+  recordButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/record.svg")));
   connect(recordButton, SIGNAL(clicked(bool)), this, SLOT(record_btn_click()));
   tool_buttons_layout->addWidget(recordButton);
 
   addButton = new QPushButton();
-  addButton->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
+  addButton->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
   connect(addButton, SIGNAL(clicked()), this, SLOT(add_btn_click()));
   tool_buttons_layout->addWidget(addButton);
 
@@ -2032,8 +2041,10 @@ void Timeline::set_tool() {
   creating = false;
   switch (tool) {
   case TIMELINE_TOOL_EDIT:
-  case TIMELINE_TOOL_RAZOR:
     timeline_area->setCursor(Qt::IBeamCursor);
+    break;
+  case TIMELINE_TOOL_RAZOR:
+    timeline_area->setCursor(olive::cursor::Razor);
     break;
   case TIMELINE_TOOL_HAND:
     timeline_area->setCursor(Qt::OpenHandCursor);

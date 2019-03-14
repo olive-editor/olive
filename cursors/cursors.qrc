@@ -1,6 +1,13 @@
 <RCC>
     <qresource prefix="/cursors">
-        <file>left_side.png</file>
-        <file>right_side.png</file>
+        <file>1_left.svg</file>
+        <file>1_right.svg</file>
+        <file>2.svg</file>
+        <file>3_left.svg</file>
+        <file>3_right.svg</file>
+        <file>4.svg</file>
+        <file>5.svg</file>
+        <file>5b.svg</file>
+        <file>5c.svg</file>
     </qresource>
 </RCC>

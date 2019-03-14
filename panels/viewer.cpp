@@ -37,6 +37,7 @@
 #include "ui/labelslider.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
+#include "ui/icons.h"
 #include "oliveglobal.h"
 #include "debug.h"
 
@@ -669,30 +670,27 @@ void Viewer::setup_ui() {
   playback_control_layout->setMargin(0);
 
   go_to_start_button = new QPushButton();
-  go_to_start_button->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/prev.svg")));
+  go_to_start_button->setIcon(olive::icon::ViewerGoToStart);
   connect(go_to_start_button, SIGNAL(clicked(bool)), this, SLOT(go_to_in()));
   playback_control_layout->addWidget(go_to_start_button);
 
   prev_frame_button = new QPushButton();
-  prev_frame_button->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/rew.svg")));
+  prev_frame_button->setIcon(olive::icon::ViewerPrevFrame);
   connect(prev_frame_button, SIGNAL(clicked(bool)), this, SLOT(previous_frame()));
   playback_control_layout->addWidget(prev_frame_button);
 
-  play_icon_ = OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/play.svg"));
-  pause_icon_ = QPixmap(":/icons/pause.svg");
-
   play_button = new QPushButton();
-  play_button->setIcon(play_icon_);
+  play_button->setIcon(olive::icon::ViewerPlay);
   connect(play_button, SIGNAL(clicked(bool)), this, SLOT(toggle_play()));
   playback_control_layout->addWidget(play_button);
 
   next_frame_button = new QPushButton();
-  next_frame_button->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/ff.svg")));
+  next_frame_button->setIcon(olive::icon::ViewerNextFrame);
   connect(next_frame_button, SIGNAL(clicked(bool)), this, SLOT(next_frame()));
   playback_control_layout->addWidget(next_frame_button);
 
   go_to_end_frame = new QPushButton();
-  go_to_end_frame->setIcon(OliveGlobal::CreateIconFromSVG(QStringLiteral(":/icons/next.svg")));
+  go_to_end_frame->setIcon(olive::icon::ViewerGoToEnd);
   connect(go_to_end_frame, SIGNAL(clicked(bool)), this, SLOT(go_to_out()));
   playback_control_layout->addWidget(go_to_end_frame);
 
@@ -737,6 +735,7 @@ void Viewer::set_media(Media* m) {
         seq->workarea_out = footage->out;
       }
 
+      // FIXME: Move this magic number to Config
       seq->frame_rate = 30;
 
       if (footage->video_tracks.size() > 0) {
@@ -750,6 +749,7 @@ void Viewer::set_media(Media* m) {
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));
         if (c->timeline_out() <= 0) {
+          // FIXME: Move this magic number to Config
           c->set_timeline_out(150);
         }
         c->set_track(-1);
@@ -757,6 +757,7 @@ void Viewer::set_media(Media* m) {
         c->refresh();
         seq->clips.append(c);
       } else {
+        // FIXME: Move this magic number to Config
         seq->width = 1920;
         seq->height = 1080;
       }
@@ -781,6 +782,7 @@ void Viewer::set_media(Media* m) {
           viewer_widget->frame_update();
         }
       } else {
+        // FIXME: Move this magic number to Config
         seq->audio_frequency = 48000;
       }
 
@@ -907,5 +909,5 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 }
 
 void Viewer::set_playpause_icon(bool play) {
-  play_button->setIcon(play ? play_icon_ : pause_icon_);
+  play_button->setIcon(play ? olive::icon::ViewerPlay : olive::icon::ViewerPause);
 }

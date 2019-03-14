@@ -1,29 +1,43 @@
 #!/bin/bash
 
-# retrieve upload tool
-wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+# Check if there's been a new commit since this build, and if so don't upload it
+
+GREP_PATH=grep
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+	GREP_PATH=ggrep
+fi
 
-	# upload final package
-	bash upload.sh Olive*.zip
+# Get current repo commit from GitHub (problems arose from trying to pipe cURL directly into grep, so we buffer it through a file)
+curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/olive-editor/olive/commits/master
+curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/olive-editor/olive/commits/master -o repo.txt
 
-elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+REMOTE=$($GREP_PATH -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
+LOCAL=$(git rev-parse HEAD)
 
-	find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+if [ "$REMOTE" == "$LOCAL" ]
+then
+	echo "[INFO] Still current. Uploading..."
 
-	# only create release for master
-	if [ "$TRAVIS_BRANCH" != "master" ]
-	then
-		export TRAVIS_EVENT_TYPE=pull_request
+	# retrieve upload tool
+	wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+
+	if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+
+		# upload final package
+		bash upload.sh Olive*.zip
+
+	elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+
+		find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+
+		# upload final package
+		bash upload.sh Olive*.AppImage*
+		
 	fi
 
-	# upload final package
-	bash upload.sh Olive*.AppImage*
-
-elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+else
 	
-	# upload final package
-	bash upload.sh Olive*.zip
+	echo "[INFO] No longer current. $REMOTE vs $LOCAL - aborting upload."
 	
 fi
