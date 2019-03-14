@@ -95,9 +95,9 @@ QString EffectField::ConvertValueToString(const QVariant &v)
   return v.toString();
 }
 
-QWidget *EffectField::CreateWidget()
+QWidget *EffectField::CreateWidget(QWidget *existing)
 {
-  return new QLabel(tr("(Invalid field)"));
+  return (existing == nullptr) ? new QLabel(tr("(Invalid field)")) : existing;
 }
 
 void EffectField::UpdateWidgetValue(QWidget *, double) {}

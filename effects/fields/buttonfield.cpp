@@ -18,13 +18,23 @@ void ButtonField::SetChecked(bool c)
   emit CheckedChanged(c);
 }
 
-QWidget *ButtonField::CreateWidget()
+QWidget *ButtonField::CreateWidget(QWidget *existing)
 {
-  QPushButton* button = new QPushButton();
+  QPushButton* button;
 
-  button->setCheckable(checkable_);
-  button->setEnabled(IsEnabled());
-  button->setText(button_text_);
+  if (existing == nullptr) {
+
+    button = new QPushButton();
+
+    button->setCheckable(checkable_);
+    button->setEnabled(IsEnabled());
+    button->setText(button_text_);
+
+  } else {
+
+    button = static_cast<QPushButton*>(existing);
+
+  }
 
   connect(this, SIGNAL(CheckedChanged(bool)), button, SLOT(setChecked(bool)));
   connect(this, SIGNAL(EnabledChanged(bool)), button, SLOT(setEnabled(bool)));

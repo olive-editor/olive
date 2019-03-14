@@ -16,7 +16,7 @@ public:
 
   void AddItem(const QString& text, const QVariant& data);
 
-  virtual QWidget *CreateWidget() override;
+  virtual QWidget *CreateWidget(QWidget *existing = nullptr) override;
   virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
 
 signals:

@@ -29,6 +29,11 @@ private:
   QGridLayout* layout_;
   QVector<QLabel*> labels_;
   QVector< QVector<QWidget*> > widgets_;
+  QVector<KeyframeNavigator*> keyframe_navigators_;
+
+  bool multiple_;
+
+  void AttachKeyframeNavigationToRow(EffectRow* row, KeyframeNavigator* nav);
 private slots:
   void show_context_menu(const QPoint&);
 };

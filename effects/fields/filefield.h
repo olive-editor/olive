@@ -11,7 +11,7 @@ public:
 
   QString GetFileAt(double timecode);
 
-  virtual QWidget* CreateWidget() override;
+  virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
 private slots:
   void UpdateFromWidget(const QString &s);
 };

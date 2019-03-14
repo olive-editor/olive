@@ -10,7 +10,7 @@ public:
 
   QString GetFontAt(double timecode);
 
-  virtual QWidget *CreateWidget() override;
+  virtual QWidget *CreateWidget(QWidget *existing = nullptr) override;
   virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
 
 private:

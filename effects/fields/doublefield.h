@@ -32,10 +32,10 @@ public:
   void SetDisplayType(LabelSlider::DisplayType type);
   void SetFrameRate(const double& rate);
 
-  virtual QVariant ConvertStringToValue(const QString& s);
-  virtual QString ConvertValueToString(const QVariant& v);
+  virtual QVariant ConvertStringToValue(const QString& s) override;
+  virtual QString ConvertValueToString(const QVariant& v) override;
 
-  virtual QWidget* CreateWidget() override;
+  virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
   virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
 private:
   double min_;

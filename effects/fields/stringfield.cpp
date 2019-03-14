@@ -18,17 +18,27 @@ QString StringField::GetStringAt(double timecode)
   return GetValueAt(timecode).toString();
 }
 
-QWidget *StringField::CreateWidget()
+QWidget *StringField::CreateWidget(QWidget *existing)
 {
-  TextEditEx* text_edit = new TextEditEx(nullptr, rich_text_);
+  TextEditEx* text_edit;
 
-  text_edit->setEnabled(IsEnabled());
-  text_edit->setUndoRedoEnabled(true);
+  if (existing == nullptr) {
 
-  // the "2" looks like a magic number, but it's just one pixel on the top and the bottom
-  text_edit->setFixedHeight(qCeil(text_edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines
-                                  + text_edit->document()->documentMargin()
-                                  + text_edit->document()->documentMargin() + 2));
+    text_edit = new TextEditEx(nullptr, rich_text_);
+
+    text_edit->setEnabled(IsEnabled());
+    text_edit->setUndoRedoEnabled(true);
+
+    // the "2" is because the height needs one extra pixel of padding on the top and the bottom
+    text_edit->setFixedHeight(qCeil(text_edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines
+                                    + text_edit->document()->documentMargin()
+                                    + text_edit->document()->documentMargin() + 2));
+
+  } else {
+
+    text_edit = static_cast<TextEditEx*>(existing);
+
+  }
 
   connect(text_edit, SIGNAL(textModified(const QString&)), this, SLOT(UpdateFromWidget(const QString&)));
   connect(this, SIGNAL(EnabledChanged(bool)), text_edit, SLOT(setEnabled(bool)));

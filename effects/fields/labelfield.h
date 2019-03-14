@@ -9,7 +9,7 @@ class LabelField : public EffectField
 public:
   LabelField(EffectRow* parent, const QString& string);
 
-  virtual QWidget* CreateWidget() override;
+  virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
 private:
   QString label_text_;
 };

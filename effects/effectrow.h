@@ -56,6 +56,7 @@ public:
   void SetKeyframingInternal(bool);
 
   bool IsSavable();
+  bool IsKeyframable();
 public slots:
   void GoToPreviousKeyframe();
   void ToggleKeyframe();

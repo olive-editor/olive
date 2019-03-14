@@ -18,14 +18,20 @@ void ComboField::AddItem(const QString &text, const QVariant &data)
   items_.append(item);
 }
 
-QWidget *ComboField::CreateWidget()
+QWidget *ComboField::CreateWidget(QWidget *existing)
 {
-  ComboBoxEx* cb = new ComboBoxEx();
+  ComboBoxEx* cb;
 
-  cb->setScrollingEnabled(false);
+  if (existing == nullptr) {
+    cb = new ComboBoxEx();
 
-  for (int i=0;i<items_.size();i++) {
-    cb->addItem(items_.at(i).name);
+    cb->setScrollingEnabled(false);
+
+    for (int i=0;i<items_.size();i++) {
+      cb->addItem(items_.at(i).name);
+    }
+  } else {
+    cb = static_cast<ComboBoxEx*>(existing);
   }
 
   connect(cb, SIGNAL(activated(int)), this, SLOT(UpdateFromWidget(int)));

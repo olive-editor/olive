@@ -13,9 +13,9 @@ QString FileField::GetFileAt(double timecode)
   return GetValueAt(timecode).toString();
 }
 
-QWidget *FileField::CreateWidget()
+QWidget *FileField::CreateWidget(QWidget *existing)
 {
-  EmbeddedFileChooser* efc = new EmbeddedFileChooser();
+  EmbeddedFileChooser* efc = (existing != nullptr) ? static_cast<EmbeddedFileChooser*>(existing) : new EmbeddedFileChooser();
 
   connect(efc, SIGNAL(changed(const QString&)), this, SLOT(UpdateFromWidget(const QString&)));
   connect(this, SIGNAL(EnabledChanged(bool)), efc, SLOT(setEnabled(bool)));

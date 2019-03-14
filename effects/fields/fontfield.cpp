@@ -20,13 +20,23 @@ QString FontField::GetFontAt(double timecode)
   return GetValueAt(timecode).toString();
 }
 
-QWidget *FontField::CreateWidget()
+QWidget *FontField::CreateWidget(QWidget *existing)
 {
   ComboBoxEx* fcb = new ComboBoxEx();
 
-  fcb->setScrollingEnabled(false);
+  if (existing == nullptr) {
 
-  fcb->addItems(font_list);
+    fcb = new ComboBoxEx();
+
+    fcb->setScrollingEnabled(false);
+
+    fcb->addItems(font_list);
+
+  } else {
+
+    fcb = static_cast<ComboBoxEx*>(existing);
+
+  }
 
   connect(fcb, SIGNAL(currentTextChanged(const QString &)), this, SLOT(UpdateFromWidget(const QString &)));
   connect(this, SIGNAL(EnabledChanged(bool)), fcb, SLOT(setEnabled(bool)));

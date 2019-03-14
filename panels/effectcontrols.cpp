@@ -601,8 +601,11 @@ void EffectControls::Load() {
         bool already_opened = false;
         for (int k=0;k<open_effects_.size();k++) {
           if (open_effects_.at(k)->GetEffect()->meta == c->effects.at(j)->meta) {
+
             open_effects_.at(k)->AddAdditionalEffect(c->effects.at(j).get());
+
             already_opened = true;
+
             break;
           }
         }

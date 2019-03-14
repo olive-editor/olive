@@ -6,14 +6,16 @@
 #include "timeline/clip.h"
 #include "ui/menuhelper.h"
 #include "ui/keyframenavigator.h"
+#include "ui/clickablelabel.h"
 #include "panels/panels.h"
 
 EffectUI::EffectUI(Effect* e) :
-  effect_(e)
+  effect_(e),
+  multiple_(false)
 {
   Q_ASSERT(e != nullptr);
 
-  SetText(e->name);
+  SetTitle(e->name);
 
   QWidget* ui = new QWidget(this);
   SetContents(ui);
@@ -33,7 +35,8 @@ EffectUI::EffectUI(Effect* e) :
   for (int i=0;i<e->row_count();i++) {
     EffectRow* row = e->row(i);
 
-    QLabel* row_label = new QLabel(row->name());
+    ClickableLabel* row_label = new ClickableLabel(row->name());
+    connect(row_label, SIGNAL(clicked()), row, SLOT(FocusRow()));
 
     labels_.append(row_label);
 
@@ -61,21 +64,32 @@ EffectUI::EffectUI(Effect* e) :
   // Create keyframe controls
   maximum_column++;
 
+  keyframe_navigators_.resize(e->row_count());
+
   for (int i=0;i<e->row_count();i++) {
     EffectRow* row = e->row(i);
 
-    KeyframeNavigator* nav = new KeyframeNavigator();
+    KeyframeNavigator* nav;
 
-    nav->enable_keyframes(row->IsKeyframing());
+    if (row->IsKeyframable()) {
 
-    connect(nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
-    connect(nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));
-    connect(nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));
-    connect(nav, SIGNAL(keyframe_enabled_changed(bool)), row, SLOT(SetKeyframingEnabled(bool)));
-    connect(nav, SIGNAL(clicked()), row, SLOT(FocusRow()));
-    connect(row, SIGNAL(KeyframingSetChanged(bool)), nav, SLOT(enable_keyframes(bool)));
+      nav = new KeyframeNavigator();
 
-    layout_->addWidget(nav, i, maximum_column);
+      nav->enable_keyframes(row->IsKeyframing());
+
+      AttachKeyframeNavigationToRow(row, nav);
+
+      layout_->addWidget(nav, i, maximum_column);
+
+    } else {
+
+      nav = nullptr;
+
+    }
+
+
+    keyframe_navigators_[i] = nav;
+
   }
 
   enabled_check->setChecked(e->IsEnabled());
@@ -85,7 +99,34 @@ EffectUI::EffectUI(Effect* e) :
 
 void EffectUI::AddAdditionalEffect(Effect *e)
 {
+  // Ensure this is the same kind of effect and will be fully compatible
+  Q_ASSERT(e->meta == effect_->meta);
+
+  // Add multiple modifer to header label
+  QString new_title = QString(tr("%1 (multiple)")).arg(Title());
+  SetTitle(new_title);
+
+  // Add effect to list
   additional_effects_.append(e);
+
+  // Attach this UI's widgets to the additional effect
+  for (int i=0;i<effect_->row_count();i++) {
+
+    EffectRow* row = effect_->row(i);
+
+    // Attach existing keyframe navigator to this effect's row
+    AttachKeyframeNavigationToRow(e->row(i), keyframe_navigators_.at(i));
+
+    for (int j=0;j<row->FieldCount();j++) {
+
+      EffectField* field = row->Field(j);
+
+      // Attach existing field widget to this effect's field
+      e->row(i)->Field(j)->CreateWidget(Widget(i, j));
+
+    }
+
+  }
 }
 
 Effect *EffectUI::GetEffect()
@@ -94,7 +135,13 @@ Effect *EffectUI::GetEffect()
 }
 
 int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
+
+  // Currently to get a Y value in the context of `mapToWidget`, we use `panel_effect_controls` as the base. Mapping
+  // to global doesn't work for some reason, so this is the best reference point we have.
+
   QLabel* row_label = labels_.at(row);
+
+  // Get center point of label (label->rect()->center()->y() - instead of y()+height/2 - produces an inaccurate result)
   return row_label->y()
       + row_label->height() / 2
       + mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y()
@@ -145,6 +192,20 @@ void EffectUI::UpdateFromEffect()
 QWidget *EffectUI::Widget(int row, int field)
 {
   return widgets_.at(row).at(field);
+}
+
+void EffectUI::AttachKeyframeNavigationToRow(EffectRow *row, KeyframeNavigator *nav)
+{
+  if (nav == nullptr) {
+    return;
+  }
+
+  connect(nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
+  connect(nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));
+  connect(nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));
+  connect(nav, SIGNAL(keyframe_enabled_changed(bool)), row, SLOT(SetKeyframingEnabled(bool)));
+  connect(nav, SIGNAL(clicked()), row, SLOT(FocusRow()));
+  connect(row, SIGNAL(KeyframingSetChanged(bool)), nav, SLOT(enable_keyframes(bool)));
 }
 
 void EffectUI::show_context_menu(const QPoint& pos) {

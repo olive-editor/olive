@@ -50,7 +50,8 @@ class CollapsibleWidget : public QWidget
 public:
   CollapsibleWidget(QWidget* parent = nullptr);
   void SetContents(QWidget* c);
-  void SetText(const QString &);
+  QString Title();
+  void SetTitle(const QString &);
   bool IsFocused();
   bool IsExpanded();
   bool IsSelected();

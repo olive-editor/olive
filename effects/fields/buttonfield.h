@@ -10,7 +10,7 @@ public:
   ButtonField(EffectRow* parent, const QString& string);
 
   void SetCheckable(bool c);
-  virtual QWidget* CreateWidget() override;
+  virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
 
 public slots:
   void SetChecked(bool c);

@@ -53,7 +53,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   collapse_button = new QPushButton(title_bar);
   collapse_button->setIconSize(collapse_button->iconSize()*0.5);
   collapse_button->setFlat(true);
-  SetText(tr("<untitled>"));
+  SetTitle(tr("<untitled>"));
   title_bar_layout->addWidget(collapse_button);
   title_bar_layout->addWidget(enabled_check);
   title_bar_layout->addWidget(header);
@@ -108,7 +108,12 @@ void CollapsibleWidget::SetContents(QWidget* c) {
   }
 }
 
-void CollapsibleWidget::SetText(const QString &s) {
+QString CollapsibleWidget::Title()
+{
+  return header->text();
+}
+
+void CollapsibleWidget::SetTitle(const QString &s) {
   header->setText(s);
 }
 

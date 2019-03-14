@@ -60,22 +60,31 @@ QString DoubleField::ConvertValueToString(const QVariant &v)
   return QString::number(v.toDouble());
 }
 
-QWidget *DoubleField::CreateWidget()
+QWidget *DoubleField::CreateWidget(QWidget *existing)
 {
-  LabelSlider* ls = new LabelSlider();
+  LabelSlider* ls;
 
-  if (!qIsNaN(min_)) {
-    ls->SetMinimum(min_);
-  }
-  ls->SetDefault(default_);
-  if (!qIsNaN(max_)) {
-    ls->SetMaximum(max_);
-  }
-  ls->SetDisplayType(display_type_);
-  ls->SetFrameRate(frame_rate_);
+  if (existing == nullptr) {
 
-  //qDebug() << "";
-  ls->setEnabled(IsEnabled());
+    ls = new LabelSlider();
+
+    if (!qIsNaN(min_)) {
+      ls->SetMinimum(min_);
+    }
+    ls->SetDefault(default_);
+    if (!qIsNaN(max_)) {
+      ls->SetMaximum(max_);
+    }
+    ls->SetDisplayType(display_type_);
+    ls->SetFrameRate(frame_rate_);
+
+    ls->setEnabled(IsEnabled());
+
+  } else {
+
+    ls = static_cast<LabelSlider*>(existing);
+
+  }
 
   connect(ls, SIGNAL(valueChanged(double)), this, SLOT(UpdateFromWidget(double)));
   connect(ls, SIGNAL(clicked()), this, SIGNAL(Clicked()));

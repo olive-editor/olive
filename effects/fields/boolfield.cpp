@@ -11,9 +11,20 @@ bool BoolField::GetBoolAt(double timecode)
   return GetValueAt(timecode).toBool();
 }
 
-QWidget *BoolField::CreateWidget()
+QWidget *BoolField::CreateWidget(QWidget *existing)
 {
-  QCheckBox* cb = new QCheckBox();
+  QCheckBox* cb;
+
+  if (existing == nullptr) {
+
+    cb = new QCheckBox();
+    cb->setEnabled(IsEnabled());
+
+  } else {
+
+    cb = static_cast<QCheckBox*>(existing);
+
+  }
 
   connect(cb, SIGNAL(toggled(bool)), this, SLOT(UpdateFromWidget(bool)));
   connect(this, SIGNAL(EnabledChanged(bool)), cb, SLOT(setEnabled(bool)));

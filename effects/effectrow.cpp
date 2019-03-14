@@ -71,6 +71,11 @@ bool EffectRow::IsSavable()
   return savable_;
 }
 
+bool EffectRow::IsKeyframable()
+{
+  return keyframable_;
+}
+
 void EffectRow::SetKeyframingEnabled(bool enabled) {
   if (enabled) {
 
