@@ -37,7 +37,15 @@ QWidget *StringField::CreateWidget()
 
 void StringField::UpdateWidgetValue(QWidget *widget, double timecode)
 {
-  static_cast<TextEditEx*>(widget)->setHtml(GetValueAt(timecode).toString());
+  TextEditEx* text = static_cast<TextEditEx*>(widget);
+
+  text->blockSignals(true);
+
+  QTextCursor cursor = text->textCursor();
+  text->setHtml(GetValueAt(timecode).toString());
+  text->setTextCursor(cursor);
+
+  text->blockSignals(false);
 }
 
 void StringField::UpdateFromWidget(const QString &s)
