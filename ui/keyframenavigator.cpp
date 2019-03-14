@@ -29,6 +29,8 @@
 #include "ui/icons.h"
 
 KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget(parent) {
+  setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+
   key_controls = new QHBoxLayout(this);
   key_controls->setSpacing(0);
   key_controls->setMargin(0);

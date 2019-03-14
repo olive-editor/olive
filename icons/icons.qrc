@@ -47,5 +47,10 @@
         <file>zoomout.svg</file>
         <file>italic.svg</file>
         <file>underline.svg</file>
+        <file>align-center.svg</file>
+        <file>align-left.svg</file>
+        <file>align-right.svg</file>
+        <file>justify-center.svg</file>
+        <file>bold.svg</file>
     </qresource>
 </RCC>

@@ -10,6 +10,10 @@ public:
   void redraw(double timecode);
 private:
   StringField* text_val;
+  DoubleField* padding_field;
+  DoubleField* position_x;
+  DoubleField* position_y;
+  ComboField* vertical_align;
 };
 
 #endif // RICHTEXTEFFECT_H

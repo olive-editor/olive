@@ -103,5 +103,5 @@ void TextEditEx::open_text_edit() {
 
 void TextEditEx::queue_text_modified()
 {
-  emit textModified(toPlainText());
+  emit textModified(enable_rich_text_ ? toHtml() : toPlainText());
 }
