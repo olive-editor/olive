@@ -123,6 +123,7 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
 
   size_val->SetDefault(48);
   text_val->SetValueAt(0, tr("Sample Text"));
+  set_color_button->SetValueAt(0, QColor(Qt::white));
   halign_field->SetValueAt(0, Qt::AlignHCenter);
   valign_field->SetValueAt(0, Qt::AlignVCenter);
   word_wrap_field->SetValueAt(0, true);

@@ -41,9 +41,13 @@ void StringField::UpdateWidgetValue(QWidget *widget, double timecode)
 
   text->blockSignals(true);
 
-  QTextCursor cursor = text->textCursor();
+  int pos = text->textCursor().position();
+
   text->setHtml(GetValueAt(timecode).toString());
-  text->setTextCursor(cursor);
+
+  QTextCursor new_cursor(text->document());
+  new_cursor.setPosition(pos);
+  text->setTextCursor(new_cursor);
 
   text->blockSignals(false);
 }
