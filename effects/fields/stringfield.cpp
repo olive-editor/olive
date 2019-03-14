@@ -6,8 +6,9 @@
 #include "ui/texteditex.h"
 #include "global/config.h"
 
-StringField::StringField(EffectRow* parent, const QString& id) :
-  EffectField(parent, id, EFFECT_FIELD_STRING)
+StringField::StringField(EffectRow* parent, const QString& id, bool rich_text) :
+  EffectField(parent, id, EFFECT_FIELD_STRING),
+  rich_text_(rich_text)
 {
 
 }
@@ -19,7 +20,7 @@ QString StringField::GetStringAt(double timecode)
 
 QWidget *StringField::CreateWidget()
 {
-  TextEditEx* text_edit = new TextEditEx();
+  TextEditEx* text_edit = new TextEditEx(nullptr, rich_text_);
 
   text_edit->setEnabled(IsEnabled());
   text_edit->setUndoRedoEnabled(true);
@@ -43,7 +44,11 @@ void StringField::UpdateWidgetValue(QWidget *widget, double timecode)
 
   int pos = text->textCursor().position();
 
-  text->setHtml(GetValueAt(timecode).toString());
+  if (rich_text_) {
+    text->setHtml(GetValueAt(timecode).toString());
+  } else {
+    text->setPlainText(GetValueAt(timecode).toString());
+  }
 
   QTextCursor new_cursor(text->document());
   new_cursor.setPosition(pos);

@@ -8,7 +8,7 @@ class RichTextEffect : public Effect {
 public:
   RichTextEffect(Clip* c, const EffectMeta *em);
   void redraw(double timecode);
-
+private:
   StringField* text_val;
 };
 

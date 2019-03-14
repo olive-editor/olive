@@ -67,6 +67,7 @@
 #include "effects/internal/vsthost.h"
 #include "effects/internal/fillleftrighteffect.h"
 #include "effects/internal/frei0reffect.h"
+#include "effects/internal/richtexteffect.h"
 
 QVector<EffectMeta> effects;
 
@@ -91,6 +92,7 @@ EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
 #ifndef NOFREI0R
     case EFFECT_INTERNAL_FREI0R: return std::make_shared<Frei0rEffect>(c, em);
 #endif
+    case EFFECT_INTERNAL_RICHTEXT: return std::make_shared<RichTextEffect>(c, em);
     }
   } else if (!em->filename.isEmpty()) {
     // load effect from file

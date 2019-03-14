@@ -99,6 +99,11 @@ void load_internal_effects() {
   em.internal = EFFECT_INTERNAL_TEXT;
   effects.append(em);
 
+  em.name = "Rich Text";
+  em.category = "Render";
+  em.internal = EFFECT_INTERNAL_RICHTEXT;
+  effects.append(em);
+
   em.name = "Timecode";
   em.internal = EFFECT_INTERNAL_TIMECODE;
   effects.append(em);

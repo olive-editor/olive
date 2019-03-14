@@ -48,7 +48,7 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
   SetFlags(Effect::SuperimposeFlag);
 
   EffectRow* text_field = new EffectRow(this, tr("Text"));
-  text_val = new StringField(text_field, "text");
+  text_val = new StringField(text_field, "text", false);
   text_val->SetColumnSpan(2);
 
   EffectRow* font_row = new EffectRow(this, tr("Font"));

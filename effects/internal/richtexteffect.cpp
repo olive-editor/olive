@@ -1,8 +1,12 @@
 #include "richtexteffect.h"
 
-RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em)
-{
+#include <QTextDocument>
 
+RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em) :
+  Effect(c, em)
+{
+  EffectRow* text_row = new EffectRow(this, tr("Text"));
+  text_val = new StringField(text_row, "text");
 }
 
 void RichTextEffect::redraw(double timecode)
