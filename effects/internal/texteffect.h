@@ -31,6 +31,11 @@ class TextEffect : public Effect {
 public:
   TextEffect(Clip* c, const EffectMeta *em);
   void redraw(double timecode);
+private slots:
+  void outline_enable(bool);
+  void shadow_enable(bool);
+private:
+  QFont font;
 
   StringField* text_val;
   DoubleField* size_val;
@@ -39,6 +44,9 @@ public:
   ComboField* halign_field;
   ComboField* valign_field;
   BoolField* word_wrap_field;
+  DoubleField* padding_field;
+  DoubleField* position_x;
+  DoubleField* position_y;
 
   BoolField* outline_bool;
   DoubleField* outline_width;
@@ -50,11 +58,7 @@ public:
   ColorField* shadow_color;
   DoubleField* shadow_softness;
   DoubleField* shadow_opacity;
-private slots:
-  void outline_enable(bool);
-  void shadow_enable(bool);
-private:
-  QFont font;
+
 };
 
 #endif // TEXTEFFECT_H

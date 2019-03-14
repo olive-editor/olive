@@ -23,35 +23,56 @@
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
 #include <QPushButton>
+#include <QIcon>
 
-TextEditDialog::TextEditDialog(QWidget *parent, const QString &s) :
-  QDialog(parent)
+#include "ui/icons.h"
+
+TextEditDialog::TextEditDialog(QWidget *parent, const QString &s, bool rich_text) :
+  QDialog(parent),
+  rich_text_(rich_text)
 {
   setWindowTitle(tr("Edit Text"));
 
   QVBoxLayout* layout = new QVBoxLayout(this);
 
-  QHBoxLayout* toolbar = new QHBoxLayout();
+  if (rich_text) {
+    QHBoxLayout* toolbar = new QHBoxLayout();
 
-  QPushButton* italic_button = new QPushButton("I");
-  italic_button->setCheckable(true);
-  toolbar->addWidget(italic_button);
+    // Italic Button
+    italic_button = new QPushButton();
+    italic_button->setIcon(QIcon(":/icons/italic.svg"));
+    italic_button->setCheckable(true);
+    connect(italic_button, SIGNAL(clicked(bool)), textEdit, SLOT(setFontItalic(bool)));
+    toolbar->addWidget(italic_button);
 
-  QPushButton* underline_button = new QPushButton("U");
-  underline_button->setCheckable(true);
-  toolbar->addWidget(underline_button);
+    // Underline Button
+    underline_button = new QPushButton();
+    underline_button->setIcon(QIcon(":/icons/underline.svg"));
+    underline_button->setCheckable(true);
+    toolbar->addWidget(underline_button);
 
-  toolbar->addStretch();
+    // Font Name
+    font_list = new QFontComboBox();
+    connect(font_list, SIGNAL(setCurrentFont(const QFont&)), textEdit, SLOT(setCurrentFont(const QFont&)));
+    toolbar->addWidget(font_list);
 
-  layout->addLayout(toolbar);
 
+    toolbar->addStretch();
+
+    layout->addLayout(toolbar);
+  }
+
+  // Create central text editor object
   textEdit = new QTextEdit(this);
-  textEdit->setHtml(s);
-  layout->addWidget(textEdit);
+  textEdit->setUndoRedoEnabled(true);
 
-  // Connect buttons to the text field
-  connect(italic_button, SIGNAL(clicked(bool)), textEdit, SLOT(setFontItalic(bool)));
-  connect(underline_button, SIGNAL(clicked(bool)), textEdit, SLOT(setFontUnderline(bool)));
+  if (rich_text_) {
+    textEdit->setHtml(s);
+  } else {
+    textEdit->setPlainText(s);
+  }
+
+  layout->addWidget(textEdit);
 
   // Create dialog buttons at the bottom
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
@@ -65,10 +86,17 @@ const QString& TextEditDialog::get_string() {
 }
 
 void TextEditDialog::save() {
-  result_str = textEdit->toHtml();
+  result_str = rich_text_ ? textEdit->toHtml() : textEdit->toPlainText();
   accept();
 }
 
 void TextEditDialog::cancel() {
   reject();
+}
+
+void TextEditDialog::UpdateUIFromTextCursor()
+{
+  italic_button->setChecked(textEdit->fontItalic());
+  underline_button->setChecked(textEdit->fontUnderline());
+  font_list->setCurrentText(textEdit->fontFamily());
 }

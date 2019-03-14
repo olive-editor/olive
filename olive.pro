@@ -172,7 +172,8 @@ SOURCES += \
     ui/effectui.cpp \
     effects/transition.cpp \
     ui/styling.cpp \
-    undo/undostack.cpp
+    undo/undostack.cpp \
+    effects/internal/richtexteffect.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -298,7 +299,8 @@ HEADERS += \
     effects/fields/combofield.h \
     effects/transition.h \
     ui/styling.h \
-    undo/undostack.h
+    undo/undostack.h \
+    effects/internal/richtexteffect.h
 
 FORMS +=
 

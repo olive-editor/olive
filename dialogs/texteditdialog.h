@@ -23,18 +23,27 @@
 
 #include <QDialog>
 #include <QPlainTextEdit>
+#include <QFontComboBox>
 
 class TextEditDialog : public QDialog {
   Q_OBJECT
 public:
-  TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr);
+  TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr, bool rich_text = true);
   const QString& get_string();
+signals:
+  void cursorPositionChanged();
 private slots:
   void save();
   void cancel();
+  void UpdateUIFromTextCursor();
 private:
+  bool rich_text_;
+
   QString result_str;
   QTextEdit* textEdit;
+  QPushButton* italic_button;
+  QPushButton* underline_button;
+  QFontComboBox* font_list;
 };
 
 #endif // TEXTEDITDIALOG_H

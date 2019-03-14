@@ -26,13 +26,15 @@
 class TextEditEx : public QTextEdit {
   Q_OBJECT
 public:
-  TextEditEx(QWidget* parent = nullptr);
+  TextEditEx(QWidget* parent = nullptr, bool enable_rich_text = true);
 signals:
   void textModified(const QString& s);
 private slots:
   void text_edit_menu();
   void open_text_edit();
   void queue_text_modified();
+private:
+  bool enable_rich_text_;
 };
 
 #endif // TEXTEDITEX_H

@@ -45,5 +45,7 @@
         <file>videosource.svg</file>
         <file>zoomin.svg</file>
         <file>zoomout.svg</file>
+        <file>italic.svg</file>
+        <file>underline.svg</file>
     </qresource>
 </RCC>

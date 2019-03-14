@@ -68,7 +68,9 @@ void TextEditEx::updateText() {
 #include "dialogs/texteditdialog.h"
 #include "mainwindow.h"
 
-TextEditEx::TextEditEx(QWidget *parent) : QTextEdit(parent)
+TextEditEx::TextEditEx(QWidget *parent, bool enable_rich_text) :
+  QTextEdit(parent),
+  enable_rich_text_(enable_rich_text)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(text_edit_menu()));
@@ -85,15 +87,21 @@ void TextEditEx::text_edit_menu() {
 }
 
 void TextEditEx::open_text_edit() {
-  TextEditDialog ted(olive::MainWindow, this->toHtml());
+  const QString& current_text = (enable_rich_text_) ? toHtml() : toPlainText();
+
+  TextEditDialog ted(olive::MainWindow, current_text, enable_rich_text_);
   ted.exec();
   QString result = ted.get_string();
   if (!result.isEmpty()) {
-    setHtml(result);
+    if (enable_rich_text_) {
+      setHtml(result);
+    } else {
+      setPlainText(result);
+    }
   }
 }
 
 void TextEditEx::queue_text_modified()
 {
-  emit textModified(toHtml());
+  emit textModified(toPlainText());
 }

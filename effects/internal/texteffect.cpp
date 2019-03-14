@@ -80,6 +80,14 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
   word_wrap_field = new BoolField(word_wrap_row, "wordwrap");
   word_wrap_field->SetColumnSpan(2);
 
+  EffectRow* padding_row = new EffectRow(this, tr("Padding"));
+  padding_field = new DoubleField(padding_row, "padding");
+  padding_field->SetColumnSpan(2);
+
+  EffectRow* position_row = new EffectRow(this, tr("Position"));
+  position_x = new DoubleField(position_row, "posx");
+  position_y = new DoubleField(position_row, "posy");
+
   EffectRow* outline_row = new EffectRow(this, tr("Outline"));
   outline_bool = new BoolField(outline_row, "outline");
   outline_bool->SetColumnSpan(2);
@@ -217,8 +225,9 @@ void TextEffect::redraw(double timecode) {
 
   QPainter p(&img);
   p.setRenderHint(QPainter::Antialiasing);
-  int width = img.width();
-  int height = img.height();
+  int padding = qRound(padding_field->GetDoubleAt(timecode));
+  int width = img.width() - padding * 2;
+  int height = img.height() - padding * 2;
 
   // set font
   font.setStyleHint(QFont::Helvetica, QFont::PreferAntialias);
@@ -306,6 +315,8 @@ void TextEffect::redraw(double timecode) {
 
     path.addText(text_x, text_y, font, lines.at(i));
   }
+
+  path.translate(position_x->GetDoubleAt(timecode) + padding, position_y->GetDoubleAt(timecode) + padding);
 
   // draw software shadow
   if (shadow_bool->GetBoolAt(timecode)) {
