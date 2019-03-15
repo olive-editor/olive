@@ -123,7 +123,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   texture(nullptr),
   isOpen(false),
   bound(false),
-  iterations(1)
+  iterations(1),
+  enabled_(true)
 {
   if (em != nullptr) {
     // set up UI from effect file
