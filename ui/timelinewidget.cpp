@@ -656,7 +656,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
           if (hovered_clip >= 0) {
             Clip* clip = olive::ActiveSequence->clips.at(hovered_clip).get();
 
-            if (olive::ActiveSequence->IsClipSelected(clip, true)) {
+            if (clip->IsSelected()) {
 
               if (shift) {
 
@@ -759,7 +759,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                   Clip* link = olive::ActiveSequence->clips.at(clip->linked.at(i)).get();
 
                   // check if the clip is already selected
-                  if (!olive::ActiveSequence->IsClipSelected(link, true)) {
+                  if (!link->IsSelected()) {
                     Selection ss;
                     ss.in = link->timeline_in();
                     ss.out = link->timeline_out();
@@ -2065,7 +2065,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
           Clip* c = olive::ActiveSequence->clips.at(j).get();
 
-          if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, false)) {
+          if (c != nullptr && c->IsSelected(false)) {
 
             // loop through linked clips
             for (int k=0;k<c->linked.size();k++) {
@@ -2195,7 +2195,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
             // if a transition isn't selected, check if the whole clip is
             if (!add) {
-              add = olive::ActiveSequence->IsClipSelected(c, true);
+              add = c->IsSelected();
             }
 
             if (add) {

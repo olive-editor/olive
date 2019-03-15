@@ -628,7 +628,7 @@ void EffectControls::Load() {
     QVector<Effect*> effects_to_open;
 
     // Determine based on the current selections whether to load all effects or just the transitions
-    bool whole_clip_is_selected = c->sequence->IsClipSelected(c, true);
+    bool whole_clip_is_selected = c->IsSelected();
 
     if (whole_clip_is_selected) {
       for (int j=0;j<c->effects.size();j++) {

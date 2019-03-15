@@ -371,7 +371,7 @@ void Timeline::add_transition() {
 
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     Clip* c = olive::ActiveSequence->clips.at(i).get();
-    if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, true)) {
+    if (c != nullptr && c->IsSelected()) {
       int transition_to_add = (c->track() < 0) ? TRANSITION_INTERNAL_CROSSDISSOLVE : TRANSITION_INTERNAL_LINEARFADE;
       if (c->opening_transition == nullptr) {
         ca->append(new AddTransitionCommand(c,
@@ -944,14 +944,14 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
       if (relink) {
         pre_clips.append(clip);
 
-        bool original_clip_is_selected = olive::ActiveSequence->IsClipSelected(c, true);
+        bool original_clip_is_selected = c->IsSelected();
 
         // find linked clips of old clip
         for (int i=0;i<c->linked.size();i++) {
           int l = c->linked.at(i);
           if (!split_cache.contains(l)) {
             Clip* link = olive::ActiveSequence->clips.at(l).get();
-            if ((original_clip_is_selected && olive::ActiveSequence->IsClipSelected(link, true)) || !original_clip_is_selected) {
+            if ((original_clip_is_selected && link->IsSelected()) || !original_clip_is_selected) {
               split_cache.append(l);
               ClipPtr s = split_clip(ca, true, l, frame);
               if (s != nullptr) {
@@ -1487,7 +1487,7 @@ void Timeline::split_at_playhead() {
     QVector<ClipPtr> post_clips;
     for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
       Clip* clip = olive::ActiveSequence->clips.at(j).get();
-      if (clip != nullptr && olive::ActiveSequence->IsClipSelected(clip, true)) {
+      if (clip != nullptr && clip->IsSelected()) {
         ClipPtr s = split_clip(ca, true, j, olive::ActiveSequence->playhead);
         if (s != nullptr) {
           pre_clips.append(j);
@@ -1630,7 +1630,7 @@ void Timeline::set_marker() {
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     Clip* c = olive::ActiveSequence->clips.at(i).get();
     if (c != nullptr
-        && olive::ActiveSequence->IsClipSelected(c, true)) {
+        && c->IsSelected()) {
 
       // only add markers if the playhead is inside the clip
       if (olive::ActiveSequence->playhead >= c->timeline_in()
@@ -1684,7 +1684,7 @@ void Timeline::toggle_links() {
   command->s = olive::ActiveSequence.get();
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     Clip* c = olive::ActiveSequence->clips.at(i).get();
-    if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, true)) {
+    if (c != nullptr && c->IsSelected()) {
       if (!command->clips.contains(i)) command->clips.append(i);
 
       if (c->linked.size() > 0) {
