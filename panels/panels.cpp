@@ -43,8 +43,6 @@ void update_effect_controls() {
 
   if (olive::ActiveSequence != nullptr) {
     selected_clips = olive::ActiveSequence->SelectedClips();
-
-    // TODO handle selecting transitions
   }
 
   panel_effect_controls->SetClips(selected_clips, mode);

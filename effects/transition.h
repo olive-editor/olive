@@ -59,8 +59,7 @@ public:
 
   static TransitionPtr Create(Clip* c, Clip* s, const EffectMeta* em, long length = 0);
   static TransitionPtr CreateFromMeta(Clip *c, Clip *s, const EffectMeta* em);
-private slots:
-  void set_length_from_slider();
+
 private:
   DoubleField* length_field;
 };

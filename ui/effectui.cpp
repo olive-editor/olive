@@ -15,7 +15,26 @@ EffectUI::EffectUI(Effect* e) :
 {
   Q_ASSERT(e != nullptr);
 
-  SetTitle(e->name);
+  QString effect_name;
+
+  // If this effect is actually a transition
+  if (e->meta->type == EFFECT_TYPE_TRANSITION) {
+
+    // See if the transition is the clip's opening or closing transition and label it accordingly
+    if (e->parent_clip->opening_transition.get() == e) {
+      effect_name = tr("%1 (Opening)").arg(e->name);
+    } else {
+      effect_name = tr("%1 (Closing)").arg(e->name);
+    }
+
+  } else {
+
+    // Otherwise just set the title normally
+    effect_name = e->name;
+
+  }
+
+  SetTitle(effect_name);
 
   QWidget* ui = new QWidget(this);
   SetContents(ui);
@@ -104,7 +123,7 @@ void EffectUI::AddAdditionalEffect(Effect *e)
 
   // Add multiple modifer to header label (but only once)
   if (!multiple_) {
-    QString new_title = QString(tr("%1 (multiple)")).arg(Title());
+    QString new_title = tr("%1 (multiple)").arg(Title());
 
     SetTitle(new_title);
 

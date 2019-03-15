@@ -52,7 +52,6 @@ Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
   length_field->SetDisplayType(LabelSlider::FrameNumber);
   length_field->SetFrameRate(parent_clip->sequence == nullptr ?
                                parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
-  connect(length_field, SIGNAL(changed()), this, SLOT(set_length_from_slider()));
 }
 
 TransitionPtr Transition::copy(Clip *c, Clip *s) {
@@ -95,10 +94,6 @@ Clip* Transition::get_closed_clip() {
     return secondary_clip;
   }
   return nullptr;
-}
-
-void Transition::set_length_from_slider() {
-  update_ui(false);
 }
 
 TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s, const EffectMeta* em) {

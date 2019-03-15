@@ -541,23 +541,54 @@ void EffectControls::effects_area_context_menu() {
 }
 
 void EffectControls::delete_effects() {
-  // load in new clips
-  if (mode_ == kTransitionNone) {
+  ComboAction* ca = new ComboAction();
 
-    ComboAction* ca = new ComboAction();
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->IsSelected()) {
 
-    for (int i=0;i<open_effects_.size();i++) {
-      if (open_effects_.at(i)->IsSelected()) {
-        ca->append(new EffectDeleteCommand(open_effects_.at(i)->GetEffect()));
+      Effect* effect_ref = open_effects_.at(i)->GetEffect();
+
+      if (effect_ref->meta->type == EFFECT_TYPE_EFFECT) {
+
+        ca->append(new EffectDeleteCommand(effect_ref));
+
+      } else if (effect_ref->meta->type == EFFECT_TYPE_TRANSITION) {
+
+        // Retrieve shared ptr for this transition
+
+        Clip* attached_clip = effect_ref->parent_clip;
+
+        TransitionPtr t = nullptr;
+
+        if (attached_clip->opening_transition.get() == effect_ref) {
+
+          t = attached_clip->opening_transition;
+
+        } else if (attached_clip->closing_transition.get() == effect_ref) {
+
+          t = attached_clip->closing_transition;
+
+        }
+
+        if (t == nullptr) {
+
+          qWarning() << "Failed to delete transition, couldn't find clip link.";
+
+        } else {
+
+          ca->append(new DeleteTransitionCommand(t));
+
+        }
+
       }
     }
+  }
 
-    if (ca->hasActions()) {
-      olive::UndoStack.push(ca);
-      panel_sequence_viewer->viewer_widget->frame_update();
-    } else {
-      delete ca;
-    }
+  if (ca->hasActions()) {
+    olive::UndoStack.push(ca);
+    update_ui(true);
+  } else {
+    delete ca;
   }
 }
 
@@ -594,43 +625,49 @@ void EffectControls::Load() {
       layout = audio_effect_layout;
     }
 
-    if (mode_ == kTransitionNone) {
-      for (int j=0;j<c->effects.size();j++) {
+    // Create a list of the effects we'll open
+    QVector<Effect*> effects_to_open;
+    for (int j=0;j<c->effects.size();j++) {
+      effects_to_open.append(c->effects.at(j).get());
+    }
+    if (c->opening_transition != nullptr) {
+      effects_to_open.append(c->opening_transition.get());
+    }
+    if (c->closing_transition != nullptr) {
+      effects_to_open.append(c->closing_transition.get());
+    }
 
-        // Check if we've already opened an effect of this type before
-        bool already_opened = false;
-        for (int k=0;k<open_effects_.size();k++) {
-          if (open_effects_.at(k)->GetEffect()->meta == c->effects.at(j)->meta
-              && !open_effects_.at(k)->IsAttachedToClip(c)) {
+    for (int j=0;j<effects_to_open.size();j++) {
 
-            open_effects_.at(k)->AddAdditionalEffect(c->effects.at(j).get());
+      // Check if we've already opened an effect of this type before
+      bool already_opened = false;
+      for (int k=0;k<open_effects_.size();k++) {
+        if (open_effects_.at(k)->GetEffect()->meta == effects_to_open.at(j)->meta
+            && !open_effects_.at(k)->IsAttachedToClip(c)) {
 
-            already_opened = true;
+          open_effects_.at(k)->AddAdditionalEffect(effects_to_open.at(j));
 
+          already_opened = true;
+
+          break;
+        }
+      }
+
+      if (!already_opened) {
+        open_effect(layout, effects_to_open.at(j));
+      }
+
+      // Check if one of the open effects contains the row currently active in the graph editor. If not, we'll have
+      // to clear the graph editor later.
+      if (!graph_editor_row_is_still_active) {
+        for (int k=0;k<effects_to_open.at(j)->row_count();k++) {
+          EffectRow* row = effects_to_open.at(j)->row(k);
+          if (row == panel_graph_editor->get_row()) {
+            graph_editor_row_is_still_active = true;
             break;
           }
         }
-
-        if (!already_opened) {
-          open_effect(layout, c->effects.at(j).get());
-        }
-
-        // Check if one of the open effects contains the row currently active in the graph editor. If not, we'll have
-        // to clear the graph editor later.
-        if (!graph_editor_row_is_still_active) {
-          for (int k=0;k<c->effects.at(j)->row_count();k++) {
-            EffectRow* row = c->effects.at(j)->row(k);
-            if (row == panel_graph_editor->get_row()) {
-              graph_editor_row_is_still_active = true;
-              break;
-            }
-          }
-        }
       }
-    } else if (mode_ == kTransitionOpening && c->opening_transition != nullptr) {
-      open_effect(layout, c->opening_transition.get());
-    } else if (mode_ == kTransitionClosing && c->closing_transition != nullptr) {
-      open_effect(layout, c->closing_transition.get());
     }
   }
 
