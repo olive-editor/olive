@@ -43,7 +43,7 @@ public:
   int audio_layout;
 
   void RefreshClips(Media* m = nullptr);
-  QVector<Clip*> SelectedClips();
+  QVector<Clip*> SelectedClips(bool containing = true);
   QVector<int> SelectedClipIndexes();
 
   Effect* GetSelectedGizmo();

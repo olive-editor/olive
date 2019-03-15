@@ -87,13 +87,13 @@ void Sequence::RefreshClips(Media *m) {
   }
 }
 
-QVector<Clip *> Sequence::SelectedClips()
+QVector<Clip *> Sequence::SelectedClips(bool containing)
 {
   QVector<Clip*> selected_clips;
 
   for (int i=0;i<clips.size();i++) {
     Clip* c = clips.at(i).get();
-    if (c != nullptr && IsClipSelected(c, true)) {
+    if (c != nullptr && IsClipSelected(c, containing)) {
       selected_clips.append(c);
     }
   }

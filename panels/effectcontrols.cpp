@@ -602,20 +602,7 @@ void EffectControls::SetClips()
   Clear(true);
 
   // replace clip vector
-  selected_clips_ = olive::ActiveSequence->SelectedClips();
-
-  if (selected_clips_.isEmpty()) {
-    // If no clips are selected, there may be transitions that are
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(i).get();
-      if (c != nullptr) {
-        if (olive::ActiveSequence->IsTransitionSelected(c->opening_transition.get())
-            || olive::ActiveSequence->IsTransitionSelected(c->closing_transition.get())) {
-          selected_clips_.append(c);
-        }
-      }
-    }
-  }
+  selected_clips_ = olive::ActiveSequence->SelectedClips(false);
 
   Load();
 }
