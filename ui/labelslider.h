@@ -62,30 +62,6 @@ public:
   void SetDefault(double v);
 
   /**
-   * @brief Set the minimum value
-   *
-   * If a minimum value is set, the value will never go below it. If the user manually sets a value lower than
-   * the minimum, it will automatically snap to the minimum.
-   *
-   * @param v
-   *
-   * Value to set as minimum
-   */
-  void SetMinimum(double v);
-
-  /**
-   * @brief Set the maximum value
-   *
-   * If a maximum value is set, the value will never go above it. If the user manually sets a value higher than
-   * the maximum, it will automatically snap to the maximum.
-   *
-   * @param v
-   *
-   * Value to set as maximum
-   */
-  void SetMaximum(double v);
-
-  /**
    * @brief Returns the internal value as a double
    * @return The internal value. This will not respect the `display_type`, i.e. 100% will return as 1.0, 12dB will
    * return as 400%, and a timecode will return as a frame number.
@@ -145,6 +121,31 @@ public:
    * Defaults to 1
    */
   void SetDecimalPlaces(int places);
+public slots:
+  /**
+   * @brief Set the minimum value
+   *
+   * If a minimum value is set, the value will never go below it. If the user manually sets a value lower than
+   * the minimum, it will automatically snap to the minimum.
+   *
+   * @param v
+   *
+   * Value to set as minimum
+   */
+  void SetMinimum(double v);
+
+  /**
+   * @brief Set the maximum value
+   *
+   * If a maximum value is set, the value will never go above it. If the user manually sets a value higher than
+   * the maximum, it will automatically snap to the maximum.
+   *
+   * @param v
+   *
+   * Value to set as maximum
+   */
+  void SetMaximum(double v);
+
 protected:
   void mousePressEvent(QMouseEvent *ev);
   void mouseMoveEvent(QMouseEvent *ev);

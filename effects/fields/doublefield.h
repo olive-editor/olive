@@ -37,6 +37,9 @@ public:
 
   virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
   virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+signals:
+  void MaximumChanged(double maximum);
+  void MinimumChanged(double maximum);
 private:
   double min_;
   double max_;

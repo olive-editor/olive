@@ -143,8 +143,6 @@ void EffectUI::AddAdditionalEffect(Effect *e)
 
     for (int j=0;j<row->FieldCount();j++) {
 
-      EffectField* field = row->Field(j);
-
       // Attach existing field widget to this effect's field
       e->row(i)->Field(j)->CreateWidget(Widget(i, j));
 

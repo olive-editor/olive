@@ -62,6 +62,10 @@ public:
 
 private:
   DoubleField* length_field;
+
+private slots:
+  void UpdateMaximumLength();
+  long GetMaximumEmptySpaceOnClip(Clip* c);
 };
 
 #endif // TRANSITION_H

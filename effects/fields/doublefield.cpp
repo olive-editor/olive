@@ -23,11 +23,13 @@ double DoubleField::GetDoubleAt(double timecode)
 void DoubleField::SetMinimum(double minimum)
 {
   min_ = minimum;
+  emit MinimumChanged(min_);
 }
 
 void DoubleField::SetMaximum(double maximum)
 {
   max_ = maximum;
+  emit MaximumChanged(max_);
 }
 
 void DoubleField::SetDefault(double d)
@@ -89,6 +91,8 @@ QWidget *DoubleField::CreateWidget(QWidget *existing)
   connect(ls, SIGNAL(valueChanged(double)), this, SLOT(UpdateFromWidget(double)));
   connect(ls, SIGNAL(clicked()), this, SIGNAL(Clicked()));
   connect(this, SIGNAL(EnabledChanged(bool)), ls, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(MaximumChanged(double)), ls, SLOT(SetMaximum(double)));
+  connect(this, SIGNAL(MinimumChanged(double)), ls, SLOT(SetMinimum(double)));
 
   return ls;
 }

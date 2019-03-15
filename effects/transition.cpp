@@ -48,10 +48,12 @@ Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
   EffectRow* length_row = new EffectRow(this, tr("Length"), false, false);
   length_field = new DoubleField(length_row, "length");
   length_field->SetDefault(30);
-  length_field->SetMinimum(0);
+  length_field->SetMinimum(1);
   length_field->SetDisplayType(LabelSlider::FrameNumber);
   length_field->SetFrameRate(parent_clip->sequence == nullptr ?
                                parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
+
+  connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }
 
 TransitionPtr Transition::copy(Clip *c, Clip *s) {
@@ -117,6 +119,42 @@ TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s, const EffectMeta* em)
                           );
   }
   return nullptr;
+}
+
+void Transition::UpdateMaximumLength()
+{
+  // Get the maximum area this transition can occupy on the clip
+  long maximum_length = GetMaximumEmptySpaceOnClip(parent_clip);
+
+  // If this clip is a shared transition, get the maximum area this can occupy on the other clip too
+  if (secondary_clip != nullptr) {
+    long secondary_max_length = GetMaximumEmptySpaceOnClip(secondary_clip);
+
+    maximum_length = qMin(secondary_max_length, maximum_length);
+  }
+
+  length_field->SetMaximum(maximum_length);
+}
+
+long Transition::GetMaximumEmptySpaceOnClip(Clip *c)
+{
+  long maximum_transition_length = c->length();
+
+  Transition* opposite_transition;
+
+  // See if this clip has a transition on the opposite side that we need to account for
+  if (c->opening_transition.get() == this) {
+    opposite_transition = c->closing_transition.get();
+  } else {
+    opposite_transition = c->opening_transition.get();
+  }
+
+  // If is does, subtract the maximum length by the transition's length
+  if (opposite_transition != nullptr) {
+    maximum_transition_length -= opposite_transition->get_true_length();
+  }
+
+  return maximum_transition_length;
 }
 
 TransitionPtr Transition::Create(Clip* c, Clip* s, const EffectMeta* em, long length) {
