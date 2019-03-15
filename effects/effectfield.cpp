@@ -67,8 +67,6 @@ EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t)
   connect(this, SIGNAL(Changed()), parent->GetParentEffect(), SLOT(FieldChanged()));
 }
 
-EffectField::~EffectField() {}
-
 EffectRow *EffectField::GetParentRow()
 {
   return static_cast<EffectRow*>(parent());
@@ -97,7 +95,7 @@ QString EffectField::ConvertValueToString(const QVariant &v)
 
 QWidget *EffectField::CreateWidget(QWidget *existing)
 {
-  return (existing == nullptr) ? new QLabel(tr("(Invalid field)")) : existing;
+  Q_ASSERT(false);
 }
 
 void EffectField::UpdateWidgetValue(QWidget *, double) {}

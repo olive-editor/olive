@@ -1,6 +1,12 @@
 #ifndef EFFECTFIELDS_H
 #define EFFECTFIELDS_H
 
+/**
+
+  A simple convenience header for including all the available EffectField derivations.
+
+ */
+
 #include "fields/boolfield.h"
 #include "fields/buttonfield.h"
 #include "fields/colorfield.h"
