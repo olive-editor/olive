@@ -174,6 +174,48 @@ bool Sequence::IsClipSelected(Clip *clip, bool containing)
   return false;
 }
 
+bool Sequence::IsTransitionSelected(Transition *t)
+{
+  if (t == nullptr) {
+    return false;
+  }
+
+  Clip* c = t->parent_clip;
+
+  int transition_track = t->parent_clip->track();
+  long transition_in_point;
+  long transition_out_point;
+
+  // Get positions of the transition on the timeline
+
+  if (t == c->opening_transition.get()) {
+    transition_in_point = c->timeline_in();
+    transition_out_point = c->timeline_in() + t->get_true_length();
+
+    if (t->secondary_clip != nullptr) {
+      transition_in_point -= t->get_true_length();
+    }
+  } else {
+    transition_in_point = c->timeline_out() - t->get_true_length();
+    transition_out_point = c->timeline_out();
+
+    if (t->secondary_clip != nullptr) {
+      transition_out_point += t->get_true_length();
+    }
+  }
+
+  // See if there's a selection matching this
+  for (int i=0;i<selections.size();i++) {
+    if (selections.at(i).in <= transition_in_point
+        && selections.at(i).out >= transition_out_point
+        && selections.at(i).track == transition_track) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
   int vt = 0;
   int at = 0;

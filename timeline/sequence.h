@@ -50,6 +50,7 @@ public:
 
   bool IsClipSelected(int clip_index, bool containing);
   bool IsClipSelected(Clip* clip, bool containing);
+  bool IsTransitionSelected(Transition* t);
 
   QVector<Selection> selections;
   long playhead;

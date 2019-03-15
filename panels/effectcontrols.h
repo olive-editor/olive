@@ -61,12 +61,12 @@ public:
 
 
   void Reload();
-  void SetClips(const QVector<Clip *> &clips, int mode);
+  void SetClips();
   void Clear(bool clear_cache = true);
 
   bool IsEffectSelected(Effect* e);
 
-  void delete_effects();
+  void DeleteSelectedEffects();
   bool is_focused();
   void set_zoom(bool in);
   bool keyframe_focus();
@@ -110,6 +110,8 @@ private:
 
   void Load();
 
+  void DeleteEffect(ComboAction* ca, Effect* effect_ref);
+
   void show_effect_menu(int type, int subtype);
   void load_keyframes();
   void open_effect(QVBoxLayout* hlayout, Effect *e);
@@ -120,7 +122,6 @@ private:
   int effect_menu_type;
   int effect_menu_subtype;
   QString panel_name;
-  int mode_;
 
   QWidget* video_effect_area;
   QWidget* audio_effect_area;

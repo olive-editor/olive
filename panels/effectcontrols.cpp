@@ -55,8 +55,7 @@
 
 EffectControls::EffectControls(QWidget *parent) :
   Panel(parent),
-  zoom(1),
-  mode_(kTransitionNone)
+  zoom(1)
 {
   setup_ui();
   Retranslate();
@@ -145,38 +144,38 @@ void EffectControls::delete_selected_keyframes() {
 }
 
 void EffectControls::copy(bool del) {
-  if (mode_ == kTransitionNone) {
-    bool cleared = false;
+  bool cleared = false;
 
-    ComboAction* ca = nullptr;
-    if (del) {
-      ca = new ComboAction();
-    }
+  ComboAction* ca = nullptr;
+  if (del) {
+    ca = new ComboAction();
+  }
 
-    for (int i=0;i<open_effects_.size();i++) {
-      if (open_effects_.at(i)->IsSelected()) {
-        Effect* e = open_effects_.at(i)->GetEffect();
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->IsSelected()) {
+      Effect* e = open_effects_.at(i)->GetEffect();
 
-        if (!cleared) {
-          clear_clipboard();
-          cleared = true;
-          clipboard_type = CLIPBOARD_TYPE_EFFECT;
-        }
+      if (!cleared) {
+        clear_clipboard();
+        cleared = true;
+        clipboard_type = CLIPBOARD_TYPE_EFFECT;
+      }
 
-        clipboard.append(e->copy(nullptr));
+      clipboard.append(e->copy(nullptr));
 
-        if (del) {
-          ca->append(new EffectDeleteCommand(e));
-        }
+      if (del) {
+
+        DeleteEffect(ca, e);
+
       }
     }
+  }
 
-    if (del) {
-      if (ca->hasActions()) {
-        olive::UndoStack.push(ca);
-      } else {
-        delete ca;
-      }
+  if (del) {
+    if (ca->hasActions()) {
+      olive::UndoStack.push(ca);
+    } else {
+      delete ca;
     }
   }
 }
@@ -540,47 +539,48 @@ void EffectControls::effects_area_context_menu() {
   menu.exec(QCursor::pos());
 }
 
-void EffectControls::delete_effects() {
+void EffectControls::DeleteEffect(ComboAction* ca, Effect* effect_ref) {
+  if (effect_ref->meta->type == EFFECT_TYPE_EFFECT) {
+
+    ca->append(new EffectDeleteCommand(effect_ref));
+
+  } else if (effect_ref->meta->type == EFFECT_TYPE_TRANSITION) {
+
+    // Retrieve shared ptr for this transition
+
+    Clip* attached_clip = effect_ref->parent_clip;
+
+    TransitionPtr t = nullptr;
+
+    if (attached_clip->opening_transition.get() == effect_ref) {
+
+      t = attached_clip->opening_transition;
+
+    } else if (attached_clip->closing_transition.get() == effect_ref) {
+
+      t = attached_clip->closing_transition;
+
+    }
+
+    if (t == nullptr) {
+
+      qWarning() << "Failed to delete transition, couldn't find clip link.";
+
+    } else {
+
+      ca->append(new DeleteTransitionCommand(t));
+
+    }
+
+  }
+}
+
+void EffectControls::DeleteSelectedEffects() {
   ComboAction* ca = new ComboAction();
 
   for (int i=0;i<open_effects_.size();i++) {
     if (open_effects_.at(i)->IsSelected()) {
-
-      Effect* effect_ref = open_effects_.at(i)->GetEffect();
-
-      if (effect_ref->meta->type == EFFECT_TYPE_EFFECT) {
-
-        ca->append(new EffectDeleteCommand(effect_ref));
-
-      } else if (effect_ref->meta->type == EFFECT_TYPE_TRANSITION) {
-
-        // Retrieve shared ptr for this transition
-
-        Clip* attached_clip = effect_ref->parent_clip;
-
-        TransitionPtr t = nullptr;
-
-        if (attached_clip->opening_transition.get() == effect_ref) {
-
-          t = attached_clip->opening_transition;
-
-        } else if (attached_clip->closing_transition.get() == effect_ref) {
-
-          t = attached_clip->closing_transition;
-
-        }
-
-        if (t == nullptr) {
-
-          qWarning() << "Failed to delete transition, couldn't find clip link.";
-
-        } else {
-
-          ca->append(new DeleteTransitionCommand(t));
-
-        }
-
-      }
+      DeleteEffect(ca, open_effects_.at(i)->GetEffect());
     }
   }
 
@@ -597,13 +597,25 @@ void EffectControls::Reload() {
   Load();
 }
 
-void EffectControls::SetClips(const QVector<Clip*> &clips, int mode)
+void EffectControls::SetClips()
 {
   Clear(true);
 
   // replace clip vector
-  selected_clips_ = clips;
-  mode_ = mode;
+  selected_clips_ = olive::ActiveSequence->SelectedClips();
+
+  if (selected_clips_.isEmpty()) {
+    // If no clips are selected, there may be transitions that are
+    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
+      Clip* c = olive::ActiveSequence->clips.at(i).get();
+      if (c != nullptr) {
+        if (olive::ActiveSequence->IsTransitionSelected(c->opening_transition.get())
+            || olive::ActiveSequence->IsTransitionSelected(c->closing_transition.get())) {
+          selected_clips_.append(c);
+        }
+      }
+    }
+  }
 
   Load();
 }
@@ -627,13 +639,21 @@ void EffectControls::Load() {
 
     // Create a list of the effects we'll open
     QVector<Effect*> effects_to_open;
-    for (int j=0;j<c->effects.size();j++) {
-      effects_to_open.append(c->effects.at(j).get());
+
+    // Determine based on the current selections whether to load all effects or just the transitions
+    bool whole_clip_is_selected = c->sequence->IsClipSelected(c, true);
+
+    if (whole_clip_is_selected) {
+      for (int j=0;j<c->effects.size();j++) {
+        effects_to_open.append(c->effects.at(j).get());
+      }
     }
-    if (c->opening_transition != nullptr) {
+    if (c->opening_transition != nullptr
+        && (whole_clip_is_selected || c->sequence->IsTransitionSelected(c->opening_transition.get()))) {
       effects_to_open.append(c->opening_transition.get());
     }
-    if (c->closing_transition != nullptr) {
+    if (c->closing_transition != nullptr
+        && (whole_clip_is_selected || c->sequence->IsTransitionSelected(c->closing_transition.get()))) {
       effects_to_open.append(c->closing_transition.get());
     }
 

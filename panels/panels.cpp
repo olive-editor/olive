@@ -37,20 +37,9 @@ Viewer* panel_footage_viewer = nullptr;
 Timeline* panel_timeline = nullptr;
 GraphEditor* panel_graph_editor = nullptr;
 
-void update_effect_controls() {
-  QVector<Clip*> selected_clips;
-  int mode = kTransitionNone;
-
-  if (olive::ActiveSequence != nullptr) {
-    selected_clips = olive::ActiveSequence->SelectedClips();
-  }
-
-  panel_effect_controls->SetClips(selected_clips, mode);
-}
-
 void update_ui(bool modified) {
   if (modified) {
-    update_effect_controls();
+    panel_effect_controls->SetClips();
   }
   panel_effect_controls->update_keyframes();
   panel_timeline->repaint_timeline();
