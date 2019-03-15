@@ -102,6 +102,15 @@ bool Clip::IsActiveAt(long timecode)
       && timecode - timeline_in(true) + clip_in(true) < media_length();
 }
 
+bool Clip::IsSelected(bool containing)
+{
+  if (this->sequence == nullptr) {
+    return false;
+  }
+
+  return this->sequence->IsClipSelected(this, containing);
+}
+
 const QColor &Clip::color()
 {
   return color_;

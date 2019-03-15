@@ -48,8 +48,8 @@ public:
 
   Effect* GetSelectedGizmo();
 
-  bool IsClipSelected(int clip_index, bool containing);
-  bool IsClipSelected(Clip* clip, bool containing);
+  bool IsClipSelected(int clip_index, bool containing = true);
+  bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);
 
   QVector<Selection> selections;

@@ -59,6 +59,7 @@ public:
   ClipPtr copy(Sequence *s);
 
   bool IsActiveAt(long timecode);
+  bool IsSelected(bool containing = true);
 
   const QColor& color();
   void set_color(int r, int g, int b);

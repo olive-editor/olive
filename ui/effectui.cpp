@@ -20,11 +20,41 @@ EffectUI::EffectUI(Effect* e) :
   // If this effect is actually a transition
   if (e->meta->type == EFFECT_TYPE_TRANSITION) {
 
+    Transition* t = static_cast<Transition*>(e);
+
+    // Since effects can have two clip attachments, find out which one is selected
+    Clip* selected_clip = t->parent_clip;
+    bool both_selected = false;
+
+    // Check if this is a shared transition
+    if (t->secondary_clip != nullptr) {
+
+      // Check which clips are selected
+      if (t->secondary_clip->IsSelected()) {
+
+        selected_clip = t->secondary_clip;
+
+        if (t->parent_clip->IsSelected()) {
+          // Both clips are selected
+          both_selected = true;
+        }
+
+      } else if (!t->parent_clip->IsSelected()) {
+
+        // Neither are selected, but the naming scheme (no "opening" or "closing" modifier) will be the same
+        both_selected = true;
+
+      }
+
+    }
+
     // See if the transition is the clip's opening or closing transition and label it accordingly
-    if (e->parent_clip->opening_transition.get() == e) {
-      effect_name = tr("%1 (Opening)").arg(e->name);
+    if (both_selected) {
+      effect_name = t->name;
+    } else if (selected_clip->opening_transition.get() == t) {
+      effect_name = tr("%1 (Opening)").arg(t->name);
     } else {
-      effect_name = tr("%1 (Closing)").arg(e->name);
+      effect_name = tr("%1 (Closing)").arg(t->name);
     }
 
   } else {
