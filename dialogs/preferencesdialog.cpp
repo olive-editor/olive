@@ -260,7 +260,9 @@ void PreferencesDialog::save() {
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
 
   olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
+#ifdef Q_OS_WIN
   olive::CurrentConfig.use_native_menu_styling = native_menus->isChecked();
+#endif
 
   // Check if the thumbnail or waveform icon
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
