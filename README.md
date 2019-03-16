@@ -4,7 +4,7 @@ Olive is a free non-linear video editor for Windows, macOS, and Linux.
 
 ![screen](https://www.olivevideoeditor.org/img/screenshot.jpg)
 
-**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/4Ae9KZn)
+**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/4Ae9KZn) | [http://olivevideoeditor.org/doxygen/](Code Documentation)
 
 Please consider supporting Olive:
 
@@ -12,4 +12,4 @@ Please consider supporting Olive:
 
 Compiling instructions for Windows, macOS, and Linux can be found [on the main site](https://olivevideoeditor.org/compile.php).
 
-Olive has Doxygen-compatible documentation. Just run `doxygen` in the source root directory to generate it.
+Olive has Doxygen-compatible documentation hosted at http://olivevideoeditor.org/doxygen/. You can also run `doxygen` in the source root directory to generate a local copy.
