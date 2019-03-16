@@ -478,6 +478,10 @@ Media* Project::item_to_media(const QModelIndex &index) {
 MediaPtr Project::item_to_media_ptr(const QModelIndex &index) {
   Media* raw_ptr = item_to_media(index);
 
+  if (raw_ptr == nullptr) {
+    return nullptr;
+  }
+
   return raw_ptr->parentItem()->get_shared_ptr(raw_ptr);
 }
 
