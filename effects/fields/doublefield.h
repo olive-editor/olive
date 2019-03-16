@@ -48,8 +48,11 @@ private:
   LabelSlider::DisplayType display_type_;
   double frame_rate_;
 
+  bool value_set_;
+
   KeyframeDataChange* kdc_;
 private slots:
+  void ValueHasBeenSet();
   void UpdateFromWidget(double d);
 };
 

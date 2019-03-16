@@ -9,6 +9,7 @@ DoubleField::DoubleField(EffectRow* parent, const QString& id) :
   default_(0),
   display_type_(LabelSlider::Normal),
   frame_rate_(30),
+  value_set_(false),
   kdc_(nullptr)
 {
   connect(this, SIGNAL(Changed()), this, SLOT(ValueHasBeenSet()), Qt::DirectConnection);
@@ -34,6 +35,11 @@ void DoubleField::SetMaximum(double maximum)
 void DoubleField::SetDefault(double d)
 {
   default_ = d;
+
+  if (!value_set_) {
+    SetValueAt(0, d);
+    value_set_ = false;
+  }
 }
 
 void DoubleField::SetDisplayType(LabelSlider::DisplayType type)
@@ -98,6 +104,11 @@ void DoubleField::UpdateWidgetValue(QWidget *widget, double timecode)
   } else {
     static_cast<LabelSlider*>(widget)->SetValue(GetDoubleAt(timecode));
   }
+}
+
+void DoubleField::ValueHasBeenSet()
+{
+  value_set_ = true;
 }
 
 void DoubleField::UpdateFromWidget(double d)
