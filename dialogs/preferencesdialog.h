@@ -107,6 +107,9 @@ private:
   QLineEdit* ocio_config_file;
   QComboBox* ui_style;
   Sequence sequence_settings;
+#ifdef Q_OS_WIN
+  QCheckBox* native_menus;
+#endif
 
   QVector<QAction*> key_shortcut_actions;
   QVector<QTreeWidgetItem*> key_shortcut_items;

@@ -21,7 +21,6 @@
 #include "sourcescommon.h"
 
 #include <QProcess>
-#include <QMenu>
 #include <QAbstractItemView>
 #include <QMimeData>
 #include <QMessageBox>
@@ -44,6 +43,7 @@
 #include "ui/viewerwidget.h"
 #include "project/proxygenerator.h"
 #include "ui/mainwindow.h"
+#include "ui/menu.h"
 #include "undo/undostack.h"
 
 SourcesCommon::SourcesCommon(Project* parent) :
@@ -74,17 +74,19 @@ void SourcesCommon::create_seq_from_selected() {
 }
 
 void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& items) {
-  QMenu menu(parent);
+  Menu menu(parent);
 
   selected_items = items;
 
   QAction* import_action = menu.addAction(tr("Import..."));
   QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
 
-  QMenu* new_menu = menu.addMenu(tr("New"));
+  Menu* new_menu = new Menu(tr("New"));
+  menu.addMenu(new_menu);
   olive::MenuHelper.make_new_menu(new_menu);
 
-  QMenu* view_menu = menu.addMenu(tr("View"));
+  Menu* view_menu = new Menu(tr("View"));
+  menu.addMenu(view_menu);
 
   QAction* tree_view_action = view_menu->addAction(tr("Tree View"));
   connect(tree_view_action, SIGNAL(triggered(bool)), project_parent, SLOT(set_tree_view()));
@@ -160,7 +162,8 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
       QAction* delete_footage_from_sequences = menu.addAction(tr("Delete All Clips Using This Media"));
       QObject::connect(delete_footage_from_sequences, SIGNAL(triggered(bool)), project_parent, SLOT(delete_clips_using_selected_media()));
 
-      QMenu* proxies = menu.addMenu(tr("Proxy"));
+      Menu* proxies = new Menu(tr("Proxy"));
+      menu.addMenu(proxies);
 
       // special case if one footage item is selected and its proxy is currently being generated
       if (cached_selected_footage.size() == 1

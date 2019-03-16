@@ -165,7 +165,7 @@ bool Sequence::IsClipSelected(Clip *clip, bool containing)
 {
   for (int i=0;i<selections.size();i++) {
     const Selection& s = selections.at(i);
-    if (clip->track() == s.track && ((clip->timeline_in() >= s.in && clip->timeline_out() <= s.out && containing)
+    if (clip->track() == s.track && ((clip->timeline_in() >= s.in && clip->timeline_out() <= s.out)
                                   || (!containing && !(clip->timeline_in() < s.in && clip->timeline_out() < s.in)
                                    && !(clip->timeline_in() > s.in && clip->timeline_out() > s.in)))) {
       return true;

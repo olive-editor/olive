@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QAction>
 #include <QApplication>
+#include <QStyleFactory>
 #include <QDebug>
 
 #include "panels/panels.h"
@@ -139,6 +140,15 @@ void OliveGlobal::load_translation_from_config() {
       qWarning() << "Failed to load translation file" << full_language_path << ". No language will be loaded.";
     }
   }
+}
+
+void OliveGlobal::SetNativeStyling(QWidget *w)
+{
+#ifdef Q_OS_WIN
+  w->setStyleSheet("");
+  w->setPalette(w->style()->standardPalette());
+  w->setStyle(QStyleFactory::create("windowsvista"));
+#endif
 }
 
 void OliveGlobal::new_project() {

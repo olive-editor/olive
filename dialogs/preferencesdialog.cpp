@@ -54,7 +54,6 @@
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
   : QKeySequenceEdit(parent), action(a) {
   setKeySequence(action->shortcut());
-  //connect(this, SIGNAL(editingFinished()), this, SLOT(set_action_shortcut()));
 }
 
 void KeySequenceEditor::set_action_shortcut() {
@@ -210,6 +209,9 @@ void PreferencesDialog::save() {
   if (olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()
+#ifdef Q_OS_WIN32
+      || olive::CurrentConfig.use_native_menu_styling != native_menus->isChecked()
+#endif
       || olive::CurrentConfig.style != static_cast<olive::styling::Style>(ui_style->currentData().toInt())) {
 
     // any changes to these settings will require a restart - ask the user if we should do one now or later
@@ -275,6 +277,9 @@ void PreferencesDialog::save() {
   olive::CurrentConfig.ocio_config_path = ocio_config_file->text();
 
   olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
+#ifdef Q_OS_WIN
+  olive::CurrentConfig.use_native_menu_styling = native_menus->isChecked();
+#endif
 
   // Check if the thumbnail or waveform icon
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
@@ -609,6 +614,16 @@ void PreferencesDialog::setup_ui() {
   appearance_layout->addWidget(ui_style, row, 1, 1, 2);
 
   row++;
+
+#ifdef Q_OS_WIN
+  // Native menu styling is only available on Windows. Environments like Ubuntu and Mac use the native menu system by
+  // default
+  native_menus = new QCheckBox(tr("Use Native Menu Styling"));
+  native_menus->setChecked(olive::CurrentConfig.use_native_menu_styling);
+  appearance_layout->addWidget(native_menus, row, 0, 1, 3);
+
+  row++;
+#endif
 
   // Appearance -> Custom CSS
   appearance_layout->addWidget(new QLabel(tr("Custom CSS:"), this), row, 0);

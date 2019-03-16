@@ -20,6 +20,20 @@
 
 #include "timeline.h"
 
+#include <QTime>
+#include <QScrollBar>
+#include <QtMath>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QPainter>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QSplitter>
+#include <QStatusBar>
+
 #include "global/global.h"
 #include "panels/panels.h"
 #include "project/projectelements.h"
@@ -39,21 +53,7 @@
 #include "ui/mainwindow.h"
 #include "undo/undostack.h"
 #include "global/debug.h"
-
-#include <QTime>
-#include <QScrollBar>
-#include <QtMath>
-#include <QGuiApplication>
-#include <QScreen>
-#include <QPainter>
-#include <QMenu>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QCheckBox>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QSplitter>
-#include <QStatusBar>
+#include "ui/menu.h"
 
 int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
@@ -1730,7 +1730,7 @@ int Timeline::getTimelineScreenPointFromFrame(long frame) {
 }
 
 void Timeline::add_btn_click() {
-  QMenu add_menu(this);
+  Menu add_menu(this);
 
   QAction* titleMenuItem = new QAction(&add_menu);
   titleMenuItem->setText(tr("Title..."));
@@ -1793,7 +1793,7 @@ void Timeline::record_btn_click() {
 void Timeline::transition_tool_click() {
   creating = false;
 
-  QMenu transition_menu(this);
+  Menu transition_menu(this);
 
   for (int i=0;i<olive::effects.size();i++) {
     const EffectMeta& em = olive::effects.at(i);

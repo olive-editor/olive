@@ -22,7 +22,6 @@
 
 #include <QMouseEvent>
 #include <QtMath>
-#include <QMenu>
 
 #include "effects/effect.h"
 #include "ui/collapsiblewidget.h"
@@ -42,6 +41,7 @@
 #include "ui/rectangleselect.h"
 #include "effects/keyframe.h"
 #include "ui/graphview.h"
+#include "ui/menu.h"
 
 KeyframeView::KeyframeView(QWidget *parent) :
   QWidget(parent),
@@ -69,7 +69,7 @@ void KeyframeView::SetEffects(const QVector<EffectUI *> &open_effects)
 
 void KeyframeView::show_context_menu(const QPoint& pos) {
   if (selected_fields.size() > 0) {
-    QMenu menu(this);
+    Menu menu(this);
 
     QAction* linear = menu.addAction(tr("Linear"));
     linear->setData(EFFECT_KEYFRAME_LINEAR);

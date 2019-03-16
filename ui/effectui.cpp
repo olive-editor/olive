@@ -1,12 +1,12 @@
 #include "effectui.h"
 
 #include <QPoint>
-#include <QMenu>
 
 #include "timeline/clip.h"
 #include "ui/menuhelper.h"
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
+#include "ui/menu.h"
 #include "panels/panels.h"
 
 EffectUI::EffectUI(Effect* e) :
@@ -273,7 +273,7 @@ void EffectUI::AttachKeyframeNavigationToRow(EffectRow *row, KeyframeNavigator *
 
 void EffectUI::show_context_menu(const QPoint& pos) {
   if (effect_->meta->type == EFFECT_TYPE_EFFECT) {
-    QMenu menu;
+    Menu menu;
 
     Clip* c = effect_->parent_clip;
 

@@ -22,8 +22,9 @@
 #define MENUHELPER_H
 
 #include <QObject>
-#include <QMenu>
 #include <QMenuBar>
+
+#include "ui/menu.h"
 
 class MenuHelper : public QObject {
   Q_OBJECT
@@ -126,10 +127,10 @@ public:
 
   void Retranslate();
 
-  static QMenu* create_submenu(QMenuBar* parent,
+  static Menu *create_submenu(QMenuBar* parent,
                                const QObject *receiver = nullptr,
                                const char *member = nullptr);
-  static QMenu* create_submenu(QMenu* parent);
+  static Menu* create_submenu(QMenu* parent);
   static QAction* create_menu_action(QWidget *parent,
                                      const char* id,
                                      const QObject *receiver = nullptr,

@@ -21,9 +21,9 @@
 #include "texteditex.h"
 
 #include <QDebug>
-#include <QMenu>
 
 #include "dialogs/texteditdialog.h"
+#include "ui/menu.h"
 #include "mainwindow.h"
 
 TextEditEx::TextEditEx(QWidget *parent, bool enable_rich_text) :
@@ -37,7 +37,7 @@ TextEditEx::TextEditEx(QWidget *parent, bool enable_rich_text) :
 }
 
 void TextEditEx::text_edit_menu() {
-  QMenu menu;
+  Menu menu;
 
   menu.addAction(tr("&Edit Text"), this, SLOT(open_text_edit()));
 

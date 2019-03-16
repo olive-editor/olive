@@ -301,7 +301,6 @@ void RenderThread::paint() {
 
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
-  glEnable(GL_DEPTH);
 
   compose_sequence(params);
 
@@ -346,7 +345,6 @@ void RenderThread::paint() {
     pixel_buffer = nullptr;
   }
 
-  glDisable(GL_DEPTH);
   glDisable(GL_BLEND);
   glDisable(GL_TEXTURE_2D);
 

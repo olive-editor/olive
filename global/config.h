@@ -531,6 +531,13 @@ struct Config {
   olive::styling::Style style;
 
   /**
+   * @brief Use native menu styling
+   *
+   * Use native styling on menus rather than cross-platform Fusion.
+   */
+  bool use_native_menu_styling;
+
+  /**
    * @brief Load config from file
    *
    * Load configuration parameters from file

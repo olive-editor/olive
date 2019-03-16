@@ -20,17 +20,18 @@
 
 #include "labelslider.h"
 
+#include <QMouseEvent>
+#include <QInputDialog>
+#include <QApplication>
+#include <QMenu>
+
 #include "undo/undo.h"
 #include "panels/viewer.h"
 #include "global/config.h"
 #include "global/math.h"
 #include "global/debug.h"
 #include "ui/styling.h"
-
-#include <QMouseEvent>
-#include <QInputDialog>
-#include <QApplication>
-#include <QMenu>
+#include "ui/menu.h"
 
 LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
   // set a default frame rate - fallback, shouldn't ever really be used
@@ -265,7 +266,7 @@ void LabelSlider::SetActiveCursor() {
 
 void LabelSlider::ShowContextMenu(const QPoint &pos)
 {
-  QMenu menu(this);
+  Menu menu(this);
 
   menu.addAction(tr("&Edit"), this, SLOT(ShowDialog()));
 
