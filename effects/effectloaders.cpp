@@ -267,7 +267,7 @@ EffectInit::EffectInit() {
 }
 
 void EffectInit::run() {
-  qInfo() << "Initializing olive::effects...";
+  qInfo() << "Initializing effects...";
   load_internal_effects();
   load_shader_effects();
 #ifndef NOFREI0R
