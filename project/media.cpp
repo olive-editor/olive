@@ -20,24 +20,24 @@
 
 #include "media.h"
 
-#include "footage.h"
-#include "sequence.h"
-#include "undo.h"
-#include "io/config.h"
-#include "panels/viewer.h"
-#include "panels/project.h"
-#include "ui/icons.h"
-#include "projectmodel.h"
-
-#include <QCoreApplication>
-#include <QtMath>
-
-#include "debug.h"
-
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }
+
+#include <QCoreApplication>
+#include <QtMath>
+
+#include "footage.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
+#include "undo/undostack.h"
+#include "global/config.h"
+#include "panels/viewer.h"
+#include "panels/project.h"
+#include "ui/icons.h"
+#include "projectmodel.h"
+#include "global/debug.h"
 
 QString get_interlacing_name(int interlacing) {
   switch (interlacing) {
@@ -67,14 +67,8 @@ Media::Media(Media* iparent) {
   type = -1;
 }
 
-Media::~Media() {
-  for (int i=0;i<children.size();i++) {
-    delete children.at(i);
-  }
-}
-
-FootagePtr Media::to_footage() {
-  return std::static_pointer_cast<Footage>(object);
+Footage* Media::to_footage() {
+  return static_cast<Footage*>(object.get());
 }
 
 SequencePtr Media::to_sequence() {
@@ -90,7 +84,9 @@ void Media::set_sequence(SequencePtr s) {
   set_icon(olive::icon::MediaSequence);
   type = MEDIA_TYPE_SEQUENCE;
   object = VoidPtr(s);
-  if (s != nullptr) update_tooltip();
+  if (s != nullptr) {
+    update_tooltip();
+  }
 }
 
 void Media::set_folder() {
@@ -119,7 +115,7 @@ void Media::update_tooltip(const QString& error) {
   switch (type) {
   case MEDIA_TYPE_FOOTAGE:
   {
-    FootagePtr f = to_footage();
+    Footage* f = to_footage();
     tooltip = QCoreApplication::translate("Media", "Name:") + " " + f->name + "\n" + QCoreApplication::translate("Media", "Filename:") + " " + f->url + "\n";
 
     if (error.isEmpty()) {
@@ -190,7 +186,7 @@ void Media::update_tooltip(const QString& error) {
     break;
   case MEDIA_TYPE_SEQUENCE:
   {
-    SequencePtr s = to_sequence();
+    Sequence* s = to_sequence().get();
 
     tooltip = QCoreApplication::translate("Media", "Name: %1"
                                                    "\nVideo Dimensions: %2x%3"
@@ -238,7 +234,7 @@ double Media::get_frame_rate(int stream) {
   switch (get_type()) {
   case MEDIA_TYPE_FOOTAGE:
   {
-    FootagePtr f = to_footage();
+    Footage* f = to_footage();
     if (stream < 0) return f->video_tracks.at(0).video_frame_rate * f->speed;
     return f->get_stream_from_file_index(true, stream)->video_frame_rate * f->speed;
   }
@@ -251,7 +247,7 @@ int Media::get_sampling_rate(int stream) {
   switch (get_type()) {
   case MEDIA_TYPE_FOOTAGE:
   {
-    FootagePtr f = to_footage();
+    Footage* f = to_footage();
     if (stream < 0) return f->audio_tracks.at(0).audio_frequency * f->speed;
     return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency * f->speed;
   }
@@ -260,7 +256,7 @@ int Media::get_sampling_rate(int stream) {
   return 0;
 }
 
-void Media::appendChild(Media *child) {
+void Media::appendChild(MediaPtr child) {
   child->set_parent(this);
   children.append(child);
 }
@@ -277,7 +273,7 @@ bool Media::setData(int col, const QVariant &value) {
 }
 
 Media *Media::child(int row) {
-  return children.value(row);
+  return children.value(row).get();
 }
 
 int Media::childCount() const {
@@ -293,7 +289,7 @@ QVariant Media::data(int column, int role) {
   case Qt::DecorationRole:
     if (column == 0) {
       if (get_type() == MEDIA_TYPE_FOOTAGE) {
-        FootagePtr f = to_footage();
+        Footage* f = to_footage();
         if (f->video_tracks.size() > 0
             && f->video_tracks.at(0).preview_done) {
           return f->video_tracks.at(0).video_preview_square;
@@ -309,11 +305,11 @@ QVariant Media::data(int column, int role) {
     case 1:
       if (root) return QCoreApplication::translate("Media", "Duration");
       if (get_type() == MEDIA_TYPE_SEQUENCE) {
-        SequencePtr s = to_sequence();
+        Sequence* s = to_sequence().get();
         return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
       }
       if (get_type() == MEDIA_TYPE_FOOTAGE) {
-        FootagePtr f = to_footage();
+        Footage* f = to_footage();
         double r = 30;
 
         if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0).video_frame_rate))
@@ -327,7 +323,7 @@ QVariant Media::data(int column, int role) {
       if (root) return QCoreApplication::translate("Media", "Rate");
       if (get_type() == MEDIA_TYPE_SEQUENCE) return QString::number(get_frame_rate()) + " FPS";
       if (get_type() == MEDIA_TYPE_FOOTAGE) {
-        FootagePtr f = to_footage();
+        Footage* f = to_footage();
         double r;
         if (f->video_tracks.size() > 0 && !qIsNull(r = get_frame_rate())) {
           return QString::number(get_frame_rate()) + " FPS";
@@ -346,7 +342,11 @@ QVariant Media::data(int column, int role) {
 
 int Media::row() const {
   if (parent) {
-    return parent->children.indexOf(const_cast<Media*>(this));
+    for (int i=0;i<parent->children.size();i++) {
+      if (parent->children.at(i).get() == this) {
+        return i;
+      }
+    }
   }
   return 0;
 }
@@ -357,6 +357,16 @@ Media *Media::parentItem() {
 
 void Media::removeChild(int i) {
   children.removeAt(i);
+}
+
+MediaPtr Media::get_shared_ptr(Media *m)
+{
+  for (int i=0;i<children.size();i++) {
+    if (children.at(i).get() == m) {
+      return children.at(i);
+    }
+  }
+  return MediaPtr();
 }
 
 QVector<Marker> &Media::get_markers() {

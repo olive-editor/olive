@@ -27,9 +27,9 @@
 
 #include "ui/timelinewidget.h"
 #include "ui/timelinetools.h"
-#include "project/selection.h"
-#include "project/clip.h"
-#include "project/undo.h"
+#include "timeline/selection.h"
+#include "timeline/clip.h"
+#include "undo/undo.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
@@ -74,7 +74,7 @@ namespace olive {
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 bool selection_contains_transition(const Selection& s, Clip *c, int type);
-void ripple_clips(ComboAction *ca, SequencePtr s, long point, long length, const QVector<int>& ignore = QVector<int>());
+void ripple_clips(ComboAction *ca, Sequence *s, long point, long length, const QVector<int>& ignore = QVector<int>());
 
 struct Ghost {
   int clip;
@@ -125,8 +125,8 @@ public:
   void edit_to_point_internal(bool in, bool ripple);
   void delete_in_out_internal(bool ripple);
 
-  void create_ghosts_from_media(SequencePtr seq, long entry_point, QVector<Media *> &media_list);
-  void add_clips_from_ghosts(ComboAction *ca, SequencePtr s);
+  void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
+  void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
 
   int getTimelineScreenPointFromFrame(long frame);
   long getTimelineFrameFromScreenPoint(int x);

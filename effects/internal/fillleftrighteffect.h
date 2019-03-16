@@ -21,15 +21,15 @@
 #ifndef FILLLEFTRIGHTEFFECT_H
 #define FILLLEFTRIGHTEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class FillLeftRightEffect : public Effect {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    FillLeftRightEffect(Clip* c, const EffectMeta* em);
-	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  FillLeftRightEffect(Clip* c, const EffectMeta* em);
+  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 private:
-	EffectField* fill_type;
+  ComboField* fill_type;
 };
 
 #endif // FILLLEFTRIGHTEFFECT_H

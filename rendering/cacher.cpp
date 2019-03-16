@@ -37,8 +37,8 @@
 #include "rendering/audio.h"
 #include "rendering/renderfunctions.h"
 #include "panels/panels.h"
-#include "io/config.h"
-#include "debug.h"
+#include "global/config.h"
+#include "global/debug.h"
 
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
@@ -56,8 +56,10 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
 
   for (int j=0;j<clip->effects.size();j++) {
-    EffectPtr e = clip->effects.at(j);
-    if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
+    Effect* e = clip->effects.at(j).get();
+    if (e->IsEnabled()) {
+      e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
+    }
   }
   if (clip->opening_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
@@ -840,7 +842,7 @@ void Cacher::OpenWorker() {
     }
   } else if (clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     // opens file resource for FFmpeg and prepares Clip struct for playback
-    FootagePtr m = clip->media()->to_footage();
+    Footage* m = clip->media()->to_footage();
 
     // byte array for retriving raw bytes from QString URL
     QByteArray ba;

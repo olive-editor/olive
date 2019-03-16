@@ -29,7 +29,7 @@
 #include <QAudioOutput>
 #include <QComboBox>
 
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
 class AudioSenderThread : public QThread {
   Q_OBJECT

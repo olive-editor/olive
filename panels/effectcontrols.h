@@ -37,14 +37,17 @@
 #include "ui/resizablescrollbar.h"
 #include "ui/keyframeview.h"
 #include "ui/panel.h"
+#include "ui/effectui.h"
 
 class EffectsArea : public QWidget {
   Q_OBJECT
 public:
-  EffectsArea(QWidget* parent = 0);
+  EffectsArea(QWidget* parent = nullptr);
   QScrollArea* parent_widget;
   KeyframeView* keyframe_area;
   TimelineHeader* header;
+protected:
+  void resizeEvent(QResizeEvent*);
 public slots:
   void receive_wheel_event(QWheelEvent* e);
 };
@@ -53,21 +56,22 @@ class EffectControls : public Panel
 {
   Q_OBJECT
 public:
-  explicit EffectControls(QWidget *parent = 0);
-  ~EffectControls();
-  int get_mode();
-  void set_clips(QVector<int>& clips, int mode);
-  void clear_effects(bool clear_cache);
-  void delete_effects();
+  explicit EffectControls(QWidget *parent = nullptr);
+  virtual ~EffectControls() override;
+
+
+  void Reload();
+  void SetClips();
+  void Clear(bool clear_cache = true);
+
+  bool IsEffectSelected(Effect* e);
+
+  void DeleteSelectedEffects();
   bool is_focused();
-  void reload_clips();
   void set_zoom(bool in);
   bool keyframe_focus();
   void delete_selected_keyframes();
-  bool multiple;
   void scroll_to_frame(long frame);
-
-  QVector<int> selected_clips;
 
   double zoom;
 
@@ -75,8 +79,6 @@ public:
   QScrollBar* verticalScrollBar;
 
   QMutex effects_loaded;
-
-  void add_effect_paste_action(QMenu* menu);
 
   virtual void Retranslate() override;
 
@@ -103,10 +105,16 @@ private slots:
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 private:
+  QVector<Clip*> selected_clips_;
+  QVector<EffectUI*> open_effects_;
+
+  void Load();
+
+  void DeleteEffect(ComboAction* ca, Effect* effect_ref);
+
   void show_effect_menu(int type, int subtype);
-  void load_effects();
   void load_keyframes();
-  void open_effect(QVBoxLayout* hlayout, EffectPtr e);
+  void open_effect(QVBoxLayout* hlayout, Effect *e);
   void UpdateTitle();
 
   void setup_ui();
@@ -114,22 +122,23 @@ private:
   int effect_menu_type;
   int effect_menu_subtype;
   QString panel_name;
-  int mode;
+
+  QWidget* video_effect_area;
+  QWidget* audio_effect_area;
+  QVBoxLayout* video_effect_layout;
+  QVBoxLayout* audio_effect_layout;
 
   QSplitter* splitter;
   QPushButton* btnAddVideoEffect;
   QLabel* lblVideoEffects;
+  QLabel* lblAudioEffects;
   QPushButton* btnAddVideoTransition;
   QPushButton* btnAddAudioEffect;
   QPushButton* btnAddAudioTransition;
-  QLabel* lblMultipleClipsSelected;
-  QLabel* lblAudioEffects;
   TimelineHeader* headers;
   EffectsArea* effects_area;
   QScrollArea* scrollArea;
   KeyframeView* keyframeView;
-  QWidget* video_effect_area;
-  QWidget* audio_effect_area;
   QWidget* vcontainer;
   QWidget* acontainer;
 };

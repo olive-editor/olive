@@ -27,69 +27,66 @@
 
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
-#include "project/clip.h"
-#include "project/sequence.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 #include "panels/timeline.h"
-
-#include "debug.h"
+#include "global/debug.h"
 
 ShakeEffect::ShakeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-    enable_coords = true;
+  SetFlags(Effect::CoordsFlag);
 
-    EffectRow* intensity_row = add_row(tr("Intensity"));
-    intensity_val = intensity_row->add_field(EFFECT_FIELD_DOUBLE, "intensity");
-    intensity_val->set_double_minimum_value(0);
+  EffectRow* intensity_row = new EffectRow(this, tr("Intensity"));
+  intensity_val = new DoubleField(intensity_row, "intensity");
+  intensity_val->SetMinimum(0);
+  intensity_val->SetDefault(25);
 
-    EffectRow* rotation_row = add_row(tr("Rotation"));
-    rotation_val = rotation_row->add_field(EFFECT_FIELD_DOUBLE, "rotation");
-    rotation_val->set_double_minimum_value(0);
+  EffectRow* rotation_row = new EffectRow(this, tr("Rotation"));
+  rotation_val = new DoubleField(rotation_row, "rotation");
+  rotation_val->SetMinimum(0);
+  rotation_val->SetDefault(10);
 
-    EffectRow* frequency_row = add_row(tr("Frequency"));
-    frequency_val = frequency_row->add_field(EFFECT_FIELD_DOUBLE, "frequency");
-    frequency_val->set_double_minimum_value(0);
+  EffectRow* frequency_row = new EffectRow(this, tr("Frequency"));
+  frequency_val = new DoubleField(frequency_row, "frequency");
+  frequency_val->SetMinimum(0);
+  frequency_val->SetDefault(5);
 
-    // set defaults
-    intensity_val->set_double_default_value(25);
-    rotation_val->set_double_default_value(10);
-    frequency_val->set_double_default_value(5);
-
-    const auto limit = std::numeric_limits<int32_t>::max();
-    for (int i=0;i<RANDOM_VAL_SIZE;i++) {
-      random_vals[i] = static_cast<double>(this->randomNumber<int32_t>()) / limit;
-    }
+  const auto limit = std::numeric_limits<int32_t>::max();
+  for (int i=0;i<RANDOM_VAL_SIZE;i++) {
+    random_vals[i] = static_cast<double>(this->randomNumber<int32_t>()) / limit;
+  }
 }
 
 void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
-    int lim = RANDOM_VAL_SIZE/6;
+  int lim = RANDOM_VAL_SIZE/6;
 
-    double multiplier = intensity_val->get_double_value(timecode)/lim;
-    double rotmult = rotation_val->get_double_value(timecode)/lim/10;
-    double x = timecode * frequency_val->get_double_value(timecode);
+  double multiplier = intensity_val->GetDoubleAt(timecode)/lim;
+  double rotmult = rotation_val->GetDoubleAt(timecode)/lim/10;
+  double x = timecode * frequency_val->GetDoubleAt(timecode);
 
-    double xoff = 0;
-    double yoff = 0;
-    double rotoff = 0;
+  double xoff = 0;
+  double yoff = 0;
+  double rotoff = 0;
 
-    for (int i=0;i<lim;i++) {
-        int offset = 6*i;
-        xoff += qSin((x+random_vals[offset])*random_vals[offset+1]);
-        yoff += qSin((x+random_vals[offset+2])*random_vals[offset+3]);
-        rotoff += qSin((x+random_vals[offset+4])*random_vals[offset+5]);
-    }
+  for (int i=0;i<lim;i++) {
+    int offset = 6*i;
+    xoff += qSin((x+random_vals[offset])*random_vals[offset+1]);
+    yoff += qSin((x+random_vals[offset+2])*random_vals[offset+3]);
+    rotoff += qSin((x+random_vals[offset+4])*random_vals[offset+5]);
+  }
 
-    xoff *= multiplier;
-    yoff *= multiplier;
-    rotoff *= rotmult;
+  xoff *= multiplier;
+  yoff *= multiplier;
+  rotoff *= rotmult;
 
-    coords.vertexTopLeftX += xoff;
-    coords.vertexTopRightX += xoff;
-    coords.vertexBottomLeftX += xoff;
-    coords.vertexBottomRightX += xoff;
+  coords.vertexTopLeftX += xoff;
+  coords.vertexTopRightX += xoff;
+  coords.vertexBottomLeftX += xoff;
+  coords.vertexBottomRightX += xoff;
 
-    coords.vertexTopLeftY += yoff;
-    coords.vertexTopRightY += yoff;
-    coords.vertexBottomLeftY += yoff;
-    coords.vertexBottomRightY += yoff;
+  coords.vertexTopLeftY += yoff;
+  coords.vertexTopRightY += yoff;
+  coords.vertexBottomLeftY += yoff;
+  coords.vertexBottomRightY += yoff;
 
-    glRotatef(rotoff, 0, 0, 1);
+  glRotatef(rotoff, 0, 0, 1);
 }

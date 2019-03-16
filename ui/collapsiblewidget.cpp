@@ -33,7 +33,7 @@
 #include "ui/checkboxex.h"
 #include "ui/icons.h"
 
-#include "debug.h"
+#include "global/debug.h"
 
 CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   selected = false;
@@ -52,8 +52,8 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   header = new QLabel(title_bar);
   collapse_button = new QPushButton(title_bar);
   collapse_button->setIconSize(collapse_button->iconSize()*0.5);
-  collapse_button->setStyleSheet("QPushButton { border: none; }");
-  setText(tr("<untitled>"));
+  collapse_button->setFlat(true);
+  SetTitle(tr("<untitled>"));
   title_bar_layout->addWidget(collapse_button);
   title_bar_layout->addWidget(enabled_check);
   title_bar_layout->addWidget(header);
@@ -80,35 +80,41 @@ void CollapsibleWidget::header_click(bool s, bool deselect) {
   if (deselect) emit deselect_others(this);
 }
 
-bool CollapsibleWidget::is_focused() {
+bool CollapsibleWidget::IsFocused() {
   if (hasFocus()) return true;
   return title_bar->hasFocus();
 }
 
-bool CollapsibleWidget::is_expanded() {
+bool CollapsibleWidget::IsExpanded() {
   return contents->isVisible();
+}
+
+bool CollapsibleWidget::IsSelected()
+{
+  return selected;
 }
 
 void CollapsibleWidget::set_button_icon(bool open) {
   collapse_button->setIcon(open ? olive::icon::DownArrow : olive::icon::RightArrow);
 }
 
-void CollapsibleWidget::setContents(QWidget* c) {
+void CollapsibleWidget::SetContents(QWidget* c) {
   bool existing = (contents != nullptr);
   contents = c;
   if (!existing) {
     layout->addWidget(contents);
-    connect(enabled_check, SIGNAL(toggled(bool)), this, SLOT(on_enabled_change(bool)));
+    connect(enabled_check, SIGNAL(toggled(bool)), contents, SLOT(setEnabled(bool)));
     connect(collapse_button, SIGNAL(clicked()), this, SLOT(on_visible_change()));
   }
 }
 
-void CollapsibleWidget::setText(const QString &s) {
-  header->setText(s);
+QString CollapsibleWidget::Title()
+{
+  return header->text();
 }
 
-void CollapsibleWidget::on_enabled_change(bool b) {
-  contents->setEnabled(b);
+void CollapsibleWidget::SetTitle(const QString &s) {
+  header->setText(s);
 }
 
 void CollapsibleWidget::on_visible_change() {

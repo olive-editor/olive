@@ -30,14 +30,14 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "oliveglobal.h"
+#include "global/global.h"
 #include "dialogs/advancedvideodialog.h"
 #include "panels/panels.h"
 #include "ui/viewerwidget.h"
 #include "rendering/renderfunctions.h"
 #include "rendering/audio.h"
-#include "io/exportthread.h"
-#include "mainwindow.h"
+#include "rendering/exportthread.h"
+#include "ui/mainwindow.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -545,7 +545,7 @@ void ExportDialog::export_action() {
     connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
     connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
 
-    close_active_clips(olive::ActiveSequence);
+    close_active_clips(olive::ActiveSequence.get());
 
     olive::Global->set_rendering_state(true);
 

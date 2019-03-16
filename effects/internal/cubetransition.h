@@ -21,7 +21,7 @@
 #ifndef CUBETRANSITION_H
 #define CUBETRANSITION_H
 
-#include "project/transition.h"
+#include "effects/transition.h"
 
 class CubeTransition : public Transition {
 public:

@@ -26,19 +26,18 @@
 #include <QMenu>
 #include <cfloat>
 
-#include "io/config.h"
+#include "global/config.h"
 #include "panels/panels.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 #include "ui/keyframedrawing.h"
-#include "project/undo.h"
-#include "project/effect.h"
-#include "project/clip.h"
+#include "undo/undo.h"
+#include "undo/undostack.h"
+#include "effects/effect.h"
+#include "timeline/clip.h"
 #include "ui/rectangleselect.h"
-
-#include "debug.h"
-
+#include "global/debug.h"
 
 const double kGraphZoomSpeed = 0.05;
 const int kGraphSize = 100;
@@ -120,15 +119,15 @@ void GraphView::set_view_to_selection() {
     double min_dbl = DBL_MAX;
     double max_dbl = DBL_MIN;
     for (int i=0;i<selected_keys.size();i++) {
-      const EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes.at(selected_keys.at(i));
+      const EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes.at(selected_keys.at(i));
       min_time = qMin(key.time, min_time);
       max_time = qMax(key.time, max_time);
       min_dbl = qMin(key.data.toDouble(), min_dbl);
       max_dbl = qMax(key.data.toDouble(), max_dbl);
     }
 
-    min_time -= row->parent_effect->parent_clip->clip_in();
-    max_time -= row->parent_effect->parent_clip->clip_in();
+    min_time -= row->GetParentEffect()->parent_clip->clip_in();
+    max_time -= row->GetParentEffect()->parent_clip->clip_in();
 
     set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
   }
@@ -142,9 +141,9 @@ void GraphView::set_view_to_all() {
     long max_time = LONG_MIN;
     double min_dbl = DBL_MAX;
     double max_dbl = DBL_MIN;
-    for (int i=0;i<row->fieldCount();i++) {
-      for (int j=0;j<row->field(i)->keyframes.size();j++) {
-        const EffectKeyframe& key = row->field(i)->keyframes.at(j);
+    for (int i=0;i<row->FieldCount();i++) {
+      for (int j=0;j<row->Field(i)->keyframes.size();j++) {
+        const EffectKeyframe& key = row->Field(i)->keyframes.at(j);
         min_time = qMin(key.time, min_time);
         max_time = qMax(key.time, max_time);
         min_dbl = qMin(key.data.toDouble(), min_dbl);
@@ -153,8 +152,8 @@ void GraphView::set_view_to_all() {
       }
     }
     if (can_set) {
-      min_time -= row->parent_effect->parent_clip->clip_in();
-      max_time -= row->parent_effect->parent_clip->clip_in();
+      min_time -= row->GetParentEffect()->parent_clip->clip_in();
+      max_time -= row->GetParentEffect()->parent_clip->clip_in();
 
       set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
     }
@@ -242,10 +241,10 @@ void GraphView::paintEvent(QPaintEvent *) {
       QPen line_pen;
       line_pen.setWidth(kBezierLineSize);
 
-      for (int i=row->fieldCount()-1;i>=0;i--) {
-        EffectField* field = row->field(i);
+      for (int i=row->FieldCount()-1;i>=0;i--) {
+        EffectField* field = row->Field(i);
 
-        if (field->type == EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
+        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
           // sort keyframes by time
           QVector<int> sorted_keys = sort_keys_from_field(field);
 
@@ -259,15 +258,15 @@ void GraphView::paintEvent(QPaintEvent *) {
             int key_x = get_screen_x(key.time);
             int key_y = get_screen_y(key.data.toDouble());
 
-            line_pen.setColor(get_curve_color(i, row->fieldCount()));
+            line_pen.setColor(get_curve_color(i, row->FieldCount()));
             p.setPen(line_pen);
             if (j == 0) {
               p.drawLine(0, key_y, key_x, key_y);
             } else {
               const EffectKeyframe& last_key = field->keyframes.at(sorted_keys.at(j-1));
 
-              double pre_handle = field->get_validated_keyframe_handle(sorted_keys.at(j), false);
-              double last_post_handle = field->get_validated_keyframe_handle(sorted_keys.at(j-1), true);
+              double pre_handle = field->GetValidKeyframeHandlePosition(sorted_keys.at(j), false);
+              double last_post_handle = field->GetValidKeyframeHandlePosition(sorted_keys.at(j-1), true);
 
               if (last_key.type == EFFECT_KEYFRAME_HOLD) {
                 // hold
@@ -385,9 +384,9 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
       update_ui(false);
       click_add_proc = true;
     } else {
-      for (int i=0;i<row->fieldCount();i++) {
-        EffectField* field = row->field(i);
-        if (field->type == EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
+      for (int i=0;i<row->FieldCount();i++) {
+        EffectField* field = row->Field(i);
+        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
           for (int j=0;j<field->keyframes.size();j++) {
             const EffectKeyframe& key = field->keyframes.at(j);
             int key_x = get_screen_x(key.time);
@@ -488,8 +487,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
       selected_keys.resize(rect_select_offset);
       selected_keys_fields.resize(rect_select_offset);
 
-      for (int i=0;i<row->fieldCount();i++) {
-        EffectField* f = row->field(i);
+      for (int i=0;i<row->FieldCount();i++) {
+        EffectField* f = row->Field(i);
         for (int j=0;j<f->keyframes.size();j++) {
           bool already_selected = false;
           for (int k=0;k<selected_keys.size();k++) {
@@ -514,11 +513,11 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
       switch (current_handle) {
       case kBezierHandleNone:
         for (int i=0;i<selected_keys.size();i++) {
-          row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].time = qRound(selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/x_zoom));
+          row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].time = qRound(selected_keys_old_vals.at(i) + (double(event->pos().x() - start_x)/x_zoom));
           if (event->modifiers() & Qt::ShiftModifier) {
-            row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = selected_keys_old_doubles.at(i);
+            row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = selected_keys_old_doubles.at(i);
           } else {
-            row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = qRound(selected_keys_old_doubles.at(i) + (double(start_y - event->pos().y())/y_zoom));
+            row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)].data = qRound(selected_keys_old_doubles.at(i) + (double(start_y - event->pos().y())/y_zoom));
           }
         }
         moved_keys = true;
@@ -551,7 +550,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
           }
         }
 
-        EffectKeyframe& key = row->field(handle_field)->keyframes[handle_index];
+        EffectKeyframe& key = row->Field(handle_field)->keyframes[handle_index];
         key.pre_handle_x = qMin(0.0, new_pre_handle_x);
         key.pre_handle_y = new_pre_handle_y;
         key.post_handle_x = qMax(0.0, new_post_handle_x);
@@ -569,9 +568,9 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
     bool hovering_key = false;
 
-    for (int i=0;i<row->fieldCount();i++) {
-      for (int j=0;j<row->field(i)->keyframes.size();j++) {
-        const EffectKeyframe& key = row->field(i)->keyframes.at(j);
+    for (int i=0;i<row->FieldCount();i++) {
+      for (int j=0;j<row->Field(i)->keyframes.size();j++) {
+        const EffectKeyframe& key = row->Field(i)->keyframes.at(j);
         int key_x = get_screen_x(key.time);
         int key_y = get_screen_y(key.data.toDouble());
         QRect test_rect(
@@ -603,8 +602,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
     }
 
     if (!hovering_key) {
-      for (int i=0;i<row->fieldCount();i++) {
-        EffectField* f = row->field(i);
+      for (int i=0;i<row->FieldCount();i++) {
+        EffectField* f = row->Field(i);
         if (field_visibility.at(i)) {
           QVector<int> sorted_keys = sort_keys_from_field(f);
 
@@ -702,13 +701,13 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *) {
   if (click_add_proc) {
-    olive::UndoStack.push(new KeyframeFieldSet(click_add_field, click_add_key));
+    olive::UndoStack.push(new KeyframeAdd(click_add_field, click_add_key));
   } else if (moved_keys && selected_keys.size() > 0) {
     ComboAction* ca = new ComboAction();
     switch (current_handle) {
     case kBezierHandleNone:
       for (int i=0;i<selected_keys.size();i++) {
-        EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
+        EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
         ca->append(new SetLong(&key.time, selected_keys_old_vals.at(i), key.time));
         ca->append(new SetQVariant(&key.data, selected_keys_old_doubles.at(i), key.data));
       }
@@ -716,7 +715,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
     case kBezierHandlePre:
     case kBezierHandlePost:
     {
-      EffectKeyframe& key = row->field(handle_field)->keyframes[handle_index];
+      EffectKeyframe& key = row->Field(handle_field)->keyframes[handle_index];
       ca->append(new SetDouble(&key.pre_handle_x, old_pre_handle_x, key.pre_handle_x));
       ca->append(new SetDouble(&key.pre_handle_y, old_pre_handle_y, key.pre_handle_y));
       ca->append(new SetDouble(&key.post_handle_x, old_post_handle_x, key.post_handle_x));
@@ -831,11 +830,11 @@ void GraphView::set_row(EffectRow *r) {
     emit selection_changed(false, -1);
     row = r;
     if (row != nullptr) {
-      field_visibility.resize(row->fieldCount());
-      for (int i=0;i<row->fieldCount();i++) {
-        field_visibility[i] = row->field(i)->is_enabled();
+      field_visibility.resize(row->FieldCount());
+      for (int i=0;i<row->FieldCount();i++) {
+        field_visibility[i] = row->Field(i)->IsEnabled();
       }
-      visible_in = row->parent_effect->parent_clip->timeline_in();
+      visible_in = row->GetParentEffect()->parent_clip->timeline_in();
       set_view_to_all();
     } else {
       update();
@@ -847,7 +846,7 @@ void GraphView::set_selected_keyframe_type(int type) {
   if (selected_keys.size() > 0) {
     ComboAction* ca = new ComboAction();
     for (int i=0;i<selected_keys.size();i++) {
-      EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
+      EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
       ca->append(new SetInt(&key.type, type));
     }
     olive::UndoStack.push(ca);
@@ -864,7 +863,7 @@ void GraphView::delete_selected_keys() {
   if (row != nullptr) {
     QVector<EffectField*> fields;
     for (int i=0;i<selected_keys_fields.size();i++) {
-      fields.append(row->field(selected_keys_fields.at(i)));
+      fields.append(row->Field(selected_keys_fields.at(i)));
     }
     delete_keyframes(fields, selected_keys);
   }
@@ -874,8 +873,8 @@ void GraphView::select_all() {
   if (row != nullptr) {
     selected_keys.clear();
     selected_keys_fields.clear();
-    for (int i=0;i<row->fieldCount();i++) {
-      EffectField* field = row->field(i);
+    for (int i=0;i<row->FieldCount();i++) {
+      EffectField* field = row->Field(i);
       for (int j=0;j<field->keyframes.size();j++) {
         selected_keys.append(j);
         selected_keys_fields.append(i);
@@ -903,7 +902,7 @@ void GraphView::set_zoom(double xz, double yz) {
 
 int GraphView::get_screen_x(double d) {
   if (row != nullptr) {
-    d -= row->parent_effect->parent_clip->clip_in();
+    d -= row->GetParentEffect()->parent_clip->clip_in();
   }
   return qRound((d*x_zoom) - x_scroll);
 }
@@ -915,7 +914,7 @@ int GraphView::get_screen_y(double d) {
 long GraphView::get_value_x(int i) {
   long frame = qRound((i + x_scroll)/x_zoom);
   if (row != nullptr) {
-    frame += row->parent_effect->parent_clip->clip_in();
+    frame += row->GetParentEffect()->parent_clip->clip_in();
   }
   return frame;
 }
@@ -931,7 +930,7 @@ void GraphView::selection_update() {
   int selected_key_type = -1;
 
   for (int i=0;i<selected_keys.size();i++) {
-    const EffectKeyframe& key = row->field(selected_keys_fields.at(i))->keyframes.at(selected_keys.at(i));
+    const EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes.at(selected_keys.at(i));
     selected_keys_old_vals.append(key.time);
     selected_keys_old_doubles.append(key.data.toDouble());
 

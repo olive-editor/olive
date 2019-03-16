@@ -20,23 +20,25 @@
 
 #include "timelineheader.h"
 
-#include "mainwindow.h"
-#include "panels/panels.h"
-#include "panels/timeline.h"
-#include "project/sequence.h"
-#include "project/undo.h"
-#include "project/media.h"
-#include "panels/viewer.h"
-#include "io/config.h"
-#include "ui/menuhelper.h"
-#include "debug.h"
-
 #include <QPainter>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QtMath>
 #include <QMenu>
 #include <QAction>
+
+#include "mainwindow.h"
+#include "panels/panels.h"
+#include "panels/timeline.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
+#include "project/media.h"
+#include "panels/viewer.h"
+#include "global/config.h"
+#include "global/global.h"
+#include "ui/menuhelper.h"
+#include "global/debug.h"
+#include "undo/undostack.h"
 
 #define CLICK_RANGE 5
 #define PLAYHEAD_SIZE 6
@@ -115,7 +117,7 @@ void TimelineHeader::set_in_point(long new_in) {
     new_out = viewer->seq->getEndFrame();
   }
 
-  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
   update_parents();
 }
 
@@ -127,7 +129,7 @@ void TimelineHeader::set_out_point(long new_out) {
     new_in = 0;
   }
 
-  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, new_in, new_out));
+  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
   update_parents();
 }
 
@@ -280,7 +282,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
   if (viewer->seq != nullptr) {
     dragging = false;
     if (resizing_workarea) {
-      olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq, true, temp_workarea_in, temp_workarea_out));
+      olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, temp_workarea_in, temp_workarea_out));
     } else if (dragging_markers && selected_markers.size() > 0) {
       bool moved = false;
       ComboAction* ca = new ComboAction();
@@ -393,7 +395,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
       if (lineX > lastLineX+LINE_MIN_PADDING) {
         if (draw_text) {
-          p.setPen(Qt::white);
+          p.setPen(olive::styling::GetIconColor());
           p.drawText(QRect(text_x, 0, fullTextWidth, yoff), timecode);
         }
 
@@ -419,7 +421,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
       in_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_in : viewer->seq->workarea_in));
       int out_x = getHeaderScreenPointFromFrame((resizing_workarea ? temp_workarea_out : viewer->seq->workarea_out));
       p.fillRect(QRect(in_x, 0, out_x-in_x, height()), QColor(0, 192, 255, 128));
-      p.setPen(Qt::white);
+      p.setPen(olive::styling::GetIconColor());
       p.drawLine(in_x, 0, in_x, height());
       p.drawLine(out_x, 0, out_x, height());
     }

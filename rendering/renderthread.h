@@ -29,8 +29,8 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 
-#include "project/sequence.h"
-#include "project/effect.h"
+#include "timeline/sequence.h"
+#include "effects/effect.h"
 #include "rendering/framebufferobject.h"
 
 // copied from source code to OCIODisplay
@@ -52,7 +52,7 @@ public:
   Effect* gizmos;
   void paint();
   void start_render(QOpenGLContext* share,
-                    SequencePtr s,
+                    Sequence *s,
                     const QString &save = nullptr,
                     GLvoid *pixels = nullptr,
                     int pixel_linesize = 0,
@@ -101,7 +101,7 @@ private:
   GLuint ocio_lut_texture;
   QOpenGLShaderProgram* ocio_shader;
 
-  SequencePtr seq;
+  Sequence* seq;
   int divider;
   int tex_width;
   int tex_height;

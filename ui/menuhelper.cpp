@@ -20,20 +20,17 @@
 
 #include "menuhelper.h"
 
-#include "oliveglobal.h"
-
-#include "ui/focusfilter.h"
-
-#include "io/config.h"
-
-#include "panels/panels.h"
-
-#include "mainwindow.h"
-
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QStyleFactory>
+
+#include "global/config.h"
+#include "project/clipboard.h"
+#include "ui/mainwindow.h"
+#include "global/global.h"
+#include "panels/panels.h"
+#include "ui/focusfilter.h"
 
 MenuHelper olive::MenuHelper;
 
@@ -125,15 +122,21 @@ void MenuHelper::make_clip_functions_menu(QMenu *parent) {
   parent->addAction(nest_);
 }
 
-void MenuHelper::make_edit_functions_menu(QMenu *parent) {
-  parent->addAction(cut_);
-  parent->addAction(copy_);
+void MenuHelper::make_edit_functions_menu(QMenu *parent, bool objects_are_selected) {
+  if (objects_are_selected) {
+    parent->addAction(cut_);
+    parent->addAction(copy_);
+  }
+
   parent->addAction(paste_);
   parent->addAction(paste_insert_);
-  parent->addAction(duplicate_);
-  parent->addAction(delete_);
-  parent->addAction(ripple_delete_);
-  parent->addAction(split_);
+
+  if (objects_are_selected) {
+    parent->addAction(duplicate_);
+    parent->addAction(delete_);
+    parent->addAction(ripple_delete_);
+    parent->addAction(split_);
+  }
 }
 
 void MenuHelper::set_bool_action_checked(QAction *a) {
@@ -260,6 +263,12 @@ void MenuHelper::set_timecode_view() {
 void MenuHelper::open_recent_from_menu() {
   int index = static_cast<QAction*>(sender())->data().toInt();
   olive::Global.get()->open_recent(index);
+}
+
+void MenuHelper::create_effect_paste_action(QMenu *menu)
+{
+  QAction* paste_action = menu->addAction(tr("&Paste"), panel_timeline, SLOT(paste(bool)));
+  paste_action->setEnabled(clipboard.size() > 0 && clipboard_type == CLIPBOARD_TYPE_EFFECT);
 }
 
 QMenu* MenuHelper::create_submenu(QMenuBar* parent,

@@ -20,16 +20,16 @@
 
 #include "audio.h"
 
-#include "oliveglobal.h"
+#include "global/global.h"
 
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
 #include "panels/panels.h"
 
-#include "io/config.h"
+#include "global/config.h"
 #include "ui/audiomonitor.h"
 #include "rendering/renderfunctions.h"
-#include "debug.h"
+#include "global/debug.h"
 
 #include <QApplication>
 #include <QAudioOutput>

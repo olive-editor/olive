@@ -75,8 +75,13 @@ public:
    * @param parent
    *
    * The menu to add items to.
+   *
+   * @param objects_are_selected
+   *
+   * Some extra functions may be hidden in the event no clip is actually selected. Set this to **FALSE** to hide those
+   * functions.
    */
-  void make_edit_functions_menu(QMenu* parent);
+  void make_edit_functions_menu(QMenu* parent, bool objects_are_selected = true);
 
   /**
    * @brief Sets the checked state of a menu item based on a Boolean variable.
@@ -185,6 +190,15 @@ public slots:
    * the internal auto-recovery project list.
    */
   void open_recent_from_menu();
+
+  /**
+   * @brief Create a "Paste" action on the specified menu that's enabled only if the clipboard contains effects
+   *
+   * @param menu
+   *
+   * Menu to add action to
+   */
+  void create_effect_paste_action(QMenu *menu);
 
 private:
   QAction* new_project_;

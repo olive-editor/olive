@@ -27,19 +27,19 @@
  * isn't lost if the user saves over the project.
  */
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 class VoidEffect : public Effect {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    VoidEffect(Clip* c, const QString& n);
+  VoidEffect(Clip* c, const QString& n);
 
-    virtual EffectPtr copy(Clip* c) override;
-	virtual void load(QXmlStreamReader &stream) override;
-	virtual void save(QXmlStreamWriter &stream) override;
+  virtual EffectPtr copy(Clip* c) override;
+  virtual void load(QXmlStreamReader &stream) override;
+  virtual void save(QXmlStreamWriter &stream) override;
 private:
-	QByteArray bytes;
-	EffectMeta void_meta;
+  QByteArray bytes;
+  EffectMeta void_meta;
 };
 
 #endif // VOIDEFFECT_H

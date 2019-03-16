@@ -23,18 +23,42 @@
 
 #include <QDialog>
 #include <QPlainTextEdit>
+#include <QFontComboBox>
+
+#include "ui/labelslider.h"
+#include "ui/colorbutton.h"
 
 class TextEditDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr);
-	const QString& get_string();
+  TextEditDialog(QWidget* parent = nullptr, const QString& s = nullptr, bool rich_text = true);
+  const QString& get_string();
+signals:
+  void cursorPositionChanged();
 private slots:
-	void save();
-	void cancel();
+  void save();
+  void cancel();
+
+  void SetBold(bool bold);
+  void SetFontWeight(int i);
+  void SetLetterSpacing(qreal spacing);
+  void SetAlignmentFromProperty();
+  void UpdateUIFromTextCursor();
 private:
-	QString result_str;
-	QPlainTextEdit* textEdit;
+  bool rich_text_;
+
+  QString result_str;
+  QTextEdit* textEdit;
+  QPushButton* italic_button;
+  QPushButton* underline_button;
+  QFontComboBox* font_list;
+  QComboBox* font_weight;
+  LabelSlider* font_size;
+  ColorButton* font_color;
+  QPushButton* left_align_button;
+  QPushButton* center_align_button;
+  QPushButton* right_align_button;
+  QPushButton* justify_align_button;
 };
 
 #endif // TEXTEDITDIALOG_H

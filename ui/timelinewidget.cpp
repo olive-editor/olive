@@ -20,32 +20,6 @@
 
 #include "timelinewidget.h"
 
-#include "oliveglobal.h"
-#include "panels/panels.h"
-#include "project/projectelements.h"
-
-#include "rendering/audio.h"
-#include "io/config.h"
-#include "ui/sourcetable.h"
-#include "ui/sourceiconview.h"
-#include "project/undo.h"
-#include "ui/viewerwidget.h"
-#include "ui/resizablescrollbar.h"
-#include "dialogs/newsequencedialog.h"
-#include "mainwindow.h"
-#include "ui/rectangleselect.h"
-#include "rendering/renderfunctions.h"
-#include "ui/cursors.h"
-#include "ui/menuhelper.h"
-#include "ui/focusfilter.h"
-#include "dialogs/clippropertiesdialog.h"
-#include "debug.h"
-
-#include "project/effect.h"
-
-#include "effects/internal/solideffect.h"
-#include "effects/internal/texteffect.h"
-
 #include <QPainter>
 #include <QColor>
 #include <QMouseEvent>
@@ -60,6 +34,30 @@
 #include <QToolTip>
 #include <QInputDialog>
 #include <QStatusBar>
+
+#include "global/global.h"
+#include "panels/panels.h"
+#include "project/projectelements.h"
+#include "rendering/audio.h"
+#include "global/config.h"
+#include "ui/sourcetable.h"
+#include "ui/sourceiconview.h"
+#include "undo/undo.h"
+#include "undo/undostack.h"
+#include "ui/viewerwidget.h"
+#include "ui/resizablescrollbar.h"
+#include "dialogs/newsequencedialog.h"
+#include "mainwindow.h"
+#include "ui/rectangleselect.h"
+#include "rendering/renderfunctions.h"
+#include "ui/cursors.h"
+#include "ui/menuhelper.h"
+#include "ui/focusfilter.h"
+#include "dialogs/clippropertiesdialog.h"
+#include "global/debug.h"
+#include "effects/effect.h"
+#include "effects/internal/solideffect.h"
+#include "effects/internal/texteffect.h"
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
@@ -90,8 +88,6 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
     QMenu menu(this);
 
-    // TODO replace with Olive::MenuHelper::make_edit_functions_menu() without losing functionality
-
     QAction* undoAction = menu.addAction(tr("&Undo"));
     QAction* redoAction = menu.addAction(tr("&Redo"));
     connect(undoAction, SIGNAL(triggered(bool)), olive::Global.get(), SLOT(undo()));
@@ -103,13 +99,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
     // collect all the selected clips
     QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
-    if (!selected_clips.isEmpty()) {
-      // clips are selected
-      menu.addAction(tr("C&ut"), &olive::FocusFilter, SLOT(cut()));
-      menu.addAction(tr("Cop&y"), &olive::FocusFilter, SLOT(copy()));
-    }
-
-    menu.addAction(tr("&Paste"), olive::Global.get(), SLOT(paste()));
+    olive::MenuHelper.make_edit_functions_menu(&menu, !selected_clips.isEmpty());
 
     if (selected_clips.isEmpty()) {
       // no clips are selected
@@ -119,7 +109,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
       panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
 
       if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
-        QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete"));
+        QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete Empty Space"));
         connect(ripple_delete_action, SIGNAL(triggered(bool)), panel_timeline, SLOT(ripple_delete_empty_space()));
       }
 
@@ -128,7 +118,9 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
     }
 
     if (!selected_clips.isEmpty()) {
+
       menu.addSeparator();
+
       menu.addAction(tr("&Speed/Duration"), olive::Global.get(), SLOT(open_speed_dialog()));
 
       QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
@@ -259,8 +251,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
   }
 
   if (event->source() == panel_footage_viewer->viewer_widget) {
-    SequencePtr proposed_seq = panel_footage_viewer->seq;
-    if (proposed_seq != olive::ActiveSequence) { // don't allow nesting the same sequence
+    if (panel_footage_viewer->seq != olive::ActiveSequence) { // don't allow nesting the same sequence
       media_list.append(panel_footage_viewer->media);
       import_init = true;
     }
@@ -278,9 +269,10 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
       panel_project->process_file_list(file_list);
 
       for (int i=0;i<panel_project->last_imported_media.size();i++) {
+        Footage* f = panel_project->last_imported_media.at(i)->to_footage();
+
         // waits for media to have a duration
         // TODO would be much nicer if this was multithreaded
-        FootagePtr f = panel_project->last_imported_media.at(i)->to_footage();
         f->ready_lock.lock();
         f->ready_lock.unlock();
 
@@ -302,14 +294,14 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     event->acceptProposedAction();
 
     long entry_point;
-    SequencePtr seq = olive::ActiveSequence;
+    Sequence* seq = olive::ActiveSequence.get();
 
     if (seq == nullptr) {
       // if no sequence, we're going to create a new one using the clips as a reference
       entry_point = 0;
 
       self_created_sequence = create_sequence_from_media(media_list);
-      seq = self_created_sequence;
+      seq = self_created_sequence.get();
     } else {
       entry_point = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
       panel_timeline->drag_frame_start = entry_point + getFrameFromScreenPoint(panel_timeline->zoom, 50);
@@ -486,13 +478,13 @@ void insert_clips(ComboAction* ca) {
 
   long ripple_length = (latest_new_point - earliest_new_point);
 
-  ripple_clips(ca, olive::ActiveSequence, earliest_new_point, ripple_length, ignore_clips);
+  ripple_clips(ca, olive::ActiveSequence.get(), earliest_new_point, ripple_length, ignore_clips);
 
   if (ripple_old_point) {
     // works for moving later clips earlier but not earlier to later
     long second_ripple_length = (earliest_old_point - latest_old_point);
 
-    ripple_clips(ca, olive::ActiveSequence, latest_old_point, second_ripple_length, ignore_clips);
+    ripple_clips(ca, olive::ActiveSequence.get(), latest_old_point, second_ripple_length, ignore_clips);
 
     if (earliest_old_point < earliest_new_point) {
       for (int i=0;i<panel_timeline->ghosts.size();i++) {
@@ -515,11 +507,11 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
 
     ComboAction* ca = new ComboAction();
 
-    SequencePtr s = olive::ActiveSequence;
+    Sequence* s = olive::ActiveSequence.get();
 
     // if we're dropping into nothing, create a new sequences based on the clip being dragged
     if (s == nullptr) {
-      s = self_created_sequence;
+      s = self_created_sequence.get();
       panel_project->create_sequence_internal(ca, self_created_sequence, true, nullptr);
       self_created_sequence = nullptr;
     } else if (event->keyboardModifiers() & Qt::ControlModifier) {
@@ -664,7 +656,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
           if (hovered_clip >= 0) {
             Clip* clip = olive::ActiveSequence->clips.at(hovered_clip).get();
 
-            if (olive::ActiveSequence->IsClipSelected(clip, true)) {
+            if (clip->IsSelected()) {
 
               if (shift) {
 
@@ -767,7 +759,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
                   Clip* link = olive::ActiveSequence->clips.at(clip->linked.at(i)).get();
 
                   // check if the clip is already selected
-                  if (!olive::ActiveSequence->IsClipSelected(link, true)) {
+                  if (!link->IsSelected()) {
                     Selection ss;
                     ss.in = link->timeline_in();
                     ss.out = link->timeline_out();
@@ -998,7 +990,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
             panel_timeline->creating = false;
           } else if (g.in != g.out) {
-            ClipPtr c = std::make_shared<Clip>(olive::ActiveSequence);
+            ClipPtr c = std::make_shared<Clip>(olive::ActiveSequence.get());
             c->set_media(nullptr, 0);
             c->set_timeline_in(qMin(g.in, g.out));
             c->set_timeline_out(qMax(g.in, g.out));
@@ -1020,7 +1012,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
             QVector<ClipPtr> add;
             add.append(c);
-            ca->append(new AddClipCommand(olive::ActiveSequence, add));
+            ca->append(new AddClipCommand(olive::ActiveSequence.get(), add));
 
             if (c->track() < 0 && olive::CurrentConfig.add_default_effects_to_clips) {
               // default video effects (before custom effects)
@@ -1040,7 +1032,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             {
               c->set_name(tr("Bars"));
               EffectPtr e = Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
-              e->row(0)->field(0)->set_combo_index(1);
+
+              // Auto-select bars
+              SolidEffect* solid_effect = static_cast<SolidEffect*>(e.get());
+              solid_effect->SetType(SolidEffect::SOLID_TYPE_BARS);
+
               c->effects.append(e);
             }
               break;
@@ -1137,7 +1133,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             if (panel_timeline->trim_type == TRIM_OUT) ripple_length = -ripple_length;
 
             // finally, ripple everything
-            ripple_clips(ca, olive::ActiveSequence, ripple_point, ripple_length, ignore_clips);
+            ripple_clips(ca, olive::ActiveSequence.get(), ripple_point, ripple_length, ignore_clips);
           }
 
           if (panel_timeline->tool == TIMELINE_TOOL_POINTER
@@ -1153,7 +1149,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
               if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
 
                 // create copy of clip
-                ClipPtr c(olive::ActiveSequence->clips.at(g.clip)->copy(olive::ActiveSequence));
+                ClipPtr c = olive::ActiveSequence->clips.at(g.clip)->copy(olive::ActiveSequence.get());
 
                 c->set_timeline_in(g.in);
                 c->set_timeline_out(g.out);
@@ -1180,7 +1176,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
               panel_timeline->relink_clips_using_ids(old_clips, new_clips);
 
               // add them
-              ca->append(new AddClipCommand(olive::ActiveSequence, new_clips));
+              ca->append(new AddClipCommand(olive::ActiveSequence.get(), new_clips));
 
             }
 
@@ -2004,7 +2000,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
     panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
     // if holding the mouse button down, let's scroll to that location
-    if (event->buttons() != 0) {
+    if (event->buttons() != 0 && panel_timeline->tool != TIMELINE_TOOL_HAND) {
       panel_timeline->scroll_to_frame(panel_timeline->cursor_frame);
     }
 
@@ -2069,7 +2065,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
           Clip* c = olive::ActiveSequence->clips.at(j).get();
 
-          if (c != nullptr && olive::ActiveSequence->IsClipSelected(c, false)) {
+          if (c != nullptr && c->IsSelected(false)) {
 
             // loop through linked clips
             for (int k=0;k<c->linked.size();k++) {
@@ -2199,7 +2195,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
             // if a transition isn't selected, check if the whole clip is
             if (!add) {
-              add = olive::ActiveSequence->IsClipSelected(c, true);
+              add = c->IsSelected();
             }
 
             if (add) {
@@ -2338,7 +2334,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
         }
 
         // store selections
-        selection_command = new SetSelectionsCommand(olive::ActiveSequence);
+        selection_command = new SetSelectionsCommand(olive::ActiveSequence.get());
         selection_command->old_data = olive::ActiveSequence->selections;
 
         // ready to start moving clips
@@ -2949,7 +2945,6 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
           if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
             bool draw_checkerboard = false;
             QRect checkerboard_rect(clip_rect);
-            FootagePtr m = clip->media()->to_footage();
             FootageStream* ms = clip->media_stream();
             if (ms == nullptr) {
               draw_checkerboard = true;

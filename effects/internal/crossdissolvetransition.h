@@ -21,7 +21,7 @@
 #ifndef CROSSDISSOLVETRANSITION_H
 #define CROSSDISSOLVETRANSITION_H
 
-#include "project/transition.h"
+#include "effects/transition.h"
 
 class CrossDissolveTransition : public Transition {
 public:

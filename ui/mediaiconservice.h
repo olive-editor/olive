@@ -28,33 +28,33 @@
 #include "project/media.h"
 
 enum IconType {
-    ICON_TYPE_VIDEO,
-    ICON_TYPE_AUDIO,
-    ICON_TYPE_IMAGE,
-    ICON_TYPE_LOADING,
-    ICON_TYPE_ERROR
+  ICON_TYPE_VIDEO,
+  ICON_TYPE_AUDIO,
+  ICON_TYPE_IMAGE,
+  ICON_TYPE_LOADING,
+  ICON_TYPE_ERROR
 };
 
 class MediaIconService : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    MediaIconService();
+  MediaIconService();
 public slots:
-    void SetMediaIcon(Media* media, int icon_type);
+  void SetMediaIcon(Media* media, int icon_type);
 signals:
-    void IconChanged();
+  void IconChanged();
 private slots:
-    void AnimationUpdate();
+  void AnimationUpdate();
 private:
-    int throbber_animation_frame_;
-    QVector<Media*> throbber_items_;
-    QTimer throbber_animator_;
-    QPixmap throbber_pixmap_;
-    QMutex throbber_lock_;
+  int throbber_animation_frame_;
+  QVector<Media*> throbber_items_;
+  QTimer throbber_animator_;
+  QPixmap throbber_pixmap_;
+  QMutex throbber_lock_;
 };
 
 namespace olive {
-    extern std::unique_ptr<MediaIconService> media_icon_service;
+extern std::unique_ptr<MediaIconService> media_icon_service;
 }
 
 #endif // MEDIAICONSERVICE_H

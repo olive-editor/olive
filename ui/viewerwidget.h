@@ -30,9 +30,9 @@
 #include <QWaitCondition>
 #include <QOpenGLFunctions>
 
-#include "project/clip.h"
+#include "timeline/clip.h"
 #include "project/footage.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "ui/viewerwindow.h"
 #include "ui/viewercontainer.h"
 #include "rendering/renderthread.h"

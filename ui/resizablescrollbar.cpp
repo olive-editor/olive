@@ -24,7 +24,7 @@
 #include <QStyle>
 #include <QStyleOptionSlider>
 
-#include "debug.h"
+#include "global/debug.h"
 
 #define RESIZE_HANDLE_SIZE 10
 

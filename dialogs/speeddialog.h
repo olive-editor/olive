@@ -24,7 +24,7 @@
 #include <QDialog>
 #include <QCheckBox>
 
-#include "project/clip.h"
+#include "timeline/clip.h"
 #include "ui/labelslider.h"
 
 class SpeedDialog : public QDialog

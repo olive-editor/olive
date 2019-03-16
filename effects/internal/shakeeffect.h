@@ -21,21 +21,21 @@
 #ifndef SHAKEEFFECT_H
 #define SHAKEEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #define RANDOM_VAL_SIZE 30
 
 class ShakeEffect : public Effect {
-	Q_OBJECT
+  Q_OBJECT
 public:
     ShakeEffect(Clip* c, const EffectMeta* em);
     void process_coords(double timecode, GLTextureCoords& coords, int data);
 
-	EffectField* intensity_val;
-	EffectField* rotation_val;
-	EffectField* frequency_val;
+  DoubleField* intensity_val;
+  DoubleField* rotation_val;
+  DoubleField* frequency_val;
 private:
-	double random_vals[RANDOM_VAL_SIZE];
+  double random_vals[RANDOM_VAL_SIZE];
 };
 
 #endif // SHAKEEFFECT_H

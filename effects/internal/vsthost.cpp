@@ -32,8 +32,8 @@
 #include <QWindow>
 
 #include "rendering/audio.h"
-#include "mainwindow.h"
-#include "debug.h"
+#include "ui/mainwindow.h"
+#include "global/debug.h"
 
 #ifdef __linux__
 #include <X11/X.h>
@@ -106,7 +106,7 @@ typedef int32_t (*processEventsFuncPtr)(VstEvents *events);
 typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs, int32_t sampleFrames);
 
 void VSTHost::loadPlugin() {
-  QString dll_fn = file_field->get_filename(0, true);
+  QString dll_fn = file_field->GetFileAt(0);
 
   if (dll_fn.isEmpty()) {
     return;
@@ -256,7 +256,22 @@ void VSTHost::processAudio(long numFrames) {
   plugin->processReplacing(plugin, inputs, outputs, numFrames);
 }
 
-VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
+void VSTHost::CreateDialogIfNull()
+{
+  if (dialog == nullptr) {
+    dialog = new QDialog(olive::MainWindow);
+    dialog->setWindowTitle(tr("VST Plugin"));
+    dialog->setAttribute(Qt::WA_NativeWindow, true);
+    dialog->setWindowFlags(dialog->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
+    connect(dialog, SIGNAL(finished(int)), this, SLOT(uncheck_show_button()));
+  }
+}
+
+VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
+  Effect(c, em),
+  plugin(nullptr),
+  dialog(nullptr)
+{
   plugin = nullptr;
 
   inputs = new float* [CHANNEL_COUNT];
@@ -266,21 +281,16 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) : Effect(c, em) {
     outputs[channel] = new float[BLOCK_SIZE];
   }
 
-  file_field = add_row(tr("Plugin"), true, false)->add_field(EFFECT_FIELD_FILE, "filename");
-  connect(file_field, SIGNAL(changed()), this, SLOT(change_plugin()));
+  EffectRow* file_row = new EffectRow(this, tr("Plugin"), true, false);
+  file_field = new FileField(file_row, "filename");
+  connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()));
 
-  EffectRow* interface_row = add_row(tr("Interface"), false, false);
-  show_interface_btn = new QPushButton(tr("Show"));
-  show_interface_btn->setCheckable(true);
-  show_interface_btn->setEnabled(false);
-  connect(show_interface_btn, SIGNAL(toggled(bool)), this, SLOT(show_interface(bool)));
-  interface_row->add_widget(show_interface_btn);
+  EffectRow* interface_row = new EffectRow(this, tr("Interface"), false, false);
 
-  dialog = new QDialog(olive::MainWindow);
-  dialog->setWindowTitle(tr("VST Plugin"));
-  dialog->setAttribute(Qt::WA_NativeWindow, true);
-  dialog->setWindowFlags(dialog->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
-  connect(dialog, SIGNAL(finished(int)), this, SLOT(uncheck_show_button()));
+  show_interface_btn = new ButtonField(interface_row, tr("Show"));
+  show_interface_btn->SetCheckable(true);
+  show_interface_btn->SetEnabled(false);
+  connect(show_interface_btn, SIGNAL(Toggled(bool)), this, SLOT(show_interface(bool)));
 }
 
 VSTHost::~VSTHost() {
@@ -292,9 +302,6 @@ VSTHost::~VSTHost() {
   delete [] inputs;
 
   freePlugin();
-
-  delete show_interface_btn;
-  delete dialog;
 }
 
 void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) {
@@ -356,6 +363,7 @@ void VSTHost::save(QXmlStreamWriter &stream) {
 }
 
 void VSTHost::show_interface(bool show) {
+  CreateDialogIfNull();
   dialog->setVisible(show);
 
   if (show) {
@@ -372,7 +380,7 @@ void VSTHost::show_interface(bool show) {
 }
 
 void VSTHost::uncheck_show_button() {
-  show_interface_btn->setChecked(false);
+  show_interface_btn->SetChecked(false);
 }
 
 void VSTHost::change_plugin() {
@@ -381,9 +389,13 @@ void VSTHost::change_plugin() {
   if (plugin != nullptr) {
     if (configurePluginCallbacks()) {
       startPlugin();
+
       VSTRect* eRect = nullptr;
       plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
+
+      CreateDialogIfNull();
       dialog->setFixedSize(eRect->right - eRect->left, eRect->bottom - eRect->top);
+
     } else {
 #ifdef __APPLE__
       CFBundleUnloadExecutable(bundle);
@@ -394,7 +406,7 @@ void VSTHost::change_plugin() {
       plugin = nullptr;
     }
   }
-  show_interface_btn->setEnabled(plugin != nullptr);
+  show_interface_btn->SetEnabled(plugin != nullptr);
 }
 
 #endif

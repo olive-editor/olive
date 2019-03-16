@@ -26,22 +26,20 @@
 class QLabel;
 
 class EmbeddedFileChooser : public QWidget {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	EmbeddedFileChooser(QWidget* parent = 0);
+  EmbeddedFileChooser(QWidget* parent = 0);
 
-	const QString& getFilename();
-	const QString& getPreviousValue();
-	void setFilename(const QString& s);
+  const QString& getFilename();
+  void setFilename(const QString& s);
 signals:
-	void changed();
+  void changed(const QString& s);
 private:
-	QLabel* file_label;
-	QString filename;
-	QString old_filename;
-	void update_label();
+  QLabel* file_label;
+  QString filename;
+  void update_label();
 private slots:
-	void browse();
+  void browse();
 };
 
 #endif // EMBEDDEDFILECHOOSER_H

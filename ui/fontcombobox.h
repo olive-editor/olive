@@ -21,18 +21,16 @@
 #ifndef FONTCOMBOBOX_H
 #define FONTCOMBOBOX_H
 
-#include "comboboxex.h"
+#include <QComboBox>
 
-class FontCombobox : public ComboBoxEx {
-	Q_OBJECT
+class FontCombobox : public QComboBox {
+  Q_OBJECT
 public:
-	FontCombobox(QWidget* parent = 0);
-	const QString &getPreviousValue();
+  FontCombobox(QWidget* parent = nullptr);
 private slots:
-	void updateInternals();
+  void updateInternals();
 private:
-	QString previousValue;
-	QString value;
+  QString value;
 };
 
 #endif // FONTCOMBOBOX_H

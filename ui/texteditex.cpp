@@ -21,42 +21,45 @@
 #include "texteditex.h"
 
 #include <QDebug>
+#include <QMenu>
 
-TextEditEx::TextEditEx(QWidget *parent) : QTextEdit(parent) {
-	setUndoRedoEnabled(false);
-	connect(this, SIGNAL(textChanged()), this, SLOT(updateInternals()));
-	connect(this, SIGNAL(updateSelf()), this, SLOT(updateText()));
+#include "dialogs/texteditdialog.h"
+#include "mainwindow.h"
+
+TextEditEx::TextEditEx(QWidget *parent, bool enable_rich_text) :
+  QTextEdit(parent),
+  enable_rich_text_(enable_rich_text)
+{
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(text_edit_menu()));
+
+  connect(this, SIGNAL(textChanged()), this, SLOT(queue_text_modified()));
 }
 
-const QString& TextEditEx::getPlainTextEx() {
-	return text;
+void TextEditEx::text_edit_menu() {
+  QMenu menu;
+
+  menu.addAction(tr("&Edit Text"), this, SLOT(open_text_edit()));
+
+  menu.exec(QCursor::pos());
 }
 
-void TextEditEx::setPlainTextEx(const QString &t) {
-	previousText = text;
-	text = t;
-	emit updateSelf();
+void TextEditEx::open_text_edit() {
+  const QString& current_text = (enable_rich_text_) ? toHtml() : toPlainText();
+
+  TextEditDialog ted(olive::MainWindow, current_text, enable_rich_text_);
+  ted.exec();
+  QString result = ted.get_string();
+  if (!result.isEmpty()) {
+    if (enable_rich_text_) {
+      setHtml(result);
+    } else {
+      setPlainText(result);
+    }
+  }
 }
 
-const QString &TextEditEx::getPreviousValue() {
-	return previousText;
-}
-
-void TextEditEx::updateInternals() {
-	previousText = text;
-	text = toPlainText();
-}
-
-void TextEditEx::updateText() {
-	blockSignals(true);
-
-	int pos = textCursor().position();
-
-	setPlainText(text);
-
-	QTextCursor newCursor(document());
-	newCursor.setPosition(pos);
-	setTextCursor(newCursor);
-
-	blockSignals(false);
+void TextEditEx::queue_text_modified()
+{
+  emit textModified(enable_rich_text_ ? toHtml() : toPlainText());
 }

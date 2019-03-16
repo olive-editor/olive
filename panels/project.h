@@ -32,10 +32,10 @@
 #include "project/projectmodel.h"
 #include "project/projectfilter.h"
 #include "project/projectelements.h"
-#include "project/undo.h"
 #include "project/sourcescommon.h"
 #include "ui/panel.h"
 #include "ui/sourceiconview.h"
+#include "undo/undo.h"
 
 #include "ui/sourcetable.h"
 
@@ -58,10 +58,10 @@ public:
 
   bool is_focused();
   void clear();
-  Media* create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent);
+  MediaPtr create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent);
   QString get_next_sequence_name(QString start = nullptr);
-  void process_file_list(QStringList& files, bool recursive = false, Media* replace = nullptr, Media *parent = nullptr);
-  void replace_media(Media* item, QString filename);
+  void process_file_list(QStringList& files, bool recursive = false, MediaPtr replace = nullptr, Media *parent = nullptr);
+  void replace_media(MediaPtr item, QString filename);
   Media* get_selected_folder();
   bool reveal_media(Media *media, QModelIndex parent = QModelIndex());
   void add_recent_project(QString url);
@@ -70,8 +70,10 @@ public:
   void load_project(const QString &filename, bool autorecovery, bool clear);
   void save_project(bool autorecovery);
 
-  Media* create_folder_internal(QString name);
+  MediaPtr create_folder_internal(QString name);
+
   Media* item_to_media(const QModelIndex& index);
+  MediaPtr item_to_media_ptr(const QModelIndex &index);
 
   void save_recent_projects();
 

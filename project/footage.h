@@ -34,7 +34,7 @@ extern "C" {
 #include <QPixmap>
 #include <QIcon>
 
-#include "project/marker.h"
+#include "timeline/marker.h"
 
 enum VideoInterlacingMode {
   VIDEO_PROGRESSIVE,

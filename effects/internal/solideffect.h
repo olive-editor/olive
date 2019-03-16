@@ -21,22 +21,30 @@
 #ifndef SOLIDEFFECT_H
 #define SOLIDEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #include <QImage>
 
 class SolidEffect : public Effect {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    SolidEffect(Clip* c, const EffectMeta *em);
-	void redraw(double timecode);
+  enum SolidType {
+    SOLID_TYPE_COLOR,
+    SOLID_TYPE_BARS,
+    SOLID_TYPE_CHECKERBOARD
+  };
+
+  SolidEffect(Clip* c, const EffectMeta *em);
+  virtual void redraw(double timecode);
+
+  void SetType(SolidType type);
 private slots:
-    void ui_update(int);
+  void ui_update(const QVariant &d);
 private:
-    EffectField* solid_type;
-    EffectField* solid_color_field;
-    EffectField* opacity_field;
-    EffectField* checkerboard_size_field;
+  ComboField* solid_type;
+  ColorField* solid_color_field;
+  DoubleField* opacity_field;
+  DoubleField* checkerboard_size_field;
 };
 
 #endif // SOLIDEFFECT_H
