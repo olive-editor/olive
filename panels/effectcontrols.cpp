@@ -155,17 +155,21 @@ void EffectControls::copy(bool del) {
     if (open_effects_.at(i)->IsSelected()) {
       Effect* e = open_effects_.at(i)->GetEffect();
 
-      if (!cleared) {
-        clear_clipboard();
-        cleared = true;
-        clipboard_type = CLIPBOARD_TYPE_EFFECT;
-      }
+      if (e->meta->type == EFFECT_TYPE_EFFECT) {
 
-      clipboard.append(e->copy(nullptr));
+        if (!cleared) {
+          clear_clipboard();
+          cleared = true;
+          clipboard_type = CLIPBOARD_TYPE_EFFECT;
+        }
 
-      if (del) {
+        clipboard.append(e->copy(nullptr));
 
-        DeleteEffect(ca, e);
+        if (del) {
+
+          DeleteEffect(ca, e);
+
+        }
 
       }
     }

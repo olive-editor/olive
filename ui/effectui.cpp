@@ -10,8 +10,7 @@
 #include "panels/panels.h"
 
 EffectUI::EffectUI(Effect* e) :
-  effect_(e),
-  multiple_(false)
+  effect_(e)
 {
   Q_ASSERT(e != nullptr);
 
@@ -75,7 +74,7 @@ EffectUI::EffectUI(Effect* e) :
   connect(title_bar,
           SIGNAL(customContextMenuRequested(const QPoint&)),
           this,
-          SIGNAL(TitleBarContextMenuRequested(const QPoint&)));
+          SLOT(show_context_menu(const QPoint&)));
 
   int maximum_column = 0;
 
@@ -136,7 +135,6 @@ EffectUI::EffectUI(Effect* e) :
 
     }
 
-
     keyframe_navigators_[i] = nav;
 
   }
@@ -152,12 +150,10 @@ void EffectUI::AddAdditionalEffect(Effect *e)
   Q_ASSERT(e->meta == effect_->meta);
 
   // Add multiple modifer to header label (but only once)
-  if (!multiple_) {
+  if (additional_effects_.isEmpty()) {
     QString new_title = tr("%1 (multiple)").arg(Title());
 
     SetTitle(new_title);
-
-    multiple_ = true;
   }
 
   // Add effect to list

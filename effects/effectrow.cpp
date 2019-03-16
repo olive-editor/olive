@@ -60,6 +60,11 @@ bool EffectRow::IsKeyframing() {
 }
 
 void EffectRow::SetKeyframingInternal(bool b) {
+  // No need to run this function if the keyframing state isn't actually changing.
+  if (b == keyframing_) {
+    return;
+  }
+
   if (GetParentEffect()->meta->type != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
@@ -77,6 +82,10 @@ bool EffectRow::IsKeyframable()
 }
 
 void EffectRow::SetKeyframingEnabled(bool enabled) {
+  if (enabled == keyframing_) {
+    return;
+  }
+
   if (enabled) {
 
     ComboAction* ca = new ComboAction();
@@ -255,18 +264,6 @@ void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
   }
 
   panel_effect_controls->update_keyframes();
-}
-
-void EffectRow::delete_keyframe_at_time(ComboAction* ca, long time) {
-  for (int j=0;j<FieldCount();j++) {
-    EffectField* f = Field(j);
-    for (int i=0;i<f->keyframes.size();i++) {
-      if (f->keyframes.at(i).time == time) {
-        ca->append(new KeyframeDelete(f, i));
-        break;
-      }
-    }
-  }
 }
 
 Effect *EffectRow::GetParentEffect()

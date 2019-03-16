@@ -93,11 +93,6 @@ QString EffectField::ConvertValueToString(const QVariant &v)
   return v.toString();
 }
 
-QWidget *EffectField::CreateWidget(QWidget *existing)
-{
-  Q_ASSERT(false);
-}
-
 void EffectField::UpdateWidgetValue(QWidget *, double) {}
 
 QVariant EffectField::GetValueAt(double timecode)
@@ -106,7 +101,7 @@ QVariant EffectField::GetValueAt(double timecode)
     int before_keyframe;
     int after_keyframe;
     double progress;
-    get_keyframe_data(timecode, before_keyframe, after_keyframe, progress);
+    GetKeyframeData(timecode, before_keyframe, after_keyframe, progress);
 
     const QVariant& before_data = keyframes.at(before_keyframe).data;
     switch (type_) {
@@ -133,7 +128,7 @@ QVariant EffectField::GetValueAt(double timecode)
           if (before_key.type == EFFECT_KEYFRAME_BEZIER && after_key.type == EFFECT_KEYFRAME_BEZIER) {
 
             // cubic bezier
-            double t = cubic_t_from_x(timecodeToFrame(timecode),
+            double t = cubic_t_from_x(SecondsToFrame(timecode),
                                       before_key.time,
                                       before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true),
                                       after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false),
@@ -148,7 +143,7 @@ QVariant EffectField::GetValueAt(double timecode)
           } else if (after_key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 
             // last keyframe is the bezier one
-            double t = quad_t_from_x(timecodeToFrame(timecode),
+            double t = quad_t_from_x(SecondsToFrame(timecode),
                                      before_key.time,
                                      before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true),
                                      after_key.time);
@@ -160,7 +155,7 @@ QVariant EffectField::GetValueAt(double timecode)
 
           } else {
             // this keyframe is the bezier one
-            double t = quad_t_from_x(timecodeToFrame(timecode),
+            double t = quad_t_from_x(SecondsToFrame(timecode),
                                      before_key.time,
                                      after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false),
                                      after_key.time);
@@ -215,7 +210,7 @@ void EffectField::SetValueAt(double time, const QVariant &value)
     // Create keyframe here
 
     // Convert seconds timecode to frame
-    long frame_timecode = timecodeToFrame(time);
+    long frame_timecode = SecondsToFrame(time);
 
     // Check array if a keyframe at this time already exists
     int keyframe_index = -1;
@@ -345,20 +340,20 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
   return adjusted_key;
 }
 
-double EffectField::frameToTimecode(long frame) {
+double EffectField::FrameToSeconds(long frame) {
   return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
 }
 
-long EffectField::timecodeToFrame(double timecode) {
-  return qRound(timecode * GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
+long EffectField::SecondsToFrame(double seconds) {
+  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
 }
 
-void EffectField::get_keyframe_data(double timecode, int &before, int &after, double &progress) {
+void EffectField::GetKeyframeData(double timecode, int &before, int &after, double &progress) {
   int before_keyframe_index = -1;
   int after_keyframe_index = -1;
   long before_keyframe_time = LONG_MIN;
   long after_keyframe_time = LONG_MAX;
-  long frame = timecodeToFrame(timecode);
+  long frame = SecondsToFrame(timecode);
 
   for (int i=0;i<keyframes.size();i++) {
     long eval_keyframe_time = keyframes.at(i).time;
@@ -375,11 +370,12 @@ void EffectField::get_keyframe_data(double timecode, int &before, int &after, do
     }
   }
 
-  if ((type_ == EFFECT_FIELD_DOUBLE || type_ == EFFECT_FIELD_COLOR) && (before_keyframe_index > -1 && after_keyframe_index > -1)) {
+  if ((type_ == EFFECT_FIELD_DOUBLE || type_ == EFFECT_FIELD_COLOR)
+      && (before_keyframe_index > -1 && after_keyframe_index > -1)) {
     // interpolate
     before = before_keyframe_index;
     after = after_keyframe_index;
-    progress = (timecode-frameToTimecode(before_keyframe_time))/(frameToTimecode(after_keyframe_time)-frameToTimecode(before_keyframe_time));
+    progress = (timecode-FrameToSeconds(before_keyframe_time))/(FrameToSeconds(after_keyframe_time)-FrameToSeconds(before_keyframe_time));
   } else if (before_keyframe_index > -1) {
     before = before_keyframe_index;
     after = before_keyframe_index;
