@@ -24,7 +24,6 @@
 #include "timeline/clip.h"
 #include "effects/transition.h"
 #include "global/config.h"
-#include "effects/effectloaders.h"
 #include "global/debug.h"
 
 #include <QScrollBar>
@@ -90,7 +89,6 @@ void alloc_panels(QWidget* parent) {
   panel_project = new Project(parent);
   panel_project->setObjectName("proj_root");
   panel_effect_controls = new EffectControls(parent);
-  EffectInit::StartLoading();
   panel_effect_controls->setObjectName("fx_controls");
   panel_timeline = new Timeline(parent);
   panel_timeline->setObjectName("timeline");

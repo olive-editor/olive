@@ -57,6 +57,7 @@
 #include "rendering/audio.h"
 #include "rendering/renderfunctions.h"
 #include "undo/undostack.h"
+#include "effects/effectloaders.h"
 
 MainWindow* olive::MainWindow;
 
@@ -185,6 +186,8 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   first_show(true)
 {
+  EffectInit::StartLoading();
+
   olive::cursor::Initialize();
 
   open_debug_file();
