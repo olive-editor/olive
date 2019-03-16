@@ -213,24 +213,26 @@ void TextEditDialog::SetAlignmentFromProperty()
 
 void TextEditDialog::UpdateUIFromTextCursor()
 {
-  italic_button->setChecked(textEdit->fontItalic());
-  underline_button->setChecked(textEdit->fontUnderline());
-  font_list->setCurrentText(textEdit->fontFamily());
-  font_size->SetValue(textEdit->fontPointSize());
-  font_color->set_color(textEdit->textColor());
+  if (rich_text_) {
+    italic_button->setChecked(textEdit->fontItalic());
+    underline_button->setChecked(textEdit->fontUnderline());
+    font_list->setCurrentText(textEdit->fontFamily());
+    font_size->SetValue(textEdit->fontPointSize());
+    font_color->set_color(textEdit->textColor());
 
-  for (int i=0;i<font_weight->count();i++) {
-    if (font_weight->itemData(i).toInt() == textEdit->fontWeight()) {
-      font_weight->blockSignals(true);
-      font_weight->setCurrentIndex(i);
-      font_weight->blockSignals(false);
-      break;
+    for (int i=0;i<font_weight->count();i++) {
+      if (font_weight->itemData(i).toInt() == textEdit->fontWeight()) {
+        font_weight->blockSignals(true);
+        font_weight->setCurrentIndex(i);
+        font_weight->blockSignals(false);
+        break;
+      }
     }
-  }
 
-  Qt::Alignment align = textEdit->alignment();
-  left_align_button->setChecked(align == Qt::AlignLeft);
-  center_align_button->setChecked(align == Qt::AlignCenter);
-  right_align_button->setChecked(align == Qt::AlignRight);
-  justify_align_button->setChecked(align == Qt::AlignJustify);
+    Qt::Alignment align = textEdit->alignment();
+    left_align_button->setChecked(align == Qt::AlignLeft);
+    center_align_button->setChecked(align == Qt::AlignCenter);
+    right_align_button->setChecked(align == Qt::AlignRight);
+    justify_align_button->setChecked(align == Qt::AlignJustify);
+  }
 }

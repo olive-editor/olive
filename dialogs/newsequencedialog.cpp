@@ -20,16 +20,6 @@
 
 #include "newsequencedialog.h"
 
-#include "panels/panels.h"
-#include "panels/project.h"
-#include "timeline/sequence.h"
-#include "undo/undostack.h"
-#include "undo/undo.h"
-#include "timeline/clip.h"
-#include "panels/timeline.h"
-#include "project/media.h"
-#include "rendering/audio.h"
-
 #include <QVariant>
 #include <QVBoxLayout>
 #include <QComboBox>
@@ -39,6 +29,16 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QDialogButtonBox>
+
+#include "panels/panels.h"
+#include "panels/project.h"
+#include "timeline/sequence.h"
+#include "undo/undostack.h"
+#include "undo/undo.h"
+#include "timeline/clip.h"
+#include "panels/timeline.h"
+#include "project/media.h"
+#include "rendering/audio.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
