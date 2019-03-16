@@ -24,12 +24,26 @@
 #include <QList>
 #include <QThread>
 
-void init_effects();
-
+/**
+ * @brief The EffectInit class
+ *
+ * A separate thread for loading effects in the background while the rest of the program's initiation takes place.
+ * The program can even run before the effects have finished loading, but any point the software needs to access
+ * effects, it will have to wait for this thread to finish before it can. Fortunately this thread is usually very
+ * quick and is over before the MainWindow shows.
+ */
 class EffectInit : public QThread {
 public:
   EffectInit();
+
+  /**
+   * @brief A static convenience function to set up the EffectInit thread, start it, and free itself when complete.
+   */
+  static void StartLoading();
 protected:
+  /**
+   * @brief Function that runs in the other thread.
+   */
   void run();
 };
 

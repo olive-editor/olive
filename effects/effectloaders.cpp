@@ -187,7 +187,7 @@ void load_shader_effects() {
   }
 }
 
-void init_effects() {
+void EffectInit::StartLoading() {
   EffectInit* init_thread = new EffectInit();
   QObject::connect(init_thread, SIGNAL(finished()), init_thread, SLOT(deleteLater()));
   init_thread->start();
