@@ -415,9 +415,14 @@ void Effect::delete_self() {
 }
 
 void Effect::move_up() {
+  int index_of_effect = parent_clip->IndexOfEffect(this);
+  if (index_of_effect == 0) {
+    return;
+  }
+
   MoveEffectCommand* command = new MoveEffectCommand();
   command->clip = parent_clip;
-  command->from = parent_clip->IndexOfEffect(this);
+  command->from = index_of_effect;
   command->to = command->from - 1;
   olive::UndoStack.push(command);
   panel_effect_controls->Reload();
@@ -425,9 +430,14 @@ void Effect::move_up() {
 }
 
 void Effect::move_down() {
+  int index_of_effect = parent_clip->IndexOfEffect(this);
+  if (index_of_effect == parent_clip->effects.size()-1) {
+    return;
+  }
+
   MoveEffectCommand* command = new MoveEffectCommand();
   command->clip = parent_clip;
-  command->from = parent_clip->IndexOfEffect(this);
+  command->from = index_of_effect;
   command->to = command->from + 1;
   olive::UndoStack.push(command);
   panel_effect_controls->Reload();
