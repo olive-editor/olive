@@ -23,7 +23,6 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QtMath>
-#include <QMenu>
 #include <cfloat>
 
 #include "global/config.h"
@@ -37,6 +36,7 @@
 #include "effects/effect.h"
 #include "timeline/clip.h"
 #include "ui/rectangleselect.h"
+#include "ui/menu.h"
 #include "global/debug.h"
 
 const double kGraphZoomSpeed = 0.05;
@@ -75,7 +75,7 @@ GraphView::GraphView(QWidget* parent) : QWidget(parent) {
 }
 
 void GraphView::show_context_menu(const QPoint& pos) {
-  QMenu menu(this);
+  Menu menu(this);
 
   QAction* zoom_to_selection = menu.addAction(tr("Zoom to Selection"));
   if (selected_keys.size() == 0 || row == nullptr) {

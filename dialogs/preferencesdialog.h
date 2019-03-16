@@ -104,6 +104,9 @@ private:
   QCheckBox* add_default_effects_to_clips;
   QComboBox* ui_style;
   Sequence sequence_settings;
+#ifdef Q_OS_WIN
+  QCheckBox* native_menus;
+#endif
 
   QVector<QAction*> key_shortcut_actions;
   QVector<QTreeWidgetItem*> key_shortcut_items;

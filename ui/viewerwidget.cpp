@@ -32,7 +32,6 @@ extern "C" {
 #include <QMouseEvent>
 #include <QMimeData>
 #include <QDrag>
-#include <QMenu>
 #include <QOffscreenSurface>
 #include <QFileDialog>
 #include <QPolygon>
@@ -58,6 +57,7 @@ extern "C" {
 #include "rendering/renderfunctions.h"
 #include "rendering/renderthread.h"
 #include "ui/viewerwindow.h"
+#include "ui/menu.h"
 #include "mainwindow.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
@@ -112,12 +112,13 @@ void ViewerWidget::set_fullscreen(int screen) {
 }
 
 void ViewerWidget::show_context_menu() {
-  QMenu menu(this);
+  Menu menu(this);
 
   QAction* save_frame_as_image = menu.addAction(tr("Save Frame as Image..."));
   connect(save_frame_as_image, SIGNAL(triggered(bool)), this, SLOT(save_frame()));
 
-  QMenu* fullscreen_menu = menu.addMenu(tr("Show Fullscreen"));
+  Menu* fullscreen_menu = new Menu(tr("Show Fullscreen"));
+  menu.addMenu(fullscreen_menu);
   QList<QScreen*> screens = QGuiApplication::screens();
   if (window->isVisible()) {
     fullscreen_menu->addAction(tr("Disable"));
@@ -131,7 +132,7 @@ void ViewerWidget::show_context_menu() {
   }
   connect(fullscreen_menu, SIGNAL(triggered(QAction*)), this, SLOT(fullscreen_menu_action(QAction*)));
 
-  QMenu zoom_menu(tr("Zoom"));
+  Menu zoom_menu(tr("Zoom"));
   QAction* fit_zoom = zoom_menu.addAction(tr("Fit"));
   connect(fit_zoom, SIGNAL(triggered(bool)), this, SLOT(set_fit_zoom()));
   zoom_menu.addAction("10%")->setData(0.1);

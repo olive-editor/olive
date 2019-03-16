@@ -26,7 +26,6 @@
 #include <QObject>
 #include <QVariant>
 #include <QPoint>
-#include <QMenu>
 #include <QMessageBox>
 #include <QtMath>
 #include <QScrollBar>
@@ -52,6 +51,7 @@
 #include "rendering/renderfunctions.h"
 #include "ui/cursors.h"
 #include "ui/menuhelper.h"
+#include "ui/menu.h"
 #include "ui/focusfilter.h"
 #include "dialogs/clippropertiesdialog.h"
 #include "global/debug.h"
@@ -86,7 +86,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
     panel_timeline->rect_select_init = false;
     panel_timeline->rect_select_proc = false;
 
-    QMenu menu(this);
+    Menu menu(this);
 
     QAction* undoAction = menu.addAction(tr("&Undo"));
     QAction* redoAction = menu.addAction(tr("&Redo"));

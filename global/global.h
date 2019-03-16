@@ -115,6 +115,15 @@ public:
      */
     void load_translation_from_config();
 
+    /**
+     * @brief Set native UI styling on a given widget
+     *
+     * @param w
+     *
+     * The widget to set styling on.
+     */
+    static void SetNativeStyling(QWidget* w);
+
 public slots:
     /**
      * @brief Undo user's last action

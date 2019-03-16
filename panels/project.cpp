@@ -20,6 +20,26 @@
 
 #include "project.h"
 
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+}
+
+#include <QApplication>
+#include <QFileDialog>
+#include <QString>
+#include <QVariant>
+#include <QCharRef>
+#include <QMessageBox>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QPushButton>
+#include <QInputDialog>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QSizePolicy>
+#include <QVBoxLayout>
+
 #include "global/global.h"
 #include "panels.h"
 #include "rendering/renderfunctions.h"
@@ -43,27 +63,7 @@
 #include "project/sourcescommon.h"
 #include "project/projectfilter.h"
 #include "global/debug.h"
-
-#include <QApplication>
-#include <QFileDialog>
-#include <QString>
-#include <QVariant>
-#include <QCharRef>
-#include <QMessageBox>
-#include <QDropEvent>
-#include <QMimeData>
-#include <QPushButton>
-#include <QInputDialog>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-#include <QSizePolicy>
-#include <QVBoxLayout>
-#include <QMenu>
-
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-}
+#include "ui/menu.h"
 
 // TODO make these configurable
 const int kDefaultSequenceWidth = 1920;
@@ -1374,7 +1374,7 @@ void Project::go_up_dir() {
 }
 
 void Project::make_new_menu() {
-  QMenu new_menu(this);
+  Menu new_menu(this);
   olive::MenuHelper.make_new_menu(&new_menu);
   new_menu.exec(QCursor::pos());
 }

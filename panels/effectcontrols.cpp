@@ -20,7 +20,6 @@
 
 #include "effectcontrols.h"
 
-#include <QMenu>
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QScrollBar>
@@ -52,6 +51,7 @@
 #include "ui/keyframeview.h"
 #include "ui/resizablescrollbar.h"
 #include "global/debug.h"
+#include "ui/menu.h"
 
 EffectControls::EffectControls(QWidget *parent) :
   Panel(parent),
@@ -198,7 +198,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
 
   effects_loaded.lock();
 
-  QMenu effects_menu(this);
+  Menu effects_menu(this);
   effects_menu.setToolTipsVisible(true);
 
   for (int i=0;i<effects.size();i++) {
@@ -226,7 +226,7 @@ void EffectControls::show_effect_menu(int type, int subtype) {
           }
         }
         if (!found) {
-          parent = new QMenu(&effects_menu);
+          parent = new Menu(&effects_menu);
           parent->setToolTipsVisible(true);
           parent->setTitle(em.category);
 
@@ -536,7 +536,7 @@ void EffectControls::queue_post_update() {
 }
 
 void EffectControls::effects_area_context_menu() {
-  QMenu menu(this);
+  Menu menu(this);
 
   olive::MenuHelper.create_effect_paste_action(&menu);
 

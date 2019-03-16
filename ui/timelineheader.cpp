@@ -24,7 +24,6 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QtMath>
-#include <QMenu>
 #include <QAction>
 
 #include "mainwindow.h"
@@ -36,6 +35,7 @@
 #include "panels/viewer.h"
 #include "global/config.h"
 #include "global/global.h"
+#include "ui/menu.h"
 #include "ui/menuhelper.h"
 #include "global/debug.h"
 #include "undo/undostack.h"
@@ -457,7 +457,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 }
 
 void TimelineHeader::show_context_menu(const QPoint &pos) {
-  QMenu menu(this);
+  Menu menu(this);
 
   // Add items for setting the in/out points of a QMenu
   olive::MenuHelper.make_inout_menu(&menu);

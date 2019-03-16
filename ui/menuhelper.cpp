@@ -271,10 +271,10 @@ void MenuHelper::create_effect_paste_action(QMenu *menu)
   paste_action->setEnabled(clipboard.size() > 0 && clipboard_type == CLIPBOARD_TYPE_EFFECT);
 }
 
-QMenu* MenuHelper::create_submenu(QMenuBar* parent,
+Menu* MenuHelper::create_submenu(QMenuBar* parent,
                                   const QObject *receiver,
                                   const char *member) {
-  QMenu* menu = new QMenu(parent);
+  Menu* menu = new Menu(parent);
 
   /*
   menu->setStyle(QStyleFactory::create("windowsvista"));
@@ -291,8 +291,8 @@ QMenu* MenuHelper::create_submenu(QMenuBar* parent,
   return menu;
 }
 
-QMenu* MenuHelper::create_submenu(QMenu* parent) {
-  QMenu* menu = new QMenu(parent);
+Menu* MenuHelper::create_submenu(QMenu* parent) {
+  Menu* menu = new Menu(parent);
 
   /*
   menu->setStyle(QStyleFactory::create("windowsvista"));
