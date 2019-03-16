@@ -539,7 +539,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             // bind front buffer as draw buffer
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
-            if (olive::CurrentRuntimeConfig.disable_blending) {
+//            if (olive::CurrentRuntimeConfig.disable_blending) {
               // some GPUs don't like the blending shader, so we provide a pure GL fallback here
 
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
@@ -549,6 +549,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               full_blit();
 
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+              /*
             } else {
               // load background texture into texture unit 0
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
@@ -579,6 +580,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
             }
+            */
 
             // unbind framebuffer
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
