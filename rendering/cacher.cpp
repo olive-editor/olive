@@ -28,7 +28,6 @@
 
 #include <inttypes.h>
 
-#include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
 #include <math.h>

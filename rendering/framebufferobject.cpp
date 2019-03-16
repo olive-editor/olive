@@ -70,12 +70,44 @@ void FramebufferObject::Destroy()
   ctx_ = nullptr;
 }
 
-const GLuint &FramebufferObject::buffer()
+void FramebufferObject::BindBuffer() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindFramebuffer(GL_TEXTURE_2D, buffer_);
+}
+
+void FramebufferObject::ReleaseBuffer() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindFramebuffer(GL_TEXTURE_2D, 0);
+}
+
+void FramebufferObject::BindTexture() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
+}
+
+void FramebufferObject::ReleaseTexture() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+const GLuint &FramebufferObject::buffer() const
 {
   return buffer_;
 }
 
-const GLuint &FramebufferObject::texture()
+const GLuint &FramebufferObject::texture() const
 {
   return texture_;
 }

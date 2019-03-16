@@ -24,7 +24,6 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-#include <QOpenGLFramebufferObject>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDebug>
@@ -86,8 +85,8 @@ void draw_clip(QOpenGLContext* ctx, GLuint fbo, GLuint texture, bool clear) {
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
-  fbo->bind();
+GLuint draw_clip(const FramebufferObject& fbo, GLuint texture, bool clear) {
+  fbo.BindBuffer();
 
   if (clear) {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -99,9 +98,9 @@ GLuint draw_clip(QOpenGLFramebufferObject* fbo, GLuint texture, bool clear) {
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  fbo->release();
+  fbo.ReleaseBuffer();
 
-  return fbo->texture();
+  return fbo.texture();
 }
 
 void process_effect(Clip* c,
@@ -140,7 +139,7 @@ void process_effect(Clip* c,
         } else {
           // if the source texture is not already a framebuffer texture,
           // we'll need to make it one before drawing a superimpose effect on it
-          if (composite_texture != c->fbo[0]->texture() && composite_texture != c->fbo[1]->texture()) {
+          if (composite_texture != c->fbo[0].texture() && composite_texture != c->fbo[1].texture()) {
             draw_clip(c->fbo[!fbo_switcher], composite_texture, true);
           }
 
@@ -167,10 +166,10 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
       playhead = rescale_frame_number(playhead, params.nests.at(i)->sequence->frame_rate, s->frame_rate);
     }
 
-    if (params.video && params.nests.last()->fbo != nullptr) {
-      params.nests.last()->fbo[0]->bind();
+    if (params.video && !params.nests.last()->fbo.isEmpty()) {
+      params.nests.last()->fbo[0].BindBuffer();
       glClear(GL_COLOR_BUFFER_BIT);
-      final_fbo = params.nests.last()->fbo[0]->handle();
+      final_fbo = params.nests.last()->fbo[0].buffer();
     }
   }
 
@@ -325,14 +324,14 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
         }
 
         // prepare framebuffers for backend drawing operations
-        if (c->fbo == nullptr) {
+        if (c->fbo.isEmpty()) {
           // create 3 fbos for nested sequences, 2 for most clips
           int fbo_count = (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
 
-          c->fbo = new QOpenGLFramebufferObject* [size_t(fbo_count)];
+          c->fbo.resize(fbo_count);
 
           for (int j=0;j<fbo_count;j++) {
-            c->fbo[j] = new QOpenGLFramebufferObject(video_width, video_height);
+            c->fbo[j].Create(params.ctx, video_width, video_height);
           }
         }
 
@@ -473,9 +472,9 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             GLuint backend_tex_1;
             GLuint backend_tex_2;
             if (params.nests.size() > 0) {
-              back_buffer_1 = params.nests.last()->fbo[1]->handle();
-              backend_tex_1 = params.nests.last()->fbo[1]->texture();
-              backend_tex_2 = params.nests.last()->fbo[2]->texture();
+              back_buffer_1 = params.nests.last()->fbo[1].buffer();
+              backend_tex_1 = params.nests.last()->fbo[1].texture();
+              backend_tex_2 = params.nests.last()->fbo[2].texture();
             } else {
               back_buffer_1 = params.backend_buffer1;
               backend_tex_1 = params.backend_attachment1;
@@ -531,7 +530,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             // copy front buffer to back buffer (only if we're using a blending mode)
             if (coords.blendmode >= 0) {
               if (params.nests.size() > 0) {
-                draw_clip(params.ctx, params.nests.last()->fbo[2]->handle(), params.nests.last()->fbo[0]->texture(), true);
+                draw_clip(params.ctx, params.nests.last()->fbo[2].buffer(), params.nests.last()->fbo[0].texture(), true);
               } else {
                 draw_clip(params.ctx, params.backend_buffer2, params.main_attachment, true);
               }
@@ -665,11 +664,9 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
     glPopMatrix();
   }
 
-//  qDebug() << "compose sequence took" << QDateTime::currentMSecsSinceEpoch() - time;
-
-  if (!params.nests.isEmpty() && params.nests.last()->fbo != nullptr) {
+  if (!params.nests.isEmpty() && !params.nests.last()->fbo.isEmpty()) {
     // returns nested clip's texture
-    return params.nests.last()->fbo[0]->texture();
+    return params.nests.last()->fbo[0].texture();
   }
 
   return 0;

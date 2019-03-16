@@ -40,7 +40,6 @@ extern "C" {
 
 #include <QApplication>
 #include <QOffscreenSurface>
-#include <QOpenGLFramebufferObject>
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 

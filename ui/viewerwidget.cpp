@@ -28,7 +28,6 @@ extern "C" {
 #include <QAudioOutput>
 #include <QOpenGLShaderProgram>
 #include <QtMath>
-#include <QOpenGLFramebufferObject>
 #include <QMouseEvent>
 #include <QMimeData>
 #include <QDrag>

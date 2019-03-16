@@ -56,7 +56,6 @@ Clip::Clip(Sequence* s) :
   closing_transition = nullptr;
   undeletable = false;
   replaced = false;
-  fbo = nullptr;
   open_ = false;
 
   reset();
@@ -515,18 +514,7 @@ void Clip::Close(bool wait) {
     }
 
     // delete framebuffers
-    if (fbo != nullptr) {
-      // delete 3 fbos for nested sequences, 2 for most clips
-      int fbo_count = (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
-
-      for (int j=0;j<fbo_count;j++) {
-        delete fbo[j];
-      }
-
-      delete [] fbo;
-
-      fbo = nullptr;
-    }
+    fbo.clear();
 
     if (UsesCacher()) {
       cacher.Close(wait);

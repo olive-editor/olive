@@ -13,8 +13,14 @@ public:
   void Create(QOpenGLContext* ctx, int width, int height);
   void Destroy();
 
-  const GLuint& buffer();
-  const GLuint& texture();
+  const GLuint& buffer() const;
+  const GLuint& texture() const;
+
+  void BindBuffer() const;
+  void ReleaseBuffer() const;
+
+  void BindTexture() const;
+  void ReleaseTexture() const;
 private:
   QOpenGLContext* ctx_;
   GLuint buffer_;

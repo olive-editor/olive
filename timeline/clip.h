@@ -35,6 +35,7 @@
 #include "undo/comboaction.h"
 #include "project/media.h"
 #include "project/footage.h"
+#include "rendering/framebufferobject.h"
 
 #include "marker.h"
 
@@ -152,7 +153,7 @@ public:
   QMutex cache_lock;
 
   // video playback variables
-  QOpenGLFramebufferObject** fbo;
+  QVector<FramebufferObject> fbo;
   QOpenGLTexture* texture;
   long texture_frame;
 
