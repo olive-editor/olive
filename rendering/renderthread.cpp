@@ -32,9 +32,9 @@ namespace OCIO = OCIO_NAMESPACE;
 #endif
 
 #include "rendering/renderfunctions.h"
-#include "project/sequence.h"
-#include "project/effectloaders.h"
-#include "io/config.h"
+#include "timeline/sequence.h"
+#include "effects/effectloaders.h"
+#include "global/config.h"
 
 RenderThread::RenderThread() :
   gizmos(nullptr),
@@ -46,6 +46,8 @@ RenderThread::RenderThread() :
   tex_height(-1),
   queued(false),
   texture_failed(false),
+  ocio_lut_texture(0),
+  ocio_shader(nullptr),
   running(true),
   front_buffer_switcher(false)
 {
@@ -352,7 +354,12 @@ void RenderThread::paint() {
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void RenderThread::start_render(QOpenGLContext *share, SequencePtr s, const QString& save, GLvoid* pixels, int pixel_linesize, int idivider) {
+void RenderThread::start_render(QOpenGLContext *share,
+                                Sequence* s,
+                                const QString& save,
+                                GLvoid* pixels,
+                                int pixel_linesize,
+                                int idivider) {
   Q_UNUSED(idivider);
 
   seq = s;

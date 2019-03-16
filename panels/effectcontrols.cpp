@@ -33,35 +33,36 @@
 #include <QApplication>
 
 #include "panels/panels.h"
-#include "project/effect.h"
-#include "project/clip.h"
-#include "project/transition.h"
+#include "effects/effect.h"
+#include "effects/effectloaders.h"
+#include "effects/transition.h"
+#include "timeline/clip.h"
 #include "ui/collapsiblewidget.h"
-#include "project/sequence.h"
-#include "project/undo.h"
-#include "project/effectloaders.h"
+#include "timeline/sequence.h"
+#include "undo/undo.h"
+#include "undo/undostack.h"
 #include "panels/project.h"
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "panels/grapheditor.h"
 #include "ui/viewerwidget.h"
-#include "io/clipboard.h"
-#include "io/config.h"
+#include "ui/menuhelper.h"
+#include "project/clipboard.h"
+#include "global/config.h"
 #include "ui/timelineheader.h"
 #include "ui/keyframeview.h"
 #include "ui/resizablescrollbar.h"
-#include "debug.h"
+#include "global/debug.h"
 
 EffectControls::EffectControls(QWidget *parent) :
   Panel(parent),
-  multiple(false),
-  zoom(1),
-  mode(kTransitionNone)
+  zoom(1)
 {
   setup_ui();
   Retranslate();
 
-  clear_effects(false);
+  Clear(false);
+
   headers->viewer = panel_sequence_viewer;
   headers->snapping = false;
 
@@ -69,8 +70,6 @@ EffectControls::EffectControls(QWidget *parent) :
   effects_area->keyframe_area = keyframeView;
   effects_area->header = headers;
   keyframeView->header = headers;
-
-  lblMultipleClipsSelected->setVisible(false);
 
   connect(keyframeView, SIGNAL(wheel_event_signal(QWheelEvent*)), effects_area, SLOT(receive_wheel_event(QWheelEvent*)));
   connect(horizontalScrollBar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
@@ -81,10 +80,9 @@ EffectControls::EffectControls(QWidget *parent) :
   connect(scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), verticalScrollBar, SLOT(setValue(int)));
 }
 
-EffectControls::~EffectControls() {}
-
-int EffectControls::get_mode() {
-  return mode;
+EffectControls::~EffectControls()
+{
+  Clear(true);
 }
 
 bool EffectControls::keyframe_focus() {
@@ -99,8 +97,8 @@ void EffectControls::set_zoom(bool in) {
 
 void EffectControls::menu_select(QAction* q) {
   ComboAction* ca = new ComboAction();
-  for (int i=0;i<selected_clips.size();i++) {
-    Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
+  for (int i=0;i<selected_clips_.size();i++) {
+    Clip* c = selected_clips_.at(i);
     if ((c->track() < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
       const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
@@ -127,12 +125,17 @@ void EffectControls::menu_select(QAction* q) {
   if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
     update_ui(true);
   } else {
-    reload_clips();
+    Reload();
     panel_sequence_viewer->viewer_widget->frame_update();
   }
 }
 
 void EffectControls::update_keyframes() {
+  for (int i=0;i<open_effects_.size();i++) {
+    EffectUI* ui = open_effects_.at(i);
+    ui->UpdateFromEffect();
+  }
+
   headers->update_zoom(zoom);
   keyframeView->update();
 }
@@ -142,49 +145,48 @@ void EffectControls::delete_selected_keyframes() {
 }
 
 void EffectControls::copy(bool del) {
-  if (mode == kTransitionNone) {
-    bool cleared = false;
+  bool cleared = false;
 
-    ComboAction* ca = new ComboAction();
-    EffectDeleteCommand* del_com = (del) ? new EffectDeleteCommand() : nullptr;
-    for (int i=0;i<selected_clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
-      for (int j=0;j<c->effects.size();j++) {
-        EffectPtr effect = c->effects.at(j);
-        if (effect->container->selected) {
-          if (!cleared) {
-            clear_clipboard();
-            cleared = true;
-            clipboard_type = CLIPBOARD_TYPE_EFFECT;
-          }
+  ComboAction* ca = nullptr;
+  if (del) {
+    ca = new ComboAction();
+  }
 
-          clipboard.append(EffectPtr(effect->copy(nullptr)));
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->IsSelected()) {
+      Effect* e = open_effects_.at(i)->GetEffect();
 
-          if (del_com != nullptr) {
-            del_com->clips.append(c);
-            del_com->fx.append(j);
-          }
+      if (e->meta->type == EFFECT_TYPE_EFFECT) {
+
+        if (!cleared) {
+          clear_clipboard();
+          cleared = true;
+          clipboard_type = CLIPBOARD_TYPE_EFFECT;
         }
+
+        clipboard.append(e->copy(nullptr));
+
+        if (del) {
+
+          DeleteEffect(ca, e);
+
+        }
+
       }
     }
-    if (del_com != nullptr) {
-      if (del_com->clips.size() > 0) {
-        ca->append(del_com);
-      } else {
-        delete del_com;
-      }
+  }
+
+  if (del) {
+    if (ca->hasActions()) {
+      olive::UndoStack.push(ca);
+    } else {
+      delete ca;
     }
-    olive::UndoStack.push(ca);
   }
 }
 
 void EffectControls::scroll_to_frame(long frame) {
   scroll_to_frame_internal(horizontalScrollBar, frame - keyframeView->visible_in, zoom, keyframeView->width());
-}
-
-void EffectControls::add_effect_paste_action(QMenu *menu) {
-  QAction* paste_action = menu->addAction(tr("&Paste"), panel_timeline, SLOT(paste(bool)));
-  paste_action->setEnabled(clipboard.size() > 0 && clipboard_type == CLIPBOARD_TYPE_EFFECT);
 }
 
 void EffectControls::cut() {
@@ -261,56 +263,68 @@ void EffectControls::show_effect_menu(int type, int subtype) {
   effects_menu.exec(QCursor::pos());
 }
 
-void EffectControls::clear_effects(bool clear_cache) {
+void EffectControls::Clear(bool clear_cache) {
   // clear existing clips
   deselect_all_effects(nullptr);
 
-  // clear graph editor
-  if (panel_graph_editor != nullptr) panel_graph_editor->set_row(nullptr);
+  for (int i=0;i<open_effects_.size();i++) {
+    delete open_effects_.at(i);
+  }
+  open_effects_.clear();
+  keyframeView->SetEffects(open_effects_);
 
-  QVBoxLayout* video_layout = static_cast<QVBoxLayout*>(video_effect_area->layout());
-  QVBoxLayout* audio_layout = static_cast<QVBoxLayout*>(audio_effect_area->layout());
-  QLayoutItem* item;
-  while ((item = video_layout->takeAt(0))) {
-    item->widget()->setParent(nullptr);
-    disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
-  }
-  while ((item = audio_layout->takeAt(0))) {
-    item->widget()->setParent(nullptr);
-    disconnect(static_cast<CollapsibleWidget*>(item->widget()), SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
-  }
-  lblMultipleClipsSelected->setVisible(false);
   vcontainer->setVisible(false);
   acontainer->setVisible(false);
   headers->setVisible(false);
   keyframeView->setEnabled(false);
-  if (clear_cache) selected_clips.clear();
+
+  if (clear_cache) {
+    selected_clips_.clear();
+  }
+
   UpdateTitle();
 }
 
-void EffectControls::deselect_all_effects(QWidget* sender) {
-  for (int i=0;i<selected_clips.size();i++) {
-    const ClipPtr& c = olive::ActiveSequence->clips.at(selected_clips.at(i));
-    for (int j=0;j<c->effects.size();j++) {
-      if (c->effects.at(j)->container != sender) {
-        c->effects.at(j)->container->header_click(false, false);
-      }
+bool EffectControls::IsEffectSelected(Effect *e)
+{
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->GetEffect() == e && open_effects_.at(i)->IsSelected()) {
+      return true;
     }
   }
-  panel_sequence_viewer->viewer_widget->update();
+  return false;
 }
 
-void EffectControls::open_effect(QVBoxLayout* layout, EffectPtr e) {
-  CollapsibleWidget* container = e->container;
-  layout->addWidget(container);
+void EffectControls::deselect_all_effects(QWidget* sender) {
+
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i) != sender) {
+      open_effects_.at(i)->header_click(false, false);
+    }
+  }
+
+  if (panel_sequence_viewer != nullptr) {
+    panel_sequence_viewer->viewer_widget->update();
+  }
+}
+
+void EffectControls::open_effect(QVBoxLayout* layout, Effect* e) {
+  EffectUI* container = new EffectUI(e);
+
+  connect(container, SIGNAL(CutRequested()), this, SLOT(cut()));
+  connect(container, SIGNAL(CopyRequested()), this, SLOT(copy()));
   connect(container, SIGNAL(deselect_others(QWidget*)), this, SLOT(deselect_all_effects(QWidget*)));
+
+  open_effects_.append(container);
+
+  layout->addWidget(container);
 }
 
 void EffectControls::UpdateTitle() {
-  if (selected_clips.empty()) {
+  if (selected_clips_.isEmpty()) {
     setWindowTitle(panel_name + tr("(none)"));
   } else {
-    setWindowTitle(panel_name + olive::ActiveSequence->clips.at(selected_clips.at(0))->name());
+    setWindowTitle(panel_name + selected_clips_.first()->name());
   }
 }
 
@@ -387,9 +401,9 @@ void EffectControls::setup_ui() {
   vcontainerLayout->addWidget(veHeader);
 
   video_effect_area = new QWidget();
-  QVBoxLayout* veAreaLayout = new QVBoxLayout(video_effect_area);
-  veAreaLayout->setSpacing(0);
-  veAreaLayout->setMargin(0);
+  video_effect_layout = new QVBoxLayout(video_effect_area);
+  video_effect_layout->setSpacing(0);
+  video_effect_layout->setMargin(0);
 
   vcontainerLayout->addWidget(video_effect_area);
 
@@ -429,17 +443,13 @@ void EffectControls::setup_ui() {
   acontainerLayout->addWidget(aeHeader);
 
   audio_effect_area = new QWidget();
-  QVBoxLayout* aeAreaLayout = new QVBoxLayout(audio_effect_area);
-  aeAreaLayout->setSpacing(0);
-  aeAreaLayout->setMargin(0);
+  audio_effect_layout = new QVBoxLayout(audio_effect_area);
+  audio_effect_layout->setSpacing(0);
+  audio_effect_layout->setMargin(0);
 
   acontainerLayout->addWidget(audio_effect_area);
 
   effects_area_layout->addWidget(acontainer);
-
-  lblMultipleClipsSelected = new QLabel();
-  lblMultipleClipsSelected->setAlignment(Qt::AlignCenter);
-  effects_area_layout->addWidget(lblMultipleClipsSelected);
 
   effects_area_layout->addStretch();
 
@@ -502,7 +512,6 @@ void EffectControls::Retranslate() {
   btnAddAudioEffect->setToolTip(tr("Add Audio Effect"));
   lblAudioEffects->setText(tr("AUDIO EFFECTS"));
   btnAddAudioTransition->setToolTip(tr("Add Audio Transition"));
-  lblMultipleClipsSelected->setText(tr("(Multiple clips selected)"));
 
   UpdateTitle();
 }
@@ -530,83 +539,167 @@ void EffectControls::queue_post_update() {
 void EffectControls::effects_area_context_menu() {
   QMenu menu(this);
 
-  add_effect_paste_action(&menu);
+  olive::MenuHelper.create_effect_paste_action(&menu);
 
   menu.exec(QCursor::pos());
 }
 
-void EffectControls::load_effects() {
-  lblMultipleClipsSelected->setVisible(multiple);
+void EffectControls::DeleteEffect(ComboAction* ca, Effect* effect_ref) {
+  if (effect_ref->meta->type == EFFECT_TYPE_EFFECT) {
 
-  if (!multiple) {
-    // load in new clips
-    for (int i=0;i<selected_clips.size();i++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(selected_clips.at(i));
-      QVBoxLayout* layout;
-      if (c->track() < 0) {
-        vcontainer->setVisible(true);
-        layout = static_cast<QVBoxLayout*>(video_effect_area->layout());
-      } else {
-        acontainer->setVisible(true);
-        layout = static_cast<QVBoxLayout*>(audio_effect_area->layout());
+    ca->append(new EffectDeleteCommand(effect_ref));
+
+  } else if (effect_ref->meta->type == EFFECT_TYPE_TRANSITION) {
+
+    // Retrieve shared ptr for this transition
+
+    Clip* attached_clip = effect_ref->parent_clip;
+
+    TransitionPtr t = nullptr;
+
+    if (attached_clip->opening_transition.get() == effect_ref) {
+
+      t = attached_clip->opening_transition;
+
+    } else if (attached_clip->closing_transition.get() == effect_ref) {
+
+      t = attached_clip->closing_transition;
+
+    }
+
+    if (t == nullptr) {
+
+      qWarning() << "Failed to delete transition, couldn't find clip link.";
+
+    } else {
+
+      ca->append(new DeleteTransitionCommand(t));
+
+    }
+
+  }
+}
+
+void EffectControls::DeleteSelectedEffects() {
+  ComboAction* ca = new ComboAction();
+
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->IsSelected()) {
+      DeleteEffect(ca, open_effects_.at(i)->GetEffect());
+    }
+  }
+
+  if (ca->hasActions()) {
+    olive::UndoStack.push(ca);
+    update_ui(true);
+  } else {
+    delete ca;
+  }
+}
+
+void EffectControls::Reload() {
+  Clear(false);
+  Load();
+}
+
+void EffectControls::SetClips()
+{
+  Clear(true);
+
+  // replace clip vector
+  selected_clips_ = olive::ActiveSequence->SelectedClips(false);
+
+  Load();
+}
+
+void EffectControls::Load() {
+  bool graph_editor_row_is_still_active = false;
+
+  // load in new clips
+  for (int i=0;i<selected_clips_.size();i++) {
+    Clip* c = selected_clips_.at(i);
+
+    QVBoxLayout* layout;
+
+    if (c->track() < 0) {
+      vcontainer->setVisible(true);
+      layout = video_effect_layout;
+    } else {
+      acontainer->setVisible(true);
+      layout = audio_effect_layout;
+    }
+
+    // Create a list of the effects we'll open
+    QVector<Effect*> effects_to_open;
+
+    // Determine based on the current selections whether to load all effects or just the transitions
+    bool whole_clip_is_selected = c->IsSelected();
+
+    if (whole_clip_is_selected) {
+      for (int j=0;j<c->effects.size();j++) {
+        effects_to_open.append(c->effects.at(j).get());
       }
-      if (mode == kTransitionNone) {
-        for (int j=0;j<c->effects.size();j++) {
-          open_effect(layout, c->effects.at(j));
+    }
+    if (c->opening_transition != nullptr
+        && (whole_clip_is_selected || c->sequence->IsTransitionSelected(c->opening_transition.get()))) {
+      effects_to_open.append(c->opening_transition.get());
+    }
+    if (c->closing_transition != nullptr
+        && (whole_clip_is_selected || c->sequence->IsTransitionSelected(c->closing_transition.get()))) {
+      effects_to_open.append(c->closing_transition.get());
+    }
+
+    for (int j=0;j<effects_to_open.size();j++) {
+
+      // Check if we've already opened an effect of this type before
+      bool already_opened = false;
+      for (int k=0;k<open_effects_.size();k++) {
+        if (open_effects_.at(k)->GetEffect()->meta == effects_to_open.at(j)->meta
+            && !open_effects_.at(k)->IsAttachedToClip(c)) {
+
+          open_effects_.at(k)->AddAdditionalEffect(effects_to_open.at(j));
+
+          already_opened = true;
+
+          break;
         }
-      } else if (mode == kTransitionOpening && c->opening_transition != nullptr) {
-        open_effect(layout, c->opening_transition);
-      } else if (mode == kTransitionClosing && c->closing_transition != nullptr) {
-        open_effect(layout, c->closing_transition);
+      }
+
+      if (!already_opened) {
+        open_effect(layout, effects_to_open.at(j));
+      }
+
+      // Check if one of the open effects contains the row currently active in the graph editor. If not, we'll have
+      // to clear the graph editor later.
+      if (!graph_editor_row_is_still_active) {
+        for (int k=0;k<effects_to_open.at(j)->row_count();k++) {
+          EffectRow* row = effects_to_open.at(j)->row(k);
+          if (row == panel_graph_editor->get_row()) {
+            graph_editor_row_is_still_active = true;
+            break;
+          }
+        }
       }
     }
-    if (selected_clips.size() > 0) {
-      keyframeView->setEnabled(true);
-      headers->setVisible(true);
+  }
 
-      QTimer::singleShot(50, this, SLOT(queue_post_update()));
-    }
+  keyframeView->SetEffects(open_effects_);
+
+  if (selected_clips_.size() > 0) {
+    keyframeView->setEnabled(true);
+
+    headers->setVisible(true);
+
+    QTimer::singleShot(50, this, SLOT(queue_post_update()));
+  }
+
+  // If the graph editor's currently active row is not part of the current effects, clear it
+  if (!graph_editor_row_is_still_active) {
+    panel_graph_editor->set_row(nullptr);
   }
 
   UpdateTitle();
-}
-
-void EffectControls::delete_effects() {
-  // load in new clips
-  if (mode == kTransitionNone) {
-    EffectDeleteCommand* command = new EffectDeleteCommand();
-    for (int i=0;i<selected_clips.size();i++) {
-      Clip* c = olive::ActiveSequence->clips.at(selected_clips.at(i)).get();
-      for (int j=0;j<c->effects.size();j++) {
-        EffectPtr effect = c->effects.at(j);
-        if (effect->container->selected) {
-          command->clips.append(c);
-          command->fx.append(j);
-        }
-      }
-    }
-    if (command->clips.size() > 0) {
-      olive::UndoStack.push(command);
-      panel_sequence_viewer->viewer_widget->frame_update();
-    } else {
-      delete command;
-    }
-  }
-}
-
-void EffectControls::reload_clips() {
-  clear_effects(false);
-  load_effects();
-}
-
-void EffectControls::set_clips(QVector<int>& clips, int m) {
-  clear_effects(true);
-
-  // replace clip vector
-  selected_clips = clips;
-  mode = m;
-
-  load_effects();
+  update_keyframes();
 }
 
 void EffectControls::video_effect_click() {
@@ -631,24 +724,24 @@ void EffectControls::resizeEvent(QResizeEvent*) {
 
 bool EffectControls::is_focused() {
   if (this->hasFocus()) return true;
-  for (int i=0;i<selected_clips.size();i++) {
-    ClipPtr c = olive::ActiveSequence->clips.at(selected_clips.at(i));
-    if (c != nullptr) {
-      for (int j=0;j<c->effects.size();j++) {
-        if (c->effects.at(j)->container->is_focused()) {
-          return true;
-        }
-      }
-    } else {
-      qWarning() << "Tried to check focus of a nullptr clip";
+
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->IsFocused()) {
+      return true;
     }
   }
+
   return false;
 }
 
 EffectsArea::EffectsArea(QWidget* parent) :
   QWidget(parent)
 {}
+
+void EffectsArea::resizeEvent(QResizeEvent *)
+{
+  parent_widget->setMinimumWidth(sizeHint().width());
+}
 
 void EffectsArea::receive_wheel_event(QWheelEvent *e) {
   QApplication::sendEvent(this, e);

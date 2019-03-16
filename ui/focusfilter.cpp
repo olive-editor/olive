@@ -21,7 +21,7 @@
 #include "focusfilter.h"
 
 #include "panels/panels.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 #include "ui/timelineheader.h"
 
 FocusFilter olive::FocusFilter;
@@ -197,7 +197,7 @@ void FocusFilter::delete_function() {
   } else if (panel_sequence_viewer->headers->hasFocus()) {
     panel_sequence_viewer->headers->delete_markers();
   } else if (panel_effect_controls->is_focused()) {
-    panel_effect_controls->delete_effects();
+    panel_effect_controls->DeleteSelectedEffects();
   } else if (panel_project->is_focused()) {
     panel_project->delete_selected_media();
   } else if (panel_effect_controls->keyframe_focus()) {

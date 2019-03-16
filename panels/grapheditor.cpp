@@ -30,12 +30,13 @@
 #include "ui/timelinetools.h"
 #include "ui/labelslider.h"
 #include "ui/graphview.h"
-#include "project/effect.h"
-#include "project/effectfield.h"
-#include "project/effectrow.h"
-#include "project/clip.h"
+#include "effects/effect.h"
+#include "effects/effectfields.h"
+#include "effects/effectrow.h"
+#include "timeline/clip.h"
+#include "rendering/renderfunctions.h"
 #include "panels.h"
-#include "debug.h"
+#include "global/debug.h"
 
 GraphEditor::GraphEditor(QWidget* parent) : Panel(parent), row(nullptr) {
   resize(720, 480);
@@ -129,6 +130,11 @@ GraphEditor::GraphEditor(QWidget* parent) : Panel(parent), row(nullptr) {
   Retranslate();
 }
 
+EffectRow *GraphEditor::get_row()
+{
+  return row;
+}
+
 void GraphEditor::Retranslate() {
   setWindowTitle(tr("Graph Editor"));
   linear_button->setText(tr("Linear"));
@@ -140,10 +146,10 @@ void GraphEditor::update_panel() {
   if (isVisible()) {
     if (row != nullptr) {
       int slider_index = 0;
-      for (int i=0;i<row->fieldCount();i++) {
-        EffectField* field = row->field(i);
-        if (field->type == EFFECT_FIELD_DOUBLE) {
-          slider_proxies.at(slider_index)->set_value(row->field(i)->get_current_data().toDouble(), false);
+      for (int i=0;i<row->FieldCount();i++) {
+        EffectField* field = row->Field(i);
+        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
+          field->UpdateWidgetValue(field_sliders_.at(slider_index), field->Now());
           slider_index++;
         }
       }
@@ -155,44 +161,40 @@ void GraphEditor::update_panel() {
 }
 
 void GraphEditor::set_row(EffectRow *r) {
-  for (int i=0;i<slider_proxies.size();i++) {
-    delete slider_proxies.at(i);
-    delete slider_proxy_buttons.at(i);
+  for (int i=0;i<field_sliders_.size();i++) {
+    delete field_sliders_.at(i);
+    delete field_enable_buttons.at(i);
   }
-  slider_proxies.clear();
-  slider_proxy_buttons.clear();
-  slider_proxy_sources.clear();
+  field_sliders_.clear();
+  field_enable_buttons.clear();
 
   if (row != nullptr) {
     // clear old row connections
-    disconnect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(goto_previous_key()));
-    disconnect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(toggle_key()));
-    disconnect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(goto_next_key()));
+    disconnect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
+    disconnect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));
+    disconnect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));
   }
 
   bool found_vals = false;
 
-  if (r != nullptr && r->isKeyframing()) {
-    for (int i=0;i<r->fieldCount();i++) {
-      EffectField* field = r->field(i);
-      if (field->type == EFFECT_FIELD_DOUBLE) {
+  if (r != nullptr && r->IsKeyframing()) {
+    for (int i=0;i<r->FieldCount();i++) {
+      EffectField* field = r->Field(i);
+      if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
         QPushButton* slider_button = new QPushButton();
         slider_button->setCheckable(true);
-        slider_button->setChecked(field->is_enabled());
+        slider_button->setChecked(field->IsEnabled());
         slider_button->setIcon(QIcon(":/icons/record.svg"));
         slider_button->setProperty("field", i);
         slider_button->setIconSize(slider_button->iconSize()*0.5);
         connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));
-        slider_proxy_buttons.append(slider_button);
+        field_enable_buttons.append(slider_button);
         value_layout->addWidget(slider_button);
 
-        LabelSlider* slider = new LabelSlider();
-        slider->set_color(get_curve_color(i, r->fieldCount()).name());
-        connect(slider, SIGNAL(valueChanged()), this, SLOT(passthrough_slider_value()));
-        slider_proxies.append(slider);
+        LabelSlider* slider = static_cast<LabelSlider*>(field->CreateWidget());
+        slider->SetColor(get_curve_color(i, r->FieldCount()).name());
+        field_sliders_.append(slider);
         value_layout->addWidget(slider);
-
-        slider_proxy_sources.append(static_cast<LabelSlider*>(field->ui_element));
 
         found_vals = true;
       }
@@ -201,14 +203,14 @@ void GraphEditor::set_row(EffectRow *r) {
 
   if (found_vals) {
     row = r;
-    current_row_desc->setText(row->parent_effect->parent_clip->name()
-                              + " :: " + row->parent_effect->meta->name
-                              + " :: " + row->get_name());
-    header->set_visible_in(r->parent_effect->parent_clip->timeline_in());
+    current_row_desc->setText(row->GetParentEffect()->parent_clip->name()
+                              + " :: " + row->GetParentEffect()->meta->name
+                              + " :: " + row->name());
+    header->set_visible_in(r->GetParentEffect()->parent_clip->timeline_in());
 
-    connect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(goto_previous_key()));
-    connect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(toggle_key()));
-    connect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(goto_next_key()));
+    connect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
+    connect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));
+    connect(keyframe_nav, SIGNAL(goto_next_key()), row, SLOT(GoToNextKeyframe()));
   } else {
     row = nullptr;
     current_row_desc->setText(nullptr);
@@ -240,14 +242,6 @@ void GraphEditor::set_key_button_enabled(bool e, int type) {
   bezier_button->setChecked(type == EFFECT_KEYFRAME_BEZIER);
   hold_button->setEnabled(e);
   hold_button->setChecked(type == EFFECT_KEYFRAME_HOLD);
-}
-
-void GraphEditor::passthrough_slider_value() {
-  for (int i=0;i<slider_proxies.size();i++) {
-    if (slider_proxies.at(i) == sender()) {
-      slider_proxy_sources.at(i)->set_value(slider_proxies.at(i)->value(), true);
-    }
-  }
 }
 
 void GraphEditor::set_keyframe_type() {

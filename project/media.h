@@ -25,7 +25,7 @@
 #include <QVariant>
 #include <QIcon>
 
-#include "project/marker.h"
+#include "timeline/marker.h"
 #include "project/footage.h"
 
 enum MediaType {
@@ -39,12 +39,15 @@ using SequencePtr = std::shared_ptr<Sequence>;
 
 using VoidPtr = std::shared_ptr<void>;
 
+class Media;
+using MediaPtr = std::shared_ptr<Media>;
+
 class Media
 {
 public:
-  Media(Media* iparent);
-  ~Media();
-  FootagePtr to_footage();
+  Media(Media* iparent = nullptr);
+
+  Footage *to_footage();
   SequencePtr to_sequence();
   void set_icon(const QString& str);
   void set_icon(const QIcon &ico);
@@ -62,7 +65,7 @@ public:
   int get_sampling_rate(int stream = -1);
 
   // item functions
-  void appendChild(Media *child);
+  void appendChild(MediaPtr child);
   bool setData(int col, const QVariant &value);
   Media *child(int row);
   int childCount() const;
@@ -71,6 +74,7 @@ public:
   int row() const;
   Media *parentItem();
   void removeChild(int i);
+  MediaPtr get_shared_ptr(Media* m);
 
   // get markers from internal object
   QVector<Marker>& get_markers();
@@ -84,7 +88,7 @@ private:
   VoidPtr object;
 
   // item functions
-  QList<Media*> children;
+  QList<MediaPtr> children;
   Media* parent;
   QString folder_name;
   QString tooltip;

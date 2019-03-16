@@ -5,7 +5,7 @@
 #include <QDialogButtonBox>
 
 #include "panels/panels.h"
-#include "project/undo.h"
+#include "undo/undo.h"
 
 ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clips) :
   QDialog(parent)
@@ -33,8 +33,8 @@ ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clip
   layout->addWidget(new QLabel(tr("Duration:")), row, 0);
 
   duration_field_ = new LabelSlider();
-  duration_field_->set_display_type(LABELSLIDER_FRAMENUMBER);
-  duration_field_->set_minimum_value(1);
+  duration_field_->SetDisplayType(LabelSlider::FrameNumber);
+  duration_field_->SetMinimum(1);
   layout->addWidget(duration_field_, row, 1);
 
   row++;
@@ -72,15 +72,15 @@ ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clip
   }
 
   // it's assumed all the clips come from the same sequence
-  duration_field_->set_frame_rate(first_clip->sequence->frame_rate);
+  duration_field_->SetFrameRate(first_clip->sequence->frame_rate);
 
   if (all_clips_have_same_duration) {
-    duration_field_->set_default_value(first_clip->length());
-    duration_field_->set_value(first_clip->length(), false);
-    duration_field_->set_maximum_value(first_clip->media_length());
+    duration_field_->SetDefault(first_clip->length());
+    duration_field_->SetValue(first_clip->length());
+    duration_field_->SetMaximum(first_clip->media_length());
   } else {
-    duration_field_->set_default_value(qSNaN());
-    duration_field_->set_value(qSNaN(), false);
+    duration_field_->SetDefault(qSNaN());
+    duration_field_->SetValue(qSNaN());
   }
 }
 

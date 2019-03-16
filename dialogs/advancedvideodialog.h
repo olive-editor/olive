@@ -25,7 +25,7 @@
 #include <QComboBox>
 #include <QSpinBox>
 
-#include "io/exportthread.h"
+#include "rendering/exportthread.h"
 
 /**
  * @brief The AdvancedVideoDialog class

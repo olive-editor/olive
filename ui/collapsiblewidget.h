@@ -35,7 +35,7 @@
 class CollapsibleWidgetHeader : public QWidget {
   Q_OBJECT
 public:
-  CollapsibleWidgetHeader(QWidget* parent = 0);
+  CollapsibleWidgetHeader(QWidget* parent = nullptr);
   bool selected;
 protected:
   void mousePressEvent(QMouseEvent* event);
@@ -48,17 +48,19 @@ class CollapsibleWidget : public QWidget
 {
   Q_OBJECT
 public:
-  CollapsibleWidget(QWidget* parent = 0);
-  void setContents(QWidget* c);
-  void setText(const QString &);
-  bool is_focused();
-  bool is_expanded();
-
+  CollapsibleWidget(QWidget* parent = nullptr);
+  void SetContents(QWidget* c);
+  QString Title();
+  void SetTitle(const QString &);
+  bool IsFocused();
+  bool IsExpanded();
+  bool IsSelected();
+protected:
   CheckboxEx* enabled_check;
-  bool selected;
-  QWidget* contents;
   CollapsibleWidgetHeader* title_bar;
+  QWidget* contents;
 private:
+  bool selected;
   QLabel* header;
   QVBoxLayout* layout;
   QPushButton* collapse_button;
@@ -71,7 +73,6 @@ signals:
   void visibleChanged();
 
 private slots:
-  void on_enabled_change(bool b);
   void on_visible_change();
 
 public slots:

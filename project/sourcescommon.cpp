@@ -20,31 +20,31 @@
 
 #include "sourcescommon.h"
 
-#include "ui/menuhelper.h"
-#include "panels/panels.h"
-#include "project/media.h"
-#include "project/undo.h"
-#include "rendering/renderfunctions.h"
-#include "panels/timeline.h"
-#include "panels/project.h"
-#include "project/footage.h"
-#include "panels/viewer.h"
-#include "project/projectfilter.h"
-#include "project/sequence.h"
-#include "io/config.h"
-#include "dialogs/proxydialog.h"
-#include "ui/viewerwidget.h"
-#include "io/proxygenerator.h"
-#include "mainwindow.h"
-
 #include <QProcess>
 #include <QMenu>
 #include <QAbstractItemView>
 #include <QMimeData>
 #include <QMessageBox>
 #include <QDesktopServices>
-
 #include <QDebug>
+
+#include "ui/menuhelper.h"
+#include "panels/panels.h"
+#include "project/media.h"
+#include "undo/undo.h"
+#include "rendering/renderfunctions.h"
+#include "panels/timeline.h"
+#include "panels/project.h"
+#include "project/footage.h"
+#include "panels/viewer.h"
+#include "project/projectfilter.h"
+#include "timeline/sequence.h"
+#include "global/config.h"
+#include "dialogs/proxydialog.h"
+#include "ui/viewerwidget.h"
+#include "project/proxygenerator.h"
+#include "ui/mainwindow.h"
+#include "undo/undostack.h"
 
 SourcesCommon::SourcesCommon(Project* parent) :
   editing_item(nullptr),
@@ -65,8 +65,8 @@ void SourcesCommon::create_seq_from_selected() {
     SequencePtr s = create_sequence_from_media(media_list);
 
     // add clips to it
-    panel_timeline->create_ghosts_from_media(s, 0, media_list);
-    panel_timeline->add_clips_from_ghosts(ca, s);
+    panel_timeline->create_ghosts_from_media(s.get(), 0, media_list);
+    panel_timeline->add_clips_from_ghosts(ca, s.get());
 
     project_parent->create_sequence_internal(ca, s, true, nullptr);
     olive::UndoStack.push(ca);
@@ -261,9 +261,12 @@ void SourcesCommon::mouseDoubleClickEvent(const QModelIndexList& selected_items)
   }
 }
 
-void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIndex& drop_item, const QModelIndexList& items) {
+void SourcesCommon::dropEvent(QWidget* parent,
+                              QDropEvent *event,
+                              const QModelIndex& drop_item,
+                              const QModelIndexList& items) {
   const QMimeData* mimeData = event->mimeData();
-  Media* m = project_parent->item_to_media(drop_item);
+  MediaPtr m = project_parent->item_to_media_ptr(drop_item);
   if (mimeData->hasUrls()) {
     // drag files in from outside
     QList<QUrl> urls = mimeData->urls();
@@ -305,11 +308,11 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
     // dragging files within project
     // if we dragged to the root OR dragged to a folder
     if (!drop_item.isValid() || m->get_type() == MEDIA_TYPE_FOLDER) {
-      QVector<Media*> move_items;
+      QVector<MediaPtr> move_items;
       for (int i=0;i<items.size();i++) {
         const QModelIndex& item = items.at(i);
         const QModelIndex& parent = item.parent();
-        Media* s = project_parent->item_to_media(item);
+        MediaPtr s = project_parent->item_to_media_ptr(item);
         if (parent != drop_item && item != drop_item) {
           bool ignore = false;
           if (parent.isValid()) {
@@ -332,7 +335,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
       }
       if (move_items.size() > 0) {
         MediaMove* mm = new MediaMove();
-        mm->to = m;
+        mm->to = m.get();
         mm->items = move_items;
         olive::UndoStack.push(mm);
       }
@@ -342,7 +345,7 @@ void SourcesCommon::dropEvent(QWidget* parent, QDropEvent *event, const QModelIn
 
 void SourcesCommon::reveal_in_browser() {
   Media* media = project_parent->item_to_media(selected_items.at(0));
-  FootagePtr m = media->to_footage();
+  Footage* m = media->to_footage();
 
 #if defined(Q_OS_WIN)
   QStringList args;
@@ -405,7 +408,7 @@ void SourcesCommon::clear_proxies_from_selected() {
   QList<QString> delete_list;
 
   for (int i=0;i<cached_selected_footage.size();i++) {
-    FootagePtr f = cached_selected_footage.at(i)->to_footage();
+    Footage* f = cached_selected_footage.at(i)->to_footage();
 
     if (f->proxy && !f->proxy_path.isEmpty()) {
       if (QFileInfo::exists(f->proxy_path)) {
@@ -424,7 +427,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 
   if (olive::ActiveSequence != nullptr) {
     // close all clips so we can delete any proxies requested to be deleted
-    close_active_clips(olive::ActiveSequence);
+    close_active_clips(olive::ActiveSequence.get());
   }
 
   // delete proxies requested to be deleted

@@ -30,15 +30,17 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_2_0>
 
-#include "project/sequence.h"
-#include "project/effect.h"
+#include "timeline/sequence.h"
+#include "effects/effect.h"
 #include "rendering/framebufferobject.h"
 
+#ifndef NO_OCIO
 // copied from source code to OCIODisplay
 const int OCIO_LUT3D_EDGE_SIZE = 32;
 
 // copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
 const int OCIO_NUM_3D_ENTRIES = 98304;
+#endif
 
 class RenderThread : public QThread {
   Q_OBJECT
@@ -53,7 +55,7 @@ public:
   Effect* gizmos;
   void paint();
   void start_render(QOpenGLContext* share,
-                    SequencePtr s,
+                    Sequence *s,
                     const QString &save = nullptr,
                     GLvoid *pixels = nullptr,
                     int pixel_linesize = 0,
@@ -106,7 +108,8 @@ private:
   FramebufferObject back_buffer_1;
   FramebufferObject back_buffer_2;
 
-  SequencePtr seq;
+  Sequence* seq;
+
   int divider;
   int tex_width;
   int tex_height;

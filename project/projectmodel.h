@@ -35,7 +35,7 @@ public:
   void make_root();
   void destroy_root();
   void clear();
-  Media* get_root();
+  Media* get_root() const;
   QVariant data(const QModelIndex &index, int role) const override;
   Qt::ItemFlags flags(const QModelIndex &index) const override;
   QVariant headerData(int section, Qt::Orientation orientation,
@@ -51,15 +51,15 @@ public:
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;
   Media* getItem(const QModelIndex &index) const;
 
-  void appendChild(Media* parent, Media* child);
-  void moveChild(Media* child, Media* to);
+  void appendChild(Media *parent, MediaPtr child);
+  void moveChild(MediaPtr child, Media* to);
   void removeChild(Media* parent, Media* m);
   Media* child(int i, Media* parent = nullptr);
   int childCount(Media* parent = nullptr);
   void set_icon(Media* m, const QIcon &ico);
 
 private:
-  Media* root_item;
+  MediaPtr root_item_;
 };
 
 namespace olive {

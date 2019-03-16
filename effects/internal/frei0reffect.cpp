@@ -25,7 +25,7 @@
 #include <QMessageBox>
 #include <QDir>
 
-#include "project/clip.h"
+#include "timeline/clip.h"
 
 typedef f0r_instance_t (*f0rConstructFunc)(unsigned int width, unsigned int height);
 typedef int (*f0rInitFunc) ();
@@ -41,7 +41,7 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
   Effect(c, em),
   open(false)
 {
-  enable_image = true;
+  SetFlags(ImageFlag);
 
   // Windows DLL loading routine
   QString dll_fn = QDir(em->path).filePath(em->filename);
@@ -92,33 +92,33 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
     get_param_info(&param_info, i);
 
     if (param_info.type >= 0 && param_info.type <= F0R_PARAM_STRING) {
-      EffectRow* row = add_row(param_info.name);
+      EffectRow* row = new EffectRow(this, param_info.name);
       switch (param_info.type) {
       case F0R_PARAM_BOOL:
-        row->add_field(EFFECT_FIELD_BOOL, QString::number(i));
+        new BoolField(row, QString::number(i));
         break;
       case F0R_PARAM_DOUBLE:
       {
-        EffectField* f = row->add_field(EFFECT_FIELD_DOUBLE, QString::number(i));
-        f->set_double_minimum_value(0);
-        f->set_double_maximum_value(100);
+        DoubleField* f = new DoubleField(row, QString::number(i));
+        f->SetMinimum(0);
+        f->SetMaximum(100);
       }
         break;
       case F0R_PARAM_COLOR:
-        row->add_field(EFFECT_FIELD_COLOR, QString::number(i));
+        new ColorField(row, QString::number(i));
         break;
       case F0R_PARAM_POSITION:
       {
-        EffectField* fx = row->add_field(EFFECT_FIELD_DOUBLE, QString("%1X").arg(QString::number(i)));
-        fx->set_double_minimum_value(0);
-        fx->set_double_maximum_value(100);
-        EffectField* fy = row->add_field(EFFECT_FIELD_DOUBLE, QString("%1Y").arg(QString::number(i)));
-        fy->set_double_minimum_value(0);
-        fy->set_double_maximum_value(100);
+        DoubleField* fx = new DoubleField(row, QString("%1X").arg(QString::number(i)));
+        fx->SetMinimum(0);
+        fx->SetMaximum(100);
+        DoubleField* fy = new DoubleField(row, QString("%1Y").arg(QString::number(i)));
+        fy->SetMinimum(0);
+        fy->SetMaximum(100);
       }
         break;
       case F0R_PARAM_STRING:
-        row->add_field(EFFECT_FIELD_STRING, QString::number(i));
+        new StringField(row, QString::number(i));
         break;
       }
     }
@@ -147,19 +147,21 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
     switch (param_info.type) {
     case F0R_PARAM_BOOL:
     {
-      double b = param_row->field(0)->get_bool_value(timecode);
+      double b = param_row->Field(0)->GetValueAt(timecode).toBool();
+
       set_param(instance, &b, i);
     }
       break;
     case F0R_PARAM_DOUBLE:
     {
-      double d = param_row->field(0)->get_double_value(timecode)*0.01;
+      double d = param_row->Field(0)->GetValueAt(timecode).toDouble()*0.01;
+
       set_param(instance, &d, i);
     }
       break;
     case F0R_PARAM_COLOR:
     {
-      QColor qcolor = param_row->field(0)->get_color_value(timecode);;
+      QColor qcolor = param_row->Field(0)->GetValueAt(timecode).value<QColor>();
 
       f0r_param_color fcolor;
       fcolor.r = float(qcolor.redF());
@@ -172,14 +174,17 @@ void Frei0rEffect::process_image(double timecode, uint8_t *input, uint8_t *outpu
     case F0R_PARAM_POSITION:
     {
       f0r_param_position pos;
-      pos.x = param_row->field(0)->get_double_value(timecode);
-      pos.y = param_row->field(1)->get_double_value(timecode);
+
+      pos.x = param_row->Field(0)->GetValueAt(timecode).toDouble();
+      pos.y = param_row->Field(1)->GetValueAt(timecode).toDouble();
+
       set_param(instance, &pos, i);
     }
       break;
     case F0R_PARAM_STRING:
     {
-      QByteArray bytes = param_row->field(0)->get_string_value(timecode).toUtf8();
+      QByteArray bytes = param_row->Field(0)->GetValueAt(timecode).toString().toUtf8();
+
       char* byte_data = bytes.data();
       set_param(instance, &byte_data, i);
     }

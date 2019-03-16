@@ -24,8 +24,8 @@
 #include <QWidget>
 #include <QVector>
 
-#include "project/effectrow.h"
-#include "project/effectfield.h"
+#include "effects/effectrow.h"
+#include "effects/effectfields.h"
 
 QColor get_curve_color(int index, int length);
 

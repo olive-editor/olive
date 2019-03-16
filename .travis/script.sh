@@ -24,7 +24,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
 	# move external effects into bundle
 	mkdir Olive.app/Contents/Effects
-	cp effects/* Olive.app/Contents/Effects
+	cp effects/shaders/* Olive.app/Contents/Effects
 
 	# distribute in zip
 	zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip Olive.app

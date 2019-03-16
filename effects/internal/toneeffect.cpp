@@ -24,49 +24,54 @@
 
 #define TONE_TYPE_SINE 0
 
-#include "project/clip.h"
-#include "project/sequence.h"
-#include "debug.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 
 ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_MIN) {
-    type_val = add_row(tr("Type"))->add_field(EFFECT_FIELD_COMBO, "type");
-	type_val->add_combo_item("Sine", TONE_TYPE_SINE);
+  EffectRow* type_row = new EffectRow(this, tr("Type"));
+  type_val = new ComboField(type_row, "type");
+  type_val->AddItem(tr("Sine"), TONE_TYPE_SINE);
 
-    freq_val = add_row(tr("Frequency"))->add_field(EFFECT_FIELD_DOUBLE, "frequency");
-	freq_val->set_double_minimum_value(20);
-	freq_val->set_double_maximum_value(20000);
-	freq_val->set_double_default_value(1000);
+  EffectRow* frequency_row = new EffectRow(this, tr("Frequency"));
+  freq_val = new DoubleField(frequency_row, "frequency");
+  freq_val->SetMinimum(20);
+  freq_val->SetMaximum(20000);
+  freq_val->SetDefault(1000);
 
-    amount_val = add_row(tr("Amount"))->add_field(EFFECT_FIELD_DOUBLE, "amount");
-	amount_val->set_double_minimum_value(0);
-	amount_val->set_double_maximum_value(100);
-	amount_val->set_double_default_value(25);
+  EffectRow* amount_row = new EffectRow(this, tr("Amount"));
+  amount_val = new DoubleField(amount_row, "amount");
+  amount_val->SetMinimum(0);
+  amount_val->SetMaximum(100);
+  amount_val->SetDefault(25);
 
-    mix_val = add_row(tr("Mix"))->add_field(EFFECT_FIELD_BOOL, "mix");
-	mix_val->set_bool_value(true);
+  EffectRow* mix_row = new EffectRow(this, tr("Mix"));
+  mix_val = new BoolField(mix_row, "mix");
+  mix_val->SetValueAt(0, true);
 }
 
 void ToneEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {
-	double interval = (timecode_end - timecode_start)/nb_bytes;
-	for (int i=0;i<nb_bytes;i+=4) {
-		double timecode = timecode_start+(interval*i);
+  double interval = (timecode_end - timecode_start)/nb_bytes;
+  for (int i=0;i<nb_bytes;i+=4) {
+    double timecode = timecode_start+(interval*i);
 
-		qint16 left_tone_sample = qint16(qRound(qSin((2*M_PI*sinX*freq_val->get_double_value(timecode, true))/parent_clip->sequence->audio_frequency)*log_volume(amount_val->get_double_value(timecode, true)*0.01)*INT16_MAX));
-		qint16 right_tone_sample = left_tone_sample;
+    qint16 left_tone_sample = qint16(qRound(qSin((2*M_PI*sinX*freq_val->GetDoubleAt(timecode))
+                                                 /parent_clip->sequence->audio_frequency)
+                                            *log_volume(amount_val->GetDoubleAt(timecode)*0.01)*INT16_MAX));
+    qint16 right_tone_sample = left_tone_sample;
 
-		// mix with source audio
-		if (mix_val->get_bool_value(timecode, true)) {
-			qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-			qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-			left_tone_sample = mix_audio_sample(left_tone_sample, left_sample);
-			right_tone_sample = mix_audio_sample(right_tone_sample, right_sample);
-		}
+    // mix with source audio
+    if (mix_val->GetBoolAt(timecode)) {
+      qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+      qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
+      left_tone_sample = mix_audio_sample(left_tone_sample, left_sample);
+      right_tone_sample = mix_audio_sample(right_tone_sample, right_sample);
+    }
 
-		samples[i+3] = quint8(right_tone_sample >> 8);
-		samples[i+2] = quint8(right_tone_sample);
-		samples[i+1] = quint8(left_tone_sample >> 8);
-		samples[i] = quint8(left_tone_sample);
+    samples[i+3] = quint8(right_tone_sample >> 8);
+    samples[i+2] = quint8(right_tone_sample);
+    samples[i+1] = quint8(left_tone_sample >> 8);
+    samples[i] = quint8(left_tone_sample);
 
-		sinX++;
-	}
+    sinX++;
+  }
 }

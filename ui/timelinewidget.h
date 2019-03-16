@@ -28,11 +28,11 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-#include "project/sequence.h"
-#include "project/clip.h"
+#include "timeline/sequence.h"
+#include "timeline/clip.h"
 #include "project/footage.h"
 #include "project/media.h"
-#include "project/undo.h"
+#include "undo/undo.h"
 #include "timelinetools.h"
 
 class Timeline;

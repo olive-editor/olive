@@ -23,9 +23,9 @@
 
 #ifndef NOVST
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
-#include "io/crossplatformlib.h"
+#include "global/crossplatformlib.h"
 
 #include "include/vestige.h"
 
@@ -35,42 +35,43 @@ typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t i
 #include <QDialog>
 
 class VSTHost : public Effect {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    VSTHost(Clip* c, const EffectMeta* em);
-	~VSTHost();
-	void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  VSTHost(Clip* c, const EffectMeta* em);
+  ~VSTHost();
+  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
-	void custom_load(QXmlStreamReader& stream);
-	void save(QXmlStreamWriter& stream);
+  void custom_load(QXmlStreamReader& stream);
+  void save(QXmlStreamWriter& stream);
 private slots:
-	void show_interface(bool show);
-	void uncheck_show_button();
-	void change_plugin();
+  void show_interface(bool show);
+  void uncheck_show_button();
+  void change_plugin();
 private:
-	EffectField* file_field;
+  FileField* file_field;
+  ButtonField* show_interface_btn;
 
-	void loadPlugin();
-	void freePlugin();
-	dispatcherFuncPtr dispatcher;
-	AEffect* plugin;
-	bool configurePluginCallbacks();
-	void startPlugin();
-	void stopPlugin();
-	void resumePlugin();
-	void suspendPlugin();
-	bool canPluginDo(char *canDoString);
-	void processAudio(long numFrames);
-	float** inputs;
-	float** outputs;
-	QDialog* dialog;
-	QPushButton* show_interface_btn;
-	QByteArray data_cache;
+  void loadPlugin();
+  void freePlugin();
+  dispatcherFuncPtr dispatcher;
+  AEffect* plugin;
+  bool configurePluginCallbacks();
+  void startPlugin();
+  void stopPlugin();
+  void resumePlugin();
+  void suspendPlugin();
+  bool canPluginDo(char *canDoString);
+  void processAudio(long numFrames);
+  void CreateDialogIfNull();
+  float** inputs;
+  float** outputs;
+  QDialog* dialog;
+  QByteArray data_cache;
 
 #if defined(__APPLE__)
-	CFBundleRef bundle;
+  CFBundleRef bundle;
 #else
-	ModulePtr modulePtr;
+  ModulePtr modulePtr;
 #endif
 };
 

@@ -24,20 +24,17 @@
 #include <QTextEdit>
 
 class TextEditEx : public QTextEdit {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	TextEditEx(QWidget* parent = 0);
-	void setPlainTextEx(const QString &text);
-	const QString& getPreviousValue();
-	const QString& getPlainTextEx();
+  TextEditEx(QWidget* parent = nullptr, bool enable_rich_text = true);
 signals:
-	void updateSelf();
+  void textModified(const QString& s);
 private slots:
-	void updateInternals();
-	void updateText();
+  void text_edit_menu();
+  void open_text_edit();
+  void queue_text_modified();
 private:
-	QString previousText;
-	QString text;
+  bool enable_rich_text_;
 };
 
 #endif // TEXTEDITEX_H

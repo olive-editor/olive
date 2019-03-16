@@ -46,11 +46,11 @@ extern "C" {
 #include "project/projectelements.h"
 #include "rendering/renderfunctions.h"
 #include "rendering/audio.h"
-#include "io/config.h"
-#include "debug.h"
-#include "io/math.h"
+#include "global/config.h"
+#include "global/debug.h"
+#include "global/math.h"
 #include "ui/collapsiblewidget.h"
-#include "project/undo.h"
+#include "undo/undo.h"
 #include "project/media.h"
 #include "ui/viewercontainer.h"
 #include "rendering/cacher.h"
@@ -91,7 +91,7 @@ ViewerWidget::~ViewerWidget() {
 }
 
 void ViewerWidget::delete_function() {
-  close_active_clips(viewer->seq);
+  close_active_clips(viewer->seq.get());
 }
 
 void ViewerWidget::set_waveform_scroll(int s) {
@@ -168,7 +168,7 @@ void ViewerWidget::save_frame() {
       fn += selected_ext;
     }
 
-    renderer->start_render(context(), viewer->seq, fn);
+    renderer->start_render(context(), viewer->seq.get(), fn);
   }
 }
 
@@ -228,11 +228,11 @@ void ViewerWidget::frame_update() {
       update();
     } else {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq);
+      renderer->start_render(context(), viewer->seq.get());
     }
 
     // render the audio
-    compose_audio(viewer, viewer->seq, viewer->get_playback_speed(), viewer->WaitingForPlayWake());
+    compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), viewer->WaitingForPlayWake());
   }
 }
 
@@ -253,7 +253,7 @@ void ViewerWidget::seek_from_click(int x) {
 void ViewerWidget::context_destroy() {
   makeCurrent();
   if (viewer->seq != nullptr) {
-    close_active_clips(viewer->seq);
+    close_active_clips(viewer->seq.get());
   }
   renderer->delete_ctx();
   doneCurrent();
@@ -310,8 +310,6 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 
     drag_start_x = event->pos().x();
     drag_start_y = event->pos().y();
-
-    gizmos->field_changed();
   }
 }
 
@@ -328,10 +326,6 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
     gizmo_y_mvmt = 0;
 
     selected_gizmo = get_gizmo_from_mouse(event->pos().x(), event->pos().y());
-
-    if (selected_gizmo != nullptr) {
-      selected_gizmo->set_previous_value();
-    }
   }
   dragging = true;
 }
@@ -574,7 +568,6 @@ void ViewerWidget::paintGL() {
 
     glBegin(GL_QUADS);
 
-    //        double ar_diff = (double(viewer->seq->width)/double(viewer->seq->height)/(double(width())/double(height())));
     double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
     double zoom_size = (zoom_factor*2.0) - 2.0;
     double zoom_left = -zoom_size*x_scroll - 1.0;
@@ -619,7 +612,7 @@ void ViewerWidget::paintGL() {
 
     if (renderer->did_texture_fail() && !viewer->playing) {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq);
+      renderer->start_render(context(), viewer->seq.get());
     }
   }
 }

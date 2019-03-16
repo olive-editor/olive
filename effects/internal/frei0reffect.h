@@ -23,11 +23,10 @@
 
 #ifndef NO_FREI0R
 
-#include "project/effect.h"
-
 #include <frei0r.h>
 
-#include "io/crossplatformlib.h"
+#include "effects/effect.h"
+#include "global/crossplatformlib.h"
 
 typedef void (*f0rGetParamInfo)(f0r_param_info_t * info,
                 int param_index );

@@ -34,24 +34,22 @@ extern "C" {
 namespace OCIO = OCIO_NAMESPACE;
 #endif
 
-#include "project/clip.h"
-#include "project/sequence.h"
+#include "timeline/clip.h"
+#include "timeline/sequence.h"
 #include "project/media.h"
-#include "project/effect.h"
+#include "effects/effect.h"
 #include "project/footage.h"
-#include "project/transition.h"
+#include "effects/transition.h"
 
 #include "ui/collapsiblewidget.h"
 
 #include "rendering/audio.h"
 
-#include "io/math.h"
-#include "io/config.h"
+#include "global/math.h"
+#include "global/config.h"
 
 #include "panels/timeline.h"
 #include "panels/viewer.h"
-
-const int kMaximumRetryCount = 10;
 
 void full_blit() {
   glPushMatrix();
@@ -114,12 +112,12 @@ void process_effect(Clip* c,
                     bool& fbo_switcher,
                     bool& texture_failed,
                     int data) {
-  if (e->is_enabled()) {
-    if (e->enable_coords) {
+  if (e->IsEnabled()) {
+    if (e->Flags() & Effect::CoordsFlag) {
       e->process_coords(timecode, coords, data);
     }
-    bool can_process_shaders = (e->enable_shader && olive::CurrentRuntimeConfig.shaders_are_enabled);
-    if (can_process_shaders || e->enable_superimpose) {
+    bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::CurrentRuntimeConfig.shaders_are_enabled);
+    if (can_process_shaders || (e->Flags() & Effect::SuperimposeFlag)) {
       e->startEffect();
       if (can_process_shaders && e->is_glsl_linked()) {
         for (int i=0;i<e->getIterations();i++) {
@@ -128,7 +126,7 @@ void process_effect(Clip* c,
           fbo_switcher = !fbo_switcher;
         }
       }
-      if (e->enable_superimpose) {
+      if (e->Flags() & Effect::SuperimposeFlag) {
         GLuint superimpose_texture = e->process_superimpose(timecode);
 
         if (superimpose_texture == 0) {
@@ -159,12 +157,12 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
   GLuint final_fbo = params.main_buffer;
 
-  SequencePtr s = params.seq;
+  Sequence* s = params.seq;
   long playhead = s->playhead;
 
   if (!params.nests.isEmpty()) {
     for (int i=0;i<params.nests.size();i++) {
-      s = params.nests.at(i)->media()->to_sequence();
+      s = params.nests.at(i)->media()->to_sequence().get();
       playhead += params.nests.at(i)->clip_in(true) - params.nests.at(i)->timeline_in(true);
       playhead = rescale_frame_number(playhead, params.nests.at(i)->sequence->frame_rate, s->frame_rate);
     }
@@ -194,7 +192,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
         // is the clip a "footage" clip?
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-          FootagePtr m = c->media()->to_footage();
+          Footage* m = c->media()->to_footage();
 
           // does the clip have a valid media source?
           if (!m->invalid && !(c->track() >= 0 && !is_audio_device_set())) {
@@ -410,14 +408,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           coords.blendmode = -1;
           coords.opacity = 1.0;
 
-          // if auto-scale is enabled, auto-scale the clip
-          if (c->autoscaled() && (video_width != s->width && video_height != s->height)) {
-            float width_multiplier = float(s->width) / float(video_width);
-            float height_multiplier = float(s->height) / float(video_height);
-            float scale_multiplier = qMin(width_multiplier, height_multiplier);
-            glScalef(scale_multiplier, scale_multiplier, 1);
-          }
-
           // == EFFECT CODE START ==
 
           // get current sequence time in seconds (used for effects)
@@ -428,10 +418,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             Effect* e = c->effects.at(j).get();
             process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
-            if (e == params.gizmos) {
-              e->gizmo_draw(timecode, coords); // set correct gizmo coords
-              e->gizmo_world_to_screen(); // convert gizmo coords to screen coords
-            }
+
           }
 
           // if the clip has an opening transition, process that now
@@ -451,6 +438,25 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           }
 
           // == EFFECT CODE END ==
+
+
+          // Check whether the parent clip is auto-scaledc
+          if (c->autoscaled()
+              && (video_width != s->width
+                  && video_height != s->height)) {
+            float width_multiplier = float(s->width) / float(video_width);
+            float height_multiplier = float(s->height) / float(video_height);
+            float scale_multiplier = qMin(width_multiplier, height_multiplier);
+            glScalef(scale_multiplier, scale_multiplier, 1);
+          }
+
+          // Configure effect gizmos if they exist
+          if (params.gizmos != nullptr) {
+            params.gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
+            params.gizmos->gizmo_world_to_screen(); // convert gizmo coords to screen coords
+          }
+
+
 
           if (textureID > 0) {
             // set viewport to sequence size
@@ -626,6 +632,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           }
         }
 
+        /*
         // visually update all the keyframe values
         if (c->sequence == params.seq) { // only if you can currently see them
           double ts = (playhead - c->timeline_in(true) + c->clip_in(true))/s->frame_rate;
@@ -639,6 +646,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             }
           }
         }
+        */
       }
     } else {
       params.texture_failed = true;
@@ -667,7 +675,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
   return 0;
 }
 
-void compose_audio(Viewer* viewer, SequencePtr seq, int playback_speed, bool wait_for_mutexes) {
+void compose_audio(Viewer* viewer, Sequence* seq, int playback_speed, bool wait_for_mutexes) {
   ComposeSequenceParams params;
   params.viewer = viewer;
   params.ctx = nullptr;
@@ -716,7 +724,7 @@ int64_t playhead_to_timestamp(Clip* c, long playhead) {
   return seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
 }
 
-void close_active_clips(SequencePtr s) {
+void close_active_clips(Sequence* s) {
   if (s != nullptr) {
     for (int i=0;i<s->clips.size();i++) {
       Clip* c = s->clips.at(i).get();

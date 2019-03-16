@@ -24,28 +24,79 @@
 #include <QWidget>
 #include <QTimer>
 
+/**
+ * @brief The AudioMonitor class
+ *
+ * Used to show a visual representation of audio currently playing
+ */
 class AudioMonitor : public QWidget
 {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	explicit AudioMonitor(QWidget *parent = 0);
-	void set_value(const QVector<double>& values);
+  /**
+   * @brief AudioMonitor Constructor
+   * @param parent
+   *
+   * QWidget parent object.
+   */
+  explicit AudioMonitor(QWidget *parent = nullptr);
+
+  /**
+   * @brief Set the current audio value
+   *
+   * The main interface for updating the audio monitor. Using this function will redraw the monitor with the values
+   * specified.
+   *
+   * @param values
+   *
+   * An array of doubles between 0.0 and 1.0 to display the amplitude. 0.0 is no audio, 1.0 is full volume. Each array
+   * entry is a channel and the audio monitor will automatically adjust to the channel count in the array.
+   */
+  void set_value(const QVector<double>& values);
 
 protected:
-	void paintEvent(QPaintEvent *);
-	void resizeEvent(QResizeEvent *);
+  /**
+   * @brief Internal paint event
+   *
+   * Paints the
+   */
+  void paintEvent(QPaintEvent *);
+
+  /**
+   * @brief Internal resize event handler
+   *
+   * Triggers a repaint when the widget is resized.
+   */
+  void resizeEvent(QResizeEvent *);
 
 signals:
 
 public slots:
 
 private:
-	QLinearGradient gradient;
-	QVector<double> values;
-	QTimer clear_timer;
+  /**
+   * @brief Internal gradient object from red to yellow to green
+   */
+  QLinearGradient gradient;
+
+  /**
+   * @brief Internal value storage
+   */
+  QVector<double> values;
+
+  /**
+   * @brief Internal timer to clear the audio monitor after a certain amount of time
+   *
+   * If it doesn't receive any values within a certain amount of time, it's assumed audio is no longer playing and the
+   * monitor is cleared.
+   */
+  QTimer clear_timer;
 
 private slots:
-	void clear();
+  /**
+   * @brief Slot to clear the audio monitor
+   */
+  void clear();
 };
 
 #endif // AUDIOMONITOR_H

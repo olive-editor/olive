@@ -20,8 +20,14 @@
 
 #include "cacher.h"
 
-#define __STDC_FORMAT_MACROS
+#ifndef __STDC_FORMAT_MACROS
+// For some reason the Windows AppVeyor build fails to find PRIx64 without this definition and including
+// <inttypes.h> Maybe something to do with the GCC version being used? Either way, that's why it's here.
+#define __STDC_FORMAT_MACROS 1
+#endif
+
 #include <inttypes.h>
+
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
@@ -31,8 +37,8 @@
 #include "rendering/audio.h"
 #include "rendering/renderfunctions.h"
 #include "panels/panels.h"
-#include "io/config.h"
-#include "debug.h"
+#include "global/config.h"
+#include "global/debug.h"
 
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
@@ -50,8 +56,10 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
 
   for (int j=0;j<clip->effects.size();j++) {
-    EffectPtr e = clip->effects.at(j);
-    if (e->is_enabled()) e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
+    Effect* e = clip->effects.at(j).get();
+    if (e->IsEnabled()) {
+      e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
+    }
   }
   if (clip->opening_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
@@ -174,6 +182,7 @@ void Cacher::CacheAudioWorker() {
       // retrieve frame
       bool new_frame = false;
       while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+
         // no more audio left in frame, get a new one
         if (!reached_end) {
           int loop = 0;
@@ -181,7 +190,8 @@ void Cacher::CacheAudioWorker() {
           if (reverse_audio && !audio_just_reset) {
             avcodec_flush_buffers(codecCtx);
             reached_end = false;
-            int64_t backtrack_seek = qMax(reverse_target_ - static_cast<int64_t>(av_q2d(av_inv_q(stream->time_base))), static_cast<int64_t>(0));
+            int64_t backtrack_seek = qMax(reverse_target_ - static_cast<int64_t>(av_q2d(av_inv_q(stream->time_base))),
+                                          static_cast<int64_t>(0));
             av_seek_frame(formatCtx, stream->index, backtrack_seek, AVSEEK_FLAG_BACKWARD);
 #ifdef AUDIOWARNINGS
             if (backtrack_seek == 0) {
@@ -333,7 +343,10 @@ void Cacher::CacheAudioWorker() {
         if (audio_just_reset) {
           // get precise sample offset for the elected clip_in from this audio frame
           double target_sts = playhead_to_clip_seconds(clip, audio_target_frame);
-          double frame_sts = ((frame->pts - stream->start_time) * timebase);
+
+          int64_t stream_start = qMax(static_cast<int64_t>(0), stream->start_time);
+          double frame_sts = ((frame->pts - stream_start) * timebase);
+
           int nb_samples = qRound64((target_sts - frame_sts)*current_audio_freq());
           frame_sample_index_ = nb_samples * 4;
 #ifdef AUDIOWARNINGS
@@ -381,10 +394,6 @@ void Cacher::CacheAudioWorker() {
       if (new_frame) {
         apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
       }
-    } else {
-      // shouldn't ever get here
-      qCritical() << "Tried to cache a non-footage/tone clip";
-      return;
     }
 
     // mix audio into internal buffer
@@ -833,7 +842,7 @@ void Cacher::OpenWorker() {
     }
   } else if (clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     // opens file resource for FFmpeg and prepares Clip struct for playback
-    FootagePtr m = clip->media()->to_footage();
+    Footage* m = clip->media()->to_footage();
 
     // byte array for retriving raw bytes from QString URL
     QByteArray ba;
@@ -951,7 +960,7 @@ void Cacher::OpenWorker() {
 
       // set up cache
       queue_.append(av_frame_alloc());
-      //			if (clip->reverse) {
+
       if (true) {
         AVFrame* reverse_frame = av_frame_alloc();
 

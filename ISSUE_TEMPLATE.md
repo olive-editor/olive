@@ -1,12 +1,14 @@
 
-[The following template is primarily for bugs, you can remove it if you're requesting a feature.]
+[If you are reporting a bug, please try to fill out all the information below. If you are requesting a feature, you can clear this template.]
 
-**Olive version:**  [Git hash from window title or Help > About]
-**Source:** [AppImage, Website etc.]
-**Operating system:** [Ubuntu 18.04 64-bit]
-**CPU:** [Intel i5-4300U]
-**RAM:** [8GB]
-**GPU:** [NVIDIA Geforce GT 1030 2GB (Driver ver xxx.xx.xx)]
+### System Information
+
+**Olive version:**  [e.g. Git hash from window title or Help > About]
+**Source:** [e.g. AppImage, Website etc.]
+**Operating system:** [e.g. Ubuntu 18.04 64-bit]
+**CPU:** [e.g. Intel i5-4300U]
+**RAM:** [e.g. 8GB]
+**GPU:** [e.g. NVIDIA Geforce GT 1030 2GB (Driver ver xxx.xx.xx)]
 
 ### Detailed Description
 

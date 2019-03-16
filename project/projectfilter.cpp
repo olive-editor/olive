@@ -21,21 +21,21 @@
 #include "projectfilter.h"
 
 #include "project/media.h"
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
 #include <QDebug>
 
 ProjectFilter::ProjectFilter(QObject *parent) :
-	QSortFilterProxyModel(parent),
-	show_sequences(true)
+  QSortFilterProxyModel(parent),
+  show_sequences(true)
 {}
 
 bool ProjectFilter::get_show_sequences() {
-	return show_sequences;
+  return show_sequences;
 }
 
 void ProjectFilter::set_show_sequences(bool b) {
-	show_sequences = b;
+  show_sequences = b;
     invalidateFilter();
 }
 
@@ -50,11 +50,11 @@ bool ProjectFilter::filterAcceptsRow(int source_row, const QModelIndex &source_p
     Media* media = static_cast<Media*>(index.internalPointer());
 
     // hide sequences if show_sequences is false
-	if (!show_sequences) {
-		if (media != nullptr && media->get_type() == MEDIA_TYPE_SEQUENCE) {
-			return false;
-		}
-	}
+  if (!show_sequences) {
+    if (media != nullptr && media->get_type() == MEDIA_TYPE_SEQUENCE) {
+      return false;
+    }
+  }
 
     // filter by search filter string
     if (!search_filter.isEmpty()) {
@@ -80,5 +80,5 @@ bool ProjectFilter::filterAcceptsRow(int source_row, const QModelIndex &source_p
         }
     }
 
-	return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+  return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }

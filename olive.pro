@@ -54,7 +54,7 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
+        ui/mainwindow.cpp \
     panels/project.cpp \
     panels/effectcontrols.cpp \
     panels/viewer.cpp \
@@ -64,22 +64,22 @@ SOURCES += \
     ui/timelinewidget.cpp \
     project/media.cpp \
     project/footage.cpp \
-    project/sequence.cpp \
-    project/clip.cpp \
-    io/config.cpp \
+    timeline/sequence.cpp \
+    timeline/clip.cpp \
+    global/config.cpp \
     dialogs/newsequencedialog.cpp \
     ui/viewerwidget.cpp \
     ui/viewercontainer.cpp \
     dialogs/exportdialog.cpp \
     ui/collapsiblewidget.cpp \
     panels/panels.cpp \
-    io/exportthread.cpp \
+    rendering/exportthread.cpp \
     ui/timelineheader.cpp \
-    io/previewgenerator.cpp \
+    project/previewgenerator.cpp \
     ui/labelslider.cpp \
     dialogs/preferencesdialog.cpp \
     ui/audiomonitor.cpp \
-    project/undo.cpp \
+    undo/undo.cpp \
     ui/scrollarea.cpp \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
@@ -89,14 +89,14 @@ SOURCES += \
     ui/keyframeview.cpp \
     ui/texteditex.cpp \
     dialogs/demonotice.cpp \
-    project/marker.cpp \
+    timeline/marker.cpp \
     dialogs/speeddialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
     project/projectmodel.cpp \
-    io/loadthread.cpp \
+    project/loadthread.cpp \
     dialogs/loaddialog.cpp \
-    debug.cpp \
-    io/path.cpp \
+    global/debug.cpp \
+    global/path.cpp \
     effects/internal/linearfadetransition.cpp \
     effects/internal/transformeffect.cpp \
     effects/internal/solideffect.cpp \
@@ -111,15 +111,11 @@ SOURCES += \
     effects/internal/exponentialfadetransition.cpp \
     effects/internal/logarithmicfadetransition.cpp \
     effects/internal/cornerpineffect.cpp \
-    io/math.cpp \
-    io/qpainterwrapper.cpp \
-    project/effect.cpp \
-    project/transition.cpp \
-    project/effectrow.cpp \
-    project/effectfield.cpp \
-    effects/internal/cubetransition.cpp \
-    project/effectgizmo.cpp \
-    io/clipboard.cpp \
+    global/math.cpp \
+    effects/effect.cpp \
+    effects/effectrow.cpp \
+    effects/effectgizmo.cpp \
+    project/clipboard.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp \
@@ -128,7 +124,7 @@ SOURCES += \
     ui/graphview.cpp \
     ui/keyframedrawing.cpp \
     ui/clickablelabel.cpp \
-    project/keyframe.cpp \
+    effects/keyframe.cpp \
     ui/rectangleselect.cpp \
     dialogs/actionsearch.cpp \
     ui/embeddedfilechooser.cpp \
@@ -139,18 +135,18 @@ SOURCES += \
     ui/viewerwindow.cpp \
     project/projectfilter.cpp \
     effects/internal/frei0reffect.cpp \
-    project/effectloaders.cpp \
-    io/crossplatformlib.cpp \
+    effects/effectloaders.cpp \
+    global/crossplatformlib.cpp \
     effects/internal/vsthost.cpp \
     ui/flowlayout.cpp \
     dialogs/proxydialog.cpp \
-    io/proxygenerator.cpp \
+    project/proxygenerator.cpp \
     dialogs/advancedvideodialog.cpp \
     ui/cursors.cpp \
     ui/menuhelper.cpp \
-    oliveglobal.cpp \
+    global/global.cpp \
     ui/focusfilter.cpp \
-    project/comboaction.cpp \
+    undo/comboaction.cpp \
     ui/mediaiconservice.cpp \
     ui/panel.cpp \
     effects/internal/dropshadoweffect.cpp \
@@ -162,10 +158,26 @@ SOURCES += \
     dialogs/clippropertiesdialog.cpp \
     rendering/framebufferobject.cpp \
     ui/updatenotification.cpp \
-    ui/icons.cpp
+    ui/icons.cpp \
+    effects/fields/doublefield.cpp \
+    effects/fields/fontfield.cpp \
+    effects/effectfield.cpp \
+    effects/fields/colorfield.cpp \
+    effects/fields/stringfield.cpp \
+    effects/fields/boolfield.cpp \
+    effects/fields/combofield.cpp \
+    effects/fields/filefield.cpp \
+    effects/fields/labelfield.cpp \
+    effects/fields/buttonfield.cpp \
+    ui/effectui.cpp \
+    effects/transition.cpp \
+    ui/styling.cpp \
+    undo/undostack.cpp \
+    effects/internal/richtexteffect.cpp \
+    ui/blur.cpp
 
 HEADERS += \
-        mainwindow.h \
+        ui/mainwindow.h \
     panels/project.h \
     panels/effectcontrols.h \
     panels/viewer.h \
@@ -175,23 +187,23 @@ HEADERS += \
     ui/timelinewidget.h \
     project/media.h \
     project/footage.h \
-    project/sequence.h \
-    project/clip.h \
-    io/config.h \
+    timeline/sequence.h \
+    timeline/clip.h \
+    global/config.h \
     dialogs/newsequencedialog.h \
     ui/viewerwidget.h \
     ui/viewercontainer.h \
     dialogs/exportdialog.h \
     ui/collapsiblewidget.h \
     panels/panels.h \
-    io/exportthread.h \
+    rendering/exportthread.h \
     ui/timelinetools.h \
     ui/timelineheader.h \
-    io/previewgenerator.h \
+    project/previewgenerator.h \
     ui/labelslider.h \
     dialogs/preferencesdialog.h \
     ui/audiomonitor.h \
-    project/undo.h \
+    undo/undo.h \
     ui/scrollarea.h \
     ui/comboboxex.h \
     ui/colorbutton.h \
@@ -201,15 +213,15 @@ HEADERS += \
     ui/keyframeview.h \
     ui/texteditex.h \
     dialogs/demonotice.h \
-    project/marker.h \
-    project/selection.h \
+    timeline/marker.h \
+    timeline/selection.h \
     dialogs/speeddialog.h \
     dialogs/mediapropertiesdialog.h \
     project/projectmodel.h \
-    io/loadthread.h \
+    project/loadthread.h \
     dialogs/loaddialog.h \
-    debug.h \
-    io/path.h \
+    global/debug.h \
+    global/path.h \
     effects/internal/transformeffect.h \
     effects/internal/solideffect.h \
     effects/internal/texteffect.h \
@@ -224,15 +236,12 @@ HEADERS += \
     effects/internal/exponentialfadetransition.h \
     effects/internal/logarithmicfadetransition.h \
     effects/internal/cornerpineffect.h \
-    io/math.h \
-    io/qpainterwrapper.h \
-    project/effect.h \
-    project/transition.h \
-    project/effectrow.h \
-    project/effectfield.h \
+    global/math.h \
+    effects/effect.h \
+    effects/effectrow.h \
     effects/internal/cubetransition.h \
-    project/effectgizmo.h \
-    io/clipboard.h \
+    effects/effectgizmo.h \
+    project/clipboard.h \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h \
@@ -241,7 +250,7 @@ HEADERS += \
     ui/graphview.h \
     ui/keyframedrawing.h \
     ui/clickablelabel.h \
-    project/keyframe.h \
+    effects/keyframe.h \
     ui/rectangleselect.h \
     dialogs/actionsearch.h \
     ui/embeddedfilechooser.h \
@@ -252,19 +261,19 @@ HEADERS += \
     ui/viewerwindow.h \
     project/projectfilter.h \
     effects/internal/frei0reffect.h \
-    project/effectloaders.h \
-    io/crossplatformlib.h \
+    effects/effectloaders.h \
+    global/crossplatformlib.h \
     effects/internal/vsthost.h \
     ui/flowlayout.h \
     dialogs/proxydialog.h \
-    io/proxygenerator.h \
+    project/proxygenerator.h \
     dialogs/advancedvideodialog.h \
     ui/cursors.h \
     ui/menuhelper.h \
-    oliveglobal.h \
+    global/global.h \
     project/projectelements.h \
     ui/focusfilter.h \
-    project/comboaction.h \
+    undo/comboaction.h \
     ui/mediaiconservice.h \
     ui/panel.h \
     effects/internal/dropshadoweffect.h \
@@ -276,7 +285,24 @@ HEADERS += \
     dialogs/clippropertiesdialog.h \
     rendering/framebufferobject.h \
     ui/updatenotification.h \
-    ui/icons.h
+    ui/icons.h \
+    effects/fields/doublefield.h \
+    effects/fields/fontfield.h \
+    effects/effectfield.h \
+    effects/effectfields.h \
+    effects/fields/stringfield.h \
+    effects/fields/filefield.h \
+    effects/fields/labelfield.h \
+    ui/effectui.h \
+    effects/fields/boolfield.h \
+    effects/fields/buttonfield.h \
+    effects/fields/colorfield.h \
+    effects/fields/combofield.h \
+    effects/transition.h \
+    ui/styling.h \
+    undo/undostack.h \
+    effects/internal/richtexteffect.h \
+    ui/blur.h
 
 FORMS +=
 
@@ -330,7 +356,7 @@ unix:!mac:isEmpty(PREFIX) {
 
 unix:!mac:target.path = $$PREFIX/bin
 
-effects.files = $$PWD/effects/*.frag $$PWD/effects/*.xml $$PWD/effects/*.vert
+effects.files = $$PWD/effects/shaders/*
 unix:!mac:effects.path = $$PREFIX/share/olive-editor/effects
 
 translations.files = $$PWD/ts/*.qm

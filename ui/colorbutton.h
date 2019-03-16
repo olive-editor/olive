@@ -26,31 +26,18 @@
 #include <QUndoCommand>
 
 class ColorButton : public QPushButton {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    ColorButton(QWidget* parent = 0);
-    QColor get_color();
-    void set_color(QColor c);
-	const QColor& getPreviousValue();
+  ColorButton(QWidget* parent = nullptr);
+  QColor get_color();
+  void set_color(QColor c);
 private:
-    QColor color;
-	QColor previousColor;
-    void set_button_color();
+  QColor color;
+  void set_button_color();
 signals:
-    void color_changed();
+  void color_changed(const QColor& c);
 private slots:
-    void open_dialog();
-};
-
-class ColorCommand : public QUndoCommand {
-public:
-    ColorCommand(ColorButton* s, QColor o, QColor n);
-    void undo();
-    void redo();
-private:
-    ColorButton* sender;
-    QColor old_color;
-    QColor new_color;
+  void open_dialog();
 };
 
 #endif // COLORBUTTON_H

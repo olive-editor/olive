@@ -29,22 +29,22 @@
 #include <QAudioOutput>
 #include <QComboBox>
 
-#include "project/sequence.h"
+#include "timeline/sequence.h"
 
 class AudioSenderThread : public QThread {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	AudioSenderThread();
-	void run();
-	void stop();
-	QWaitCondition cond;
-	bool close;
-	QMutex lock;
+  AudioSenderThread();
+  void run();
+  void stop();
+  QWaitCondition cond;
+  bool close;
+  QMutex lock;
 public slots:
-	void notifyReceiver();
+  void notifyReceiver();
 private:
-	QVector<qint16> samples;
-	int send_audio_to_output(qint64 offset, int max);
+  QVector<qint16> samples;
+  int send_audio_to_output(qint64 offset, int max);
 };
 
 double log_volume(double linear);
@@ -62,6 +62,7 @@ extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
 extern bool recording;
 extern bool audio_rendering;
+extern int audio_rendering_rate;
 void clear_audio_ibuffer();
 
 int current_audio_freq();

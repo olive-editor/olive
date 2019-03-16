@@ -21,42 +21,44 @@
 #ifndef TEXTEFFECT_H
 #define TEXTEFFECT_H
 
-#include "project/effect.h"
+#include "effects/effect.h"
 
 #include <QFont>
 #include <QImage>
 
 class TextEffect : public Effect {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    TextEffect(Clip* c, const EffectMeta *em);
-	void redraw(double timecode);
-
-	EffectField* text_val;
-	EffectField* size_val;
-	EffectField* set_color_button;
-	EffectField* set_font_combobox;
-	EffectField* halign_field;
-	EffectField* valign_field;
-	EffectField* word_wrap_field;
-
-	EffectField* outline_bool;
-	EffectField* outline_width;
-	EffectField* outline_color;
-
-	EffectField* shadow_bool;
-  EffectField* shadow_angle;
-  EffectField* shadow_distance;
-	EffectField* shadow_color;
-	EffectField* shadow_softness;
-	EffectField* shadow_opacity;
+  TextEffect(Clip* c, const EffectMeta *em);
+  void redraw(double timecode);
 private slots:
-	void outline_enable(bool);
-	void shadow_enable(bool);
-	void text_edit_menu();
-	void open_text_edit();
+  void outline_enable(bool);
+  void shadow_enable(bool);
 private:
-	QFont font;
+  QFont font;
+
+  StringField* text_val;
+  DoubleField* size_val;
+  ColorField* set_color_button;
+  FontField* set_font_combobox;
+  ComboField* halign_field;
+  ComboField* valign_field;
+  BoolField* word_wrap_field;
+  DoubleField* padding_field;
+  DoubleField* position_x;
+  DoubleField* position_y;
+
+  BoolField* outline_bool;
+  DoubleField* outline_width;
+  ColorField* outline_color;
+
+  BoolField* shadow_bool;
+  DoubleField* shadow_angle;
+  DoubleField* shadow_distance;
+  ColorField* shadow_color;
+  DoubleField* shadow_softness;
+  DoubleField* shadow_opacity;
+
 };
 
 #endif // TEXTEFFECT_H
