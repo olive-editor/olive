@@ -314,6 +314,7 @@ TRANSLATIONS += \
     ts/olive_cs.ts \
     ts/olive_ar.ts \
     ts/olive_ru.ts \
+    ts/olive_uk.ts \
     ts/olive_bs.ts \
     ts/olive_sr.ts
 
