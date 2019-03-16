@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
   a.setWindowIcon(QIcon(":/icons/olive64.png"));
 
   // start media icon service (uses QPixmaps which require a QGuiApplication to have been created)
-  olive::media_icon_service = std::make_unique<MediaIconService>();
+  olive::media_icon_service = std::unique_ptr<MediaIconService>(new MediaIconService());
 
   // set app name data
   QCoreApplication::setOrganizationName("olivevideoeditor.org");
