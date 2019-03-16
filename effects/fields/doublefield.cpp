@@ -38,7 +38,6 @@ void DoubleField::SetDefault(double d)
 
   if (!value_set_) {
     SetValueAt(0, d);
-    value_set_ = false;
   }
 }
 
