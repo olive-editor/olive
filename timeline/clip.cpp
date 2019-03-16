@@ -619,7 +619,6 @@ bool Clip::Retrieve()
                           const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
 
       if (data_buffer_1 != frame->data[0]) {
-        qDebug() << data_buffer_1 << frame->data[0];
         delete [] data_buffer_1;
         delete [] data_buffer_2;
       }
