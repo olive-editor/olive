@@ -144,11 +144,17 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
   blend_mode_box->SetValueAt(0, "");
   anchor_x_box->SetDefault(0);
   anchor_y_box->SetDefault(0);
+  opacity->SetValueAt(0, 100);
   opacity->SetDefault(100);
+  scale_x->SetValueAt(0, 100);
   scale_x->SetDefault(100);
+  scale_y->SetValueAt(0, 100);
   scale_y->SetDefault(100);
 
   refresh();
+
+  position_x->SetValueAt(0, parent_clip->sequence->width/2);
+  position_y->SetValueAt(0, parent_clip->sequence->height/2);
 }
 
 void TransformEffect::refresh() {
