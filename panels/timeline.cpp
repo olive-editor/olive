@@ -138,6 +138,25 @@ void Timeline::Retranslate() {
   UpdateTitle();
 }
 
+void Timeline::split_at_position(int pos) {
+  ComboAction* ca = new ComboAction();
+  split_cache.clear();
+
+  if (olive::ActiveSequence->selections.size() > 0) {
+    // see if whole clips are selected
+    QVector<int> pre_clips;
+    QVector<ClipPtr> post_clips;
+    for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
+      Clip* clip = olive::ActiveSequence->clips.at(j).get();
+      if (clip != nullptr && olive::ActiveSequence->IsClipSelected(clip, true)) {
+        split_clip_and_relink(ca,j,pos,true);
+
+      }
+    }
+    olive::UndoStack.push(ca);
+  }
+}
+
 void Timeline::previous_cut() {
   if (olive::ActiveSequence != nullptr
       && olive::ActiveSequence->playhead > 0) {

@@ -91,6 +91,7 @@ SOURCES += \
     dialogs/demonotice.cpp \
     timeline/marker.cpp \
     dialogs/speeddialog.cpp \
+    dialogs/silencedialog.cpp \
     dialogs/mediapropertiesdialog.cpp \
     project/projectmodel.cpp \
     project/loadthread.cpp \
@@ -221,6 +222,7 @@ HEADERS += \
     project/projectmodel.h \
     project/loadthread.h \
     dialogs/loaddialog.h \
+    dialogs/silencedialog.h \
     global/debug.h \
     global/path.h \
     effects/internal/transformeffect.h \

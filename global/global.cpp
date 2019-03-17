@@ -38,6 +38,7 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
+#include "dialogs/silencedialog.h"
 #include "timeline/sequence.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
@@ -357,6 +358,18 @@ void OliveGlobal::open_speed_dialog() {
 
     if (!selected_clips.isEmpty()) {
       SpeedDialog s(olive::MainWindow, selected_clips);
+      s.exec();
+    }
+  }
+}
+
+void OliveGlobal::open_cut_silence_dialog() {
+  if (olive::ActiveSequence != nullptr) {
+
+    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+
+    if (!selected_clips.isEmpty()) {
+      SilenceDialog s(olive::MainWindow, selected_clips);
       s.exec();
     }
   }

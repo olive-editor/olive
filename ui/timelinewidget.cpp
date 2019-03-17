@@ -122,6 +122,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
       menu.addSeparator();
 
       menu.addAction(tr("&Speed/Duration"), olive::Global.get(), SLOT(open_speed_dialog()));
+      menu.addAction(tr("&Cut Silence"), olive::Global.get(), SLOT(open_cut_silence_dialog()));
 
       QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
       autoscaleAction->setCheckable(true);

@@ -240,6 +240,11 @@ public slots:
     void open_speed_dialog();
 
     /**
+     * @brief Open the cut silence dialog.
+     */
+    void open_cut_silence_dialog();
+
+    /**
      * @brief Open the Action Search overlay.
      */
     void open_action_search();
