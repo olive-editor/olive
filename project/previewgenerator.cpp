@@ -77,7 +77,7 @@ void PreviewGenerator::parse_media() {
       ms.enabled = true;
       ms.infinite_length = false;
 
-      bool append = false;
+      append_ = false;
 
       if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
           && fmt_ctx_->streams[i]->codecpar->width > 0
@@ -107,30 +107,58 @@ void PreviewGenerator::parse_media() {
         ms.video_auto_interlacing = VIDEO_PROGRESSIVE;
         ms.video_interlacing = VIDEO_PROGRESSIVE;
 
-        append = true;
+        append_ = true;
       } else if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
         ms.audio_channels = fmt_ctx_->streams[i]->codecpar->channels;
         ms.audio_layout = int(fmt_ctx_->streams[i]->codecpar->channel_layout);
         ms.audio_frequency = fmt_ctx_->streams[i]->codecpar->sample_rate;
 
-        append = true;
+        append_ = true;
       }
 
-      if (append) {
+      if (append_) {
         QVector<FootageStream>& stream_list = (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) ?
               footage_->audio_tracks : footage_->video_tracks;
 
         for (int j=0;j<stream_list.size();j++) {
           if (stream_list.at(j).file_index == i) {
             stream_list[j] = ms;
-            append = false;
+            append_ = false;
           }
         }
 
-        if (append) stream_list.append(ms);
+        if (append_) stream_list.append(ms);
       }
     }
   }
+  //loop over all streams to find timecode metadata. Timecode can be tag in any stream, including additional `data` stream
+  QString foundTimecodeValue;
+  AVDictionaryEntry* tag = nullptr;
+  bool foundTimecode = false;
+  for (int i=0;i<int(fmt_ctx_->nb_streams);i++) {
+    if( (tag = av_dict_get(fmt_ctx_->streams[i]->metadata, "timecode", nullptr,  AV_DICT_MATCH_CASE)) && !foundTimecode) {
+      foundTimecodeValue = tag->value;
+      foundTimecode = true;
+      qInfo() << "First found timecode for: " << fmt_ctx_->filename << " In stream: " << i << "with time: " << tag->value;
+    }
+    //if we don't find any timecode, set the timecode string to error - safe to do so as when reading timecode later
+    //any incorrectly formatted timecode value = 0
+    if (!foundTimecode) foundTimecodeValue = tr("Not Found");
+  }
+  //loop over all streams again, this time setting all audio and video streams to the found timecode value
+  //timecode metadata value can come from video, audio or data stream
+  for (int i=0;i<int(fmt_ctx_->nb_streams);i++) {
+    QVector<FootageStream>& stream_list = (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) ?
+        footage_->audio_tracks : footage_->video_tracks;
+
+    for (int j=0;j<stream_list.size();j++) {
+      if (stream_list.at(j).file_index == i) {
+        stream_list[j].timecode_source_start = foundTimecodeValue;
+        append_ = false;
+      }
+    }
+  }
+
   footage_->length = fmt_ctx_->duration;
 
   if (fmt_ctx_->duration == INT64_MIN) {

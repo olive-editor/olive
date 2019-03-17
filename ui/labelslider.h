@@ -121,6 +121,7 @@ public:
    * Defaults to 1
    */
   void SetDecimalPlaces(int places);
+  void HideSourceTimecodeToggle();
 public slots:
   /**
    * @brief Set the minimum value
@@ -145,6 +146,13 @@ public slots:
    * Value to set as maximum
    */
   void SetMaximum(double v);
+
+  /**
+  *
+  * @brief Set the offset of the displayed timecode
+  *
+  */
+  void SetTimecodeOffset(long offset);
 
 protected:
   void mousePressEvent(QMouseEvent *ev);
@@ -180,6 +188,14 @@ private:
 
   double frame_rate;
 
+  long timecode_offset;
+
+  bool display_source_timecode;
+
+  bool source_timecode_menu_item;
+
+  QAction* tog_timecodeAct;
+
   /**
    * @brief Internal function to set the standard cursor (usually SizeHorCursor)
    */
@@ -212,6 +228,8 @@ private slots:
    * display type and converts them back to the internal value type.
    */
   void ShowDialog();
+
+  void ToggleSourceTimecode(bool set);
 signals:
   /**
    * @brief valueChanged signal

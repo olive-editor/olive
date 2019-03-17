@@ -26,6 +26,12 @@
 #include <QFont>
 #include <QImage>
 
+namespace olive {
+namespace effect {
+  enum timecodeSelector {sequence,media,source};
+}
+}
+
 class TimecodeEffect : public Effect {
   Q_OBJECT
 public:

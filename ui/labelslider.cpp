@@ -33,7 +33,13 @@
 #include "ui/styling.h"
 #include "ui/menu.h"
 
-LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
+LabelSlider::LabelSlider(QWidget* parent) :
+   QLabel(parent)
+  ,timecode_offset(0)
+  ,display_source_timecode(false)
+  ,source_timecode_menu_item(false)
+  ,tog_timecodeAct(new QAction(tr("Source Timecode")))
+{
   // set a default frame rate - fallback, shouldn't ever really be used
   frame_rate = 30;
 
@@ -47,6 +53,8 @@ LabelSlider::LabelSlider(QWidget* parent) : QLabel(parent) {
   internal_value = -1;
   set = false;
   display_type = Normal;
+  tog_timecodeAct->setCheckable(true);
+  connect(tog_timecodeAct, &QAction::toggled, this, &LabelSlider::ToggleSourceTimecode);
 
   SetDefault(0);
 
@@ -94,7 +102,7 @@ QString LabelSlider::ValueToString() {
   } else {
     switch (display_type) {
     case FrameNumber:
-      return frame_to_timecode(long(v), olive::CurrentConfig.timecode_view, frame_rate);
+      return frame_to_timecode(long(v)+ (display_source_timecode ? timecode_offset : 0), olive::CurrentConfig.timecode_view, frame_rate);
     case Percent:
       return QString::number((v*100), 'f', decimal_places).append("%");
     case Decibel:
@@ -133,6 +141,14 @@ void LabelSlider::SetColor(QString c) {
 
 double LabelSlider::value() {
   return internal_value;
+}
+
+void LabelSlider::SetTimecodeOffset(long offset)
+{
+  timecode_offset = offset;
+  source_timecode_menu_item = true;
+  setText(ValueToString());
+
 }
 
 void LabelSlider::SetDefault(double v) {
@@ -274,6 +290,10 @@ void LabelSlider::ShowContextMenu(const QPoint &pos)
 
   menu.addAction(tr("&Reset to Default"), this, SLOT(ResetToDefault()));
 
+  if(source_timecode_menu_item){
+    menu.addAction(tog_timecodeAct);
+  }
+
   menu.exec(mapToGlobal(pos));
 }
 
@@ -288,6 +308,11 @@ void LabelSlider::ResetToDefault()
     emit valueChanged(internal_value);
 
   }
+}
+
+void LabelSlider::HideSourceTimecodeToggle(){
+  source_timecode_menu_item = false;
+  timecode_offset = 0;
 }
 
 void LabelSlider::ShowDialog()
@@ -311,7 +336,7 @@ void LabelSlider::ShowDialog()
     if (s.isEmpty()) return;
 
     // parse string timecode to a frame number
-    d = timecode_to_frame(s, olive::CurrentConfig.timecode_view, frame_rate);
+    d = timecode_to_frame(s, olive::CurrentConfig.timecode_view, frame_rate) - (display_source_timecode ? timecode_offset : 0);
 
   } else {
 
@@ -365,4 +390,10 @@ void LabelSlider::ShowDialog()
     SetValue(d);
     emit valueChanged(internal_value);
   }
+}
+
+void LabelSlider::ToggleSourceTimecode(bool set)
+{
+    display_source_timecode = set;
+    setText(ValueToString());
 }

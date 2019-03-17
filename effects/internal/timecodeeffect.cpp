@@ -50,9 +50,16 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
 
   EffectRow* tc_row = new EffectRow(this, tr("Timecode"));
   tc_select = new ComboField(tc_row, "tc_selector");
-  tc_select->AddItem(tr("Sequence"), true);
-  tc_select->AddItem(tr("Media"), false);
-  tc_select->SetValueAt(0, true);
+  tc_select->AddItem(tr("Sequence"), olive::effect::sequence);
+  tc_select->AddItem(tr("Media"), olive::effect::media);
+  //check if clip has media, if it does then find out if that media is a sequence
+  //as long as the type is not sequence add source timecode selector
+  if(parent_clip->media()){
+    if(!(parent_clip->media()->get_type() == MEDIA_TYPE_SEQUENCE)){
+                tc_select->AddItem(tr("Source"), olive::effect::source);
+    }
+  }
+  tc_select->SetValueAt(0, olive::effect::sequence);
 
   EffectRow* scale_row = new EffectRow(this, tr("Scale"));
   scale_val = new DoubleField(scale_row, "scale");
@@ -87,17 +94,30 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   prepend_text->SetColumnSpan(2);
 }
 
-
 void TimecodeEffect::redraw(double timecode) {
-  if (tc_select->GetValueAt(timecode).toBool()) {
-    display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(olive::ActiveSequence->playhead,
-                                                                               olive::CurrentConfig.timecode_view,
-                                                                               olive::ActiveSequence->frame_rate);
-  } else {
-    double media_rate = parent_clip->media_frame_rate();
-    display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(qRound(timecode * media_rate),
-                                                                               olive::CurrentConfig.timecode_view,
-                                                                               media_rate);
+  double media_rate = 0;
+  double timecode_start = 0;
+
+  switch (tc_select->GetValueAt(timecode).toInt()){
+    case olive::effect::sequence:
+      display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(olive::ActiveSequence->playhead,
+                                                                                 olive::CurrentConfig.timecode_view,
+                                                                                 olive::ActiveSequence->frame_rate);
+      break;
+    case olive::effect::source:
+      media_rate = parent_clip->media_frame_rate();
+      timecode_start = timecode_to_frame(parent_clip->media()->to_footage()->video_tracks.at(0).timecode_source_start,
+                                         olive::CurrentConfig.timecode_view,
+                                         media_rate);
+      display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode((timecode * media_rate) + timecode_start,
+                                                                                 olive::CurrentConfig.timecode_view,
+                                                                                 media_rate);
+      break;
+    case olive::effect::media:
+      media_rate = parent_clip->media_frame_rate();
+      display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(timecode * media_rate,
+                                                                                 olive::CurrentConfig.timecode_view,
+                                                                                 media_rate);
   }
   img.fill(Qt::transparent);
 

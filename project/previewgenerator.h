@@ -60,6 +60,7 @@ private:
   bool contains_still_image_;
   bool cancelled_;
   QDir data_dir_;
+  bool append_;
 };
 
 #endif // PREVIEWGENERATOR_H
