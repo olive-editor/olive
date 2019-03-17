@@ -375,7 +375,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 #ifndef NO_OCIO
               // convert to linear colorspace
-              if (olive::CurrentConfig.enable_color_management)
+              if (olive::CurrentConfig.enable_color_management && params.ocio_shader != nullptr)
               {
                 params.ocio_shader->bind();
 

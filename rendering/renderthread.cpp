@@ -215,7 +215,15 @@ void RenderThread::set_up_ocio()
   // GET OCIO PROCESSOR
   //
 
-  OCIO::ConstProcessorRcPtr processor = OCIO::GetCurrentConfig()->getProcessor(transform);
+  OCIO::ConstProcessorRcPtr processor;
+  try {
+    processor = OCIO::GetCurrentConfig()->getProcessor(transform);
+  } catch(OCIO::Exception & e) {
+    qCritical() << e.what();
+    ctx->functions()->glActiveTexture(GL_TEXTURE0);
+    return;
+  }
+
 
   //
   // SET UP GLSL SHADER
