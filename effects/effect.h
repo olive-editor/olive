@@ -172,7 +172,7 @@ public:
   bool is_open();
   void open();
   void close();
-  bool is_glsl_linked();
+  bool is_shader_linked();
   virtual void startEffect();
   virtual void endEffect();
 
@@ -198,7 +198,7 @@ public:
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
   void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
-  void gizmo_world_to_screen();
+  void gizmo_world_to_screen(const QMatrix4x4 &matrix, const QMatrix4x4 &projection);
   bool are_gizmos_enabled();
 
   template <typename T>

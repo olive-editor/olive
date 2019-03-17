@@ -567,20 +567,20 @@ void ViewerWidget::paintGL() {
     // draw texture from render thread
 
 
-    // TODO fix zooming
     double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
     double zoom_size = (zoom_factor*2.0) - 2.0;
-    double zoom_left = -zoom_size*x_scroll - 1.0;
-    double zoom_right = zoom_size*(1.0-x_scroll) + 1.0;
-    double zoom_bottom = -zoom_size*(1.0-y_scroll) - 1.0;
-    double zoom_top = zoom_size*(y_scroll) + 1.0;
 
+    QMatrix4x4 matrix;
+    if (zoom_factor > 1.0) {
+      matrix.translate((-(x_scroll-0.5))*zoom_size, (y_scroll-0.5)*zoom_size);
+      matrix.scale(zoom_factor);
+    }
 
     f->glViewport(0, 0, width(), height());
 
     f->glBindTexture(GL_TEXTURE_2D, tex);
 
-    olive::rendering::Blit(pipeline_.get());
+    olive::rendering::Blit(pipeline_.get(), true, matrix);
 
     f->glBindTexture(GL_TEXTURE_2D, 0);
 

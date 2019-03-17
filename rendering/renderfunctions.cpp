@@ -26,6 +26,7 @@ extern "C" {
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QOpenGLExtraFunctions>
 #include <QDebug>
 
 #ifndef NO_OCIO
@@ -67,12 +68,23 @@ GLfloat olive::rendering::blit_texcoords[] = {
   1.0, 1.0
 };
 
-void olive::rendering::Blit(QOpenGLShaderProgram* pipeline) {
+GLfloat olive::rendering::flipped_blit_texcoords[] = {
+  0.0, 1.0,
+  1.0, 1.0,
+  1.0, 0.0,
+
+  0.0, 1.0,
+  0.0, 0.0,
+  1.0, 0.0
+};
+
+void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatrix4x4 matrix) {
+
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
   pipeline->bind();
 
-  pipeline->setUniformValue("mvp_matrix", QMatrix4x4());
+  pipeline->setUniformValue("mvp_matrix", matrix);
   pipeline->setUniformValue("texture", 0);
 
   GLuint vertex_location = pipeline->attributeLocation("a_position");
@@ -81,20 +93,89 @@ void olive::rendering::Blit(QOpenGLShaderProgram* pipeline) {
 
   GLuint tex_location = pipeline->attributeLocation("a_texcoord");
   func->glEnableVertexAttribArray(tex_location);
-  func->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, blit_texcoords);
+  func->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, flipped ? flipped_blit_texcoords : blit_texcoords);
 
   func->glDrawArrays(GL_TRIANGLES, 0, 6);
 
   pipeline->release();
+
 }
 
-QOpenGLShaderProgramPtr olive::rendering::GetPipeline()
+QOpenGLShaderProgramPtr olive::rendering::GetPipeline(const QString& shader_code)
 {
   QOpenGLShaderProgramPtr program = std::make_shared<QOpenGLShaderProgram>();
 
-  program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/pipeline.vert");
-  program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/pipeline.frag");
+  // Generate vertex shader
+  QString vert_shader = "#ifdef GL_ES\n"
+                        "precision mediump int;\n"
+                        "precision mediump float;\n"
+                        "#endif\n"
+                        "\n"
+                        "uniform mat4 mvp_matrix;\n"
+                        "\n"
+                        "attribute vec4 a_position;\n"
+                        "attribute vec2 a_texcoord;\n"
+                        "\n"
+                        "varying vec2 v_texcoord;\n"
+                        "\n"
+                        "void main() {\n"
+                        "  gl_Position = mvp_matrix * a_position;\n"
+                        "  v_texcoord = a_texcoord;\n"
+                        "}\n";
+
+  // Generate fragment shader
+  QString frag_shader = "#ifdef GL_ES\n"
+                        "precision mediump int;\n"
+                        "precision mediump float;\n"
+                        "#endif\n"
+                        "\n"
+                        "uniform sampler2D texture;\n"
+                        "uniform float opacity;\n"
+                        "varying vec2 v_texcoord;\n"
+                        "\n";
+
+  // Finish the function with the main function
+
+  // Check if additional code was passed to this function, add it here
+  if (shader_code.isEmpty()) {
+
+    // If not, just add a pure main() function
+
+    frag_shader.append("\n"
+                       "void main() {\n"
+                       "  vec4 color = texture2D(texture, v_texcoord)*opacity;\n"
+                       "  gl_FragColor = color;\n"
+                       "}\n");
+
+  } else {
+
+    // If additional code was passed, add it and reference it in main().
+    //
+    // The function in the additional code is expected to be `vec4 process(vec4 color)`. The texture coordinate can be
+    // acquired through `v_texcoord`.
+
+    frag_shader.append(shader_code);
+
+    frag_shader.append("\n"
+                       "void main() {\n"
+                       "  vec4 color = process(texture2D(texture, v_texcoord))*opacity;\n"
+                       "  gl_FragColor = color;\n"
+                       "}\n");
+
+  }
+
+
+
+
+  // Add shaders to program
+  program->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_shader);
+  program->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_shader);
   program->link();
+
+  // Set opacity default to 100%
+  program->bind();
+  program->setUniformValue("opacity", 1.0f);
+  program->release();
 
   return program;
 }
@@ -158,10 +239,10 @@ void process_effect(QOpenGLContext* ctx,
     bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::CurrentRuntimeConfig.shaders_are_enabled);
     if (can_process_shaders || (e->Flags() & Effect::SuperimposeFlag)) {
       e->startEffect();
-      if (can_process_shaders && e->is_glsl_linked()) {
+      if (can_process_shaders && e->is_shader_linked()) {
         for (int i=0;i<e->getIterations();i++) {
           e->process_shader(timecode, coords, i);
-          composite_texture = draw_clip(ctx, pipeline, c->fbo[fbo_switcher], composite_texture, true);
+          composite_texture = draw_clip(ctx, pipeline, c->fbo.at(fbo_switcher), composite_texture, true);
           fbo_switcher = !fbo_switcher;
         }
       }
@@ -179,11 +260,11 @@ void process_effect(QOpenGLContext* ctx,
         } else {
           // if the source texture is not already a framebuffer texture,
           // we'll need to make it one before drawing a superimpose effect on it
-          if (composite_texture != c->fbo[0].texture() && composite_texture != c->fbo[1].texture()) {
-            draw_clip(ctx, pipeline, c->fbo[!fbo_switcher], composite_texture, true);
+          if (composite_texture != c->fbo.at(0).texture() && composite_texture != c->fbo.at(1).texture()) {
+            draw_clip(ctx, pipeline, c->fbo.at(!fbo_switcher), composite_texture, true);
           }
 
-          composite_texture = draw_clip(ctx, pipeline, c->fbo[!fbo_switcher], superimpose_texture, false);
+          composite_texture = draw_clip(ctx, pipeline, c->fbo.at(!fbo_switcher), superimpose_texture, false);
         }
       }
       e->endEffect();
@@ -205,9 +286,9 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
     }
 
     if (params.video && !params.nests.last()->fbo.isEmpty()) {
-      params.nests.last()->fbo[0].BindBuffer();
-      glClear(GL_COLOR_BUFFER_BIT);
-      final_fbo = params.nests.last()->fbo[0].buffer();
+      params.nests.last()->fbo.at(0).BindBuffer();
+      params.ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
+      final_fbo = params.nests.last()->fbo.at(0).buffer();
     }
   }
 
@@ -308,14 +389,11 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
   if (params.video) {
     // set default coordinates based on the sequence, with 0 in the direct center
-    //glPushMatrix();
-    //glLoadIdentity();
 
     params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     int half_width = s->width/2;
     int half_height = s->height/2;
-    //glOrtho(-half_width, half_width, -half_height, half_height, -1, 10);
     projection.ortho(-half_width, half_width, -half_height, half_height, -1, 1);
   }
 
@@ -406,7 +484,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
                 // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
                 params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
 
-                textureID = draw_clip(params.ctx, params.pipeline, c->fbo[fbo_switcher], textureID, true);
+                textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
 
                 params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -418,14 +496,22 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               // convert to linear colorspace
               if (olive::CurrentConfig.enable_color_management && params.ocio_shader != nullptr)
               {
+
+                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE2);
+                params.ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, params.ocio_lut_texture);
+                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE0);
+
                 params.ocio_shader->bind();
 
-                params.ocio_shader->setUniformValue("tex1", 0);
                 params.ocio_shader->setUniformValue("tex2", 2);
 
-                textureID = draw_clip(params.ctx, params.pipeline, c->fbo[fbo_switcher], textureID, true);
+                textureID = draw_clip(params.ctx, params.ocio_shader, c->fbo.at(fbo_switcher), textureID, true);
 
                 params.ocio_shader->release();
+
+                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE2);
+                params.ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, 0);
+                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE0);
 
                 fbo_switcher = !fbo_switcher;
 
@@ -459,7 +545,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             Effect* e = c->effects.at(j).get();
             process_effect(params.ctx, params.pipeline, c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
-
           }
 
           // if the clip has an opening transition, process that now
@@ -482,27 +567,29 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
           // Check whether the parent clip is auto-scaled
-          // TODO redo this
-          /*
           if (c->autoscaled()
               && (video_width != s->width
                   && video_height != s->height)) {
             float width_multiplier = float(s->width) / float(video_width);
             float height_multiplier = float(s->height) / float(video_height);
             float scale_multiplier = qMin(width_multiplier, height_multiplier);
-            glScalef(scale_multiplier, scale_multiplier, 1);
+
+            coords.matrix.scale(scale_multiplier, scale_multiplier);
           }
-          */
 
           // Configure effect gizmos if they exist
           if (params.gizmos != nullptr) {
-            params.gizmos->gizmo_draw(timecode, coords); // set correct gizmo coords
-            params.gizmos->gizmo_world_to_screen(); // convert gizmo coords to screen coords
+            // set correct gizmo coords at this matrix
+            params.gizmos->gizmo_draw(timecode, coords);
+
+            // convert gizmo coords to screen coords
+            params.gizmos->gizmo_world_to_screen(coords.matrix, projection);
           }
 
 
 
           if (textureID > 0) {
+
             // set viewport to sequence size
             params.ctx->functions()->glViewport(0, 0, s->width, s->height);
 
@@ -542,8 +629,9 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             // draw clip on screen according to gl coordinates
             params.pipeline->bind();
 
-            params.pipeline->setUniformValue("mvp_matrix", projection);
+            params.pipeline->setUniformValue("mvp_matrix", projection * coords.matrix);
             params.pipeline->setUniformValue("texture", 0);
+            params.pipeline->setUniformValue("opacity", coords.opacity);
 
             GLfloat vertices[] = {
               coords.vertex_top_left.x(), coords.vertex_top_left.y(), 0.0f,
@@ -575,6 +663,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             params.ctx->functions()->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
 
             params.ctx->functions()->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            params.pipeline->setUniformValue("opacity", 1.0f);
 
             params.pipeline->release();
 
@@ -698,10 +788,6 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
   if (audio_track_count == 0 && params.viewer != nullptr) {
     params.viewer->play_wake();
-  }
-
-  if (params.video) {
-    glPopMatrix();
   }
 
   if (!params.nests.isEmpty() && !params.nests.last()->fbo.isEmpty()) {

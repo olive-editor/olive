@@ -81,7 +81,7 @@ void FramebufferObject::BindBuffer() const
   if (ctx_ == nullptr) {
     return;
   }
-  ctx_->functions()->glBindFramebuffer(GL_TEXTURE_2D, buffer_);
+  ctx_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
 }
 
 void FramebufferObject::ReleaseBuffer() const
@@ -89,7 +89,7 @@ void FramebufferObject::ReleaseBuffer() const
   if (ctx_ == nullptr) {
     return;
   }
-  ctx_->functions()->glBindFramebuffer(GL_TEXTURE_2D, 0);
+  ctx_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 void FramebufferObject::BindTexture() const

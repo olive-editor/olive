@@ -149,47 +149,26 @@ const GLuint &RenderThread::get_texture()
   return front_buffer_switcher ? front_buffer_2.texture() : front_buffer_1.texture();
 }
 
-const char * g_fragShaderText = ""
-                                "\n"
-                                "uniform sampler2D tex1;\n"
-                                "uniform sampler3D tex2;\n"
-                                "\n"
-                                "void main()\n"
-                                "{\n"
-                                "    vec4 col = texture2D(tex1, gl_TexCoord[0].st);\n"
-                                "    gl_FragColor = OCIODisplay(col, tex2);\n"
-                                "}\n";
-
 #ifndef NO_OCIO
 void RenderThread::set_up_ocio()
 {
-
-  //
-  // SETUP LUT TEXTURE
-  //
-
   // Create LUT texture
-  ctx->functions()->glGenTextures(1, &ocio_lut_texture);
+  ctx->extraFunctions()->glGenTextures(1, &ocio_lut_texture);
 
-  // Bind texture to GL_TEXTURE_3D and GL_TEXTURE2
-  ctx->functions()->glActiveTexture(GL_TEXTURE2);
-  ctx->functions()->glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
+  // Bind LUT
+  ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
 
   // Set texture parameters
-  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  ctx->extraFunctions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  ctx->extraFunctions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ctx->extraFunctions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  ctx->extraFunctions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  ctx->extraFunctions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
   // Allocate storage for texture
   ctx->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
                                       OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                                      0, GL_RGB,GL_FLOAT, ocio_lut_data);
-
-  //
-  // SET UP OCIO DISPLAY
-  //
+                                      0, GL_RGB,GL_FLOAT, nullptr);
 
   OCIO::ConstConfigRcPtr config;
 
@@ -208,30 +187,32 @@ void RenderThread::set_up_ocio()
 
   const char* display = config->getDefaultDisplay();
 
+
   OCIO::DisplayTransformRcPtr transform = OCIO::DisplayTransform::Create();
   transform->setInputColorSpaceName(OCIO::ROLE_SCENE_LINEAR);
   transform->setDisplay(display);
   transform->setView(config->getDefaultView(display));
 
-  //
-  // GET OCIO PROCESSOR
-  //
 
   OCIO::ConstProcessorRcPtr processor;
+  OCIO::GpuShaderDesc shaderDesc;
+
+  // Get processor for this configuration
+
   try {
-    processor = OCIO::GetCurrentConfig()->getProcessor(transform);
+    processor = config->getProcessor(transform);
+
+
+
   } catch(OCIO::Exception & e) {
     qCritical() << e.what();
-    ctx->functions()->glActiveTexture(GL_TEXTURE0);
     return;
   }
-
 
   //
   // SET UP GLSL SHADER
   //
 
-  OCIO::GpuShaderDesc shaderDesc;
   shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
   shaderDesc.setFunctionName("OCIODisplay");
   shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
@@ -242,22 +223,31 @@ void RenderThread::set_up_ocio()
 
   processor->getGpuLut3D(ocio_lut_data, shaderDesc);
 
-  ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
+
+  // Upload LUT data to texture
   ctx->extraFunctions()->glTexSubImage3D(GL_TEXTURE_3D, 0,
                                          0, 0, 0,
                                          OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                                         GL_RGB,GL_FLOAT, ocio_lut_data);
+                                         GL_RGB, GL_FLOAT, ocio_lut_data);
 
-  QString shader_text = processor->getGpuShaderText(shaderDesc);
-  shader_text.append("\n");
-  shader_text.append(g_fragShaderText);
 
-  ocio_shader = std::make_shared<QOpenGLShaderProgram>();
-  ocio_shader->addShaderFromSourceCode(QOpenGLShader::Fragment, shader_text);
-  ocio_shader->link();
+  // Create OCIO shader code
+  QString shader_text(processor->getGpuShaderText(shaderDesc));
+  shader_text.append("\n"
+                     "uniform sampler3D tex2;\n"
+                     "\n"
+                     "vec4 process(vec4 col) {\n"
+                     "  return OCIODisplay(col, tex2);\n"
+                     "}\n");
 
-  // Reset active texture to 0 for the rest of the pipeline
-  ctx->functions()->glActiveTexture(GL_TEXTURE0);
+
+  // Get pipeline-based shader to inject OCIO shader into
+  ocio_shader = olive::rendering::GetPipeline(shader_text);
+
+
+  // Release LUT
+  ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, 0);
+
 }
 
 void RenderThread::destroy_ocio()
@@ -284,6 +274,7 @@ void RenderThread::paint() {
   params.pipeline = pipeline_program.get();
 #ifndef NO_OCIO
   params.ocio_shader = ocio_shader.get();
+  params.ocio_lut_texture = ocio_lut_texture;
 #endif
   params.backend_buffer1 = back_buffer_1.buffer();
   params.backend_buffer2 = back_buffer_2.buffer();
@@ -299,6 +290,8 @@ void RenderThread::paint() {
   QMutex& active_mutex = front_buffer_switcher ? front_mutex1 : front_mutex2;
   active_mutex.lock();
 
+  ctx->functions()->glEnable(GL_BLEND);
+
   // bind framebuffer for drawing
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, params.main_buffer);
 
@@ -309,6 +302,8 @@ void RenderThread::paint() {
 
   // flush changes
   ctx->functions()->glFinish();
+
+  ctx->functions()->glDisable(GL_BLEND);
 
   texture_failed = params.texture_failed;
 
@@ -321,7 +316,7 @@ void RenderThread::paint() {
     } else {
       ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, params.main_buffer);
       QImage img(tex_width, tex_height, QImage::Format_RGBA8888);
-      glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+      ctx->functions()->glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
       img.save(save_fn);
       ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
       save_fn = "";

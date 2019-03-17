@@ -190,9 +190,9 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
   // position
-  glTranslated(position_x->GetDoubleAt(timecode)-(parent_clip->sequence->width/2),
-               position_y->GetDoubleAt(timecode)-(parent_clip->sequence->height/2),
-               0);
+  coords.matrix.translate(position_x->GetDoubleAt(timecode)-(parent_clip->sequence->width/2),
+                          position_y->GetDoubleAt(timecode)-(parent_clip->sequence->height/2),
+                          0);
 
   // anchor point
   int anchor_x_offset = qRound(anchor_x_box->GetDoubleAt(timecode));
@@ -204,12 +204,12 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
   coords.vertex_bottom_right -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
 
   // rotation
-  glRotated(rotation->GetDoubleAt(timecode), 0, 0, 1);
+  coords.matrix.rotate(QQuaternion::fromEulerAngles(0, 0, rotation->GetDoubleAt(timecode)));
 
   // scale
   double sx = scale_x->GetDoubleAt(timecode)*0.01;
   double sy = (uniform_scale_field->GetBoolAt(timecode)) ? sx : scale_y->GetDoubleAt(timecode)*0.01;
-  glScaled(sx, sy, 1);
+  coords.matrix.scale(sx, sy);
 
   // blend mode
   coords.blendmode = blend_mode_box->GetValueAt(timecode).toInt();

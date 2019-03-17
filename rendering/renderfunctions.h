@@ -414,8 +414,9 @@ namespace olive {
   namespace rendering {
     extern GLfloat blit_vertices[];
     extern GLfloat blit_texcoords[];
-    void Blit(QOpenGLShaderProgram* pipeline);
-    QOpenGLShaderProgramPtr GetPipeline();
+    extern GLfloat flipped_blit_texcoords[];
+    void Blit(QOpenGLShaderProgram* pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+    QOpenGLShaderProgramPtr GetPipeline(const QString &shader_code = QString());
   }
 }
 

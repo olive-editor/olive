@@ -23,33 +23,34 @@
 
 #include <QOpenGLWidget>
 #include <QTimer>
+#include <QMutex>
 
-class QMutex;
-class QMenu;
-class QShortcut;
+#include "rendering/qopenglshaderprogramptr.h"
 
 class ViewerWindow : public QOpenGLWidget {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    ViewerWindow(QWidget *parent);
-    void set_texture(GLuint t, double iar, QMutex *imutex);
+  ViewerWindow(QWidget *parent);
+  void set_texture(GLuint t, double iar, QMutex *imutex);
 protected:
-	virtual void keyPressEvent(QKeyEvent*) override;
-	virtual void mousePressEvent(QMouseEvent*) override;
-    virtual void mouseMoveEvent(QMouseEvent*) override;
+  virtual void keyPressEvent(QKeyEvent*) override;
+  virtual void mousePressEvent(QMouseEvent*) override;
+  virtual void mouseMoveEvent(QMouseEvent*) override;
 
-    virtual void paintGL() override;
+  virtual void initializeGL() override;
+  virtual void paintGL() override;
 private:
-	GLuint texture;
-	double ar;
-    QMutex* mutex;
+  GLuint texture_;
+  double ar_;
+  QMutex* mutex_;
+  QOpenGLShaderProgramPtr pipeline_;
 
-	// exit full screen message
-	QTimer fullscreen_msg_timer;
-	bool show_fullscreen_msg;
-    QRect fullscreen_msg_rect;
+  // exit full screen message
+  QTimer fullscreen_msg_timer_;
+  bool show_fullscreen_msg_;
+  QRect fullscreen_msg_rect_;
 private slots:
-	void fullscreen_msg_timeout();
+  void fullscreen_msg_timeout();
 };
 
 #endif // VIEWERWINDOW_H

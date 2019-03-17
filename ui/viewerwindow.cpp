@@ -28,27 +28,26 @@
 #include <QShortcut>
 #include <QOpenGLFunctions>
 #include <QOpenGLContext>
-
 #include <QDebug>
 
-#include "mainwindow.h"
+#include "rendering/renderfunctions.h"
 
 ViewerWindow::ViewerWindow(QWidget *parent) :
   QOpenGLWidget(parent, Qt::Window),
-  texture(0),
-  mutex(nullptr),
-  show_fullscreen_msg(false)
+  texture_(0),
+  mutex_(nullptr),
+  show_fullscreen_msg_(false)
 {
   setMouseTracking(true);
 
-  fullscreen_msg_timer.setInterval(2000);
-  connect(&fullscreen_msg_timer, SIGNAL(timeout()), this, SLOT(fullscreen_msg_timeout()));
+  fullscreen_msg_timer_.setInterval(2000);
+  connect(&fullscreen_msg_timer_, SIGNAL(timeout()), this, SLOT(fullscreen_msg_timeout()));
 }
 
 void ViewerWindow::set_texture(GLuint t, double iar, QMutex* imutex) {
-  texture = t;
-  ar = iar;
-  mutex = imutex;
+  texture_ = t;
+  ar_ = iar;
+  mutex_ = imutex;
   update();
 }
 
@@ -59,71 +58,66 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e) {
 }
 
 void ViewerWindow::mousePressEvent(QMouseEvent *e) {
-  if (show_fullscreen_msg && fullscreen_msg_rect.contains(e->pos())) {
+  if (show_fullscreen_msg_ && fullscreen_msg_rect_.contains(e->pos())) {
     hide();
   }
 }
 
 void ViewerWindow::mouseMoveEvent(QMouseEvent *) {
-  fullscreen_msg_timer.start();
-  if (!show_fullscreen_msg) {
-    show_fullscreen_msg = true;
+  fullscreen_msg_timer_.start();
+  if (!show_fullscreen_msg_) {
+    show_fullscreen_msg_ = true;
     update();
   }
 }
 
+void ViewerWindow::initializeGL()
+{
+  pipeline_ = olive::rendering::GetPipeline();
+}
+
 void ViewerWindow::paintGL() {
-  if (texture > 0) {
-    if (mutex != nullptr) mutex->lock();
+  if (texture_ > 0) {
+    if (mutex_ != nullptr) mutex_->lock();
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
 
-    glEnable(GL_TEXTURE_2D);
+    QOpenGLFunctions* f = context()->functions();
+    //QOpenGLExtraFunctions* xf = context()->extraFunctions();
 
-    glBindTexture(GL_TEXTURE_2D, texture);
+    makeCurrent();
 
-    glLoadIdentity();
-    glOrtho(0, 1, 0, 1, -1, 1);
+    // clear to solid black
+    f->glClearColor(0.0, 0.0, 0.0, 0.0);
+    f->glClear(GL_COLOR_BUFFER_BIT);
 
-    glBegin(GL_QUADS);
 
-    double top = 0;
-    double left = 0;
-    double right = 1;
-    double bottom = 1;
+    // draw texture from render thread
 
-    double widget_ar = double(width()) / double(height());
 
-    if (widget_ar > ar) {
-      double width = 1.0 * ar / widget_ar;
-      left = (1.0 - width)*0.5;
-      right = left + width;
+    QMatrix4x4 matrix;
+
+    double widget_ar = (double(width()) / double(height()));
+    if (widget_ar > ar_) {
+      matrix.scale(ar_ / widget_ar, 1.0);
     } else {
-      double height = 1.0 / ar * widget_ar;
-      top = (1.0 - height)*0.5;
-      bottom = top + height;
+      matrix.scale(1.0f, widget_ar / ar_);
     }
 
-    glVertex2d(left, top);
-    glTexCoord2d(0, 0);
-    glVertex2d(left, bottom);
-    glTexCoord2d(1, 0);
-    glVertex2d(right, bottom);
-    glTexCoord2d(1, 1);
-    glVertex2d(right, top);
-    glTexCoord2d(0, 1);
 
-    glEnd();
+    f->glViewport(0, 0, width(), height());
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    f->glBindTexture(GL_TEXTURE_2D, texture_);
 
-    glDisable(GL_TEXTURE_2D);
+    olive::rendering::Blit(pipeline_.get(), true, matrix);
 
-    if (mutex != nullptr) mutex->unlock();
+    f->glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
+    if (mutex_ != nullptr) mutex_->unlock();
   }
 
-  if (show_fullscreen_msg) {
+  if (show_fullscreen_msg_) {
     QPainter p(this);
 
     QFont f = p.font();
@@ -143,21 +137,21 @@ void ViewerWindow::paintGL() {
 
     int rect_padding = 8;
 
-    fullscreen_msg_rect = QRect(text_x-rect_padding,
+    fullscreen_msg_rect_ = QRect(text_x-rect_padding,
                                 fm.height()-rect_padding,
                                 text_width+rect_padding+rect_padding,
                                 fm.height()+rect_padding+rect_padding);
 
-    p.drawRect(fullscreen_msg_rect);
+    p.drawRect(fullscreen_msg_rect_);
 
     p.drawText(text_x, text_y, fs_str);
   }
 }
 
 void ViewerWindow::fullscreen_msg_timeout() {
-  fullscreen_msg_timer.stop();
-  if (show_fullscreen_msg) {
-    show_fullscreen_msg = false;
+  fullscreen_msg_timer_.stop();
+  if (show_fullscreen_msg_) {
+    show_fullscreen_msg_ = false;
     update();
   }
 }

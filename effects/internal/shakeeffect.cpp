@@ -78,10 +78,7 @@ void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords, int) 
   yoff *= multiplier;
   rotoff *= rotmult;
 
-  coords.vertex_top_left += QVector3D(xoff, yoff, 0.0);
-  coords.vertex_top_right += QVector3D(xoff, yoff, 0.0);
-  coords.vertex_bottom_left += QVector3D(xoff, yoff, 0.0);
-  coords.vertex_bottom_right += QVector3D(xoff, yoff, 0.0);
+  coords.matrix.translate(xoff, yoff, 0.0);
 
-  glRotatef(rotoff, 0, 0, 1);
+  coords.matrix.rotate(QQuaternion::fromEulerAngles(0.0f, 0.0f, rotoff));
 }

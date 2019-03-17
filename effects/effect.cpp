@@ -735,12 +735,12 @@ void Effect::open() {
     } else {
       shader_program_ = std::make_shared<QOpenGLShaderProgram>();
       validate_meta_path();
-      bool glsl_compiled = true;
+      bool shader_compiled = true;
       if (!shader_vert_path_.isEmpty()) {
         if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + shader_vert_path_)) {
           qInfo() << "Vertex shader added successfully";
         } else {
-          glsl_compiled = false;
+          shader_compiled = false;
           qWarning() << "Vertex shader could not be added";
         }
       }
@@ -748,11 +748,11 @@ void Effect::open() {
         if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + shader_frag_path_)) {
           qInfo() << "Fragment shader added successfully";
         } else {
-          glsl_compiled = false;
+          shader_compiled = false;
           qWarning() << "Fragment shader could not be added";
         }
       }
-      if (glsl_compiled) {
+      if (shader_compiled) {
         if (shader_program_->link()) {
           qInfo() << "Shader program linked successfully";
         } else {
@@ -775,7 +775,7 @@ void Effect::close() {
   isOpen = false;
 }
 
-bool Effect::is_glsl_linked() {
+bool Effect::is_shader_linked() {
   return shader_program_ != nullptr && shader_program_->isLinked();
 }
 
@@ -983,20 +983,12 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
   }
 }
 
-void Effect::gizmo_world_to_screen() {
-  GLfloat view_val[16];
-  GLfloat projection_val[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, view_val);
-  glGetFloatv(GL_PROJECTION_MATRIX, projection_val);
-
-  QMatrix4x4 view_matrix(view_val);
-  QMatrix4x4 projection_matrix(projection_val);
-
+void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
   for (int i=0;i<gizmos.size();i++) {
     EffectGizmo* g = gizmos.at(i);
 
     for (int j=0;j<g->get_point_count();j++) {
-      QVector4D screen_pos = QVector4D(g->world_pos[j].x(), g->world_pos[j].y(), 0, 1.0) * (view_matrix * projection_matrix);
+      QVector4D screen_pos = QVector4D(g->world_pos[j].x(), g->world_pos[j].y(), 0, 1.0) * (matrix * projection);
 
       int adjusted_sx1 = qRound(((screen_pos.x()*0.5f)+0.5f)*parent_clip->sequence->width);
       int adjusted_sy1 = qRound((1.0f-((screen_pos.y()*0.5f)+0.5f))*parent_clip->sequence->height);
