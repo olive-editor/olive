@@ -838,7 +838,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
         {
           DoubleField* double_field = static_cast<DoubleField*>(field);
           shader_program_->setUniformValue(double_field->id().toUtf8().constData(),
-                                       GLfloat(double_field->GetDoubleAt(timecode)));
+                                           GLfloat(double_field->GetDoubleAt(timecode)));
         }
           break;
         case EffectField::EFFECT_FIELD_COLOR:
@@ -988,12 +988,22 @@ void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& p
     EffectGizmo* g = gizmos.at(i);
 
     for (int j=0;j<g->get_point_count();j++) {
-      QVector4D screen_pos = QVector4D(g->world_pos[j].x(), g->world_pos[j].y(), 0, 1.0) * (matrix * projection);
 
-      int adjusted_sx1 = qRound(((screen_pos.x()*0.5f)+0.5f)*parent_clip->sequence->width);
-      int adjusted_sy1 = qRound((1.0f-((screen_pos.y()*0.5f)+0.5f))*parent_clip->sequence->height);
+      QMatrix4x4 matrix2 = matrix;
+//      matrix2.flipCoordinates();
 
-      g->screen_pos[j] = QPoint(adjusted_sx1, adjusted_sy1);
+      QMatrix4x4 projection2 = projection;
+      projection2.flipCoordinates();
+
+      QVector3D screen_pos = g->world_pos.at(j).project(matrix2,
+                                                        projection2,
+                                                        QRect(0,
+                                                              0,
+                                                              parent_clip->sequence->width,
+                                                              parent_clip->sequence->height));
+
+      g->screen_pos[j] = QPoint(screen_pos.x(), screen_pos.y());
+
     }
   }
 }

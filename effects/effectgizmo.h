@@ -27,8 +27,8 @@ enum GizmoType {
   GIZMO_TYPE_TARGET
 };
 
-#define GIZMO_DOT_SIZE 2.5
-#define GIZMO_TARGET_SIZE 5.0
+#define GIZMO_DOT_SIZE 2.5f
+#define GIZMO_TARGET_SIZE 5.0f
 
 #include <QObject>
 #include <QString>

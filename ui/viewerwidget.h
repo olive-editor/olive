@@ -81,6 +81,7 @@ private:
   void move_gizmos(QMouseEvent *event, bool done);
   bool dragging;
   void seek_from_click(int x);
+  QMatrix4x4 get_matrix();
   Effect* gizmos;
   int drag_start_x;
   int drag_start_y;

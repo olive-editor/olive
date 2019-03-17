@@ -252,6 +252,22 @@ void ViewerWidget::seek_from_click(int x) {
   viewer->seek(getFrameFromScreenPoint(waveform_zoom, x+waveform_scroll));
 }
 
+QMatrix4x4 ViewerWidget::get_matrix()
+{
+  QMatrix4x4 matrix;
+
+  double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+
+  if (zoom_factor > 1.0) {
+    double zoom_size = (zoom_factor*2.0) - 2.0;
+
+    matrix.translate((-(x_scroll-0.5))*zoom_size, (y_scroll-0.5)*zoom_size);
+    matrix.scale(zoom_factor);
+  }
+
+  return matrix;
+}
+
 void ViewerWidget::context_destroy() {
   makeCurrent();
 
@@ -409,140 +425,238 @@ void ViewerWidget::draw_waveform_func() {
 }
 
 void ViewerWidget::draw_title_safe_area() {
-  double halfWidth = 0.5;
-  double halfHeight = 0.5;
-  double viewportAr = (double) width() / (double) height();
-  double halfAr = viewportAr*0.5;
+  QOpenGLFunctions* func = context()->functions();
 
+  pipeline_->bind();
+
+
+  float ar = float(width()) / float(height());
+
+  float horizontal_cross_size = 0.05f / ar;
+
+  // Set matrix to 0.0 -> 1.0 on both axes
+  QMatrix4x4 matrix;
+  matrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
+
+  // adjust the horizontal center cross by the aspect ratio to appear "square"
   if (olive::CurrentConfig.use_custom_title_safe_ratio && olive::CurrentConfig.custom_title_safe_ratio > 0) {
-    if (olive::CurrentConfig.custom_title_safe_ratio > viewportAr) {
-      halfHeight = (olive::CurrentConfig.custom_title_safe_ratio/viewportAr)*0.5;
+    if (ar > olive::CurrentConfig.custom_title_safe_ratio) {
+      matrix.translate(((ar - olive::CurrentConfig.custom_title_safe_ratio) / 2.0) / ar, 0.0f);
+      matrix.scale(olive::CurrentConfig.custom_title_safe_ratio / ar, 1.0f);
     } else {
-      halfWidth = (viewportAr/olive::CurrentConfig.custom_title_safe_ratio)*0.5;
+      matrix.translate(0.0f, (((olive::CurrentConfig.custom_title_safe_ratio - ar) / 2.0) / olive::CurrentConfig.custom_title_safe_ratio));
+      matrix.scale(1.0f, ar / olive::CurrentConfig.custom_title_safe_ratio);
     }
+
+    horizontal_cross_size *= ar/olive::CurrentConfig.custom_title_safe_ratio;
   }
 
-  glLoadIdentity();
-  glOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0, 1);
+  float adjusted_cross_x1 = 0.5f - horizontal_cross_size;
+  float adjusted_cross_x2 = 0.5f + horizontal_cross_size;
 
-  glColor4f(0.66f, 0.66f, 0.66f, 1.0f);
-  glBegin(GL_LINES);
+  pipeline_->setUniformValue("mvp_matrix", matrix);
+  pipeline_->setUniformValue("color_only", true);
+  pipeline_->setUniformValue("color_only_color", QColor(192, 192, 192, 255));
 
-  // action safe rectangle
-  glVertex2d(-0.45, -0.45);
-  glVertex2d(0.45, -0.45);
-  glVertex2d(0.45, -0.45);
-  glVertex2d(0.45, 0.45);
-  glVertex2d(0.45, 0.45);
-  glVertex2d(-0.45, 0.45);
-  glVertex2d(-0.45, 0.45);
-  glVertex2d(-0.45, -0.45);
 
-  // title safe rectangle
-  glVertex2d(-0.4, -0.4);
-  glVertex2d(0.4, -0.4);
-  glVertex2d(0.4, -0.4);
-  glVertex2d(0.4, 0.4);
-  glVertex2d(0.4, 0.4);
-  glVertex2d(-0.4, 0.4);
-  glVertex2d(-0.4, 0.4);
-  glVertex2d(-0.4, -0.4);
 
-  // horizontal centers
-  glVertex2d(-0.45, 0);
-  glVertex2d(-0.375, 0);
-  glVertex2d(0.45, 0);
-  glVertex2d(0.375, 0);
+  GLfloat vertices[] = {
+    // action safe lines
+    0.05f, 0.05f, 0.0f,
+    0.95f, 0.05f, 0.0f,
 
-  // vertical centers
-  glVertex2d(0, -0.45);
-  glVertex2d(0, -0.375);
-  glVertex2d(0, 0.45);
-  glVertex2d(0, 0.375);
+    0.95f, 0.05f, 0.0f,
+    0.95f, 0.95f, 0.0f,
 
-  glEnd();
+    0.95f, 0.95f, 0.0f,
+    0.05f, 0.95f, 0.0f,
 
-  // center cross
-  glLoadIdentity();
-  glOrtho(-halfAr, halfAr, 0.5, -0.5, -1, 1);
+    0.05f, 0.95f, 0.0f,
+    0.05f, 0.05f, 0.0f,
 
-  glBegin(GL_LINES);
+    // title safe lines
+    0.1f, 0.1f, 0.0f,
+    0.9f, 0.1f, 0.0f,
 
-  glVertex2d(-0.05, 0);
-  glVertex2d(0.05, 0);
-  glVertex2d(0, -0.05);
-  glVertex2d(0, 0.05);
+    0.9f, 0.1f, 0.0f,
+    0.9f, 0.9f, 0.0f,
 
-  glEnd();
+    0.9f, 0.9f, 0.0f,
+    0.1f, 0.9f, 0.0f,
+
+    0.1f, 0.9f, 0.0f,
+    0.1f, 0.1f, 0.0f,
+
+    // side-center markers
+    0.05f, 0.5f, 0.0f,
+    0.125f, 0.5f, 0.0f,
+
+    0.95f, 0.5f, 0.0f,
+    0.875f, 0.5f, 0.0f,
+
+    0.5f, 0.05f, 0.0f,
+    0.5f, 0.125f, 0.0f,
+
+    0.5f, 0.95f, 0.0f,
+    0.5f, 0.875f, 0.0f,
+
+    // horizontal center cross marker
+    adjusted_cross_x1, 0.5f, 0.0f,
+    adjusted_cross_x2, 0.5f, 0.0f,
+
+    // vertical center cross marker
+    0.5f, 0.45f, 0.0f,
+    0.5f, 0.55f, 0.0f
+  };
+
+  GLuint vertex_location = pipeline_->attributeLocation("a_position");
+  func->glEnableVertexAttribArray(vertex_location);
+  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+
+  func->glDrawArrays(GL_LINES, 0, 28);
+
+  pipeline_->setUniformValue("color_only", false);
+
+  pipeline_->release();
+
 }
 
 void ViewerWidget::draw_gizmos() {
-  float color[4];
-  glGetFloatv(GL_CURRENT_COLOR, color);
+  QOpenGLFunctions* func = context()->functions();
 
-  double dot_size = GIZMO_DOT_SIZE / double(width()) * viewer->seq->width;
-  double target_size = GIZMO_TARGET_SIZE / double(width()) * viewer->seq->width;
+  pipeline_->bind();
 
   double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
 
-  glPushMatrix();
-  glLoadIdentity();
+  QMatrix4x4 matrix;
+  matrix.ortho(0, viewer->seq->width, 0, viewer->seq->height, -1, 1);
+  matrix.scale(zoom_factor, zoom_factor);
+  matrix.translate(-(viewer->seq->width-(width()/container->zoom))*x_scroll,
+                   -((viewer->seq->height-(height()/container->zoom))*(1.0-y_scroll)));
 
-  glOrtho(0, viewer->seq->width, 0, viewer->seq->height, -1, 10);
-  glScaled(zoom_factor, zoom_factor, 0.0);
-  glTranslated(-(viewer->seq->width-(width()/container->zoom))*x_scroll,
-               -((viewer->seq->height-(height()/container->zoom))*(1.0-y_scroll)),
-               0);
+  pipeline_->setUniformValue("mvp_matrix", matrix);
+  pipeline_->setUniformValue("color_only", true);
+  pipeline_->setUniformValue("color_only_color", QColor(255, 255, 255, 255));
 
-  float gizmo_z = 0.0f;
+  float size_diff = float(viewer->seq->width) / float(width());
+  float dot_size = GIZMO_DOT_SIZE * size_diff;
+  float target_size = GIZMO_TARGET_SIZE * size_diff;
+
+  QVector<GLfloat> vertices;
+
   for (int j=0;j<gizmos->gizmo_count();j++) {
+
     EffectGizmo* g = gizmos->gizmo(j);
-    glColor4d(g->color.redF(), g->color.greenF(), g->color.blueF(), 1.0);
+
     switch (g->get_type()) {
     case GIZMO_TYPE_DOT: // draw dot
-      glBegin(GL_QUADS);
-      glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()-dot_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()+dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()-dot_size, g->screen_pos[0].y()+dot_size, gizmo_z);
-      glEnd();
+
+      vertices.append(g->screen_pos[0].x()-dot_size);
+      vertices.append(g->screen_pos[0].y()-dot_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()+dot_size);
+      vertices.append(g->screen_pos[0].y()-dot_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()+dot_size);
+      vertices.append(g->screen_pos[0].y()+dot_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()-dot_size);
+      vertices.append(g->screen_pos[0].y()+dot_size);
+      vertices.append(0.0f);
+
       break;
-    case GIZMO_TYPE_POLY: // draw lines
-      glBegin(GL_LINES);
+    case GIZMO_TYPE_POLY: // draw lines for a polygon
+
       for (int k=1;k<g->get_point_count();k++) {
-        glVertex3f(g->screen_pos[k-1].x(), g->screen_pos[k-1].y(), gizmo_z);
-        glVertex3f(g->screen_pos[k].x(), g->screen_pos[k].y(), gizmo_z);
+
+        vertices.append(g->screen_pos[k-1].x());
+        vertices.append(g->screen_pos[k-1].y());
+        vertices.append(0.0f);
+
+        vertices.append(g->screen_pos[k].x());
+        vertices.append(g->screen_pos[k].y());
+        vertices.append(0.0f);
+
       }
-      glVertex3f(g->screen_pos[g->get_point_count()-1].x(), g->screen_pos[g->get_point_count()-1].y(), gizmo_z);
-      glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y(), gizmo_z);
-      glEnd();
+
+      vertices.append(g->screen_pos[g->get_point_count()-1].x());
+      vertices.append(g->screen_pos[g->get_point_count()-1].y());
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x());
+      vertices.append(g->screen_pos[0].y());
+      vertices.append(0.0f);
+
       break;
     case GIZMO_TYPE_TARGET: // draw target
-      glBegin(GL_LINES);
-      glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
 
-      glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()-target_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+      vertices.append(g->screen_pos[0].x()-target_size);
+      vertices.append(g->screen_pos[0].y()-target_size);
+      vertices.append(0.0f);
 
-      glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y()+target_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
+      vertices.append(g->screen_pos[0].x()+target_size);
+      vertices.append(g->screen_pos[0].y()-target_size);
+      vertices.append(0.0f);
 
-      glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()+target_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y()-target_size, gizmo_z);
+      vertices.append(g->screen_pos[0].x()+target_size);
+      vertices.append(g->screen_pos[0].y()-target_size);
+      vertices.append(0.0f);
 
-      glVertex3f(g->screen_pos[0].x()-target_size, g->screen_pos[0].y(), gizmo_z);
-      glVertex3f(g->screen_pos[0].x()+target_size, g->screen_pos[0].y(), gizmo_z);
+      vertices.append(g->screen_pos[0].x()+target_size);
+      vertices.append(g->screen_pos[0].y()+target_size);
+      vertices.append(0.0f);
 
-      glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()-target_size, gizmo_z);
-      glVertex3f(g->screen_pos[0].x(), g->screen_pos[0].y()+target_size, gizmo_z);
-      glEnd();
+      vertices.append(g->screen_pos[0].x()+target_size);
+      vertices.append(g->screen_pos[0].y()+target_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()-target_size);
+      vertices.append(g->screen_pos[0].y()+target_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()-target_size);
+      vertices.append(g->screen_pos[0].y()+target_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()-target_size);
+      vertices.append(g->screen_pos[0].y()-target_size);
+      vertices.append(0.0f);
+
+
+
+      vertices.append(g->screen_pos[0].x()-target_size);
+      vertices.append(g->screen_pos[0].y());
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x()+target_size);
+      vertices.append(g->screen_pos[0].y());
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x());
+      vertices.append(g->screen_pos[0].y()-target_size);
+      vertices.append(0.0f);
+
+      vertices.append(g->screen_pos[0].x());
+      vertices.append(g->screen_pos[0].y()+target_size);
+      vertices.append(0.0f);
+
       break;
     }
   }
-  glPopMatrix();
 
-  glColor4f(color[0], color[1], color[2], color[3]);
+  GLuint vertex_location = pipeline_->attributeLocation("a_position");
+  func->glEnableVertexAttribArray(vertex_location);
+  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices.constData());
+
+  func->glDrawArrays(GL_LINES, 0, vertices.size() / 3);
+
+  pipeline_->setUniformValue("color_only", false);
+
+  pipeline_->release();
+
 }
 
 void ViewerWidget::paintGL() {
@@ -567,20 +681,11 @@ void ViewerWidget::paintGL() {
     // draw texture from render thread
 
 
-    double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
-    double zoom_size = (zoom_factor*2.0) - 2.0;
-
-    QMatrix4x4 matrix;
-    if (zoom_factor > 1.0) {
-      matrix.translate((-(x_scroll-0.5))*zoom_size, (y_scroll-0.5)*zoom_size);
-      matrix.scale(zoom_factor);
-    }
-
     f->glViewport(0, 0, width(), height());
 
     f->glBindTexture(GL_TEXTURE_2D, tex);
 
-    olive::rendering::Blit(pipeline_.get(), true, matrix);
+    olive::rendering::Blit(pipeline_.get(), true, get_matrix());
 
     f->glBindTexture(GL_TEXTURE_2D, 0);
 

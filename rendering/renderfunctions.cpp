@@ -131,6 +131,8 @@ QOpenGLShaderProgramPtr olive::rendering::GetPipeline(const QString& shader_code
                         "\n"
                         "uniform sampler2D texture;\n"
                         "uniform float opacity;\n"
+                        "uniform bool color_only;\n"
+                        "uniform vec4 color_only_color;\n"
                         "varying vec2 v_texcoord;\n"
                         "\n";
 
@@ -143,8 +145,12 @@ QOpenGLShaderProgramPtr olive::rendering::GetPipeline(const QString& shader_code
 
     frag_shader.append("\n"
                        "void main() {\n"
-                       "  vec4 color = texture2D(texture, v_texcoord)*opacity;\n"
-                       "  gl_FragColor = color;\n"
+                       "  if (color_only) {\n"
+                       "    gl_FragColor = color_only_color;"
+                       "  } else {\n"
+                       "    vec4 color = texture2D(texture, v_texcoord)*opacity;\n"
+                       "    gl_FragColor = color;\n"
+                       "  }\n"
                        "}\n");
 
   } else {
@@ -583,7 +589,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             params.gizmos->gizmo_draw(timecode, coords);
 
             // convert gizmo coords to screen coords
-            params.gizmos->gizmo_world_to_screen(coords.matrix, projection);
+            params.gizmos->gizmo_world_to_screen(projection, coords.matrix);
           }
 
 
