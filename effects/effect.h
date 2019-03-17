@@ -44,6 +44,7 @@
 #include "ui/checkboxex.h"
 #include "effectrow.h"
 #include "effectgizmo.h"
+#include "rendering/qopenglshaderprogramptr.h"
 
 class Clip;
 
@@ -113,33 +114,17 @@ enum EffectInternal {
 };
 
 struct GLTextureCoords {
-  int grid_size;
+  QMatrix4x4 matrix;
 
-  int vertexTopLeftX;
-  int vertexTopLeftY;
-  int vertexTopLeftZ;
-  int vertexTopRightX;
-  int vertexTopRightY;
-  int vertexTopRightZ;
-  int vertexBottomLeftX;
-  int vertexBottomLeftY;
-  int vertexBottomLeftZ;
-  int vertexBottomRightX;
-  int vertexBottomRightY;
-  int vertexBottomRightZ;
+  QVector3D vertex_top_left;
+  QVector3D vertex_top_right;
+  QVector3D vertex_bottom_left;
+  QVector3D vertex_bottom_right;
 
-  float textureTopLeftX;
-  float textureTopLeftY;
-  float textureTopLeftQ;
-  float textureTopRightX;
-  float textureTopRightY;
-  float textureTopRightQ;
-  float textureBottomRightX;
-  float textureBottomRightY;
-  float textureBottomRightQ;
-  float textureBottomLeftX;
-  float textureBottomLeftY;
-  float textureBottomLeftQ;
+  QVector2D texture_top_left;
+  QVector2D texture_top_right;
+  QVector2D texture_bottom_left;
+  QVector2D texture_bottom_right;
 
   int blendmode;
   float opacity;
@@ -240,9 +225,9 @@ private slots:
   void load_from_file();
 protected:
   // glsl effect
-  QOpenGLShaderProgram* glslProgram;
-  QString vertPath;
-  QString fragPath;
+  QOpenGLShaderProgramPtr shader_program_;
+  QString shader_vert_path_;
+  QString shader_frag_path_;
 
   // superimpose effect
   QImage img;

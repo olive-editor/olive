@@ -151,8 +151,8 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
   connect(shadow_bool, SIGNAL(Toggled(bool)), this, SLOT(shadow_enable(bool)));
   connect(outline_bool, SIGNAL(Toggled(bool)), this, SLOT(outline_enable(bool)));
 
-  vertPath = "common.vert";
-  fragPath = "dropshadow.frag";
+  shader_vert_path_ = "common.vert";
+  shader_frag_path_ = "dropshadow.frag";
 }
 
 void TextEffect::redraw(double timecode) {

@@ -198,14 +198,10 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
   int anchor_x_offset = qRound(anchor_x_box->GetDoubleAt(timecode));
   int anchor_y_offset = qRound(anchor_y_box->GetDoubleAt(timecode));
 
-  coords.vertexTopLeftX -= anchor_x_offset;
-  coords.vertexTopRightX -= anchor_x_offset;
-  coords.vertexBottomLeftX -= anchor_x_offset;
-  coords.vertexBottomRightX -= anchor_x_offset;
-  coords.vertexTopLeftY -= anchor_y_offset;
-  coords.vertexTopRightY -= anchor_y_offset;
-  coords.vertexBottomLeftY -= anchor_y_offset;
-  coords.vertexBottomRightY -= anchor_y_offset;
+  coords.vertex_top_left -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
+  coords.vertex_top_right -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
+  coords.vertex_bottom_left -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
+  coords.vertex_bottom_right -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
 
   // rotation
   glRotated(rotation->GetDoubleAt(timecode), 0, 0, 1);
@@ -223,19 +219,30 @@ void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, i
 }
 
 void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
-  top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-  top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
-  top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-  right_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
-  bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-  bottom_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
-  bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
-  left_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
+  top_left_gizmo->world_pos[0] = coords.vertex_top_left;
+  top_right_gizmo->world_pos[0] = coords.vertex_top_right;
+  bottom_right_gizmo->world_pos[0] = coords.vertex_bottom_right;
+  bottom_left_gizmo->world_pos[0] = coords.vertex_bottom_left;
 
-  rotate_gizmo->world_pos[0] = QPoint(lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), -0.1), lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1));
+  top_center_gizmo->world_pos[0] = QVector3D(lerp(coords.vertex_top_left.x(), coords.vertex_top_right.x(), 0.5),
+                                             lerp(coords.vertex_top_left.y(), coords.vertex_top_right.y(), 0.5),
+                                             0.0f);
+  right_center_gizmo->world_pos[0] = QVector3D(lerp(coords.vertex_top_right.x(), coords.vertex_bottom_right.x(), 0.5),
+                                               lerp(coords.vertex_top_right.y(), coords.vertex_bottom_right.y(), 0.5),
+                                               0.0f);
+  bottom_center_gizmo->world_pos[0] = QVector3D(lerp(coords.vertex_bottom_right.x(), coords.vertex_bottom_left.x(), 0.5),
+                                                lerp(coords.vertex_bottom_right.y(), coords.vertex_bottom_left.y(), 0.5),
+                                                0.0f);
+  left_center_gizmo->world_pos[0] = QVector3D(lerp(coords.vertex_bottom_left.x(), coords.vertex_top_left.x(), 0.5),
+                                              lerp(coords.vertex_bottom_left.y(), coords.vertex_top_left.y(), 0.5),
+                                              0.0f);
 
-  rect_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-  rect_gizmo->world_pos[1] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-  rect_gizmo->world_pos[2] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-  rect_gizmo->world_pos[3] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+  rotate_gizmo->world_pos[0] = QVector3D(lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), -0.1),
+      lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1),
+      0.0f);
+
+  rect_gizmo->world_pos[0] = coords.vertex_top_left;
+  rect_gizmo->world_pos[1] = coords.vertex_top_right;
+  rect_gizmo->world_pos[2] = coords.vertex_bottom_right;
+  rect_gizmo->world_pos[3] = coords.vertex_bottom_left;
 }

@@ -87,13 +87,12 @@ private:
   int gizmo_x_mvmt;
   int gizmo_y_mvmt;
   EffectGizmo* selected_gizmo;
-  RenderThread* renderer;
+  RenderThread renderer;
   ViewerWindow* window;
   double x_scroll;
   double y_scroll;
 
-  QMatrix4x4 projection_;
-  QOpenGLShaderProgram* pipeline_;
+  QOpenGLShaderProgramPtr pipeline_;
 
 private slots:
   void context_destroy();

@@ -53,6 +53,13 @@ struct ComposeSequenceParams {
     QOpenGLContext* ctx;
 
     /**
+     * @brief The OpenGL pipeline used for rendering
+     *
+     * \see olive::rendering::GetPipeline().
+     */
+    QOpenGLShaderProgram* pipeline;
+
+    /**
      * @brief The sequence to compose
      *
      * In addition to clips, sequences also contain the playhead position so compose_sequence() knows which frame
@@ -402,5 +409,14 @@ int64_t playhead_to_timestamp(Clip  *c, long playhead);
 void close_active_clips(Sequence* s);
 
 void UpdateOCIOGLState(const ComposeSequenceParams &params);
+
+namespace olive {
+  namespace rendering {
+    extern GLfloat blit_vertices[];
+    extern GLfloat blit_texcoords[];
+    void Blit(QOpenGLShaderProgram* pipeline);
+    QOpenGLShaderProgramPtr GetPipeline();
+  }
+}
 
 #endif // RENDERFUNCTIONS_H

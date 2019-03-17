@@ -183,7 +183,9 @@ QVariant EffectField::GetValueAt(double timecode)
       } else {
         QColor before_data = keyframes.at(before_keyframe).data.value<QColor>();
         QColor after_data = keyframes.at(after_keyframe).data.value<QColor>();
-        value = QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
+        value = QColor(lerp(before_data.red(), after_data.red(), progress),
+                       lerp(before_data.green(), after_data.green(), progress),
+                       lerp(before_data.blue(), after_data.blue(), progress));
       }
       persistent_data_ = value;
       break;

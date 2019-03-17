@@ -573,7 +573,9 @@ bool Clip::Retrieve()
         texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
       }
 
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
+      QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+
+      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
 
       // 2 data buffers to ping-pong between
       bool using_db_1 = true;
@@ -611,7 +613,7 @@ bool Clip::Retrieve()
         delete [] data_buffer_2;
       }
 
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
       ret = true;
     } else {

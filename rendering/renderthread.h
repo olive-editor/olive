@@ -32,6 +32,7 @@
 #include "timeline/sequence.h"
 #include "effects/effect.h"
 #include "rendering/framebufferobject.h"
+#include "qopenglshaderprogramptr.h"
 
 #ifndef NO_OCIO
 // copied from source code to OCIODisplay
@@ -81,7 +82,7 @@ private:
   // OpenColorIO variables
   float ocio_lut_data[OCIO_NUM_3D_ENTRIES];
   GLuint ocio_lut_texture;
-  QOpenGLShaderProgram* ocio_shader;
+  QOpenGLShaderProgramPtr ocio_shader;
   QString ocio_loaded_config;
 #endif
 
@@ -102,7 +103,8 @@ private:
   QOffscreenSurface surface;
   QOpenGLContext* share_ctx;
   QOpenGLContext* ctx;
-  QOpenGLShaderProgram* blend_mode_program;
+  QOpenGLShaderProgramPtr blend_mode_program;
+  QOpenGLShaderProgramPtr pipeline_program;
 
   FramebufferObject back_buffer_1;
   FramebufferObject back_buffer_2;

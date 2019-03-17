@@ -71,8 +71,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   gizmos(nullptr),
   selected_gizmo(nullptr),
   x_scroll(0),
-  y_scroll(0),
-  pipeline_(nullptr)
+  y_scroll(0)
 {
   setMouseTracking(true);
   setFocusPolicy(Qt::ClickFocus);
@@ -80,19 +79,14 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 
-  renderer = new RenderThread();
-  renderer->start(QThread::HighestPriority);
-  connect(renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
-  connect(renderer, SIGNAL(finished()), renderer, SLOT(deleteLater()));
+  renderer.start(QThread::HighestPriority);
+  connect(&renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
 
   window = new ViewerWindow(this);
-
-  projection_.setToIdentity();
 }
 
 ViewerWidget::~ViewerWidget() {
-  renderer->cancel();
-  delete renderer;
+  renderer.cancel();
 }
 
 void ViewerWidget::delete_function() {
@@ -174,7 +168,7 @@ void ViewerWidget::save_frame() {
       fn += selected_ext;
     }
 
-    renderer->start_render(context(), viewer->seq.get(), fn);
+    renderer.start_render(context(), viewer->seq.get(), fn);
   }
 }
 
@@ -226,10 +220,7 @@ void ViewerWidget::initializeGL() {
 
   connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
 
-  pipeline_ = new QOpenGLShaderProgram();
-  pipeline_->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/pipeline.vert");
-  pipeline_->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/pipeline.frag");
-  pipeline_->link();
+  pipeline_ = olive::rendering::GetPipeline();
 }
 
 void ViewerWidget::frame_update() {
@@ -239,7 +230,7 @@ void ViewerWidget::frame_update() {
       update();
     } else {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq.get());
+      renderer.start_render(context(), viewer->seq.get());
     }
 
     // render the audio
@@ -248,7 +239,7 @@ void ViewerWidget::frame_update() {
 }
 
 RenderThread *ViewerWidget::get_renderer() {
-  return renderer;
+  return &renderer;
 }
 
 void ViewerWidget::set_scroll(double x, double y) {
@@ -268,9 +259,8 @@ void ViewerWidget::context_destroy() {
     close_active_clips(viewer->seq.get());
   }
 
-  renderer->delete_ctx();
+  renderer.delete_ctx();
 
-  delete pipeline_;
   pipeline_ = nullptr;
 
   doneCurrent();
@@ -556,86 +546,28 @@ void ViewerWidget::draw_gizmos() {
 }
 
 void ViewerWidget::paintGL() {
-  QOpenGLFunctions* f = context()->functions();
-  QOpenGLExtraFunctions* xf = context()->extraFunctions();
-
-  f->glClearColor(0.0, 0.0, 0.0, 0.0);
-
-  GLfloat vertices[] = {
-    -1.0f, -1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-    1.0f, 1.0f, -1.0f,
-
-    -1.0f, -1.0f, -1.0f,
-    -1.0f, 1.0f, -1.0f,
-    1.0f, 1.0f, -1.0f,
-  };
-
-  GLfloat tex_coords[] = {
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0,
-
-    0.0, 0.0,
-    0.0, 1.0,
-    1.0, 1.0
-  };
-
-  f->glViewport(0, 0, width(), height());
-
-  f->glClear(GL_COLOR_BUFFER_BIT);
-
-  QOpenGLTexture texture(QImage("C:/Users/Matt/Desktop/bliss.png"));
-
-  pipeline_->bind();
-  texture.bind();
-
-  pipeline_->setUniformValue("mvp_matrix", projection_);
-  pipeline_->setUniformValue("texture", 0);
-
-  GLuint vertex_location = pipeline_->attributeLocation("a_position");
-  f->glEnableVertexAttribArray(vertex_location);
-  f->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-
-  GLuint tex_location = pipeline_->attributeLocation("a_texcoord");
-  f->glEnableVertexAttribArray(tex_location);
-  f->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, tex_coords);
-
-  f->glDrawArrays(GL_TRIANGLES, 0, 6);
-
-  texture.release();
-  pipeline_->release();
-
-  /*
   if (waveform) {
     draw_waveform_func();
   } else {
-    const GLuint tex = renderer->get_texture();
-    QMutex* tex_lock = renderer->get_texture_mutex();
+    const GLuint tex = renderer.get_texture();
+    QMutex* tex_lock = renderer.get_texture_mutex();
 
     tex_lock->lock();
+
+    QOpenGLFunctions* f = context()->functions();
+    //QOpenGLExtraFunctions* xf = context()->extraFunctions();
 
     makeCurrent();
 
     // clear to solid black
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    f->glClearColor(0.0, 0.0, 0.0, 0.0);
+    f->glClear(GL_COLOR_BUFFER_BIT);
 
-    // set color multipler to straight white
-    glColor4f(1.0, 1.0, 1.0, 1.0);
-
-    glEnable(GL_TEXTURE_2D);
-
-    // set screen coords to widget size
-    glLoadIdentity();
-    glOrtho(-1, 1, -1, 1, -1, 1);
 
     // draw texture from render thread
 
-    glBindTexture(GL_TEXTURE_2D, tex);
 
-    glBegin(GL_QUADS);
-
+    // TODO fix zooming
     double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
     double zoom_size = (zoom_factor*2.0) - 2.0;
     double zoom_left = -zoom_size*x_scroll - 1.0;
@@ -643,34 +575,24 @@ void ViewerWidget::paintGL() {
     double zoom_bottom = -zoom_size*(1.0-y_scroll) - 1.0;
     double zoom_top = zoom_size*(y_scroll) + 1.0;
 
-    //zoom_left *= ar_diff;
-    //zoom_right *= ar_diff;
 
-    glVertex2d(zoom_left, zoom_bottom);
-    glTexCoord2d(0, 0);
-    glVertex2d(zoom_left, zoom_top);
-    glTexCoord2d(1, 0);
-    glVertex2d(zoom_right, zoom_top);
-    glTexCoord2d(1, 1);
-    glVertex2d(zoom_right, zoom_bottom);
-    glTexCoord2d(0, 1);
+    f->glViewport(0, 0, width(), height());
 
-    glEnd();
+    f->glBindTexture(GL_TEXTURE_2D, tex);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    olive::rendering::Blit(pipeline_.get());
+
+    f->glBindTexture(GL_TEXTURE_2D, 0);
 
     // draw title/action safe area
     if (olive::CurrentConfig.show_title_safe_area) {
       draw_title_safe_area();
     }
 
-    gizmos = renderer->gizmos;
+    gizmos = renderer.gizmos;
     if (gizmos != nullptr) {
       draw_gizmos();
     }
-
-    glDisable(GL_TEXTURE_2D);
-    glFinish();
 
     if (window->isVisible()) {
       window->set_texture(tex, double(viewer->seq->width)/double(viewer->seq->height), tex_lock);
@@ -678,10 +600,9 @@ void ViewerWidget::paintGL() {
 
     tex_lock->unlock();
 
-    if (renderer->did_texture_fail() && !viewer->playing) {
+    if (renderer.did_texture_fail() && !viewer->playing) {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq.get());
+      renderer.start_render(context(), viewer->seq.get());
     }
   }
-  */
 }

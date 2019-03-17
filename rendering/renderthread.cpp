@@ -32,10 +32,10 @@
 namespace OCIO = OCIO_NAMESPACE;
 #endif
 
-#include "rendering/renderfunctions.h"
 #include "timeline/sequence.h"
 #include "effects/effectloaders.h"
 #include "global/config.h"
+#include "rendering/renderfunctions.h"
 
 RenderThread::RenderThread() :
   gizmos(nullptr),
@@ -102,12 +102,14 @@ void RenderThread::run() {
         if (blend_mode_program == nullptr) {
           delete_shaders();
 
-          blend_mode_program = new QOpenGLShaderProgram();
+          blend_mode_program = std::make_shared<QOpenGLShaderProgram>();
           blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
           olive::effects_loaded.lock();
           blend_mode_program->addShaderFromSourceCode(QOpenGLShader::Fragment, olive::generated_blending_shader);
           olive::effects_loaded.unlock();
           blend_mode_program->link();
+
+          pipeline_program = olive::rendering::GetPipeline();
         }
 
 #ifndef NO_OCIO
@@ -148,15 +150,15 @@ const GLuint &RenderThread::get_texture()
 }
 
 const char * g_fragShaderText = ""
-"\n"
-"uniform sampler2D tex1;\n"
-"uniform sampler3D tex2;\n"
-"\n"
-"void main()\n"
-"{\n"
-"    vec4 col = texture2D(tex1, gl_TexCoord[0].st);\n"
-"    gl_FragColor = OCIODisplay(col, tex2);\n"
-"}\n";
+                                "\n"
+                                "uniform sampler2D tex1;\n"
+                                "uniform sampler3D tex2;\n"
+                                "\n"
+                                "void main()\n"
+                                "{\n"
+                                "    vec4 col = texture2D(tex1, gl_TexCoord[0].st);\n"
+                                "    gl_FragColor = OCIODisplay(col, tex2);\n"
+                                "}\n";
 
 #ifndef NO_OCIO
 void RenderThread::set_up_ocio()
@@ -182,8 +184,8 @@ void RenderThread::set_up_ocio()
 
   // Allocate storage for texture
   ctx->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
-                         OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                         0, GL_RGB,GL_FLOAT, ocio_lut_data);
+                                      OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
+                                      0, GL_RGB,GL_FLOAT, ocio_lut_data);
 
   //
   // SET UP OCIO DISPLAY
@@ -240,17 +242,17 @@ void RenderThread::set_up_ocio()
 
   processor->getGpuLut3D(ocio_lut_data, shaderDesc);
 
-  glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
+  ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
   ctx->extraFunctions()->glTexSubImage3D(GL_TEXTURE_3D, 0,
-                            0, 0, 0,
-                            OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                            GL_RGB,GL_FLOAT, ocio_lut_data);
+                                         0, 0, 0,
+                                         OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
+                                         GL_RGB,GL_FLOAT, ocio_lut_data);
 
   QString shader_text = processor->getGpuShaderText(shaderDesc);
   shader_text.append("\n");
   shader_text.append(g_fragShaderText);
 
-  ocio_shader = new QOpenGLShaderProgram();
+  ocio_shader = std::make_shared<QOpenGLShaderProgram>();
   ocio_shader->addShaderFromSourceCode(QOpenGLShader::Fragment, shader_text);
   ocio_shader->link();
 
@@ -264,7 +266,6 @@ void RenderThread::destroy_ocio()
   ctx->functions()->glDeleteTextures(1, &ocio_lut_texture);
   ocio_lut_texture = 0;
 
-  delete ocio_shader;
   ocio_shader = nullptr;
 }
 #endif
@@ -279,9 +280,10 @@ void RenderThread::paint() {
   params.texture_failed = false;
   params.wait_for_mutexes = true;
   params.playback_speed = 1;
-  params.blend_mode_program = blend_mode_program;
+  params.blend_mode_program = blend_mode_program.get();
+  params.pipeline = pipeline_program.get();
 #ifndef NO_OCIO
-  params.ocio_shader = ocio_shader;
+  params.ocio_shader = ocio_shader.get();
 #endif
   params.backend_buffer1 = back_buffer_1.buffer();
   params.backend_buffer2 = back_buffer_2.buffer();
@@ -300,15 +302,8 @@ void RenderThread::paint() {
   // bind framebuffer for drawing
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, params.main_buffer);
 
-  glLoadIdentity();
-
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glMatrixMode(GL_MODELVIEW);
-
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
+  ctx->functions()->glClearColor(0.0, 0.0, 0.0, 0.0);
+  ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
 
   compose_sequence(params);
 
@@ -339,22 +334,19 @@ void RenderThread::paint() {
     ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, params.main_buffer);
 
     // store pixels in buffer
-    glReadPixels(0,
-                 0,
-                 pixel_buffer_linesize == 0 ? tex_width : pixel_buffer_linesize,
-                 tex_height,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 pixel_buffer);
+    ctx->functions()->glReadPixels(0,
+                                   0,
+                                   pixel_buffer_linesize == 0 ? tex_width : pixel_buffer_linesize,
+                                   tex_height,
+                                   GL_RGBA,
+                                   GL_UNSIGNED_BYTE,
+                                   pixel_buffer);
 
     // release current read buffer
     ctx->functions()->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
     pixel_buffer = nullptr;
   }
-
-  glDisable(GL_BLEND);
-  glDisable(GL_TEXTURE_2D);
 
   // release
   ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -410,8 +402,8 @@ void RenderThread::delete_buffers() {
 }
 
 void RenderThread::delete_shaders() {
-  delete blend_mode_program;
   blend_mode_program = nullptr;
+  pipeline_program = nullptr;
 }
 
 void RenderThread::delete_ctx() {

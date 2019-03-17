@@ -120,7 +120,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   parent_clip(c),
   meta(em),
   flags_(0),
-  glslProgram(nullptr),
+  shader_program_(nullptr),
   texture(nullptr),
   isOpen(false),
   bound(false),
@@ -304,9 +304,9 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
             for (int i=0;i<attributes.size();i++) {
               const QXmlStreamAttribute& attr = attributes.at(i);
               if (attr.name() == "vert") {
-                vertPath = attr.value().toString();
+                shader_vert_path_ = attr.value().toString();
               } else if (attr.name() == "frag") {
-                fragPath = attr.value().toString();
+                shader_frag_path_ = attr.value().toString();
               } else if (attr.name() == "iterations") {
                 setIterations(attr.value().toInt());
               }
@@ -708,9 +708,9 @@ bool Effect::is_open() {
 }
 
 void Effect::validate_meta_path() {
-  if (!meta->path.isEmpty() || (vertPath.isEmpty() && fragPath.isEmpty())) return;
+  if (!meta->path.isEmpty() || (shader_vert_path_.isEmpty() && shader_frag_path_.isEmpty())) return;
   QList<QString> effects_paths = get_effects_paths();
-  const QString& test_fn = vertPath.isEmpty() ? fragPath : vertPath;
+  const QString& test_fn = shader_vert_path_.isEmpty() ? shader_frag_path_ : shader_vert_path_;
   for (int i=0;i<effects_paths.size();i++) {
     if (QFileInfo::exists(effects_paths.at(i) + "/" + test_fn)) {
       for (int j=0;j<olive::effects.size();j++) {
@@ -733,19 +733,19 @@ void Effect::open() {
     if (QOpenGLContext::currentContext() == nullptr) {
       qWarning() << "No current context to create a shader program for - will retry next repaint";
     } else {
-      glslProgram = new QOpenGLShaderProgram();
+      shader_program_ = std::make_shared<QOpenGLShaderProgram>();
       validate_meta_path();
       bool glsl_compiled = true;
-      if (!vertPath.isEmpty()) {
-        if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + vertPath)) {
+      if (!shader_vert_path_.isEmpty()) {
+        if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + shader_vert_path_)) {
           qInfo() << "Vertex shader added successfully";
         } else {
           glsl_compiled = false;
           qWarning() << "Vertex shader could not be added";
         }
       }
-      if (!fragPath.isEmpty()) {
-        if (glslProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + fragPath)) {
+      if (!shader_frag_path_.isEmpty()) {
+        if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + shader_frag_path_)) {
           qInfo() << "Fragment shader added successfully";
         } else {
           glsl_compiled = false;
@@ -753,7 +753,7 @@ void Effect::open() {
         }
       }
       if (glsl_compiled) {
-        if (glslProgram->link()) {
+        if (shader_program_->link()) {
           qInfo() << "Shader program linked successfully";
         } else {
           qWarning() << "Shader program failed to link";
@@ -771,15 +771,12 @@ void Effect::close() {
     qWarning() << "Tried to close an effect that was already closed";
   }
   delete_texture();
-  if (glslProgram != nullptr) {
-    delete glslProgram;
-    glslProgram = nullptr;
-  }
+  shader_program_ = nullptr;
   isOpen = false;
 }
 
 bool Effect::is_glsl_linked() {
-  return glslProgram != nullptr && glslProgram->isLinked();
+  return shader_program_ != nullptr && shader_program_->isLinked();
 }
 
 void Effect::startEffect() {
@@ -789,13 +786,13 @@ void Effect::startEffect() {
   }
   if (olive::CurrentRuntimeConfig.shaders_are_enabled
       && (Flags() & Effect::ShaderFlag)
-      && glslProgram->isLinked()) {
-    bound = glslProgram->bind();
+      && shader_program_->isLinked()) {
+    bound = shader_program_->bind();
   }
 }
 
 void Effect::endEffect() {
-  if (bound) glslProgram->release();
+  if (bound) shader_program_->release();
   bound = false;
 }
 
@@ -827,9 +824,9 @@ EffectPtr Effect::copy(Clip *c) {
 }
 
 void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
-  glslProgram->setUniformValue("resolution", parent_clip->media_width(), parent_clip->media_height());
-  glslProgram->setUniformValue("time", GLfloat(timecode));
-  glslProgram->setUniformValue("iteration", iteration);
+  shader_program_->setUniformValue("resolution", parent_clip->media_width(), parent_clip->media_height());
+  shader_program_->setUniformValue("time", GLfloat(timecode));
+  shader_program_->setUniformValue("iteration", iteration);
 
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
@@ -840,14 +837,14 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
         case EffectField::EFFECT_FIELD_DOUBLE:
         {
           DoubleField* double_field = static_cast<DoubleField*>(field);
-          glslProgram->setUniformValue(double_field->id().toUtf8().constData(),
+          shader_program_->setUniformValue(double_field->id().toUtf8().constData(),
                                        GLfloat(double_field->GetDoubleAt(timecode)));
         }
           break;
         case EffectField::EFFECT_FIELD_COLOR:
         {
           ColorField* color_field = static_cast<ColorField*>(field);
-          glslProgram->setUniformValue(
+          shader_program_->setUniformValue(
                 color_field->id().toUtf8().constData(),
                 GLfloat(color_field->GetColorAt(timecode).redF()),
                 GLfloat(color_field->GetColorAt(timecode).greenF()),
@@ -856,10 +853,10 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
         }
           break;
         case EffectField::EFFECT_FIELD_BOOL:
-          glslProgram->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toBool());
+          shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toBool());
           break;
         case EffectField::EFFECT_FIELD_COMBO:
-          glslProgram->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
+          shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
           break;
 
           // can you even send a string to a uniform value?
@@ -1058,7 +1055,7 @@ void Effect::redraw(double) {
 }
 
 bool Effect::valueHasChanged(double timecode) {
-  if (cachedValues.size() == 0) {
+  if (cachedValues.isEmpty()) {
 
     for (int i=0;i<row_count();i++) {
       EffectRow* crow = row(i);
@@ -1089,10 +1086,8 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-  if (texture != nullptr) {
-    delete texture;
-    texture = nullptr;
-  }
+  delete texture;
+  texture = nullptr;
 }
 
 const EffectMeta* get_meta_from_name(const QString& input) {

@@ -63,35 +63,31 @@ CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) 
   bottom_right_gizmo->x_field1 = bottom_right_x;
   bottom_right_gizmo->y_field1 = bottom_right_y;
 
-  vertPath = "cornerpin.vert";
-  fragPath = "cornerpin.frag";
+  shader_vert_path_ = "cornerpin.vert";
+  shader_frag_path_ = "cornerpin.frag";
 }
 
 void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, int) {
-  coords.vertexTopLeftX += top_left_x->GetDoubleAt(timecode);
-  coords.vertexTopLeftY += top_left_y->GetDoubleAt(timecode);
+  coords.vertex_top_left += QVector3D(top_left_x->GetDoubleAt(timecode), top_left_y->GetDoubleAt(timecode), 0.0f);
 
-  coords.vertexTopRightX += top_right_x->GetDoubleAt(timecode);
-  coords.vertexTopRightY += top_right_y->GetDoubleAt(timecode);
+  coords.vertex_top_right += QVector3D(top_right_x->GetDoubleAt(timecode), top_right_y->GetDoubleAt(timecode), 0.0f);
 
-  coords.vertexBottomLeftX += bottom_left_x->GetDoubleAt(timecode);
-  coords.vertexBottomLeftY += bottom_left_y->GetDoubleAt(timecode);
+  coords.vertex_bottom_left += QVector3D(bottom_left_x->GetDoubleAt(timecode), bottom_left_y->GetDoubleAt(timecode), 0.0f);
 
-  coords.vertexBottomRightX += bottom_right_x->GetDoubleAt(timecode);
-  coords.vertexBottomRightY += bottom_right_y->GetDoubleAt(timecode);
+  coords.vertex_bottom_right += QVector3D(bottom_right_x->GetDoubleAt(timecode), bottom_right_y->GetDoubleAt(timecode), 0.0f);
 }
 
 void CornerPinEffect::process_shader(double timecode, GLTextureCoords &coords, int) {
-  glslProgram->setUniformValue("p0", GLfloat(coords.vertexBottomLeftX), GLfloat(coords.vertexBottomLeftY));
-  glslProgram->setUniformValue("p1", GLfloat(coords.vertexBottomRightX), GLfloat(coords.vertexBottomRightY));
-  glslProgram->setUniformValue("p2", GLfloat(coords.vertexTopLeftX), GLfloat(coords.vertexTopLeftY));
-  glslProgram->setUniformValue("p3", GLfloat(coords.vertexTopRightX), GLfloat(coords.vertexTopRightY));
-  glslProgram->setUniformValue("perspective", perspective->GetBoolAt(timecode));
+  shader_program_->setUniformValue("p0", coords.vertex_bottom_left.x(), coords.vertex_bottom_left.y());
+  shader_program_->setUniformValue("p1", coords.vertex_bottom_right.x(), coords.vertex_bottom_right.y());
+  shader_program_->setUniformValue("p2", coords.vertex_top_left.x(), coords.vertex_top_left.y());
+  shader_program_->setUniformValue("p3", coords.vertex_top_right.x(), coords.vertex_top_right.y());
+  shader_program_->setUniformValue("perspective", perspective->GetBoolAt(timecode));
 }
 
 void CornerPinEffect::gizmo_draw(double, GLTextureCoords &coords) {
-  top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-  top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-  bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-  bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+  top_left_gizmo->world_pos[0] = coords.vertex_top_left;
+  top_right_gizmo->world_pos[0] = coords.vertex_top_right;
+  bottom_right_gizmo->world_pos[0] = coords.vertex_bottom_right;
+  bottom_left_gizmo->world_pos[0] = coords.vertex_bottom_left;
 }

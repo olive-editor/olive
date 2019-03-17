@@ -45,7 +45,7 @@ class EffectGizmo : public QObject {
 public:
   EffectGizmo(Effect* parent, int type);
 
-  QVector<QPoint> world_pos;
+  QVector<QVector3D> world_pos;
   QVector<QPoint> screen_pos;
 
   DoubleField* x_field1;
