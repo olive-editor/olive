@@ -5,5 +5,7 @@
         <file>cornerpin.vert</file>
         <file>premultiply.frag</file>
         <file>dropshadow.frag</file>
+        <file>pipeline.frag</file>
+        <file>pipeline.vert</file>
     </qresource>
 </RCC>

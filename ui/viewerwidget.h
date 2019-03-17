@@ -41,7 +41,7 @@ class Viewer;
 class QOpenGLFramebufferObject;
 struct GLTextureCoords;
 
-class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
+class ViewerWidget : public QOpenGLWidget
 {
   Q_OBJECT
 public:
@@ -91,6 +91,10 @@ private:
   ViewerWindow* window;
   double x_scroll;
   double y_scroll;
+
+  QMatrix4x4 projection_;
+  QOpenGLShaderProgram* pipeline_;
+
 private slots:
   void context_destroy();
   void retry();

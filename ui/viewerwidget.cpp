@@ -27,6 +27,7 @@ extern "C" {
 #include <QPainter>
 #include <QAudioOutput>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLExtraFunctions>
 #include <QtMath>
 #include <QMouseEvent>
 #include <QMimeData>
@@ -39,6 +40,8 @@ extern "C" {
 #include <QApplication>
 #include <QScreen>
 #include <QMessageBox>
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 
 #include "panels/panels.h"
 #include "project/projectelements.h"
@@ -68,7 +71,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   gizmos(nullptr),
   selected_gizmo(nullptr),
   x_scroll(0),
-  y_scroll(0)
+  y_scroll(0),
+  pipeline_(nullptr)
 {
   setMouseTracking(true);
   setFocusPolicy(Qt::ClickFocus);
@@ -82,6 +86,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(renderer, SIGNAL(finished()), renderer, SLOT(deleteLater()));
 
   window = new ViewerWindow(this);
+
+  projection_.setToIdentity();
 }
 
 ViewerWidget::~ViewerWidget() {
@@ -216,9 +222,14 @@ void ViewerWidget::retry() {
 }
 
 void ViewerWidget::initializeGL() {
-  initializeOpenGLFunctions();
+  context()->functions()->initializeOpenGLFunctions();
 
   connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
+
+  pipeline_ = new QOpenGLShaderProgram();
+  pipeline_->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/pipeline.vert");
+  pipeline_->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/internalshaders/pipeline.frag");
+  pipeline_->link();
 }
 
 void ViewerWidget::frame_update() {
@@ -252,10 +263,16 @@ void ViewerWidget::seek_from_click(int x) {
 
 void ViewerWidget::context_destroy() {
   makeCurrent();
+
   if (viewer->seq != nullptr) {
     close_active_clips(viewer->seq.get());
   }
+
   renderer->delete_ctx();
+
+  delete pipeline_;
+  pipeline_ = nullptr;
+
   doneCurrent();
 }
 
@@ -539,6 +556,57 @@ void ViewerWidget::draw_gizmos() {
 }
 
 void ViewerWidget::paintGL() {
+  QOpenGLFunctions* f = context()->functions();
+  QOpenGLExtraFunctions* xf = context()->extraFunctions();
+
+  f->glClearColor(0.0, 0.0, 0.0, 0.0);
+
+  GLfloat vertices[] = {
+    -1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+  };
+
+  GLfloat tex_coords[] = {
+    0.0, 0.0,
+    1.0, 0.0,
+    1.0, 1.0,
+
+    0.0, 0.0,
+    0.0, 1.0,
+    1.0, 1.0
+  };
+
+  f->glViewport(0, 0, width(), height());
+
+  f->glClear(GL_COLOR_BUFFER_BIT);
+
+  QOpenGLTexture texture(QImage("C:/Users/Matt/Desktop/bliss.png"));
+
+  pipeline_->bind();
+  texture.bind();
+
+  pipeline_->setUniformValue("mvp_matrix", projection_);
+  pipeline_->setUniformValue("texture", 0);
+
+  GLuint vertex_location = pipeline_->attributeLocation("a_position");
+  f->glEnableVertexAttribArray(vertex_location);
+  f->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+
+  GLuint tex_location = pipeline_->attributeLocation("a_texcoord");
+  f->glEnableVertexAttribArray(tex_location);
+  f->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, tex_coords);
+
+  f->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+  texture.release();
+  pipeline_->release();
+
+  /*
   if (waveform) {
     draw_waveform_func();
   } else {
@@ -615,4 +683,5 @@ void ViewerWidget::paintGL() {
       renderer->start_render(context(), viewer->seq.get());
     }
   }
+  */
 }

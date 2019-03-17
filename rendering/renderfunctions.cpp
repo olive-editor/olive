@@ -316,6 +316,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
           } else {
             // retrieve ID from c->texture
             textureID = c->texture->textureId();
+            qDebug() << "tex 1" << textureID;
           }
 
           if (textureID == 0) {
@@ -359,18 +360,22 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               params.nests.removeLast();
 
               // compose_sequence() would have written to this clip's fbo[0], so we switch to fbo[1]
-              fbo_switcher = true;
+              fbo_switcher = !fbo_switcher;
             } else if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
               if (!c->media()->to_footage()->alpha_is_premultiplied) {
+
                 // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
                 params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
 
+                qDebug() << "about to draw on" << fbo_switcher;
                 textureID = draw_clip(c->fbo[fbo_switcher], textureID, true);
 
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
                 fbo_switcher = !fbo_switcher;
+                qDebug() << "tex 3" << textureID << fbo_switcher;
+
               }
 
 #ifndef NO_OCIO
@@ -382,11 +387,14 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
                 params.ocio_shader->setUniformValue("tex1", 0);
                 params.ocio_shader->setUniformValue("tex2", 2);
 
+                qDebug() << "about to draw on" << fbo_switcher;
                 textureID = draw_clip(c->fbo[fbo_switcher], textureID, true);
 
                 params.ocio_shader->release();
 
                 fbo_switcher = !fbo_switcher;
+
+                qDebug() << "tex 4" << textureID << fbo_switcher;
               }
 #endif
 
@@ -414,8 +422,11 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
           // run through all of the clip's effects
           for (int j=0;j<c->effects.size();j++) {
+
             Effect* e = c->effects.at(j).get();
+            qDebug() << "about to draw on" << fbo_switcher;
             process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
+            qDebug() << "tex 5" << textureID << fbo_switcher;
 
 
           }
@@ -457,6 +468,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
 
 
+          qDebug() << "final texture ID" << textureID;
           if (textureID > 0) {
             // set viewport to sequence size
             params.ctx->functions()->glViewport(0, 0, s->width, s->height);
@@ -549,6 +561,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             // Check if we're using a blend mode (< 0 means no blend mode)
             if (coords.blendmode < 0) {
 
+              qDebug() << "normal blending";
+
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
 
               glColor4f(coords.opacity, coords.opacity, coords.opacity, coords.opacity);
@@ -558,6 +572,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 
             } else {
+
+              qDebug() << "blending mode?";
 
               // load background texture into texture unit 0
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0

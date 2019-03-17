@@ -109,7 +109,9 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
   QSurfaceFormat format;
+  format.setVersion(3, 2);
   format.setDepthBufferSize(24);
+  format.setProfile(QSurfaceFormat::CompatibilityProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
   QApplication a(argc, argv);

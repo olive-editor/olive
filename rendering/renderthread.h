@@ -28,7 +28,6 @@
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLFunctions_2_0>
 
 #include "timeline/sequence.h"
 #include "effects/effect.h"
@@ -119,8 +118,6 @@ private:
   QString save_fn;
   GLvoid *pixel_buffer;
   int pixel_buffer_linesize;
-
-  QOpenGLFunctions_2_0 functions;
 };
 
 #endif // RENDERTHREAD_H

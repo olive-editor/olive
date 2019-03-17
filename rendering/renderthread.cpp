@@ -24,6 +24,7 @@
 #include <QImage>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QOpenGLExtraFunctions>
 #include <QDebug>
 
 #ifndef NO_OCIO
@@ -160,7 +161,6 @@ const char * g_fragShaderText = ""
 #ifndef NO_OCIO
 void RenderThread::set_up_ocio()
 {
-  functions.initializeOpenGLFunctions();
 
   //
   // SETUP LUT TEXTURE
@@ -181,7 +181,7 @@ void RenderThread::set_up_ocio()
   ctx->functions()->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
   // Allocate storage for texture
-  functions.glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
+  ctx->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
                          OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
                          0, GL_RGB,GL_FLOAT, ocio_lut_data);
 
@@ -241,7 +241,7 @@ void RenderThread::set_up_ocio()
   processor->getGpuLut3D(ocio_lut_data, shaderDesc);
 
   glBindTexture(GL_TEXTURE_3D, ocio_lut_texture);
-  functions.glTexSubImage3D(GL_TEXTURE_3D, 0,
+  ctx->extraFunctions()->glTexSubImage3D(GL_TEXTURE_3D, 0,
                             0, 0, 0,
                             OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
                             GL_RGB,GL_FLOAT, ocio_lut_data);
