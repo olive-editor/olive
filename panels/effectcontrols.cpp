@@ -606,10 +606,14 @@ void EffectControls::SetClips()
 {
   Clear(true);
 
-  // replace clip vector
-  selected_clips_ = olive::ActiveSequence->SelectedClips(false);
+  if (olive::ActiveSequence == nullptr) {
+    selected_clips_.clear();
+  } else {
+    // replace clip vector
+    selected_clips_ = olive::ActiveSequence->SelectedClips(false);
 
-  Load();
+    Load();
+  }
 }
 
 void EffectControls::Load() {
