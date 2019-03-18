@@ -34,8 +34,12 @@ namespace olive {
      * @param path
      *
      * Path to SVG file
+     *
+     * @param create_disabled
+     *
+     * Create a semi-transparent disabled option.
      */
-    QIcon CreateIconFromSVG(const QString &path);
+    QIcon CreateIconFromSVG(const QString &path, bool create_disabled = true);
   }
 }
 

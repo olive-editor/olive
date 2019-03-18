@@ -36,6 +36,7 @@
 #include "timeline/clip.h"
 #include "rendering/renderfunctions.h"
 #include "panels.h"
+#include "ui/icons.h"
 #include "global/debug.h"
 
 GraphEditor::GraphEditor(QWidget* parent) : Panel(parent), row(nullptr) {
@@ -184,7 +185,7 @@ void GraphEditor::set_row(EffectRow *r) {
         QPushButton* slider_button = new QPushButton();
         slider_button->setCheckable(true);
         slider_button->setChecked(field->IsEnabled());
-        slider_button->setIcon(QIcon(":/icons/record.svg"));
+        slider_button->setIcon(olive::icon::CreateIconFromSVG(":/icons/record.svg", false));
         slider_button->setProperty("field", i);
         slider_button->setIconSize(slider_button->iconSize()*0.5);
         connect(slider_button, SIGNAL(toggled(bool)), this, SLOT(set_field_visibility(bool)));
