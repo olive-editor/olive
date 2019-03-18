@@ -989,14 +989,8 @@ void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& p
 
     for (int j=0;j<g->get_point_count();j++) {
 
-      QMatrix4x4 matrix2 = matrix;
-//      matrix2.flipCoordinates();
-
-      QMatrix4x4 projection2 = projection;
-      projection2.flipCoordinates();
-
-      QVector3D screen_pos = g->world_pos.at(j).project(matrix2,
-                                                        projection2,
+      QVector3D screen_pos = g->world_pos.at(j).project(matrix,
+                                                        projection,
                                                         QRect(0,
                                                               0,
                                                               parent_clip->sequence->width,
