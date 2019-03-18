@@ -26,7 +26,7 @@ QIcon olive::icon::ViewerPause;
 QIcon olive::icon::ViewerNextFrame;
 QIcon olive::icon::ViewerGoToEnd;
 
-QIcon olive::icon::CreateIconFromSVG(const QString &path)
+QIcon olive::icon::CreateIconFromSVG(const QString &path, bool create_disabled)
 {
   QIcon icon;
 
@@ -35,6 +35,7 @@ QIcon olive::icon::CreateIconFromSVG(const QString &path)
   // Draw the icon as a solid color
   QPixmap normal(path);
 
+  // Color the icon dark if the user is using a dark theme
   if (olive::styling::UseDarkIcons()) {
     p.begin(&normal);
     p.setCompositionMode(QPainter::CompositionMode_SourceIn);
@@ -44,18 +45,22 @@ QIcon olive::icon::CreateIconFromSVG(const QString &path)
 
   icon.addPixmap(normal, QIcon::Normal, QIcon::On);
 
-  // Create semi-transparent disabled icon
-  QPixmap disabled(normal.size());
-  disabled.fill(Qt::transparent);
+  if (create_disabled) {
 
-  // draw semi-transparent version of icon for the disabled variant
-  p.begin(&disabled);
-  p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-  p.setOpacity(0.5);
-  p.drawPixmap(0, 0, normal);
-  p.end();
+    // Create semi-transparent disabled icon
+    QPixmap disabled(normal.size());
+    disabled.fill(Qt::transparent);
 
-  icon.addPixmap(disabled, QIcon::Disabled, QIcon::On);
+    // draw semi-transparent version of icon for the disabled variant
+    p.begin(&disabled);
+    p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    p.setOpacity(0.5);
+    p.drawPixmap(0, 0, normal);
+    p.end();
+
+    icon.addPixmap(disabled, QIcon::Disabled, QIcon::On);
+
+  }
 
   return icon;
 }
@@ -64,24 +69,24 @@ void olive::icon::Initialize()
 {
   qInfo() << "Initializing icons";
 
-  LeftArrow = QIcon(":/icons/tri-left.svg");
-  RightArrow = QIcon(":/icons/tri-right.svg");
-  UpArrow = QIcon(":/icons/tri-up.svg");
-  DownArrow = QIcon(":/icons/tri-down.svg");
-  Diamond = QIcon(":/icons/diamond.svg");
-  Clock = QIcon(":/icons/clock.svg");
+  LeftArrow = CreateIconFromSVG(":/icons/tri-left.svg", false);
+  RightArrow = CreateIconFromSVG(":/icons/tri-right.svg", false);
+  UpArrow = CreateIconFromSVG(":/icons/tri-up.svg", false);
+  DownArrow = CreateIconFromSVG(":/icons/tri-down.svg", false);
+  Diamond = CreateIconFromSVG(":/icons/diamond.svg", false);
+  Clock = CreateIconFromSVG(":/icons/clock.svg", false);
 
-  MediaVideo = QIcon(":/icons/videosource.svg");
-  MediaAudio = QIcon(":/icons/audiosource.svg");
-  MediaImage = QIcon(":/icons/imagesource.svg");
-  MediaError = QIcon(":/icons/error.svg");
-  MediaSequence = QIcon(":/icons/sequence.svg");
-  MediaFolder = QIcon(":/icons/folder.svg");
+  MediaVideo = CreateIconFromSVG(":/icons/videosource.svg", false);
+  MediaAudio = CreateIconFromSVG(":/icons/audiosource.svg", false);
+  MediaImage = CreateIconFromSVG(":/icons/imagesource.svg", false);
+  MediaError = CreateIconFromSVG(":/icons/error.svg", false);
+  MediaSequence = CreateIconFromSVG(":/icons/sequence.svg", false);
+  MediaFolder = CreateIconFromSVG(":/icons/folder.svg", false);
 
   ViewerGoToStart = CreateIconFromSVG(QStringLiteral(":/icons/prev.svg"));
   ViewerPrevFrame = CreateIconFromSVG(QStringLiteral(":/icons/rew.svg"));
   ViewerPlay = CreateIconFromSVG(QStringLiteral(":/icons/play.svg"));
-  ViewerPause = QPixmap(":/icons/pause.svg");
+  ViewerPause = CreateIconFromSVG(":/icons/pause.svg", false);
   ViewerNextFrame = CreateIconFromSVG(QStringLiteral(":/icons/ff.svg"));
   ViewerGoToEnd = CreateIconFromSVG(QStringLiteral(":/icons/next.svg"));
 
