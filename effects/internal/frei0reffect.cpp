@@ -20,7 +20,7 @@
 
 #include "frei0reffect.h"
 
-#ifndef NO_FREI0R
+#ifndef NOFREI0R
 
 #include <QMessageBox>
 #include <QDir>

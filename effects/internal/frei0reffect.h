@@ -21,7 +21,7 @@
 #ifndef FREI0REFFECT_H
 #define FREI0REFFECT_H
 
-#ifndef NO_FREI0R
+#ifndef NOFREI0R
 
 #include <frei0r.h>
 
